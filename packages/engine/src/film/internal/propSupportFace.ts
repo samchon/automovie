@@ -10,8 +10,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { AutoMovieEngineSpace } from "../../space/index";
 
@@ -83,9 +83,9 @@ export function propSupportFace(
     return null;
   if (affordance.kind !== "stack-top" || affordance.extent === null)
     return null;
-  const matrix: number[] = Matrix4.multiply(
+  const matrix: number[] = AutoMovieEngineMatrix4.multiply(
     setPieceMatrix(piece),
-    Matrix4.compose(
+    AutoMovieEngineMatrix4.compose(
       affordance.frame.translation,
       affordance.frame.rotation,
       affordance.frame.scale,
@@ -99,7 +99,7 @@ export function propSupportFace(
         convexHull2D(
           affordance.extent.map(
             (corner: IAutoMovieVector3): IAutoMovieVector3 =>
-              Matrix4.transformPoint(matrix, {
+              AutoMovieEngineMatrix4.transformPoint(matrix, {
                 x: corner.x,
                 y: 0,
                 z: corner.z,
@@ -133,11 +133,11 @@ const EDGE_ON_TOLERANCE: number = 1e-9;
  * face states its tilt the same way at whatever size it was staged.
  */
 function facePlane(matrix: number[]): IAutoMovieHeightSurface | null {
-  const normal: IAutoMovieVector3 = Vector3.cross(
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
     { x: matrix[0]!, y: matrix[1]!, z: matrix[2]! },
     { x: matrix[8]!, y: matrix[9]!, z: matrix[10]! },
   );
-  if (Math.abs(normal.y) <= EDGE_ON_TOLERANCE * Vector3.length(normal))
+  if (Math.abs(normal.y) <= EDGE_ON_TOLERANCE * AutoMovieEngineVector3.length(normal))
     return null;
   const slopeX: number = -normal.x / normal.y;
   const slopeZ: number = -normal.z / normal.y;

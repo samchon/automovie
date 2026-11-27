@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -49,13 +49,13 @@ export function crutchSitUp(
   // The crutches as the sit left them: tilted, their tips on the floor.
   const cA: crutchSitPath.ICrutch = crutch[injured];
   const frameA: IAutoMovieRigidTransform = kit.start(injured);
-  const tip: IAutoMovieVector3 = Vector3.add(
+  const tip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frameA.position,
-    Quaternion.rotateVector(frameA.rotation, cA.tip),
+    AutoMovieEngineQuaternion.rotateVector(frameA.rotation, cA.tip),
   );
-  const gripAt: IAutoMovieVector3 = Vector3.add(
+  const gripAt: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frameA.position,
-    Quaternion.rotateVector(frameA.rotation, cA.grip),
+    AutoMovieEngineQuaternion.rotateVector(frameA.rotation, cA.grip),
   );
   const hA: IAutoMovieMotionHumanHeld.IHeld = crutchSitPath.held(
     body,
@@ -80,28 +80,28 @@ export function crutchSitUp(
   const f: IAutoMovieVector3 = crutchSitKit.forward(risen.yaw);
   const ankle: IAutoMovieVector3 =
     risen.limbs[`${sound}Leg`]?.point ?? risen.root;
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     ankle,
-    Vector3.scale(
+    AutoMovieEngineVector3.scale(
       crutchSitKit.lateral(risen.yaw, injured),
       body.measure.hipHalfWidth,
     ),
   );
   const planted = (side: AutoMovieHumanSide): IAutoMovieRigidTransform => {
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       { x: centre.x, y: 0, z: centre.z },
-      Vector3.add(
-        Vector3.scale(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(
           crutchSitKit.lateral(risen.yaw, side),
           body.measure.hipHalfWidth + TRIPOD,
         ),
-        Vector3.scale(f, TRIPOD),
+        AutoMovieEngineVector3.scale(f, TRIPOD),
       ),
     );
     return crutchSitPath.slid(
       crutch[side],
       at,
-      Vector3.add(at, { x: 0, y: 1, z: 0 }),
+      AutoMovieEngineVector3.add(at, { x: 0, y: 1, z: 0 }),
       f,
     );
   };
@@ -117,13 +117,13 @@ export function crutchSitUp(
     risen,
     sound,
   );
-  const tipUp: IAutoMovieVector3 = Vector3.add(
+  const tipUp: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     uprightA.position,
-    Quaternion.rotateVector(uprightA.rotation, cA.tip),
+    AutoMovieEngineQuaternion.rotateVector(uprightA.rotation, cA.tip),
   );
-  const gripUp: IAutoMovieVector3 = Vector3.add(
+  const gripUp: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     uprightA.position,
-    Quaternion.rotateVector(uprightA.rotation, cA.grip),
+    AutoMovieEngineQuaternion.rotateVector(uprightA.rotation, cA.grip),
   );
   const hB: IAutoMovieMotionHumanHeld.IHeld = crutchSitPath.grasped(
     sound,
@@ -138,12 +138,12 @@ export function crutchSitUp(
   const takeAt: IAutoMovieHumanLimbGoal = kit.goal(sound, hB, uprightB);
   const pushedAt: IAutoMovieHumanLimbGoal = pushed ?? takeAt;
   const reach: number = AutoMovieMotionHumanTiming.transport(
-    Vector3.distance(pushedAt.point, takeAt.point),
+    AutoMovieEngineVector3.distance(pushedAt.point, takeAt.point),
   );
   const carry: number = AutoMovieMotionHumanTiming.transport(
     Math.max(
-      Vector3.distance(uprightA.position, planted(injured).position),
-      Vector3.distance(uprightB.position, planted(sound).position),
+      AutoMovieEngineVector3.distance(uprightA.position, planted(injured).position),
+      AutoMovieEngineVector3.distance(uprightB.position, planted(sound).position),
     ),
   );
   const taken: number = Math.max(stood, off + reach);
@@ -162,8 +162,8 @@ export function crutchSitUp(
             hA,
             crutchSitPath.slid(
               cA,
-              Vector3.lerp(tip, tipUp, k),
-              Vector3.lerp(gripAt, gripUp, k),
+              AutoMovieEngineVector3.lerp(tip, tipUp, k),
+              AutoMovieEngineVector3.lerp(gripAt, gripUp, k),
               f,
             ),
           )

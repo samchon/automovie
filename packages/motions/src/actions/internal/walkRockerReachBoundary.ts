@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -18,10 +18,10 @@ export function walkRockerReachBoundary(
   const zero: IAutoMovieVector3 = { ...ankle(0) };
   const plus: IAutoMovieVector3 = { ...ankle(90) };
   const minus: IAutoMovieVector3 = { ...ankle(-90) };
-  const center: IAutoMovieVector3 = Vector3.lerp(minus, plus, 0.5);
-  const cosine: IAutoMovieVector3 = Vector3.subtract(zero, center);
-  const sine: IAutoMovieVector3 = Vector3.subtract(plus, center);
-  const orbitSquared: number = Vector3.dot(cosine, cosine);
+  const center: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(minus, plus, 0.5);
+  const cosine: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(zero, center);
+  const sine: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(plus, center);
+  const orbitSquared: number = AutoMovieEngineVector3.dot(cosine, cosine);
   return (
     hip: IAutoMovieVector3,
     low: number,
@@ -30,11 +30,11 @@ export function walkRockerReachBoundary(
   ): number | undefined => {
     const width: number = high - low;
     if (!(width > tolerance && width < 180)) return undefined;
-    const delta: IAutoMovieVector3 = Vector3.subtract(center, hip);
-    const cosTerm: number = 2 * Vector3.dot(delta, cosine);
-    const sinTerm: number = 2 * Vector3.dot(delta, sine);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(center, hip);
+    const cosTerm: number = 2 * AutoMovieEngineVector3.dot(delta, cosine);
+    const sinTerm: number = 2 * AutoMovieEngineVector3.dot(delta, sine);
     const level: number =
-      (reach * reach - Vector3.dot(delta, delta) - orbitSquared) /
+      (reach * reach - AutoMovieEngineVector3.dot(delta, delta) - orbitSquared) /
       Math.hypot(cosTerm, sinTerm);
     if (!(level > -1 && level < 1)) return undefined;
 
@@ -50,8 +50,8 @@ export function walkRockerReachBoundary(
       Math.floor((inside - low) / quantum),
     );
     const candidate: number = low + index * quantum;
-    return Vector3.distance(ankle(candidate), hip) <= reach &&
-      Vector3.distance(ankle(low + (index + 1) * quantum), hip) > reach
+    return AutoMovieEngineVector3.distance(ankle(candidate), hip) <= reach &&
+      AutoMovieEngineVector3.distance(ankle(low + (index + 1) * quantum), hip) > reach
       ? candidate
       : undefined;
   };

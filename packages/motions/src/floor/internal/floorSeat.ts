@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -213,12 +213,12 @@ export namespace floorSeat {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const)
         limbs[`${side}Leg`] = {
-          point: Vector3.lerp(
+          point: AutoMovieEngineVector3.lerp(
             at(`${side}Foot`),
             floor.point(targets[side].ankle),
             s,
           ),
-          bend: Vector3.lerp(
+          bend: AutoMovieEngineVector3.lerp(
             at(`${side}LowerLeg`),
             floor.point(targets[side].knee),
             s,
@@ -229,9 +229,9 @@ export namespace floorSeat {
         // The hand goes down beside the body where the arm, `REACH` of its length out, meets the floor from the shoulder; straight under the shoulder when even that is short.
         const shoulder: IAutoMovieVector3 = at("leftUpperArm");
         const arm: number =
-          Vector3.length(Vector3.subtract(at("leftLowerArm"), shoulder)) +
-          Vector3.length(
-            Vector3.subtract(hand.worldPosition, at("leftLowerArm")),
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at("leftLowerArm"), shoulder)) +
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(hand.worldPosition, at("leftLowerArm")),
           );
         const wrist: number = 0.2 * body.measure.hand;
         const out: number = Math.sqrt(
@@ -243,12 +243,12 @@ export namespace floorSeat {
           z: 0,
         });
         limbs.leftArm = {
-          point: Vector3.lerp(
+          point: AutoMovieEngineVector3.lerp(
             hand.worldPosition,
             { x: shoulder.x + aside.x, y: wrist, z: shoulder.z + aside.z },
             s,
           ),
-          rotation: Quaternion.slerp(
+          rotation: AutoMovieEngineQuaternion.slerp(
             hand.worldRotation,
             HumanHand.rotation("left", {
               fingers: floor.direction({ x: 1, y: 0, z: 0 }),

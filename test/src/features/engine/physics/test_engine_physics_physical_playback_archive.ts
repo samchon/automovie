@@ -1,4 +1,4 @@
-import { AutoMoviePhysicsCache as Cache, AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicsCache as Cache, AutoMovieEnginePhysicalPlayback as Playback, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSimulation,

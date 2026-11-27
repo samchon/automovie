@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -124,12 +124,12 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       carrier(film),
     );
     const m = context.body.measure;
-    const shoulder: IAutoMovieVector3 = Vector3.add(shown.root, {
+    const shoulder: IAutoMovieVector3 = AutoMovieEngineVector3.add(shown.root, {
       x: 0,
       y: m.shoulderHeight - m.hipHeight,
       z: 0,
     });
-    const gap: number = Vector3.distance(
+    const gap: number = AutoMovieEngineVector3.distance(
       shoulder,
       point("object", figure, film),
     );
@@ -207,7 +207,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           );
         else {
           const goal = shown.limbs[bind.limb];
-          const ankle: IAutoMovieVector3 = Vector3.add(p, {
+          const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.add(p, {
             x: 0,
             y: context.body.measure.ankleHeight,
             z: 0,
@@ -220,11 +220,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
                 point:
                   goal === undefined
                     ? ankle
-                    : Vector3.lerp(goal.point, ankle, share),
+                    : AutoMovieEngineVector3.lerp(goal.point, ankle, share),
                 // The knee bends toward a point ahead of the foot at the knee's height.
-                bend: Vector3.add(
+                bend: AutoMovieEngineVector3.add(
                   ankle,
-                  Quaternion.rotateVector(now.rotation, {
+                  AutoMovieEngineQuaternion.rotateVector(now.rotation, {
                     x: 0,
                     y: context.body.measure.shank,
                     z: context.body.measure.shank,

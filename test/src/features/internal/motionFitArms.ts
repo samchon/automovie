@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, AutoMovieEngineMotionKinematics, DEFAULT_HUMANOID_ROM, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineMotionKinematics, AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -31,7 +31,7 @@ export namespace motionFitArms {
       parent,
       rest: {
         translation: { x, y, z: 0 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
         scale: { x: 1, y: 1, z: 1 },
       },
       constraint: null,
@@ -72,8 +72,8 @@ export namespace motionFitArms {
       bend,
       ...(effectorRotation === undefined ? {} : { effectorRotation }),
       topology: AutoMovieEngineKinematics.indexSkeletonTopology(skeleton),
-      jointAxes: HUMANOID_JOINT_AXES,
-      restFrames: HUMANOID_REST_FRAME,
+      jointAxes: AutoMovieEngineHumanoidJointAxes,
+      restFrames: AutoMovieEngineHumanoidRestFrame,
     });
   }
 
@@ -83,7 +83,7 @@ export namespace motionFitArms {
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return new Map(
-      AutoMovieEngineKinematics.resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
+      AutoMovieEngineKinematics.resolvePose(pose, skeleton, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame).map(
         (
           r: IAutoMovieResolvedBone,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
@@ -118,7 +118,7 @@ export namespace motionFitArms {
    * range it is given, not that the range or its measure is right.
    */
   export function inRange(j: IAutoMovieJointPose): boolean {
-    return AutoMovieEngineKinematics.jointRomOvershoot(j, DEFAULT_HUMANOID_ROM[j.bone]!) <= 1e-6;
+    return AutoMovieEngineKinematics.jointRomOvershoot(j, AutoMovieEngineDefaultHumanoidRom[j.bone]!) <= 1e-6;
   }
 
   /** A hand's world rotation from rest for where its fingers point and its palm faces (rest: left fingers +X, right fingers -X, palms -Y). */
@@ -131,21 +131,21 @@ export namespace motionFitArms {
       { x: side === "left" ? 1 : -1, y: 0, z: 0 },
       fingers,
     );
-    const turned: IAutoMovieVector3 = Quaternion.rotateVector(swing, {
+    const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(swing, {
       x: 0,
       y: -1,
       z: 0,
     });
-    const axis: IAutoMovieVector3 = Vector3.normalize(fingers);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(fingers);
     const angle: number =
       (Math.atan2(
-        Vector3.dot(axis, Vector3.cross(turned, palm)),
-        Vector3.dot(turned, palm),
+        AutoMovieEngineVector3.dot(axis, AutoMovieEngineVector3.cross(turned, palm)),
+        AutoMovieEngineVector3.dot(turned, palm),
       ) *
         180) /
       Math.PI;
-    return Quaternion.normalize(
-      Quaternion.multiply(Quaternion.fromAxisAngle(axis, angle), swing),
+    return AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.fromAxisAngle(axis, angle), swing),
     );
   }
 }

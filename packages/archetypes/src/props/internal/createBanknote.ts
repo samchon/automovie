@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeBanknote } from "../AutoMovieArchetypeBanknote";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -42,8 +42,8 @@ export function createBanknote(
   });
   builder.box(
     "note",
-    Vector3.create(NOTE.length, NOTE.thickness, NOTE.width),
-    Vector3.create(0, NOTE.thickness / 2, 0),
+    AutoMovieEngineVector3.create(NOTE.length, NOTE.thickness, NOTE.width),
+    AutoMovieEngineVector3.create(0, NOTE.thickness / 2, 0),
     { color: "#7f9b72" },
   );
   TabletopStack.contacts(builder, NOTE.thickness, NOTE.thickness);

@@ -1,24 +1,24 @@
 import type * as THREE from "three";
-import type { IAutoMovieViewerSnapshot } from "./IAutoMovieViewerSnapshot.js";
-import type { IAutoMovieViewerSnapshotOptions } from "./IAutoMovieViewerSnapshotOptions.js";
-import type { IAutoMovieViewerSnapshotRenderer } from "./IAutoMovieViewerSnapshotRenderer.js";
-import type { IAutoMovieUpdateComparisonCameraProps } from "./IAutoMovieUpdateComparisonCameraProps.js";
+import type { IAutoMovieRenderViewerSnapshot } from "./IAutoMovieRenderViewerSnapshot.js";
+import type { IAutoMovieRenderViewerSnapshotOptions } from "./IAutoMovieRenderViewerSnapshotOptions.js";
+import type { IAutoMovieRenderViewerSnapshotRenderer } from "./IAutoMovieRenderViewerSnapshotRenderer.js";
+import type { IAutoMovieRenderUpdateComparisonCameraProps } from "./IAutoMovieRenderUpdateComparisonCameraProps.js";
 import { captureViewerSnapshot as captureViewerSnapshotImplementation } from "./subjectViewpoint/internal/captureViewerSnapshot.js";
 import { updateAutoMovieComparisonCamera as updateAutoMovieComparisonCameraImplementation } from "./subjectViewpoint/internal/updateAutoMovieComparisonCamera.js";
-import { type IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
+import { type IAutoMovieRenderViewerSubject } from "./IAutoMovieRenderViewerSubject.js";
 import { autoMovieViewerSubjectKey as autoMovieViewerSubjectKeyImplementation } from "./subjectViewpoint/internal/autoMovieViewerSubjectKey.js";
 import { parseAutoMovieViewerSubjectKey as parseAutoMovieViewerSubjectKeyImplementation } from "./subjectViewpoint/internal/parseAutoMovieViewerSubjectKey.js";
-import { type IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
+import { type IAutoMovieRenderViewerViewpoint } from "./IAutoMovieRenderViewerViewpoint.js";
 import { autoMovieViewerNamedViewpoints as autoMovieViewerNamedViewpointsImplementation } from "./subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
-import { type IAutoMovieViewerTurntableOptions } from "./IAutoMovieViewerTurntableOptions.js";
+import { type IAutoMovieRenderViewerTurntableOptions } from "./IAutoMovieRenderViewerTurntableOptions.js";
 import { autoMovieViewerTurntableViewpoints as autoMovieViewerTurntableViewpointsImplementation } from "./subjectViewpoint/internal/autoMovieViewerTurntableViewpoints.js";
-import { type IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.js";
-import { type IAutoMovieViewerSubjectBounds } from "./IAutoMovieViewerSubjectBounds.js";
-import { type IAutoMovieViewerSubjectLens } from "./IAutoMovieViewerSubjectLens.js";
+import { type IAutoMovieRenderViewerSubjectPose } from "./IAutoMovieRenderViewerSubjectPose.js";
+import { type IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
+import { type IAutoMovieRenderViewerSubjectLens } from "./IAutoMovieRenderViewerSubjectLens.js";
 import { frameAutoMovieViewerSubject as frameAutoMovieViewerSubjectImplementation } from "./subjectViewpoint/internal/frameAutoMovieViewerSubject.js";
 import { applyAutoMovieViewerSubjectPose as applyAutoMovieViewerSubjectPoseImplementation } from "./subjectViewpoint/internal/applyAutoMovieViewerSubjectPose.js";
-import { type IAutoMovieViewerSubjectView } from "./IAutoMovieViewerSubjectView.js";
-import { type IAutoMovieViewerSubjectViewRequest } from "./IAutoMovieViewerSubjectViewRequest.js";
+import { type IAutoMovieRenderViewerSubjectView } from "./IAutoMovieRenderViewerSubjectView.js";
+import { type IAutoMovieRenderViewerSubjectViewRequest } from "./IAutoMovieRenderViewerSubjectViewRequest.js";
 import { captureAutoMovieViewerSubjectView as captureAutoMovieViewerSubjectViewImplementation } from "./subjectViewpoint/internal/captureAutoMovieViewerSubjectView.js";
 import { autoMovieViewerPoseFromHeadingImplementation } from "./subjectViewpoint/internal/autoMovieViewerPoseFromHeadingImplementation.js";
 
@@ -26,17 +26,17 @@ import { autoMovieViewerPoseFromHeadingImplementation } from "./subjectViewpoint
 export namespace AutoMovieRenderSubjectViewpoint {
   /** Render and encode one viewer snapshot through the borrowed renderer. */
   export function captureSnapshot(
-    renderer: IAutoMovieViewerSnapshotRenderer,
+    renderer: IAutoMovieRenderViewerSnapshotRenderer,
     scene: THREE.Scene,
     camera: THREE.Camera,
-    options?: IAutoMovieViewerSnapshotOptions,
-  ): IAutoMovieViewerSnapshot {
+    options?: IAutoMovieRenderViewerSnapshotOptions,
+  ): IAutoMovieRenderViewerSnapshot {
     return captureViewerSnapshotImplementation(renderer, scene, camera, options);
   }
 
   /** Update a matched parallel comparison from a standalone perspective view. */
   export function updateComparisonCamera(
-    props: IAutoMovieUpdateComparisonCameraProps,
+    props: IAutoMovieRenderUpdateComparisonCameraProps,
   ): void {
     updateAutoMovieComparisonCameraImplementation(props);
   }
@@ -46,7 +46,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * escaping. Round-trip requires a nonempty id, a nonempty revision without @
    * when present, and an id without @ when revision is null.
    */
-  export function autoMovieViewerSubjectKey(subject: IAutoMovieViewerSubject): string {
+  export function autoMovieViewerSubjectKey(subject: IAutoMovieRenderViewerSubject): string {
     return autoMovieViewerSubjectKeyImplementation(subject);
   }
 
@@ -56,7 +56,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * does not resolve source existence or unambiguously represent a revision
    * containing @.
    */
-  export function parseAutoMovieViewerSubjectKey(key: string): IAutoMovieViewerSubject {
+  export function parseAutoMovieViewerSubjectKey(key: string): IAutoMovieRenderViewerSubject {
     return parseAutoMovieViewerSubjectKeyImplementation(key);
   }
 
@@ -82,7 +82,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * frame, 1.25 when omitted as in the turntable plan. It throws when the factor
    * is not positive and finite.
    */
-  export function autoMovieViewerNamedViewpoints(distanceFactor?: number): IAutoMovieViewerViewpoint[] {
+  export function autoMovieViewerNamedViewpoints(distanceFactor?: number): IAutoMovieRenderViewerViewpoint[] {
     return autoMovieViewerNamedViewpointsImplementation(distanceFactor);
   }
 
@@ -92,7 +92,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * multiplier and duplicate ids are checked; finite angles/multiplier and a
    * practical output bound remain caller premises.
    */
-  export function autoMovieViewerTurntableViewpoints(options: IAutoMovieViewerTurntableOptions): IAutoMovieViewerViewpoint[] {
+  export function autoMovieViewerTurntableViewpoints(options: IAutoMovieRenderViewerTurntableOptions): IAutoMovieRenderViewerViewpoint[] {
     return autoMovieViewerTurntableViewpointsImplementation(options);
   }
 
@@ -103,7 +103,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * crop its near edge with very wide lenses. Valid finite angles/lens/bounds and
    * arithmetic range remain caller premises.
    */
-  export function frameAutoMovieViewerSubject(bounds: IAutoMovieViewerSubjectBounds, viewpoint: IAutoMovieViewerViewpoint, lens: IAutoMovieViewerSubjectLens): IAutoMovieViewerSubjectPose {
+  export function frameAutoMovieViewerSubject(bounds: IAutoMovieRenderViewerSubjectBounds, viewpoint: IAutoMovieRenderViewerViewpoint, lens: IAutoMovieRenderViewerSubjectLens): IAutoMovieRenderViewerSubjectPose {
     return frameAutoMovieViewerSubjectImplementation(bounds, viewpoint, lens);
   }
 
@@ -113,7 +113,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * requiring an unparented camera or identity parent transform; failure does not
    * roll back earlier mutations.
    */
-  export function applyAutoMovieViewerSubjectPose(camera: THREE.PerspectiveCamera, pose: IAutoMovieViewerSubjectPose): void {
+  export function applyAutoMovieViewerSubjectPose(camera: THREE.PerspectiveCamera, pose: IAutoMovieRenderViewerSubjectPose): void {
     applyAutoMovieViewerSubjectPoseImplementation(camera, pose);
   }
 
@@ -123,7 +123,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * references; equal labels do not guarantee equal scene pixels, source
    * freshness or actual hardware readiness.
    */
-  export function captureAutoMovieViewerSubjectView(request: IAutoMovieViewerSubjectViewRequest): IAutoMovieViewerSubjectView {
+  export function captureAutoMovieViewerSubjectView(request: IAutoMovieRenderViewerSubjectViewRequest): IAutoMovieRenderViewerSubjectView {
     return captureAutoMovieViewerSubjectViewImplementation(request);
   }
 
@@ -136,9 +136,9 @@ export namespace AutoMovieRenderSubjectViewpoint {
   export function poseFromHeading(
     position: { x: number; y: number; z: number },
     headingDeg: { yaw: number; pitch: number },
-    lens: IAutoMovieViewerSubjectLens,
+    lens: IAutoMovieRenderViewerSubjectLens,
     clip: { near: number; far: number },
-  ): IAutoMovieViewerSubjectPose {
+  ): IAutoMovieRenderViewerSubjectPose {
     return autoMovieViewerPoseFromHeadingImplementation(
       position,
       headingDeg,

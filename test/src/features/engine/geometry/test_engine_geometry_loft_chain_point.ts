@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
   IAutoMovieLoftSectionFrame,
@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
 type V3 = [number, number, number];
 
 /**
- * `AutoMovieLoftChain.point(chain, s, t)` reads a spline chain's point exactly
- * as the station's whole sampler (`AutoMovieLoftChain.sampler(chain, s)`) does,
+ * `AutoMovieEngineLoftChain.point(chain, s, t)` reads a spline chain's point exactly
+ * as the station's whole sampler (`AutoMovieEngineLoftChain.sampler(chain, s)`) does,
  * bit for bit.
  *
  * Fixture: made spline chains of order 16 over layers at 0, 40, 95, 150 and 200
@@ -136,11 +136,11 @@ export function test_engine_geometry_loft_chain_point(): void {
   for (const chain of chains)
     for (const pass of ["fresh", "again"])
       for (const s of stations) {
-        const whole: (t: number) => V3 = AutoMovieLoftChain.sampler(chain, s);
+        const whole: (t: number) => V3 = AutoMovieEngineLoftChain.sampler(chain, s);
         TestValidator.predicate(
           `${chain.name} ${pass} ${s}`,
           phases.every((t: number): boolean =>
-            same(AutoMovieLoftChain.point(chain, s, t), whole(t)),
+            same(AutoMovieEngineLoftChain.point(chain, s, t), whole(t)),
           ),
         );
       }
@@ -154,8 +154,8 @@ export function test_engine_geometry_loft_chain_point(): void {
   TestValidator.predicate(
     "one control off",
     !same(
-      AutoMovieLoftChain.point(moved, s, t),
-      AutoMovieLoftChain.sampler(original, s)(t),
+      AutoMovieEngineLoftChain.point(moved, s, t),
+      AutoMovieEngineLoftChain.sampler(original, s)(t),
     ),
   );
 }

@@ -1,12 +1,16 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSwim,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
-import { FamilyCaseKit } from "@automovie/motions/executable/internal";
-import { swim } from "@automovie/motions/internal";
+import {
+  FamilyCaseKit
+} from "../../../../../packages/motions/src/executable/cases/FamilyCaseKit";
+import {
+  swim
+} from "../../../../../packages/motions/src/sport/internal/swim";
 import { TestValidator } from "@nestia/e2e";
 
 const ACTOR = "a";
@@ -55,7 +59,7 @@ export function test_motions_sport_swim_modes(): void {
           return (
             chest.y - hips.y > 0.3 &&
             Math.abs(mouth(take, body, middle) - (WATER + 0.05)) < 0.002 &&
-            Vector3.distance(hips, later.get("hips")!.worldPosition) < 0.002
+            AutoMovieEngineVector3.distance(hips, later.get("hips")!.worldPosition) < 0.002
           );
         });
       if (after === "frontCrawl") breath(take, body, segment);
@@ -94,7 +98,7 @@ export function test_motions_sport_swim_modes(): void {
     TestValidator.predicate("two crawls match one two-cycle take", () =>
       (["hips", "chest", "leftHand", "rightFoot"] as const).every(
         (bone) =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             a.get(bone)!.worldPosition,
             b.get(bone)!.worldPosition,
           ) < 0.002,
@@ -132,7 +136,7 @@ function continuous(take: AutoMovieMotionHumanPerformance, cut: number, label: s
     TestValidator.predicate(`${label} has no cut jump`, () =>
       (["hips", "leftHand", "rightHand"] as const).every(
         (bone) =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             edge.get(bone)!.worldPosition,
             at.get(bone)!.worldPosition,
           ) < (bone === "hips" ? 0.009 : 0.028),
@@ -150,7 +154,7 @@ function mouth(
   const frame = take.bones(ACTOR, t).get(local.bone)!;
   return (
     frame.worldPosition.y +
-    Quaternion.rotateVector(frame.worldRotation, local.point).y
+    AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, local.point).y
   );
 }
 

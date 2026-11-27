@@ -1,5 +1,10 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
-import { lowerHumanPosture, sitPlace } from "@automovie/motions/internal";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
+import {
+  lowerHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/lowerHumanPosture";
+import {
+  sitPlace
+} from "../../../../../packages/motions/src/everyday/internal/sitPlace";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -32,7 +37,7 @@ export async function test_motions_everyday_sit(): Promise<void> {
     "the band",
     nclose(
       shortest,
-      chord(DEFAULT_HUMANOID_ROM.leftLowerLeg!.flexion!.max),
+      chord(AutoMovieEngineDefaultHumanoidRom.leftLowerLeg!.flexion!.max),
       ROUNDING,
     ) && nclose(longest, chord(lowerHumanPosture.KNEE), ROUNDING),
   );

@@ -13,9 +13,9 @@ import type {
 
 import { alternateRigJointAngles } from "../../kinematics/internal/alternateRigJointAngles";
 import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { AutoMovieEngineClinicalAngle } from "../../rom/internal/AutoMovieEngineClinicalAngle";
 import { basisOf } from "./basisOf";
@@ -87,8 +87,8 @@ export namespace fitHingedChainAt {
       Math.max(0, Math.round(branch)),
       at.branches.length - 1,
     );
-    const posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
-      hingedArmSwivel.pose(at.chain, at.branches[index]!.theta)(swivel);
+    const posed: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
+      AutoMovieEngineHingedArmSwivel.pose(at.chain, at.branches[index]!.theta)(swivel);
     const [upper, lower]: readonly [IAutoMovieJointPose, IAutoMovieJointPose] =
       decomposed(props, at, posed);
     const effector: IEffector | null = freeEffector(props, at, posed);
@@ -162,9 +162,9 @@ export namespace fitHingedChainAt {
  * mid and end joints, exactly as the hinged fit reads a candidate
  * (`fitHingedChainCandidate`), so a caller can tell a placement that passes
  * through what the fit keeps clear of. The hinge angle of the chosen branch
- * comes from the span (`hingedArmSwivel.branches`, each branch stopped on the
+ * comes from the span (`AutoMovieEngineHingedArmSwivel.branches`, each branch stopped on the
  * legal shell when the target lies outside the hinge's range), the root is
- * aimed and turned by the swivel (`hingedArmSwivel.pose`), both joints are
+ * aimed and turned by the swivel (`AutoMovieEngineHingedArmSwivel.pose`), both joints are
  * decomposed through the fit's own clinical domains and clamped by its ROM
  * clamp, and a requested effector rotation is laid by the fit's own final
  * orientation (`orientChainEffector`: the distal twist split and the end
@@ -195,8 +195,8 @@ function placeHingedChainAt(
     at.branches.length - 1,
   );
   const stop: IAutoMovieHingedArmSwivel.IStop = at.branches[index]!;
-  const posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
-    hingedArmSwivel.pose(at.chain, stop.theta)(swivel);
+  const posed: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
+    AutoMovieEngineHingedArmSwivel.pose(at.chain, stop.theta)(swivel);
   const unclamped: readonly [IAutoMovieJointPose, IAutoMovieJointPose] =
     decomposed(props, at, posed);
   const upper: IAutoMovieJointPose = at.workspace.clamp(unclamped[0]);
@@ -212,19 +212,19 @@ function placeHingedChainAt(
   // composed as the hinged fit composes a candidate's.
   let blocked: number = 0;
   if (props.obstruction !== undefined) {
-    const turned: IAutoMovieQuaternion = Quaternion.multiply(
+    const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       at.prepared.upper.worldRotation,
       posed.upper,
     );
-    const mid: IAutoMovieVector3 = Vector3.add(
+    const mid: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       at.prepared.upper.worldPosition,
-      Quaternion.rotateVector(turned, at.prepared.lowerOffset),
+      AutoMovieEngineQuaternion.rotateVector(turned, at.prepared.lowerOffset),
     );
-    const end: IAutoMovieVector3 = Vector3.add(
+    const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       mid,
-      Quaternion.rotateVector(
-        Quaternion.multiply(
-          Quaternion.multiply(turned, at.prepared.lowerRotation),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(turned, at.prepared.lowerRotation),
           posed.lower,
         ),
         at.prepared.effectorOffset,
@@ -254,7 +254,7 @@ function placeHingedChainAt(
 function decomposed(
   props: IAutoMovieFitChainToTargetProps,
   at: prepareHingedChainAt.IPrepared,
-  posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>>,
+  posed: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>>,
 ): readonly [IAutoMovieJointPose, IAutoMovieJointPose] {
   return [
     {
@@ -288,22 +288,22 @@ function decomposed(
 function freeEffector(
   props: IAutoMovieFitChainToTargetProps,
   at: prepareHingedChainAt.IPrepared,
-  posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>>,
+  posed: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>>,
 ): IEffector | null {
   if (props.effectorRotation === undefined) return null;
   const effector: IAutoMovieFitChainToTargetProps["chain"]["effector"] =
     props.chain.effector;
-  const lower: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.multiply(
-      Quaternion.multiply(at.prepared.upper.worldRotation, posed.upper),
+  const lower: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(at.prepared.upper.worldRotation, posed.upper),
       at.prepared.lowerRotation,
     ),
     posed.lower,
   );
-  const local: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.inverse(at.prepared.effectorBaseRotation),
-      Quaternion.multiply(Quaternion.inverse(lower), props.effectorRotation),
+  const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(at.prepared.effectorBaseRotation),
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(lower), props.effectorRotation),
     ),
   );
   const basis: IAutoMovieJointAxes =
@@ -364,7 +364,7 @@ function charts(
   );
   // Right-handedness of the basis, as the decomposition reads it.
   const handed: 1 | -1 =
-    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
+    AutoMovieEngineVector3.dot(basis.twist, AutoMovieEngineVector3.cross(basis.flexion, basis.abduction)) >= 0
       ? 1
       : -1;
   const other: IAutoMovieResolvedJointAngles = alternateRigJointAngles(

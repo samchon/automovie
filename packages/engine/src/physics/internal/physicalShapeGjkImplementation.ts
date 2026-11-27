@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import * as PhysicalShapeGjkImplementationData from "./PhysicalShapeGjkImplementationData";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { PhysicalShapeGjkImplementationData } from "./PhysicalShapeGjkImplementationData";
 
 /*
  * Internal implementations shared by the one-function entry modules.
@@ -41,18 +41,18 @@ function physicalShapeGjkWitness(
 ): { distance: number; point: IAutoMovieVector3 } {
   const source: Map<IAutoMovieVector3, IAutoMovieVector3> = new Map();
   const difference = (direction: IAutoMovieVector3): IAutoMovieVector3 => {
-    const second: IAutoMovieVector3 = b(Vector3.scale(direction, -1));
-    const point: IAutoMovieVector3 = Vector3.subtract(a(direction), second);
+    const second: IAutoMovieVector3 = b(AutoMovieEngineVector3.scale(direction, -1));
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(a(direction), second);
     source.set(point, second);
     return point;
   };
   const simplex: IAutoMovieVector3[] = [difference({ x: 0, y: -1, z: 0 })];
   let at: IAutoMovieVector3 = simplex[0]!;
-  let distance: number = Vector3.length(at);
+  let distance: number = AutoMovieEngineVector3.length(at);
   for (let i: number = 0; i < 128 && distance > tolerance; ++i) {
-    const axis: IAutoMovieVector3 = Vector3.scale(at, 1 / distance);
-    const point: IAutoMovieVector3 = difference(Vector3.scale(axis, -1));
-    if (distance - Vector3.dot(point, axis) <= tolerance) break;
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(at, 1 / distance);
+    const point: IAutoMovieVector3 = difference(AutoMovieEngineVector3.scale(axis, -1));
+    if (distance - AutoMovieEngineVector3.dot(point, axis) <= tolerance) break;
     const candidate: IAutoMovieVector3[] = [...simplex, point];
     const next: IAutoMovieVector3 | undefined = nearest(candidate);
     if (next === undefined)
@@ -60,7 +60,7 @@ function physicalShapeGjkWitness(
         distance: 0,
         point: witnessPoint(candidate, { x: 0, y: 0, z: 0 }, source),
       };
-    const length: number = Vector3.length(next);
+    const length: number = AutoMovieEngineVector3.length(next);
     if (length >= distance) break;
     simplex.splice(0, simplex.length, ...candidate);
     distance = length;
@@ -81,16 +81,16 @@ function physicalShapeGjkSolid(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
 ): AutoMovieEnginePhysicsGjkTypes.ISolid {
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
   );
   const place = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(centre, Quaternion.rotateVector(rotation, p));
+    AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, p));
   if (shape.kind === "sphere")
     return { points: [centre], radius: shape.radius };
   if (shape.kind === "capsule")
@@ -178,19 +178,19 @@ function physicalShapeGjk(
 ): AutoMovieEnginePhysicsGjkTypes.IBound {
   const radius: number = a.radius + b.radius;
   const simplex: IAutoMovieVector3[] = [
-    Vector3.subtract(a.points[0]!, b.points[0]!),
+    AutoMovieEngineVector3.subtract(a.points[0]!, b.points[0]!),
   ];
   let v: IAutoMovieVector3 = simplex[0]!;
   let lower: number = 0;
-  let squared: number = Vector3.dot(v, v);
+  let squared: number = AutoMovieEngineVector3.dot(v, v);
   for (;;) {
     const upper: number = Math.sqrt(squared);
     if (upper <= PhysicalShapeGjkImplementationData.ZERO) return { lower: -Infinity, upper: -radius };
-    const w: IAutoMovieVector3 = Vector3.subtract(
+    const w: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       support(a.points, -v.x, -v.y, -v.z),
       support(b.points, v.x, v.y, v.z),
     );
-    lower = Math.max(lower, Vector3.dot(v, w) / upper);
+    lower = Math.max(lower, AutoMovieEngineVector3.dot(v, w) / upper);
     if (
       upper - lower <= PhysicalShapeGjkImplementationData.GAP ||
       lower - radius >= floor ||
@@ -200,7 +200,7 @@ function physicalShapeGjk(
     simplex.push(w);
     const next: IAutoMovieVector3 | undefined = nearest(simplex);
     if (next === undefined) return { lower: -Infinity, upper: -radius };
-    const after: number = Vector3.dot(next, next);
+    const after: number = AutoMovieEngineVector3.dot(next, next);
     if (after >= squared) return finish(lower, upper, radius);
     v = next;
     squared = after;
@@ -223,34 +223,34 @@ function witnessPoint(
   const [a, b, c, d] = simplex;
   const start: IAutoMovieVector3 = source.get(a!)!;
   if (b === undefined) return start;
-  const u: IAutoMovieVector3 = Vector3.subtract(b, a!);
-  const p: IAutoMovieVector3 = Vector3.subtract(at, a!);
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a!);
+  const p: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at, a!);
   const along = (point: IAutoMovieVector3, weight: number): IAutoMovieVector3 =>
-    Vector3.scale(Vector3.subtract(source.get(point)!, start), weight);
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(source.get(point)!, start), weight);
   if (c === undefined)
-    return Vector3.add(start, along(b, Vector3.dot(p, u) / Vector3.dot(u, u)));
+    return AutoMovieEngineVector3.add(start, along(b, AutoMovieEngineVector3.dot(p, u) / AutoMovieEngineVector3.dot(u, u)));
 
-  const v: IAutoMovieVector3 = Vector3.subtract(c, a!);
-  const normal: IAutoMovieVector3 = Vector3.cross(u, v);
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c, a!);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(u, v);
   if (d === undefined) {
-    const area: number = Vector3.dot(normal, normal);
-    return Vector3.add(
+    const area: number = AutoMovieEngineVector3.dot(normal, normal);
+    return AutoMovieEngineVector3.add(
       start,
-      Vector3.add(
-        along(b, Vector3.dot(Vector3.cross(p, v), normal) / area),
-        along(c, Vector3.dot(Vector3.cross(u, p), normal) / area),
+      AutoMovieEngineVector3.add(
+        along(b, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(p, v), normal) / area),
+        along(c, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(u, p), normal) / area),
       ),
     );
   }
-  const w: IAutoMovieVector3 = Vector3.subtract(d, a!);
-  const volume: number = Vector3.dot(normal, w);
-  return Vector3.add(
+  const w: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(d, a!);
+  const volume: number = AutoMovieEngineVector3.dot(normal, w);
+  return AutoMovieEngineVector3.add(
     start,
-    Vector3.add(
-      along(b, Vector3.dot(p, Vector3.cross(v, w)) / volume),
-      Vector3.add(
-        along(c, Vector3.dot(p, Vector3.cross(w, u)) / volume),
-        along(d, Vector3.dot(p, normal) / volume),
+    AutoMovieEngineVector3.add(
+      along(b, AutoMovieEngineVector3.dot(p, AutoMovieEngineVector3.cross(v, w)) / volume),
+      AutoMovieEngineVector3.add(
+        along(c, AutoMovieEngineVector3.dot(p, AutoMovieEngineVector3.cross(w, u)) / volume),
+        along(d, AutoMovieEngineVector3.dot(p, normal) / volume),
       ),
     ),
   );
@@ -333,7 +333,7 @@ function nearest(simplex: IAutoMovieVector3[]): IAutoMovieVector3 | undefined {
   ] as const) {
     if (!outside(i, j, k, l)) continue;
     const found: ITriangle = triangle(i, j, k);
-    const d: number = Vector3.dot(found.point, found.point);
+    const d: number = AutoMovieEngineVector3.dot(found.point, found.point);
     if (d < least) {
       least = d;
       best = found;
@@ -353,15 +353,15 @@ function segment(
   p: IAutoMovieVector3,
   q: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const pq: IAutoMovieVector3 = Vector3.subtract(q, p);
-  const length: number = Vector3.dot(pq, pq);
+  const pq: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(q, p);
+  const length: number = AutoMovieEngineVector3.dot(pq, pq);
   const t: number =
-    length > 0 ? Math.min(1, Math.max(0, -Vector3.dot(p, pq) / length)) : 0;
+    length > 0 ? Math.min(1, Math.max(0, -AutoMovieEngineVector3.dot(p, pq) / length)) : 0;
   simplex.length = 0;
   if (t <= 0) simplex.push(p);
   else if (t >= 1) simplex.push(q);
   else simplex.push(p, q);
-  return Vector3.add(p, Vector3.scale(pq, t));
+  return AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(pq, t));
 }
 
 /*
@@ -373,36 +373,36 @@ function triangle(
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,
 ): ITriangle {
-  const ab: IAutoMovieVector3 = Vector3.subtract(b, a);
-  const ac: IAutoMovieVector3 = Vector3.subtract(c, a);
-  const d1: number = -Vector3.dot(ab, a);
-  const d2: number = -Vector3.dot(ac, a);
+  const ab: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
+  const ac: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c, a);
+  const d1: number = -AutoMovieEngineVector3.dot(ab, a);
+  const d2: number = -AutoMovieEngineVector3.dot(ac, a);
   if (d1 <= 0 && d2 <= 0) return { point: a, keep: [a] };
-  const d3: number = -Vector3.dot(ab, b);
-  const d4: number = -Vector3.dot(ac, b);
+  const d3: number = -AutoMovieEngineVector3.dot(ab, b);
+  const d4: number = -AutoMovieEngineVector3.dot(ac, b);
   if (d3 >= 0 && d4 <= d3) return { point: b, keep: [b] };
   const vc: number = d1 * d4 - d3 * d2;
   if (vc <= 0 && d1 >= 0 && d3 <= 0)
     return {
-      point: Vector3.add(a, Vector3.scale(ab, d1 / (d1 - d3))),
+      point: AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(ab, d1 / (d1 - d3))),
       keep: [a, b],
     };
-  const d5: number = -Vector3.dot(ab, c);
-  const d6: number = -Vector3.dot(ac, c);
+  const d5: number = -AutoMovieEngineVector3.dot(ab, c);
+  const d6: number = -AutoMovieEngineVector3.dot(ac, c);
   if (d6 >= 0 && d5 <= d6) return { point: c, keep: [c] };
   const vb: number = d5 * d2 - d1 * d6;
   if (vb <= 0 && d2 >= 0 && d6 <= 0)
     return {
-      point: Vector3.add(a, Vector3.scale(ac, d2 / (d2 - d6))),
+      point: AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(ac, d2 / (d2 - d6))),
       keep: [a, c],
     };
   const va: number = d3 * d6 - d5 * d4;
   if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0)
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         b,
-        Vector3.scale(
-          Vector3.subtract(c, b),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(c, b),
           (d4 - d3) / (d4 - d3 + (d5 - d6)),
         ),
       ),
@@ -420,7 +420,7 @@ function triangle(
     ] as const) {
       const kept: IAutoMovieVector3[] = [];
       const point: IAutoMovieVector3 = segment(kept, p, q);
-      const d: number = Vector3.dot(point, point);
+      const d: number = AutoMovieEngineVector3.dot(point, point);
       if (d < least) {
         least = d;
         best = { point, keep: kept };
@@ -431,9 +431,9 @@ function triangle(
   const v: number = vb / sum;
   const w: number = vc / sum;
   return {
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       a,
-      Vector3.add(Vector3.scale(ab, v), Vector3.scale(ac, w)),
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(ab, v), AutoMovieEngineVector3.scale(ac, w)),
     ),
     keep: [a, b, c],
   };
@@ -450,12 +450,12 @@ function outside(
   c: IAutoMovieVector3,
   d: IAutoMovieVector3,
 ): boolean {
-  const n: IAutoMovieVector3 = Vector3.cross(
-    Vector3.subtract(b, a),
-    Vector3.subtract(c, a),
+  const n: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+    AutoMovieEngineVector3.subtract(b, a),
+    AutoMovieEngineVector3.subtract(c, a),
   );
-  const origin: number = -Vector3.dot(a, n);
-  const fourth: number = Vector3.dot(Vector3.subtract(d, a), n);
+  const origin: number = -AutoMovieEngineVector3.dot(a, n);
+  const fourth: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(d, a), n);
   return fourth === 0 || origin * fourth < 0;
 }
 /*

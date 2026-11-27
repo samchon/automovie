@@ -1,4 +1,4 @@
-import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
+import type { IAutoMovieRenderViewerViewpoint } from "../../IAutoMovieRenderViewerViewpoint.js";
 
 /*
  * The eight views an inspection asks for by name: the six along the world axes
@@ -24,7 +24,7 @@ import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.
  */
 export function autoMovieViewerNamedViewpoints(
   distanceFactor: number = 1.25,
-): IAutoMovieViewerViewpoint[] {
+): IAutoMovieRenderViewerViewpoint[] {
   if (!(distanceFactor > 0))
     throw new RangeError(
       `named viewpoint distance factor must be positive and finite, not ${distanceFactor}`,
@@ -44,7 +44,7 @@ export function autoMovieViewerNamedViewpoints(
       string,
       number,
       number,
-    ]): IAutoMovieViewerViewpoint => ({
+    ]): IAutoMovieRenderViewerViewpoint => ({
       id,
       azimuthDeg,
       elevationDeg,

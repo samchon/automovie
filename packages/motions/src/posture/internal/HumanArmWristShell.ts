@@ -1,7 +1,7 @@
 import {
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -28,7 +28,7 @@ export function HumanArmWristShell(
   if (flexion === null || flexion === undefined || setup.free[4]) return 0;
   const bone: IAutoMovieMotionHumanArmGeometry.ISetup["bones"]["lower"] =
     setup.bones.lower;
-  const frame = HUMANOID_REST_FRAME[bone];
+  const frame = AutoMovieEngineHumanoidRestFrame[bone];
   const fixed: number = G.clamped(setup, bone, [0, 0, 0])[1];
   if (AutoMovieEngineKinematics.toRigAngle(fixed, frame?.abduction) !== 0) return 0;
   const basis: IAutoMovieJointAxes = setup.basis(bone, "wrist reach shell");
@@ -40,8 +40,8 @@ export function HumanArmWristShell(
   const from: number = AutoMovieEngineKinematics.toRigAngle(flexion.min, frame?.flexion)!;
   const to: number = AutoMovieEngineKinematics.toRigAngle(flexion.max, frame?.flexion)!;
   return HumanArmWristShell.radius(
-    Quaternion.rotateVector(
-      Quaternion.inverse(setup.rest.lower.rotation),
+    AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(setup.rest.lower.rotation),
       setup.rest.lower.translation,
     ),
     setup.rest.hand.translation,
@@ -72,17 +72,17 @@ export namespace HumanArmWristShell {
     axes: WristAxes,
     range: IAutoMovieAngleRange,
   ): number {
-    const along: IAutoMovieVector3 = Vector3.scale(
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       axes.flexion,
-      Vector3.dot(axes.flexion, lower),
+      AutoMovieEngineVector3.dot(axes.flexion, lower),
     );
-    const moving: IAutoMovieVector3 = Vector3.subtract(lower, along);
-    const fixed: IAutoMovieVector3 = Vector3.add(upper, along);
+    const moving: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(lower, along);
+    const fixed: IAutoMovieVector3 = AutoMovieEngineVector3.add(upper, along);
     const constant: number =
-      Vector3.dot(fixed, fixed) + Vector3.dot(moving, moving);
-    const cosine: number = 2 * Vector3.dot(fixed, moving);
+      AutoMovieEngineVector3.dot(fixed, fixed) + AutoMovieEngineVector3.dot(moving, moving);
+    const cosine: number = 2 * AutoMovieEngineVector3.dot(fixed, moving);
     const sine: number =
-      2 * Vector3.dot(fixed, Vector3.cross(axes.flexion, moving));
+      2 * AutoMovieEngineVector3.dot(fixed, AutoMovieEngineVector3.cross(axes.flexion, moving));
     const radian: number = Math.PI / 180;
     const first: number = range.min * radian;
     const last: number = range.max * radian;
@@ -95,7 +95,7 @@ export namespace HumanArmWristShell {
       nearest <= last
         ? -Math.hypot(cosine, sine)
         : Math.min(at(first), at(last));
-    const travel: number = 2 * Vector3.length(Vector3.cross(lower, axes.twist));
+    const travel: number = 2 * AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(lower, axes.twist));
     return Math.max(0, Math.sqrt(Math.max(0, constant + least)) - travel);
   }
 }

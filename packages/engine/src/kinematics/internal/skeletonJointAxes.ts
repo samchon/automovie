@@ -10,8 +10,8 @@ import {
  *
  * A bone that declares axes describes its own rest frame, so its declaration
  * wins over a table the host chose for a whole family of rigs, such as
- * `HUMANOID_JOINT_AXES`; every other bone keeps the table's entry, and a bone
- * in neither falls through to `DEFAULT_JOINT_AXES` where the caller reads it.
+ * `AutoMovieEngineHumanoidJointAxes`; every other bone keeps the table's entry, and a bone
+ * in neither falls through to `AutoMovieEngineDefaultJointAxes` where the caller reads it.
  * Every engine entry that receives both a skeleton and a table, forward or
  * inverse, reads its table through this or applies the same precedence per
  * bone, so pose resolution, baking and the solvers agree on one rig.

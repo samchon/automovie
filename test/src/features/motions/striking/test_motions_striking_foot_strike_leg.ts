@@ -1,4 +1,6 @@
-import { FootStrikeLeg } from "@automovie/motions/internal";
+import {
+  FootStrikeLeg
+} from "../../../../../packages/motions/src/striking/internal/FootStrikeLeg";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

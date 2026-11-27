@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
@@ -99,7 +99,7 @@ namespace FamilyConicPorts {
       const free: number = digit.knots[0]!;
 
       // The digit's ring near its joint, from its fields carried back there, on the limb's chart.
-      const probe: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
+      const probe: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(
         partOf({ ...digit, tips: undefined }, Number(ringAt)),
       );
       if (probe.chain === null)
@@ -108,7 +108,7 @@ namespace FamilyConicPorts {
         { length: 48 },
         (_: unknown, j: number): [number, number] =>
           chart(
-            AutoMovieLoftChain.point(
+            AutoMovieEngineLoftChain.point(
               probe.chain!,
               Number(ringAt),
               (2 * Math.PI * j) / 48,
@@ -136,10 +136,10 @@ namespace FamilyConicPorts {
       );
       const radius: number =
         Math.hypot(
-          ...AutoMovieLoftChain.point(probe.chain, Number(ringAt), 0).map(
+          ...AutoMovieEngineLoftChain.point(probe.chain, Number(ringAt), 0).map(
             (x: number, c: number): number =>
               x -
-              AutoMovieLoftChain.point(probe.chain!, Number(ringAt), Math.PI)[
+              AutoMovieEngineLoftChain.point(probe.chain!, Number(ringAt), Math.PI)[
                 c
               ]!,
           ),

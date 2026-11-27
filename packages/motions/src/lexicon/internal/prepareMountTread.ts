@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, type AutoMovieEnginePhysicsContactTypes, type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Quaternion, Vector3, AutoMovieEnginePhysicalPlanarPolygon, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, type AutoMovieEnginePhysicsContactTypes, type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalPlanarPolygon, AutoMovieEngineMath } from "@automovie/engine";
 
 
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePhysicalShape, IAutoMoviePhysicalShapeBounds, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
@@ -37,15 +37,15 @@ export function prepareMountTread(
   const precision: number =
     64 *
     Number.EPSILON *
-    Math.max(1, Vector3.length(bounds.min), Vector3.length(bounds.max));
+    Math.max(1, AutoMovieEngineVector3.length(bounds.min), AutoMovieEngineVector3.length(bounds.max));
   const top: IAutoMovieRigidTransform = HumanPropFrame.compose(
     plate.pose,
     plate.shape.transform,
   );
-  const across: IAutoMovieVector3 = Quaternion.rotateVector(top.rotation, ACROSS);
+  const across: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(top.rotation, ACROSS);
   if (
     Math.abs(bounds.max.y) > precision ||
-    Vector3.distance(Quaternion.rotateVector(top.rotation, DOWN), DOWN) >
+    AutoMovieEngineVector3.distance(AutoMovieEngineQuaternion.rotateVector(top.rotation, DOWN), DOWN) >
       precision ||
     Math.min(Math.abs(across.x), Math.abs(across.z)) > precision ||
     depth < bounds.min.z ||
@@ -90,7 +90,7 @@ export function prepareMountTread(
     },
   );
   if (actors.length === 0) return [];
-  const offset: IAutoMovieVector3 = Quaternion.rotateVector(rotation, socket.point);
+  const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, socket.point);
   const placement = (
     ball: IAutoMovieVector3,
     range: Span,
@@ -118,12 +118,12 @@ export function prepareMountTread(
           ball,
           range,
           contact: socket.point,
-          ankle: { position: Vector3.subtract(ball, offset), rotation },
+          ankle: { position: AutoMovieEngineVector3.subtract(ball, offset), rotation },
           anchor: {
             bone: actor.bone,
-            point: Quaternion.rotateVector(
-              Quaternion.inverse(owner.rotation),
-              Vector3.subtract(witness.pointA, owner.position),
+            point: AutoMovieEngineQuaternion.rotateVector(
+              AutoMovieEngineQuaternion.inverse(owner.rotation),
+              AutoMovieEngineVector3.subtract(witness.pointA, owner.position),
             ),
             material: witness.pointB,
           },
@@ -401,14 +401,14 @@ function onPlate(
     if (
       !(
         Math.abs(pointB.y) <= precision &&
-        Vector3.distance(pointA, pointB) <= HumanFoot.BEARING
+        AutoMovieEngineVector3.distance(pointA, pointB) <= HumanFoot.BEARING
       )
     )
       continue;
 
     patch.push({ x: pointB.x, y: pointB.z });
-    const delta: IAutoMovieVector3 = Vector3.subtract(pointB, ball);
-    const squared: number = Vector3.dot(delta, delta);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(pointB, ball);
+    const squared: number = AutoMovieEngineVector3.dot(delta, delta);
     if (squared >= nearest) continue;
     nearest = squared;
     selected = witness;

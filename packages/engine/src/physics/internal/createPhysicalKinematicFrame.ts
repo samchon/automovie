@@ -4,7 +4,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /*
@@ -25,8 +25,8 @@ export function createPhysicalKinematicFrame(
         body.targets[Math.max(0, step - 1)]!.segments[segment.bone]!;
       bodies[body.id]![segment.bone] = {
         ...structuredClone(pose),
-        velocity: Vector3.scale(
-          Vector3.subtract(pose.position, before.position),
+        velocity: AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(pose.position, before.position),
           step === 0 ? 0 : input.rate,
         ),
         angularVelocity:

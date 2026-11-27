@@ -7,17 +7,17 @@ import type {
 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "three";
 
-import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
 
 /*
  * Prepare rigid visual cues for one polygon drawing on its source clock.
  */
 export function prepareHumanPolygonPresentation(
-  presentation: AutoMovieHumanPolygon.IPresentation,
+  presentation: AutoMovieRenderHumanPolygon.IPresentation,
   bones: ReadonlyMap<string, IAutoMovieHumanBindBone>,
   emitted: ReadonlySet<string>,
 ): (seconds: number) => AutoMoviePolygonPose {
-  const { subject, poseAt, actorFrameAt }: AutoMovieHumanPolygon.IPresentation =
+  const { subject, poseAt, actorFrameAt }: AutoMovieRenderHumanPolygon.IPresentation =
     presentation;
   const children: Map<string, string[]> = new Map();
   for (const { bone, parent } of bones.values()) {
@@ -292,7 +292,7 @@ function boneFrame(
  * Read the actor parent frame in shot world or use the fixed identity frame.
  */
 function actorFrame(
-  actorFrameAt: AutoMovieHumanPolygon.IPresentation["actorFrameAt"],
+  actorFrameAt: AutoMovieRenderHumanPolygon.IPresentation["actorFrameAt"],
   seconds: number,
 ): IAutoMoviePolygonFrame {
   if (actorFrameAt === undefined)

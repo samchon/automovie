@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -78,8 +78,8 @@ export namespace StrikingTarget {
   }): AutoMovieHumanSide {
     const r: number = (entry.posture.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
-    const ahead: number = Vector3.dot(
-      Vector3.subtract(entry.feet.right.ankle, entry.feet.left.ankle),
+    const ahead: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(entry.feet.right.ankle, entry.feet.left.ankle),
       forward,
     );
     return ahead > 0.02 ? "right" : "left";
@@ -103,7 +103,7 @@ export namespace StrikingTarget {
       y: 0,
       z: target.z - root.z,
     };
-    if (Vector3.length(d) > 1e-6) return Vector3.normalize(d);
+    if (AutoMovieEngineVector3.length(d) > 1e-6) return AutoMovieEngineVector3.normalize(d);
     const r: number = (yaw * Math.PI) / 180;
     return { x: Math.sin(r), y: 0, z: Math.cos(r) };
   }
@@ -156,7 +156,7 @@ export namespace StrikingTarget {
     lift: number,
   ): IAutoMovieMotionHumanFoot.IPlacement {
     return {
-      ankle: Vector3.add(foot.ankle, {
+      ankle: AutoMovieEngineVector3.add(foot.ankle, {
         x: line.x * distance,
         y: lift,
         z: line.z * distance,
@@ -184,16 +184,16 @@ export namespace StrikingTarget {
   ): IAutoMovieMotionHumanFoot.IPlacement {
     if (turn === 0 && raise === 0) return { ...foot };
     const local: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
-    const ball: IAutoMovieVector3 = Vector3.add(
+    const ball: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       foot.ankle,
-      Quaternion.rotateVector(foot.rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(foot.rotation, local),
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       HumanFoot.rotation(turn, 0),
-      Quaternion.multiply(foot.rotation, HumanFoot.rotation(0, -raise)),
+      AutoMovieEngineQuaternion.multiply(foot.rotation, HumanFoot.rotation(0, -raise)),
     );
     return {
-      ankle: Vector3.subtract(ball, Quaternion.rotateVector(rotation, local)),
+      ankle: AutoMovieEngineVector3.subtract(ball, AutoMovieEngineQuaternion.rotateVector(rotation, local)),
       rotation,
     };
   }
@@ -239,8 +239,8 @@ export namespace StrikingTarget {
     const r0: number = (entry.posture.yaw * Math.PI) / 180;
     const staggered: boolean =
       Math.abs(
-        Vector3.dot(
-          Vector3.subtract(entry.feet.left.ankle, entry.feet.right.ankle),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(entry.feet.left.ankle, entry.feet.right.ankle),
           { x: Math.sin(r0), y: 0, z: Math.cos(r0) },
         ),
       ) > 0.05;

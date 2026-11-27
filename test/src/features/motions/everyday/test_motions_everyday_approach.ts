@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { approachAbeam } from "@automovie/motions/internal";
+import {
+  approachAbeam
+} from "../../../../../packages/motions/src/everyday/internal/approachAbeam";
 import { TestValidator } from "@nestia/e2e";
 
 /**

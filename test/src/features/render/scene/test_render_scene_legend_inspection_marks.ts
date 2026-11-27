@@ -1,5 +1,5 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import { AUTO_MOVIE_INSPECTION_PALETTE, AutoMovieRenderInspectionMarks } from "@automovie/render";
+import { AutoMovieRenderInspectionPalette, AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -34,7 +34,7 @@ export function test_render_scene_legend_inspection_marks(): void {
       { label: "Curve", color: 0x00ff00, count: 2 },
       {
         label: "Curve (flagged)",
-        color: AUTO_MOVIE_INSPECTION_PALETTE.flagged,
+        color: AutoMovieRenderInspectionPalette.flagged,
         count: 1,
       },
     ],

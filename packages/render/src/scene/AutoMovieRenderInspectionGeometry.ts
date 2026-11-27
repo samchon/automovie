@@ -1,14 +1,14 @@
-import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
+import type { IAutoMovieRenderInspectionMeasured } from "./IAutoMovieRenderInspectionMeasured.js";
 import type * as THREE from "three";
 import { measureAutoMovieInspectionDefectsImplementation } from "./inspection/internal/measureAutoMovieInspectionDefectsImplementation.js";
 import { measureAutoMovieInspectionMeshesImplementation } from "./inspection/internal/measureAutoMovieInspectionMeshesImplementation.js";
-import type { IAutoMovieViewerSubjectBounds } from "./IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
 import type {
   IAutoMovieInspectionDrawable,
   IAutoMovieMark,
   IAutoMovieMeshDefect,
 } from "@automovie/interface";
-import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
+import type { IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath.js";
 
 import { measureAutoMovieInspectionBounds as measureBoundsImplementation } from "./inspection/internal/measureAutoMovieInspectionBounds.js";
 import { collectAutoMovieCollisionParts as collectCollisionPartsImplementation } from "./inspection/internal/collectAutoMovieCollisionParts.js";
@@ -20,7 +20,7 @@ export namespace AutoMovieRenderInspectionGeometry {
   /** Inputs for measuring drawn object and mark bounds by inspection path. */
   export interface IMeasurePathsProps {
     /** Drawn objects with their paths. */
-    objects: readonly IAutoMovieInspectionPath[];
+    objects: readonly IAutoMovieRenderInspectionPath[];
     /** Drawn marks with their anchor, or null for world space. */
     marks: readonly { mark: IAutoMovieMark; anchor: THREE.Object3D | null }[];
     /** Whether a path is measured. */
@@ -48,7 +48,7 @@ export namespace AutoMovieRenderInspectionGeometry {
    */
   export function measureBounds(
     root: THREE.Object3D,
-  ): IAutoMovieViewerSubjectBounds | null {
+  ): IAutoMovieRenderViewerSubjectBounds | null {
     return measureBoundsImplementation(root);
   }
 
@@ -73,7 +73,7 @@ export namespace AutoMovieRenderInspectionGeometry {
    */
   export function measureEdges(
     props: IMeasureEdgesProps,
-  ): IAutoMovieInspectionMeasured {
+  ): IAutoMovieRenderInspectionMeasured {
     return measureEdgesImplementation(props);
   }
   /**
@@ -122,7 +122,7 @@ export namespace AutoMovieRenderInspectionGeometry {
     /** Drawn paths and request predicates used to select meshes and defects. */
     export interface IMeasureMeshesProps {
       /** Drawn objects and their inspection paths. */
-      drawn: readonly IAutoMovieInspectionPath[];
+      drawn: readonly IAutoMovieRenderInspectionPath[];
       /** Engine defect kinds enabled by the request. */
       defects: readonly IAutoMovieMeshDefect.Kind[];
       /** Sliver aspect limit, or null. */
@@ -137,12 +137,12 @@ export namespace AutoMovieRenderInspectionGeometry {
       /** Drawn, visible-position meshes before path hiding. */
       meshes: { path: string; mesh: THREE.Mesh }[];
       /** Measurements retained after request filtering. */
-      measured: IAutoMovieInspectionMeasured[];
+      measured: IAutoMovieRenderInspectionMeasured[];
     }
   /** Measure engine defects on one mesh and return posed inspection marks. */
   export function measureDefects(
     props: IMeasureDefectsProps,
-  ): IAutoMovieInspectionMeasured {
+  ): IAutoMovieRenderInspectionMeasured {
     return measureAutoMovieInspectionDefectsImplementation(props);
   }
   /** Find and measure the meshes an inspection draws and requests. */

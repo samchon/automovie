@@ -1,14 +1,14 @@
 import type { IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieEnginePhysicsPairDistanceTypes } from "../AutoMovieEnginePhysicsPairDistanceTypes";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
 import "../internal/physicalHullEdges";
 import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 import "./physicalShapeHull";
 import { physicalShapeNearest } from "../internal/physicalShapeNearest";
-import { frameOf } from "./PhysicalShapePairDistanceImplementationData";
+import { PhysicalShapePairDistanceImplementationData } from "./PhysicalShapePairDistanceImplementationData";
 
 /*
  * Internal implementations shared by the one-function entry modules.
@@ -57,16 +57,16 @@ function physicalShapePairDistance(
     [poseA, shapeA, poseB, shapeB],
     [poseB, shapeB, poseA, shapeA],
   ] as const) {
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       pose.position,
-      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+      AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       pose.rotation,
       shape.transform.rotation,
     );
     const world = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(centre, Quaternion.rotateVector(rotation, p));
+      AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, p));
     const frame: AutoMovieEnginePhysicsPairDistanceTypes.IWires =
       physicalShapePairDistanceWires(shape);
 
@@ -77,11 +77,11 @@ function physicalShapePairDistance(
       otherPose,
       other,
     );
-    const middle: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(bounds.min, bounds.max),
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(bounds.min, bounds.max),
       0.5,
     );
-    const around: number = Vector3.distance(middle, bounds.max);
+    const around: number = AutoMovieEngineVector3.distance(middle, bounds.max);
     for (const [a, b] of frame.segments) {
       const from: IAutoMovieVector3 = world(a);
       const to: IAutoMovieVector3 = a === b ? from : world(b);
@@ -113,5 +113,5 @@ function physicalShapePairDistance(
 function physicalShapePairDistanceWires(
   shape: IAutoMoviePhysicalShape,
 ): AutoMovieEnginePhysicsPairDistanceTypes.IWires {
-  return frameOf(shape);
+  return PhysicalShapePairDistanceImplementationData.frameOf(shape);
 }

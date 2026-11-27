@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderInspectionPath } from "../../IAutoMovieRenderInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
 
 /*
@@ -25,7 +25,7 @@ export function measureAutoMovieInspectionPaths(props: {
   /*
    * Drawn objects with their paths.
    */
-  objects: readonly IAutoMovieInspectionPath[];
+  objects: readonly IAutoMovieRenderInspectionPath[];
 
   /*
    * Drawn marks with the object their frame belongs to, `null` for world space.
@@ -65,7 +65,7 @@ export function measureAutoMovieInspectionPaths(props: {
     if (anchor !== null) {
       anchor.updateWorldMatrix(true, false);
       placement.copy(anchor.matrixWorld);
-      if (AutoMovieThreeKind.isInstancedMesh(anchor) && anchor.count > 0) {
+      if (AutoMovieRenderThreeKind.isInstancedMesh(anchor) && anchor.count > 0) {
         const instance: THREE.Matrix4 = new THREE.Matrix4();
         anchor.getMatrixAt(0, instance);
         placement.multiply(instance);

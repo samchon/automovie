@@ -22,7 +22,7 @@ import {
   WebGLCoordinateSystem,
 } from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
 
 /*
@@ -51,14 +51,14 @@ export function sampleAutoMovieCameraOcclusion(
     if (triangles > triangleBudget || !object.layers.test(camera.layers))
       return;
     if (
-      !AutoMovieThreeKind.isMesh(object) &&
-      !AutoMovieThreeKind.isLine(object) &&
-      !AutoMovieThreeKind.isPoints(object) &&
-      !AutoMovieThreeKind.isSprite(object)
+      !AutoMovieRenderThreeKind.isMesh(object) &&
+      !AutoMovieRenderThreeKind.isLine(object) &&
+      !AutoMovieRenderThreeKind.isPoints(object) &&
+      !AutoMovieRenderThreeKind.isSprite(object)
     )
       return;
     const onTarget: boolean = targetMeshes.has(object);
-    if (!AutoMovieThreeKind.isMesh(object) || !supportsRay(object)) {
+    if (!AutoMovieRenderThreeKind.isMesh(object) || !supportsRay(object)) {
       if (onTarget) supportedTarget = false;
       else unsupportedBlocker = true;
       return;
@@ -212,11 +212,11 @@ function supportsRay(mesh: Mesh): boolean {
   const material: Material | Material[] = mesh.material;
   if (
     !(
-      AutoMovieThreeKind.isMaterial(material) &&
-      (AutoMovieThreeKind.isMeshBasicMaterial(material) ||
-        AutoMovieThreeKind.isMeshStandardMaterial(material) ||
-        AutoMovieThreeKind.isMeshLambertMaterial(material) ||
-        AutoMovieThreeKind.isMeshPhongMaterial(material))
+      AutoMovieRenderThreeKind.isMaterial(material) &&
+      (AutoMovieRenderThreeKind.isMeshBasicMaterial(material) ||
+        AutoMovieRenderThreeKind.isMeshStandardMaterial(material) ||
+        AutoMovieRenderThreeKind.isMeshLambertMaterial(material) ||
+        AutoMovieRenderThreeKind.isMeshPhongMaterial(material))
     ) ||
     ![
       MeshBasicMaterial,

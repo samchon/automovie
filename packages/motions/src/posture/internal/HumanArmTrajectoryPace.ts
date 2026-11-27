@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanArmTrajectory,
@@ -70,7 +70,7 @@ export namespace HumanArmTrajectoryPace {
             now.probes[p]![0],
             next.probes[p]![0],
           );
-          const travel: number = Vector3.length(d);
+          const travel: number = AutoMovieEngineVector3.length(d);
           if (travel > 0) most = Math.max(most, travel / limit);
         }
         now = next;

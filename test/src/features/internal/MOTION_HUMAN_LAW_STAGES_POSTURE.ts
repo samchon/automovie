@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeKeyboard } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -17,12 +17,12 @@ const keyboard = (a: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp => {
   const board: ReturnType<typeof AutoMovieArchetypeKeyboard.create> = AutoMovieArchetypeKeyboard.create({
     kind: "keyboard",
   });
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     180,
   );
   return AutoMovieMotionHumanObject.prop("keyboard", board, {
-    position: Vector3.subtract(
+    position: AutoMovieEngineVector3.subtract(
       {
         x: 0,
         y: a.measure.shoulderHeight - a.measure.upperArm - 0.005,
@@ -31,7 +31,7 @@ const keyboard = (a: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp => {
           a.measure.forearm +
           0.5 * a.measure.hand,
       },
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         turn,
         board.affordance("homeRow").frame.translation,
       ),

@@ -9,18 +9,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import { readsSwingTwistFrame } from "./readsSwingTwistFrame";
-import { swingTwistBasis } from "../swingTwistBasis";
-import { swingTwistRegion } from "../swingTwistRegion";
-import { swivelArcs } from "../swivelArcs";
+import { AutoMovieEngineSwingTwistBasis } from "../AutoMovieEngineSwingTwistBasis";
+import { AutoMovieEngineSwingTwistRegion } from "../AutoMovieEngineSwingTwistRegion";
+import { AutoMovieEngineSwivelArcs } from "../AutoMovieEngineSwivelArcs";
 
 /*
  * The arcs of swivels a joint's swing-twist range provably refuses, merged
- * (`swivelArcs.union`), for a joint whose bone-local rotation is a fixed
+ * (`AutoMovieEngineSwivelArcs.union`), for a joint whose bone-local rotation is a fixed
  * rotation turned about a fixed axis by the swivel: the twist past its rig
  * interval and the swing past the region's greatest radius, each the arc where
  * one sinusoid of the swivel exceeds `MARGIN`, as `swingTwistExcludedSwivels`
@@ -47,30 +47,30 @@ export function swingTwistRefusedArcs(
     !readsSwingTwistFrame(props.basis, props.frame, joint)
   )
     return [];
-  const u: IAutoMovieVector3 = swingTwistBasis.of(joint.axes).u;
+  const u: IAutoMovieVector3 = AutoMovieEngineSwingTwistBasis.of(joint.axes).u;
 
   // The rotation's half-angle readings and its rest direction's cosine at
   // swivels 0, 90 and 180.
   const sampled: ISample[] = [0, 90, 180].map((swivel: number): ISample => {
-    const q: IAutoMovieQuaternion = Quaternion.normalize(
+    const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
       props.rotation(swivel),
     );
     return {
       s: q.x * u.x + q.y * u.y + q.z * u.z,
       w: q.w,
-      d: Vector3.dot(u, Quaternion.rotateVector(q, u)),
+      d: AutoMovieEngineVector3.dot(u, AutoMovieEngineQuaternion.rotateVector(q, u)),
     };
   });
   const fit = (
     read: (sample: ISample) => number,
   ): IAutoMovieSwivelArcs.ISinusoid => {
     const [zero, quarter, half] = sampled.map(read) as [number, number, number];
-    return swivelArcs.fitted(zero, quarter, half);
+    return AutoMovieEngineSwivelArcs.fitted(zero, quarter, half);
   };
 
   const arcs: IAutoMovieSwivelArcs.IArc[] = [];
   const refuse = (f: IAutoMovieSwivelArcs.ISinusoid): boolean => {
-    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = AutoMovieEngineSwivelArcs.above(
       f,
       MARGIN,
     );
@@ -84,8 +84,8 @@ export function swingTwistRefusedArcs(
   const ends: number[] = [twist.min, twist.max].map(
     (clinical: number): number => AutoMovieEngineRigAngle.toRigAngle(clinical, joint.frame?.twist)!,
   );
-  const lo: number = (Math.min(...ends) / 2) * Quaternion.DEG2RAD;
-  const hi: number = (Math.max(...ends) / 2) * Quaternion.DEG2RAD;
+  const lo: number = (Math.min(...ends) / 2) * AutoMovieEngineQuaternion.DEG2RAD;
+  const hi: number = (Math.max(...ends) / 2) * AutoMovieEngineQuaternion.DEG2RAD;
   if (
     hi - lo < Math.PI &&
     refuse(
@@ -100,18 +100,18 @@ export function swingTwistRefusedArcs(
 
   // The swing past the region's greatest radius.
   const greatest: number = (
-    joint.region ?? swingTwistRegion.prepare(constraint, joint)
+    joint.region ?? AutoMovieEngineSwingTwistRegion.prepare(constraint, joint)
   ).greatest;
   if (
     greatest < 180 &&
     refuse(
       fit(
-        ({ d }: ISample): number => Math.cos(greatest * Quaternion.DEG2RAD) - d,
+        ({ d }: ISample): number => Math.cos(greatest * AutoMovieEngineQuaternion.DEG2RAD) - d,
       ),
     )
   )
     return "all";
-  return swivelArcs.union(arcs);
+  return AutoMovieEngineSwivelArcs.union(arcs);
 }
 
 /*
@@ -137,7 +137,7 @@ interface ISample {
 
 /*
  * How far past a bound, in sine or cosine units, a reading must lie to be
- * refused: the joints' tolerance (`ROM_TOLERANCE`) in radians, past the
+ * refused: the joints' tolerance (`AutoMovieEngineRomTolerance`) in radians, past the
  * rounding of every step.
  */
-const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;
+const MARGIN: number = (AutoMovieEngineRomTolerance * Math.PI) / 180;

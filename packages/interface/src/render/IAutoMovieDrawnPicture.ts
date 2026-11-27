@@ -3,7 +3,7 @@ import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult.js";
 
 /**
  * Decoded host raster beside the serialized draw receipt it came from.
- * AutoMovieDrawSession.draw validates the requested raster during decoding and
+ * AutoMovieRenderDrawSession.draw validates the requested raster during decoding and
  * rejects failed or timed-out drawing. The caller owns the returned pixels;
  * result retains the original encoded pixels and camera/label observations.
  */

@@ -1,4 +1,6 @@
-import { StrikingContact } from "@automovie/motions/internal";
+import {
+  StrikingContact
+} from "../../../../../packages/motions/src/striking/internal/StrikingContact";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

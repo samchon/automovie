@@ -7,9 +7,9 @@ import type {
   IAutoMovieSolidMeshPlan,
 } from "@automovie/interface";
 
-import { AutoMovieSolidCycle } from "../../AutoMovieSolidCycle";
-import { AutoMovieSolidMeshPlan } from "../../AutoMovieSolidMeshPlan";
-import { AutoMovieSolidMeshWrite } from "../../AutoMovieSolidMeshWrite";
+import { AutoMovieEngineSolidCycle } from "../../AutoMovieEngineSolidCycle";
+import { AutoMovieEngineSolidMeshPlan } from "../../AutoMovieEngineSolidMeshPlan";
+import { AutoMovieEngineSolidMeshWrite } from "../../AutoMovieEngineSolidMeshWrite";
 import { gridAutoMovieSolidMesh } from "./gridAutoMovieSolidMesh";
 import { openAutoMovieSolidMesh } from "./openAutoMovieSolidMesh";
 
@@ -66,7 +66,7 @@ export function faceAutoMovieSolidMesh(
     return kept;
   };
   const plan: IAutoMovieSolidMeshPlan.IPlan | string =
-    AutoMovieSolidMeshPlan.triangulate(
+    AutoMovieEngineSolidMeshPlan.triangulate(
       active,
       constraints,
       keeps,
@@ -201,11 +201,11 @@ export function faceAutoMovieSolidMesh(
       return refuse(input, "planned vertex has no prepared source point");
   if (indices.length === 0 && open.length === 0) return [];
 
-  const owner: number = AutoMovieSolidMeshWrite.owner(mesh, input.surface);
+  const owner: number = AutoMovieEngineSolidMeshWrite.owner(mesh, input.surface);
   for (const id of added) {
     const sample: NonNullable<ReturnType<typeof prepared.samples.get>> =
       prepared.samples.get(id)!;
-    AutoMovieSolidMeshWrite.vertex(
+    AutoMovieEngineSolidMeshWrite.vertex(
       mesh,
       sample.point,
       owner,
@@ -213,7 +213,7 @@ export function faceAutoMovieSolidMesh(
       sample.chart[1],
     );
   }
-  AutoMovieSolidMeshWrite.emit(
+  AutoMovieEngineSolidMeshWrite.emit(
     mesh,
     indices,
     input.surface.orientation * (input.inverted === true ? -1 : 1),
@@ -310,7 +310,7 @@ function membership(
       foot: IAutoMovieSolidCycle.IFoot | null;
       edge: [number, number][];
     } => {
-      const kept: boolean = AutoMovieSolidCycle.kept(
+      const kept: boolean = AutoMovieEngineSolidCycle.kept(
         loop,
         u,
         v,
@@ -318,12 +318,12 @@ function membership(
       );
       const foot: IAutoMovieSolidCycle.IFoot | null = kept
         ? null
-        : AutoMovieSolidCycle.foot(loop, u, v, input.surface.period);
+        : AutoMovieEngineSolidCycle.foot(loop, u, v, input.surface.period);
       return {
         index,
         kind: loop.kind,
         kept,
-        centre: AutoMovieSolidCycle.centre(loop),
+        centre: AutoMovieEngineSolidCycle.centre(loop),
         foot,
         edge:
           foot === null

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -56,16 +56,16 @@ export namespace HumanCarriedHand {
           ).get(frame);
     const inverse: IAutoMovieQuaternion =
       at === undefined
-        ? Quaternion.identity()
-        : Quaternion.inverse(at.worldRotation);
+        ? AutoMovieEngineQuaternion.identity()
+        : AutoMovieEngineQuaternion.inverse(at.worldRotation);
     const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
       p: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       at === undefined
         ? p
-        : Quaternion.rotateVector(
+        : AutoMovieEngineQuaternion.rotateVector(
             inverse,
-            Vector3.subtract(p, at.worldPosition),
+            AutoMovieEngineVector3.subtract(p, at.worldPosition),
           );
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, plan.duration);
@@ -116,8 +116,8 @@ export namespace HumanCarriedHand {
                           ...(goal.rotation === undefined
                             ? {}
                             : {
-                                rotation: Quaternion.normalize(
-                                  Quaternion.multiply(inverse, goal.rotation),
+                                rotation: AutoMovieEngineQuaternion.normalize(
+                                  AutoMovieEngineQuaternion.multiply(inverse, goal.rotation),
                                 ),
                               }),
                           on: frame,

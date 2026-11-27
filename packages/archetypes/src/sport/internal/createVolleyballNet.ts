@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeVolleyballNet } from "../AutoMovieArchetypeVolleyballNet";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -54,7 +54,7 @@ type Drawn = Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
 /*
  * Local points in metres.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * The half side line spacing of a volleyball court, metres: the net's side

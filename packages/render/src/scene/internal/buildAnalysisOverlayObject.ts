@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieAnalysisOverlayObject } from "../IAutoMovieAnalysisOverlayObject.js";
+import type { IAutoMovieRenderAnalysisOverlayObject } from "../IAutoMovieRenderAnalysisOverlayObject.js";
 import { autoMovieAnalysisRampColor } from "./autoMovieAnalysisRampColor.js";
 
 /*
@@ -31,7 +31,7 @@ export const buildAnalysisOverlayObject: (props: {
   size?: number;
   domain?: { min: number; max: number };
   material?: THREE.PointsMaterial;
-}) => IAutoMovieAnalysisOverlayObject = (props: {
+}) => IAutoMovieRenderAnalysisOverlayObject = (props: {
   /*
    * Run to draw.
    */
@@ -54,7 +54,7 @@ export const buildAnalysisOverlayObject: (props: {
    * Point material; a vertex-coloured default is created when absent.
    */
   material?: THREE.PointsMaterial;
-}): IAutoMovieAnalysisOverlayObject => {
+}): IAutoMovieRenderAnalysisOverlayObject => {
   const run: IAutoMovieAnalysisRun = props.run;
   if (run.outcome.status !== "solved")
     throw new Error(

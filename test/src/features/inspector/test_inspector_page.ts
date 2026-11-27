@@ -1,6 +1,6 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import {
-  type IAutoMovieInspectorState,
+  type IAutoMovieViewerInspectorState,
   AutoMovieViewerInspector,
 
 
@@ -104,7 +104,7 @@ export function test_inspector_page(): void {
       `${query} is refused naming ${key}`,
       message.includes(`"${key}"`),
     );
-    const opened: IAutoMovieInspectorState =
+    const opened: IAutoMovieViewerInspectorState =
       AutoMovieViewerInspector.createState(query);
     TestValidator.equals(
       `${query} opens the empty request`,

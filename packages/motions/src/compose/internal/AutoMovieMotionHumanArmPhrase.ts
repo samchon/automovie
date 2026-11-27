@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmPhrase,
@@ -164,16 +164,16 @@ export namespace AutoMovieMotionHumanArmPhrase {
           );
           return {
             ...target,
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               chamber.point,
-              Vector3.scale(Vector3.subtract(target.point, chamber.point), p),
+              AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(target.point, chamber.point), p),
             ),
-            rotation: Quaternion.slerp(
+            rotation: AutoMovieEngineQuaternion.slerp(
               chamber.rotation,
               target.rotation,
               Math.min(1, p),
             ),
-            bend: Vector3.lerp(chamber.bend, target.bend, Math.min(1, p)),
+            bend: AutoMovieEngineVector3.lerp(chamber.bend, target.bend, Math.min(1, p)),
           };
         },
         weight: (seconds: number): number =>
@@ -291,9 +291,9 @@ export namespace AutoMovieMotionHumanArmPhrase {
       ? target
       : {
           ...target,
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             about,
-            Vector3.scale(Vector3.subtract(target.point, about), extent),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(target.point, about), extent),
           ),
         };
   };

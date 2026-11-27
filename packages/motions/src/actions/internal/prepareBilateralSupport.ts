@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -56,12 +56,12 @@ export function prepareBilateralSupport(
         (c: IAutoMovieMotionHumanSupport.IContact): boolean => c.part === part,
       )
     ]!.goal;
-  const hand: IAutoMovieVector3 = Vector3.lerp(
+  const hand: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     targetAt("leftHand"),
     targetAt("rightHand"),
     0.5,
   );
-  const foot: IAutoMovieVector3 = Vector3.lerp(
+  const foot: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     targetAt("leftFoot"),
     targetAt("rightFoot"),
     0.5,
@@ -70,17 +70,17 @@ export function prepareBilateralSupport(
   // subtraction, one projection product and two dot-product additions.
   // Include the initial rounding of the supplied world coordinate.
   const tolerance: number =
-    Number.EPSILON * (1 + Vector3.length(hand) + Vector3.length(foot)) * 8;
-  if (Math.abs(Vector3.dot(Vector3.subtract(hand, foot), across)) > tolerance)
+    Number.EPSILON * (1 + AutoMovieEngineVector3.length(hand) + AutoMovieEngineVector3.length(foot)) * 8;
+  if (Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(hand, foot), across)) > tolerance)
     return undefined;
   for (const suffix of ["Hand", "Foot"] as const) {
-    const span: IAutoMovieVector3 = Vector3.subtract(
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       targetAt(`left${suffix}`),
       targetAt(`right${suffix}`),
     );
     if (
       Math.abs(span.y) > tolerance ||
-      Math.abs(Vector3.dot(span, forward)) > tolerance
+      Math.abs(AutoMovieEngineVector3.dot(span, forward)) > tolerance
     )
       return undefined;
   }
@@ -93,7 +93,7 @@ export function prepareBilateralSupport(
   for (const [i, t] of targets.entries()) {
     const delta: IAutoMovieVector3 = error(frames, t);
     errors[contacts[i]!.part.startsWith("left") ? "left" : "right"] +=
-      Vector3.dot(delta, delta);
+      AutoMovieEngineVector3.dot(delta, delta);
   }
   const side: AutoMovieHumanSide =
     errors.left <= errors.right ? "left" : "right";
@@ -127,12 +127,12 @@ export function prepareBilateralSupport(
   );
   const shift: IAutoMovieVector3 = targets.reduce(
     (sum: IAutoMovieVector3, t: Target): IAutoMovieVector3 =>
-      Vector3.add(sum, error(paired, t)),
+      AutoMovieEngineVector3.add(sum, error(paired, t)),
     { x: 0, y: 0, z: 0 },
   );
   return {
     ...candidate,
-    root: Vector3.addScaled(candidate.root, shift, 1 / targets.length),
+    root: AutoMovieEngineVector3.addScaled(candidate.root, shift, 1 / targets.length),
   };
 }
 type Part = IAutoMovieMotionHumanSupport.Part;
@@ -151,9 +151,9 @@ function error(bones: Frames, target: Target): IAutoMovieVector3 {
   const point: IAutoMovieVector3 =
     target.point === undefined
       ? bone.worldPosition
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           bone.worldPosition,
-          Quaternion.rotateVector(bone.worldRotation, target.point),
+          AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, target.point),
         );
-  return Vector3.subtract(target.goal, point);
+  return AutoMovieEngineVector3.subtract(target.goal, point);
 }

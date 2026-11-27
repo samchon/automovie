@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import type { IAutoMovieViewerSubjectLens } from "../../IAutoMovieViewerSubjectLens.js";
-import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
+import type { IAutoMovieRenderViewerSubjectLens } from "../../IAutoMovieRenderViewerSubjectLens.js";
+import type { IAutoMovieRenderViewerSubjectPose } from "../../IAutoMovieRenderViewerSubjectPose.js";
 
 /*
  * Resolve an inspection heading into a target one metre ahead: yaw zero faces
@@ -12,9 +12,9 @@ import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectP
 export function autoMovieViewerPoseFromHeadingImplementation(
   position: { x: number; y: number; z: number },
   headingDeg: { yaw: number; pitch: number },
-  lens: IAutoMovieViewerSubjectLens,
+  lens: IAutoMovieRenderViewerSubjectLens,
   clip: { near: number; far: number },
-): IAutoMovieViewerSubjectPose {
+): IAutoMovieRenderViewerSubjectPose {
   if (clip.near <= 0 || clip.far <= clip.near)
     throw new RangeError(
       `inspection clip range must satisfy 0 < near < far, not near=${clip.near} far=${clip.far}`,

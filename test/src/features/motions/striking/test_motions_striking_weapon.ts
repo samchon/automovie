@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionWeaponContact,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { StrikingWeapon } from "@automovie/motions/internal";
+import {
+  StrikingWeapon
+} from "../../../../../packages/motions/src/striking/internal/StrikingWeapon";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

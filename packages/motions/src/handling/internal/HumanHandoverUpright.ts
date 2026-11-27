@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -99,15 +99,15 @@ export namespace HumanHandoverUpright {
     reached: IAutoMovieQuaternion | undefined,
   ): number {
     if (asked === undefined || reached === undefined) return Infinity;
-    const off: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.normalize(reached),
-      Quaternion.inverse(Quaternion.normalize(asked)),
+    const off: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.normalize(reached),
+      AutoMovieEngineQuaternion.inverse(AutoMovieEngineQuaternion.normalize(asked)),
     );
     return (
       (Math.acos(
         Math.max(
           -1,
-          Math.min(1, Quaternion.rotateVector(off, { x: 0, y: 1, z: 0 }).y),
+          Math.min(1, AutoMovieEngineQuaternion.rotateVector(off, { x: 0, y: 1, z: 0 }).y),
         ),
       ) *
         180) /

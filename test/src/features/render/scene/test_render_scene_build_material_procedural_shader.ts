@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieRenderMaterial,
-  type IMaterialShaderSource,
+  type IAutoMovieRenderMaterialShaderSource,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -58,7 +58,7 @@ export function test_render_scene_build_material_procedural_shader(): void {
   const material: THREE.MeshPhysicalMaterial = AutoMovieRenderMaterial.build(
     record(piece),
   );
-  const shader: IMaterialShaderSource = compile(material);
+  const shader: IAutoMovieRenderMaterialShaderSource = compile(material);
 
   // 1. Splices after the chunks they extend.
   TestValidator.predicate(
@@ -154,8 +154,8 @@ export function test_render_scene_build_material_procedural_shader(): void {
 }
 
 /** Run a material's compile hook on three's physical program. */
-function compile(material: THREE.Material): IMaterialShaderSource {
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
+function compile(material: THREE.Material): IAutoMovieRenderMaterialShaderSource {
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(material);
   return shader;
 }
 

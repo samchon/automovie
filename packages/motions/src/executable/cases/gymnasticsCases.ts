@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -84,7 +84,7 @@ export function gymnasticsCases(
         TouchVerdicts.within(
           `${side} hand slip`,
           (t: number): number =>
-            Vector3.length(Vector3.subtract(palmAt(t, side), first)),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(palmAt(t, side), first)),
           contact,
           0.005,
         ),

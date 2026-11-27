@@ -1,10 +1,10 @@
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS } from "../AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS";
+import { AutoMovieEngineSupportedMaterialExtensions } from "../AutoMovieEngineSupportedMaterialExtensions";
 import { isAutoMovieMaterialExtension } from "./isAutoMovieMaterialExtension";
 
 /*
  * Select material/texture-category names absent from
- * AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS, deduplicate and sort by code
+ * AutoMovieEngineSupportedMaterialExtensions, deduplicate and sort by code
  * units.
  */
 export function unsupportedAutoMovieMaterialExtensions(
@@ -15,7 +15,7 @@ export function unsupportedAutoMovieMaterialExtensions(
       extensions.filter(
         (name: string): boolean =>
           isAutoMovieMaterialExtension(name) &&
-          !AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS.has(name),
+          !AutoMovieEngineSupportedMaterialExtensions.has(name),
       ),
     ),
   ].sort(AutoMovieEngineText.compareCodeUnits);

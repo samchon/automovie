@@ -4,7 +4,7 @@ import {
   AutoMovieArchetypeQuadrupedRest,
   type AutoMovieArchetypeQuadrupedRestPlan,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -111,11 +111,11 @@ export namespace archetypeRestObservation {
         for (let index: number = 0; index < chain.length; index++) {
           const bone: AutoMovieArchetypeQuadrupedBody.Bone = chain[index]!;
           const part: IAutoMovieModelPart = current.get(bone)!;
-          const length: number = Vector3.length(
-            Vector3.subtract(endpoint(part, 1), endpoint(part, -1)),
+          const length: number = AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(endpoint(part, 1), endpoint(part, -1)),
           );
-          const old: number = Vector3.length(
-            Vector3.subtract(
+          const old: number = AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               endpoint(source.get(bone)!, 1),
               endpoint(source.get(bone)!, -1),
             ),
@@ -293,7 +293,7 @@ export namespace archetypeRestObservation {
         part.geometry.shape.type !== "capsule")
     )
       throw new Error("Expected an actual terminal bar");
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform!.rotation,
       { x: 0, y: 1, z: 0 },
     );
@@ -329,9 +329,9 @@ export namespace archetypeRestObservation {
     frame: IAutoMovieTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.translation,
-      Quaternion.rotateVector(frame.rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, point),
     );
   }
 
@@ -341,12 +341,12 @@ export namespace archetypeRestObservation {
     contact: IAutoMovieTransform,
   ): IAutoMovieTransform {
     return {
-      translation: Quaternion.rotateVector(
-        Quaternion.inverse(carrier.rotation),
-        Vector3.subtract(contact.translation, carrier.translation),
+      translation: AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(carrier.rotation),
+        AutoMovieEngineVector3.subtract(contact.translation, carrier.translation),
       ),
-      rotation: Quaternion.multiply(
-        Quaternion.inverse(carrier.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(carrier.rotation),
         contact.rotation,
       ),
       scale: { x: 1, y: 1, z: 1 },

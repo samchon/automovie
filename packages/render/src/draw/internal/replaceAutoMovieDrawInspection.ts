@@ -1,7 +1,7 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import type { IAutoMovieReplaceDrawInspectionProps } from "../IAutoMovieReplaceDrawInspectionProps.js";
+import type { IAutoMovieRenderReplaceDrawInspectionProps } from "../IAutoMovieRenderReplaceDrawInspectionProps.js";
 
-import type { IAutoMovieInspectionHandle } from "../../scene/IAutoMovieInspectionHandle.js";
+import type { IAutoMovieRenderInspectionHandle } from "../../scene/IAutoMovieRenderInspectionHandle.js";
 import { applyAutoMovieInspection } from "../../scene/inspection/internal/applyAutoMovieInspection.js";
 
 /*
@@ -14,7 +14,7 @@ import { applyAutoMovieInspection } from "../../scene/inspection/internal/applyA
  * When placement or inspection fails; the previous handle has
  * already been restored.
  */
-export async function replaceAutoMovieDrawInspection(props: IAutoMovieReplaceDrawInspectionProps): Promise<IAutoMovieInspectionHandle> {
+export async function replaceAutoMovieDrawInspection(props: IAutoMovieRenderReplaceDrawInspectionProps): Promise<IAutoMovieRenderInspectionHandle> {
   props.previous?.restore();
   const marks: readonly IAutoMovieMark[] = await props.place();
   return applyAutoMovieInspection({

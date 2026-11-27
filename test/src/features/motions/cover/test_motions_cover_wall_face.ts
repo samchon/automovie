@@ -3,7 +3,12 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, coverWall } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  coverWall
+} from "../../../../../packages/motions/src/cover/internal/coverWall";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,6 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanMaterialContact } from "@automovie/motions/internal";
+import {
+  HumanMaterialContact
+} from "../../../../../packages/motions/src/posture/internal/HumanMaterialContact";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -24,11 +26,11 @@ export function test_motions_carrier_seesaw_foot_support(): void {
         y: 0.1 + (seconds - 0.5) ** 2,
         z: 0,
       };
-      const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
+      const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
         { x: 0.02 * side, y: -0.1 / Math.cos(Math.PI / 6), z: 0 },
       );
-      return Vector3.add(ankle, offset).y;
+      return AutoMovieEngineVector3.add(ankle, offset).y;
     };
   const low: HumanMaterialContact.IInterval[] = HumanMaterialContact.intervals(
     0,

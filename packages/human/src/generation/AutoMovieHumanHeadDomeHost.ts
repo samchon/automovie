@@ -1,7 +1,7 @@
 import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -44,7 +44,7 @@ export namespace AutoMovieHumanHeadDomeHost {
    */
   export function radius(host: IAutoMovieHumanHeadDomeHost.IHost): number {
     const inputs: IAutoMovieLoftViewRead.IValues | string =
-      AutoMovieLoftViewRead.values(host.source, host.station);
+      AutoMovieEngineLoftViewRead.values(host.source, host.station);
     if (typeof inputs === "string")
       throw new Error(`Dome parent ${host.part.name}: ${inputs}`);
     const frame: IAutoMovieLoftSectionFrame = host.frame;
@@ -57,8 +57,8 @@ export namespace AutoMovieHumanHeadDomeHost {
         ),
     ) as [number, number];
     const read: ReturnType<
-      ReturnType<typeof AutoMovieLoftSectionNative.phase>
-    > = AutoMovieLoftSectionNative.phase(inputs)(
+      ReturnType<typeof AutoMovieEngineLoftSectionNative.phase>
+    > = AutoMovieEngineLoftSectionNative.phase(inputs)(
       Math.atan2(local[1], local[0]),
     );
     const speed: number = Math.hypot(...read.t);
@@ -94,7 +94,7 @@ export namespace AutoMovieHumanHeadDomeHost {
     point: AutoMovieVector3Tuple,
   ): IAutoMovieHumanHeadDomeHost.IHost {
     const admitted: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(parent);
+      AutoMovieEngineLoftViewSource.create(parent);
     if (admitted === null || admitted.source === null)
       throw new Error(
         `Dome parent ${parent.name} has no admitted original direct field`,
@@ -119,7 +119,7 @@ export namespace AutoMovieHumanHeadDomeHost {
     dome: Omit<IAutoMovieHumanHeadDome.IDome, "host">,
   ): IAutoMovieHumanHeadDomeHost.IHost {
     const admitted: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(parent);
+      AutoMovieEngineLoftViewSource.create(parent);
     if (admitted === null || admitted.source === null)
       throw new Error(
         `Dome parent ${parent.name} has no admitted original direct field`,
@@ -210,14 +210,14 @@ export namespace AutoMovieHumanHeadDomeHost {
     const values: IAutoMovieLoftViewRead.IValues | string | null =
       fixed === null
         ? null
-        : AutoMovieLoftViewRead.values(source, fixed.station);
+        : AutoMovieEngineLoftViewRead.values(source, fixed.station);
     if (typeof values === "string")
       throw new Error(`Dome parent ${parent.name}: ${values}`);
-    const phase: ReturnType<typeof AutoMovieLoftSectionNative.phase> | null =
+    const phase: ReturnType<typeof AutoMovieEngineLoftSectionNative.phase> | null =
       values === null ||
       values.extents.some((extent: number): boolean => extent === 0)
         ? null
-        : AutoMovieLoftSectionNative.phase(values);
+        : AutoMovieEngineLoftSectionNative.phase(values);
     function read(parameter: number): {
       host: IAutoMovieHumanHeadDomeHost.IHost;
       residual: number;
@@ -268,7 +268,7 @@ export namespace AutoMovieHumanHeadDomeHost {
           `Dome ${dome.name} contact has no resolved original parent plane`,
         );
       const inputs: IAutoMovieLoftViewRead.IValues | string =
-        values ?? AutoMovieLoftViewRead.values(source, host.station);
+        values ?? AutoMovieEngineLoftViewRead.values(source, host.station);
       if (typeof inputs === "string")
         throw new Error(`Dome parent ${parent.name}: ${inputs}`);
       const local: [number, number] = [host.frame.u, host.frame.v].map(
@@ -284,8 +284,8 @@ export namespace AutoMovieHumanHeadDomeHost {
       if (inputs.extents.some((extent: number): boolean => extent === 0))
         throw new Error(`Dome ${dome.name} reached a singular parent section`);
       const native: ReturnType<
-        ReturnType<typeof AutoMovieLoftSectionNative.phase>
-      > = (phase ?? AutoMovieLoftSectionNative.phase(inputs))(
+        ReturnType<typeof AutoMovieEngineLoftSectionNative.phase>
+      > = (phase ?? AutoMovieEngineLoftSectionNative.phase(inputs))(
         Math.atan2(local[1], local[0]),
       );
       return {

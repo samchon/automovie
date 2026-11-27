@@ -1,4 +1,4 @@
-import { AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineViewChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
@@ -19,7 +19,7 @@ import type { AutoMovieHumanEmptyProbes } from "../AutoMovieHumanEmptyProbes";
  *
  * Walls are read on the families' original sections
  * (`AutoMovieHumanConicSection.chain` at the station, read along a ray by
- * `AutoMovieViewChain.radius`), never on a realized skin. Every point is
+ * `AutoMovieEngineViewChain.radius`), never on a realized skin. Every point is
  * millimetres in the families' frame (forward +X, up +Y, left +Z). Each
  * family's course, field reader and phase count is built once and cached by the
  * family.
@@ -134,7 +134,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     const frame: IAutoMovieLoftSectionFrame = axisOf(side.family).at(station);
     const toward: number[] = sub(target, frame.origin);
     const phi: number = Math.atan2(dot(toward, frame.v), dot(toward, frame.u));
-    const radius: number = AutoMovieViewChain.radius(
+    const radius: number = AutoMovieEngineViewChain.radius(
       section(side.family, station),
       phi,
     );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -90,13 +90,13 @@ export namespace HumanArmTrajectoryHalfStep {
     if (known !== undefined) return known[0];
     const i: number = probe - G.SURFACE;
     const owner: PointOwner = frame.owners[i]!;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       owner === "upper"
         ? placed.shoulder
         : owner === "lower"
           ? placed.elbow
           : placed.wrist,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         owner === "upper"
           ? placed.upper
           : owner === "lower"
@@ -133,7 +133,7 @@ export namespace HumanArmTrajectoryHalfStep {
       for (let i: number = 0; i < placed.probes.length; ++i)
         probes[i] = Math.max(
           probes[i]!,
-          Vector3.distance(placed.probes[i]![0], point(at, step.placed, i)),
+          AutoMovieEngineVector3.distance(placed.probes[i]![0], point(at, step.placed, i)),
         );
       frame.shapes.forEach(
         (now: IAutoMovieMotionHumanArmGeometry.IShape, s: number): void => {
@@ -146,11 +146,11 @@ export namespace HumanArmTrajectoryHalfStep {
             then.bone !== now.bone ||
             then.part !== now.part
               ? 0
-              : Vector3.distance(now.centre, then.centre) +
+              : AutoMovieEngineVector3.distance(now.centre, then.centre) +
                 now.radius *
                   2 *
                   Math.sin(
-                    Quaternion.angle(now.pose.rotation, then.pose.rotation) / 2,
+                    AutoMovieEngineQuaternion.angle(now.pose.rotation, then.pose.rotation) / 2,
                   );
           shapes[s] = Math.max(shapes[s]!, moved);
         },
@@ -176,20 +176,20 @@ export namespace HumanArmTrajectoryHalfStep {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): number {
-    const span: IAutoMovieVector3 = Vector3.subtract(b, a);
-    const length: number = Vector3.dot(span, span);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
+    const length: number = AutoMovieEngineVector3.dot(span, span);
     const u: number =
       length > 0
         ? Math.min(
             1,
             Math.max(
               0,
-              Vector3.dot(Vector3.subtract(shape.centre, a), span) / length,
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(shape.centre, a), span) / length,
             ),
           )
         : 0;
     return (
-      Vector3.distance(shape.centre, Vector3.add(a, Vector3.scale(span, u))) -
+      AutoMovieEngineVector3.distance(shape.centre, AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(span, u))) -
       shape.radius
     );
   }
@@ -246,7 +246,7 @@ export namespace HumanArmTrajectoryHalfStep {
       next.bone !== now.bone ||
       next.part !== now.part
     )
-      return { point: p, turn: Quaternion.identity() };
+      return { point: p, turn: AutoMovieEngineQuaternion.identity() };
     return S.relative(now, next, p);
   }
 }

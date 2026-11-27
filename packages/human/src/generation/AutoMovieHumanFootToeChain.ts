@@ -1,4 +1,4 @@
-import { AutoMovieSeamStation } from "@automovie/engine";
+import { AutoMovieEngineSeamStation } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   AutoMovieVector3Tuple,
@@ -88,7 +88,7 @@ export namespace AutoMovieHumanFootToeChain {
         return AutoMovieHumanLimbFrame.layer(here, before, after, t.order);
       });
 
-    return AutoMovieSeamStation.continuous({
+    return AutoMovieEngineSeamStation.continuous({
       name,
       basis: "spline",
       order: t.order,

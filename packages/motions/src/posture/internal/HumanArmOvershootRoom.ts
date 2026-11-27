@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanColliders,
@@ -39,7 +39,7 @@ export function HumanArmOvershootRoom(
     out:
       chest === undefined
         ? { x: 0, y: 0, z: 0 }
-        : Quaternion.rotateVector(chest.pose.rotation, {
+        : AutoMovieEngineQuaternion.rotateVector(chest.pose.rotation, {
             x: side === "left" ? 1 : -1,
             y: 0,
             z: 0,

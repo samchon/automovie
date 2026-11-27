@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -107,17 +107,17 @@ export namespace AutoMovieArchetypeMass {
       const principalRotation: IAutoMovieQuaternion =
         solid.inertiaRotation === undefined
           ? rotation
-          : Quaternion.multiply(rotation, solid.inertiaRotation);
+          : AutoMovieEngineQuaternion.multiply(rotation, solid.inertiaRotation);
       solids.push({
         share,
-        centre: Vector3.add(
+        centre: AutoMovieEngineVector3.add(
           origin,
-          Quaternion.rotateVector(rotation, solid.centroid),
+          AutoMovieEngineQuaternion.rotateVector(rotation, solid.centroid),
         ),
         axes: [
-          Quaternion.rotateVector(principalRotation, { x: 1, y: 0, z: 0 }),
-          Quaternion.rotateVector(principalRotation, { x: 0, y: 1, z: 0 }),
-          Quaternion.rotateVector(principalRotation, { x: 0, y: 0, z: 1 }),
+          AutoMovieEngineQuaternion.rotateVector(principalRotation, { x: 1, y: 0, z: 0 }),
+          AutoMovieEngineQuaternion.rotateVector(principalRotation, { x: 0, y: 1, z: 0 }),
+          AutoMovieEngineQuaternion.rotateVector(principalRotation, { x: 0, y: 0, z: 1 }),
         ],
         unit: solid.unit,
       });
@@ -143,7 +143,7 @@ export namespace AutoMovieArchetypeMass {
           normalized.scale,
           normalized.total,
         );
-      const d: IAutoMovieVector3 = Vector3.subtract(solid.centre, centre);
+      const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(solid.centre, centre);
       const principal: readonly number[] = [
         solid.unit.x,
         solid.unit.y,
@@ -264,9 +264,9 @@ export namespace AutoMovieArchetypeMass {
     );
     const centres: IAutoMovieVector3[] = bodies.map(
       (body: IPlaced): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           body.placement.translation,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             body.placement.rotation,
             body.properties.centerOfMass,
           ),
@@ -294,13 +294,13 @@ export namespace AutoMovieArchetypeMass {
       ): number => rows[a][b];
       const axes: IAutoMovieVector3[] = keys.map(
         (axis: "x" | "y" | "z"): IAutoMovieVector3 =>
-          Quaternion.rotateVector(body.placement.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(body.placement.rotation, {
             x: axis === "x" ? 1 : 0,
             y: axis === "y" ? 1 : 0,
             z: axis === "z" ? 1 : 0,
           }),
       );
-      const d: IAutoMovieVector3 = Vector3.subtract(centres[k]!, centre);
+      const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(centres[k]!, centre);
       const m: number = body.properties.mass;
       const entry: (a: Axis, b: Axis) => number = (
         a: Axis,
@@ -399,11 +399,11 @@ export namespace AutoMovieArchetypeMass {
       ArchetypeMassArithmetic.product(2, i.xz, n.x, n.z),
       ArchetypeMassArithmetic.product(2, i.yz, n.y, n.z),
     ]);
-    const offset: IAutoMovieVector3 = Vector3.subtract(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       properties.centerOfMass,
       through,
     );
-    const across: IAutoMovieVector3 = Vector3.cross(offset, n);
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(offset, n);
     const result: number = ArchetypeMassArithmetic.sum([
       central,
       ArchetypeMassArithmetic.product(properties.mass, across.x, across.x),

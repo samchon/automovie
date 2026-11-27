@@ -1,4 +1,4 @@
-import { type IAutoMovieViewerViewpoint, AutoMovieRenderSubjectViewpoint } from "@automovie/render";
+import { type IAutoMovieRenderViewerViewpoint, AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -18,7 +18,7 @@ export function test_render_scene_named_viewpoints(): void {
     azimuthDeg: number,
     elevationDeg: number,
     distanceFactor: number,
-  ): IAutoMovieViewerViewpoint => ({
+  ): IAutoMovieRenderViewerViewpoint => ({
     id,
     azimuthDeg,
     elevationDeg,
@@ -35,10 +35,10 @@ export function test_render_scene_named_viewpoints(): void {
     view("three-quarter-back", 225, 20, 1.25),
   ]);
 
-  const far: IAutoMovieViewerViewpoint[] = AutoMovieRenderSubjectViewpoint.autoMovieViewerNamedViewpoints(2);
+  const far: IAutoMovieRenderViewerViewpoint[] = AutoMovieRenderSubjectViewpoint.autoMovieViewerNamedViewpoints(2);
   TestValidator.equals(
     "given factor",
-    far.map((entry: IAutoMovieViewerViewpoint): number => entry.distanceFactor),
+    far.map((entry: IAutoMovieRenderViewerViewpoint): number => entry.distanceFactor),
     [2, 2, 2, 2, 2, 2, 2, 2],
   );
   far[0]!.azimuthDeg = 12;

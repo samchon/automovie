@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -66,17 +66,17 @@ export function HumanArmFrame(
   const end: IAutoMovieVector3 =
     distal === undefined
       ? hand.worldPosition
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           distal.worldPosition,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             distal.worldRotation,
             HumanGrip.chain(body, side, "Middle").tip,
           ),
         );
-  const unturn: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
-  const tip: IAutoMovieVector3 = Quaternion.rotateVector(
+  const unturn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.worldRotation);
+  const tip: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     unturn,
-    Vector3.subtract(end, hand.worldPosition),
+    AutoMovieEngineVector3.subtract(end, hand.worldPosition),
   );
   const model: IAutoMovieMotionHumanAuditTangleModel.IModel = body.tangle;
 
@@ -254,7 +254,7 @@ export function HumanArmFrame(
       }
       const by: IAutoMovieResolvedBone = frames[owner];
       const inverse: IAutoMovieQuaternion =
-        inverses[owner] ?? Quaternion.inverse(by.worldRotation);
+        inverses[owner] ?? AutoMovieEngineQuaternion.inverse(by.worldRotation);
       inverses[owner] = inverse;
       colliders.push({
         owner,
@@ -262,11 +262,11 @@ export function HumanArmFrame(
         part: i,
         pose: {
           ...segment.pose,
-          position: Quaternion.rotateVector(
+          position: AutoMovieEngineQuaternion.rotateVector(
             inverse,
-            Vector3.subtract(segment.pose.position, by.worldPosition),
+            AutoMovieEngineVector3.subtract(segment.pose.position, by.worldPosition),
           ),
-          rotation: Quaternion.multiply(inverse, segment.pose.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(inverse, segment.pose.rotation),
         },
         shapes: segment.shapes,
       });
@@ -280,12 +280,12 @@ export function HumanArmFrame(
         segments.push(i);
         indices.push(corner);
         owners.push(owner);
-        const point: IAutoMovieVector3 = Quaternion.rotateVector(
+        const point: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(
-            Vector3.add(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.add(
               segment.pose.position,
-              Quaternion.rotateVector(segment.pose.rotation, probe),
+              AutoMovieEngineQuaternion.rotateVector(segment.pose.rotation, probe),
             ),
             by.worldPosition,
           ),
@@ -308,9 +308,9 @@ export function HumanArmFrame(
   // length, its widest segment and the pairs' reach of the shoulder.
   const shoulder: IAutoMovieVector3 = frames.upper.worldPosition;
   const length: number =
-    Vector3.distance(frames.lower.worldPosition, shoulder) +
-    Vector3.distance(hand.worldPosition, frames.lower.worldPosition) +
-    Vector3.distance(end, hand.worldPosition);
+    AutoMovieEngineVector3.distance(frames.lower.worldPosition, shoulder) +
+    AutoMovieEngineVector3.distance(hand.worldPosition, frames.lower.worldPosition) +
+    AutoMovieEngineVector3.distance(end, hand.worldPosition);
   const around: number =
     length +
     Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) +
@@ -325,16 +325,16 @@ export function HumanArmFrame(
     const part: IAutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
       model.parts[i]!;
     if (
-      Vector3.distance(segment.pose.position, shoulder) - part.extent >=
+      AutoMovieEngineVector3.distance(segment.pose.position, shoulder) - part.extent >=
       around + MARGIN
     )
       continue;
     for (let corner: number = 0; corner < part.probes.length; corner++) {
       const probe: IAutoMovieVector3 = part.probes[corner]!;
       corners.push({
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           segment.pose.position,
-          Quaternion.rotateVector(segment.pose.rotation, probe),
+          AutoMovieEngineQuaternion.rotateVector(segment.pose.rotation, probe),
         ),
         part: i,
         corner,
@@ -348,13 +348,13 @@ export function HumanArmFrame(
       for (const shape of segment.shapes)
         for (const probe of HumanColliderCorners(shape))
           corners.push({
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               segment.pose.position,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 segment.pose.rotation,
-                Vector3.add(
+                AutoMovieEngineVector3.add(
                   shape.transform.position,
-                  Quaternion.rotateVector(shape.transform.rotation, probe),
+                  AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, probe),
                 ),
               ),
             ),
@@ -369,13 +369,13 @@ export function HumanArmFrame(
     for (const shape of segment.shapes)
       for (const probe of HumanColliderCorners(shape))
         corners.push({
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             segment.pose.position,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               segment.pose.rotation,
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 shape.transform.position,
-                Quaternion.rotateVector(shape.transform.rotation, probe),
+                AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, probe),
               ),
             ),
           ),
@@ -386,7 +386,7 @@ export function HumanArmFrame(
   }
   const near: IAutoMovieMotionHumanArmGeometry.IFrame["body"] = corners.filter(
     (c: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number]): boolean =>
-      Vector3.distance(c.point, shoulder) < around,
+      AutoMovieEngineVector3.distance(c.point, shoulder) < around,
   );
   return {
     parent: {
@@ -523,7 +523,7 @@ function sphere(points: readonly IAutoMovieVector3[]): ISphereResult {
   const centre: IAutoMovieVector3 = { x, y, z };
   let radius: number = 0;
   for (const p of points) {
-    radius = Math.max(radius, Vector3.distance(p, centre));
+    radius = Math.max(radius, AutoMovieEngineVector3.distance(p, centre));
   }
   return { centre, radius };
 }

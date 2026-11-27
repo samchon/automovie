@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeLungeWhip } from "../AutoMovieArchetypeLungeWhip";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -35,24 +35,24 @@ export function createLungeWhip(
   builder.rod(
     "handle",
     HANDLE.radius,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, HANDLE.length, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, HANDLE.length, 0),
     { color: "#202020" },
   );
   builder.rod(
     "stock",
     STOCK,
-    Vector3.create(0, HANDLE.length, 0),
-    Vector3.create(0, SHAFT, 0),
+    AutoMovieEngineVector3.create(0, HANDLE.length, 0),
+    AutoMovieEngineVector3.create(0, SHAFT, 0),
     { color: "#2b2b2b" },
   );
   builder.affordance({
     id: "grip",
     kind: "handle",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, HANDLE.length / 2, HANDLE.radius),
-      Vector3.create(0, 0, -1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, HANDLE.length / 2, HANDLE.radius),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     grip: "power",

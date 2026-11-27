@@ -1,11 +1,11 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
-import { AutoMovieXpbdSupportRows as Rows } from "../AutoMovieXpbdSupportRows";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineXpbdArticulation } from "../AutoMovieEngineXpbdArticulation";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import { AutoMovieEngineXpbdJoint } from "../AutoMovieEngineXpbdJoint";
+import { AutoMovieEngineXpbdSupportRows as Rows } from "../AutoMovieEngineXpbdSupportRows";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
 import { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
 import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
@@ -43,26 +43,26 @@ export namespace solveXpbdArticulationTask {
    * has no feasible point.
    */
   export function solveTask(
-    tree: AutoMovieXpbdArticulation.ITree,
-    factored: AutoMovieXpbdArticulation.IFactor,
-    base: AutoMovieXpbdArticulation.IResponse,
+    tree: AutoMovieEngineXpbdArticulation.ITree,
+    factored: AutoMovieEngineXpbdArticulation.IFactor,
+    base: AutoMovieEngineXpbdArticulation.IResponse,
     set: ISet,
     h: number,
-    task: AutoMovieXpbdWorld.IRootTask,
+    task: AutoMovieEngineXpbdWorld.IRootTask,
     warm: solveXpbdSupportCascade.IWarm,
   ): IHeld | null {
     const actuators: IActuator[] = chain(tree, set, h, task.stance ?? []);
-    const responses: AutoMovieXpbdArticulation.IResponse[] = [
+    const responses: AutoMovieEngineXpbdArticulation.IResponse[] = [
       ...set.rows.map(
-        (row: IRow): AutoMovieXpbdArticulation.IResponse =>
-          AutoMovieXpbdArticulation.propagate(tree, factored, false, {
+        (row: IRow): AutoMovieEngineXpbdArticulation.IResponse =>
+          AutoMovieEngineXpbdArticulation.propagate(tree, factored, false, {
             state: row.state,
             impulse: Rows.impulse(row),
           }),
       ),
       ...actuators.map(
-        (actuator: IActuator): AutoMovieXpbdArticulation.IResponse =>
-          AutoMovieXpbdArticulation.propagate(
+        (actuator: IActuator): AutoMovieEngineXpbdArticulation.IResponse =>
+          AutoMovieEngineXpbdArticulation.propagate(
             tree,
             factored,
             false,
@@ -77,14 +77,14 @@ export namespace solveXpbdArticulationTask {
       (actuator: IActuator): number =>
         factored.edges[actuator.edge]!.impulse[actuator.axis]!,
     );
-    const free: AutoMovieXpbdArticulation.IResponse = Contacts.combine(
+    const free: AutoMovieEngineXpbdArticulation.IResponse = Contacts.combine(
       base,
       responses.slice(set.rows.length),
       drive.map((value: number): number => -value),
       { rows: [], patches: [] },
     ).response;
     const k: number[][] = set.rows.map((row: IRow): number[] =>
-      responses.map((response: AutoMovieXpbdArticulation.IResponse): number =>
+      responses.map((response: AutoMovieEngineXpbdArticulation.IResponse): number =>
         Rows.along(row, response),
       ),
     );
@@ -95,12 +95,12 @@ export namespace solveXpbdArticulationTask {
     // origin over the longest lever, so both read in newton seconds.
     const levers: IAutoMovieVector3[] = set.rows.map(
       (row: IRow): IAutoMovieVector3 =>
-        Vector3.subtract(Vector3.add(row.point, tree.origin), task.origin),
+        AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.add(row.point, tree.origin), task.origin),
     );
     const length: number = Math.max(
       Number.EPSILON,
       ...levers.map((lever: IAutoMovieVector3): number =>
-        Vector3.length(lever),
+        AutoMovieEngineVector3.length(lever),
       ),
     );
     const wrench = (row: IRow, lever: IAutoMovieVector3): number[] => {
@@ -114,8 +114,8 @@ export namespace solveXpbdArticulationTask {
           row.direction.z / length,
         ];
       const force: IAutoMovieVector3 = row.direction;
-      const moment: IAutoMovieVector3 = Vector3.scale(
-        Vector3.cross(lever, row.direction),
+      const moment: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.cross(lever, row.direction),
         1 / length,
       );
       return [force.x, force.y, force.z, moment.x, moment.y, moment.z];
@@ -123,18 +123,18 @@ export namespace solveXpbdArticulationTask {
     // With IHMC's objective, the rows are its tasks instead (`objective`):
     // the force, the yaw moment about the centre of mass when selected, and
     // the moment about the desired centre of pressure over its body's rows.
-    const objective: AutoMovieXpbdWorld.IObjective | undefined = task.objective;
+    const objective: AutoMovieEngineXpbdWorld.IObjective | undefined = task.objective;
     const width: number = objective
       ? 3 + (objective.yaw ? 1 : 0) + (objective.pressure ? 2 : 0)
       : 6;
     const columns: number[][] = responses.map(
-      (_: AutoMovieXpbdArticulation.IResponse, s: number): number[] =>
+      (_: AutoMovieEngineXpbdArticulation.IResponse, s: number): number[] =>
         s >= set.rows.length
           ? new Array<number>(width).fill(0)
           : objective
             ? Contacts.objectiveRow(
                 set.rows[s]!,
-                Vector3.add(set.rows[s]!.point, tree.origin),
+                AutoMovieEngineVector3.add(set.rows[s]!.point, tree.origin),
                 tree.states[set.rows[s]!.state]!.body,
                 objective,
               )
@@ -194,7 +194,7 @@ export namespace solveXpbdArticulationTask {
     // A bounded group's normal rows add at most the room its bound leaves
     // (`room`).
     const bounds: solveXpbdSupportCascade.IBound[] = (task.bounds ?? []).map(
-      (bound: AutoMovieXpbdWorld.IBound): solveXpbdSupportCascade.IBound => {
+      (bound: AutoMovieEngineXpbdWorld.IBound): solveXpbdSupportCascade.IBound => {
         const patches: IPatch[] = set.patches.filter((patch: IPatch): boolean =>
           bound.bodies.includes(
             tree.states[set.rows[patch.normals[0]!]!.state]!.body,
@@ -218,11 +218,11 @@ export namespace solveXpbdArticulationTask {
     const motion: solveXpbdSupportCascade.IMotion[] = [
       ...actuators.map(
         (actuator: IActuator): solveXpbdSupportCascade.IMotion => {
-          const axis: AutoMovieXpbdArticulation.IAxis =
+          const axis: AutoMovieEngineXpbdArticulation.IAxis =
             tree.edges[actuator.edge]!.axes[actuator.axis]!;
           return {
             weights: responses.map(
-              (response: AutoMovieXpbdArticulation.IResponse): number =>
+              (response: AutoMovieEngineXpbdArticulation.IResponse): number =>
                 response.rates[actuator.edge]![actuator.axis]!,
             ),
             value:
@@ -240,7 +240,7 @@ export namespace solveXpbdArticulationTask {
               m: number,
             ): solveXpbdSupportCascade.IMotion => ({
               weights: responses.map(
-                (response: AutoMovieXpbdArticulation.IResponse): number =>
+                (response: AutoMovieEngineXpbdArticulation.IResponse): number =>
                   response.change[0]![m]!,
               ),
               value:
@@ -274,15 +274,15 @@ export namespace solveXpbdArticulationTask {
    * task's stance bodies whether or not they press, to the root.
    */
   function chain(
-    tree: AutoMovieXpbdArticulation.ITree,
+    tree: AutoMovieEngineXpbdArticulation.ITree,
     set: ISet,
     h: number,
-    stance: readonly AutoMovieXpbdBody[],
+    stance: readonly AutoMovieEngineXpbdBody[],
   ): IActuator[] {
     const into: Map<number, number> = new Map(
       tree.edges.map(
         (
-          edge: AutoMovieXpbdArticulation.IEdge,
+          edge: AutoMovieEngineXpbdArticulation.IEdge,
           index: number,
         ): [number, number] => [edge.child, index],
       ),
@@ -291,9 +291,9 @@ export namespace solveXpbdArticulationTask {
     const starts: number[] = [
       ...set.rows.map((row: IRow): number => row.state),
       ...stance
-        .map((body: AutoMovieXpbdBody): number =>
+        .map((body: AutoMovieEngineXpbdBody): number =>
           tree.states.findIndex(
-            (state: AutoMovieXpbdArticulation.IState): boolean =>
+            (state: AutoMovieEngineXpbdArticulation.IState): boolean =>
               state.body === body,
           ),
         )
@@ -313,7 +313,7 @@ export namespace solveXpbdArticulationTask {
       .flatMap((edge: number): IActuator[] =>
         tree.edges[edge]!.axes.flatMap(
           (
-            axis: AutoMovieXpbdArticulation.IAxis,
+            axis: AutoMovieEngineXpbdArticulation.IAxis,
             index: number,
           ): IActuator[] =>
             axis.motor === undefined
@@ -322,8 +322,8 @@ export namespace solveXpbdArticulationTask {
                   {
                     edge,
                     axis: index,
-                    cap: AutoMovieXpbdJoint.cap(axis.motor, 1, h),
-                    reverse: AutoMovieXpbdJoint.cap(axis.motor, -1, h),
+                    cap: AutoMovieEngineXpbdJoint.cap(axis.motor, 1, h),
+                    reverse: AutoMovieEngineXpbdJoint.cap(axis.motor, -1, h),
                   },
                 ],
         ),

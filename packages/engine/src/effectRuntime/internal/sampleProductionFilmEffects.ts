@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../../film/internal/productionFrameBoundaryToSeconds";
-import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
+import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 import { sampleCompiledEffect } from "./sampleCompiledEffect";
 import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEffectIdentity";
 import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEffectRuntime";
@@ -17,7 +17,7 @@ import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEff
  * exact boundary second on that runtime's rate, with `cameraDistance` in metres
  * passed to the engine sampler (zero when omitted). Every call re-validates
  * each persisted runtime and compares it with `identity`; all refusals throw
- * `AutoMovieFilmEffectRuntimeError`: `film-effect-input-invalid` for a
+ * `AutoMovieEngineFilmEffectRuntimeError`: `film-effect-input-invalid` for a
  * malformed identity, a frame that is not a nonnegative safe integer or a
  * negative or non-finite distance, `film-effect-runtime-invalid` for a runtime
  * that is not what the materializer writes, and `film-effect-runtime-stale` for
@@ -28,12 +28,12 @@ export const sampleProductionFilmEffects = (
 ): IAutoMovieProductionFilmEffectSample[] => {
   validateProductionFilmEffectIdentity(props.identity);
   if (props.timelineFrame < 0)
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-input-invalid",
       `Film effect timeline frame ${props.timelineFrame} must be a nonnegative safe integer.`,
     );
   if (props.cameraDistance !== undefined && props.cameraDistance < 0)
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-input-invalid",
       `Film effect camera distance ${props.cameraDistance} must be finite and nonnegative.`,
     );
@@ -48,7 +48,7 @@ export const sampleProductionFilmEffects = (
         runtime.compileFingerprint !== props.identity.compileFingerprint ||
         runtime.editFingerprint !== props.identity.editFingerprint
       )
-        throw new AutoMovieFilmEffectRuntimeError(
+        throw new AutoMovieEngineFilmEffectRuntimeError(
           "film-effect-runtime-stale",
           `Film effect runtime "${runtime.effect.id}" differs from the current production, film, compile, or edit identity.`,
         );

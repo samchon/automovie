@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineKinematics,
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -167,7 +167,7 @@ export namespace seatedHeelBounce {
       toeEntry,
     );
     const mtp: IAutoMovieVector3 = HumanFoot.offset(body, side, "mtp");
-    const toeVector: IAutoMovieVector3 = Vector3.subtract(toeOffset, mtp);
+    const toeVector: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(toeOffset, mtp);
     const toeWorld: IAutoMovieVector3 = HumanFoot.point(
       body,
       side,
@@ -175,19 +175,19 @@ export namespace seatedHeelBounce {
       foot,
       toeEntry,
     );
-    const toeY: number = Quaternion.rotateVector(foot.rotation, {
+    const toeY: number = AutoMovieEngineQuaternion.rotateVector(foot.rotation, {
       x: 0,
       y: toeVector.y,
       z: toeVector.z,
     }).y;
-    const toeSlope: number = Quaternion.rotateVector(foot.rotation, {
+    const toeSlope: number = AutoMovieEngineQuaternion.rotateVector(foot.rotation, {
       x: 0,
       y: toeVector.z,
       z: -toeVector.y,
     }).y;
     const toePhase: number = Math.atan2(toeY, toeSlope);
     const toeRadius: number = Math.hypot(toeY, toeSlope);
-    const toeLateral: number = Quaternion.rotateVector(foot.rotation, {
+    const toeLateral: number = AutoMovieEngineQuaternion.rotateVector(foot.rotation, {
       x: toeVector.x,
       y: 0,
       z: 0,
@@ -280,7 +280,7 @@ export namespace seatedHeelBounce {
       return (
         Math.abs(HumanFoot.pitch(actual.worldRotation) - (pitch - angle)) <=
           0.1 &&
-        Vector3.length(Vector3.subtract(sockets[1]!.point, ball)) <=
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(sockets[1]!.point, ball)) <=
           HumanFoot.BEARING &&
         Math.abs(sockets[2]!.point.y - toeWorld.y) <= HumanFoot.BEARING
       );

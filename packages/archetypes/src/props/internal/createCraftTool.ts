@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeCraftTool } from "../AutoMovieArchetypeCraftTool";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -36,7 +36,7 @@ export function createCraftTool(
     AutoMovieArchetypeCraftTool.KINDS,
   );
   const size: AutoMovieArchetypeCraftTool.ISize = KINDS[kind];
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeCraftTool.Dimension> =
     new AutoMovieArchetypeDrawSession(
       "craftTool",

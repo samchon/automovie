@@ -1,4 +1,4 @@
-import { AutoMovieConstructionSplitSeam } from "@automovie/engine";
+import { AutoMovieEngineConstructionSplitSeam } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplitSeam,
@@ -10,7 +10,7 @@ import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionSplitSeam as S } from "../../internal/construction/ConstructionSplitSeam";
 
 /**
- * `AutoMovieConstructionSplitSeam.create` builds a curved seam on a realized
+ * `AutoMovieEngineConstructionSplitSeam.create` builds a curved seam on a realized
  * host that leaves both forks along the host's own surface.
  *
  * Fixture: `ConstructionSplitSeam` (host end circle R = 25 sqrt(1 - (30 /
@@ -36,7 +36,7 @@ export function test_engine_geometry_split_seam_curve(): void {
   );
   const trunk: IAutoMovieSolidSurface = ConstructionRead.surface(real, "trunk");
   const seam: IAutoMovieConstructionSplitSeam.ISeam | string =
-    AutoMovieConstructionSplitSeam.create({
+    AutoMovieEngineConstructionSplitSeam.create({
       host: trunk,
       station: 30,
       into: 1,

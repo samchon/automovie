@@ -1,6 +1,11 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanProp } from "@automovie/interface";
-import { toolCaseHeld, toolCasePot } from "@automovie/motions/executable/internal";
+import {
+  toolCaseHeld
+} from "../../../../../packages/motions/src/executable/cases/internal/toolCaseHeld";
+import {
+  toolCasePot
+} from "../../../../../packages/motions/src/executable/cases/internal/toolCasePot";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -32,7 +37,7 @@ export function test_motions_executable_tool_cases(): void {
   TestValidator.predicate(
     "the hammer",
     vclose(
-      Quaternion.rotateVector(hammer.frame.rotation, { x: 0, y: 1, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(hammer.frame.rotation, { x: 0, y: 1, z: 0 }),
       { x: 0, y: 0, z: 1 },
       1e-12,
     ) &&
@@ -57,7 +62,7 @@ export function test_motions_executable_tool_cases(): void {
     vclose(rim.frame.translation, { x: 0, y: 0.2, z: 0 }, 0) &&
       rim.width === 0.24 &&
       vclose(
-        Quaternion.rotateVector(rim.frame.rotation, { x: 0, y: 1, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(rim.frame.rotation, { x: 0, y: 1, z: 0 }),
         { x: 0, y: 1, z: 0 },
         1e-12,
       ),

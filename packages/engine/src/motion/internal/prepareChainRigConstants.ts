@@ -11,15 +11,15 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
-import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
+import { AutoMovieEngineHumanoidJointAxes } from "../../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { hingedArmSpan } from "../../kinematics/internal/hingedArmSpan";
 import { prepareJointRomOvershoot } from "../../kinematics/internal/prepareJointRomOvershoot";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
-import { swingTwistRange } from "../../kinematics/swingTwistRange";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineSwingTwistRange } from "../../kinematics/AutoMovieEngineSwingTwistRange";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { AutoMovieEngineJointRomScan } from "../../rom/internal/AutoMovieEngineJointRomScan";
@@ -73,9 +73,9 @@ export function prepareChainRigConstants(
     bone: AutoMovieHumanoidBone,
     path: string,
   ): IAutoMovieJointAxes =>
-    normalizeJointAxes(props.jointAxes?.[bone] ?? DEFAULT_JOINT_AXES, path);
+    normalizeJointAxes(props.jointAxes?.[bone] ?? AutoMovieEngineDefaultJointAxes, path);
   const clampAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
-    skeletonJointAxes(props.skeleton, HUMANOID_JOINT_AXES);
+    skeletonJointAxes(props.skeleton, AutoMovieEngineHumanoidJointAxes);
 
   /*
    * The swing-twist frame of a gated bone, prepared with its region.
@@ -94,10 +94,10 @@ export function prepareChainRigConstants(
     )
       return undefined;
     const frame: IAutoMovieJointRotationFrame | undefined =
-      swingTwistRange.fromAxes(bone, axes);
+      AutoMovieEngineSwingTwistRange.fromAxes(bone, axes);
     return frame === undefined
       ? undefined
-      : swingTwistRange.prepare(bone, frame, constraint);
+      : AutoMovieEngineSwingTwistRange.prepare(bone, frame, constraint);
   };
   const prepareJoint = (bone: AutoMovieHumanoidBone): IJoint => {
     const record: IAutoMovieBone | undefined = recordOf(bone);
@@ -138,7 +138,7 @@ export function prepareChainRigConstants(
   const effectorRest: IAutoMovieQuaternion =
     fixed?.effectorBaseRotation ??
     jointOf(props.chain.effector).record?.rest.rotation ??
-    Quaternion.identity();
+    AutoMovieEngineQuaternion.identity();
   const effector: IJoint = jointOf(props.chain.effector);
   const project: ReturnType<typeof AutoMovieEngineMotionJointProjection.prepare> =
     AutoMovieEngineMotionJointProjection.prepare({
@@ -153,11 +153,11 @@ export function prepareChainRigConstants(
       effectorBasis: effector.basis,
       effectorFrame: props.restFrames?.[props.chain.effector],
     });
-  const restInverse: IAutoMovieQuaternion = Quaternion.inverse(effectorRest);
+  const restInverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(effectorRest);
   const upperRange: IAutoMovieJointRotationFrame | undefined = rangeOf(
     props.chain.upper,
     jointOf(props.chain.upper).domain,
-    HUMANOID_JOINT_AXES[props.chain.upper],
+    AutoMovieEngineHumanoidJointAxes[props.chain.upper],
   );
   const rig: IAutoMoviePrepareChainRigConstants.IRig = {
     span:
@@ -167,7 +167,7 @@ export function prepareChainRigConstants(
             midOffset: fixed.lowerOffset,
             midRest: fixed.lowerRotation,
             endOffset: fixed.effectorOffset,
-            hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES)
+            hinge: (props.jointAxes?.[props.chain.lower] ?? AutoMovieEngineDefaultJointAxes)
               .flexion,
           }),
     bone: (bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined =>

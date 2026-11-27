@@ -1,4 +1,6 @@
-import { firstAutoMovieInspectorSecond } from "@automovie/viewer/internal";
+import {
+  firstAutoMovieInspectorSecond
+} from "../../../../../packages/viewer/src/inspector/internal/firstAutoMovieInspectorSecond";
 import { TestValidator } from "@nestia/e2e";
 
 /**

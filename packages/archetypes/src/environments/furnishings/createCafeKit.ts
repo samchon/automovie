@@ -1,4 +1,4 @@
-import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -25,7 +25,7 @@ import { furnishRoom } from "./furnishRoom";
  * When the room cannot accommodate the tables and clear approaches.
  */
 export function createCafeKit(
-  params: AutoMovieEnvironmentFurnishing.ICafeKitParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.ICafeKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

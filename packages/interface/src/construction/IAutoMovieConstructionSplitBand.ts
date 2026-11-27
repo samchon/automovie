@@ -125,7 +125,7 @@ export namespace IAutoMovieConstructionSplitBand {
     /**
      * The factor each column's ribbons were scaled by: the common one, or each
      * column's own (`ribbons: "column"`). A port's exact band joins them round
-     * the loop (`AutoMovieConstructionPortBand`).
+     * the loop (`AutoMovieEngineConstructionPortBand`).
      */
     field: number[];
 

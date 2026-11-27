@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPosture, IAutoMovieQuaternion } from "@automovie/interface";
-import { prepareHumanPostureCourse } from "@automovie/motions/internal";
+import {
+  prepareHumanPostureCourse
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanPostureCourse";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -6,8 +6,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { resolveAutoMovieMeshPhysicalVertices } from "../../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
@@ -90,7 +90,7 @@ export const transformAutoMovieMesh: (
     throw new Error("mesh transform scale may not collapse an axis");
   const positions: number[] = [];
   for (let index: number = 0; index < mesh.positions.length; index += 3) {
-    const placed: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const placed: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: mesh.positions[index]! * scale.x,
       y: mesh.positions[index + 1]! * scale.y,
       z: mesh.positions[index + 2]! * scale.z,
@@ -104,8 +104,8 @@ export const transformAutoMovieMesh: (
   const source: readonly number[] = mesh.normals ?? [];
   const normals: number[] = [];
   for (let index: number = 0; index < source.length; index += 3) {
-    const turned: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(rotation, {
+    const turned: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(rotation, {
         x: source[index]! / scale.x,
         y: source[index + 1]! / scale.y,
         z: source[index + 2]! / scale.z,

@@ -4,8 +4,17 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieSoftAnchor,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanObject } from "@automovie/motions";
-import { HumanForce, HumanPerformanceSoft, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+import {
+  HumanForce
+} from "../../../../../packages/motions/src/perform/internal/HumanForce";
+import {
+  HumanPerformanceSoft
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceSoft";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -250,8 +250,8 @@ export namespace staggerRecover {
     const along: AutoMovieHumanSide =
       ankle("left") > ankle("right") ? "left" : "right";
     const sideways: boolean =
-      Math.abs(Vector3.dot(push, across)) >
-      Math.abs(Vector3.dot(push, forward));
+      Math.abs(AutoMovieEngineVector3.dot(push, across)) >
+      Math.abs(AutoMovieEngineVector3.dot(push, forward));
     const first: AutoMovieHumanSide = sideways
       ? along === "left"
         ? "right"

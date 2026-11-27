@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeHat } from "../AutoMovieArchetypeHat";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { WornPropDraw } from "./WornPropDraw";
@@ -26,7 +26,7 @@ export function createHat(
     d,
   }: ReturnType<typeof WornPropDraw.prepare<AutoMovieArchetypeHat.Affordance>> =
     WornPropDraw.prepare<AutoMovieArchetypeHat.Affordance>("hat", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const thin: number = WornPropDraw.THIN;
 
   // The brim on the table, the crown up from it.

@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanInterruptRow } from "@automovie/interface";
-import { HumanSegmentCut } from "@automovie/motions/internal";
+import {
+  HumanSegmentCut
+} from "../../../../../packages/motions/src/perform/internal/HumanSegmentCut";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

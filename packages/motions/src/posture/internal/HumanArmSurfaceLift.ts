@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShapeNearest,
   IAutoMovieVector3,
@@ -39,16 +39,16 @@ export function HumanArmSurfaceLift(
     normal: at.normalAt(contact),
   });
   // A supporting normal is a subgradient of the convex signed distance.
-  if (Vector3.dot(normal, nearest.normal) >= 0) return local();
+  if (AutoMovieEngineVector3.dot(normal, nearest.normal) >= 0) return local();
   const resolution: number = T.TOLERANCE / 1000;
   let high: number =
-    Vector3.dot(Vector3.subtract(shape.centre, contact), normal) +
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(shape.centre, contact), normal) +
     shape.radius +
     Math.max(0, height) +
     resolution;
   if (high <= 0) return local();
   const point = (distance: number): IAutoMovieVector3 =>
-    Vector3.add(contact, Vector3.scale(normal, distance));
+    AutoMovieEngineVector3.add(contact, AutoMovieEngineVector3.scale(normal, distance));
   const deepest: IAutoMoviePhysicalShapeNearest.IResult = AutoMovieEnginePhysics.physicalShapeNearest(
     shape.pose,
     shape.shape,
@@ -56,7 +56,7 @@ export function HumanArmSurfaceLift(
     point(high),
   );
   if (deepest.distance >= height) return local();
-  let low: number = Vector3.dot(Vector3.subtract(deepest.at, contact), normal);
+  let low: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(deepest.at, contact), normal);
   const gap: ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance> =
     AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(shape.pose, shape.shape);
   // The signed distance is nondecreasing after the ray's minimum. Keep the

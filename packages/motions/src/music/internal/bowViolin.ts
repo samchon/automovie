@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
@@ -36,7 +36,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { bowViolinGrip } from "./bowViolinGrip";
 import { bowViolinHairAxis } from "./bowViolinHairAxis";
 import { bowViolinStroke } from "./bowViolinStroke";
-import * as BowViolinData from "./BowViolinData";
+import { BowViolinData } from "./BowViolinData";
 
 /*
  * One staged open-string violin stroke with a held bow. Register this law with
@@ -117,18 +117,18 @@ function planStroke(
     });
 
   const world: IAutoMovieRigidTransform = violin.frame(context.start);
-  const axes: IAutoMovieQuaternion = Quaternion.multiply(
+  const axes: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     world.rotation,
     bar.frame.rotation,
   );
-  const longitudinal: IAutoMovieVector3 = Quaternion.rotateVector(axes, BowViolinData.X);
-  const outward: IAutoMovieVector3 = Quaternion.rotateVector(axes, BowViolinData.Y);
-  const contact: IAutoMovieVector3 = Vector3.add(
-    Vector3.add(
+  const longitudinal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(axes, BowViolinData.X);
+  const outward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(axes, BowViolinData.Y);
+  const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(
       world.position,
-      Quaternion.rotateVector(world.rotation, bar.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(world.rotation, bar.frame.translation),
     ),
-    Vector3.scale(longitudinal, -0.4 * bar.length),
+    AutoMovieEngineVector3.scale(longitudinal, -0.4 * bar.length),
   );
 
   // Across the instrument, the hair rises toward the other three strings.
@@ -141,11 +141,11 @@ function planStroke(
     AutoMovieMotionHumanHeld.point(held, "hairFrog");
   const tip: IAutoMovieMotionHumanHeld.IPointResult =
     AutoMovieMotionHumanHeld.point(held, "hairTip");
-  const hair: IAutoMovieVector3 = Vector3.subtract(tip.point, frog.point);
-  const length: number = Vector3.length(hair);
+  const hair: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(tip.point, frog.point);
+  const length: number = AutoMovieEngineVector3.length(hair);
   if (
     !(length > 0) ||
-    Math.abs(Vector3.dot(Vector3.scale(hair, 1 / length), frog.direction)) >
+    Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.scale(hair, 1 / length), frog.direction)) >
       1e-6
   )
     throw new AutoMovieMotionHumanRefusal({
@@ -158,7 +158,7 @@ function planStroke(
     });
   const rotation: IAutoMovieQuaternion = HumanHand.align(
     { normal: hair, forward: frog.direction },
-    { normal: hairAxis, forward: Vector3.scale(outward, -1) },
+    { normal: hairAxis, forward: AutoMovieEngineVector3.scale(outward, -1) },
   );
   const grip: (share: number, lift: number) => IAutoMovieVector3 =
     bowViolinGrip(contact, outward, rotation, frog.point, hair);
@@ -171,8 +171,8 @@ function planStroke(
       "grip",
     );
   const reach: number = AutoMovieMotionHumanTiming.aimed(
-    Vector3.length(
-      Vector3.subtract(
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         grip(bowViolinStroke.from(params.direction), BowViolinData.CLEARANCE),
         AutoMovieMotionHumanArm.point(entry.posture, origin),
       ),
@@ -257,7 +257,7 @@ function planStroke(
   const endpoints: readonly NonNullable<
     IAutoMovieHumanLimbGoal["limits"]
   >[number][] = [frog.point, tip.point].map((point: IAutoMovieVector3) => ({
-    contact: Vector3.add(surface, point),
+    contact: AutoMovieEngineVector3.add(surface, point),
     bound: 0.002,
   }));
   const goals: IAutoMovieMotionHumanActionPlan = {

@@ -13,7 +13,7 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 import { validateDesignSourceFrame } from "./validateDesignSourceFrame";
 
@@ -66,7 +66,7 @@ export function validateDesignReference(
       reference.version,
     );
   out.nonEmpty(`${root}.asset`, reference.asset, "design reference asset");
-  if (!SHA256_DIGEST_PATTERN.test(reference.digest))
+  if (!AutoMovieEngineSha256DigestPattern.test(reference.digest))
     out.push(
       "type",
       `${root}.digest`,

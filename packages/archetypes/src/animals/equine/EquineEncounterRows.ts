@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -59,8 +59,8 @@ export namespace EquineEncounterRows {
     const middle = (end: End): IAutoMovieVector3 =>
       EquineBodyPose.point(
         start.trunk,
-        Vector3.scale(
-          Vector3.add(
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
             body.chains[`left${end}`][0]!,
             body.chains[`right${end}`][0]!,
           ),
@@ -129,11 +129,11 @@ export namespace EquineEncounterRows {
               LIFT,
             ),
             fold: 0,
-            direction: Vector3.lerp(
-              Vector3.subtract(body.chains[limb][4]!, body.chains[limb][3]!),
-              Vector3.scale(
+            direction: AutoMovieEngineVector3.lerp(
+              AutoMovieEngineVector3.subtract(body.chains[limb][4]!, body.chains[limb][3]!),
+              AutoMovieEngineVector3.scale(
                 targets[limb]!.normal,
-                -Vector3.distance(body.chains[limb][4]!, body.chains[limb][3]!),
+                -AutoMovieEngineVector3.distance(body.chains[limb][4]!, body.chains[limb][3]!),
               ),
               s,
             ),

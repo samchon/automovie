@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSkiData from "./internal/AutoMovieArchetypeSkiData";
+import { AutoMovieArchetypeSkiData } from "./internal/AutoMovieArchetypeSkiData";
 
 /** Constructs the ski archetype from its recipe. */
 export namespace AutoMovieArchetypeSki {
@@ -60,7 +60,7 @@ export function create(
     name: `ski ${length.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const half: number = d.length! / 2;
   const thick: number = d.thickness!;
   const contactWidth: number = (WIDTH.waist + WIDTH.tail) / 2;

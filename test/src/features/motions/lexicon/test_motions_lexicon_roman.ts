@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { humanRomanStance } from "@automovie/motions/internal";
+import {
+  humanRomanStance
+} from "../../../../../packages/motions/src/lexicon/internal/humanRomanStance";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

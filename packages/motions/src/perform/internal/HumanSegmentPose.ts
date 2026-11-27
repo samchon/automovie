@@ -1,4 +1,4 @@
-import { hingedArmSwivel, AutoMovieEngineKinematics, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel, AutoMovieEngineKinematics, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -224,7 +224,7 @@ export namespace HumanSegmentPose {
         ? near
         : {
             seeds: HumanSegmentPoseSeeds.shown(seeds, stage),
-            tolerance: hingedArmSwivel.RESOLUTION,
+            tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
             prescribed: true,
           };
 

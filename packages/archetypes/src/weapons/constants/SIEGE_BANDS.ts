@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeSiegeEngine } from "../AutoMovieArchetypeSiegeEngine";
-import * as SiegeBandsData from "./internal/SiegeBandsData";
+import { SiegeBandsData } from "./internal/SiegeBandsData";
 
 /*
  * The band of each dimension of a siege engine, by kind.

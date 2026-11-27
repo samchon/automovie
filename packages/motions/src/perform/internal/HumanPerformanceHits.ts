@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import {
   type AutoMovieHumanSide,
   type AutoMovieHumanoidBone,
@@ -104,8 +104,8 @@ export namespace HumanPerformanceHits {
           t,
         );
         const end: IAutoMovieVector3 = tail ?? point;
-        const velocity: IAutoMovieVector3 = Vector3.scale(
-          Vector3.subtract(
+        const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(
             strike.weapon.path(t + HumanPerformanceContacts.STEP),
             strike.weapon.path(t - HumanPerformanceContacts.STEP),
           ),
@@ -160,13 +160,13 @@ export namespace HumanPerformanceHits {
         const subject: string = p.performer.subject;
         const struck = person(self, subject, t, blast.point, blast.point, read);
         if (struck.distance > blast.radius) continue;
-        const away: IAutoMovieVector3 = Vector3.subtract(
+        const away: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           struck.point,
           blast.point,
         );
-        const reach: number = Vector3.length(away);
+        const reach: number = AutoMovieEngineVector3.length(away);
         const along: IAutoMovieVector3 =
-          reach > 0 ? Vector3.scale(away, 1 / reach) : struck.normal;
+          reach > 0 ? AutoMovieEngineVector3.scale(away, 1 / reach) : struck.normal;
         out.push({
           id: `blast:${blast.id}:${subject}`,
           kind: "hit",
@@ -181,7 +181,7 @@ export namespace HumanPerformanceHits {
           bone: struck.bone,
           region: struck.region,
           normal: struck.normal,
-          impulse: Vector3.scale(along, HumanBlast.impulse(blast, reach)),
+          impulse: AutoMovieEngineVector3.scale(along, HumanBlast.impulse(blast, reach)),
         });
       }
     }
@@ -377,7 +377,7 @@ export namespace HumanPerformanceHits {
           frame,
           bone,
         );
-      const distance: number = Vector3.distance(at, point);
+      const distance: number = AutoMovieEngineVector3.distance(at, point);
       if (best === undefined || distance < nearest) {
         best = region;
         nearest = distance;

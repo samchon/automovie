@@ -7,17 +7,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { distalTwistSwivelRange } from "../../kinematics/distalTwistSwivelRange";
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
-import { swivelJointReadings } from "../../kinematics/swivelJointReadings";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineDistalTwistSwivelRange } from "../../kinematics/AutoMovieEngineDistalTwistSwivelRange";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
+import { AutoMovieEngineSwivelJointReadings } from "../../kinematics/AutoMovieEngineSwivelJointReadings";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import type { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistalTwist";
 
 /*
  * The swivels of one bend branch at which a prepared chain's distally twisting
  * mid segment (a forearm) can take, inside its twist range, the twist a
- * requested effector rotation leaves it (`distalTwistSwivelRange`), read from
+ * requested effector rotation leaves it (`AutoMovieEngineDistalTwistSwivelRange`), read from
  * the chain's preparation as `solveDistalTwist` reads its equation: the
  * effector's rest-carried abduction and flexion axes and its clinical-zero
  * twist give the two directions of the zero-twist reading, and the request seen
@@ -42,9 +42,9 @@ export function distalTwistRange(props: {
   frame: IAutoMovieAxisFrame | undefined;
   flexion: IAutoMovieVector3;
   fixed: AutoMovieEngineMotionDistalTwist.IPrepared;
-  posed: ReturnType<typeof hingedArmSwivel.pose>;
+  posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>;
   rotation: IAutoMovieQuaternion;
-}): distalTwistSwivelRange.IRange | null {
+}): AutoMovieEngineDistalTwistSwivelRange.IRange | null {
   const constraint: IAutoMovieJointConstraint | null =
     props.prepared.lowerDomain.constraint;
   if (constraint === null) return null;
@@ -55,26 +55,26 @@ export function distalTwistRange(props: {
   const { cosine, sine }: AutoMovieEngineMotionDistalTwist.IZero = props.fixed.zero();
   const abduction: IAutoMovieVector3 = props.fixed.abduction();
   const flexion: IAutoMovieVector3 = props.fixed.flexion();
-  const wanted: IAutoMovieQuaternion = Quaternion.normalize(props.rotation);
-  return distalTwistSwivelRange.of({
-    axis: Vector3.normalize(props.axis),
-    normal: Vector3.subtract(
-      Vector3.scale(abduction, cosine),
-      Vector3.scale(flexion, sine),
+  const wanted: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(props.rotation);
+  return AutoMovieEngineDistalTwistSwivelRange.of({
+    axis: AutoMovieEngineVector3.normalize(props.axis),
+    normal: AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.scale(abduction, cosine),
+      AutoMovieEngineVector3.scale(flexion, sine),
     ),
-    ahead: Vector3.add(
-      Vector3.scale(abduction, sine),
-      Vector3.scale(flexion, cosine),
+    ahead: AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(abduction, sine),
+      AutoMovieEngineVector3.scale(flexion, cosine),
     ),
     carried: (swivel: number): IAutoMovieVector3 => {
-      const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+      const at: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
         props.posed(swivel);
-      return Quaternion.rotateVector(
-        Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(
-              Quaternion.multiply(
-                Quaternion.multiply(
+      return AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.multiply(
                   props.prepared.upper.worldRotation,
                   at.upper,
                 ),
@@ -88,6 +88,6 @@ export function distalTwistRange(props: {
         props.flexion,
       );
     },
-    range: swivelJointReadings.rig(twist, props.frame),
+    range: AutoMovieEngineSwivelJointReadings.rig(twist, props.frame),
   });
 }

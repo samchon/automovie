@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
@@ -17,7 +17,7 @@ export function toolCasePot(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
   const x: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
   return {
     subject: "pot",
-    frame: { position: at, rotation: Quaternion.identity() },
+    frame: { position: at, rotation: AutoMovieEngineQuaternion.identity() },
     points: {},
     affordances: [
       toolCaseContact("rim", "surface", { x: 0, y: 0.2, z: 0 }, up, x, {

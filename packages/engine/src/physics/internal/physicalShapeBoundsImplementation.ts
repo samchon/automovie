@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Internal entry points for the composed physical-shape bounds queries.
@@ -38,14 +38,14 @@ function physicalShapeBounds(
 ): IAutoMoviePhysicalShapeBounds.IResult {
   // Read the parent position before rotation, as the original add operands do.
   const origin: IAutoMovieVector3 = pose.position;
-  const center: IAutoMovieVector3 = Quaternion.rotateVector(
+  const center: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     pose.rotation,
     shape.transform.position,
   );
   center.x = origin.x + center.x;
   center.y = origin.y + center.y;
   center.z = origin.z + center.z;
-  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
@@ -67,13 +67,13 @@ function physicalShapeBoundsLowest(
     shape: IAutoMoviePhysicalShape,
   ): number {
     const origin: IAutoMovieVector3 = pose.position;
-    const offsetY: number = Quaternion.rotateVectorY(
+    const offsetY: number = AutoMovieEngineQuaternion.rotateVectorY(
       pose.rotation,
       shape.transform.position,
     );
     const centerY: number = origin.y + offsetY;
     if (shape.kind === "sphere") return centerY - shape.radius;
-    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    const rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
       pose.rotation,
       shape.transform.rotation,
     );
@@ -94,11 +94,11 @@ function physicalShapeBoundsLowestFromParent(
   ): number {
     const centerY: number =
       parentY +
-      Quaternion.rotateVectorY(parentRotation, shape.transform.position);
+      AutoMovieEngineQuaternion.rotateVectorY(parentRotation, shape.transform.position);
     if (shape.kind === "sphere") return centerY - shape.radius;
     return lowestFromShapeFrame(
       centerY,
-      Quaternion.multiply(parentRotation, shape.transform.rotation),
+      AutoMovieEngineQuaternion.multiply(parentRotation, shape.transform.rotation),
       shape,
     );
   }
@@ -126,7 +126,7 @@ function physicalShapeBoundsFromFrame(
     if (shape.kind === "sphere") return sphereBounds(center, shape.radius);
     let extent: IAutoMovieVector3;
     if (shape.kind === "capsule") {
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, AXIS_Y);
       extent = {
         x: Math.abs(axis.x) * shape.halfLength + shape.radius,
         y: Math.abs(axis.y) * shape.halfLength + shape.radius,
@@ -141,7 +141,7 @@ function physicalShapeBoundsFromFrame(
       let maxY: number = -Infinity;
       let maxZ: number = -Infinity;
       for (const point of shape.points) {
-        const world: IAutoMovieVector3 = Quaternion.rotateVector(
+        const world: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           rotation,
           point,
         );
@@ -158,9 +158,9 @@ function physicalShapeBoundsFromFrame(
         max: { x: center.x + maxX, y: center.y + maxY, z: center.z + maxZ },
       };
     } else if (shape.kind === "box") {
-      const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_X);
-      const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
-      const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Z);
+      const x: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, AXIS_X);
+      const y: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, AXIS_Y);
+      const z: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, AXIS_Z);
       extent = {
         x:
           Math.abs(x.x) * shape.halfExtents.x +
@@ -180,8 +180,8 @@ function physicalShapeBoundsFromFrame(
       throw new Error("Unknown physical shape kind");
     }
     return {
-      min: Vector3.subtract(center, extent),
-      max: Vector3.add(center, extent),
+      min: AutoMovieEngineVector3.subtract(center, extent),
+      max: AutoMovieEngineVector3.add(center, extent),
     };
   }
 
@@ -224,13 +224,13 @@ function lowestFromShapeFrame(
   shape: Exclude<IAutoMoviePhysicalShape, { kind: "sphere" }>,
 ): number {
   if (shape.kind === "capsule") {
-    const axis: number = Quaternion.rotateVectorY(rotation, AXIS_Y);
+    const axis: number = AutoMovieEngineQuaternion.rotateVectorY(rotation, AXIS_Y);
     return centerY - (Math.abs(axis) * shape.halfLength + shape.radius);
   }
   if (shape.kind === "box") {
-    const x: number = Quaternion.rotateVectorY(rotation, AXIS_X);
-    const y: number = Quaternion.rotateVectorY(rotation, AXIS_Y);
-    const z: number = Quaternion.rotateVectorY(rotation, AXIS_Z);
+    const x: number = AutoMovieEngineQuaternion.rotateVectorY(rotation, AXIS_X);
+    const y: number = AutoMovieEngineQuaternion.rotateVectorY(rotation, AXIS_Y);
+    const z: number = AutoMovieEngineQuaternion.rotateVectorY(rotation, AXIS_Z);
     const extent: number =
       Math.abs(x) * shape.halfExtents.x +
       Math.abs(y) * shape.halfExtents.y +
@@ -240,7 +240,7 @@ function lowestFromShapeFrame(
   if (shape.kind === "hull") {
     let minimum: number = Infinity;
     for (const point of shape.points)
-      minimum = Math.min(minimum, Quaternion.rotateVectorY(rotation, point));
+      minimum = Math.min(minimum, AutoMovieEngineQuaternion.rotateVectorY(rotation, point));
     return centerY + minimum;
   }
   shape satisfies never;

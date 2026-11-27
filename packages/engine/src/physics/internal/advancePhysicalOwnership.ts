@@ -8,11 +8,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
-import { PhysicalRotationVector as Rotation } from "../PhysicalRotationVector";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
+import { AutoMovieEnginePhysicalRotationVector as Rotation } from "../AutoMovieEnginePhysicalRotationVector";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
@@ -66,7 +66,7 @@ export function advancePhysicalOwnership(input: {
           )),
   );
   let owned: Set<string> | undefined;
-  const segments: Map<string, AutoMovieXpbdBody> = input.bound.segments.get(
+  const segments: Map<string, AutoMovieEngineXpbdBody> = input.bound.segments.get(
     input.body.id,
   )!;
   const transitions: Record<string, IAutoMoviePhysicalHandoff> =
@@ -90,7 +90,7 @@ export function advancePhysicalOwnership(input: {
   const actual: Record<string, IAutoMovieSamplePhysicalTarget.IResult> =
     Object.fromEntries(
       [...segments].map(
-        ([bone, rigid]: [string, AutoMovieXpbdBody]): [
+        ([bone, rigid]: [string, AutoMovieEngineXpbdBody]): [
           string,
           IAutoMovieSamplePhysicalTarget.IResult,
         ] => [
@@ -128,12 +128,12 @@ export function advancePhysicalOwnership(input: {
             {
               ...goal,
               pose: {
-                position: Vector3.subtract(
+                position: AutoMovieEngineVector3.subtract(
                   goal.pose.position,
-                  Vector3.scale(goal.velocity, dt),
+                  AutoMovieEngineVector3.scale(goal.velocity, dt),
                 ),
-                rotation: Quaternion.multiply(
-                  Rotation.exp(Vector3.scale(goal.angularVelocity, -dt)),
+                rotation: AutoMovieEngineQuaternion.multiply(
+                  Rotation.exp(AutoMovieEngineVector3.scale(goal.angularVelocity, -dt)),
                   goal.pose.rotation,
                 ),
               },
@@ -144,7 +144,7 @@ export function advancePhysicalOwnership(input: {
     );
   for (const segment of ordered) {
     const bone: string = segment.bone;
-    const rigid: AutoMovieXpbdBody = segments.get(bone)!;
+    const rigid: AutoMovieEngineXpbdBody = segments.get(bone)!;
     if (selected.has(bone)) {
       delete transitions[bone];
       if (!rigid.isDynamic()) {
@@ -183,35 +183,35 @@ export function advancePhysicalOwnership(input: {
         parent ? before[parent]! : undefined,
       );
       const difference: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           solved.pose.rotation,
-          Quaternion.inverse(intended.pose.rotation),
+          AutoMovieEngineQuaternion.inverse(intended.pose.rotation),
         );
       const rotation: IAutoMovieVector3 = Rotation.log(difference);
       const position: IAutoMovieVector3 = joint
-        ? Vector3.subtract(
+        ? AutoMovieEngineVector3.subtract(
             solved.pose.position,
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               joint.parentFrame.position,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 solved.pose.rotation,
                 joint.childFrame.position,
               ),
             ),
           )
-        : Vector3.subtract(solved.pose.position, intended.pose.position);
+        : AutoMovieEngineVector3.subtract(solved.pose.position, intended.pose.position);
       const velocity: IAutoMovieVector3 = joint
-        ? Vector3.add(
+        ? AutoMovieEngineVector3.add(
             solved.velocity,
-            Vector3.cross(
+            AutoMovieEngineVector3.cross(
               solved.angularVelocity,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 solved.pose.rotation,
                 joint.childFrame.position,
               ),
             ),
           )
-        : Vector3.subtract(solved.velocity, intended.velocity);
+        : AutoMovieEngineVector3.subtract(solved.velocity, intended.velocity);
       transitions[bone] = {
         tick: input.tick - 1,
         duration: input.body.handoffSeconds ?? 0.2,
@@ -220,9 +220,9 @@ export function advancePhysicalOwnership(input: {
         rotation,
         angularVelocity: Rotation.derivative(
           rotation,
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             solved.angularVelocity,
-            Quaternion.rotateVector(difference, intended.angularVelocity),
+            AutoMovieEngineQuaternion.rotateVector(difference, intended.angularVelocity),
           ),
         ),
       };
@@ -256,9 +256,9 @@ export function advancePhysicalOwnership(input: {
       const parentPose: IAutoMovieRigidTransform | undefined = parent
         ? input.goals[parent]!.pose
         : undefined;
-      const vector: IAutoMovieVector3 = Vector3.add(
-        Vector3.scale(transition.rotation, position),
-        Vector3.scale(transition.angularVelocity, velocity),
+      const vector: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(transition.rotation, position),
+        AutoMovieEngineVector3.scale(transition.angularVelocity, velocity),
       );
       const offset: IAutoMovieRigidTransform["rotation"] = Rotation.exp(vector);
       // The Hermite blend runs in rotation-vector space and carries the
@@ -266,94 +266,94 @@ export function advancePhysicalOwnership(input: {
       // the joint's limit box; the return is projected back onto the box,
       // the same projection that post-stabilizes its entry (Cline and Pai
       // 2003), since the joint's limits bind the body the whole time.
-      const blended: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+      const blended: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
         offset,
         goal.pose.rotation,
       );
       const rotation: IAutoMovieRigidTransform["rotation"] =
         joint === undefined
           ? blended
-          : Quaternion.multiply(
-              Quaternion.multiply(
+          : AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.multiply(
                 joint.parentFrame.rotation,
                 projectPhysicalJointRotation(
                   joint,
-                  Quaternion.multiply(
-                    Quaternion.multiply(
-                      Quaternion.inverse(joint.parentFrame.rotation),
+                  AutoMovieEngineQuaternion.multiply(
+                    AutoMovieEngineQuaternion.multiply(
+                      AutoMovieEngineQuaternion.inverse(joint.parentFrame.rotation),
                       blended,
                     ),
                     joint.childFrame.rotation,
                   ),
                 ),
               ),
-              Quaternion.inverse(joint.childFrame.rotation),
+              AutoMovieEngineQuaternion.inverse(joint.childFrame.rotation),
             );
       const first: number =
         (6 * fraction ** 2 - 6 * fraction) / transition.duration;
       const second: number = 3 * fraction ** 2 - 4 * fraction + 1;
-      const localAngular: IAutoMovieVector3 = Vector3.add(
+      const localAngular: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         Rotation.velocity(
           vector,
-          Vector3.add(
-            Vector3.scale(transition.rotation, first),
-            Vector3.scale(transition.angularVelocity, second),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(transition.rotation, first),
+            AutoMovieEngineVector3.scale(transition.angularVelocity, second),
           ),
         ),
-        Quaternion.rotateVector(offset, goal.angularVelocity),
+        AutoMovieEngineQuaternion.rotateVector(offset, goal.angularVelocity),
       );
-      const local: IAutoMovieVector3 = Vector3.add(
+      const local: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         joint
-          ? Vector3.subtract(
+          ? AutoMovieEngineVector3.subtract(
               joint.parentFrame.position,
-              Quaternion.rotateVector(rotation, joint.childFrame.position),
+              AutoMovieEngineQuaternion.rotateVector(rotation, joint.childFrame.position),
             )
           : goal.pose.position,
-        Vector3.add(
-          Vector3.scale(transition.position, position),
-          Vector3.scale(transition.velocity, velocity),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(transition.position, position),
+          AutoMovieEngineVector3.scale(transition.velocity, velocity),
         ),
       );
-      const localVelocity: IAutoMovieVector3 = Vector3.add(
+      const localVelocity: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         joint
-          ? Vector3.scale(
-              Vector3.cross(
+          ? AutoMovieEngineVector3.scale(
+              AutoMovieEngineVector3.cross(
                 localAngular,
-                Quaternion.rotateVector(rotation, joint.childFrame.position),
+                AutoMovieEngineQuaternion.rotateVector(rotation, joint.childFrame.position),
               ),
               -1,
             )
           : goal.velocity,
-        Vector3.add(
-          Vector3.scale(transition.position, first),
-          Vector3.scale(transition.velocity, second),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(transition.position, first),
+          AutoMovieEngineVector3.scale(transition.velocity, second),
         ),
       );
       input.goals[bone]!.pose = parentPose
         ? {
-            position: Vector3.add(
+            position: AutoMovieEngineVector3.add(
               parentPose.position,
-              Quaternion.rotateVector(parentPose.rotation, local),
+              AutoMovieEngineQuaternion.rotateVector(parentPose.rotation, local),
             ),
-            rotation: Quaternion.multiply(parentPose.rotation, rotation),
+            rotation: AutoMovieEngineQuaternion.multiply(parentPose.rotation, rotation),
           }
         : { position: local, rotation };
       input.goals[bone]!.velocity = parent
-        ? Vector3.add(
+        ? AutoMovieEngineVector3.add(
             input.goals[parent]!.velocity,
-            Vector3.add(
-              Vector3.cross(
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.cross(
                 input.goals[parent]!.angularVelocity,
-                Quaternion.rotateVector(parentPose!.rotation, local),
+                AutoMovieEngineQuaternion.rotateVector(parentPose!.rotation, local),
               ),
-              Quaternion.rotateVector(parentPose!.rotation, localVelocity),
+              AutoMovieEngineQuaternion.rotateVector(parentPose!.rotation, localVelocity),
             ),
           )
         : localVelocity;
       input.goals[bone]!.angularVelocity = parent
-        ? Vector3.add(
+        ? AutoMovieEngineVector3.add(
             input.goals[parent]!.angularVelocity,
-            Quaternion.rotateVector(parentPose!.rotation, localAngular),
+            AutoMovieEngineQuaternion.rotateVector(parentPose!.rotation, localAngular),
           )
         : localAngular;
       if (fraction === 1) {
@@ -386,24 +386,24 @@ export function advancePhysicalOwnership(input: {
     if (joint) {
       const parent: IAutoMovieSamplePhysicalTarget.IResult =
         input.goals[joint.parent]!;
-      const proximal: IAutoMovieVector3 = Quaternion.rotateVector(
+      const proximal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         parent.pose.rotation,
         joint.parentFrame.position,
       );
-      const distal: IAutoMovieVector3 = Quaternion.rotateVector(
+      const distal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         goal.pose.rotation,
         joint.childFrame.position,
       );
-      goal.pose.position = Vector3.subtract(
-        Vector3.add(parent.pose.position, proximal),
+      goal.pose.position = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(parent.pose.position, proximal),
         distal,
       );
-      goal.velocity = Vector3.subtract(
-        Vector3.add(
+      goal.velocity = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           parent.velocity,
-          Vector3.cross(parent.angularVelocity, proximal),
+          AutoMovieEngineVector3.cross(parent.angularVelocity, proximal),
         ),
-        Vector3.cross(goal.angularVelocity, distal),
+        AutoMovieEngineVector3.cross(goal.angularVelocity, distal),
       );
     }
     write(segment);
@@ -426,7 +426,7 @@ export function advancePhysicalOwnership(input: {
   function write(segment: IAutoMoviePhysicalSegment): void {
     const bone: string = segment.bone;
     const goal: IAutoMovieSamplePhysicalTarget.IResult = input.goals[bone]!;
-    const rigid: AutoMovieXpbdBody = segments.get(bone)!;
+    const rigid: AutoMovieEngineXpbdBody = segments.get(bone)!;
     rigid.setNextKinematicTranslation(goal.pose.position);
     rigid.setNextKinematicRotation(goal.pose.rotation);
   }
@@ -441,28 +441,28 @@ function relative(
   parent?: IAutoMovieSamplePhysicalTarget.IResult,
 ): IAutoMovieSamplePhysicalTarget.IResult {
   if (!parent) return child;
-  const inverse: IAutoMovieRigidTransform["rotation"] = Quaternion.inverse(
+  const inverse: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.inverse(
     parent.pose.rotation,
   );
-  const displacement: IAutoMovieVector3 = Vector3.subtract(
+  const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     child.pose.position,
     parent.pose.position,
   );
   return {
     pose: {
-      position: Quaternion.rotateVector(inverse, displacement),
-      rotation: Quaternion.multiply(inverse, child.pose.rotation),
+      position: AutoMovieEngineQuaternion.rotateVector(inverse, displacement),
+      rotation: AutoMovieEngineQuaternion.multiply(inverse, child.pose.rotation),
     },
-    velocity: Quaternion.rotateVector(
+    velocity: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(
-        Vector3.subtract(child.velocity, parent.velocity),
-        Vector3.cross(parent.angularVelocity, displacement),
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.subtract(child.velocity, parent.velocity),
+        AutoMovieEngineVector3.cross(parent.angularVelocity, displacement),
       ),
     ),
-    angularVelocity: Quaternion.rotateVector(
+    angularVelocity: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(child.angularVelocity, parent.angularVelocity),
+      AutoMovieEngineVector3.subtract(child.angularVelocity, parent.angularVelocity),
     ),
   };
 }

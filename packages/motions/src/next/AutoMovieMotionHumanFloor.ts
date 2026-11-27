@@ -251,7 +251,7 @@ export namespace AutoMovieMotionHumanFloor {
    * Toe-off, in a dive: over the crouch's last `TOE_OFF` seconds each planted
    * foot rolls about its ball, the heel rising, by the angle (solved on the
    * planted take-off, `SECANT`) that brings the take-off's ankle to what a
-   * weightless ankle reaches (`ANKLE_DORSIFLEXION.unloaded`), so the feet leave
+   * weightless ankle reaches (`AutoMovieEngineAnkleDorsiflexion.unloaded`), so the feet leave
    * the floor plantarflexed, as the push-off's plantarflexion leaves them, and
    * stay so in the air.
    *

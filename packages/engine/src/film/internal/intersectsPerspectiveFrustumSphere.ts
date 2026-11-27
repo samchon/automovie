@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 
 /*
@@ -39,9 +39,9 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
 export function intersectsPerspectiveFrustumSphere(
   props: IAutoMovieIntersectsPerspectiveFrustumSphere.IProps,
 ): boolean {
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(props.camera.rotation),
-    Vector3.subtract(props.center, props.camera.position),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(props.camera.rotation),
+    AutoMovieEngineVector3.subtract(props.center, props.camera.position),
   );
   const depth: number = -local.z;
   if (

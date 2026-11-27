@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
+import { AutoMovieEnginePhysicalHullFaces } from "../AutoMovieEnginePhysicalHullFaces";
 import { physicalHullFacesSegment } from "./physicalHullFacesSegment";
 
 /*
@@ -17,5 +17,5 @@ export function physicalHullSegment(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): number {
-  return physicalHullFacesSegment(AutoMoviePhysicalHullFaces.build(points), a, b);
+  return physicalHullFacesSegment(AutoMovieEnginePhysicalHullFaces.build(points), a, b);
 }

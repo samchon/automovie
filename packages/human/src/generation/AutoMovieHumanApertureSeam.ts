@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanApertureSeam,
   IAutoMovieHumanApertureSpan,
@@ -51,7 +51,7 @@ export namespace AutoMovieHumanApertureSeam {
         let chain: IAutoMovieLoftChain = chainOf(p.chain);
         let s: number = p.s;
         let t: number = p.t;
-        const start: [number, number, number] = AutoMovieLoftChain.point(
+        const start: [number, number, number] = AutoMovieEngineLoftChain.point(
           chain,
           s,
           t,
@@ -61,7 +61,7 @@ export namespace AutoMovieHumanApertureSeam {
         for (let k: number = 0; k < STEPS; k++) {
           const y0: number = chain.layers[0]!.y;
           const y1: number = chain.layers[chain.layers.length - 1]!.y;
-          const q: [number, number, number] = AutoMovieLoftChain.point(
+          const q: [number, number, number] = AutoMovieEngineLoftChain.point(
             chain,
             s,
             t,
@@ -69,7 +69,7 @@ export namespace AutoMovieHumanApertureSeam {
           const miss: number = q[1] - (line(q[2]) + side * seam.closed);
           if (Math.abs(miss) < 1e-6) break;
           const h: number = s + STEP <= y1 ? STEP : -STEP;
-          const r: [number, number, number] = AutoMovieLoftChain.point(
+          const r: [number, number, number] = AutoMovieEngineLoftChain.point(
             chain,
             s + h,
             t,
@@ -92,7 +92,7 @@ export namespace AutoMovieHumanApertureSeam {
             s = ring;
             continue;
           }
-          const point: [number, number, number] = AutoMovieLoftChain.point(
+          const point: [number, number, number] = AutoMovieEngineLoftChain.point(
             chain,
             ring,
             t,

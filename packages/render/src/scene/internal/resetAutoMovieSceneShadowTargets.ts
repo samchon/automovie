@@ -1,10 +1,10 @@
 import type * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRenderer.js";
-import type { IAutoMovieShadowRetirementHost } from "../IAutoMovieShadowRetirementHost.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderFramebufferRenderer } from "../IAutoMovieRenderFramebufferRenderer.js";
+import type { IAutoMovieRenderShadowRetirementHost } from "../IAutoMovieRenderShadowRetirementHost.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
-import { AutoMovieSceneShadow } from "../AutoMovieSceneShadow.js";
+import { AutoMovieRenderSceneShadow } from "../AutoMovieRenderSceneShadow.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /*
@@ -28,10 +28,10 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  */
 export const resetAutoMovieSceneShadowTargets: (
   scene: THREE.Scene,
-  renderer: IAutoMovieFramebufferRenderer & IAutoMovieShadowRetirementHost,
+  renderer: IAutoMovieRenderFramebufferRenderer & IAutoMovieRenderShadowRetirementHost,
 ) => void = (
   scene: THREE.Scene,
-  renderer: IAutoMovieFramebufferRenderer & IAutoMovieShadowRetirementHost,
+  renderer: IAutoMovieRenderFramebufferRenderer & IAutoMovieRenderShadowRetirementHost,
 ): void => {
   guardAutoMovieSceneShadowRetirement(scene, renderer);
   const resources: Set<THREE.RenderTarget | THREE.Texture> = new Set<
@@ -44,9 +44,9 @@ export const resetAutoMovieSceneShadowTargets: (
   scene.traverse((object: THREE.Object3D): void => {
     // The lights that own a shadow: directional, point and spot.
     if (
-      !AutoMovieThreeKind.isDirectionalLight(object) &&
-      !AutoMovieThreeKind.isPointLight(object) &&
-      !AutoMovieThreeKind.isSpotLight(object)
+      !AutoMovieRenderThreeKind.isDirectionalLight(object) &&
+      !AutoMovieRenderThreeKind.isPointLight(object) &&
+      !AutoMovieRenderThreeKind.isSpotLight(object)
     )
       return;
     const shadow: THREE.LightShadow = object.shadow;
@@ -71,12 +71,12 @@ export const resetAutoMovieSceneShadowTargets: (
     );
   for (const target of targets) {
     if (
-      AutoMovieThreeKind.isWebGLCubeRenderTarget(target) &&
+      AutoMovieRenderThreeKind.isWebGLCubeRenderTarget(target) &&
       target.depthTexture !== null &&
       target.depthTexture.version !== 0
     ) {
       try {
-        const handle: WebGLTexture | null = AutoMovieSceneShadow.readCubeDepth(
+        const handle: WebGLTexture | null = AutoMovieRenderSceneShadow.readCubeDepth(
           renderer,
           target,
         );
@@ -111,7 +111,7 @@ export const resetAutoMovieSceneShadowTargets: (
           nativeDepth,
           (handle: WebGLTexture): (() => void) =>
             (): void => {
-              AutoMovieSceneShadow.retireCubeDepth(renderer, handle);
+              AutoMovieRenderSceneShadow.retireCubeDepth(renderer, handle);
             },
         ),
       ]),

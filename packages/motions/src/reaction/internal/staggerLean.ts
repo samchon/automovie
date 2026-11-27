@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieVector3,
@@ -69,7 +69,7 @@ export function staggerLean(
   const rise: number = AutoMovieMotionHumanTiming.seconds(
     staggerBounds.TRANSFER,
   );
-  const rolling: number = Vector3.dot(bend.roll, across) < 0 ? -1 : 1;
+  const rolling: number = AutoMovieEngineVector3.dot(bend.roll, across) < 0 ? -1 : 1;
   const root: IAutoMovieVector3 = entry.posture.root;
   return (seconds: number): IStaggerLeanResult2 => {
     const travel: IAutoMovieVector3 = walk.course(seconds);
@@ -81,7 +81,7 @@ export function staggerLean(
       y: 0,
       z: xi.z - (walk.centre.z + travel.z),
     };
-    const size: number = Vector3.length(lead);
+    const size: number = AutoMovieEngineVector3.length(lead);
     const ease: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (seconds - onset) / rise)),
     );
@@ -95,7 +95,7 @@ export function staggerLean(
         : 0;
     const against: (axis: IAutoMovieVector3) => number = (
       axis: IAutoMovieVector3,
-    ): number => (size > 0 ? -Vector3.dot(lead, axis) / size : 0);
+    ): number => (size > 0 ? -AutoMovieEngineVector3.dot(lead, axis) / size : 0);
     const trunk: IStaggerLeanTrunk = {
       pitch: angle * against(forward),
       roll: rolling * angle * against(across),

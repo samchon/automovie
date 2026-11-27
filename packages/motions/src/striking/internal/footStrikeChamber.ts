@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanFootStrike,
   IAutoMovieVector3,
@@ -28,38 +28,38 @@ export function footStrikeChamber(
   }: footStrikeChamber.IPrepared = prepared;
   const across: boolean = technique === "hook" || technique === "crescent";
   const fold: number =
-    Vector3.length(
-      Vector3.add(
-        Vector3.scale(FootStrikeForms.DOWN, 0.45),
-        Vector3.scale(line, 0.25),
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(FootStrikeForms.DOWN, 0.45),
+        AutoMovieEngineVector3.scale(line, 0.25),
       ),
     ) * reach;
   return technique === "axe"
-    ? Vector3.add(
+    ? AutoMovieEngineVector3.add(
         hip,
-        Vector3.add(
-          Vector3.scale(FootStrikeForms.UP, 0.6 * reach),
-          Vector3.scale(line, 0.3 * reach),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(FootStrikeForms.UP, 0.6 * reach),
+          AutoMovieEngineVector3.scale(line, 0.3 * reach),
         ),
       )
     : across
-      ? Vector3.add(
+      ? AutoMovieEngineVector3.add(
           hip,
-          Vector3.scale(
-            Vector3.normalize(
-              Vector3.subtract(
-                Vector3.subtract(ankle, Vector3.scale(travel, 0.5 * reach)),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.normalize(
+              AutoMovieEngineVector3.subtract(
+                AutoMovieEngineVector3.subtract(ankle, AutoMovieEngineVector3.scale(travel, 0.5 * reach)),
                 hip,
               ),
             ),
             fold,
           ),
         )
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           hip,
-          Vector3.add(
-            Vector3.scale(FootStrikeForms.DOWN, 0.45 * reach),
-            Vector3.scale(line, 0.25 * reach),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(FootStrikeForms.DOWN, 0.45 * reach),
+            AutoMovieEngineVector3.scale(line, 0.25 * reach),
           ),
         );
 }

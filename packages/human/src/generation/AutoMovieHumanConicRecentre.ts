@@ -1,8 +1,8 @@
 import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
 import {
-  AutoMovieNaturalSpline,
-  AutoMovieViewAxisJet,
-  AutoMovieViewChain,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineViewAxisJet,
+  AutoMovieEngineViewChain,
 } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
@@ -18,7 +18,7 @@ import type {
  * A conic family re-expressed about another origin line in its own section planes: the same skin, read from a course point moved within
  * each plane.
  *
- * What the origin is to a section (`AutoMovieHumanConicSection.resolve`, `AutoMovieViewChain.of` and `read`):
+ * What the origin is to a section (`AutoMovieHumanConicSection.resolve`, `AutoMovieEngineViewChain.of` and `read`):
  * - an extreme anchor's two numbers are its chart coordinates about the course point, so they shift with it; a median share, an
  *   inflection's share and turn, a feature's chord numbers and every shoulder are read on the anchors' own triangle or chord and do not
  *   change;
@@ -68,14 +68,14 @@ export namespace AutoMovieHumanConicRecentre {
     const stations: number[] = knots.flatMap((s: number, m: number): number[] => (m === 0 ? [s] : [(knots[m - 1]! + s) / 2, s]));
     const read = (rows: readonly (readonly number[])[]): ((s: number) => number[]) => {
       const fields: IAutoMovieNaturalCubicSpline[] = rows.map((row: readonly number[]): IAutoMovieNaturalCubicSpline => spline(knots, row));
-      return (s: number): number[] => fields.map((field: IAutoMovieNaturalCubicSpline): number => AutoMovieNaturalSpline.evaluate(field, s));
+      return (s: number): number[] => fields.map((field: IAutoMovieNaturalCubicSpline): number => AutoMovieEngineNaturalSpline.evaluate(field, s));
     };
     const [before, after] = [read(family.values), read(values)];
     const [cu, cv] = [spline(knots, line.u), spline(knots, line.v)];
     for (const s of stations) {
       const [old, own] = [before(s), after(s)];
       const [a, b] = [S.resolve(old, layout).input, S.resolve(own, layout).input];
-      const move: AutoMovieVector2Tuple = [AutoMovieNaturalSpline.evaluate(cu, s), AutoMovieNaturalSpline.evaluate(cv, s)];
+      const move: AutoMovieVector2Tuple = [AutoMovieEngineNaturalSpline.evaluate(cu, s), AutoMovieEngineNaturalSpline.evaluate(cv, s)];
       const same: boolean = a.points.every((p: readonly number[], k: number): boolean => {
         const q: readonly number[] = b.points[k]!;
         const scale: number = Math.max(1, Math.abs(p[0]!), Math.abs(p[1]!));
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanConicRecentre {
         );
       });
       if (!same) throw new Error("recentre: the section at " + s + " is not the same chain about the new origin (an extreme changes side or a guide stands at its box bound)");
-      const fault: string | null = AutoMovieViewChain.of(b).fault;
+      const fault: string | null = AutoMovieEngineViewChain.of(b).fault;
       if (fault !== null) throw new Error("recentre: the section at " + s + " is not admitted about the new origin: " + fault);
     }
     return values;
@@ -114,7 +114,7 @@ export namespace AutoMovieHumanConicRecentre {
       const frame: ReturnType<IAutoMovieViewAxis.IAxis["at"]> = base.at(station);
       return {
         ...frame,
-        origin: mix([[1, frame.origin], [AutoMovieNaturalSpline.evaluate(cu, station), frame.u], [AutoMovieNaturalSpline.evaluate(cv, station), frame.v]]),
+        origin: mix([[1, frame.origin], [AutoMovieEngineNaturalSpline.evaluate(cu, station), frame.u], [AutoMovieEngineNaturalSpline.evaluate(cv, station), frame.v]]),
       };
     };
     if (base.jet === undefined) return { at };
@@ -123,8 +123,8 @@ export namespace AutoMovieHumanConicRecentre {
       jet: (station: number, parameter?: Parameters<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>[1]): IAutoMovieViewAxisJet.IJet | null => {
         const j: IAutoMovieViewAxisJet.IJet | null = base.jet!(station);
         if (j === null) return null;
-        const [u0, v0] = [AutoMovieNaturalSpline.evaluate(cu, station), AutoMovieNaturalSpline.evaluate(cv, station)];
-        const [[u1, u2], [v1, v2]] = [AutoMovieNaturalSpline.derivative(cu, station), AutoMovieNaturalSpline.derivative(cv, station)];
+        const [u0, v0] = [AutoMovieEngineNaturalSpline.evaluate(cu, station), AutoMovieEngineNaturalSpline.evaluate(cv, station)];
+        const [[u1, u2], [v1, v2]] = [AutoMovieEngineNaturalSpline.derivative(cu, station), AutoMovieEngineNaturalSpline.derivative(cv, station)];
         const moved: IAutoMovieViewAxisJet.IJet = {
           value: { ...j.value, origin: mix([[1, j.value.origin], [u0, j.value.u], [v0, j.value.v]]) },
           first: { ...j.first, origin: mix([[1, j.first.origin], [u1, j.value.u], [u0, j.first.u], [v1, j.value.v], [v0, j.first.v]]) },
@@ -133,7 +133,7 @@ export namespace AutoMovieHumanConicRecentre {
             origin: mix([[1, j.second.origin], [u2, j.value.u], [2 * u1, j.first.u], [u0, j.second.u], [v2, j.value.v], [2 * v1, j.first.v], [v0, j.second.v]]),
           },
         };
-        return AutoMovieViewAxisJet.parameter(moved, parameter, station);
+        return AutoMovieEngineViewAxisJet.parameter(moved, parameter, station);
       },
     };
   }
@@ -150,17 +150,17 @@ export namespace AutoMovieHumanConicRecentre {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function phase(family: IAutoMovieHumanConicRecentre.IFields, line: IAutoMovieHumanConicRecentre.ILine, station: number, phase: number): number {
-    const values: number[] = family.values.map((row: readonly number[]): number => AutoMovieNaturalSpline.evaluate(spline(family.knots, row), station));
+    const values: number[] = family.values.map((row: readonly number[]): number => AutoMovieEngineNaturalSpline.evaluate(spline(family.knots, row), station));
     const section: IAutoMovieViewChain.ISection = S.chain(values, family.layout);
     if (section.fault !== null) throw new Error("recentre: the base section at " + station + " is not admitted: " + section.fault);
-    const r: number = AutoMovieViewChain.radius(section, phase);
+    const r: number = AutoMovieEngineViewChain.radius(section, phase);
     const [cu, cv] = [
-      AutoMovieNaturalSpline.evaluate(spline(family.knots, line.u), station),
-      AutoMovieNaturalSpline.evaluate(spline(family.knots, line.v), station),
+      AutoMovieEngineNaturalSpline.evaluate(spline(family.knots, line.u), station),
+      AutoMovieEngineNaturalSpline.evaluate(spline(family.knots, line.v), station),
     ];
     const angle: number = Math.atan2(r * Math.sin(phase) - cv, r * Math.cos(phase) - cu);
     return angle < 0 ? angle + 2 * Math.PI : angle;
   }
 
-  const spline = (knots: readonly number[], values: readonly number[]): IAutoMovieNaturalCubicSpline => AutoMovieNaturalSpline.create(knots, values);
+  const spline = (knots: readonly number[], values: readonly number[]): IAutoMovieNaturalCubicSpline => AutoMovieEngineNaturalSpline.create(knots, values);
 }

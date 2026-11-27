@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrateAirborneRotation, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,7 +32,7 @@ const bones: (
 ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
   t: number,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     (0.25 * t * 180) / Math.PI,
   );
@@ -89,11 +89,11 @@ export function test_engine_kinematics_resolve_momentum(): void {
   );
   TestValidator.predicate(
     "stationary centre, spin momentum",
-    Vector3.length(before.centre) <= ROUNDING &&
-      Vector3.length(after.centre) <= ROUNDING &&
-      Vector3.length(momentum.linear) <= ROUNDING &&
-      Vector3.length(
-        Vector3.subtract(momentum.angular, { x: 1, y: 0, z: 0 }),
+    AutoMovieEngineVector3.length(before.centre) <= ROUNDING &&
+      AutoMovieEngineVector3.length(after.centre) <= ROUNDING &&
+      AutoMovieEngineVector3.length(momentum.linear) <= ROUNDING &&
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(momentum.angular, { x: 1, y: 0, z: 0 }),
       ) <= ROUNDING,
   );
   const tensor: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(
@@ -146,8 +146,8 @@ function readBack(): boolean {
           bone,
           {
             ...resolved,
-            worldPosition: Quaternion.rotateVector(q, resolved.worldPosition),
-            worldRotation: Quaternion.multiply(q, resolved.worldRotation),
+            worldPosition: AutoMovieEngineQuaternion.rotateVector(q, resolved.worldPosition),
+            worldRotation: AutoMovieEngineQuaternion.multiply(q, resolved.worldRotation),
           },
         ],
       ),
@@ -172,8 +172,8 @@ function readBack(): boolean {
       2 * step,
     ).angular;
     holds &&=
-      Vector3.length(Vector3.subtract(read, momentum)) /
-        Vector3.length(momentum) <=
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(read, momentum)) /
+        AutoMovieEngineVector3.length(momentum) <=
       1e-3;
   }
   return holds;

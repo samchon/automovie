@@ -1,7 +1,7 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 
 /*
@@ -11,7 +11,7 @@ import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
  * protective joint remains active.
  */
 export function releasePhysicalTracking(
-  world: AutoMovieXpbdWorld,
+  world: AutoMovieEngineXpbdWorld,
   body: IAutoMoviePhysicalSimulationInput.IBody,
   bound: Bound,
 ): void {

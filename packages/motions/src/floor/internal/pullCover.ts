@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -31,7 +31,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { pullCoverWay } from "./pullCoverWay";
-import * as PullCoverData from "./PullCoverData";
+import { PullCoverData } from "./PullCoverData";
 
 /*
  * Pull a cover up while lying, or push it off. Each hand's way runs over its
@@ -112,13 +112,13 @@ function planPullCover(
         const frame: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.regions[name];
         const bone: IAutoMovieResolvedBone = pose.get(frame.bone)!;
-        return Vector3.add(
-          Vector3.add(
+        return AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             bone.worldPosition,
-            Quaternion.rotateVector(bone.worldRotation, frame.point),
+            AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, frame.point),
           ),
-          Vector3.scale(
-            Quaternion.rotateVector(bone.worldRotation, frame.normal),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, frame.normal),
             PullCoverData.OVER,
           ),
         );
@@ -126,25 +126,25 @@ function planPullCover(
     );
     return p.off === true ? placed.reverse() : placed;
   }
-  const toward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(HumanTrunk.region(body, entry, "groin").point, sternum),
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(HumanTrunk.region(body, entry, "groin").point, sternum),
   );
-  const up: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(sternum, back),
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(sternum, back),
   );
   // Each hand's fingers point across the body toward its midline, so
   // the forearm comes in from the side, clear of the trunk, as hands
   // drawing a cover's edge hold it.
   const medial = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
-    const across: IAutoMovieVector3 = Vector3.subtract(sternum, ways[side][0]!);
-    const level: IAutoMovieVector3 = Vector3.subtract(
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(sternum, ways[side][0]!);
+    const level: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       across,
-      Vector3.scale(up, Vector3.dot(across, up)),
+      AutoMovieEngineVector3.scale(up, AutoMovieEngineVector3.dot(across, up)),
     );
-    return Vector3.normalize(
-      Vector3.subtract(
+    return AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         level,
-        Vector3.scale(toward, Vector3.dot(level, toward)),
+        AutoMovieEngineVector3.scale(toward, AutoMovieEngineVector3.dot(level, toward)),
       ),
     );
   };
@@ -160,7 +160,7 @@ function planPullCover(
     )({
       point: at,
       rotation: HumanHand.align(HumanHand.offset(body, side, "grip"), {
-        normal: Vector3.scale(up, -1),
+        normal: AutoMovieEngineVector3.scale(up, -1),
         forward: medial(side),
       }),
       bend: AutoMovieMotionHumanBend.hang(body, entry, side, 0.2),
@@ -170,7 +170,7 @@ function planPullCover(
       .slice(1)
       .reduce(
         (sum: number, q: IAutoMovieVector3, i: number): number =>
-          sum + Vector3.distance(way[i]!, q),
+          sum + AutoMovieEngineVector3.distance(way[i]!, q),
         0,
       );
 
@@ -198,7 +198,7 @@ function planPullCover(
     ),
   };
   const reach = (side: AutoMovieHumanSide, at: IAutoMovieVector3): number =>
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       AutoMovieMotionHumanArmTarget.point(entry, origins[side]),
       at,
     );

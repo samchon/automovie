@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
-import { RecoveryBezierFit } from "../../fitting/RecoveryBezierFit";
+import { AutoMovieRecoveryBezierFit } from "../../fitting/AutoMovieRecoveryBezierFit";
 
 /*
  * Fit one caller-ordered polyline through the shared tangent-constrained cubic
@@ -63,7 +63,7 @@ export function observeAutoMovieRecoveryPolyline<
         status: "cancelled",
         diagnostics: ["Cancelled before fitting"],
       };
-    const fit: IAutoMoviePolylineFit = RecoveryBezierFit.fit(input);
+    const fit: IAutoMoviePolylineFit = AutoMovieRecoveryBezierFit.fit(input);
     const value: AutoMovieRecoveryCurveData<IAutoMoviePolylineFit, Format> =
       convertAutoMovieRecoveryCurves(fit, options.curveFormat);
     if (cancelled())

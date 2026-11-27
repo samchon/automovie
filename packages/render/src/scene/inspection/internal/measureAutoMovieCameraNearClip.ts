@@ -1,7 +1,7 @@
 import type { AutoMovieRenderInspectionCamera } from "../../AutoMovieRenderInspectionCamera.js";
 import { Box3, BufferAttribute, Frustum, Matrix4, Mesh, Plane, Vector3, WebGLCoordinateSystem } from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { clipInspectionPolygon } from "./clipInspectionPolygon.js";
 import { inspectionPlaneRoundingSlack } from "./inspectionPlaneRoundingSlack.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
@@ -81,11 +81,11 @@ export function measureAutoMovieCameraNearClip(
   }[] = [];
   let triangles: number = 0;
   for (const mesh of meshes) {
-    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh))
+    if (AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(mesh))
       mesh.computeBoundingBox();
     else if (mesh.geometry.boundingBox === null)
       mesh.geometry.computeBoundingBox();
-    const local: Box3 | null = AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
+    const local: Box3 | null = AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(mesh)
       ? mesh.boundingBox
       : mesh.geometry.boundingBox;
     if (local === null || local.isEmpty()) continue;
@@ -108,7 +108,7 @@ export function measureAutoMovieCameraNearClip(
       Math.hypot(e[1]!, e[5]!, e[9]!),
       Math.hypot(e[2]!, e[6]!, e[10]!),
     );
-    const slack: number = AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
+    const slack: number = AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(mesh)
       ? mesh.tolerance() * scale
       : 0;
     selected.push({ mesh, ranges, slack });
@@ -124,7 +124,7 @@ export function measureAutoMovieCameraNearClip(
     const index: BufferAttribute | null = mesh.geometry.index;
     for (const range of ranges) {
       const opaque: boolean =
-        AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
+        AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(mesh) ||
         readAutoMovieDisplayedBox.supportsStockSurface(range.material);
       for (let i: number = range.start; i + 2 < range.end; i += 3) {
         for (let k: number = 0; k < 3; ++k) {

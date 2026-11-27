@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry as Geometry, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalContactSupportRows,

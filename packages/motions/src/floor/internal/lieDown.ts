@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -273,7 +273,7 @@ export namespace lieDown {
     ): IAutoMovieMotionHumanPosture => {
       if (entered === null && index === 0 && u <= 0) return stoodPose;
       const posed: IAutoMovieMotionHumanPosture = posedAt(index, u);
-      const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+      const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading(posed),
         body.rest.get("hips")!,
       );

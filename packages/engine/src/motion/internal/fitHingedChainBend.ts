@@ -6,9 +6,9 @@ import type {
   IAutoMovieSolvedChainPlant,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
-import { Vector3 } from "../../math/Vector3";
-import { PLANT_RESIDUAL_EPSILON } from "../PLANT_RESIDUAL_EPSILON";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePlantResidualEpsilon } from "../AutoMovieEnginePlantResidualEpsilon";
 import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
@@ -43,7 +43,7 @@ export function fitHingedChainBend(
   )
     return null;
   const axes: IAutoMovieJointAxes =
-    props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
+    props.jointAxes?.[props.chain.lower] ?? AutoMovieEngineDefaultJointAxes;
   const candidate: IAutoMovieSolvedChainPlant | null = fitHingedChainCandidate(
     props,
     prepared,
@@ -54,7 +54,7 @@ export function fitHingedChainBend(
   if (candidate === null) return null;
   const upper: IAutoMovieJointPose = workspace.clamp(candidate.upper);
   const lower: IAutoMovieJointPose = workspace.clamp(candidate.lower);
-  const residual: number = Vector3.distance(
+  const residual: number = AutoMovieEngineVector3.distance(
     resolvePreparedChainEffector({
       prepared,
       upper,
@@ -67,7 +67,7 @@ export function fitHingedChainBend(
   );
   const admitted: boolean =
     Math.floor(
-      Math.abs(residual - (candidate.shortfall ?? 0)) / PLANT_RESIDUAL_EPSILON,
+      Math.abs(residual - (candidate.shortfall ?? 0)) / AutoMovieEnginePlantResidualEpsilon,
     ) === 0;
   return {
     candidate,

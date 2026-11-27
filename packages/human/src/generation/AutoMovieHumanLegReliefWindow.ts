@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief } from "@automovie/engine";
 import type {
   IAutoMovieHumanLegReliefWindow,
   IAutoMovieLoftRelief,
@@ -91,7 +91,7 @@ export namespace AutoMovieHumanLegReliefWindow {
     };
 
     // Scale the net so the evaluated height at the centre is the declared one.
-    const reached: number = AutoMovieLoftRelief.height(
+    const reached: number = AutoMovieEngineLoftRelief.height(
       unit,
       centre,
       first + window.halfAngle,

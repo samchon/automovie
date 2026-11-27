@@ -1,6 +1,6 @@
 import { IAutoMovieTransform } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { placeTransformedPoint } from "./placeTransformedPoint";
 
 /*
@@ -25,7 +25,7 @@ export function foldRoot(
   if (root === null) return base;
   return {
     translation: placeTransformedPoint(base, root.translation),
-    rotation: Quaternion.multiply(base.rotation, root.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(base.rotation, root.rotation),
     scale: base.scale,
   };
 }

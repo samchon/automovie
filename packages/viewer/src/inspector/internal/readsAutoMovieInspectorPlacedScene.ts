@@ -1,4 +1,4 @@
-import type { IAutoMovieDrawScene } from "@automovie/render";
+import type { IAutoMovieRenderDrawScene } from "@automovie/render";
 
 /*
  * Whether a subject reads its placed scene before each picture, so the
@@ -8,7 +8,7 @@ import type { IAutoMovieDrawScene } from "@automovie/render";
  * with its own materials.
  */
 export function readsAutoMovieInspectorPlacedScene(
-  instance: Pick<IAutoMovieDrawScene, "inspectPlaced" | "beforeDraw">,
+  instance: Pick<IAutoMovieRenderDrawScene, "inspectPlaced" | "beforeDraw">,
 ): boolean {
   return (
     instance.inspectPlaced !== undefined || instance.beforeDraw !== undefined

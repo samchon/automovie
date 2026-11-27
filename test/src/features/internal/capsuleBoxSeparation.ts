@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -25,12 +25,12 @@ export function capsuleBoxSeparation(
   const distance: (parameter: number) => number = (
     parameter: number,
   ): number => {
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(solid.rotation),
-      Vector3.subtract(
-        Vector3.add(
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(solid.rotation),
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           axis.position,
-          Quaternion.rotateVector(axis.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(axis.rotation, {
             x: 0,
             y: parameter * capsule.halfLength,
             z: 0,
@@ -64,10 +64,10 @@ function place(
   shape: IAutoMoviePhysicalShape,
 ): IAutoMovieRigidTransform {
   return {
-    position: Vector3.add(
+    position: AutoMovieEngineVector3.add(
       pose.position,
-      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+      AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
     ),
-    rotation: Quaternion.multiply(pose.rotation, shape.transform.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(pose.rotation, shape.transform.rotation),
   };
 }

@@ -2,8 +2,8 @@ import type { IAutoMovieCamera } from "@automovie/interface";
 import type * as THREE from "three";
 
 import { AUTOMOVIE_FLOAT32_MAX } from "./AUTOMOVIE_FLOAT32_MAX.js";
-import type { IAutoMovieDepthPrecisionRenderer } from "../IAutoMovieDepthPrecisionRenderer.js";
-import type { IAutoMovieViewerCameraDepthPrecisionReport } from "../IAutoMovieViewerCameraDepthPrecisionReport.js";
+import type { IAutoMovieRenderDepthPrecisionRenderer } from "../IAutoMovieRenderDepthPrecisionRenderer.js";
+import type { IAutoMovieRenderViewerCameraDepthPrecisionReport } from "../IAutoMovieRenderViewerCameraDepthPrecisionReport.js";
 
 /*
  * Observe the currently bound draw framebuffer and compare it with one resolved
@@ -20,14 +20,14 @@ import type { IAutoMovieViewerCameraDepthPrecisionReport } from "../IAutoMovieVi
  * use.
  */
 export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
-  renderer: IAutoMovieDepthPrecisionRenderer;
+  renderer: IAutoMovieRenderDepthPrecisionRenderer;
   source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
   realized: THREE.PerspectiveCamera;
-}) => IAutoMovieViewerCameraDepthPrecisionReport = (props: {
+}) => IAutoMovieRenderViewerCameraDepthPrecisionReport = (props: {
   /*
    * Viewer renderer whose currently bound draw framebuffer receives the shot.
    */
-  renderer: IAutoMovieDepthPrecisionRenderer;
+  renderer: IAutoMovieRenderDepthPrecisionRenderer;
   /*
    * Portable resolved camera declaration.
    */
@@ -36,11 +36,11 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
    * Three camera built from that declaration.
    */
   realized: THREE.PerspectiveCamera;
-}): IAutoMovieViewerCameraDepthPrecisionReport => {
+}): IAutoMovieRenderViewerCameraDepthPrecisionReport => {
   const logarithmic: boolean =
     props.renderer.capabilities.logarithmicDepthBuffer;
   const reversed: boolean = props.renderer.capabilities.reversedDepthBuffer;
-  const projection: IAutoMovieViewerCameraDepthPrecisionReport["projection"] =
+  const projection: IAutoMovieRenderViewerCameraDepthPrecisionReport["projection"] =
     logarithmic
       ? reversed
         ? "logarithmic-reversed"

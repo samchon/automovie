@@ -1,6 +1,11 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { FootStrikeTilt, KickForm } from "@automovie/motions/internal";
+import {
+  FootStrikeTilt
+} from "../../../../../packages/motions/src/striking/internal/FootStrikeTilt";
+import {
+  KickForm
+} from "../../../../../packages/motions/src/striking/internal/KickForm";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -25,7 +30,7 @@ import { vclose } from "../../internal/vclose";
  */
 export function test_motions_striking_foot_strike_tilt(): void {
   const hip: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const flexion: number = DEFAULT_HUMANOID_ROM.rightUpperLeg!.flexion!.max;
+  const flexion: number = AutoMovieEngineDefaultHumanoidRom.rightUpperLeg!.flexion!.max;
   const ahead = FootStrikeTilt.excess(
     "right",
     0,
@@ -52,7 +57,7 @@ export function test_motions_striking_foot_strike_tilt(): void {
   );
   const still = { x: 0, y: 0, z: 0, w: 1 };
   const ankle: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const twist = DEFAULT_HUMANOID_ROM.rightUpperLeg!.twist!;
+  const twist = AutoMovieEngineDefaultHumanoidRom.rightUpperLeg!.twist!;
   const limit: number =
     KickForm.RANGE_SHARE * Math.min(Math.abs(twist.min), Math.abs(twist.max));
   const l: number = (limit * Math.PI) / 180;

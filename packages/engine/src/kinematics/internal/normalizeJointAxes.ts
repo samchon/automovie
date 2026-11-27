@@ -3,7 +3,7 @@ import type {
   IAutoMovieJointAxesIssue,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { validateJointAxesBasis } from "./validateJointAxesBasis";
 
 /*
@@ -29,9 +29,9 @@ export function normalizeJointAxes(
     throw new Error(`${issue.path} ${issue.expected}`);
   }
   return {
-    flexion: Vector3.normalize(axes.flexion),
-    abduction: Vector3.normalize(axes.abduction),
-    twist: Vector3.normalize(axes.twist),
+    flexion: AutoMovieEngineVector3.normalize(axes.flexion),
+    abduction: AutoMovieEngineVector3.normalize(axes.abduction),
+    twist: AutoMovieEngineVector3.normalize(axes.twist),
     ...(axes.twistPlacement === undefined
       ? {}
       : { twistPlacement: axes.twistPlacement }),

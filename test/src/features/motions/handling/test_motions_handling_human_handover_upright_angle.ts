@@ -1,5 +1,7 @@
-import { Quaternion } from "@automovie/engine";
-import { HumanHandoverUpright } from "@automovie/motions/internal";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
+import {
+  HumanHandoverUpright
+} from "../../../../../packages/motions/src/handling/internal/HumanHandoverUpright";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -20,9 +22,9 @@ const ROUNDING: number = 1e-6;
  * 4. Nothing reached: infinite.
  */
 export function test_motions_handling_human_handover_upright_angle(): void {
-  const asked = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 40);
+  const asked = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 40);
   const after = (axis: { x: number; y: number; z: number }, degrees: number) =>
-    Quaternion.multiply(Quaternion.fromAxisAngle(axis, degrees), asked);
+    AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees), asked);
   TestValidator.predicate(
     "the tips",
     nclose(HumanHandoverUpright.angle(asked, asked), 0, ROUNDING) &&

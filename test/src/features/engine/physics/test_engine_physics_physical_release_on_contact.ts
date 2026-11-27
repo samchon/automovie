@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
+import { AutoMovieEnginePhysicalSimulation as Simulation } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,

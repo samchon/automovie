@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeKendoArmourData from "./internal/AutoMovieArchetypeKendoArmourData";
+import { AutoMovieArchetypeKendoArmourData } from "./internal/AutoMovieArchetypeKendoArmourData";
 
 /** Constructs the kendo armour archetype from its recipe. */
 export namespace AutoMovieArchetypeKendoArmour {
@@ -69,7 +69,7 @@ export function create(
     name: `kendo ${kind}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const pad: number = AutoMovieArchetypeKendoArmour.PAD;
   const indigo: IPaint = { color: "#27304a" };
   const lacquer: IPaint = { color: "#2b1d1a" };

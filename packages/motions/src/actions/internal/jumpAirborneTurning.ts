@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanActionPlan,
@@ -54,7 +54,7 @@ export function jumpAirborneTurning(
               twist,
               ...(sideways
                 ? {
-                    frame: Quaternion.fromAxisAngle(
+                    frame: AutoMovieEngineQuaternion.fromAxisAngle(
                       { x: 0, y: 1, z: 0 },
                       rotation?.way === "left" ? 90 : -90,
                     ),
@@ -144,7 +144,7 @@ export function jumpAirborneTurning(
             rotation: {
               ...createHumanPostureRotation(
                 touch.about,
-                Quaternion.fromAxisAngle(touch.axis, decayed),
+                AutoMovieEngineQuaternion.fromAxisAngle(touch.axis, decayed),
               ),
               planted: true,
             },

@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -65,7 +65,7 @@ export function walkLocomote(
     p.manner,
   );
   const speed: number =
-    Math.sqrt(froude * AutoMovieGravity.STANDARD * l) / manner.tempo;
+    Math.sqrt(froude * AutoMovieEngineGravity.STANDARD * l) / manner.tempo;
   const authored: Record<WalkLocomoteAuthoredEntry, number> = {
     stride: p.stride ?? 1,
     arms: p.armSwing ?? 1,

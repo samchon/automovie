@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -87,9 +87,9 @@ export function kneelWrite(scope: kneelWrite.IScope): kneelWrite.Write {
             ? course * (1 - u ** 4)
             : course);
       // A knee placed aside carries the hips aside as the foot travels.
-      const flat: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(standing.root, Vector3.scale(solved.forward, s)),
-        Vector3.scale(aside, AutoMovieEngineMotionSampling.minimumJerkShare(step)),
+      const flat: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(standing.root, AutoMovieEngineVector3.scale(solved.forward, s)),
+        AutoMovieEngineVector3.scale(aside, AutoMovieEngineMotionSampling.minimumJerkShare(step)),
       );
       const reach: number =
         (solved.extension + (REACH - solved.extension) * step) * length;
@@ -97,7 +97,7 @@ export function kneelWrite(scope: kneelWrite.IScope): kneelWrite.Write {
         ...(["left", "right"] as const).map(
           (side: AutoMovieHumanSide): number => {
             const ankle: IAutoMovieVector3 = feet[side].placement.ankle;
-            const hip: IAutoMovieVector3 = Vector3.add(flat, solved.rest[side]);
+            const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(flat, solved.rest[side]);
             const d: number = Math.hypot(ankle.x - hip.x, ankle.z - hip.z);
             return (
               ankle.y +
@@ -125,8 +125,8 @@ export function kneelWrite(scope: kneelWrite.IScope): kneelWrite.Write {
       pitch = kneelKeys.lean(
         body,
         {
-          left: Vector3.add(root, solved.rest.left),
-          right: Vector3.add(root, solved.rest.right),
+          left: AutoMovieEngineVector3.add(root, solved.rest.left),
+          right: AutoMovieEngineVector3.add(root, solved.rest.right),
         },
         {
           left: feet.left.placement.ankle,
@@ -181,11 +181,11 @@ export function kneelWrite(scope: kneelWrite.IScope): kneelWrite.Write {
       const turned: kneelLiftedFoot.IFoot = kneelLiftedFoot(
         body,
         side,
-        Vector3.add(root, solved.rest[side]),
+        AutoMovieEngineVector3.add(root, solved.rest[side]),
         goal,
         feet[side].toes,
         weight,
-        Quaternion.rotateVector(humanPostureHeading(placed), {
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(placed), {
           x: 0,
           y: 0,
           z: 1,

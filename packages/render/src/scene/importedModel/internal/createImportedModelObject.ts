@@ -2,21 +2,21 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AUTOMOVIE_HUMANOID_BONE_SLOTS } from "../../internal/AUTOMOVIE_HUMANOID_BONE_SLOTS.js";
-import type { IAutoMovieImportedModelOptions } from "../../IAutoMovieImportedModelOptions.js";
-import type { IAutoMovieModelObject } from "../../IAutoMovieModelObject.js";
+import type { IAutoMovieRenderImportedModelOptions } from "../../IAutoMovieRenderImportedModelOptions.js";
+import type { IAutoMovieRenderModelObject } from "../../IAutoMovieRenderModelObject.js";
 
 /*
- * Wrap an imported runtime object as an IAutoMovieModelObject.
+ * Wrap an imported runtime object as an IAutoMovieRenderModelObject.
  * The wrapper isolates caller-owned root transforms, normalizes supported
  * humanoid bones, and carries expression targets and frame callbacks through.
  * Imported content remains one runtime object, without part-addressable
  * children.
  */
 export const createImportedModelObject: (
-  options: IAutoMovieImportedModelOptions,
-) => IAutoMovieModelObject = (
-  options: IAutoMovieImportedModelOptions,
-): IAutoMovieModelObject => ({
+  options: IAutoMovieRenderImportedModelOptions,
+) => IAutoMovieRenderModelObject = (
+  options: IAutoMovieRenderImportedModelOptions,
+): IAutoMovieRenderModelObject => ({
   // ALWAYS wrap (#1047): `applyPose` writes `pose.root` onto the model root's
   // local transform, and adopting a caller's Group directly (GLTFLoader's
   // `gltf.scene`, three-vrm's π-yawed VRM0 root) would stomp caller-owned
@@ -48,9 +48,9 @@ const isHumanoidBone: (text: string) => text is AutoMovieHumanoidBone = (
   AUTOMOVIE_HUMANOID_BONE_SLOTS.has(text);
 
 const normalizeBones: (
-  input: IAutoMovieImportedModelOptions["bones"],
+  input: IAutoMovieRenderImportedModelOptions["bones"],
 ) => Map<AutoMovieHumanoidBone, THREE.Object3D> = (
-  input: IAutoMovieImportedModelOptions["bones"],
+  input: IAutoMovieRenderImportedModelOptions["bones"],
 ): Map<AutoMovieHumanoidBone, THREE.Object3D> => {
   const bones: Map<
     AutoMovieHumanoidBone,

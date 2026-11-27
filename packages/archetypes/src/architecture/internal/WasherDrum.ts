@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -35,7 +35,7 @@ export function WasherDrum(
   front: number,
   centre: number,
 ): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const drumFront: number = front - LIP_DEPTH;
   const area: number =
     (DRUM_SIDES * DRUM_RADIUS ** 2 * Math.sin(TURN / DRUM_SIDES)) / 2;
@@ -223,8 +223,8 @@ function shell(
       y >= 0 ? top / y : -centre / y,
     );
     return {
-      interior: Vector3.create(inner * x, centre + inner * y, 0),
-      exterior: Vector3.create(outer * x, centre + outer * y, 0),
+      interior: AutoMovieEngineVector3.create(inner * x, centre + inner * y, 0),
+      exterior: AutoMovieEngineVector3.create(outer * x, centre + outer * y, 0),
     };
   });
   for (const [index, current] of stations.entries()) {

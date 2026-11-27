@@ -1,4 +1,4 @@
-import { AutoMovieChain, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineChain, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -256,7 +256,7 @@ export function affectionCases(
         { subject: "b", body, region },
         contact,
       ).point;
-      const miss: number = Vector3.length(Vector3.subtract(lips, there));
+      const miss: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(lips, there));
       out.push({
         name,
         times: TouchVerdicts.times(
@@ -291,7 +291,7 @@ export function affectionCases(
             new AutoMovieMotionHumanPerformance({
               seed: "affection",
               performers: affectionCasePerformers(body, true, 0.7),
-              composition: new AutoMovieChain({
+              composition: new AutoMovieEngineChain({
                 type: "parallel",
                 parts: [
                   AutoMovieMotionHumanChain.subject("a").act("highFive", { partner: "b" })
@@ -321,7 +321,7 @@ export function affectionCases(
             palm,
           );
         const gap: number = Math.abs(
-          Vector3.length(Vector3.subtract(at("a"), at("b"))) - 2 * pad,
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at("a"), at("b"))) - 2 * pad,
         );
         out.push({
           name,
@@ -362,7 +362,7 @@ function pair(
   return new AutoMovieMotionHumanPerformance({
     seed: "affection",
     performers: affectionCasePerformers(body, facing, gap),
-    composition: new AutoMovieChain({
+    composition: new AutoMovieEngineChain({
       type: "parallel",
       parts: [b.node, a.node],
     }).node,

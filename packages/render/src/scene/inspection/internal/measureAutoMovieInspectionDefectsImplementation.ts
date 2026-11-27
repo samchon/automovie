@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
-import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
+import { AutoMovieRenderInspectionKinds } from "../../AutoMovieRenderInspectionKinds.js";
+import type { IAutoMovieRenderInspectionMeasured } from "../../IAutoMovieRenderInspectionMeasured.js";
 
 /*
  * Measure a mesh's defects and return them as marks lying on the mesh as it is
@@ -20,7 +20,7 @@ import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMea
  * kind is `defect/<engine kind>`, such as `defect/open`, its path is the mesh's
  * path followed by its kind and its ordinal among that kind on the mesh, such
  * as `panel/defect/open/2`, and its label and colour are those
- * `AUTO_MOVIE_INSPECTION_KINDS` gives the kind, such as `open edge` in red.
+ * `AutoMovieRenderInspectionKinds` gives the kind, such as `open edge` in red.
  *
  * Only the `kinds` asked are returned, and `sliver` is the aspect limit the
  * engine needs for slivers. `measured` caches the engine's answer by geometry,
@@ -33,7 +33,7 @@ import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMea
  */
 export function measureAutoMovieInspectionDefectsImplementation(
   props: AutoMovieRenderInspectionGeometry.IMeasureDefectsProps,
-): IAutoMovieInspectionMeasured {
+): IAutoMovieRenderInspectionMeasured {
   const mesh: THREE.Mesh = props.mesh;
   let defects: IAutoMovieMeshDefect[] | undefined = props.measured.get(
     mesh.geometry,
@@ -63,8 +63,8 @@ export function measureAutoMovieInspectionDefectsImplementation(
           ? `${kind}/${ordinal}`
           : `${props.path}/${kind}/${ordinal}`,
       kind,
-      label: AUTO_MOVIE_INSPECTION_KINDS[kind]!.label,
-      color: AUTO_MOVIE_INSPECTION_KINDS[kind]!.color,
+      label: AutoMovieRenderInspectionKinds[kind]!.label,
+      color: AutoMovieRenderInspectionKinds[kind]!.color,
       shape: edge
         ? { type: "segments", points }
         : { type: "polyline", points, closed: true },

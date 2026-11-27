@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { GroomingPropDraw } from "./internal/GroomingPropDraw";
@@ -41,15 +41,15 @@ export function create(
   builder.rod(
     "body",
     width / 2,
-    Vector3.create(0, width / 2, 0),
-    Vector3.create(0, width / 2, length - cap),
+    AutoMovieEngineVector3.create(0, width / 2, 0),
+    AutoMovieEngineVector3.create(0, width / 2, length - cap),
     { color: "#e9e2d0" },
   );
   builder.rod(
     "cap",
     width * 0.3,
-    Vector3.create(0, width / 2, length - cap),
-    Vector3.create(0, width / 2, length),
+    AutoMovieEngineVector3.create(0, width / 2, length - cap),
+    AutoMovieEngineVector3.create(0, width / 2, length),
     { color: "#b9b2a0" },
   );
   builder.affordance({
@@ -57,9 +57,9 @@ export function create(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, width / 2, (length - cap) / 2),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, width / 2, (length - cap) / 2),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "power",
@@ -70,8 +70,8 @@ export function create(
     id: "cap",
     kind: "knob",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, width / 2, length - cap / 2),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, width / 2, length - cap / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "precision",
@@ -84,8 +84,8 @@ export function create(
     kind: "socket",
     direction: "along",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, width / 2, length),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, width / 2, length),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
   });

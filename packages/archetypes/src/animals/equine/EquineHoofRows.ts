@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -41,7 +41,7 @@ export namespace EquineHoofRows {
     const limb: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Fore`;
     const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
-      Vector3.add(EquineStanceSupport.transfer(body, start, limb), {
+      AutoMovieEngineVector3.add(EquineStanceSupport.transfer(body, start, limb), {
         x: 0,
         y: -PAW.settle,
         z: 0,
@@ -53,12 +53,12 @@ export namespace EquineHoofRows {
       y: 0,
       z: 1,
     });
-    const front: IAutoMovieVector3 = Vector3.addScaled(
+    const front: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       place,
       forward,
       PAW.reach,
     );
-    const back: IAutoMovieVector3 = Vector3.addScaled(
+    const back: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       place,
       forward,
       -PAW.drag,
@@ -113,7 +113,7 @@ export namespace EquineHoofRows {
                 AutoMovieEngineMotionSampling.minimumJerkShare(u / 0.5),
                 PAW.lift,
               )
-            : Vector3.lerp(front, back, AutoMovieEngineMotionSampling.minimumJerkShare((u - 0.5) / 0.5)),
+            : AutoMovieEngineVector3.lerp(front, back, AutoMovieEngineMotionSampling.minimumJerkShare((u - 0.5) / 0.5)),
         );
       },
     };
@@ -136,7 +136,7 @@ export namespace EquineHoofRows {
       EquineStanceSupport.transfer(body, start, cue.limb),
     );
     const place: IAutoMovieVector3 = start.anchors[cue.limb];
-    const raised: IAutoMovieVector3 = Vector3.add(place, {
+    const raised: IAutoMovieVector3 = AutoMovieEngineVector3.add(place, {
       x: 0,
       y: STAMP,
       z: 0,
@@ -167,7 +167,7 @@ export namespace EquineHoofRows {
                 ...EquineStanceSupport.placed(start.anchors),
                 [cue.limb]: {
                   kind: "placed",
-                  anchor: Vector3.lerp(
+                  anchor: AutoMovieEngineVector3.lerp(
                     place,
                     raised,
                     (share - LOAD) / (1 - LOAD),

@@ -1,4 +1,4 @@
-import { AutoMovieConstructionLocalScaleMinorant as Minorant } from "@automovie/engine";
+import { AutoMovieEngineConstructionLocalScaleMinorant as Minorant } from "@automovie/engine";
 import type { IAutoMovieConstructionLocalScaleMinorant } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,7 +12,7 @@ interface IRun {
 }
 
 /**
- * `AutoMovieConstructionLocalScaleMinorant.create` attenuates a positive scale
+ * `AutoMovieEngineConstructionLocalScaleMinorant.create` attenuates a positive scale
  * field by one factor alpha that every literal certificate admits, or refuses
  * at the stage that fails; it never tries a second candidate.
  *

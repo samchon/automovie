@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeVaultingTableData from "./internal/AutoMovieArchetypeVaultingTableData";
+import { AutoMovieArchetypeVaultingTableData } from "./internal/AutoMovieArchetypeVaultingTableData";
 
 /** Constructs the vaulting table archetype from its recipe. */
 export namespace AutoMovieArchetypeVaultingTable {
@@ -89,7 +89,7 @@ export function create(
     name: "vaulting table",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const top: number = AutoMovieArchetypeVaultingTable.TOP;
   const base: number = AutoMovieArchetypeVaultingTable.BASE;
   builder.box("base", v(d.width, base, d.length), v(0, base / 2, 0), {

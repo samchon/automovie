@@ -1,10 +1,10 @@
 import {
-  DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  ROM_TOLERANCE,
-  swingTwistRange,
+  AutoMovieEngineDefaultJointAxes,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineSwingTwistRange,
   AutoMovieEngineKinematics,
   AutoMovieEngineKinematicsJointRotation,
 } from "@automovie/engine";
@@ -28,7 +28,7 @@ import { resolveHumanArmChain } from "./resolveHumanArmChain";
 
 /*
  * An arm's joint-space coordinates and what they place: the shoulder's
- * swing-twist chart (`swingTwistRange.chart`, continuous and one to one over
+ * swing-twist chart (`AutoMovieEngineSwingTwistRange.chart`, continuous and one to one over
  * the range, scaled so a unit is near a degree of swing), the elbow's and the
  * wrist's clinical angles; the arm's forward kinematics from its shoulder in a
  * posed frame (`HumanArmFrame`) and its probes; the shapes in its way and the
@@ -89,7 +89,7 @@ export namespace HumanArmGeometry {
       hand: `${side}Hand`,
     };
     const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
-      AutoMovieEngineKinematics.skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
+      AutoMovieEngineKinematics.skeletonJointAxes(body.skeleton, AutoMovieEngineHumanoidJointAxes);
     const lowerBone: IAutoMovieBone = find(body, bones.lower);
     const lower: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
       bones.lower,
@@ -111,7 +111,7 @@ export namespace HumanArmGeometry {
     for (const bone of [bones.upper, bones.lower, bones.hand])
       bases.set(
         bone,
-        AutoMovieEngineKinematics.normalizeJointAxes(axes[bone] ?? DEFAULT_JOINT_AXES, `arm axes: ${bone}`),
+        AutoMovieEngineKinematics.normalizeJointAxes(axes[bone] ?? AutoMovieEngineDefaultJointAxes, `arm axes: ${bone}`),
       );
     const upperBone: IAutoMovieBone = find(body, bones.upper);
     const upperConstraint: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint(
@@ -126,9 +126,9 @@ export namespace HumanArmGeometry {
         lower,
         hand,
       },
-      joint: swingTwistRange.prepare(
+      joint: AutoMovieEngineSwingTwistRange.prepare(
         bones.upper,
-        swingTwistRange.fromAxes(bones.upper, axes[bones.upper])!,
+        AutoMovieEngineSwingTwistRange.fromAxes(bones.upper, axes[bones.upper])!,
         upperConstraint,
       ),
       axes,
@@ -155,7 +155,7 @@ export namespace HumanArmGeometry {
       ): IAutoMovieJointAxes => {
         return (
           bases.get(bone) ??
-          AutoMovieEngineKinematics.normalizeJointAxes(axes[bone] ?? DEFAULT_JOINT_AXES, path)
+          AutoMovieEngineKinematics.normalizeJointAxes(axes[bone] ?? AutoMovieEngineDefaultJointAxes, path)
         );
       },
     };
@@ -193,11 +193,11 @@ export namespace HumanArmGeometry {
       bone,
       of,
     );
-    return Quaternion.normalize(
+    return AutoMovieEngineQuaternion.normalize(
       AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis(
         { flexion, abduction, twist },
         setup.basis(bone, "jointToQuaternion axes"),
-        HUMANOID_REST_FRAME[bone],
+        AutoMovieEngineHumanoidRestFrame[bone],
       ),
     );
   }
@@ -234,7 +234,7 @@ export namespace HumanArmGeometry {
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
   ): number[] {
-    const place: IEncodePlace = swingTwistRange.chart(
+    const place: IEncodePlace = AutoMovieEngineSwingTwistRange.chart(
       rotation(setup, setup.bones.upper, arm.upper),
       setup.constraint.upper,
       setup.joint,
@@ -253,7 +253,7 @@ export namespace HumanArmGeometry {
    * The shoulder's articulation at coordinates. The chart is one to one up to
    * the rest direction's antipode, where a direction has no azimuth, so a place
    * whose swing would reach it is drawn back along its azimuth to a swing the
-   * joints' resolution (`ROM_TOLERANCE`) short of 180 degrees; every rotation
+   * joints' resolution (`AutoMovieEngineRomTolerance`) short of 180 degrees; every rotation
    * an arm can show lies inside, so an arm's coordinates (`encode`) read back
    * as the arm itself.
    * Parameter setup: The arm.
@@ -266,13 +266,13 @@ export namespace HumanArmGeometry {
   ): IAutoMovieQuaternion {
     const k: number = Math.hypot(c[0]!, c[1]!) / SCALE;
     const most: number =
-      (180 - ROM_TOLERANCE) /
-      swingTwistRange.radius(
+      (180 - AutoMovieEngineRomTolerance) /
+      AutoMovieEngineSwingTwistRange.radius(
         setup.joint,
         k > 0 ? (Math.atan2(c[1]!, c[0]!) * 180) / Math.PI : 0,
       );
     const scale: number = k > most ? most / k : 1;
-    return swingTwistRange.placed(
+    return AutoMovieEngineSwingTwistRange.placed(
       { x: (c[0]! * scale) / SCALE, y: (c[1]! * scale) / SCALE, twist: c[2]! },
       setup.joint,
     );
@@ -294,7 +294,7 @@ export namespace HumanArmGeometry {
     const read: IArmRead = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
       turned,
       setup.basis(setup.bones.upper, "decomposeJointRotation axes"),
-      HUMANOID_REST_FRAME[setup.bones.upper],
+      AutoMovieEngineHumanoidRestFrame[setup.bones.upper],
       {
         bone: setup.bones.upper,
         constraint:

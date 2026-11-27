@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanSegment,
@@ -97,7 +97,7 @@ export namespace armCourseContract {
       let before: IAutoMovieVector3 = wrist(act.entryTime);
       for (let k: number = 1; k <= steps; ++k) {
         const next: IAutoMovieVector3 = wrist(act.entryTime + k * dt);
-        peak = Math.max(peak, Vector3.distance(next, before) / dt);
+        peak = Math.max(peak, AutoMovieEngineVector3.distance(next, before) / dt);
         before = next;
       }
       checks.check(

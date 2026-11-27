@@ -12,9 +12,9 @@ import type {
   IAutoMovieSpringStep,
 } from "@automovie/interface";
 
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
-import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement.js";
-import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderSpringAxisSettlement } from "./IAutoMovieRenderSpringAxisSettlement.js";
+import type { IAutoMovieRenderSpringConfig } from "./IAutoMovieRenderSpringConfig.js";
 import { applyExpression } from "./internal/applyExpression.js";
 import { applyPose } from "./internal/applyPose.js";
 
@@ -44,7 +44,7 @@ export class AutoMovieRenderPlayer {
   private lastUpdateSeconds: number | null = null;
 
   public constructor(
-    private readonly target: IAutoMovieModelObject,
+    private readonly target: IAutoMovieRenderModelObject,
     private readonly skeleton: IAutoMovieSkeleton,
     private motion: IAutoMovieMotion,
     private readonly jointAxes?: Partial<
@@ -59,7 +59,7 @@ export class AutoMovieRenderPlayer {
     /*
      * Secondary-motion joints (tail, ears) driven with follow-through.
      */
-    private readonly spring?: IAutoMovieSpringConfig,
+    private readonly spring?: IAutoMovieRenderSpringConfig,
     /*
      * Per-bone rest frames: read each sampled joint angle as **clinical** and
      * map it into the rig's rest-relative space before articulating (e.g.
@@ -127,7 +127,7 @@ export class AutoMovieRenderPlayer {
    * stall or tab-switch can't explode the integrator.
    */
   private applySpring(pose: IAutoMoviePose, seconds: number): IAutoMoviePose {
-    const cfg: IAutoMovieSpringConfig = this.spring!;
+    const cfg: IAutoMovieRenderSpringConfig = this.spring!;
     const dt: number =
       this.lastSeconds === null
         ? 0
@@ -142,10 +142,10 @@ export class AutoMovieRenderPlayer {
     const axis: (
       state: IAutoMovieSpringStep | undefined,
       target: number | null,
-    ) => IAutoMovieSpringAxisSettlement = (
+    ) => IAutoMovieRenderSpringAxisSettlement = (
       state: IAutoMovieSpringStep | undefined,
       target: number | null,
-    ): IAutoMovieSpringAxisSettlement => {
+    ): IAutoMovieRenderSpringAxisSettlement => {
       // A vanished axis DECAYS toward neutral instead of hard-resetting
       // (#1048): follow-through settles smoothly when a keyframe segment
       // stops authoring the joint, rather than popping to rest.
@@ -190,15 +190,15 @@ export class AutoMovieRenderPlayer {
       j: IAutoMovieJointPose | null,
     ): IAutoMovieJointPose => {
       const prev: IAxisSprings | undefined = this.springs.get(bone);
-      const f: IAutoMovieSpringAxisSettlement = axis(
+      const f: IAutoMovieRenderSpringAxisSettlement = axis(
         prev?.flexion,
         j?.flexion ?? null,
       );
-      const a: IAutoMovieSpringAxisSettlement = axis(
+      const a: IAutoMovieRenderSpringAxisSettlement = axis(
         prev?.abduction,
         j?.abduction ?? null,
       );
-      const t: IAutoMovieSpringAxisSettlement = axis(
+      const t: IAutoMovieRenderSpringAxisSettlement = axis(
         prev?.twist,
         j?.twist ?? null,
       );

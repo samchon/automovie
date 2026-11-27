@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -214,7 +214,7 @@ export namespace rest {
         travel: Math.min(
           duration,
           AutoMovieMotionHumanTiming.transport(
-            Vector3.distance(from, goal.point),
+            AutoMovieEngineVector3.distance(from, goal.point),
           ),
         ),
       };
@@ -231,7 +231,7 @@ export namespace rest {
       local[side] = {
         ...goal,
         point: reference!.local(goal.point),
-        rotation: Quaternion.multiply(inverseTurn!, goal.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(inverseTurn!, goal.rotation),
         elbow: reference!.local(goal.elbow),
       };
     }
@@ -270,7 +270,7 @@ export namespace rest {
             surface: goal.surface,
             shape: goal.shape,
             point: frame.point(goal.point, posture.root),
-            rotation: Quaternion.multiply(turn, goal.rotation),
+            rotation: AutoMovieEngineQuaternion.multiply(turn, goal.rotation),
             bend: frame.point(goal.elbow, posture.root),
           };
         },

@@ -4,9 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalJointChart } from "../AutoMovieEnginePhysicalJointChart";
 
 /*
  * Project a motor's requested relative angular velocity onto the linearized
@@ -48,9 +48,9 @@ export function projectPhysicalJointVelocity(
   if (dt <= 0) throw new Error("Invalid physical joint velocity timestep");
   const velocity: IAutoMovieVector3 = { ...requested };
   if (order !== undefined) {
-    const angles: number[] = AutoMoviePhysicalJointChart.nearest(
+    const angles: number[] = AutoMovieEnginePhysicalJointChart.nearest(
       { axes, order },
-      Quaternion.normalize(current),
+      AutoMovieEngineQuaternion.normalize(current),
     );
     for (const axis of axes) {
       const angle: number | undefined = angles[order.indexOf(axis.axis)];
@@ -80,13 +80,13 @@ export function projectPhysicalJointVelocity(
     if (denominator < 1e-12) continue;
     const unit: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     unit[axis.axis] = 1;
-    const gradient: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(
-        Vector3.add(
-          Vector3.scale(unit, current.w ** 2),
-          Vector3.scale(Vector3.cross(imaginary, unit), current.w),
+    const gradient: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(unit, current.w ** 2),
+          AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(imaginary, unit), current.w),
         ),
-        Vector3.scale(imaginary, component),
+        AutoMovieEngineVector3.scale(imaginary, component),
       ),
       1 / denominator,
     );
@@ -111,16 +111,16 @@ export function projectPhysicalJointVelocity(
   for (let pass: number = 0; pass < 8; pass++) {
     let changed: boolean = false;
     for (const constraint of constraints) {
-      const speed: number = Vector3.dot(constraint.gradient, velocity);
+      const speed: number = AutoMovieEngineVector3.dot(constraint.gradient, velocity);
       const allowed: number = Math.max(
         constraint.minimum,
         Math.min(constraint.maximum, speed),
       );
       if (Math.abs(allowed - speed) < 1e-10) continue;
-      const correction: IAutoMovieVector3 = Vector3.scale(
+      const correction: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         constraint.gradient,
         (allowed - speed) /
-          Vector3.dot(constraint.gradient, constraint.gradient),
+          AutoMovieEngineVector3.dot(constraint.gradient, constraint.gradient),
       );
       velocity.x += correction.x;
       velocity.y += correction.y;

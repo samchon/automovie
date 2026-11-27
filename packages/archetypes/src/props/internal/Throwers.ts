@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,7 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
-import * as ThrowersData from "./ThrowersData";
+import { ThrowersData } from "./ThrowersData";
 
 /*
  * The two throwers among the long tools: a hand sling and a spear-thrower
@@ -105,7 +105,7 @@ export namespace Throwers {
    * Parameter d: The tool's dimensions.
    */
   export function sling(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const pouch: number = d.pouchLength!;
     const cord: number = (d.length! - pouch) / 2;
     // The hand above the pouch's middle, each cord's read share running straight from a pouch end to it.
@@ -164,7 +164,7 @@ export namespace Throwers {
    * Parameter d: The tool's dimensions.
    */
   export function atlatl(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const length: number = d.length!;
     const grip: number = d.gripSetback!;
     builder.box(

@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieQuaternion,
@@ -91,7 +91,7 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
     twist: { x: 0, y: 0, z: 1 },
     twistPlacement: "distal",
   };
-  const bent: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const bent: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     distal.flexion,
     125,
   );
@@ -136,7 +136,7 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
     nclose(clinical.flexion, -105, ROUNDING),
   );
   const lock: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation(
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
     {
       flexion: { x: 0, y: 1, z: 0 },
       abduction: { x: 0, y: 0, z: 1 },

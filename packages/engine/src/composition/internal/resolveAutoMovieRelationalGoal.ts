@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { fitPhysicalWholeBodyTarget } from "../../physics/internal/fitPhysicalWholeBodyTarget";
 
 /*
@@ -55,9 +55,9 @@ export function resolveAutoMovieRelationalGoal(
     input.goal.lock === "freeze" ? start : input.seconds,
   );
   const pose: IAutoMovieRigidTransform = read[region.bone]!;
-  const point: IAutoMovieVector3 = Vector3.add(
+  const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pose.position,
-    Quaternion.rotateVector(pose.rotation, region.localPoint),
+    AutoMovieEngineQuaternion.rotateVector(pose.rotation, region.localPoint),
   );
   const support: IAutoMovieResolveRelationalGoal.ISupport = performer.support(
     input.seconds,
@@ -69,9 +69,9 @@ export function resolveAutoMovieRelationalGoal(
       targets: prior,
       support: {
         bone: support.bone,
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           held.position,
-          Quaternion.rotateVector(held.rotation, support.localPoint),
+          AutoMovieEngineQuaternion.rotateVector(held.rotation, support.localPoint),
         ),
         normal: support.normal,
         minimum: support.minimum,

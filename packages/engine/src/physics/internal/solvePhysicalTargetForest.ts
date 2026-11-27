@@ -7,7 +7,7 @@ import type {
   IAutoMovieSolvePhysicalTargetStep,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { PHYSICAL_TARGET_LIMITS } from "./PHYSICAL_TARGET_LIMITS";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
@@ -122,14 +122,14 @@ export function solvePhysicalTargetForest(
       axis: IAutoMoviePhysicalJointAxis;
     }): number => {
       const relative: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(
+            AutoMovieEngineQuaternion.multiply(
               input.targets[joint.parent]!.rotation,
               joint.parentFrame.rotation,
             ),
           ),
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             input.targets[joint.child]!.rotation,
             joint.childFrame.rotation,
           ),

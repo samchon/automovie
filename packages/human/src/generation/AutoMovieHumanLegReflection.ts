@@ -1,4 +1,4 @@
-import { AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanLegAxis,
@@ -55,13 +55,13 @@ export namespace AutoMovieHumanLegReflection {
       (_: AutoMovieVector3Tuple, m: number): AutoMovieVector3Tuple => read(m),
     );
     return {
-      coefficients: AutoMovieSplineCurve.interpolate(
+      coefficients: AutoMovieEngineSplineCurve.interpolate(
         samples.map((p: AutoMovieVector3Tuple): [number, number] => [
           p[0],
           sign * p[1],
         ]),
       ),
-      lift: AutoMovieSplineCurve.interpolate(
+      lift: AutoMovieEngineSplineCurve.interpolate(
         samples.map((p: AutoMovieVector3Tuple): [number, number] => [p[2], 0]),
       ).slice(0, order),
     };

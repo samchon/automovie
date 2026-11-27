@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyApertures,
@@ -107,7 +107,7 @@ export namespace AutoMovieHumanBodyApertures {
   ): number[] {
     if (!boxes.length) return [...heights];
     function near(s: number): boolean {
-      return AutoMovieLoftChain.ring(target, s, phases).some(
+      return AutoMovieEngineLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           boxes.some(
             ([lo, hi]: [
@@ -147,7 +147,7 @@ export namespace AutoMovieHumanBodyApertures {
   ): number[] {
     if (!apertures.length) return [...heights];
     function near(s: number): boolean {
-      return AutoMovieLoftChain.ring(target, s, phases).some(
+      return AutoMovieEngineLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           apertures.some(
             (a: IAutoMovieHumanBodyApertures.IPrepared): boolean =>

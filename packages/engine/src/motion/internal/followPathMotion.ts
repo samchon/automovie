@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { segmentIndex } from "../../math/internal/segmentIndex";
 
 /*
@@ -83,7 +83,7 @@ export function followPathMotion(
       const baseTranslation: IAutoMovieVector3 | undefined =
         baseRoot === null
           ? undefined
-          : Quaternion.rotateVector(facing, baseRoot.translation);
+          : AutoMovieEngineQuaternion.rotateVector(facing, baseRoot.translation);
       keyframes.push({
         ...k,
         time: globalT,
@@ -95,7 +95,7 @@ export function followPathMotion(
               y: (baseTranslation?.y ?? 0) + y,
               z: (baseTranslation?.z ?? 0) + z,
             },
-            rotation: Quaternion.multiply(
+            rotation: AutoMovieEngineQuaternion.multiply(
               facing,
               baseRoot?.rotation ?? IDENTITY_ROT,
             ),
@@ -135,8 +135,8 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /*
  * Rotations about the fixed world-up axis.
  */
-const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle(UP);
+const yawRotation: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle(UP);
 
 const RAD2DEG: number = 180 / Math.PI;
 

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSupportCarry, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
@@ -120,9 +120,9 @@ function kneel(
   const misses: boolean = centers
     .map(
       (point): IAutoMovieVector3 =>
-        Quaternion.rotateVector(
-          Quaternion.inverse(floor.world.rotation),
-          Vector3.subtract(point, floor.world.translation),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(floor.world.rotation),
+          AutoMovieEngineVector3.subtract(point, floor.world.translation),
         ),
     )
     .some(
@@ -156,7 +156,7 @@ function kneel(
     return {
       ...current,
       ...humanPostureHeading.angles(
-        Quaternion.multiply(carry.turn, humanPostureHeading(entry.posture)),
+        AutoMovieEngineQuaternion.multiply(carry.turn, humanPostureHeading(entry.posture)),
       ),
       joints: {
         ...current.joints,
@@ -182,16 +182,16 @@ function sit(
   const entry = AquaticProp.at(hull, start);
   entry.require("seat", "seat");
   for (const foot of SIDES) entry.require(`${foot}Foot`, "surface");
-  const quarter = Quaternion.fromAxisAngle(UP, 90);
+  const quarter = AutoMovieEngineQuaternion.fromAxisAngle(UP, 90);
   return (shape, seconds): IAutoMovieMotionHumanPosture => {
     const current: AquaticProp.IContacts = AquaticProp.at(
       hull,
       start + seconds,
     );
     const seat: AquaticProp.IContact = current.require("seat", "seat");
-    const center: IAutoMovieVector3 = Vector3.add(
+    const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       seat.world.translation,
-      Quaternion.rotateVector(seat.world.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(seat.world.rotation, {
         x: 0,
         y: 0,
         z: -(seat.affordance.depth ?? 0) / 2,
@@ -205,11 +205,11 @@ function sit(
     posture.root = seated.root(body, center, posture);
     for (const side of SIDES) {
       const plate = current.require(`${side}Foot`, "surface").world;
-      const rotation = Quaternion.multiply(plate.rotation, quarter);
+      const rotation = AutoMovieEngineQuaternion.multiply(plate.rotation, quarter);
       const contact: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
-      const ankle: IAutoMovieVector3 = Vector3.subtract(
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         plate.translation,
-        Quaternion.rotateVector(rotation, contact),
+        AutoMovieEngineQuaternion.rotateVector(rotation, contact),
       );
       posture.limbs[`${side}Leg`] = {
         ...AutoMovieMotionHumanLeg.goal(

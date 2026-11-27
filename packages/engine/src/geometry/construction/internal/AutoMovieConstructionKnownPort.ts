@@ -7,7 +7,7 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
+import { AutoMovieEngineLoftAdmissionError } from "../../AutoMovieEngineLoftAdmissionError";
 
 /*
  * Actual-field C2 band using a quintic partition of unity, without contact
@@ -352,5 +352,5 @@ function interval(domain: readonly [number, number]): boolean {
  * Keep numeric admission separate from original callback exception identity.
  */
 function fail(message: string): never {
-  throw new AutoMovieLoftAdmissionError(message);
+  throw new AutoMovieEngineLoftAdmissionError(message);
 }

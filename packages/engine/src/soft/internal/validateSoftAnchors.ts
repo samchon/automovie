@@ -6,8 +6,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { SOFT_MAX_ANCHORS } from "../SOFT_MAX_ANCHORS";
-import { SOFT_MAX_STATES } from "../SOFT_MAX_STATES";
+import { AutoMovieEngineSoftMaxAnchors } from "../AutoMovieEngineSoftMaxAnchors";
+import { AutoMovieEngineSoftMaxStates } from "../AutoMovieEngineSoftMaxStates";
 import { validateSoftBounded as bounded } from "./validateSoftBounded";
 import { validateSoftIdentity as identity } from "./validateSoftIdentity";
 import { validateSoftInteger as integer } from "./validateSoftInteger";
@@ -36,7 +36,7 @@ export function validateSoftAnchors(
     `${root}.anchors`,
     "anchors",
     domain.anchors.length,
-    SOFT_MAX_ANCHORS,
+    AutoMovieEngineSoftMaxAnchors,
   );
   const anchorIds: Set<string> = new Set<string>();
   const anchoredParticles: Set<number> = new Set<number>();
@@ -80,7 +80,7 @@ export function validateSoftAnchors(
     `${root}.states`,
     "named states",
     domain.states.length,
-    SOFT_MAX_STATES,
+    AutoMovieEngineSoftMaxStates,
   );
   const stateIds: Set<string> = new Set<string>();
   domain.states.forEach(

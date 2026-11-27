@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -35,7 +35,7 @@ export function sprintStartSetHands(
     "thumbPad",
     "bridge",
   ).point;
-  const spread: number = Vector3.distance(index, thumb);
+  const spread: number = AutoMovieEngineVector3.distance(index, thumb);
   const out: number = side === "left" ? 1 : -1;
   const at: (lateral: number) => IAutoMovieVector3 = (
     lateral: number,
@@ -45,7 +45,7 @@ export function sprintStartSetHands(
       y: 0,
       z: body.measure.footLength,
     });
-  const reach: number = Vector3.length(Vector3.lerp(index, thumb, 0.5));
+  const reach: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.lerp(index, thumb, 0.5));
   return {
     targets: [
       {
@@ -98,12 +98,12 @@ export namespace sprintStartSetHands {
     feet: Record<AutoMovieHumanSide, IFrameFeetEntry>,
     yaw: number,
   ): IAutoMovieMotionHumanFrame {
-    const rest: IAutoMovieVector3 = Vector3.lerp(
+    const rest: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       body.rest.get("leftFoot")!,
       body.rest.get("rightFoot")!,
       0.5,
     );
-    const ankles: IAutoMovieVector3 = Vector3.lerp(
+    const ankles: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       feet.left.ankle,
       feet.right.ankle,
       0.5,

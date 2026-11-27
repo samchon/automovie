@@ -3,7 +3,9 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanChannel } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanChannel
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanChannel";
 import { TestValidator } from "@nestia/e2e";
 
 /** A goal at a height, planted or not. */

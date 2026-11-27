@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeHeavyBagData from "./internal/AutoMovieArchetypeHeavyBagData";
+import { AutoMovieArchetypeHeavyBagData } from "./internal/AutoMovieArchetypeHeavyBagData";
 
 /** Constructs the heavy bag archetype from its recipe. */
 export namespace AutoMovieArchetypeHeavyBag {
@@ -55,7 +55,7 @@ export function create(
     name: "heavy bag",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const top: number = 0;
   const radius: number = d.diameter / 2;
   builder.rod("bag", radius, v(0, top, 0), v(0, top - d.height, 0), {

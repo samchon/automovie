@@ -256,7 +256,7 @@ export namespace IAutoMovieHumanArmCurveSpec {
    * control line): the signed chart offset, or the conic shoulder, at a
    * station, with its first and second derivatives in the outline's own source
    * parameter `q` (not in station unless the parameter is the station). The
-   * engine's `AutoMovieViewHermite` evaluates the same quintic Hermite spans
+   * engine's `AutoMovieEngineViewHermite` evaluates the same quintic Hermite spans
    * from these jets.
    */
   export interface IOutlineKnot {
@@ -328,7 +328,7 @@ export namespace IAutoMovieHumanArmCurveSpec {
    * A closed conic section (classic conic lofting): four quarter conics on a
    * box about the axis, each from one guide to the next with tangents along the
    * box sides and its shoulder `rho` the share of the corner diagonal from the
-   * chord's midpoint to the corner (`AutoMovieViewSection`). `rho = sqrt(2) -
+   * chord's midpoint to the corner (`AutoMovieEngineViewSection`). `rho = sqrt(2) -
    * 1` makes every quarter an exact quarter ellipse.
    */
   export interface IConicLoop {

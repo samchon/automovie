@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -113,8 +113,8 @@ export namespace AutoMovieArchetypeEquineTie {
       throw new RangeError(
         "A tie has a positive radius, a tether within the lead, phases with a positive carry, whole wraps and a positive wrap time, and an untie after the tie",
       );
-    const axis: IAutoMovieVector3 = Vector3.normalize(tie.axis);
-    const top: IAutoMovieVector3 = Vector3.addScaled(
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(tie.axis);
+    const top: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       tie.ring,
       { x: 0, y: 1, z: 0 },
       tie.radius,
@@ -129,11 +129,11 @@ export namespace AutoMovieArchetypeEquineTie {
         sample.archetype.affordance(lead).frame,
       ).translation;
     const round = (turns: number): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         tie.ring,
-        Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(axis, 360 * turns),
-          Vector3.subtract(top, tie.ring),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(axis, 360 * turns),
+          AutoMovieEngineVector3.subtract(top, tie.ring),
         ),
       );
     const held = (
@@ -156,7 +156,7 @@ export namespace AutoMovieArchetypeEquineTie {
     ): IAutoMovieVector3 => {
       const winding: number = phase.wraps * phase.wrap;
       const carried = (share: number): IAutoMovieVector3 =>
-        Vector3.lerp(hanging(sample), top, AutoMovieEngineMotionSampling.minimumJerkShare(share));
+        AutoMovieEngineVector3.lerp(hanging(sample), top, AutoMovieEngineMotionSampling.minimumJerkShare(share));
       const local: number = seconds - phase.from;
       if (!untying)
         return local < phase.carry

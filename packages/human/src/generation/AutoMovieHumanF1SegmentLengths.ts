@@ -9,11 +9,8 @@ import type {
   IAutoMovieHumanF1SegmentLengths,
   IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
-import * as AutoMovieHumanF1SegmentLengthsData from "./internal/AutoMovieHumanF1SegmentLengthsData";
-import {
-  joint as AutoMovieHumanF1SegmentLengthsDataJoint,
-  norm as AutoMovieHumanF1SegmentLengthsDataNorm,
-} from "./internal/AutoMovieHumanF1SegmentLengthsData";
+import { AutoMovieHumanF1SegmentLengthsData } from "./internal/AutoMovieHumanF1SegmentLengthsData";
+
 
 /**
  * f1's segment lengths as working fields (#3172) and the chain they make: each length moves the joint at its segment's far end, so the
@@ -44,20 +41,20 @@ export namespace AutoMovieHumanF1SegmentLengths {
     const phalanges: Record<string, IAutoMovieHumanF1SegmentLengths.IBones> = Object.fromEntries(
       AutoMovieHumanF1SegmentLengthsData.FINGERS.map((digit: string): [string, IAutoMovieHumanF1SegmentLengths.IBones] => {
         const [a, b] = digit === "thumb" ? ["thumb.proximal", "thumb.distal"] : [digit + ".middle", digit + ".distal"];
-        return [digit, [AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint(a!).offset), AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint(b!).offset), AutoMovieHumanF1SegmentLengthsDataNorm(T.POINTS[digit + "End"]!.local)]];
+        return [digit, [AutoMovieHumanF1SegmentLengthsData.norm(AutoMovieHumanF1SegmentLengthsData.joint(a!).offset), AutoMovieHumanF1SegmentLengthsData.norm(AutoMovieHumanF1SegmentLengthsData.joint(b!).offset), AutoMovieHumanF1SegmentLengthsData.norm(T.POINTS[digit + "End"]!.local)]];
       }),
     );
     return {
-      upperArm: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("forearm").offset),
-      forearm: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("hand").offset),
-      thigh: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("tibia").offset),
-      shank: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("foot").offset),
-      pelvisToThorax: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("thorax").offset),
-      thoraxToHead: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("head").offset),
-      handLength: F.dot(AutoMovieHumanF1SegmentLengthsDataJoint("middle.proximal").offset, hand[0]),
-      handBreadth: F.dot(F.sub(AutoMovieHumanF1SegmentLengthsDataJoint("index.proximal").offset, AutoMovieHumanF1SegmentLengthsDataJoint("pinky.proximal").offset), hand[1]),
+      upperArm: AutoMovieHumanF1SegmentLengthsData.norm(AutoMovieHumanF1SegmentLengthsData.joint("forearm").offset),
+      forearm: AutoMovieHumanF1SegmentLengthsData.norm(AutoMovieHumanF1SegmentLengthsData.joint("hand").offset),
+      thigh: AutoMovieHumanF1SegmentLengthsData.norm(AutoMovieHumanF1SegmentLengthsData.joint("tibia").offset),
+      shank: AutoMovieHumanF1SegmentLengthsData.norm(AutoMovieHumanF1SegmentLengthsData.joint("foot").offset),
+      pelvisToThorax: AutoMovieHumanF1SegmentLengthsData.norm(AutoMovieHumanF1SegmentLengthsData.joint("thorax").offset),
+      thoraxToHead: AutoMovieHumanF1SegmentLengthsData.norm(AutoMovieHumanF1SegmentLengthsData.joint("head").offset),
+      handLength: F.dot(AutoMovieHumanF1SegmentLengthsData.joint("middle.proximal").offset, hand[0]),
+      handBreadth: F.dot(F.sub(AutoMovieHumanF1SegmentLengthsData.joint("index.proximal").offset, AutoMovieHumanF1SegmentLengthsData.joint("pinky.proximal").offset), hand[1]),
       footLength: F.dot(T.POINTS["footEnd"]!.local, foot[0]),
-      footBreadth: F.dot(F.sub(AutoMovieHumanF1SegmentLengthsDataJoint("bigtoe.proximal").offset, AutoMovieHumanF1SegmentLengthsDataJoint("littletoe.proximal").offset), foot[1]),
+      footBreadth: F.dot(F.sub(AutoMovieHumanF1SegmentLengthsData.joint("bigtoe.proximal").offset, AutoMovieHumanF1SegmentLengthsData.joint("littletoe.proximal").offset), foot[1]),
       phalanges,
     };
   }
@@ -139,11 +136,11 @@ export namespace AutoMovieHumanF1SegmentLengths {
    * (`leg.fan.up`), across from the fifth toe's first joint to the first, square to both. The limb law's `extremityAxes`.
    */
   function axes(): { hand: [AutoMovieVector3Tuple, AutoMovieVector3Tuple]; foot: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] } {
-    const handAlong: AutoMovieVector3Tuple = F.unit(AutoMovieHumanF1SegmentLengthsDataJoint("middle.proximal").offset);
-    const handAcross: AutoMovieVector3Tuple = F.perpendicular(F.sub(AutoMovieHumanF1SegmentLengthsDataJoint("index.proximal").offset, AutoMovieHumanF1SegmentLengthsDataJoint("pinky.proximal").offset), handAlong);
+    const handAlong: AutoMovieVector3Tuple = F.unit(AutoMovieHumanF1SegmentLengthsData.joint("middle.proximal").offset);
+    const handAcross: AutoMovieVector3Tuple = F.perpendicular(F.sub(AutoMovieHumanF1SegmentLengthsData.joint("index.proximal").offset, AutoMovieHumanF1SegmentLengthsData.joint("pinky.proximal").offset), handAlong);
     const up: AutoMovieVector3Tuple = F.unit(T.DIRECTIONS["leg.fan.up"]!.local);
     const footAlong: AutoMovieVector3Tuple = F.perpendicular(T.POINTS["footEnd"]!.local, up);
-    const footAcross: AutoMovieVector3Tuple = F.perpendicular(F.perpendicular(F.sub(AutoMovieHumanF1SegmentLengthsDataJoint("bigtoe.proximal").offset, AutoMovieHumanF1SegmentLengthsDataJoint("littletoe.proximal").offset), up), footAlong);
+    const footAcross: AutoMovieVector3Tuple = F.perpendicular(F.perpendicular(F.sub(AutoMovieHumanF1SegmentLengthsData.joint("bigtoe.proximal").offset, AutoMovieHumanF1SegmentLengthsData.joint("littletoe.proximal").offset), up), footAlong);
     return { hand: [handAlong, handAcross], foot: [footAlong, footAcross] };
   }
 

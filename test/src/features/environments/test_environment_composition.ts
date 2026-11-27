@@ -1,5 +1,7 @@
-import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import { Quaternion, Transform, AutoMovieEngineGeometry, AutoMovieEngineSpace } from "@automovie/engine";
+import {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineGeometry, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentContribution,
@@ -59,7 +61,7 @@ export function test_environment_composition(): void {
       ],
     },
     anchors: {
-      entry: Transform.of({ x: 1, y: 0.5, z: 2 }, Quaternion.identity()),
+      entry: AutoMovieEngineTransform.of({ x: 1, y: 0.5, z: 2 }, AutoMovieEngineQuaternion.identity()),
     },
     space: {
       id: "level",
@@ -75,7 +77,7 @@ export function test_environment_composition(): void {
       walkable: ["floor"],
     },
   };
-  const landmark: IAutoMovieEnvironmentModule = AutoMovieEnvironment.model(landmarkInput);
+  const landmark: IAutoMovieEnvironmentModule = AutoMovieArchetypeEnvironment.model(landmarkInput);
   /**
    * Store the module's actual seed in a model label so the scenario can compare
    * it after composition.
@@ -94,7 +96,7 @@ export function test_environment_composition(): void {
       ),
     };
   };
-  const prop: IAutoMovieEnvironmentModule = AutoMovieEnvironment.model({
+  const prop: IAutoMovieEnvironmentModule = AutoMovieArchetypeEnvironment.model({
     model: base,
     prop: { articulation: null },
   });
@@ -110,7 +112,7 @@ export function test_environment_composition(): void {
     },
     left: { use: seededLandmark, at: { x: -20, y: 2, z: 0 } },
   };
-  const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const environment: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "estate",
     seed: 4,
     items,
@@ -144,14 +146,14 @@ export function test_environment_composition(): void {
       nclose(AutoMovieEngineSpace.heightAt(environment.stage.space!, 12, 4) ?? NaN, 3.5) &&
       AutoMovieEngineSpace.heightAt(environment.stage.space!, 10, 5) === null,
   );
-  const replacement: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const replacement: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "estate",
     seed: 4,
     items: {
       ...items,
       right: {
         ...items.right!,
-        use: AutoMovieEnvironment.model({ ...landmarkInput, model: base }),
+        use: AutoMovieArchetypeEnvironment.model({ ...landmarkInput, model: base }),
       },
     },
   });
@@ -166,7 +168,7 @@ export function test_environment_composition(): void {
       replacement.stage.set[0]!.node === "estate/marker" &&
       vclose(replacement.stage.set[0]!.position, { x: 13, y: 4.5, z: 4 }),
   );
-  const withSibling: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const withSibling: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "estate",
     seed: 4,
     items: { sign: { use: prop }, ...items },
@@ -180,7 +182,7 @@ export function test_environment_composition(): void {
       environment.runtime.models[2]!.name ===
         withSibling.runtime.models[3]!.name,
   );
-  const mutualOrigins: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const mutualOrigins: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "survey",
     items: {
       a: {
@@ -210,7 +212,7 @@ export function test_environment_composition(): void {
     "missing anchors refuse the original placement path",
     throwsError(
       () =>
-        AutoMovieEnvironment.create({
+        AutoMovieArchetypeEnvironment.create({
           id: "estate",
           items: {
             ...items,
@@ -224,7 +226,7 @@ export function test_environment_composition(): void {
     "cyclic placement and conflicting definitions refuse",
     throwsError(
       () =>
-        AutoMovieEnvironment.create({
+        AutoMovieArchetypeEnvironment.create({
           id: "estate",
           items: {
             a: { use: prop, at: { anchor: "b" } },
@@ -235,7 +237,7 @@ export function test_environment_composition(): void {
     ) &&
       throwsError(
         () =>
-          AutoMovieEnvironment.create({
+          AutoMovieArchetypeEnvironment.create({
             id: "estate",
             items: { a: { use: () => ({ models: [base, { ...base }] }) } },
           }),

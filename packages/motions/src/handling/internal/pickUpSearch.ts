@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -21,7 +21,7 @@ import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { pickUpPosture } from "./pickUpPosture";
-import * as PickUpSearchData from "./PickUpSearchData";
+import { PickUpSearchData } from "./PickUpSearchData";
 
 /*
  * The grasp the arm reaches best from a stance's posture, the lifted pose and
@@ -205,7 +205,7 @@ export function pickUpSearch(
     (floor === undefined ||
       tips.every(
         (tip: IAutoMovieVector3): boolean =>
-          wrist.point.y + Quaternion.rotateVector(wrist.rotation, tip).y >=
+          wrist.point.y + AutoMovieEngineQuaternion.rotateVector(wrist.rotation, tip).y >=
           floor,
       ));
   const search: (

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -54,7 +54,7 @@ export namespace AutoMovieMotionHumanToesOnFloor {
     // ball, so the tip's angle below it may be no more than the one that
     // reaches down to the support (closed form, by the arcsine).
     const toe: IAutoMovieVector3 = HumanFoot.point(body, side, "toe", at);
-    const length: number = Vector3.distance(ball, toe);
+    const length: number = AutoMovieEngineVector3.distance(ball, toe);
     if (!(length > 1e-9)) return faded;
     const down = (drop: number): number =>
       (Math.asin(Math.max(-1, Math.min(1, drop / length))) * 180) / Math.PI;

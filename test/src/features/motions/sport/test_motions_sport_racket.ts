@@ -1,5 +1,13 @@
 import type { IAutoMovieMotionClock, IAutoMovieMotionManner } from "@automovie/interface";
-import { AutoMovieMotionManner, racketClock, racketStanceTransfer } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionManner
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+import {
+  racketClock
+} from "../../../../../packages/motions/src/sport/internal/racketClock";
+import {
+  racketStanceTransfer
+} from "../../../../../packages/motions/src/sport/internal/racketStanceTransfer";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

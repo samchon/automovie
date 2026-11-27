@@ -11,7 +11,7 @@ import {
 } from "@automovie/interface";
 
 import { meshAutoMovieSweep } from "../../geometry/sweep/internal/meshAutoMovieSweep";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";
 
@@ -118,11 +118,11 @@ const DEFAULT_SIDES: number = 8;
 const across: (route: readonly IAutoMovieVector3[]) => IAutoMovieVector3 = (
   route: readonly IAutoMovieVector3[],
 ): IAutoMovieVector3 => {
-  const leg: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(route[1]!, route[0]!),
+  const leg: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(route[1]!, route[0]!),
   );
-  return Vector3.cross(
-    Math.abs(leg.y) < 0.9 ? Vector3.create(0, 1, 0) : Vector3.create(1, 0, 0),
+  return AutoMovieEngineVector3.cross(
+    Math.abs(leg.y) < 0.9 ? AutoMovieEngineVector3.create(0, 1, 0) : AutoMovieEngineVector3.create(1, 0, 0),
     leg,
   );
 };

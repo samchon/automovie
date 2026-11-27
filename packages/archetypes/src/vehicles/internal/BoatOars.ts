@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -209,7 +209,7 @@ export namespace BoatOars {
     >,
     d: Readonly<Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const g: IGeometry = geometry(d);
     const rest: number = g.rest * AutoMovieArchetypeUnits.DEGREE;
     for (const [side, sign] of [
@@ -223,7 +223,7 @@ export namespace BoatOars {
         0,
       );
       const at = (s: number): IAutoMovieVector3 =>
-        Vector3.add(pivot, Vector3.scale(out, s));
+        AutoMovieEngineVector3.add(pivot, AutoMovieEngineVector3.scale(out, s));
       const loom: string = `oar-${side}`;
       const blade: string = `blade-${side}`;
       const grip: string = `grip-${side}`;
@@ -244,7 +244,7 @@ export namespace BoatOars {
         at(g.outboard - d.bladeLength! / 2),
         {
           color: BLADE,
-          rotation: Quaternion.fromAxisAngle(
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle(
             { x: 0, y: 0, z: 1 },
             -sign * g.rest,
           ),

@@ -3,7 +3,7 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../../math/AutoMovieEngineMatrix4";
 import { setPieceTransform } from "./setPieceTransform";
 
 /*
@@ -20,7 +20,7 @@ import { setPieceTransform } from "./setPieceTransform";
  */
 export function setPieceMatrix(piece: IAutoMovieStageSetPiece): number[] {
   const transform: IAutoMovieTransform = setPieceTransform(piece);
-  return Matrix4.compose(
+  return AutoMovieEngineMatrix4.compose(
     transform.translation,
     transform.rotation,
     transform.scale,

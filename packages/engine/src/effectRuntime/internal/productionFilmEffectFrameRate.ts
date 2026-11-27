@@ -1,7 +1,7 @@
 import { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
 import { canonicalProductionFrameRate } from "../../film/internal/canonicalProductionFrameRate";
-import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
+import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 
 /*
  * Reduce one film-effect frame rate, or refuse it under the caller's code.
@@ -21,7 +21,7 @@ export const productionFilmEffectFrameRate = (
   try {
     return canonicalProductionFrameRate(frameRate);
   } catch {
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       code,
       "Film effect frame rate must be a positive exact rational identity.",
     );

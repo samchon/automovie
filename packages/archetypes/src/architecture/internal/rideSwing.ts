@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -63,7 +63,7 @@ export function rideSwing(
         "the start angle and each half swing's added angle must stay in the swing's small range",
       fix: "start below 60 degrees and add less than 15 degrees a half swing",
     });
-  const omega: number = Math.sqrt(AutoMovieGravity.STANDARD / length);
+  const omega: number = Math.sqrt(AutoMovieEngineGravity.STANDARD / length);
   const half: number = Math.PI / omega;
 
   // The turning points, alternating in sign: each pumped half swing ends
@@ -94,7 +94,7 @@ export function rideSwing(
       AutoMovieArchetypeFrame.compose(placement, {
         scale: ONE,
         translation: { x: 0, y: swing.dimensions.pivot!, z: 0 },
-        rotation: Quaternion.fromAxisAngle(AXIS, -angle(seconds)),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(AXIS, -angle(seconds)),
       }),
   };
 }

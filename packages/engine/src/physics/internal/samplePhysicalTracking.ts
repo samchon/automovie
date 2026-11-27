@@ -5,7 +5,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /*
@@ -68,21 +68,21 @@ export function samplePhysicalTracking(
       ) => IAutoMovieRigidTransform["rotation"] = (
         poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
       ): IAutoMovieRigidTransform["rotation"] =>
-        Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(
+            AutoMovieEngineQuaternion.multiply(
               poses[joint.parent]!.rotation,
               joint.parentFrame.rotation,
             ),
           ),
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             poses[joint.child]!.rotation,
             joint.childFrame.rotation,
           ),
         );
-      const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+      const delta: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
         relative(goals),
-        Quaternion.inverse(relative(frame.bodies[body.id]!)),
+        AutoMovieEngineQuaternion.inverse(relative(frame.bodies[body.id]!)),
       );
       const error: number =
         2 *

@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
+import type { AutoMovieEngineXpbdJoint } from "../AutoMovieEngineXpbdJoint";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
 import { physicalJointMotorCommand } from "./physicalJointMotorCommand";
 
 /*
@@ -17,8 +17,8 @@ import { physicalJointMotorCommand } from "./physicalJointMotorCommand";
  * non-finite values.
  */
 export function configurePhysicalJointMotor(input: {
-  world: AutoMovieXpbdWorld;
-  native: AutoMovieXpbdJoint;
+  world: AutoMovieEngineXpbdWorld;
+  native: AutoMovieEngineXpbdJoint;
   joint: IAutoMoviePhysicalJoint;
   current: IAutoMovieQuaternion;
   target: IAutoMovieQuaternion;

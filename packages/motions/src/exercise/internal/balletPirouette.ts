@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -134,12 +134,12 @@ export namespace balletPirouette {
 
     const standing: IAutoMovieVector3 = balletPositions.hips(body, entry);
     const depth: number = balletPositions.drop(body);
-    const middle: IAutoMovieVector3 = Vector3.lerp(
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       fourth.left.ankle,
       fourth.right.ankle,
       0.5,
     );
-    const entered: IAutoMovieVector3 = Vector3.lerp(
+    const entered: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       context.entry.feet.left.ankle,
       context.entry.feet.right.ankle,
       0.5,
@@ -182,7 +182,7 @@ export namespace balletPirouette {
         (side: AutoMovieHumanSide): number => {
           const offset: IAutoMovieVector3 = HumanFrame.point(
             { origin: { x: 0, y: 0, z: 0 }, yaw: yaw(end) },
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               body.rest.get(
                 side === "left" ? "leftUpperLeg" : "rightUpperLeg",
               )!,
@@ -207,9 +207,9 @@ export namespace balletPirouette {
     ): IAutoMovieVector3 => {
       if (t <= set) return plie(AutoMovieEngineMotionSampling.minimumJerkShare(t / set));
       if (t <= prepared) return plie(1);
-      if (t <= risen) return Vector3.lerp(plie(1), over, lift(t));
+      if (t <= risen) return AutoMovieEngineVector3.lerp(plie(1), over, lift(t));
       if (t <= turned) return over;
-      if (t <= landed) return Vector3.lerp(over, plie(1), 1 - lift(t));
+      if (t <= landed) return AutoMovieEngineVector3.lerp(over, plie(1), 1 - lift(t));
       const up: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         clamp((t - landed) / (end - landed)),
       );
@@ -237,7 +237,7 @@ export namespace balletPirouette {
           origin: hips(risen),
           yaw: heading,
         };
-        const root: IAutoMovieVector3 = Vector3.subtract(
+        const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           frame.origin,
           HumanFrame.point(
             { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
@@ -291,7 +291,7 @@ export namespace balletPirouette {
           undefined,
           new Set<AutoMovieHumanoidBone>([leg]),
         ).get(leg)!.worldPosition;
-        const pole: IAutoMovieVector3 = Vector3.addScaled(
+        const pole: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
           hip,
           HumanFrame.forward(
             heading + (working === "right" ? -TURNOUT : TURNOUT),
@@ -320,9 +320,9 @@ export namespace balletPirouette {
           bend: pole,
         });
         const best: IAutoMovieMotionHumanFoot.IPlacement = fitted({
-          point: Vector3.subtract(
+          point: AutoMovieEngineVector3.subtract(
             target,
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               HumanFoot.point(body, working, "toe", first),
               first.ankle,
             ),
@@ -335,8 +335,8 @@ export namespace balletPirouette {
         }); // Held in the hips' frame on the risen stance.
         return {
           ankle: HumanFrame.local(frame, best.ankle),
-          rotation: Quaternion.multiply(
-            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -heading),
+          rotation: AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -heading),
             best.rotation,
           ),
         };
@@ -345,8 +345,8 @@ export namespace balletPirouette {
       t: number,
     ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: HumanFrame.point({ origin: hips(t), yaw: yaw(t) }, shaped.ankle),
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw(t)),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw(t)),
         shaped.rotation,
       ),
     });

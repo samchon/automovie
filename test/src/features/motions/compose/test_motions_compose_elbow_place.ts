@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -8,11 +8,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanElbowPlace,
-  AutoMovieMotionHumanElbowPole,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanElbowPlace
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanElbowPlace";
+import {
+  AutoMovieMotionHumanElbowPole
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanElbowPole";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -56,7 +62,7 @@ export async function test_motions_compose_elbow_place(): Promise<void> {
   );
   const shoulder: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
   const goal: IAutoMovieHumanLimbGoal = {
-    point: Vector3.add(shoulder, { x: 0, y: -0.2, z: 0.45 }),
+    point: AutoMovieEngineVector3.add(shoulder, { x: 0, y: -0.2, z: 0.45 }),
     bend: shoulder,
   };
   const up = (): IAutoMovieVector3 => ({ x: 0, y: 1, z: 0 });
@@ -69,20 +75,20 @@ export async function test_motions_compose_elbow_place(): Promise<void> {
     goal,
     up,
   );
-  const line: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(goal.point, shoulder),
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(goal.point, shoulder),
   );
-  const out: IAutoMovieVector3 = Vector3.subtract(placed.bend, shoulder);
+  const out: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(placed.bend, shoulder);
   TestValidator.predicate(
     "the elbow between the bones, toward the pole",
-    nclose(Vector3.length(out), body.measure.upperArm, ROUNDING) &&
+    nclose(AutoMovieEngineVector3.length(out), body.measure.upperArm, ROUNDING) &&
       nclose(
-        Vector3.distance(placed.bend, goal.point),
+        AutoMovieEngineVector3.distance(placed.bend, goal.point),
         body.measure.forearm,
         ROUNDING,
       ) &&
-      Vector3.dot(
-        Vector3.subtract(out, Vector3.scale(line, Vector3.dot(out, line))),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(out, AutoMovieEngineVector3.scale(line, AutoMovieEngineVector3.dot(out, line))),
         { x: 0, y: 1, z: 0 },
       ) > 0 &&
       placed.elbow === "placed",
@@ -93,15 +99,15 @@ export async function test_motions_compose_elbow_place(): Promise<void> {
     body,
     standing,
     "left",
-    { ...goal, point: Vector3.add(shoulder, { x: 0, y: 0, z: 2 }) },
+    { ...goal, point: AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: 2 }) },
     up,
   );
   TestValidator.predicate(
     "past reach, the elbow on the line",
     nclose(
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         far.bend,
-        Vector3.add(shoulder, { x: 0, y: 0, z: body.measure.upperArm }),
+        AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: body.measure.upperArm }),
       ),
       0,
       1e-3,
@@ -129,13 +135,13 @@ export async function test_motions_compose_elbow_place(): Promise<void> {
   TestValidator.predicate(
     "the pole out along the olecranon",
     nclose(
-      Vector3.distance(pole, elbow),
-      AutoMovieMotionHumanElbowPole.POLE * Vector3.distance(wrist, elbow),
+      AutoMovieEngineVector3.distance(pole, elbow),
+      AutoMovieMotionHumanElbowPole.POLE * AutoMovieEngineVector3.distance(wrist, elbow),
       ROUNDING,
     ) &&
-      Vector3.dot(
-        Vector3.subtract(pole, elbow),
-        Vector3.subtract(flexed, wrist),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(pole, elbow),
+        AutoMovieEngineVector3.subtract(flexed, wrist),
       ) < 0,
   );
 }

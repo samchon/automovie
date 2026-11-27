@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineMath,
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -148,7 +148,7 @@ export namespace armWrestle {
       from: PlanSpanFrom,
       to: PlanSpanTo,
     ): number =>
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         of.rest.get(`${side}${to}`)!,
         of.rest.get(`${side}${from}`)!,
       );
@@ -158,21 +158,21 @@ export namespace armWrestle {
     // The shared geometry: `own` is the level unit from the table's point
     // toward this performer, `left` the winner's left, where the hands go.
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const own: IAutoMovieVector3 = Vector3.normalize({
+    const own: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: entry.root.x - p.table.x,
       y: 0,
       z: entry.root.z - p.table.z,
     });
-    const left: IAutoMovieVector3 = Vector3.scale(
-      Vector3.cross(up, own),
+    const left: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.cross(up, own),
       p.wins ? -1 : 1,
     );
     const height: number =
       0.85 * Math.min(forearm, span(partner, "LowerArm", "Hand"));
     const reach: number = Math.sqrt(forearm ** 2 - height ** 2);
-    const nominal: IAutoMovieVector3 = Vector3.add(
+    const nominal: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       p.table,
-      Vector3.scale(own, GAP / 2 + reach),
+      AutoMovieEngineVector3.scale(own, GAP / 2 + reach),
     );
     const pad: HumanMaterialContact.ISite | undefined =
       p.pad === undefined
@@ -185,7 +185,7 @@ export namespace armWrestle {
     if (p.pad !== undefined && pad === undefined) throw padRefusal(p.pad.point);
     if (
       pad !== undefined &&
-      Quaternion.rotateVectorY(
+      AutoMovieEngineQuaternion.rotateVectorY(
         pad.at(context.start).frame.rotation,
         HumanMaterialContact.NORMAL,
       ) <
@@ -205,11 +205,11 @@ export namespace armWrestle {
     // The wrist with the forearm turned by an angle about the elbows' line.
     const wrist = (degrees: number): IAutoMovieVector3 => {
       const angle: number = (degrees * Math.PI) / 180;
-      return Vector3.add(
-        Vector3.add(nominal, Vector3.scale(own, -reach)),
-        Vector3.add(
-          Vector3.scale(up, height * Math.cos(angle)),
-          Vector3.scale(left, height * Math.sin(angle)),
+      return AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(nominal, AutoMovieEngineVector3.scale(own, -reach)),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(up, height * Math.cos(angle)),
+          AutoMovieEngineVector3.scale(left, height * Math.sin(angle)),
         ),
       );
     };
@@ -245,7 +245,7 @@ export namespace armWrestle {
     const shoulders: ReturnType<typeof HumanTrunk.prepareResolve> =
       HumanTrunk.prepareResolve(body, shoulderBones);
     const short = (pitch: number): number =>
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         shoulders(leaned(pitch, entry), resolution).get(`${side}UpperArm`)!
           .worldPosition,
         elbow,
@@ -299,7 +299,7 @@ export namespace armWrestle {
       elbowBones,
     );
     const off = (degrees: number): number =>
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         elbows(
           resolveHumanPosture.seeded(
             body,
@@ -343,7 +343,7 @@ export namespace armWrestle {
         const at: IAutoMovieVector3 = wrist(degrees);
         const v = (q: IAutoMovieVector3): string =>
           `(${q.x.toFixed(4)}, ${q.y.toFixed(4)}, ${q.z.toFixed(4)})`;
-        return `at ${degrees} degrees the wrist is asked at ${v(at)}, turned about the elbows' line through ${v(elbow)} along ${v(own)}, the elbow hinted at ${v(elbow)}, and the shoulder lies ${(Vector3.distance(shoulder, elbow) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
+        return `at ${degrees} degrees the wrist is asked at ${v(at)}, turned about the elbows' line through ${v(elbow)} along ${v(own)}, the elbow hinted at ${v(elbow)}, and the shoulder lies ${(AutoMovieEngineVector3.distance(shoulder, elbow) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
       };
       let most: number = 0;
       for (let degrees: number = 5; degrees < asked; degrees += 5)
@@ -368,14 +368,14 @@ export namespace armWrestle {
     ).get(`${side}Hand`)!.worldPosition;
     // Both roles set together: the longer of the two hands' transports, the
     // partner's hand read where it is as this role starts.
-    const theirs: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(p.table, Vector3.scale(own, -GAP / 2)),
-      Vector3.scale(up, height),
+    const theirs: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(p.table, AutoMovieEngineVector3.scale(own, -GAP / 2)),
+      AutoMovieEngineVector3.scale(up, height),
     );
     const arrive: number = Math.max(
-      AutoMovieMotionHumanTiming.transport(Vector3.distance(wrist(0), from)),
+      AutoMovieMotionHumanTiming.transport(AutoMovieEngineVector3.distance(wrist(0), from)),
       AutoMovieMotionHumanTiming.transport(
-        Vector3.distance(
+        AutoMovieEngineVector3.distance(
           theirs,
           other.bones(context.start, requested).get(`${side}Hand`)!
             .worldPosition,
@@ -409,7 +409,7 @@ export namespace armWrestle {
     // elbow allows, bisected on the shoulder's distance alone.
     const lifts = (share: number): boolean =>
       Math.abs(
-        Vector3.distance(
+        AutoMovieEngineVector3.distance(
           shoulders(
             HumanTrunkTurn.turned(
               body,
@@ -525,7 +525,7 @@ export namespace armWrestle {
         if (
           candidate === undefined ||
           Math.abs(candidate.clearance) > HELD ||
-          Vector3.distance(material.point, candidate.point) > HELD
+          AutoMovieEngineVector3.distance(material.point, candidate.point) > HELD
         )
           throw padRefusal(p.pad?.point);
       }

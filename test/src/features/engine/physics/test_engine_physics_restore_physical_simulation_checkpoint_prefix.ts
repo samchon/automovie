@@ -1,4 +1,4 @@
-import { AutoMoviePhysicsCache, AutoMovieXpbdWorld, AutoMoviePhysicalSimulation } from "@automovie/engine";
+import { AutoMovieEnginePhysicsCache, AutoMovieEngineXpbdWorld, AutoMovieEnginePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalControllerCheckpoint,
   IAutoMoviePhysicalFrame,
@@ -26,7 +26,7 @@ export async function test_engine_physics_restore_physical_simulation_checkpoint
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     PhysicalFixtures.input([], start + 1);
   input.rate = 1;
-  const original: AutoMoviePhysicsCache = new AutoMoviePhysicsCache(
+  const original: AutoMovieEnginePhysicsCache = new AutoMovieEnginePhysicsCache(
     "prefix",
     1,
     start + 1,
@@ -42,7 +42,7 @@ export async function test_engine_physics_restore_physical_simulation_checkpoint
   };
   original.controllerCheckpoints.set(start, control);
   // One marked body tells the checkpoint's world from a fresh empty one.
-  const native: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
+  const native: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld(input.gravity);
   native.createBody(false, {
     position: { x: 7, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -55,12 +55,12 @@ export async function test_engine_physics_restore_physical_simulation_checkpoint
     tracking: [],
     trackingAt: (): IAutoMoviePhysicalSimulationInput.IDiagnostic[] => [],
   };
-  const copied: AutoMoviePhysicsCache = new AutoMoviePhysicsCache(
+  const copied: AutoMovieEnginePhysicsCache = new AutoMovieEnginePhysicsCache(
     "prefix",
     1,
     start + 1,
   );
-  const restored: AutoMovieXpbdWorld = AutoMoviePhysicalSimulation.restoreCheckpoint(
+  const restored: AutoMovieEngineXpbdWorld = AutoMovieEnginePhysicalSimulation.restoreCheckpoint(
     input,
     previous,
     copied,
@@ -96,10 +96,10 @@ export async function test_engine_physics_restore_physical_simulation_checkpoint
   original.checkpoints.set(start, new Uint8Array());
   assert.throws(
     (): void => {
-      AutoMoviePhysicalSimulation.restoreCheckpoint(
+      AutoMovieEnginePhysicalSimulation.restoreCheckpoint(
         input,
         previous,
-        new AutoMoviePhysicsCache("prefix", 1, start + 1),
+        new AutoMovieEnginePhysicsCache("prefix", 1, start + 1),
         start,
         [],
       );

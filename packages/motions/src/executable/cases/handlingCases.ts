@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, AutoMovieEngineKinematics, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3, AutoMovieEngineKinematics, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -118,15 +118,15 @@ export function handlingCases(
       );
 
       // The grip frame: +X up the bottle (the wrapped axis), +Y toward the performer.
-      const turn: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
         ),
       );
       const bottle: IAutoMovieMotionHumanProp = {
         subject: "bottle",
-        frame: { position: place, rotation: Quaternion.identity() },
+        frame: { position: place, rotation: AutoMovieEngineQuaternion.identity() },
         points: {},
         shapes: [
           {
@@ -134,7 +134,7 @@ export function handlingCases(
             material: "glass",
             transform: {
               position: { x: 0, y: 0.095, z: 0 },
-              rotation: Quaternion.identity(),
+              rotation: AutoMovieEngineQuaternion.identity(),
             },
             kind: "capsule",
             radius: 0.035,
@@ -145,7 +145,7 @@ export function handlingCases(
           {
             id: "handle",
             kind: "handle",
-            frame: Transform.of({ x: 0, y: 0.095, z: 0 }, turn),
+            frame: AutoMovieEngineTransform.of({ x: 0, y: 0.095, z: 0 }, turn),
             extent: null,
             grip: "power",
             aperture: 0.07,
@@ -182,9 +182,9 @@ export function handlingCases(
       const placed: number = at(down, "placed");
       const centre = (t: number): IAutoMovieVector3 => {
         const f = performance.prop("bottle", t);
-        return Vector3.add(
+        return AutoMovieEngineVector3.add(
           f.position,
-          Quaternion.rotateVector(f.rotation, { x: 0, y: 0.095, z: 0 }),
+          AutoMovieEngineQuaternion.rotateVector(f.rotation, { x: 0, y: 0.095, z: 0 }),
         );
       };
 
@@ -207,7 +207,7 @@ export function handlingCases(
       // Digits against the bottle's capsule at the grip.
       const bones = performance.bones("a", closed);
       const frame = performance.prop("bottle", closed);
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
         x: 0,
         y: 0.06,
         z: 0,
@@ -229,15 +229,15 @@ export function handlingCases(
                 const shape = body.profile.segments
                   .find((s) => s.bone === bone)!
                   .shapes.find((s) => s.kind === "capsule")!;
-                const middle: IAutoMovieVector3 = Vector3.add(
+                const middle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
                   r.worldPosition,
-                  Quaternion.rotateVector(
+                  AutoMovieEngineQuaternion.rotateVector(
                     r.worldRotation,
                     shape.transform.position,
                   ),
                 );
-                const along: IAutoMovieVector3 = Quaternion.rotateVector(
-                  Quaternion.multiply(
+                const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+                  AutoMovieEngineQuaternion.multiply(
                     r.worldRotation,
                     shape.transform.rotation,
                   ),
@@ -249,10 +249,10 @@ export function handlingCases(
                 );
                 return (
                   AutoMovieEngineMath.closestPointsBetweenSegments(
-                    Vector3.subtract(middle, along),
-                    Vector3.add(middle, along),
-                    Vector3.subtract(centre(closed), axis),
-                    Vector3.add(centre(closed), axis),
+                    AutoMovieEngineVector3.subtract(middle, along),
+                    AutoMovieEngineVector3.add(middle, along),
+                    AutoMovieEngineVector3.subtract(centre(closed), axis),
+                    AutoMovieEngineVector3.add(centre(closed), axis),
                   ).distance -
                   c.radius -
                   0.035
@@ -267,9 +267,9 @@ export function handlingCases(
         const hand: IAutoMovieResolvedBone = performance
           .bones("a", t)
           .get("rightHand")!;
-        return Quaternion.rotateVector(
-          Quaternion.inverse(hand.worldRotation),
-          Vector3.subtract(
+        return AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+          AutoMovieEngineVector3.subtract(
             performance.prop("bottle", t).position,
             hand.worldPosition,
           ),
@@ -279,7 +279,7 @@ export function handlingCases(
       for (let t: number = closed; t <= placed; t += 1 / 24)
         carried = Math.max(
           carried,
-          Vector3.distance(offset(t), offset(closed)),
+          AutoMovieEngineVector3.distance(offset(t), offset(closed)),
         );
 
       // Put down, slip during the handling, range of motion.
@@ -288,7 +288,7 @@ export function handlingCases(
         (Math.acos(
           Math.min(
             1,
-            Quaternion.rotateVector(rest.rotation, { x: 0, y: 1, z: 0 }).y,
+            AutoMovieEngineQuaternion.rotateVector(rest.rotation, { x: 0, y: 1, z: 0 }).y,
           ),
         ) *
           180) /
@@ -302,7 +302,7 @@ export function handlingCases(
           for (let t: number = segment.entryTime; t <= segment.end; t += 1 / 24)
             slip = Math.max(
               slip,
-              Vector3.distance(
+              AutoMovieEngineVector3.distance(
                 performance.bones("a", t).get(foot)!.worldPosition,
                 from,
               ),
@@ -311,7 +311,7 @@ export function handlingCases(
       let overshoot: number = 0;
       for (let t: number = 0; t <= performance.duration; t += 1 / 24)
         for (const j of performance.pose("a", t).joints) {
-          const c = DEFAULT_HUMANOID_ROM[j.bone];
+          const c = AutoMovieEngineDefaultHumanoidRom[j.bone];
           if (c !== undefined)
             overshoot = Math.max(overshoot, AutoMovieEngineKinematics.jointRomOvershoot(j, c));
         }
@@ -400,8 +400,8 @@ export function handlingCases(
           },
           {
             name: "put down within 1 mm of its place",
-            passed: Vector3.distance(rest.position, target) <= 0.001,
-            detail: `${(Vector3.distance(rest.position, target) * 1000).toFixed(2)} mm`,
+            passed: AutoMovieEngineVector3.distance(rest.position, target) <= 0.001,
+            detail: `${(AutoMovieEngineVector3.distance(rest.position, target) * 1000).toFixed(2)} mm`,
           },
           {
             name: "put down upright within 1 degree",

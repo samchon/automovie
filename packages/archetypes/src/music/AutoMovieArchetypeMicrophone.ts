@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeMicrophoneData from "./internal/AutoMovieArchetypeMicrophoneData";
+import { AutoMovieArchetypeMicrophoneData } from "./internal/AutoMovieArchetypeMicrophoneData";
 
 /** Constructs the microphone archetype from its recipe. */
 export namespace AutoMovieArchetypeMicrophone {
@@ -67,7 +67,7 @@ export function create(
     name: kind === "handheld" ? "microphone" : "microphone stand",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const E: typeof AutoMovieArchetypeMicrophone.ESTIMATES = AutoMovieArchetypeMicrophone.ESTIMATES;
   if (kind === "handheld") {
     const length: number = d.length!;

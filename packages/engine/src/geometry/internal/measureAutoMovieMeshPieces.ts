@@ -8,7 +8,7 @@ import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
  * Euler characteristic, manifoldness, orientability, stored winding and genus.
  *
  * Corners are welded exactly as `inspectAutoMovieMeshTopology` welds them,
- * through the shared `weldAutoMovieMeshCorners`: on the `MESH_WELD_GRID`
+ * through the shared `weldAutoMovieMeshCorners`: on the `AutoMovieEngineMeshWeldGrid`
  * lattice, or by declared physical sources. Degenerate triangles are skipped as
  * that report skips them. The remaining triangles split into pieces connected
  * through shared edges, so a cube whose faces carry their own corners is one

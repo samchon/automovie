@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBand,
@@ -8,7 +8,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
-import * as ForestAxeData from "./ForestAxeData";
+import { ForestAxeData } from "./ForestAxeData";
 
 /*
  * The forest axe among the long tools: Gränsfors Bruk's Scandinavian Forest Axe
@@ -94,8 +94,8 @@ export namespace ForestAxe {
     // The head on the floor, its poll flush with the handle's back and its edge toward +Z.
     builder.box(
       "head",
-      Vector3.create(HEAD_THICKNESS, edge, head),
-      Vector3.create(0, edge / 2, head / 2 - shaft),
+      AutoMovieEngineVector3.create(HEAD_THICKNESS, edge, head),
+      AutoMovieEngineVector3.create(0, edge / 2, head / 2 - shaft),
       { color: "#6c7076", share: d.headMass! / d.mass! },
     );
     builder.affordance({
@@ -103,9 +103,9 @@ export namespace ForestAxe {
       kind: "surface",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, edge / 2, head - shaft),
-        Vector3.create(0, 0, 1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, edge / 2, head - shaft),
+        AutoMovieEngineVector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       width: edge,
@@ -113,8 +113,8 @@ export namespace ForestAxe {
     builder.rod(
       "shaft",
       shaft,
-      Vector3.create(0, edge, 0),
-      Vector3.create(0, length, 0),
+      AutoMovieEngineVector3.create(0, edge, 0),
+      AutoMovieEngineVector3.create(0, length, 0),
       { color: "#b98d5b", share: handle / d.mass! },
     );
     builder.affordance({
@@ -122,9 +122,9 @@ export namespace ForestAxe {
       kind: "bar",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, (edge + length) / 2, 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, (edge + length) / 2, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "two-hand",

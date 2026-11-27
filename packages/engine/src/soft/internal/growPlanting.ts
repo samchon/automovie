@@ -10,7 +10,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { mixSeed } from "../../math/internal/mixSeed";
 import { seededValue } from "../../math/internal/seededValue";
 import { plantingCanopyBounds } from "./plantingCanopyBounds";
@@ -239,7 +239,7 @@ const bearLeaves: (props: {
       // Roll first in the leaf's own frame, then align that frame's `+y` to the
       // branch: composing the other way would spin the blade about world `+y`
       // and a drooping branch would carry a fan of leaves in the wrong plane.
-      rotation: Quaternion.multiply(align, roll),
+      rotation: AutoMovieEngineQuaternion.multiply(align, roll),
       scale: {
         x: foliage.size.x * factor,
         y: foliage.size.y * factor,

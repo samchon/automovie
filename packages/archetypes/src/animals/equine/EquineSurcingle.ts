@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -80,7 +80,7 @@ export namespace EquineSurcingle {
     >,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const back: number = rig.back;
     const z: number = rig.hitch.z + AHEAD;
     const top: number = back + PAD.thick;

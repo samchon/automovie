@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
-import { HumanArmTrajectoryKnots } from "@automovie/motions/internal";
+import {
+  HumanArmTrajectoryKnots
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryKnots";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

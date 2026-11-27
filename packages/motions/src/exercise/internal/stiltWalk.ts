@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -148,7 +148,7 @@ export namespace stiltWalk {
     };
 
     // The way: from the feet's middle to the stop, short steps.
-    const start: IAutoMovieVector3 = Vector3.lerp(
+    const start: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       context.entry.feet.left.ankle,
       context.entry.feet.right.ankle,
       0.5,
@@ -158,12 +158,12 @@ export namespace stiltWalk {
       y: 0,
       z: p.to.z - start.z,
     };
-    const length: number = Vector3.length(way);
+    const length: number = AutoMovieEngineVector3.length(way);
     const along: IAutoMovieVector3 =
       length > 1e-6
-        ? Vector3.normalize(way)
-        : Quaternion.rotateVector(
-            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
+        ? AutoMovieEngineVector3.normalize(way)
+        : AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
             {
               x: 0,
               y: 0,
@@ -199,7 +199,7 @@ export namespace stiltWalk {
         at,
         leave: Infinity,
         place: {
-          ankle: Vector3.add(from.ankle, Vector3.scale(along, reach)),
+          ankle: AutoMovieEngineVector3.add(from.ankle, AutoMovieEngineVector3.scale(along, reach)),
           rotation: from.rotation,
         },
         bears: true,
@@ -287,9 +287,9 @@ export namespace stiltWalk {
           reason: `${subject} declares no ${id}`,
           fix: "wear stilts that declare a foot platform and a tip",
         });
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         placed.position,
-        Quaternion.rotateVector(placed.rotation, found.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(placed.rotation, found.frame.translation),
       );
     };
     const foot: IAutoMovieVector3 = find("foot");

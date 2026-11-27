@@ -4,11 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
-import { swingTwistBasis } from "../swingTwistBasis";
-import { swingTwistRange } from "../swingTwistRange";
+import { AutoMovieEngineSwingTwistBasis } from "../AutoMovieEngineSwingTwistBasis";
+import { AutoMovieEngineSwingTwistRange } from "../AutoMovieEngineSwingTwistRange";
 
 /*
  * Invert a swing-twist disc coordinate through the original placed arithmetic.
@@ -18,16 +18,16 @@ import { swingTwistRange } from "../swingTwistRange";
  */
 export function placeSwingTwistChart(
   place: IPlace,
-  joint: swingTwistRange.IPrepared,
+  joint: AutoMovieEngineSwingTwistRange.IPrepared,
   radius: IRadius,
   state?: IState,
 ): IAutoMovieQuaternion {
   const basis: IAutoMovieSwingTwistBasis.IBasis =
-    state?.basis ?? swingTwistBasis.of(joint.axes);
+    state?.basis ?? AutoMovieEngineSwingTwistBasis.of(joint.axes);
   const k: number = Math.hypot(place.x, place.y);
   const azimuth: number =
-    k > 1e-12 ? Math.atan2(place.y, place.x) * swingTwistBasis.DEG : 0;
-  const direction: IAutoMovieVector3 = swingTwistBasis.direction(
+    k > 1e-12 ? Math.atan2(place.y, place.x) * AutoMovieEngineSwingTwistBasis.DEG : 0;
+  const direction: IAutoMovieVector3 = AutoMovieEngineSwingTwistBasis.direction(
     basis,
     k * radius(joint, azimuth),
     azimuth,
@@ -42,9 +42,9 @@ export function placeSwingTwistChart(
       : state.rig(place.twist, joint.frame?.twist)!;
   const turned: IAutoMovieQuaternion =
     state === undefined
-      ? Quaternion.fromAxisAngle(basis.u, angle)
+      ? AutoMovieEngineQuaternion.fromAxisAngle(basis.u, angle)
       : state.turn(angle);
-  return Quaternion.normalize(Quaternion.multiply(aimed, turned));
+  return AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(aimed, turned));
 }
 
 /*
@@ -55,16 +55,16 @@ export namespace placeSwingTwistChart {
    * Release this reader with its fixed endpoint pair and unchanged rig.
    */
   export function prepare(
-    joint: swingTwistRange.IPrepared,
+    joint: AutoMovieEngineSwingTwistRange.IPrepared,
     radius: IRadius,
   ): (place: IPlace) => IAutoMovieQuaternion {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+    const basis: IAutoMovieSwingTwistBasis.IBasis = AutoMovieEngineSwingTwistBasis.of(
       joint.axes,
     );
     const state: IState = {
       basis,
       aim: AutoMovieEngineMath.prepareRotationBetween(basis.u),
-      turn: Quaternion.prepareAxisAngle(basis.u),
+      turn: AutoMovieEngineQuaternion.prepareAxisAngle(basis.u),
       rig: AutoMovieEngineRigAngle.prepareToRigAngle(),
     };
     return (place: IPlace): IAutoMovieQuaternion =>
@@ -75,12 +75,12 @@ export namespace placeSwingTwistChart {
 /*
  * A disc coordinate pair and clinical-degree twist, as the chart produces.
  */
-type IPlace = ReturnType<typeof swingTwistRange.chart>;
+type IPlace = ReturnType<typeof AutoMovieEngineSwingTwistRange.chart>;
 
 /*
  * Existing region-radius owner, passed without constructing a per-read closure.
  */
-type IRadius = typeof swingTwistRange.radius;
+type IRadius = typeof AutoMovieEngineSwingTwistRange.radius;
 
 /*
  * One fixed chart inversion's prepared scalar metadata.
@@ -99,7 +99,7 @@ interface IState {
   /*
    * Fixed twist axis.
    */
-  turn: ReturnType<typeof Quaternion.prepareAxisAngle>;
+  turn: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle>;
 
   /*
    * Fixed affine operands of the twist conversion.

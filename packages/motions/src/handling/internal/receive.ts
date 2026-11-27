@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -200,9 +200,9 @@ export namespace receive {
     const leaned = (share: number): IAutoMovieMotionHumanPosture =>
       HumanSeatedReach.posed(body, held, lean.joints, lean.share * share);
     const setback: number = HumanPrehension.aperture(shared.target.width);
-    const short: IAutoMovieVector3 = Vector3.subtract(
+    const short: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       shared.receiverAt.point,
-      Vector3.scale(shared.target.approach, setback),
+      AutoMovieEngineVector3.scale(shared.target.approach, setback),
     );
     const arrive: IAutoMovieVector3 = takes ? shared.receiverAt.point : short;
     const out: IAutoMovieMotionHumanPrehension.ITransport =
@@ -245,8 +245,8 @@ export namespace receive {
           const tip: number =
             tipped({
               point: place,
-              rotation: Quaternion.multiply(
-                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+              rotation: AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
                 shared.receiverShown.rotation,
               ),
               bend,
@@ -261,7 +261,7 @@ export namespace receive {
     }
     const end: IAutoMovieVector3 = takes ? carry : shared.receiverFrom.point;
     // A hand that took the prop carries it; an empty one returns as it reached.
-    const travel: number = Vector3.length(Vector3.subtract(end, arrive));
+    const travel: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(end, arrive));
     const back: number = takes
       ? HumanPrehension.carry(travel)
       : HumanPrehension.nominal(travel, 0);
@@ -402,8 +402,8 @@ export namespace receive {
         },
         rotation: (yaw: number): IAutoMovieQuaternion =>
           takes && t > leave
-            ? Quaternion.multiply(
-                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+            ? AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
                 rotation,
               )
             : rotation,

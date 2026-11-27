@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -128,7 +128,7 @@ export namespace HumanMountedBank {
     return respondHumanMounted(
       body,
       posture,
-      share === 0 ? start : Quaternion.slerp(start, level, share),
+      share === 0 ? start : AutoMovieEngineQuaternion.slerp(start, level, share),
       now,
       respond + (1 - respond) * share,
       grips,

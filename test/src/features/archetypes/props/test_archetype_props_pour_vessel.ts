@@ -1,5 +1,5 @@
 import { AutoMovieArchetypePourVessel } from "@automovie/archetypes";
-import { Quaternion, AutoMovieEnginePhysics, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -77,8 +77,8 @@ export function test_archetype_props_pour_vessel(): void {
       mouth.kind === "socket" &&
         lip.kind === "ledge" &&
         vclose(mouth.frame.translation, { x: 0, y: height, z: 0 }, 1e-10) &&
-        vclose(Quaternion.rotateVector(mouth.frame.rotation, up), up, 1e-10) &&
-        vclose(Quaternion.rotateVector(lip.frame.rotation, up), up, 1e-10) &&
+        vclose(AutoMovieEngineQuaternion.rotateVector(mouth.frame.rotation, up), up, 1e-10) &&
+        vclose(AutoMovieEngineQuaternion.rotateVector(lip.frame.rotation, up), up, 1e-10) &&
         nclose(lip.frame.translation.y, height, 1e-10) &&
         nclose(lip.frame.translation.x, 0, 1e-10) &&
         nclose(archetypeExtent(shapes, "y").low, 0, 1e-10) &&
@@ -132,7 +132,7 @@ export function test_archetype_props_pour_vessel(): void {
         separation(bar, handle.frame.translation, handle.frame.translation) <
           -0.003 &&
         vclose(
-          Quaternion.rotateVector(handle.frame.rotation, { x: 1, y: 0, z: 0 }),
+          AutoMovieEngineQuaternion.rotateVector(handle.frame.rotation, { x: 1, y: 0, z: 0 }),
           up,
           1e-10,
         ),

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -15,7 +15,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import * as PrepareSeatedMaterialData from "./PrepareSeatedMaterialData";
+import { PrepareSeatedMaterialData } from "./PrepareSeatedMaterialData";
 
 /*
  * Bind an ordinary seat's actual receiving face and proximal body geometry.
@@ -57,7 +57,7 @@ export function prepareSeatedMaterial(
           new Set(["spine", "chest"]),
         );
   const first: HumanMaterialContact.IFace = site.at(context.start);
-  const vertical: number = Quaternion.rotateVectorY(
+  const vertical: number = AutoMovieEngineQuaternion.rotateVectorY(
     first.frame.rotation,
     HumanMaterialContact.NORMAL,
   );

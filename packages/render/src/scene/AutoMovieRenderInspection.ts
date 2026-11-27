@@ -1,7 +1,7 @@
-import type { IObserveAutoMoviePlacedSceneResult } from "./IObserveAutoMoviePlacedSceneResult.js";
-import type { IObserveAutoMoviePlacedSceneProps } from "./IObserveAutoMoviePlacedSceneProps.js";
-import type { IObserveAutoMoviePlacedSceneCheck } from "./IObserveAutoMoviePlacedSceneCheck.js";
-import type { ISelectAutoMoviePlacedChecksProps } from "./ISelectAutoMoviePlacedChecksProps.js";
+import type { IAutoMovieRenderObservePlacedSceneResult } from "./IAutoMovieRenderObservePlacedSceneResult.js";
+import type { IAutoMovieRenderObservePlacedSceneProps } from "./IAutoMovieRenderObservePlacedSceneProps.js";
+import type { IAutoMovieRenderObservePlacedSceneCheck } from "./IAutoMovieRenderObservePlacedSceneCheck.js";
+import type { IAutoMovieRenderSelectPlacedChecksProps } from "./IAutoMovieRenderSelectPlacedChecksProps.js";
 import {
   type IAutoMovieMark,
   type IAutoMovieInspectionTrail,
@@ -20,8 +20,8 @@ import {
 } from "@automovie/interface";
 
 import type * as THREE from "three";
-import type { IAutoMovieSectionRenderer } from "./IAutoMovieSectionRenderer.js";
-import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
+import type { IAutoMovieRenderSectionRenderer } from "./IAutoMovieRenderSectionRenderer.js";
+import type { IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath.js";
 import type { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 import type { IAutoMovieRendererFrameCounters } from "./IAutoMovieRendererFrameCounters.js";
 import { observeAutoMovieRendererFrameImplementation } from "./inspection/internal/observeAutoMovieRendererFrameImplementation.js";
@@ -29,16 +29,16 @@ import { selectAutoMoviePlacedChecks as selectAutoMoviePlacedChecksImplementatio
 import { observeAutoMoviePlacedSceneImplementation } from "./inspection/internal/observeAutoMoviePlacedSceneImplementation.js";
 import { observeAutoMovieSceneCollisionImplementation } from "./inspection/internal/observeAutoMovieSceneCollisionImplementation.js";
 import { observeAutoMovieCollisionMotionImplementation } from "./inspection/internal/observeAutoMovieCollisionMotionImplementation.js";
-import type { IAutoMovieViewerSubjectBounds } from "./IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
 import { focusAutoMovieInspection as focusAutoMovieInspectionImplementation } from "./inspection/internal/focusAutoMovieInspection.js";
 import { applyAutoMovieInspectionSectionImplementation } from "./inspection/internal/applyAutoMovieInspectionSectionImplementation.js";
 import { applyAutoMovieInspectionShadeImplementation } from "./inspection/internal/applyAutoMovieInspectionShadeImplementation.js";
 import { markAutoMovieInspectionTrails as markAutoMovieInspectionTrailsImplementation } from "./inspection/internal/markAutoMovieInspectionTrails.js";
-import { type IAutoMovieInspectionHandle } from "./IAutoMovieInspectionHandle.js";
-import { type IApplyAutoMovieInspectionProps } from "./IApplyAutoMovieInspectionProps.js";
+import { type IAutoMovieRenderInspectionHandle } from "./IAutoMovieRenderInspectionHandle.js";
+import { type IAutoMovieRenderApplyInspectionProps } from "./IAutoMovieRenderApplyInspectionProps.js";
 import { applyAutoMovieInspection as applyAutoMovieInspectionImplementation } from "./inspection/internal/applyAutoMovieInspection.js";
 import { compareAutoMovieInspectionFindings as compareAutoMovieInspectionFindingsImplementation } from "./inspection/internal/compareAutoMovieInspectionFindings.js";
-import { type IRenderAutoMovieInspectionDiagnosticsProps } from "./IRenderAutoMovieInspectionDiagnosticsProps.js";
+import { type IAutoMovieRenderInspectionDiagnosticsProps } from "./IAutoMovieRenderInspectionDiagnosticsProps.js";
 import { renderWithAutoMovieInspectionDiagnostics as renderWithAutoMovieInspectionDiagnosticsImplementation } from "./inspection/internal/renderWithAutoMovieInspectionDiagnostics.js";
 
 import { planAutoMovieInspectionTrailTimes as planAutoMovieInspectionTrailTimesImplementation } from "./inspection/internal/planAutoMovieInspectionTrailTimes.js";
@@ -83,7 +83,7 @@ export namespace AutoMovieRenderInspection {
       /** Scene whose drawn materials receive the section plane. */
       scene: THREE.Scene;
       /** Renderer whose local clipping switch is borrowed. */
-      renderer: IAutoMovieSectionRenderer;
+      renderer: IAutoMovieRenderSectionRenderer;
       /** Half-space removed from the scene. */
       section: IAutoMovieSectionPlane;
     }
@@ -124,7 +124,7 @@ export namespace AutoMovieRenderInspection {
       /** What to frame. */
       focus: IAutoMovieInspectionFocus;
       /** The drawn, selected objects. */
-      objects: readonly IAutoMovieInspectionPath[];
+      objects: readonly IAutoMovieRenderInspectionPath[];
       /** The drawn marks with the objects their frames belong to. */
       marks: readonly IFocusMark[];
     }
@@ -137,7 +137,7 @@ export namespace AutoMovieRenderInspection {
    * one. It throws when a pattern matches nothing drawn, and when the flagged
    * focus finds no flagged mark, saying no mark is flagged.
    */
-  export function focus(props: IFocusProps): IAutoMovieViewerSubjectBounds {
+  export function focus(props: IFocusProps): IAutoMovieRenderViewerSubjectBounds {
     return focusAutoMovieInspectionImplementation(props);
   }
   /** Operations for production policy active on a placed scene. */
@@ -269,8 +269,8 @@ export namespace AutoMovieRenderInspection {
      * @returns The observer's checks for this sample, in declaration order.
      */
     export function selectPlacedChecks(
-      props: ISelectAutoMoviePlacedChecksProps,
-    ): IObserveAutoMoviePlacedSceneCheck[] {
+      props: IAutoMovieRenderSelectPlacedChecksProps,
+    ): IAutoMovieRenderObservePlacedSceneCheck[] {
       return selectAutoMoviePlacedChecksImplementation(props);
     }
     /**
@@ -282,8 +282,8 @@ export namespace AutoMovieRenderInspection {
      * @returns Findings and coverage for this placed observation.
      */
     export function observePlacedScene(
-      props: IObserveAutoMoviePlacedSceneProps,
-    ): IObserveAutoMoviePlacedSceneResult {
+      props: IAutoMovieRenderObservePlacedSceneProps,
+    ): IAutoMovieRenderObservePlacedSceneResult {
       return observeAutoMoviePlacedSceneImplementation(props);
     }
     /**
@@ -420,7 +420,7 @@ export namespace AutoMovieRenderInspection {
    * }
    * ```
    */
-  export function apply(props: IApplyAutoMovieInspectionProps): IAutoMovieInspectionHandle {
+  export function apply(props: IAutoMovieRenderApplyInspectionProps): IAutoMovieRenderInspectionHandle {
     return applyAutoMovieInspectionImplementation(props);
   }
 
@@ -454,7 +454,7 @@ export namespace AutoMovieRenderInspection {
    *   width and optional placed diagnostics.
    * @returns Legend entries for the kinds of witnesses drawn.
    */
-  export function renderDiagnostics(props: IRenderAutoMovieInspectionDiagnosticsProps): IAutoMovieInspectionLegendEntry[] {
+  export function renderDiagnostics(props: IAutoMovieRenderInspectionDiagnosticsProps): IAutoMovieInspectionLegendEntry[] {
     return renderWithAutoMovieInspectionDiagnosticsImplementation(props);
   }
   /**

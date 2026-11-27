@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
@@ -10,7 +10,9 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanRide, AutoMovieMotionHumanRefusal } from "@automovie/motions";
-import { prepareGlideSlope } from "@automovie/motions/internal";
+import {
+  prepareGlideSlope
+} from "../../../../../packages/motions/src/carrier/internal/prepareGlideSlope";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -106,13 +108,13 @@ export async function test_motions_carrier_human_snow_glide(): Promise<void> {
  *    the matched deck are refused.
  */
 function materialContact(): void {
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     10,
   );
   const frame: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const context = (
     tilted?: IAutoMovieQuaternion,
@@ -151,7 +153,7 @@ function materialContact(): void {
   for (const x of [0.11, -0.11]) {
     const entered = deck.enter({ x, y: 0, z: 0 });
     deck.travel(frame.position, entered, 1, 0);
-    const down = Quaternion.rotateVector(deck.rotation, { x, y: 0, z: 1 });
+    const down = AutoMovieEngineQuaternion.rotateVector(deck.rotation, { x, y: 0, z: 1 });
     TestValidator.predicate(
       "the actual deck's metre of travel drops a sole",
       nclose(down.y, -pitchDrop, 1e-12),

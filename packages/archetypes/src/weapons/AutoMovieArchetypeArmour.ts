@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import "../core/index";
-import type { AutoMovieArchetype, AutoMovieArchetypeDrawSession, IAutoMovieArchetypeBand } from "../core/index";
+
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
@@ -17,10 +17,8 @@ import { AutoMovieArchetypeCostumeMail } from "./AutoMovieArchetypeCostumeMail";
 import { AutoMovieArchetypeCostumeVambrace } from "./AutoMovieArchetypeCostumeVambrace";
 import { armourBone } from "./internal/armourBone";
 import { assembleCostumeArmour as assembleCostumeArmourImplementation } from "./internal/assembleCostumeArmour";
-import * as AutoMovieArchetypeArmourData from "./internal/AutoMovieArchetypeArmourData";
-import {
-  read as AutoMovieArchetypeArmourDataRead,
-} from "./internal/AutoMovieArchetypeArmourData";
+import { AutoMovieArchetypeArmourData } from "./internal/AutoMovieArchetypeArmourData";
+
 
 /**
  * Constructs the armour archetype from its recipe.
@@ -124,7 +122,7 @@ export namespace AutoMovieArchetypeArmour {
     | "rightLowerLeg";
 
   /** The shared measured costume model, retaining its wear socket. */
-  export type IAssemblyModel = AutoMovieArchetype<
+  export type IAssemblyModel = import("../core/index").AutoMovieArchetype<
     AutoMovieArchetypeArmour.Affordance,
     AutoMovieArchetypeArmour.Dimension
   >;
@@ -193,7 +191,7 @@ export namespace AutoMovieArchetypeArmour {
   export function create(
     params: AutoMovieArchetypeArmour.IParams,
     seed?: number,
-  ): AutoMovieArchetype<
+  ): import("../core/index").AutoMovieArchetype<
     AutoMovieArchetypeArmour.Affordance,
     AutoMovieArchetypeArmour.Dimension
   > {
@@ -211,7 +209,7 @@ export namespace AutoMovieArchetypeArmour {
         (
           params: AutoMovieArchetypeArmour.IParams,
           seed?: number,
-        ) => AutoMovieArchetype<
+        ) => import("../core/index").AutoMovieArchetype<
           AutoMovieArchetypeArmour.Affordance,
           AutoMovieArchetypeArmour.Dimension
         >
@@ -400,7 +398,7 @@ export namespace AutoMovieArchetypeArmour {
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<
-    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+    Record<Dimension, import("../core/index").AutoMovieArchetypeDrawSession.Unit>
   > = {
     height: "m",
     width: "m",
@@ -443,39 +441,39 @@ export namespace AutoMovieArchetypeArmour {
     >
   > = {
     openHelmet: {
-      met26453: AutoMovieArchetypeArmourDataRead(24.1, 28.6, 33.7, 2984),
-      met25388: AutoMovieArchetypeArmourDataRead(26.7, 23.5, 39.37, 2769),
+      met26453: AutoMovieArchetypeArmourData.read(24.1, 28.6, 33.7, 2984),
+      met25388: AutoMovieArchetypeArmourData.read(26.7, 23.5, 39.37, 2769),
     },
     closedHelmet: {
-      met23232: AutoMovieArchetypeArmourDataRead(29.2, 21.6, 28.6, 2749),
-      met26508: AutoMovieArchetypeArmourDataRead(29.8, 22.2, 33.7, 2656),
+      met23232: AutoMovieArchetypeArmourData.read(29.2, 21.6, 28.6, 2749),
+      met26508: AutoMovieArchetypeArmourData.read(29.8, 22.2, 33.7, 2656),
     },
     brimmedHelmet: {
-      met26512: AutoMovieArchetypeArmourDataRead(27, 23.81, 34.3, 1449),
-      met21972: AutoMovieArchetypeArmourDataRead(25.4, 23.2, 33.5, 1701),
+      met26512: AutoMovieArchetypeArmourData.read(27, 23.81, 34.3, 1449),
+      met21972: AutoMovieArchetypeArmourData.read(25.4, 23.2, 33.5, 1701),
     },
     cuirass: {
-      met22359: AutoMovieArchetypeArmourDataRead(36.2, 30.5, 30.5, 4536),
-      met23084: AutoMovieArchetypeArmourDataRead(37.5, 37.5, 19.5, 3112 + 2340),
+      met22359: AutoMovieArchetypeArmourData.read(36.2, 30.5, 30.5, 4536),
+      met23084: AutoMovieArchetypeArmourData.read(37.5, 37.5, 19.5, 3112 + 2340),
     },
     mail: {
-      met34324: AutoMovieArchetypeArmourDataRead(91.5, 143, 62, 9071.9),
-      met22415: AutoMovieArchetypeArmourDataRead(84, 132, 62, 9869),
-      met633538: AutoMovieArchetypeArmourDataRead(86.4, 144.8, 62, 7520.6),
-      met27635: AutoMovieArchetypeArmourDataRead(81, 137, 62, 5562),
+      met34324: AutoMovieArchetypeArmourData.read(91.5, 143, 62, 9071.9),
+      met22415: AutoMovieArchetypeArmourData.read(84, 132, 62, 9869),
+      met633538: AutoMovieArchetypeArmourData.read(86.4, 144.8, 62, 7520.6),
+      met27635: AutoMovieArchetypeArmourData.read(81, 137, 62, 5562),
     },
     gauntlet: {
-      met23255: AutoMovieArchetypeArmourDataRead(29.4, 14.6, 15.9, 793.8),
-      met23256: AutoMovieArchetypeArmourDataRead(21, 12.7, 12.4, 300.5),
-      met23199: AutoMovieArchetypeArmourDataRead(26.7, 12.7, 11.1, 581.2),
+      met23255: AutoMovieArchetypeArmourData.read(29.4, 14.6, 15.9, 793.8),
+      met23256: AutoMovieArchetypeArmourData.read(21, 12.7, 12.4, 300.5),
+      met23199: AutoMovieArchetypeArmourData.read(26.7, 12.7, 11.1, 581.2),
     },
     vambrace: {
-      met24896: AutoMovieArchetypeArmourDataRead(21, 11.4, 8.9, 351),
-      met35850: AutoMovieArchetypeArmourDataRead(46.1, 16.8, 13.2, 1089),
+      met24896: AutoMovieArchetypeArmourData.read(21, 11.4, 8.9, 351),
+      met35850: AutoMovieArchetypeArmourData.read(46.1, 16.8, 13.2, 1089),
     },
     greave: {
-      met22970: AutoMovieArchetypeArmourDataRead(35.3, 12.7, 11.4, 669),
-      met22276: AutoMovieArchetypeArmourDataRead(38.3, 11.7, 14.3, 854),
+      met22970: AutoMovieArchetypeArmourData.read(35.3, 12.7, 11.4, 669),
+      met22276: AutoMovieArchetypeArmourData.read(38.3, 11.7, 14.3, 854),
     },
   };
 
@@ -508,7 +506,7 @@ export namespace AutoMovieArchetypeArmour {
    * provisional for them, and a helmet's padding.
    */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, import("../core/index").IAutoMovieArchetypeBand>>>>
   > = {
     openHelmet: { thickness: AutoMovieArchetypeArmourData.thickness, pad: AutoMovieArchetypeArmourData.pad },
     closedHelmet: { thickness: AutoMovieArchetypeArmourData.thickness, pad: AutoMovieArchetypeArmourData.pad },

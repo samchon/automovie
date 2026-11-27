@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -152,7 +152,7 @@ export namespace crawlInchworm {
     // height over gravity (equal Froude number, Alexander 1984), times the
     // manner's tempo: the fold, each step and the rise.
     const scale: number =
-      Math.sqrt(m.hipHeight / AutoMovieGravity.STANDARD) * modifiers.tempo;
+      Math.sqrt(m.hipHeight / AutoMovieEngineGravity.STANDARD) * modifiers.tempo;
     const step: number = STEP * scale;
 
     const { stances, steps }: IPlan = ((): IPlanResult => {

@@ -4,7 +4,9 @@ import type {
   IAutoMovieMotionHumanTouch,
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditDifference
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditDifference";
 
 import { motionHumanJointText } from "./motionHumanJointText";
 import { motionHumanLaw } from "./motionHumanLaw";

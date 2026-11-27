@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -65,7 +65,7 @@ export namespace climbLadderHolds {
      */
     handArcs: Record<
       AutoMovieHumanSide,
-      ReturnType<typeof Vector3.prepareLerp>[]
+      ReturnType<typeof AutoMovieEngineVector3.prepareLerp>[]
     >;
   }
 
@@ -318,7 +318,7 @@ export namespace climbLadderHolds {
     };
     const handArcs: Record<
       AutoMovieHumanSide,
-      ReturnType<typeof Vector3.prepareLerp>[]
+      ReturnType<typeof AutoMovieEngineVector3.prepareLerp>[]
     > = {
       left: handholds.left
         .slice(1)
@@ -326,8 +326,8 @@ export namespace climbLadderHolds {
           (
             to: IAutoMovieVector3,
             i: number,
-          ): ReturnType<typeof Vector3.prepareLerp> =>
-            Vector3.prepareLerp(handholds.left[i]!, to),
+          ): ReturnType<typeof AutoMovieEngineVector3.prepareLerp> =>
+            AutoMovieEngineVector3.prepareLerp(handholds.left[i]!, to),
         ),
       right: handholds.right
         .slice(1)
@@ -335,8 +335,8 @@ export namespace climbLadderHolds {
           (
             to: IAutoMovieVector3,
             i: number,
-          ): ReturnType<typeof Vector3.prepareLerp> =>
-            Vector3.prepareLerp(handholds.right[i]!, to),
+          ): ReturnType<typeof AutoMovieEngineVector3.prepareLerp> =>
+            AutoMovieEngineVector3.prepareLerp(handholds.right[i]!, to),
         ),
     };
     return { footprints, footArcs, goals, handholds, handArcs };

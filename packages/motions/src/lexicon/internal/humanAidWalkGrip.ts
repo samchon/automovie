@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanAidWalk, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanMountRider, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -73,26 +73,26 @@ export namespace humanAidWalkGrip {
     angle: number,
     palm?: IAutoMovieMotionHumanHand.IFrame,
   ): HumanRideHands.IMaterialGrip {
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       world.rotation,
       contact.frame.rotation,
     );
     return {
-      point: Vector3.add(
-        Vector3.add(
+      point: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
           world.position,
-          Quaternion.rotateVector(world.rotation, contact.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(world.rotation, contact.frame.translation),
         ),
-        Quaternion.rotateVector(rotation, { x: 0, y: 0, z: offset }),
+        AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: offset }),
       ),
-      normal: Quaternion.rotateVector(
-        Quaternion.multiply(
+      normal: AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(
           rotation,
-          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, angle),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, angle),
         ),
         { x: 0, y: 1, z: 0 },
       ),
-      axis: Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 }),
+      axis: AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 }),
       radius: (contact.aperture ?? 0) / 2,
 
       // The existing surface-aligned hand fit reads this wrist-relative frame.

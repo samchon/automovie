@@ -115,7 +115,7 @@ export namespace AutoMovieEnginePopulationRuntime {
    *
    * The record keeps the placement and variation laws, the route snapshot a route
    * layout follows, one bounds and centroid per chunk of
-   * {@link AUTOMOVIE_INSTANCE_CHUNK_SIZE} slots, the representation tiers and
+   * {@link AutoMovieEngineInstanceChunkSize} slots, the representation tiers and
    * measured or fallback radius of the base model group and every declared
    * prototype, and a digest of every other field. A declared prototype table is
    * compiled with the base group's default first, which is the choice list every
@@ -308,7 +308,7 @@ export namespace AutoMovieEnginePopulationRuntime {
    *
    * The record stores what regenerates the members rather than the members: the
    * layout, anchor, heading and seed, one bounds and centroid per chunk of
-   * {@link AUTOMOVIE_FORMATION_CHUNK_SIZE} slots with that chunk's anonymous count
+   * {@link AutoMovieEngineFormationChunkSize} slots with that chunk's anonymous count
    * once heroes are excluded, each hero's promoted base transform, the anonymous
    * representation tiers the design declares, a measured or fallback member
    * radius, a domain-separated motion phase seed, and a digest of every other

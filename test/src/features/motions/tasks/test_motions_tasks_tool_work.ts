@@ -1,4 +1,6 @@
-import { HumanToolWork } from "@automovie/motions/internal";
+import {
+  HumanToolWork
+} from "../../../../../packages/motions/src/tasks/internal/HumanToolWork";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

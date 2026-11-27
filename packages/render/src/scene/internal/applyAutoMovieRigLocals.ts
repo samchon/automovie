@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 
 /*
@@ -23,7 +23,7 @@ import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose
  * evaluation, morph weights, imported-runtime flushing and rendering.
  */
 export function applyAutoMovieRigLocals(
-  target: IAutoMovieModelObject,
+  target: IAutoMovieRenderModelObject,
   locals: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieRigLocalTransform>,
   root: IAutoMovieRigLocalTransform,
 ): void {

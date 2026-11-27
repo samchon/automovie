@@ -3,7 +3,7 @@ import {
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
-import { DEFAULT_HUMANOID_ROM } from "../DEFAULT_HUMANOID_ROM";
+import { AutoMovieEngineDefaultHumanoidRom } from "../AutoMovieEngineDefaultHumanoidRom";
 
 /*
  * Borrow a nonnull supplied override, otherwise the default humanoid
@@ -14,5 +14,5 @@ export function getConstraint(
   bone: AutoMovieHumanoidBone,
   override: IAutoMovieJointConstraint | null,
 ): IAutoMovieJointConstraint | null {
-  return override ?? DEFAULT_HUMANOID_ROM[bone] ?? null;
+  return override ?? AutoMovieEngineDefaultHumanoidRom[bone] ?? null;
 }

@@ -1,10 +1,9 @@
-export * from "./AutoMovieEnvelope";
-export * from "./MotionTrajectoryFailure";
+export * from "./AutoMovieEngineEnvelope";
+export * from "./AutoMovieEngineMotionTrajectoryFailure";
 
 export * from "./AutoMovieEngineMotionPlanting";
 
 
-export * from "./constants";
 
 
 
@@ -47,3 +46,6 @@ export * from "./AutoMovieEngineMotionClip";
 export * from "./AutoMovieEngineMotionRetargeting";
 
 export * from "./AutoMovieEngineMotionTrajectory";
+export * from "./AutoMovieEngineHumanoidLegChains";
+export * from "./AutoMovieEngineLocomoteGroundEpsilon";
+export * from "./AutoMovieEnginePlantResidualEpsilon";

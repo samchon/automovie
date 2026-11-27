@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -58,7 +58,7 @@ export function HumanMountedTransfer(
         b?.rotation === undefined
       )
         continue;
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
         a.rotation,
         b.rotation,
         share,
@@ -77,9 +77,9 @@ export function HumanMountedTransfer(
           ...(ball === undefined || goal.contact === undefined
             ? {}
             : {
-                point: Vector3.subtract(
+                point: AutoMovieEngineVector3.subtract(
                   ball,
-                  Quaternion.rotateVector(rotation, goal.contact),
+                  AutoMovieEngineQuaternion.rotateVector(rotation, goal.contact),
                 ),
               }),
         },
@@ -116,9 +116,9 @@ export function HumanMountedTransfer(
     }
   // The hips travel between the keys while the pelvis turns about them, swinging about feet kept on their stirrups so no leg is stretched or folded past both ends.
   if (share > 0 && share < 1)
-    local.root = Vector3.add(
+    local.root = AutoMovieEngineVector3.add(
       local.root,
-      Vector3.subtract(
+      AutoMovieEngineVector3.subtract(
         HumanMountedPaths.swing(
           before,
           after,
@@ -135,7 +135,7 @@ export function HumanMountedTransfer(
     ][]) {
       const goal: IAutoMovieMotionHumanPosture["limbs"]["leftLeg"] =
         local.limbs[`${side}Leg`]!;
-      const middle: IAutoMovieVector3 = Vector3.lerp(
+      const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         from.limbs[`${side}Leg`]!.point,
         to.limbs[`${side}Leg`]!.point,
         0.5,
@@ -144,10 +144,10 @@ export function HumanMountedTransfer(
         ...local.limbs,
         [`${side}Leg`]: {
           ...goal,
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             goal.point,
-            Vector3.scale(
-              Vector3.subtract(over, middle),
+            AutoMovieEngineVector3.scale(
+              AutoMovieEngineVector3.subtract(over, middle),
               4 * share * (1 - share),
             ),
           ),

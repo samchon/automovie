@@ -15,13 +15,13 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
-import { VELOCITY_DT } from "../VELOCITY_DT";
+import { AutoMovieEngineVelocityDt } from "../AutoMovieEngineVelocityDt";
 import { foldRoot } from "./foldRoot";
 import { gaitPhaseOf } from "./gaitPhaseOf";
 import { plantsAtEnd } from "./plantsAtEnd";
@@ -299,7 +299,7 @@ function actorAt(
 
 /*
  * Trailing world velocity of the baked object-authority sequence at `t`,
- * differenced over the last VELOCITY_DT without crossing the actor's
+ * differenced over the last AutoMovieEngineVelocityDt without crossing the actor's
  * performance start. Each end reads shot-clock translation authority. Zero
  * before or at that start, or when the earlier end has no translation sample
  * because authority has only just begun.
@@ -312,12 +312,12 @@ function bakedVelocity(
 ): IAutoMovieVector3 {
   if (t <= start) return ZERO;
   const key: string = channelKey({ kind: "node", node, path: "translation" });
-  const t0: number = Math.max(start, t - VELOCITY_DT);
+  const t0: number = Math.max(start, t - AutoMovieEngineVelocityDt);
   const p1: IAutoMovieSampledChannel | undefined = channelsAt(t).get(key);
   const p0: IAutoMovieSampledChannel | undefined = channelsAt(t0).get(key);
   if (p1 === undefined || p0 === undefined) return ZERO;
-  return Vector3.scale(
-    Vector3.subtract(vectorOf(p1.value), vectorOf(p0.value)),
+  return AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(vectorOf(p1.value), vectorOf(p0.value)),
     1 / (t - t0),
   );
 }
@@ -361,7 +361,7 @@ function actorState(props: {
   return {
     node: props.node.id,
     transform,
-    facing: Quaternion.rotateVector(transform.rotation, FORWARD),
+    facing: AutoMovieEngineQuaternion.rotateVector(transform.rotation, FORWARD),
     pose: props.pose === null ? null : { ...props.pose, root: null },
     motion: props.motion === null ? null : props.motion.id,
     localTime: props.localTime,

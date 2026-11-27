@@ -1,4 +1,6 @@
-import { markAutoMovieCaptureCell } from "@automovie/render/internal";
+import {
+  markAutoMovieCaptureCell
+} from "../../../../../packages/render/src/capture/internal/markAutoMovieCaptureCell";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -98,7 +98,7 @@ export function HumanMountOnPlan(
 
   // A body already on the seat, as when getting off was broken off, only settles: no climb and no hop. It is on it when nearer its place than a hop rises, so a climb would overshoot its own seat.
   const settled: boolean =
-    Vector3.length(Vector3.subtract(goal, start)) < HumanMount.HOP * m.thigh;
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(goal, start)) < HumanMount.HOP * m.thigh;
   const climb: number =
     (settled
       ? HumanMount.SETTLE
@@ -149,7 +149,7 @@ export function HumanMountOnPlan(
     seatedKey === undefined
       ? nominal
       : course(
-          Vector3.add(goal, Vector3.subtract(seatedKey.posture.root, end.root)),
+          AutoMovieEngineVector3.add(goal, AutoMovieEngineVector3.subtract(seatedKey.posture.root, end.root)),
         );
   const pitchChange = (seatedKey?.posture.pitch ?? end.pitch) - end.pitch;
   const authoredFrame = (t: number): Frame => {
@@ -183,17 +183,17 @@ export function HumanMountOnPlan(
     const held: IAutoMovieHumanLimbGoal | undefined = seatedKey?.feet[side];
     if (held !== undefined) {
       const rotation = held.rotation!;
-      const forward = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+      const forward = AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
       return {
         foot: {
           ankle: held.point,
           bend: held.bend,
-          yaw: Math.atan2(forward.x, forward.z) / Quaternion.DEG2RAD,
+          yaw: Math.atan2(forward.x, forward.z) / AutoMovieEngineQuaternion.DEG2RAD,
         },
         rests: true,
         tread: true,
         height:
-          held.point.y + Quaternion.rotateVector(rotation, held.contact!).y,
+          held.point.y + AutoMovieEngineQuaternion.rotateVector(rotation, held.contact!).y,
       };
     }
     return HumanMountPlace(
@@ -257,8 +257,8 @@ export function HumanMountOnPlan(
     !onFloor[side] &&
     entry.feet[side].planted &&
     places[side].rests &&
-    Vector3.length(
-      Vector3.subtract(starts[side].ankle, places[side].foot.ankle),
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(starts[side].ankle, places[side].foot.ankle),
     ) < HumanMount.ON;
   const stays: Record<AutoMovieHumanSide, boolean> = {
     left: stay("left"),
@@ -286,13 +286,13 @@ export function HumanMountOnPlan(
     );
     const root = prepareMountTransfer(
       transferFrame.root,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         transferFrame.root,
-        Vector3.subtract(nearGoal.point, hips[lead]),
+        AutoMovieEngineVector3.subtract(nearGoal.point, hips[lead]),
       ),
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         transferFrame.root,
-        Vector3.subtract(pushGround.point, hips[push]),
+        AutoMovieEngineVector3.subtract(pushGround.point, hips[push]),
       ),
       HumanMount.SWING_REACH * longest,
     );
@@ -316,16 +316,16 @@ export function HumanMountOnPlan(
       const nominal = authoredFrame(t);
       if (t <= leadLeaves || t >= climb) return nominal;
       if (t < nearCapture) {
-        const hip = Vector3.lerp(
+        const hip = AutoMovieEngineVector3.lerp(
           pushStart,
           pushEnd,
           AutoMovieEngineMotionSampling.minimumJerkShare((t - leadLeaves) / (nearCapture - leadLeaves)),
         );
         return {
           ...nominal,
-          root: Vector3.add(
+          root: AutoMovieEngineVector3.add(
             nominal.root,
-            Vector3.subtract(hip, hipAt(nominal, push)),
+            AutoMovieEngineVector3.subtract(hip, hipAt(nominal, push)),
           ),
         };
       }
@@ -333,14 +333,14 @@ export function HumanMountOnPlan(
       const share = AutoMovieEngineMotionSampling.minimumJerkShare((t - leadReady) / (contact - leadReady));
       const frame: Frame = {
         ...nominal,
-        root: Vector3.lerp(captured.root, nominal.root, share),
+        root: AutoMovieEngineVector3.lerp(captured.root, nominal.root, share),
         yaw: captured.yaw + AutoMovieEngineMath.wrapDegrees(nominal.yaw - captured.yaw) * share,
         pitch: captured.pitch + (nominal.pitch - captured.pitch) * share,
         roll: captured.roll + (nominal.roll - captured.roll) * share,
       };
       const hip = hipAt(frame, lead);
       const reachable = prepareMountTransfer.restrict(hip, nearGoal.point, longest);
-      return { ...frame, root: Vector3.add(frame.root, Vector3.subtract(reachable, hip)) };
+      return { ...frame, root: AutoMovieEngineVector3.add(frame.root, AutoMovieEngineVector3.subtract(reachable, hip)) };
     };
   }
   // The pushing leg extends as it pushes: as the pelvis rises its knee straightens and its heel rolls up over the ball, by as much as the shank, in the knee's own plane, would bend the flat foot's ankle past what an unloaded ankle holds. The foot leaves when the extended leg's toes leave: when even the rolled foot's ankle is past the leg's reach, or the toes are extended as far as they go.
@@ -356,7 +356,7 @@ export function HumanMountOnPlan(
       : {
           goal: pushGround,
           roll: 0,
-          reach: Vector3.distance(pushGround.point, hipsAt(t)[push]),
+          reach: AutoMovieEngineVector3.distance(pushGround.point, hipsAt(t)[push]),
         };
   const off: number = onFloor[push]
     ? transfer
@@ -580,9 +580,9 @@ export function HumanMountOnPlan(
         // earlier flight's reach cap and heel tip do not own the hold.
         limbs[limb] = {
           ...tipped,
-          point: Vector3.lerp(tipped.point, nearGoal.point, eased),
-          bend: Vector3.lerp(tipped.bend, nearGoal.bend, eased),
-          rotation: Quaternion.slerp(
+          point: AutoMovieEngineVector3.lerp(tipped.point, nearGoal.point, eased),
+          bend: AutoMovieEngineVector3.lerp(tipped.bend, nearGoal.bend, eased),
+          rotation: AutoMovieEngineQuaternion.slerp(
             tipped.rotation ?? nearGoal.rotation,
             nearGoal.rotation,
             eased,

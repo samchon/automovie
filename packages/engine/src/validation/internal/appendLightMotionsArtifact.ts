@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { cubicHermiteValue } from "../../math/internal/cubicHermiteValue";
-import { LIGHT_CHANNEL_PROPERTIES } from "../../resolve/LIGHT_CHANNEL_PROPERTIES";
+import { AutoMovieEngineLightChannelProperties } from "../../resolve/AutoMovieEngineLightChannelProperties";
 import { parseLightPointer } from "../../resolve/internal/parseLightPointer";
 import { channelValueWidth } from "./channelValueWidth";
 import { lightClipChannelGate } from "./lightClipChannelGate";
@@ -84,7 +84,7 @@ const appendLightValueBounds: (
   violations: IAutoMovieConstraintViolation[],
 ): void => {
   const { bounds }: IAutoMovieLightChannelProperty =
-    LIGHT_CHANNEL_PROPERTIES[property];
+    AutoMovieEngineLightChannelProperties[property];
   if (track.interpolation === "cubicspline") {
     appendCubicLightValueBounds(track, property, path, violations);
     return;
@@ -137,7 +137,7 @@ const appendLightKeyValueFaults: (
   violations: IAutoMovieConstraintViolation[],
 ): void => {
   const { valueFault }: IAutoMovieLightChannelProperty =
-    LIGHT_CHANNEL_PROPERTIES[property];
+    AutoMovieEngineLightChannelProperties[property];
   if (valueFault === undefined) return;
   // The width the shared track-shape contract measures this channel by.
   const width: number = channelValueWidth(track.channel)!;
@@ -171,7 +171,7 @@ function lightValueInBounds(
     max,
     inclusiveMin,
   }: { min: number; max: number; inclusiveMin: boolean } =
-    LIGHT_CHANNEL_PROPERTIES[property].bounds;
+    AutoMovieEngineLightChannelProperties[property].bounds;
   return (inclusiveMin ? value >= min : value > min) && value <= max;
 }
 
@@ -242,11 +242,11 @@ const appendCubicLightValueBounds: (
       validateRange(
         value,
         `${path}.values[${index}]`,
-        LIGHT_CHANNEL_PROPERTIES[property].bounds.min,
-        LIGHT_CHANNEL_PROPERTIES[property].bounds.max,
+        AutoMovieEngineLightChannelProperties[property].bounds.min,
+        AutoMovieEngineLightChannelProperties[property].bounds.max,
         `light ${property}`,
         violations,
-        LIGHT_CHANNEL_PROPERTIES[property].bounds.inclusiveMin,
+        AutoMovieEngineLightChannelProperties[property].bounds.inclusiveMin,
       );
     }
   appendLightKeyValueFaults(track, property, path, true, violations);
@@ -259,7 +259,7 @@ const appendCubicLightValueBounds: (
   // reporting it would refuse a declaration that renders correctly. The keys
   // themselves are still judged above, because the sampler returns a boundary
   // key VERBATIM, without that renormalization.
-  if (LIGHT_CHANNEL_PROPERTIES[property].valueType === "quaternion") return;
+  if (AutoMovieEngineLightChannelProperties[property].valueType === "quaternion") return;
 
   for (let segment: number = 0; segment + 1 < times.length; ++segment) {
     const span: number = times[segment + 1]! - times[segment]!;

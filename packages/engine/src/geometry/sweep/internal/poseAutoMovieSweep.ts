@@ -9,7 +9,7 @@ import {
   type IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { quaternionFromAutoMovieBasis } from "../../../math/internal/quaternionFromAutoMovieBasis";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { createAutoMovieBoneMotion } from "./createAutoMovieBoneMotion";
@@ -78,7 +78,7 @@ export const poseAutoMovieSweep: (
       ...(t.start === undefined
         ? {}
         : {
-            start: Quaternion.rotateVector(
+            start: AutoMovieEngineQuaternion.rotateVector(
               motion(binding.points[0]!).rotation,
               t.start,
             ),
@@ -86,7 +86,7 @@ export const poseAutoMovieSweep: (
       ...(t.end === undefined
         ? {}
         : {
-            end: Quaternion.rotateVector(
+            end: AutoMovieEngineQuaternion.rotateVector(
               motion(binding.points[binding.points.length - 1]!).rotation,
               t.end,
             ),
@@ -107,8 +107,8 @@ export const poseAutoMovieSweep: (
       );
       const turned: IAutoMovieQuaternion[] = binding.stations[k]!.map(
         (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion =>
-          Quaternion.normalize(
-            Quaternion.multiply(motion(bone).rotation, plane),
+          AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(motion(bone).rotation, plane),
           ),
       );
       return {
@@ -116,7 +116,7 @@ export const poseAutoMovieSweep: (
         rotation:
           turned.length === 1
             ? turned[0]!
-            : Quaternion.slerp(turned[0]!, turned[1]!, 0.5),
+            : AutoMovieEngineQuaternion.slerp(turned[0]!, turned[1]!, 0.5),
       };
     },
   );
@@ -127,7 +127,7 @@ export const poseAutoMovieSweep: (
         (p: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
           motion(binding.points[k]!).apply(p),
       ),
-      normal: Quaternion.rotateVector(
+      normal: AutoMovieEngineQuaternion.rotateVector(
         motion(binding.points[0]!).rotation,
         sweep.spine.normal,
       ),

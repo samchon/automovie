@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -35,12 +35,12 @@ export function prepareHumanFootAt(
     pitch,
     roll,
   );
-  const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+  const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     rotation,
     HumanFoot.offset(body, side, pivot, toes),
   );
   return (at: IAutoMovieVector3): IAutoMovieMotionHumanFoot.IPlacement => ({
-    ankle: Vector3.subtract(at, offset),
+    ankle: AutoMovieEngineVector3.subtract(at, offset),
     rotation: { ...rotation },
   });
 }

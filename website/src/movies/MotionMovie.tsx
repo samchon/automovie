@@ -155,7 +155,7 @@ export default function MotionMovie(props: {
             <code>
               {detail.namespace === null
                 ? detail.family.name === "actions"
-                  ? `HumanChain.${detail.name}`
+                  ? `AutoMovieMotionHumanChain.${detail.name}`
                   : "HUMAN_LEXICON"
                 : `${detail.namespace}.${detail.name}`}
             </code>
@@ -175,10 +175,10 @@ export default function MotionMovie(props: {
 function snippet(detail: MotionIndex.IDetail): string {
   const args: string = "/* parameters */";
   if (detail.family.name === "actions")
-    return `HumanChain.subject("a")\n  .${detail.name}(${args})`;
+    return `AutoMovieMotionHumanChain.subject("a")\n  .${detail.name}(${args})`;
   const take: string =
     detail.namespace === null
       ? ""
       : `const { ${detail.name} } = ${detail.namespace};\n`;
-  return `${take}const Chain = HumanChain.extend({\n  ${detail.name},\n});\nChain.subject("a")\n  .${detail.name}(${args})`;
+  return `${take}const Chain = AutoMovieMotionHumanChain.extend({\n  ${detail.name},\n});\nChain.subject("a")\n  .${detail.name}(${args})`;
 }

@@ -4,17 +4,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
-import { AutoMovieXpbdMath } from "../AutoMovieXpbdMath";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
-import { PhysicalRotationVector } from "../PhysicalRotationVector";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import { AutoMovieEngineXpbdJoint } from "../AutoMovieEngineXpbdJoint";
+import { AutoMovieEngineXpbdMath } from "../AutoMovieEngineXpbdMath";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
+import { AutoMovieEnginePhysicalRotationVector } from "../AutoMovieEnginePhysicalRotationVector";
 import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
-import { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
+import { AutoMovieEngineXpbdArticulation } from "../AutoMovieEngineXpbdArticulation";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdJointTree } from "./solveXpbdJointTree";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
@@ -48,17 +48,17 @@ export namespace solveXpbdJoints {
    * Parameter h: The substep, seconds.
    */
   export function positions(
-    joints: readonly AutoMovieXpbdJoint[],
+    joints: readonly AutoMovieEngineXpbdJoint[],
     h: number,
   ): void {
-    const kept: AutoMovieXpbdArticulation.IForest =
-      AutoMovieXpbdArticulation.forest(joints);
+    const kept: AutoMovieEngineXpbdArticulation.IForest =
+      AutoMovieEngineXpbdArticulation.forest(joints);
     for (const node of kept.nodes.values())
       if (node.parent === undefined && node.children.length !== 0)
         solveXpbdJointTree.project(node, h);
     for (const joint of kept.loops) {
-      const parent: AutoMovieXpbdBody = joint.parent;
-      const child: AutoMovieXpbdBody = joint.child;
+      const parent: AutoMovieEngineXpbdBody = joint.parent;
+      const child: AutoMovieEngineXpbdBody = joint.child;
       if (!parent.dynamic && !child.dynamic) continue;
 
       // The anchors coincide.
@@ -66,21 +66,21 @@ export namespace solveXpbdJoints {
       const cf: IAutoMovieRigidTransform = joint.childFrame();
       const armP: IAutoMovieVector3 = anchorArm(parent, pf.position);
       const armC: IAutoMovieVector3 = anchorArm(child, cf.position);
-      const gap: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.add(parent.center, armP),
-        Vector3.add(child.center, armC),
+      const gap: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(parent.center, armP),
+        AutoMovieEngineVector3.add(child.center, armC),
       );
-      if (Vector3.length(gap) > 0)
-        AutoMovieXpbdMath.point(child, parent, gap, armC, armP);
+      if (AutoMovieEngineVector3.length(gap) > 0)
+        AutoMovieEngineXpbdMath.point(child, parent, gap, armC, armP);
 
       // The child's anchor frame turns into the admitted rotation.
-      const base: IAutoMovieQuaternion = Quaternion.multiply(
+      const base: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         parent.orientation,
         pf.rotation,
       );
-      const relative: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.inverse(base),
-        Quaternion.multiply(child.orientation, cf.rotation),
+      const relative: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(base),
+        AutoMovieEngineQuaternion.multiply(child.orientation, cf.rotation),
       );
       let admitted: IAutoMovieQuaternion = projectPhysicalJointRotation(
         joint.joint,
@@ -88,14 +88,14 @@ export namespace solveXpbdJoints {
       );
       if (joint.joint.swingTwist !== undefined)
         admitted = limitPhysicalSwingTwist(joint.joint.swingTwist, admitted);
-      const correction: IAutoMovieVector3 = Quaternion.rotateVector(
+      const correction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         base,
-        PhysicalRotationVector.log(
-          Quaternion.multiply(admitted, Quaternion.inverse(relative)),
+        AutoMovieEnginePhysicalRotationVector.log(
+          AutoMovieEngineQuaternion.multiply(admitted, AutoMovieEngineQuaternion.inverse(relative)),
         ),
       );
-      if (Vector3.length(correction) > 0)
-        AutoMovieXpbdMath.rotation(child, parent, correction);
+      if (AutoMovieEngineVector3.length(correction) > 0)
+        AutoMovieEngineXpbdMath.rotation(child, parent, correction);
     }
   }
 
@@ -118,23 +118,23 @@ export namespace solveXpbdJoints {
    * kept across steps.
    */
   export function motors(
-    joints: readonly AutoMovieXpbdJoint[],
+    joints: readonly AutoMovieEngineXpbdJoint[],
     h: number,
     contacts: readonly solveXpbdContacts.IContact[],
-    tasks: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask>,
-    warm: Map<AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm>,
+    tasks: ReadonlyMap<AutoMovieEngineXpbdBody, AutoMovieEngineXpbdWorld.IRootTask>,
+    warm: Map<AutoMovieEngineXpbdBody, solveXpbdSupportCascade.IWarm>,
   ): void {
-    for (const joint of AutoMovieXpbdArticulation.motors(
+    for (const joint of AutoMovieEngineXpbdArticulation.motors(
       joints,
       h,
       contacts,
       tasks,
       warm,
     )) {
-      const parent: AutoMovieXpbdBody = joint.parent;
-      const child: AutoMovieXpbdBody = joint.child;
+      const parent: AutoMovieEngineXpbdBody = joint.parent;
+      const child: AutoMovieEngineXpbdBody = joint.child;
       if (!parent.dynamic && !child.dynamic) continue;
-      const base: IAutoMovieQuaternion = Quaternion.multiply(
+      const base: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         parent.orientation,
         joint.parentFrame().rotation,
       );
@@ -142,7 +142,7 @@ export namespace solveXpbdJoints {
       for (const [name, motor] of joint.motors)
         if (motor.damping > 0 && motor.maximumTorque > 0)
           rows.push({
-            axis: Quaternion.rotateVector(base, UNIT[name]!),
+            axis: AutoMovieEngineQuaternion.rotateVector(base, UNIT[name]!),
             motor,
             fixed: null,
           });
@@ -163,14 +163,14 @@ export namespace solveXpbdJoints {
         solution = solveBlock(pair, rows, present, h);
       if (solution === null) continue;
       const impulse: IImpulse = impulses(rows, solution);
-      AutoMovieXpbdMath.impulse(
+      AutoMovieEngineXpbdMath.impulse(
         child,
         parent,
         impulse.point,
         pair.armC,
         pair.armP,
       );
-      AutoMovieXpbdMath.spin(child, parent, impulse.angular);
+      AutoMovieEngineXpbdMath.spin(child, parent, impulse.angular);
     }
   }
 
@@ -186,7 +186,7 @@ export namespace solveXpbdJoints {
     let clamped: boolean = false;
     rows.forEach((row: IMotorRow, index: number): void => {
       const mu: number = solution[3 + index]!;
-      const cap: number = AutoMovieXpbdJoint.cap(row.motor, mu, h);
+      const cap: number = AutoMovieEngineXpbdJoint.cap(row.motor, mu, h);
       if (row.fixed === null && Math.abs(mu) > cap) {
         row.fixed = Math.sign(mu) * cap;
         clamped = true;
@@ -207,7 +207,7 @@ export namespace solveXpbdJoints {
     /*
      * The axis's motor.
      */
-    motor: AutoMovieXpbdJoint.IMotor;
+    motor: AutoMovieEngineXpbdJoint.IMotor;
 
     /*
      * The impulse the row is held at once its cap binds, else null.
@@ -219,8 +219,8 @@ export namespace solveXpbdJoints {
    * The two bodies of a joint with their anchors' world arms.
    */
   interface IPair {
-    parent: AutoMovieXpbdBody;
-    child: AutoMovieXpbdBody;
+    parent: AutoMovieEngineXpbdBody;
+    child: AutoMovieEngineXpbdBody;
     armP: IAutoMovieVector3;
     armC: IAutoMovieVector3;
   }
@@ -230,11 +230,11 @@ export namespace solveXpbdJoints {
    * relative angular velocity.
    */
   function measure(pair: IPair, rows: readonly IMotorRow[]): number[] {
-    const u: IAutoMovieVector3 = Vector3.subtract(
-      pair.child.velocityAtPoint(Vector3.add(pair.child.center, pair.armC)),
-      pair.parent.velocityAtPoint(Vector3.add(pair.parent.center, pair.armP)),
+    const u: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      pair.child.velocityAtPoint(AutoMovieEngineVector3.add(pair.child.center, pair.armC)),
+      pair.parent.velocityAtPoint(AutoMovieEngineVector3.add(pair.parent.center, pair.armP)),
     );
-    const omega: IAutoMovieVector3 = Vector3.subtract(
+    const omega: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       pair.child.angularVelocity,
       pair.parent.angularVelocity,
     );
@@ -242,7 +242,7 @@ export namespace solveXpbdJoints {
       u.x,
       u.y,
       u.z,
-      ...rows.map((row: IMotorRow): number => Vector3.dot(omega, row.axis)),
+      ...rows.map((row: IMotorRow): number => AutoMovieEngineVector3.dot(omega, row.axis)),
     ];
   }
 
@@ -265,7 +265,7 @@ export namespace solveXpbdJoints {
   ): IImpulse {
     let angular: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     rows.forEach((row: IMotorRow, index: number): void => {
-      angular = Vector3.add(angular, Vector3.scale(row.axis, x[3 + index]!));
+      angular = AutoMovieEngineVector3.add(angular, AutoMovieEngineVector3.scale(row.axis, x[3 + index]!));
     });
     return { point: { x: x[0]!, y: x[1]!, z: x[2]! }, angular };
   }
@@ -283,13 +283,13 @@ export namespace solveXpbdJoints {
     const impulse: IImpulse = impulses(rows, x);
     const c: IChange = change(pair.child, pair.armC, impulse, 1);
     const q: IChange = change(pair.parent, pair.armP, impulse, -1);
-    const du: IAutoMovieVector3 = Vector3.subtract(c.linear, q.linear);
-    const dw: IAutoMovieVector3 = Vector3.subtract(c.angular, q.angular);
+    const du: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c.linear, q.linear);
+    const dw: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c.angular, q.angular);
     return [
       du.x,
       du.y,
       du.z,
-      ...rows.map((row: IMotorRow): number => Vector3.dot(dw, row.axis)),
+      ...rows.map((row: IMotorRow): number => AutoMovieEngineVector3.dot(dw, row.axis)),
     ];
   }
 
@@ -306,23 +306,23 @@ export namespace solveXpbdJoints {
    * taken with `sign`.
    */
   function change(
-    body: AutoMovieXpbdBody,
+    body: AutoMovieEngineXpbdBody,
     arm: IAutoMovieVector3,
     impulse: IImpulse,
     sign: number,
   ): IChange {
     if (!body.dynamic)
       return { linear: { x: 0, y: 0, z: 0 }, angular: { x: 0, y: 0, z: 0 } };
-    const spin: IAutoMovieVector3 = Vector3.scale(
+    const spin: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       body.frozenInverseInertia(
-        Vector3.add(Vector3.cross(arm, impulse.point), impulse.angular),
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.cross(arm, impulse.point), impulse.angular),
       ),
       sign,
     );
     return {
-      linear: Vector3.add(
-        Vector3.scale(impulse.point, sign * body.inverseMass()),
-        Vector3.cross(spin, arm),
+      linear: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(impulse.point, sign * body.inverseMass()),
+        AutoMovieEngineVector3.cross(spin, arm),
       ),
       angular: spin,
     };
@@ -377,12 +377,12 @@ export namespace solveXpbdJoints {
    * A body-frame anchor's world arm from the body's centre.
    */
   function anchorArm(
-    body: AutoMovieXpbdBody,
+    body: AutoMovieEngineXpbdBody,
     anchor: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
+    return AutoMovieEngineQuaternion.rotateVector(
       body.orientation,
-      Vector3.subtract(anchor, body.centerOfMass),
+      AutoMovieEngineVector3.subtract(anchor, body.centerOfMass),
     );
   }
 

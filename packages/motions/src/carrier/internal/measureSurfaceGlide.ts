@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSurface,
   IAutoMovieVector3,
@@ -22,42 +22,42 @@ export function measureSurfaceGlide(
   after: IAutoMovieMotionHumanSurface.IGlideSample,
   surface: IAutoMovieMotionHumanSurface.IGlidePlane,
 ): IAutoMovieMotionHumanSurface.IGlideMeasure {
-  const normalLength: number = Vector3.length(surface.normal);
+  const normalLength: number = AutoMovieEngineVector3.length(surface.normal);
   if (normalLength === 0)
     throw new RangeError("a glide measurement requires a surface normal");
-  const normal: IAutoMovieVector3 = Vector3.scale(
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     surface.normal,
     1 / normalLength,
   );
   const tangent = (forward: IAutoMovieVector3): IAutoMovieVector3 => {
-    const projected: IAutoMovieVector3 = Vector3.subtract(
+    const projected: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       forward,
-      Vector3.scale(normal, Vector3.dot(forward, normal)),
+      AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(forward, normal)),
     );
-    const length: number = Vector3.length(projected);
+    const length: number = AutoMovieEngineVector3.length(projected);
     if (!(length > 1e-9))
       throw new RangeError("the equipment must point along the glide plane");
-    return Vector3.scale(projected, 1 / length);
+    return AutoMovieEngineVector3.scale(projected, 1 / length);
   };
-  const bisector: IAutoMovieVector3 = Vector3.add(
+  const bisector: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     tangent(before.forward),
     tangent(after.forward),
   );
-  const bisectorLength: number = Vector3.length(bisector);
+  const bisectorLength: number = AutoMovieEngineVector3.length(bisector);
   if (bisectorLength <= 1e-9)
     throw new RangeError("glide samples must be closer than half a turn");
-  const forward: IAutoMovieVector3 = Vector3.scale(
+  const forward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     bisector,
     1 / bisectorLength,
   );
-  const right: IAutoMovieVector3 = Vector3.cross(normal, forward);
-  const displacement: IAutoMovieVector3 = Vector3.subtract(
+  const right: IAutoMovieVector3 = AutoMovieEngineVector3.cross(normal, forward);
+  const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     after.point,
     before.point,
   );
   return {
-    along: Vector3.dot(displacement, forward),
-    across: Vector3.dot(displacement, right),
-    gap: Vector3.dot(Vector3.subtract(after.point, surface.point), normal),
+    along: AutoMovieEngineVector3.dot(displacement, forward),
+    across: AutoMovieEngineVector3.dot(displacement, right),
+    gap: AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(after.point, surface.point), normal),
   };
 }

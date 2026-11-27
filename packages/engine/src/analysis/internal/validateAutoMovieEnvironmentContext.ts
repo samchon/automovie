@@ -8,7 +8,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { directionLength } from "../../validation/internal/directionLength";
 import { validateSolidPlanes } from "./validateSolidPlanes";
@@ -68,7 +68,7 @@ export function validateAutoMovieEnvironmentContext(
   const up: IAutoMovieVector3 | null =
     directionLength(context.ground.up) === null
       ? null
-      : Vector3.normalize(context.ground.up);
+      : AutoMovieEngineVector3.normalize(context.ground.up);
 
   const owned: (id: string, path: string, label: string) => void = (
     id: string,
@@ -142,7 +142,7 @@ export function validateAutoMovieEnvironmentContext(
       up !== null &&
       instant.directNormalIlluminance > 0 &&
       directionLength(instant.sun) !== null &&
-      Vector3.dot(Vector3.normalize(instant.sun), up) <= 0
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(instant.sun), up) <= 0
     )
       out.push(
         "range",

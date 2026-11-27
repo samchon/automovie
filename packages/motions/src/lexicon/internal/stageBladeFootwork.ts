@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -78,9 +78,9 @@ function plan(
         left: placement(feet.left, travel, left, profile.lift * stature),
         right: placement(feet.right, travel, right, profile.lift * stature),
       };
-      const root: IAutoMovieVector3 = Vector3.add(
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         entry.root,
-        Vector3.scale(travel, (left + right) / 2),
+        AutoMovieEngineVector3.scale(travel, (left + right) / 2),
       );
 
       // Fit the root height against both placements to keep their reach
@@ -124,9 +124,9 @@ function placement(
   progress: number,
   lift: number,
 ): IAutoMovieMotionHumanFoot.IPlacement {
-  const ankle: IAutoMovieVector3 = Vector3.add(
+  const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     foot.ankle,
-    Vector3.scale(travel, progress),
+    AutoMovieEngineVector3.scale(travel, progress),
   );
   return {
     ankle: { ...ankle, y: ankle.y + lift * pulse(progress) },

@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME } from "@automovie/engine";
+import { AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePoseRig,
@@ -15,7 +15,7 @@ import type {
 export function humanRig(body: IAutoMovieMotionHumanBody): IAutoMoviePoseRig {
   return {
     skeleton: body.skeleton,
-    jointAxes: HUMANOID_JOINT_AXES,
-    restFrames: HUMANOID_REST_FRAME,
+    jointAxes: AutoMovieEngineHumanoidJointAxes,
+    restFrames: AutoMovieEngineHumanoidRestFrame,
   };
 }

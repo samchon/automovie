@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype, AutoMovieArchetypeEquineFord, type AutoMovieArchetypeEquineFordPlan, AutoMovieArchetypeFrame, type AutoMovieArchetypeQuadrupedFooting, AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -17,7 +17,9 @@ import {
   AutoMovieMotionHumanObject,
   AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
-import { HumanFrame } from "@automovie/motions/internal";
+import {
+  HumanFrame
+} from "../../../../packages/motions/src/posture/internal/HumanFrame";
 
 import { equineFordScene } from "./equineFordScene";
 
@@ -429,9 +431,9 @@ export namespace equineFordRider {
     at: number,
   ): IAutoMovieVector3 {
     const frame: IAutoMovieRigidTransform = staged.place(at);
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(point, frame.position),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
+      AutoMovieEngineVector3.subtract(point, frame.position),
     );
   }
 }

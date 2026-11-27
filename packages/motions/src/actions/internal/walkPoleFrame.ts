@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -71,31 +71,31 @@ export function walkPoleFrame(
         new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
       );
     const hand: IAutoMovieResolvedBone = hung.get(`${side}Hand`)!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       held.frame.rotation,
     );
     hands.push({
       side,
       held: held.frame,
-      socket: Quaternion.rotateVector(
-        Quaternion.inverse(bone.worldRotation),
-        Vector3.subtract(
+      socket: AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(bone.worldRotation),
+        AutoMovieEngineVector3.subtract(
           HumanHand.frame(context.body, entered, side, "grip").point,
           bone.worldPosition,
         ),
       ),
-      proximal: Vector3.normalize(
-        Quaternion.rotateVector(
-          Quaternion.inverse(hand.worldRotation),
-          Vector3.subtract(
+      proximal: AutoMovieEngineVector3.normalize(
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+          AutoMovieEngineVector3.subtract(
             hung.get(`${side}LowerArm`)!.worldPosition,
             hand.worldPosition,
           ),
         ),
       ),
-      grip: Quaternion.rotateVector(
+      grip: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.scale(held.frame.position, -1),
+        AutoMovieEngineVector3.scale(held.frame.position, -1),
       ),
     });
   }
@@ -103,21 +103,21 @@ export function walkPoleFrame(
   const tip: IAutoMovieVector3 = at;
   hands.sort(
     (a: walkPoleFrame.IHand, b: walkPoleFrame.IHand): number =>
-      Vector3.distance(b.grip, tip) - Vector3.distance(a.grip, tip),
+      AutoMovieEngineVector3.distance(b.grip, tip) - AutoMovieEngineVector3.distance(a.grip, tip),
   );
   const carrying: walkPoleFrame.IHand = hands[0]!;
-  const axis: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(tip, carrying.grip),
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(tip, carrying.grip),
   );
   return {
     prop,
     hands,
     end: tip,
     axis,
-    length: Vector3.distance(tip, carrying.grip),
+    length: AutoMovieEngineVector3.distance(tip, carrying.grip),
     fulcrum:
       hands.length > 1
-        ? Vector3.dot(Vector3.subtract(hands[1]!.grip, carrying.grip), axis)
+        ? AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(hands[1]!.grip, carrying.grip), axis)
         : 0,
   };
 }
@@ -254,49 +254,49 @@ export namespace walkPoleFrame {
     let a: number = 0;
     let b: number = 0;
     for (const hand of pole.hands) {
-      const v: IAutoMovieVector3 = Quaternion.rotateVector(
+      const v: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         turn,
-        Quaternion.rotateVector(
-          Quaternion.inverse(hand.held.rotation),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(hand.held.rotation),
           hand.proximal,
         ),
       );
-      const at: IAutoMovieVector3 = Vector3.add(
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         grip,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           turn,
-          Vector3.subtract(hand.grip, carrying.grip),
+          AutoMovieEngineVector3.subtract(hand.grip, carrying.grip),
         ),
       );
-      const t: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(shoulder(hand.side), at),
+      const t: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(shoulder(hand.side), at),
       );
-      a += Vector3.dot(v, t) - Vector3.dot(axis, v) * Vector3.dot(axis, t);
-      b += Vector3.dot(Vector3.cross(axis, v), t);
+      a += AutoMovieEngineVector3.dot(v, t) - AutoMovieEngineVector3.dot(axis, v) * AutoMovieEngineVector3.dot(axis, t);
+      b += AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(axis, v), t);
     }
-    const frame: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(axis, (Math.atan2(b, a) * 180) / Math.PI),
+    const frame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(axis, (Math.atan2(b, a) * 180) / Math.PI),
         turn,
       ),
     );
-    const origin: IAutoMovieVector3 = Vector3.subtract(
+    const origin: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       grip,
-      Quaternion.rotateVector(frame, carrying.grip),
+      AutoMovieEngineQuaternion.rotateVector(frame, carrying.grip),
     );
     return pole.hands.map((hand: IHand): IGoal => {
-      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(frame, Quaternion.inverse(hand.held.rotation)),
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(frame, AutoMovieEngineQuaternion.inverse(hand.held.rotation)),
       );
-      const at: IAutoMovieVector3 = Vector3.add(
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         origin,
-        Quaternion.rotateVector(frame, hand.grip),
+        AutoMovieEngineQuaternion.rotateVector(frame, hand.grip),
       );
       return {
         side: hand.side,
-        wrist: Vector3.subtract(
+        wrist: AutoMovieEngineVector3.subtract(
           at,
-          Quaternion.rotateVector(rotation, hand.socket),
+          AutoMovieEngineQuaternion.rotateVector(rotation, hand.socket),
         ),
         rotation,
         grip: at,
@@ -338,7 +338,7 @@ export namespace walkPoleFrame {
    */
   export function neutral(pole: IPole): number {
     const hand: IHand = pole.hands[0]!;
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       hand.held.rotation,
       pole.axis,
     );
@@ -346,7 +346,7 @@ export namespace walkPoleFrame {
       (Math.acos(
         Math.max(
           -1,
-          Math.min(1, -Vector3.dot(hand.proximal, Vector3.normalize(along))),
+          Math.min(1, -AutoMovieEngineVector3.dot(hand.proximal, AutoMovieEngineVector3.normalize(along))),
         ),
       ) *
         180) /
@@ -375,11 +375,11 @@ export namespace walkPoleFrame {
       "grip",
       "flat",
     );
-    const normal: IAutoMovieVector3 = Vector3.normalize(grip.normal);
-    const forward: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(grip.normal);
+    const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         grip.forward,
-        Vector3.scale(normal, Vector3.dot(grip.forward, normal)),
+        AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(grip.forward, normal)),
       ),
     );
     const posture: IAutoMovieMotionHumanPosture = {
@@ -403,17 +403,17 @@ export namespace walkPoleFrame {
         new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
       );
     const hand: IAutoMovieResolvedBone = hung.get(`${side}Hand`)!;
-    const fore: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(
-        Quaternion.inverse(hand.worldRotation),
-        Vector3.subtract(
+    const fore: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+        AutoMovieEngineVector3.subtract(
           hand.worldPosition,
           hung.get(`${side}LowerArm`)!.worldPosition,
         ),
       ),
     );
     const angle: number =
-      (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(fore, forward)))) * 180) /
+      (Math.acos(Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(fore, forward)))) * 180) /
       Math.PI;
     return Math.min(angle, 180 - angle);
   }
@@ -499,12 +499,12 @@ export namespace walkPoleFrame {
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
   ): IAutoMovieQuaternion {
-    const axis: IAutoMovieVector3 = Vector3.cross(from, to);
-    return Vector3.length(axis) < 1e-9
-      ? Quaternion.identity()
-      : Quaternion.fromAxisAngle(
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, to);
+    return AutoMovieEngineVector3.length(axis) < 1e-9
+      ? AutoMovieEngineQuaternion.identity()
+      : AutoMovieEngineQuaternion.fromAxisAngle(
           axis,
-          (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, to)))) * 180) /
+          (Math.acos(Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(from, to)))) * 180) /
             Math.PI,
         );
   }

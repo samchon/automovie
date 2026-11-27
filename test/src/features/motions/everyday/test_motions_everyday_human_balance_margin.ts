@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanBalance } from "@automovie/motions/internal";
+import {
+  HumanBalance
+} from "../../../../../packages/motions/src/everyday/internal/HumanBalance";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

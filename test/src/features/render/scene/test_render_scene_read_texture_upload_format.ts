@@ -1,4 +1,6 @@
-import { readAutoMovieTextureUploadFormat } from "@automovie/render/internal";
+import {
+  readAutoMovieTextureUploadFormat
+} from "../../../../../packages/render/src/scene/internal/readAutoMovieTextureUploadFormat";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

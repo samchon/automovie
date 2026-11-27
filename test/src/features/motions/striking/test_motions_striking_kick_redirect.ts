@@ -1,4 +1,6 @@
-import { KickRedirect } from "@automovie/motions/internal";
+import {
+  KickRedirect
+} from "../../../../../packages/motions/src/striking/internal/KickRedirect";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

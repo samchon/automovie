@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 
 /*
@@ -54,7 +54,7 @@ export function buildHumanPolygonParts(
   if (headObject === undefined)
     throw new Error("Polygon drawing requires the head module");
   const head: THREE.Object3D | undefined = headObject.children[0];
-  if (head === undefined || !AutoMovieThreeKind.isMesh(head))
+  if (head === undefined || !AutoMovieRenderThreeKind.isMesh(head))
     throw new Error("Polygon drawing requires the head module's mesh");
   const headMesh: THREE.Mesh = head;
   headMesh.geometry.computeBoundingBox();

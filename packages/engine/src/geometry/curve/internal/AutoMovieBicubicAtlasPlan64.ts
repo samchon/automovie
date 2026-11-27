@@ -8,9 +8,9 @@ import type {
   IAutoMoviePrepareBicubicAtlasBoundary64,
 } from "@automovie/interface";
 
-import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSubdivision64";
-import { AutoMovieCanonicalBoundary64 as Q } from "../../AutoMovieCanonicalBoundary64";
-import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
+import { AutoMovieEngineBernsteinSubdivision64 as S } from "../../AutoMovieEngineBernsteinSubdivision64";
+import { AutoMovieEngineCanonicalBoundary64 as Q } from "../../AutoMovieEngineCanonicalBoundary64";
+import { AutoMovieEngineCurveMath64 as V } from "../../AutoMovieEngineCurveMath64";
 import { prepareAutoMovieBicubicAtlasBoundary64 } from "./prepareAutoMovieBicubicAtlasBoundary64";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 

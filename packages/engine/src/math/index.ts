@@ -1,11 +1,11 @@
 export * from "./AutoMovieEngineKeyframeSearch";
 export * from "./AutoMovieEnginePlanarHull";
-export * from "./AutoMovieMatrix3";
-export * from "./EllipticFunctions";
-export * from "./Matrix4";
-export * from "./Quaternion";
-export * from "./Transform";
-export * from "./Vector3";
+export * from "./AutoMovieEngineMatrix3";
+export * from "./AutoMovieEngineEllipticFunctions";
+export * from "./AutoMovieEngineMatrix4";
+export * from "./AutoMovieEngineQuaternion";
+export * from "./AutoMovieEngineTransform";
+export * from "./AutoMovieEngineVector3";
 
 
 
@@ -20,7 +20,6 @@ export * from "./Vector3";
 
 
 
-export * from "./constants";
 
 
 
@@ -75,3 +74,4 @@ export * from "./constants";
 
 
 export * from "./AutoMovieEngineMath";
+export * from "./AutoMovieEngineQuaternionNlerpDotThreshold";

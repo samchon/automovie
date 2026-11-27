@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryHomographyErrorsMeasurementOperation } from "@automovie/interface";
 
 /*
@@ -16,11 +16,11 @@ export function measureRecoveryHomographyErrors(
   return first.map(
     (point: readonly [number, number], at: number): number | null => {
       const other: readonly [number, number] = second[at]!;
-      const forward: [number, number, number] = AutoMovieMatrix3.apply(
+      const forward: [number, number, number] = AutoMovieEngineMatrix3.apply(
         model.matrix,
         [...point, 1],
       );
-      const backward: [number, number, number] = AutoMovieMatrix3.apply(
+      const backward: [number, number, number] = AutoMovieEngineMatrix3.apply(
         model.inverse,
         [...other, 1],
       );

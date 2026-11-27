@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRays, IAutoMovieHumanoidSurfaceReader, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The tip and the pad of every digit of both hands, as bone-local frames on
@@ -13,7 +13,7 @@ import { Vector3 } from "../../math/Vector3";
  * Its pad is the palmar face of the same phalanx: where a ray from the middle
  * of the phalanx, between the last joint and the tip, leaves the colliders
  * toward the palm's side. The palm faces -Y in the canonical rest
- * (`HUMANOID_REST_FRAME`), so the palmar direction is -Y made perpendicular to
+ * (`AutoMovieEngineHumanoidRestFrame`), so the palmar direction is -Y made perpendicular to
  * the phalanx; the rig's thumb lies in the palm's plane with its nail up, so
  * its pad faces the same side. A profile with no segment for a phalanx reads
  * the hand's colliders instead, as the index tip did.
@@ -21,7 +21,7 @@ import { Vector3 } from "../../math/Vector3";
  * Both sides are resolved; the caller replaces each left frame with its right
  * twin's mirror image, as it does for every region.
  * Parameter rays: The rest-pose readers of the body
- * (`AutoMovieHumanoidSurfaceRays.tools`).
+ * (`AutoMovieEngineHumanoidSurfaceRays.tools`).
  * Parameter profile: The body's physical profile, segments keyed by rig bones.
  * Returns: The tip and pad frames of every digit, keyed by region.
  * When a digit bone is missing or a ray misses its colliders.
@@ -41,7 +41,7 @@ export function AutoMovieHumanoidDigitSurfaces(
         `${side}${digit}${segment}` as AutoMovieHumanoidBone;
       const distal: AutoMovieHumanoidBone = bone("Distal");
       const joint: IAutoMovieVector3 = rays.at(distal).worldPosition;
-      const along: IAutoMovieVector3 = Vector3.subtract(
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         joint,
         rays.at(bone(digit === "Thumb" ? "Proximal" : "Intermediate"))
           .worldPosition,
@@ -67,13 +67,13 @@ export function AutoMovieHumanoidDigitSurfaces(
       );
 
       // The pad: from the phalanx's middle toward the palm's side.
-      const unit: IAutoMovieVector3 = Vector3.normalize(along);
-      const palmar: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(down, Vector3.scale(unit, Vector3.dot(down, unit))),
+      const unit: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(along);
+      const palmar: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(down, AutoMovieEngineVector3.scale(unit, AutoMovieEngineVector3.dot(down, unit))),
       );
       const pad: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = rays.surface(
         phalanx,
-        Vector3.lerp(joint, tip.point, 0.5),
+        AutoMovieEngineVector3.lerp(joint, tip.point, 0.5),
         palmar,
       );
       out[`${name}Pad${Side}` as AutoMovieHumanoidRegion] = rays.local(

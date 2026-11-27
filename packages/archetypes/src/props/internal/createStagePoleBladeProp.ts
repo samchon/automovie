@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeStagePoleBladeProp } from "../AutoMovieArchetypeStagePoleBladeProp";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -46,7 +46,7 @@ export function createStagePoleBladeProp(
     seed,
     blade.sections[0]![0],
     (builder, height, shaftTop, shaftRadius) => {
-      const v: typeof Vector3.create = Vector3.create;
+      const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
       addOutline(builder, "blade", blade.sections, height);
       const tip: Section = blade.sections[blade.sections.length - 1]!;
       builder.affordance({
@@ -210,7 +210,7 @@ function addOutline(
     for (const [y, left, right] of [sections[index - 1]!, sections[index]!])
       for (const x of [left, right])
         for (const z of [-halfThickness, halfThickness])
-          points.push(Vector3.create(x * height, y * height, z));
+          points.push(AutoMovieEngineVector3.create(x * height, y * height, z));
     builder.convex(`${id}-${index}`, points, undefined, { color: "#968ccc" });
   }
 }
@@ -229,7 +229,7 @@ function addRear(
   upper: Section,
   height: number,
 ): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.affordance({
     id: "rear",
     kind: "surface",
@@ -261,7 +261,7 @@ function addEdge(
   upper: Section,
   height: number,
 ): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.affordance({
     id,
     kind: "surface",

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionEvent,
@@ -170,7 +170,7 @@ export namespace StrikingStepTransition {
         const line: number = beat.line + turning;
         const bearing: IAutoMovieVector3 = beat.pivot
           ? rotateAround(beat.root, beat.pivot.ball, turning)
-          : Vector3.lerp(beat.root, beat.destination, motion);
+          : AutoMovieEngineVector3.lerp(beat.root, beat.destination, motion);
         const leadAngle: number = StrikingStance.heading({
           line,
           lead: beat.lead,
@@ -264,7 +264,7 @@ export namespace StrikingStepTransition {
   ): IAutoMovieVector3 {
     return HumanFrame.point(
       { origin: anchor, yaw },
-      Vector3.subtract(point, anchor),
+      AutoMovieEngineVector3.subtract(point, anchor),
     );
   }
 
@@ -296,10 +296,10 @@ export namespace StrikingStepTransition {
     return {
       ankle: HumanFrame.point(
         { origin: to, yaw: turn },
-        Vector3.subtract(foot.ankle, from),
+        AutoMovieEngineVector3.subtract(foot.ankle, from),
       ),
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(UP, turn),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(UP, turn),
         foot.rotation,
       ),
     };

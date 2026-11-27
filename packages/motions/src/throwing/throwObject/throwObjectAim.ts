@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -87,7 +87,7 @@ export function throwObjectAim(
   // The palm faces the target across the floor; the release is read from
   // the trunk's release pose ({@link throwObjectRelease}).
   const from: IAutoMovieVector3 = HumanFrame.point(frame, shoulder);
-  const toward: IAutoMovieVector3 = Vector3.normalize({
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: target.x - from.x,
     y: 0,
     z: target.z - from.z,
@@ -97,7 +97,7 @@ export function throwObjectAim(
     side,
     style === "overarm" || style === "gridironPass" || style === "cricket"
       ? { fingers: up, palm: toward }
-      : { fingers: Vector3.scale(up, -1), palm: toward },
+      : { fingers: AutoMovieEngineVector3.scale(up, -1), palm: toward },
   );
   const stance: ReturnType<typeof precisionThrow.stance> =
     precisionThrow.stance(context, style);
@@ -111,7 +111,7 @@ export function throwObjectAim(
 
   // The launch velocity by the range equation at the style's angle, from
   // the lever's end; the hand carries its share (`throwObjectLever`).
-  const delta: IAutoMovieVector3 = Vector3.subtract(target, release);
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(target, release);
   const d: number = Math.hypot(delta.x, delta.z);
   const degrees: number = context.params.angle ?? throwObjectForm.ANGLE[style];
   const implement:
@@ -139,20 +139,20 @@ export function throwObjectAim(
 
   // The fixed grip points at the ends of the constant-velocity carry.
   const velocity: IAutoMovieVector3 = lever.hand;
-  const speed: number = Vector3.length(velocity);
+  const speed: number = AutoMovieEngineVector3.length(velocity);
 
-  const before: IAutoMovieVector3 = Vector3.subtract(
+  const before: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     release,
-    Vector3.scale(velocity, throwObjectForm.CARRY),
+    AutoMovieEngineVector3.scale(velocity, throwObjectForm.CARRY),
   );
-  const after: IAutoMovieVector3 = Vector3.add(
+  const after: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     release,
-    Vector3.scale(velocity, throwObjectForm.CARRY),
+    AutoMovieEngineVector3.scale(velocity, throwObjectForm.CARRY),
   );
 
   const accelerate: number =
     throwObjectForm.CARRY +
-    (2 * Vector3.length(Vector3.subtract(before, chamber))) / speed;
+    (2 * AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(before, chamber))) / speed;
 
   return {
     frame,

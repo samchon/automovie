@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingQuality,
   IAutoMovieVector3,
@@ -54,22 +54,22 @@ export namespace StrikingQuality {
   export function offset(
     input: IAutoMovieMotionHumanStrikingQuality.IOffsetInput,
   ): IAutoMovieVector3 {
-    const d: IAutoMovieVector3 = Vector3.normalize(input.direction);
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(input.direction);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const sideways: IAutoMovieVector3 =
-      Math.abs(Vector3.dot(d, up)) > 0.95
+      Math.abs(AutoMovieEngineVector3.dot(d, up)) > 0.95
         ? { x: 1, y: 0, z: 0 }
-        : Vector3.normalize(Vector3.cross(up, d));
-    const lift: IAutoMovieVector3 = Vector3.cross(d, sideways);
+        : AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(up, d));
+    const lift: IAutoMovieVector3 = AutoMovieEngineVector3.cross(d, sideways);
     const accuracy: IAutoMovieMotionHumanStrikingQuality.Accuracy =
       input.accuracy ?? "hit";
     const declared: IAutoMovieVector3 =
       accuracy === "hit"
         ? { x: 0, y: 0, z: 0 }
         : accuracy === "graze"
-          ? Vector3.scale(lift, 2 * input.radius)
+          ? AutoMovieEngineVector3.scale(lift, 2 * input.radius)
           : accuracy === "miss"
-            ? Vector3.scale(lift, 4 * input.radius + 0.05)
+            ? AutoMovieEngineVector3.scale(lift, 4 * input.radius + 0.05)
             : accuracy;
     const sigma: number = HumanSkill.scatter(
       input.skill,
@@ -77,19 +77,19 @@ export namespace StrikingQuality {
       input.seconds,
     );
     const lateral: number = HumanSkill.quantity(input.skill, "path", 1, 0.3);
-    const scatter: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(d, sigma * HumanSkill.normal(input.random, 0)),
-      Vector3.add(
-        Vector3.scale(
+    const scatter: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(d, sigma * HumanSkill.normal(input.random, 0)),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(
           sideways,
           sigma * lateral * HumanSkill.normal(input.random, 2),
         ),
-        Vector3.scale(
+        AutoMovieEngineVector3.scale(
           lift,
           sigma * lateral * HumanSkill.normal(input.random, 4),
         ),
       ),
     );
-    return Vector3.add(declared, scatter);
+    return AutoMovieEngineVector3.add(declared, scatter);
   }
 }

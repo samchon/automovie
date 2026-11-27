@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematicsJointRotation } from "../kinematics/AutoMovieEngineKinematicsJointRotation";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { bracketedCrossing } from "../math/internal/bracketedCrossing";
 import { AutoMovieEngineMath } from "../math/AutoMovieEngineMath";
 import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
@@ -318,7 +318,7 @@ function solveProjection(
     return joint;
   };
   const effectorRestInverse: IAutoMovieQuaternion =
-    props.effectorRestInverse ?? Quaternion.inverse(props.effectorRest);
+    props.effectorRestInverse ?? AutoMovieEngineQuaternion.inverse(props.effectorRest);
   let composeLower:
     | ReturnType<typeof AutoMovieEngineKinematicsJointRotation.prepareJointToQuaternionOnBasis>
     | undefined = props.composeLower;
@@ -346,14 +346,14 @@ function solveProjection(
       Object.is(joint.twist, props.joint.twist);
     const carried: IAutoMovieQuaternion = unchanged
       ? needed
-      : Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(props.above, lowerRotation(joint)),
+      : AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(
+            AutoMovieEngineQuaternion.multiply(props.above, lowerRotation(joint)),
           ),
           props.rotation,
         );
-    return Quaternion.normalize(
-      Quaternion.multiply(effectorRestInverse, carried),
+    return AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(effectorRestInverse, carried),
     );
   };
 
@@ -392,20 +392,20 @@ function solveProjection(
         },
         quaternion: { x: shown.x, y: shown.y, z: shown.z, w: shown.w },
       };
-    return Quaternion.angleAfterNormalize(shown, local);
+    return AutoMovieEngineQuaternion.angleAfterNormalize(shown, local);
   };
 
   // The start: the current twist plus the twist, about the mid bone's axis,
   // of the change from the effector's current rotation to the requested one.
   const articulated: IAutoMovieQuaternion =
     props.readArticulated?.() ?? lowerRotation(props.joint);
-  const needed: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(Quaternion.multiply(props.above, articulated)),
+  const needed: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(AutoMovieEngineQuaternion.multiply(props.above, articulated)),
     props.rotation,
   );
   const held: IAutoMovieQuaternion =
     props.readHeldRotation?.() ??
-    Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
       props.effectorRest,
       AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis(
         props.effector,
@@ -414,17 +414,17 @@ function solveProjection(
       ),
     );
   const { twist }: ReturnType<typeof AutoMovieEngineMath.decomposeSwingTwist> = AutoMovieEngineMath.decomposeSwingTwist(
-    Quaternion.normalize(
-      Quaternion.multiply(
+    AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
         needed,
-        props.readHeldInverse?.(held) ?? Quaternion.inverse(held),
+        props.readHeldInverse?.(held) ?? AutoMovieEngineQuaternion.inverse(held),
       ),
     ),
     props.lowerBasis.twist,
   );
   const turned: number =
     AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
-      Quaternion.normalize(Quaternion.multiply(articulated, twist)),
+      AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(articulated, twist)),
       props.lowerBasis,
       props.lowerFrame,
     ).twist ?? 0;
@@ -452,8 +452,8 @@ function solveProjection(
     Object.is(articulated.w, untwisted.w);
   const K: IAutoMovieQuaternion = sameRawRotation
     ? needed
-    : Quaternion.multiply(
-        Quaternion.inverse(Quaternion.multiply(props.above, untwisted)),
+    : AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(AutoMovieEngineQuaternion.multiply(props.above, untwisted)),
         props.rotation,
       );
   const u: IAutoMovieVector3 = props.lowerBasis.twist;
@@ -481,7 +481,7 @@ function solveProjection(
   ): [number, number, number] => {
     if (previousNormal !== n || normalProjection === undefined) {
       previousNormal = n;
-      normalProjection = Vector3.dot(n, u);
+      normalProjection = AutoMovieEngineVector3.dot(n, u);
     }
     if (previousVector !== x) {
       previousVector = x;
@@ -489,24 +489,24 @@ function solveProjection(
       vectorCross = undefined;
     }
     const along: number =
-      normalProjection * (vectorProjection ??= Vector3.dot(u, x));
-    const across: number = Vector3.dot(n, x) - along;
-    vectorCross ??= Vector3.cross(u, x);
-    return [along, across, -Vector3.dot(n, vectorCross)];
+      normalProjection * (vectorProjection ??= AutoMovieEngineVector3.dot(u, x));
+    const across: number = AutoMovieEngineVector3.dot(n, x) - along;
+    vectorCross ??= AutoMovieEngineVector3.cross(u, x);
+    return [along, across, -AutoMovieEngineVector3.dot(n, vectorCross)];
   };
-  const x: IAutoMovieVector3 = Quaternion.rotateVector(K, e.flexion);
+  const x: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(K, e.flexion);
   // Explicit F·A·T reads twist from minus the flexion/abduction matrix
   // entry and the flexion diagonal, as the inverse chart does.
   const charted: boolean = e.rotationOrder === "flexion-abduction-twist";
   const [P, Q]: [number, number, number][] = charted
     ? [
-        harmonic(fixed.flexion(), Quaternion.rotateVector(K, e.abduction)),
+        harmonic(fixed.flexion(), AutoMovieEngineQuaternion.rotateVector(K, e.abduction)),
         harmonic(fixed.flexion(), x),
       ]
     : e.twistPlacement === "distal"
       ? [
           harmonic(abduction, x),
-          harmonic(abduction, Quaternion.rotateVector(K, e.abduction)),
+          harmonic(abduction, AutoMovieEngineQuaternion.rotateVector(K, e.abduction)),
         ]
       : [harmonic(abduction, x), harmonic(fixed.flexion(), x)];
   const { cosine, sine }: AutoMovieEngineMotionDistalTwist.IZero = fixed.zero();

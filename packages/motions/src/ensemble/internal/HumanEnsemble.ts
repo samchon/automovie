@@ -1,4 +1,4 @@
-import { AutoMovieComposition } from "@automovie/engine";
+import { AutoMovieEngineComposition } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanAttribute,
@@ -121,7 +121,7 @@ export namespace HumanEnsemble {
         (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
           m.detail === "instanced",
       );
-    return AutoMovieComposition.parallel(
+    return AutoMovieEngineComposition.parallel(
       ...full.map(
         (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieComposition =>
           build(m, AutoMovieMotionHumanChain.subject(m.subject)).node,

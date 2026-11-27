@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -98,7 +98,7 @@ export function HumanArmTrajectoryWaypoint(
         s.pose,
         s.shape,
         site.point,
-        Vector3.normalize(Vector3.subtract(site.point, s.centre)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(site.point, s.centre)),
       );
     },
   );

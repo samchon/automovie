@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  AutoMoviePhysicalHullFaces,
+  AutoMovieEngineQuaternion,
+  AutoMovieEnginePhysicalHullFaces,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -95,11 +95,11 @@ export function placeHumanSimulationColliders(
         material: material.id,
         transform: {
           position: { x: 0, y: 0, z: 0 },
-          rotation: Quaternion.identity(),
+          rotation: AutoMovieEngineQuaternion.identity(),
         },
         kind: "hull",
         points: prismPoints,
-        hull: AutoMoviePhysicalHullFaces.build(prismPoints),
+        hull: AutoMovieEnginePhysicalHullFaces.build(prismPoints),
       },
     ];
     if (!within(frames, prism, reach)) continue;
@@ -203,7 +203,7 @@ function frame(
   if (obstacle.motion === undefined)
     return {
       position: { x: 0, y: 0, z: 0 },
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
     };
   const placed: ReturnType<
     NonNullable<IAutoMovieMotionHumanObstacle["motion"]>
@@ -215,7 +215,7 @@ function frame(
   return {
     position: { x: placed.position.x, y: 0, z: placed.position.z },
     // The yaw is in degrees, the unit fromAxisAngle takes.
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, placed.yaw),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, placed.yaw),
   };
 }
 
@@ -277,7 +277,7 @@ function solid(
 ): IAutoMoviePhysicalSimulationInput.IBody {
   const origin: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const profile: IAutoMoviePhysicalProfile = {
     id,
@@ -290,7 +290,7 @@ function solid(
         neutral: origin,
         centerOfMass: { x: 0, y: 0, z: 0 },
         inertia: { x: 1, y: 1, z: 1 },
-        inertiaRotation: Quaternion.identity(),
+        inertiaRotation: AutoMovieEngineQuaternion.identity(),
         shapes: shapes.map(
           (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => ({
             ...shape,

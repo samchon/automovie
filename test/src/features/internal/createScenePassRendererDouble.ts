@@ -1,4 +1,4 @@
-import type { IAutoMovieScenePassRenderer } from "@automovie/render";
+import type { IAutoMovieRenderScenePassRenderer } from "@automovie/render";
 import * as THREE from "three";
 
 /**
@@ -8,7 +8,7 @@ import * as THREE from "three";
  */
 export function createScenePassRendererDouble(
   render: () => void = (): void => {},
-): IAutoMovieScenePassRenderer {
+): IAutoMovieRenderScenePassRenderer {
   const unavailable: () => never = (): never => {
     throw new Error("The scene pass renderer double has no WebGL context");
   };

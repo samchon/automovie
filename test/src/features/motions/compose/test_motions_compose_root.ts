@@ -5,7 +5,9 @@ import type {
   IAutoMovieMotionHumanRoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRoot } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRoot
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanRoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

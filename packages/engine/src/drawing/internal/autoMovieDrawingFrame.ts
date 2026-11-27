@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineDrawingEpsilon } from "../AutoMovieEngineDrawingEpsilon";
 
 /*
  * Validate one view's placement and resolve its orthonormal page basis.
@@ -30,9 +30,9 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
 export const autoMovieDrawingFrame = (
   view: IAutoMovieDrawingView,
 ): IAutoMovieDrawingFrame => {
-  if (Vector3.length(view.direction) <= AUTOMOVIE_DRAWING_EPSILON)
+  if (AutoMovieEngineVector3.length(view.direction) <= AutoMovieEngineDrawingEpsilon)
     throw new Error(`drawing view "${view.id}" direction must be non-zero`);
-  if (Vector3.length(view.up) <= AUTOMOVIE_DRAWING_EPSILON)
+  if (AutoMovieEngineVector3.length(view.up) <= AutoMovieEngineDrawingEpsilon)
     throw new Error(`drawing view "${view.id}" up must be non-zero`);
   if (view.scale <= 0)
     throw new Error(
@@ -41,21 +41,21 @@ export const autoMovieDrawingFrame = (
   requireOptionalDepth(view.depth, `drawing view "${view.id}" depth`);
   requireOptionalDepth(view.overhead, `drawing view "${view.id}" overhead`);
 
-  const normal: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.scale(view.direction, -1),
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.scale(view.direction, -1),
   );
-  const raw: IAutoMovieVector3 = Vector3.cross(view.up, normal);
-  if (Vector3.length(raw) <= AUTOMOVIE_DRAWING_EPSILON)
+  const raw: IAutoMovieVector3 = AutoMovieEngineVector3.cross(view.up, normal);
+  if (AutoMovieEngineVector3.length(raw) <= AutoMovieEngineDrawingEpsilon)
     throw new Error(
       `drawing view "${view.id}" up must not be parallel to its direction`,
     );
-  const right: IAutoMovieVector3 = Vector3.normalize(raw);
-  const up: IAutoMovieVector3 = Vector3.cross(normal, right);
+  const right: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(raw);
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.cross(normal, right);
   return {
     origin: view.origin,
     right:
       view.projection === "reflected-ceiling-plan"
-        ? Vector3.scale(right, -1)
+        ? AutoMovieEngineVector3.scale(right, -1)
         : right,
     up,
     normal,

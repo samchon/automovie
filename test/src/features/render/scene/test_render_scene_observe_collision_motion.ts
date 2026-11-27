@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry } from "@automovie/engine";
 import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -15,7 +15,7 @@ import * as THREE from "three";
  *    left to the placed-frame observation.
  */
 export async function test_render_scene_observe_collision_motion(): Promise<void> {
-  const geometry = await AutoMoviePhysicalGeometry.prepare();
+  const geometry = await AutoMovieEnginePhysicalGeometry.prepare();
   const run = (endX: number) => {
     const root: THREE.Scene = new THREE.Scene();
     const still: THREE.Mesh = new THREE.Mesh(

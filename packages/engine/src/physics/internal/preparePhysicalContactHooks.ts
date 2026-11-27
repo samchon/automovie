@@ -1,7 +1,7 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
-import type { AutoMovieXpbdCollider } from "../AutoMovieXpbdCollider";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import type { AutoMovieEngineXpbdCollider } from "../AutoMovieEngineXpbdCollider";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 import { isPhysicalPairExcluded } from "./isPhysicalPairExcluded";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 
@@ -18,7 +18,7 @@ import type { solveXpbdContacts } from "./solveXpbdContacts";
  * colliders pass.
  * Parameter input: The admitted simulation input: profiles, joints and exclusions.
  * Parameter bound: The world's binding: collider identities by handle.
- * Returns: The filter `AutoMovieXpbdWorld.step` takes; true admits the pair.
+ * Returns: The filter `AutoMovieEngineXpbdWorld.step` takes; true admits the pair.
  */
 export function preparePhysicalContactHooks(
   input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -55,8 +55,8 @@ export function preparePhysicalContactHooks(
   }
 
   return (
-    first: AutoMovieXpbdCollider,
-    second: AutoMovieXpbdCollider,
+    first: AutoMovieEngineXpbdCollider,
+    second: AutoMovieEngineXpbdCollider,
   ): boolean => !excluded(first.handle, second.handle);
 
   /*

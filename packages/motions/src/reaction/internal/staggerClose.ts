@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMinimumJerk,
@@ -65,13 +65,13 @@ export function staggerClose(
     >,
   ): IAutoMovieVector3 =>
     flat(
-      Vector3.scale(
-        Vector3.add(staggerClose.left.ankle, staggerClose.right.ankle),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(staggerClose.left.ankle, staggerClose.right.ankle),
         0.5,
       ),
     );
-  const stance: number = Vector3.dot(
-    Vector3.subtract(entered[closer].ankle, entered[anchor].ankle),
+  const stance: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(entered[closer].ankle, entered[anchor].ankle),
     across,
   );
   const caughtAt: IAutoMovieVector3 = pendulum.xi();
@@ -87,19 +87,19 @@ export function staggerClose(
   ) => IAutoMovieMotionHumanFoot.IPlacement = (
     xi: IAutoMovieVector3,
   ): IAutoMovieMotionHumanFoot.IPlacement => {
-    const under: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(centre, xi),
-      Vector3.subtract(flat(centre), middle(entered)),
+    const under: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.add(centre, xi),
+      AutoMovieEngineVector3.subtract(flat(centre), middle(entered)),
     );
-    const toward: IAutoMovieVector3 = Vector3.subtract(under, flat(placed));
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(under, flat(placed));
     const side: number = stance >= 0 ? 1 : -1;
     const wide: number =
-      side * Math.max(Math.abs(stance), 2 * side * Vector3.dot(toward, across));
+      side * Math.max(Math.abs(stance), 2 * side * AutoMovieEngineVector3.dot(toward, across));
     return {
       ankle: {
-        ...Vector3.add(
-          Vector3.add(placed, Vector3.scale(across, wide)),
-          Vector3.scale(forward, 2 * Vector3.dot(toward, forward)),
+        ...AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(placed, AutoMovieEngineVector3.scale(across, wide)),
+          AutoMovieEngineVector3.scale(forward, 2 * AutoMovieEngineVector3.dot(toward, forward)),
         ),
         y: entered[closer].ankle.y,
       },
@@ -110,7 +110,7 @@ export function staggerClose(
     closing: IAutoMovieMotionHumanFoot.IPlacement,
   ): number =>
     pendulum.bound(
-      flat(Vector3.subtract(closing.ankle, feet[closer].ankle)),
+      flat(AutoMovieEngineVector3.subtract(closing.ankle, feet[closer].ankle)),
       STEP_TIME,
     );
 
@@ -122,9 +122,9 @@ export function staggerClose(
   const predicted: (seconds: number) => IAutoMovieVector3 = (
     seconds: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       held,
-      Vector3.scale(Vector3.subtract(xi0, held), Math.exp(w * seconds)),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(xi0, held), Math.exp(w * seconds)),
     );
   const closing: IAutoMovieMotionHumanFoot.IPlacement = closingFor(
     predicted(swingFor(closingFor(xi0))),
@@ -157,7 +157,7 @@ export function staggerClose(
   // weight shift (`TRANSFER`, the loading every landed foot gets) the
   // centre of pressure runs on a minimum-jerk share from where the swing
   // held it to where the tracking law puts it, so it never jumps.
-  const rest: IAutoMovieVector3 = Vector3.subtract(
+  const rest: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     middle(feet),
     middle(entered),
   );
@@ -179,31 +179,31 @@ export function staggerClose(
   const halfGrowth: number = grow / 2;
   const decay: number = 1 / grow;
   const rate: number = righting * w;
-  const travel: IAutoMovieVector3 = Vector3.subtract(rest, begin);
+  const travel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(rest, begin);
   // The landing's offset from the first aimed point, which the loading
   // carries off: the first step's aim, from the drift's start, where it
   // tracks nothing yet.
-  const jump: IAutoMovieVector3 = Vector3.subtract(
+  const jump: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     landed,
     nearest(
-      Vector3.subtract(begin, Vector3.scale(travel, AutoMovieEngineMotionSampling.minimumJerk(0).ds / rate)),
+      AutoMovieEngineVector3.subtract(begin, AutoMovieEngineVector3.scale(travel, AutoMovieEngineMotionSampling.minimumJerk(0).ds / rate)),
     ),
   );
   for (let i: number = 1; i * STEP <= longest; i++) {
     const reference: IAutoMovieMinimumJerk.IProfile = AutoMovieEngineMotionSampling.minimumJerk(
       ((i - 1) * STEP) / righting,
     );
-    const towards: IAutoMovieVector3 = Vector3.lerp(begin, rest, reference.s);
+    const towards: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(begin, rest, reference.s);
     const aimed: IAutoMovieVector3 = nearest(
-      Vector3.add(
-        Vector3.subtract(e, Vector3.scale(travel, reference.ds / rate)),
-        Vector3.scale(Vector3.subtract(e, towards), TRACKING),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.subtract(e, AutoMovieEngineVector3.scale(travel, reference.ds / rate)),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(e, towards), TRACKING),
       ),
     );
     const p: IAutoMovieVector3 = nearest(
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         aimed,
-        Vector3.scale(
+        AutoMovieEngineVector3.scale(
           jump,
           1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, ((i - 1) * STEP) / loading)),
         ),
@@ -213,22 +213,22 @@ export function staggerClose(
 
     // The exact step with the centre of pressure held: xi - p grows as
     // e^(omega t), and x - p is half of it plus a part that decays.
-    const z: IAutoMovieVector3 = Vector3.subtract(e, p);
-    const y: IAutoMovieVector3 = Vector3.subtract(x, p);
-    x = Vector3.add(
+    const z: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(e, p);
+    const y: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(x, p);
+    x = AutoMovieEngineVector3.add(
       p,
-      Vector3.add(
-        Vector3.scale(z, halfGrowth),
-        Vector3.scale(Vector3.subtract(y, Vector3.scale(z, 0.5)), decay),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(z, halfGrowth),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(y, AutoMovieEngineVector3.scale(z, 0.5)), decay),
       ),
     );
-    e = Vector3.add(p, Vector3.scale(z, grow));
+    e = AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(z, grow));
     settle.push(x);
     drifting.push(e);
     if (
       i * STEP >= righting &&
-      Vector3.distance(x, rest) <= SETTLED &&
-      Vector3.distance(e, rest) <= SETTLED
+      AutoMovieEngineVector3.distance(x, rest) <= SETTLED &&
+      AutoMovieEngineVector3.distance(e, rest) <= SETTLED
     ) {
       rested = true;
       break;
@@ -246,7 +246,7 @@ export function staggerClose(
       if (seconds >= last) {
         const at: number = Math.min(settle.length - 1, (seconds - last) / STEP);
         const i: number = Math.floor(at);
-        return Vector3.lerp(
+        return AutoMovieEngineVector3.lerp(
           settle[i]!,
           settle[Math.min(settle.length - 1, i + 1)]!,
           at - i,
@@ -257,7 +257,7 @@ export function staggerClose(
     pressure: (seconds: number): IAutoMovieVector3 => {
       if (seconds >= last)
         return flat(
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             centre,
             pressing[
               Math.min(pressing.length - 1, Math.floor((seconds - last) / STEP))
@@ -274,9 +274,9 @@ export function staggerClose(
         );
         const i: number = Math.floor(at);
         return flat(
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             centre,
-            Vector3.lerp(
+            AutoMovieEngineVector3.lerp(
               drifting[i]!,
               drifting[Math.min(drifting.length - 1, i + 1)]!,
               at - i,

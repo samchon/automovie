@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieRenderSceneLayout,
-  AutoMovieThreeKind,
-  type IAutoMovieModelObject,
-  type IMaterialShaderSource,
+  AutoMovieRenderThreeKind,
+  type IAutoMovieRenderModelObject,
+  type IAutoMovieRenderMaterialShaderSource,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -51,16 +51,16 @@ export function test_render_scene_build_model_procedural_skinned(): void {
       procedural: surface,
     }),
   );
-  const built: IAutoMovieModelObject =
+  const built: IAutoMovieRenderModelObject =
     AutoMovieRenderSceneLayout.buildModel(model);
   let mesh: THREE.SkinnedMesh | null = null;
   built.object.traverse((object: THREE.Object3D): void => {
-    if (AutoMovieThreeKind.isSkinnedMesh(object)) mesh = object;
+    if (AutoMovieRenderThreeKind.isSkinnedMesh(object)) mesh = object;
   });
   const skinned: THREE.SkinnedMesh = mesh!;
 
   // 1. The sample point precedes deformation.
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(
     skinned.material,
   );
   const assigned: number = shader.vertexShader.indexOf(

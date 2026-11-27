@@ -4,11 +4,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieTransitionDisplays } from "../../scene/AutoMovieTransitionDisplays.js";
-import type { AutoMovieFilmAlpha } from "../../scene/AutoMovieFilmAlpha.js";
-import { AutoMovieFilmResponseStage } from "../../scene/AutoMovieFilmResponseStage.js";
-import { AutoMovieFilmIndirectStage } from "../../scene/AutoMovieFilmIndirectStage.js";
-import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
+import { AutoMovieRenderTransitionDisplays } from "../../scene/AutoMovieRenderTransitionDisplays.js";
+import type { AutoMovieRenderFilmAlpha } from "../../scene/AutoMovieRenderFilmAlpha.js";
+import { AutoMovieRenderFilmResponseStage } from "../../scene/AutoMovieRenderFilmResponseStage.js";
+import { AutoMovieRenderFilmIndirectStage } from "../../scene/AutoMovieRenderFilmIndirectStage.js";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
 import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples.js";
 
 /**
@@ -18,9 +18,9 @@ import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples
  * `sample` places one layer at the drawn second through the caller's placement
  * and, when the subject's optics there have `samples`, accumulates the shutter
  * and lens samples with `accumulateAutoMovieFilmSamples`, each inside
- * `AutoMovieFilmIndirectStage` for that sample's camera. `draw` then draws the
+ * `AutoMovieRenderFilmIndirectStage` for that sample's camera. `draw` then draws the
  * layer onto the canvas: an accumulated frame through
- * `AutoMovieFilmResponseStage` alone, a single sample through the response
+ * `AutoMovieRenderFilmResponseStage` alone, a single sample through the response
  * stage inside the indirect stage, which bakes probes when their revision
  * changed and measures the occlusion of indirect light for the drawn camera
  * first. Without optics the response stage draws the scene straight to the
@@ -39,7 +39,7 @@ import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples
  * the pass.
  *
  * `hold` and `composite` hand the layers of a transition to
- * `AutoMovieTransitionDisplays`, a beauty picture's or a plate's alike, and
+ * `AutoMovieRenderTransitionDisplays`, a beauty picture's or a plate's alike, and
  * `overlay` and `over` draw a picture's witness cubes over their composite.
  * Every stage allocates nothing for a subject that never asks for it, and
  * `dispose` releases them all.
@@ -48,14 +48,14 @@ export class AutoMovieDrawBeauty {
   /*
    * The stage giving a subject's optics their response.
    */
-  private readonly response_: AutoMovieFilmResponseStage =
-    new AutoMovieFilmResponseStage();
+  private readonly response_: AutoMovieRenderFilmResponseStage =
+    new AutoMovieRenderFilmResponseStage();
 
   /*
    * The stage measuring a subject's indirect shading around each sample.
    */
-  private readonly indirect_: AutoMovieFilmIndirectStage =
-    new AutoMovieFilmIndirectStage();
+  private readonly indirect_: AutoMovieRenderFilmIndirectStage =
+    new AutoMovieRenderFilmIndirectStage();
 
   /*
    * The camera a lens sample is drawn through, its eye on the aperture.
@@ -66,8 +66,8 @@ export class AutoMovieDrawBeauty {
   /*
    * The held layers of a transition.
    */
-  private readonly displays_: AutoMovieTransitionDisplays =
-    new AutoMovieTransitionDisplays();
+  private readonly displays_: AutoMovieRenderTransitionDisplays =
+    new AutoMovieRenderTransitionDisplays();
 
   /** Hold the page's renderer. */
   public constructor(private readonly renderer: THREE.WebGLRenderer) {}
@@ -131,7 +131,7 @@ export class AutoMovieDrawBeauty {
    */
   public draw(props: {
     /** The created subject, placed at the layer. */
-    scene: IAutoMovieDrawScene<never>;
+    scene: IAutoMovieRenderDrawScene<never>;
 
     /** The camera drawn through. */
     camera: THREE.Camera;
@@ -149,7 +149,7 @@ export class AutoMovieDrawBeauty {
     sampled: IAutoMovieFilmOptics | undefined;
 
     /** How the picture's alpha is kept; absent draws it opaque. */
-    alpha?: AutoMovieFilmAlpha;
+    alpha?: AutoMovieRenderFilmAlpha;
   }): void {
     const { scene, sampled }: Parameters<AutoMovieDrawBeauty["draw"]>[0] =
       props;
@@ -195,7 +195,7 @@ export class AutoMovieDrawBeauty {
   /** Draw the `graphics` plate of the placed scene onto the canvas. */
   public plate(props: {
     /** The created subject, placed at the drawn second. */
-    scene: IAutoMovieDrawScene<never>;
+    scene: IAutoMovieRenderDrawScene<never>;
 
     /** The camera drawn through. */
     camera: THREE.Camera;
@@ -267,7 +267,7 @@ export class AutoMovieDrawBeauty {
    */
   private bare(
     scene: THREE.Scene,
-    alpha: AutoMovieFilmAlpha | undefined,
+    alpha: AutoMovieRenderFilmAlpha | undefined,
     render: () => void,
   ): void {
     if (alpha !== "transparent") {
@@ -291,7 +291,7 @@ export namespace AutoMovieDrawBeauty {
   /** One layer of a film picture, as `sample` places and accumulates it. */
   export interface ILayer {
     /** The created subject. */
-    scene: IAutoMovieDrawScene<never>;
+    scene: IAutoMovieRenderDrawScene<never>;
 
     /** The drawn second. */
     seconds: number;
@@ -309,6 +309,6 @@ export namespace AutoMovieDrawBeauty {
     camera: (seconds: number) => THREE.Camera;
 
     /** How the picture's alpha is kept; absent draws it opaque. */
-    alpha?: AutoMovieFilmAlpha;
+    alpha?: AutoMovieRenderFilmAlpha;
   }
 }

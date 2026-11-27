@@ -8,18 +8,18 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { type IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSectionPlanesProps.js";
-import { type IAutoMovieBuiltPropArticulation } from "./IAutoMovieBuiltPropArticulation.js";
-import { type IAutoMovieMaterialLibrary } from "./IAutoMovieMaterialLibrary.js";
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import { type IAutoMovieRenderApplySectionPlanesProps } from "./IAutoMovieRenderApplySectionPlanesProps.js";
+import { type IAutoMovieRenderBuiltPropArticulation } from "./IAutoMovieRenderBuiltPropArticulation.js";
+import { type IAutoMovieRenderMaterialLibrary } from "./IAutoMovieRenderMaterialLibrary.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
 import type { IAutoMovieRenderPixelPoint } from "./IAutoMovieRenderPixelPoint.js";
-import { type IAutoMoviePlantingObject } from "./IAutoMoviePlantingObject.js";
-import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject.js";
-import { type IAutoMovieSceneSoftProps } from "./IAutoMovieSceneSoftProps.js";
-import { type IAutoMovieSoftBodyObject } from "./IAutoMovieSoftBodyObject.js";
-import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
-import { type IBuildAutoMovieMaterialLibraryProps } from "./IBuildAutoMovieMaterialLibraryProps.js";
-import { type IBuildPropArticulationProps } from "./IBuildPropArticulationProps.js";
+import { type IAutoMovieRenderPlantingObject } from "./IAutoMovieRenderPlantingObject.js";
+import type { IAutoMovieRenderSceneObject } from "./IAutoMovieRenderSceneObject.js";
+import { type IAutoMovieRenderSceneSoftProps } from "./IAutoMovieRenderSceneSoftProps.js";
+import { type IAutoMovieRenderSoftBodyObject } from "./IAutoMovieRenderSoftBodyObject.js";
+import type { IAutoMovieRenderTextureResolver } from "./IAutoMovieRenderTextureResolver.js";
+import { type IAutoMovieRenderBuildMaterialLibraryProps } from "./IAutoMovieRenderBuildMaterialLibraryProps.js";
+import { type IAutoMovieRenderBuildPropArticulationProps } from "./IAutoMovieRenderBuildPropArticulationProps.js";
 import { type IBuildPlantingObjectProps } from "./internal/IBuildPlantingObjectProps.js";
 import { type IBuildSoftBodyObjectProps } from "./internal/IBuildSoftBodyObjectProps.js";
 import { applyAutoMovieSectionPlanes as applyAutoMovieSectionPlanesImplementation } from "./internal/applyAutoMovieSectionPlanes.js";
@@ -113,7 +113,7 @@ export namespace AutoMovieRenderSceneLayout {
    */
   export function buildSceneSoftProps(
     scene: THREE.Scene,
-  ): IAutoMovieSceneSoftProps {
+  ): IAutoMovieRenderSceneSoftProps {
     return buildSceneSoftPropsImplementation(scene);
   }
 
@@ -138,8 +138,8 @@ export namespace AutoMovieRenderSceneLayout {
    * failed ownership and preserves the same failure for repeated callers.
    */
   export function buildMaterialLibrary(
-    props: IBuildAutoMovieMaterialLibraryProps,
-  ): Promise<IAutoMovieMaterialLibrary> {
+    props: IAutoMovieRenderBuildMaterialLibraryProps,
+  ): Promise<IAutoMovieRenderMaterialLibrary> {
     return buildAutoMovieMaterialLibraryImplementation(props);
   }
 
@@ -215,7 +215,7 @@ export namespace AutoMovieRenderSceneLayout {
    */
   export function buildPlantingObject(
     props: IBuildPlantingObjectProps,
-  ): IAutoMoviePlantingObject {
+  ): IAutoMovieRenderPlantingObject {
     return buildPlantingObjectImplementation(props);
   }
 
@@ -265,8 +265,8 @@ export namespace AutoMovieRenderSceneLayout {
    * {@link applyObjectMotions} states for every other object it drives.
    */
   export function buildPropArticulation(
-    props: IBuildPropArticulationProps,
-  ): IAutoMovieBuiltPropArticulation {
+    props: IAutoMovieRenderBuildPropArticulationProps,
+  ): IAutoMovieRenderBuiltPropArticulation {
     return buildPropArticulationImplementation(props);
   }
 
@@ -285,7 +285,7 @@ export namespace AutoMovieRenderSceneLayout {
    */
   export function buildSoftBodyObject(
     props: IBuildSoftBodyObjectProps,
-  ): IAutoMovieSoftBodyObject {
+  ): IAutoMovieRenderSoftBodyObject {
     return buildSoftBodyObjectImplementation(props);
   }
 
@@ -320,7 +320,7 @@ export namespace AutoMovieRenderSceneLayout {
    * cost-free render.
    */
   export function applySectionPlanes(
-    props: IApplyAutoMovieSectionPlanesProps,
+    props: IAutoMovieRenderApplySectionPlanesProps,
   ): THREE.Plane[] {
     return applyAutoMovieSectionPlanesImplementation(props);
   }
@@ -355,7 +355,7 @@ export namespace AutoMovieRenderSceneLayout {
     /** Authored scene graph: nodes, cameras, lights, space, and environment. */
     scene: IAutoMovieScene;
     /** Resolve each node's model identifier to an already built object. */
-    getModelObject: (modelId: string) => IAutoMovieModelObject | undefined;
+    getModelObject: (modelId: string) => IAutoMovieRenderModelObject | undefined;
     /** Optional image environment assigned to the built scene. */
     environmentTexture?: THREE.Texture;
     /** Optional initial soft-prop frame, including an empty opt-in frame. */
@@ -365,7 +365,7 @@ export namespace AutoMovieRenderSceneLayout {
    * Build a `three.js` scene from an {@link IAutoMovieScene}.
    *
    * `getModelObject` resolves a node's `model` id to a built
-   * {@link IAutoMovieModelObject}. If the same model id appears in multiple
+   * {@link IAutoMovieRenderModelObject}. If the same model id appears in multiple
    * nodes it should return a distinct object each call (a `three.js` object can
    * live in one place only). Each node is wrapped in a group placed at its
    * world transform, so node placement and a pose's own root transform compose
@@ -383,7 +383,7 @@ export namespace AutoMovieRenderSceneLayout {
    * second one exactly as it always broke the first.
    *
    * A scene carrying a `space` also gets its structural ground (#1173): the
-   * standable surfaces become real meshes under one `SPACE_GROUP_NAME` group
+   * standable surfaces become real meshes under one `AutoMovieRenderSpaceGroupName` group
    * (see {@link AutoMovieRenderSceneSpace.buildObject}), so guide passes
    * describe a world instead of actors floating in a void. Their ordinary
    * material writes no beauty colour or depth, because a semantic support
@@ -400,7 +400,7 @@ export namespace AutoMovieRenderSceneLayout {
    * lowering receipts and structured safe-retry policy remain with their
    * corresponding owners.
    */
-  export function buildScene(props: IBuildSceneProps): IAutoMovieSceneObject {
+  export function buildScene(props: IBuildSceneProps): IAutoMovieRenderSceneObject {
     return buildSceneImplementation(
       props.scene,
       props.getModelObject,
@@ -462,7 +462,7 @@ export namespace AutoMovieRenderSceneLayout {
    * the dual quaternion vertex patch, and its mesh casts shadows through its
    * own patched depth and distance materials, so the shadow deforms like the
    * surface; the mesh is flagged so guide passes patch the materials they swap
-   * in. Every skinned part is an {@link AutoMovieSkinnedMesh} of its skin's
+   * in. Every skinned part is an {@link AutoMovieRenderSkinnedMesh} of its skin's
    * method, so bounds, culling, raycasts and vertex queries read the blend the
    * shader draws. Parts with the same ordered joint slots share one skeleton
    * and bone texture within this model; each mesh retains its own bind matrix
@@ -479,8 +479,8 @@ export namespace AutoMovieRenderSceneLayout {
    *
    * `resolveTexture` is how a declared PBR finish gets its pixels, and it is
    * the host's to supply because this package performs no I/O: the caller
-   * decodes the model's bindings first (an `AutoMovieTextureCache` primes them
-   * in one pass) and hands over an {@link IAutoMovieTextureResolver} that
+   * decodes the model's bindings first (an `AutoMovieRenderTextureCache` primes them
+   * in one pass) and hands over an {@link IAutoMovieRenderTextureResolver} that
    * answers synchronously. Omitting it builds every material with its scalar
    * coefficients and no maps, which is exactly what a model declaring no
    * texture renders and what every pre-texture production still renders. The
@@ -507,8 +507,8 @@ export namespace AutoMovieRenderSceneLayout {
    */
   export function buildModel(
     model: IAutoMovieModel,
-    resolveTexture?: IAutoMovieTextureResolver,
-  ): IAutoMovieModelObject {
+    resolveTexture?: IAutoMovieRenderTextureResolver,
+  ): IAutoMovieRenderModelObject {
     return buildModelImplementation(model, resolveTexture);
   }
 }

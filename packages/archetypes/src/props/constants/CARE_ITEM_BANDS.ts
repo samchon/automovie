@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeBand } from "../../core";
 import type { AutoMovieArchetypeCareItem } from "../AutoMovieArchetypeCareItem";
-import * as CareItemBandsData from "./internal/CareItemBandsData";
-import { kg } from "./internal/CareItemBandsData";
+import { CareItemBandsData } from "./internal/CareItemBandsData";
+
 
 /*
  * The band of each free dimension of `createCareItem`, by kind, with the
@@ -18,7 +18,7 @@ export const CARE_ITEM_BANDS: typeof AutoMovieArchetypeCareItem.BANDS = {
       "a soft two-ply sheet, not read at a source",
       true,
     ),
-    mass: kg(0.001, 0.002),
+    mass: CareItemBandsData.kg(0.001, 0.002),
   },
   comb: {
     length: AutoMovieArchetypeBand.metres(0.112, 0.154, CareItemBandsData.COMB, true),
@@ -29,15 +29,15 @@ export const CARE_ITEM_BANDS: typeof AutoMovieArchetypeCareItem.BANDS = {
       "comb spine thickness, not read at a source",
       true,
     ),
-    mass: kg(0.01, 0.02),
+    mass: CareItemBandsData.kg(0.01, 0.02),
   },
   toothbrush: {
     length: AutoMovieArchetypeBand.metres(0.18, 0.197, CareItemBandsData.BRUSH, true),
     width: AutoMovieArchetypeBand.metres(0.011, 0.011, CareItemBandsData.BRUSH, true),
-    mass: kg(0.015, 0.025),
+    mass: CareItemBandsData.kg(0.015, 0.025),
   },
   tube: {
-    mass: kg(0.02, 0.3),
+    mass: CareItemBandsData.kg(0.02, 0.3),
   },
   razor: {
     width: AutoMovieArchetypeBand.metres(
@@ -50,6 +50,6 @@ export const CARE_ITEM_BANDS: typeof AutoMovieArchetypeCareItem.BANDS = {
   lipstick: {
     length: AutoMovieArchetypeBand.metres(0.074, 0.074, CareItemBandsData.LIPSTICK),
     width: AutoMovieArchetypeBand.metres(0.021, 0.021, CareItemBandsData.LIPSTICK),
-    mass: kg(0.01, 0.03),
+    mass: CareItemBandsData.kg(0.01, 0.03),
   },
 };

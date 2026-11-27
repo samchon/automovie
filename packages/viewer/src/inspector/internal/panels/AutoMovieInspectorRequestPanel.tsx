@@ -9,8 +9,8 @@ import {
 } from "react";
 
 import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
-import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
-import type { IAutoMovieInspectorProps } from "../../IAutoMovieInspectorProps.js";
+import type { IAutoMovieViewerInspectorAction } from "../../IAutoMovieViewerInspectorAction.js";
+import type { IAutoMovieViewerInspectorProps } from "../../IAutoMovieViewerInspectorProps.js";
 
 /*
  * Copy or edit the address and, when the host supplies a command, copy its
@@ -153,11 +153,11 @@ export namespace AutoMovieInspectorRequestPanel {
     /*
      * Where an edited text goes.
      */
-    dispatch: (action: IAutoMovieInspectorAction) => void;
+    dispatch: (action: IAutoMovieViewerInspectorAction) => void;
 
     /*
      * Executable and fixed arguments from the host for the optional command.
      */
-    captureCommand?: IAutoMovieInspectorProps["captureCommand"];
+    captureCommand?: IAutoMovieViewerInspectorProps["captureCommand"];
   }
 }

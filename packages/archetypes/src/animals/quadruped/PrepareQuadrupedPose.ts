@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieArticulatedRig,
@@ -220,7 +220,7 @@ function prepare<Id extends string, Dimension extends string>(
     for (let index: number = 0; index < chain.length - 1; index++) {
       const bone: AutoMovieArchetypeQuadrupedBody.Bone = chain[index]!;
       const gap: number = magnitude(
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           endpoint(neutral.get(bone)!, lengths.get(bone)!),
           neutral.get(chain[index + 1]!)!.translation,
         ),
@@ -364,10 +364,10 @@ function prepare<Id extends string, Dimension extends string>(
         const bone: AutoMovieArchetypeQuadrupedBody.Bone = chain[index]!;
         const frame: IAutoMovieTransform = state.frames.get(bone)!;
         const originError: number = magnitude(
-          Vector3.subtract(frame.translation, points[index]!),
+          AutoMovieEngineVector3.subtract(frame.translation, points[index]!),
         );
         const endError: number = magnitude(
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             endpoint(frame, lengths.get(bone)!),
             points[index + 1]!,
           ),
@@ -399,9 +399,9 @@ function endpoint(
   frame: IAutoMovieTransform,
   length: number,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     frame.translation,
-    Quaternion.rotateVector(frame.rotation, { x: 0, y: length, z: 0 }),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: length, z: 0 }),
   );
 }
 

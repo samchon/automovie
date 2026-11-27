@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * A certified upper bound of the farthest swing along one great circle that a
@@ -100,9 +100,9 @@ export namespace swingTwistReachBound {
       !unit(basis.u) ||
       !unit(basis.f) ||
       !unit(basis.a) ||
-      Math.abs(Vector3.dot(basis.u, basis.f)) > 1e-9 ||
-      Math.abs(Vector3.dot(basis.u, basis.a)) > 1e-9 ||
-      Math.abs(Vector3.dot(basis.f, basis.a)) > 1e-9 ||
+      Math.abs(AutoMovieEngineVector3.dot(basis.u, basis.f)) > 1e-9 ||
+      Math.abs(AutoMovieEngineVector3.dot(basis.u, basis.a)) > 1e-9 ||
+      Math.abs(AutoMovieEngineVector3.dot(basis.f, basis.a)) > 1e-9 ||
       Math.abs(Math.abs(across) - 1) > 1e-9
     )
       return null;
@@ -111,8 +111,8 @@ export namespace swingTwistReachBound {
     const near: IInterval[] = admitted(flexion, frame?.flexion, -90, 90);
     const far: IInterval[] = admitted(flexion, frame?.flexion, 90, 270);
     const sides: IInterval[] = admitted(abduction, frame?.abduction, -180, 180);
-    const firstAcross: number = Vector3.dot(basis.e1, basis.a);
-    const secondAcross: number = Vector3.dot(basis.e2, basis.a);
+    const firstAcross: number = AutoMovieEngineVector3.dot(basis.e1, basis.a);
+    const secondAcross: number = AutoMovieEngineVector3.dot(basis.e2, basis.a);
     return (
       cosine: number,
       sine: number,
@@ -120,9 +120,9 @@ export namespace swingTwistReachBound {
     ): number => {
       // w = cosine e1 + sine e2, on the scan's own circle axes.
       const k: number = (cosine * firstAcross + sine * secondAcross) / across;
-      const c: number = Vector3.dot(
+      const c: number = AutoMovieEngineVector3.dot(
         basis.a,
-        Vector3.cross(basis.u, {
+        AutoMovieEngineVector3.cross(basis.u, {
           x: cosine * basis.e1.x + sine * basis.e2.x,
           y: cosine * basis.e1.y + sine * basis.e2.y,
           z: cosine * basis.e1.z + sine * basis.e2.z,
@@ -257,7 +257,7 @@ const DEG: number = 180 / Math.PI;
  * Whether a vector is unit to rounding.
  */
 function unit(v: IAutoMovieVector3): boolean {
-  return Math.abs(Vector3.dot(v, v) - 1) < 1e-9;
+  return Math.abs(AutoMovieEngineVector3.dot(v, v) - 1) < 1e-9;
 }
 
 /*

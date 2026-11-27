@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeShuttlecockData from "./internal/AutoMovieArchetypeShuttlecockData";
+import { AutoMovieArchetypeShuttlecockData } from "./internal/AutoMovieArchetypeShuttlecockData";
 
 /** Canonical producer and authoring contract for Shuttlecock. */
 export namespace AutoMovieArchetypeShuttlecock {
@@ -86,7 +86,7 @@ export namespace AutoMovieArchetypeShuttlecock {
       draw,
     });
     const r: number = dimensions.corkDiameter / 2;
-    const centre: IAutoMovieVector3 = Vector3.create(0, r, 0);
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, r, 0);
     const mount: number = r * 0.68;
     const tip: number = dimensions.skirtDiameter / 2;
     const height: number =
@@ -97,12 +97,12 @@ export namespace AutoMovieArchetypeShuttlecock {
     // root width are provisional mesh dimensions.
     for (let i: number = 0; i < AutoMovieArchetypeShuttlecock.FEATHERS; ++i) {
       const angle: number = (2 * Math.PI * i) / AutoMovieArchetypeShuttlecock.FEATHERS;
-      const radial: IAutoMovieVector3 = Vector3.create(
+      const radial: IAutoMovieVector3 = AutoMovieEngineVector3.create(
         Math.cos(angle),
         0,
         Math.sin(angle),
       );
-      const tangent: IAutoMovieVector3 = Vector3.create(-radial.z, 0, radial.x);
+      const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.create(-radial.z, 0, radial.x);
       const corners: IAutoMovieVector3[] = [];
       for (const [radius, y, width] of [
         [mount, r * 1.55, 0.0012],
@@ -115,15 +115,15 @@ export namespace AutoMovieArchetypeShuttlecock {
         for (const edge of [-1, 1] as const)
           for (const layer of [-1, 1] as const)
             corners.push(
-              Vector3.add(
-                Vector3.add(
-                  Vector3.scale(radial, radius + layer * 0.00035),
-                  Vector3.scale(tangent, edge * width),
+              AutoMovieEngineVector3.add(
+                AutoMovieEngineVector3.add(
+                  AutoMovieEngineVector3.scale(radial, radius + layer * 0.00035),
+                  AutoMovieEngineVector3.scale(tangent, edge * width),
                 ),
-                Vector3.create(0, y, 0),
+                AutoMovieEngineVector3.create(0, y, 0),
               ),
             );
-      builder.convex(`feather-${i + 1}`, corners, Vector3.create(0, 0, 0), {
+      builder.convex(`feather-${i + 1}`, corners, AutoMovieEngineVector3.create(0, 0, 0), {
         color: "#f4f1e9",
         density: 0.075,
       });
@@ -134,8 +134,8 @@ export namespace AutoMovieArchetypeShuttlecock {
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
         centre,
-        Vector3.create(0, -1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, -1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       grip: "power",
@@ -146,9 +146,9 @@ export namespace AutoMovieArchetypeShuttlecock {
       kind: "surface",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, 0, 0),
-        Vector3.create(0, -1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 0, 0),
+        AutoMovieEngineVector3.create(0, -1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
     });

@@ -1,5 +1,5 @@
 import {
-  AutoMovieThreeKind,
+  AutoMovieRenderThreeKind,
   AutoMovieRenderSceneLayout,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -42,8 +42,8 @@ export async function test_render_scene_build_construction(): Promise<void> {
   if (
     section === undefined ||
     guide === undefined ||
-    !AutoMovieThreeKind.isLine(section) ||
-    !AutoMovieThreeKind.isLine(guide)
+    !AutoMovieRenderThreeKind.isLine(section) ||
+    !AutoMovieRenderThreeKind.isLine(guide)
   )
     throw new Error("Expected a section and a guide line");
   TestValidator.predicate(
@@ -60,7 +60,7 @@ export async function test_render_scene_build_construction(): Promise<void> {
     section.material === guide.material,
   );
   const material: THREE.Material | THREE.Material[] = section.material;
-  if (!AutoMovieThreeKind.isMaterial(material))
+  if (!AutoMovieRenderThreeKind.isMaterial(material))
     throw new Error("Expected one line material");
   let disposals: number = 0;
   section.geometry.addEventListener("dispose", (): void => {

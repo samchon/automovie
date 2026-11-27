@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -64,7 +64,7 @@ export namespace KneeGeometry {
     let moved: number = Infinity;
     for (;;) {
       const next: IAutoMovieVector3 = carry(solved);
-      const change: number = Vector3.distance(next, hip);
+      const change: number = AutoMovieEngineVector3.distance(next, hip);
       hip = next;
       solved = reach(hip);
       if (change <= TOLERANCE) return { hip, solved };
@@ -177,7 +177,7 @@ export namespace KneeGeometry {
       target,
       entry.yaw,
     );
-    const patella: number = Vector3.length(
+    const patella: number = AutoMovieEngineVector3.length(
       body.surfaces.regions[side === "left" ? "kneeLeft" : "kneeRight"].point,
     );
     const travel: number =
@@ -203,7 +203,7 @@ export namespace KneeGeometry {
       start,
       reach,
       (at: KneeReach.ISolution): IAutoMovieVector3 =>
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           KickCarriage.hip(
             body,
             carriage(at.thrust, turn, 1, 1, resolution),
@@ -217,7 +217,7 @@ export namespace KneeGeometry {
         new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "target",
-          value: `${(Vector3.distance(start, target) * 1000).toFixed(0)} mm`,
+          value: `${(AutoMovieEngineVector3.distance(start, target) * 1000).toFixed(0)} mm`,
           feasible: {
             kind: "alternatives",
             values: ["a target the hip's drive settles on"],
@@ -238,14 +238,14 @@ export namespace KneeGeometry {
       line,
     );
     const from: ILeg = {
-      thigh: Vector3.normalize(stood.thigh),
-      shank: Vector3.normalize(stood.shank),
+      thigh: AutoMovieEngineVector3.normalize(stood.thigh),
+      shank: AutoMovieEngineVector3.normalize(stood.shank),
     };
     const to: ILeg = {
-      thigh: Vector3.normalize(
-        Vector3.subtract(solved.knee, Vector3.add(hip, solved.thrust)),
+      thigh: AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(solved.knee, AutoMovieEngineVector3.add(hip, solved.thrust)),
       ),
-      shank: Vector3.normalize(Vector3.subtract(solved.ankle, solved.knee)),
+      shank: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(solved.ankle, solved.knee)),
     };
     const axes: ReturnType<typeof KneeReach.foot> = KneeReach.foot(
       to.shank,
@@ -257,13 +257,13 @@ export namespace KneeGeometry {
       turn,
       from,
       to,
-      slack: Vector3.subtract(
+      slack: AutoMovieEngineVector3.subtract(
         rest,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           start,
-          Vector3.add(
-            Vector3.scale(from.thigh, m.thigh),
-            Vector3.scale(from.shank, m.shank),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(from.thigh, m.thigh),
+            AutoMovieEngineVector3.scale(from.shank, m.shank),
           ),
         ),
       ),

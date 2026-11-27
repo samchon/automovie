@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -121,7 +121,7 @@ export namespace AquaticLiftOut {
           (mark: number): boolean => u < mark,
         );
         const leg: number = next < 1 ? marks.length - 2 : next - 1;
-        const target: IAutoMovieVector3 = Vector3.lerp(
+        const target: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
           path[leg]!,
           path[leg + 1]!,
           AutoMovieEngineMotionSampling.minimumJerkShare(
@@ -130,7 +130,7 @@ export namespace AquaticLiftOut {
         );
         return AquaticPosture.translate(
           shaped,
-          Vector3.add(shaped.root, Vector3.subtract(target, hipsOf(shaped))),
+          AutoMovieEngineVector3.add(shaped.root, AutoMovieEngineVector3.subtract(target, hipsOf(shaped))),
         );
       },
     };
@@ -228,7 +228,7 @@ export namespace AquaticLiftOut {
     const faced: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       victim.bones(start + FACE * DURATION, hands);
     const leftward = (bone: AutoMovieHumanoidBone): number =>
-      Vector3.dot(faced.get(bone)!.worldPosition, left);
+      AutoMovieEngineVector3.dot(faced.get(bone)!.worldPosition, left);
     const wrists: Wrists =
       leftward("leftHand") >= leftward("rightHand")
         ? { left: "leftHand", right: "rightHand" }
@@ -262,15 +262,15 @@ export namespace AquaticLiftOut {
       const elbow: IAutoMovieVector3 = bones.get(
         wrists[side] === "leftHand" ? "leftLowerArm" : "rightLowerArm",
       )!.worldPosition;
-      const axis: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(wrist, elbow),
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(wrist, elbow),
       );
       // The palm closes on the wrist from the rescuer's side of it.
-      const toward: IAutoMovieVector3 = Vector3.subtract(wrist, posture.root);
-      const normal: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(
+      const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(wrist, posture.root);
+      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(
           toward,
-          Vector3.scale(axis, Vector3.dot(toward, axis)),
+          AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(toward, axis)),
         ),
       );
       const frame: ReturnType<typeof HumanHand.offset> = HumanHand.offset(
@@ -282,16 +282,16 @@ export namespace AquaticLiftOut {
         normal,
         forward: axis,
       });
-      const point: IAutoMovieVector3 = Vector3.subtract(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         wrist,
-        Quaternion.rotateVector(rotation, frame.point),
+        AutoMovieEngineQuaternion.rotateVector(rotation, frame.point),
       );
       return {
         point,
         rotation,
         contact: frame.point,
-        bend: Vector3.add(point, {
-          ...Vector3.scale(left, side === "left" ? 0.25 : -0.25),
+        bend: AutoMovieEngineVector3.add(point, {
+          ...AutoMovieEngineVector3.scale(left, side === "left" ? 0.25 : -0.25),
           y: -0.2,
         }),
       };
@@ -341,15 +341,15 @@ export namespace AquaticLiftOut {
             : u < LIFT
               ? 1 - 0.7 * AutoMovieEngineMotionSampling.minimumJerkShare((u - FACE) / (LIFT - FACE))
               : 0.3 * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((u - LIFT) / (1 - LIFT)));
-        const target: IAutoMovieVector3 = Vector3.add(
-          Vector3.subtract(hips0, Vector3.scale(forward, BACK * size * depth)),
+        const target: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.subtract(hips0, AutoMovieEngineVector3.scale(forward, BACK * size * depth)),
           { x: 0, y: -SQUAT * size * depth, z: 0 },
         );
         const placed: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
           shaped,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             shaped.root,
-            Vector3.subtract(target, hipsAt(shaped).get("hips")!.worldPosition),
+            AutoMovieEngineVector3.subtract(target, hipsAt(shaped).get("hips")!.worldPosition),
           ),
         );
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {

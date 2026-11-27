@@ -1,4 +1,6 @@
-import { humanHandrimStrokePhases } from "@automovie/motions/internal";
+import {
+  humanHandrimStrokePhases
+} from "../../../../../packages/motions/src/lexicon/internal/humanHandrimStrokePhases";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

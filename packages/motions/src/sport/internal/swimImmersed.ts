@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionHydrodynamics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionHydrodynamics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieIntegrateMotionTrajectory,
@@ -115,7 +115,7 @@ function planSwimImmersed(
       fix: "use a buoyant profile or a medium that can support it",
     });
 
-  const direction: IAutoMovieVector3 = Vector3.scale(
+  const direction: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     HumanFrame.forward(shape.yaw),
     stroke === undefined ? -1 : 1,
   );
@@ -152,9 +152,9 @@ function planSwimImmersed(
         );
         return {
           ...key,
-          root: Vector3.add(
+          root: AutoMovieEngineVector3.add(
             { ...key.root, y: key.root.y + lift },
-            Vector3.scale(direction, trajectory.at(phase).x[0]!),
+            AutoMovieEngineVector3.scale(direction, trajectory.at(phase).x[0]!),
           ),
         };
       },
@@ -163,7 +163,7 @@ function planSwimImmersed(
   const k: number =
     speed === 0
       ? 0
-      : -Vector3.dot(
+      : -AutoMovieEngineVector3.dot(
           HumanWater.sum(body, bones, direction, waterAtShape).drag,
           direction,
         ) / body.profile.mass;
@@ -183,7 +183,7 @@ function planSwimImmersed(
     contacts: [],
     posture: (seconds: number): IAutoMovieMotionHumanPosture => ({
       ...shape,
-      root: Vector3.add(afloat, Vector3.scale(direction, distanceAt(seconds))),
+      root: AutoMovieEngineVector3.add(afloat, AutoMovieEngineVector3.scale(direction, distanceAt(seconds))),
     }),
   };
 }

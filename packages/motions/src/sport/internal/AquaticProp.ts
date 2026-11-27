@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -115,16 +115,16 @@ export namespace AquaticProp {
           world: {
             translation:
               placed?.point ??
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 frame.position,
-                Quaternion.rotateVector(
+                AutoMovieEngineQuaternion.rotateVector(
                   frame.rotation,
                   affordance.frame.translation,
                 ),
               ),
             rotation:
               placed?.rotation ??
-              Quaternion.multiply(frame.rotation, affordance.frame.rotation),
+              AutoMovieEngineQuaternion.multiply(frame.rotation, affordance.frame.rotation),
           },
         };
       },
@@ -146,7 +146,7 @@ export namespace AquaticProp {
     // A hand may take a long round handle anywhere along it: it slides to
     // the point of the handle nearest the shoulder.
     if (reach !== undefined) {
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(handle.rotation, {
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(handle.rotation, {
         x: 1,
         y: 0,
         z: 0,
@@ -155,17 +155,17 @@ export namespace AquaticProp {
         -reach.length / 2,
         Math.min(
           reach.length / 2,
-          Vector3.dot(
-            Vector3.subtract(reach.shoulder, handle.translation),
+          AutoMovieEngineVector3.dot(
+            AutoMovieEngineVector3.subtract(reach.shoulder, handle.translation),
             axis,
           ),
         ),
       );
       handle = {
         ...handle,
-        translation: Vector3.add(
+        translation: AutoMovieEngineVector3.add(
           handle.translation,
-          Vector3.scale(axis, along),
+          AutoMovieEngineVector3.scale(axis, along),
         ),
       };
     }
@@ -175,20 +175,20 @@ export namespace AquaticProp {
       "grip",
     );
     const rotation: IAutoMovieQuaternion = HumanHand.align(grip, {
-      normal: Quaternion.rotateVector(handle.rotation, { x: 0, y: -1, z: 0 }),
-      forward: Quaternion.rotateVector(handle.rotation, { x: 1, y: 0, z: 0 }),
+      normal: AutoMovieEngineQuaternion.rotateVector(handle.rotation, { x: 0, y: -1, z: 0 }),
+      forward: AutoMovieEngineQuaternion.rotateVector(handle.rotation, { x: 1, y: 0, z: 0 }),
     });
-    const point: IAutoMovieVector3 = Vector3.subtract(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       handle.translation,
-      Quaternion.rotateVector(rotation, grip.point),
+      AutoMovieEngineQuaternion.rotateVector(rotation, grip.point),
     );
     return {
       point,
       rotation,
       contact: grip.point,
-      bend: Vector3.add(
+      bend: AutoMovieEngineVector3.add(
         point,
-        Quaternion.rotateVector(humanPostureHeading(posture), {
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), {
           x: side === "left" ? 0.24 : -0.24,
           y: -0.22,
           z: -0.14,

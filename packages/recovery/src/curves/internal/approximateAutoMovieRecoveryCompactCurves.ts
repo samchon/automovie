@@ -1,4 +1,4 @@
-import { AutoMovieBernstein64 as B, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineBernstein64 as B, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieCompactCurveApproximation,

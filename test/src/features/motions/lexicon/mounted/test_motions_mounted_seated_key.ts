@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanPosture,
@@ -9,15 +9,29 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
-  HumanColliders,
-  HumanFoot,
-  HumanPropFrame,
-  poseBones,
-  prepareCoupledMount,
-  prepareMountMaterialSeat,
-  resolveHumanPosture,
-  seated,
-} from "@automovie/motions/internal";
+  HumanColliders
+} from "../../../../../../packages/motions/src/posture/internal/HumanColliders";
+import {
+  HumanFoot
+} from "../../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  HumanPropFrame
+} from "../../../../../../packages/motions/src/perform/internal/HumanPropFrame";
+import {
+  poseBones
+} from "../../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  prepareCoupledMount
+} from "../../../../../../packages/motions/src/lexicon/internal/prepareCoupledMount";
+import {
+  prepareMountMaterialSeat
+} from "../../../../../../packages/motions/src/lexicon/internal/prepareMountMaterialSeat";
+import {
+  resolveHumanPosture
+} from "../../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  seated
+} from "../../../../../../packages/motions/src/everyday/internal/seated";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -31,7 +45,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
   );
   const frame: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const seat = AutoMovieMotionHumanObject.seat(horse, frame, "seat", "horse");
   const prop = AutoMovieMotionHumanObject.prop("horse", horse, frame);
@@ -94,7 +108,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
       ),
     ),
   );
-  const down = Quaternion.rotateVector(material.seat.frame.rotation, {
+  const down = AutoMovieEngineQuaternion.rotateVector(material.seat.frame.rotation, {
     x: 0,
     y: -1,
     z: 0,
@@ -110,11 +124,11 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
         precision,
       ).some(
         ({ pointA, pointB }) =>
-          Vector3.distance(pointA, pointB) <= precision &&
+          AutoMovieEngineVector3.distance(pointA, pointB) <= precision &&
           Math.abs(
-            Vector3.dot(
+            AutoMovieEngineVector3.dot(
               down,
-              Vector3.subtract(pointB, material.seat.frame.position),
+              AutoMovieEngineVector3.subtract(pointB, material.seat.frame.position),
             ),
           ) <= precision,
       ),
@@ -126,9 +140,9 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
   );
   for (const side of ["left", "right"] as const) {
     const { point, rotation, contact } = key.feet[side];
-    const ball = Vector3.add(
+    const ball = AutoMovieEngineVector3.add(
       point,
-      Quaternion.rotateVector(rotation!, contact!),
+      AutoMovieEngineQuaternion.rotateVector(rotation!, contact!),
     );
     const tread = material.treads[side];
     const placed = HumanPropFrame.relative(tread.frame, {

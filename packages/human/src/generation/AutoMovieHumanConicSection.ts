@@ -1,4 +1,4 @@
-import { AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineViewChain } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicSection,
@@ -47,7 +47,7 @@ import type {
  *
  * After the anchors come the shoulders, one per arc between consecutive
  * anchors: the conic shoulder `rho = |M S| / |M A|` of the engine's native
- * chain (`AutoMovieViewChain`). A `mirror` layout lists the anchors of the
+ * chain (`AutoMovieEngineViewChain`). A `mirror` layout lists the anchors of the
  * half `v >= 0` from the front median anchor to the back median anchor and
  * reflects them, so a bilateral section spends its numbers once.
  *
@@ -923,7 +923,7 @@ export namespace AutoMovieHumanConicSection {
     values: readonly number[],
     layout: IAutoMovieHumanConicSection.ILayout,
   ): IAutoMovieViewChain.ISection {
-    return AutoMovieViewChain.of(resolve(values, layout).input);
+    return AutoMovieEngineViewChain.of(resolve(values, layout).input);
   }
 
   /*

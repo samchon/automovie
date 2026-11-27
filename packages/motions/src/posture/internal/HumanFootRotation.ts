@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
 /*
@@ -15,9 +15,9 @@ export function HumanFootRotation(
   pitch: number,
   roll: number = 0,
 ): IAutoMovieQuaternion {
-  return Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.multiply(HEADING(heading), ROLL(roll)),
+  return AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(HEADING(heading), ROLL(roll)),
       PITCH(-pitch),
     ),
   );
@@ -47,30 +47,30 @@ export namespace HumanFootRotation {
     heading: number,
     roll: number,
   ): (pitch: number) => IAutoMovieQuaternion {
-    const prefix: IAutoMovieQuaternion = Quaternion.multiply(
+    const prefix: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       HEADING(heading),
       ROLL(roll),
     );
     return (pitch: number): IAutoMovieQuaternion =>
-      Quaternion.normalize(Quaternion.multiply(prefix, PITCH(-pitch)));
+      AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(prefix, PITCH(-pitch)));
   }
 }
 
 /*
  * Private unchanged yaw axis shared only as axis-angle scalar preparation.
  */
-const HEADING: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+const HEADING: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
 
 /*
  * Private unchanged forward roll axis.
  */
-const ROLL: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 0, y: 0, z: 1 });
+const ROLL: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 0, z: 1 });
 
 /*
  * Private unchanged lateral pitch axis; callers supply the original negative
  * pitch.
  */
-const PITCH: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 1, y: 0, z: 0 });
+const PITCH: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 1, y: 0, z: 0 });

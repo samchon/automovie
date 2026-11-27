@@ -5,15 +5,15 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
-import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
+import { AutoMovieEngineDrawingEpsilon } from "../AutoMovieEngineDrawingEpsilon";
 
 /*
  * Where the cut plane passes through a triangle soup, as world segments.
  *
  * One segment per triangle with a corner strictly on each side of the plane,
- * beyond AUTOMOVIE_DRAWING_EPSILON. A triangle lying in the plane, or
+ * beyond AutoMovieEngineDrawingEpsilon. A triangle lying in the plane, or
  * only touching it, contributes nothing: a face tangent to the cut is not a
  * section, and emitting its edges would draw every interior diagonal of a slab
  * whose top sits at the cut height.
@@ -36,10 +36,10 @@ export const autoMovieDrawingCutEdges = (
         autoMovieDrawingPlaneDistance(frame, corner),
     );
     const above: boolean = distances.some(
-      (value: number): boolean => value > AUTOMOVIE_DRAWING_EPSILON,
+      (value: number): boolean => value > AutoMovieEngineDrawingEpsilon,
     );
     const below: boolean = distances.some(
-      (value: number): boolean => value < -AUTOMOVIE_DRAWING_EPSILON,
+      (value: number): boolean => value < -AutoMovieEngineDrawingEpsilon,
     );
     if (!above || !below) continue;
     const hits: IAutoMovieVector3[] = [];
@@ -47,13 +47,13 @@ export const autoMovieDrawingCutEdges = (
       const next: number = (index + 1) % 3;
       const da: number = distances[index]!;
       const db: number = distances[next]!;
-      if (Math.abs(da) <= AUTOMOVIE_DRAWING_EPSILON) {
+      if (Math.abs(da) <= AutoMovieEngineDrawingEpsilon) {
         hits.push(corners[index]!);
         continue;
       }
       if (da * db < 0)
         hits.push(
-          Vector3.lerp(corners[index]!, corners[next]!, da / (da - db)),
+          AutoMovieEngineVector3.lerp(corners[index]!, corners[next]!, da / (da - db)),
         );
     }
     edges.push({ from: hits[0]!, to: hits[1]! });

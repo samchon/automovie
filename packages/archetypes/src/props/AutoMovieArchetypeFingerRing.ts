@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeFingerRingData from "./internal/AutoMovieArchetypeFingerRingData";
+import { AutoMovieArchetypeFingerRingData } from "./internal/AutoMovieArchetypeFingerRingData";
 
 /** Constructs the finger ring archetype from its recipe. */
 export namespace AutoMovieArchetypeFingerRing {
@@ -56,7 +56,7 @@ export function create(
   // The band's centreline: the inner circle's radius plus half the wire.
   const radius: number = d.circumference / (2 * Math.PI) + d.wire / 2;
   const at = (k: number): IAutoMovieVector3 =>
-    Vector3.create(
+    AutoMovieEngineVector3.create(
       radius * Math.sin((2 * Math.PI * k) / PIECES),
       radius * Math.cos((2 * Math.PI * k) / PIECES),
       0,
@@ -67,9 +67,9 @@ export function create(
     id: "wear",
     kind: "socket",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     depth: d.wire,
@@ -78,9 +78,9 @@ export function create(
     id: "hold",
     kind: "handle",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, radius, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, radius, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "precision",

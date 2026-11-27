@@ -7,7 +7,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { closestPointOnSegmentXZ } from "../../math/internal/closestPointOnSegmentXZ";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { nearestHullEdge } from "../../math/internal/nearestHullEdge";
@@ -57,7 +57,7 @@ export function detectSupportToppling(
     edge.start,
     edge.end,
   );
-  const fallDirection: IAutoMovieVector3 = Vector3.normalize({
+  const fallDirection: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: props.centerOfMass.x - nearest.x,
     y: 0,
     z: props.centerOfMass.z - nearest.z,

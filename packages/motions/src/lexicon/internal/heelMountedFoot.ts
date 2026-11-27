@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -43,64 +43,64 @@ export function heelMountedFoot(
     return goal;
   const a: number = body.measure.thigh;
   const b: number = body.measure.shank;
-  const toward: IAutoMovieVector3 = Vector3.subtract(goal.point, hip);
-  const d: number = Vector3.length(toward);
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goal.point, hip);
+  const d: number = AutoMovieEngineVector3.length(toward);
   if (!(d > Math.abs(a - b) && d < a + b)) return goal;
-  const u: IAutoMovieVector3 = Vector3.scale(toward, 1 / d);
-  const aside: IAutoMovieVector3 = Vector3.subtract(goal.bend, hip);
-  const across: IAutoMovieVector3 = Vector3.subtract(
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.scale(toward, 1 / d);
+  const aside: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goal.bend, hip);
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     aside,
-    Vector3.scale(u, Vector3.dot(aside, u)),
+    AutoMovieEngineVector3.scale(u, AutoMovieEngineVector3.dot(aside, u)),
   );
-  if (Vector3.length(across) < 1e-9) return goal;
-  const v: IAutoMovieVector3 = Vector3.normalize(across);
+  if (AutoMovieEngineVector3.length(across) < 1e-9) return goal;
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(across);
   const cos: number = (a * a + d * d - b * b) / (2 * a * d);
-  const knee: IAutoMovieVector3 = Vector3.add(
+  const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     hip,
-    Vector3.add(
-      Vector3.scale(u, a * cos),
-      Vector3.scale(v, a * Math.sqrt(Math.max(0, 1 - cos * cos))),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(u, a * cos),
+      AutoMovieEngineVector3.scale(v, a * Math.sqrt(Math.max(0, 1 - cos * cos))),
     ),
   );
-  const shank: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(knee, goal.point),
+  const shank: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(knee, goal.point),
   );
-  const up: IAutoMovieVector3 = Quaternion.rotateVector(goal.rotation, {
+  const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(goal.rotation, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const front: IAutoMovieVector3 = Quaternion.rotateVector(goal.rotation, {
+  const front: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(goal.rotation, {
     x: 0,
     y: 0,
     z: 1,
   });
   const lean: number =
-    (Math.atan2(Vector3.dot(shank, front), Vector3.dot(shank, up)) * 180) /
+    (Math.atan2(AutoMovieEngineVector3.dot(shank, front), AutoMovieEngineVector3.dot(shank, up)) * 180) /
     Math.PI;
   const excess: number = lean - range;
   if (!(excess > 0)) return goal;
 
   // Toes down about the ball: the foot's lateral axis, the ball held still.
-  const lateral: IAutoMovieVector3 = Quaternion.rotateVector(goal.rotation, {
+  const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(goal.rotation, {
     x: 1,
     y: 0,
     z: 0,
   });
-  const ball: IAutoMovieVector3 = Vector3.add(
+  const ball: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     goal.point,
-    Quaternion.rotateVector(goal.rotation, goal.contact),
+    AutoMovieEngineQuaternion.rotateVector(goal.rotation, goal.contact),
   );
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.fromAxisAngle(lateral, excess),
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle(lateral, excess),
     goal.rotation,
   );
   return {
     ...goal,
     rotation,
-    point: Vector3.subtract(
+    point: AutoMovieEngineVector3.subtract(
       ball,
-      Quaternion.rotateVector(rotation, goal.contact),
+      AutoMovieEngineQuaternion.rotateVector(rotation, goal.contact),
     ),
   };
 }

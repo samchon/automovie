@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeChoppingBlockData from "./internal/AutoMovieArchetypeChoppingBlockData";
+import { AutoMovieArchetypeChoppingBlockData } from "./internal/AutoMovieArchetypeChoppingBlockData";
 
 /** Constructs the chopping block archetype from its recipe. */
 export namespace AutoMovieArchetypeChoppingBlock {
@@ -47,7 +47,7 @@ export function create(
     material: "wood",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.rod("round", d.radius, v(0, 0, 0), v(0, d.height, 0), {
     color: "#8a6a45",
   });

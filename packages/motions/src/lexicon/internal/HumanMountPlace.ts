@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -46,15 +46,15 @@ export function HumanMountPlace(
   const sign: number = side === "left" ? 1 : -1;
   const heading: number = yaw + sign * stand.TOE_OUT;
   if (tread !== undefined) {
-    const ankle: IAutoMovieVector3 = Vector3.subtract(
+    const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       tread,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         HumanFrame.turn(heading),
         HumanFoot.offset(body, side, "ball"),
       ),
     );
     const span: readonly [number, number] = HumanMount.span(body);
-    const d: number = Vector3.length(Vector3.subtract(ankle, hip));
+    const d: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(ankle, hip));
     const bend: IAutoMovieVector3 = HumanFrame.point(
       { origin: hip, yaw },
       { x: sign * (astride ? 0.5 : 0.05), y: 0, z: 1 },
@@ -169,15 +169,15 @@ function hipFlexion(
     pitch,
     roll: 0,
   });
-  const thigh: IAutoMovieVector3 = Vector3.subtract(knee, hip);
+  const thigh: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(knee, hip);
   return (
     Math.atan2(
-      Vector3.dot(thigh, Quaternion.rotateVector(pelvis, { x: 0, y: 0, z: 1 })),
-      -Vector3.dot(
+      AutoMovieEngineVector3.dot(thigh, AutoMovieEngineQuaternion.rotateVector(pelvis, { x: 0, y: 0, z: 1 })),
+      -AutoMovieEngineVector3.dot(
         thigh,
-        Quaternion.rotateVector(pelvis, { x: 0, y: 1, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(pelvis, { x: 0, y: 1, z: 0 }),
       ),
-    ) / Quaternion.DEG2RAD
+    ) / AutoMovieEngineQuaternion.DEG2RAD
   );
 }
 

@@ -1,34 +1,34 @@
-export type { AutoMovieEnginePhysicsTrackingTypes } from "./AutoMovieEnginePhysicsTrackingTypes";
-export type { AutoMovieEnginePhysicsFaceContactTypes } from "./AutoMovieEnginePhysicsFaceContactTypes";
-export type { AutoMovieEnginePhysicsGjkTypes } from "./AutoMovieEnginePhysicsGjkTypes";
-export type { AutoMovieEnginePhysicsContactTypes } from "./AutoMovieEnginePhysicsContactTypes";
-export type { AutoMovieEnginePhysicsPairDistanceTypes } from "./AutoMovieEnginePhysicsPairDistanceTypes";
-export * from "./AutoMovieAir";
-export * from "./AutoMovieGravity";
-export * from "./AutoMovieMotionAudit";
-export * from "./AutoMoviePhysicalBalance";
+export type * from "./AutoMovieEnginePhysicsTrackingTypes";
+export type * from "./AutoMovieEnginePhysicsFaceContactTypes";
+export type * from "./AutoMovieEnginePhysicsGjkTypes";
+export type * from "./AutoMovieEnginePhysicsContactTypes";
+export type * from "./AutoMovieEnginePhysicsPairDistanceTypes";
+export * from "./AutoMovieEngineAir";
+export * from "./AutoMovieEngineGravity";
+export * from "./AutoMovieEngineMotionAudit";
+export * from "./AutoMovieEnginePhysicalBalance";
 export * from "./AutoMovieEnginePhysicalBalanceTypes";
-export * from "./AutoMoviePhysicalCoupledTargetError";
-export * from "./AutoMoviePhysicalPlayback";
-export * from "./AutoMoviePhysicalSimulation";
-export * from "./AutoMoviePhysicalTracking";
-export * from "./AutoMoviePhysicsCache";
-export * from "./AutoMovieStepPlanner";
-export * from "./AutoMovieXpbdArticulation";
-export * from "./AutoMovieXpbdBody";
-export * from "./AutoMovieXpbdInertia";
-export * from "./AutoMovieXpbdCollider";
-export * from "./AutoMovieXpbdJoint";
-export * from "./AutoMovieXpbdMath";
-export * from "./AutoMoviePhysicalJointChart";
-export * from "./AutoMovieXpbdIntegration";
-export * from "./AutoMovieXpbdSnapshot";
-export * from "./AutoMovieXpbdSupportRows";
-export * from "./AutoMovieXpbdWorld";
-export * from "./IAutoMoviePhysicalBalanceTrace";
-export * from "./IAutoMoviePhysicalBinding";
-export * from "./PhysicalRotationVector";
-export * from "./PhysicalTargetInterval";
+export * from "./AutoMovieEnginePhysicalCoupledTargetError";
+export * from "./AutoMovieEnginePhysicalPlayback";
+export * from "./AutoMovieEnginePhysicalSimulation";
+export * from "./AutoMovieEnginePhysicalTracking";
+export * from "./AutoMovieEnginePhysicsCache";
+export * from "./AutoMovieEngineStepPlanner";
+export * from "./AutoMovieEngineXpbdArticulation";
+export * from "./AutoMovieEngineXpbdBody";
+export * from "./AutoMovieEngineXpbdInertia";
+export * from "./AutoMovieEngineXpbdCollider";
+export * from "./AutoMovieEngineXpbdJoint";
+export * from "./AutoMovieEngineXpbdMath";
+export * from "./AutoMovieEnginePhysicalJointChart";
+export * from "./AutoMovieEngineXpbdIntegration";
+export * from "./AutoMovieEngineXpbdSnapshot";
+export * from "./AutoMovieEngineXpbdSupportRows";
+export * from "./AutoMovieEngineXpbdWorld";
+export * from "./IAutoMovieEnginePhysicalBalanceTrace";
+export * from "./IAutoMovieEnginePhysicalBinding";
+export * from "./AutoMovieEnginePhysicalRotationVector";
+export * from "./AutoMovieEnginePhysicalTargetInterval";
 
 
 
@@ -41,16 +41,16 @@ export * from "./PhysicalTargetInterval";
 
 
 
-export * from "./AutoMoviePhysicalAngularMomentumIntegrator";
+export * from "./AutoMovieEnginePhysicalAngularMomentumIntegrator";
 
 
 
 export * from "./AutoMovieEnginePhysics";
-export * from "./IAutoMoviePhysicalSimulationCheckpointCapture";
+export * from "./IAutoMovieEnginePhysicalSimulationCheckpointCapture";
 
-export * from "./AutoMoviePhysicalSupportFit";
+export * from "./AutoMovieEnginePhysicalSupportFit";
 
-export * from "./AutoMoviePhysicalSupportCollector";
+export * from "./AutoMovieEnginePhysicalSupportCollector";
 
 
 
@@ -84,13 +84,13 @@ export * from "./AutoMovieEnginePhysicalBipedPressure";
 
 
 export * from "./AutoMovieEnginePhysicalFootstepAdjustor";
-export * from "./AutoMoviePhysicalGlitchFilter";
+export * from "./AutoMovieEnginePhysicalGlitchFilter";
 
 
-export * from "./AutoMoviePhysicalHullFaces";
+export * from "./AutoMovieEnginePhysicalHullFaces";
 
 
-export * from "./AutoMoviePhysicalHull";
+export * from "./AutoMovieEnginePhysicalHull";
 
 
 
@@ -111,7 +111,7 @@ export * from "./AutoMovieEnginePhysicalOneStepCaptureRegion";
 export * from "./AutoMovieEnginePhysicalPlanarPolygon";
 export * from "./AutoMovieEnginePhysicalPlanarPolygonEdges";
 
-export * from "./AutoMoviePhysicalInertiaTensor";
+export * from "./AutoMovieEnginePhysicalInertiaTensor";
 
 export * from "./AutoMovieEnginePhysicalPushRecovery";
 export * from "./AutoMovieEnginePhysicalRecoverySupportGoals";
@@ -120,10 +120,10 @@ export * from "./AutoMovieEnginePhysicalRecoverySupportGoals";
 
 
 
-export * from "./AutoMoviePhysicalRootBounds";
-export * from "./AutoMoviePhysicalRootDemand";
+export * from "./AutoMovieEnginePhysicalRootBounds";
+export * from "./AutoMovieEnginePhysicalRootDemand";
 
-export * from "./AutoMoviePhysicalRootServo";
+export * from "./AutoMovieEnginePhysicalRootServo";
 
 
 
@@ -133,7 +133,7 @@ export * from "./AutoMoviePhysicalRootServo";
 
 
 export * from "./AutoMovieEnginePhysicalSingularBudget";
-export * from "./AutoMoviePhysicalSpanPose";
+export * from "./AutoMovieEnginePhysicalSpanPose";
 export * from "./AutoMovieEnginePhysicalStanceAllocation";
 export * from "./AutoMovieEnginePhysicalStanceBalance";
 export * from "./AutoMovieEnginePhysicalStanceDemand";
@@ -153,7 +153,7 @@ export * from "./AutoMovieEnginePhysicalSwingReference";
 
 
 
-export * from "./AutoMoviePhysicalStepPlanner";
+export * from "./AutoMovieEnginePhysicalStepPlanner";
 
 
 
@@ -162,21 +162,21 @@ export * from "./AutoMovieEnginePhysicalDisturbanceFollow";
 export * from "./AutoMovieEnginePhysicalDisturbanceForm";
 export * from "./AutoMovieEnginePhysicalDisturbancePlacement";
 export * from "./AutoMovieEnginePhysicalDisturbanceResponse";
-export * from "./AutoMoviePhysicalGeometry";
+export * from "./AutoMovieEnginePhysicalGeometry";
 
 
 
 
 
 
-export * from "./AutoMoviePhysicalProjectile";
+export * from "./AutoMovieEnginePhysicalProjectile";
 
 
 
 
 
 
-export * from "./AutoMoviePhysicalSpanContacts";
+export * from "./AutoMovieEnginePhysicalSpanContacts";
 
 
 
@@ -206,13 +206,13 @@ export * from "./AutoMovieEnginePhysicalFloorChainTarget";
 
 
 
-export * from "./AutoMoviePhysicalRootTracking";
+export * from "./AutoMovieEnginePhysicalRootTracking";
 
-export * from "./AutoMoviePhysicalSupportTracking";
+export * from "./AutoMovieEnginePhysicalSupportTracking";
 
-export * from "./AutoMoviePhysicalWorldBalanceTracking";
-export * from "./AutoMoviePhysicalWorldJointTracking";
+export * from "./AutoMovieEnginePhysicalWorldBalanceTracking";
+export * from "./AutoMovieEnginePhysicalWorldJointTracking";
 
 
 
-export * from "./AutoMoviePhysicalSkeleton";
+export * from "./AutoMovieEnginePhysicalSkeleton";

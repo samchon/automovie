@@ -1,13 +1,11 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import {
-  band as AutoMovieArchetypeShotDataBand,
-} from "./internal/AutoMovieArchetypeShotData";
+import { AutoMovieArchetypeShotData } from "./internal/AutoMovieArchetypeShotData";
 
 /** Canonical producer and authoring contract for Shot. */
 export namespace AutoMovieArchetypeShot {
@@ -53,8 +51,8 @@ export namespace AutoMovieArchetypeShot {
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      diameter: AutoMovieArchetypeShotDataBand("m", 0.11, 0.13, "the men's 110 to 130 mm across"),
-      mass: AutoMovieArchetypeShotDataBand(
+      diameter: AutoMovieArchetypeShotData.band("m", 0.11, 0.13, "the men's 110 to 130 mm across"),
+      mass: AutoMovieArchetypeShotData.band(
         "kg",
         7.26,
         7.26,
@@ -62,8 +60,8 @@ export namespace AutoMovieArchetypeShot {
       ),
     },
     women: {
-      diameter: AutoMovieArchetypeShotDataBand("m", 0.095, 0.11, "the women's 95 to 110 mm across"),
-      mass: AutoMovieArchetypeShotDataBand(
+      diameter: AutoMovieArchetypeShotData.band("m", 0.095, 0.11, "the women's 95 to 110 mm across"),
+      mass: AutoMovieArchetypeShotData.band(
         "kg",
         4,
         4,
@@ -114,7 +112,7 @@ export namespace AutoMovieArchetypeShot {
       name: `${kind}'s shot`,
       draw,
     });
-    const centre: IAutoMovieVector3 = Vector3.create(0, d.diameter / 2, 0);
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, d.diameter / 2, 0);
     builder.ball("shot", d.diameter / 2, centre, { color: "#4a4d52" });
     builder.affordance({
       id: "grip",
@@ -122,8 +120,8 @@ export namespace AutoMovieArchetypeShot {
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
         centre,
-        Vector3.create(0, 1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       grip: "power",

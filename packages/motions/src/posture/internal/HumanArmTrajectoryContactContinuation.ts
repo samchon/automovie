@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmGeometry,
@@ -228,7 +228,7 @@ export function HumanArmTrajectoryContactContinuation(
                   q,
                   false,
                 );
-              const error: IAutoMovieVector3 = Vector3.subtract(
+              const error: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
                 site.point,
                 HumanArmTrajectoryPairs.pad(placed, site.contact),
               );
@@ -372,7 +372,7 @@ function fastest(
           arm[0]!.probes[probe]![0],
           arm[1]!.probes[probe]![0],
         );
-        distance = Math.max(distance, Vector3.length(delta));
+        distance = Math.max(distance, AutoMovieEngineVector3.length(delta));
       }
     },
   );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -35,14 +35,14 @@ export function HumanSupportCarry(
 ): IAutoMovieMotionHumanSupportCarry.ICarry {
   const first: IAutoMovieRigidTransform = frame(start);
   const now: IAutoMovieRigidTransform = frame(seconds);
-  const turn: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(now.rotation, Quaternion.inverse(first.rotation)),
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(now.rotation, AutoMovieEngineQuaternion.inverse(first.rotation)),
   );
   return {
     point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         now.position,
-        Quaternion.rotateVector(turn, Vector3.subtract(p, first.position)),
+        AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(p, first.position)),
       ),
     turn,
     yaw: yawOf(turn),
@@ -84,21 +84,21 @@ export namespace HumanSupportCarry {
   ): IAutoMovieMotionHumanSupportCarry.ICarry {
     if (weight === 0) return from;
     if (weight === 1) return to;
-    const carriedAnchor: IAutoMovieVector3 = Vector3.lerp(
+    const carriedAnchor: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       from.point(anchor),
       to.point(anchor),
       weight,
     );
-    const turn: IAutoMovieQuaternion = Quaternion.slerp(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
       from.turn,
       to.turn,
       weight,
     );
     return {
       point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           carriedAnchor,
-          Quaternion.rotateVector(turn, Vector3.subtract(p, anchor)),
+          AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(p, anchor)),
         ),
       turn,
       yaw: yawOf(turn),
@@ -132,8 +132,8 @@ export namespace HumanSupportCarry {
               ...(goal.rotation === undefined
                 ? {}
                 : {
-                    rotation: Quaternion.normalize(
-                      Quaternion.multiply(carry.turn, goal.rotation),
+                    rotation: AutoMovieEngineQuaternion.normalize(
+                      AutoMovieEngineQuaternion.multiply(carry.turn, goal.rotation),
                     ),
                   }),
             };
@@ -173,8 +173,8 @@ export namespace HumanSupportCarry {
       side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanEntryState.IFoot => ({
       ...entered.feet[side],
-      velocity: Vector3.subtract(entered.feet[side].velocity, support.velocity),
-      acceleration: Vector3.subtract(
+      velocity: AutoMovieEngineVector3.subtract(entered.feet[side].velocity, support.velocity),
+      acceleration: AutoMovieEngineVector3.subtract(
         entered.feet[side].acceleration,
         support.acceleration,
       ),
@@ -183,9 +183,9 @@ export namespace HumanSupportCarry {
       ...entered,
       velocity: {
         ...entered.velocity,
-        linear: Vector3.subtract(entered.velocity.linear, support.velocity),
+        linear: AutoMovieEngineVector3.subtract(entered.velocity.linear, support.velocity),
       },
-      acceleration: Vector3.subtract(
+      acceleration: AutoMovieEngineVector3.subtract(
         entered.acceleration,
         support.acceleration,
       ),
@@ -346,18 +346,18 @@ export namespace HumanSupportCarry {
     return {
       ...l,
       point: carry.point(l.point),
-      velocity: Vector3.add(
-        Quaternion.rotateVector(
+      velocity: AutoMovieEngineVector3.add(
+        AutoMovieEngineQuaternion.rotateVector(
           carry.turn,
-          Vector3.subtract(l.velocity, support),
+          AutoMovieEngineVector3.subtract(l.velocity, support),
         ),
         support,
       ),
       ...(l.rotation === undefined
         ? {}
         : {
-            rotation: Quaternion.normalize(
-              Quaternion.multiply(carry.turn, l.rotation),
+            rotation: AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(carry.turn, l.rotation),
             ),
           }),
     };
@@ -378,7 +378,7 @@ const LIMBS: readonly AutoMovieHumanLimb[] = [
  * Read the turn's heading in degrees around world up.
  */
 function yawOf(turn: IAutoMovieQuaternion): number {
-  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+  const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
     x: 0,
     y: 0,
     z: 1,

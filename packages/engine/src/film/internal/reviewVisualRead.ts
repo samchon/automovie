@@ -11,7 +11,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { roundToThousandths } from "../../math/internal/roundToThousandths";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
@@ -145,8 +145,8 @@ export function reviewVisualRead(
     const performer: IPerformer | null =
       performance === undefined ? null : performerOf(performance);
     if (performer === null) continue;
-    const distance: number = Vector3.length(
-      Vector3.subtract(worldRootAt(performer, event.time), event.point),
+    const distance: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(worldRootAt(performer, event.time), event.point),
     );
     if (distance > contactRadius)
       notes.push(missNote(props.beat, event, distance, contactRadius));
@@ -249,16 +249,16 @@ function cameraNotes(props: {
       const merge: number = props.times.findIndex(
         (_time: number, t: number): boolean => {
           const lens: IAutoMovieVector3 = cameras[t]!.position;
-          const va: IAutoMovieVector3 = Vector3.subtract(roots[i]![t]!, lens);
-          const vb: IAutoMovieVector3 = Vector3.subtract(roots[j]![t]!, lens);
-          const da: number = Vector3.length(va);
-          const db: number = Vector3.length(vb);
+          const va: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(roots[i]![t]!, lens);
+          const vb: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(roots[j]![t]!, lens);
+          const da: number = AutoMovieEngineVector3.length(va);
+          const db: number = AutoMovieEngineVector3.length(vb);
           // Too close to the lens is the framing metric's concern and makes
           // the angular radius degenerate; do not report it twice.
           if (Math.min(da, db) < camera.near) return false;
           const cos: number = Math.min(
             1,
-            Math.max(-1, Vector3.dot(va, vb) / (da * db)),
+            Math.max(-1, AutoMovieEngineVector3.dot(va, vb) / (da * db)),
           );
           return (
             Math.acos(cos) <

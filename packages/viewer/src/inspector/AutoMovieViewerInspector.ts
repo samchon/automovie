@@ -2,15 +2,15 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
-import type { IAutoMovieDrawSubject } from "@automovie/render";
+import type { IAutoMovieRenderDrawSubject } from "@automovie/render";
 
-import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
-import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
-import type { IAutoMovieInspectorPathNode } from "./IAutoMovieInspectorPathNode.js";
-import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
-import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
-import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
-import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
+import type { AutoMovieViewerInspectorPlayhead } from "./AutoMovieViewerInspectorPlayhead.js";
+import type { IAutoMovieViewerInspectorAction } from "./IAutoMovieViewerInspectorAction.js";
+import type { IAutoMovieViewerInspectorPathNode } from "./IAutoMovieViewerInspectorPathNode.js";
+import type { IAutoMovieViewerInspectorProps } from "./IAutoMovieViewerInspectorProps.js";
+import type { IAutoMovieViewerInspectorScene } from "./IAutoMovieViewerInspectorScene.js";
+import type { IAutoMovieViewerInspectorSceneHost } from "./IAutoMovieViewerInspectorSceneHost.js";
+import type { IAutoMovieViewerInspectorState } from "./IAutoMovieViewerInspectorState.js";
 import { buildAutoMovieInspectorPathTree } from "./internal/buildAutoMovieInspectorPathTree.js";
 import { createAutoMovieInspectorAddressWriter } from "./internal/createAutoMovieInspectorAddressWriter.js";
 import { createAutoMovieInspectorCanvasHost } from "./internal/createAutoMovieInspectorCanvasHost.js";
@@ -43,9 +43,9 @@ export namespace AutoMovieViewerInspector {
   /** Finding navigation dependencies supplied by the diagnostics panel. */
   export interface IShowFindingRequest extends IFindingLocationRequest {
     /** The inspector playhead moved to the witness. */
-    playhead: AutoMovieInspectorPlayhead;
+    playhead: AutoMovieViewerInspectorPlayhead;
     /** Receives the location edit after the playhead is stopped. */
-    dispatch: (action: IAutoMovieInspectorAction) => void;
+    dispatch: (action: IAutoMovieViewerInspectorAction) => void;
   }
 
   /** Keyboard values inspected by the inspector playback shortcut handler. */
@@ -85,29 +85,29 @@ export namespace AutoMovieViewerInspector {
     /** The element the page renders into. */
     root: Element;
     /** The subjects offered by name; keep each subject identity stable. */
-    subjects: Readonly<Record<string, IAutoMovieDrawSubject>>;
+    subjects: Readonly<Record<string, IAutoMovieRenderDrawSubject>>;
     /** The page location; its query initializes the request. */
     location: Pick<Location, "pathname" | "search" | "hash">;
     /** The page history, whose current entry follows the request. */
     history: Pick<History, "replaceState" | "state">;
     /** Executable and fixed capture arguments from the host, when available. */
-    captureCommand?: IAutoMovieInspectorProps["captureCommand"];
+    captureCommand?: IAutoMovieViewerInspectorProps["captureCommand"];
   }
 
   /** Inputs the React inspector supplies to mount one subject scene. */
   export interface ISceneProps {
     /** The subject to build. */
-    subject: IAutoMovieDrawSubject;
+    subject: IAutoMovieRenderDrawSubject;
     /** The subject name used by the request and refusal reports. */
     name: string;
     /** The request in force when mounting starts. */
     request: IAutoMovieCapturePlanRequest;
     /** The playhead borrowed for the mount's lifetime. */
-    playhead: AutoMovieInspectorPlayhead;
+    playhead: AutoMovieViewerInspectorPlayhead;
     /** Renderer, frame clock and size supplied by the host. */
-    host: IAutoMovieInspectorSceneHost;
+    host: IAutoMovieViewerInspectorSceneHost;
     /** Receives facts, labels, errors, refusals and diagnostics. */
-    report: IAutoMovieInspectorScene.IReport;
+    report: IAutoMovieViewerInspectorScene.IReport;
   }
 
   /** Shell and host arguments for formatting a capture command. */
@@ -135,7 +135,7 @@ export namespace AutoMovieViewerInspector {
   /** Resolve the closest drawn owners for the paths named by one finding. */
   export function locateFinding(
     request: IFindingLocationRequest,
-  ): IAutoMovieInspectorAction.ILocate {
+  ): IAutoMovieViewerInspectorAction.ILocate {
     return locateAutoMovieInspectorFinding(request);
   }
 
@@ -145,7 +145,7 @@ export namespace AutoMovieViewerInspector {
   }
 
   /** Build the ordered path tree used by the inspector selection panel. */
-  export function buildPathTree(paths: readonly string[]): IAutoMovieInspectorPathNode[] {
+  export function buildPathTree(paths: readonly string[]): IAutoMovieViewerInspectorPathNode[] {
     return buildAutoMovieInspectorPathTree(paths);
   }
 
@@ -159,35 +159,35 @@ export namespace AutoMovieViewerInspector {
   /** Create the inspector host for a canvas, preserving its owner-window frame clock. */
   export function createCanvasHost(
     canvas: HTMLCanvasElement,
-  ): IAutoMovieInspectorSceneHost {
+  ): IAutoMovieViewerInspectorSceneHost {
     return createAutoMovieInspectorCanvasHost(canvas);
   }
 
   /** Return the time edit implied when a previously playing playhead stops. */
   export function stopTime(
     playing: boolean,
-    snapshot: AutoMovieInspectorPlayhead.ISnapshot,
-  ): IAutoMovieInspectorAction.ITime | null {
+    snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot,
+  ): IAutoMovieViewerInspectorAction.ITime | null {
     return stopAutoMovieInspectorTime(playing, snapshot);
   }
 
   /** Apply one action to inspector state, preserving refused requests. */
   export function reduceState(
-    state: IAutoMovieInspectorState,
-    action: IAutoMovieInspectorAction,
-  ): IAutoMovieInspectorState {
+    state: IAutoMovieViewerInspectorState,
+    action: IAutoMovieViewerInspectorAction,
+  ): IAutoMovieViewerInspectorState {
     return reduceAutoMovieInspectorState(state, action);
   }
 
   /** Initialize inspector request state from the page's address text. */
-  export function createState(text: string): IAutoMovieInspectorState {
+  export function createState(text: string): IAutoMovieViewerInspectorState {
     return createAutoMovieInspectorState(text);
   }
 
   /** Handle one inspector playback shortcut, preserving controls and browser modifiers. */
   export function handleKey(
     event: IHandleKeyEvent,
-    playhead: AutoMovieInspectorPlayhead,
+    playhead: AutoMovieViewerInspectorPlayhead,
     fps: number | null,
   ): IHandleKeyResult {
     return handleAutoMovieInspectorKey(event, playhead, fps);
@@ -216,7 +216,7 @@ export namespace AutoMovieViewerInspector {
   }
 
   /** Mount one scene; disposal cancels frames, restores inspection and releases its renderer. */
-  export function mountScene(props: ISceneProps): IAutoMovieInspectorScene {
+  export function mountScene(props: ISceneProps): IAutoMovieViewerInspectorScene {
     return mountAutoMovieInspectorScene(props);
   }
 }

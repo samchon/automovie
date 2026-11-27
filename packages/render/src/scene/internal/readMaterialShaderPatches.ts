@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "../IAutoMovieRenderMaterialShaderPatch.js";
 
 /*
  * The shader patches `AutoMovieRenderMaterial.addShaderPatch` has put on a material, in the
@@ -11,8 +11,8 @@ import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
  */
 export function readMaterialShaderPatches(
   material: THREE.Material,
-): readonly IMaterialShaderPatch[] {
-  const patches: readonly IMaterialShaderPatch[] | undefined =
+): readonly IAutoMovieRenderMaterialShaderPatch[] {
+  const patches: readonly IAutoMovieRenderMaterialShaderPatch[] | undefined =
     material.userData.shaderPatches;
   return patches ?? [];
 }

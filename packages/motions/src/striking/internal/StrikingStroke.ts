@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingStroke,
   IAutoMovieSuperposeMinimumJerk,
@@ -62,7 +62,7 @@ export namespace StrikingStroke {
     let begin: number = d.launch;
     if (d.via !== undefined) {
       units.push({
-        displacement: Vector3.subtract(d.via.point, d.origin),
+        displacement: AutoMovieEngineVector3.subtract(d.via.point, d.origin),
         start: d.via.begin,
         duration: d.via.end - d.via.begin,
       });
@@ -74,32 +74,32 @@ export namespace StrikingStroke {
     let span: number = d.contact - begin;
     if (!(span > 0))
       throw new Error("A strike's delivery ends after it begins");
-    const length: number = Vector3.distance(d.impact, from);
-    const through: IAutoMovieVector3 = Vector3.add(
+    const length: number = AutoMovieEngineVector3.distance(d.impact, from);
+    const through: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       d.impact,
-      Vector3.scale(Vector3.normalize(d.direction), length * (1 / s - 1)),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(d.direction), length * (1 / s - 1)),
     );
     // A unit that peaks at the given speed lasts 1.875 times its length
     // over that speed; it starts that share of itself before the contact.
     if (d.peak !== undefined) {
       const fast: number =
-        (u * 1.875 * Vector3.distance(through, from)) / d.peak;
+        (u * 1.875 * AutoMovieEngineVector3.distance(through, from)) / d.peak;
       if (fast < span) {
         begin = d.contact - fast;
         span = fast;
       }
     }
     units.push({
-      displacement: Vector3.subtract(through, from),
+      displacement: AutoMovieEngineVector3.subtract(through, from),
       start: begin,
       duration: span / u,
     });
-    const reached: IAutoMovieVector3 = Vector3.add(
+    const reached: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       from,
-      Vector3.scale(Vector3.subtract(through, from), s),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(through, from), s),
     );
-    const fix: IAutoMovieVector3 = Vector3.subtract(d.impact, reached);
-    if (Vector3.length(fix) > 1e-12)
+    const fix: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(d.impact, reached);
+    if (AutoMovieEngineVector3.length(fix) > 1e-12)
       units.push({ displacement: fix, start: begin, duration: span });
     return units;
   }
@@ -133,7 +133,7 @@ export namespace StrikingStroke {
       input.rechamber === undefined
         ? [
             {
-              displacement: Vector3.subtract(
+              displacement: AutoMovieEngineVector3.subtract(
                 preparedBack ?? input.back(),
                 from,
               ),
@@ -143,12 +143,12 @@ export namespace StrikingStroke {
           ]
         : [
             {
-              displacement: Vector3.subtract(input.rechamber, from),
+              displacement: AutoMovieEngineVector3.subtract(input.rechamber, from),
               start: at,
               duration: 0.45 * input.recoil,
             },
             {
-              displacement: Vector3.subtract(
+              displacement: AutoMovieEngineVector3.subtract(
                 preparedBack ?? input.back(),
                 input.rechamber,
               ),
@@ -162,7 +162,7 @@ export namespace StrikingStroke {
           (
             p: IAutoMovieVector3,
             u: IAutoMovieSuperposeMinimumJerk.IUnit,
-          ): IAutoMovieVector3 => Vector3.add(p, u.displacement),
+          ): IAutoMovieVector3 => AutoMovieEngineVector3.add(p, u.displacement),
           input.origin,
         ),
         input.contact,

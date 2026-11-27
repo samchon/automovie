@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolidMeshConstraints,
 } from "@automovie/interface";
 
-import { AutoMovieSolidMeshConstraints } from "../../AutoMovieSolidMeshConstraints";
+import { AutoMovieEngineSolidMeshConstraints } from "../../AutoMovieEngineSolidMeshConstraints";
 
 /*
  * Assemble finite domain sides without subdividing an authoritative trim edge.
@@ -130,7 +130,7 @@ function row(
       )
     )
       continue;
-    const covered: boolean | string = AutoMovieSolidMeshConstraints.contains(
+    const covered: boolean | string = AutoMovieEngineSolidMeshConstraints.contains(
       vertices,
       trim,
       point,

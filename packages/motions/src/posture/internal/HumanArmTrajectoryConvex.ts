@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
@@ -101,7 +101,7 @@ export namespace HumanArmTrajectoryConvex {
       sign: number = 1,
     ): ILinear => ({
       idx: c.free[a]!.map((_, f: number) => index(a, k, f)),
-      coef: rows3.map((g: IAutoMovieVector3) => sign * Vector3.dot(g, dir)),
+      coef: rows3.map((g: IAutoMovieVector3) => sign * AutoMovieEngineVector3.dot(g, dir)),
     });
     const join = (...parts: ILinear[]): ILinear => ({
       idx: parts.flatMap((part) => part.idx),
@@ -126,7 +126,7 @@ export namespace HumanArmTrajectoryConvex {
           c.frames[a]![k + 1]!;
         const turn: IAutoMovieQuaternion = V.back(before, after);
         for (const probe of c.still ? [] : new Set([...T.PATH, ...T.SPEED])) {
-          const d: IAutoMovieVector3 = Vector3.scale(
+          const d: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
             V.step(
               before,
               after,
@@ -146,7 +146,7 @@ export namespace HumanArmTrajectoryConvex {
                       a,
                       k,
                       jac[a]![k]!.probe(probe),
-                      Quaternion.rotateVector(turn, dir),
+                      AutoMovieEngineQuaternion.rotateVector(turn, dir),
                       -1,
                     ),
                   ]
@@ -156,11 +156,11 @@ export namespace HumanArmTrajectoryConvex {
             for (const e of P.AXES) {
               const s: ILinear = step(e);
               if (s.idx.length > 0)
-                square(T.LENGTH, Vector3.dot(d, e), s.idx, s.coef);
+                square(T.LENGTH, AutoMovieEngineVector3.dot(d, e), s.idx, s.coef);
             }
-          const length: number = Vector3.length(d);
+          const length: number = AutoMovieEngineVector3.length(d);
           if (T.SPEED.includes(probe) && length > 1e-6) {
-            const s: ILinear = step(Vector3.scale(d, 1 / length));
+            const s: ILinear = step(AutoMovieEngineVector3.scale(d, 1 / length));
             if (s.idx.length > 0)
               rows.push({
                 key: `v|${a}|${k}|${probe}`,
@@ -241,12 +241,12 @@ export namespace HumanArmTrajectoryConvex {
             const b: number = at.on.arm;
             const carried: IAutoMovieVector3[] = jac[b]![k]!.segments.map(
               (column) =>
-                Vector3.add(
+                AutoMovieEngineVector3.add(
                   column[at.on!.owner].origin,
-                  Vector3.scale(
-                    Vector3.cross(
+                  AutoMovieEngineVector3.scale(
+                    AutoMovieEngineVector3.cross(
                       column[at.on!.owner].omega,
-                      Vector3.subtract(contact0, at.on!.origin),
+                      AutoMovieEngineVector3.subtract(contact0, at.on!.origin),
                     ),
                     1000,
                   ),
@@ -305,7 +305,7 @@ export namespace HumanArmTrajectoryConvex {
             );
             for (const e of P.AXES) {
               const v: ILinear = along(a, k, jac[a]![k]!.hand, e);
-              square(T.ROTATION, Vector3.dot(r, e), v.idx, v.coef);
+              square(T.ROTATION, AutoMovieEngineVector3.dot(r, e), v.idx, v.coef);
             }
           }
         }
@@ -350,7 +350,7 @@ export namespace HumanArmTrajectoryConvex {
             pair.shape.pose,
             pair.shape.shape,
             p,
-            Vector3.normalize(Vector3.subtract(p, pair.shape.centre)),
+            AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(p, pair.shape.centre)),
           );
           const v: ILinear = along(a, k, carried(a, k, pair.owner, p), g, -1);
           rows.push({
@@ -382,7 +382,7 @@ export namespace HumanArmTrajectoryConvex {
             pair.shape.pose,
             pair.shape.shape,
             p,
-            Vector3.normalize(Vector3.subtract(p, pair.shape.centre)),
+            AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(p, pair.shape.centre)),
           );
           const s: ILinear = join(
             along(a, k, jac[a]![k]!.probe(pair.probe), g),

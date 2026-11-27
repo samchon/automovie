@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Measure a direction whose norm can support validation and normalization.
@@ -8,7 +8,7 @@ import { Vector3 } from "../../math/Vector3";
  * Returns: Its representable norm above the minimum, or null if unusable.
  */
 export function directionLength(value: IAutoMovieVector3): number | null {
-  const length: number = Vector3.length(value);
+  const length: number = AutoMovieEngineVector3.length(value);
   return length > directionLength.MINIMUM && length < Infinity ? length : null;
 }
 

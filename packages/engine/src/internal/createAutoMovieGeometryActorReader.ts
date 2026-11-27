@@ -12,9 +12,9 @@ import {
 } from "@automovie/interface";
 
 import { placeTransformedPoint } from "../film/internal/placeTransformedPoint";
-import { HUMANOID_JOINT_AXES } from "../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidJointAxes } from "../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { resolvePose } from "../kinematics/internal/resolvePose";
-import { Transform } from "../math/Transform";
+import { AutoMovieEngineTransform } from "../math/AutoMovieEngineTransform";
 import { AutoMovieEngineMotionSampling } from "../motion/AutoMovieEngineMotionSampling";
 import { sampleClipSequence } from "../resolve/internal/sampleClipSequence";
 
@@ -89,7 +89,7 @@ const resolveSelector: (
   const [bone]: IAutoMovieResolvedBone[] = resolvePose(
     spatial.pose,
     actor.model.skeleton,
-    HUMANOID_JOINT_AXES,
+    AutoMovieEngineHumanoidJointAxes,
     undefined,
     undefined,
     undefined,
@@ -103,7 +103,7 @@ const resolveSelector: (
     spatial.poseRoot === null
       ? bone.worldPosition
       : placeTransformedPoint(
-          Transform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation),
+          AutoMovieEngineTransform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation),
           bone.worldPosition,
         );
   return placeTransformedPoint(spatial.nodeTransform, rootPoint);

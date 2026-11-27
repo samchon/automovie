@@ -5,7 +5,10 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanPopulationSurvey } from "./HumanPopulationSurvey";
-import { f1, f2, m1, m2 } from "./human-parameters/index";
+import { f1 } from "./human-parameters/internal/f1";
+import { f2 } from "./human-parameters/internal/f2";
+import { m1 } from "./human-parameters/internal/m1";
+import { m2 } from "./human-parameters/internal/m2";
 
 /*
  * Reads of a person's public inputs, shared by the people's construction and by

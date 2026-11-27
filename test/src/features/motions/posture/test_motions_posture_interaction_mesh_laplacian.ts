@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanInteractionMeshLaplacian } from "@automovie/motions/internal";
+import {
+  HumanInteractionMeshLaplacian
+} from "../../../../../packages/motions/src/posture/internal/HumanInteractionMeshLaplacian";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

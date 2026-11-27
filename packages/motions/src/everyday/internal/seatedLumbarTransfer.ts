@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -80,5 +80,5 @@ export function seatedLumbarTransfer(
     return Math.max(left(placed), right(placed)) > 0;
   };
   if (touching(limit)) return 0;
-  return AutoMovieEngineMath.bracketedBisection(touching, 0, limit, ROM_TOLERANCE);
+  return AutoMovieEngineMath.bracketedBisection(touching, 0, limit, AutoMovieEngineRomTolerance);
 }

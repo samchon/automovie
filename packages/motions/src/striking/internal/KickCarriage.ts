@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -176,13 +176,13 @@ export namespace KickCarriage {
 
     // The root travels toward the support ankle and rides the step and the
     // drive.
-    const centre: IAutoMovieVector3 = Vector3.add(
-      Vector3.lerp(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.lerp(
         { ...entry.root, y: 0 },
         { x: feet[support].ankle.x, y: 0, z: feet[support].ankle.z },
         KickForm.CENTRE_SHARE * w,
       ),
-      Vector3.scale(line, stepped + driven),
+      AutoMovieEngineVector3.scale(line, stepped + driven),
     );
 
     // The support foot turns with the pelvis (at most the pivot's own
@@ -231,7 +231,7 @@ export namespace KickCarriage {
             body,
             flat,
             support,
-            Vector3.cross(line, up),
+            AutoMovieEngineVector3.cross(line, up),
             carriage.lean * w,
             read,
             projection,
@@ -303,9 +303,9 @@ export namespace KickCarriage {
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(axis, degrees),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees),
         humanPostureHeading(flat),
       ),
     );
@@ -315,9 +315,9 @@ export namespace KickCarriage {
     };
     return {
       ...turned,
-      root: Vector3.add(
+      root: AutoMovieEngineVector3.add(
         turned.root,
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           hip(body, flat, support, resolution, projection),
           hip(body, turned, support, resolution, projection),
         ),

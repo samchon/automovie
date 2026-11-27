@@ -32,11 +32,11 @@ import type { IAutoMovieMotionHumanPerformance } from "./IAutoMovieMotionHumanPe
  * - `statics`: while a held body's bearing contacts all declare their load, the
  *   load-weighted contact centre lies under the centre of mass within 2 % of
  *   stature (`AutoMovieMotionHumanAuditStatics`).
- * - `range`: every joint stays within its range of motion, within `ROM_TOLERANCE`
+ * - `range`: every joint stays within its range of motion, within `AutoMovieEngineRomTolerance`
  *   (0.01 degrees).
  * - `unloaded`: a foot no plant on the ground holds dorsiflexes no further than
- *   an ankle bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`), within
- *   `ROM_TOLERANCE`.
+ *   an ankle bearing no weight does (`AutoMovieEngineAnkleDorsiflexion.unloaded`), within
+ *   `AutoMovieEngineRomTolerance`.
  * - `turn`: no bone snaps by more than 5 degrees, the turn left once an interval
  *   is halved until a smooth turn is gone
  *   (`AutoMovieMotionHumanAuditSpin.SNAP`).

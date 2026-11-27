@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -154,7 +154,7 @@ export namespace carryHang {
 
       // The hand keeps the turn it held the prop at relative to the body,
       // so a walk that turns carries it round with the trunk.
-      const turned: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         UP,
         posture.yaw - entryYaw,
       );
@@ -177,8 +177,8 @@ export namespace carryHang {
             ),
             y: shoulder.y - HANG * arm,
           },
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(turned, turns[side]!),
+          rotation: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(turned, turns[side]!),
           ),
 
           // The hanging arm's elbow: down, a little out and behind.

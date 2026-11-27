@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../Vector3";
+import { AutoMovieEngineVector3 } from "../AutoMovieEngineVector3";
 import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
@@ -41,9 +41,9 @@ export function closestPointsBetweenSegments(
   c: IAutoMovieVector3,
   d: IAutoMovieVector3,
 ): IAutoMovieClosestSegmentPoints {
-  const rawU: IAutoMovieVector3 = Vector3.subtract(b, a);
-  const rawV: IAutoMovieVector3 = Vector3.subtract(d, c);
-  const rawR: IAutoMovieVector3 = Vector3.subtract(a, c);
+  const rawU: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
+  const rawV: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(d, c);
+  const rawR: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(a, c);
 
   const ux: number = rawU.x,
     uy: number = rawU.y,
@@ -82,11 +82,11 @@ export function closestPointsBetweenSegments(
   const u: IAutoMovieVector3 = scaled(rawU),
     v: IAutoMovieVector3 = scaled(rawV),
     r: IAutoMovieVector3 = scaled(rawR);
-  const A: number = Vector3.dot(u, u),
-    B: number = Vector3.dot(u, v),
-    E: number = Vector3.dot(v, v);
-  const C: number = Vector3.dot(u, r),
-    F: number = Vector3.dot(v, r);
+  const A: number = AutoMovieEngineVector3.dot(u, u),
+    B: number = AutoMovieEngineVector3.dot(u, v),
+    E: number = AutoMovieEngineVector3.dot(v, v);
+  const C: number = AutoMovieEngineVector3.dot(u, r),
+    F: number = AutoMovieEngineVector3.dot(v, r);
   if (
     (A === 0 && Math.hypot(rawU.x, rawU.y, rawU.z) > 0) ||
     (E === 0 && Math.hypot(rawV.x, rawV.y, rawV.z) > 0)
@@ -160,7 +160,7 @@ export function closestPointsBetweenSegments(
               z: delta.z / length,
             };
             const fraction: number = clampAutoMovieUnitInterval(
-              -Vector3.dot(residual, unit) / length,
+              -AutoMovieEngineVector3.dot(residual, unit) / length,
             );
             offer(s0 + fraction * (s1 - s0), low + fraction * (high - low));
           }

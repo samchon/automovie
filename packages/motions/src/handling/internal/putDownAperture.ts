@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -99,15 +99,15 @@ function plan(
       (): IAutoMoviePose => context.entry.pose,
     )!;
   const mouth: IAutoMovieRigidTransform = through(onto.aperture);
-  const offset: IAutoMovieVector3 = Vector3.subtract(
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     mouth.position,
     seat.position,
   );
 
   // Preserve the original straight passage and its admission.
   if (
-    !(Vector3.length(offset) > Number.EPSILON) ||
-    !(Quaternion.angle(mouth.rotation, seat.rotation) <= 1e-6)
+    !(AutoMovieEngineVector3.length(offset) > Number.EPSILON) ||
+    !(AutoMovieEngineQuaternion.angle(mouth.rotation, seat.rotation) <= 1e-6)
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
@@ -139,7 +139,7 @@ function plan(
     for (const [index, id] of ids.entries()) {
       const posed: IAutoMovieRigidTransform =
         id === onto.aperture ? mouth : id === onto.point ? seat : through(id);
-      const next: IAutoMovieVector3 = Vector3.subtract(
+      const next: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         posed.position,
         seat.position,
       );
@@ -148,9 +148,9 @@ function plan(
         reader.prop.affordances?.find(
           (item: IAutoMovieAffordance): boolean => item.id === id,
         )?.rides !== undefined ||
-        !(Quaternion.angle(posed.rotation, seat.rotation) <= 1e-6) ||
+        !(AutoMovieEngineQuaternion.angle(posed.rotation, seat.rotation) <= 1e-6) ||
         (previous !== undefined &&
-          !(Vector3.distance(previous, next) > Number.EPSILON))
+          !(AutoMovieEngineVector3.distance(previous, next) > Number.EPSILON))
       )
         throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
@@ -183,7 +183,7 @@ function plan(
     )!.share;
   const entry: number = share("aperture");
   const placed: number = share("placed");
-  const length: number = Vector3.length(offset);
+  const length: number = AutoMovieEngineVector3.length(offset);
   const duration: number = plan.duration;
   return coursed(context, side, {
     ...plan,

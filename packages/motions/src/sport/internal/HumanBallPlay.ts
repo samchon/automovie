@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBallPlay,
@@ -143,12 +143,12 @@ export namespace HumanBallPlay {
   ): IAutoMovieMotionHumanBallPlay.ICrossing | undefined {
     if (!(to > from))
       throw new RangeError("A gate window needs finite seconds with to > from");
-    if (Math.abs(Vector3.length(gate.normal) - 1) > 1e-9)
+    if (Math.abs(AutoMovieEngineVector3.length(gate.normal) - 1) > 1e-9)
       throw new RangeError("A gate normal must be a unit vector");
     if (
       gate.kind === "rectangle" &&
-      (Math.abs(Vector3.length(gate.up) - 1) > 1e-9 ||
-        Math.abs(Vector3.dot(gate.up, gate.normal)) > 1e-9)
+      (Math.abs(AutoMovieEngineVector3.length(gate.up) - 1) > 1e-9 ||
+        Math.abs(AutoMovieEngineVector3.dot(gate.up, gate.normal)) > 1e-9)
     )
       throw new RangeError(
         "A rectangle gate's up must be a unit vector in its plane",
@@ -156,13 +156,13 @@ export namespace HumanBallPlay {
 
     const point = (seconds: number): IAutoMovieVector3 => {
       const frame: IAutoMovieRigidTransform = performance.prop(ball, seconds);
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, offset),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, offset),
       );
     };
     const side = (at: IAutoMovieVector3): number =>
-      Vector3.dot(Vector3.subtract(at, gate.centre), gate.normal);
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(at, gate.centre), gate.normal);
 
     const count: number = Math.ceil((to - from) / STEP);
     let before: number = from;
@@ -194,17 +194,17 @@ export namespace HumanBallPlay {
     gate: IAutoMovieMotionHumanBallPlay.Gate,
     at: IAutoMovieVector3,
   ): boolean {
-    const local: IAutoMovieVector3 = Vector3.subtract(at, gate.centre);
+    const local: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at, gate.centre);
     if (gate.kind === "disc") {
-      const along: number = Vector3.dot(local, gate.normal);
+      const along: number = AutoMovieEngineVector3.dot(local, gate.normal);
       return (
-        Vector3.length(local) ** 2 - along ** 2 <= gate.radius ** 2 + 1e-12
+        AutoMovieEngineVector3.length(local) ** 2 - along ** 2 <= gate.radius ** 2 + 1e-12
       );
     }
-    const across: IAutoMovieVector3 = Vector3.cross(gate.up, gate.normal);
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(gate.up, gate.normal);
     return (
-      Math.abs(Vector3.dot(local, across)) <= gate.halfWidth &&
-      Math.abs(Vector3.dot(local, gate.up)) <= gate.halfHeight
+      Math.abs(AutoMovieEngineVector3.dot(local, across)) <= gate.halfWidth &&
+      Math.abs(AutoMovieEngineVector3.dot(local, gate.up)) <= gate.halfHeight
     );
   }
 

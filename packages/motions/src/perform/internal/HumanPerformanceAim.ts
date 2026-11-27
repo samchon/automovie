@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPerception } from "../../law/internal/HumanPerception";
@@ -155,11 +155,11 @@ export namespace HumanPerformanceAim {
             : { subject: frame.subject, bones: frame.bones },
         );
         return {
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             at.position,
-            Quaternion.rotateVector(at.rotation, local.point),
+            AutoMovieEngineQuaternion.rotateVector(at.rotation, local.point),
           ),
-          normal: Quaternion.rotateVector(at.rotation, local.normal),
+          normal: AutoMovieEngineQuaternion.rotateVector(at.rotation, local.normal),
         };
       }
       case "point": {
@@ -168,8 +168,8 @@ export namespace HumanPerformanceAim {
             point: target.at,
             normal:
               target.normal === undefined
-                ? Vector3.scale(heading(frame.yaw), -1)
-                : Vector3.normalize(target.normal),
+                ? AutoMovieEngineVector3.scale(heading(frame.yaw), -1)
+                : AutoMovieEngineVector3.normalize(target.normal),
           };
         const forward: IAutoMovieVector3 = heading(frame.yaw);
         const left: IAutoMovieVector3 = {
@@ -182,39 +182,39 @@ export namespace HumanPerformanceAim {
         const turned: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
           v: IAutoMovieVector3,
         ): IAutoMovieVector3 =>
-          Vector3.add(
-            Vector3.add(Vector3.scale(left, v.x), { x: 0, y: v.y, z: 0 }),
-            Vector3.scale(forward, v.z),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(left, v.x), { x: 0, y: v.y, z: 0 }),
+            AutoMovieEngineVector3.scale(forward, v.z),
           );
         return {
           // A point stated in statures is the performer's own measure times its
           // stature, so it fits any body.
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             { x: frame.root.x, y: 0, z: frame.root.z },
             turned(
               target.frame === "stature"
-                ? Vector3.scale(target.at, frame.body.measure.stature)
+                ? AutoMovieEngineVector3.scale(target.at, frame.body.measure.stature)
                 : target.at,
             ),
           ),
           normal:
             target.normal === undefined
-              ? Vector3.scale(forward, -1)
-              : Vector3.normalize(turned(target.normal)),
+              ? AutoMovieEngineVector3.scale(forward, -1)
+              : AutoMovieEngineVector3.normalize(turned(target.normal)),
         };
       }
       case "none": {
         const forward: IAutoMovieVector3 = heading(frame.yaw);
         return {
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             {
               x: frame.root.x,
               y: frame.heights[target.line ?? "middle"],
               z: frame.root.z,
             },
-            Vector3.scale(forward, target.range ?? frame.range),
+            AutoMovieEngineVector3.scale(forward, target.range ?? frame.range),
           ),
-          normal: Vector3.scale(forward, -1),
+          normal: AutoMovieEngineVector3.scale(forward, -1),
         };
       }
     }

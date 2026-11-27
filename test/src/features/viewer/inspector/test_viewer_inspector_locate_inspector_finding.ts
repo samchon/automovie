@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
-  type IAutoMovieInspectorState,
+  type IAutoMovieViewerInspectorState,
 
   AutoMovieViewerInspector,
 } from "@automovie/viewer";
@@ -83,10 +83,10 @@ export function test_viewer_inspector_locate_inspector_finding(): void {
   );
 
   // 3. Through the reducer.
-  const playing: IAutoMovieInspectorState = AutoMovieViewerInspector.createState(
+  const playing: IAutoMovieViewerInspectorState = AutoMovieViewerInspector.createState(
     "?from=0&to=4&rate=24&label=stage",
   );
-  const located: IAutoMovieInspectorState = AutoMovieViewerInspector.reduceState(
+  const located: IAutoMovieViewerInspectorState = AutoMovieViewerInspector.reduceState(
     playing,
     AutoMovieViewerInspector.locateFinding({ observation: observation(["rope/segment/1"]), paths: drawn }),
   );

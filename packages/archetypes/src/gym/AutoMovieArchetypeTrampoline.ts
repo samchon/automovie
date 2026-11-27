@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeTrampolineData from "./internal/AutoMovieArchetypeTrampolineData";
+import { AutoMovieArchetypeTrampolineData } from "./internal/AutoMovieArchetypeTrampolineData";
 
 /** Constructs the trampoline archetype from its recipe. */
 export namespace AutoMovieArchetypeTrampoline {
@@ -53,30 +53,30 @@ export function create(
   const halfZ: number = d.length / 2 + AutoMovieArchetypeTrampoline.MARGIN;
   builder.box(
     "bed",
-    Vector3.create(d.width, AutoMovieArchetypeTrampoline.BED, d.length),
-    Vector3.create(0, d.height - AutoMovieArchetypeTrampoline.BED / 2, 0),
+    AutoMovieEngineVector3.create(d.width, AutoMovieArchetypeTrampoline.BED, d.length),
+    AutoMovieEngineVector3.create(0, d.height - AutoMovieArchetypeTrampoline.BED / 2, 0),
     { color: "#1d1d1f" },
   );
   for (const [name, from, to] of [
     [
       "rail-left",
-      Vector3.create(halfX, d.height, -halfZ),
-      Vector3.create(halfX, d.height, halfZ),
+      AutoMovieEngineVector3.create(halfX, d.height, -halfZ),
+      AutoMovieEngineVector3.create(halfX, d.height, halfZ),
     ],
     [
       "rail-right",
-      Vector3.create(-halfX, d.height, -halfZ),
-      Vector3.create(-halfX, d.height, halfZ),
+      AutoMovieEngineVector3.create(-halfX, d.height, -halfZ),
+      AutoMovieEngineVector3.create(-halfX, d.height, halfZ),
     ],
     [
       "rail-front",
-      Vector3.create(-halfX, d.height, halfZ),
-      Vector3.create(halfX, d.height, halfZ),
+      AutoMovieEngineVector3.create(-halfX, d.height, halfZ),
+      AutoMovieEngineVector3.create(halfX, d.height, halfZ),
     ],
     [
       "rail-back",
-      Vector3.create(-halfX, d.height, -halfZ),
-      Vector3.create(halfX, d.height, -halfZ),
+      AutoMovieEngineVector3.create(-halfX, d.height, -halfZ),
+      AutoMovieEngineVector3.create(halfX, d.height, -halfZ),
     ],
   ] as const)
     builder.rod(name, AutoMovieArchetypeTrampoline.RAIL, from, to, { color: "#3c6fb4" });
@@ -89,14 +89,14 @@ export function create(
     builder.rod(
       name,
       AutoMovieArchetypeTrampoline.RAIL,
-      Vector3.create(x, 0, z),
-      Vector3.create(x, d.height, z),
+      AutoMovieEngineVector3.create(x, 0, z),
+      AutoMovieEngineVector3.create(x, d.height, z),
       { color: "#3c6fb4" },
     );
   builder.affordance({
     id: "bed",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, d.height, 0)),
     extent: null,
     width: d.width,
     depth: d.length,

@@ -1,4 +1,4 @@
-import { AutoMovieAir, AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAir, AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieProjectile, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -14,8 +14,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { rideBicycle } from "./internal/rideBicycle";
-import * as AutoMovieArchetypeBicycleData from "./internal/AutoMovieArchetypeBicycleData";
-import { m } from "./internal/AutoMovieArchetypeBicycleData";
+import { AutoMovieArchetypeBicycleData } from "./internal/AutoMovieArchetypeBicycleData";
+
 
 /** The canonical producer and authoring contract. */
 export namespace AutoMovieArchetypeBicycle {
@@ -63,7 +63,7 @@ export namespace AutoMovieArchetypeBicycle {
       name: "bicycle",
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const radius: number = d.wheelDiameter / 2;
     const tube: number = 0.016;
     const steel: string = "#b8412f";
@@ -327,33 +327,33 @@ export namespace AutoMovieArchetypeBicycle {
    * secondary sources or not at all.
    */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    wheelDiameter: m(
+    wheelDiameter: AutoMovieArchetypeBicycleData.m(
       0.672,
       0.702,
       "ISO 5775 622 mm bead seat plus twice a 25 to 40 mm tyre (Wikipedia, ISO 5775, https://en.wikipedia.org/wiki/ISO_5775)",
     ),
-    wheelbase: m(0.97, 1.05, AutoMovieArchetypeBicycleData.GEOMETRY),
-    bottomBracket: m(0.26, 0.29, AutoMovieArchetypeBicycleData.GEOMETRY),
-    crank: m(
+    wheelbase: AutoMovieArchetypeBicycleData.m(0.97, 1.05, AutoMovieArchetypeBicycleData.GEOMETRY),
+    bottomBracket: AutoMovieArchetypeBicycleData.m(0.26, 0.29, AutoMovieArchetypeBicycleData.GEOMETRY),
+    crank: AutoMovieArchetypeBicycleData.m(
       0.165,
       0.18,
       "crank lengths of 165 to 180 mm (Wikipedia, Crankset, https://en.wikipedia.org/wiki/Crankset)",
     ),
-    stance: m(0.15, 0.17, "pedal stance width; no value was found at a source"),
-    saddleHeight: m(
+    stance: AutoMovieArchetypeBicycleData.m(0.15, 0.17, "pedal stance width; no value was found at a source"),
+    saddleHeight: AutoMovieArchetypeBicycleData.m(
       0.62,
       0.8,
       "0.883 of an inseam of about 0.70 to 0.90 m, LeMond's rule as given by Bini, Hume and Croft 2011, Sports Med 41:463 (https://paulogentil.com/pdf/Effects%20of%20Bicycle%20Saddle%20Height%20on%20Knee%20Injury%20Risk%20and%20Cycling%20Performance.pdf); the inseam range is an estimate",
     ),
     seatAngle: AutoMovieArchetypeBand.of("degrees", 72, 74, AutoMovieArchetypeBicycleData.GEOMETRY, true),
-    saddleWidth: m(0.13, 0.16, "saddle width, not read at a source"),
-    reach: m(0.48, 0.56, AutoMovieArchetypeBicycleData.GEOMETRY),
-    handlebarWidth: m(
+    saddleWidth: AutoMovieArchetypeBicycleData.m(0.13, 0.16, "saddle width, not read at a source"),
+    reach: AutoMovieArchetypeBicycleData.m(0.48, 0.56, AutoMovieArchetypeBicycleData.GEOMETRY),
+    handlebarWidth: AutoMovieArchetypeBicycleData.m(
       0.34,
       0.5,
       "drop handlebar widths of 34 to 50 cm (Wikipedia, Bicycle handlebar, https://en.wikipedia.org/wiki/Bicycle_handlebar)",
     ),
-    gripDiameter: m(
+    gripDiameter: AutoMovieArchetypeBicycleData.m(
       0.0222,
       0.0238,
       "22.2 mm flat bar and 23.8 mm drop bar grip areas (Wikipedia, Bicycle handlebar, https://en.wikipedia.org/wiki/Bicycle_handlebar)",
@@ -580,7 +580,7 @@ export namespace AutoMovieArchetypeBicycle {
         fix: "put the bicycle on the course at takeoff and touchdown",
       });
 
-    const gravity: number = AutoMovieGravity.STANDARD;
+    const gravity: number = AutoMovieEngineGravity.STANDARD;
     const flight: IAutoMovieProjectile = {
       origin: { x: 0, y: 0, z: 0 },
       velocity: { x: 0, y: (gravity * seconds) / 2, z: 0 },
@@ -595,7 +595,7 @@ export namespace AutoMovieArchetypeBicycle {
       film: number,
     ): IAutoMovieTransform => {
       if (film <= takeoff || film >= touchdown) return placement;
-      const height: number = AutoMovieAir.projectileAt(flight, film - takeoff).position.y;
+      const height: number = AutoMovieEngineAir.projectileAt(flight, film - takeoff).position.y;
       return {
         ...placement,
         translation: {

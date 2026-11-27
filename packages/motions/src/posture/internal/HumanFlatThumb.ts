@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -43,7 +43,7 @@ import type {
  * et al. 2005, section 4.3.4: Y along the shaft, proximal; Z the axis the next
  * joint flexes about, radial; X = Y x Z, volar) in its own rest data: Y
  * opposite its rest offset to the proximal phalanx, Z the rig's flexion axis of
- * that next joint (`HUMANOID_JOINT_AXES`) made perpendicular to Y. The joint's
+ * that next joint (`AutoMovieEngineHumanoidJointAxes`) made perpendicular to Y. The joint's
  * rotation is the one that carries that rest frame onto the measured one, both
  * in the hand's frame, read in the joint's chart (`decomposeJointRotation`).
  */
@@ -100,7 +100,7 @@ export namespace HumanFlatThumb {
 
     // The measured metacarpal frame in the third metacarpal's (X volar,
     // Y proximal, Z radial), then in the hand's: the canonical rest hand
-    // (`HUMANOID_REST_FRAME`) has the fingers along -X for a right hand and
+    // (`AutoMovieEngineHumanoidRestFrame`) has the fingers along -X for a right hand and
     // +X for a left one, the palm toward -Y and the thumb's side toward +Z,
     // so the third metacarpal's X is the hand's -Y, its Y the hand's +X
     // (right) or -X (left), its Z the hand's +Z.
@@ -119,17 +119,17 @@ export namespace HumanFlatThumb {
 
     // The rig metacarpal's own ISB frame at rest, in the hand's frame (the
     // rig rests the thumb unrotated in the hand).
-    const y: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.scale(restOffset(body, proximal), -1),
+    const y: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.scale(restOffset(body, proximal), -1),
     );
-    const flexing: IAutoMovieVector3 = HUMANOID_JOINT_AXES[proximal]!.flexion;
-    const z: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(flexing, Vector3.scale(y, Vector3.dot(flexing, y))),
+    const flexing: IAutoMovieVector3 = AutoMovieEngineHumanoidJointAxes[proximal]!.flexion;
+    const z: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(flexing, AutoMovieEngineVector3.scale(y, AutoMovieEngineVector3.dot(flexing, y))),
     );
     // A right hand's ISB frame is right-handed, X = Y x Z; a left one's is
     // its mirror image, as is its measured frame.
     const rest: IFrame = {
-      x: side === "right" ? Vector3.cross(y, z) : Vector3.cross(z, y),
+      x: side === "right" ? AutoMovieEngineVector3.cross(y, z) : AutoMovieEngineVector3.cross(z, y),
       y,
       z,
     };
@@ -143,8 +143,8 @@ export namespace HumanFlatThumb {
     );
     const cmc: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation(
       turn,
-      HUMANOID_JOINT_AXES[metacarpal],
-      HUMANOID_REST_FRAME[metacarpal],
+      AutoMovieEngineHumanoidJointAxes[metacarpal],
+      AutoMovieEngineHumanoidRestFrame[metacarpal],
     );
     return {
       [metacarpal]: [cmc.flexion ?? 0, cmc.abduction ?? 0, cmc.twist ?? 0],
@@ -239,12 +239,12 @@ function carry(
   to: IFrame,
   v: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.add(
-    Vector3.add(
-      Vector3.scale(to.x, Vector3.dot(from.x, v)),
-      Vector3.scale(to.y, Vector3.dot(from.y, v)),
+  return AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(to.x, AutoMovieEngineVector3.dot(from.x, v)),
+      AutoMovieEngineVector3.scale(to.y, AutoMovieEngineVector3.dot(from.y, v)),
     ),
-    Vector3.scale(to.z, Vector3.dot(from.z, v)),
+    AutoMovieEngineVector3.scale(to.z, AutoMovieEngineVector3.dot(from.z, v)),
   );
 }
 

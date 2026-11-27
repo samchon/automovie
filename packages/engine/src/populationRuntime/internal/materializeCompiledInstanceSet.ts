@@ -17,7 +17,7 @@ import type {
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
-import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "../AUTOMOVIE_INSTANCE_CHUNK_SIZE";
+import { AutoMovieEngineInstanceChunkSize } from "../AutoMovieEngineInstanceChunkSize";
 import { instanceSlot } from "./instanceSlot";
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
 
@@ -26,7 +26,7 @@ import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
  *
  * The record keeps the placement and variation laws, the route snapshot a route
  * layout follows, one bounds and centroid per chunk of
- * AUTOMOVIE_INSTANCE_CHUNK_SIZE slots, the representation tiers and
+ * AutoMovieEngineInstanceChunkSize slots, the representation tiers and
  * measured or fallback radius of the base model group and every declared
  * prototype, and a digest of every other field. A declared prototype table is
  * compiled with the base group's default first, which is the choice list every
@@ -81,7 +81,7 @@ export function materializeCompiledInstanceSet(
   const measured: IAutoMovieSummarizeCompiledSlotChunks.IResult =
     summarizeCompiledSlotChunks(
       instanceSet.count,
-      AUTOMOVIE_INSTANCE_CHUNK_SIZE,
+      AutoMovieEngineInstanceChunkSize,
       position,
     );
   const chunks: typeof measured.chunks = measured.chunks;

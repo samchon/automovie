@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -26,9 +26,9 @@ export namespace HumanMountPush {
   /*
    * How far an ankle may dorsiflex off the floor before its foot turns,
    * degrees: a weightless ankle's range less a margin, so the foot stays within
-   * it (`ANKLE_DORSIFLEXION.unloaded`, provisional margin).
+   * it (`AutoMovieEngineAnkleDorsiflexion.unloaded`, provisional margin).
    */
-  export const DORSAL: number = ANKLE_DORSIFLEXION.unloaded - 3;
+  export const DORSAL: number = AutoMovieEngineAnkleDorsiflexion.unloaded - 3;
 
   /*
    * The pushing foot rolled over its ball at an instant.
@@ -92,40 +92,40 @@ export namespace HumanMountPush {
   ): IBend | null {
     const knee: IAutoMovieVector3 | null = kneeOf(body, hip, ankle, pole);
     if (knee === null) return null;
-    const down: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(ankle, hip),
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(ankle, hip),
     );
     const out: IAutoMovieVector3 = HumanMountPushSquare(
-      Vector3.subtract(pole, hip),
+      AutoMovieEngineVector3.subtract(pole, hip),
       down,
     )!;
-    const hinge: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(down, out),
+    const hinge: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(down, out),
     );
     const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(v, Vector3.scale(hinge, Vector3.dot(hinge, v)));
-    const lean: IAutoMovieVector3 = flat(Vector3.subtract(knee, ankle));
+      AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(hinge, AutoMovieEngineVector3.dot(hinge, v)));
+    const lean: IAutoMovieVector3 = flat(AutoMovieEngineVector3.subtract(knee, ankle));
     // The foot's normal and its toes, in that plane: the dorsiflexion is the
     // lean from the normal toward the toes, and the turn that lessens it tips
     // the normal toward the toes, about their cross product, both read off
     // the foot itself so neither flips as the leg swings.
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      flat(Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 })),
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      flat(AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 })),
     );
     const forward: IAutoMovieVector3 = flat(
-      Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 }),
+      AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 }),
     );
-    const toes: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const toes: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         forward,
-        Vector3.scale(normal, Vector3.dot(normal, forward)),
+        AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(normal, forward)),
       ),
     );
     return {
       dorsiflexion:
-        Math.atan2(Vector3.dot(lean, toes), Vector3.dot(lean, normal)) /
-        Quaternion.DEG2RAD,
-      axis: Vector3.normalize(Vector3.cross(normal, toes)),
+        Math.atan2(AutoMovieEngineVector3.dot(lean, toes), AutoMovieEngineVector3.dot(lean, normal)) /
+        AutoMovieEngineQuaternion.DEG2RAD,
+      axis: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(normal, toes)),
     };
   }
 
@@ -184,7 +184,7 @@ export namespace HumanMountPush {
         contact: HumanFoot.offset(body, side, "mtp"),
       },
       roll: turn === null ? 0 : Math.max(0, turn.down),
-      reach: Vector3.length(Vector3.subtract(rolled.point, hip)),
+      reach: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(rolled.point, hip)),
     };
   }
 
@@ -212,24 +212,24 @@ export namespace HumanMountPush {
     rest: IAutoMovieVector3,
     share: number,
   ): IAutoMovieVector3 {
-    const line: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(ankle, hip),
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(ankle, hip),
     );
-    const natural: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(facing, -line.y),
-      { x: 0, y: Vector3.dot(line, facing), z: 0 },
+    const natural: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(facing, -line.y),
+      { x: 0, y: AutoMovieEngineVector3.dot(line, facing), z: 0 },
     );
     const from: IAutoMovieVector3 =
-      Vector3.length(natural) > 1e-6 ? natural : facing;
-    const aimed: IAutoMovieVector3 = Quaternion.rotateVector(
+      AutoMovieEngineVector3.length(natural) > 1e-6 ? natural : facing;
+    const aimed: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       HumanMountPushTurned(from, rest, share),
       from,
     );
     const off: IAutoMovieVector3 = HumanMountPushSquare(aimed, line) ??
       HumanMountPushSquare(from, line) ?? { x: 0, y: 0, z: 0 };
-    return Vector3.add(
-      Vector3.lerp(hip, ankle, 0.5),
-      Vector3.scale(off, body.measure.thigh),
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.lerp(hip, ankle, 0.5),
+      AutoMovieEngineVector3.scale(off, body.measure.thigh),
     );
   }
 
@@ -333,33 +333,33 @@ export namespace HumanMountPush {
       goal.bend,
     );
     if (knee === null) return null;
-    const leg: IAutoMovieVector3 = Vector3.subtract(knee, goal.point);
-    if (Vector3.length(leg) < 1e-9) return null;
-    const shank: IAutoMovieVector3 = Vector3.normalize(leg);
+    const leg: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(knee, goal.point);
+    if (AutoMovieEngineVector3.length(leg) < 1e-9) return null;
+    const shank: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(leg);
     // The knee's hinge, signed as the foot's own lateral axis lies in a
     // straight leg whose knee points ahead.
-    const down: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(goal.point, hip),
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(goal.point, hip),
     );
     const out: IAutoMovieVector3 = HumanMountPushSquare(
-      Vector3.subtract(goal.bend, hip),
+      AutoMovieEngineVector3.subtract(goal.bend, hip),
       down,
     )!;
     const hinge: IAutoMovieVector3 | null = HumanMountPushSquare(
-      Vector3.cross(out, down),
+      AutoMovieEngineVector3.cross(out, down),
       shank,
     );
     const lateral: IAutoMovieVector3 | null = HumanMountPushSquare(
-      Quaternion.rotateVector(goal.rotation, { x: 1, y: 0, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(goal.rotation, { x: 1, y: 0, z: 0 }),
       shank,
     );
     if (hinge === null || lateral === null) return null;
     return {
       degrees:
         Math.atan2(
-          Vector3.dot(Vector3.cross(hinge, lateral), shank),
-          Vector3.dot(hinge, lateral),
-        ) / Quaternion.DEG2RAD,
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(hinge, lateral), shank),
+          AutoMovieEngineVector3.dot(hinge, lateral),
+        ) / AutoMovieEngineQuaternion.DEG2RAD,
       shank,
     };
   }
@@ -385,9 +385,9 @@ export namespace HumanMountPush {
     if (now === null || goal.rotation === undefined) return goal;
     return {
       ...goal,
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle(now.shank, degrees - now.degrees),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle(now.shank, degrees - now.degrees),
           goal.rotation,
         ),
       ),
@@ -439,12 +439,12 @@ export namespace HumanMountPush {
   ): IAutoMovieVector3 | null {
     const thigh: number = body.measure.thigh;
     const shank: number = body.measure.shank;
-    const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    const distance: number = Vector3.length(reach);
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ankle, hip);
+    const distance: number = AutoMovieEngineVector3.length(reach);
     if (distance < 1e-9) return null;
-    const down: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.scale(reach, 1 / distance);
     const out: IAutoMovieVector3 | null = HumanMountPushSquare(
-      Vector3.subtract(pole, hip),
+      AutoMovieEngineVector3.subtract(pole, hip),
       down,
     );
     if (out === null) return null;
@@ -454,11 +454,11 @@ export namespace HumanMountPush {
     );
     const along: number =
       (thigh * thigh + span * span - shank * shank) / (2 * span);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       hip,
-      Vector3.add(
-        Vector3.scale(down, along),
-        Vector3.scale(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(down, along),
+        AutoMovieEngineVector3.scale(
           out,
           Math.sqrt(Math.max(0, thigh * thigh - along * along)),
         ),

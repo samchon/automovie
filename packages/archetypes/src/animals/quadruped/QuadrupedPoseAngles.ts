@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineKinematics, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieArticulatedRigReader,
@@ -30,7 +30,7 @@ export function QuadrupedPoseAngles(
   > = new Map();
   for (const input of rig.bones) {
     const node: typeof input = structuredClone(input);
-    node.rest.rotation = Quaternion.normalize(node.rest.rotation);
+    node.rest.rotation = AutoMovieEngineQuaternion.normalize(node.rest.rotation);
     node.axes = AutoMovieEngineKinematics.normalizeJointAxes(node.axes, `${rig.id}/${node.bone}.axes`);
     nodes.set(node.bone, node);
   }
@@ -99,7 +99,7 @@ export function QuadrupedPoseAngles(
         for (let index: number = 0; index < chain.length; index++)
           goals.set(chain[index]!, {
             kind: "direction",
-            direction: Vector3.subtract(points[index + 1]!, points[index]!),
+            direction: AutoMovieEngineVector3.subtract(points[index + 1]!, points[index]!),
           });
       }
     }
@@ -114,14 +114,14 @@ export function QuadrupedPoseAngles(
     > = new Map();
     const rootRotation: IAutoMovieQuaternion =
       root === undefined
-        ? Quaternion.identity()
-        : Quaternion.normalize(root.rotation);
+        ? AutoMovieEngineQuaternion.identity()
+        : AutoMovieEngineQuaternion.normalize(root.rotation);
     for (const bone of order) {
       const node: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>["bones"][number] =
         nodes.get(bone)!;
       const parent: IAutoMovieQuaternion =
         node.parent === null ? rootRotation : current.get(node.parent)!;
-      const carried: IAutoMovieQuaternion = Quaternion.multiply(
+      const carried: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         parent,
         node.rest.rotation,
       );
@@ -138,16 +138,16 @@ export function QuadrupedPoseAngles(
           throw new RangeError(
             `Quadruped ${bone} needs a finite nonzero world rotation`,
           );
-        desired = Quaternion.normalize(q);
+        desired = AutoMovieEngineQuaternion.normalize(q);
       } else if (goal.kind === "direction") {
-        const unit: IAutoMovieVector3 = Vector3.normalize(goal.direction);
-        if (!(Vector3.dot(unit, unit) > 0))
+        const unit: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(goal.direction);
+        if (!(AutoMovieEngineVector3.dot(unit, unit) > 0))
           throw new RangeError(
             `Quadruped ${bone} needs a finite nonzero world direction`,
           );
-        desired = Quaternion.multiply(
+        desired = AutoMovieEngineQuaternion.multiply(
           AutoMovieEngineMath.rotationBetween(
-            Quaternion.rotateVector(carried, { x: 0, y: 1, z: 0 }),
+            AutoMovieEngineQuaternion.rotateVector(carried, { x: 0, y: 1, z: 0 }),
             unit,
           ),
           carried,
@@ -156,9 +156,9 @@ export function QuadrupedPoseAngles(
         goal satisfies never;
         throw new RangeError(`Unknown quadruped ${bone} orientation goal`);
       }
-      const local: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.inverse(node.rest.rotation),
-        Quaternion.multiply(Quaternion.inverse(parent), desired),
+      const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(node.rest.rotation),
+        AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(parent), desired),
       );
       joints.set(bone, AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(local, node.axes));
       current.set(bone, desired);

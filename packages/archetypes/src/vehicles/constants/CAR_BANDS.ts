@@ -5,8 +5,8 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
 import "./CAR_MODELS";
-import * as CarBandsData from "./internal/CarBandsData";
-import { hatchbacks } from "./internal/CarBandsData";
+import { CarBandsData } from "./internal/CarBandsData";
+
 
 /*
  * The band of each free dimension of a car, by class, with the source it was
@@ -35,7 +35,7 @@ export const CAR_BANDS: Readonly<
     ...CarBandsData.CAR,
     lockTurns: CarBandsData.TURNS,
     wheelDiameter: AutoMovieArchetypeBand.metres(
-      ...hatchbacks("wheelDiameter"),
+      ...CarBandsData.hatchbacks("wheelDiameter"),
       `${CarBandsData.HATCH}: the span of the grades' tyres' outer diameters, computed from their sizes, borrowed for want of a sedan's read tyre`,
       true,
     ),

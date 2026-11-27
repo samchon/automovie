@@ -1,4 +1,4 @@
-import { AutoMovieSweepRotation, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineSweepRotation, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -61,7 +61,7 @@ export function test_engine_math_quaternion_from_basis(): void {
   const packed: Float64Array = new Float64Array([
     8, 0, -1, 0, -1, 0, 0, 0, 0, -1,
   ]);
-  AutoMovieSweepRotation.fromBasis(packed, 1, 4, 7, packed, 1);
+  AutoMovieEngineSweepRotation.fromBasis(packed, 1, 4, 7, packed, 1);
   TestValidator.predicate(
     "packed half turn preserves diagonal tie and overlapping input",
     nclose(packed[1]!, -h, 1e-12) &&

@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineMotionSampling,
   AutoMovieEngineMotionTrajectory,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   IAutoMovieIntegrateMotionTrajectory,
@@ -133,7 +133,7 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
         );
       },
     );
-    const middle: IAutoMovieVector3 = Vector3.lerp(ends[0]!, ends[1]!, 0.5);
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(ends[0]!, ends[1]!, 0.5);
     const spread: number = ends[0]!.x;
     const footing: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined =
       params.footing === undefined
@@ -154,7 +154,7 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
       ride.plan.at(0).placement,
       "z",
     );
-    const forward: IAutoMovieVector3 = Vector3.normalize({
+    const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: ahead.x,
       y: 0,
       z: ahead.z,
@@ -199,7 +199,7 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
           ? { point: { x: 0, y: 0, z: 0 }, normal: UP }
           : footing.landing(
               { x: x[0]!, y: 0, z: x[1]! },
-              Quaternion.identity(),
+              AutoMovieEngineQuaternion.identity(),
             );
       const ground: number =
         plane.point.y -
@@ -207,9 +207,9 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
           plane.normal.z * (x[1]! - plane.point.z)) /
           plane.normal.y;
       const sink: number = depth - (depth + lift) * lifted(seconds);
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         turn(UP, plane.normal),
-        Quaternion.fromAxisAngle(UP, (heading * 180) / Math.PI),
+        AutoMovieEngineQuaternion.fromAxisAngle(UP, (heading * 180) / Math.PI),
       );
       const target: IAutoMovieVector3 = {
         x: x[0]!,
@@ -217,9 +217,9 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
         z: x[1]!,
       };
       const placement: IAutoMovieTransform = {
-        translation: Vector3.subtract(
+        translation: AutoMovieEngineVector3.subtract(
           target,
-          Quaternion.rotateVector(rotation, coupling),
+          AutoMovieEngineQuaternion.rotateVector(rotation, coupling),
         ),
         rotation,
         scale: { ...AutoMovieArchetypeFrame.UNIT },
@@ -417,9 +417,9 @@ function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const axis: IAutoMovieVector3 = Vector3.cross(from, to);
-  return Quaternion.fromAxisAngle(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, to);
+  return AutoMovieEngineQuaternion.fromAxisAngle(
     axis,
-    (Math.atan2(Vector3.length(axis), Vector3.dot(from, to)) * 180) / Math.PI,
+    (Math.atan2(AutoMovieEngineVector3.length(axis), AutoMovieEngineVector3.dot(from, to)) * 180) / Math.PI,
   );
 }

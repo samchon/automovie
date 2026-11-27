@@ -1,4 +1,4 @@
-import { Quaternion, type RigidCarrierSample, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, type AutoMovieEngineRigidCarrierSample, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -97,7 +97,7 @@ export namespace placeRideFeet {
     /*
      * Carry the entering goal in the stirrup at the film second.
      */
-    at(film: number, sample?: RigidCarrierSample.IRead): IAutoMovieHumanLimbGoal;
+    at(film: number, sample?: AutoMovieEngineRigidCarrierSample.IRead): IAutoMovieHumanLimbGoal;
   }
 
   /*
@@ -219,9 +219,9 @@ export namespace placeRideFeet {
       site.call(support, id, start),
       { position: foot.ankle, rotation: foot.rotation },
     );
-    const bend: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(foot.rotation),
-      Vector3.subtract(goal.bend, foot.ankle),
+    const bend: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(foot.rotation),
+      AutoMovieEngineVector3.subtract(goal.bend, foot.ankle),
     );
     return {
       side,
@@ -229,7 +229,7 @@ export namespace placeRideFeet {
       socket,
       at(
         film: number,
-        sample?: RigidCarrierSample.IRead,
+        sample?: AutoMovieEngineRigidCarrierSample.IRead,
       ): IAutoMovieHumanLimbGoal {
         const part: IAutoMovieTransform | undefined = sample?.point(id);
         const ankle: IAutoMovieRigidTransform = HumanPropFrame.compose(
@@ -243,9 +243,9 @@ export namespace placeRideFeet {
           point: ankle.position,
           rotation: ankle.rotation,
           contact,
-          bend: Vector3.add(
+          bend: AutoMovieEngineVector3.add(
             ankle.position,
-            Quaternion.rotateVector(ankle.rotation, bend),
+            AutoMovieEngineQuaternion.rotateVector(ankle.rotation, bend),
           ),
           planted: true,
         };
@@ -327,24 +327,24 @@ export namespace placeRideFeet {
     const level: IAutoMovieQuaternion = humanPostureHeading(pose);
     const entry: IAutoMovieQuaternion = goal.rotation ?? level;
     const target: IAutoMovieMotionHumanProp.IPlacedPoint = foot.at(film);
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(level),
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(level),
       target.normal,
     );
-    const bearing: IAutoMovieQuaternion = Quaternion.multiply(
+    const bearing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       level,
-      Quaternion.fromAxisAngle(
+      AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 1, y: 0, z: 0 },
         (Math.atan2(normal.z, normal.y) * 180) / Math.PI,
       ),
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
       entry,
       bearing,
       share,
     );
-    const ball: IAutoMovieVector3 = Vector3.lerp(
-      Vector3.add(goal.point, Quaternion.rotateVector(entry, foot.contact)),
+    const ball: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
+      AutoMovieEngineVector3.add(goal.point, AutoMovieEngineQuaternion.rotateVector(entry, foot.contact)),
       target.point,
       share,
     );
@@ -352,9 +352,9 @@ export namespace placeRideFeet {
     const { seed: _seed, ...entering }: IAutoMovieHumanLimbGoal = goal;
     return {
       ...entering,
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         ball,
-        Quaternion.rotateVector(rotation, foot.contact),
+        AutoMovieEngineQuaternion.rotateVector(rotation, foot.contact),
       ),
       contact: foot.contact,
       rotation,
@@ -397,11 +397,11 @@ export namespace placeRideFeet {
       for (const [index, foot] of feet.entries()) {
         const socket: IAutoMovieHumanoidSurfaces.IFrame = sockets[index]!;
         const bone: IAutoMovieResolvedBone = placed.get(socket.bone)!;
-        const shown: IAutoMovieVector3 = Vector3.add(
+        const shown: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           bone.worldPosition,
-          Quaternion.rotateVector(bone.worldRotation, socket.point),
+          AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, socket.point),
         );
-        const gap: number = Vector3.distance(
+        const gap: number = AutoMovieEngineVector3.distance(
           shown,
           foot.at(context.start + local).point,
         );
@@ -473,11 +473,11 @@ export namespace placeRideFeet {
         if (point !== undefined) return point;
         const frame: IAutoMovieRigidTransform = support.frame(film);
         return {
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             frame.position,
-            Quaternion.rotateVector(frame.rotation, rest.point),
+            AutoMovieEngineQuaternion.rotateVector(frame.rotation, rest.point),
           ),
-          normal: Quaternion.rotateVector(frame.rotation, rest.normal),
+          normal: AutoMovieEngineQuaternion.rotateVector(frame.rotation, rest.normal),
         };
       },
     };

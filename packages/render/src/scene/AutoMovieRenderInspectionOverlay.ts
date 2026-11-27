@@ -1,4 +1,4 @@
-import { type IAutoMovieInspectionDiagnosticOverlay } from "./IAutoMovieInspectionDiagnosticOverlay.js";
+import { type IAutoMovieRenderInspectionDiagnosticOverlay } from "./IAutoMovieRenderInspectionDiagnosticOverlay.js";
 import type * as THREE from "three";
 import { createAutoMovieInspectionDotsImplementation } from "./inspection/internal/createAutoMovieInspectionDotsImplementation.js";
 import { createAutoMovieInspectionDiagnosticOverlay as createAutoMovieInspectionDiagnosticOverlayImplementation } from "./inspection/internal/createAutoMovieInspectionDiagnosticOverlay.js";
@@ -53,7 +53,7 @@ export namespace AutoMovieRenderInspectionOverlay {
    *
    * @returns The overlay; dispose it when the pictures end.
    */
-  export function createDiagnosticOverlay(): IAutoMovieInspectionDiagnosticOverlay {
+  export function createDiagnosticOverlay(): IAutoMovieRenderInspectionDiagnosticOverlay {
     return createAutoMovieInspectionDiagnosticOverlayImplementation();
   }
 
@@ -77,7 +77,7 @@ export namespace AutoMovieRenderInspectionOverlay {
    * its owner places it and its vertices move.
    *
    * With `xray` the marks ignore depth and draw after everything else. Without it
-   * they are depth-tested `AUTO_MOVIE_INSPECTION_DEPTH_LEAD` nearer the camera
+   * they are depth-tested `AutoMovieRenderInspectionDepthLead` nearer the camera
    * than they lie, through a patch to the line shader that leads both ends toward
    * the eye, so a mark on a surface is not lost to that surface.
    */

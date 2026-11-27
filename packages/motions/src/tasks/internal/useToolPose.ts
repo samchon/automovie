@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -51,9 +51,9 @@ export function useToolPose(prepared: useToolPose.IPrepared): useTool.IWork {
           (degrees: number): useTool.IWork => {
             const slope: number = (degrees * Math.PI) / 180;
             return posed(
-              Vector3.subtract(
-                Vector3.scale(forward, Math.cos(slope)),
-                Vector3.scale(up, Math.sin(slope)),
+              AutoMovieEngineVector3.subtract(
+                AutoMovieEngineVector3.scale(forward, Math.cos(slope)),
+                AutoMovieEngineVector3.scale(up, Math.sin(slope)),
               ),
             );
           },

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -82,13 +82,13 @@ export namespace coverWall {
       );
     const world: IAutoMovieRigidTransform = reader.frame(context.start);
     const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.normalize({ x: v.x, y: 0, z: v.z });
+      AutoMovieEngineVector3.normalize({ x: v.x, y: 0, z: v.z });
     return {
       center: { ...world.position, y: 0 },
       normal: flat(
-        Quaternion.rotateVector(world.rotation, { x: 0, y: 0, z: 1 }),
+        AutoMovieEngineQuaternion.rotateVector(world.rotation, { x: 0, y: 0, z: 1 }),
       ),
-      axis: flat(Quaternion.rotateVector(world.rotation, { x: 1, y: 0, z: 0 })),
+      axis: flat(AutoMovieEngineQuaternion.rotateVector(world.rotation, { x: 1, y: 0, z: 0 })),
       half: affordance.width / 2,
     };
   }

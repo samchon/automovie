@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -42,7 +42,7 @@ export function HumanLungeStance(
   const feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> =
     StrikingTarget.feet(context.entry);
   const centre: IAutoMovieVector3 = {
-    ...Vector3.lerp(feet.left.ankle, feet.right.ankle, 0.5),
+    ...AutoMovieEngineVector3.lerp(feet.left.ankle, feet.right.ankle, 0.5),
     y: 0,
   };
 
@@ -103,17 +103,17 @@ export function HumanLungeStance(
         side,
         time,
       );
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         UP,
         foot.heading - schedule.heading,
       );
       placed[side] = {
-        ankle: Vector3.add(
-          Vector3.add(
+        ankle: AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             centre,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               turn,
-              Vector3.subtract(feet[side].ankle, centre),
+              AutoMovieEngineVector3.subtract(feet[side].ankle, centre),
             ),
           ),
           {
@@ -125,15 +125,15 @@ export function HumanLungeStance(
             z: 0,
           },
         ),
-        rotation: Quaternion.multiply(turn, feet[side].rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(turn, feet[side].rotation),
       };
       down[side] = foot.swing === undefined;
     }
-    const root: IAutoMovieVector3 = Vector3.add(
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       centre,
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(UP, facing - entry.yaw),
-        Vector3.subtract(entry.root, centre),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(UP, facing - entry.yaw),
+        AutoMovieEngineVector3.subtract(entry.root, centre),
       ),
     );
     return lowerHumanPosture(

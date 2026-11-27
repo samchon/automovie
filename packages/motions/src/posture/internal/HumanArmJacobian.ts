@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -113,19 +113,19 @@ export namespace HumanArmJacobian {
       sign: number,
     ): IAutoMovieQuaternion => {
       moved[d] = c[d]! + sign * STEP;
-      return Quaternion.multiply(
+      return AutoMovieEngineQuaternion.multiply(
         at.parent.rotation,
-        Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           setup.rest.upper.rotation,
           G.shoulder(setup, moved),
         ),
       );
     };
-    const elbow: IAutoMovieVector3 = Vector3.subtract(
+    const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       placed.elbow,
       placed.shoulder,
     );
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       placed.wrist,
       placed.shoulder,
     );
@@ -153,11 +153,11 @@ export namespace HumanArmJacobian {
         upper: { angular: omega, linear: { x: 0, y: 0, z: 0 } },
         lower: {
           angular: omega,
-          linear: Vector3.cross(omega, elbow),
+          linear: AutoMovieEngineVector3.cross(omega, elbow),
         },
         hand: {
           angular: omega,
-          linear: Vector3.cross(omega, wrist),
+          linear: AutoMovieEngineVector3.cross(omega, wrist),
         },
       };
     });
@@ -269,9 +269,9 @@ export namespace HumanArmJacobian {
     to: IAutoMovieQuaternion,
     span: number,
   ): IAutoMovieVector3 => {
-    let q: IAutoMovieQuaternion = Quaternion.multiply(
+    let q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       to,
-      Quaternion.inverse(from),
+      AutoMovieEngineQuaternion.inverse(from),
     );
     if (q.w < 0) q = { x: -q.x, y: -q.y, z: -q.z, w: -q.w };
     const s: number = Math.hypot(q.x, q.y, q.z);

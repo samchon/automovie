@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -123,7 +123,7 @@ export namespace AquaticExit {
             posture,
             side,
             {
-              ankle: Vector3.lerp(
+              ankle: AutoMovieEngineVector3.lerp(
                 plants[side].from,
                 plants[side].ankle,
                 settle,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -313,10 +313,10 @@ function solved(
     const goal: IAutoMovieHumanLimbGoal = world[side];
     const contact: IAutoMovieVector3 = goal.contact ?? { x: 0, y: 0, z: 0 };
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         goal.point,
-        Quaternion.rotateVector(
-          goal.rotation ?? Quaternion.identity(),
+        AutoMovieEngineQuaternion.rotateVector(
+          goal.rotation ?? AutoMovieEngineQuaternion.identity(),
           contact,
         ),
       ),
@@ -395,7 +395,7 @@ function solved(
       world[other].point,
       own[side].seed === null
         ? near[side]
-        : { ...own[side].seed, tolerance: hingedArmSwivel.RESOLUTION },
+        : { ...own[side].seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION },
       resolution,
     );
     const candidate: number[][][] = start.map(

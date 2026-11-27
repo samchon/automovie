@@ -5,12 +5,20 @@ import type {
   IAutoMovieScheduleContext,
 } from "@automovie/interface";
 import {
-  HumanPerformanceHold,
-  HumanPerformanceRead,
-  AutoMovieMotionHumanRefusal,
-  HumanSegment,
-  readPlacedHumanPosture,
-} from "@automovie/motions/internal";
+  HumanPerformanceHold
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceHold";
+import {
+  HumanPerformanceRead
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceRead";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSegment
+} from "../../../../../packages/motions/src/perform/internal/HumanSegment";
+import {
+  readPlacedHumanPosture
+} from "../../../../../packages/motions/src/perform/internal/readPlacedHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

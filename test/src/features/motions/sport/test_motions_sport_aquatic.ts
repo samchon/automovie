@@ -1,5 +1,5 @@
 import { AutoMovieArchetypePoolEdge } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -17,15 +17,29 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
-  AquaticCrew,
-  AquaticEdge,
-  AquaticPosture,
-  AquaticTeamBase,
-  HumanFoot,
-  HumanHand,
-  aquatic,
-  aquaticArtisticSchedule,
-} from "@automovie/motions/internal";
+  AquaticCrew
+} from "../../../../../packages/motions/src/sport/internal/AquaticCrew";
+import {
+  AquaticEdge
+} from "../../../../../packages/motions/src/sport/internal/AquaticEdge";
+import {
+  AquaticPosture
+} from "../../../../../packages/motions/src/sport/internal/AquaticPosture";
+import {
+  AquaticTeamBase
+} from "../../../../../packages/motions/src/sport/internal/AquaticTeamBase";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  HumanHand
+} from "../../../../../packages/motions/src/posture/internal/HumanHand";
+import {
+  aquatic
+} from "../../../../../packages/motions/src/sport/internal/aquatic";
+import {
+  aquaticArtisticSchedule
+} from "../../../../../packages/motions/src/sport/internal/aquaticArtisticSchedule";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -303,9 +317,9 @@ async function wallTurn(): Promise<void> {
       kind === "Hand"
         ? HumanHand.offset(body, side, "palm", "flat").point
         : HumanFoot.offset(body, side, "sole");
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       bone.worldPosition,
-      Quaternion.rotateVector(bone.worldRotation, offset),
+      AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, offset),
     );
   };
   for (const side of HumanHand.SIDES) {

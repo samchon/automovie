@@ -1,4 +1,4 @@
-import { type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
+import { type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -38,7 +38,7 @@ export function test_render_scene_apply_inspection_mark_anchor_hidden(): void {
   const drawn = (
     changes: Parameters<typeof InspectionScene.ask>[0],
   ): { drawn: number; selected: string[]; heroMask: number } => {
-    const handle: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+    const handle: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask({ marks: ["contact"], ...changes }),
       marks,

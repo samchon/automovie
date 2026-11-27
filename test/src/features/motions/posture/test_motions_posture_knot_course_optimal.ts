@@ -1,9 +1,15 @@
 import {
-  HumanKnot,
-  HumanKnotTiming,
-  HumanQuinticSegment,
-  prepareHumanKnotCourse,
-} from "@automovie/motions/internal";
+  HumanKnot
+} from "../../../../../packages/motions/src/posture/internal/HumanKnot";
+import {
+  HumanKnotTiming
+} from "../../../../../packages/motions/src/posture/internal/HumanKnotTiming";
+import {
+  HumanQuinticSegment
+} from "../../../../../packages/motions/src/posture/internal/HumanQuinticSegment";
+import {
+  prepareHumanKnotCourse
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanKnotCourse";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

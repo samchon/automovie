@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The authored pose's centre of mass and its velocity, world: each segment's
@@ -24,19 +24,19 @@ export function physicalAuthoredCenter(
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of profile.segments) {
     const goal: IAutoMovieSamplePhysicalTarget.IResult = goals[segment.bone]!;
-    const arm: IAutoMovieVector3 = Quaternion.rotateVector(
+    const arm: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       goal.pose.rotation,
       segment.centerOfMass,
     );
     const share: number = segment.mass / profile.mass;
-    center = Vector3.add(
+    center = AutoMovieEngineVector3.add(
       center,
-      Vector3.scale(Vector3.add(goal.pose.position, arm), share),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(goal.pose.position, arm), share),
     );
-    velocity = Vector3.add(
+    velocity = AutoMovieEngineVector3.add(
       velocity,
-      Vector3.scale(
-        Vector3.add(goal.velocity, Vector3.cross(goal.angularVelocity, arm)),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(goal.velocity, AutoMovieEngineVector3.cross(goal.angularVelocity, arm)),
         share,
       ),
     );

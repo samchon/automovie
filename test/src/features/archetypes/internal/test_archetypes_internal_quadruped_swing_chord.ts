@@ -1,4 +1,6 @@
-import { QuadrupedSwingChord } from "@automovie/archetypes/internal";
+import {
+  QuadrupedSwingChord
+} from "../../../../../packages/archetypes/src/animals/quadruped/QuadrupedSwingChord";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,

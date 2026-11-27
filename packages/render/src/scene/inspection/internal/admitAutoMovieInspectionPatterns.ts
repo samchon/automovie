@@ -4,8 +4,8 @@ import type {
   IAutoMovieMark,
 } from "@automovie/interface";
 
-import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
-import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
+import type { IAutoMovieRenderInspectionMeasured } from "../../IAutoMovieRenderInspectionMeasured.js";
+import type { IAutoMovieRenderInspectionPath } from "../../IAutoMovieRenderInspectionPath.js";
 import { listAutoMovieInspectionKindOptions } from "./listAutoMovieInspectionKindOptions.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
@@ -20,8 +20,8 @@ export function admitAutoMovieInspectionPatterns(
   supplied: readonly IAutoMovieMark[],
   declared: readonly string[] | undefined,
 ): (
-  drawn: readonly IAutoMovieInspectionPath[],
-  measured: readonly IAutoMovieInspectionMeasured[],
+  drawn: readonly IAutoMovieRenderInspectionPath[],
+  measured: readonly IAutoMovieRenderInspectionMeasured[],
   asks: (kind: string) => boolean,
 ) => void {
   const available: string[] = [
@@ -42,17 +42,17 @@ export function admitAutoMovieInspectionPatterns(
     );
 
   return (
-    drawn: readonly IAutoMovieInspectionPath[],
-    measured: readonly IAutoMovieInspectionMeasured[],
+    drawn: readonly IAutoMovieRenderInspectionPath[],
+    measured: readonly IAutoMovieRenderInspectionMeasured[],
     asks: (kind: string) => boolean,
   ): void => {
     const known: string[] = [
       ...new Set<string>([
-        ...drawn.map((entry: IAutoMovieInspectionPath): string => entry.path),
+        ...drawn.map((entry: IAutoMovieRenderInspectionPath): string => entry.path),
         ...supplied
           .filter((mark: IAutoMovieMark): boolean => asks(mark.kind))
           .map((mark: IAutoMovieMark): string => mark.path),
-        ...measured.flatMap((set: IAutoMovieInspectionMeasured): string[] =>
+        ...measured.flatMap((set: IAutoMovieRenderInspectionMeasured): string[] =>
           set.marks.map((mark: IAutoMovieMark): string => mark.path),
         ),
       ]),

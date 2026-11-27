@@ -1,6 +1,6 @@
 import type { IAutoMovieCamera } from "@automovie/interface";
 import {
-  type IAutoMovieDepthPrecisionRenderer,
+  type IAutoMovieRenderDepthPrecisionRenderer,
   AutoMovieRenderViewerCameraDepthPrecision,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -42,11 +42,11 @@ const renderer: (
   bits: unknown,
   logarithmic?: boolean,
   reversed?: boolean,
-) => IAutoMovieDepthPrecisionRenderer = (
+) => IAutoMovieRenderDepthPrecisionRenderer = (
   bits: unknown,
   logarithmic: boolean = false,
   reversed: boolean = false,
-): IAutoMovieDepthPrecisionRenderer => {
+): IAutoMovieRenderDepthPrecisionRenderer => {
   const depthBits: WebGLRenderingContext["DEPTH_BITS"] = 0x0d56;
   return {
     capabilities: {

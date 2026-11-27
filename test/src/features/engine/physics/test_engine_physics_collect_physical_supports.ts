@@ -1,8 +1,8 @@
 import {
-  type AutoMovieXpbdBody,
-  type AutoMovieXpbdCollider,
-  AutoMovieXpbdWorld,
-  AutoMoviePhysicalSupportCollector as Collector,
+  type AutoMovieEngineXpbdBody,
+  type AutoMovieEngineXpbdCollider,
+  AutoMovieEngineXpbdWorld,
+  AutoMovieEnginePhysicalSupportCollector as Collector,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSegment,
@@ -27,7 +27,7 @@ const FLOOR_FRICTION: number = 0.3;
 const BOX_FRICTION: number = 0.9;
 
 /**
- * `AutoMoviePhysicalSupportCollector` reads a body's supports from one solver step: the
+ * `AutoMovieEnginePhysicalSupportCollector` reads a body's supports from one solver step: the
  * floor points that step's manifold found pressing under a downward-facing
  * normal, with the pair's own combined friction, and a support loaded only by a
  * positive floor impulse.
@@ -95,14 +95,14 @@ export async function test_engine_physics_collect_physical_supports(): Promise<v
         },
       ],
     };
-    const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+    const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({
       x: 0,
       y: 0,
       z: 0,
     });
     world.timestep = 1 / 960;
     world.contactFrequency = 240;
-    const rigid: AutoMovieXpbdBody = world.createBody(true, {
+    const rigid: AutoMovieEngineXpbdBody = world.createBody(true, {
       // The lifted box starts 10 mm into the floor, so the floor and the lifter
       // both act on it in the same step.
       position: { x: 0, y: underside ? -1.099 : lifted ? 0.09 : 0.099, z: 0 },
@@ -114,7 +114,7 @@ export async function test_engine_physics_collect_physical_supports(): Promise<v
       segment.inertia,
       segment.inertiaRotation,
     );
-    const ground: () => AutoMovieXpbdCollider = (): AutoMovieXpbdCollider =>
+    const ground: () => AutoMovieEngineXpbdCollider = (): AutoMovieEngineXpbdCollider =>
       world.createCollider(
         world.createBody(false, {
           position: { x: 0, y: -0.5, z: 0 },
@@ -125,17 +125,17 @@ export async function test_engine_physics_collect_physical_supports(): Promise<v
         0,
         false,
       );
-    const early: AutoMovieXpbdCollider | undefined = floorFirst
+    const early: AutoMovieEngineXpbdCollider | undefined = floorFirst
       ? ground()
       : undefined;
-    const source: AutoMovieXpbdCollider = world.createCollider(
+    const source: AutoMovieEngineXpbdCollider = world.createCollider(
       rigid,
       segment.shapes[0]!,
       BOX_FRICTION,
       0,
       false,
     );
-    const floor: AutoMovieXpbdCollider = early ?? ground();
+    const floor: AutoMovieEngineXpbdCollider = early ?? ground();
 
     // A kinematic lifter under the box's +x end pushes that end up, which
     // turns the box about z and presses its -x end into the floor.
@@ -151,10 +151,10 @@ export async function test_engine_physics_collect_physical_supports(): Promise<v
         false,
       );
     world.step();
-    const manifold: AutoMovieXpbdWorld.IManifold | undefined = world
+    const manifold: AutoMovieEngineXpbdWorld.IManifold | undefined = world
       .manifolds()
       .find(
-        (candidate: AutoMovieXpbdWorld.IManifold): boolean =>
+        (candidate: AutoMovieEngineXpbdWorld.IManifold): boolean =>
           (candidate.a === source && candidate.b === floor) ||
           (candidate.a === floor && candidate.b === source),
       );
@@ -165,10 +165,10 @@ export async function test_engine_physics_collect_physical_supports(): Promise<v
       manifold && downward
         ? manifold.points
             .filter(
-              (point: AutoMovieXpbdWorld.IManifoldPoint): boolean =>
+              (point: AutoMovieEngineXpbdWorld.IManifoldPoint): boolean =>
                 point.separation <= 0,
             )
-            .map((point: AutoMovieXpbdWorld.IManifoldPoint): V => point.point)
+            .map((point: AutoMovieEngineXpbdWorld.IManifoldPoint): V => point.point)
         : [];
     const identities: Map<number, Receipt["a"]> = new Map([
       [
@@ -198,11 +198,11 @@ export async function test_engine_physics_collect_physical_supports(): Promise<v
           {
             normal: manifold?.normal,
             separations: manifold?.points.map(
-              (point: AutoMovieXpbdWorld.IManifoldPoint): number =>
+              (point: AutoMovieEngineXpbdWorld.IManifoldPoint): number =>
                 point.separation,
             ),
             points: manifold?.points.map(
-              (point: AutoMovieXpbdWorld.IManifoldPoint): V => point.point,
+              (point: AutoMovieEngineXpbdWorld.IManifoldPoint): V => point.point,
             ),
           },
         )}`,
@@ -258,14 +258,14 @@ function landing(): boolean[] {
       },
     ],
   };
-  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+  const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({
     x: 0,
     y: -9.81,
     z: 0,
   });
   world.timestep = 1 / 960;
   world.allowedError = ALLOWED;
-  const rigid: AutoMovieXpbdBody = world.createBody(true, {
+  const rigid: AutoMovieEngineXpbdBody = world.createBody(true, {
     position: { x: 0, y: 0.125 - ALLOWED / 2, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   });
@@ -275,14 +275,14 @@ function landing(): boolean[] {
     profile.segments[0]!.inertia,
     profile.segments[0]!.inertiaRotation,
   );
-  const source: AutoMovieXpbdCollider = world.createCollider(
+  const source: AutoMovieEngineXpbdCollider = world.createCollider(
     rigid,
     profile.segments[0]!.shapes[0]!,
     0,
     0,
     false,
   );
-  const floor: AutoMovieXpbdCollider = world.createCollider(
+  const floor: AutoMovieEngineXpbdCollider = world.createCollider(
     world.createBody(false, {
       position: { x: 0, y: -0.5, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },

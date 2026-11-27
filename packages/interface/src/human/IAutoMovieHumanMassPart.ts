@@ -92,7 +92,7 @@ export namespace IAutoMovieHumanMassPart {
 
     /**
      * The sourced conic shoulder of the sections, or the ellipse's
-     * (`AutoMovieViewSection.ELLIPSE`), the least-information conic.
+     * (`AutoMovieEngineViewSection.ELLIPSE`), the least-information conic.
      */
     shoulder: number;
 

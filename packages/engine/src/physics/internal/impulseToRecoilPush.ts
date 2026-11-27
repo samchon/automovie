@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Bridge an IAutoMovieImpact's impulse to a recoil
@@ -22,5 +22,5 @@ export function impulseToRecoilPush(
     throw new RangeError(
       `recoil push gain must be >= 0, but was ${gainDegPerImpulse}`,
     );
-  return { flexion: Vector3.length(impulse) * gainDegPerImpulse };
+  return { flexion: AutoMovieEngineVector3.length(impulse) * gainDegPerImpulse };
 }

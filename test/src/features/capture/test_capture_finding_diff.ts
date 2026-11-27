@@ -7,7 +7,7 @@ import type {
   IAutoMovieCaptureSubject,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
-import { AutoMovieCaptureFolder, AutoMovieRenderCapture } from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -127,7 +127,7 @@ export async function test_capture_finding_diff(): Promise<void> {
                 },
               }),
         }),
-        folder: await AutoMovieCaptureFolder.open({
+        folder: await AutoMovieRenderCaptureFolder.open({
           storage: memory.storage,
           root: "out",
           round: plan.request.round,

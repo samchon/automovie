@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -23,11 +23,11 @@ export function bowViolinGrip(
   hair: IAutoMovieVector3,
 ): (share: number, lift: number) => IAutoMovieVector3 {
   return (share: number, lift: number): IAutoMovieVector3 =>
-    Vector3.subtract(
-      Vector3.add(contact, Vector3.scale(outward, lift)),
-      Quaternion.rotateVector(
+    AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.add(contact, AutoMovieEngineVector3.scale(outward, lift)),
+      AutoMovieEngineQuaternion.rotateVector(
         rotation,
-        Vector3.add(frog, Vector3.scale(hair, share)),
+        AutoMovieEngineVector3.add(frog, AutoMovieEngineVector3.scale(hair, share)),
       ),
     );
 }

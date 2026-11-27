@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -98,9 +98,9 @@ export namespace ropeSupport {
     ): IAutoMovieMotionTarget =>
       at(
         key,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           ropeLine.atHeight(line, height),
-          Vector3.scale(lateral, offset),
+          AutoMovieEngineVector3.scale(lateral, offset),
         ),
       );
     const hand = (
@@ -140,11 +140,11 @@ export namespace ropeSupport {
             }
           : at(
               `${side}FootFloor`,
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 { ...ropeLine.atHeight(line, floor), y: floor },
-                Vector3.add(
-                  Vector3.scale(forward, -STAND_OFF),
-                  Vector3.scale(lateral, side === "left" ? STANCE : -STANCE),
+                AutoMovieEngineVector3.add(
+                  AutoMovieEngineVector3.scale(forward, -STAND_OFF),
+                  AutoMovieEngineVector3.scale(lateral, side === "left" ? STANCE : -STANCE),
                 ),
               ),
             ),

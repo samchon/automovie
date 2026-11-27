@@ -1,5 +1,7 @@
 import { AutoMovieRenderInspectionRequest } from "@automovie/render";
-import { changesAutoMovieObservedScene } from "@automovie/viewer/internal";
+import {
+  changesAutoMovieObservedScene
+} from "../../../../../packages/viewer/src/inspector/internal/changesAutoMovieObservedScene";
 import { TestValidator } from "@nestia/e2e";
 
 /**

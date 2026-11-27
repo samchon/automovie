@@ -5,9 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
 
 /*
  * Map a Cartesian actuator demand through virtual work, tau=J^T wrench (Pratt
@@ -25,7 +25,7 @@ export function accumulatePhysicalMotorTorques(input: {
    * Current actual native segments.
    */ segments: ReadonlyMap<
     string,
-    AutoMovieXpbdBody
+    AutoMovieEngineXpbdBody
   >;
   /*
    * Actuator path from proximal to distal.
@@ -69,26 +69,26 @@ export function accumulatePhysicalMotorTorques(input: {
           candidate.child === bone,
       );
     if (!joint) continue;
-    const parent: AutoMovieXpbdBody = input.segments.get(joint.parent)!;
-    const frame: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    const parent: AutoMovieEngineXpbdBody = input.segments.get(joint.parent)!;
+    const frame: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
       parent.rotation(),
       joint.parentFrame.rotation,
     );
-    const pivot: IAutoMovieVector3 = Vector3.add(
+    const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parent.translation(),
-      Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
     );
-    const moment: IAutoMovieVector3 = Vector3.add(
-      Vector3.cross(Vector3.subtract(input.point, pivot), input.force),
+    const moment: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.cross(AutoMovieEngineVector3.subtract(input.point, pivot), input.force),
       input.torque,
     );
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(frame),
-      Vector3.scale(moment, input.reverse ? -1 : 1),
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame),
+      AutoMovieEngineVector3.scale(moment, input.reverse ? -1 : 1),
     );
     input.torques.set(
       joint.id,
-      Vector3.add(input.torques.get(joint.id) ?? { x: 0, y: 0, z: 0 }, local),
+      AutoMovieEngineVector3.add(input.torques.get(joint.id) ?? { x: 0, y: 0, z: 0 }, local),
     );
   }
 }

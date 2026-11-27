@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -50,9 +50,9 @@ export function edgeRescueRescuer(
     behind: number,
     aside: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(
-      Vector3.add(scene.lip, Vector3.scale(scene.out, -behind)),
-      Vector3.scale(scene.along, aside),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(scene.lip, AutoMovieEngineVector3.scale(scene.out, -behind)),
+      AutoMovieEngineVector3.scale(scene.along, aside),
     );
   const on: (
     key: string,
@@ -99,7 +99,7 @@ export function edgeRescueRescuer(
   ): IAutoMovieMotionHumanSupport.IContact => ({
     part: "rightHand",
     kind: "grip",
-    target: on(key, point, Vector3.scale(scene.out, -1)),
+    target: on(key, point, AutoMovieEngineVector3.scale(scene.out, -1)),
   });
   const entry: ReturnType<typeof poseBones> = poseBones(
     context.body,
@@ -145,9 +145,9 @@ export function edgeRescueRescuer(
     const area: IAutoMovieMotionHumanActionContext["body"]["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       context.body.surfaces.regions[region];
     const bone: IAutoMovieResolvedBone = lying.get(area.bone)!;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       bone.worldPosition,
-      Quaternion.rotateVector(bone.worldRotation, area.point),
+      AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, area.point),
     );
   };
   const palm: IAutoMovieVector3 = surface("palmRight");
@@ -157,32 +157,32 @@ export function edgeRescueRescuer(
     region: AutoMovieHumanoidRegion,
   ): IAutoMovieVector3 => {
     const at: IAutoMovieVector3 = surface(region);
-    return Vector3.add(
-      Vector3.add(
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         { x: scene.grip.x, y: scene.lip.y + at.y - low, z: scene.grip.z },
-        Vector3.scale(scene.out, at.z - palm.z),
+        AutoMovieEngineVector3.scale(scene.out, at.z - palm.z),
       ),
-      Vector3.scale(scene.along, at.x - palm.x),
+      AutoMovieEngineVector3.scale(scene.along, at.x - palm.x),
     );
   };
   // The free hand braces on the top where the reaching pose lays it beside
   // the head, prone and through the haul.
   const shoulder: IAutoMovieVector3 = surface("palmLeft");
-  const under: IAutoMovieVector3 = Vector3.add(
-    Vector3.add(
+  const under: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(
       { x: scene.grip.x, y: scene.lip.y, z: scene.grip.z },
-      Vector3.scale(scene.out, shoulder.z - palm.z),
+      AutoMovieEngineVector3.scale(scene.out, shoulder.z - palm.z),
     ),
-    Vector3.scale(scene.along, shoulder.x - palm.x),
+    AutoMovieEngineVector3.scale(scene.along, shoulder.x - palm.x),
   );
   // A brace that would lie out over the lip is drawn back a hand's length
   // behind it.
   const past: number =
-    Vector3.dot(Vector3.subtract(under, scene.lip), scene.out) + measure.hand;
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(under, scene.lip), scene.out) + measure.hand;
   const brace: IAutoMovieMotionHumanSupport.IContact = bear(
     "leftHand",
     "brace",
-    past > 0 ? Vector3.subtract(under, Vector3.scale(scene.out, past)) : under,
+    past > 0 ? AutoMovieEngineVector3.subtract(under, AutoMovieEngineVector3.scale(scene.out, past)) : under,
   );
   const prone: IAutoMovieMotionHumanSupport.IContact[] = [
     bear("front", "chest", lain("abdomen")),
@@ -266,7 +266,7 @@ export function edgeRescueRescuer(
 
   // The shared grip: the right hand on the scene's grip path from the catch to the haul's end.
   const span: number = plan.duration;
-  const elbow: IAutoMovieVector3 = Vector3.add(Vector3.scale(scene.out, -0.2), {
+  const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(scene.out, -0.2), {
     x: 0,
     y: 0.25,
     z: 0,
@@ -295,11 +295,11 @@ export function edgeRescueRescuer(
         ...shown.limbs,
         rightArm:
           own === undefined || own.on !== undefined
-            ? { point, bend: Vector3.add(point, elbow) }
+            ? { point, bend: AutoMovieEngineVector3.add(point, elbow) }
             : {
                 ...own,
                 point,
-                bend: Vector3.add(own.bend, Vector3.subtract(point, own.point)),
+                bend: AutoMovieEngineVector3.add(own.bend, AutoMovieEngineVector3.subtract(point, own.point)),
               },
       },
     };

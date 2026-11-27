@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeLandingMatData from "./internal/AutoMovieArchetypeLandingMatData";
+import { AutoMovieArchetypeLandingMatData } from "./internal/AutoMovieArchetypeLandingMatData";
 
 /** Constructs the landing mat archetype from its recipe. */
 export namespace AutoMovieArchetypeLandingMat {
@@ -76,14 +76,14 @@ export function create(
   });
   builder.box(
     "bed",
-    Vector3.create(width, height, length),
-    Vector3.create(0, height / 2, 0),
+    AutoMovieEngineVector3.create(width, height, length),
+    AutoMovieEngineVector3.create(0, height / 2, 0),
     { color: "#2f5d9e" },
   );
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: null,
     width,
     depth: length,

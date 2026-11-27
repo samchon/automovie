@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -131,7 +131,7 @@ export function placeOverHeadHandGap(
       },
       radius: (pivot: IAutoMovieVector3): number =>
         Math.max(
-          ...points.map((p): number => Vector3.distance(p, pivot)),
+          ...points.map((p): number => AutoMovieEngineVector3.distance(p, pivot)),
           ...parts.map(({ bounds: { min, max } }): number =>
             Math.hypot(
               Math.max(Math.abs(min.x - pivot.x), Math.abs(max.x - pivot.x)),
@@ -201,7 +201,7 @@ function nearest(
  */
 const ORIGIN: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
-  rotation: Quaternion.identity(),
+  rotation: AutoMovieEngineQuaternion.identity(),
 };
 
 /*

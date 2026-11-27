@@ -9,7 +9,7 @@ import type {
  *
  * A planned face's residual membership is constant on each face of its
  * constraint arrangement, because the constraints are the partition's trim,
- * domain and retained-cell boundaries (`AutoMovieSolidMeshPlan`). The regions
+ * domain and retained-cell boundaries (`AutoMovieEngineSolidMeshPlan`). The regions
  * are therefore found from topology, the way Shewchuk's Triangle spreads a hole
  * or a regional attribute from a seed triangle across every edge that is not a
  * segment (Shewchuk 1996, Triangle: Engineering a 2D Quality Mesh Generator and

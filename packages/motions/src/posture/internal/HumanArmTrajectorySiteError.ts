@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
@@ -230,23 +230,23 @@ export namespace HumanArmTrajectorySiteError {
       b === arm && moved !== undefined ? moved : placed[b]![k]!;
     const at: P.ILocated = P.located(c, read, a, k, site);
     const contact: IAutoMovieVector3 = P.pad(read(a), site.contact);
-    const off: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(contact, at.point),
+    const off: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(contact, at.point),
       1000,
     );
     const normal: IAutoMovieVector3 | undefined = at.normal;
     const slide: IAutoMovieVector3 =
       normal === undefined
         ? off
-        : Vector3.subtract(
+        : AutoMovieEngineVector3.subtract(
             off,
-            Vector3.scale(normal, Vector3.dot(off, normal)),
+            AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(off, normal)),
           );
     const axes: readonly IAutoMovieVector3[] =
       normal === undefined ? P.AXES : P.tangents(normal);
     return {
-      excess: Vector3.length(slide) - 1000 * site.disc,
-      offsets: axes.map((e: IAutoMovieVector3): number => Vector3.dot(off, e)),
+      excess: AutoMovieEngineVector3.length(slide) - 1000 * site.disc,
+      offsets: axes.map((e: IAutoMovieVector3): number => AutoMovieEngineVector3.dot(off, e)),
     };
   }
 }

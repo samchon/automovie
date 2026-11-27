@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -39,11 +39,11 @@ export function admitBendBrace(
     resolveHumanPosture(body, held),
   );
   const knee: IAutoMovieVector3 = shown.get(`${free}LowerLeg`)!.worldPosition;
-  const femur: IAutoMovieVector3 = Vector3.subtract(
+  const femur: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     shown.get(`${free}UpperLeg`)!.worldPosition,
     knee,
   );
-  const axis: IAutoMovieVector3 = Vector3.normalize(femur);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(femur);
   const contact: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
     body,
     shown,
@@ -51,15 +51,15 @@ export function admitBendBrace(
     "palm",
     "flat",
   );
-  const delta: IAutoMovieVector3 = Vector3.subtract(contact.point, knee);
-  const station: number = Vector3.dot(delta, axis);
-  const radial: IAutoMovieVector3 = Vector3.addScaled(delta, axis, -station);
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(contact.point, knee);
+  const station: number = AutoMovieEngineVector3.dot(delta, axis);
+  const radial: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(delta, axis, -station);
   const margin: number =
     body.measure.hand / 2 - AutoMovieMotionHumanAuditTangle.BUILT;
   if (
-    Vector3.dot(contact.normal, radial) >= 0 ||
+    AutoMovieEngineVector3.dot(contact.normal, radial) >= 0 ||
     station < margin ||
-    Vector3.length(femur) - station < margin
+    AutoMovieEngineVector3.length(femur) - station < margin
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",

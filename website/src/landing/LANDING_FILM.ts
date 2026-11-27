@@ -86,7 +86,7 @@ export const LANDING_FILM: ILandingFilm = {
   ],
   code: {
     text: [
-      "const Chain = HumanChain.extend({",
+      "const Chain = AutoMovieMotionHumanChain.extend({",
       "  jab, cross, leadHook, rearHook, roundKick, switchKick, teep,",
       "  leanBack, pushed, swayBack, handParry, cover, checkKick,",
       "  rollUnder, highBlock, braceImpact, victory,",

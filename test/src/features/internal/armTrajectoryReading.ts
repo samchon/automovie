@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmGeometry,
@@ -7,9 +7,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanArmGeometry,
-  type HumanArmTrajectoryModel,
-} from "@automovie/motions/internal";
+  HumanArmGeometry
+} from "../../../../packages/motions/src/posture/internal/HumanArmGeometry";
+import type {
+  HumanArmTrajectoryModel
+} from "../../../../packages/motions/src/posture/internal/HumanArmTrajectoryModel";
 
 /** Straight, axis-aligned arms and spherical colliders with dyadic lengths. */
 export namespace armTrajectoryReading {
@@ -25,7 +27,7 @@ export namespace armTrajectoryReading {
       kind: "sphere",
       radius,
       material: "rubber",
-      transform: { position: point(0), rotation: Quaternion.identity() },
+      transform: { position: point(0), rotation: AutoMovieEngineQuaternion.identity() },
     };
   }
 
@@ -40,7 +42,7 @@ export namespace armTrajectoryReading {
       x: number,
     ): IAutoMovieMotionHumanArmGeometry.ISetup["rest"]["upper"] => ({
       translation: point(x),
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
       scale: { x: 1, y: 1, z: 1 },
     });
     return {
@@ -70,7 +72,7 @@ export namespace armTrajectoryReading {
     return {
       parent: {
         position: point(wrist - 3 / 8),
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       tip: point(0),
       surface: offsets.map(point),
@@ -95,7 +97,7 @@ export namespace armTrajectoryReading {
                 owner: "hand",
                 bone: setup.bones.hand,
                 part,
-                pose: { position: point(0), rotation: Quaternion.identity() },
+                pose: { position: point(0), rotation: AutoMovieEngineQuaternion.identity() },
                 shapes: [sphere(radius)],
               },
             ],

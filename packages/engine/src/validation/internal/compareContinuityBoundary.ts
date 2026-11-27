@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Index opening actors by node and compare every prior actor or report its
@@ -80,8 +80,8 @@ const compareActor: (
   tolerances: IAutoMovieContinuityTolerances,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  const drift: number = Vector3.length(
-    Vector3.subtract(open.transform.translation, prev.transform.translation),
+  const drift: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(open.transform.translation, prev.transform.translation),
   );
   if (drift > tolerances.position)
     collector.warn(
@@ -135,7 +135,7 @@ const angleBetweenDeg: (
   a: IAutoMovieBeatEndActorState["facing"],
   b: IAutoMovieBeatEndActorState["facing"],
 ): number => {
-  const dot: number = Vector3.dot(Vector3.normalize(a), Vector3.normalize(b));
+  const dot: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(a), AutoMovieEngineVector3.normalize(b));
   const clamped: number = Math.min(1, Math.max(-1, dot));
   return (Math.acos(clamped) * 180) / Math.PI;
 };

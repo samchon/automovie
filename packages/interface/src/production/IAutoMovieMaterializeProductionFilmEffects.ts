@@ -20,7 +20,7 @@ export namespace IAutoMovieMaterializeProductionFilmEffects {
    * seconds of the interval, holds the cue's intensity constant, and takes its
    * seed from the film seed protocol of {@link materializeCompiledEffects}.
    *
-   * Every refusal throws {@link AutoMovieFilmEffectRuntimeError}: a malformed
+   * Every refusal throws {@link AutoMovieEngineFilmEffectRuntimeError}: a malformed
    * identity, rate, world id, shot interval or cue, or a repeated cue id, is
    * `film-effect-input-invalid`; a cue on an unknown zone is
    * `film-effect-zone-missing`; a zone whose recipe is unknown is

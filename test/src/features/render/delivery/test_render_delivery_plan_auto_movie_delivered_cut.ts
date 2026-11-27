@@ -1,4 +1,6 @@
-import { planAutoMovieDeliveredCut } from "@automovie/render/internal";
+import {
+  planAutoMovieDeliveredCut
+} from "../../../../../packages/render/src/delivery/internal/planAutoMovieDeliveredCut";
 import { TestValidator } from "@nestia/e2e";
 
 /**

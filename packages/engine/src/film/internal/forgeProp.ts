@@ -11,7 +11,7 @@ import {
 
 import { profileSemanticKeys } from "../../resolve/internal/profileSemanticKeys";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 import { validateModel } from "../../validation/internal/validateModel";
 
 /*
@@ -202,7 +202,7 @@ function gateImportedAppearance(
     // The first entry wins, so a path sealed twice is reported once above
     // rather than turning every later reader of it into a second complaint.
     if (!known) ledger.set(entry.path, entry.digest);
-    if (!SHA256_DIGEST_PATTERN.test(entry.digest))
+    if (!AutoMovieEngineSha256DigestPattern.test(entry.digest))
       out.push(
         "type",
         `${ap}.digest`,
@@ -251,7 +251,7 @@ function gateImportedAppearance(
         `a rigid prop's LOD "${entry.level}" maps no humanoid bones, but ${entry.humanoidBones.length} were sealed`,
         entry.humanoidBones.length,
       );
-    const wellFormed: boolean = SHA256_DIGEST_PATTERN.test(entry.digest);
+    const wellFormed: boolean = AutoMovieEngineSha256DigestPattern.test(entry.digest);
     if (!wellFormed)
       out.push(
         "type",

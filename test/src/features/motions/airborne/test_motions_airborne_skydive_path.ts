@@ -1,6 +1,11 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type { IAutoMovieMotionHumanSkydive } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, skydivePath } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  skydivePath
+} from "../../../../../packages/motions/src/airborne/internal/skydivePath";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -43,7 +48,7 @@ export function test_motions_airborne_skydive_path(): void {
     0,
     0,
   );
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const deploy: number =
     (TERMINAL / g) * Math.acosh(Math.exp((2000 * g) / TERMINAL ** 2));
   TestValidator.predicate(

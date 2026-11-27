@@ -1,11 +1,11 @@
-import { AutoMovieMonotone, AutoMovieEngineSweep } from "@automovie/engine";
+import { AutoMovieEngineMonotone, AutoMovieEngineSweep } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
  * `interpolateAutoMovieMonotone({ knots, values, period? })` is the
- * Fritsch-Carlson monotone cubic (1980); `AutoMovieMonotone.slope` writes its
+ * Fritsch-Carlson monotone cubic (1980); `AutoMovieEngineMonotone.slope` writes its
  * knot slopes: the mean of the two secants, 0 at a sign change or a flat
  * secant, the end secants at open ends, pairs scaled back onto the circle of
  * radius 3.
@@ -32,7 +32,7 @@ export function test_engine_geometry_monotone_interpolation(): void {
     Math.abs(a - b) <= e;
   const slopes = (xs: number[], ys: number[], period: number = 0): number[] => {
     const out: Float64Array = new Float64Array(xs.length);
-    AutoMovieMonotone.slope(xs, ys, xs.length, period, out);
+    AutoMovieEngineMonotone.slope(xs, ys, xs.length, period, out);
     return [...out];
   };
 

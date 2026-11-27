@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeShowcase } from "../AutoMovieArchetypeShowcase";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -51,7 +51,7 @@ export function createShowcase(
     name: `glass showcase ${model.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const length: number = model.figures.length!;
   const { depth, height } = CASE;
   builder.box("case", v(length, height, depth), v(0, height / 2, 0), {

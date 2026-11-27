@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -78,8 +78,8 @@ export namespace HumanGraspReach {
   ): HumanGrasp.IFrame {
     return {
       ...target,
-      approach: Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(target.axis, turn),
+      approach: AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(target.axis, turn),
         target.approach,
       ),
     };

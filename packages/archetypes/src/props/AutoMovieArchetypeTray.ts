@@ -9,7 +9,7 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeCarryBasket } from "./AutoMovieArchetypeCarryBasket";
 import { AutoMovieArchetypeServingTray } from "./AutoMovieArchetypeServingTray";
-import * as AutoMovieArchetypeTrayData from "./internal/AutoMovieArchetypeTrayData";
+import { AutoMovieArchetypeTrayData } from "./internal/AutoMovieArchetypeTrayData";
 
 /** Constructs the tray archetype from its recipe. */
 export namespace AutoMovieArchetypeTray {

@@ -10,14 +10,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdCollider } from "../AutoMovieXpbdCollider";
-import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
-import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdCollider } from "../AutoMovieEngineXpbdCollider";
+import type { AutoMovieEngineXpbdJoint } from "../AutoMovieEngineXpbdJoint";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
+import { AutoMovieEnginePhysicalHullFaces } from "../AutoMovieEnginePhysicalHullFaces";
 import { physicalHullFacesErode } from "./physicalHullFacesErode";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
@@ -31,7 +31,7 @@ import { samplePhysicalTarget } from "./samplePhysicalTarget";
  * with friction 0.7.
  */
 export function bindPhysicalWorld(
-  world: AutoMovieXpbdWorld,
+  world: AutoMovieEngineXpbdWorld,
   input: IAutoMoviePhysicalSimulationInput.IInput,
   restored: boolean,
 ): Bound {
@@ -67,9 +67,9 @@ export function bindPhysicalWorld(
     posture: new Map(),
     supportCoordinates: new Map(),
   };
-  const bodies: AutoMovieXpbdBody[] = [];
-  const colliders: AutoMovieXpbdCollider[] = [];
-  const joints: AutoMovieXpbdJoint[] = [];
+  const bodies: AutoMovieEngineXpbdBody[] = [];
+  const colliders: AutoMovieEngineXpbdCollider[] = [];
+  const joints: AutoMovieEngineXpbdJoint[] = [];
   if (restored) {
     bodies.push(...world.bodies);
     colliders.push(...world.colliders);
@@ -79,7 +79,7 @@ export function bindPhysicalWorld(
   let ci: number = 0;
   let ji: number = 0;
   for (const body of input.bodies) {
-    const local: Map<string, AutoMovieXpbdBody> = new Map();
+    const local: Map<string, AutoMovieEngineXpbdBody> = new Map();
     const dynamic: Set<string> = new Set();
     bound.segments.set(body.id, local);
     bound.dynamic.set(body.id, dynamic);
@@ -100,7 +100,7 @@ export function bindPhysicalWorld(
       const selected: boolean =
         body.mode.kind !== "kinematic" &&
         (body.targets[0]!.dynamicSegments?.includes(segment.bone) ?? true);
-      const rigid: AutoMovieXpbdBody = restored
+      const rigid: AutoMovieEngineXpbdBody = restored
         ? bodies[bi++]!
         : world.createBody(selected, target, factor);
       if (!restored)
@@ -128,11 +128,11 @@ export function bindPhysicalWorld(
             );
 
           rigid.setLinvel(
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               sampled.velocity,
-              Vector3.cross(
+              AutoMovieEngineVector3.cross(
                 sampled.angularVelocity,
-                Quaternion.rotateVector(target.rotation, segment.centerOfMass),
+                AutoMovieEngineQuaternion.rotateVector(target.rotation, segment.centerOfMass),
               ),
             ),
           );
@@ -154,9 +154,9 @@ export function bindPhysicalWorld(
         // A hull shape carries its hull from here on, built once.
         const solid: IAutoMoviePhysicalShape =
           shape.kind === "hull" && shape.hull === undefined
-            ? { ...shape, hull: AutoMoviePhysicalHullFaces.build(shape.points) }
+            ? { ...shape, hull: AutoMovieEnginePhysicalHullFaces.build(shape.points) }
             : shape;
-        const collider: AutoMovieXpbdCollider = restored
+        const collider: AutoMovieEngineXpbdCollider = restored
           ? colliders[ci++]!
           : world.createCollider(
               rigid,
@@ -202,13 +202,13 @@ export function bindPhysicalWorld(
             coreShape = {
               ...shape,
               points: eroded,
-              hull: AutoMoviePhysicalHullFaces.build(eroded),
+              hull: AutoMovieEnginePhysicalHullFaces.build(eroded),
             };
           } else {
             shape satisfies never;
             throw new Error("Unknown physical shape kind");
           }
-          const inner: AutoMovieXpbdCollider = restored
+          const inner: AutoMovieEngineXpbdCollider = restored
             ? colliders[ci++]!
             : world.createCollider(
                 rigid,
@@ -339,7 +339,7 @@ export function bindPhysicalWorld(
   }
   // The floor is a stationary kinematic box whose top face lies at the
   // floor height across the admitted floor bounds.
-  const floor: AutoMovieXpbdCollider = restored
+  const floor: AutoMovieEngineXpbdCollider = restored
     ? colliders[ci]!
     : world.createCollider(
         world.createBody(false, {

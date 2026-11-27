@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -87,12 +87,12 @@ function plan(
   const top: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, thumb);
   const bottom: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, index);
   const support: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, brace);
-  const gap: IAutoMovieVector3 = Vector3.subtract(top.point, bottom.point);
-  const gapLength: number = Vector3.length(gap);
+  const gap: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(top.point, bottom.point);
+  const gapLength: number = AutoMovieEngineVector3.length(gap);
   if (
     !(gapLength > 0) ||
-    Vector3.dot(gap, top.normal) < 0.99 * gapLength ||
-    Vector3.dot(gap, bottom.normal) > -0.99 * gapLength
+    AutoMovieEngineVector3.dot(gap, top.normal) < 0.99 * gapLength ||
+    AutoMovieEngineVector3.dot(gap, bottom.normal) > -0.99 * gapLength
   )
     throw zipSites.refusal(
       p.pouch,
@@ -123,14 +123,14 @@ function plan(
     context.entry.pose,
   );
   const motion: number = Math.max(
-    Vector3.length(
-      Vector3.subtract(first.point, bones.get(`${side}Hand`)!.worldPosition),
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(first.point, bones.get(`${side}Hand`)!.worldPosition),
     ),
-    Vector3.length(
-      Vector3.subtract(last.point, bones.get(`${side}Hand`)!.worldPosition),
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(last.point, bones.get(`${side}Hand`)!.worldPosition),
     ),
-    Vector3.length(
-      Vector3.subtract(support.point, bones.get(`${other}Hand`)!.worldPosition),
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(support.point, bones.get(`${other}Hand`)!.worldPosition),
     ),
   );
   const tempo: number = context.tempo ?? 1;
@@ -148,7 +148,7 @@ function plan(
   const opposing = (
     seconds: number,
   ): IAutoMovieMotionHumanOperateDrive.IPlace => ({
-    point: Vector3.subtract(working(seconds).point, gap),
+    point: AutoMovieEngineVector3.subtract(working(seconds).point, gap),
     normal: bottom.normal,
   });
   const pinch: ReturnType<typeof prepareZipperPinch> = prepareZipperPinch(
@@ -164,7 +164,7 @@ function plan(
       side,
       pinch.normal,
       gap,
-      Vector3.subtract(working(seconds).point, shoulder),
+      AutoMovieEngineVector3.subtract(working(seconds).point, shoulder),
     );
   const braceTurn: IAutoMovieQuaternion = manipulateFacing(
     posture,
@@ -233,16 +233,16 @@ function pinchRotation(
   reach: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
   const forward: IAutoMovieVector3 =
-    Vector3.length(Vector3.cross(gap, reach)) > 1e-8
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(gap, reach)) > 1e-8
       ? reach
-      : Vector3.length(Vector3.cross(gap, { x: 0, y: 0, z: 1 })) > 1e-8
+      : AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(gap, { x: 0, y: 0, z: 1 })) > 1e-8
         ? { x: 0, y: 0, z: 1 }
         : { x: 1, y: 0, z: 0 };
   const along: IAutoMovieVector3 = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
-  if (Vector3.length(Vector3.cross(normal, along)) < 1e-8)
+  if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(normal, along)) < 1e-8)
     return HumanHand.rotation(side, {
       fingers: forward,
-      palm: Vector3.scale(gap, -1),
+      palm: AutoMovieEngineVector3.scale(gap, -1),
     });
   return HumanHand.align({ normal, forward: along }, { normal: gap, forward });
 }
@@ -275,13 +275,13 @@ function fingers(
     const first: IAutoMovieVector3 = goals[0]!.at(seconds).point;
     const middle: IAutoMovieVector3 =
       pinch !== undefined
-        ? Vector3.lerp(first, goals[1]!.at(seconds).point, 0.5)
+        ? AutoMovieEngineVector3.lerp(first, goals[1]!.at(seconds).point, 0.5)
         : first;
     const rotation: IAutoMovieQuaternion = rotationAt(seconds);
     return {
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         middle,
-        Quaternion.rotateVector(rotation, contact),
+        AutoMovieEngineQuaternion.rotateVector(rotation, contact),
       ),
       rotation,
       contact,
@@ -291,7 +291,7 @@ function fingers(
   // Check the endpoint reaches before the shared arm planner checks the path.
   for (const seconds of [ready, done])
     if (
-      Vector3.length(Vector3.subtract(handAt(seconds).point, shoulder)) >
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(handAt(seconds).point, shoulder)) >
       body.measure.upperArm + body.measure.forearm
     )
       throw zipSites.refusal(
@@ -385,12 +385,12 @@ function place(
   affordance: IAutoMovieAffordance,
 ): IAutoMovieMotionHumanOperateDrive.IPlace {
   return {
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, affordance.frame.translation),
     ),
-    normal: Quaternion.rotateVector(
-      Quaternion.multiply(frame.rotation, affordance.frame.rotation),
+    normal: AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(frame.rotation, affordance.frame.rotation),
       { x: 0, y: 1, z: 0 },
     ),
   };

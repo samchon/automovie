@@ -1,4 +1,4 @@
-import { AffordanceArticulation, AutoMovieGravity, Vector3, AutoMovieEngineViolationCollector, AutoMovieEngineMotionTrajectory, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineGravity, AutoMovieEngineVector3, AutoMovieEngineViolationCollector, AutoMovieEngineMotionTrajectory, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieAffordanceArticulation,
@@ -88,7 +88,7 @@ export namespace HumanPropDynamics {
     const travel = (seconds: number): number => {
       const degrees: number = path.at(seconds).x[0]! * (180 / Math.PI);
       const input: IAutoMovieAffordanceArticulation.Input =
-        AffordanceArticulation.input(byId, articulation, degrees);
+        AutoMovieEngineAffordanceArticulation.input(byId, articulation, degrees);
       if (!input.success)
         throw new Error(
           `${subject}.${input.id}: hinge drive travel ${input.travel} at ${seconds}s is inadmissible (${input.kind})`,
@@ -189,9 +189,9 @@ export namespace HumanPropDynamics {
     return {
       ...prop,
       motion: (seconds: number): IAutoMovieRigidTransform => ({
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           frame.position,
-          Vector3.scale(direction, path.at(seconds).x[0]!),
+          AutoMovieEngineVector3.scale(direction, path.at(seconds).x[0]!),
         ),
         rotation: { ...frame.rotation },
       }),
@@ -220,7 +220,7 @@ export namespace HumanPropDynamics {
   export function slide(
     props: IAutoMovieMotionHumanPropDynamics.ISlide,
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const pieces: IPiece[] = [];
     let x0: readonly number[] = [0, 0];
     for (const [start, end] of spans(props.from, props.to, props.breaks)) {
@@ -349,7 +349,7 @@ export namespace HumanPropDynamics {
     hands: number,
   ): number | null {
     const ratio: number =
-      (force * hands) / (mass * AutoMovieGravity.STANDARD * height);
+      (force * hands) / (mass * AutoMovieEngineGravity.STANDARD * height);
     if (Math.abs(ratio) > 1) return null;
     return (Math.asin(ratio) * 180) / Math.PI;
   }

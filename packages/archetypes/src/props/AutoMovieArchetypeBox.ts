@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeBoxData from "./internal/AutoMovieArchetypeBoxData";
+import { AutoMovieArchetypeBoxData } from "./internal/AutoMovieArchetypeBoxData";
 
 /** Constructs the box archetype from its recipe. */
 export namespace AutoMovieArchetypeBox {
@@ -72,8 +72,8 @@ export function create(
   });
   builder.box(
     "box",
-    Vector3.create(width, height, depth),
-    Vector3.create(0, height / 2, 0),
+    AutoMovieEngineVector3.create(width, height, depth),
+    AutoMovieEngineVector3.create(0, height / 2, 0),
     { color: "#b98d5b" },
   );
   for (const [id, sign] of [
@@ -85,9 +85,9 @@ export function create(
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create((sign * width) / 2, height / 2, 0),
-        Vector3.create(sign, 0, 0),
-        Vector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create((sign * width) / 2, height / 2, 0),
+        AutoMovieEngineVector3.create(sign, 0, 0),
+        AutoMovieEngineVector3.create(0, 0, 1),
       ),
       extent: null,
       grip: "two-hand",
@@ -96,21 +96,21 @@ export function create(
   builder.affordance({
     id: "top",
     kind: "stack-top",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: [
-      Vector3.create(-width / 2, 0, -depth / 2),
-      Vector3.create(width / 2, 0, -depth / 2),
-      Vector3.create(width / 2, 0, depth / 2),
-      Vector3.create(-width / 2, 0, depth / 2),
+      AutoMovieEngineVector3.create(-width / 2, 0, -depth / 2),
+      AutoMovieEngineVector3.create(width / 2, 0, -depth / 2),
+      AutoMovieEngineVector3.create(width / 2, 0, depth / 2),
+      AutoMovieEngineVector3.create(-width / 2, 0, depth / 2),
     ],
   });
   builder.affordance({
     id: "front",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, height / 2, depth / 2),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, height / 2, depth / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     width,

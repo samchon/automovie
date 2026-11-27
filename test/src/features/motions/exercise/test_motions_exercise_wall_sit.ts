@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -8,10 +8,14 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
-  HumanColliders,
-  workout,
-  workoutWallSit,
-} from "@automovie/motions/internal";
+  HumanColliders
+} from "../../../../../packages/motions/src/posture/internal/HumanColliders";
+import {
+  workout
+} from "../../../../../packages/motions/src/exercise/internal/workout";
+import {
+  workoutWallSit
+} from "../../../../../packages/motions/src/exercise/workout/workoutWallSit";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -87,13 +91,13 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
   const surface: number = outside(unloaded) - 0.005;
   const panel = (turn: number): IAutoMovieMotionHumanProp => {
     const translation: IAutoMovieVector3 = { x: 0, y: 1, z: surface };
-    const rotation = Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, turn);
+    const rotation = AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, turn);
     return {
       subject: "wall",
       fixed: true,
       frame: {
         position: { x: 0, y: 0, z: 0 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       points: {
         face: {

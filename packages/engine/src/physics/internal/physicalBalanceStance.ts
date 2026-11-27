@@ -7,9 +7,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { AutoMoviePhysicalBalance as Balance } from "../AutoMoviePhysicalBalance";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalBalance as Balance } from "../AutoMovieEnginePhysicalBalance";
 import { physicalRecoveryLifted } from "./physicalRecoveryLifted";
 import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { AutoMovieEnginePhysicalStanceBalance } from "../AutoMovieEnginePhysicalStanceBalance";
@@ -27,7 +27,7 @@ export namespace physicalBalanceStance {
    * floor and rate, the capture point's shift for the body's rotation, a landed
    * foot's ramping share, the trunk's tilt and whether it asks for a step, the
    * stance feet's heading, the step's timing, and the assessment the step choices
-   * ask of `AutoMoviePhysicalBalance.assess`.
+   * ask of `AutoMovieEnginePhysicalBalance.assess`.
    *
    * Support is what the controller has planted, not what touches this step: every
    * planted limb, a limb asked to step among them until it lifts, bounds where
@@ -224,16 +224,16 @@ function physicalBalanceStanceImplementation(input: {
   // strategy's range within a pendulum time, even with the capture point
   // inside, read from the centroidal momentum at the same time as the
   // capture point (`AutoMovieEnginePhysicalStanceBalance.tipping`).
-  const upNow: IAutoMovieVector3 = Quaternion.rotateVector(
+  const upNow: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     sense.root.body.rotation(),
     { x: 0, y: 1, z: 0 },
   );
-  const upPlanned: IAutoMovieVector3 = Quaternion.rotateVector(
+  const upPlanned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     sense.targets[sense.root.segment.bone]!.rotation,
     { x: 0, y: 1, z: 0 },
   );
   const tilt: number = Math.acos(
-    Math.max(-1, Math.min(1, Vector3.dot(upNow, upPlanned))),
+    Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(upNow, upPlanned))),
   );
   const tipping: boolean =
     landing === undefined &&
@@ -262,22 +262,22 @@ function physicalBalanceStanceImplementation(input: {
         sense.targets[limb.bone];
       if (!anchor || !goal || physicalRecoveryLimbSwing(state, limb.bone))
         continue;
-      sum = Vector3.add(
+      sum = AutoMovieEngineVector3.add(
         sum,
-        Quaternion.rotateVector(
-          Quaternion.multiply(
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.multiply(
             anchor.rotation,
-            Quaternion.inverse(goal.rotation),
+            AutoMovieEngineQuaternion.inverse(goal.rotation),
           ),
           { x: 0, y: 0, z: 1 },
         ),
       );
     }
     if (Math.hypot(sum.x, sum.z) > 0) return { x: sum.x, y: 0, z: sum.z };
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(
         sense.root.body.rotation(),
-        Quaternion.inverse(sense.targets[sense.root.segment.bone]!.rotation),
+        AutoMovieEngineQuaternion.inverse(sense.targets[sense.root.segment.bone]!.rotation),
       ),
       { x: 0, y: 0, z: 1 },
     );
@@ -327,7 +327,7 @@ function physicalBalanceStanceImplementation(input: {
         pattern: sense.policy.pattern,
         maximumStep: sense.policy.maximumStep,
         // The capture point counts as outside once past the shrunken support
-        // by the policy's margin (`AutoMoviePhysicalBalance.assess`).
+        // by the policy's margin (`AutoMovieEnginePhysicalBalance.assess`).
         margin: sense.policy.margin,
         swingSeconds: sense.policy.duration,
         spin,

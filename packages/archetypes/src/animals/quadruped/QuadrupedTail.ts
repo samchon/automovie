@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -71,14 +71,14 @@ export namespace QuadrupedTail {
       placement,
       bar.transform,
     );
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(world.rotation, {
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(world.rotation, {
       x: 0,
       y: geometry.shape.height / 2,
       z: 0,
     });
     const ends: readonly IAutoMovieVector3[] = [
-      Vector3.add(world.translation, half),
-      Vector3.subtract(world.translation, half),
+      AutoMovieEngineVector3.add(world.translation, half),
+      AutoMovieEngineVector3.subtract(world.translation, half),
     ];
     // The dock is the end nearer the hindquarters it hangs from.
     const hips: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(
@@ -86,7 +86,7 @@ export namespace QuadrupedTail {
       quarters.transform,
     ).translation;
     const dock: IAutoMovieVector3 =
-      Vector3.distance(ends[0]!, hips) < Vector3.distance(ends[1]!, hips)
+      AutoMovieEngineVector3.distance(ends[0]!, hips) < AutoMovieEngineVector3.distance(ends[1]!, hips)
         ? ends[0]!
         : ends[1]!;
     const tip: IAutoMovieVector3 = dock === ends[0] ? ends[1]! : ends[0]!;
@@ -94,11 +94,11 @@ export namespace QuadrupedTail {
       footing.landing(tip, placement.rotation);
     const radius: number = geometry.shape.radius + REST;
     const gap = (point: IAutoMovieVector3): number =>
-      Vector3.dot(landing.normal, Vector3.subtract(point, landing.point));
+      AutoMovieEngineVector3.dot(landing.normal, AutoMovieEngineVector3.subtract(point, landing.point));
     if (gap(tip) >= radius) return model;
 
     // The far end turns about the body's lateral axis through the dock: its gap is A cos a + B sin a + gap(dock).
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       placement.rotation,
       {
         x: 1,
@@ -106,19 +106,19 @@ export namespace QuadrupedTail {
         z: 0,
       },
     );
-    const along: IAutoMovieVector3 = Vector3.subtract(tip, dock);
-    const across: IAutoMovieVector3 = Vector3.cross(axis, along);
-    const a: number = Vector3.dot(landing.normal, along);
-    const b: number = Vector3.dot(landing.normal, across);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(tip, dock);
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(axis, along);
+    const a: number = AutoMovieEngineVector3.dot(landing.normal, along);
+    const b: number = AutoMovieEngineVector3.dot(landing.normal, across);
     const c: number = radius - gap(dock);
     const reach: number = Math.hypot(a, b);
     const limit: number = (ROM * Math.PI) / 180;
     const phase: number = Math.atan2(b, a);
     // The tail trails: it turns the way that carries its end toward the body's rear, never forward under the body.
     const rear: number =
-      Vector3.dot(
+      AutoMovieEngineVector3.dot(
         across,
-        Quaternion.rotateVector(placement.rotation, { x: 0, y: 0, z: -1 }),
+        AutoMovieEngineQuaternion.rotateVector(placement.rotation, { x: 0, y: 0, z: -1 }),
       ) >= 0
         ? 1
         : -1;
@@ -143,11 +143,11 @@ export namespace QuadrupedTail {
       QuadrupedCarriage.of(animal, species),
     );
     const pose: QuadrupedWorldPose.IPose = prepared.read(model, placement);
-    const parent: IAutoMovieQuaternion = Quaternion.multiply(
+    const parent: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       pose.root.rotation,
       pose.local.get("hindquarters")!,
     );
-    const delta: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const delta: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       axis,
       (bounded * 180) / Math.PI,
     );
@@ -157,9 +157,9 @@ export namespace QuadrupedTail {
     > = new Map(pose.local);
     local.set(
       "tail",
-      Quaternion.multiply(
-        Quaternion.multiply(
-          Quaternion.multiply(Quaternion.inverse(parent), delta),
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(parent), delta),
           parent,
         ),
         pose.local.get("tail")!,

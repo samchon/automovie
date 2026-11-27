@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -84,18 +84,18 @@ function materialSites<I extends string, D extends string>(
         );
       const from: IAutoMovieTransform = source.transform ?? IDENTITY;
       const to: IAutoMovieTransform = destination.transform ?? IDENTITY;
-      const rotation: IAutoMovieTransform["rotation"] = Quaternion.multiply(
+      const rotation: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
         to.rotation,
-        Quaternion.inverse(from.rotation),
+        AutoMovieEngineQuaternion.inverse(from.rotation),
       );
       return {
         ...a,
         frame: AutoMovieArchetypeFrame.move(
           {
             rotation,
-            translation: Vector3.subtract(
+            translation: AutoMovieEngineVector3.subtract(
               to.translation,
-              Quaternion.rotateVector(rotation, from.translation),
+              AutoMovieEngineQuaternion.rotateVector(rotation, from.translation),
             ),
           },
           a.frame,

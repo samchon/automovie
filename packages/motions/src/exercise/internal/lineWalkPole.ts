@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -66,7 +66,7 @@ export function lineWalkPole(
             fingers: HumanFrame.forward(frame.yaw),
             palm: { x: 0, y: -1, z: 0 },
           }),
-          bend: Vector3.add(
+          bend: AutoMovieEngineVector3.add(
             point,
             HumanFrame.point(
               { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
@@ -128,9 +128,9 @@ function local(
       reason: `${subject} declares no ${id}`,
       fix: "hold a pole that declares a leftGrip and a rightGrip",
     });
-  const world: IAutoMovieVector3 = Vector3.add(
+  const world: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     placed.position,
-    Quaternion.rotateVector(placed.rotation, found.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(placed.rotation, found.frame.translation),
   );
   return { point: HumanFrame.local(start, world) };
 }

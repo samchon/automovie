@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { Quaternion } from "../Quaternion";
-import { Vector3 } from "../Vector3";
+import { AutoMovieEngineQuaternion } from "../AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../AutoMovieEngineVector3";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
 /*
@@ -45,10 +45,10 @@ export function rigidTransformVelocity(
     );
 
   // Left composition expresses the logarithm about WORLD axes, not old local axes.
-  const relative: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
+  const relative: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       current.rotation,
-      Quaternion.inverse(previous.rotation),
+      AutoMovieEngineQuaternion.inverse(previous.rotation),
     ),
   );
   if (relative.w === 0)
@@ -63,7 +63,7 @@ export function rigidTransformVelocity(
   };
   const sine: number = Math.hypot(imaginary.x, imaginary.y, imaginary.z);
   const angle: number = 2 * Math.atan2(sine, relative.w * sign);
-  const displacement: IAutoMovieVector3 = Vector3.subtract(
+  const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     current.translation,
     previous.translation,
   );

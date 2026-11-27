@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalProjectile, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMovieMotionHumanProp,
@@ -6,7 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
-import { HumanPropOutcome } from "@automovie/motions/internal";
+import {
+  HumanPropOutcome
+} from "../../../../../packages/motions/src/perform/internal/HumanPropOutcome";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -41,7 +43,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
       },
     ],
   };
-  const plane = AutoMoviePhysicalProjectile.planeCollider("floor", zero, up);
+  const plane = AutoMovieEnginePhysicalProjectile.planeCollider("floor", zero, up);
   const meeting = (
     time: number,
     normal: IAutoMovieVector3 = up,
@@ -60,7 +62,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
       struck: m.struck,
       point: m.hit.point,
       normal: m.hit.normal!,
-      velocity: AutoMovieAir.projectileAt(p, m.hit.time).velocity,
+      velocity: AutoMovieEngineAir.projectileAt(p, m.hit.time).velocity,
       offset: frame,
       outcome: "bounce",
     }),
@@ -78,7 +80,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
           "sweep excludes only the departing contact",
           ++queries <= 3 && leave === undefined && departing === plane.id,
         );
-        const hit = AutoMoviePhysicalProjectile.firstContact(
+        const hit = AutoMovieEnginePhysicalProjectile.firstContact(
           p,
           [plane],
           { from: 0, to: base.horizon - t },

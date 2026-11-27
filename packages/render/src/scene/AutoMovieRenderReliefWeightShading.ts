@@ -1,5 +1,5 @@
 import type * as THREE from "three";
-import type { IMaterialShaderSource } from "./IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "./IAutoMovieRenderMaterialShaderSource.js";
 import { applyReliefWeights as applyReliefWeightsImplementation } from "./reliefWeightShading/internal/applyReliefWeights.js";
 import { reliefWeightVertex as reliefWeightVertexImplementation } from "./reliefWeightShading/internal/reliefWeightVertex.js";
 import { reliefWeightFragment as reliefWeightFragmentImplementation } from "./reliefWeightShading/internal/reliefWeightFragment.js";
@@ -14,7 +14,7 @@ export namespace AutoMovieRenderReliefWeightShading {
     /** Adds relief interpolation and normal modulation to this shader. */
     apply: (
       /** The source and uniform cells this patch mutates in place. */
-      shader: Pick<IMaterialShaderSource, "vertexShader" | "fragmentShader" | "uniforms">,
+      shader: Pick<IAutoMovieRenderMaterialShaderSource, "vertexShader" | "fragmentShader" | "uniforms">,
     ) => void;
   };
 

@@ -1,5 +1,7 @@
-import type { AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import { AutoMovieEngineFilm, Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import { AutoMovieEngineFilm, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieEnvironment,
@@ -22,7 +24,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A scripted transfer whose start will be read from the native schedule. */
 type Crossing = Omit<
-  AutoMovieEnvironment.ILiftCrossing,
+  AutoMovieArchetypeEnvironment.ILiftCrossing,
   "id" | "start"
 >;
 
@@ -33,8 +35,8 @@ type Crossing = Omit<
 export function environmentLiftActor(input: {
   environment: IAutoMovieEnvironment;
   id: string;
-  lift: AutoMovieEnvironment.ILiftDefinition;
-  schedule: readonly AutoMovieEnvironment.ILiftKey[];
+  lift: AutoMovieArchetypeEnvironment.ILiftDefinition;
+  schedule: readonly AutoMovieArchetypeEnvironment.ILiftKey[];
   node?: string;
 }): { film: AutoMovieMotionHumanPerformance; actor: IAutoMovieStageActor } {
   const { environment, id, lift } = input;
@@ -65,7 +67,7 @@ export function environmentLiftActor(input: {
         );
       return {
         position: placed?.translation ?? piece.position,
-        rotation: placed?.rotation ?? piece.rotation ?? Quaternion.identity(),
+        rotation: placed?.rotation ?? piece.rotation ?? AutoMovieEngineQuaternion.identity(),
       };
     };
     const affordances: IAutoMovieAffordance[] = model.affordances ?? [];
@@ -80,9 +82,9 @@ export function environmentLiftActor(input: {
           affordance.id,
           {
             point: affordance.frame.translation,
-            normal: Quaternion.rotateVector(
+            normal: AutoMovieEngineQuaternion.rotateVector(
               affordance.frame.rotation,
-              Vector3.create(0, 1, 0),
+              AutoMovieEngineVector3.create(0, 1, 0),
             ),
           },
         ]),
@@ -90,13 +92,13 @@ export function environmentLiftActor(input: {
     };
   });
   const local = (x: number, z: number): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       ground.translation,
-      Quaternion.rotateVector(ground.rotation, Vector3.create(x, 0, z)),
+      AutoMovieEngineQuaternion.rotateVector(ground.rotation, AutoMovieEngineVector3.create(x, 0, z)),
     );
-  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+  const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     ground.rotation,
-    Vector3.create(0, 0, 1),
+    AutoMovieEngineVector3.create(0, 0, 1),
   );
   const yaw: number = (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
   // The quiet stance's forward toes stay fully on the landing.
@@ -118,9 +120,9 @@ export function environmentLiftActor(input: {
   };
   // The rider waits in the cab until the lift's schedule has it docked at the
   // upper stop with its doors open.
-  const opened: AutoMovieEnvironment.ILiftKey | undefined =
+  const opened: AutoMovieArchetypeEnvironment.ILiftKey | undefined =
     input.schedule.find(
-      (key: AutoMovieEnvironment.ILiftKey): boolean =>
+      (key: AutoMovieArchetypeEnvironment.ILiftKey): boolean =>
         key.stop === "upper" && key.doors === "open",
     );
   if (opened === undefined)

@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -58,9 +58,9 @@ export function touchHoldRests(
     const at: IAutoMovieVector3 | undefined =
       carrier === undefined || surface === undefined
         ? undefined
-        : Vector3.add(
+        : AutoMovieEngineVector3.add(
             carrier.worldPosition,
-            Quaternion.rotateVector(carrier.worldRotation, surface.point),
+            AutoMovieEngineQuaternion.rotateVector(carrier.worldRotation, surface.point),
           );
     return (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
       segment.bone === bone ||

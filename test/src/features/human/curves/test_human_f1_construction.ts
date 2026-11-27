@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewLoft } from "@automovie/engine";
 import { AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
@@ -335,7 +335,7 @@ export function test_human_f1_construction(): void {
     const chain =
       part === undefined
         ? null
-        : AutoMovieViewLoft.create({ ...part, reliefs: undefined }).chain;
+        : AutoMovieEngineViewLoft.create({ ...part, reliefs: undefined }).chain;
     if (part === undefined || chain === null) {
       failures.push(`the ${name} does not loft`);
       continue;
@@ -352,7 +352,7 @@ export function test_human_f1_construction(): void {
         part.axis.at(stations[i]!),
       ];
       for (let j: number = 0; j < 96; ++j) {
-        const p: number[] = AutoMovieLoftChain.point(
+        const p: number[] = AutoMovieEngineLoftChain.point(
           chain,
           stations[i - 1]!,
           (2 * Math.PI * j) / 96,

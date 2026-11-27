@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanAuditMeasure } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditDifference
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditDifference";
 
 import { motionCoveringArray } from "./motionCoveringArray";
 import { motionHumanBody } from "./motionHumanBody";

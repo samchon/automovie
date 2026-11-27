@@ -1,5 +1,7 @@
 import type { IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieVector3 } from "@automovie/interface";
-import { PairWalk } from "@automovie/motions/internal";
+import {
+  PairWalk
+} from "../../../../../packages/motions/src/grappling/internal/PairWalk";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -97,7 +97,7 @@ export namespace exerciseLunge {
       pivot(-heel * share);
     const toes: IAutoMovieVector3 = tiptoe(1).ankle;
     const travel: number =
-      (Vector3.dot(Vector3.subtract(toes, hip), forward) +
+      (AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(toes, hip), forward) +
         Math.sqrt(
           Math.max(0, m.shank ** 2 - (toes.y - (low - m.thigh)) ** 2),
         )) *
@@ -105,9 +105,9 @@ export namespace exerciseLunge {
     const stride: number =
       travel +
       m.thigh -
-      Vector3.dot(Vector3.subtract(stance[lead].ankle, hip), forward);
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(stance[lead].ankle, hip), forward);
     const stepped: IAutoMovieMotionHumanFoot.IPlacement = {
-      ankle: Vector3.add(stance[lead].ankle, Vector3.scale(forward, stride)),
+      ankle: AutoMovieEngineVector3.add(stance[lead].ankle, AutoMovieEngineVector3.scale(forward, stride)),
       rotation: stance[lead].rotation,
     };
     const step: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =
@@ -128,9 +128,9 @@ export namespace exerciseLunge {
           s: number,
         ): IAutoMovieMotionHumanPosture => ({
           ...posture,
-          root: Vector3.add(
+          root: AutoMovieEngineVector3.add(
             posture.root,
-            Vector3.add(Vector3.scale(forward, travel * any(s)), {
+            AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(forward, travel * any(s)), {
               x: 0,
               y: -sink * any(s) ** 2,
               z: 0,

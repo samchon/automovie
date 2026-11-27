@@ -1,7 +1,7 @@
 import {
-  AutoMovieIllinois,
-  AutoMovieLoftSectionNative,
-  AutoMovieViewSection,
+  AutoMovieEngineIllinois,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadSectionConstraints,
@@ -74,7 +74,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     for (let i: number = 0; residual(hi) < 0 && i < 64; i++) hi *= 2;
     if (!(residual(lo) <= 0 && residual(hi) >= 0 && Number.isFinite(hi)))
       throw new Error("Head breadth has no finite original-section bracket");
-    const solved: number | null = AutoMovieIllinois.root(
+    const solved: number | null = AutoMovieEngineIllinois.root(
       residual,
       lo,
       hi,
@@ -141,7 +141,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
       !(lo > 0 && Number.isFinite(hi) && residual(lo) <= 0 && residual(hi) >= 0)
     )
       throw new Error("Frontal point has no finite original-quarter bracket");
-    const solved: number | null = AutoMovieIllinois.root(
+    const solved: number | null = AutoMovieEngineIllinois.root(
       residual,
       lo,
       hi,
@@ -185,17 +185,17 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     shoulders: IAutoMovieHumanHeadSectionConstraints.Extents,
     angle: number,
   ): number {
-    const value: number = AutoMovieLoftSectionNative.value({
+    const value: number = AutoMovieEngineLoftSectionNative.value({
       extents,
       shoulders,
     })(angle);
     if (!(Number.isFinite(value) && value > 0)) {
-      const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+      const section: IAutoMovieViewSection.ISection = AutoMovieEngineViewSection.bare(
         { extents },
         shoulders,
       );
       throw new Error(
-        `Head point constraint reached a nonfinite original section: box=[${extents}], shoulders=[${shoulders}], angle=${angle}, radius=${value}, source=${AutoMovieViewSection.fault(section)}`,
+        `Head point constraint reached a nonfinite original section: box=[${extents}], shoulders=[${shoulders}], angle=${angle}, radius=${value}, source=${AutoMovieEngineViewSection.fault(section)}`,
       );
     }
     return value;

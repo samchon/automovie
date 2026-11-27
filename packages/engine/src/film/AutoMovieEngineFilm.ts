@@ -616,13 +616,13 @@ export namespace AutoMovieEngineFilm {
 
   /**
    * The framing a subject's measured frame occupancy reads as: the framing whose
-   * {@link FRAMING_HEIGHT_FRACTION} is nearest, by ratio, to how many subject
+   * {@link AutoMovieEngineFramingHeightFraction} is nearest, by ratio, to how many subject
    * sizes the frame spans.
    *
    * `frameOccupancy` is the subject's share of the frame, in (0, ∞): its height
    * over the frame's height for a subject the frame holds vertically, or its
    * width over the frame's width for one whose width placed the camera. The
-   * framing solve applies {@link FRAMING_HEIGHT_FRACTION} to both axes, so the
+   * framing solve applies {@link AutoMovieEngineFramingHeightFraction} to both axes, so the
    * axis that fills more of its own side states the size delivered, and
    * `measureGrammarShotSize` passes the larger of the two. Nearness is measured
    * on a log scale, so `close` at 0.28 and `medium` at 0.62 are separated where
@@ -655,10 +655,10 @@ export namespace AutoMovieEngineFilm {
    * rotation, the deterministic shot grammar.
    *
    * Framing fixes the distance and the aim. The frame must show the framing's
-   * {@link FRAMING_HEIGHT_FRACTION} multiple of the subject's height vertically
+   * {@link AutoMovieEngineFramingHeightFraction} multiple of the subject's height vertically
    * and of its width (twice `radius`) horizontally, each by the pinhole fit `d =
    * (visible / 2) / tan(half-angle)`, and the camera stands at whichever distance
-   * is larger. It aims at {@link FRAMING_AIM_FRACTION} of the height above the
+   * is larger. It aims at {@link AutoMovieEngineFramingAimFraction} of the height above the
    * subject's base. The camera approaches along its staged bearing, the direction
    * from the aim point to the staged camera, so the side staging chose is kept
    * and only the distance is solved; a camera staged on the aim point uses +Z.
@@ -1209,9 +1209,9 @@ export namespace AutoMovieEngineFilm {
    * measured with, so a hero promoted out of the unit and its anonymous
    * neighbours are the same height by construction.
    *
-   * Falls back to {@link DEFAULT_SUBJECT_HEIGHT} standing on the slot when the
+   * Falls back to {@link AutoMovieEngineDefaultSubjectHeight} standing on the slot when the
    * group's runtime model is not among `models`, draws nothing, or measures
-   * shorter than {@link MIN_MEASURED_SUBJECT_HEIGHT}, the same stand-in and
+   * shorter than {@link AutoMovieEngineMinMeasuredSubjectHeight}, the same stand-in and
    * threshold a node subject takes.
    */
   export function formationMemberExtent(formation: Pick<IAutoMovieCompiledFormation, "model">, models: readonly IAutoMovieModel[] | undefined): IAutoMovieFormationMemberExtent.IResult {
@@ -1823,8 +1823,8 @@ export namespace AutoMovieEngineFilm {
    * on the node's own vertical axis from `y = 0`, exactly zero wide, which
    * `nodeSubjectBox` recognizes as unmeasured.
    *
-   * A height below {@link MIN_MEASURED_SUBJECT_HEIGHT} is replaced by
-   * {@link DEFAULT_SUBJECT_HEIGHT}. A measured model keeps its own floor and its
+   * A height below {@link AutoMovieEngineMinMeasuredSubjectHeight} is replaced by
+   * {@link AutoMovieEngineDefaultSubjectHeight}. A measured model keeps its own floor and its
    * own width even then: a plaza slab 60 m across and 20 mm thick is a real
    * horizontal extent even where its vertical one is unusable. The result is
    * stated once because `performShot` measures a node for the framing solve and
@@ -2584,7 +2584,7 @@ export namespace AutoMovieEngineFilm {
    * jump-cut, a displacement re-establishing and a screen-direction finding, then
    * an entrant re-establishing finding when the displacement one was not filed;
    * and one advisory pacing finding for a non-empty edit. A finding is excepted
-   * when its shot declares the style intent `GRAMMAR_STYLE_SUPPRESSION` maps to
+   * when its shot declares the style intent `AutoMovieEngineGrammarStyleSuppression` maps to
    * its code, and pacing is excepted when any shot declares `rhythmic-pacing`.
    *
    * Shot order is editorial meaning and is kept. Subject order and action-axis
@@ -2961,9 +2961,9 @@ export namespace AutoMovieEngineFilm {
    * metres per second, from a backward difference of the clip's root folded
    * through the node's staged placement.
    *
-   * The window ends at `localTime` and spans {@link VELOCITY_DT} where it can. A
+   * The window ends at `localTime` and spans {@link AutoMovieEngineVelocityDt} where it can. A
    * looping clip's root jumps back at the seam, so the window never crosses it:
-   * within a cycle it is the trailing `VELOCITY_DT`, in the cycle's first
+   * within a cycle it is the trailing `AutoMovieEngineVelocityDt`, in the cycle's first
    * instants it shrinks to `[0, phase]`, and exactly on the seam it measures the
    * cycle's closing stretch with the clip sampled unlooped, so reading `duration`
    * does not wrap to the cycle start. A one-shot clip sampled at or before its
@@ -3157,7 +3157,7 @@ export namespace AutoMovieEngineFilm {
    * intent reach `performShot` in-process without the transport's structural
    * gate. Each unknown value is one `type` violation at `<path>.framing` or
    * `<path>.move` listing the accepted values, the members of
-   * {@link CAMERA_FRAMINGS} and {@link CAMERA_MOVES} in declaration order.
+   * {@link AutoMovieEngineCameraFramings} and {@link AutoMovieEngineCameraMoves} in declaration order.
    *
    * A refused value whose string conversion throws is described as `an
    * uninspectable value`; its original reference remains in the finding and the
@@ -3487,7 +3487,7 @@ export namespace AutoMovieEngineFilm {
    *
    * The parent's scale is not applied, which matches the renderer for the
    * unit-scale actors staging places. Pass the same `jointAxes` the renderer
-   * poses the parent with (`HUMANOID_JOINT_AXES`), plus the same `restFrames`
+   * poses the parent with (`AutoMovieEngineHumanoidJointAxes`), plus the same `restFrames`
    * when parent clips are authored in clinical space, or the child follows a bone
    * where the renderer does not draw it. A parent with no motion holds its rest
    * pose.

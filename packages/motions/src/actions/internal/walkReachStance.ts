@@ -1,9 +1,9 @@
 import {
-  ANKLE_DORSIFLEXION,
-  DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
+  AutoMovieEngineAnkleDorsiflexion,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -43,14 +43,14 @@ export namespace walkReachStance {
   /*
    * The furthest a planted leg's line leans to the side of its foot before the
    * foot rolls onto its edge, degrees: the ankle's inversion and eversion in
-   * the range table (`DEFAULT_HUMANOID_ROM`, 25° each way on either foot, the
+   * the range table (`AutoMovieEngineDefaultHumanoidRom`, 25° each way on either foot, the
    * least taken).
    */
   export const SIDE: number = Math.min(
     ...(["leftFoot", "rightFoot"] as const).flatMap(
       (bone: SIDEBone): number[] => {
         const abduction: IAutoMovieAngleRange | null | undefined =
-          DEFAULT_HUMANOID_ROM[bone]?.abduction;
+          AutoMovieEngineDefaultHumanoidRom[bone]?.abduction;
         if (abduction === null || abduction === undefined)
           throw new Error(
             `The range-of-motion table gives ${bone} no inversion or eversion`,
@@ -85,7 +85,7 @@ export namespace walkReachStance {
     yaw: number,
     pivoted: number,
     rocker: number,
-    dorsal: number = ANKLE_DORSIFLEXION.unloaded,
+    dorsal: number = AutoMovieEngineAnkleDorsiflexion.unloaded,
   ): (hip: IAutoMovieVector3, solved?: number) => IPrepareResult {
     const initial: IAutoMovieMotionHumanFoot.IPlacement = foot.placement;
     const direction: ReturnType<typeof HumanFoot.headingPitch> =
@@ -96,8 +96,8 @@ export namespace walkReachStance {
     // solver resolves: a placement read back from a posed foot carries the
     // pose's rounding (a few millionths of a degree either way), and a flat
     // foot must not become a heel strike by its sign. Within the joints'
-    // resolution of flat (`ROM_TOLERANCE`) the foot stands on its ball.
-    const about: PrepareAbout = starting > ROM_TOLERANCE ? "heel" : "mtp";
+    // resolution of flat (`AutoMovieEngineRomTolerance`) the foot stands on its ball.
+    const about: PrepareAbout = starting > AutoMovieEngineRomTolerance ? "heel" : "mtp";
     const pivot: IAutoMovieVector3 = HumanFoot.point(
       body,
       side,
@@ -199,7 +199,7 @@ export namespace walkReachStance {
             handing,
             rocker > 0 ? Math.min(1, Math.max(0, -(first ?? 0) / rocker)) : 0,
           );
-          if (weight > 0 && Vector3.distance(ball!.flat, h) <= ball!.span) {
+          if (weight > 0 && AutoMovieEngineVector3.distance(ball!.flat, h) <= ball!.span) {
             const risen: number = ball!.rise(h, 0);
             if (risen < 0) {
               pitch += weight * risen;
@@ -253,13 +253,13 @@ export namespace walkReachStance {
       // The pivot turn: the foot turns about its toe pad by its pivot.
       if (about === "mtp" && Math.abs(pivoted) > STILL) {
         const local: IAutoMovieVector3 = toeOffset!(toes);
-        const pad: IAutoMovieVector3 = Vector3.add(
+        const pad: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           placement.ankle,
-          Quaternion.rotateVector(placement.rotation, local),
+          AutoMovieEngineQuaternion.rotateVector(placement.rotation, local),
         );
         const turned: IAutoMovieQuaternion = turning!(pitch);
         placement = {
-          ankle: Vector3.subtract(pad, Quaternion.rotateVector(turned, local)),
+          ankle: AutoMovieEngineVector3.subtract(pad, AutoMovieEngineQuaternion.rotateVector(turned, local)),
           rotation: turned,
         };
       }
@@ -269,10 +269,10 @@ export namespace walkReachStance {
       // the floor and the far one rises, as a foot set wide of the body bears
       // on its inner border.
       const across: IAutoMovieVector3 = flat(
-        Quaternion.rotateVector(placement.rotation, { x: 1, y: 0, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(placement.rotation, { x: 1, y: 0, z: 0 }),
       );
-      const aside: number = Vector3.dot(
-        Vector3.subtract(placement.ankle, h),
+      const aside: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(placement.ankle, h),
         across,
       );
       const down: number = h.y - placement.ankle.y;
@@ -294,37 +294,37 @@ export namespace walkReachStance {
         for (const q of points) {
           if (q.y > floor + HumanFoot.BEARING) continue;
           const out: number =
-            -sign * Vector3.dot(Vector3.subtract(q, placement.ankle), across);
+            -sign * AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(q, placement.ankle), across);
           if (out > most) {
             most = out;
             edge = q;
           }
         }
-        const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        const roll: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
           flat(
-            Quaternion.rotateVector(placement.rotation, { x: 0, y: 0, z: 1 }),
+            AutoMovieEngineQuaternion.rotateVector(placement.rotation, { x: 0, y: 0, z: 1 }),
           ),
           sign * excess,
         );
         placement = {
-          ankle: Vector3.add(
+          ankle: AutoMovieEngineVector3.add(
             edge,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               roll,
-              Vector3.subtract(placement.ankle, edge),
+              AutoMovieEngineVector3.subtract(placement.ankle, edge),
             ),
           ),
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(roll, placement.rotation),
+          rotation: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(roll, placement.rotation),
           ),
         };
 
         // A rolled foot bears on the border it rolled about, which stays on
         // the floor: that border, in the foot's frame, is its contact, so a
         // leg fit that holds the contact holds the foot where it bears.
-        bearing = Quaternion.rotateVector(
-          Quaternion.inverse(placement.rotation),
-          Vector3.subtract(edge, placement.ankle),
+        bearing = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(placement.rotation),
+          AutoMovieEngineVector3.subtract(edge, placement.ankle),
         );
       }
       return {
@@ -370,7 +370,7 @@ export namespace walkReachStance {
    * The normalized horizontal direction of a rotated foot axis.
    */
   function flat(v: IAutoMovieVector3): IAutoMovieVector3 {
-    return Vector3.normalize({ x: v.x, y: 0, z: v.z });
+    return AutoMovieEngineVector3.normalize({ x: v.x, y: 0, z: v.z });
   }
 
   /*

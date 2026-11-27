@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeStillRingsData from "./internal/AutoMovieArchetypeStillRingsData";
+import { AutoMovieArchetypeStillRingsData } from "./internal/AutoMovieArchetypeStillRingsData";
 
 /** Constructs the still rings archetype from its recipe. */
 export namespace AutoMovieArchetypeStillRings {
@@ -49,7 +49,7 @@ export function create(
     name: "still rings",
     draw,
   });
-  const point: typeof Vector3.create = Vector3.create;
+  const point: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const pivotHeight: number = values.innerHeight + values.suspension;
   const tube: number = values.diameter / 2;
   const radius: number = values.opening / 2 + tube;
@@ -136,7 +136,7 @@ export function create(
       const id: string = `${side}-ring-${i}`;
       builder.convex(id, cell, centre, {
         color: "#b58755",
-        rotation: Quaternion.fromAxisAngle(
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(
           point(0, 0, 1),
           (i * 360) / sections - 90,
         ),

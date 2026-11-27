@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
@@ -47,7 +47,7 @@ export function PrecisionStrokeFormsAddress(
       reason: `no precision stroke is named ${props.row}`,
       fix: "name a registered precision stroke row",
     });
-  const direction: IAutoMovieVector3 = Vector3.normalize({
+  const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: props.toward.x - props.ball.x,
     y: 0,
     z: props.toward.z - props.ball.z,
@@ -57,9 +57,9 @@ export function PrecisionStrokeFormsAddress(
     props.side,
     direction,
   );
-  const contact: IAutoMovieVector3 = Vector3.subtract(
+  const contact: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     props.ball,
-    Vector3.scale(direction, props.radius),
+    AutoMovieEngineVector3.scale(direction, props.radius),
   );
   // The shoulder is read from the stroke's own pose at contact: the quiet
   // stance at the facing given, hinged at the hips to the grip as the
@@ -95,20 +95,20 @@ export function PrecisionStrokeFormsAddress(
   );
   const grip: IAutoMovieVector3 = frame.point;
   const sign: number = props.side === "right" ? 1 : -1;
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     sign * form.turn,
   );
   const span: number =
     PrecisionStrokeForms.ARM * PrecisionStrokeForms.reach(props.body);
-  const back: IAutoMovieVector3 = Vector3.normalize({
+  const back: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: -working.x,
     y: 0,
     z: -working.z,
   });
   let at: IAutoMovieVector3 = origin;
   for (let i: number = 0; i < PrecisionStrokeForms.ADDRESSED; i++) {
-    const local: IAutoMovieVector3 = Vector3.subtract(grip, at);
+    const local: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(grip, at);
     const posture: IAutoMovieMotionHumanPosture =
       form.point === "tip"
         ? stance
@@ -133,12 +133,12 @@ export function PrecisionStrokeFormsAddress(
         ? props.side === "left"
           ? left
           : right
-        : Vector3.scale(Vector3.add(left, right), 0.5);
-    const offset: IAutoMovieVector3 = Vector3.add(
+        : AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(left, right), 0.5);
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       { x: posture.root.x, y: 0, z: posture.root.z },
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         turn,
-        Vector3.subtract(standing, {
+        AutoMovieEngineVector3.subtract(standing, {
           x: posture.root.x,
           y: 0,
           z: posture.root.z,
@@ -164,9 +164,9 @@ export function PrecisionStrokeFormsAddress(
               props.body.measure.upperArmRadius +
               props.body.measure.forearmRadius,
           );
-    const shoulder: IAutoMovieVector3 = Vector3.add(
+    const shoulder: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       grip,
-      Vector3.scale(back, across),
+      AutoMovieEngineVector3.scale(back, across),
     );
     at = { x: shoulder.x - offset.x, y: 0, z: shoulder.z - offset.z };
   }
@@ -186,7 +186,7 @@ export function PrecisionStrokeFormsAddress(
       stroke,
       contact,
       direction,
-      Vector3.add(at, Vector3.scale(back, s)),
+      AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(back, s)),
     );
   const first: fitClearArmPose.Verdict = judge(0);
   if (first.clear) return at;
@@ -202,7 +202,7 @@ export function PrecisionStrokeFormsAddress(
         if (judge(middle).clear) clear = middle;
         else refused = middle;
       }
-      return Vector3.add(at, Vector3.scale(back, clear));
+      return AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(back, clear));
     }
   throw new AutoMovieMotionHumanRefusal({
     kind: "reach",

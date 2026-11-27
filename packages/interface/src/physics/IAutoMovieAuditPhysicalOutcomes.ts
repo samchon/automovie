@@ -2,7 +2,7 @@ import type { IAutoMovieContactReceipt } from "./IAutoMovieContactReceipt";
 
 /**
  * Authored contact/fall promises, observation callbacks and failures for
- * AutoMoviePhysicalSimulation.auditOutcomes.
+ * AutoMovieEnginePhysicalSimulation.auditOutcomes.
  */
 export namespace IAutoMovieAuditPhysicalOutcomes {
   /**
@@ -10,8 +10,8 @@ export namespace IAutoMovieAuditPhysicalOutcomes {
    *
    * The finite nonnegative film second and tolerance define an inclusive timing
    * window; shape lists are nonempty and names are nonblank.
-   * AutoMoviePhysicalSimulation.auditOutcomes borrows this promise and requires matching body,
-   * shape and observation-source identities. AutoMoviePhysicalSimulation.admitOutcomes checks the
+   * AutoMovieEnginePhysicalSimulation.auditOutcomes borrows this promise and requires matching body,
+   * shape and observation-source identities. AutoMovieEnginePhysicalSimulation.admitOutcomes checks the
    * promise; a solver promise additionally needs a positive measured impulse at
    * contact, so a geometric overlap alone cannot satisfy it.
    */
@@ -49,7 +49,7 @@ export namespace IAutoMovieAuditPhysicalOutcomes {
    * episode.
    *
    * Kind selects the failure meaning; seconds uses the film clock and
-   * missDistance uses metres or null for a fall. AutoMoviePhysicalSimulation.auditOutcomes
+   * missDistance uses metres or null for a fall. AutoMovieEnginePhysicalSimulation.auditOutcomes
    * allocates mutable findings for its caller; actionId links a promise or the
    * unexpected receipt. A finding reports evidence rather than changing the
    * performance; an empty findings array means only the supplied promises and
@@ -84,7 +84,7 @@ export namespace IAutoMovieAuditPhysicalOutcomes {
    * observedFalls entry means that body has no observed fall. The audit borrows
    * arrays and calls missDistance only for a missing contact and allowUnplanned
    * only for unused receipts; callback errors propagate and callbacks are not
-   * retained. AutoMoviePhysicalSimulation.admitOutcomes validates windows, identities and receipt
+   * retained. AutoMovieEnginePhysicalSimulation.admitOutcomes validates windows, identities and receipt
    * authority; missDistance must return a finite value. Empty populations are
    * allowed and do not prove an unobserved performance.
    */

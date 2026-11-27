@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeLoadingTowerData from "./internal/AutoMovieArchetypeLoadingTowerData";
+import { AutoMovieArchetypeLoadingTowerData } from "./internal/AutoMovieArchetypeLoadingTowerData";
 
 /** Creates a deterministic loading tower fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeLoadingTower {
@@ -69,14 +69,14 @@ export namespace AutoMovieArchetypeLoadingTower {
     ): void => {
       builder.box(
         id,
-        Vector3.create(width, thickness, depth),
-        Vector3.create(0, y - thickness / 2, z),
+        AutoMovieEngineVector3.create(width, thickness, depth),
+        AutoMovieEngineVector3.create(0, y - thickness / 2, z),
         { color: floor },
       );
       builder.affordance({
         id,
         kind: "surface",
-        frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, z)),
+        frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, y, z)),
         extent: null,
         width,
         depth,
@@ -94,8 +94,8 @@ export namespace AutoMovieArchetypeLoadingTower {
 
     builder.box(
       "lower-floor",
-      Vector3.create(d.width - 2 * thickness, thickness, d.depth),
-      Vector3.create(0, boardingY - thickness / 2, 0),
+      AutoMovieEngineVector3.create(d.width - 2 * thickness, thickness, d.depth),
+      AutoMovieEngineVector3.create(0, boardingY - thickness / 2, 0),
       { color: floor },
     );
 
@@ -108,14 +108,14 @@ export namespace AutoMovieArchetypeLoadingTower {
       const suffix: string = side < 0 ? "left" : "right";
       builder.box(
         `lower-side-${suffix}`,
-        Vector3.create(thickness, lowerHeight, d.depth),
-        Vector3.create(side * sideX, boardingY + lowerHeight / 2, 0),
+        AutoMovieEngineVector3.create(thickness, lowerHeight, d.depth),
+        AutoMovieEngineVector3.create(side * sideX, boardingY + lowerHeight / 2, 0),
         { color: timber },
       );
       builder.box(
         `rear-jamb-${suffix}`,
-        Vector3.create(rearJambWidth, lowerHeight, thickness),
-        Vector3.create(
+        AutoMovieEngineVector3.create(rearJambWidth, lowerHeight, thickness),
+        AutoMovieEngineVector3.create(
           side * jambX,
           boardingY + lowerHeight / 2,
           -front + thickness / 2,
@@ -124,8 +124,8 @@ export namespace AutoMovieArchetypeLoadingTower {
       );
       builder.box(
         `front-jamb-${suffix}`,
-        Vector3.create(rearJambWidth, upperHeight, thickness),
-        Vector3.create(
+        AutoMovieEngineVector3.create(rearJambWidth, upperHeight, thickness),
+        AutoMovieEngineVector3.create(
           side * jambX,
           d.platformHeight + upperHeight / 2,
           front - thickness / 2,
@@ -134,8 +134,8 @@ export namespace AutoMovieArchetypeLoadingTower {
       );
       builder.box(
         `upper-side-${suffix}`,
-        Vector3.create(thickness, openingHeight * 0.46, d.depth),
-        Vector3.create(
+        AutoMovieEngineVector3.create(thickness, openingHeight * 0.46, d.depth),
+        AutoMovieEngineVector3.create(
           side * sideX,
           d.platformHeight + openingHeight * 0.23,
           0,
@@ -153,29 +153,29 @@ export namespace AutoMovieArchetypeLoadingTower {
         builder.rod(
           wheel,
           y,
-          Vector3.create(inner, y, z),
-          Vector3.create(outer, y, z),
+          AutoMovieEngineVector3.create(inner, y, z),
+          AutoMovieEngineVector3.create(outer, y, z),
           { color: trim },
         );
         builder.rod(
           `${wheel}-hub`,
           y * 0.24,
-          Vector3.create(outer, y, z),
-          Vector3.create(outer + side * 0.05, y, z),
+          AutoMovieEngineVector3.create(outer, y, z),
+          AutoMovieEngineVector3.create(outer + side * 0.05, y, z),
           { color: iron },
         );
       }
     }
     builder.box(
       "front-panel",
-      Vector3.create(d.width, lowerHeight, thickness),
-      Vector3.create(0, boardingY + lowerHeight / 2, front - thickness / 2),
+      AutoMovieEngineVector3.create(d.width, lowerHeight, thickness),
+      AutoMovieEngineVector3.create(0, boardingY + lowerHeight / 2, front - thickness / 2),
       { color: timber },
     );
     builder.box(
       "door-lintel",
-      Vector3.create(openingWidth, thickness, thickness),
-      Vector3.create(
+      AutoMovieEngineVector3.create(openingWidth, thickness, thickness),
+      AutoMovieEngineVector3.create(
         0,
         d.platformHeight + openingHeight + thickness / 2,
         front - thickness / 2,
@@ -186,7 +186,7 @@ export namespace AutoMovieArchetypeLoadingTower {
       id: "door",
       kind: "aperture",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, d.platformHeight, front),
+        AutoMovieEngineVector3.create(0, d.platformHeight, front),
       ),
       extent: null,
       width: openingWidth,

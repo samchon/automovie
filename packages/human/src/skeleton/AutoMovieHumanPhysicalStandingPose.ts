@@ -2,8 +2,8 @@ import {
   AutoMovieEngineKinematics,
   AutoMovieEngineMath,
   AutoMovieEnginePhysics,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type { IAutoMovieFitHumanPhysicalStandingPose, IAutoMoviePhysicalJoint, IAutoMoviePhysicalJointAxis, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMoviePhysicalShape, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
@@ -185,7 +185,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
           targets[foot]!,
           own,
           floor,
-          Quaternion.rotateVector(targets[`${side}LowerLeg`]!.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(targets[`${side}LowerLeg`]!.rotation, {
             x: flexion.axis === "x" ? 1 : 0,
             y: flexion.axis === "y" ? 1 : 0,
             z: flexion.axis === "z" ? 1 : 0,
@@ -208,14 +208,14 @@ export namespace AutoMovieHumanPhysicalStandingPose {
       );
       if (!heel || !forefoot || forefoot.local.z - heel.local.z <= tolerance)
         return { kind: "unresolved", reason: "support-geometry" };
-      const line: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(forefoot.local, heel.local),
+      const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(forefoot.local, heel.local),
       );
       let lateral: IVertex = heel;
       let span: number = 0;
       for (const vertex of own) {
-        const width: number = Vector3.length(
-          Vector3.cross(Vector3.subtract(vertex.local, heel.local), line),
+        const width: number = AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.cross(AutoMovieEngineVector3.subtract(vertex.local, heel.local), line),
         );
         if (width > span) {
           lateral = vertex;
@@ -273,7 +273,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
         iterations,
         measure: (poses: Poses): number[] =>
           goals.flatMap((goal: (typeof goals)[number]): number[] => {
-            const error: IAutoMovieVector3 = Vector3.subtract(
+            const error: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
               AutoMovieEnginePhysics.physicalSupportPoint(poses[goal.bone]!, goal.local),
               goal.world,
             );
@@ -332,9 +332,9 @@ export namespace AutoMovieHumanPhysicalStandingPose {
         sum: IAutoMovieVector3,
         segment: IAutoMoviePhysicalSegment,
       ): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           sum,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             AutoMovieEnginePhysics.physicalSupportPoint(posed[segment.bone]!, segment.centerOfMass),
             segment.mass / profile.mass,
           ),
@@ -375,7 +375,7 @@ const BEARING: number = 0.006;
  * each leg's two-link Jacobian conditioned (condition number about 9 for equal
  * thigh and shank) and is the most the ankle allows: the shank leans half the
  * knee's flexion, on top of the sole plant's 16 degrees of dorsiflexion, within
- * the loaded ankle's 39 degrees (`ANKLE_DORSIFLEXION`) with 8 degrees to
+ * the loaded ankle's 39 degrees (`AutoMovieEngineAnkleDorsiflexion`) with 8 degrees to
  * spare.
  */
 const KNEE: number = Math.PI / 6;
@@ -422,8 +422,8 @@ function anchors(profile: IAutoMoviePhysicalProfile, poses: Poses): boolean {
     return (
       parent !== undefined &&
       child !== undefined &&
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
           AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
         ),
@@ -481,8 +481,8 @@ function flexion(profile: IAutoMoviePhysicalProfile, targets: Poses): number {
   const knee: IAutoMovieVector3 | undefined = anchor("leftLowerLeg");
   const ankle: IAutoMovieVector3 | undefined = anchor("leftFoot");
   if (!hip || !knee || !ankle) return 0;
-  const thigh: number = Vector3.length(Vector3.subtract(knee, hip));
-  const shank: number = Vector3.length(Vector3.subtract(ankle, knee));
+  const thigh: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(knee, hip));
+  const shank: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(ankle, knee));
   return (
     thigh +
     shank -

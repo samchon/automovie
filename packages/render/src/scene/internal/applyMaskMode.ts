@@ -3,10 +3,11 @@ import * as THREE from "three";
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
-import { type IAutoMovieFormationCycle, AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
+import { AutoMovieRenderDualQuaternionSkinning, AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
+import type { IAutoMovieRenderFormationCycle, IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
-import { AutoMovieRenderSemanticMask } from "../semanticMask/index.js";
+import { AutoMovieRenderSemanticMask, AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
@@ -50,14 +51,14 @@ export const applyMaskMode: (
       // A dual-quaternion skin deforms in its own vertex stage as well, so
       // the skinning method splits the material beside the cycle.
       const materials: Map<
-        IAutoMovieFormationCycle | null,
+        IAutoMovieRenderFormationCycle | null,
         Map<boolean, THREE.Material<THREE.MaterialEventMap>>
       > = new Map<
-        IAutoMovieFormationCycle | null,
+        IAutoMovieRenderFormationCycle | null,
         Map<boolean, THREE.Material>
       >();
       for (const mesh of meshes) {
-        const cycle: IAutoMovieFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
+        const cycle: IAutoMovieRenderFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
         const dual: boolean = AutoMovieRenderDualQuaternionSkinning.of(mesh);
         let byMethod: Map<boolean, THREE.Material> | undefined =
           materials.get(cycle);

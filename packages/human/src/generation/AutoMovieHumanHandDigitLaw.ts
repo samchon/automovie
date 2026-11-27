@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanArmPrior,
@@ -21,9 +21,9 @@ export namespace AutoMovieHumanHandDigitLaw {
     s: number,
   ): AutoMovieVector3Tuple {
     return [
-      AutoMovieNaturalSpline.evaluate(d.line[0]!, s),
-      AutoMovieNaturalSpline.evaluate(d.line[1]!, s),
-      AutoMovieNaturalSpline.evaluate(d.line[2]!, s),
+      AutoMovieEngineNaturalSpline.evaluate(d.line[0]!, s),
+      AutoMovieEngineNaturalSpline.evaluate(d.line[1]!, s),
+      AutoMovieEngineNaturalSpline.evaluate(d.line[2]!, s),
     ];
   }
 
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanHandDigitLaw {
       lengths.push(lengths[i - 1]! + norm(sub(points[i]!, points[i - 1]!)));
     const line: IAutoMovieNaturalCubicSpline[] = [0, 1, 2].map(
       (c: number): IAutoMovieNaturalCubicSpline =>
-        AutoMovieNaturalSpline.create(
+        AutoMovieEngineNaturalSpline.create(
           lengths,
           points.map((p: AutoMovieVector3Tuple): number => p[c]!),
         ),

@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { collapseClock, knockdown } from "@automovie/motions/internal";
+import {
+  collapseClock
+} from "../../../../../packages/motions/src/reaction/internal/collapseClock";
+import {
+  knockdown
+} from "../../../../../packages/motions/src/reaction/internal/knockdown";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

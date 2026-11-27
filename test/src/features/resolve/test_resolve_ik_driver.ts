@@ -1,4 +1,4 @@
-import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   type IAutoMovieDriver,
   IAutoMovieIKDriver,
@@ -14,7 +14,7 @@ import { vclose } from "../internal/vclose";
 const W: (p: IAutoMovieVector3) => number[] = (
   p: IAutoMovieVector3,
 ): number[] =>
-  Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
+  AutoMovieEngineMatrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
 const ik: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (
   over: Partial<IAutoMovieIKDriver>,
@@ -63,7 +63,7 @@ const solve: (
 const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   world: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(world.get(id)!);
 
 /**
  * Analytic two-bone IK places a root/mid/tip chain toward its goal, preserving link lengths and using the pole to select its bend plane.

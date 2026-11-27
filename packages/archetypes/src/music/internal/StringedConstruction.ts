@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -223,7 +223,7 @@ export namespace StringedConstruction {
 /*
  * The shorthand every construction uses.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * Varnished wood.
@@ -261,18 +261,18 @@ function strings(
       bridge.y,
       bridge.z + share * atBridge,
     );
-    const along: IAutoMovieVector3 = Vector3.subtract(from, to);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(from, to);
     builder.affordance({
       id: `string${k}`,
       kind: "bar",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.scale(Vector3.add(from, to), 0.5),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5),
         v(0, 1, 0),
         along,
       ),
       extent: null,
-      length: Vector3.length(along),
+      length: AutoMovieEngineVector3.length(along),
     });
   }
 }

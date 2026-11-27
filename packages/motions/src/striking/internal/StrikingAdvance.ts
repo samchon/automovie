@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -173,7 +173,7 @@ export namespace StrikingAdvance {
     > = {
       ...feet,
       [lead]: {
-        ankle: Vector3.add(feet[lead].ankle, {
+        ankle: AutoMovieEngineVector3.add(feet[lead].ankle, {
           x: line.x * along,
           y: raised ?? 0,
           z: line.z * along,
@@ -181,12 +181,12 @@ export namespace StrikingAdvance {
         rotation: feet[lead].rotation,
       },
     };
-    const identity: IAutoMovieQuaternion = Quaternion.identity();
+    const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
     const carried: IAutoMovieMotionHumanPosture = carryHumanPosture(
       entry,
       { position: entry.root, rotation: identity },
       {
-        position: Vector3.add(entry.root, Vector3.scale(line, CARRY * along)),
+        position: AutoMovieEngineVector3.add(entry.root, AutoMovieEngineVector3.scale(line, CARRY * along)),
         rotation: identity,
       },
     );

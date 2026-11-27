@@ -6,7 +6,7 @@ import {
 } from "../../core";
 import { CART_MODELS } from "./CART_MODELS";
 import type { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
-import * as CartBandsData from "./internal/CartBandsData";
+import { CartBandsData } from "./internal/CartBandsData";
 
 /*
  * The band of each free dimension of a cart, by kind, with the source it was

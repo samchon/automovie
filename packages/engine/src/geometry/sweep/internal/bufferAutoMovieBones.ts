@@ -4,7 +4,7 @@ import {
   type IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
+import { AutoMovieEngineSweepRotation } from "../../AutoMovieEngineSweepRotation";
 
 /*
  * Create the motion buffers of a rest skeleton.
@@ -49,8 +49,8 @@ export const bufferAutoMovieBones: (
       ],
       4 * i,
     );
-    AutoMovieSweepRotation.normalize(inverse, 4 * i);
-    AutoMovieSweepRotation.conjugate(inverse, 4 * i, inverse, 4 * i);
+    AutoMovieEngineSweepRotation.normalize(inverse, 4 * i);
+    AutoMovieEngineSweepRotation.conjugate(inverse, 4 * i, inverse, 4 * i);
     origins.set(
       [b.worldPosition.x, b.worldPosition.y, b.worldPosition.z],
       3 * i,
@@ -83,8 +83,8 @@ export const bufferAutoMovieBones: (
       rotations[o + 1] = b.worldRotation.y;
       rotations[o + 2] = b.worldRotation.z;
       rotations[o + 3] = b.worldRotation.w;
-      AutoMovieSweepRotation.multiply(rotations, o, inverse, o, rotations, o);
-      AutoMovieSweepRotation.normalize(rotations, o);
+      AutoMovieEngineSweepRotation.multiply(rotations, o, inverse, o, rotations, o);
+      AutoMovieEngineSweepRotation.normalize(rotations, o);
       posed[3 * i] = b.worldPosition.x;
       posed[3 * i + 1] = b.worldPosition.y;
       posed[3 * i + 2] = b.worldPosition.z;
@@ -109,7 +109,7 @@ export const bufferAutoMovieBones: (
   ): void =>
     resting
       ? copy(v, vi, out, oi)
-      : AutoMovieSweepRotation.rotate(rotations, 4 * bone, v, vi, out, oi);
+      : AutoMovieEngineSweepRotation.rotate(rotations, 4 * bone, v, vi, out, oi);
   const apply = (
     bone: number,
     p: ArrayLike<number>,
@@ -122,7 +122,7 @@ export const bufferAutoMovieBones: (
     out[oi] = p[pi]! - origins[o]!;
     out[oi + 1] = p[pi + 1]! - origins[o + 1]!;
     out[oi + 2] = p[pi + 2]! - origins[o + 2]!;
-    AutoMovieSweepRotation.rotate(rotations, 4 * bone, out, oi, out, oi);
+    AutoMovieEngineSweepRotation.rotate(rotations, 4 * bone, out, oi, out, oi);
     out[oi] = out[oi]! + posed[o]!;
     out[oi + 1] = out[oi + 1]! + posed[o + 1]!;
     out[oi + 2] = out[oi + 2]! + posed[o + 2]!;

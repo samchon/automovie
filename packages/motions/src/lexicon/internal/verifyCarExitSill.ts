@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -51,23 +51,23 @@ export function verifyCarExitSill(
   const initial: HumanMaterialContact.IFace | undefined = prepared?.at(
     context.start,
   );
-  const normal: IAutoMovieVector3 = Vector3.cross(through.across, UP);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(through.across, UP);
   if (initial !== undefined) {
     const positions: IAutoMovieVector3[] = initial.outline.map(
       (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           HumanMaterialContact.world(initial, point),
           through.at,
         ),
     );
     const depth: number[] = positions.map((p: IAutoMovieVector3): number =>
-      Vector3.dot(p, normal),
+      AutoMovieEngineVector3.dot(p, normal),
     );
     const across: number[] = positions.map((p: IAutoMovieVector3): number =>
-      Vector3.dot(p, through.across),
+      AutoMovieEngineVector3.dot(p, through.across),
     );
     if (
-      Quaternion.rotateVectorY(initial.frame.rotation, UP) < 1 - 1e-8 ||
+      AutoMovieEngineQuaternion.rotateVectorY(initial.frame.rotation, UP) < 1 - 1e-8 ||
       Math.abs(initial.frame.position.y - through.at.y) > ALLOWANCE ||
       Math.min(...depth) > ALLOWANCE ||
       Math.max(...depth) < -ALLOWANCE ||

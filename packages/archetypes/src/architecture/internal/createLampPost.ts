@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeLampPost } from "../AutoMovieArchetypeLampPost";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
@@ -22,7 +22,7 @@ export function createLampPost(
 ): AutoMovieArchetype<AutoMovieArchetypeLampPost.Affordance, AutoMovieArchetypeLampPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<AutoMovieArchetypeLampPost.Affordance> =
     StreetFixtureDraw.begin("lampPost", "lamp post", "composite", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const height: number = d.height!;
   const diameter: number = d.diameter!;
   const foot: number = d.baseHeight!;

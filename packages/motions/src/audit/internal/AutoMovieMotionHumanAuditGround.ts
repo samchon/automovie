@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanAuditMeasure,
@@ -158,9 +158,9 @@ export namespace AutoMovieMotionHumanAuditGround {
       const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       return {
         key: "contact",
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           foot.worldPosition,
-          Quaternion.rotateVector(foot.worldRotation, declared),
+          AutoMovieEngineQuaternion.rotateVector(foot.worldRotation, declared),
         ),
       };
     }
@@ -260,18 +260,18 @@ const plants = (
         const local: IAutoMovieVector3 =
           carrier === null
             ? contact.point
-            : Quaternion.rotateVector(
-                Quaternion.inverse(carrier.rotation),
-                Vector3.subtract(contact.point, carrier.position),
+            : AutoMovieEngineQuaternion.rotateVector(
+                AutoMovieEngineQuaternion.inverse(carrier.rotation),
+                AutoMovieEngineVector3.subtract(contact.point, carrier.position),
               );
         const anchor: IAutoMovieVector3 = anchors.get(contact.key) ?? local;
         anchors.set(contact.key, anchor);
         const held: IAutoMovieVector3 =
           carrier === null
             ? anchor
-            : Vector3.add(
+            : AutoMovieEngineVector3.add(
                 carrier.position,
-                Quaternion.rotateVector(carrier.rotation, anchor),
+                AutoMovieEngineQuaternion.rotateVector(carrier.rotation, anchor),
               );
         value = Math.hypot(contact.point.x - held.x, contact.point.z - held.z);
       }

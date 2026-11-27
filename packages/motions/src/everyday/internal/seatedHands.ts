@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -159,14 +159,14 @@ export namespace seatedHands {
     });
     // The stated rest is beneath the wrist. The palm plane extends from
     // its centre back under the carpus to the bearing heel of the hand.
-    const palm: IAutoMovieVector3 = Quaternion.rotateVector(
+    const palm: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       rotation,
       HumanHand.offset(body, side, "palm", "flat").point,
     );
     const underside: IAutoMovieVector3 = { x: 0, y: Math.min(0, palm.y), z: 0 };
     return {
-      point: Vector3.subtract(rest, underside),
-      contact: Quaternion.rotateVector(Quaternion.inverse(rotation), underside),
+      point: AutoMovieEngineVector3.subtract(rest, underside),
+      contact: AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(rotation), underside),
       rotation,
       bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
       planted: true,
@@ -246,8 +246,8 @@ export namespace seatedHands {
         s >= 1
           ? goal
           : {
-              point: Vector3.lerp(hand.worldPosition, goal.point, s),
-              rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
+              point: AutoMovieEngineVector3.lerp(hand.worldPosition, goal.point, s),
+              rotation: AutoMovieEngineQuaternion.slerp(hand.worldRotation, goal.rotation!, s),
               bend: goal.bend,
             };
     }
@@ -303,12 +303,12 @@ export namespace seatedHands {
     for (const side of sides) {
       const goal: IAutoMovieHumanLimbGoal = goals[`${side}Arm`]!;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const point: IAutoMovieVector3 = Vector3.lerp(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         hand.worldPosition,
         goal.point,
         share,
       );
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
         hand.worldRotation,
         goal.rotation!,
         share,

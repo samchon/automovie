@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 import { transformFormationPoint } from "./transformFormationPoint";
 
 /*
@@ -41,13 +41,13 @@ export function composeFormationHeroTransform(
   baseFacingDeg: number = 0,
 ): IAutoMovieTransform {
   return {
-    translation: Vector3.add(
+    translation: AutoMovieEngineVector3.add(
       transformFormationPoint(base.translation, anchor, motion, baseFacingDeg),
-      Vector3.subtract(source.translation, base.translation),
+      AutoMovieEngineVector3.subtract(source.translation, base.translation),
     ),
-    rotation: Quaternion.multiply(
-      Quaternion.fromAxisAngle(UP, baseFacingDeg + motion.facingOffsetDeg),
-      Quaternion.multiply(Quaternion.inverse(base.rotation), source.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(UP, baseFacingDeg + motion.facingOffsetDeg),
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(base.rotation), source.rotation),
     ),
     scale: { ...source.scale },
   };

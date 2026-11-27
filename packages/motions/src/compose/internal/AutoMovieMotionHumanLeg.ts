@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -48,7 +48,7 @@ export namespace AutoMovieMotionHumanLeg {
     const s: number = Math.min(1, Math.max(0, progress));
     return {
       ankle: swingAnkle(from.ankle, to.ankle, clearance, s),
-      rotation: Quaternion.slerp(from.rotation, to.rotation, s),
+      rotation: AutoMovieEngineQuaternion.slerp(from.rotation, to.rotation, s),
     };
   }
 
@@ -65,9 +65,9 @@ export namespace AutoMovieMotionHumanLeg {
     to: IAutoMovieMotionHumanFoot.IPlacement,
     clearance: number,
   ): (progress: number) => IAutoMovieMotionHumanFoot.IPlacement {
-    const turn: ReturnType<typeof Quaternion.prepareSlerp> =
-      Quaternion.prepareSlerp(from.rotation, to.rotation);
-    const ankle: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+    const turn: ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp> =
+      AutoMovieEngineQuaternion.prepareSlerp(from.rotation, to.rotation);
+    const ankle: ReturnType<typeof AutoMovieEngineVector3.prepareLerp> = AutoMovieEngineVector3.prepareLerp(
       from.ankle,
       to.ankle,
     );
@@ -308,7 +308,7 @@ function swingAnkle(
   clearance: number,
   share: number,
 ): IAutoMovieVector3 {
-  return raised(Vector3.lerp(from, to, share), clearance, share);
+  return raised(AutoMovieEngineVector3.lerp(from, to, share), clearance, share);
 }
 
 /*

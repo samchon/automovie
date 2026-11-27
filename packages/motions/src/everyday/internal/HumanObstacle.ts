@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -51,9 +51,9 @@ export function HumanObstacle(
   if (depth === undefined)
     throw refuse(`${subject} declares no depth behind its ${edge.id}`);
   const frame: IAutoMovieRigidTransform = read.frame(context.start);
-  const near: IAutoMovieVector3 = Vector3.add(
+  const near: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, edge.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, edge.frame.translation),
   );
   const height: number = near.y - frame.position.y;
   if (!(height > 0 && depth > 0))
@@ -63,23 +63,23 @@ export function HumanObstacle(
   // The near side is whichever of the edge and the top's far side, a depth
   // back across it, faces the performer: stepping out of a tub, the inner
   // side of its apron.
-  const outward: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(frame.rotation, edge.frame.rotation),
+  const outward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, edge.frame.rotation),
     { x: 0, y: 0, z: 1 },
   );
-  const across: IAutoMovieVector3 = Vector3.normalize({
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: outward.x,
     y: 0,
     z: outward.z,
   });
-  const back: IAutoMovieVector3 = Vector3.subtract(
+  const back: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     near,
-    Vector3.scale(across, depth),
+    AutoMovieEngineVector3.scale(across, depth),
   );
   const side: IAutoMovieVector3 =
     from !== undefined &&
-    Math.abs(Vector3.dot(Vector3.subtract(from, back), across)) <
-      Math.abs(Vector3.dot(Vector3.subtract(from, near), across))
+    Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(from, back), across)) <
+      Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(from, near), across))
       ? back
       : near;
   return {

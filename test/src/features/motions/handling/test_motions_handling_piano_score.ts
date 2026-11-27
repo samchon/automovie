@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPianoScore } from "@automovie/interface";
-import { pianoScoreEvents } from "@automovie/motions/internal";
+import {
+  pianoScoreEvents
+} from "../../../../../packages/motions/src/handling/internal/pianoScoreEvents";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanToolWork,
@@ -36,9 +36,9 @@ export function useToolCycle(
         // point, a stroke of half the forearm, about the 14.0 cm median
         // excursion of real sawing (Starke and Baber 2017, experiment 5).
         return {
-          grip: Vector3.add(
+          grip: AutoMovieEngineVector3.add(
             pose.grip,
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               pose.axis,
               0.25 * m.forearm * Math.sin(2 * Math.PI * phase),
             ),
@@ -49,11 +49,11 @@ export function useToolCycle(
         const r: number = work.radius;
         const a: number = 2 * Math.PI * phase;
         return {
-          grip: Vector3.add(
+          grip: AutoMovieEngineVector3.add(
             pose.grip,
-            Vector3.add(
-              Vector3.scale(forward, -r * Math.cos(a) + r),
-              Vector3.scale(left, r * Math.sin(a)),
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(forward, -r * Math.cos(a) + r),
+              AutoMovieEngineVector3.scale(left, r * Math.sin(a)),
             ),
           ),
           rotation: pose.rotation,

@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "../hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../AutoMovieEngineHingedArmSwivel";
 import { hingedSwivelAhead } from "./hingedSwivelAhead";
 
 /*
@@ -239,6 +239,6 @@ export namespace hingedSwivelBounded {
 }
 
 /*
- * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
+ * The articulation's swivel step, degrees (`AutoMovieEngineHingedArmSwivel.STEP`).
  */
-const STEP: number = hingedArmSwivel.STEP;
+const STEP: number = AutoMovieEngineHingedArmSwivel.STEP;

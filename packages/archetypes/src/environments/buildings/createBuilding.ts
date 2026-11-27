@@ -1,11 +1,11 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
 import { assembleBuilding } from "./assembleBuilding";
 import { buildingPlans } from "./buildingPlans";
 
@@ -22,15 +22,15 @@ import { buildingPlans } from "./buildingPlans";
  * placements.
  */
 export function createBuilding(
-  props: AutoMovieEnvironment.IBuildingProps,
+  props: AutoMovieArchetypeEnvironment.IBuildingProps,
 ): IAutoMovieEnvironmentModule {
   const plan: buildingPlans.IPlan = buildingPlans(props);
   return (
     context: Parameters<IAutoMovieEnvironmentModule>[0],
   ): IAutoMovieEnvironmentContribution => {
-    const vertical: IAutoMovieVector3 = Quaternion.rotateVector(
+    const vertical: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       context.frame.rotation,
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
     );
     if (
       Math.hypot(vertical.x, vertical.y - 1, vertical.z) > 1e-9 ||

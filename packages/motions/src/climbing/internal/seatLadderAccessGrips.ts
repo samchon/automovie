@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -140,8 +140,8 @@ export function seatLadderAccessGrips(
         resolveHumanPosture.seeded(body, middle).pose,
       ).get(`${side}UpperArm`)!.worldPosition;
       const behind: boolean =
-        Vector3.dot(
-          Vector3.subtract(grip.point, shoulder),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(grip.point, shoulder),
           HumanFrame.forward(middle.yaw),
         ) < 0;
       const prepare: number = Math.min(SEAT, (from - before) / 2);
@@ -161,7 +161,7 @@ export function seatLadderAccessGrips(
             : climbLadderHands(
                 body,
                 grip.rung.normal,
-                Vector3.scale(grip.rung.axis, -1),
+                AutoMovieEngineVector3.scale(grip.rung.axis, -1),
               ),
       };
     });
@@ -225,7 +225,7 @@ export function seatLadderAccessGrips(
         seconds,
       );
       const wrist: IAutoMovieVector3 = { x: c[0]!, y: c[1]!, z: c[2]! };
-      const turned: IAutoMovieQuaternion = Quaternion.normalize({
+      const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize({
         x: c[3]!,
         y: c[4]!,
         z: c[5]!,
@@ -234,9 +234,9 @@ export function seatLadderAccessGrips(
       const elbow: IAutoMovieVector3 = { x: c[7]!, y: c[8]!, z: c[9]! };
       limbs[arm] = {
         ...target,
-        point: Vector3.lerp(wrist, target.point, weight),
-        rotation: Quaternion.slerp(turned, target.rotation!, weight),
-        bend: Vector3.lerp(elbow, target.bend!, weight),
+        point: AutoMovieEngineVector3.lerp(wrist, target.point, weight),
+        rotation: AutoMovieEngineQuaternion.slerp(turned, target.rotation!, weight),
+        bend: AutoMovieEngineVector3.lerp(elbow, target.bend!, weight),
       };
     }
     return { ...posture, limbs };

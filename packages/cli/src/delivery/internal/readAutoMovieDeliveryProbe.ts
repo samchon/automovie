@@ -35,7 +35,7 @@ import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
  * truncated box.
  * Parameter path: The encoded delivery file; only its headers are read.
  * Parameter srgb: The H.273 code points that spell sRGB
- * (`AUTOMOVIE_MP4_SRGB_COLOUR`).
+ * (`AutoMovieRenderMp4SrgbColour`).
  * Returns: The video facts and the audio facts or `null`.
  * @see https://www.iso.org/standard/85596.html
  * @see https://www.iso.org/standard/79110.html

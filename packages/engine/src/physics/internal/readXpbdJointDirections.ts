@@ -5,14 +5,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalJointChart } from "../AutoMovieEnginePhysicalJointChart";
 
 /*
  * The directions of a joint's motion subspace at a relative rotation, in its
  * parent's anchor frame: each free axis's, in the joint's axis order, as the
  * articulated solve moves it (the chart's axes at the configuration,
- * `AutoMoviePhysicalJointChart.directions`, or the frame's axes for a joint
+ * `AutoMovieEnginePhysicalJointChart.directions`, or the frame's axes for a joint
  * without a chart), then the locked ones completing them to a basis: the normal
  * of two free directions, or, for one, the first locked direction made
  * perpendicular to it and their normal.
@@ -29,9 +29,9 @@ export function readXpbdJointDirections(
   const chart: IAutoMovieVector3[] | undefined =
     order === undefined
       ? undefined
-      : AutoMoviePhysicalJointChart.directions(
+      : AutoMovieEnginePhysicalJointChart.directions(
           order,
-          AutoMoviePhysicalJointChart.nearest(joint, relative),
+          AutoMovieEnginePhysicalJointChart.nearest(joint, relative),
         );
 
   // An axis's direction: the chart's at the configuration, else the frame's.
@@ -55,13 +55,13 @@ export function readXpbdJointDirections(
 
   // The locked directions complete the free ones to a basis.
   if (free.length === 2)
-    return [...free, Vector3.normalize(Vector3.cross(free[0]!, free[1]!))];
+    return [...free, AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(free[0]!, free[1]!))];
   if (free.length === 1) {
-    const f: IAutoMovieVector3 = Vector3.normalize(free[0]!);
-    const l: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled(locked[0]!, f, -Vector3.dot(locked[0]!, f)),
+    const f: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(free[0]!);
+    const l: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled(locked[0]!, f, -AutoMovieEngineVector3.dot(locked[0]!, f)),
     );
-    return [free[0]!, l, Vector3.cross(f, l)];
+    return [free[0]!, l, AutoMovieEngineVector3.cross(f, l)];
   }
   return [...free, ...locked];
 }

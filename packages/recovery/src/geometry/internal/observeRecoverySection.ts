@@ -9,7 +9,7 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 
-import { RecoveryBezierFit as F } from "../../fitting/RecoveryBezierFit";
+import { AutoMovieRecoveryBezierFit as F } from "../../fitting/AutoMovieRecoveryBezierFit";
 import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceSupport";
 import { to2 } from "../../internal/mesh-observations/to2";
 

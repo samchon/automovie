@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -94,7 +94,7 @@ export function createDog(
         const base: IAutoMovieVector3 =
           AutoMovieArchetypeQuadrupedHeadAttachment.attach(
             rig,
-            Vector3.create(
+            AutoMovieEngineVector3.create(
               ((side === "left" ? 1 : -1) *
                 measures.eyes *
                 AutoMovieArchetypeUnits.CENTIMETRE) /

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -68,7 +68,7 @@ export function HumanTravelLeafHolds(
       handBone,
     ).get(`${side}Hand`)!.worldPosition;
     return (
-      Vector3.length(Vector3.subtract(wrist, goal.point)) <=
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist, goal.point)) <=
       HumanTravelLeaf.HOLD
     );
   };

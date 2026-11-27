@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -67,7 +67,7 @@ function height(
   local: IAutoMovieVector3,
   foot: IAutoMovieMotionHumanFoot.IPlacement,
 ): number {
-  return foot.ankle.y + Quaternion.rotateVectorY(foot.rotation, local);
+  return foot.ankle.y + AutoMovieEngineQuaternion.rotateVectorY(foot.rotation, local);
 }
 
 /*

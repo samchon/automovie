@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { cofactorAutoMovieJacobian } from "../../math/internal/cofactorAutoMovieJacobian";
 import { resolveAutoMovieMeshPhysicalVertices } from "../../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
@@ -164,28 +164,28 @@ export function createAutoMovieMeshDeformer(
       positions.push(target[0]!, target[1]!, target[2]!);
       cofactors.push(matrix);
       if (normals !== null) {
-        const bc: IAutoMovieVector3 = Vector3.create(
+        const bc: IAutoMovieVector3 = AutoMovieEngineVector3.create(
           matrix[0]!,
           matrix[3]!,
           matrix[6]!,
         );
-        const ca: IAutoMovieVector3 = Vector3.create(
+        const ca: IAutoMovieVector3 = AutoMovieEngineVector3.create(
           matrix[1]!,
           matrix[4]!,
           matrix[7]!,
         );
-        const ab: IAutoMovieVector3 = Vector3.create(
+        const ab: IAutoMovieVector3 = AutoMovieEngineVector3.create(
           matrix[2]!,
           matrix[5]!,
           matrix[8]!,
         );
-        const normal: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.add(
-            Vector3.add(
-              Vector3.scale(bc, mesh.normals![vertex]!),
-              Vector3.scale(ca, mesh.normals![vertex + 1]!),
+        const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(bc, mesh.normals![vertex]!),
+              AutoMovieEngineVector3.scale(ca, mesh.normals![vertex + 1]!),
             ),
-            Vector3.scale(ab, mesh.normals![vertex + 2]!),
+            AutoMovieEngineVector3.scale(ab, mesh.normals![vertex + 2]!),
           ),
         );
         normals.push(normal.x, normal.y, normal.z);

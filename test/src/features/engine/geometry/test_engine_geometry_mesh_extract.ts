@@ -1,4 +1,4 @@
-import { AutoMovieMeshExtract } from "@automovie/engine";
+import { AutoMovieEngineMeshExtract } from "@automovie/engine";
 import type {
   IAutoMovieMeshSectionCut,
   IAutoMovieMillimeterMesh,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `AutoMovieMeshExtract` reads exact plane sections off a triangle mesh and
+ * `AutoMovieEngineMeshExtract` reads exact plane sections off a triangle mesh and
  * reduces a dense line to the fewest cubic Hermite knots within a tolerance.
  *
  * Mesh: the cube [0, 10]^3 mm in twelve triangles; frame: the world axes at the
@@ -38,7 +38,7 @@ export function test_engine_geometry_mesh_extract(): void {
       4, 2, 2, 4, 6, 1, 3, 5, 3, 7, 5,
     ],
   };
-  const world: Parameters<typeof AutoMovieMeshExtract.outline>[1] = {
+  const world: Parameters<typeof AutoMovieEngineMeshExtract.outline>[1] = {
     origin: [0, 0, 0],
     axes: [
       [1, 0, 0],
@@ -46,7 +46,7 @@ export function test_engine_geometry_mesh_extract(): void {
       [0, 0, 1],
     ],
   };
-  const cuts: IAutoMovieMeshSectionCut[] = AutoMovieMeshExtract.outline(
+  const cuts: IAutoMovieMeshSectionCut[] = AutoMovieEngineMeshExtract.outline(
     cube,
     world,
     [5],
@@ -74,7 +74,7 @@ export function test_engine_geometry_mesh_extract(): void {
     positions: [0, 0, 0, 10, 0, 0, 0, 10, 10],
     indices: [0, 1, 2],
   };
-  const open: IAutoMovieMeshSectionCut[] = AutoMovieMeshExtract.outline(
+  const open: IAutoMovieMeshSectionCut[] = AutoMovieEngineMeshExtract.outline(
     triangle,
     world,
     [5],
@@ -86,7 +86,7 @@ export function test_engine_geometry_mesh_extract(): void {
     true,
   );
 
-  const line = AutoMovieMeshExtract.reduce(
+  const line = AutoMovieEngineMeshExtract.reduce(
     [
       [0, 0],
       [1, 1],
@@ -107,7 +107,7 @@ export function test_engine_geometry_mesh_extract(): void {
     [1, 1],
   );
   TestValidator.equals("line error", line.error, 0);
-  const tent = AutoMovieMeshExtract.reduce(
+  const tent = AutoMovieEngineMeshExtract.reduce(
     [
       [0, 0],
       [1, 1],

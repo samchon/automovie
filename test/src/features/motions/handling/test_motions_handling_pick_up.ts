@@ -1,7 +1,24 @@
-import { AutoMovieEngineRandom, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEngineQuaternion } from "@automovie/engine";
 
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPrehension, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanGraspRoll, HumanGrip, HumanPrehension, AutoMovieMotionHumanRefusal, pickUpAlong, pickUpStepReach } from "@automovie/motions/internal";
+import {
+  HumanGraspRoll
+} from "../../../../../packages/motions/src/handling/internal/HumanGraspRoll";
+import {
+  HumanGrip
+} from "../../../../../packages/motions/src/handling/internal/HumanGrip";
+import {
+  HumanPrehension
+} from "../../../../../packages/motions/src/handling/internal/HumanPrehension";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  pickUpAlong
+} from "../../../../../packages/motions/src/handling/internal/pickUpAlong";
+import {
+  pickUpStepReach
+} from "../../../../../packages/motions/src/handling/internal/pickUpStepReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -66,8 +83,8 @@ export function test_motions_handling_pick_up(): void {
   const peak: number = HumanPrehension.peak(AutoMovieEngineRandom.createRandom("peak"));
   TestValidator.predicate("the peak", peak >= 0.6 && peak <= 0.7);
   const rotation: IAutoMovieMotionHumanPrehension.ITransportRotation = {
-    from: Quaternion.identity(),
-    to: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    from: AutoMovieEngineQuaternion.identity(),
+    to: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
   const transport = (setback: number, time: number) =>
     HumanPrehension.transport(
@@ -139,7 +156,7 @@ export function test_motions_handling_pick_up(): void {
     "the roll",
     vclose(rolled.point, { x: 0, y: 1.05, z: 0 }, ROUNDING) &&
       vclose(
-        Quaternion.rotateVector(rolled.rotation, { x: 1, y: 0, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(rolled.rotation, { x: 1, y: 0, z: 0 }),
         { x: 0, y: 1, z: 0 },
         ROUNDING,
       ) &&

@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
@@ -18,7 +18,7 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * A law states `"light"` neck flexion and the joint's own range supplies the
  * degrees, so one word fits a neck and a knee: a level is a share of the
  * distance from the joint's rest (0 degrees) to the limit of the named motion
- * in `DEFAULT_HUMANOID_ROM`. The limit a motion reads:
+ * in `AutoMovieEngineDefaultHumanoidRom`. The limit a motion reads:
  *
  * | Motion      | Limit           |
  * | ----------- | --------------- |
@@ -140,7 +140,7 @@ export namespace AutoMovieMotionHumanRange {
     motion: IAutoMovieMotionHumanRange.Motion,
   ): number | null {
     const joint: IAutoMovieJointConstraint | undefined =
-      DEFAULT_HUMANOID_ROM[bone];
+      AutoMovieEngineDefaultHumanoidRom[bone];
     if (joint === undefined) return null;
     const axis: IAutoMovieAngleRange | null =
       motion === "flexion" || motion === "extension"

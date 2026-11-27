@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanContactWindow,
@@ -7,10 +7,14 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
-  HumanLadder,
-  climbLadderBeats,
-  climbLadderContacts,
-} from "@automovie/motions/internal";
+  HumanLadder
+} from "../../../../../packages/motions/src/climbing/internal/HumanLadder";
+import {
+  climbLadderBeats
+} from "../../../../../packages/motions/src/climbing/internal/climbLadderBeats";
+import {
+  climbLadderContacts
+} from "../../../../../packages/motions/src/climbing/internal/climbLadderContacts";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -28,10 +32,10 @@ import { vclose } from "../../internal/vclose";
 function materialContact(): void {
   const frame: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const section: IAutoMovieAffordance["frame"]["rotation"] =
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90);
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90);
   const ladder = (degrees: number): IAutoMovieMotionHumanLadder.ILadder => {
     const affordances: IAutoMovieAffordance[] = [0.3, 0.6, 0.92].map(
       (y: number, k: number): IAutoMovieAffordance => ({
@@ -42,8 +46,8 @@ function materialContact(): void {
           translation: { x: 0, y, z: 0 },
           rotation:
             k === 2
-              ? Quaternion.multiply(
-                  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, degrees),
+              ? AutoMovieEngineQuaternion.multiply(
+                  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, degrees),
                   section,
                 )
               : section,

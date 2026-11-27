@@ -1,5 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, jumpLandingHeading, jumpPath } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  jumpLandingHeading
+} from "../../../../../packages/motions/src/actions/internal/jumpLandingHeading";
+import {
+  jumpPath
+} from "../../../../../packages/motions/src/actions/internal/jumpPath";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

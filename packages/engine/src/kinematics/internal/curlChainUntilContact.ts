@@ -8,12 +8,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { bracketedCrossing } from "../../math/internal/bracketedCrossing";
 import { AutoMovieEnginePhysics } from "../../physics/AutoMovieEnginePhysics";
 import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
@@ -175,9 +175,9 @@ export namespace curlChainUntilContact {
           const next: AutoMovieHumanoidBone | undefined = chain.bones[i + 1];
           const to: IAutoMovieVector3 =
             next === undefined
-              ? Vector3.add(
+              ? AutoMovieEngineVector3.add(
                   from.worldPosition,
-                  Quaternion.rotateVector(from.worldRotation, chain.tip),
+                  AutoMovieEngineQuaternion.rotateVector(from.worldRotation, chain.tip),
                 )
               : (resolved.get(next)?.worldPosition ?? from.worldPosition);
           for (const distance of distances)
@@ -262,7 +262,7 @@ export namespace curlChainUntilContact {
   /*
    * How far a curled digit's angle may move with the limb that carries it,
    * degrees: a point the limb carries moves by no more than the limb's reach
-   * times the joints' tolerance (`ROM_TOLERANCE`, in radians) when the limb's
+   * times the joints' tolerance (`AutoMovieEngineRomTolerance`, in radians) when the limb's
    * chain is resolved to it, and a digit that closes on a contact follows the
    * hand by about as far at its tip, which at its lever (the length from the
    * joint to the digit's tip) turns it by this angle. A curl solves its own
@@ -274,7 +274,7 @@ export namespace curlChainUntilContact {
    * Returns: Degrees.
    */
   export function resolution(reach: number, lever: number): number {
-    return (ROM_TOLERANCE * reach) / lever;
+    return (AutoMovieEngineRomTolerance * reach) / lever;
   }
 }
 

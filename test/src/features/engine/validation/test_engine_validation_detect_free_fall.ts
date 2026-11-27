@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMovieTrack,
@@ -79,7 +79,7 @@ export function test_engine_validation_detect_free_fall(): void {
     track !== undefined &&
       nclose(
         track.values[track.values.length - 2]!,
-        5 - 0.5 * AutoMovieGravity.STANDARD,
+        5 - 0.5 * AutoMovieEngineGravity.STANDARD,
       ),
   );
 

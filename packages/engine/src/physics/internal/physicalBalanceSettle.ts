@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
 import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
@@ -77,7 +77,7 @@ function physicalBalanceSettleImplementation(input: {
   );
   for (const [bone, offset] of Object.entries(input.state.offsets))
     if (!physicalRecoveryLimbSwing(input.state, bone))
-      goals[bone] = Vector3.add(sense.authored(bone), offset);
+      goals[bone] = AutoMovieEngineVector3.add(sense.authored(bone), offset);
   const exhaustion: IAutoMoviePhysicalBalanceExhaustion.IResult =
     physicalBalanceExhaustion({
       unrecoverable: input.state.last === "unrecoverable",
@@ -92,7 +92,7 @@ function physicalBalanceSettleImplementation(input: {
   };
   if (state.rootOffset)
     for (const limb of sense.limbs)
-      goals[limb.bone] ??= Vector3.add(
+      goals[limb.bone] ??= AutoMovieEngineVector3.add(
         sense.authored(limb.bone),
         state.offsets[limb.bone] ?? { x: 0, y: 0, z: 0 },
       );

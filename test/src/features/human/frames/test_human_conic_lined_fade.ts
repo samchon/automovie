@@ -1,5 +1,5 @@
 import { nclose } from "../../internal/predicates";
-import { AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineViewChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicSection as S,
   AutoMovieHumanGrooveFade as Fade,
@@ -59,7 +59,7 @@ export function test_human_conic_lined_fade(): void {
   const smooth: number[] = S.convert(plain, base, runs, freed);
   const radius = (values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout, phase: number): number => {
     const section: IAutoMovieViewChain.ISection = S.chain(values, layout);
-    return section.fault === null ? AutoMovieViewChain.radius(section, phase) : NaN;
+    return section.fault === null ? AutoMovieEngineViewChain.radius(section, phase) : NaN;
   };
 
   // 1. The conversion keeps the plain chain.
@@ -130,7 +130,7 @@ export function test_human_conic_lined_fade(): void {
       failures.push("the narrowing fade, station " + s + " (width share " + q.toFixed(3) + "): " + section.fault);
       continue;
     }
-    const reach: number = AutoMovieViewChain.radius(section, Math.PI);
+    const reach: number = AutoMovieEngineViewChain.radius(section, Math.PI);
     if (!nclose(reach, 90 - 10 * q * q, 1e-9)) failures.push("the narrowing fade, station " + s + ": the floor reaches " + reach + " mm, not " + (90 - 10 * q * q));
     if (reach < before - 1e-9) failures.push("the narrowing fade, station " + s + ": the back median's reach fell from " + before + " to " + reach);
     before = reach;

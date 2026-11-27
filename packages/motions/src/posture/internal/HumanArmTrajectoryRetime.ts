@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -64,9 +64,9 @@ export namespace HumanArmTrajectoryRetime {
           false,
         );
         T.SPEED.forEach((p: number, i: number): void => {
-          const at: IAutoMovieVector3 = Quaternion.rotateVector(
-            Quaternion.inverse(frame.parent.rotation),
-            Vector3.subtract(placed.probes[p]![0], frame.parent.position),
+          const at: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.inverse(frame.parent.rotation),
+            AutoMovieEngineVector3.subtract(placed.probes[p]![0], frame.parent.position),
           );
           local[i]!.push([at.x, at.y, at.z]);
         });

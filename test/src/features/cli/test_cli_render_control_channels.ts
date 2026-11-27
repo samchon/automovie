@@ -5,7 +5,7 @@ import type {
   IAutoMovieDrawnPass,
 } from "@automovie/interface";
 import {
-  AUTOMOVIE_MP4_SRGB_COLOUR,
+  AutoMovieRenderMp4SrgbColour,
   AutoMovieRenderDelivery,
   AutoMovieRenderDraw,
   AutoMovieRenderVideo,
@@ -88,7 +88,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
       render: {
         AutoMovieRenderVideo,
         createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
-        AUTOMOVIE_MP4_SRGB_COLOUR,
+        AutoMovieRenderMp4SrgbColour,
         AutoMovieRenderDelivery,
       },
       session: async () => ({

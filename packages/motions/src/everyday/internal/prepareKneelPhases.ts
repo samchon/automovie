@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -52,7 +52,7 @@ export function prepareKneelPhases(
           ? undefined
           : sitBack && Math.max(phase.from, phase.to) === 4
             ? kneelKeys.prepareTurn(pivot, from.root, to.root)
-            : Vector3.prepareLerp(from.root, to.root),
+            : AutoMovieEngineVector3.prepareLerp(from.root, to.root),
     };
   });
 }

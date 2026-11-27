@@ -1,4 +1,6 @@
-import { disarmed } from "@automovie/motions/internal";
+import {
+  disarmed
+} from "../../../../../packages/motions/src/grappling/internal/disarmed";
 import { TestValidator } from "@nestia/e2e";
 
 /**

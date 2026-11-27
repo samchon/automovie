@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core";
@@ -54,13 +54,13 @@ export namespace QuadrupedRigDelta {
       const now: IAutoMovieTransform = current.get(bone)!;
       rigid(old, bone);
       rigid(now, bone);
-      const rotation: IAutoMovieTransform["rotation"] = Quaternion.multiply(
+      const rotation: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
         now.rotation,
-        Quaternion.inverse(old.rotation),
+        AutoMovieEngineQuaternion.inverse(old.rotation),
       );
-      const translation: IAutoMovieTransform["translation"] = Vector3.subtract(
+      const translation: IAutoMovieTransform["translation"] = AutoMovieEngineVector3.subtract(
         now.translation,
-        Quaternion.rotateVector(rotation, old.translation),
+        AutoMovieEngineQuaternion.rotateVector(rotation, old.translation),
       );
       deltas.set(bone, { rotation, translation });
     }

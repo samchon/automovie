@@ -4,7 +4,7 @@ import type {
   IAutoMoviePhysicsCache,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicsCache as Cache } from "../AutoMoviePhysicsCache";
+import { AutoMovieEnginePhysicsCache as Cache } from "../AutoMovieEnginePhysicsCache";
 
 /*
  * Pack a complete cache once on a build machine; checkpoints remain with the

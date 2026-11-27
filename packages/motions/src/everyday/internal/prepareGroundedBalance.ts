@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBalance,
@@ -76,7 +76,7 @@ export function prepareGroundedBalance(
       ? posture
       : {
           ...posture,
-          root: Vector3.addScaled(posture.root, direction, weight * shift),
+          root: AutoMovieEngineVector3.addScaled(posture.root, direction, weight * shift),
         };
   };
 }

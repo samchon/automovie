@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -45,9 +45,9 @@ export namespace AthleticsSwing {
   export function prepare(
     path: IPath,
   ): (progress: number) => IAutoMovieMotionHumanFoot.IPlacement {
-    const control: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.scale(path.over.ankle, 2),
-      Vector3.scale(Vector3.add(path.from.ankle, path.to.ankle), 0.5),
+    const control: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.scale(path.over.ankle, 2),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(path.from.ankle, path.to.ankle), 0.5),
     );
     return (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, progress)));
@@ -62,8 +62,8 @@ export namespace AthleticsSwing {
         },
         rotation:
           s <= 0.5
-            ? Quaternion.slerp(path.from.rotation, path.over.rotation, 2 * s)
-            : Quaternion.slerp(path.over.rotation, path.to.rotation, 2 * s - 1),
+            ? AutoMovieEngineQuaternion.slerp(path.from.rotation, path.over.rotation, 2 * s)
+            : AutoMovieEngineQuaternion.slerp(path.over.rotation, path.to.rotation, 2 * s - 1),
       };
     };
   }

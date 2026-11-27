@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanFootStrike,
   IAutoMovieVector3,
@@ -71,19 +71,19 @@ export namespace FootStrikeForms {
   > = {
     side: {
       contact: "heel",
-      toes: (_l, _x, outward) => Vector3.scale(outward, -1),
-      instep: (line) => Vector3.scale(line, -1),
+      toes: (_l, _x, outward) => AutoMovieEngineVector3.scale(outward, -1),
+      instep: (line) => AutoMovieEngineVector3.scale(line, -1),
       travel: (line) => line,
     },
     back: {
       contact: "heel",
       toes: () => DOWN,
-      instep: (line) => Vector3.scale(line, -1),
+      instep: (line) => AutoMovieEngineVector3.scale(line, -1),
       travel: (line) => line,
     },
     hook: {
       contact: "heel",
-      toes: (_l, _x, outward) => Vector3.scale(outward, -1),
+      toes: (_l, _x, outward) => AutoMovieEngineVector3.scale(outward, -1),
       instep: () => UP,
       travel: (_l, _x, outward) => outward,
     },
@@ -91,7 +91,7 @@ export namespace FootStrikeForms {
       contact: "sole",
       toes: () => UP,
       instep: (_l, _x, outward) => outward,
-      travel: (_l, _x, outward) => Vector3.scale(outward, -1),
+      travel: (_l, _x, outward) => AutoMovieEngineVector3.scale(outward, -1),
     },
     axe: {
       contact: "heel",
@@ -109,7 +109,7 @@ export namespace FootStrikeForms {
       contact: "sole",
       toes: (line) => line,
       instep: (_l, _x, outward) => outward,
-      travel: (_l, _x, outward) => Vector3.scale(outward, -1),
+      travel: (_l, _x, outward) => AutoMovieEngineVector3.scale(outward, -1),
     },
   };
 }

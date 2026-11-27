@@ -1,4 +1,4 @@
-import { AutoMovieViewAxisJet as AxisJet, AutoMovieSolidVector as V, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineViewAxisJet as AxisJet, AutoMovieEngineSolidVector as V, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,

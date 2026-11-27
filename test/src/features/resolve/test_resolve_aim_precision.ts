@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineQuaternion, AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieAimDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,7 +9,7 @@ const W: (x: number, y: number, z: number) => number[] = (
   y: number,
   z: number,
 ): number[] =>
-  Matrix4.compose(
+  AutoMovieEngineMatrix4.compose(
     { x, y, z },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 1, y: 1, z: 1 },
@@ -36,7 +36,7 @@ const aimedDir: (
   world: Map<string, number[]>,
   aimAxis: IAutoMovieVector3,
 ): IAutoMovieVector3 =>
-  Quaternion.rotateVector(Matrix4.decompose(world.get("o")!).rotation, aimAxis);
+  AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineMatrix4.decompose(world.get("o")!).rotation, aimAxis);
 
 const runAim: (
   d: IAutoMovieAimDriver,

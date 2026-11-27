@@ -3,7 +3,7 @@ import { FamilyConicLoft as K } from "./FamilyConicLoft";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftChain, AutoMovieViewChain, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -213,7 +213,7 @@ namespace FamilyConicLimbLaw {
     let first: number[] | null = null;
     for (let j: number = 0; j < GIRTH_PHASES; ++j) {
       const phi: number = (2 * Math.PI * j) / GIRTH_PHASES;
-      const r: number = AutoMovieViewChain.radius(section, phi);
+      const r: number = AutoMovieEngineViewChain.radius(section, phi);
       const p: number[] = [r * Math.cos(phi), r * Math.sin(phi)];
       if (previous !== null) total += Math.hypot(p[0]! - previous[0]!, p[1]! - previous[1]!);
       first ??= p;
@@ -628,7 +628,7 @@ namespace FamilyConicLimbLaw {
     const positions: number[] = [];
     const indices: number[] = [];
     for (const s of stations) {
-      const sample: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(chain, s);
+      const sample: (t: number) => [number, number, number] = AutoMovieEngineLoftChain.sampler(chain, s);
       for (let j: number = 0; j < M; ++j) {
         const p: number[] = sample((2 * Math.PI * j) / M);
         positions.push(p[0]! / 1000, p[1]! / 1000, p[2]! / 1000);
@@ -1615,7 +1615,7 @@ namespace FamilyConicLimbLaw {
     if (loft.chain !== null) {
       const chain: Chain = loft.chain;
       for (const layer of chain.layers) {
-        const ring: V3[] = Array.from({ length: 256 }, (_: unknown, j: number): V3 => SF.toLocal(footFrame, AutoMovieLoftChain.point(chain, layer.y, (2 * Math.PI * j) / 256) as V3));
+        const ring: V3[] = Array.from({ length: 256 }, (_: unknown, j: number): V3 => SF.toLocal(footFrame, AutoMovieEngineLoftChain.point(chain, layer.y, (2 * Math.PI * j) / 256) as V3));
         for (const p of ring) if (p[1] < 0) heel = Math.min(heel, p[0]);
         if (Math.abs(layer.y - footBall) <= 15) breadth = Math.max(breadth, Math.max(...ring.map((p: V3): number => p[2])) - Math.min(...ring.map((p: V3): number => p[2])));
       }
@@ -1864,7 +1864,7 @@ namespace FamilyConicLimbLaw {
   }
 
   /**
-   * The wrist band's ribbons (`IAutoMovieConstructionContinuation.band`), as `AutoMovieConstructionSplitBand.strip` builds them: the arm's
+   * The wrist band's ribbons (`IAutoMovieConstructionContinuation.band`), as `AutoMovieEngineConstructionSplitBand.strip` builds them: the arm's
    * face's end ring at `armTo` and the hand's rail ring `rail` mm past its first knot, paired by length (`lengths`: the ring sampled at 8
    * points a column, the sense by the two Newell normals, the first column where the two curves at equal shares of their lengths stand
    * closest about their centroids); each column's ribbons the arm's own station derivatives at its end and the hand's at its rail, scaled
@@ -1875,7 +1875,7 @@ namespace FamilyConicLimbLaw {
       const loft: IAutoMovieViewLoft.IResult = H.create({ ...family, tips: undefined, reliefs: [] }, [at - 2, at - 1, at - 0.5, at, at + 0.5, at + 1, at + 2]);
       if (loft.chain === null) throw new Error(`${family.name} does not loft at ${at}`);
       const chain: Chain = loft.chain;
-      return (s: number, psi: number): V3 => AutoMovieLoftChain.point(chain, s, psi) as V3;
+      return (s: number, psi: number): V3 => AutoMovieEngineLoftChain.point(chain, s, psi) as V3;
     };
     const host = sampler(arm, armTo);
     const part = sampler(hand, hand.knots[0]! + rail);
@@ -1989,7 +1989,7 @@ namespace FamilyConicLimbLaw {
       const frame = handAxis.at(s);
       const q: [number, number] = [0, 1].map((c: number): number => [0, 1, 2].reduce((t: number, i: number): number => t + (p[i]! - frame.origin[i]!) * (c === 0 ? frame.u : frame.v)[i]!, 0)) as [number, number];
       const ring: [number, number][] = Array.from({ length: 128 }, (_: unknown, j: number): [number, number] => {
-        const r: number[] = AutoMovieLoftChain.point(handChain, s, (2 * Math.PI * j) / 128);
+        const r: number[] = AutoMovieEngineLoftChain.point(handChain, s, (2 * Math.PI * j) / 128);
         return [0, 1].map((c: number): number => [0, 1, 2].reduce((t: number, i: number): number => t + (r[i]! - frame.origin[i]!) * (c === 0 ? frame.u : frame.v)[i]!, 0)) as [number, number];
       });
       let within: boolean = false;
@@ -2003,7 +2003,7 @@ namespace FamilyConicLimbLaw {
     for (const s of stations) {
       const share: number = (s - first) / (last - first);
       if (share < from || share > to) continue;
-      const now: boolean = inside(AutoMovieLoftChain.point(chain, s, 0) as V3);
+      const now: boolean = inside(AutoMovieEngineLoftChain.point(chain, s, 0) as V3);
       if (before === true && !now) return round3(share);
       before = now;
     }
@@ -2164,7 +2164,7 @@ namespace FamilyConicLimbLaw {
       const band = wristBand(x.arm, x.hand, x.armTo, wrist.rail, wrist.count);
       if (band.backward > 0 || !(band.scale > 0)) fail(`the wrist band: ${band.backward} backward columns, common scale ${band.scale}`);
       notes.push(`wrist band at ${x.armTo.toFixed(2)} mm: chords ${band.chords.map((v: number): string => v.toFixed(1)).join("..")} mm, common scale ${band.scale.toFixed(4)}`);
-      // The fans' seams as the engine admits them (`AutoMovieConstructionAdmission`, `AutoMovieConstructionSplitSeam.create`): every
+      // The fans' seams as the engine admits them (`AutoMovieEngineConstructionAdmission`, `AutoMovieEngineConstructionSplitSeam.create`): every
       // seam a < b < a + 2 pi and each enclosing the one before within one turn; its ends apart; its heading not along its chord; every
       // knot finite, along its chord within [0, chord], apart from the one before (the first from the seam's start, the last from its end);
       // the host's tangent plane at each fork holding a direction of the seam plane that leaves the end.
@@ -2264,7 +2264,7 @@ namespace FamilyConicLimbLaw {
       const loft: IAutoMovieViewLoft.IResult = H.create({ ...fam, tips: undefined }, fam.knots);
       const chain: Chain = loft.chain!;
       const station: number = fam.knots.at(-1)!;
-      const at = (s: number, psi: number): V3 => AutoMovieLoftChain.point(chain, s, psi) as V3;
+      const at = (s: number, psi: number): V3 => AutoMovieEngineLoftChain.point(chain, s, psi) as V3;
       const minus = (p: V3, q: V3): V3 => [p[0] - q[0], p[1] - q[1], p[2] - q[2]];
       const crossOf = (p: V3, q: V3): V3 => [p[1] * q[2] - p[2] * q[1], p[2] * q[0] - p[0] * q[2], p[0] * q[1] - p[1] * q[0]];
       const chords: number[] = [];

@@ -1,7 +1,7 @@
 import "../../core";
 import type { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
 import { AutoMovieArchetypeSword } from "../AutoMovieArchetypeSword";
-import { madeTo, madeFor } from "./internal/HolsterBladesData";
+import { HolsterBladesData } from "./internal/HolsterBladesData";
 
 /*
  * The blades of `createHolster` by kind, the default first, each made with
@@ -13,16 +13,16 @@ export const HOLSTER_BLADES: Readonly<{
   sheath: Readonly<Record<AutoMovieArchetypeHolster.SheathBlade, AutoMovieArchetypeHolster.Fitted>>;
 }> = {
   scabbard: {
-    crecy: madeTo("Crecy", AutoMovieArchetypeSword.MODELS.longsword!.crecy!),
-    regent: madeTo("Regent", AutoMovieArchetypeSword.MODELS.longsword!.regent!),
-    knight: madeTo("Knight", AutoMovieArchetypeSword.MODELS.armingSword!.knight!),
-    poitiers: madeTo("Poitiers", AutoMovieArchetypeSword.MODELS.armingSword!.poitiers!),
-    sabre: madeFor("sabre"),
-    katana: madeFor("katana"),
-    rapier: madeFor("rapier"),
+    crecy: HolsterBladesData.madeTo("Crecy", AutoMovieArchetypeSword.MODELS.longsword!.crecy!),
+    regent: HolsterBladesData.madeTo("Regent", AutoMovieArchetypeSword.MODELS.longsword!.regent!),
+    knight: HolsterBladesData.madeTo("Knight", AutoMovieArchetypeSword.MODELS.armingSword!.knight!),
+    poitiers: HolsterBladesData.madeTo("Poitiers", AutoMovieArchetypeSword.MODELS.armingSword!.poitiers!),
+    sabre: HolsterBladesData.madeFor("sabre"),
+    katana: HolsterBladesData.madeFor("katana"),
+    rapier: HolsterBladesData.madeFor("rapier"),
   },
   sheath: {
-    dagger: madeFor("dagger"),
-    knife: madeFor("knife"),
+    dagger: HolsterBladesData.madeFor("dagger"),
+    knife: HolsterBladesData.madeFor("knife"),
   },
 };

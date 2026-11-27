@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryMapPointProjectionOperation } from "@automovie/interface";
 
 /*
@@ -12,7 +12,7 @@ export function projectRecoveryMapPoint(
   point: Parameters<IAutoMovieRecoveryMapPointProjectionOperation.Operation>[1],
   intrinsic: Parameters<IAutoMovieRecoveryMapPointProjectionOperation.Operation>[2],
 ): ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> {
-  const rotated: [number, number, number] = AutoMovieMatrix3.apply(
+  const rotated: [number, number, number] = AutoMovieEngineMatrix3.apply(
     pose.rotation,
     point,
   );
@@ -36,7 +36,7 @@ export function projectRecoveryMapPoint(
     ],
     [0, intrinsic[4]! / q[2]!, (-intrinsic[4]! * y) / q[2]!],
   ];
-  const skew: number[] = AutoMovieMatrix3.skew(rotated);
+  const skew: number[] = AutoMovieEngineMatrix3.skew(rotated);
   const cameraJacobian: number[][] = [],
     pointJacobian: number[][] = [];
   for (const row of chart) {

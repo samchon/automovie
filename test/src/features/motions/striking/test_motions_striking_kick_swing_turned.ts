@@ -1,4 +1,6 @@
-import { KickSwingTurned } from "@automovie/motions/internal";
+import {
+  KickSwingTurned
+} from "../../../../../packages/motions/src/striking/internal/KickSwingTurned";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

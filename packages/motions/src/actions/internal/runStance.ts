@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
@@ -125,7 +125,7 @@ export namespace runStance {
       y: above,
       z: ankle.z - props.lead,
     };
-    const ball: IAutoMovieVector3 = Vector3.add(flat, mtp);
+    const ball: IAutoMovieVector3 = AutoMovieEngineVector3.add(flat, mtp);
     const rocker: ReturnType<typeof walkLeg.prepareHeelRise> =
       walkLeg.prepareHeelRise(body, "left", ball, 0, walkLeg.ROCKER);
     const pivot: ReturnType<typeof HumanFoot.preparePivot> =

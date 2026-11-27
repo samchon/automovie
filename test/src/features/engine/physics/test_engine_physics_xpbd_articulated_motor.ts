@@ -1,8 +1,8 @@
 import {
-  AutoMovieXpbdBody,
-  AutoMovieXpbdJoint,
-  AutoMovieXpbdWorld,
-  Vector3,
+  AutoMovieEngineXpbdBody,
+  AutoMovieEngineXpbdJoint,
+  AutoMovieEngineXpbdWorld,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
@@ -84,40 +84,40 @@ export async function test_engine_physics_xpbd_articulated_motor(): Promise<void
     });
     arm.elbow.motors.set("z", { speed: -1, damping: 30, maximumTorque: 1000 });
     arm.world.step();
-    const bodies: AutoMovieXpbdBody[] = [arm.base, arm.upper, arm.fore];
+    const bodies: AutoMovieEngineXpbdBody[] = [arm.base, arm.upper, arm.fore];
     let linear: IAutoMovieVector3 = origin();
     let angular: IAutoMovieVector3 = origin();
     for (const body of bodies) {
-      const momentum: IAutoMovieVector3 = Vector3.scale(
+      const momentum: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         body.linvel(),
         body.mass(),
       );
-      linear = Vector3.add(linear, momentum);
-      angular = Vector3.add(
+      linear = AutoMovieEngineVector3.add(linear, momentum);
+      angular = AutoMovieEngineVector3.add(
         angular,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           body.worldInertia(body.angvel()),
-          Vector3.cross(body.translation(), momentum),
+          AutoMovieEngineVector3.cross(body.translation(), momentum),
         ),
       );
     }
-    if (!(Vector3.length(linear) < tolerance))
+    if (!(AutoMovieEngineVector3.length(linear) < tolerance))
       findings.push(`free torso linear momentum ${JSON.stringify(linear)}`);
-    if (!(Vector3.length(angular) < tolerance))
+    if (!(AutoMovieEngineVector3.length(angular) < tolerance))
       findings.push(`free torso angular momentum ${JSON.stringify(angular)}`);
-    const shoulder: IAutoMovieVector3 = Vector3.subtract(
+    const shoulder: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       arm.upper.velocityAtPoint(origin()),
       arm.base.velocityAtPoint(origin()),
     );
     const elbowPoint: IAutoMovieVector3 = { x: 0, y: -l1, z: 0 };
-    const elbow: IAutoMovieVector3 = Vector3.subtract(
+    const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       arm.fore.velocityAtPoint(elbowPoint),
       arm.upper.velocityAtPoint(elbowPoint),
     );
-    if (!(Vector3.length(shoulder) < tolerance))
-      findings.push(`shoulder anchors part at ${Vector3.length(shoulder)} m/s`);
-    if (!(Vector3.length(elbow) < tolerance))
-      findings.push(`elbow anchors part at ${Vector3.length(elbow)} m/s`);
+    if (!(AutoMovieEngineVector3.length(shoulder) < tolerance))
+      findings.push(`shoulder anchors part at ${AutoMovieEngineVector3.length(shoulder)} m/s`);
+    if (!(AutoMovieEngineVector3.length(elbow) < tolerance))
+      findings.push(`elbow anchors part at ${AutoMovieEngineVector3.length(elbow)} m/s`);
     if (!(arm.upper.angvel().z - arm.base.angvel().z > 0))
       findings.push("free shoulder does not turn toward its speed");
   }
@@ -141,30 +141,30 @@ export async function test_engine_physics_xpbd_articulated_motor(): Promise<void
 
   /** A gravity-free arm hanging along -y from a base at the origin. */
   function build(free: boolean): IArm {
-    const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(origin());
+    const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld(origin());
     world.timestep = h;
-    const base: AutoMovieXpbdBody = world.createBody(free, {
+    const base: AutoMovieEngineXpbdBody = world.createBody(free, {
       position: origin(),
       rotation: identity(),
     });
     if (free)
       base.setMass(10, origin(), { x: 0.2, y: 0.2, z: 0.2 }, identity());
-    const upper: AutoMovieXpbdBody = world.createBody(true, {
+    const upper: AutoMovieEngineXpbdBody = world.createBody(true, {
       position: { x: 0, y: -c1, z: 0 },
       rotation: identity(),
     });
     upper.setMass(m1, origin(), { x: i1, y: 0.004, z: i1 }, identity());
-    const fore: AutoMovieXpbdBody = world.createBody(true, {
+    const fore: AutoMovieEngineXpbdBody = world.createBody(true, {
       position: { x: 0, y: -l1 - c2, z: 0 },
       rotation: identity(),
     });
     fore.setMass(m2, origin(), { x: i2, y: 0.003, z: i2 }, identity());
-    const shoulder: AutoMovieXpbdJoint = world.createJoint(
+    const shoulder: AutoMovieEngineXpbdJoint = world.createJoint(
       ball("shoulder", "base", "upper", origin(), { x: 0, y: c1, z: 0 }),
       base,
       upper,
     );
-    const elbow: AutoMovieXpbdJoint = world.createJoint(
+    const elbow: AutoMovieEngineXpbdJoint = world.createJoint(
       ball(
         "elbow",
         "upper",
@@ -219,10 +219,10 @@ export async function test_engine_physics_xpbd_articulated_motor(): Promise<void
 
 /** A two-link arm on a base. */
 interface IArm {
-  world: AutoMovieXpbdWorld;
-  base: AutoMovieXpbdBody;
-  upper: AutoMovieXpbdBody;
-  fore: AutoMovieXpbdBody;
-  shoulder: AutoMovieXpbdJoint;
-  elbow: AutoMovieXpbdJoint;
+  world: AutoMovieEngineXpbdWorld;
+  base: AutoMovieEngineXpbdBody;
+  upper: AutoMovieEngineXpbdBody;
+  fore: AutoMovieEngineXpbdBody;
+  shoulder: AutoMovieEngineXpbdJoint;
+  elbow: AutoMovieEngineXpbdJoint;
 }

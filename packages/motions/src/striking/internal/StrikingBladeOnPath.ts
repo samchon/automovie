@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingBlade,
@@ -44,7 +44,7 @@ export function StrikingBladeOnPath(
     const sought: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
       stroke.follow === undefined
         ? laid
-        : { ...laid, point: Vector3.add(laid.point, stroke.follow(seconds)) };
+        : { ...laid, point: AutoMovieEngineVector3.add(laid.point, stroke.follow(seconds)) };
 
     // A path is laid from the shoulder as it stands to the shoulder the
     // advance brings, as if the body advanced with the stroke's own
@@ -56,11 +56,11 @@ export function StrikingBladeOnPath(
         ? sought
         : {
             ...sought,
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               sought.point,
-              Vector3.subtract(
+              AutoMovieEngineVector3.subtract(
                 shoulderOf(posture, read),
-                Vector3.lerp(
+                AutoMovieEngineVector3.lerp(
                   borne()[0],
                   borne()[1],
                   Math.min(1, Math.max(0, progress / stroke.stop)),

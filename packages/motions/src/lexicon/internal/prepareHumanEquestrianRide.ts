@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -135,9 +135,9 @@ export function prepareHumanEquestrianRide(
 
   const fade: number = Math.min(0.2, seconds / 2);
   const length: number = context.body.measure.thigh;
-  const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(origin.rotation),
-    Vector3.subtract(saddle, origin.position),
+  const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(origin.rotation),
+    AutoMovieEngineVector3.subtract(saddle, origin.position),
   );
   const ranges: ReadonlyMap<
     AutoMovieHumanoidBone,
@@ -199,20 +199,20 @@ export function prepareHumanEquestrianRide(
         const original: IAutoMovieQuaternion = humanPostureHeading(posture);
         posture.pitch = (posture.pitch ?? 0) + pitch + 6 * rise;
         posture.roll = (posture.roll ?? 0) + roll;
-        const tilt: IAutoMovieQuaternion = Quaternion.multiply(
+        const tilt: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           humanPostureHeading(posture),
-          Quaternion.inverse(original),
+          AutoMovieEngineQuaternion.inverse(original),
         );
-        const seat: IAutoMovieVector3 = Vector3.add(
-          Vector3.add(carrier.position, seatDrift),
-          Quaternion.rotateVector(carrier.rotation, offset),
+        const seat: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(carrier.position, seatDrift),
+          AutoMovieEngineQuaternion.rotateVector(carrier.rotation, offset),
         );
-        posture.root = Vector3.add(
-          Vector3.add(
+        posture.root = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             seat,
-            Quaternion.rotateVector(tilt, Vector3.subtract(posture.root, seat)),
+            AutoMovieEngineQuaternion.rotateVector(tilt, AutoMovieEngineVector3.subtract(posture.root, seat)),
           ),
-          Vector3.scale(up, 0.12 * length * rise),
+          AutoMovieEngineVector3.scale(up, 0.12 * length * rise),
         );
       }
 

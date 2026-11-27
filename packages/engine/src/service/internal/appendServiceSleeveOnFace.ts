@@ -11,8 +11,8 @@ import {
 
 import { outlineHull } from "../../architecture/internal/outlineHull";
 import { polygonInside } from "../../architecture/internal/polygonInside";
-import { Quaternion } from "../../math/Quaternion";
-import { SERVICE_EPSILON } from "../SERVICE_EPSILON";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineServiceEpsilon } from "../AutoMovieEngineServiceEpsilon";
 
 /*
  * Hold a sleeve inside the face it claims to pierce.
@@ -55,11 +55,11 @@ export function appendServiceSleeveOnFace(
     y: sleeve.position.y - face.origin.y,
     z: sleeve.position.z - face.origin.z,
   };
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(face.rotation),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(face.rotation),
     offset,
   );
-  if (Math.abs(local.z) > face.thickness / 2 + SERVICE_EPSILON)
+  if (Math.abs(local.z) > face.thickness / 2 + AutoMovieEngineServiceEpsilon)
     out.push(
       "range",
       `${path}.position`,

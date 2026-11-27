@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -108,7 +108,7 @@ export namespace lungeGrab {
       y: 0,
       z: target.z - shoulder.z,
     };
-    const apart: number = Vector3.length(flat);
+    const apart: number = AutoMovieEngineVector3.length(flat);
     const arm: number =
       touch.REACH *
       (context.body.measure.upperArm + context.body.measure.forearm);
@@ -124,13 +124,13 @@ export namespace lungeGrab {
         fix: "start the lunge closer to the victim",
       });
     const along: IAutoMovieVector3 =
-      apart > 1e-9 ? Vector3.scale(flat, 1 / apart) : { x: 0, y: 0, z: 1 };
-    const travel: IAutoMovieVector3 = Vector3.scale(along, length);
+      apart > 1e-9 ? AutoMovieEngineVector3.scale(flat, 1 / apart) : { x: 0, y: 0, z: 1 };
+    const travel: IAutoMovieVector3 = AutoMovieEngineVector3.scale(along, length);
 
     // The grab, planned from where the lunge leaves the body.
     const arrived: IAutoMovieMotionHumanPosture = {
       ...entry.posture,
-      root: Vector3.add(entry.posture.root, travel),
+      root: AutoMovieEngineVector3.add(entry.posture.root, travel),
     };
     const lunged: IAutoMovieMotionHumanEntryState = {
       ...entry,
@@ -140,9 +140,9 @@ export namespace lungeGrab {
         ...entry.feet,
         [side]: {
           ...entry.feet[side],
-          ankle: Vector3.add(
+          ankle: AutoMovieEngineVector3.add(
             entry.feet[side].ankle,
-            Vector3.scale(travel, STRIDE),
+            AutoMovieEngineVector3.scale(travel, STRIDE),
           ),
         },
       },
@@ -169,16 +169,16 @@ export namespace lungeGrab {
     const duration: number = grabbed.duration;
     const lunge: number = Math.min(step.period(context.body), duration - SHIFT);
     const from: IAutoMovieVector3 = entry.feet[side].ankle;
-    const to: IAutoMovieVector3 = Vector3.add(
+    const to: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       from,
-      Vector3.scale(travel, STRIDE),
+      AutoMovieEngineVector3.scale(travel, STRIDE),
     );
     const stay: IAutoMovieVector3 = entry.feet[rear].ankle;
     // How far the hips sink for the lunge's stance: the leg, hip to ankle,
     // spans half the feet's spread at the depth it leaves.
     const hip: number = context.body.measure.hipHeight;
     const half: number =
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         { x: to.x, y: 0, z: to.z },
         { x: stay.x, y: 0, z: stay.z },
       ) / 2;
@@ -186,7 +186,7 @@ export namespace lungeGrab {
     const knee: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (
       ankle: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.add(ankle, {
+      AutoMovieEngineVector3.add(ankle, {
         x: along.x * 0.3,
         y: 0.45 * context.body.measure.hipHeight,
         z: along.z * 0.3,
@@ -242,7 +242,7 @@ export namespace lungeGrab {
         const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.min(1, Math.max(0, (t - SHIFT) / lunge)),
         );
-        const lead: IAutoMovieVector3 = Vector3.add(Vector3.lerp(from, to, s), {
+        const lead: IAutoMovieVector3 = AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(from, to, s), {
           x: 0,
           y: Math.sin(Math.PI * s) * LIFT,
           z: 0,
@@ -250,8 +250,8 @@ export namespace lungeGrab {
         return {
           ...shown,
           // The hips sink as the feet part, so both legs reach the floor.
-          root: Vector3.subtract(
-            Vector3.subtract(shown.root, Vector3.scale(travel, 1 - s)),
+          root: AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.subtract(shown.root, AutoMovieEngineVector3.scale(travel, 1 - s)),
             { x: 0, y: sink * s, z: 0 },
           ),
           limbs: {

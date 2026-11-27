@@ -1,13 +1,13 @@
 import type { IAutoMovieFootfallPattern } from "@automovie/interface";
 
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
-import { AutoMoviePhysicalRootBounds } from "../AutoMoviePhysicalRootBounds";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
+import { AutoMovieEnginePhysicalRootBounds } from "../AutoMovieEnginePhysicalRootBounds";
 
 /*
  * The support transitions a root task carries (`trackPhysicalRoot`): the force
  * bounds of the contacts of the limbs leaving and entering the stance
- * (`AutoMoviePhysicalRootBounds`), on their carriers' bodies; the lifted limbs'
+ * (`AutoMovieEnginePhysicalRootBounds`), on their carriers' bodies; the lifted limbs'
  * contacts released to the contact passes, so their swings move them off the
  * floor; and every stance limb's carriers kept the task's stance whatever
  * their load, so their legs keep their posture rows.
@@ -20,14 +20,14 @@ import { AutoMoviePhysicalRootBounds } from "../AutoMoviePhysicalRootBounds";
  */
 export function physicalRootTransitions(input: {
   pattern: readonly IAutoMovieFootfallPattern["limbs"][number][];
-  segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+  segments: ReadonlyMap<string, AutoMovieEngineXpbdBody>;
   stance: readonly IAutoMovieFootfallPattern["limbs"][number][];
   requested: readonly string[];
   lifted: readonly string[];
   seating?: Readonly<Record<string, { bearing?: number; entry?: number }>>;
   force: number;
-}): Pick<AutoMovieXpbdWorld.IRootTask, "bounds" | "released" | "stance"> {
-  const carriers = (bone: string | undefined): AutoMovieXpbdBody[] => {
+}): Pick<AutoMovieEngineXpbdWorld.IRootTask, "bounds" | "released" | "stance"> {
+  const carriers = (bone: string | undefined): AutoMovieEngineXpbdBody[] => {
     const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
       input.pattern.find(
         (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
@@ -35,15 +35,15 @@ export function physicalRootTransitions(input: {
       );
     return limb
       ? (limb.contacts ?? [limb.bone]).flatMap(
-          (carrier: string): AutoMovieXpbdBody[] => {
-            const rigid: AutoMovieXpbdBody | undefined =
+          (carrier: string): AutoMovieEngineXpbdBody[] => {
+            const rigid: AutoMovieEngineXpbdBody | undefined =
               input.segments.get(carrier);
             return rigid ? [rigid] : [];
           },
         )
       : [];
   };
-  const bounds: AutoMovieXpbdWorld.IBound[] = AutoMoviePhysicalRootBounds.set({
+  const bounds: AutoMovieEngineXpbdWorld.IBound[] = AutoMovieEnginePhysicalRootBounds.set({
     force: input.force,
     requested: input.requested,
     stance: input.stance.map(
@@ -51,16 +51,16 @@ export function physicalRootTransitions(input: {
     ),
     ...(input.seating ? { seating: input.seating } : {}),
   }).flatMap(
-    (bound: AutoMoviePhysicalRootBounds.IBound): AutoMovieXpbdWorld.IBound[] => {
-      const bodies: AutoMovieXpbdBody[] = carriers(bound.bone);
+    (bound: AutoMovieEnginePhysicalRootBounds.IBound): AutoMovieEngineXpbdWorld.IBound[] => {
+      const bodies: AutoMovieEngineXpbdBody[] = carriers(bound.bone);
       return bodies.length > 0 ? [{ bodies, force: bound.force }] : [];
     },
   );
-  const released: AutoMovieXpbdBody[] = input.lifted.flatMap(
-    (bone: string): AutoMovieXpbdBody[] => carriers(bone),
+  const released: AutoMovieEngineXpbdBody[] = input.lifted.flatMap(
+    (bone: string): AutoMovieEngineXpbdBody[] => carriers(bone),
   );
-  const stance: AutoMovieXpbdBody[] = input.stance.flatMap(
-    (limb: IAutoMovieFootfallPattern["limbs"][number]): AutoMovieXpbdBody[] =>
+  const stance: AutoMovieEngineXpbdBody[] = input.stance.flatMap(
+    (limb: IAutoMovieFootfallPattern["limbs"][number]): AutoMovieEngineXpbdBody[] =>
       carriers(limb.bone),
   );
   return {

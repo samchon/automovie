@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/internal/HumanColliders";
@@ -250,7 +250,7 @@ export namespace AutoMovieMotionHumanSignature {
       "head",
     );
     if (b === undefined) throw new Error("No head");
-    const f: IAutoMovieVector3 = Quaternion.rotateVector(b.worldRotation, {
+    const f: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(b.worldRotation, {
       x: 0,
       y: 0,
       z: 1,

@@ -5,7 +5,7 @@ import {
   type IAutoMovieVerifyProductionFilmEffectPopulation,
 } from "@automovie/interface";
 
-import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
+import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 import { productionFilmEffectEditFingerprint } from "./productionFilmEffectEditFingerprint";
 import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTimelineFrameRate";
 import { sortProductionFilmEffectCues } from "./sortProductionFilmEffectCues";
@@ -38,7 +38,7 @@ export function verifyProductionFilmEffectPopulation(
     props.timeline.tracks.effects,
   );
   if (props.effects.length !== cues.length)
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-runtime-invalid",
       `Film effect runtime population has ${props.effects.length} entries; the current timeline requires ${cues.length}.`,
     );
@@ -46,7 +46,7 @@ export function verifyProductionFilmEffectPopulation(
     const runtime: IAutoMovieCompiledFilmEffect | undefined =
       props.effects[index];
     if (runtime === undefined)
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-runtime-invalid",
         `Film effect runtime entry ${index} is absent from the current timeline population.`,
       );
@@ -65,7 +65,7 @@ export function verifyProductionFilmEffectPopulation(
       runtime.effect.intensity.from !== cue.intensity ||
       runtime.effect.intensity.to !== cue.intensity
     )
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-runtime-invalid",
         `Film effect runtime entry ${index} differs from current timeline cue "${cue.id}" in identity, clock, zone, interval, or intensity.`,
       );

@@ -1,4 +1,4 @@
-import { AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineViewChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicRecentre as Recentre,
@@ -53,7 +53,7 @@ export function test_human_f1_trunk_centre(): void {
   const rho: number = Math.SQRT2 - 1;
   const world = (course: IAutoMovieViewAxis.IAxis, knots: readonly number[], values: readonly (readonly number[])[], layout: IAutoMovieHumanConicSection.ILayout, s: number, t: number): number[] => {
     const frame = course.at(s);
-    const r: number = AutoMovieViewChain.radius(S.chain(H.reader({ knots: knots as number[], values: values as number[][] })(s), layout), t);
+    const r: number = AutoMovieEngineViewChain.radius(S.chain(H.reader({ knots: knots as number[], values: values as number[][] })(s), layout), t);
     return [0, 1, 2].map((k: number): number => frame.origin[k]! + r * (Math.cos(t) * frame.u[k]! + Math.sin(t) * frame.v[k]!));
   };
 
@@ -91,7 +91,7 @@ export function test_human_f1_trunk_centre(): void {
       const t: number = (2 * Math.PI * j) / 16 + 0.05;
       const mapped: number = Recentre.phase(moving, own, s, t);
       near(`made skin point at station ${s}, phase ${j}/16`, world(made.axis, knots, made.values, limb, s, mapped), world(base, knots, moving.values, limb, s, t), 1e-9);
-      const r: number = AutoMovieViewChain.radius(S.chain(H.reader({ knots, values: made.values })(s), limb), mapped);
+      const r: number = AutoMovieEngineViewChain.radius(S.chain(H.reader({ knots, values: made.values })(s), limb), mapped);
       near(`centred ellipse radius at station ${s}, phase ${j}/16`, [r], [(a * b) / Math.hypot(b * Math.cos(mapped), a * Math.sin(mapped))], 1e-9);
     }
 
@@ -108,7 +108,7 @@ export function test_human_f1_trunk_centre(): void {
       failures.push(`the re-expressed trunk section at ${s} is refused: ${section.fault}`);
       continue;
     }
-    const [front, back]: number[] = [0, Math.PI].map((t: number): number => AutoMovieViewChain.read(section, t)!.point[0]);
+    const [front, back]: number[] = [0, Math.PI].map((t: number): number => AutoMovieEngineViewChain.read(section, t)!.point[0]);
     if (!(front! > 0 && back! < 0)) failures.push(`the trunk's centre line leaves its section at ${s}: front ${front}, back ${back}`);
     for (let j: number = 0; j < 24; ++j) {
       const t: number = (2 * Math.PI * (j + 0.3)) / 24;

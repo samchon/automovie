@@ -20,7 +20,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanMountOff } from "./HumanMountOff";
 import { humanBikeTransferLine } from "./humanBikeTransferLine";
-import * as HumanBikeTransferData from "./HumanBikeTransferData";
+import { HumanBikeTransferData } from "./HumanBikeTransferData";
 
 /*
  * Enter or leave the same stopped bicycle at a race boundary, using the

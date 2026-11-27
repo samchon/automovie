@@ -1,4 +1,4 @@
-import type { IMaterialShaderPatch } from "../../IMaterialShaderPatch.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "../../IAutoMovieRenderMaterialShaderPatch.js";
 import { dualQuaternionSkinningVertex } from "./dualQuaternionSkinningVertex.js";
 
 /*
@@ -6,8 +6,8 @@ import { dualQuaternionSkinningVertex } from "./dualQuaternionSkinningVertex.js"
  * rewrites the vertex source only; uniforms, fragment source and the native
  * program configuration stay with the caller and the other registered patches.
  */
-export const createDualQuaternionSkinningShaderPatch: () => IMaterialShaderPatch =
-  (): IMaterialShaderPatch => ({
+export const createDualQuaternionSkinningShaderPatch: () => IAutoMovieRenderMaterialShaderPatch =
+  (): IAutoMovieRenderMaterialShaderPatch => ({
     key: "automovie-dual-quaternion-skinning",
     apply: (shader: { vertexShader: string }): void => {
       shader.vertexShader = dualQuaternionSkinningVertex(shader.vertexShader);

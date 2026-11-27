@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBuildWall,
   IAutoMovieModelPart,
@@ -28,7 +28,7 @@ export function liftShaftParts(
       material,
       attachedBone: null,
       transform: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, centerY, front - thickness / 2),
+        AutoMovieEngineVector3.create(0, centerY, front - thickness / 2),
       ),
     },
     liftShaftParts.box(
@@ -37,7 +37,7 @@ export function liftShaftParts(
       width,
       height,
       thickness,
-      Vector3.create(0, centerY, back + thickness / 2),
+      AutoMovieEngineVector3.create(0, centerY, back + thickness / 2),
     ),
     ...[-1, 1].map(
       (side: number): IAutoMovieModelPart =>
@@ -47,7 +47,7 @@ export function liftShaftParts(
           thickness,
           height,
           front - back - 2 * thickness,
-          Vector3.create(
+          AutoMovieEngineVector3.create(
             (side * (width - thickness)) / 2,
             centerY,
             (front + back) / 2,

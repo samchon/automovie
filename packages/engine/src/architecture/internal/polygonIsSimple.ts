@@ -10,7 +10,7 @@ import { segmentsTouch } from "./segmentsTouch";
  * corner is expected; consequently this function does not detect adjacent
  * backtracking or overlapping adjacent segments.
  *
- * Contact uses segmentsTouch's scale-relative `PLANAR_EPSILON`; a vertex
+ * Contact uses segmentsTouch's scale-relative `AutoMovieEnginePlanarEpsilon`; a vertex
  * on a non-adjacent edge counts as touching. Point count, adjacent degeneracy
  * and area are separate caller checks: even a two- or three-point ring returns
  * true here if no non-adjacent pair exists.

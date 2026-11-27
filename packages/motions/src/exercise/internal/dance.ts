@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -189,7 +189,7 @@ export namespace dance {
         seconds: number,
       ): IAutoMovieMotionHumanPosture => ({
         ...posture,
-        root: Vector3.add(posture.root, offset(seconds)),
+        root: AutoMovieEngineVector3.add(posture.root, offset(seconds)),
       }),
     });
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
@@ -222,8 +222,8 @@ export namespace dance {
       }
       case "sway": {
         const half: number =
-          (Vector3.length(
-            Vector3.subtract(stance.left.ankle, stance.right.ankle),
+          (AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(stance.left.ankle, stance.right.ankle),
           ) /
             2) *
           modifiers.extent;
@@ -249,7 +249,7 @@ export namespace dance {
         primitives.push(
           root((s: number): IAutoMovieVector3 => {
             const x: number = first * half * side(s);
-            return Vector3.add(Vector3.scale(leftward, x), {
+            return AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(leftward, x), {
               x: 0,
               y: Math.sqrt(height * height - x * x) - height,
               z: 0,
@@ -302,18 +302,18 @@ export namespace dance {
             }),
             shift: (s: number): IAutoMovieVector3 => {
               if (waltz !== undefined) {
-                const moved: IAutoMovieVector3 = Vector3.subtract(
-                  Vector3.lerp(
+                const moved: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+                  AutoMovieEngineVector3.lerp(
                     placed("left", s).ankle,
                     placed("right", s).ankle,
                     0.5,
                   ),
-                  Vector3.lerp(stance.left.ankle, stance.right.ankle, 0.5),
+                  AutoMovieEngineVector3.lerp(stance.left.ankle, stance.right.ankle, 0.5),
                 );
                 return {
-                  x: Vector3.dot(moved, leftward),
+                  x: AutoMovieEngineVector3.dot(moved, leftward),
                   y: 0,
-                  z: Vector3.dot(moved, forward),
+                  z: AutoMovieEngineVector3.dot(moved, forward),
                 };
               }
               const left: ReturnType<typeof courses.left.along> =

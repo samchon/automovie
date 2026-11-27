@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -83,14 +83,14 @@ export namespace lieTogetherCurl {
     // The trunk's frame at the lumbar joint: its long axis, its front
     // (toward the partner's back) and its left, the axis of its flexion.
     const pivot: IAutoMovieVector3 = at("spine");
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(at("chest"), pivot),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(at("chest"), pivot),
     );
     const toward: IAutoMovieVector3 = { x: -normal.x, y: 0, z: -normal.z };
-    const front: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(toward, Vector3.scale(axis, Vector3.dot(toward, axis))),
+    const front: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(toward, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(toward, axis))),
     );
-    const left: IAutoMovieVector3 = Vector3.cross(axis, front);
+    const left: IAutoMovieVector3 = AutoMovieEngineVector3.cross(axis, front);
 
     // The flexion that brings the sternum's reach toward the back to the
     // target's, on its circle about the lumbar joint.
@@ -99,14 +99,14 @@ export namespace lieTogetherCurl {
       posture,
       "sternum",
     ).point;
-    const arm: IAutoMovieVector3 = Vector3.subtract(sternum, pivot);
-    const up: number = Vector3.dot(arm, axis);
-    const out: number = Vector3.dot(arm, front);
+    const arm: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(sternum, pivot);
+    const up: number = AutoMovieEngineVector3.dot(arm, axis);
+    const out: number = AutoMovieEngineVector3.dot(arm, front);
     const goal: number = Math.max(
       -1,
       Math.min(
         1,
-        (out + Vector3.dot(Vector3.subtract(target, sternum), front)) /
+        (out + AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(target, sternum), front)) /
           Math.hypot(up, out),
       ),
     );
@@ -125,21 +125,21 @@ export namespace lieTogetherCurl {
       neck: IAutoMovieVector3,
       radius: number,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         head,
-        Vector3.scale(Vector3.normalize(Vector3.subtract(head, neck)), radius),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(head, neck)), radius),
       );
     const turned = (
       degrees: number,
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 => {
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         left,
         degrees,
       );
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         pivot,
-        Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
+        AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(point, pivot)),
       );
     };
     const mine: IAutoMovieVector3 = centre(
@@ -153,8 +153,8 @@ export namespace lieTogetherCurl {
       partner.measure.headRadius,
     );
     const clear: number = body.measure.headRadius + partner.measure.headRadius;
-    const before: number = Vector3.distance(mine, theirs);
-    const after: number = Vector3.distance(turned(flexion, mine), theirs);
+    const before: number = AutoMovieEngineVector3.distance(mine, theirs);
+    const after: number = AutoMovieEngineVector3.distance(turned(flexion, mine), theirs);
     const share: number =
       after >= clear
         ? 1
@@ -165,18 +165,18 @@ export namespace lieTogetherCurl {
 
     // The slide back along the partner's back that keeps the curled sternum
     // over its point.
-    const across: IAutoMovieVector3 = Vector3.normalize({
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: -toward.z,
       y: 0,
       z: toward.x,
     });
-    const miss: IAutoMovieVector3 = Vector3.subtract(
+    const miss: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       target,
       turned(kept, sternum),
     );
     return {
       flexion: kept,
-      shift: Vector3.scale(across, Vector3.dot(miss, across)),
+      shift: AutoMovieEngineVector3.scale(across, AutoMovieEngineVector3.dot(miss, across)),
     };
   }
 

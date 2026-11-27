@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieBodyMeasure,
@@ -223,9 +223,9 @@ export namespace seated {
     );
     // On a tipped or tilted seat, as a saddle on a grade, the place lies along the surface.
     if (seat.pitch !== undefined || seat.roll !== undefined)
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         seat.at,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           humanPostureHeading({
             yaw: seat.yaw,
             pitch: seat.pitch ?? 0,
@@ -246,7 +246,7 @@ export namespace seated {
    * Returns: The offset.
    */
   export function offset(body: IRest): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       body.rest.get("hips")!,
       body.surfaces.sockets.seat.point,
     );
@@ -264,9 +264,9 @@ export namespace seated {
     at: IAutoMovieVector3,
     heading: Pick<IAutoMovieMotionHumanPosture, RootHeading>,
   ): IAutoMovieVector3 {
-    return Vector3.subtract(
+    return AutoMovieEngineVector3.subtract(
       at,
-      Quaternion.rotateVector(humanPostureHeading(heading), offset(body)),
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(heading), offset(body)),
     );
   }
 
@@ -280,9 +280,9 @@ export namespace seated {
     body: IRest,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       posture.root,
-      Quaternion.rotateVector(humanPostureHeading(posture), offset(body)),
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), offset(body)),
     );
   }
 

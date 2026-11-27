@@ -2,10 +2,10 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
-import { type IApplyAutoMovieInspectionProps, AutoMovieRenderInspectionRequest } from "@automovie/render";
+import { type IAutoMovieRenderApplyInspectionProps, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import type { ChangeEvent, JSX } from "react";
 
-import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
+import type { IAutoMovieViewerInspectorAction } from "../../IAutoMovieViewerInspectorAction.js";
 
 /*
  * Controls for available mark kinds and x-ray, with the legend of the current picture.
@@ -21,7 +21,7 @@ export function AutoMovieInspectorMarksPanel(props: {
   /*
    * The marks the subject supplies, from which the kinds are listed.
    */
-  marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]>;
+  marks: NonNullable<IAutoMovieRenderApplyInspectionProps["marks"]>;
 
   /*
    * Mark kinds declared for the subject's lifetime.
@@ -36,7 +36,7 @@ export function AutoMovieInspectorMarksPanel(props: {
   /*
    * Where edits go.
    */
-  dispatch: (action: IAutoMovieInspectorAction) => void;
+  dispatch: (action: IAutoMovieViewerInspectorAction) => void;
 }): JSX.Element {
   const marks: string[] = props.request.inspection.marks;
   const colors: ReadonlyMap<string, number | undefined> =

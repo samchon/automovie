@@ -1,6 +1,6 @@
 import type { IAutoMovieWeldMeshVertices } from "@automovie/interface";
 
-import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
+import { AutoMovieEngineMeshWeldGrid } from "../../constants/AutoMovieEngineMeshWeldGrid";
 
 /*
  * Intern finite XYZ tuples in first-occurrence order using nanometre
@@ -38,7 +38,7 @@ export function weldMeshVertices(
 const axisLabel: (coordinate: number) => string = (
   coordinate: number,
 ): string => {
-  const rounded: number = Math.round(coordinate * MESH_WELD_GRID);
+  const rounded: number = Math.round(coordinate * AutoMovieEngineMeshWeldGrid);
   return Math.abs(rounded) <= Number.MAX_SAFE_INTEGER
     ? String(rounded || 0)
     : `=${coordinate}`;

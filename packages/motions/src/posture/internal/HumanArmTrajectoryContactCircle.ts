@@ -1,9 +1,9 @@
 import {
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
-  hingedArmSwivel,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
+  AutoMovieEngineHingedArmSwivel,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -67,26 +67,26 @@ export function HumanArmTrajectoryContactCircle(
     "contact swivel",
   ).flexion;
   const flexion: IAutoMovieAxisFrame | undefined =
-    HUMANOID_REST_FRAME[setup.bones.lower]?.flexion;
-  const above: IAutoMovieQuaternion = Quaternion.multiply(
+    AutoMovieEngineHumanoidRestFrame[setup.bones.lower]?.flexion;
+  const above: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     before.upper,
     setup.rest.lower.rotation,
   );
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(above),
-    Vector3.subtract(contact, before.elbow),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(above),
+    AutoMovieEngineVector3.subtract(contact, before.elbow),
   );
-  const link: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle(hinge, -AutoMovieEngineKinematics.toRigAngle(reference[3]!, flexion)!),
+  const link: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.fromAxisAngle(hinge, -AutoMovieEngineKinematics.toRigAngle(reference[3]!, flexion)!),
     local,
   );
   const geometry: Omit<
-    Parameters<typeof hingedArmSwivel.prepare>[0],
+    Parameters<typeof AutoMovieEngineHingedArmSwivel.prepare>[0],
     "endOffset"
   > = {
     upper: {
       worldPosition: before.shoulder,
-      worldRotation: Quaternion.multiply(
+      worldRotation: AutoMovieEngineQuaternion.multiply(
         frame.parent.rotation,
         setup.rest.upper.rotation,
       ),
@@ -116,7 +116,7 @@ export function HumanArmTrajectoryContactCircle(
     point: IAutoMovieVector3,
     hand?: IAutoMovieQuaternion,
   ): void => {
-    const target: IAutoMovieHingedArmSwivel.IPreparedTarget = hingedArmSwivel
+    const target: IAutoMovieHingedArmSwivel.IPreparedTarget = AutoMovieEngineHingedArmSwivel
       .prepare({ ...geometry, endOffset: offset })
       .target(point, range);
     for (const stop of target.branches() ?? []) {
@@ -141,7 +141,7 @@ export function HumanArmTrajectoryContactCircle(
     : [before.hand, site.rotation])
     add(
       setup.rest.hand.translation,
-      Vector3.subtract(site.point, Quaternion.rotateVector(hand, site.contact)),
+      AutoMovieEngineVector3.subtract(site.point, AutoMovieEngineQuaternion.rotateVector(hand, site.contact)),
       hand,
     );
   // The pairs' cut (`HumanArmTrajectoryPairs.deepest`) that leaves unread
@@ -165,7 +165,7 @@ export function HumanArmTrajectoryContactCircle(
   };
   // The elbow's step from the frame before to a point of this frame.
   const stepped = (elbow: IAutoMovieVector3): number =>
-    Vector3.length(
+    AutoMovieEngineVector3.length(
       from! < k
         ? HumanArmTrajectoryTravel.step(
             c.frames[a]![interval]!,
@@ -184,7 +184,7 @@ export function HumanArmTrajectoryContactCircle(
   // circle (Tolani, Goswami and Badler 2000, section 3.2), so a candidate's
   // elbow lies at least the chord 2 r sin(offset / 2) from the branch's
   // centre, up to the chart's draw-back near the antipode, which moves the
-  // elbow at most the upper arm's length times `ROM_TOLERANCE` (`slack`).
+  // elbow at most the upper arm's length times `AutoMovieEngineRomTolerance` (`slack`).
   // The step is a rigid reading of the elbow's place in this frame
   // (`HumanArmTrajectoryTravel.step`), so the candidate's step is at least
   // that chord, less the centre's own step and the slack: past the offset
@@ -192,7 +192,7 @@ export function HumanArmTrajectoryContactCircle(
   // leave as the circle places it is refused by its elbow's step before its
   // forward kinematics, probes and pairs are read.
   const slack: number =
-    Vector3.length(setup.rest.lower.translation) * ROM_TOLERANCE * rad;
+    AutoMovieEngineVector3.length(setup.rest.lower.translation) * AutoMovieEngineRomTolerance * rad;
   const candidates: IBranch[] =
     prior === undefined
       ? branches
@@ -210,7 +210,7 @@ export function HumanArmTrajectoryContactCircle(
           return {
             ...branch,
             circle: {
-              radius: Vector3.distance(centre, opposite) / 2,
+              radius: AutoMovieEngineVector3.distance(centre, opposite) / 2,
               step: stepped(centre),
             },
           };
@@ -246,7 +246,7 @@ export function HumanArmTrajectoryContactCircle(
       );
     const chain: ReturnType<typeof G.chain> = G.chain(setup, frame, q);
     const palm: IAutoMovieVector3 = P.pad(chain, site.contact);
-    if (Vector3.distance(palm, site.point) > reach) return undefined;
+    if (AutoMovieEngineVector3.distance(palm, site.point) > reach) return undefined;
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced =
       placeHumanArmGeometry(setup, frame, chain, true);
 
@@ -265,7 +265,7 @@ export function HumanArmTrajectoryContactCircle(
           start.probes[probe]![0],
           end.probes[probe]![0],
         );
-        if (1000 * Vector3.length(delta) > limit) return undefined;
+        if (1000 * AutoMovieEngineVector3.length(delta) > limit) return undefined;
       }
     }
 
@@ -299,7 +299,7 @@ export function HumanArmTrajectoryContactCircle(
     const out: number[][] = [];
     for (const branch of candidates) {
       const samples: (number[] | undefined)[] = [];
-      for (let turn: number = 0; turn < 360; turn += hingedArmSwivel.STEP)
+      for (let turn: number = 0; turn < 360; turn += AutoMovieEngineHingedArmSwivel.STEP)
         samples.push(check(branch, branch.center + turn));
       const gap: number = samples.indexOf(undefined);
       if (gap < 0) {
@@ -325,7 +325,7 @@ export function HumanArmTrajectoryContactCircle(
     }
     return out;
   }
-  for (let offset: number = 0; offset <= 180; offset += hingedArmSwivel.STEP) {
+  for (let offset: number = 0; offset <= 180; offset += AutoMovieEngineHingedArmSwivel.STEP) {
     for (const branch of candidates) {
       const positive: number[] | undefined = check(
         branch,

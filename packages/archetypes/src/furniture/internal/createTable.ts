@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeTable } from "../AutoMovieArchetypeTable";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -73,8 +73,8 @@ export function createTable(
   const slab: number = kind === "pupilDesk" ? AutoMovieArchetypeTable.PUPIL_TOP : 0.04;
   builder.box(
     "top",
-    Vector3.create(length, slab, depth),
-    Vector3.create(0, height - slab / 2, 0),
+    AutoMovieEngineVector3.create(length, slab, depth),
+    AutoMovieEngineVector3.create(0, height - slab / 2, 0),
     { color: "#a9825a" },
   );
   if (kind === "altar") {
@@ -87,8 +87,8 @@ export function createTable(
     ] as const)
       builder.box(
         name,
-        Vector3.create(wide, height - slab, deep),
-        Vector3.create(
+        AutoMovieEngineVector3.create(wide, height - slab, deep),
+        AutoMovieEngineVector3.create(
           sx * (length / 2 - AutoMovieArchetypeTable.LEG_INSET - wide / 2),
           (height - slab) / 2,
           0,
@@ -104,8 +104,8 @@ export function createTable(
       kind === "bar" ? KNEE : AutoMovieArchetypeTable.COUNTER_OVERHANG;
     builder.box(
       "base",
-      Vector3.create(length, height - slab, depth - overhang),
-      Vector3.create(0, (height - slab) / 2, -overhang / 2),
+      AutoMovieEngineVector3.create(length, height - slab, depth - overhang),
+      AutoMovieEngineVector3.create(0, (height - slab) / 2, -overhang / 2),
       { color: "#d9d5cc", density: 0.3 },
     );
   } else
@@ -118,12 +118,12 @@ export function createTable(
       builder.rod(
         name,
         AutoMovieArchetypeTable.LEG_RADIUS,
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           sx * (length / 2 - AutoMovieArchetypeTable.LEG_INSET),
           0,
           sz * (depth / 2 - AutoMovieArchetypeTable.LEG_INSET),
         ),
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           sx * (length / 2 - AutoMovieArchetypeTable.LEG_INSET),
           height - slab,
           sz * (depth / 2 - AutoMovieArchetypeTable.LEG_INSET),
@@ -134,7 +134,7 @@ export function createTable(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: null,
     width: length,
     depth,
@@ -142,12 +142,12 @@ export function createTable(
   builder.affordance({
     id: "stack",
     kind: "stack-top",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: [
-      Vector3.create(-length / 2, 0, -depth / 2),
-      Vector3.create(length / 2, 0, -depth / 2),
-      Vector3.create(length / 2, 0, depth / 2),
-      Vector3.create(-length / 2, 0, depth / 2),
+      AutoMovieEngineVector3.create(-length / 2, 0, -depth / 2),
+      AutoMovieEngineVector3.create(length / 2, 0, -depth / 2),
+      AutoMovieEngineVector3.create(length / 2, 0, depth / 2),
+      AutoMovieEngineVector3.create(-length / 2, 0, depth / 2),
     ],
   });
 
@@ -162,9 +162,9 @@ export function createTable(
       id,
       kind: "ledge",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create((x * length) / 2, height, (z * depth) / 2),
-        Vector3.create(0, 1, 0),
-        Vector3.create(z, 0, -x),
+        AutoMovieEngineVector3.create((x * length) / 2, height, (z * depth) / 2),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(z, 0, -x),
       ),
       extent: null,
       length: span,

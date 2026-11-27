@@ -1,4 +1,9 @@
-import { HumanLanceCouchPick, StrikingRoll } from "@automovie/motions/internal";
+import {
+  HumanLanceCouchPick
+} from "../../../../../packages/motions/src/lexicon/internal/HumanLanceCouchPick";
+import {
+  StrikingRoll
+} from "../../../../../packages/motions/src/striking/internal/StrikingRoll";
 import { TestValidator } from "@nestia/e2e";
 
 /**

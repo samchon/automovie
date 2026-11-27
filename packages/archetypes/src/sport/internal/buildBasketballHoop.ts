@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -38,7 +38,7 @@ export function buildBasketballHoop(
   // Each rod a tangent to the ring's circle at its middle, so the rods' middles lie on the circle.
   const step: number = (2 * Math.PI) / RING_RODS;
   const corner: number = radius / Math.cos(step / 2);
-  const at = (angle: number): ReturnType<typeof Vector3.create> =>
+  const at = (angle: number): ReturnType<typeof AutoMovieEngineVector3.create> =>
     v(corner * Math.sin(angle), y, centre + corner * Math.cos(angle));
   for (let k: number = 0; k < RING_RODS; k++)
     builder.rod(
@@ -81,7 +81,7 @@ export function buildBasketballHoop(
 /*
  * Point shorthand in the goal's model frame.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * How far the backboard's bottom edge lies below the ring's top, metres: FIBA

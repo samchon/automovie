@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeFireRingData from "./internal/AutoMovieArchetypeFireRingData";
+import { AutoMovieArchetypeFireRingData } from "./internal/AutoMovieArchetypeFireRingData";
 
 /** Companion types, constants and bands of {@link AutoMovieArchetypeFireRing}. */
 export namespace AutoMovieArchetypeFireRing {
@@ -62,7 +62,7 @@ export namespace AutoMovieArchetypeFireRing {
       name: "fire ring",
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
     // Each plate's outer face is tangent to the outside circle, so the ring measures the read diameter across opposite plates.
     const outside: number = d.diameter / 2;

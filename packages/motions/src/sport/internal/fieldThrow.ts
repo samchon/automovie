@@ -1,9 +1,9 @@
 import {
   AutoMovieEngineMath,
   AutoMovieEngineMotionSampling,
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -214,11 +214,11 @@ export namespace fieldThrow {
         reason: `${p.area} declares no ${id}`,
         fix: "name a throwing circle or javelin runway, as AutoMovieArchetypeThrowingCircle.create builds",
       });
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       placed.position,
-      Quaternion.rotateVector(placed.rotation, contact.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(placed.rotation, contact.frame.translation),
     );
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(placed.rotation, {
+    const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(placed.rotation, {
       x: 0,
       y: 0,
       z: 1,
@@ -253,7 +253,7 @@ export namespace fieldThrow {
         y: centre.y,
       },
     };
-    const middle: IAutoMovieVector3 = Vector3.lerp(ball.left, ball.right, 0.5);
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(ball.left, ball.right, 0.5);
 
     // Each foot keeps the turn it was entered with off the body's heading
     // (its toe-out) while it pivots, so the throw starts on the feet as
@@ -283,7 +283,7 @@ export namespace fieldThrow {
         : (contact.width ?? 2.135) / 2;
     const middleOfArc: IAutoMovieVector3 =
       p.event === "javelin"
-        ? Vector3.subtract(centre, Vector3.scale(ahead, radius))
+        ? AutoMovieEngineVector3.subtract(centre, AutoMovieEngineVector3.scale(ahead, radius))
         : centre;
     // Read on the feet as entered and as turned to the release.
     for (const s of ["left", "right"] as const)
@@ -295,7 +295,7 @@ export namespace fieldThrow {
           const beyond: boolean =
             p.event === "javelin"
               ? out > 0 &&
-                Vector3.dot(Vector3.subtract(at, middleOfArc), ahead) > 0
+                AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(at, middleOfArc), ahead) > 0
               : out > 0;
           if (beyond)
             throw new AutoMovieMotionHumanRefusal({
@@ -353,7 +353,7 @@ export namespace fieldThrow {
         Math.max(
           0,
           (0.95 * leg) ** 2 -
-            (Vector3.distance(ball.left, ball.right) / 2) ** 2,
+            (AutoMovieEngineVector3.distance(ball.left, ball.right) / 2) ** 2,
         ),
       ) +
       body.rest.get("leftFoot")!.y +
@@ -376,9 +376,9 @@ export namespace fieldThrow {
       const hips: IAutoMovieVector3 = { ...middle, y: hipsHeight };
       return {
         ...turned,
-        root: Vector3.subtract(
+        root: AutoMovieEngineVector3.subtract(
           hips,
-          Quaternion.rotateVector(humanPostureHeading(turned), hipsRest),
+          AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(turned), hipsRest),
         ),
       };
     };
@@ -422,13 +422,13 @@ export namespace fieldThrow {
       HumanHand.frameBones(body, side, "grip"),
     );
     const hand: IAutoMovieResolvedBone = grip.get(`${side}Hand`)!;
-    const point: IAutoMovieVector3 = Vector3.add(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       HumanHand.frame(body, grip, side, "grip").point,
-      Quaternion.rotateVector(hand.worldRotation, held.frame.position),
+      AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, held.frame.position),
     );
-    const landing: IAutoMovieVector3 = Vector3.add(
+    const landing: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       middleOfArc,
-      Vector3.scale(ahead, radius + p.distance),
+      AutoMovieEngineVector3.scale(ahead, radius + p.distance),
     );
     const flat: IAutoMovieVector3 = {
       x: landing.x - point.x,
@@ -438,7 +438,7 @@ export namespace fieldThrow {
     const d: number = Math.hypot(flat.x, flat.z);
     const a: number = (spec.angle * Math.PI) / 180;
     const h: number = point.y - landing.y;
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const lift: number = h + d * Math.tan(a);
     const speed: number = Math.sqrt(
       (g * d * d) / (2 * Math.cos(a) ** 2 * Math.max(1e-9, lift)),
@@ -451,7 +451,7 @@ export namespace fieldThrow {
         reason: `the ${p.event} would leave the hand at ${speed.toFixed(1)} m/s for ${p.distance.toFixed(2)} m, past the event's ${spec.speed} m/s`,
         fix: "throw shorter",
       });
-    const along: IAutoMovieVector3 = Vector3.scale(flat, 1 / d);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(flat, 1 / d);
     const launch: IAutoMovieMotionPropLaunch = {
       prop: p.implement,
       seconds: release,
@@ -461,7 +461,7 @@ export namespace fieldThrow {
         y: speed * Math.sin(a),
         z: along.z * speed * Math.cos(a),
       },
-      rotation: Quaternion.multiply(hand.worldRotation, held.frame.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(hand.worldRotation, held.frame.rotation),
     };
     const plan: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({

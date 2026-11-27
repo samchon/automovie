@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -55,11 +55,11 @@ export function WorkoutPlace(
     yaw,
   );
   const pelvis = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       humanPostureHeading(posture),
       body.rest.get("hips")!,
     );
-  const stood: IAutoMovieVector3 = Vector3.add(standing.root, pelvis(standing));
+  const stood: IAutoMovieVector3 = AutoMovieEngineVector3.add(standing.root, pelvis(standing));
   const hips: IAutoMovieVector3 =
     borne === null ? stood : { x: borne.x, y: stood.y, z: borne.z };
   // Where the entry shows the bearing bones: a stance is kept there, not
@@ -75,13 +75,13 @@ export function WorkoutPlace(
   const shown = (): IAutoMovieVector3 => {
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, context.entry.pose, undefined, pins);
-    return Vector3.scale(
+    return AutoMovieEngineVector3.scale(
       kind.pin.reduce(
         (
           sum: IAutoMovieVector3,
           pin: IAutoMovieMotionHumanExerciseKey.Pin,
         ): IAutoMovieVector3 =>
-          Vector3.add(sum, ExerciseKey.at(body, entered, pin)),
+          AutoMovieEngineVector3.add(sum, ExerciseKey.at(body, entered, pin)),
         { x: 0, y: 0, z: 0 },
       ),
       1 / kind.pin.length,
@@ -106,7 +106,7 @@ export function WorkoutPlace(
         bone !== "gripLeft" &&
         bone !== "gripRight" &&
         /(Foot|Toes)$/.test(bone) &&
-        Quaternion.rotateVector(keyed.get(bone)!.worldRotation, {
+        AutoMovieEngineQuaternion.rotateVector(keyed.get(bone)!.worldRotation, {
           x: 0,
           y: 1,
           z: 0,

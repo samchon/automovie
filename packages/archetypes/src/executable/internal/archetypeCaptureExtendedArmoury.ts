@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
   IAutoMovieProjectileState,
@@ -91,8 +91,8 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
     );
   const flight: IAutoMovieProjectile = {
     origin: { ...launch.origin },
-    velocity: Vector3.scale(launch.direction, launch.speed),
-    gravity: { x: 0, y: -AutoMovieGravity.STANDARD, z: 0 },
+    velocity: AutoMovieEngineVector3.scale(launch.direction, launch.speed),
+    gravity: { x: 0, y: -AutoMovieEngineGravity.STANDARD, z: 0 },
   };
   const fire: number = 0.1;
   subjects["cannon-launch"] = {
@@ -106,7 +106,7 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
       {
         name: "field-gun-and-shot",
         at: (seconds: number): { archetype: AutoMovieArchetype } => {
-          const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(
+          const state: IAutoMovieProjectileState = AutoMovieEngineAir.projectileAt(
             flight,
             Math.max(0, seconds - fire),
           );
@@ -126,7 +126,7 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
                 shot: {
                   archetype: shot,
                   placement: AutoMovieArchetypeFrame.upright(
-                    Vector3.subtract(
+                    AutoMovieEngineVector3.subtract(
                       state.position,
                       shot.affordance("body").frame.translation,
                     ),

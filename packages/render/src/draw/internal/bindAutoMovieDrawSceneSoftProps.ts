@@ -1,10 +1,10 @@
 import type { IAutoMovieRenderSoftPropFrame } from "@automovie/interface";
 
-import type { IAutoMovieSceneSoftProps } from "../../scene/IAutoMovieSceneSoftProps.js";
+import type { IAutoMovieRenderSceneSoftProps } from "../../scene/IAutoMovieRenderSceneSoftProps.js";
 import { buildSceneSoftProps } from "../../scene/internal/buildSceneSoftProps.js";
 import { restoreAutoMovieRenderModeOnce } from "../../scene/internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../../scene/internal/restoreAutoMovieRenderModeState.js";
-import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
 
 /*
  * Route soft prop surfaces from a producer into the draw subject's scene. The
@@ -14,10 +14,10 @@ import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
  * placed shot at its own shot-local time.
  */
 export function bindAutoMovieDrawSceneSoftProps(
-  subject: IAutoMovieDrawScene,
+  subject: IAutoMovieRenderDrawScene,
   read: (seconds: number) => readonly IAutoMovieRenderSoftPropFrame[],
-): IAutoMovieDrawScene {
-  const props: IAutoMovieSceneSoftProps = buildSceneSoftProps(subject.scene);
+): IAutoMovieRenderDrawScene {
+  const props: IAutoMovieRenderSceneSoftProps = buildSceneSoftProps(subject.scene);
   let closed: boolean = false;
   return {
     ...subject,

@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { shankTilt } from "@automovie/motions/internal";
+import {
+  shankTilt
+} from "../../../../../packages/motions/src/carrier/internal/shankTilt";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

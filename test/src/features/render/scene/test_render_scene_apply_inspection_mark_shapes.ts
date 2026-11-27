@@ -1,5 +1,5 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
+import { AutoMovieRenderThreeKind, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
@@ -61,7 +61,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
   const stage: THREE.Scene = InspectionScene.scene(
     InspectionScene.quad("panel"),
   );
-  const handle: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+  const handle: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       marks: ["trace", "ring", "pieces", "push", "places"],
@@ -117,7 +117,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
     ],
   );
   const dot: THREE.Material = singleMaterial(places[0]!.material);
-  if (!AutoMovieThreeKind.isPointsMaterial(dot))
+  if (!AutoMovieRenderThreeKind.isPointsMaterial(dot))
     throw new Error("Expected a points material");
   TestValidator.equals(
     "a point is three strokes across and not attenuated",
@@ -162,7 +162,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
   // 3. Depth lead.
   const compiled: (xray: boolean) => string[] = (xray: boolean): string[] => {
     const scene: THREE.Scene = InspectionScene.scene();
-    const applied: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+    const applied: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
       scene,
       request: InspectionScene.ask({ marks: ["**"], xray }),
       marks: [marks[0]!, marks[4]!],

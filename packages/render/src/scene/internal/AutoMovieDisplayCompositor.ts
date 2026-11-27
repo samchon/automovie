@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
-import { AutoMovieSceneFramebuffer } from "../AutoMovieSceneFramebuffer.js";
+import { AutoMovieRenderSceneFramebuffer } from "../AutoMovieRenderSceneFramebuffer.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /*
@@ -183,7 +183,7 @@ export class AutoMovieDisplayCompositor {
       captureAutoMovieFramebufferRestore(renderer);
     const destinationSRGB: boolean =
       target !== null &&
-      AutoMovieSceneFramebuffer.readDestinationEncoding(renderer) === "srgb";
+      AutoMovieRenderSceneFramebuffer.readDestinationEncoding(renderer) === "srgb";
     const autoClear: boolean = renderer.autoClear;
     const clearColor: THREE.Color = renderer
       .getClearColor(new THREE.Color())

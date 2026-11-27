@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalAngularMomentumIntegrator } from "@automovie/engine";
+import { AutoMovieEnginePhysicalAngularMomentumIntegrator } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -29,19 +29,19 @@ const INTEGRAL_ROUNDING: number = 1e-15;
  *    with a zero integral.
  */
 export function test_engine_physics_physical_angular_momentum_integrator(): void {
-  const integrator = AutoMoviePhysicalAngularMomentumIntegrator;
+  const integrator = AutoMovieEnginePhysicalAngularMomentumIntegrator;
   const still = { x: 0, y: 0 };
   const slow = { x: 0.03, y: 0.02 };
   const fast = { x: 0.1, y: 0 };
   const error = { x: 0.02, y: -0.01 };
   const step = (
-    state: AutoMoviePhysicalAngularMomentumIntegrator.IState,
+    state: AutoMovieEnginePhysicalAngularMomentumIntegrator.IState,
     desiredVelocity: { x: number; y: number },
     velocity: { x: number; y: number },
     e: { x: number; y: number } = error,
-    gains: Partial<AutoMoviePhysicalAngularMomentumIntegrator.IGains> = {},
+    gains: Partial<AutoMovieEnginePhysicalAngularMomentumIntegrator.IGains> = {},
     dt: number = 0.01,
-  ): AutoMoviePhysicalAngularMomentumIntegrator.IState =>
+  ): AutoMovieEnginePhysicalAngularMomentumIntegrator.IState =>
     integrator.advance({ state, desiredVelocity, velocity, error: e, dt, gains });
   const close = (
     title: string,
@@ -55,7 +55,7 @@ export function test_engine_physics_physical_angular_momentum_integrator(): void
     );
 
   // 1. A moving plan clears everything.
-  const held: AutoMoviePhysicalAngularMomentumIntegrator.IState = {
+  const held: AutoMovieEnginePhysicalAngularMomentumIntegrator.IState = {
     stuck: true,
     integral: { x: 0.01, y: 0.01 },
   };
@@ -65,7 +65,7 @@ export function test_engine_physics_physical_angular_momentum_integrator(): void
   });
 
   // 2. Stuck at rest: K_i dt e per update.
-  const once: AutoMoviePhysicalAngularMomentumIntegrator.IState = step(
+  const once: AutoMovieEnginePhysicalAngularMomentumIntegrator.IState = step(
     integrator.create(),
     still,
     slow,
@@ -75,7 +75,7 @@ export function test_engine_physics_physical_angular_momentum_integrator(): void
     x: 2 * 0.01 * 0.02,
     y: 2 * 0.01 * -0.01,
   });
-  const twice: AutoMoviePhysicalAngularMomentumIntegrator.IState = step(
+  const twice: AutoMovieEnginePhysicalAngularMomentumIntegrator.IState = step(
     once,
     still,
     slow,
@@ -86,7 +86,7 @@ export function test_engine_physics_physical_angular_momentum_integrator(): void
   });
 
   // 3. A fast centre of mass keeps it stuck.
-  const thrice: AutoMoviePhysicalAngularMomentumIntegrator.IState = step(
+  const thrice: AutoMovieEnginePhysicalAngularMomentumIntegrator.IState = step(
     twice,
     still,
     fast,
@@ -114,7 +114,7 @@ export function test_engine_physics_physical_angular_momentum_integrator(): void
   );
 
   // 6. Leak, clamp and the gain cut.
-  const old: AutoMoviePhysicalAngularMomentumIntegrator.IState = {
+  const old: AutoMovieEnginePhysicalAngularMomentumIntegrator.IState = {
     stuck: true,
     integral: { x: 0.04, y: 0 },
   };

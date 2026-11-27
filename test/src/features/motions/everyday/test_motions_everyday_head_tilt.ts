@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, headTiltClock } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  headTiltClock
+} from "../../../../../packages/motions/src/everyday/internal/headTiltClock";
 import { TestValidator } from "@nestia/e2e";
 
 /**

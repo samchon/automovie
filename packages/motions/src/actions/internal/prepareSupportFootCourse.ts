@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -49,10 +49,10 @@ export function prepareSupportFootCourse(
 ): supportCourse.Write {
   const carried: boolean = rootFrom !== undefined && rootTo !== undefined;
   const fromOffset: IAutoMovieVector3 = carried
-    ? Vector3.subtract(from, rootFrom!)
+    ? AutoMovieEngineVector3.subtract(from, rootFrom!)
     : from;
   const toOffset: IAutoMovieVector3 = carried
-    ? Vector3.subtract(to, rootTo!)
+    ? AutoMovieEngineVector3.subtract(to, rootTo!)
     : to;
   const at: ReturnType<typeof HumanFoot.prepareAt> = HumanFoot.prepareAt(
     body,
@@ -81,11 +81,11 @@ export function prepareSupportFootCourse(
           posture,
           at(
             carried
-              ? Vector3.add(
+              ? AutoMovieEngineVector3.add(
                   posture.root,
-                  Vector3.lerp(fromOffset, toOffset, share),
+                  AutoMovieEngineVector3.lerp(fromOffset, toOffset, share),
                 )
-              : Vector3.lerp(from, to, share),
+              : AutoMovieEngineVector3.lerp(from, to, share),
           ),
           bearing,
         ),

@@ -1,4 +1,6 @@
-import { AutoMovieMotionPrepared } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionPrepared
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionPrepared";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

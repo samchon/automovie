@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspectiveFrustum";
 
@@ -34,13 +34,13 @@ import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspect
 export function intersectsPerspectiveFrustumSegment(
   props: IAutoMovieIntersectsPerspectiveFrustumSegment.IProps,
 ): boolean {
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     props.camera.rotation,
   );
   function local(point: IAutoMovieVector3): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
+    return AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(point, props.camera.position),
+      AutoMovieEngineVector3.subtract(point, props.camera.position),
     );
   }
   return localSegmentMeetsPerspectiveFrustum({

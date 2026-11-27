@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
@@ -118,7 +118,7 @@ export namespace wireFlight {
     const lengths: number[] = [0];
     for (let k: number = 1; k < points.length; ++k)
       lengths.push(
-        lengths[k - 1]! + Vector3.distance(points[k - 1]!, points[k]!),
+        lengths[k - 1]! + AutoMovieEngineVector3.distance(points[k - 1]!, points[k]!),
       );
     const total: number = lengths[lengths.length - 1]!;
     if (!(total > 1e-6))
@@ -133,7 +133,7 @@ export namespace wireFlight {
         reason: "a flight path has a length",
         fix: "give an end or a waypoint away from where the body stands",
       });
-    const travel: IAutoMovieVector3 = Vector3.subtract(to, entry.root);
+    const travel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, entry.root);
     return {
       points,
       lengths,
@@ -190,9 +190,9 @@ export namespace wireFlight {
       while (k < lengths.length - 1 && lengths[k]! < s) ++k;
       const span: number = lengths[k]! - lengths[k - 1]!;
       const u: number = span > 0 ? (s - lengths[k - 1]!) / span : 0;
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         points[k - 1]!,
-        Vector3.scale(Vector3.subtract(points[k]!, points[k - 1]!), u),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(points[k]!, points[k - 1]!), u),
       );
     };
     // The arc length gone at a second, on one minimum-jerk profile.
@@ -238,7 +238,7 @@ export namespace wireFlight {
               _before?: IAutoMovieMotionHumanPrimitive.Reader,
             ): IAutoMovieMotionHumanPosture => {
               const at: IAutoMovieVector3 = along(gone(t));
-              const offset: IAutoMovieVector3 = Vector3.subtract(
+              const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
                 at,
                 entry.root,
               );

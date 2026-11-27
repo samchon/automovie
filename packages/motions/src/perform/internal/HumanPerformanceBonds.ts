@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -225,13 +225,13 @@ function layer(
         ]),
       );
     const hips: IAutoMovieResolvedBone = bones.get(carrier)!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       hips.worldRotation,
     );
     const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
       p: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(inverse, Vector3.subtract(p, hips.worldPosition));
+      AutoMovieEngineQuaternion.rotateVector(inverse, AutoMovieEngineVector3.subtract(p, hips.worldPosition));
     const read: IKept[] = limbs.map(
       (l: IBound): IKept => ({
         point: bones.get(l.end)!.worldPosition,
@@ -242,21 +242,21 @@ function layer(
     if (link.target !== undefined) {
       // Kept as offsets from the target, at most the slack long.
       const anchor: IAutoMovieVector3 = context.aim(link.target, from).point;
-      const offset: IAutoMovieVector3 = Vector3.subtract(
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         read[0]!.point,
         anchor,
       );
-      const length: number = Vector3.length(offset);
+      const length: number = AutoMovieEngineVector3.length(offset);
       const drawn: IAutoMovieVector3 =
         length > link.slack
-          ? Vector3.scale(offset, link.slack / length)
+          ? AutoMovieEngineVector3.scale(offset, link.slack / length)
           : offset;
       kept = [
         {
           point: drawn,
-          bend: Vector3.add(
+          bend: AutoMovieEngineVector3.add(
             drawn,
-            Vector3.subtract(read[0]!.bend, read[0]!.point),
+            AutoMovieEngineVector3.subtract(read[0]!.bend, read[0]!.point),
           ),
           rotation: read[0]!.rotation,
         },
@@ -269,22 +269,22 @@ function layer(
       (k: IKept): IKept => ({
         point: local(k.point),
         bend: local(k.bend),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(inverse, k.rotation),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(inverse, k.rotation),
         ),
       }),
     ) as [IKept, IKept];
-    const apart: number = Vector3.distance(a.point, b.point);
-    const middle: IAutoMovieVector3 = Vector3.lerp(a.point, b.point, 0.5);
+    const apart: number = AutoMovieEngineVector3.distance(a.point, b.point);
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(a.point, b.point, 0.5);
     const draw: (k: IKept) => IKept = (k: IKept): IKept => {
       if (!(apart > link.slack)) return k;
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         middle,
-        Vector3.scale(Vector3.subtract(k.point, middle), link.slack / apart),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(k.point, middle), link.slack / apart),
       );
       return {
         point,
-        bend: Vector3.add(point, Vector3.subtract(k.bend, k.point)),
+        bend: AutoMovieEngineVector3.add(point, AutoMovieEngineVector3.subtract(k.bend, k.point)),
         rotation: k.rotation,
       };
     };
@@ -304,8 +304,8 @@ function layer(
       if (link.target !== undefined) {
         const at: IAutoMovieVector3 = context.aim(link.target, seconds).point;
         goals[limbs[0]!.limb] = {
-          point: Vector3.add(at, ends[0]!.point),
-          bend: Vector3.add(at, ends[0]!.bend),
+          point: AutoMovieEngineVector3.add(at, ends[0]!.point),
+          bend: AutoMovieEngineVector3.add(at, ends[0]!.bend),
           rotation: ends[0]!.rotation,
           reference: references![0]!,
         } satisfies IAutoMovieHumanLimbGoal;

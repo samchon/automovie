@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { autoMovieSemanticMaskOf } from "../../semanticMask/internal/autoMovieSemanticMaskOf.js";
 import { maskRoots } from "../../semanticMask/internal/maskRoots.js";
 import { nearest } from "../../semanticMask/internal/nearest.js";
@@ -133,25 +133,25 @@ export function measureAutoMovieCameraOcclusionPixels(
   let reason: string | undefined;
   scene.traverseVisible((object: THREE.Object3D): void => {
     if (reason !== undefined || !object.layers.test(camera.layers)) return;
-    if (!AutoMovieThreeKind.isMesh(object)) {
+    if (!AutoMovieRenderThreeKind.isMesh(object)) {
       if (
-        AutoMovieThreeKind.isLine(object) ||
-        AutoMovieThreeKind.isPoints(object) ||
-        AutoMovieThreeKind.isSprite(object)
+        AutoMovieRenderThreeKind.isLine(object) ||
+        AutoMovieRenderThreeKind.isPoints(object) ||
+        AutoMovieRenderThreeKind.isSprite(object)
       )
         reason = "unsupported drawable in delivery scene";
       return;
     }
     const material: THREE.Material | THREE.Material[] = object.material;
-    if (AutoMovieThreeKind.isMaterial(material) && !material.visible) return;
+    if (AutoMovieRenderThreeKind.isMaterial(material) && !material.visible) return;
     const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
       object.geometry.getAttribute("position");
     if (
       object.constructor !== THREE.Mesh ||
       !nativeRenderCallbacks(object) ||
       object.geometry.morphAttributes.position?.length ||
-      !AutoMovieThreeKind.isBufferAttribute(position) ||
-      !AutoMovieThreeKind.isMaterial(material) ||
+      !AutoMovieRenderThreeKind.isBufferAttribute(position) ||
+      !AutoMovieRenderThreeKind.isMaterial(material) ||
       !nativeOpaqueMaterial(material)
     ) {
       reason = "unsupported opaque coverage in delivery scene";
@@ -325,10 +325,10 @@ function nativeRenderCallbacks(object: THREE.Object3D): boolean {
 function nativeOpaqueMaterial(material: THREE.Material): boolean {
   if (
     !(
-      AutoMovieThreeKind.isMeshBasicMaterial(material) ||
-      AutoMovieThreeKind.isMeshStandardMaterial(material) ||
-      AutoMovieThreeKind.isMeshLambertMaterial(material) ||
-      AutoMovieThreeKind.isMeshPhongMaterial(material)
+      AutoMovieRenderThreeKind.isMeshBasicMaterial(material) ||
+      AutoMovieRenderThreeKind.isMeshStandardMaterial(material) ||
+      AutoMovieRenderThreeKind.isMeshLambertMaterial(material) ||
+      AutoMovieRenderThreeKind.isMeshPhongMaterial(material)
     ) ||
     ![
       THREE.MeshBasicMaterial,

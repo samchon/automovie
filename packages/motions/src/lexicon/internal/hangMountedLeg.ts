@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -40,19 +40,19 @@ export function hangMountedLeg(
   )[side];
   const [out, down, ahead]: readonly [number, number, number] =
     HumanMount.HANG.astride;
-  const thigh: IAutoMovieVector3 = Quaternion.rotateVector(
+  const thigh: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     turn,
-    Vector3.normalize({ x: side === "left" ? out : -out, y: down, z: ahead }),
+    AutoMovieEngineVector3.normalize({ x: side === "left" ? out : -out, y: down, z: ahead }),
   );
-  const knee: IAutoMovieVector3 = Vector3.add(
+  const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     hip,
-    Vector3.scale(thigh, body.measure.thigh),
+    AutoMovieEngineVector3.scale(thigh, body.measure.thigh),
   );
   return {
     point: { ...knee, y: knee.y - body.measure.shank },
-    bend: Vector3.add(
+    bend: AutoMovieEngineVector3.add(
       knee,
-      Quaternion.rotateVector(turn, { x: 0, y: 0, z: body.measure.thigh }),
+      AutoMovieEngineQuaternion.rotateVector(turn, { x: 0, y: 0, z: body.measure.thigh }),
     ),
     rotation: turn,
     planted: false,

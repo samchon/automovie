@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -85,7 +85,7 @@ export namespace CannonPieces {
    * Parameter d: The cannon's dimensions.
    */
   export function swivel(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES.swivel = ESTIMATES.swivel;
     const iron: { color: string } = { color: "#3f4246" };
     const length: number = d.length!;
@@ -200,7 +200,7 @@ export namespace CannonPieces {
    * Parameter d: The cannon's dimensions.
    */
   export function naval(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const c: typeof ESTIMATES.carriage = e.carriage;
     const iron: { color: string } = { color: "#3f4246" };
@@ -285,7 +285,7 @@ export namespace CannonPieces {
    * Parameter d: The cannon's dimensions.
    */
   export function mortar(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const width: number = d.bedWidth!;
     const height: number = width * e.bed;
@@ -294,13 +294,13 @@ export namespace CannonPieces {
     const outer: number = (d.bore! / 2) * e.tube;
     const angle: number = MORTAR_ELEVATION * AutoMovieArchetypeUnits.DEGREE;
     const along: IAutoMovieVector3 = v(0, Math.sin(angle), Math.cos(angle));
-    const muzzle: IAutoMovieVector3 = Vector3.add(
+    const muzzle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       pivot,
-      Vector3.scale(along, length / 2),
+      AutoMovieEngineVector3.scale(along, length / 2),
     );
-    const breech: IAutoMovieVector3 = Vector3.subtract(
+    const breech: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       pivot,
-      Vector3.scale(along, length / 2),
+      AutoMovieEngineVector3.scale(along, length / 2),
     );
     builder.box("bed", v(width, height, d.bedLength!), v(0, height / 2, 0), {
       color: "#6b5a3e",
@@ -318,7 +318,7 @@ export namespace CannonPieces {
       kind: "socket",
       direction: "along",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.add(breech, Vector3.scale(along, length * e.vent)),
+        AutoMovieEngineVector3.add(breech, AutoMovieEngineVector3.scale(along, length * e.vent)),
         v(0, Math.cos(angle), -Math.sin(angle)),
         v(1, 0, 0),
       ),

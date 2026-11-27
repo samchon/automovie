@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeShovel } from "../AutoMovieArchetypeShovel";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { LongImplementDraw } from "./LongImplementDraw";
@@ -46,14 +46,14 @@ export function createShovel(
   builder.rod(
     "grip",
     radius,
-    Vector3.create(-LongImplementDraw.D_GRIP / 2, length - radius, 0),
-    Vector3.create(LongImplementDraw.D_GRIP / 2, length - radius, 0),
+    AutoMovieEngineVector3.create(-LongImplementDraw.D_GRIP / 2, length - radius, 0),
+    AutoMovieEngineVector3.create(LongImplementDraw.D_GRIP / 2, length - radius, 0),
     { color: "#b98d5b" },
   );
   builder.box(
     "yoke",
-    Vector3.create(0.12, 0.1 - 2 * radius, 0.01),
-    Vector3.create(0, top + (0.1 - 2 * radius) / 2, 0),
+    AutoMovieEngineVector3.create(0.12, 0.1 - 2 * radius, 0.01),
+    AutoMovieEngineVector3.create(0, top + (0.1 - 2 * radius) / 2, 0),
     { color: "#b98d5b", density: 0.2 },
   );
   builder.affordance({
@@ -61,7 +61,7 @@ export function createShovel(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, length - radius, 0),
+      AutoMovieEngineVector3.create(0, length - radius, 0),
     ),
     extent: null,
     grip: "power",

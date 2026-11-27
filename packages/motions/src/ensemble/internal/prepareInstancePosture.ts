@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieHumanLimbGoal,
@@ -66,7 +66,7 @@ export function prepareInstancePosture<Body extends object>(
     },
     -first.yaw,
   );
-  const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const spin: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     turn,
   );
@@ -74,12 +74,12 @@ export function prepareInstancePosture<Body extends object>(
     const source: IAutoMovieMotionHumanPosture = at(
       Math.min(duration, Math.max(0, seconds)),
     );
-    const root: IAutoMovieVector3 = Vector3.add(
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       source.root,
       rotate(offset, source.yaw),
     );
     const move = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(root, rotate(Vector3.subtract(point, source.root), turn));
+      AutoMovieEngineVector3.add(root, rotate(AutoMovieEngineVector3.subtract(point, source.root), turn));
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const limb of LIMBS) {
       const goal: IAutoMovieHumanLimbGoal | undefined = source.limbs[limb];
@@ -101,7 +101,7 @@ export function prepareInstancePosture<Body extends object>(
               bend: move(goal.bend),
               ...(goal.rotation === undefined
                 ? {}
-                : { rotation: Quaternion.multiply(spin, goal.rotation) }),
+                : { rotation: AutoMovieEngineQuaternion.multiply(spin, goal.rotation) }),
             };
     }
     return { ...source, root, yaw: source.yaw + turn, limbs };

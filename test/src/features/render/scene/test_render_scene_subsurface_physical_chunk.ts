@@ -1,4 +1,4 @@
-import { SUBSURFACE_TARGET, AutoMovieRenderSubsurfaceShading } from "@automovie/render";
+import { AutoMovieRenderSubsurfaceTarget, AutoMovieRenderSubsurfaceShading } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,11 +15,11 @@ export function test_render_scene_subsurface_physical_chunk(): void {
   const before: string = "reflectedLight.directSpecular += specular;\n";
   const after: string = "\nreflectedLight.indirectDiffuse += indirect;";
   const patched: string = AutoMovieRenderSubsurfaceShading.physicalChunk(
-    before + SUBSURFACE_TARGET + after,
+    before + AutoMovieRenderSubsurfaceTarget + after,
   );
   TestValidator.predicate(
     "target replaced by the lookup",
-    !patched.includes(SUBSURFACE_TARGET) &&
+    !patched.includes(AutoMovieRenderSubsurfaceTarget) &&
       patched.includes(
         "subsurfaceDiffuse( dot( geometryNormal, directLight.direction ) )",
       ),

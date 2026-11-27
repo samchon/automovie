@@ -6,7 +6,7 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../DEFAULT_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../AutoMovieEngineDefaultJointAxes";
 import { decomposeJointRotationOnBasis } from "./decomposeJointRotationOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
@@ -44,7 +44,7 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  * normalizeJointAxes). A non-unit quaternion is read as its rotation
  * matrix, which is only a rotation for a unit quaternion.
  * Parameter q: Bone-local articulation rotation; unit length expected.
- * Parameter axes: Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
+ * Parameter axes: Clinical axis basis; defaults to `AutoMovieEngineDefaultJointAxes`.
  * Parameter frame: Rest frame lifting rest-relative angles to clinical ones;
  * omitted, the angles stay rest-relative.
  * Parameter domain: Bone and resolved ROM that choose among equivalent charts;
@@ -57,7 +57,7 @@ export const decomposeJointRotation: (
   domain?: IAutoMovieJointRotationDomain | undefined,
 ) => IAutoMovieResolvedJointAngles = (
   q: IAutoMovieQuaternion,
-  axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
+  axes: IAutoMovieJointAxes = AutoMovieEngineDefaultJointAxes,
   frame?: IAutoMovieRestFrame,
   domain?: IAutoMovieJointRotationDomain,
 ): IAutoMovieResolvedJointAngles =>

@@ -85,9 +85,9 @@ export interface IAutoMovieHumanBodyCalibration {
   merges?: IAutoMovieHumanSurfaceMerge[];
 
   /**
-   * Solids built as bodies of trimmed faces (`AutoMovieSolidBody`): merges onto
+   * Solids built as bodies of trimmed faces (`AutoMovieEngineSolidBody`): merges onto
    * merged hosts, whose rails cross faces, published with
-   * `AutoMovieSolidBody.publish`. Every face is a chain of `chains` (the blends
+   * `AutoMovieEngineSolidBody.publish`. Every face is a chain of `chains` (the blends
    * included) and is drawn by the solid tessellation
    * (`AutoMovieHumanBodySurfaceSolids`), not by events or rings. Absent means
    * none.

@@ -1,4 +1,4 @@
-import { Transform, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineTransform, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -34,7 +34,7 @@ export function hipJoints(
     body,
     {
       skeleton: body.skeleton.id,
-      root: Transform.of(root, rotation),
+      root: AutoMovieEngineTransform.of(root, rotation),
       joints:
         pelvis === undefined
           ? []

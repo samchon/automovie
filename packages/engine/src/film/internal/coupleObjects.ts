@@ -18,7 +18,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidJointAxes } from "../../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
@@ -279,7 +279,7 @@ function bakeAttachFollows(
       start: job.action.start,
       duration: end - job.action.start,
       shotDuration: context.duration,
-      jointAxes: context.jointAxes?.(parent) ?? HUMANOID_JOINT_AXES,
+      jointAxes: context.jointAxes?.(parent) ?? AutoMovieEngineHumanoidJointAxes,
       restFrames: context.restFrames?.(parent),
     });
     context.keep(
@@ -337,7 +337,7 @@ function bakeMountFollow(
       start: 0,
       duration: context.duration,
       shotDuration: context.duration,
-      jointAxes: context.jointAxes?.(parent) ?? HUMANOID_JOINT_AXES,
+      jointAxes: context.jointAxes?.(parent) ?? AutoMovieEngineHumanoidJointAxes,
       restFrames: context.restFrames?.(parent),
     }),
   );

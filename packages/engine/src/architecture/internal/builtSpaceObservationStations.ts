@@ -9,8 +9,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { builtConvexCellVertices } from "./builtConvexCellVertices";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
@@ -72,9 +72,9 @@ export function builtSpaceObservationStations(
           ? null
           : aim(
               anchor,
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 anchor,
-                Vector3.scale(
+                AutoMovieEngineVector3.scale(
                   direction,
                   Math.max(
                     bounds.max.x - bounds.min.x,
@@ -210,12 +210,12 @@ function interiorCentre(
   for (const cell of space.cells) {
     const vertices: IAutoMovieVector3[] = builtConvexCellVertices(cell);
     if (vertices.length === 0) continue;
-    const centre: IAutoMovieVector3 = Vector3.scale(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       vertices.reduce(
         (
           sum: IAutoMovieVector3,
           vertex: IAutoMovieVector3,
-        ): IAutoMovieVector3 => Vector3.add(sum, vertex),
+        ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, vertex),
         { x: 0, y: 0, z: 0 },
       ),
       1 / vertices.length,
@@ -234,7 +234,7 @@ function settledPose(
   anchor: IAutoMovieVector3,
 ): IStationPose {
   for (const fraction of INSET_FRACTIONS) {
-    const point: IAutoMovieVector3 = Vector3.lerp(from, anchor, fraction);
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(from, anchor, fraction);
     if (builtSpaceContainsPoint(space, point)) return aim(point, anchor);
   }
   return null;
@@ -247,10 +247,10 @@ function aim(
   position: IAutoMovieVector3,
   target: IAutoMovieVector3,
 ): IStationPose {
-  const offset: IAutoMovieVector3 = Vector3.subtract(target, position);
-  const length: number = Vector3.length(offset);
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(target, position);
+  const length: number = AutoMovieEngineVector3.length(offset);
   if (length <= ObservationGeometry.Epsilon) return null;
-  return { position, direction: Vector3.scale(offset, 1 / length), target };
+  return { position, direction: AutoMovieEngineVector3.scale(offset, 1 / length), target };
 }
 
 /*
@@ -270,8 +270,8 @@ function openingCentre(
       polygonBounds(outlineHull(opening.profile));
     planar = { x: (box.min.x + box.max.x) / 2, y: (box.min.y + box.max.y) / 2 };
   }
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     face.origin,
-    Quaternion.rotateVector(face.rotation, { x: planar.x, y: planar.y, z: 0 }),
+    AutoMovieEngineQuaternion.rotateVector(face.rotation, { x: planar.x, y: planar.y, z: 0 }),
   );
 }

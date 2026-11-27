@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalJointChart, Quaternion, Vector3, AutoMovieEnginePhysicalRecoverySupportGoals, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalSwingReference, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalJointChart, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalRecoverySupportGoals, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalSwingReference, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalJoint,
@@ -54,7 +54,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   };
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const about = (degrees: number): IAutoMovieQuaternion =>
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, degrees);
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, degrees);
 
   // 1. A thigh hinged 0.1 m beside the pelvis and a shin 0.4 m below it.
   const joints: IAutoMoviePhysicalJoint[] = [
@@ -80,8 +80,8 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     hip: number,
     knee: number,
   ): Record<string, IAutoMovieRigidTransform> => {
-    const thigh: IAutoMovieQuaternion = Quaternion.multiply(pelvis, about(hip));
-    const shin: IAutoMovieQuaternion = Quaternion.multiply(thigh, about(knee));
+    const thigh: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(pelvis, about(hip));
+    const shin: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(thigh, about(knee));
     return {
       pelvis: { position: { x: 0, y: 1, z: 0 }, rotation: pelvis },
       thigh: { position: { x: 0, y: 0, z: 0 }, rotation: thigh },
@@ -96,14 +96,14 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const fit: Record<string, IAutoMovieRigidTransform> = chain(identity, 5, 10);
   const base: IAutoMovieRigidTransform = {
     position: { x: 0.02, y: 0.98, z: 0.01 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 10),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 10),
   };
   const angle = (
     parent: IAutoMovieQuaternion,
     child: IAutoMovieQuaternion,
   ): number => {
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(parent),
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(parent),
       child,
     );
     const sign: number = turn.w < 0 ? -1 : 1;
@@ -126,17 +126,17 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     for (const joint of joints) {
       const parent: IAutoMovieRigidTransform = out[joint.parent] ?? base;
       const child: IAutoMovieRigidTransform = out[joint.child]!;
-      const gap: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.add(
+      const gap: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           parent.position,
-          Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
         ),
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           child.position,
-          Quaternion.rotateVector(child.rotation, joint.childFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(child.rotation, joint.childFrame.position),
         ),
       );
-      near(`${joint.child} centre at ${share}`, Vector3.length(gap), 0);
+      near(`${joint.child} centre at ${share}`, AutoMovieEngineVector3.length(gap), 0);
     }
   }
 
@@ -274,9 +274,9 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const lifted: IAutoMovieVector3 = { x: 0, y: 0.18, z: 0.05 };
   const pitch: IAutoMovieQuaternion = about(20);
   const pitched: IAutoMovieRigidTransform = {
-    position: Vector3.add(
+    position: AutoMovieEngineVector3.add(
       lifted,
-      Quaternion.rotateVector(pitch, { x: 0, y: -0.04, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(pitch, { x: 0, y: -0.04, z: 0 }),
     ),
     rotation: pitch,
   };
@@ -294,9 +294,9 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   // Planned level and carried with the endpoint: the pitch leaves it unchanged.
   const level: number = hangAt(
     (): IAutoMovieRigidTransform => ({
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         plantedFoot.position,
-        Vector3.subtract(lifted, rest),
+        AutoMovieEngineVector3.subtract(lifted, rest),
       ),
       rotation: identity,
     }),
@@ -356,14 +356,14 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
       (candidate: IAutoMoviePhysicalJoint): boolean =>
         candidate.child === child,
     )!;
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(
-        Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(
+        AutoMovieEngineQuaternion.multiply(
           poses[joint.parent]!.rotation,
           joint.parentFrame.rotation,
         ),
       ),
-      Quaternion.multiply(poses[child]!.rotation, joint.childFrame.rotation),
+      AutoMovieEngineQuaternion.multiply(poses[child]!.rotation, joint.childFrame.rotation),
     );
     return (2 * Math.acos(Math.min(1, Math.abs(turn.w))) * 180) / Math.PI;
   };
@@ -395,23 +395,23 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     });
     // The ankle's free axes take the plan's rotation relative to the shank;
     // what remains turns about the axis it does not have.
-    const socket: IAutoMovieQuaternion = Quaternion.multiply(
+    const socket: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       seed[ankleJoint.parent]!.rotation,
       ankleJoint.parentFrame.rotation,
     );
-    const wanted: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(socket),
-      Quaternion.multiply(plannedFoot, ankleJoint.childFrame.rotation),
+    const wanted: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(socket),
+      AutoMovieEngineQuaternion.multiply(plannedFoot, ankleJoint.childFrame.rotation),
     );
-    const held: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(socket),
-      Quaternion.multiply(
+    const held: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(socket),
+      AutoMovieEngineQuaternion.multiply(
         seed[limb.bone]!.rotation,
         ankleJoint.childFrame.rotation,
       ),
     );
-    const left: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(held),
+    const left: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(held),
       wanted,
     );
     const sign: number = left.w < 0 ? -1 : 1;
@@ -423,7 +423,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     // An axis the plan drives past its range stops at its limit.
     const coordinate = (axis: "x" | "y" | "z"): number => {
       if (ankleJoint.order !== undefined)
-        return AutoMoviePhysicalJointChart.angles(ankleJoint.order, held)[
+        return AutoMovieEnginePhysicalJointChart.angles(ankleJoint.order, held)[
           ankleJoint.order.indexOf(axis)
         ]!;
       const w: number = held.w < 0 ? -held.w : held.w;

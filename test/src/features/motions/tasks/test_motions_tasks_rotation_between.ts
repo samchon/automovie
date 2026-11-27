@@ -1,4 +1,4 @@
-import { AutoMovieEngineMath, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -26,7 +26,7 @@ export function test_motions_tasks_rotation_between(): void {
   TestValidator.predicate(
     "a quarter turn onto +Z",
     vclose(
-      Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
       { x: 0, y: 0, z: 1 },
       1e-12,
     ),
@@ -34,7 +34,7 @@ export function test_motions_tasks_rotation_between(): void {
   TestValidator.equals(
     "no rotation onto itself",
     AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, { x: 0, y: 1, z: 0 }),
-    Quaternion.identity(),
+    AutoMovieEngineQuaternion.identity(),
   );
 
   const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
@@ -42,7 +42,7 @@ export function test_motions_tasks_rotation_between(): void {
   TestValidator.predicate(
     "a half turn reaches the antiparallel direction",
     vclose(
-      Quaternion.rotateVector(AutoMovieEngineMath.rotationBetween(forward, backward), forward),
+      AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineMath.rotationBetween(forward, backward), forward),
       backward,
       1e-12,
     ),
@@ -57,7 +57,7 @@ export function test_motions_tasks_rotation_between(): void {
   TestValidator.predicate(
     "a correction below one nanoradian remains active",
     vclose(
-      Quaternion.rotateVector(AutoMovieEngineMath.rotationBetween(forward, nearForward), forward),
+      AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineMath.rotationBetween(forward, nearForward), forward),
       nearForward,
       1e-12,
     ),

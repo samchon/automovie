@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -37,11 +37,11 @@ export function measureDrinkingShoulder(
   const shoulder: IAutoMovieVector3 = bones.get(
     `${side}UpperArm`,
   )!.worldPosition;
-  const arm: IAutoMovieVector3 = Vector3.subtract(
+  const arm: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     bones.get(`${side}LowerArm`)!.worldPosition,
     shoulder,
   );
-  const hip: IAutoMovieVector3 = Vector3.subtract(
+  const hip: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     bones.get(`${side}UpperLeg`)!.worldPosition,
     shoulder,
   );
@@ -51,8 +51,8 @@ export function measureDrinkingShoulder(
   // The unsigned angle between the two vectors projected on the plane
   // through the world's up and `along`.
   const between = (along: IAutoMovieVector3): number => {
-    const a: [number, number] = [Vector3.dot(arm, along), Vector3.dot(arm, up)];
-    const b: [number, number] = [Vector3.dot(hip, along), Vector3.dot(hip, up)];
+    const a: [number, number] = [AutoMovieEngineVector3.dot(arm, along), AutoMovieEngineVector3.dot(arm, up)];
+    const b: [number, number] = [AutoMovieEngineVector3.dot(hip, along), AutoMovieEngineVector3.dot(hip, up)];
     const lengths: number = Math.hypot(...a) * Math.hypot(...b);
     return lengths > 0
       ? (Math.acos(

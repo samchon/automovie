@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -80,9 +80,9 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
             body,
             side,
             socket,
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               flat.ankle,
-              Quaternion.rotateVector(flat.rotation, socket),
+              AutoMovieEngineQuaternion.rotateVector(flat.rotation, socket),
             ),
             HumanFoot.heading(flat.rotation),
             -lift(s),
@@ -142,19 +142,19 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
       y: m.shank * Math.cos(shank) + m.thigh * Math.cos(thigh),
       z: 0,
     };
-    const horizontal: IAutoMovieVector3 = Vector3.scale(
+    const horizontal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       forward,
       m.shank * Math.sin(shank) - m.thigh * Math.sin(thigh),
     );
     let out: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const side of ["left", "right"] as const) {
-      const hip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(placed[side].ankle, vertical),
+      const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(placed[side].ankle, vertical),
         horizontal,
       );
-      out = Vector3.add(
+      out = AutoMovieEngineVector3.add(
         out,
-        Vector3.scale(Vector3.subtract(hip, joints[side]), 0.5),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(hip, joints[side]), 0.5),
       );
     }
     return out;
@@ -167,9 +167,9 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
     s: number,
     placed?: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
   ): IAutoMovieVector3 =>
-    Vector3.add(
-      Vector3.subtract(over(s, placed), start),
-      Vector3.scale(start, s),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.subtract(over(s, placed), start),
+      AutoMovieEngineVector3.scale(start, s),
     );
 
   /*
@@ -191,7 +191,7 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
     > = placements(posture, s);
     const moved: IAutoMovieMotionHumanPosture = {
       ...posture,
-      root: Vector3.add(
+      root: AutoMovieEngineVector3.add(
         posture.root,
         move(s, posture === standing ? placed : undefined),
       ),

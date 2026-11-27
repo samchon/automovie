@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -13,10 +13,10 @@ export function ropeSwingCourse(
   direction: IAutoMovieVector3,
   start: IAutoMovieVector3,
 ): ropeSwingCourse.ICourse {
-  const offset: IAutoMovieVector3 = Vector3.subtract(start, anchor);
-  const radius: number = Vector3.length(offset);
-  const theta0: number = Math.atan2(Vector3.dot(offset, direction), -offset.y);
-  const omega: number = Math.sqrt(AutoMovieGravity.STANDARD / radius);
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(start, anchor);
+  const radius: number = AutoMovieEngineVector3.length(offset);
+  const theta0: number = Math.atan2(AutoMovieEngineVector3.dot(offset, direction), -offset.y);
+  const omega: number = Math.sqrt(AutoMovieEngineGravity.STANDARD / radius);
   const point = (horizontal: number, vertical: number): IAutoMovieVector3 => ({
     x: direction.x * horizontal,
     y: vertical,
@@ -26,7 +26,7 @@ export function ropeSwingCourse(
     half: Math.PI / omega,
     at: (seconds: number): IAutoMovieVector3 => {
       const theta: number = theta0 * Math.cos(omega * seconds);
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         anchor,
         point(radius * Math.sin(theta), -radius * Math.cos(theta)),
       );

@@ -1,7 +1,7 @@
 import { IAutoMovieSubjectBox } from "@automovie/interface";
 
-import { DEFAULT_SUBJECT_HEIGHT } from "../DEFAULT_SUBJECT_HEIGHT";
-import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
+import { AutoMovieEngineDefaultSubjectHeight } from "../AutoMovieEngineDefaultSubjectHeight";
+import { AutoMovieEngineMinMeasuredSubjectHeight } from "../AutoMovieEngineMinMeasuredSubjectHeight";
 
 /*
  * The model-space box a node subject is framed and graded from: its supplied
@@ -15,8 +15,8 @@ import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
  * on the node's own vertical axis from `y = 0`, exactly zero wide, which
  * `nodeSubjectBox` recognizes as unmeasured.
  *
- * A height below MIN_MEASURED_SUBJECT_HEIGHT is replaced by
- * DEFAULT_SUBJECT_HEIGHT. A measured model keeps its own floor and its
+ * A height below AutoMovieEngineMinMeasuredSubjectHeight is replaced by
+ * AutoMovieEngineDefaultSubjectHeight. A measured model keeps its own floor and its
  * own width even then: a plaza slab 60 m across and 20 mm thick is a real
  * horizontal extent even where its vertical one is unusable. The result is
  * stated once because `performShot` measures a node for the framing solve and
@@ -32,7 +32,7 @@ export function nodeSubjectExtent(
   const measured: number =
     extent === null ? (rigHeight ?? 0) : extent.max.y - extent.min.y;
   const height: number =
-    measured >= MIN_MEASURED_SUBJECT_HEIGHT ? measured : DEFAULT_SUBJECT_HEIGHT;
+    measured >= AutoMovieEngineMinMeasuredSubjectHeight ? measured : AutoMovieEngineDefaultSubjectHeight;
   if (extent === null)
     return {
       min: { x: 0, y: 0, z: 0 },

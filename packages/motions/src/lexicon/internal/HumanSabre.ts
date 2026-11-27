@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
@@ -210,10 +210,10 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   const aimed: IAutoMovieRigidTransform = carrier(engagedAt);
   const ahead: IAutoMovieVector3 =
     params.target === undefined
-      ? Vector3.add(shoulder, { x: 0, y: 0, z: HumanSabreForm.FAR })
-      : Quaternion.rotateVector(
-          Quaternion.inverse(aimed.rotation),
-          Vector3.subtract(
+      ? AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: HumanSabreForm.FAR })
+      : AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(aimed.rotation),
+          AutoMovieEngineVector3.subtract(
             context.aim(params.target, engagedAt).point,
             aimed.position,
           ),
@@ -229,11 +229,11 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
     );
   // The engage: the ox's raised hilt (`HumanSwordGuard.GUARDS.ox`) about the shoulder turned toward the line, the point leading along it.
   const ox = HumanSwordGuard.GUARDS.ox;
-  const line: IAutoMovieVector3 = Vector3.subtract(ahead, engaged.shoulder);
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ahead, engaged.shoulder);
   const bearing: number = (Math.atan2(line.x, line.z) * 180) / Math.PI;
-  const engageGrip: IAutoMovieVector3 = Vector3.add(
+  const engageGrip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     engaged.shoulder,
-    Vector3.scale(row(ox.hilt, bearing), arm),
+    AutoMovieEngineVector3.scale(row(ox.hilt, bearing), arm),
   );
   const stations: Readonly<Record<StationsEntryItem, IStation>> = {
     // The upper arm hanging and the forearm level forward, the grip in front of the elbow, the blade upright and the edge forward: the carry, which the hand's grip holds at its own angle to the forearm.
@@ -247,7 +247,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
     },
     engage: {
       grip: engageGrip,
-      axis: Vector3.normalize(Vector3.subtract(ahead, engageGrip)),
+      axis: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(ahead, engageGrip)),
       edge: row(ox.edge, bearing),
     },
   };
@@ -255,21 +255,21 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   const most: number = m.upperArm + m.forearm + 0.5 * m.hand;
   HumanBound.within(
     "carry",
-    Vector3.distance(stations.slope.grip, shoulder),
+    AutoMovieEngineVector3.distance(stations.slope.grip, shoulder),
     0,
     most,
   );
   HumanBound.within(
     "target",
-    Vector3.distance(stations.engage.grip, engaged.shoulder),
+    AutoMovieEngineVector3.distance(stations.engage.grip, engaged.shoulder),
     0,
     most,
   );
   const duration: number = params.duration;
   // The slope: the historical slope rests the back of the blade on the right shoulder with the grip loosened, the hilt pivoting in the palm between the thumb and the fingers. The hand holds the carry, and the blade turns in the hand about the grip until its back lies along the front of the shoulder; it turns back as the fingers close to the full grip over the first half of the charge's transition, before the engage.
-  const rested: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(
-      Vector3.add(shoulder, { x: 0, y: 0, z: HumanSabreForm.SKIN }),
+  const rested: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: HumanSabreForm.SKIN }),
       stations.slope.grip,
     ),
   );
@@ -283,16 +283,16 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
     );
   const pivoted: number =
     (Math.acos(
-      Math.max(-1, Math.min(1, Vector3.dot(stations.slope.axis, rested))),
+      Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(stations.slope.axis, rested))),
     ) *
       180) /
     Math.PI;
   // The world turn about the grip, taken into the hand's own frame, where the grip's in-hand motion is given.
-  const loosened: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(carried.rotation),
-    Quaternion.multiply(
-      Quaternion.fromAxisAngle(
-        Vector3.cross(stations.slope.axis, rested),
+  const loosened: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(carried.rotation),
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(
+        AutoMovieEngineVector3.cross(stations.slope.axis, rested),
         pivoted,
       ),
       carried.rotation,
@@ -314,16 +314,16 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
           Math.min(1, Math.max(0, (t - from) / (params.transition / 2))),
         ));
   const inHand = (at: number): IAutoMovieRigidTransform => {
-    const rotation: IAutoMovieQuaternion = Quaternion.slerp(
-      Quaternion.identity(),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
+      AutoMovieEngineQuaternion.identity(),
       loosened,
       loose(at * duration),
     );
     return {
       rotation,
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         socket,
-        Quaternion.rotateVector(rotation, socket),
+        AutoMovieEngineQuaternion.rotateVector(rotation, socket),
       ),
     };
   };
@@ -379,23 +379,23 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       const t: number = Math.max(0, Math.min(duration, time));
       const film: number = context.start + t;
       const s: number = share(t);
-      const grip: IAutoMovieVector3 = Vector3.lerp(
+      const grip: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         stations.slope.grip,
         stations.engage.grip,
         s,
       );
-      const axis: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.lerp(stations.slope.axis, stations.engage.axis, s),
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.lerp(stations.slope.axis, stations.engage.axis, s),
       );
-      const edge: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.lerp(stations.slope.edge, stations.engage.edge, s),
+      const edge: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.lerp(stations.slope.edge, stations.engage.edge, s),
       );
       // The stations are laid in the seat frame and carried into the world before the hand is placed, so the goal is the world's own.
       const now: IAutoMovieRigidTransform = carrier(film);
       const toWorld = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(now.position, Quaternion.rotateVector(now.rotation, p));
+        AutoMovieEngineVector3.add(now.position, AutoMovieEngineQuaternion.rotateVector(now.rotation, p));
       const turn = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-        Quaternion.rotateVector(now.rotation, v);
+        AutoMovieEngineQuaternion.rotateVector(now.rotation, v);
       // The trunk turns toward a target off the heading by the engage's share.
       const shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
         StrikingBlade.turned(local, s * engaged.turn),
@@ -432,7 +432,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
         },
       };
       // The bridle hand: both reins at their middle.
-      const reins: IAutoMovieVector3 = Vector3.lerp(
+      const reins: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         HumanMountedFrame.contact(support, "leftRein", film),
         HumanMountedFrame.contact(support, "rightRein", film),
         0.5,

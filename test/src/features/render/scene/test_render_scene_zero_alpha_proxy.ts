@@ -1,5 +1,5 @@
 import type { IAutoMovieMaterial, IAutoMovieModel, IAutoMoviePrimitiveShape } from "@automovie/interface";
-import { AutoMovieRenderSceneLayout, AutoMovieSceneResource } from "@automovie/render";
+import { AutoMovieRenderSceneLayout, AutoMovieRenderSceneResource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel, primitivePart } from "../../internal/fixtures";
@@ -50,7 +50,7 @@ export function test_render_scene_zero_alpha_proxy(): void {
       true,
     );
   } finally {
-    for (const resource of AutoMovieSceneResource.collectOwnedResources(built.object))
+    for (const resource of AutoMovieRenderSceneResource.collectOwnedResources(built.object))
       resource.dispose();
   }
 }

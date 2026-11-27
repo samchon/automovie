@@ -1,5 +1,7 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
-import { matchesAutoMovieShadowTextureProfile } from "@automovie/render/internal";
+import {
+  matchesAutoMovieShadowTextureProfile
+} from "../../../../../packages/render/src/scene/internal/matchesAutoMovieShadowTextureProfile";
 import { TestValidator } from "@nestia/e2e";
 
 /**

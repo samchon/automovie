@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -52,14 +52,14 @@ export function HumanMountedFrame(
       reason: `${on} declares no contact ${id} to plan the mounted figures in`,
       fix: "name the carrier's seat or pad",
     });
-  const back: IAutoMovieQuaternion = Quaternion.inverse(contact.frame.rotation);
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(contact.frame.rotation);
   return (film: number): IAutoMovieRigidTransform => {
     const read: ReturnType<NonNullable<typeof support.prop.point>> =
       support.prop.point?.(id, film);
     if (read?.rotation !== undefined)
       return {
         position: read.point,
-        rotation: Quaternion.multiply(read.rotation, back),
+        rotation: AutoMovieEngineQuaternion.multiply(read.rotation, back),
       };
     const frame: IAutoMovieRigidTransform = support.frame(film);
     return {
@@ -133,7 +133,7 @@ export namespace HumanMountedFrame {
         id !== undefined &&
         arm !== undefined &&
         arm.on === undefined &&
-        Vector3.distance(arm.point, contact(support, id, film)) <=
+        AutoMovieEngineVector3.distance(arm.point, contact(support, id, film)) <=
           body.measure.hand
       )
         out.add(side);
@@ -172,17 +172,17 @@ export namespace HumanMountedFrame {
   ): number {
     const h: number = stride ?? SURGE;
     const now: IAutoMovieRigidTransform = carrier(film);
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(now.rotation, {
+    const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(now.rotation, {
       x: 0,
       y: 0,
       z: 1,
     });
     const level: number = Math.hypot(ahead.x, ahead.z);
     if (level < 1e-9) return 0;
-    const second: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(
-        Vector3.subtract(carrier(film + h).position, now.position),
-        Vector3.subtract(carrier(film - h).position, now.position),
+    const second: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.subtract(carrier(film + h).position, now.position),
+        AutoMovieEngineVector3.subtract(carrier(film - h).position, now.position),
       ),
       1 / (h * h),
     );
@@ -209,13 +209,13 @@ export namespace HumanMountedFrame {
       from,
       to,
     );
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       to.rotation,
-      Quaternion.inverse(from.rotation),
+      AutoMovieEngineQuaternion.inverse(from.rotation),
     );
     const attitude: Pick<IAutoMovieMotionHumanPosture, MoveAttitude> =
       humanPostureHeading.angles(
-        Quaternion.multiply(turn, humanPostureHeading(posture)),
+        AutoMovieEngineQuaternion.multiply(turn, humanPostureHeading(posture)),
       );
     return {
       ...carried,
@@ -303,15 +303,15 @@ export namespace HumanMountedFrame {
       partner.bones(film, new Set<AutoMovieHumanoidBone>([bone, "hips"]));
     const at: IAutoMovieVector3 = bones.get(bone)!.worldPosition;
     const out: IAutoMovieVector3 = {
-      ...Vector3.subtract(at, bones.get("hips")!.worldPosition),
+      ...AutoMovieEngineVector3.subtract(at, bones.get("hips")!.worldPosition),
       y: 0,
     };
-    return Vector3.length(out) < 1e-6
+    return AutoMovieEngineVector3.length(out) < 1e-6
       ? at
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           at,
-          Vector3.scale(
-            Vector3.normalize(out),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.normalize(out),
             partner.body.measure.thighRadius + SKIN,
           ),
         );
@@ -325,7 +325,7 @@ function carryHumanPoint(
   frame: IAutoMovieRigidTransform,
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+  const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.rotation,
     point,
   );

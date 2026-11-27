@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -67,18 +67,18 @@ export function closeRideHandGrips(
       (grip.palmDepth !== undefined || handle.kind === "handle")
     ) {
       // Rest shapes and the moving hand describe one rigid grasp: bring the grip back to those shapes before selecting and closing on its material.
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         origin.rotation,
         handle.frame.rotation,
       );
       closureGrip = {
         ...grip,
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           origin.position,
-          Quaternion.rotateVector(origin.rotation, handle.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(origin.rotation, handle.frame.translation),
         ),
-        normal: Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
-        axis: Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 }),
+        normal: AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
+        axis: AutoMovieEngineQuaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 }),
       };
     }
     closures[side] = HumanMountRider.closed(

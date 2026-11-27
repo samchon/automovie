@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -55,8 +55,8 @@ export function crawlDownTiming(
         TRAVELLING.reduce(
           (sum: number, bone: AutoMovieHumanoidBone): number =>
             sum +
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 bones[i]!.get(bone)!.worldPosition,
                 bones[i - 1]!.get(bone)!.worldPosition,
               ),

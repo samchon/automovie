@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMatrix3, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryEpipolarMatrixCalibrateOperation,
   IAutoMovieVector3,
@@ -18,9 +18,9 @@ export function calibrateRecoveryEpipolarMatrix(
   second: Parameters<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation>[2],
   maxSweeps: Parameters<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation>[3],
 ): ReturnType<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation> {
-  const raw: number[] = AutoMovieMatrix3.multiply(
-    AutoMovieMatrix3.transpose(second.matrix),
-    AutoMovieMatrix3.multiply(fundamental, first.matrix),
+  const raw: number[] = AutoMovieEngineMatrix3.multiply(
+    AutoMovieEngineMatrix3.transpose(second.matrix),
+    AutoMovieEngineMatrix3.multiply(fundamental, first.matrix),
   );
   const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
     AutoMovieEngineMath.decomposeSingularMatrix(
@@ -35,7 +35,7 @@ export function calibrateRecoveryEpipolarMatrix(
   for (const columns of [factors.leftColumns, factors.rightColumns]) {
     const a: number[] = columns[0]!;
     const b: number[] = columns[1]!;
-    const cross: IAutoMovieVector3 = Vector3.cross(
+    const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
       { x: a[0]!, y: a[1]!, z: a[2]! },
       { x: b[0]!, y: b[1]!, z: b[2]! },
     );
@@ -55,14 +55,14 @@ export function calibrateRecoveryEpipolarMatrix(
     ]);
   }
   const u: number[] = frames[0]!;
-  const vt: number[] = AutoMovieMatrix3.transpose(frames[1]!);
-  const essential: number[] = AutoMovieMatrix3.multiply(
+  const vt: number[] = AutoMovieEngineMatrix3.transpose(frames[1]!);
+  const essential: number[] = AutoMovieEngineMatrix3.multiply(
     u,
-    AutoMovieMatrix3.multiply([1, 0, 0, 0, 1, 0, 0, 0, 0], vt),
+    AutoMovieEngineMatrix3.multiply([1, 0, 0, 0, 1, 0, 0, 0, 0], vt),
   );
-  const pixel: number[] = AutoMovieMatrix3.multiply(
-    AutoMovieMatrix3.transpose(second.inverse),
-    AutoMovieMatrix3.multiply(essential, first.inverse),
+  const pixel: number[] = AutoMovieEngineMatrix3.multiply(
+    AutoMovieEngineMatrix3.transpose(second.inverse),
+    AutoMovieEngineMatrix3.multiply(essential, first.inverse),
   );
   const pixelNorm: number = Math.hypot(...pixel);
   if (!(pixelNorm > 0))
@@ -77,10 +77,10 @@ export function calibrateRecoveryEpipolarMatrix(
   const poses: { rotation: number[]; translation: [number, number, number] }[] =
     [];
   const w: number[] = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-  for (const quarterTurn of [w, AutoMovieMatrix3.transpose(w)]) {
-    const rotation: number[] = AutoMovieMatrix3.multiply(
+  for (const quarterTurn of [w, AutoMovieEngineMatrix3.transpose(w)]) {
+    const rotation: number[] = AutoMovieEngineMatrix3.multiply(
       u,
-      AutoMovieMatrix3.multiply(quarterTurn, vt),
+      AutoMovieEngineMatrix3.multiply(quarterTurn, vt),
     );
     for (const sign of [1, -1])
       poses.push({

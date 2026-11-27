@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieClip,
@@ -319,21 +319,21 @@ function createPlatform(
   threshold: IAutoMovieTransform,
   boarding: IAutoMovieAffordance,
 ): IAutoMovieSurface {
-  const lateral: IAutoMovieVector3 = Quaternion.rotateVector(
+  const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     threshold.rotation,
     LOCAL_X,
   );
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     threshold.rotation,
     LOCAL_Z,
   );
-  const carSide: IAutoMovieVector3 = Quaternion.rotateVector(
+  const carSide: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     root.rotation,
     LOCAL_X,
   );
-  const alignment: number = Vector3.dot(lateral, carSide);
+  const alignment: number = AutoMovieEngineVector3.dot(lateral, carSide);
   if (
-    Vector3.cross(lateral, forward).y >= 0 ||
+    AutoMovieEngineVector3.cross(lateral, forward).y >= 0 ||
     Math.abs(lateral.y) > LEVEL_TOLERANCE ||
     Math.abs(forward.y) > LEVEL_TOLERANCE ||
     Math.abs(alignment) < 1 - LEVEL_TOLERANCE
@@ -352,9 +352,9 @@ function createPlatform(
     [far, halfDepth],
     [near, halfDepth],
   ].map(([x, z]: number[]): IAutoMovieVector3 => {
-    const point: IAutoMovieVector3 = Vector3.add(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       threshold.translation,
-      Vector3.add(Vector3.scale(lateral, x!), Vector3.scale(forward, z!)),
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(lateral, x!), AutoMovieEngineVector3.scale(forward, z!)),
     );
     return { ...point, y: 0 };
   });

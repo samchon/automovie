@@ -1,4 +1,4 @@
-import { AutoMovieContourLoftCurves64 as Curves, AutoMovieBernsteinSubdivision64 as S, AutoMovieEngineCurve } from "@automovie/engine";
+import { AutoMovieEngineContourLoftCurves64 as Curves, AutoMovieEngineBernsteinSubdivision64 as S, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,

@@ -10,7 +10,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanObject, AutoMovieMotionHumanPerformance } from "@automovie/motions";
-import { HUMAN_LEXICON } from "@automovie/motions/internal";
+import {
+  HUMAN_LEXICON
+} from "../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON";
 
 import { everydayTake } from "./everydayTake";
 import { motionComplaints } from "./motionComplaints";

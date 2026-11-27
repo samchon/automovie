@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeCrosstie } from "../AutoMovieArchetypeCrosstie";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
 import { ObstacleDraw } from "./ObstacleDraw";
@@ -24,7 +24,7 @@ export function createCrosstie(
 ): AutoMovieArchetype<AutoMovieArchetypeCrosstie.Affordance, AutoMovieArchetypeCrosstie.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<AutoMovieArchetypeCrosstie.Affordance> =
     ObstacleDraw.begin("crosstie", "railway crosstie", "wood", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const length: number = d.length!;
   const height: number = d.height!;
   const width: number = d.width!;

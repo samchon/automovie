@@ -12,7 +12,7 @@ npm install @automovie/render
 
 ### The draw-only page
 
-Use `AutoMovieRenderDraw.installAutoMovieDraw` in a browser page over the same `IAutoMovieDrawSubject` records your inspector uses. `AutoMovieDrawSession` lets a host describe a subject, draw a planned still or draw a delivery frame. If you import Three.js in the host, use the same version as the render package.
+Use `AutoMovieRenderDraw.installAutoMovieDraw` in a browser page over the same `IAutoMovieRenderDrawSubject` records your inspector uses. `AutoMovieRenderDrawSession` lets a host describe a subject, draw a planned still or draw a delivery frame. If you import Three.js in the host, use the same version as the render package.
 
 ## Capture
 

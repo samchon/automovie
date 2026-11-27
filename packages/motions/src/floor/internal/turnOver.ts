@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanTurnOver, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
@@ -16,7 +16,7 @@ import { knockdown } from "../../reaction/internal/knockdown";
 import "./lieDownPoses";
 import { lyingTurn } from "./lyingTurn";
 import { turnOverToward } from "./turnOverToward";
-import * as TurnOverData from "./TurnOverData";
+import { TurnOverData } from "./TurnOverData";
 
 /*
  * Turn over while lying. The body turns about its own long axis (`lyingTurn`)
@@ -74,9 +74,9 @@ function planTurnOver(
   const delta: number = target - from.turn;
   const quarters: number = Math.max(1, Math.ceil(Math.abs(delta) / 90 - 1e-6));
   const support: number = height(context, p.on);
-  const hips: IAutoMovieVector3 = Vector3.add(
+  const hips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     entry.root,
-    Quaternion.rotateVector(humanPostureHeading(entry), body.rest.get("hips")!),
+    AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(entry), body.rest.get("hips")!),
   );
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.sequence([
@@ -126,7 +126,7 @@ function planTurnOver(
       joints: blends[quarter]!(w),
       limbs: {},
     };
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       humanPostureHeading(posture),
       body.rest.get("hips")!,
     );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPlayWindInstrument, IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
@@ -90,12 +90,12 @@ export namespace playWindInstrument {
     };
     const initial = mouth(entry.posture);
     const from = context.prop(params.prop).frame(entry.seconds);
-    const distance = Vector3.length(
-      Vector3.subtract(
+    const distance = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         initial.point,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           from.position,
-          Quaternion.rotateVector(from.rotation, socket.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(from.rotation, socket.frame.translation),
         ),
       ),
     );
@@ -134,7 +134,7 @@ export namespace playWindInstrument {
       tool,
       0,
       site.point,
-      Vector3.scale(site.normal, -1),
+      AutoMovieEngineVector3.scale(site.normal, -1),
       PLAY_CONE,
       posture,
     );
@@ -154,12 +154,12 @@ export namespace playWindInstrument {
         fix: "take the instrument by its grip for use at the mouth, or try the other hand",
       });
 
-    const inverse = Quaternion.inverse(site.rotation);
-    const local = Quaternion.rotateVector(
+    const inverse = AutoMovieEngineQuaternion.inverse(site.rotation);
+    const local = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(frame.point, site.point),
+      AutoMovieEngineVector3.subtract(frame.point, site.point),
     );
-    const rotation = Quaternion.multiply(inverse, frame.rotation);
+    const rotation = AutoMovieEngineQuaternion.multiply(inverse, frame.rotation);
     const arm = AutoMovieMotionHumanArm.carried({
       body,
       side,
@@ -179,11 +179,11 @@ export namespace playWindInstrument {
           context,
           tool,
           {
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               at.point,
-              Quaternion.rotateVector(at.rotation, local),
+              AutoMovieEngineQuaternion.rotateVector(at.rotation, local),
             ),
-            rotation: Quaternion.multiply(at.rotation, rotation),
+            rotation: AutoMovieEngineQuaternion.multiply(at.rotation, rotation),
           },
           0,
           AutoMovieMotionHumanBend.hang(body, posture, side),

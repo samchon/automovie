@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -37,8 +37,8 @@ export function kneelTrailingFoot(
     AutoMovieMotionHumanRange.limit(`${side}Foot`, "flexion") ?? 20;
   const extension: number =
     AutoMovieMotionHumanRange.limit(`${side}Toes`, "flexion") ?? 60;
-  const toe: number = Vector3.length(
-    Vector3.subtract(
+  const toe: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(
       HumanFoot.offset(body, side, "toe"),
       HumanFoot.offset(body, side, "mtp"),
     ),
@@ -68,40 +68,40 @@ export function kneelTrailingFoot(
       placed.heading,
       placed.pitch,
     );
-    const reach: IAutoMovieVector3 = Vector3.subtract(pose.ankle, hip);
-    const d: number = Math.max(1e-9, Vector3.length(reach));
-    const u: IAutoMovieVector3 = Vector3.scale(reach, 1 / d);
-    const pole: IAutoMovieVector3 = Vector3.subtract(
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(pose.ankle, hip);
+    const d: number = Math.max(1e-9, AutoMovieEngineVector3.length(reach));
+    const u: IAutoMovieVector3 = AutoMovieEngineVector3.scale(reach, 1 / d);
+    const pole: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       forward,
-      Vector3.scale(u, Vector3.dot(forward, u)),
+      AutoMovieEngineVector3.scale(u, AutoMovieEngineVector3.dot(forward, u)),
     );
     const a: number = Math.min(
       m.thigh,
       (m.thigh * m.thigh - m.shank * m.shank + d * d) / (2 * d),
     );
-    const knee: IAutoMovieVector3 = Vector3.add(
+    const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hip,
-      Vector3.add(
-        Vector3.scale(u, a),
-        Vector3.scale(
-          Vector3.normalize(pole),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(u, a),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.normalize(pole),
           Math.sqrt(Math.max(0, m.thigh * m.thigh - a * a)),
         ),
       ),
     );
-    const shank: IAutoMovieVector3 = Vector3.subtract(knee, pose.ankle);
-    const up: IAutoMovieVector3 = Quaternion.rotateVector(pose.rotation, {
+    const shank: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(knee, pose.ankle);
+    const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(pose.rotation, {
       x: 0,
       y: 1,
       z: 0,
     });
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(pose.rotation, {
+    const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(pose.rotation, {
       x: 0,
       y: 0,
       z: 1,
     });
     return (
-      (Math.atan2(Vector3.dot(shank, ahead), Vector3.dot(shank, up)) * 180) /
+      (Math.atan2(AutoMovieEngineVector3.dot(shank, ahead), AutoMovieEngineVector3.dot(shank, up)) * 180) /
       Math.PI
     );
   };

@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryPoseModelCreationOperation,
   IAutoMovieVector3,
@@ -35,36 +35,36 @@ export function createRecoveryPoseModel(
     projection[1]! / norm,
     projection[2]! / norm,
   ];
-  const b: IAutoMovieVector3 = Vector3.cross(
+  const b: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
     { x: t[0], y: t[1], z: t[2] },
     { x: a[0], y: a[1], z: a[2] },
   );
   const tangent: [number, number, number][] = [a, [b.x, b.y, b.z]];
-  const tx: number[] = AutoMovieMatrix3.skew(t);
-  const inverseTranspose: number[] = AutoMovieMatrix3.transpose(second.inverse);
-  const essentials: number[][] = [AutoMovieMatrix3.multiply(tx, pose.rotation)];
+  const tx: number[] = AutoMovieEngineMatrix3.skew(t);
+  const inverseTranspose: number[] = AutoMovieEngineMatrix3.transpose(second.inverse);
+  const essentials: number[][] = [AutoMovieEngineMatrix3.multiply(tx, pose.rotation)];
   for (const axis of [
     [1, 0, 0],
     [0, 1, 0],
     [0, 0, 1],
   ])
     essentials.push(
-      AutoMovieMatrix3.multiply(
+      AutoMovieEngineMatrix3.multiply(
         tx,
-        AutoMovieMatrix3.multiply(AutoMovieMatrix3.skew(axis), pose.rotation),
+        AutoMovieEngineMatrix3.multiply(AutoMovieEngineMatrix3.skew(axis), pose.rotation),
       ),
     );
   for (const direction of tangent)
     essentials.push(
-      AutoMovieMatrix3.multiply(
-        AutoMovieMatrix3.skew(direction),
+      AutoMovieEngineMatrix3.multiply(
+        AutoMovieEngineMatrix3.skew(direction),
         pose.rotation,
       ),
     );
   const matrices: number[][] = essentials.map((essential: number[]): number[] =>
-    AutoMovieMatrix3.multiply(
+    AutoMovieEngineMatrix3.multiply(
       inverseTranspose,
-      AutoMovieMatrix3.multiply(essential, first.inverse),
+      AutoMovieEngineMatrix3.multiply(essential, first.inverse),
     ),
   );
   return { matrix: matrices[0]!, derivatives: matrices.slice(1), tangent };

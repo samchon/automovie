@@ -1,12 +1,12 @@
 import {
-  AutoMovieConstructionViews,
-  AutoMovieIllinois,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieSolidVector,
-  AutoMovieViewAxis,
-  AutoMovieViewOutline,
+  AutoMovieEngineConstructionViews,
+  AutoMovieEngineIllinois,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
+  AutoMovieEngineSolidVector,
+  AutoMovieEngineViewAxis,
+  AutoMovieEngineViewOutline,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -128,7 +128,7 @@ const BRACKETS: number = 16;
  */
 function prepare(part: IAutoMovieViewPart): Field | string {
   const result: IAutoMovieLoftViewSource.IResult | null =
-    AutoMovieLoftViewSource.create(part);
+    AutoMovieEngineLoftViewSource.create(part);
   if (result === null)
     return `${part.name}: gluteal contact needs the actual prepared direct-fullness source.`;
   if (result.source === null)
@@ -160,7 +160,7 @@ function trunkChord(
   )
     return `${field.part.name}: contact needs its actual level +X/+Z frame.`;
   const values: IAutoMovieLoftViewRead.IValues | string =
-    AutoMovieLoftViewRead.values(field.source, y);
+    AutoMovieEngineLoftViewRead.values(field.source, y);
   if (typeof values === "string") return values;
   const across: number = z - frame.origin[2];
   if (values.extents.every((value: number): boolean => value === 0))
@@ -174,13 +174,13 @@ function trunkChord(
       : [];
   if (across > values.extents[1]! || across < -values.extents[3]!) return [];
   try {
-    const read: ReturnType<typeof AutoMovieLoftSectionNative.point> =
-      AutoMovieLoftSectionNative.point(values);
+    const read: ReturnType<typeof AutoMovieEngineLoftSectionNative.point> =
+      AutoMovieEngineLoftSectionNative.point(values);
     function at(
       a: number,
       b: number,
     ): IAutoMovieHumanGlutealParent.IBoundary | string {
-      const phase: number | null = AutoMovieIllinois.root(
+      const phase: number | null = AutoMovieEngineIllinois.root(
         (phi: number): number => read(phi)[1] - across,
         a,
         b,
@@ -222,12 +222,12 @@ function legReader(
   if (view.axis.type !== "jointed")
     return `${field.part.name}: gluteal contact needs the actual jointed leg declaration.`;
   const centres: Vec3[] = view.axis.centres.map(
-    AutoMovieConstructionViews.point,
+    AutoMovieEngineConstructionViews.point,
   );
-  const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
+  const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieEngineViewAxis.runs(
     centres,
     view.axis.halves.map(
-      (value: number): number => value * AutoMovieConstructionViews.SCALE,
+      (value: number): number => value * AutoMovieEngineConstructionViews.SCALE,
     ),
   );
   if (typeof runs === "string") return runs;
@@ -275,7 +275,7 @@ function legReader(
         a.value.residual * b.value.residual > 0
       )
         continue;
-      const root: number | null = AutoMovieIllinois.root(
+      const root: number | null = AutoMovieEngineIllinois.root(
         (x: number): number => {
           const at: Reading | string | null = evaluate(x);
           return typeof at === "object" && at !== null ? at.residual : NaN;
@@ -324,9 +324,9 @@ function radial(
   function plane(station: number): number {
     const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
       field.part.axis.at(station);
-    return AutoMovieSolidVector.dot(
-      AutoMovieSolidVector.sub(point, frame.origin),
-      AutoMovieViewAxis.normal(frame),
+    return AutoMovieEngineSolidVector.dot(
+      AutoMovieEngineSolidVector.sub(point, frame.origin),
+      AutoMovieEngineViewAxis.normal(frame),
     );
   }
   const a: number = plane(domain[0]);
@@ -334,7 +334,7 @@ function radial(
   if (!Number.isFinite(a) || !Number.isFinite(b))
     return `${field.part.name}: nonfinite original course projection.`;
   if (a * b > 0) return null;
-  const station: number | null = AutoMovieIllinois.root(
+  const station: number | null = AutoMovieEngineIllinois.root(
     plane,
     domain[0],
     domain[1],
@@ -345,18 +345,18 @@ function radial(
     return `${field.part.name}: no admitted original source-plane projection.`;
   const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
     field.part.axis.at(station);
-  const delta: Vec3 = AutoMovieSolidVector.sub(point, frame.origin);
-  const u: number = AutoMovieSolidVector.dot(delta, frame.u);
-  const v: number = AutoMovieSolidVector.dot(delta, frame.v);
+  const delta: Vec3 = AutoMovieEngineSolidVector.sub(point, frame.origin);
+  const u: number = AutoMovieEngineSolidVector.dot(delta, frame.u);
+  const v: number = AutoMovieEngineSolidVector.dot(delta, frame.v);
   const phase: number = Math.atan2(v, u);
   const values: IAutoMovieLoftViewRead.IValues | string =
-    AutoMovieLoftViewRead.values(field.source, station);
+    AutoMovieEngineLoftViewRead.values(field.source, station);
   if (typeof values === "string") return values;
   if (values.extents.every((value: number): boolean => value === 0))
     return { residual: Math.hypot(u, v), station, phase };
   try {
     const local: [number, number] =
-      AutoMovieLoftSectionNative.point(values)(phase);
+      AutoMovieEngineLoftSectionNative.point(values)(phase);
     return {
       residual: Math.hypot(u, v) - Math.hypot(...local),
       station,
@@ -382,10 +382,10 @@ function apBounds(
       domain[0],
       domain[1],
       ...outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.station),
-      ...AutoMovieViewOutline.criticalStations(outline),
+      ...AutoMovieEngineViewOutline.criticalStations(outline),
     ].filter((s: number): boolean => s >= domain[0] && s <= domain[1]);
     for (const station of stations) {
-      const value: number | string = AutoMovieViewOutline.value(
+      const value: number | string = AutoMovieEngineViewOutline.value(
         outline,
         station,
       );

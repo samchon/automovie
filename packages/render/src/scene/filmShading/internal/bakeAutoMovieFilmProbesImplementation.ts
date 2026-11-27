@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieFilmIndirectRenderer } from "../../IAutoMovieFilmIndirectRenderer.js";
+import type { IAutoMovieRenderFilmIndirectRenderer } from "../../IAutoMovieRenderFilmIndirectRenderer.js";
 
 /*
  * Bake a film's irradiance probes: for each grid point of `probes`, draw the
@@ -36,7 +36,7 @@ export function bakeAutoMovieFilmProbesImplementation(props: {
   /*
    * The renderer, with its read-back members.
    */
-  renderer: IAutoMovieFilmIndirectRenderer;
+  renderer: IAutoMovieRenderFilmIndirectRenderer;
 
   /*
    * The scene placed at the drawn second.

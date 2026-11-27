@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "three";
 
-import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
 import { buildHumanPolygon } from "./buildHumanPolygon.js";
 
 /*
@@ -56,7 +56,7 @@ export function buildPolygonShotActor(input: {
   /*
    * Drawing to mount in the shot scene and dispose when finished.
    */
-  drawing: AutoMovieHumanPolygon.IDrawing;
+  drawing: AutoMovieRenderHumanPolygon.IDrawing;
   /*
    * Evaluate the visible actor for an admitted render layer of this shot.
    */
@@ -71,7 +71,7 @@ export function buildPolygonShotActor(input: {
     frameRate,
     partColors,
   } = input;
-  const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(opening, {
+  const drawing: AutoMovieRenderHumanPolygon.IDrawing = buildHumanPolygon(opening, {
     ...(partColors === undefined ? {} : { partColors }),
     presentation: {
       subject,

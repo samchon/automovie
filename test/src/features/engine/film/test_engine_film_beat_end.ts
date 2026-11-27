@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieBeatEndActorState,
   type IAutoMovieBeatEndState,
@@ -37,7 +37,7 @@ const rootAt: (
   translation: IAutoMovieTransform["translation"],
   yaw: number = 0,
 ): IAutoMovieTransform =>
-  transform(translation, Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw));
+  transform(translation, AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw));
 
 const walkingMotion: IAutoMovieMotion = {
   ...makeMotion(
@@ -83,7 +83,7 @@ const scene: IAutoMovieScene = {
       model: "guard",
       transform: transform(
         { x: 0, y: 0, z: 2 },
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
       ),
       motion: null,
       pose: makePose([joint("leftLowerArm", { flexion: 45 })]),

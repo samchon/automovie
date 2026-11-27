@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { gatePerformShotCompiledMotions } from "@automovie/engine/internal";
+import {
+  gatePerformShotCompiledMotions
+} from "../../../../../packages/engine/src/film/internal/gatePerformShotCompiledMotions";
 import type {
   IAutoMovieCompiledPerformance,
   IAutoMovieMotion,

@@ -3,8 +3,8 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Apply one admitted parent-joint-relative rotation to its declared descendant
@@ -19,35 +19,35 @@ export function setPhysicalTargetJointRotation(
 ): void {
   const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
   const child: IAutoMovieRigidTransform = targets[joint.child]!;
-  const frame: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const frame: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     parent.rotation,
     joint.parentFrame.rotation,
   );
-  const current: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-    Quaternion.inverse(frame),
-    Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+  const current: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(frame),
+    AutoMovieEngineQuaternion.multiply(child.rotation, joint.childFrame.rotation),
   );
-  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-    Quaternion.multiply(
-      Quaternion.multiply(frame, relative),
-      Quaternion.inverse(current),
+  const rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(frame, relative),
+      AutoMovieEngineQuaternion.inverse(current),
     ),
-    Quaternion.inverse(frame),
+    AutoMovieEngineQuaternion.inverse(frame),
   );
-  const pivot: IAutoMovieRigidTransform["position"] = Vector3.add(
+  const pivot: IAutoMovieRigidTransform["position"] = AutoMovieEngineVector3.add(
     parent.position,
-    Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+    AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
   );
   for (const bone of descendants) {
     const pose: IAutoMovieRigidTransform = targets[bone]!;
-    pose.position = Vector3.add(
+    pose.position = AutoMovieEngineVector3.add(
       pivot,
-      Quaternion.rotateVector(rotation, Vector3.subtract(pose.position, pivot)),
+      AutoMovieEngineQuaternion.rotateVector(rotation, AutoMovieEngineVector3.subtract(pose.position, pivot)),
     );
     // Incremental fits compose onto accepted poses instead of rebuilding
     // from one seed, so renormalize to keep roundoff from accumulating.
-    pose.rotation = Quaternion.normalize(
-      Quaternion.multiply(rotation, pose.rotation),
+    pose.rotation = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(rotation, pose.rotation),
     );
   }
 }

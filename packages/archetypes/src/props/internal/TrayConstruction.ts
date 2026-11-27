@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -136,7 +136,7 @@ export namespace TrayConstruction {
 /*
  * Model-space points and dimensions use metres.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * Resolve a recorded carrier and build its common floor and walls.

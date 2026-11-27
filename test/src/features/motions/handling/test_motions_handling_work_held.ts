@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanHeldWork } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, admitHeldWork } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  admitHeldWork
+} from "../../../../../packages/motions/src/handling/internal/admitHeldWork";
 import { TestValidator } from "@nestia/e2e";
 
 /**

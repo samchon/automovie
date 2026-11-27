@@ -1,5 +1,5 @@
 import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -21,7 +21,7 @@ export function buildCrossbow(
   builder: AutoMovieArchetypeBuilder<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension>,
   d: Partial<Record<AutoMovieArchetypeBow.Dimension, number>>,
 ): AutoMovieArchetype<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension> {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const c: typeof AutoMovieArchetypeBow.CROSSBOW = AutoMovieArchetypeBow.CROSSBOW;
   const top: number = c.fore;
   const nut: number = c.stock - c.nut;

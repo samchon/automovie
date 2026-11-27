@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Whether a direction points strictly above the reference ground plane, that
@@ -22,5 +22,5 @@ export function autoMovieSkyward(
   direction: IAutoMovieVector3,
   ground: IAutoMovieReferenceGround,
 ): boolean {
-  return Vector3.dot(direction, Vector3.normalize(ground.up)) > 0;
+  return AutoMovieEngineVector3.dot(direction, AutoMovieEngineVector3.normalize(ground.up)) > 0;
 }

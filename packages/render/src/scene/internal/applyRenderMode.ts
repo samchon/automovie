@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { DEPTH_NORMALIZATION_RANGE } from "../DEPTH_NORMALIZATION_RANGE.js";
-import { EDGE_WIDTH } from "../EDGE_WIDTH.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderDepthNormalizationRange } from "../AutoMovieRenderDepthNormalizationRange.js";
+import { AutoMovieRenderEdgeWidth } from "../AutoMovieRenderEdgeWidth.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { applyDepthMode } from "./applyDepthMode.js";
 import { applyEdgeMode } from "./applyEdgeMode.js";
@@ -18,7 +18,7 @@ import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRe
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import { AutoMovieRenderSemanticMask } from "../semanticMask/index.js";
+import { AutoMovieRenderSemanticMask, AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
 import { applyAutoMovieGraphicsMode } from "../surfaceGraphic/internal/applyAutoMovieGraphicsMode.js";
 import { hideAutoMovieSurfaceGraphics } from "../surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
 
@@ -32,7 +32,7 @@ import { hideAutoMovieSurfaceGraphics } from "../surfaceGraphic/internal/hideAut
  *
  * - `beauty`: no override (the ordinary shaded render).
  * - `depth`: meshes use clamp(1-viewZ/range,0,1) with camera-space depth and a
- *   shared DEPTH_NORMALIZATION_RANGE, independent of near/far
+ *   shared AutoMovieRenderDepthNormalizationRange, independent of near/far
  *   normalization. Camera changes can change a world point's viewZ; black is
  *   the far-range/background convention.
  * - `mask`: the segmentation pass. A scene handed its palette by
@@ -45,7 +45,7 @@ import { hideAutoMovieSurfaceGraphics } from "../surfaceGraphic/internal/hideAut
  * - `normal`: every mesh swapped to `MeshNormalMaterial`: the unlit
  *   surface-normal conditioning pass (#1166).
  * - `outline`: black fills plus inverted-hull back-face shells extruded by
- *   EDGE_WIDTH in model space, leaving white contours on black.
+ *   AutoMovieRenderEdgeWidth in model space, leaving white contours on black.
  *   Object/instance scaling and camera projection affect world thickness and
  *   screen line weight.
  * - `pose`: meshes hidden, and a line-segment overlay of every bone→child bone
@@ -88,14 +88,14 @@ export const applyRenderMode: (
   options?: {
     /*
      * Metric range (m) the depth pass normalizes onto. Defaults to
-     * DEPTH_NORMALIZATION_RANGE (20). Direct callers only: the capture
+     * AutoMovieRenderDepthNormalizationRange (20). Direct callers only: the capture
      * path keeps the scene-stable default (see above).
      */
     depthRange?: number;
 
     /*
      * Model-space normal extrusion for the outline pass; defaults to
-     * EDGE_WIDTH (0.02). Object/instance scale changes its world
+     * AutoMovieRenderEdgeWidth (0.02). Object/instance scale changes its world
      * thickness; the capture path keeps the default.
      */
     edgeWidth?: number;
@@ -113,7 +113,7 @@ export const applyRenderMode: (
           return (): IAutoMovieRenderModeHandle =>
             applyDepthMode(
               scene,
-              options?.depthRange ?? DEPTH_NORMALIZATION_RANGE,
+              options?.depthRange ?? AutoMovieRenderDepthNormalizationRange,
             );
         case "normal":
           return (): IAutoMovieRenderModeHandle =>
@@ -124,7 +124,7 @@ export const applyRenderMode: (
             );
         case "outline":
           return (): IAutoMovieRenderModeHandle =>
-            applyEdgeMode(scene, options?.edgeWidth ?? EDGE_WIDTH);
+            applyEdgeMode(scene, options?.edgeWidth ?? AutoMovieRenderEdgeWidth);
         case "mask": {
           const semantic: IAutoMovieSemanticMaskBinding | null =
             AutoMovieRenderSemanticMask.of(scene);
@@ -146,7 +146,7 @@ export const applyRenderMode: (
               (
                 original: THREE.Material | THREE.Material[],
               ): THREE.Material | THREE.Material[] =>
-                AutoMovieThreeKind.isMaterial(original)
+                AutoMovieRenderThreeKind.isMaterial(original)
                   ? createAutoMovieAlbedoMaterial(original)
                   : original.map(createAutoMovieAlbedoMaterial),
             );
@@ -214,9 +214,9 @@ export const applyRenderMode: (
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
   object: THREE.Object3D,
 ): boolean =>
-  AutoMovieThreeKind.isLine(object) ||
-  AutoMovieThreeKind.isPoints(object) ||
-  AutoMovieThreeKind.isSprite(object);
+  AutoMovieRenderThreeKind.isLine(object) ||
+  AutoMovieRenderThreeKind.isPoints(object) ||
+  AutoMovieRenderThreeKind.isSprite(object);
 
 /*
  * Hide every currently-visible non-mesh renderable in the scene (grids and

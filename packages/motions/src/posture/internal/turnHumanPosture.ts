@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieHumanLimbGoal,
@@ -38,11 +38,11 @@ export function turnHumanPosture(
   const rotation: IAutoMovieHumanPostureRotation | undefined = posture.rotation;
   if (rotation === undefined)
     return { position: posture.root, rotation: heading, limbs: posture.limbs };
-  const turn: IAutoMovieQuaternion = Quaternion.normalize(rotation.turn);
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(rotation.turn);
   const round = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       rotation.about,
-      Quaternion.rotateVector(turn, Vector3.subtract(point, rotation.about)),
+      AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(point, rotation.about)),
     );
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const [limb, goal] of Object.entries(posture.limbs) as [
@@ -67,12 +67,12 @@ export function turnHumanPosture(
       bend: round(goal.bend),
       ...(goal.rotation === undefined
         ? {}
-        : { rotation: Quaternion.multiply(turn, goal.rotation) }),
+        : { rotation: AutoMovieEngineQuaternion.multiply(turn, goal.rotation) }),
     };
   }
   return {
     position: round(posture.root),
-    rotation: Quaternion.normalize(Quaternion.multiply(turn, heading)),
+    rotation: AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(turn, heading)),
     limbs,
   };
 }

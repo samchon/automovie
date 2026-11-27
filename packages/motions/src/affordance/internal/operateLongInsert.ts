@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -87,17 +87,17 @@ export function operateLongInsert(
   const A: AutoMovieHumanSide = props.side;
   const B: AutoMovieHumanSide = A === "left" ? "right" : "left";
   const tool: IAutoMovieMotionHumanStrikingHeld.ITool = props.tool;
-  const n: IAutoMovieVector3 = Vector3.normalize(props.socket.normal);
-  const inward: IAutoMovieVector3 = Vector3.scale(n, -1);
+  const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(props.socket.normal);
+  const inward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(n, -1);
   const at: (u: number) => IAutoMovieVector3 = (u: number): IAutoMovieVector3 =>
-    Vector3.add(props.socket.point, Vector3.scale(n, u));
+    AutoMovieEngineVector3.add(props.socket.point, AutoMovieEngineVector3.scale(n, u));
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, context.entry.pose);
   const yaw: number = context.entry.posture.yaw;
   const level: IAutoMovieVector3 = { x: inward.x, y: 0, z: inward.z };
   const toward: IAutoMovieVector3 =
-    Vector3.length(level) > 1e-6
-      ? Vector3.normalize(level)
+    AutoMovieEngineVector3.length(level) > 1e-6
+      ? AutoMovieEngineVector3.normalize(level)
       : HumanFrame.forward(yaw);
   const breadth: number = operateLongInsert.BREADTH * body.measure.hand;
   const run: operateLongInsertStaff.IRun = operateLongInsertStaff(
@@ -113,9 +113,9 @@ export function operateLongInsert(
     .target(context.entry.posture, 0);
   const shoulderA: IAutoMovieVector3 = bones.get(`${A}UpperArm`)!.worldPosition;
   const shoulderB: IAutoMovieVector3 = bones.get(`${B}UpperArm`)!.worldPosition;
-  const offB: IAutoMovieVector3 = Vector3.subtract(at(0), shoulderB);
-  const approach: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(offB, Vector3.scale(n, Vector3.dot(offB, n))),
+  const offB: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(0), shoulderB);
+  const approach: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(offB, AutoMovieEngineVector3.scale(n, AutoMovieEngineVector3.dot(offB, n))),
   );
   const turnB: IAutoMovieQuaternion = HumanGrasp.hand(body, B, {
     point: at(0),
@@ -134,7 +134,7 @@ export function operateLongInsert(
     side: AutoMovieHumanSide,
     turn: IAutoMovieQuaternion,
   ): IAutoMovieVector3 =>
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       turn,
       HumanHand.offset(body, side, "grip", "relaxed").point,
     );
@@ -142,8 +142,8 @@ export function operateLongInsert(
     mouth: props.socket.point,
     normal: n,
     shoulders: {
-      A: Vector3.add(shoulderA, wrist(A, presentation.rotation)),
-      B: Vector3.add(shoulderB, wrist(B, turnB)),
+      A: AutoMovieEngineVector3.add(shoulderA, wrist(A, presentation.rotation)),
+      B: AutoMovieEngineVector3.add(shoulderB, wrist(B, turnB)),
     },
     step: toward,
     reach: props.reach * (body.measure.upperArm + body.measure.forearm),
@@ -206,15 +206,15 @@ export function operateLongInsert(
     },
   );
   const held: IAutoMovieResolvedBone = bones.get(`${A}Hand`)!;
-  const entrySocket: IAutoMovieVector3 = Vector3.add(
+  const entrySocket: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     held.worldPosition,
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       held.worldRotation,
       HumanHand.offset(body, A, "grip").point,
     ),
   );
   const reaching: number = AutoMovieMotionHumanTiming.aimed(
-    Vector3.distance(entrySocket, presentation.point),
+    AutoMovieEngineVector3.distance(entrySocket, presentation.point),
     props.width,
   );
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
@@ -369,9 +369,9 @@ export function operateLongInsert(
     A,
     (seconds: number): IAutoMovieMotionHumanArmTarget.ITarget => ({
       ...presentation,
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         presentation.point,
-        Vector3.scale(n, state(seconds).uA - course.presented.uA),
+        AutoMovieEngineVector3.scale(n, state(seconds).uA - course.presented.uA),
       ),
     }),
   );
@@ -433,7 +433,7 @@ export function operateLongInsert(
         to: 1,
         support: { kind: "prop", subject: mechanism.prop },
         inHand: (share: number): IAutoMovieRigidTransform => ({
-          position: Vector3.scale(along, state(share * duration).slide),
+          position: AutoMovieEngineVector3.scale(along, state(share * duration).slide),
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         }),
       },

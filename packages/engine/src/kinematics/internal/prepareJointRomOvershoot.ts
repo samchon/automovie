@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineJointRomScan } from "../../rom/internal/AutoMovieEngineJointRomScan";
-import type { swingTwistRange } from "../swingTwistRange";
+import type { AutoMovieEngineSwingTwistRange } from "../AutoMovieEngineSwingTwistRange";
   /*
    * Prepare the gate's exact overshoot sum for joints of one fixed bone. The
    * bone, constraint and optional frame stay unchanged for the scorer's
@@ -29,7 +29,7 @@ import type { swingTwistRange } from "../swingTwistRange";
 export function prepareJointRomOvershoot(
   bone: AutoMovieHumanoidBone,
   constraint: IAutoMovieJointConstraint | null,
-  rig?: swingTwistRange.IPrepared,
+  rig?: AutoMovieEngineSwingTwistRange.IPrepared,
 ): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number {
   if (constraint === null)
     return (_joint: IAutoMovieJointPose, _rotation?: IAutoMovieQuaternion): number =>

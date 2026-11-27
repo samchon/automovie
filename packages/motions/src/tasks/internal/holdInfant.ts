@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -138,41 +138,41 @@ export namespace holdInfant {
       params.kind === "shoulder"
         ? undefined
         : holdInfantCrook(body, side, params.kind, shoulder, forward, toward);
-    const face: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.add(UP, Vector3.scale(forward, -0.25)),
+    const face: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.add(UP, AutoMovieEngineVector3.scale(forward, -0.25)),
     );
     // The infant's pose in the hold: its seat's place, its body's line
     // (seat to head) and its face's facing.
     const pose: IInfantPose =
       crook === undefined
         ? {
-            seat: Vector3.add(
-              Vector3.add(chest, Vector3.scale(forward, 0.12)),
-              Vector3.add(
-                Vector3.scale(UP, -0.22),
-                Vector3.scale(toward, 0.08),
+            seat: AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.add(chest, AutoMovieEngineVector3.scale(forward, 0.12)),
+              AutoMovieEngineVector3.add(
+                AutoMovieEngineVector3.scale(UP, -0.22),
+                AutoMovieEngineVector3.scale(toward, 0.08),
               ),
             ),
             line: UP,
-            face: Vector3.scale(forward, -1),
+            face: AutoMovieEngineVector3.scale(forward, -1),
           }
         : ((): IInfantPose => {
-            const line: IAutoMovieVector3 = Vector3.normalize(
-              Vector3.subtract(crook.elbow, crook.wrist),
+            const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+              AutoMovieEngineVector3.subtract(crook.elbow, crook.wrist),
             );
             // The infant's origin that puts the gripping hand's wrist at the
             // arm's wrist.
-            const hand: IAutoMovieQuaternion = Quaternion.multiply(
+            const hand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
               holdInfantBasis(line, face),
-              Quaternion.inverse(infant.frame.rotation),
+              AutoMovieEngineQuaternion.inverse(infant.frame.rotation),
             );
             return {
-              seat: Vector3.add(
-                Vector3.add(
+              seat: AutoMovieEngineVector3.add(
+                AutoMovieEngineVector3.add(
                   crook.wrist,
-                  Quaternion.rotateVector(hand, grip.point),
+                  AutoMovieEngineQuaternion.rotateVector(hand, grip.point),
                 ),
-                Quaternion.rotateVector(hand, infant.frame.position),
+                AutoMovieEngineQuaternion.rotateVector(hand, infant.frame.position),
               ),
               line,
               face,
@@ -189,7 +189,7 @@ export namespace holdInfant {
         pose.line,
         pose.face,
       );
-      return { position: Vector3.add(pose.seat, sway(t)), rotation };
+      return { position: AutoMovieEngineVector3.add(pose.seat, sway(t)), rotation };
     };
     const world: (
       frame: IAutoMovieRigidTransform,
@@ -198,9 +198,9 @@ export namespace holdInfant {
       frame: IAutoMovieRigidTransform,
       local: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, local),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, local),
       );
 
     const duration: number = SETTLE + seconds;
@@ -225,30 +225,30 @@ export namespace holdInfant {
         ...entry.posture.limbs,
       };
       // The holding hand carries the infant as it was taken up.
-      const hand: IAutoMovieQuaternion = Quaternion.multiply(
+      const hand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         frame.rotation,
-        Quaternion.inverse(infant.frame.rotation),
+        AutoMovieEngineQuaternion.inverse(infant.frame.rotation),
       );
-      const socket: IAutoMovieVector3 = Vector3.subtract(
+      const socket: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         frame.position,
-        Quaternion.rotateVector(hand, infant.frame.position),
+        AutoMovieEngineQuaternion.rotateVector(hand, infant.frame.position),
       );
       limbs[`${side}Arm`] = {
-        point: Vector3.subtract(
+        point: AutoMovieEngineVector3.subtract(
           socket,
-          Quaternion.rotateVector(hand, grip.point),
+          AutoMovieEngineQuaternion.rotateVector(hand, grip.point),
         ),
         rotation: hand,
         contact: grip.point,
         ...(crook === undefined
           ? {
-              bend: Vector3.add(Vector3.lerp(socket, shoulder, 0.5), {
+              bend: AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(socket, shoulder, 0.5), {
                 x: 0,
                 y: -0.15,
                 z: 0,
               }),
             }
-          : { bend: Vector3.add(crook.elbow, sway(t)) }),
+          : { bend: AutoMovieEngineVector3.add(crook.elbow, sway(t)) }),
       };
       limbs[`${other}Arm`] =
         bottle !== undefined
@@ -264,7 +264,7 @@ export namespace holdInfant {
                 body,
                 other,
                 world(frame, site(infant, "back")),
-                Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: -1 }),
+                AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: -1 }),
                 UP,
                 PAT *
                   (0.5 -
@@ -278,8 +278,8 @@ export namespace holdInfant {
                 body,
                 other,
                 world(frame, front),
-                Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: 1 }),
-                Quaternion.rotateVector(frame.rotation, { x: 0, y: 1, z: 0 }),
+                AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: 1 }),
+                AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: 1, z: 0 }),
                 0,
               );
       return { ...entry.posture, limbs };
@@ -345,22 +345,22 @@ export namespace holdInfant {
       "palm",
     );
     const rotation: IAutoMovieQuaternion = HumanHand.align(frame, {
-      normal: Vector3.scale(normal, -1),
+      normal: AutoMovieEngineVector3.scale(normal, -1),
       forward,
     });
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       point,
-      Vector3.scale(normal, lift),
+      AutoMovieEngineVector3.scale(normal, lift),
     );
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       at,
-      Quaternion.rotateVector(rotation, frame.point),
+      AutoMovieEngineQuaternion.rotateVector(rotation, frame.point),
     );
     return {
       point: wrist,
       rotation,
       contact: frame.point,
-      bend: Vector3.add(wrist, { x: 0, y: -0.2, z: 0 }),
+      bend: AutoMovieEngineVector3.add(wrist, { x: 0, y: -0.2, z: 0 }),
     };
   }
 
@@ -380,39 +380,39 @@ export namespace holdInfant {
         .translation ?? refuse("bottle", `${bottle.prop} declares no teat`);
     // The bottle's line from its base to its teat points into the mouth,
     // from above the face and toward the feet.
-    const down: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.add(
-        Quaternion.rotateVector(infant.rotation, { x: 0, y: 0, z: -0.8 }),
-        Quaternion.rotateVector(infant.rotation, { x: 0, y: 0.6, z: 0 }),
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineQuaternion.rotateVector(infant.rotation, { x: 0, y: 0, z: -0.8 }),
+        AutoMovieEngineQuaternion.rotateVector(infant.rotation, { x: 0, y: 0.6, z: 0 }),
       ),
     );
     const rotation: IAutoMovieQuaternion = holdInfantBasis(down, UP);
-    const position: IAutoMovieVector3 = Vector3.subtract(
+    const position: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       mouth,
-      Quaternion.rotateVector(rotation, tip),
+      AutoMovieEngineQuaternion.rotateVector(rotation, tip),
     );
-    const hand: IAutoMovieQuaternion = Quaternion.multiply(
+    const hand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       rotation,
-      Quaternion.inverse(bottle.frame.rotation),
+      AutoMovieEngineQuaternion.inverse(bottle.frame.rotation),
     );
-    const socket: IAutoMovieVector3 = Vector3.subtract(
+    const socket: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       position,
-      Quaternion.rotateVector(hand, bottle.frame.position),
+      AutoMovieEngineQuaternion.rotateVector(hand, bottle.frame.position),
     );
     const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
       body,
       side,
       "grip",
     );
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       socket,
-      Quaternion.rotateVector(hand, grip.point),
+      AutoMovieEngineQuaternion.rotateVector(hand, grip.point),
     );
     return {
       point: wrist,
       rotation: hand,
       contact: grip.point,
-      bend: Vector3.add(wrist, { x: 0, y: -0.2, z: 0 }),
+      bend: AutoMovieEngineVector3.add(wrist, { x: 0, y: -0.2, z: 0 }),
     };
   }
 

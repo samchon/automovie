@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -26,7 +26,7 @@ import { HumanSequentialConvexFunctions as F } from "../../posture/internal/Huma
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crutchHeldLegSweptDepth } from "./crutchHeldLegSweptDepth";
-import * as CrutchHeldLegData from "./CrutchHeldLegData";
+import { CrutchHeldLegData } from "./CrutchHeldLegData";
 
 /*
  * The injured leg a crutch gait holds off the floor once the hands bear
@@ -35,7 +35,7 @@ import * as CrutchHeldLegData from "./CrutchHeldLegData";
  * flexion on one course planned against the levels beneath it and the body
  * (`plan`, TrajOpt's collision constraint), its first knot the leg as it bears,
  * the ankle dorsiflexing by the shank's tilt up to a weightless ankle's limit
- * (`ANKLE_DORSIFLEXION.unloaded`) so the toes do not pitch down.
+ * (`AutoMovieEngineAnkleDorsiflexion.unloaded`) so the toes do not pitch down.
  * Parameter props: The leg, its timing and the posture it lifts from.
  * Returns: The writer of a posture with the leg held, the base posture's other
  * parts kept.
@@ -146,9 +146,9 @@ export function crutchHeldLeg(
     return parts.flatMap((i: number): IAutoMovieVector3[] =>
       model.parts[i]!.probes.map(
         (probe: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             placed[i]!.pose.position,
-            Quaternion.rotateVector(placed[i]!.pose.rotation, probe),
+            AutoMovieEngineQuaternion.rotateVector(placed[i]!.pose.rotation, probe),
           ),
       ),
     );
@@ -168,8 +168,8 @@ export function crutchHeldLeg(
       const along: (p: IAutoMovieVector3) => number = (
         p: IAutoMovieVector3,
       ): number =>
-        Vector3.dot(
-          Vector3.subtract(p, props.stairs!.origin),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(p, props.stairs!.origin),
           props.stairs!.forward,
         );
       return (
@@ -202,13 +202,13 @@ export function crutchHeldLeg(
       readHumanBone(body, `${side}Foot`)?.constraint ?? null,
     );
     // Once lifted the foot bears nothing, so its flexion keeps within a
-    // weightless ankle's dorsiflexion (`ANKLE_DORSIFLEXION.unloaded`), the
+    // weightless ankle's dorsiflexion (`AutoMovieEngineAnkleDorsiflexion.unloaded`), the
     // bound the take's audit reads an unloaded foot by.
     const ankle: IAutoMovieAngleRange = {
       min: footRange?.flexion?.min ?? -Infinity,
       max: Math.min(
         footRange?.flexion?.max ?? Infinity,
-        ANKLE_DORSIFLEXION.unloaded,
+        AutoMovieEngineAnkleDorsiflexion.unloaded,
       ),
     };
     const seed: number[] = knots.slice(1).flatMap((t: number): number[] => {
@@ -262,7 +262,7 @@ export function crutchHeldLeg(
                 const p: number[] = angles(x, j - 1);
                 const q: number[] = angles(x, j);
                 for (let d: number = 0; d < CrutchHeldLegData.WIDTH; ++d)
-                  sum += ((q[d]! - p[d]!) * Quaternion.DEG2RAD) ** 2;
+                  sum += ((q[d]! - p[d]!) * AutoMovieEngineQuaternion.DEG2RAD) ** 2;
               }
               return sum;
             },
@@ -275,7 +275,7 @@ export function crutchHeldLeg(
                 if (j === 0 || t < held) return;
                 const q: number[] = angles(x, j);
                 for (let d: number = 0; d < 4; ++d)
-                  sum += ((q[d]! - held4[d]!) * Quaternion.DEG2RAD) ** 2;
+                  sum += ((q[d]! - held4[d]!) * AutoMovieEngineQuaternion.DEG2RAD) ** 2;
               });
               return sum;
             },

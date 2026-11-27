@@ -1,8 +1,10 @@
 import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
 import {
-  AutoMovieEnvironment,
-  AutoMovieEnvironmentFurnishing,
-} from "@automovie/archetypes/environments";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import {
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentItem,
@@ -38,7 +40,7 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  */
 export function test_environment_furnishing(): void {
   const cafeLayout: Parameters<
-    typeof AutoMovieEnvironmentFurnishing.cafeKit
+    typeof AutoMovieArchetypeEnvironmentFurnishing.cafeKit
   >[0] = {
     room: { width: 10, depth: 10 },
     tables: 4,
@@ -47,7 +49,7 @@ export function test_environment_furnishing(): void {
   };
   const cup: IAutoMovieEnvironmentItem = {
     at: { anchor: "cafe/table-1/stack" },
-    use: AutoMovieEnvironmentFurnishing.prop({
+    use: AutoMovieArchetypeEnvironmentFurnishing.prop({
       model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }),
       placement: {
         relations: [
@@ -70,17 +72,17 @@ export function test_environment_furnishing(): void {
     cafe: {
       at: { x: 10, y: 2, z: 4 },
       rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
-      use: AutoMovieEnvironmentFurnishing.cafeKit(cafeLayout),
+      use: AutoMovieArchetypeEnvironmentFurnishing.cafeKit(cafeLayout),
     },
     gym: {
       at: { x: -10, y: 0, z: 0 },
-      use: AutoMovieEnvironmentFurnishing.gymKit({
+      use: AutoMovieArchetypeEnvironmentFurnishing.gymKit({
         room: { width: 6, depth: 5 },
         stations: 2,
       }),
     },
   };
-  const plan: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const plan: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "facility",
     seed: 1,
     items,
@@ -119,21 +121,21 @@ export function test_environment_furnishing(): void {
       cupPoint.y <= 2.762 &&
       vclose(plan.anchors["cafe/table-1/stack"]!.translation, cupPoint),
   );
-  const reseeded: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const reseeded: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "facility",
     seed: 2,
     items,
   });
   const role: string = "cafe/table-1/chair-near";
   const automatic: string = "cafe/table-1/chair-far";
-  const pinnedTable: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const pinnedTable: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "facility",
     seed: 1,
     items: {
       ...items,
       cafe: {
         ...items.cafe!,
-        use: AutoMovieEnvironmentFurnishing.cafeKit({
+        use: AutoMovieArchetypeEnvironmentFurnishing.cafeKit({
           ...cafeLayout,
           overrides: {
             ...cafeLayout.overrides,
@@ -166,11 +168,11 @@ export function test_environment_furnishing(): void {
     "room capacity, a door swing and table bearing have distinct refusals",
     throwsError(
       (): IAutoMovieEnvironment =>
-        AutoMovieEnvironment.create({
+        AutoMovieArchetypeEnvironment.create({
           id: "small",
           items: {
             gym: {
-              use: AutoMovieEnvironmentFurnishing.gymKit({
+              use: AutoMovieArchetypeEnvironmentFurnishing.gymKit({
                 room: { width: 2, depth: 2 },
                 stations: 3,
               }),
@@ -181,11 +183,11 @@ export function test_environment_furnishing(): void {
     ) &&
       throwsError(
         (): IAutoMovieEnvironment =>
-          AutoMovieEnvironment.create({
+          AutoMovieArchetypeEnvironment.create({
             id: "door",
             items: {
               cafe: {
-                use: AutoMovieEnvironmentFurnishing.cafeKit({
+                use: AutoMovieArchetypeEnvironmentFurnishing.cafeKit({
                   room: { width: 8, depth: 7 },
                   tables: 1,
                   keepClear: { swing: { x: -0.5, z: 0.5, width: 1, depth: 1 } },
@@ -198,7 +200,7 @@ export function test_environment_furnishing(): void {
       ) &&
       throwsError(
         (): IAutoMovieEnvironment =>
-          AutoMovieEnvironment.create({
+          AutoMovieArchetypeEnvironment.create({
             id: "facility",
             seed: 1,
             items: {

@@ -4,10 +4,14 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanBase,
-  composeAutoMovieMotionHumanAction,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  AutoMovieMotionHumanBase
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBase";
+import {
+  composeAutoMovieMotionHumanAction
+} from "../../../../../packages/motions/src/compose/internal/composeAutoMovieMotionHumanAction";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -136,9 +136,9 @@ export namespace AutoMovieMotionHumanTouchForm {
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
     side: AutoMovieHumanSide,
   ): IAutoMovieVector3 {
-    const n: IAutoMovieVector3 = Vector3.normalize(normal);
+    const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(normal);
     const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
+      AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(n, AutoMovieEngineVector3.dot(v, n)));
     const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw,
@@ -157,8 +157,8 @@ export namespace AutoMovieMotionHumanTouchForm {
     // The two candidates are perpendicular, so when the first lies within
     // 0.3 of the normal the second lies almost fully across it.
     const first: IAutoMovieVector3 = across(candidates[0]!);
-    return Vector3.normalize(
-      Vector3.length(first) > 0.3 ? first : across(candidates[1]!),
+    return AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.length(first) > 0.3 ? first : across(candidates[1]!),
     );
   }
 }

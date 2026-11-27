@@ -1,7 +1,7 @@
 import type { IAutoMovieFilmEffectCurrentIdentity } from "@automovie/interface";
 
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
-import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
+import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 
 /*
  * Refuse a current film-effect identity that cannot address a runtime.
@@ -15,10 +15,10 @@ export const validateProductionFilmEffectIdentity = (
   identity: IAutoMovieFilmEffectCurrentIdentity,
 ): void => {
   if (
-    SHA256_DIGEST_PATTERN.test(identity.compileFingerprint) === false ||
-    SHA256_DIGEST_PATTERN.test(identity.editFingerprint) === false
+    AutoMovieEngineSha256DigestPattern.test(identity.compileFingerprint) === false ||
+    AutoMovieEngineSha256DigestPattern.test(identity.editFingerprint) === false
   )
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-input-invalid",
       "Film effect compile and edit identities must be SHA-256 content digests.",
     );

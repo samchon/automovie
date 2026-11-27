@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -130,9 +130,9 @@ export namespace householdFilm {
     frame: IAutoMovieRigidTransform,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, local),
     );
   }
 
@@ -234,9 +234,9 @@ export namespace householdFilm {
       const hand: IAutoMovieResolvedBone = film
         .bones("a", t)
         .get(`${side}Hand`)!;
-      return Quaternion.rotateVector(
-        Quaternion.inverse(hand.worldRotation),
-        Vector3.subtract(
+      return AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+        AutoMovieEngineVector3.subtract(
           film.performance.prop(prop, t).position,
           hand.worldPosition,
         ),
@@ -248,7 +248,7 @@ export namespace householdFilm {
       near(
         failures,
         `${prop} in ${side} grip at ${t.toFixed(2)} s`,
-        Vector3.distance(handLocal(t), start),
+        AutoMovieEngineVector3.distance(handLocal(t), start),
         bound,
       );
     }

@@ -1,4 +1,4 @@
-import { type IAutoMovieFormationCycle, AutoMovieRenderMaterial, AutoMovieRenderFormationCycle } from "@automovie/render";
+import { type IAutoMovieRenderFormationCycle, AutoMovieRenderMaterial, AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -18,7 +18,7 @@ import { createFormationCycleLiteral } from "../../internal/createFormationCycle
  *    unchanged and the compiled source declares the uniforms once.
  */
 export function test_render_scene_apply_formation_cycle_material(): void {
-  const cycle: IAutoMovieFormationCycle = createFormationCycleLiteral();
+  const cycle: IAutoMovieRenderFormationCycle = createFormationCycleLiteral();
   const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial();
   const declarations: () => number = (): number =>
     compileMaterialShaderSource(

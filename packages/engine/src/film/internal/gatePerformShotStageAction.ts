@@ -11,7 +11,7 @@ import {
 
 import { armChainFault } from "../../kinematics/internal/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../../motion/internal/classifyLocomoteGroundDisplacement";
-import { POSITIONAL_TARGET_SHAPE } from "../../perform/POSITIONAL_TARGET_SHAPE";
+import { AutoMovieEnginePositionalTargetShape } from "../../perform/AutoMovieEnginePositionalTargetShape";
 import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 
@@ -262,7 +262,7 @@ export function gatePerformShotStageAction(
         out.push(
           "type",
           `${path}.at`,
-          `a ${action.kind} gesture target must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but none was given`,
+          `a ${action.kind} gesture target must resolve to a point (${AutoMovieEnginePositionalTargetShape}), but none was given`,
           action.at,
         );
       return;

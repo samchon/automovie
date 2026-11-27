@@ -8,7 +8,7 @@ import {
   AutoMovieHumanNativeSourceAuthority as A,
 } from "./conic/AutoMovieHumanNativeSourceAuthority";
 import { AutoMovieHumanNativeSourceLaw } from "./AutoMovieHumanNativeSourceLaw";
-import { AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
+import { AutoMovieEngineLoftViewRead, AutoMovieEngineLoftViewSource } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicLoft,
@@ -369,12 +369,12 @@ export namespace AutoMovieHumanNativeFamily {
                 },
           fullness,
         };
-        const native = AutoMovieLoftViewSource.create(resolved);
+        const native = AutoMovieEngineLoftViewSource.create(resolved);
         if (native === null || native.source === null)
           throw new Error("native sampling source unavailable: " + family.name);
         const girth: number = Math.max(
           ...resolved.stations.map((s: number): number => {
-            const row = AutoMovieLoftViewRead.values(native.source!, s);
+            const row = AutoMovieEngineLoftViewRead.values(native.source!, s);
             if (typeof row === "string") throw new Error(row);
             const a: number = (row.extents[0]! + row.extents[2]!) / 2,
               b: number = (row.extents[1]! + row.extents[3]!) / 2;

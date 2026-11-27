@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -143,7 +143,7 @@ export namespace HumanAirborneShape {
   ) => IAutoMovieMotionHumanPosture;
 
   /*
-   * The definition returned by the native shape constructor.
+   * The definition returned by the native shape function Object() { [native code] }.
    */
   interface IDefinition {
     channels: AutoMovieHumanLimb[];
@@ -292,22 +292,22 @@ export namespace HumanAirborneShape {
         const top: IAutoMovieVector3 = at(upper);
         const joint: IAutoMovieVector3 = at(middle);
         const point: IAutoMovieVector3 = at(end);
-        const axis: IAutoMovieVector3 = Vector3.subtract(point, top);
+        const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, top);
         const along: number =
-          Vector3.dot(Vector3.subtract(joint, top), axis) /
-          Vector3.dot(axis, axis);
-        const out: IAutoMovieVector3 = Vector3.subtract(
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(joint, top), axis) /
+          AutoMovieEngineVector3.dot(axis, axis);
+        const out: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           joint,
-          Vector3.add(top, Vector3.scale(axis, along)),
+          AutoMovieEngineVector3.add(top, AutoMovieEngineVector3.scale(axis, along)),
         );
         const goal: IAutoMovieHumanLimbGoal = posture.limbs[limb]!;
         limbs[limb] = {
           ...goal,
           point,
           bend:
-            Vector3.length(out) >
-            Math.sqrt(Number.EPSILON) * Vector3.length(axis)
-              ? Vector3.add(joint, out)
+            AutoMovieEngineVector3.length(out) >
+            Math.sqrt(Number.EPSILON) * AutoMovieEngineVector3.length(axis)
+              ? AutoMovieEngineVector3.add(joint, out)
               : goal.bend,
         };
       }

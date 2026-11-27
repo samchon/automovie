@@ -1,5 +1,5 @@
 export * from "./AutoMovieCliCapture";
-export type { AutoMovieCliCaptureTypes } from "./AutoMovieCliCaptureTypes";
+export type * from "./AutoMovieCliCaptureTypes";
 export * from "./AutoMovieCliCaptureBackend";
 export * from "./AutoMovieCliCaptureHost";
 export type * from "./IAutoMovieCliCaptureHostInput";

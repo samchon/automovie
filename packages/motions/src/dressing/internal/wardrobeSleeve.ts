@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -40,19 +40,19 @@ export function wardrobeSleeve(
       wardrobeHands.site(reader.prop, name + "Exit", "socket"),
     ),
   );
-  const delta: IAutoMovieVector3 = Vector3.subtract(
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     exit.position,
     middle.position,
   );
-  const depth: number = Vector3.length(delta);
-  const openingOut: IAutoMovieVector3 = Quaternion.rotateVector(
+  const depth: number = AutoMovieEngineVector3.length(delta);
+  const openingOut: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     middle.rotation,
     { x: 0, y: 0, z: 1 },
   );
   if (
     !(
       depth > 0 &&
-      Vector3.dot(Vector3.scale(delta, -1 / depth), openingOut) > 0.999 &&
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.scale(delta, -1 / depth), openingOut) > 0.999 &&
       opening.width! >=
         Math.max(
           2 * context.body.measure.upperArmRadius,
@@ -70,15 +70,15 @@ export function wardrobeSleeve(
       opening.id,
       "the named sleeve has no clear aligned hand passage",
     );
-  const before: IAutoMovieVector3 = Vector3.add(
+  const before: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     middle.position,
-    Vector3.scale(openingOut, CLEAR),
+    AutoMovieEngineVector3.scale(openingOut, CLEAR),
   );
-  const after: IAutoMovieVector3 = Vector3.subtract(
+  const after: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     exit.position,
-    Vector3.scale(openingOut, CLEAR),
+    AutoMovieEngineVector3.scale(openingOut, CLEAR),
   );
-  const facing: IAutoMovieVector3 = Quaternion.rotateVector(model.rotation, {
+  const facing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(model.rotation, {
     x: 0,
     y: 0,
     z: 1,
@@ -89,9 +89,9 @@ export function wardrobeSleeve(
   ].map(
     (angle: number): IAutoMovieQuaternion =>
       HumanHand.rotation(side, {
-        fingers: Vector3.scale(openingOut, -1),
-        palm: Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(openingOut, angle),
+        fingers: AutoMovieEngineVector3.scale(openingOut, -1),
+        palm: AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(openingOut, angle),
           facing,
         ),
       }),

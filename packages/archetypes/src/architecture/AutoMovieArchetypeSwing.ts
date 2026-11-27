@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
@@ -11,7 +11,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { rideSwing } from "./internal/rideSwing";
-import * as AutoMovieArchetypeSwingData from "./internal/AutoMovieArchetypeSwingData";
+import { AutoMovieArchetypeSwingData } from "./internal/AutoMovieArchetypeSwingData";
 
 /** Constructs the swing archetype from its recipe. */
 export namespace AutoMovieArchetypeSwing {
@@ -73,21 +73,21 @@ export function create(
     builder.rod(
       side < 0 ? "rightPost" : "leftPost",
       0.04,
-      Vector3.create((side * span) / 2, 0, 0),
-      Vector3.create((side * span) / 2, pivot, 0),
+      AutoMovieEngineVector3.create((side * span) / 2, 0, 0),
+      AutoMovieEngineVector3.create((side * span) / 2, pivot, 0),
       { color: "#2d6a4f" },
     );
   builder.rod(
     "beam",
     0.05,
-    Vector3.create(-span / 2, pivot, 0),
-    Vector3.create(span / 2, pivot, 0),
+    AutoMovieEngineVector3.create(-span / 2, pivot, 0),
+    AutoMovieEngineVector3.create(span / 2, pivot, 0),
     { color: "#2d6a4f" },
   );
   builder.affordance({
     id: "ground",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
     width: span,
     depth: 2 * pivot,
@@ -186,16 +186,16 @@ export function create(
       });
     builder.box(
       "seat",
-      Vector3.create(seatWidth, 0.03, seatDepth),
-      Vector3.create(0, -length - 0.015, 0),
+      AutoMovieEngineVector3.create(seatWidth, 0.03, seatDepth),
+      AutoMovieEngineVector3.create(0, -length - 0.015, 0),
       { color: "#222222" },
     );
     for (const side of [-1, 1] as const) {
       builder.rod(
         side < 0 ? "rightChainLink" : "leftChainLink",
         0.008,
-        Vector3.create((side * seatWidth) / 2, 0, 0),
-        Vector3.create((side * seatWidth) / 2, -length, 0),
+        AutoMovieEngineVector3.create((side * seatWidth) / 2, 0, 0),
+        AutoMovieEngineVector3.create((side * seatWidth) / 2, -length, 0),
         { color: "#9a9a9a" },
       );
       builder.affordance({
@@ -204,9 +204,9 @@ export function create(
         symmetry: "round",
         grip: "power",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create((side * seatWidth) / 2, grip - length, 0),
-          Vector3.create(0, 0, -1),
-          Vector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create((side * seatWidth) / 2, grip - length, 0),
+          AutoMovieEngineVector3.create(0, 0, -1),
+          AutoMovieEngineVector3.create(0, 1, 0),
         ),
         extent: null,
         length: 0.2,
@@ -217,7 +217,7 @@ export function create(
       id: "seat",
       kind: "seat",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, -length, seatDepth / 2),
+        AutoMovieEngineVector3.create(0, -length, seatDepth / 2),
       ),
       extent: null,
       width: seatWidth,

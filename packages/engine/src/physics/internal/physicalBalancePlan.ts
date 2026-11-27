@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalBalanceTrace } from "../IAutoMoviePhysicalBalanceTrace";
+import type { IAutoMovieEnginePhysicalBalanceTrace } from "../IAutoMovieEnginePhysicalBalanceTrace";
 import { physicalAuthoredCapture } from "./physicalAuthoredCapture";
 import type { physicalBalanceStance } from "./physicalBalanceStance";
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "../AutoMovieEnginePhysicalPlanarPolygon";
@@ -100,7 +100,7 @@ function physicalBalancePlanImplementation(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
   sense: physicalBalancePlan.ISense;
   stance: Pick<physicalBalanceStance.IStance, "planted" | "plane" | "tilt">;
-  trace?: IAutoMoviePhysicalBalanceTrace[];
+  trace?: IAutoMovieEnginePhysicalBalanceTrace[];
 }): physicalBalancePlan.IResult {
   const { sense, stance } = input;
   const state: IAutoMoviePhysicalRecoveryState = { ...input.state };

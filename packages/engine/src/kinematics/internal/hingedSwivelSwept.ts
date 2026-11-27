@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "../hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../AutoMovieEngineHingedArmSwivel";
 
 /*
  * The full cold swivel sweep of `hingedArmArticulation`: every step a certified
@@ -141,6 +141,6 @@ export namespace hingedSwivelSwept {
 }
 
 /*
- * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
+ * The articulation's swivel step, degrees (`AutoMovieEngineHingedArmSwivel.STEP`).
  */
-const STEP: number = hingedArmSwivel.STEP;
+const STEP: number = AutoMovieEngineHingedArmSwivel.STEP;

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -125,7 +125,7 @@ export namespace kickBall {
       body,
       side,
       "mtp",
-      Vector3.subtract(centre, Vector3.scale(direction, radius)),
+      AutoMovieEngineVector3.subtract(centre, AutoMovieEngineVector3.scale(direction, radius)),
       (Math.atan2(direction.x, direction.z) * 180) / Math.PI,
       -POINT,
     );
@@ -189,11 +189,11 @@ export namespace kickBall {
     const toward: IAutoMovieVector3 =
       context.params.target === undefined
         ? heading
-        : Vector3.subtract(
+        : AutoMovieEngineVector3.subtract(
             context.aim(context.params.target, sampleAt).point,
             centre,
           );
-    const direction: IAutoMovieVector3 = Vector3.normalize({
+    const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: toward.x,
       y: 0,
       z: toward.z,
@@ -211,19 +211,19 @@ export namespace kickBall {
       HumanFrame.turn(standing.yaw),
     )[side];
     const leg: number = m.thigh + m.shank;
-    if (Vector3.length(Vector3.subtract(hit.ankle, hip)) > leg)
+    if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(hit.ankle, hip)) > leg)
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "ball",
-        value: Vector3.length(Vector3.subtract(hit.ankle, hip)),
+        value: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(hit.ankle, hip)),
         feasible: { kind: "range", minimum: 0, maximum: leg, unit: "m" },
-        reason: `the ball's back lies ${Vector3.length(Vector3.subtract(hit.ankle, hip)).toFixed(2)} m from the kicking hip, beyond the leg's ${leg.toFixed(2)} m`,
+        reason: `the ball's back lies ${AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(hit.ankle, hip)).toFixed(2)} m from the kicking hip, beyond the leg's ${leg.toFixed(2)} m`,
         fix: "stand nearer the ball (approach it) so that its back lies within the leg's length of the kicking hip",
       });
     const chamber: IAutoMovieMotionHumanFoot.IPlacement = {
-      ankle: Vector3.add(
+      ankle: AutoMovieEngineVector3.add(
         hit.ankle,
-        Vector3.add(Vector3.scale(direction, -CHAMBER.back * m.shank), {
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(direction, -CHAMBER.back * m.shank), {
           x: 0,
           y: CHAMBER.up * m.shank,
           z: 0,
@@ -242,10 +242,10 @@ export namespace kickBall {
 
     // The swing's turn about the hip from the chamber to the contact, the
     // angle the follow-through goes on turning at, and its axis.
-    const back: IAutoMovieVector3 = Vector3.subtract(chamber.ankle, hip);
-    const front: IAutoMovieVector3 = Vector3.subtract(hit.ankle, hip);
-    const lateral: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(back, front),
+    const back: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(chamber.ankle, hip);
+    const front: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(hit.ankle, hip);
+    const lateral: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(back, front),
     );
     const swept: number =
       (Math.acos(
@@ -253,8 +253,8 @@ export namespace kickBall {
           -1,
           Math.min(
             1,
-            Vector3.dot(back, front) /
-              (Vector3.length(back) * Vector3.length(front)),
+            AutoMovieEngineVector3.dot(back, front) /
+              (AutoMovieEngineVector3.length(back) * AutoMovieEngineVector3.length(front)),
           ),
         ),
       ) *
@@ -319,11 +319,11 @@ export namespace kickBall {
                 seconds,
               );
               if (p <= 1) return hit;
-              const arc: IAutoMovieVector3 = Vector3.add(
+              const arc: IAutoMovieVector3 = AutoMovieEngineVector3.add(
                 hip,
-                Quaternion.rotateVector(
-                  Quaternion.fromAxisAngle(lateral, swept * (p - 1)),
-                  Vector3.subtract(hit.ankle, hip),
+                AutoMovieEngineQuaternion.rotateVector(
+                  AutoMovieEngineQuaternion.fromAxisAngle(lateral, swept * (p - 1)),
+                  AutoMovieEngineVector3.subtract(hit.ankle, hip),
                 ),
               );
               // On the way back the knee flexes and the shank swings back as
@@ -331,11 +331,11 @@ export namespace kickBall {
               // chamber's pointed foot with it and the unloaded ankle keeps
               // its plantarflexion.
               return {
-                ankle: Vector3.add(
+                ankle: AutoMovieEngineVector3.add(
                   chamber.ankle,
-                  Vector3.scale(Vector3.subtract(arc, chamber.ankle), 1 / p),
+                  AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(arc, chamber.ankle), 1 / p),
                 ),
-                rotation: Quaternion.slerp(
+                rotation: AutoMovieEngineQuaternion.slerp(
                   hit.rotation,
                   chamber.rotation,
                   clock.progress("relax", "end", seconds),

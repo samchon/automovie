@@ -1,8 +1,10 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  stretchHoldClock,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  stretchHoldClock
+} from "../../../../../packages/motions/src/exercise/internal/stretchHoldClock";
 import { TestValidator } from "@nestia/e2e";
 
 /** The grid spacing, seconds: a power of two, so every grid second is exact. */

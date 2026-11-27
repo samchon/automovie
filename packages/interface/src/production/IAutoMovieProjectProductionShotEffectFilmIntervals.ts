@@ -16,7 +16,7 @@ export namespace IAutoMovieProjectProductionShotEffectFilmIntervals {
    * shot-availability diagnostics own that refusal. Intervals come out in
    * segment order, then in the shot's effect order. A cue with a negative or
    * non-finite start, an end not after its start, or an unrepresentable bound
-   * throws `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`,
+   * throws `AutoMovieEngineFilmEffectRuntimeError` with `film-effect-input-invalid`,
    * as does an inconsistent clock.
    */
   export type IProps = {

@@ -1,4 +1,6 @@
-import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
 import { AutoMovieEngineWorld, AutoMovieEnginePopulationRuntime, AutoMovieEngineSpace, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -35,13 +37,13 @@ export function test_location_terrain(): void {
   const build: (seed: number) => IAutoMovieEnvironment = (
     seed: number,
   ): IAutoMovieEnvironment =>
-    AutoMovieEnvironment.create({
+    AutoMovieArchetypeEnvironment.create({
       id: "relief",
       seed,
       items: {
         land: {
           at: { x: -4, y: 3, z: -3 },
-          use: AutoMovieEnvironment.terrain({
+          use: AutoMovieArchetypeEnvironment.terrain({
             size: { width: 12, depth: 10 },
             relief: { kind: "rolling", amplitude: 1, wavelength: 7 },
             meshTolerance: 0.015,
@@ -122,11 +124,11 @@ export function test_location_terrain(): void {
     "hard level and slope conflicts name their sources",
     throwsError(
       (): IAutoMovieEnvironment =>
-        AutoMovieEnvironment.create({
+        AutoMovieArchetypeEnvironment.create({
           id: "conflict",
           items: {
             land: {
-              use: AutoMovieEnvironment.terrain({
+              use: AutoMovieArchetypeEnvironment.terrain({
                 size: { width: 10, depth: 10 },
                 pads: {
                   west: {
@@ -156,11 +158,11 @@ export function test_location_terrain(): void {
     ) &&
       throwsError(
         (): IAutoMovieEnvironment =>
-          AutoMovieEnvironment.create({
+          AutoMovieArchetypeEnvironment.create({
             id: "conflict",
             items: {
               land: {
-                use: AutoMovieEnvironment.terrain({
+                use: AutoMovieArchetypeEnvironment.terrain({
                   size: { width: 10, depth: 10 },
                   paths: {
                     hill: {
@@ -180,11 +182,11 @@ export function test_location_terrain(): void {
   const shoreTrail: (width: number) => IAutoMovieEnvironment = (
     width: number,
   ): IAutoMovieEnvironment =>
-    AutoMovieEnvironment.create({
+    AutoMovieArchetypeEnvironment.create({
       id: "shore",
       items: {
         land: {
-          use: AutoMovieEnvironment.terrain({
+          use: AutoMovieArchetypeEnvironment.terrain({
             size: { width: 12, depth: 10 },
             water: {
               pond: {

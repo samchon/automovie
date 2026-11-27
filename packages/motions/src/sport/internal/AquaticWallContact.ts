@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -47,7 +47,7 @@ export namespace AquaticWallContact {
         arm ? "rightLowerArm" : "rightLowerLeg",
       ]);
     const posed: ReturnType<typeof read> = read(posture);
-    const basis: IAutoMovieQuaternion = Quaternion.inverse(face.rotation);
+    const basis: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(face.rotation);
     const pairs: IEffector[] = HumanHand.SIDES.map(
       (side: AutoMovieHumanSide): IEffector => {
         const bone: AutoMovieHumanoidBone = `${side}${kind}`;
@@ -59,15 +59,15 @@ export namespace AquaticWallContact {
               normal: { x: 0, y: -1, z: 0 },
               forward: { x: 0, y: 0, z: 1 },
             };
-        const point: IAutoMovieVector3 = Vector3.add(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           before.worldPosition,
-          Quaternion.rotateVector(before.worldRotation, local.point),
+          AutoMovieEngineQuaternion.rotateVector(before.worldRotation, local.point),
         );
-        const relative: IAutoMovieQuaternion = Quaternion.multiply(
+        const relative: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           basis,
           before.worldRotation,
         );
-        const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+        const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           relative,
           local.forward,
         );
@@ -92,8 +92,8 @@ export namespace AquaticWallContact {
               body,
               side,
             )({
-              ankle: Vector3.create(0, 0, 0),
-              rotation: Quaternion.identity(),
+              ankle: AutoMovieEngineVector3.create(0, 0, 0),
+              rotation: AutoMovieEngineQuaternion.identity(),
             });
         const bend: IAutoMovieVector3 = posed.get(
           arm ? `${side}LowerArm` : `${side}LowerLeg`,
@@ -105,63 +105,63 @@ export namespace AquaticWallContact {
           point,
           outline,
           rotation: inWall,
-          bend: Quaternion.rotateVector(
+          bend: AutoMovieEngineQuaternion.rotateVector(
             basis,
-            Vector3.subtract(bend, face.origin),
+            AutoMovieEngineVector3.subtract(bend, face.origin),
           ),
         };
       },
     );
-    const middle: IAutoMovieVector3 = Vector3.lerp(
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       pairs[0]!.point,
       pairs[1]!.point,
       0.5,
     );
-    const delta: IAutoMovieVector3 = Vector3.subtract(centre, middle);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(centre, middle);
     const anchor: IAutoMovieVector3[] = pairs.map(
       (effector: IEffector): IAutoMovieVector3 => {
         const aimed: IAutoMovieVector3 = HumanSupportStepPlants.local(
           face,
-          Vector3.add(effector.point, delta),
+          AutoMovieEngineVector3.add(effector.point, delta),
         );
         const projected: IAutoMovieVector3 = { ...aimed, y: 0 };
-        const wrist: IAutoMovieVector3 = Vector3.subtract(
+        const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           projected,
-          Quaternion.rotateVector(effector.rotation, effector.offset),
+          AutoMovieEngineQuaternion.rotateVector(effector.rotation, effector.offset),
         );
         const footprint: IAutoMovieVector3[] = effector.outline.map(
           (point: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               wrist,
-              Quaternion.rotateVector(effector.rotation, point),
+              AutoMovieEngineQuaternion.rotateVector(effector.rotation, point),
             ),
         );
         const shift: IAutoMovieVector3 | null = HumanSupportStepPlants.fit(
           {
-            origin: Vector3.create(0, 0, 0),
-            rotation: Quaternion.identity(),
+            origin: AutoMovieEngineVector3.create(0, 0, 0),
+            rotation: AutoMovieEngineQuaternion.identity(),
             width: face.width,
             depth: face.depth,
           },
           footprint,
         );
         if (shift === null) throw refusal(params.support, effector.bone);
-        return Vector3.add(projected, shift);
+        return AutoMovieEngineVector3.add(projected, shift);
       },
     );
     const place = (wall: Face, point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(wall.origin, Quaternion.rotateVector(wall.rotation, point));
+      AutoMovieEngineVector3.add(wall.origin, AutoMovieEngineQuaternion.rotateVector(wall.rotation, point));
     const wrists: IAutoMovieVector3[] = pairs.map(
       (effector: IEffector, index: number): IAutoMovieVector3 =>
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           anchor[index]!,
-          Quaternion.rotateVector(effector.rotation, effector.offset),
+          AutoMovieEngineQuaternion.rotateVector(effector.rotation, effector.offset),
         ),
     );
-    const shift: IAutoMovieVector3 = Quaternion.rotateVector(basis, delta);
+    const shift: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(basis, delta);
     const bends: IAutoMovieVector3[] = pairs.map(
       (effector: IEffector): IAutoMovieVector3 =>
-        Vector3.add(effector.bend, shift),
+        AutoMovieEngineVector3.add(effector.bend, shift),
     );
     const make = (
       at: IAutoMovieMotionHumanPosture,
@@ -170,7 +170,7 @@ export namespace AquaticWallContact {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...at.limbs };
       const joints: IAutoMovieMotionHumanPosture["joints"] = { ...at.joints };
       pairs.forEach((effector: IEffector, index: number): void => {
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+        const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           wall.rotation,
           effector.rotation,
         );
@@ -194,13 +194,13 @@ export namespace AquaticWallContact {
         const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
           HumanSupportStepPlants.local(
             wall,
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               bone.worldPosition,
-              Quaternion.rotateVector(bone.worldRotation, point),
+              AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, point),
             ),
           );
         const point: IAutoMovieVector3 = local(effector.offset);
-        const miss: number = Vector3.distance(point, anchor[index]!);
+        const miss: number = AutoMovieEngineVector3.distance(point, anchor[index]!);
         if (
           miss > HumanFoot.BEARING ||
           effector.outline.some((point: IAutoMovieVector3): boolean => {
@@ -226,7 +226,7 @@ export namespace AquaticWallContact {
       const shifts: IAutoMovieVector3[] = pairs.map(
         (effector: IEffector, index: number): IAutoMovieVector3 => {
           const bone: IAutoMovieResolvedBone = posed.get(effector.bone)!;
-          return Vector3.subtract(
+          return AutoMovieEngineVector3.subtract(
             place(wall, wrists[index]!),
             bone.worldPosition,
           );
@@ -234,7 +234,7 @@ export namespace AquaticWallContact {
       );
       return AquaticPosture.translate(
         at,
-        Vector3.add(at.root, Vector3.lerp(shifts[0]!, shifts[1]!, 0.5)),
+        AutoMovieEngineVector3.add(at.root, AutoMovieEngineVector3.lerp(shifts[0]!, shifts[1]!, 0.5)),
       );
     };
     return {

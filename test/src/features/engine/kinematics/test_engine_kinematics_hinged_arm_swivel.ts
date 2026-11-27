@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   IAutoMovieHingedChainGeometry,
   IAutoMovieVector3,
@@ -6,7 +6,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `hingedArmSwivel` solves a two-segment chain whose mid joint is a hinge:
+ * `AutoMovieEngineHingedArmSwivel` solves a two-segment chain whose mid joint is a hinge:
  * `branches` gives the hinge angles whose span is the target's distance (the
  * law of cosines, stopped at the range), `pose(chain, theta)` the chain at a
  * hinge angle for any swivel about the root-to-target line, and `read` the
@@ -37,10 +37,10 @@ export function test_engine_kinematics_hinged_arm_swivel(): void {
   ): IAutoMovieHingedChainGeometry => ({
     upper: {
       worldPosition: { x: 0, y: 0, z: 0 },
-      worldRotation: Quaternion.identity(),
+      worldRotation: AutoMovieEngineQuaternion.identity(),
     },
     midOffset: { x: 0, y: -1, z: 0 },
-    midRest: Quaternion.identity(),
+    midRest: AutoMovieEngineQuaternion.identity(),
     endOffset: { x: 0, y: -1, z: 0 },
     hinge: { x: 1, y: 0, z: 0 },
     target,
@@ -51,7 +51,7 @@ export function test_engine_kinematics_hinged_arm_swivel(): void {
     Math.abs(a - b) <= e;
 
   // 1.
-  const stops = hingedArmSwivel.branches(chain(bent))!;
+  const stops = AutoMovieEngineHingedArmSwivel.branches(chain(bent))!;
   TestValidator.predicate(
     "branches",
     stops.length === 2 &&
@@ -63,17 +63,17 @@ export function test_engine_kinematics_hinged_arm_swivel(): void {
   // 2.
   TestValidator.equals(
     "extended",
-    hingedArmSwivel.branches(chain({ x: 0, y: -2, z: 0 })),
+    AutoMovieEngineHingedArmSwivel.branches(chain({ x: 0, y: -2, z: 0 })),
     [{ theta: 0, shortfall: 0 }],
   );
-  const far = hingedArmSwivel.branches(chain({ x: 0, y: -5, z: 0 }))!;
+  const far = AutoMovieEngineHingedArmSwivel.branches(chain({ x: 0, y: -5, z: 0 }))!;
   TestValidator.predicate(
     "far",
     far.length === 1 && far[0]!.theta === 0 && near(far[0]!.shortfall, 3),
   );
 
   // 3.
-  const ranged = hingedArmSwivel.branches(
+  const ranged = AutoMovieEngineHingedArmSwivel.branches(
     chain(bent, { min: 0, max: Math.PI / 4 }),
   )!;
   TestValidator.predicate(
@@ -88,19 +88,19 @@ export function test_engine_kinematics_hinged_arm_swivel(): void {
 
   // 4.
   for (const stop of stops) {
-    const posed = hingedArmSwivel.pose(chain(bent), stop.theta);
+    const posed = AutoMovieEngineHingedArmSwivel.pose(chain(bent), stop.theta);
     for (const swivel of [0, 37, 200]) {
       const { upper, lower } = posed(swivel);
       const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-      const end: IAutoMovieVector3 = Quaternion.rotateVector(
+      const end: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         upper,
-        Vector3.add(down, Quaternion.rotateVector(lower, down)),
+        AutoMovieEngineVector3.add(down, AutoMovieEngineQuaternion.rotateVector(lower, down)),
       );
       TestValidator.predicate(
         `lands ${stop.theta} ${swivel}`,
-        Vector3.distance(end, bent) <= 1e-12,
+        AutoMovieEngineVector3.distance(end, bent) <= 1e-12,
       );
-      const read: number = hingedArmSwivel.read(chain(bent), upper, stop.theta);
+      const read: number = AutoMovieEngineHingedArmSwivel.read(chain(bent), upper, stop.theta);
       TestValidator.predicate(
         `read ${stop.theta} ${swivel}`,
         near(read, swivel > 180 ? swivel - 360 : swivel, 1e-9),
@@ -112,23 +112,23 @@ export function test_engine_kinematics_hinged_arm_swivel(): void {
   TestValidator.equals(
     "none",
     [
-      hingedArmSwivel.branches({
+      AutoMovieEngineHingedArmSwivel.branches({
         ...chain(bent),
         midOffset: { x: 0, y: 0, z: 0 },
       }),
-      hingedArmSwivel.branches(chain({ x: 0, y: 0, z: 0 })),
+      AutoMovieEngineHingedArmSwivel.branches(chain({ x: 0, y: 0, z: 0 })),
     ],
     [null, null],
   );
 
   const point: IAutoMovieVector3 = { x: 0, y: -1, z: -1 };
   const source: IAutoMovieHingedChainGeometry = chain(point);
-  const prepared: hingedArmSwivel.IPrepared = hingedArmSwivel.prepare(source);
+  const prepared: AutoMovieEngineHingedArmSwivel.IPrepared = AutoMovieEngineHingedArmSwivel.prepare(source);
   source.midOffset.y = 0;
   source.upper.worldPosition.x = 8;
   source.upper.worldRotation.x = 1;
   source.upper.worldRotation.w = 0;
-  const target: hingedArmSwivel.IPreparedTarget = prepared.target(point);
+  const target: AutoMovieEngineHingedArmSwivel.IPreparedTarget = prepared.target(point);
   point.y = 10;
   const branches: ReturnType<typeof target.branches> = target.branches();
   const preparationRoundoff: number = 64 * Number.EPSILON;
@@ -143,13 +143,13 @@ export function test_engine_kinematics_hinged_arm_swivel(): void {
   );
   const { upper, lower } = target.pose(branches![0]!.theta)(0);
   const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-  const end: IAutoMovieVector3 = Quaternion.rotateVector(
+  const end: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     upper,
-    Vector3.add(down, Quaternion.rotateVector(lower, down)),
+    AutoMovieEngineVector3.add(down, AutoMovieEngineQuaternion.rotateVector(lower, down)),
   );
   TestValidator.predicate(
     "the prepared branch still lands on its own point",
-    Vector3.distance(end, bent) <= preparationRoundoff,
+    AutoMovieEngineVector3.distance(end, bent) <= preparationRoundoff,
   );
   TestValidator.equals(
     "a subsequent target has its own span",

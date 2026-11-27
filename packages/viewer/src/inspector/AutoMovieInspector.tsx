@@ -2,7 +2,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
-import { type IAutoMovieDrawSubject, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawSubject, AutoMovieRenderDraw } from "@automovie/render";
 import {
   type ChangeEvent,
   type Dispatch,
@@ -19,15 +19,15 @@ import {
 
 import { AutoMovieInspectorDiagnosticsPanel } from "./internal/panels/AutoMovieInspectorDiagnosticsPanel.js";
 import { AutoMovieInspectorMarksPanel } from "./internal/panels/AutoMovieInspectorMarksPanel.js";
-import { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
+import { AutoMovieViewerInspectorPlayhead } from "./AutoMovieViewerInspectorPlayhead.js";
 import { AutoMovieInspectorRequestPanel } from "./internal/panels/AutoMovieInspectorRequestPanel.js";
 import { AutoMovieInspectorSelectionPanel } from "./internal/panels/AutoMovieInspectorSelectionPanel.js";
 import { AutoMovieInspectorShadePanel } from "./internal/panels/AutoMovieInspectorShadePanel.js";
 import { AutoMovieInspectorTimePanel } from "./internal/panels/AutoMovieInspectorTimePanel.js";
 import { AutoMovieInspectorViewPanel } from "./internal/panels/AutoMovieInspectorViewPanel.js";
-import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
-import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
-import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
+import type { IAutoMovieViewerInspectorProps } from "./IAutoMovieViewerInspectorProps.js";
+import type { IAutoMovieViewerInspectorScene } from "./IAutoMovieViewerInspectorScene.js";
+import type { IAutoMovieViewerInspectorState } from "./IAutoMovieViewerInspectorState.js";
 
 
 
@@ -43,7 +43,7 @@ import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
  * plain three.js scene from `@automovie/render` mounted by
  * `AutoMovieViewerInspector.mountScene` in an effect, and every change of the request
  * reaches `onRequestChange` as address text, so the page keeps its address
- * equal to the request. The playhead is an `AutoMovieInspectorPlayhead` outside
+ * equal to the request. The playhead is an `AutoMovieViewerInspectorPlayhead` outside
  * React that the render loop advances, so a playing frame re-renders only the
  * time readout, and starting or stopping also the play button.
  *
@@ -82,34 +82,34 @@ import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
  * ```
  */
 export function AutoMovieInspector(
-  props: IAutoMovieInspectorProps,
+  props: IAutoMovieViewerInspectorProps,
 ): JSX.Element {
   const [state, dispatch] = useReducer(
     AutoMovieViewerInspector.reduceState,
     props.initialText,
     AutoMovieViewerInspector.createState,
   );
-  const [playhead] = useState<AutoMovieInspectorPlayhead>(
-    (): AutoMovieInspectorPlayhead => new AutoMovieInspectorPlayhead(),
+  const [playhead] = useState<AutoMovieViewerInspectorPlayhead>(
+    (): AutoMovieViewerInspectorPlayhead => new AutoMovieViewerInspectorPlayhead(),
   );
-  const [facts, setFacts] = useState<IAutoMovieInspectorScene.IFacts | null>(
+  const [facts, setFacts] = useState<IAutoMovieViewerInspectorScene.IFacts | null>(
     null,
   );
   const [legend, setLegend] = useState<IAutoMovieInspectionLegendEntry[]>([]);
   const [labels, setLabels] =
-    useState<IAutoMovieInspectorScene.ILabels>(UNLABELLED);
+    useState<IAutoMovieViewerInspectorScene.ILabels>(UNLABELLED);
   const [failure, setFailure] = useState<string | null>(null);
   const [diagnosticMessage, setDiagnosticMessage] = useState<string | null>(
     null,
   );
   const [incidents, setIncidents] = useState<
-    IAutoMovieInspectorScene.IIncident[]
+    IAutoMovieViewerInspectorScene.IIncident[]
   >([]);
   const [witnesses, setWitnesses] = useState<boolean>(true);
   const canvas: RefObject<HTMLCanvasElement | null> =
     useRef<HTMLCanvasElement>(null);
-  const scene: RefObject<IAutoMovieInspectorScene | null> =
-    useRef<IAutoMovieInspectorScene>(null);
+  const scene: RefObject<IAutoMovieViewerInspectorScene | null> =
+    useRef<IAutoMovieViewerInspectorScene>(null);
   const { onRequestChange } = props;
 
   // A subject the request cannot name is shown as an error, with the subject choice still offered.
@@ -123,13 +123,13 @@ export function AutoMovieInspector(
   }
 
   // The scene lives as long as its subject; the effect reruns only then, so the request it captures is the one in force at mount.
-  const request: IAutoMovieInspectorState["request"] = state.request;
-  const subject: IAutoMovieDrawSubject | null =
+  const request: IAutoMovieViewerInspectorState["request"] = state.request;
+  const subject: IAutoMovieRenderDrawSubject | null =
     name === null ? null : props.subjects[name]!;
   useEffect((): (() => void) | undefined => {
     if (canvas.current === null || subject === null || name === null)
       return undefined;
-    const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
+    const mounted: IAutoMovieViewerInspectorScene = AutoMovieViewerInspector.mountScene({
       subject,
       name,
       request,
@@ -143,12 +143,12 @@ export function AutoMovieInspector(
         diagnostics: (packet: IAutoMovieInspectionDiagnostics): void =>
           setDiagnosticMessage(describeDiagnostics(packet)),
         diagnosticIncident: (
-          entry: IAutoMovieInspectorScene.IIncident,
+          entry: IAutoMovieViewerInspectorScene.IIncident,
         ): void => {
           setIncidents(
             (
-              list: IAutoMovieInspectorScene.IIncident[],
-            ): IAutoMovieInspectorScene.IIncident[] =>
+              list: IAutoMovieViewerInspectorScene.IIncident[],
+            ): IAutoMovieViewerInspectorScene.IIncident[] =>
               [entry, ...list].slice(0, INCIDENT_LIMIT),
           );
           if (entry.kind === "first")
@@ -163,7 +163,7 @@ export function AutoMovieInspector(
             );
         },
         refused: (
-          drawn: IAutoMovieInspectorState["request"],
+          drawn: IAutoMovieViewerInspectorState["request"],
           message: string,
         ): void =>
           dispatch({ type: "restore", request: drawn, error: message }),
@@ -232,7 +232,7 @@ export function AutoMovieInspector(
       dispatch({ type: "time", seconds: result.seconds });
   };
 
-  const inspection: IAutoMovieInspectorState["request"]["inspection"] =
+  const inspection: IAutoMovieViewerInspectorState["request"]["inspection"] =
     request.inspection;
   return (
     <div
@@ -263,7 +263,7 @@ export function AutoMovieInspector(
           />
           {labels.labels.map(
             (
-              label: IAutoMovieInspectorScene.ILabels["labels"][number],
+              label: IAutoMovieViewerInspectorScene.ILabels["labels"][number],
             ): JSX.Element => (
               <span
                 key={label.path}
@@ -422,7 +422,7 @@ export function AutoMovieInspector(
 /*
  * No labels, the state before a paused picture places any.
  */
-const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
+const UNLABELLED: IAutoMovieViewerInspectorScene.ILabels = {
   labels: [],
   lineHeight: 0,
   dropped: 0,

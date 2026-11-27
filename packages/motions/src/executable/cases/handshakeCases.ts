@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -119,14 +119,14 @@ export function handshakeCases(): IMotionCaptureCase[] {
           const shoulder: IAutoMovieVector3 = performance
             .bones(subject, t)
             .get("rightUpperArm")!.worldPosition;
-          const upper: IAutoMovieVector3 = Vector3.subtract(
+          const upper: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             performance.bones(subject, t).get("rightLowerArm")!.worldPosition,
             shoulder,
           );
           raised = Math.max(
             raised,
             (Math.acos(
-              Math.max(-1, Math.min(1, -upper.y / Vector3.length(upper))),
+              Math.max(-1, Math.min(1, -upper.y / AutoMovieEngineVector3.length(upper))),
             ) *
               180) /
               Math.PI,
@@ -134,7 +134,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
         }
         drift = Math.max(
           drift,
-          Vector3.distance(palm("a", a, t), palm("b", b, t)),
+          AutoMovieEngineVector3.distance(palm("a", a, t), palm("b", b, t)),
         );
         deepest = Math.min(
           deepest,
@@ -148,12 +148,12 @@ export function handshakeCases(): IMotionCaptureCase[] {
       }
       for (const subject of ["a", "b"])
         for (const j of performance.pose(subject, t).joints) {
-          const c = DEFAULT_HUMANOID_ROM[j.bone];
+          const c = AutoMovieEngineDefaultHumanoidRom[j.bone];
           if (c !== undefined)
             overshoot = Math.max(overshoot, AutoMovieEngineKinematics.jointRomOvershoot(j, c));
         }
     }
-    const meet: number = Vector3.distance(
+    const meet: number = AutoMovieEngineVector3.distance(
       palm("a", a, clasp),
       palm("b", b, clasp),
     );
@@ -180,7 +180,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
         for (const t of samples)
           slip = Math.max(
             slip,
-            Vector3.distance(
+            AutoMovieEngineVector3.distance(
               performance.bones(subject, t).get(foot)!.worldPosition,
               from,
             ),

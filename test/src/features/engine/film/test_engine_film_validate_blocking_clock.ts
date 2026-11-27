@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { validateBlockingClock } from "@automovie/engine/internal";
+import {
+  validateBlockingClock
+} from "../../../../../packages/engine/src/film/internal/validateBlockingClock";
 import { TestValidator } from "@nestia/e2e";
 
 /**

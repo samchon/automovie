@@ -22,8 +22,8 @@ import type {
 
 import { aimYawPitch } from "../../kinematics/internal/aimYawPitch";
 import { gazeChainJointsImplementation } from "../../kinematics/internal/gazeChainJointsImplementation";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { classifyLocomoteGroundDisplacement } from "../../motion/internal/classifyLocomoteGroundDisplacement";
 import { gaitMotion } from "../../motion/internal/gaitMotion";
 import { gestureMotion } from "../../motion/internal/gestureMotion";
@@ -166,9 +166,9 @@ export function makeActorSynthesizer(
         time: number,
       ): IAutoMoviePose | null => {
         const frame: IAutoMovieActorWorldFrame = frameAt(action.start + time);
-        const eye: IAutoMovieVector3 = Vector3.add(
+        const eye: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
             x: 0,
             y: ctx.eyeHeight,
             z: 0,
@@ -348,10 +348,10 @@ export function makeActorSynthesizer(
           z: ctx.position.z - source.z,
         };
         const dir: IAutoMovieVector3 =
-          Vector3.length(away) < 1e-6 ? forward : Vector3.normalize(away);
+          AutoMovieEngineVector3.length(away) < 1e-6 ? forward : AutoMovieEngineVector3.normalize(away);
         push = {
-          flexion: Vector3.dot(dir, forward) * magnitude,
-          abduction: Vector3.dot(dir, right) * magnitude,
+          flexion: AutoMovieEngineVector3.dot(dir, forward) * magnitude,
+          abduction: AutoMovieEngineVector3.dot(dir, right) * magnitude,
         };
       }
       return reactMotion(

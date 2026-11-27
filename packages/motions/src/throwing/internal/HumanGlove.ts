@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -73,9 +73,9 @@ export namespace HumanGlove {
         fix: "wear a glove that declares its pocket, as createGlove does",
       });
     const frame: IAutoMovieRigidTransform = read.frame(context.start);
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, pocket.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, pocket.frame.translation),
     );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
@@ -88,9 +88,9 @@ export namespace HumanGlove {
       side,
       "palm",
     )(bones);
-    return Quaternion.rotateVector(
-      Quaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
-      Vector3.subtract(at, palm),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
+      AutoMovieEngineVector3.subtract(at, palm),
     );
   }
 }

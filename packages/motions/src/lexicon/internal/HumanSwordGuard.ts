@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -98,7 +98,7 @@ export namespace HumanSwordGuard {
           StrikingHeld.hand(
             s.tool,
             s.tool.length,
-            Vector3.add(s.shoulder, Vector3.scale(s.world(row.hilt), s.arm)),
+            AutoMovieEngineVector3.add(s.shoulder, AutoMovieEngineVector3.scale(s.world(row.hilt), s.arm)),
             s.world(row.point),
             s.world(row.edge),
           );

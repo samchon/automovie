@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
@@ -33,7 +33,7 @@ export namespace AutoMovieHumanLegAnkleSeam {
     const foot: IAutoMovieLoftChain = calibration.chains.find(
       (c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`,
     )!;
-    return AutoMovieLoftChain.ring(
+    return AutoMovieEngineLoftChain.ring(
       foot,
       foot.layers[foot.layers.length - 1]!.y,
       AutoMovieHumanLegSampling.PHASES,

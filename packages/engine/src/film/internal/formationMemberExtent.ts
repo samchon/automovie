@@ -6,8 +6,8 @@ import {
 
 import { productionRuntimeModelId } from "../../model/internal/productionRuntimeModelId";
 import { computeModelRestExtentY } from "./computeModelRestExtentY";
-import { DEFAULT_SUBJECT_HEIGHT } from "../DEFAULT_SUBJECT_HEIGHT";
-import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
+import { AutoMovieEngineDefaultSubjectHeight } from "../AutoMovieEngineDefaultSubjectHeight";
+import { AutoMovieEngineMinMeasuredSubjectHeight } from "../AutoMovieEngineMinMeasuredSubjectHeight";
 
 /*
  * One member's model-space vertical extent inside a compiled formation, in
@@ -22,9 +22,9 @@ import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
  * measured with, so a hero promoted out of the unit and its anonymous
  * neighbours are the same height by construction.
  *
- * Falls back to DEFAULT_SUBJECT_HEIGHT standing on the slot when the
+ * Falls back to AutoMovieEngineDefaultSubjectHeight standing on the slot when the
  * group's runtime model is not among `models`, draws nothing, or measures
- * shorter than MIN_MEASURED_SUBJECT_HEIGHT, the same stand-in and
+ * shorter than AutoMovieEngineMinMeasuredSubjectHeight, the same stand-in and
  * threshold a node subject takes.
  */
 export function formationMemberExtent(
@@ -38,7 +38,7 @@ export function formationMemberExtent(
   const extent: { min: number; max: number } | null =
     model === undefined ? null : computeModelRestExtentY(model);
   return extent === null ||
-    extent.max - extent.min < MIN_MEASURED_SUBJECT_HEIGHT
-    ? { min: 0, max: DEFAULT_SUBJECT_HEIGHT }
+    extent.max - extent.min < AutoMovieEngineMinMeasuredSubjectHeight
+    ? { min: 0, max: AutoMovieEngineDefaultSubjectHeight }
     : extent;
 }

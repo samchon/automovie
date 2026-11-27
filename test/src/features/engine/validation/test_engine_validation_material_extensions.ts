@@ -1,9 +1,11 @@
 import {
-  AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS,
+  AutoMovieEngineSupportedMaterialExtensions,
   AutoMovieEngineText,
   AutoMovieEngineValidation,
 } from "@automovie/engine";
-import { unsupportedAutoMovieMaterialExtensions } from "@automovie/engine/internal";
+import {
+  unsupportedAutoMovieMaterialExtensions
+} from "../../../../../packages/engine/src/validation/internal/unsupportedAutoMovieMaterialExtensions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. `AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS` is exactly the clearcoat, ior,
+ * 1. `AutoMovieEngineSupportedMaterialExtensions` is exactly the clearcoat, ior,
  *    transmission and texture-transform extensions.
  * 2. `unsupportedAutoMovieMaterialExtensions` of none, or of those four beside
  *    geometry, compression, lighting and container extensions, is empty.
@@ -26,7 +28,7 @@ export function test_engine_validation_material_extensions(): void {
   // 1.
   TestValidator.equals(
     "supported",
-    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort(
+    [...AutoMovieEngineSupportedMaterialExtensions].sort(
       AutoMovieEngineText.compareCodeUnits,
     ),
     [

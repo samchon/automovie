@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -6,7 +6,9 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanMaterialContact } from "@automovie/motions/internal";
+import {
+  HumanMaterialContact
+} from "../../../../../packages/motions/src/posture/internal/HumanMaterialContact";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -35,7 +37,7 @@ export async function test_motions_touch_head_rest_bearing(): Promise<void> {
     id: "cap",
     material: "fixture",
     radius,
-    transform: { position: zero, rotation: Quaternion.identity() },
+    transform: { position: zero, rotation: AutoMovieEngineQuaternion.identity() },
   };
   const body: IAutoMovieMotionHumanBody = {
     ...fixture,
@@ -45,7 +47,7 @@ export async function test_motions_touch_head_rest_bearing(): Promise<void> {
         {
           bone,
           offset: zero,
-          rotation: Quaternion.identity(),
+          rotation: AutoMovieEngineQuaternion.identity(),
           shapes: [shape],
         },
       ],
@@ -61,13 +63,13 @@ export async function test_motions_touch_head_rest_bearing(): Promise<void> {
         {
           bone,
           worldPosition: { x, y, z: 0 },
-          localRotation: Quaternion.identity(),
-          worldRotation: Quaternion.identity(),
+          localRotation: AutoMovieEngineQuaternion.identity(),
+          worldRotation: AutoMovieEngineQuaternion.identity(),
         },
       ],
     ]);
   const forward: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-  const opposing: IAutoMovieVector3 = Vector3.scale(forward, -1);
+  const opposing: IAutoMovieVector3 = AutoMovieEngineVector3.scale(forward, -1);
   const measure: ReturnType<typeof HumanMaterialContact.preparePair> =
     HumanMaterialContact.preparePair(body, bone, body, bone);
   const now: HumanMaterialContact.IPair | undefined = measure(

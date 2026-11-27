@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
 import { ADA_RANGES } from "./constants/ADA_RANGES";
-import * as AutoMovieArchetypeSwitchData from "./internal/AutoMovieArchetypeSwitchData";
+import { AutoMovieArchetypeSwitchData } from "./internal/AutoMovieArchetypeSwitchData";
 
 /** Constructs the switch archetype from its recipe. */
 export namespace AutoMovieArchetypeSwitch {
@@ -62,32 +62,32 @@ export function create(
   });
   builder.box(
     "plate",
-    Vector3.create(d.width + 0.03, d.size + 0.03, 0.004),
-    Vector3.create(0, d.height, 0.002),
+    AutoMovieEngineVector3.create(d.width + 0.03, d.size + 0.03, 0.004),
+    AutoMovieEngineVector3.create(0, d.height, 0.002),
     { color: "#e9e6df" },
   );
   if (kind === "rocker")
     builder.box(
       "face",
-      Vector3.create(d.width, d.size, 0.006),
-      Vector3.create(0, d.height, 0.007),
+      AutoMovieEngineVector3.create(d.width, d.size, 0.006),
+      AutoMovieEngineVector3.create(0, d.height, 0.007),
       { color: "#f7f5f0" },
     );
   else
     builder.rod(
       "face",
       d.size / 2,
-      Vector3.create(0, d.height, 0.004),
-      Vector3.create(0, d.height, 0.01),
+      AutoMovieEngineVector3.create(0, d.height, 0.004),
+      AutoMovieEngineVector3.create(0, d.height, 0.01),
       { color: "#c9ccd1" },
     );
   builder.affordance({
     id: "press",
     kind: "button",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, d.height, 0.01),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, d.height, 0.01),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     travel: d.travel,

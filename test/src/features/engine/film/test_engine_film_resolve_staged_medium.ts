@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { resolveStagedMedium } from "@automovie/engine/internal";
+import {
+  resolveStagedMedium
+} from "../../../../../packages/engine/src/film/staging/internal/resolveStagedMedium";
 import type { IAutoMovieMedium } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

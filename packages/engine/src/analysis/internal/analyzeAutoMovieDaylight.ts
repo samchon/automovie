@@ -13,14 +13,14 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieArtificialIlluminance } from "./autoMovieArtificialIlluminance";
 import { autoMovieContextSolids } from "./autoMovieContextSolids";
 import { autoMovieDaylightSettings } from "./autoMovieDaylightSettings";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 import { autoMovieSkyIlluminance } from "./autoMovieSkyIlluminance";
-import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "../AUTOMOVIE_DAYLIGHT_SKY_MODEL";
+import { AutoMovieEngineDaylightSkyModel } from "../AutoMovieEngineDaylightSkyModel";
 import { resolveAutoMovieDaylightRequest } from "./resolveAutoMovieDaylightRequest";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
@@ -86,7 +86,7 @@ export function analyzeAutoMovieDaylight(
   const domain: "daylight" | "artificial-light" =
     instant === null ? "artificial-light" : "daylight";
 
-  if (request.sky !== AUTOMOVIE_DAYLIGHT_SKY_MODEL)
+  if (request.sky !== AutoMovieEngineDaylightSkyModel)
     return sealAutoMovieAnalysisRun({
       id: request.id,
       domain,
@@ -97,7 +97,7 @@ export function analyzeAutoMovieDaylight(
       outcome: {
         status: "unsupported",
         reason: `sky luminance model "${request.sky}" is not implemented by this solver`,
-        remedy: `declare the "${AUTOMOVIE_DAYLIGHT_SKY_MODEL}" sky model, or bind an external adapter that implements "${request.sky}" and record its result as its own run`,
+        remedy: `declare the "${AutoMovieEngineDaylightSkyModel}" sky model, or bind an external adapter that implements "${request.sky}" and record its result as its own run`,
       },
     });
   if (instant === null && request.luminaires.length === 0)
@@ -141,7 +141,7 @@ export function analyzeAutoMovieDaylight(
     instant === null
       ? null
       : {
-          sun: Vector3.normalize(instant.sun),
+          sun: AutoMovieEngineVector3.normalize(instant.sun),
           illuminance: instant.directNormalIlluminance,
         };
   const coincident: Set<string> = new Set<string>();
@@ -343,7 +343,7 @@ const beamIlluminance: (props: {
   illuminance: number;
   solids: readonly IAutoMovieAnalysisSolid[];
 }): number => {
-  const incidence: number = Vector3.dot(props.normal, props.sun);
+  const incidence: number = AutoMovieEngineVector3.dot(props.normal, props.sun);
   if (incidence <= 0) return 0;
   if (
     autoMovieRayObstructed({

@@ -6,7 +6,7 @@
  * domain here is not a claim that it is solved: a domain with no adapter is
  * answered by an `unsupported` run.
  *
- * Reports roll up in the order of the engine's `AUTOMOVIE_ANALYSIS_DOMAINS`
+ * Reports roll up in the order of the engine's `AutoMovieEngineAnalysisDomains`
  * table, not the member order of this union.
  */
 export type AutoMovieAnalysisDomain =

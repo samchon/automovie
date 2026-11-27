@@ -6,9 +6,9 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
-import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
+import { AutoMovieRenderProceduralNoiseGlsl } from "../../AutoMovieRenderProceduralNoiseGlsl.js";
 
 /*
  * Wear one geometry and material pair: measure the geometry's feature edges at
@@ -29,7 +29,7 @@ import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOIS
  * The fragment stage reads its triangle's list and computes, at the
  * interpolated bind-pose position, the distances `autoMovieFeatureEdgeDistance`
  * defines; the layer weights then follow `autoMovieWearWeight`, with the noise
- * of `AUTOMOVIE_PROCEDURAL_NOISE_GLSL`. Colour is mixed after the colour chunks
+ * of `AutoMovieRenderProceduralNoiseGlsl`. Colour is mixed after the colour chunks
  * (and any overlay), edge first, and roughness after the roughness chunk and a
  * procedural surface's roughness. The patch is registered through
  * `AutoMovieRenderMaterial.addShaderPatch`, so the material must belong to this
@@ -136,7 +136,7 @@ export const applyMaterialWear: (
   material.userData.wear = wear;
   AutoMovieRenderMaterial.addShaderPatch(material, {
     key: `automovie-wear-${wear.edge === undefined ? "" : "e"}${wear.grime === undefined ? "" : "g"}`,
-    apply: (shader: IMaterialShaderSource): void => {
+    apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = shader.vertexShader
         .replace(
@@ -161,7 +161,7 @@ export const applyMaterialWear: (
           "#include <common>",
           [
             "#include <common>",
-            AUTOMOVIE_PROCEDURAL_NOISE_GLSL,
+            AutoMovieRenderProceduralNoiseGlsl,
             "uniform highp sampler2D uWearEdges;",
             "uniform uint uWearSeed;",
             "uniform float uWearReach;",

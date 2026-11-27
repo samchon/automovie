@@ -1,4 +1,4 @@
-import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieAffordanceKind,
   IAutoMovieAffordance,
@@ -130,7 +130,7 @@ export namespace operateDrive {
     const dependencies: Set<string> = new Set();
     while (link !== undefined && !seen.has(link.id)) {
       seen.add(link.id);
-      const leader: string | null = AffordanceArticulation.leader(
+      const leader: string | null = AutoMovieEngineAffordanceArticulation.leader(
         byId,
         link.id,
       );
@@ -142,7 +142,7 @@ export namespace operateDrive {
     const articulation: string = operated.id;
     const before: Readonly<Record<string, number>> =
       held.state?.(context.start) ?? {};
-    const base: number | null = AffordanceArticulation.travel(
+    const base: number | null = AutoMovieEngineAffordanceArticulation.travel(
       byId,
       before,
       articulation,
@@ -156,7 +156,7 @@ export namespace operateDrive {
         fix: "give one valid input per coupled degree of freedom in the prop's current state",
       });
     const degree: string =
-      AffordanceArticulation.leader(byId, articulation) ?? articulation;
+      AutoMovieEngineAffordanceArticulation.leader(byId, articulation) ?? articulation;
     dependencies.delete(degree);
 
     // A prior writer may name a reversible follower. Resolve its ownership
@@ -165,7 +165,7 @@ export namespace operateDrive {
     const leaders: ReadonlyMap<string, string | null> = new Map(
       Array.from(byId.keys(), (id: string): [string, string | null] => [
         id,
-        AffordanceArticulation.leader(byId, id),
+        AutoMovieEngineAffordanceArticulation.leader(byId, id),
       ]),
     );
     const narrow: typeof held.prop.articulateSite = AutoMovieMotionHumanObject.articulateSite(
@@ -205,12 +205,12 @@ export namespace operateDrive {
       if (operated.kind !== "hinge") return undefined;
       const pin: IAutoMovieAffordance = site(articulation, before);
       return {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, pin.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, pin.frame.translation),
         ),
-        axis: Quaternion.rotateVector(
-          Quaternion.multiply(frame.rotation, pin.frame.rotation),
+        axis: AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.multiply(frame.rotation, pin.frame.rotation),
           { x: 0, y: 1, z: 0 },
         ),
       };
@@ -240,16 +240,16 @@ export namespace operateDrive {
           ))
             if (dependencies.has(leaders.get(id) ?? id)) state[id] = travel;
         const moved: IAutoMovieAffordance = site(contact.id, state);
-        const turn: IAutoMovieQuaternion = Quaternion.multiply(
+        const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           shown.rotation,
           moved.frame.rotation,
         );
         return {
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             shown.position,
-            Quaternion.rotateVector(shown.rotation, moved.frame.translation),
+            AutoMovieEngineQuaternion.rotateVector(shown.rotation, moved.frame.translation),
           ),
-          normal: Quaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
+          normal: AutoMovieEngineQuaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
         };
       },
     };
@@ -296,10 +296,10 @@ export namespace operateDrive {
     point: IAutoMovieVector3,
   ): number {
     return line.axis === undefined
-      ? Vector3.length(
-          Vector3.subtract({ ...point, y: 0 }, { ...line.point, y: 0 }),
+      ? AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract({ ...point, y: 0 }, { ...line.point, y: 0 }),
         )
-      : Vector3.length(Vector3.subtract(point, foot(line, point)));
+      : AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, foot(line, point)));
   }
 
   /*
@@ -315,11 +315,11 @@ export namespace operateDrive {
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     if (line.axis === undefined) return { ...line.point, y: point.y };
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       line.point,
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         line.axis,
-        Vector3.dot(Vector3.subtract(point, line.point), line.axis),
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, line.point), line.axis),
       ),
     );
   }

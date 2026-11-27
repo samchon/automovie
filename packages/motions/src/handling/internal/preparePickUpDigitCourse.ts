@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
   AutoMovieEngineMath,
   AutoMovieEngineKinematics,
@@ -84,22 +84,22 @@ export function preparePickUpDigitCourse(
     digits.map((name) => {
       const bone = frames.get(name)!;
       const cap = shapes.get(name)!;
-      const center = Vector3.add(bone.worldPosition, Quaternion.rotateVector(bone.worldRotation, cap.transform.position));
-      const length = Quaternion.rotateVector(
-        Quaternion.multiply(bone.worldRotation, cap.transform.rotation),
+      const center = AutoMovieEngineVector3.add(bone.worldPosition, AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, cap.transform.position));
+      const length = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(bone.worldRotation, cap.transform.rotation),
         { x: 0, y: cap.halfLength, z: 0 },
       );
-      return [Vector3.subtract(center, length), Vector3.add(center, length), cap.radius];
+      return [AutoMovieEngineVector3.subtract(center, length), AutoMovieEngineVector3.add(center, length), cap.radius];
     });
   const thumbTip = HumanGrip.chain(body, side, "Thumb").tip;
   const indexTip = HumanGrip.chain(body, side, "Index").tip;
   const tip = (f: IAutoMovieResolvedBone, x: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(f.worldPosition, Quaternion.rotateVector(f.worldRotation, x));
+    AutoMovieEngineVector3.add(f.worldPosition, AutoMovieEngineQuaternion.rotateVector(f.worldRotation, x));
   const read = (wrist: Wrist, reference: IShape): ((x: readonly number[]) => number[]) => {
-    const rotation = Quaternion.multiply(rest.worldRotation, Quaternion.inverse(wrist.rotation));
+    const rotation = AutoMovieEngineQuaternion.multiply(rest.worldRotation, AutoMovieEngineQuaternion.inverse(wrist.rotation));
     const distance = AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance({
-      position: Vector3.add(rest.worldPosition, Quaternion.rotateVector(rotation, Vector3.subtract(collider.frame.position, wrist.point))),
-      rotation: Quaternion.multiply(rotation, collider.frame.rotation),
+      position: AutoMovieEngineVector3.add(rest.worldPosition, AutoMovieEngineQuaternion.rotateVector(rotation, AutoMovieEngineVector3.subtract(collider.frame.position, wrist.point))),
+      rotation: AutoMovieEngineQuaternion.multiply(rotation, collider.frame.rotation),
     }, collider.shape);
     const frames = resolve(reference);
     const other = others.map((digits) => capsules(frames, digits));
@@ -112,7 +112,7 @@ export function preparePickUpDigitCourse(
       const T = capsules(f, thumb), I = capsules(f, index);
       const t = gap(T), i = gap(I);
       return [
-        Vector3.distance(tip(f.get(thumb[2])!, thumbTip), tip(f.get(index[2])!, indexTip)),
+        AutoMovieEngineVector3.distance(tip(f.get(thumb[2])!, thumbTip), tip(f.get(index[2])!, indexTip)),
         t, i, separation(T, I), separation(T, near), separation(I, near), -t, -i,
         ...otherGaps,
       ];
@@ -128,7 +128,7 @@ export function preparePickUpDigitCourse(
     const t = gap(thumbCapsules);
     const i = gap(indexCapsules);
     return [
-      Vector3.distance(tip(frames.get(thumb[2])!, thumbTip), tip(frames.get(index[2])!, indexTip)),
+      AutoMovieEngineVector3.distance(tip(frames.get(thumb[2])!, thumbTip), tip(frames.get(index[2])!, indexTip)),
       t, i, separation(thumbCapsules, indexCapsules), separation(thumbCapsules, rest.flat()),
       separation(indexCapsules, rest.flat()), -t, -i, ...rest.map(gap),
     ];

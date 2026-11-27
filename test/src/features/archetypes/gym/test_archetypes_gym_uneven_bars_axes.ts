@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeUnevenBars } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMoviePhysicalShape,
@@ -66,7 +66,7 @@ export function test_archetypes_gym_uneven_bars_axes(): void {
       );
       if (shaft?.kind !== "capsule")
         throw new Error(`${grip.id} needs a round rail`);
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         shaft.transform.rotation,
         { x: 0, y: 1, z: 0 },
       );

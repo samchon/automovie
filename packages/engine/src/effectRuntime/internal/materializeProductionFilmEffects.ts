@@ -13,7 +13,7 @@ import {
 import { productionFrameBoundaryToSeconds } from "../../film/internal/productionFrameBoundaryToSeconds";
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
-import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
+import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 import { materializeCompiledEffects } from "./materializeCompiledEffects";
 import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
 import { sortProductionFilmEffectCues } from "./sortProductionFilmEffectCues";
@@ -29,7 +29,7 @@ import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEf
  * seconds of the interval, holds the cue's intensity constant, and takes its
  * seed from the film seed protocol of materializeCompiledEffects.
  *
- * Every refusal throws AutoMovieFilmEffectRuntimeError: a malformed
+ * Every refusal throws AutoMovieEngineFilmEffectRuntimeError: a malformed
  * identity, rate, world id, shot interval or cue, or a repeated cue id, is
  * `film-effect-input-invalid`; a cue on an unknown zone is
  * `film-effect-zone-missing`; a zone whose recipe is unknown is
@@ -61,19 +61,19 @@ export const materializeProductionFilmEffects = (
   for (const cue of cues) {
     validateCue(cue);
     if (cueIds.has(cue.id))
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-input-invalid",
         `Film effect cue id "${cue.id}" must be unique.`,
       );
     cueIds.add(cue.id);
     const zone: IAutoMovieWorldEffectZone | undefined = zones.get(cue.zone);
     if (zone === undefined)
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-zone-missing",
         `Film effect cue "${cue.id}" references missing world zone "${cue.zone}".`,
       );
     if (recipes.has(zone.recipe) === false)
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-recipe-missing",
         `Film effect cue "${cue.id}" uses zone "${zone.id}" whose recipe "${zone.recipe}" is missing.`,
       );
@@ -83,7 +83,7 @@ export const materializeProductionFilmEffects = (
       latest !== undefined &&
       cue.startFrame < latest.startFrame + latest.durationFrames
     )
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-owner-conflict",
         `Film effect cues "${latest.id}" and "${cue.id}" both own zone "${cue.zone}" during frames ${cue.startFrame}..${Math.min(endFrame, latest.startFrame + latest.durationFrames)}.`,
       );
@@ -95,7 +95,7 @@ export const materializeProductionFilmEffects = (
         candidate.startFrame < endFrame && cue.startFrame < candidate.endFrame,
     );
     if (conflict !== undefined)
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-owner-conflict",
         `Film effect cue "${cue.id}" and shot effect cue "${conflict.cue}" on shot "${conflict.shot}" both own zone "${cue.zone}" during frames ${Math.max(cue.startFrame, conflict.startFrame)}..${Math.min(endFrame, conflict.endFrame)}.`,
       );
@@ -164,7 +164,7 @@ const validateCue = (cue: FilmEffectCue): void => {
     cue.intensity < 0 ||
     cue.intensity > 1
   )
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-input-invalid",
       `Film effect cue "${cue.id}" has an invalid recipe, frame interval, or intensity.`,
     );
@@ -179,7 +179,7 @@ const groupShotIntervals = (
   const output: Map<string, IAutoMovieShotEffectFilmInterval[]> = new Map();
   for (const interval of intervals) {
     if (interval.startFrame < 0 || interval.endFrame <= interval.startFrame)
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-input-invalid",
         `Shot effect cue "${interval.cue}" has an invalid film-frame interval.`,
       );
@@ -201,7 +201,7 @@ const uniqueMap = <T>(
   for (const value of values) {
     const id: string = key(value);
     if (output.has(id))
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-input-invalid",
         `Film effect world ${kind} id "${id}" must be unique.`,
       );

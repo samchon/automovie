@@ -1,7 +1,7 @@
 import type { IAutoMovieSceneCollision as Collision } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { AutoMovieCollisionSource } from "../../AutoMovieCollisionSource.js";
+import type { AutoMovieRenderCollisionSource } from "../../AutoMovieRenderCollisionSource.js";
 import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
@@ -24,7 +24,7 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 export function readAutoMovieCollisionCord(
   mesh: THREE.Mesh,
   identity: string,
-  cord: AutoMovieCollisionSource.ICord,
+  cord: AutoMovieRenderCollisionSource.ICord,
   budget: { posedVertices: number; parts?: number },
   add: readAutoMovieCollisionMesh.IAdd,
 ): void {

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieCurlChainUntilContact,
@@ -58,9 +58,9 @@ export function HumanGraspTarget(
   const pointAt: (frame: IAutoMovieRigidTransform) => IAutoMovieVector3 = (
     frame: IAutoMovieRigidTransform,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, affordance.frame.translation),
     );
 
   // The handle's width is the prop's own: the authored aperture, or the
@@ -71,16 +71,16 @@ export function HumanGraspTarget(
     affordance.aperture ??
     ((): number => {
       let nearest: IAutoMoviePhysicalShape = shapes[0]!;
-      let nearestDistance: number = Vector3.length(
-        Vector3.subtract(
+      let nearestDistance: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           nearest.transform.position,
           affordance.frame.translation,
         ),
       );
       for (let index: number = 1; index < shapes.length; ++index) {
         const shape: IAutoMoviePhysicalShape = shapes[index]!;
-        const candidate: number = Vector3.length(
-          Vector3.subtract(
+        const candidate: number = AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             shape.transform.position,
             affordance.frame.translation,
           ),
@@ -96,7 +96,7 @@ export function HumanGraspTarget(
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         },
         nearest,
-        Quaternion.rotateVector(affordance.frame.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(affordance.frame.rotation, {
           x: 0,
           y: -1,
           z: 0,
@@ -107,14 +107,14 @@ export function HumanGraspTarget(
   const read: (frame: IAutoMovieRigidTransform) => HumanGrasp.IFrame = (
     frame: IAutoMovieRigidTransform,
   ): HumanGrasp.IFrame => {
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       frame.rotation,
       affordance.frame.rotation,
     );
     return {
       point: pointAt(frame),
-      approach: Quaternion.rotateVector(turn, { x: 0, y: -1, z: 0 }),
-      axis: Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
+      approach: AutoMovieEngineQuaternion.rotateVector(turn, { x: 0, y: -1, z: 0 }),
+      axis: AutoMovieEngineQuaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
       width,
     };
   };

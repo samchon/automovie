@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsFaceContactTypes, AutoMovieEnginePhysics, Quaternion, AutoMoviePhysicalHullFaces } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsFaceContactTypes, AutoMovieEnginePhysics, AutoMovieEngineQuaternion, AutoMovieEnginePhysicalHullFaces } from "@automovie/engine";
 
 import type {
   IAutoMovieModelPart,
@@ -48,10 +48,10 @@ export namespace QuadrupedFootingClip {
       AutoMovieEnginePhysics.physicalShapeFaceContactPrepare(
         {
           position: plane.origin,
-          rotation: Quaternion.inverse(frame.rotation),
+          rotation: AutoMovieEngineQuaternion.inverse(frame.rotation),
         },
         outline,
-        Quaternion.rotateVector(frame.rotation, { x: 0, y: 1, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: 1, z: 0 }),
       );
     const known: WeakMap<
       IAutoMovieModelPart["geometry"],
@@ -91,7 +91,7 @@ function shape(
 ): AutoMovieEnginePhysicsFaceContactTypes.Shape | undefined {
   const transform: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const base = { id: part.id, material: "footing", transform };
   if (part.geometry.type !== "primitive") {
@@ -101,7 +101,7 @@ function shape(
     if (cell === undefined || cell.geometry !== part.geometry)
       throw new RangeError("Footing requires a matching convex cell");
     const points: IAutoMovieVector3[] = [...cell.points];
-    return { ...base, kind: "hull", points, hull: AutoMoviePhysicalHullFaces.build(points) };
+    return { ...base, kind: "hull", points, hull: AutoMovieEnginePhysicalHullFaces.build(points) };
   }
   const primitive = part.geometry.shape;
   if (primitive.type === "plane") return undefined;

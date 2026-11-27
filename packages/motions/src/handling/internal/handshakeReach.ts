@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanRefusal,
@@ -48,7 +48,7 @@ export namespace handshakeReach {
       pump: number,
     ) => IAttempt,
   ): IAutoMovieMotionHumanRefusal {
-    const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b.shoulder, a.shoulder);
     const level: number = Math.hypot(span.x, span.z);
     const along: IAutoMovieVector3 =
       level > 1e-9

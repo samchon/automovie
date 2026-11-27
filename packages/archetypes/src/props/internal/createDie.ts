@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeDie } from "../AutoMovieArchetypeDie";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -39,8 +39,8 @@ export function createDie(
   });
   builder.box(
     "cube",
-    Vector3.create(DIE.side, DIE.side, DIE.side),
-    Vector3.create(0, DIE.side / 2, 0),
+    AutoMovieEngineVector3.create(DIE.side, DIE.side, DIE.side),
+    AutoMovieEngineVector3.create(0, DIE.side / 2, 0),
     { color: "#f2f0ea" },
   );
   TabletopStack.contacts(builder, DIE.side, DIE.side);

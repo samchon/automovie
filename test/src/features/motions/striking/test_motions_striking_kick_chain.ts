@@ -1,5 +1,10 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
-import { KickChain, KickForm } from "@automovie/motions/internal";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  KickChain
+} from "../../../../../packages/motions/src/striking/internal/KickChain";
+import {
+  KickForm
+} from "../../../../../packages/motions/src/striking/internal/KickForm";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -27,7 +32,7 @@ export function test_motions_striking_kick_chain(): void {
     "the sole",
     qclose(
       KickChain.sole({ x: 0, y: 0, z: 1 }),
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
       1e-12,
     ),
   );
@@ -35,9 +40,9 @@ export function test_motions_striking_kick_chain(): void {
   const ankle = { x: 0, y: 0, z: 0 };
   const leaning = { x: 0, y: 0.4, z: 0.4 };
   const turned = KickChain.unloaded(flat, leaning, ankle);
-  const up = Vector3.normalize(leaning);
-  const toes = Quaternion.rotateVector(turned, { x: 0, y: 0, z: 1 });
-  const most: number = ANKLE_DORSIFLEXION.unloaded - KickChain.DORSAL_MARGIN;
+  const up = AutoMovieEngineVector3.normalize(leaning);
+  const toes = AutoMovieEngineQuaternion.rotateVector(turned, { x: 0, y: 0, z: 1 });
+  const most: number = AutoMovieEngineAnkleDorsiflexion.unloaded - KickChain.DORSAL_MARGIN;
   TestValidator.predicate(
     "the unloaded ankle",
     qclose(
@@ -48,7 +53,7 @@ export function test_motions_striking_kick_chain(): void {
       (most >= 45
         ? qclose(turned, flat, 1e-12)
         : nclose(
-            90 - (Math.acos(Vector3.dot(toes, up)) * 180) / Math.PI,
+            90 - (Math.acos(AutoMovieEngineVector3.dot(toes, up)) * 180) / Math.PI,
             most,
             1e-9,
           )),

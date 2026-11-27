@@ -3,7 +3,7 @@ import type {
   IAutoMovieHingedArticulation,
 } from "@automovie/interface";
 
-import { hingedArmSwivel } from "../hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../AutoMovieEngineHingedArmSwivel";
 
 /*
  * The working records of one `hingedArmArticulation` solve: its bend branches,
@@ -11,7 +11,7 @@ import { hingedArmSwivel } from "../hingedArmSwivel";
  */
 export namespace hingedArmCandidate {
   /*
-   * One bend branch with its index among `hingedArmSwivel.branches`.
+   * One bend branch with its index among `AutoMovieEngineHingedArmSwivel.branches`.
    */
   export interface IBranch extends IAutoMovieHingedArmSwivel.IStop {
     /*
@@ -27,7 +27,7 @@ export namespace hingedArmCandidate {
     /*
      * This branch's unchanged degree-valued swivel poser.
      */
-    posed: ReturnType<typeof hingedArmSwivel.pose>;
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>;
 
     /*
      * The actual scorer under that poser and this solve's unchanged policy.

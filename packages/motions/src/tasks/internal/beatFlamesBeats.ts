@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -34,11 +34,11 @@ export function beatFlamesBeats(
       reason: "beats are a positive whole count",
       fix: "give a whole number of beats",
     });
-  const down: IAutoMovieVector3 = Vector3.add(
+  const down: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     region.point,
-    Vector3.scale(region.normal, beatFlamesBeats.CLEAR),
+    AutoMovieEngineVector3.scale(region.normal, beatFlamesBeats.CLEAR),
   );
-  const up: IAutoMovieVector3 = Vector3.add(down, {
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.add(down, {
     x: 0,
     y: beatFlamesBeats.RAISE,
     z: 0,
@@ -48,7 +48,7 @@ export function beatFlamesBeats(
     down,
     up,
     at: (u: number): IAutoMovieVector3 =>
-      Vector3.lerp(
+      AutoMovieEngineVector3.lerp(
         down,
         up,
         0.5 + 0.5 * Math.cos(2 * Math.PI * beats * Math.min(1, Math.max(0, u))),

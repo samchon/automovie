@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -64,7 +64,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
           : name === "thumb"
             ? { x: 0, y: 0, z: 1 }
             : { x: fingers * Math.sin(lean), y: 0, z: Math.cos(lean) };
-    return Vector3.scale(v, sign);
+    return AutoMovieEngineVector3.scale(v, sign);
   }
 
   /*
@@ -82,11 +82,11 @@ export namespace AutoMovieMotionHumanTouchEffector {
     if (typeof direction === "string") return axis(side, direction);
     let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const name of ["fingers", "palm", "thumb"] as const)
-      sum = Vector3.add(
+      sum = AutoMovieEngineVector3.add(
         sum,
-        Vector3.scale(axis(side, name), direction[name] ?? 0),
+        AutoMovieEngineVector3.scale(axis(side, name), direction[name] ?? 0),
       );
-    if (!(Vector3.length(sum) > 1e-9))
+    if (!(AutoMovieEngineVector3.length(sum) > 1e-9))
       throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "direction",
@@ -99,7 +99,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
           "a direction of the hand weighs its three axes, and every weight given is 0, so it points nowhere",
         fix: "name one of the hand's axes, or give at least one axis a weight that is not 0",
       });
-    return Vector3.normalize(sum);
+    return AutoMovieEngineVector3.normalize(sum);
   }
 
   /*
@@ -128,7 +128,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
       LocalItem,
       number,
     ][])
-      point = Vector3.add(point, Vector3.scale(axis(side, name), share * hand));
+      point = AutoMovieEngineVector3.add(point, AutoMovieEngineVector3.scale(axis(side, name), share * hand));
     return {
       point,
       normal:
@@ -160,9 +160,9 @@ export namespace AutoMovieMotionHumanTouchEffector {
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
   ): IAutoMovieVector3 {
     const hand = bones.get(`${side}Hand`)!;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       hand.worldPosition,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         hand.worldRotation,
         local(body, side, effector).point,
       ),
@@ -208,11 +208,11 @@ export namespace AutoMovieMotionHumanTouchEffector {
         {
           bone: own,
           worldPosition: rest,
-          worldRotation: Quaternion.identity(),
+          worldRotation: AutoMovieEngineQuaternion.identity(),
         } as IAutoMovieResolvedBone,
       ],
     ]);
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       body.rest.get(`${side}Hand`)!,
       local(body, side, effector).point,
     );
@@ -306,21 +306,21 @@ export namespace AutoMovieMotionHumanTouchEffector {
     const rotation: IAutoMovieQuaternion = HumanHand.align(
       {
         normal:
-          endOn && Vector3.length(rest.point) > 0
-            ? Vector3.normalize(rest.point)
+          endOn && AutoMovieEngineVector3.length(rest.point) > 0
+            ? AutoMovieEngineVector3.normalize(rest.point)
             : rest.normal,
         forward: rest.forward,
       },
-      { normal: Vector3.scale(normal, -1), forward: tangent },
+      { normal: AutoMovieEngineVector3.scale(normal, -1), forward: tangent },
     );
     return {
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         at,
-        Quaternion.rotateVector(rotation, rest.point),
+        AutoMovieEngineQuaternion.rotateVector(rotation, rest.point),
       ),
       rotation,
       bend,
-      ...(Vector3.length(rest.point) < 1e-9 ? {} : { contact: rest.point }),
+      ...(AutoMovieEngineVector3.length(rest.point) < 1e-9 ? {} : { contact: rest.point }),
     };
   }
 }

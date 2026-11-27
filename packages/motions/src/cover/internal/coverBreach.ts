@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
@@ -44,14 +44,14 @@ export function coverBreach(
       "the door has no hinged leaf with a push handle",
     );
   const world: IAutoMovieRigidTransform = reader.frame(context.start);
-  const opens: IAutoMovieVector3 = Quaternion.rotateVector(world.rotation, {
+  const opens: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(world.rotation, {
     x: 0,
     y: 0,
     z: 1,
   });
   if (
-    Vector3.dot(
-      Vector3.subtract(context.entry.posture.root, world.position),
+    AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(context.entry.posture.root, world.position),
       opens,
     ) >= 0
   )

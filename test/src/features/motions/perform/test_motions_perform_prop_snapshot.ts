@@ -10,9 +10,11 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
-  HumanPerformancePropSnapshot,
-  HumanPerformanceSite,
-} from "@automovie/motions/internal";
+  HumanPerformancePropSnapshot
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformancePropSnapshot";
+import {
+  HumanPerformanceSite
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceSite";
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";

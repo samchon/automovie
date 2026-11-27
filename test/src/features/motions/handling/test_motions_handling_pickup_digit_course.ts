@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  Transform,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineTransform,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -12,10 +12,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
-import { HumanGrip } from "@automovie/motions/internal";
+import {
+  HumanGrip
+} from "../../../../../packages/motions/src/handling/internal/HumanGrip";
 import { TestValidator } from "@nestia/e2e";
 
-import { FamilyCaseKit } from "@automovie/motions/executable/internal";
+import {
+  FamilyCaseKit
+} from "../../../../../packages/motions/src/executable/cases/FamilyCaseKit";
 
 const DIGITS = ["Thumb", "Index", "Middle", "Ring", "Little"] as const;
 const SUBJECT = "a";
@@ -84,15 +88,15 @@ export function test_motions_handling_pickup_digit_course(): void {
       const offset = (time: number): IAutoMovieVector3 => {
         const hand = take.bones(SUBJECT, time).get("rightHand")!;
         const prop = take.prop("bottle", time);
-        return Quaternion.rotateVector(
-          Quaternion.inverse(hand.worldRotation),
-          Vector3.subtract(prop.position, hand.worldPosition),
+        return AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+          AutoMovieEngineVector3.subtract(prop.position, hand.worldPosition),
         );
       };
       const held = offset(lift);
       for (let k = 0; k <= 24; ++k) {
         const time = lift + ((end - lift) * k) / 24;
-        TestValidator.predicate(`${name} held bottle`, Vector3.distance(held, offset(time)) <= ERROR);
+        TestValidator.predicate(`${name} held bottle`, AutoMovieEngineVector3.distance(held, offset(time)) <= ERROR);
       }
       const fresh = new AutoMovieMotionHumanPerformance(input);
       for (const time of [end, close * 0.94, lift, close * 0.64, close * 0.86, 0])
@@ -116,18 +120,18 @@ function setup(body: IAutoMovieMotionHumanBody, shoulder: IAutoMovieVector3): {
       y: height,
       z: shoulder.z + Math.sqrt(reach * reach - drop * drop) + RADIUS,
     },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const center = { x: 0, y: 0.095, z: 0 };
-  const turn = Quaternion.normalize(Quaternion.multiply(
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+  const turn = AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
   ));
   const collider: Capsule = {
     id: "glass",
     material: "glass",
     kind: "capsule",
-    transform: { position: center, rotation: Quaternion.identity() },
+    transform: { position: center, rotation: AutoMovieEngineQuaternion.identity() },
     radius: RADIUS,
     halfLength: 0.06,
   };
@@ -141,7 +145,7 @@ function setup(body: IAutoMovieMotionHumanBody, shoulder: IAutoMovieVector3): {
       affordances: [{
         id: "handle",
         kind: "handle",
-        frame: Transform.of(center, turn),
+        frame: AutoMovieEngineTransform.of(center, turn),
         extent: null,
         grip: "power",
         aperture: 2 * RADIUS,
@@ -163,15 +167,15 @@ function fingerGaps(
     const shape = body.profile.segments.find((s) => s.bone === name)!.shapes.find(
       (s): s is Capsule => s.kind === "capsule",
     )!;
-    const center = Vector3.add(
+    const center = AutoMovieEngineVector3.add(
       site.worldPosition,
-      Quaternion.rotateVector(site.worldRotation, shape.transform.position),
+      AutoMovieEngineQuaternion.rotateVector(site.worldRotation, shape.transform.position),
     );
-    const along = Quaternion.rotateVector(
-      Quaternion.multiply(site.worldRotation, shape.transform.rotation),
+    const along = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(site.worldRotation, shape.transform.rotation),
       { x: 0, y: shape.halfLength, z: 0 },
     );
-    return distance(Vector3.subtract(center, along), Vector3.add(center, along)) - shape.radius;
+    return distance(AutoMovieEngineVector3.subtract(center, along), AutoMovieEngineVector3.add(center, along)) - shape.radius;
   };
   return DIGITS.map((digit) => Math.min(...HumanGrip.bones("right", digit).map(gap)));
 }

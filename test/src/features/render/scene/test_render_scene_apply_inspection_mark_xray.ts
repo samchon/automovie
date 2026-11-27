@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
+import { AutoMovieRenderThreeKind, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -22,7 +22,7 @@ export function test_render_scene_apply_inspection_mark_xray(): void {
     const stage: THREE.Scene = InspectionScene.scene(
       InspectionScene.quad("panel"),
     );
-    const handle: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+    const handle: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask({ marks: ["probe"], xray }),
       marks: [
@@ -43,8 +43,8 @@ export function test_render_scene_apply_inspection_mark_xray(): void {
     const out: (boolean | number)[][] = objects.map(
       (object: THREE.Object3D): (boolean | number)[] => {
         if (
-          !AutoMovieThreeKind.isMesh(object) &&
-          !AutoMovieThreeKind.isPoints(object)
+          !AutoMovieRenderThreeKind.isMesh(object) &&
+          !AutoMovieRenderThreeKind.isPoints(object)
         )
           throw new Error("Expected a drawn mark");
         const material: THREE.Material = singleMaterial(object.material);

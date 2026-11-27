@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -10,7 +10,7 @@ import type {
 import { AutoMovieMotionHumanVerdicts } from "../../audit/AutoMovieMotionHumanVerdicts";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
-import * as HumanCarriedStraddleData from "./HumanCarriedStraddleData";
+import { HumanCarriedStraddleData } from "./HumanCarriedStraddleData";
 
 /*
  * A straddling carry wraps the borne knees outside the bearer's thighs. This
@@ -25,7 +25,7 @@ export function HumanCarriedStraddle(
   reading: HumanCarriedCouplingFit.IRead,
 ): number[] {
   const hips: IAutoMovieResolvedBone = reading.theirs.get("hips")!;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(hips.worldRotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hips.worldRotation);
   const width: number =
     bearer.measure.hipHalfWidth +
     bearer.measure.thighRadius +
@@ -37,9 +37,9 @@ export function HumanCarriedStraddle(
     return (
       width -
       (index === 0 ? 1 : -1) *
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(point, hips.worldPosition),
+          AutoMovieEngineVector3.subtract(point, hips.worldPosition),
         ).x
     );
   });

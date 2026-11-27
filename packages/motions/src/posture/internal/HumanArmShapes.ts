@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -76,7 +76,7 @@ export namespace HumanArmShapes {
     const out: number[] = [];
     for (const i of among) {
       const shape: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[i]!;
-      const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
+      const gap: number = AutoMovieEngineVector3.distance(p, shape.centre) - shape.radius;
       if (gaps !== undefined) gaps[i] = gap;
       if (gap < r + reach) out.push(i);
     }
@@ -118,7 +118,7 @@ export namespace HumanArmShapes {
     ): number[] =>
       near(
         at,
-        Vector3.add(o, Quaternion.rotateVector(w, at.bounds[owner].centre)),
+        AutoMovieEngineVector3.add(o, AutoMovieEngineQuaternion.rotateVector(w, at.bounds[owner].centre)),
         at.bounds[owner].radius + reach,
         undefined,
         among,
@@ -157,8 +157,8 @@ export namespace HumanArmShapes {
             : placed.hand;
       const pose: IAutoMovieMotionHumanColliders.IPlaced["pose"] = {
         ...c.pose,
-        position: Vector3.add(o, Quaternion.rotateVector(w, c.pose.position)),
-        rotation: Quaternion.multiply(w, c.pose.rotation),
+        position: AutoMovieEngineVector3.add(o, AutoMovieEngineQuaternion.rotateVector(w, c.pose.position)),
+        rotation: AutoMovieEngineQuaternion.multiply(w, c.pose.rotation),
       };
       for (const shape of c.shapes)
         out.push(bounded(c.bone, c.part, pose, shape));
@@ -220,7 +220,7 @@ export namespace HumanArmShapes {
       shape: IAutoMovieMotionHumanArmGeometry.IShape,
       i: number,
     ): void => {
-      const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
+      const gap: number = AutoMovieEngineVector3.distance(p, shape.centre) - shape.radius;
       if (gaps !== undefined) gaps[i] = gap;
       if (gap < reach) out.push(i);
     };
@@ -255,11 +255,11 @@ export namespace HumanArmShapes {
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     reach: number,
   ): number[] {
-    const upper: number = Vector3.distance(placed.elbow, placed.shoulder);
+    const upper: number = AutoMovieEngineVector3.distance(placed.elbow, placed.shoulder);
     const before: Record<ReachableBeforeEntry, number> = {
       upper: 0,
       lower: upper,
-      hand: upper + Vector3.distance(placed.wrist, placed.elbow),
+      hand: upper + AutoMovieEngineVector3.distance(placed.wrist, placed.elbow),
     };
     const origin: Record<ReachableOriginEntry, IAutoMovieVector3> = {
       upper: placed.shoulder,
@@ -279,7 +279,7 @@ export namespace HumanArmShapes {
                 : "hand";
         far = Math.max(
           far,
-          before[owner] + Vector3.distance(p, origin[owner]) + r,
+          before[owner] + AutoMovieEngineVector3.distance(p, origin[owner]) + r,
         );
       },
     );
@@ -288,14 +288,14 @@ export namespace HumanArmShapes {
       far = Math.max(
         far,
         before[owner] +
-          Vector3.length(at.bounds[owner].centre) +
+          AutoMovieEngineVector3.length(at.bounds[owner].centre) +
           at.bounds[owner].radius,
       );
     const out: number[] = [];
     at.shapes.forEach(
       (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
         if (
-          Vector3.distance(shape.centre, placed.shoulder) - shape.radius <
+          AutoMovieEngineVector3.distance(shape.centre, placed.shoulder) - shape.radius <
           far + reach + ROUNDING
         )
           out.push(i);
@@ -322,7 +322,7 @@ export namespace HumanArmShapes {
       s.pose,
       s.shape,
       p,
-      Vector3.normalize(Vector3.subtract(p, s.centre)),
+      AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(p, s.centre)),
     );
   }
 
@@ -375,16 +375,16 @@ export namespace HumanArmShapes {
     next: IAutoMovieMotionHumanArmGeometry.IShape,
     point: IAutoMovieVector3,
   ): IRelativeResult {
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       now.pose.rotation,
-      Quaternion.inverse(next.pose.rotation),
+      AutoMovieEngineQuaternion.inverse(next.pose.rotation),
     );
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         now.pose.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           turn,
-          Vector3.subtract(point, next.pose.position),
+          AutoMovieEngineVector3.subtract(point, next.pose.position),
         ),
       ),
       turn,

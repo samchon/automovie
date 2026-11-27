@@ -1,4 +1,4 @@
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES, AutoMovieEngineEnvironment } from "@automovie/engine";
+import { AutoMovieEngineAnalysisMaxSamples, AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisRun,
   IAutoMovieEnvelopeAssembly,
@@ -88,7 +88,7 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
             } =>
               study({
                 assemblies: Array.from(
-                  { length: AUTOMOVIE_ANALYSIS_MAX_SAMPLES + 1 },
+                  { length: AutoMovieEngineAnalysisMaxSamples + 1 },
                   (
                     _: unknown,
                     index: number,

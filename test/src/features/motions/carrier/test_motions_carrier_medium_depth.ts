@@ -1,4 +1,9 @@
-import { HumanMediumWalk, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanMediumWalk
+} from "../../../../../packages/motions/src/carrier/internal/HumanMediumWalk";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, AutoMovieEngineSequence, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineSequence, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieCompileAttach,
@@ -74,7 +74,7 @@ export function test_engine_film_motion_attachment_frames(): void {
     ...args,
     start: 0,
     parentMotion: createValidMotion(),
-    jointAxes: HUMANOID_JOINT_AXES,
+    jointAxes: AutoMovieEngineHumanoidJointAxes,
     fps: 60,
   });
   const t: number = 2 / 3;
@@ -95,11 +95,11 @@ export function test_engine_film_motion_attachment_frames(): void {
     ...args,
     start: 0,
     parentMotion: raised,
-    jointAxes: HUMANOID_JOINT_AXES,
+    jointAxes: AutoMovieEngineHumanoidJointAxes,
   };
   observe(AutoMovieEngineFilm.compileAttach(raw), 0.5, [1, 1.4, 2.35]);
   observe(
-    AutoMovieEngineFilm.compileAttach({ ...raw, restFrames: HUMANOID_REST_FRAME }),
+    AutoMovieEngineFilm.compileAttach({ ...raw, restFrames: AutoMovieEngineHumanoidRestFrame }),
     0.5,
     [1, 1.95, 1.8],
   );

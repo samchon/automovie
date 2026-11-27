@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -33,8 +33,8 @@ export function stretchQuadriceps(
     degrees: number,
   ): IAutoMovieVector3 => {
     const angle: number = (degrees * Math.PI) / 180;
-    return Vector3.add(
-      Vector3.scale(props.forward, -Math.sin(angle) * length),
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(props.forward, -Math.sin(angle) * length),
       { x: 0, y: -Math.cos(angle) * length, z: 0 },
     );
   };
@@ -44,8 +44,8 @@ export function stretchQuadriceps(
     flexion: number,
     extension: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(
-      Vector3.add(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         props.hip,
         extension === 0 ? hanging : turned(m.thigh, extension),
       ),
@@ -54,7 +54,7 @@ export function stretchQuadriceps(
   const reached: (point: IAutoMovieVector3) => boolean = (
     point: IAutoMovieVector3,
   ): boolean =>
-    Vector3.length(Vector3.subtract(point, props.shoulder)) <= reach;
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, props.shoulder)) <= reach;
   const knee: number = Math.max(
     props.least,
     AutoMovieMotionHumanRange.limit(`${props.side}LowerLeg`, "flexion") ??

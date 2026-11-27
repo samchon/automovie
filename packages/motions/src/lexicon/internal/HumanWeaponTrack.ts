@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanStrikingHeld,
@@ -48,34 +48,34 @@ export namespace HumanWeaponTrack {
     const target: IAutoMovieMotionTarget | undefined = context.params.target;
     if (aimed === null || target === undefined || context.params.track !== true)
       return (): IAutoMovieMotionHumanStrikingHeld.IHandFrame => pose;
-    const first: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(aimed, eye),
+    const first: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(aimed, eye),
     );
     return (
       _: number,
       seconds: number,
     ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
-      const now: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(
+      const now: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(
           context.aim(target, context.start + seconds).point,
           eye,
         ),
       );
-      const axis: IAutoMovieVector3 = Vector3.cross(first, now);
-      const sine: number = Vector3.length(axis);
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(first, now);
+      const sine: number = AutoMovieEngineVector3.length(axis);
       const degrees: number =
-        (Math.atan2(sine, Vector3.dot(first, now)) * 180) / Math.PI;
+        (Math.atan2(sine, AutoMovieEngineVector3.dot(first, now)) * 180) / Math.PI;
       if (!(degrees > 0.001)) return pose;
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        Vector3.scale(axis, 1 / sine),
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+        AutoMovieEngineVector3.scale(axis, 1 / sine),
         degrees,
       );
       return {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           eye,
-          Quaternion.rotateVector(turn, Vector3.subtract(pose.point, eye)),
+          AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(pose.point, eye)),
         ),
-        rotation: Quaternion.multiply(turn, pose.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(turn, pose.rotation),
       };
     };
   }

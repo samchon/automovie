@@ -82,6 +82,67 @@ function sameOrder(left, right) {
   return left.length === right.length && left.every((item, index) => item === right[index]);
 }
 
+function isScalarConstant(expression) {
+  if (ts.isStringLiteralLike(expression) || ts.isNumericLiteral(expression)) return true;
+  if ([ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword, ts.SyntaxKind.NullKeyword].includes(expression.kind)) return true;
+  if (ts.isParenthesizedExpression(expression)) return isScalarConstant(expression.expression);
+  if (ts.isPrefixUnaryExpression(expression)) {
+    return [ts.SyntaxKind.PlusToken, ts.SyntaxKind.MinusToken, ts.SyntaxKind.ExclamationToken, ts.SyntaxKind.TildeToken].includes(expression.operator) &&
+      isScalarConstant(expression.operand);
+  }
+  if (ts.isBinaryExpression(expression)) {
+    return [ts.SyntaxKind.PlusToken, ts.SyntaxKind.MinusToken, ts.SyntaxKind.AsteriskToken, ts.SyntaxKind.AsteriskAsteriskToken, ts.SyntaxKind.SlashToken, ts.SyntaxKind.PercentToken].includes(expression.operatorToken.kind) &&
+      isScalarConstant(expression.left) && isScalarConstant(expression.right);
+  }
+  return false;
+}
+
+function isClosedInitializer(expression) {
+  if (isScalarConstant(expression)) return true;
+  if (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression)) {
+    return isClosedInitializer(expression.expression);
+  }
+  if (ts.isArrayLiteralExpression(expression)) return expression.elements.every(isClosedInitializer);
+  if (ts.isObjectLiteralExpression(expression)) {
+    return expression.properties.every((property) =>
+      ts.isPropertyAssignment(property) && !ts.isComputedPropertyName(property.name) &&
+      isClosedInitializer(property.initializer),
+    );
+  }
+  return false;
+}
+
+function isClosedConst(statement) {
+  return ts.isVariableStatement(statement) &&
+    (statement.declarationList.flags & ts.NodeFlags.Const) !== 0 &&
+    statement.declarationList.declarations.every((declaration) =>
+      ts.isIdentifier(declaration.name) && declaration.initializer &&
+      isClosedInitializer(declaration.initializer),
+    );
+}
+
+function isClosedExportSetup(statement) {
+  if (isClosedConst(statement)) return true;
+  const body = namespaceBlock(statement);
+  return Boolean(body && body.statements.every((member) =>
+    isTypeOnly(member) || ts.isFunctionDeclaration(member) || isClosedExportSetup(member),
+  ));
+}
+
+function preservesEvaluationOrder(original, ordered, atModuleRoot, nameCounts) {
+  const runtime = original.filter((item) => executesInOrder(item, atModuleRoot));
+  const positions = new Map(ordered.map((item, index) => [item, index]));
+  for (let first = 0; first < runtime.length; first++) {
+    const earlier = runtime[first];
+    for (const later of runtime.slice(first + 1)) {
+      if (positions.get(earlier) < positions.get(later)) continue;
+      if (!isClosedConst(earlier) || !isClosedExportSetup(later) ||
+          declarationNames(later).some((name) => nameCounts.get(name) !== 1)) return false;
+    }
+  }
+  return true;
+}
+
 function planFile(source) {
   const blocked = [];
   let count = 0;
@@ -120,11 +181,13 @@ function planFile(source) {
         const lineBreak = /\r|\n/u.test(info.spacing);
         return hasSpecialComment(info) || (!lineBreak && (slot > 0 || (start > 0 && info.comments)));
       });
-      const duplicateMoved = original.some((item, slot) =>
-        declarationNames(item).some((name) => nameCounts.get(name) > 1) &&
-        sorted.indexOf(item) !== slot,
-      );
-      const runtimeOrderChanged = !sameOrder(evaluated(original), evaluated(sorted));
+      const duplicateMoved = [...nameCounts].some(([name, occurrences]) => {
+        if (occurrences < 2) return false;
+        const matches = (item) => declarationNames(item).includes(name);
+        return !sameOrder(original.filter(matches), sorted.filter(matches));
+      });
+      const runtimeOrderChanged = !sameOrder(evaluated(original), evaluated(sorted)) &&
+        !preservesEvaluationOrder(original, sorted, atModuleRoot, nameCounts);
       if (unsafeTrivia) {
         blocked.push({ line, reason: "Comment or same-line boundary" });
         for (const entry of nested.values()) edits.push(...entry);
@@ -135,7 +198,7 @@ function planFile(source) {
       let blockedReason;
       if (runtimeOrderChanged || duplicateMoved) {
         const movable = new Set(original.filter((item) =>
-          isTypeOnly(item) && declarationNames(item).length === 1 &&
+          !executesInOrder(item, atModuleRoot) && declarationNames(item).length === 1 &&
           nameCounts.get(declarationNames(item)[0]) === 1,
         ));
         const partial = [
@@ -146,7 +209,7 @@ function planFile(source) {
         const fixedOriginal = original.filter((item) => !movable.has(item));
         const fixedPartial = partial.filter((item) => !movable.has(item));
         if (!sameOrder(fixedOriginal, fixedPartial))
-          throw new Error("Partial ordering changed a non-type declaration.");
+          throw new Error("Partial ordering changed a fixed declaration.");
         ordered = partial;
         blockedReason = runtimeOrderChanged
           ? "Runtime declaration order"
@@ -233,6 +296,13 @@ function selfTest() {
   )
     throw new Error("Eager namespace dependency was not kept in source order.");
 
+  const lazyText = "const seed = 3;\nexport namespace N {\n  export function read(): number { return seed; }\n}";
+  const lazySource = ts.createSourceFile("lazy.ts", lazyText, ts.ScriptTarget.Latest, true);
+  const lazyPlan = planFile(lazySource);
+  if (lazyPlan.blocked.length || !applyEdits(lazyText, lazyPlan.edits).startsWith("export namespace N")) {
+    throw new Error("An inert constant and lazy namespace read were not reordered.");
+  }
+
   const merged = ts.createSourceFile(
     "merged.ts",
     "interface Merge { first: string; }\nexport interface Merge { second: string; }",
@@ -266,7 +336,7 @@ function selfTest() {
   )
     throw new Error("Special comment boundary was crossed.");
 
-  console.log(JSON.stringify({ ok: true, partialMoves: partialPlan.count, checked: 4 }, null, 2));
+  console.log(JSON.stringify({ ok: true, partialMoves: partialPlan.count, checked: 5 }, null, 2));
 }
 
 if (require.main === module) {

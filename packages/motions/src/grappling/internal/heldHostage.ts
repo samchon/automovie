@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionEvent,
@@ -52,7 +52,7 @@ export namespace heldHostage {
     const moved: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 =>
-      Vector3.subtract(holder.root(context.start + t).position, origin);
+      AutoMovieEngineVector3.subtract(holder.root(context.start + t).position, origin);
     const travel: IAutoMovieVector3 = moved(duration);
     const steps: PairWalk.IStep[] = PairWalk.steps(
       context.entry,
@@ -64,7 +64,7 @@ export namespace heldHostage {
     const hip: number = context.body.measure.hipHeight;
     const knee: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (
       ankle: IAutoMovieVector3,
-    ): IAutoMovieVector3 => Vector3.add(ankle, { x: 0, y: 0.45 * hip, z: 0 });
+    ): IAutoMovieVector3 => AutoMovieEngineVector3.add(ankle, { x: 0, y: 0.45 * hip, z: 0 });
     const events: IAutoMovieMotionEvent[] = [{ name: "held", share: 0 }];
     return {
       duration,
@@ -74,7 +74,7 @@ export namespace heldHostage {
         const s: number = Math.min(duration, Math.max(0, t));
         return {
           ...entry,
-          root: Vector3.add(entry.root, { ...moved(s), y: 0 }),
+          root: AutoMovieEngineVector3.add(entry.root, { ...moved(s), y: 0 }),
           limbs: {
             ...entry.limbs,
             ...PairWalk.legs(context.entry, steps, s, knee),

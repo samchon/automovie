@@ -1,4 +1,4 @@
-import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieEnvironmentContribution,
@@ -31,9 +31,9 @@ export function emitBuildingStair(
   const localSpan: IAutoMovieEnvironmentContribution = makeStair({
     id: `${environment.id}/${key}`,
     seed: undefined,
-    frame: Transform.identity(),
+    frame: AutoMovieEngineTransform.identity(),
     anchor: (name: string): IAutoMovieTransform => ({
-      ...Transform.identity(),
+      ...AutoMovieEngineTransform.identity(),
       translation: stair.endpoints[name === "lower" ? 0 : 1],
     }),
   });
@@ -46,9 +46,9 @@ export function emitBuildingStair(
       id,
       kind: "stair",
       parent: root,
-      transform: Transform.of(
+      transform: AutoMovieEngineTransform.of(
         piece.position,
-        piece.rotation ?? Quaternion.identity(),
+        piece.rotation ?? AutoMovieEngineQuaternion.identity(),
       ),
       model: piece.model,
       space: stair.rooms[0],
@@ -59,9 +59,9 @@ export function emitBuildingStair(
    * frame.
    */
   const toWorld = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       buildingFrame.translation,
-      Quaternion.rotateVector(buildingFrame.rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(buildingFrame.rotation, point),
     );
   for (const space of localSpan.spaces ?? [])
     for (const surface of space.surfaces) {

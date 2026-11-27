@@ -1,4 +1,4 @@
-import { AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
+import { AutoMovieEngineLoftViewRead, AutoMovieEngineLoftViewSource } from "@automovie/engine";
 import type { IAutoMovieViewPart } from "@automovie/interface";
 
 /** Reads physical conic-wall calipers from actual native sources. */
@@ -25,10 +25,10 @@ export namespace AutoMovieHumanNativeCalipers {
           station +
           " is outside its actual source domain",
       );
-    const prepared = AutoMovieLoftViewSource.create(part);
+    const prepared = AutoMovieEngineLoftViewSource.create(part);
     if (prepared === null || prepared.source === null)
       throw new Error("native caliper source unavailable: " + part.name);
-    const values = AutoMovieLoftViewRead.values(prepared.source, station);
+    const values = AutoMovieEngineLoftViewRead.values(prepared.source, station);
     if (typeof values === "string") throw new Error(values);
     return {
       depth: values.extents[0]! + values.extents[2]!,

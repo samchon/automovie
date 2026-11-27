@@ -10,10 +10,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanLimbFit,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  HumanLimbFit
+} from "../../../../../packages/motions/src/posture/internal/HumanLimbFit";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

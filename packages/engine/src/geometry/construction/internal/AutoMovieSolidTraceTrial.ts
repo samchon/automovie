@@ -4,7 +4,7 @@ import type {
   IAutoMovieSolidTraceTrialTrial,
 } from "@automovie/interface";
 
-import { AutoMovieSolidDomain } from "../../AutoMovieSolidDomain";
+import { AutoMovieEngineSolidDomain } from "../../AutoMovieEngineSolidDomain";
 import { AutoMovieSolidTraceObservation as Observation } from "../AutoMovieSolidTraceObservation";
 
 /*
@@ -30,8 +30,8 @@ export function AutoMovieSolidTraceTrial(
   const current: IAutoMovieSolidSurface | undefined = host.faces[face];
   if (current === undefined)
     return Observation.reject(observation, "invalid-host-chart", [u, v], face);
-  if (AutoMovieSolidDomain.contains(current, u)) {
-    const jet: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
+  if (AutoMovieEngineSolidDomain.contains(current, u)) {
+    const jet: IAutoMovieSolidSurface.IJet | null = AutoMovieEngineSolidDomain.jet(
       current,
       u,
       v,
@@ -62,7 +62,7 @@ export function AutoMovieSolidTraceTrial(
       [next.u, next.v],
       next.face,
     );
-  const jet: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
+  const jet: IAutoMovieSolidSurface.IJet | null = AutoMovieEngineSolidDomain.jet(
     surface,
     next.u,
     next.v,

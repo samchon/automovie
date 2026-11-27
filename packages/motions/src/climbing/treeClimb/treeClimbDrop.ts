@@ -1,7 +1,7 @@
 import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -40,7 +40,7 @@ export function treeClimbDrop(
   ground: number,
 ): IAutoMovieMotionHumanActionPlan {
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const release: number = plan.duration;
   const capture = (): IDrop => {
     const frozen: ReturnType<typeof GymnasticsFlight.freeze> =
@@ -71,7 +71,7 @@ export function treeClimbDrop(
       root: { ...hang.root, y: hang.root.y - height },
     };
     const feet: IAutoMovieVector3 = {
-      ...Vector3.lerp(left, right, 0.5),
+      ...AutoMovieEngineVector3.lerp(left, right, 0.5),
       y: ground,
     };
     const end: IAutoMovieMotionHumanPosture = {
@@ -151,13 +151,13 @@ export function treeClimbDrop(
         a[2] + (b[2] - a[2]) * w,
       ];
     }
-    const root: IAutoMovieVector3 = Vector3.lerp(landed.root, end.root, w);
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(landed.root, end.root, w);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of SIDES) {
       const foot: IFoot = drop.feet[side];
       const elapsed: number = t - touchdown;
       const planted: boolean = elapsed + 1e-9 >= foot.after;
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
         foot.rotation,
         foot.flat,
         w,
@@ -169,7 +169,7 @@ export function treeClimbDrop(
         joints[`${side}Toes`]?.[0] ?? 0,
       );
       const goal: IAutoMovieHumanLimbGoal = {
-        point: Vector3.subtract(
+        point: AutoMovieEngineVector3.subtract(
           {
             ...foot.anchor,
             y:
@@ -179,7 +179,7 @@ export function treeClimbDrop(
                 : foot.remaining *
                   (1 - AutoMovieEngineMotionSampling.minimumJerkShare(elapsed / foot.after))),
           },
-          Quaternion.rotateVector(rotation, offset),
+          AutoMovieEngineQuaternion.rotateVector(rotation, offset),
         ),
         bend: foot.bend,
         rotation,

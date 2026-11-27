@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -291,7 +291,7 @@ function thread(
   if (!held)
     wardrobeHands.sleeveMount(
       params.prop,
-      Vector3.distance(mounted.position, collar(context).position),
+      AutoMovieEngineVector3.distance(mounted.position, collar(context).position),
     );
   const { before, after, passage }: wardrobeSleeve.ISleeve = wardrobeSleeve(
     context,
@@ -389,15 +389,15 @@ function collar(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): IAutoMovieRigidTransform {
   const rotation: IAutoMovieRigidTransform["rotation"] =
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.entry.posture.yaw);
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.entry.posture.yaw);
   const shoulder: (name: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
     name: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 =>
     wardrobeHands.bone(context.body, context.entry.posture, name).position;
   return {
-    position: Vector3.add(
-      Vector3.lerp(shoulder("leftUpperArm"), shoulder("rightUpperArm"), 0.5),
-      Quaternion.rotateVector(rotation, { x: 0, y: -0.085, z: 0.1 }),
+    position: AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.lerp(shoulder("leftUpperArm"), shoulder("rightUpperArm"), 0.5),
+      AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: -0.085, z: 0.1 }),
     ),
     rotation,
   };

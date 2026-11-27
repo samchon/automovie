@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -64,16 +64,16 @@ export function putDownTarget(
     onto.via,
     context.start,
   );
-  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.normalize(
-    Quaternion.multiply(
+  const rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       destination.rotation,
-      Quaternion.inverse(source.rotation),
+      AutoMovieEngineQuaternion.inverse(source.rotation),
     ),
   );
   return {
-    position: Vector3.subtract(
+    position: AutoMovieEngineVector3.subtract(
       destination.position,
-      Quaternion.rotateVector(rotation, source.position),
+      AutoMovieEngineQuaternion.rotateVector(rotation, source.position),
     ),
     rotation,
   };
@@ -125,8 +125,8 @@ export namespace putDownTarget {
       onto.point,
       time,
     );
-    const missed: number = Vector3.length(
-      Vector3.subtract(source.position, target.position),
+    const missed: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(source.position, target.position),
     );
     if (!(missed <= StrikingRoll.MISS))
       throw new AutoMovieMotionHumanRefusal({
@@ -146,7 +146,7 @@ export namespace putDownTarget {
 
     // Use the 15-degree alignment bound of the static aperture placement specification.
     const angle: number =
-      (Quaternion.angle(source.rotation, target.rotation) * 180) / Math.PI;
+      (AutoMovieEngineQuaternion.angle(source.rotation, target.rotation) * 180) / Math.PI;
     if (!(angle <= 15))
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
@@ -186,15 +186,15 @@ export namespace putDownTarget {
       worldSocket(receiver, onto.point, context.start + seconds);
     const entry: IAutoMovieRigidTransform = at(0);
     const end: IAutoMovieRigidTransform = at(duration);
-    const velocity: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(end.position, entry.position),
+    const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(end.position, entry.position),
       1 / duration,
     );
     const samples: number = Math.ceil(duration * 120);
     const samePosition = (
       a: IAutoMovieVector3,
       b: IAutoMovieVector3,
-    ): boolean => Vector3.length(Vector3.subtract(a, b)) <= 1e-6;
+    ): boolean => AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, b)) <= 1e-6;
     const carrierEntry: IAutoMovieRigidTransform | undefined =
       carrier?.reader.frame(context.start);
     let moving: boolean = false;
@@ -202,16 +202,16 @@ export namespace putDownTarget {
     for (let index: number = 0; index <= samples; ++index) {
       const time: number = (index / samples) * duration;
       const frame: IAutoMovieRigidTransform = at(time);
-      const expected: IAutoMovieVector3 = Vector3.add(
+      const expected: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         entry.position,
-        Vector3.scale(velocity, time),
+        AutoMovieEngineVector3.scale(velocity, time),
       );
       moving ||= !samePosition(frame.position, entry.position);
       if (
         !(
           Math.abs(frame.position.y - entry.position.y) <= 1e-6 &&
           samePosition(frame.position, expected) &&
-          Quaternion.angle(entry.rotation, frame.rotation) <= 1e-6
+          AutoMovieEngineQuaternion.angle(entry.rotation, frame.rotation) <= 1e-6
         )
       )
         throw new AutoMovieMotionHumanRefusal({
@@ -232,10 +232,10 @@ export namespace putDownTarget {
           socketFrame(parent, point, seconds);
         followsCarrier &&=
           samePosition(
-            Vector3.subtract(carried.position, carrierEntry.position),
-            Vector3.subtract(frame.position, entry.position),
+            AutoMovieEngineVector3.subtract(carried.position, carrierEntry.position),
+            AutoMovieEngineVector3.subtract(frame.position, entry.position),
           ) &&
-          Quaternion.angle(carrierEntry.rotation, carried.rotation) <= 1e-6;
+          AutoMovieEngineQuaternion.angle(carrierEntry.rotation, carried.rotation) <= 1e-6;
       }
     }
     if (!moving) return undefined;
@@ -257,7 +257,7 @@ export namespace putDownTarget {
         fix: "use a rigid tracked receiver for direct placement, or keep the socket static until withdrawal",
       });
     return (seconds: number): IAutoMovieVector3 =>
-      Vector3.scale(velocity, seconds);
+      AutoMovieEngineVector3.scale(velocity, seconds);
   }
 
   /*
@@ -304,20 +304,20 @@ export namespace putDownTarget {
     if (via === undefined)
       return {
         position: { x: 0, y: 0, z: 0 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       };
     const source: IAutoMovieRigidTransform = socketFrame(
       context.prop(context.params.prop),
       via,
       context.start,
     );
-    const inverse: IAutoMovieRigidTransform["rotation"] = Quaternion.inverse(
+    const inverse: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.inverse(
       source.rotation,
     );
     return {
-      position: Quaternion.rotateVector(
+      position: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.scale(source.position, -1),
+        AutoMovieEngineVector3.scale(source.position, -1),
       ),
       rotation: inverse,
     };

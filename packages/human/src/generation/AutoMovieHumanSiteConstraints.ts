@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanSiteConstraints,
   IAutoMovieViewSection,
@@ -25,7 +25,7 @@ export namespace AutoMovieHumanSiteConstraints {
         )
           return previous.result;
         const result: IAutoMovieViewSection.ISolved =
-          AutoMovieViewSection.solve(name, { extents }, girth);
+          AutoMovieEngineViewSection.solve(name, { extents }, girth);
         sites.set(name, { extents: [...extents], girth, result });
         return result;
       },

@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { kneelPlace } from "@automovie/motions/internal";
+import {
+  kneelPlace
+} from "../../../../../packages/motions/src/everyday/internal/kneelPlace";
 import { TestValidator } from "@nestia/e2e";
 
 /**

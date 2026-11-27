@@ -1,4 +1,4 @@
-import { AutoMovieSolidClip } from "@automovie/engine";
+import { AutoMovieEngineSolidClip } from "@automovie/engine";
 import type { IAutoMovieSolidClip } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -6,7 +6,7 @@ import { ConstructionBlendFixture as Fixture } from "../../internal/construction
 import { nclose } from "../../internal/predicates";
 
 /**
- * `AutoMovieSolidClip.rail` lists the host rail of a join and `trim` cuts the
+ * `AutoMovieEngineSolidClip.rail` lists the host rail of a join and `trim` cuts the
  * host faces along it.
  *
  * Fixture (`ConstructionBlendFixture`, millimetres): a beam of radius 30 mm
@@ -36,7 +36,7 @@ import { nclose } from "../../internal/predicates";
 export function test_engine_geometry_solid_clip(): void {
   const fixture: Fixture.IFixture = Fixture.create();
   const rail: IAutoMovieSolidClip.IRailPoint[] | string =
-    AutoMovieSolidClip.rail(
+    AutoMovieEngineSolidClip.rail(
       fixture.body,
       fixture.join,
       fixture.blend,
@@ -85,7 +85,7 @@ export function test_engine_geometry_solid_clip(): void {
   });
   TestValidator.equals(
     "trim",
-    AutoMovieSolidClip.trim(fixture.body, rail, 2, fixture.blend.host.kind),
+    AutoMovieEngineSolidClip.trim(fixture.body, rail, 2, fixture.blend.host.kind),
     null,
   );
   TestValidator.equals("beam cycles", fixture.body.faces[0]!.cycles.length, 1);
@@ -103,7 +103,7 @@ export function test_engine_geometry_solid_clip(): void {
   // 5. A rail across two faces.
   const across: Fixture.IFixture = Fixture.create(true);
   const crossing: IAutoMovieSolidClip.IRailPoint[] | string =
-    AutoMovieSolidClip.rail(
+    AutoMovieEngineSolidClip.rail(
       across.body,
       across.join,
       across.blend,
@@ -172,7 +172,7 @@ export function test_engine_geometry_solid_clip(): void {
   });
   TestValidator.equals(
     "trim across",
-    AutoMovieSolidClip.trim(across.body, crossing, 3, across.blend.host.kind),
+    AutoMovieEngineSolidClip.trim(across.body, crossing, 3, across.blend.host.kind),
     null,
   );
   const left = across.body.faces[0]!.cycles;

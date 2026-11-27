@@ -1,9 +1,9 @@
 import {
-  AutoMovieLoftChain,
-  AutoMovieLoftFrameSource,
-  AutoMovieLoftSection,
-  AutoMovieLoftSectionConnect,
-  AutoMovieLoftSectionSource,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftFrameSource,
+  AutoMovieEngineLoftSection,
+  AutoMovieEngineLoftSectionConnect,
+  AutoMovieEngineLoftSectionSource,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkNeckSeat,
@@ -122,7 +122,7 @@ export namespace AutoMovieHumanTrunkNeckSeat {
     const a: IAutoMovieLoftChain.ILayer = neck.layers[0]!;
     const b: IAutoMovieLoftChain.ILayer = neck.layers[1]!;
     const H: number = b.y - a.y;
-    AutoMovieLoftFrameSource.validate(a);
+    AutoMovieEngineLoftFrameSource.validate(a);
     if (
       a.frame !== undefined &&
       (a.frame.origin[1] !== a.y ||
@@ -198,11 +198,11 @@ export namespace AutoMovieHumanTrunkNeckSeat {
         ? {}
         : { liftCurvatures: [...a.liftCurvatures] }),
     };
-    if (AutoMovieLoftSection.present(neck)) {
+    if (AutoMovieEngineLoftSection.present(neck)) {
       const field: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
-        AutoMovieLoftSectionConnect.capture(neck, a.y);
+        AutoMovieEngineLoftSectionConnect.capture(neck, a.y);
       if (typeof field === "string") throw new Error(field);
-      boundary.sectionSource = AutoMovieLoftSectionSource.bind(boundary, field);
+      boundary.sectionSource = AutoMovieEngineLoftSectionSource.bind(boundary, field);
     }
     return boundary;
   }
@@ -222,7 +222,7 @@ export namespace AutoMovieHumanTrunkNeckSeat {
     neck: IAutoMovieLoftChain,
     y: number,
   ): [number, number, number][] {
-    return AutoMovieLoftChain.ring(
+    return AutoMovieEngineLoftChain.ring(
       neck,
       y,
       Array.from(

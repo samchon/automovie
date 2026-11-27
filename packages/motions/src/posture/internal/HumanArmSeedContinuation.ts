@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -57,11 +57,11 @@ export function HumanArmSeedContinuation(
         if (site === undefined || start === undefined) return site;
         return {
           ...site,
-          point: Vector3.lerp(start.point, site.point, share),
+          point: AutoMovieEngineVector3.lerp(start.point, site.point, share),
           ...(site.rotation === undefined
             ? {}
             : {
-                rotation: Quaternion.slerp(
+                rotation: AutoMovieEngineQuaternion.slerp(
                   start.rotation,
                   site.rotation,
                   share,

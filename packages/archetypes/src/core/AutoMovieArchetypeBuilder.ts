@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieBodyContact,
@@ -118,15 +118,15 @@ export class AutoMovieArchetypeBuilder<
     to: IAutoMovieVector3,
     options?: AutoMovieArchetypeBuilder.IOptions & { round?: boolean },
   ): this {
-    const span: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
     return this.#add(
       id,
       {
         type: options?.round === true ? "capsule" : "cylinder",
         radius,
-        height: Vector3.length(span),
+        height: AutoMovieEngineVector3.length(span),
       },
-      Vector3.scale(Vector3.add(from, to), 0.5),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5),
       AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, span),
       options,
     );

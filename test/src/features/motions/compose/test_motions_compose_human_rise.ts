@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -7,9 +7,11 @@ import type {
   IAutoMovieMotionHumanRise,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRise,
-  HumanFoot,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRise
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanRise";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -44,7 +46,7 @@ export async function test_motions_compose_human_rise(): Promise<void> {
     heading: number,
   ): IAutoMovieMotionHumanFoot.IPlacement => ({
     ankle: { x, y: 0.08, z: 0 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
   });
   const stance: IAutoMovieMotionHumanRise.Stance = {
     left: flat(0.1, 0),
@@ -75,10 +77,10 @@ export async function test_motions_compose_human_rise(): Promise<void> {
     "the mean of the ankles' travel",
     vclose(
       AutoMovieMotionHumanRise.lift(body, stance, 35),
-      Vector3.scale(
-        Vector3.add(
-          Vector3.subtract(travel("left").ankle, stance.left.ankle),
-          Vector3.subtract(travel("right").ankle, stance.right.ankle),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.subtract(travel("left").ankle, stance.left.ankle),
+          AutoMovieEngineVector3.subtract(travel("right").ankle, stance.right.ankle),
         ),
         0.5,
       ),

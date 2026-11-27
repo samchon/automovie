@@ -1,4 +1,4 @@
-import { AutoMoviePolarSector } from "@automovie/engine";
+import { AutoMovieEnginePolarSector } from "@automovie/engine";
 import type {
   IAutoMovieArcLengthJet,
   IAutoMoviePolarSector,
@@ -9,7 +9,7 @@ import { AutoMovieHumanSeam } from "./AutoMovieHumanSeam";
 /**
  * A polar guide's jet published by arclength in its section's chart (rule
  * J1), the form a seam's owner hands its neighbour: the guide's point and its
- * angle derivatives (`AutoMoviePolarSector.point`) turned into the arclength
+ * angle derivatives (`AutoMovieEnginePolarSector.point`) turned into the arclength
  * jet of `AutoMovieHumanSeam.publish`.
  */
 export namespace AutoMovieHumanGuidePublish {
@@ -24,7 +24,7 @@ export namespace AutoMovieHumanGuidePublish {
     guide: IAutoMoviePolarSector.IGuide,
     scale: number = 1,
   ): IAutoMovieArcLengthJet {
-    const [p, d1, d2] = AutoMoviePolarSector.point(
+    const [p, d1, d2] = AutoMovieEnginePolarSector.point(
       [scale * guide.value, scale * guide.slope, scale * guide.curvature],
       guide.angle,
     );

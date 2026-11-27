@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTrajectory,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanArmRetimed } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanArmRetimed
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArmRetimed";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,9 +1,11 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanSupportStepPlants } from "@automovie/motions/internal";
+import {
+  HumanSupportStepPlants
+} from "../../../../../packages/motions/src/carrier/internal/HumanSupportStepPlants";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -33,7 +35,7 @@ const ROUNDING: number = 1e-12;
  *    refuses.
  */
 export function test_motions_carrier_human_support_step_plants(): void {
-  const quarter = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const quarter = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
   const read: number[] = [];
   const affordance = (
     id: string,
@@ -70,7 +72,7 @@ export function test_motions_carrier_human_support_step_plants(): void {
         ...affordance("wall", "surface", { width: 0.4, depth: 1 }),
         frame: {
           ...affordance("wall", "surface", {}).frame,
-          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
         },
       },
     ]),
@@ -148,9 +150,9 @@ export function test_motions_carrier_human_support_step_plants(): void {
     (x: number): IAutoMovieVector3[] =>
       [-0.1, 0.1].map(
         (z: number): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             deck.origin,
-            Quaternion.rotateVector(deck.rotation, { x, y: 0, z }),
+            AutoMovieEngineQuaternion.rotateVector(deck.rotation, { x, y: 0, z }),
           ),
       ),
   );

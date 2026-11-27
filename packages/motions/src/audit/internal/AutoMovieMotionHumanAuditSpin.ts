@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMotion,
@@ -162,7 +162,7 @@ const between = (a: IBones, b: IBones, bone: AutoMovieHumanoidBone): number => {
   if (first === undefined || second === undefined)
     throw new Error(`A spin reading lost ${bone} between two instants`);
   return (
-    (Quaternion.angle(first.worldRotation, second.worldRotation) * 180) /
+    (AutoMovieEngineQuaternion.angle(first.worldRotation, second.worldRotation) * 180) /
     Math.PI
   );
 };

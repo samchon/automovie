@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -72,15 +72,15 @@ export function handReach(
     shape,
   ).point;
   return (direction: IAutoMovieVector3): number => {
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bones.get(`${side}Hand`)!.worldRotation,
-      Quaternion.rotateVector(Quaternion.inverse(rotation), direction),
+      AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(rotation), direction),
     );
     let high: number = -Infinity;
     for (const segment of placed)
       if (requested.has(segment.bone))
         for (const s of segment.shapes)
           high = Math.max(high, AutoMovieEnginePhysics.physicalShapeSpan(segment.pose, s, axis)[1]);
-    return high - Vector3.dot(point, axis);
+    return high - AutoMovieEngineVector3.dot(point, axis);
   };
 }

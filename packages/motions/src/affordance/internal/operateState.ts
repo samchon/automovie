@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
@@ -49,13 +49,13 @@ export namespace operateState {
     place: IAutoMovieMotionHumanOperateState.IAtPlace,
     hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined,
   ): (progress: number) => IAutoMovieMotionHumanOperateState.IAtResult {
-    const n: IAutoMovieVector3 = Vector3.normalize(place.normal);
+    const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(place.normal);
     switch (mechanism.kind) {
       case "button":
         return (progress: number): ReturnType<typeof at> => ({
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             place.point,
-            Vector3.scale(n, -operateDrive.amount(mechanism) * progress),
+            AutoMovieEngineVector3.scale(n, -operateDrive.amount(mechanism) * progress),
           ),
           normal: n,
           roll: 0,
@@ -68,9 +68,9 @@ export namespace operateState {
         });
       case "slider":
         return (progress: number): ReturnType<typeof at> => ({
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             place.point,
-            Vector3.scale(n, mechanism.travel * progress),
+            AutoMovieEngineVector3.scale(n, mechanism.travel * progress),
           ),
           normal: n,
           roll: 0,
@@ -80,27 +80,27 @@ export namespace operateState {
         // from the line's foot level with the handle.
         const axis: IAutoMovieVector3 = hinge!.axis ?? { x: 0, y: 1, z: 0 };
         const foot: IAutoMovieVector3 = operateDrive.foot(hinge!, place.point);
-        const arm: IAutoMovieVector3 = Vector3.subtract(place.point, foot);
+        const arm: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(place.point, foot);
         const sign: number =
-          Vector3.dot(Vector3.cross(axis, arm), n) >= 0 ? 1 : -1;
-        const turning: ReturnType<typeof Quaternion.prepareAxisAngle> =
-          Quaternion.prepareAxisAngle(axis);
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(axis, arm), n) >= 0 ? 1 : -1;
+        const turning: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+          AutoMovieEngineQuaternion.prepareAxisAngle(axis);
         return (progress: number): ReturnType<typeof at> => {
           const turn: ReturnType<typeof turning> = turning(
             sign * mechanism.swing * progress,
           );
           return {
-            point: Vector3.add(foot, Quaternion.rotateVector(turn, arm)),
-            normal: Quaternion.rotateVector(turn, n),
+            point: AutoMovieEngineVector3.add(foot, AutoMovieEngineQuaternion.rotateVector(turn, arm)),
+            normal: AutoMovieEngineQuaternion.rotateVector(turn, n),
             roll: 0,
           };
         };
       }
       case "insert":
         return (progress: number): ReturnType<typeof at> => ({
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             place.point,
-            Vector3.scale(n, -operateInsert.depth(mechanism, progress)),
+            AutoMovieEngineVector3.scale(n, -operateInsert.depth(mechanism, progress)),
           ),
           normal: n,
           roll: 0,

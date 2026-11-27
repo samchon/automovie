@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -275,14 +275,14 @@ export namespace StrikingStance {
     fist: IAutoMovieVector3,
     elbow: IAutoMovieVector3,
   ): IAutoMovieHumanLimbGoal {
-    const along: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(fist, elbow),
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(fist, elbow),
     );
-    const reach: number = Vector3.length(
+    const reach: number = AutoMovieEngineVector3.length(
       body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"].point,
     );
     return {
-      point: Vector3.subtract(fist, Vector3.scale(along, reach)),
+      point: AutoMovieEngineVector3.subtract(fist, AutoMovieEngineVector3.scale(along, reach)),
       bend: elbow,
     };
   }

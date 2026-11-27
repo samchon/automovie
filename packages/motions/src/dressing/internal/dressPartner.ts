@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -18,7 +18,7 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { armPhrase } from "../../everyday/internal/armPhrase";
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
-import * as DressPartnerData from "./DressPartnerData";
+import { DressPartnerData } from "./DressPartnerData";
 
 /*
  * Dress another performer. The dresser's hand carries the held item to the
@@ -120,7 +120,7 @@ function planDressPartner(
           {
             side,
             point: asked.point,
-            rotation: asked.rotation ?? Quaternion.identity(),
+            rotation: asked.rotation ?? AutoMovieEngineQuaternion.identity(),
           },
         ]);
   const ready: number = at("ready", 0);

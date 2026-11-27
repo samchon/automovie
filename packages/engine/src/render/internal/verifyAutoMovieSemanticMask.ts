@@ -1,6 +1,6 @@
 import { IAutoMovieSemanticMask } from "@automovie/interface";
 
-import { AutoMovieSemanticMaskVerificationError } from "../AutoMovieSemanticMaskVerificationError";
+import { AutoMovieEngineSemanticMaskVerificationError } from "../AutoMovieEngineSemanticMaskVerificationError";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
@@ -25,14 +25,14 @@ export function verifyAutoMovieSemanticMask(
   const version: number = mask.version;
   const protocol: string = mask.protocol;
   if (version !== SEMANTIC_MASK_VERSION || protocol !== SEMANTIC_MASK_PROTOCOL)
-    throw new AutoMovieSemanticMaskVerificationError(
+    throw new AutoMovieEngineSemanticMaskVerificationError(
       "unsupported",
       `unsupported semantic mask ${String(version)}/${protocol}; expected ${SEMANTIC_MASK_VERSION}/${SEMANTIC_MASK_PROTOCOL}`,
     );
   verifySemanticMaskSchema(mask);
   const expected: string = digestAutoMovieSemanticMask(mask);
   if (mask.digest !== expected)
-    throw new AutoMovieSemanticMaskVerificationError(
+    throw new AutoMovieEngineSemanticMaskVerificationError(
       "digest-mismatch",
       `semantic mask digest mismatch: declared ${mask.digest}, canonical ${expected}`,
     );
@@ -111,5 +111,5 @@ const exactSemanticMaskKeys: (
 const invalidSemanticMask: (message: string) => never = (
   message: string,
 ): never => {
-  throw new AutoMovieSemanticMaskVerificationError("invalid", message);
+  throw new AutoMovieEngineSemanticMaskVerificationError("invalid", message);
 };

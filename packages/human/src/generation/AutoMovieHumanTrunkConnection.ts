@@ -1,11 +1,11 @@
 import {
-  AutoMovieConstructionViews,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
-  AutoMovieViewSection,
+  AutoMovieEngineConstructionViews,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadNeckCurves,
@@ -55,7 +55,7 @@ export namespace AutoMovieHumanTrunkConnection {
             (value: number): Scalar => [value, 0, 0],
           ),
           shoulders: definition.extents.map(
-            (): Scalar => [AutoMovieViewSection.ELLIPSE, 0, 0],
+            (): Scalar => [AutoMovieEngineViewSection.ELLIPSE, 0, 0],
           ),
         },
       },
@@ -71,16 +71,16 @@ export namespace AutoMovieHumanTrunkConnection {
     station: number,
   ): IAutoMovieHumanTrunkConnection.IConnection {
     const prepared: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(part);
+      AutoMovieEngineLoftViewSource.create(part);
     if (prepared?.source === null || prepared === null)
       throw new Error(
         `Canonical neck needs its actual direct original: ${JSON.stringify(prepared?.diagnostics ?? [])}`,
       );
     const source: IAutoMovieLoftViewSource.ISource = prepared.source;
     const inputs: IAutoMovieLoftViewRead.IJets | string =
-      AutoMovieLoftViewRead.jets(source, station);
+      AutoMovieEngineLoftViewRead.jets(source, station);
     if (typeof inputs === "string") throw new Error(inputs);
-    AutoMovieLoftSectionNative.jet(inputs)(0);
+    AutoMovieEngineLoftSectionNative.jet(inputs)(0);
     const frame: ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>> =
       part.axis.jet?.(station) ?? null;
     if (
@@ -188,7 +188,7 @@ export namespace AutoMovieHumanTrunkConnection {
         connection.boundary.frameCurvatures;
 
       // Keep the actual asymmetric origin; back+anterior radius would recenter it.
-      const oldX: IAutoMovieViewPart.IOutline = AutoMovieViewOutline.scale(
+      const oldX: IAutoMovieViewPart.IOutline = AutoMovieEngineViewOutline.scale(
         view.axis.origin.x,
         1000,
         1000,
@@ -206,8 +206,8 @@ export namespace AutoMovieHumanTrunkConnection {
           ),
         },
       };
-      const evaluated: ReturnType<typeof AutoMovieConstructionViews.frame> =
-        AutoMovieConstructionViews.frame(axis);
+      const evaluated: ReturnType<typeof AutoMovieEngineConstructionViews.frame> =
+        AutoMovieEngineConstructionViews.frame(axis);
       if (typeof evaluated === "string") throw new Error(evaluated);
       const common: IAutoMovieViewPart.IOutline = original.fullness.shoulder;
       const shoulders: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline> =
@@ -275,7 +275,7 @@ function replace(
 ): IAutoMovieViewPart.IOutline {
   const prepared:
     | IAutoMovieViewOutline.IOutline
-    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+    | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
     outline,
     ends,
   );
@@ -287,9 +287,9 @@ function replace(
   )
     throw new Error("Connection is not an existing source partition");
   const span: number =
-    AutoMovieViewParameter.at(prepared.parameter, prepared.domain[1]) -
-    AutoMovieViewParameter.at(prepared.parameter, prepared.domain[0]);
-  const inverse: [number, number] | null = AutoMovieViewParameter.inverseJet(
+    AutoMovieEngineViewParameter.at(prepared.parameter, prepared.domain[1]) -
+    AutoMovieEngineViewParameter.at(prepared.parameter, prepared.domain[0]);
+  const inverse: [number, number] | null = AutoMovieEngineViewParameter.inverseJet(
     prepared.parameter,
     at,
   );
@@ -298,7 +298,7 @@ function replace(
   const knots: IAutoMovieViewPart.IKnot[] = prepared.knots.map(
     (knot: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
       const old: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(prepared, knot.station);
+        AutoMovieEngineViewOutline.at(prepared, knot.station);
       if (typeof old === "string") throw new Error(old);
       const own: boolean = knot.station === at;
       const first: number = own ? target[1] * inverse[0] : old.parameterJet[0];

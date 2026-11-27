@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -108,9 +108,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const ballWorld: IAutoMovieVector3 = context
     .prop(params.ball)
     .frame(struck).position;
-  const ball: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(atContact.rotation),
-    Vector3.subtract(ballWorld, atContact.position),
+  const ball: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(atContact.rotation),
+    AutoMovieEngineVector3.subtract(ballWorld, atContact.position),
   );
 
   // The rider rises, pitches forward, turns the shoulders toward the swing's side (positive turns toward the left) and leans out until the right shoulder is over the ball's line, at most the admitted lean: the swing then turns in an upright plane outside the horse, the arm beside the trunk.
@@ -124,7 +124,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   ];
   const posed = (degrees: number): IAutoMovieMotionHumanPosture => ({
     ...local,
-    root: Vector3.add(local.root, { x: 0, y: HumanPoloForm.RISE, z: 0 }),
+    root: AutoMovieEngineVector3.add(local.root, { x: 0, y: HumanPoloForm.RISE, z: 0 }),
     pitch: local.pitch + HumanPoloForm.PITCH,
     roll: local.roll - sign * degrees,
     joints: {
@@ -156,15 +156,15 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     undefined,
     HumanBoneGroups.RIGHT_SHOULDER,
   ).get("rightUpperArm")!.worldPosition;
-  const unturned: IAutoMovieQuaternion = Quaternion.inverse(
+  const unturned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     humanPostureHeading(upright),
   );
   const shoulderAt = (degrees: number): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       upright.root,
-      Quaternion.rotateVector(
-        Quaternion.multiply(humanPostureHeading(posed(degrees)), unturned),
-        Vector3.subtract(raisedShoulder, upright.root),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(humanPostureHeading(posed(degrees)), unturned),
+        AutoMovieEngineVector3.subtract(raisedShoulder, upright.root),
       ),
     );
   // The hand's own frame at rest, the held mallet as the grip holds it, and the head from the wrist in that frame.
@@ -193,7 +193,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     const at: IAutoMovieVector3 = shoulderAt(degrees);
     return (
       sign * (at.x - ball.x) >= 0 &&
-      Vector3.distance(at, ball) <= distanceAt(radialEnd)
+      AutoMovieEngineVector3.distance(at, ball) <= distanceAt(radialEnd)
     );
   };
   let low: number = 0;
@@ -208,18 +208,18 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const shoulder: IAutoMovieVector3 = shoulderAt(leaning);
 
   // The swing's plane: through the leaned shoulder and the ball, holding the horse's level heading.
-  const toBall: IAutoMovieVector3 = Vector3.subtract(ball, shoulder);
-  const radius: number = Vector3.length(toBall);
-  const u: IAutoMovieVector3 = Vector3.normalize(toBall);
+  const toBall: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ball, shoulder);
+  const radius: number = AutoMovieEngineVector3.length(toBall);
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(toBall);
   const forward: IAutoMovieVector3 = {
     x: 0,
     y: 0,
     z: params.stroke === "forehand" ? 1 : -1,
   };
-  const w: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(forward, Vector3.scale(u, Vector3.dot(forward, u))),
+  const w: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(forward, AutoMovieEngineVector3.scale(u, AutoMovieEngineVector3.dot(forward, u))),
   );
-  const normal: IAutoMovieVector3 = Vector3.cross(u, w);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(u, w);
 
   const deviated: number = HumanPoloHand.deviation(hand, d, radius);
   if (!(deviated >= radialEnd && deviated <= ulnarEnd))
@@ -252,19 +252,19 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const finishArm: number = contactArm + (HumanPoloForm.FINISH * Math.PI) / 180;
   const raisedTurn: IAutoMovieQuaternion = humanPostureHeading(upright);
   const tilt: number = (HumanPoloForm.TOP * Math.PI) / 180;
-  const raised: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(
-      Quaternion.rotateVector(raisedTurn, HumanPoloForm.AXES.up),
+  const raised: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(
+      AutoMovieEngineQuaternion.rotateVector(raisedTurn, HumanPoloForm.AXES.up),
       Math.cos(tilt),
     ),
-    Vector3.scale(
-      Quaternion.rotateVector(raisedTurn, HumanPoloForm.AXES.ahead),
+    AutoMovieEngineVector3.scale(
+      AutoMovieEngineQuaternion.rotateVector(raisedTurn, HumanPoloForm.AXES.ahead),
       Math.sin(tilt),
     ),
   );
   const lifted: number = Math.atan2(
-    Vector3.dot(raised, w),
-    Vector3.dot(raised, u),
+    AutoMovieEngineVector3.dot(raised, w),
+    AutoMovieEngineVector3.dot(raised, u),
   );
   const topArm: number = lifted > contactArm ? lifted - 2 * Math.PI : lifted;
   const armAt = (t: number): number => {
@@ -325,7 +325,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   ).point;
 
   // The ball leaves along the head's travel at the contact.
-  const travel: IAutoMovieVector3 = Quaternion.rotateVector(
+  const travel: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     atContact.rotation,
     w,
   );
@@ -355,7 +355,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         prop: params.ball,
         seconds: struck,
         point: ballWorld,
-        velocity: Vector3.scale(Vector3.normalize({ ...travel, y: 0 }), speed),
+        velocity: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize({ ...travel, y: 0 }), speed),
       },
     ],
     posture: (time: number): IAutoMovieMotionHumanPosture => {
@@ -380,9 +380,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         Math.abs(t - contact) <= HumanPoloForm.HIT
           ? held(
               {
-                point: Vector3.add(
+                point: AutoMovieEngineVector3.add(
                   at.wrist,
-                  Quaternion.rotateVector(at.rotation, grip),
+                  AutoMovieEngineQuaternion.rotateVector(at.rotation, grip),
                 ),
                 rotation: at.rotation,
               },
@@ -409,7 +409,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     const b: number = takeAway + ((finish - takeAway) * k) / 64;
     peak = Math.max(
       peak,
-      Vector3.distance(station(b).wrist, station(a).wrist) / (b - a),
+      AutoMovieEngineVector3.distance(station(b).wrist, station(a).wrist) / (b - a),
     );
   }
   return HumanMountedFrame.coursed(

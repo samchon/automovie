@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -120,17 +120,17 @@ export namespace HumanUnseatDrag {
         props.stirrup,
         film,
       );
-      const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+      const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         carrier(film).rotation,
         { x: 0, y: 0, z: 1 },
       );
-      const level: IAutoMovieVector3 = Vector3.normalize({
+      const level: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: ahead.x,
         y: 0,
         z: ahead.z,
       });
       const root: IAutoMovieVector3 = {
-        ...Vector3.subtract(foot, Vector3.scale(level, legLength)),
+        ...AutoMovieEngineVector3.subtract(foot, AutoMovieEngineVector3.scale(level, legLength)),
         y: floor,
       };
       const yaw: number = (Math.atan2(level.x, level.z) * 180) / Math.PI;
@@ -148,7 +148,7 @@ export namespace HumanUnseatDrag {
         limbs: {
           [`${side}Leg`]: {
             point: foot,
-            bend: Vector3.add(foot, { x: 0, y: legLength, z: 0 }),
+            bend: AutoMovieEngineVector3.add(foot, { x: 0, y: legLength, z: 0 }),
             planted: true,
           },
         },
@@ -161,8 +161,8 @@ export namespace HumanUnseatDrag {
         ? undefined
         : HumanUnseatFlight(
             dragged(context.start + freed).root,
-            Vector3.scale(
-              Vector3.subtract(
+            AutoMovieEngineVector3.scale(
+              AutoMovieEngineVector3.subtract(
                 dragged(context.start + freed + 1 / 240).root,
                 dragged(context.start + freed - 1 / 240).root,
               ),

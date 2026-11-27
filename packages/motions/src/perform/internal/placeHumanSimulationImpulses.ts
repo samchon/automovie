@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanImpulse, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMoviePhysicalSimulationInput, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -65,9 +65,9 @@ export function placeHumanSimulationImpulses(
                 body.surfaces.regions[site],
                 frame,
               ).point
-            : Vector3.add(
+            : AutoMovieEngineVector3.add(
                 frame.worldPosition,
-                Quaternion.rotateVector(frame.worldRotation, site.point),
+                AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, site.point),
               );
         return {
           step,

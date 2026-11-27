@@ -1,4 +1,4 @@
-import { type IAutoMovieScenePassRenderer, type IAutoMovieShadowTextureHost, AutoMovieRenderScenePass, AutoMovieSceneShadow } from "@automovie/render";
+import { type IAutoMovieRenderScenePassRenderer, type IAutoMovieRenderShadowTextureHost, AutoMovieRenderScenePass, AutoMovieRenderSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -24,7 +24,7 @@ const readShadowSlots: (shadow: THREE.LightShadow) => {
 
 /** Reuse the existing inline orchestration facts with an owned draw callback. */
 /** A scene-pass renderer that also reports its texture size limit. */
-type Renderer = IAutoMovieScenePassRenderer & IAutoMovieShadowTextureHost;
+type Renderer = IAutoMovieRenderScenePassRenderer & IAutoMovieRenderShadowTextureHost;
 
 function rendererFacts(draw: () => void): Renderer {
   return {
@@ -57,7 +57,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
   });
   const empty: THREE.Scene = new THREE.Scene();
   empty.add(new THREE.Group(), new THREE.AmbientLight());
-  AutoMovieSceneShadow.resetTargets(empty, renderer);
+  AutoMovieRenderSceneShadow.resetTargets(empty, renderer);
   const scene: THREE.Scene = new THREE.Scene(),
     directional: THREE.DirectionalLight = new THREE.DirectionalLight(),
     spot: THREE.SpotLight = new THREE.SpotLight();
@@ -80,7 +80,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
   distribution.addEventListener("dispose", (): void => {
     disposed[2]++;
   });
-  AutoMovieSceneShadow.resetTargets(scene, renderer);
+  AutoMovieRenderSceneShadow.resetTargets(scene, renderer);
   TestValidator.equals(
     "shared and hidden products release once",
     disposed,
@@ -97,7 +97,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     ],
     [null, null, null, true, true],
   );
-  AutoMovieSceneShadow.resetTargets(scene, renderer);
+  AutoMovieRenderSceneShadow.resetTargets(scene, renderer);
   TestValidator.equals(
     "empty retained slots do not dispose twice",
     disposed,
@@ -120,7 +120,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
   });
   let caught: unknown;
   try {
-    AutoMovieSceneShadow.resetTargets(scene, renderer);
+    AutoMovieRenderSceneShadow.resetTargets(scene, renderer);
   } catch (error) {
     caught = error;
   }
@@ -136,7 +136,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     [null, null],
   );
   const repeated: ReturnType<typeof caughtFailure> = caughtFailure((): void =>
-    AutoMovieSceneShadow.resetTargets(scene, renderer),
+    AutoMovieRenderSceneShadow.resetTargets(scene, renderer),
   );
   const refused: ReturnType<typeof caughtFailure> = caughtFailure((): void =>
     AutoMovieRenderScenePass.render(
@@ -155,8 +155,8 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
       refused.error === caught,
   );
   const budget: ReturnType<typeof caughtFailure> = caughtFailure(
-    (): ReturnType<typeof AutoMovieSceneShadow.readTextureTargets> =>
-      AutoMovieSceneShadow.readTextureTargets("failed", renderer, new Map()),
+    (): ReturnType<typeof AutoMovieRenderSceneShadow.readTextureTargets> =>
+      AutoMovieRenderSceneShadow.readTextureTargets("failed", renderer, new Map()),
   );
   TestValidator.predicate(
     "cleared public slots cannot certify a released budget after failure",

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -120,7 +120,7 @@ export namespace AquaticDive {
           hipsAt(shape).get("hips")!.worldPosition;
         return AquaticPosture.translate(
           shape,
-          Vector3.add(shape.root, Vector3.subtract(point, current)),
+          AutoMovieEngineVector3.add(shape.root, AutoMovieEngineVector3.subtract(point, current)),
         );
       },
     };
@@ -253,7 +253,7 @@ export namespace AquaticDive {
         hipsAt(posture).get("hips")!.worldPosition;
       return AquaticPosture.translate(
         posture,
-        Vector3.add(posture.root, Vector3.subtract(point(seconds), hips)),
+        AutoMovieEngineVector3.add(posture.root, AutoMovieEngineVector3.subtract(point(seconds), hips)),
       );
     };
     const crouch: ReturnType<typeof AquaticPosture.blend> =

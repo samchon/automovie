@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageLinkedProp } from "../AutoMovieArchetypeStageLinkedProp";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
@@ -30,7 +30,7 @@ export function createStageLinkedProp(
     seed,
     0.5,
     (builder, height, shaftTop, shaftRadius) => {
-      const v: typeof Vector3.create = Vector3.create;
+      const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
       const pivot: IAutoMovieVector3 = v(0, shaftTop, 0);
       const radius: number = 0.11 * height;
       const centre: IAutoMovieVector3 = v(0, height - radius, 0);

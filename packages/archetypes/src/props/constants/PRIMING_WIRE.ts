@@ -1,5 +1,5 @@
 import "../../core";
-import * as PrimingWireData from "./internal/PrimingWireData";
+import { PrimingWireData } from "./internal/PrimingWireData";
 
 /*
  * A field gun's priming wire as the 1862 Ordnance Manual gives it (p. 134,

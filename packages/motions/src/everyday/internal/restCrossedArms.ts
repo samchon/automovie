@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -81,7 +81,7 @@ export function restCrossedArms(
     from: RestCrossedArmsLengthFrom2,
     to: RestCrossedArmsLengthTo2,
   ): number =>
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       body.rest.get(`${side}${to}`)!,
       body.rest.get(`${side}${from}`)!,
     );
@@ -126,11 +126,11 @@ export function restCrossedArms(
   ): IRestCrossedArmsGoalResult => {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const from: IAutoMovieVector3 = geometry[other].world;
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(elbows[other], from),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(elbows[other], from),
     );
-    const front: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(ahead, Vector3.scale(axis, Vector3.dot(ahead, axis))),
+    const front: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(ahead, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(ahead, axis))),
     );
     // With level elbows the distance of the forearm axes at their crossing
     // is half their wrist-height difference. Place one wrist above and one
@@ -142,14 +142,14 @@ export function restCrossedArms(
       0,
       Math.min(span, ALONG * span + (side === "left" ? shift : -shift)),
     );
-    const point: IAutoMovieVector3 = Vector3.addScaled(
-      Vector3.addScaled(from, axis, along),
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
+      AutoMovieEngineVector3.addScaled(from, axis, along),
       front,
       body.measure.upperArmRadius,
     );
     const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
       fingers: geometry[other].outward,
-      palm: Vector3.scale(front, -1),
+      palm: AutoMovieEngineVector3.scale(front, -1),
     });
     const elbow: IAutoMovieVector3 = elbows[side];
     const palm: IAutoMovieVector3 = palms[side];
@@ -160,7 +160,7 @@ export function restCrossedArms(
     ).point;
     return {
       goal: { surface: "palm", shape: "relaxed", point, rotation, elbow },
-      excess: Vector3.distance(wrist, elbow) - geometry[side].lower,
+      excess: AutoMovieEngineVector3.distance(wrist, elbow) - geometry[side].lower,
     };
   };
   const elbowsAt: (

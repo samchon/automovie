@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -111,9 +111,9 @@ export namespace crawlFeet {
         -q,
       );
       const placement: IAutoMovieMotionHumanFoot.IPlacement = {
-        ankle: Vector3.subtract(
+        ankle: AutoMovieEngineVector3.subtract(
           tip,
-          Quaternion.rotateVector(rotation, offset(toes)),
+          AutoMovieEngineQuaternion.rotateVector(rotation, offset(toes)),
         ),
         rotation,
       };
@@ -165,25 +165,25 @@ export namespace crawlFeet {
         -foot.pitch,
         1,
       ).mtp;
-      const off: IAutoMovieVector3 = Vector3.subtract(toes, foot.at);
-      const along: number = Vector3.dot(off, forward);
+      const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(toes, foot.at);
+      const along: number = AutoMovieEngineVector3.dot(off, forward);
       const across: IAutoMovieVector3 = {
-        ...Vector3.subtract(off, Vector3.scale(forward, along)),
+        ...AutoMovieEngineVector3.subtract(off, AutoMovieEngineVector3.scale(forward, along)),
         y: 0,
       };
       return {
         along,
         tuck: {
-          foot: { ...foot, at: Vector3.add(foot.at, across) },
-          offset: Vector3.add(Vector3.subtract(foot.at, at), across),
+          foot: { ...foot, at: AutoMovieEngineVector3.add(foot.at, across) },
+          offset: AutoMovieEngineVector3.add(AutoMovieEngineVector3.subtract(foot.at, at), across),
         },
       };
     });
     return {
       frame: {
-        origin: Vector3.add(
+        origin: AutoMovieEngineVector3.add(
           measured.origin,
-          Vector3.scale(forward, (feet[0]!.along + feet[1]!.along) / 2 - ahead),
+          AutoMovieEngineVector3.scale(forward, (feet[0]!.along + feet[1]!.along) / 2 - ahead),
         ),
         yaw: measured.yaw,
       },

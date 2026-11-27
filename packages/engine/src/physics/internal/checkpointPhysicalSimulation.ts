@@ -3,7 +3,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicsCache as Cache } from "../AutoMoviePhysicsCache";
+import { AutoMovieEnginePhysicsCache as Cache } from "../AutoMovieEnginePhysicsCache";
 import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
 
 /*

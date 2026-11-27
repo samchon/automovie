@@ -31,7 +31,7 @@ export namespace IAutoMovieSolidJoin {
 
     /**
      * Solve the rails at radian parameter t again, reporting the quantities
-     * read and the failed premise (`AutoMovieSolidRail.explain`); null when the
+     * read and the failed premise (`AutoMovieEngineSolidRail.explain`); null when the
      * curve has no point at t.
      */
     explain(t: number): IAutoMovieSolidRail.IExplanation | null;

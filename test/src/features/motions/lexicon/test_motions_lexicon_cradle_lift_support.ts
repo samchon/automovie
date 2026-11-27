@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanCarryPerson, AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance, AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -59,7 +59,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
   const laws = AutoMovieMotionHumanCarryPerson.carryPerson;
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const rotation = (yaw: number) =>
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw);
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw);
   const make = (
     yaw: number,
     shift: IAutoMovieVector3,
@@ -137,8 +137,8 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
   ): AutoMovieMotionHumanPerformance => {
     const turn = rotation(yaw);
     const placed = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
-        Vector3.add(translation, Quaternion.rotateVector(turn, point)),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(translation, AutoMovieEngineQuaternion.rotateVector(turn, point)),
         { x: 0, y: -drop, z: offset },
       );
     const posture: IAutoMovieMotionHumanPosture = {
@@ -150,9 +150,9 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
         : {
             rotation: {
               about: placed(carried.rotation.about),
-              turn: Quaternion.multiply(
-                Quaternion.multiply(turn, carried.rotation.turn),
-                Quaternion.inverse(turn),
+              turn: AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.multiply(turn, carried.rotation.turn),
+                AutoMovieEngineQuaternion.inverse(turn),
               ),
             },
           }),
@@ -242,7 +242,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
     "the reference steady endpoint is retained",
     [...expected].every(
       ([bone, frame]): boolean =>
-        Vector3.distance(frame.worldPosition, actual.get(bone)!.worldPosition) <
+        AutoMovieEngineVector3.distance(frame.worldPosition, actual.get(bone)!.worldPosition) <
         0.001,
     ),
   );
@@ -271,7 +271,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
     receipts(take).length === 2 &&
       receipts(take).every(
         (material, index): boolean =>
-          Vector3.distance(material.point, receipts(moved)[index]!.point) <
+          AutoMovieEngineVector3.distance(material.point, receipts(moved)[index]!.point) <
           0.002,
       ),
   );

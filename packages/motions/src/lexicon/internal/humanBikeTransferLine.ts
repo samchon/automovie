@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBikeTransfer,
@@ -21,7 +21,7 @@ export function humanBikeTransferLine(
   line: IAutoMovieMotionHumanBikeTransfer["line"],
   mount: boolean,
 ): (sole: readonly IAutoMovieVector3[]) => boolean {
-  const onward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const onward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     HumanFrame.turn(line.heading),
     { x: 0, y: 0, z: 1 },
   );
@@ -31,7 +31,7 @@ export function humanBikeTransferLine(
       (point: IAutoMovieVector3): boolean =>
         Math.abs(point.y) <= humanBikeTransferLine.FLOOR &&
         (mount ? 1 : -1) *
-          Vector3.dot(Vector3.subtract(point, origin), onward) >
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, origin), onward) >
           0,
     );
 }
@@ -75,14 +75,14 @@ export namespace humanBikeTransferLine {
     now: Readonly<Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>>,
   ): boolean {
     return (
-      Vector3.length(Vector3.subtract(frame.position, stopped.position)) <=
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(frame.position, stopped.position)) <=
         STILL &&
       AXES.every(
         (axis: IAutoMovieVector3): boolean =>
-          Vector3.length(
-            Vector3.subtract(
-              Quaternion.rotateVector(frame.rotation, axis),
-              Quaternion.rotateVector(stopped.rotation, axis),
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
+              AutoMovieEngineQuaternion.rotateVector(frame.rotation, axis),
+              AutoMovieEngineQuaternion.rotateVector(stopped.rotation, axis),
             ),
           ) <= STILL,
       ) &&
@@ -91,7 +91,7 @@ export namespace humanBikeTransferLine {
           const pedal: IAutoMovieVector3 | undefined = now[side];
           return (
             pedal !== undefined &&
-            Vector3.length(Vector3.subtract(pedal, from[side])) <= STILL
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(pedal, from[side])) <= STILL
           );
         },
       )

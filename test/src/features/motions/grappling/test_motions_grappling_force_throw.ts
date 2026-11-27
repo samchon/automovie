@@ -4,7 +4,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { HumanForceThrow } from "@automovie/motions/internal";
+import {
+  HumanForceThrow
+} from "../../../../../packages/motions/src/grappling/internal/HumanForceThrow";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

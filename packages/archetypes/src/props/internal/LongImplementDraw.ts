@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBand,
@@ -11,7 +11,7 @@ import {
 import { FIELD_IMPLEMENTS } from "../constants/FIELD_IMPLEMENTS";
 import { ForestAxe } from "./ForestAxe";
 import { Throwers } from "./Throwers";
-import * as LongImplementDrawData from "./LongImplementDrawData";
+import { LongImplementDrawData } from "./LongImplementDrawData";
 
 /*
  * The seeded recipes originally published as `createLongTool`.
@@ -429,8 +429,8 @@ export namespace LongImplementDraw {
     const height: number = head.height;
     builder.box(
       "head",
-      Vector3.create(head.width, height, head.depth),
-      Vector3.create(0, height / 2, 0),
+      AutoMovieEngineVector3.create(head.width, height, head.depth),
+      AutoMovieEngineVector3.create(0, height / 2, 0),
       { color: head.color, density: head.density },
     );
     builder.affordance({
@@ -438,9 +438,9 @@ export namespace LongImplementDraw {
       kind: "surface",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, 0, 0),
-        Vector3.create(0, -1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 0, 0),
+        AutoMovieEngineVector3.create(0, -1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       width: head.width,
@@ -448,8 +448,8 @@ export namespace LongImplementDraw {
     builder.rod(
       "shaft",
       radius,
-      Vector3.create(0, height, 0),
-      Vector3.create(0, top, 0),
+      AutoMovieEngineVector3.create(0, height, 0),
+      AutoMovieEngineVector3.create(0, top, 0),
       { color: "#b98d5b" },
     );
     builder.affordance({
@@ -457,9 +457,9 @@ export namespace LongImplementDraw {
       kind: "bar",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, (height + top) / 2, 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, (height + top) / 2, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "two-hand",

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -55,7 +55,7 @@ export function punchSurface(
   ): punchSurface.ISurface => ({
     direction,
     rotation,
-    socket: Quaternion.rotateVector(rotation, surface),
+    socket: AutoMovieEngineQuaternion.rotateVector(rotation, surface),
   });
   switch (technique) {
     case "straight":
@@ -79,14 +79,14 @@ export function punchSurface(
       );
       return placed(
         direction,
-        StrikingBody.fist(body, side, direction, Vector3.scale(line, -1)),
+        StrikingBody.fist(body, side, direction, AutoMovieEngineVector3.scale(line, -1)),
         fist,
       );
     }
     case "verticalFist":
       return placed(
         straight,
-        StrikingBody.fist(body, side, straight, Vector3.scale(outward, -1)),
+        StrikingBody.fist(body, side, straight, AutoMovieEngineVector3.scale(outward, -1)),
         fist,
       );
     case "palmHeel":
@@ -97,10 +97,10 @@ export function punchSurface(
         StrikingBody.fist(
           body,
           side,
-          Vector3.normalize(
-            Vector3.subtract(
+          AutoMovieEngineVector3.normalize(
+            AutoMovieEngineVector3.subtract(
               up,
-              Vector3.scale(straight, punchSurface.PALM_TILT),
+              AutoMovieEngineVector3.scale(straight, punchSurface.PALM_TILT),
             ),
           ),
           straight,
@@ -116,7 +116,7 @@ export function punchSurface(
       );
       return placed(
         direction,
-        StrikingBody.fist(body, side, line, Vector3.scale(direction, -1)),
+        StrikingBody.fist(body, side, line, AutoMovieEngineVector3.scale(direction, -1)),
         body.surfaces.regions[
           side === "left" ? "handBackLeft" : "handBackRight"
         ].point,
@@ -125,9 +125,9 @@ export function punchSurface(
     case "hammerfist":
       return placed(
         punchSurface.direction("hammerfist", line, outward, straight),
-        StrikingBody.fist(body, side, line, Vector3.scale(outward, -1)),
-        Vector3.scale(
-          Vector3.subtract(
+        StrikingBody.fist(body, side, line, AutoMovieEngineVector3.scale(outward, -1)),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(
             body.rest.get(`${side}LittleProximal`)!,
             body.rest.get(`${side}Hand`)!,
           ),
@@ -160,7 +160,7 @@ export namespace punchSurface {
   ): IAutoMovieVector3 {
     const across: IAutoMovieVector3 | null =
       technique === "hook"
-        ? Vector3.scale(outward, -1)
+        ? AutoMovieEngineVector3.scale(outward, -1)
         : technique === "uppercut"
           ? { x: 0, y: 1, z: 0 }
           : technique === "backfist"
@@ -170,8 +170,8 @@ export namespace punchSurface {
               : null;
     return across === null
       ? straight
-      : Vector3.normalize(
-          Vector3.add(Vector3.scale(across, 0.8), Vector3.scale(line, 0.6)),
+      : AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(across, 0.8), AutoMovieEngineVector3.scale(line, 0.6)),
         );
   }
 

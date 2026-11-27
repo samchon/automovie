@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -101,9 +101,9 @@ function prepareStance(
       const relative: IAutoMovieVector3 =
         target.point === undefined
           ? bone.worldPosition
-          : Vector3.add(
+          : AutoMovieEngineVector3.add(
               bone.worldPosition,
-              Quaternion.rotateVector(bone.worldRotation, target.point),
+              AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, target.point),
             );
       shift.x += (target.goal.x - (relative.x + from.root.x)) / anchors.length;
       if (target.goal.y > 0)
@@ -111,7 +111,7 @@ function prepareStance(
           (target.goal.y - (relative.y + from.root.y)) / anchors.length;
       shift.z += (target.goal.z - (relative.z + from.root.z)) / anchors.length;
     }
-    const root: IAutoMovieVector3 = Vector3.add(from.root, shift);
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(from.root, shift);
     const grounded: boolean = stance.contacts.some(
       (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
         supportContact.onFloorTarget(place(contact)),

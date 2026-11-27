@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -99,22 +99,22 @@ export function create(
     builder.rod(
       "seat",
       width / 2,
-      Vector3.create(0, height - SLAB, 0),
-      Vector3.create(0, height, 0),
+      AutoMovieEngineVector3.create(0, height - SLAB, 0),
+      AutoMovieEngineVector3.create(0, height, 0),
       { color: WOOD },
     );
   else
     builder.box(
       "seat",
-      Vector3.create(width, SLAB, depth),
-      Vector3.create(0, height - SLAB / 2, 0),
+      AutoMovieEngineVector3.create(width, SLAB, depth),
+      AutoMovieEngineVector3.create(0, height - SLAB / 2, 0),
       { color: kind === "sofa" || kind === "armchair" ? CLOTH : WOOD },
     );
   builder.affordance({
     id: "seat",
     kind: "seat",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, height, depth / 2),
+      AutoMovieEngineVector3.create(0, height, depth / 2),
     ),
     extent: null,
     depth,
@@ -127,8 +127,8 @@ export function create(
     builder.rod(
       "column",
       0.03,
-      Vector3.create(0, 0.08, 0),
-      Vector3.create(0, height - SLAB, 0),
+      AutoMovieEngineVector3.create(0, 0.08, 0),
+      AutoMovieEngineVector3.create(0, height - SLAB, 0),
       { color: METAL },
     );
     for (let k: number = 0; k < 5; k++) {
@@ -136,8 +136,8 @@ export function create(
       builder.rod(
         `spoke-${k}`,
         0.02,
-        Vector3.create(0, 0.08, 0),
-        Vector3.create(
+        AutoMovieEngineVector3.create(0, 0.08, 0),
+        AutoMovieEngineVector3.create(
           BASE_RADIUS * Math.sin(angle),
           0.04,
           BASE_RADIUS * Math.cos(angle),
@@ -148,8 +148,8 @@ export function create(
   } else if (kind === "sofa")
     builder.box(
       "plinth",
-      Vector3.create(width, height - SLAB, depth),
-      Vector3.create(0, (height - SLAB) / 2, 0),
+      AutoMovieEngineVector3.create(width, height - SLAB, depth),
+      AutoMovieEngineVector3.create(0, (height - SLAB) / 2, 0),
       { color: CLOTH, density: 0.4 },
     );
   else {
@@ -164,8 +164,8 @@ export function create(
       builder.rod(
         name,
         LEG,
-        Vector3.create(sx * x, 0, sz * z),
-        Vector3.create(sx * x, height - SLAB, sz * z),
+        AutoMovieEngineVector3.create(sx * x, 0, sz * z),
+        AutoMovieEngineVector3.create(sx * x, height - SLAB, sz * z),
         { color: WOOD },
       );
     if (kind === "barStool") {
@@ -173,15 +173,15 @@ export function create(
       builder.rod(
         "footrest",
         0.012,
-        Vector3.create(-x, rest, z),
-        Vector3.create(x, rest, z),
+        AutoMovieEngineVector3.create(-x, rest, z),
+        AutoMovieEngineVector3.create(x, rest, z),
         { color: METAL },
       );
       builder.affordance({
         id: "footrest",
         kind: "bar",
         symmetry: "round",
-        frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, rest, z)),
+        frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, rest, z)),
         extent: null,
         length: 2 * x,
         aperture: 0.024,
@@ -194,17 +194,17 @@ export function create(
     const z: number = -depth / 2 - PANEL / 2;
     builder.box(
       "back",
-      Vector3.create(width, back, PANEL),
-      Vector3.create(0, height + back / 2, z),
+      AutoMovieEngineVector3.create(width, back, PANEL),
+      AutoMovieEngineVector3.create(0, height + back / 2, z),
       { color: kind === "sofa" || kind === "armchair" ? CLOTH : WOOD },
     );
     builder.affordance({
       id: "back",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, height + back / 2, -depth / 2),
-        Vector3.create(0, 0, 1),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, height + back / 2, -depth / 2),
+        AutoMovieEngineVector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       width,
@@ -215,9 +215,9 @@ export function create(
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, height + back - PANEL / 2, z),
-        Vector3.create(0, 0, -1),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, height + back - PANEL / 2, z),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       grip: "power",
@@ -236,8 +236,8 @@ export function create(
       const solid: boolean = kind !== "office";
       builder.box(
         `arm-${side}`,
-        Vector3.create(ARM, solid ? height + arm : PANEL, depth * 0.7),
-        Vector3.create(
+        AutoMovieEngineVector3.create(ARM, solid ? height + arm : PANEL, depth * 0.7),
+        AutoMovieEngineVector3.create(
           x,
           solid ? (height + arm) / 2 : height + arm - PANEL / 2,
           -depth * 0.15,
@@ -248,19 +248,19 @@ export function create(
         builder.rod(
           `arm-post-${side}`,
           0.012,
-          Vector3.create(
+          AutoMovieEngineVector3.create(
             sign * (width / 2 - LEG),
             height - SLAB / 2,
             -depth * 0.15,
           ),
-          Vector3.create(x, height + arm - PANEL, -depth * 0.15),
+          AutoMovieEngineVector3.create(x, height + arm - PANEL, -depth * 0.15),
           { color: METAL },
         );
       builder.affordance({
         id: `${side}Arm`,
         kind: "surface",
         frame: AutoMovieArchetypeFrame.upright(
-          Vector3.create(x, height + arm, -depth * 0.15),
+          AutoMovieEngineVector3.create(x, height + arm, -depth * 0.15),
         ),
         extent: null,
         width: ARM,
@@ -273,7 +273,7 @@ export function create(
     builder.affordance({
       id: "lie",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
       extent: null,
       width,
       depth,

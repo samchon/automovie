@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieTransform,
@@ -15,7 +15,7 @@ import {
 } from "../core";
 import { rideEscalator } from "./internal/rideEscalator";
 import "./internal/createEscalatorConstants";
-import * as AutoMovieArchetypeEscalatorData from "./internal/AutoMovieArchetypeEscalatorData";
+import { AutoMovieArchetypeEscalatorData } from "./internal/AutoMovieArchetypeEscalatorData";
 
 /** Creates a deterministic escalator fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeEscalator {
@@ -128,14 +128,14 @@ export namespace AutoMovieArchetypeEscalator {
     // Fixed landings before each comb and the step band's coarse top surface.
     builder.box(
       "lowerLanding",
-      Vector3.create(width + 2 * AutoMovieArchetypeEscalatorData.RAIL_OFFSET, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.LANDING),
-      Vector3.create(0, -AutoMovieArchetypeEscalatorData.PLATE / 2, -AutoMovieArchetypeEscalatorData.LANDING / 2),
+      AutoMovieEngineVector3.create(width + 2 * AutoMovieArchetypeEscalatorData.RAIL_OFFSET, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.LANDING),
+      AutoMovieEngineVector3.create(0, -AutoMovieArchetypeEscalatorData.PLATE / 2, -AutoMovieArchetypeEscalatorData.LANDING / 2),
       { color: "#8a8f96" },
     );
     builder.box(
       "upperLanding",
-      Vector3.create(width + 2 * AutoMovieArchetypeEscalatorData.RAIL_OFFSET, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.LANDING),
-      Vector3.create(0, rise - AutoMovieArchetypeEscalatorData.PLATE / 2, top.z + AutoMovieArchetypeEscalatorData.LANDING / 2),
+      AutoMovieEngineVector3.create(width + 2 * AutoMovieArchetypeEscalatorData.RAIL_OFFSET, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.LANDING),
+      AutoMovieEngineVector3.create(0, rise - AutoMovieArchetypeEscalatorData.PLATE / 2, top.z + AutoMovieArchetypeEscalatorData.LANDING / 2),
       { color: "#8a8f96" },
     );
     const ends: readonly IAutoMovieVector3[] = [
@@ -149,19 +149,19 @@ export namespace AutoMovieArchetypeEscalator {
       const from: IAutoMovieVector3 = ends[index]!;
       const to: IAutoMovieVector3 = ends[index + 1]!;
       const id: string = `${name}Steps`;
-      const span: IAutoMovieVector3 = Vector3.subtract(to, from);
-      const slope: number = Math.atan2(span.y, span.z) / Quaternion.DEG2RAD;
+      const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
+      const slope: number = Math.atan2(span.y, span.z) / AutoMovieEngineQuaternion.DEG2RAD;
       builder.box(
         id,
-        Vector3.create(width, AutoMovieArchetypeEscalatorData.PLATE, Vector3.length(span)),
-        Vector3.add(Vector3.scale(Vector3.add(from, to), 0.5), {
+        AutoMovieEngineVector3.create(width, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieEngineVector3.length(span)),
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5), {
           x: 0,
           y: -AutoMovieArchetypeEscalatorData.PLATE / 2,
           z: 0,
         }),
         {
           color: "#4b5058",
-          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -slope),
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -slope),
         },
       );
       for (const side of [-1, 1] as const)
@@ -182,7 +182,7 @@ export namespace AutoMovieArchetypeEscalator {
       id: "lowerLanding",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, 0, -AutoMovieArchetypeEscalatorData.LANDING / 2),
+        AutoMovieEngineVector3.create(0, 0, -AutoMovieArchetypeEscalatorData.LANDING / 2),
       ),
       extent: null,
       width,
@@ -192,7 +192,7 @@ export namespace AutoMovieArchetypeEscalator {
       id: "upperLanding",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, rise, top.z + AutoMovieArchetypeEscalatorData.LANDING / 2),
+        AutoMovieEngineVector3.create(0, rise, top.z + AutoMovieArchetypeEscalatorData.LANDING / 2),
       ),
       extent: null,
       width,
@@ -205,13 +205,13 @@ export namespace AutoMovieArchetypeEscalator {
         symmetry: "round",
         grip: "power",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(
+          AutoMovieEngineVector3.create(
             side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET),
             handrail,
             profile.flat / 2,
           ),
-          Vector3.create(0, 1, 0),
-          Vector3.create(0, 0, 1),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(0, 0, 1),
         ),
         extent: null,
         length: profile.flat,
@@ -357,7 +357,7 @@ export namespace AutoMovieArchetypeEscalator {
   ): IProfile {
     const d: Readonly<Partial<Record<Dimension, number>>> =
       escalator.dimensions;
-    const angle: number = d.incline! * Quaternion.DEG2RAD;
+    const angle: number = d.incline! * AutoMovieEngineQuaternion.DEG2RAD;
     const curves: number =
       (d.lowerRadius! + d.upperRadius!) * (1 - Math.cos(angle));
     const straight: number = (d.rise! - curves) / Math.sin(angle);
@@ -471,14 +471,14 @@ export namespace AutoMovieArchetypeEscalator {
       });
     builder.box(
       "tread",
-      Vector3.create(width, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.PITCH),
-      Vector3.create(0, -AutoMovieArchetypeEscalatorData.PLATE / 2, 0),
+      AutoMovieEngineVector3.create(width, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.PITCH),
+      AutoMovieEngineVector3.create(0, -AutoMovieArchetypeEscalatorData.PLATE / 2, 0),
       { color: "#3a3f46" },
     );
     builder.affordance({
       id: "tread",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
       extent: null,
       width,
       depth: AutoMovieArchetypeEscalatorData.PITCH,
@@ -493,9 +493,9 @@ export namespace AutoMovieArchetypeEscalator {
         symmetry: "round",
         grip: "power",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET), handrail, 0),
-          Vector3.create(0, 1, 0),
-          Vector3.create(0, 0, 1),
+          AutoMovieEngineVector3.create(side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET), handrail, 0),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(0, 0, 1),
         ),
         extent: null,
         length: AutoMovieArchetypeEscalatorData.PITCH,

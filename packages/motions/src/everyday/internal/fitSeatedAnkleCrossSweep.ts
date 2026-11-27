@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
@@ -44,8 +44,8 @@ export function fitSeatedAnkleCrossSweep(
     );
     if (retained > sweep) return retained;
 
-    const center = Vector3.scale(
-      Vector3.add(moving.bounds.min, moving.bounds.max),
+    const center = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(moving.bounds.min, moving.bounds.max),
       0.5,
     );
     const witness = AutoMovieEnginePhysics.physicalShapeNearest(
@@ -76,22 +76,22 @@ function sweepPlane(
   direction: IAutoMovieVector3,
   fixed: fitSeatedAnkleCrossShape.IShape,
 ): ISweepPlane | undefined {
-  const normal = Vector3.normalize(direction);
-  if (!(Vector3.length(normal) > 0)) return undefined;
-  const axis = Vector3.cross(normal, { x: 0, y: 1, z: 0 });
-  const sine = Vector3.length(axis);
+  const normal = AutoMovieEngineVector3.normalize(direction);
+  if (!(AutoMovieEngineVector3.length(normal) > 0)) return undefined;
+  const axis = AutoMovieEngineVector3.cross(normal, { x: 0, y: 1, z: 0 });
+  const sine = AutoMovieEngineVector3.length(axis);
   const rotation =
     sine > Number.EPSILON
-      ? Quaternion.fromAxisAngle(axis, Math.atan2(sine, normal.y) / RAD)
-      : Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, normal.y >= 0 ? 0 : 180);
+      ? AutoMovieEngineQuaternion.fromAxisAngle(axis, Math.atan2(sine, normal.y) / RAD)
+      : AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, normal.y >= 0 ? 0 : 180);
   const fixedMaximum = AutoMovieEnginePhysics.physicalShapeBounds(
     {
       position: {
         x: 0,
-        y: Quaternion.rotateVectorY(rotation, fixed.pose.position),
+        y: AutoMovieEngineQuaternion.rotateVectorY(rotation, fixed.pose.position),
         z: 0,
       },
-      rotation: Quaternion.multiply(rotation, fixed.pose.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(rotation, fixed.pose.rotation),
     },
     fixed.shape,
   ).max.y;
@@ -104,8 +104,8 @@ function projectedGap(
 ): number {
   if (plane === undefined) return -Infinity;
   const movingMinimum = AutoMovieEnginePhysics.physicalShapeBoundsLowestFromParent(
-    Quaternion.rotateVectorY(plane.rotation, moving.pose.position),
-    Quaternion.multiply(plane.rotation, moving.pose.rotation),
+    AutoMovieEngineQuaternion.rotateVectorY(plane.rotation, moving.pose.position),
+    AutoMovieEngineQuaternion.multiply(plane.rotation, moving.pose.rotation),
     moving.shape,
   );
   // Both extrema use the same rotated axis. Bound roundoff against the terms

@@ -1,5 +1,5 @@
 import type { IAutoMoviePlaybackTimeline } from "@automovie/interface";
-import { type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, rejectsError } from "../../internal/predicates";
@@ -34,13 +34,13 @@ const CUT: IAutoMoviePlaybackTimeline = {
 export async function test_render_draw_place_layer(): Promise<void> {
   const seeks: number[] = [];
   const shotSeeks: [string, number, number][] = [];
-  const film: Pick<IAutoMovieDrawScene, "cut" | "seek"> = {
+  const film: Pick<IAutoMovieRenderDrawScene, "cut" | "seek"> = {
     cut: CUT,
     seek: async (seconds: number): Promise<void> => {
       seeks.push(seconds);
     },
   };
-  const byShot: Pick<IAutoMovieDrawScene, "cut" | "seek" | "seekShot"> = {
+  const byShot: Pick<IAutoMovieRenderDrawScene, "cut" | "seek" | "seekShot"> = {
     ...film,
     seekShot: async (
       shot: string,

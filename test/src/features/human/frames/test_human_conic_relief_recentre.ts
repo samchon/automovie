@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief, AutoMovieEngineViewAxis } from "@automovie/engine";
 import {
   AutoMovieHumanConicRecentre as Recentre,
   AutoMovieHumanConicReliefRecentre as Nets,
@@ -41,7 +41,7 @@ export function test_human_conic_relief_recentre(): void {
   const knots: number[] = [0, 10, 20, 30];
   const c = (s: number): number => 6 + 0.05 * s;
   const [origin, u, v]: V3[] = [[1, 2, 3], [1, 0, 0], [0, 0, 1]];
-  const base: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(origin!, u!, v!);
+  const base: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.straight(origin!, u!, v!);
   const at = (axis: IAutoMovieViewAxis.IAxis, s: number, x: number, y: number): V3 => {
     const frame = axis.at(s);
     return [0, 1, 2].map((k: number): number => frame.origin[k]! + x * frame.u[k]! + y * frame.v[k]!) as V3;
@@ -83,7 +83,7 @@ export function test_human_conic_relief_recentre(): void {
   for (const [s, t] of addresses) {
     const r: number = -c(s) * Math.cos(t) + Math.sqrt(R * R - (c(s) * Math.sin(t)) ** 2);
     const tau: number = Math.atan2(r * Math.sin(t), c(s) + r * Math.cos(t));
-    worst = Math.max(worst, Math.abs(AutoMovieLoftRelief.height(carried.relief, s, t)[0] - AutoMovieLoftRelief.height(down, s, tau)[0]));
+    worst = Math.max(worst, Math.abs(AutoMovieEngineLoftRelief.height(carried.relief, s, t)[0] - AutoMovieEngineLoftRelief.height(down, s, tau)[0]));
   }
   if (!(worst <= 0.01)) failures.push(`a kept axis: the converted height stands ${worst} mm off the stored height of the same wall point`);
 
@@ -94,19 +94,19 @@ export function test_human_conic_relief_recentre(): void {
   const off = (relief: IAutoMovieLoftRelief): number => {
     let most: number = 0;
     for (const [s, t] of addresses) {
-      const h: number = AutoMovieLoftRelief.height(relief, s, t)[0];
-      const e: readonly number[] = AutoMovieLoftRelief.direction(relief, t)[0];
+      const h: number = AutoMovieEngineLoftRelief.height(relief, s, t)[0];
+      const e: readonly number[] = AutoMovieEngineLoftRelief.direction(relief, t)[0];
       const p: V3 = made.point(s, t).map((x: number, k: number): number => x + h * e[k]!) as V3;
       const d: V3 = p.map((x: number, k: number): number => x - base.at(s).origin[k]!) as V3;
       const theta: number = Math.atan2(d[2], d[0]);
-      most = Math.max(most, Math.abs(Math.hypot(d[0], d[2]) - (R - AutoMovieLoftRelief.height(radial, s, theta)[0])));
+      most = Math.max(most, Math.abs(Math.hypot(d[0], d[2]) - (R - AutoMovieEngineLoftRelief.height(radial, s, theta)[0])));
     }
     return most;
   };
   if (!(off(cast.relief) <= 0.01)) failures.push(`a cast net: the converted figure stands ${off(cast.relief)} mm off the stored skin`);
   if (!(off(radial) > 0.1)) failures.push(`the unconverted net on the re-centred wall reads only ${off(radial)} mm off the stored skin: the check cannot see the defect`);
   for (const t of [0.7, 1.4, 2.1]) {
-    const e: readonly number[] = AutoMovieLoftRelief.direction(cast.relief, t)[0];
+    const e: readonly number[] = AutoMovieEngineLoftRelief.direction(cast.relief, t)[0];
     if (!(Math.hypot(e[0]! + Math.cos(t), e[1]!, e[2]! + Math.sin(t)) <= 1e-12)) failures.push(`the converted direction at phase ${t} is [${e.join(", ")}], not the new chart's inward radial`);
   }
 

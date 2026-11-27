@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,10 +11,8 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeHurdleData from "./internal/AutoMovieArchetypeHurdleData";
-import {
-  height as AutoMovieArchetypeHurdleDataHeight,
-} from "./internal/AutoMovieArchetypeHurdleData";
+import { AutoMovieArchetypeHurdleData } from "./internal/AutoMovieArchetypeHurdleData";
+
 
 /** Constructs the hurdle archetype from its recipe. */
 export namespace AutoMovieArchetypeHurdle {
@@ -99,7 +97,7 @@ export function create(
     name: "hurdle",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const bar: number = AutoMovieArchetypeHurdle.BAR;
   const foot: number = AutoMovieArchetypeHurdle.FOOT;
   const post: number = AutoMovieArchetypeHurdle.POST;
@@ -190,10 +188,10 @@ export function create(
 
   /** The height band of each race. */
   export const HEIGHTS: Readonly<Record<Kind, IAutoMovieArchetypeBand>> = {
-    men110: AutoMovieArchetypeHurdleDataHeight(1.067, "men's 110 m"),
-    women100: AutoMovieArchetypeHurdleDataHeight(0.838, "women's 100 m"),
-    men400: AutoMovieArchetypeHurdleDataHeight(0.914, "men's 400 m"),
-    women400: AutoMovieArchetypeHurdleDataHeight(0.762, "women's 400 m"),
+    men110: AutoMovieArchetypeHurdleData.height(1.067, "men's 110 m"),
+    women100: AutoMovieArchetypeHurdleData.height(0.838, "women's 100 m"),
+    men400: AutoMovieArchetypeHurdleData.height(0.914, "men's 400 m"),
+    women400: AutoMovieArchetypeHurdleData.height(0.762, "women's 400 m"),
   };
 
   /** The bands every race shares. */

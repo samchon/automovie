@@ -1,14 +1,14 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
 import { distalEndSwivelNearest } from "./distalEndSwivelNearest";
-import type { distalTwistSwivelRange } from "../distalTwistSwivelRange";
+import type { AutoMovieEngineDistalTwistSwivelRange } from "../AutoMovieEngineDistalTwistSwivelRange";
 
 /*
  * The arc of swivels around a given one over which a chain whose mid segment
  * twists distally (an arm) takes a requested end rotation: outside the arcs its
  * end joint's box refuses (`distalEndSwivelArcs`) and where the twist the
  * rotation leaves the mid segment lies inside its range
- * (`distalTwistSwivelRange`).
+ * (`AutoMovieEngineDistalTwistSwivelRange`).
  *
  * The admitted swivels are a union of intervals whose ends are the refused
  * arcs' ends and the twist range's breakpoints (Tolani, Goswami and Badler
@@ -37,7 +37,7 @@ import type { distalTwistSwivelRange } from "../distalTwistSwivelRange";
  */
 export function distalEndSwivelAdmitted(
   arcs: readonly IAutoMovieSwivelArcs.IArc[] | "all",
-  range: distalTwistSwivelRange.IRange | null,
+  range: AutoMovieEngineDistalTwistSwivelRange.IRange | null,
   swivel: number,
   resolution: number = 0,
 ): IAutoMovieSwivelArcs.IArc | null {

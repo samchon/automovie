@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanInteractionMesh,
   IAutoMovieVector3,
@@ -41,7 +41,7 @@ export namespace HumanInteractionMeshLaplacian {
       );
       if (kept.length === 0) return [];
       const distances: number[] = kept.map((j: number): number =>
-        Vector3.length(Vector3.subtract(reference[i]!, reference[j]!)),
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(reference[i]!, reference[j]!)),
       );
       const closest: number = Math.min(...distances);
       const weights: number[] = distances.map((distance: number): number =>

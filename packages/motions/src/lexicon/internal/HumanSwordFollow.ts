@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineKinematics, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineKinematics, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanSword, IAutoMovieMotionTarget, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -68,7 +68,7 @@ export function HumanSwordFollow(
     ).point;
   })();
   const unit: IAutoMovieSuperposeMinimumJerk.IUnit = {
-    displacement: Vector3.subtract(point, planned),
+    displacement: AutoMovieEngineVector3.subtract(point, planned),
     start: 0,
     duration: contact,
   };

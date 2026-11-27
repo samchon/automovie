@@ -11,8 +11,8 @@ import type {
 } from "@automovie/interface";
 
 import { resolveAutoMovieContactEvents } from "../../composition/internal/resolveAutoMovieContactEvents";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 import { physicalShapeQueryImplementation } from "./physicalShapeQueryImplementation";
 import { projectileAt } from "./projectileAt";
@@ -109,9 +109,9 @@ export namespace ProjectileFirstContactImplementation {
     ): IAutoMovieVector3 | undefined =>
       options.tail === undefined
         ? undefined
-        : Vector3.add(
+        : AutoMovieEngineVector3.add(
             state.position,
-            Quaternion.rotateVector(state.rotation!, options.tail),
+            AutoMovieEngineQuaternion.rotateVector(state.rotation!, options.tail),
           );
     const segment = (seconds: number): [IAutoMovieVector3, IAutoMovieVector3] => {
       const state: IAutoMovieProjectileState = projectileAt(projectile, seconds);
@@ -268,12 +268,12 @@ export namespace ProjectileFirstContactImplementation {
     const centre: number =
       flightBound === undefined || flightBound === Infinity
         ? Math.max(
-            Vector3.length(projectileAt(projectile, span.from).velocity),
-            Vector3.length(projectileAt(projectile, span.to).velocity),
+            AutoMovieEngineVector3.length(projectileAt(projectile, span.from).velocity),
+            AutoMovieEngineVector3.length(projectileAt(projectile, span.to).velocity),
           )
         : flightBound;
     const reach: number =
-      options.tail === undefined ? 0 : Vector3.length(options.tail);
+      options.tail === undefined ? 0 : AutoMovieEngineVector3.length(options.tail);
     const turning: number =
       projectile.attitude?.kind === "spin"
         ? ((Math.abs(projectile.attitude.rate) * Math.PI) / 180) * reach
@@ -293,12 +293,12 @@ export namespace ProjectileFirstContactImplementation {
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
   ): IAutoMovieProjectileFirstContact.ICollider {
-    const n: IAutoMovieVector3 = Vector3.normalize(normal);
+    const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(normal);
     /*
      * The signed plane height of one endpoint.
      */
     const height = (endpoint: IAutoMovieVector3): number =>
-      Vector3.dot(Vector3.subtract(endpoint, point), n);
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(endpoint, point), n);
     return {
       id,
       speed: (): number => 0,
@@ -319,7 +319,7 @@ export namespace ProjectileFirstContactImplementation {
         const d: number = Math.min(da, db);
         return {
           distance: d,
-          point: Vector3.subtract(low, Vector3.scale(n, d)),
+          point: AutoMovieEngineVector3.subtract(low, AutoMovieEngineVector3.scale(n, d)),
           normal: n,
         };
       },
@@ -413,9 +413,9 @@ export namespace ProjectileFirstContactImplementation {
                 const end: IAutoMovieVector3 =
                   options.tail === undefined || state.rotation === undefined
                     ? state.position
-                    : Vector3.add(
+                    : AutoMovieEngineVector3.add(
                         state.position,
-                        Quaternion.rotateVector(state.rotation, options.tail),
+                        AutoMovieEngineQuaternion.rotateVector(state.rotation, options.tail),
                       );
                 return projectilePlaneDeparture(
                   id,

@@ -20,7 +20,7 @@ import type {
 export namespace walkHeading {
   /*
    * The furthest a planted leg's line leans to the side of its foot, degrees:
-   * 5° inside the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM),
+   * 5° inside the ankle's 25° of inversion and eversion (AutoMovieEngineDefaultHumanoidRom),
    * provisional room for the pelvis's drop and list.
    */
   export const ROLL: number = 20;

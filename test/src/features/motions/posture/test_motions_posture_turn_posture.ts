@@ -4,7 +4,9 @@ import type {
   IAutoMovieMotionHumanTurnHumanPosture,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import { turnHumanPosture } from "@automovie/motions/internal";
+import {
+  turnHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/turnHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

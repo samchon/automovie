@@ -1,4 +1,6 @@
-import { crcAutoMoviePngChunk } from "@automovie/render/internal";
+import {
+  crcAutoMoviePngChunk
+} from "../../../../../packages/render/src/picture/internal/crcAutoMoviePngChunk";
 import { TestValidator } from "@nestia/e2e";
 
 /**

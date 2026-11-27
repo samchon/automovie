@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import type { PartConicTypes as T } from "./PartConicTypes";
 import type { PartConicFields as F } from "./PartConicFields";
@@ -34,7 +34,7 @@ export namespace PartConicGeometry {
   /** Evaluate the actual engine conic loft; no native coordinates supply its skin. */
   export function generated(part: T.Part, result: F.Result): Scene {
     const chain: NonNullable<F.Result["loft"]["chain"]> = result.loft.chain!;
-    return grid(part, "continuous-conic-" + result.coefficients.piecesPerQuarter * 4, (s: number, phi: number): T.V => AutoMovieLoftChain.point(chain, s, phi));
+    return grid(part, "continuous-conic-" + result.coefficients.piecesPerQuarter * 4, (s: number, phi: number): T.V => AutoMovieEngineLoftChain.point(chain, s, phi));
   }
   /** Native cuts are an observation-only differential baseline, never a generated-conic fallback. */
   export function nativeGrid(part: T.Part): Scene { return grid(part, "native-cut-control", (s: number, phi: number, row: number): T.V => world(part, s, P.radius(part.rows[row]!.points, phi), phi)); }

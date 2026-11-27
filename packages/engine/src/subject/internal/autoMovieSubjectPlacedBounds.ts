@@ -5,13 +5,13 @@ import {
 } from "@automovie/interface";
 
 import { transformAutoMovieDrawingPoint } from "../../drawing/internal/transformAutoMovieDrawingPoint";
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 
 /*
  * The world box of model-frame points placed by one node transform, or null
  * when there are no points.
  *
- * The transform is composed as `T * R * S` by `Matrix4.compose`, each point is
+ * The transform is composed as `T * R * S` by `AutoMovieEngineMatrix4.compose`, each point is
  * moved through it, and the componentwise minimum and maximum are folded as the
  * points are placed, so no placed copy of the point list is built. Units follow
  * the points and the translation, metres for every subject.
@@ -24,7 +24,7 @@ export const autoMovieSubjectPlacedBounds = (
   transform: IAutoMovieTransform,
 ): IAutoMovieSubjectBox | null => {
   if (points.length === 0) return null;
-  const matrix: number[] = Matrix4.compose(
+  const matrix: number[] = AutoMovieEngineMatrix4.compose(
     transform.translation,
     transform.rotation,
     transform.scale,

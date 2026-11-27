@@ -1,6 +1,6 @@
 import {
-  AutoMovieGravity,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionHydrodynamics,
 } from "@automovie/engine";
 import type {
@@ -42,7 +42,7 @@ export function test_engine_hydrodynamic_force(): void {
   const findings: string[] = [];
   const V: number = 0.004;
   const r: number = Math.cbrt((3 * V) / (4 * Math.PI));
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const rho: number = AutoMovieEngineMotionHydrodynamics.WATER;
   const at = (
     y: number,
@@ -75,30 +75,30 @@ export function test_engine_hydrodynamic_force(): void {
   }
 
   // 2. Drag.
-  if (Vector3.length(at(-2 * r).drag) !== 0)
+  if (AutoMovieEngineVector3.length(at(-2 * r).drag) !== 0)
     findings.push("a still segment feels drag");
   const v: IAutoMovieVector3 = { x: 0.6, y: 0, z: 0.8 };
   const full: IAutoMovieResolveHydrodynamicForce.IForce = at(-2 * r, v);
   const expected: number =
     0.5 * rho * AutoMovieEngineMotionHydrodynamics.DRAG * Math.PI * r * r;
   if (
-    !close(Vector3.length(full.drag), expected) ||
-    Vector3.dot(full.drag, v) >= 0
+    !close(AutoMovieEngineVector3.length(full.drag), expected) ||
+    AutoMovieEngineVector3.dot(full.drag, v) >= 0
   )
     findings.push(
       `drag at 1 m/s: ${JSON.stringify(full.drag)}, expected ${expected} against the velocity`,
     );
-  const faster: number = Vector3.length(at(-2 * r, Vector3.scale(v, 2)).drag);
-  if (!close(faster, 4 * Vector3.length(full.drag)))
+  const faster: number = AutoMovieEngineVector3.length(at(-2 * r, AutoMovieEngineVector3.scale(v, 2)).drag);
+  if (!close(faster, 4 * AutoMovieEngineVector3.length(full.drag)))
     findings.push(
-      `doubling the speed scales drag by ${faster / Vector3.length(full.drag)}`,
+      `doubling the speed scales drag by ${faster / AutoMovieEngineVector3.length(full.drag)}`,
     );
   const half: IAutoMovieResolveHydrodynamicForce.IForce = at(0, v);
-  if (!close(Vector3.length(half.drag), expected / 2))
+  if (!close(AutoMovieEngineVector3.length(half.drag), expected / 2))
     findings.push(
-      `half under: drag ${Vector3.length(half.drag)}, expected ${expected / 2}`,
+      `half under: drag ${AutoMovieEngineVector3.length(half.drag)}, expected ${expected / 2}`,
     );
-  if (Vector3.length(at(2 * r, v).drag) !== 0)
+  if (AutoMovieEngineVector3.length(at(2 * r, v).drag) !== 0)
     findings.push("drag above the water");
 
   // 3. A denser fluid.

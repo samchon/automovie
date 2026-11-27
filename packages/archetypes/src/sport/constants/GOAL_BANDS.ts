@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../../core";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
-import * as GoalBandsData from "./internal/GoalBandsData";
+import { GoalBandsData } from "./internal/GoalBandsData";
 
 /*
  * The band of each free dimension of createGoal, by kind.

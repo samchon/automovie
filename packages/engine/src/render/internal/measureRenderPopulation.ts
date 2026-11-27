@@ -22,9 +22,9 @@ import type {
  */
 
 import { tessellateSurface } from "../../geometry/internal/tessellateSurface";
-import { AUTOMOVIE_INDEX_BYTES } from "../AUTOMOVIE_INDEX_BYTES";
-import { AUTOMOVIE_NORMAL_BYTES } from "../AUTOMOVIE_NORMAL_BYTES";
-import { AUTOMOVIE_POSITION_BYTES } from "../AUTOMOVIE_POSITION_BYTES";
+import { AutoMovieEngineIndexBytes } from "../AutoMovieEngineIndexBytes";
+import { AutoMovieEngineNormalBytes } from "../AutoMovieEngineNormalBytes";
+import { AutoMovieEnginePositionBytes } from "../AutoMovieEnginePositionBytes";
 import { measure } from "./measure";
 
 /*
@@ -110,8 +110,8 @@ export function measureRenderPopulation(
       groundVertices += mesh.positions.length / 3;
       groundBytes +=
         (mesh.positions.length / 3) *
-          (AUTOMOVIE_POSITION_BYTES + AUTOMOVIE_NORMAL_BYTES) +
-        mesh.indices.length * AUTOMOVIE_INDEX_BYTES;
+          (AutoMovieEnginePositionBytes + AutoMovieEngineNormalBytes) +
+        mesh.indices.length * AutoMovieEngineIndexBytes;
     }
     triangles += groundTriangles;
     vertices += groundVertices;

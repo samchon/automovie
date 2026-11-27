@@ -3,8 +3,8 @@ import {
   IAutoMovieNode,
 } from "@automovie/interface";
 
-import { Transform } from "../../math/Transform";
-import { MOTION_ROOT_NODE_ID } from "../MOTION_ROOT_NODE_ID";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
+import { AutoMovieEngineMotionRootNodeId } from "../AutoMovieEngineMotionRootNodeId";
 
 /*
  * Lower an admitted skeleton into a fresh identity group root and bone rest
@@ -16,14 +16,14 @@ export function lowerSkeletonNodes(
   props: IAutoMovieLowerSkeletonNodes.IProps,
 ): IAutoMovieNode[] {
   const prefix: string = props.prefix ?? "";
-  const rootId: string = `${prefix}${MOTION_ROOT_NODE_ID}`;
+  const rootId: string = `${prefix}${AutoMovieEngineMotionRootNodeId}`;
   const nodes: IAutoMovieNode[] = [
     {
       id: rootId,
       name: null,
       parent: props.rootParent ?? null,
       kind: "group",
-      transform: Transform.identity(),
+      transform: AutoMovieEngineTransform.identity(),
       mesh: null,
       camera: null,
       light: null,
@@ -36,7 +36,7 @@ export function lowerSkeletonNodes(
       name: null,
       parent: bone.parent === null ? rootId : `${prefix}${bone.parent}`,
       kind: "bone",
-      transform: Transform.of(bone.rest.translation, bone.rest.rotation),
+      transform: AutoMovieEngineTransform.of(bone.rest.translation, bone.rest.rotation),
       mesh: null,
       camera: null,
       light: null,

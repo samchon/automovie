@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -18,10 +18,10 @@ export function bowViolinHairAxis(
   outward: IAutoMovieVector3,
   string: BowViolinString,
 ): IAutoMovieVector3 {
-  const across: IAutoMovieVector3 = Vector3.cross(longitudinal, outward);
-  return Vector3.add(
-    Vector3.scale(across, Math.cos(TILT)),
-    Vector3.scale(outward, Math.sin(TILT) * (string === "string1" ? 1 : -1)),
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(longitudinal, outward);
+  return AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(across, Math.cos(TILT)),
+    AutoMovieEngineVector3.scale(outward, Math.sin(TILT) * (string === "string1" ? 1 : -1)),
   );
 }
 

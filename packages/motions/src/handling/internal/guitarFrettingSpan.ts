@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
@@ -23,8 +23,8 @@ export function guitarFrettingSpan(
 ): number {
   const index: AutoMovieHumanoidBone[] = HumanDigitFit.bones("left", "Index");
   const middle: AutoMovieHumanoidBone[] = HumanDigitFit.bones("left", "Middle");
-  const knuckles: number = Vector3.length(
-    Vector3.subtract(
+  const knuckles: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(
       bones.get(index[0]!)!.worldPosition,
       bones.get(middle[0]!)!.worldPosition,
     ),
@@ -38,10 +38,10 @@ export function guitarFrettingSpan(
   ];
   let length: number = knuckles;
   for (const [chain, tip] of chains) {
-    length += Vector3.length(tip.point);
+    length += AutoMovieEngineVector3.length(tip.point);
     for (let i: number = 1; i < chain.length; ++i)
-      length += Vector3.length(
-        Vector3.subtract(
+      length += AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           bones.get(chain[i]!)!.worldPosition,
           bones.get(chain[i - 1]!)!.worldPosition,
         ),

@@ -2,7 +2,7 @@ import { AutoMovieArchetypeBand } from "../../core";
 import { type AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
-import * as EquineIcelandicProfileData from "./internal/EquineIcelandicProfileData";
+import { EquineIcelandicProfileData } from "./internal/EquineIcelandicProfileData";
 
 /*
  * The measured Icelandic cohort and the extra gaits a film author may select.

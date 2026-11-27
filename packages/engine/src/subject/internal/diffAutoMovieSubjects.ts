@@ -12,7 +12,7 @@ import {
   IAutoMovieSubjectDiffFanout,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "../../constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
+import { AutoMovieEngineSubjectDiffDefaultTolerance } from "../../constants/AutoMovieEngineSubjectDiffDefaultTolerance";
 import { instancePrototypeChoices } from "../../populationRuntime/internal/instancePrototypeChoices";
 import { selectInstancePrototype } from "../../populationRuntime/internal/selectInstancePrototype";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
@@ -43,7 +43,7 @@ import { describeAutoMovieSubjects } from "./describeAutoMovieSubjects";
  * |cos(half the angle between them)|`. Subjects are matched by id, and lists
  *
  * Come out in render-id order. `unchanged` is a summary: the total plus at most
- * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` sampled ids. A negative or non-finite
+ * `AutoMovieEngineSubjectMemberSampleLimit` sampled ids. A negative or non-finite
  * tolerance throws a `RangeError`.
  * Parameter beforeArtifact: Compiled artifact of the earlier revision.
  * Parameter afterArtifact: Compiled artifact of the later revision.
@@ -57,7 +57,7 @@ export const diffAutoMovieSubjects: (
 ) => IAutoMovieSubjectDiff = (
   beforeArtifact: IAutoMovieSubjectArtifact,
   afterArtifact: IAutoMovieSubjectArtifact,
-  tolerance: number = AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE,
+  tolerance: number = AutoMovieEngineSubjectDiffDefaultTolerance,
 ): IAutoMovieSubjectDiff => {
   if (tolerance < 0)
     throw new RangeError(

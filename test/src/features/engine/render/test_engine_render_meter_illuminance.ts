@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineExposure } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineExposure } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieLight,
@@ -60,7 +60,7 @@ const lux: (lights: IAutoMovieLight[], point?: IAutoMovieVector3) => number = (
     .lux;
 
 /** Facing straight down, -Y. */
-const DOWN: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+const DOWN: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
   { x: 1, y: 0, z: 0 },
   -90,
 );
@@ -83,7 +83,7 @@ const DOWN: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
  * 5. Two lights sum, each reported under its id; a zero normal is refused.
  */
 export function test_engine_render_meter_illuminance(): void {
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   TestValidator.predicate(
     "a point light",
     nclose(

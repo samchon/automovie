@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -39,7 +39,7 @@ export function StrikingRollHand(
     context.body,
     tool.side,
   );
-  const along: IAutoMovieVector3 = Vector3.normalize(axis);
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(axis);
   const aside: IAutoMovieVector3 = StrikingRollHand.aside(along);
   const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>([`${tool.side}UpperArm`]);
@@ -61,9 +61,9 @@ export function StrikingRollHand(
       tool,
       back,
       run,
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(run, turn),
-        Vector3.cross(run, aside),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(run, turn),
+        AutoMovieEngineVector3.cross(run, aside),
       ),
     );
   };
@@ -134,8 +134,8 @@ export namespace StrikingRollHand {
    * Returns: The unit perpendicular.
    */
   export function aside(along: IAutoMovieVector3): IAutoMovieVector3 {
-    return Vector3.normalize(
-      Vector3.cross(
+    return AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(
         along,
         Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
       ),
@@ -157,9 +157,9 @@ export namespace StrikingRollHand {
     tilt: number,
     around: number,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(along, around),
-      Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle(along, around),
+      AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.fromAxisAngle(aside, tilt), along),
     );
   }
 

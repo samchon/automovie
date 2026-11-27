@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeRide, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -159,8 +159,8 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
   const forward: ReturnType<typeof AutoMovieArchetypeFrame.axis> =
     AutoMovieArchetypeFrame.axis(bicycle.at(second).placement, "z");
   const centreVelocity = (id: "frontSpin" | "rearSpin"): typeof forward =>
-    Vector3.scale(
-      Vector3.subtract(
+    AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(
         bicycle.frame(id, second + step).translation,
         bicycle.frame(id, second - step).translation,
       ),
@@ -170,8 +170,8 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
   const rear: typeof forward = centreVelocity("rearSpin");
   TestValidator.predicate(
     "a fixed bicycle fork shares longitudinal wheel travel through distinct centre arcs",
-    Math.abs(Vector3.length(front) - Vector3.length(rear)) > 1e-6 &&
-      Math.abs(Vector3.dot(Vector3.subtract(front, rear), forward)) < 1e-9,
+    Math.abs(AutoMovieEngineVector3.length(front) - AutoMovieEngineVector3.length(rear)) > 1e-6 &&
+      Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(front, rear), forward)) < 1e-9,
   );
 }
 

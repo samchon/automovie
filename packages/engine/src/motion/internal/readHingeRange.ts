@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 
 import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { prepareChainPlant } from "./prepareChainPlant";
 
 /*
@@ -32,12 +32,12 @@ export function readHingeRange(
   const flexion: { min: number; max: number } | null | undefined =
     prepared.lowerDomain.constraint?.flexion;
   if (flexion === null || flexion === undefined) return null;
-  const length: number = Vector3.length(axes.flexion);
+  const length: number = AutoMovieEngineVector3.length(axes.flexion);
   if (length < 1e-6) return null;
-  const hinge: IAutoMovieVector3 = Vector3.scale(axes.flexion, 1 / length);
+  const hinge: IAutoMovieVector3 = AutoMovieEngineVector3.scale(axes.flexion, 1 / length);
   const read: (degrees: number) => number = (degrees: number): number =>
     decomposeJointRotationOnBasis.run(
-      Quaternion.fromAxisAngle(hinge, degrees),
+      AutoMovieEngineQuaternion.fromAxisAngle(hinge, degrees),
       basis,
       props.restFrames?.[props.chain.lower],
     ).flexion ?? 0;

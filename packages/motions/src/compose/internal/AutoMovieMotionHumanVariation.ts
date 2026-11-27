@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanVariation,
@@ -224,7 +224,7 @@ export namespace AutoMovieMotionHumanVariation {
     gap?: number,
   ): IAutoMovieVector3 {
     if (source === undefined) return vector;
-    const length: number = Vector3.length(vector);
+    const length: number = AutoMovieEngineVector3.length(vector);
     if (!(length > 1e-9)) return vector;
     const spread: number =
       source.variation *
@@ -250,13 +250,13 @@ export namespace AutoMovieMotionHumanVariation {
     const [along, first, second] = AutoMovieMotionHumanVariationDraw.basis(
       vector,
     ) as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
-    return Vector3.scale(
-      Vector3.add(
-        Vector3.scale(along, Math.cos(turn)),
-        Vector3.scale(
-          Vector3.add(
-            Vector3.scale(first, Math.cos(heading)),
-            Vector3.scale(second, Math.sin(heading)),
+    return AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(along, Math.cos(turn)),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(first, Math.cos(heading)),
+            AutoMovieEngineVector3.scale(second, Math.sin(heading)),
           ),
           Math.sin(turn),
         ),

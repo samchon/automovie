@@ -11,7 +11,7 @@ import {
 
 import { roundToThousandths } from "../../math/internal/roundToThousandths";
 import { assertGrammarPositive } from "./assertGrammarPositive";
-import { GRAMMAR_STYLE_SUPPRESSION } from "../GRAMMAR_STYLE_SUPPRESSION";
+import { AutoMovieEngineGrammarStyleSuppression } from "../AutoMovieEngineGrammarStyleSuppression";
 import { inspectGrammarCut } from "./inspectGrammarCut";
 import { measureGrammarShotSize } from "./measureGrammarShotSize";
 import { normalizeGrammarShot } from "./normalizeGrammarShot";
@@ -29,7 +29,7 @@ import { normalizeGrammarShot } from "./normalizeGrammarShot";
  * jump-cut, a displacement re-establishing and a screen-direction finding, then
  * an entrant re-establishing finding when the displacement one was not filed;
  * and one advisory pacing finding for a non-empty edit. A finding is excepted
- * when its shot declares the style intent `GRAMMAR_STYLE_SUPPRESSION` maps to
+ * when its shot declares the style intent `AutoMovieEngineGrammarStyleSuppression` maps to
  * its code, and pacing is excepted when any shot declares `rhythmic-pacing`.
  *
  * Shot order is editorial meaning and is kept. Subject order and action-axis
@@ -115,7 +115,7 @@ export function readFilmGrammar(
       const intent: AutoMovieGrammarStyleIntent | undefined =
         shot.styleIntent.find(
           (candidate: AutoMovieGrammarStyleIntent): boolean =>
-            GRAMMAR_STYLE_SUPPRESSION[candidate] === diagnostic.code,
+            AutoMovieEngineGrammarStyleSuppression[candidate] === diagnostic.code,
         );
       if (intent === undefined) return true;
       exercised.add(claimKey(shot.id, intent));

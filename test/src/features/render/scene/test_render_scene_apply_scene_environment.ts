@@ -1,5 +1,5 @@
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
-import { AutoMovieThreeKind, AutoMovieRenderSceneEnvironment } from "@automovie/render";
+import { AutoMovieRenderThreeKind, AutoMovieRenderSceneEnvironment } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
   EquirectangularReflectionMapping,
@@ -46,7 +46,7 @@ export function test_render_scene_apply_scene_environment(): void {
     () =>
       scene.environment === null &&
       fallback !== null &&
-      AutoMovieThreeKind.isColor(fallback) &&
+      AutoMovieRenderThreeKind.isColor(fallback) &&
       nclose(fallback.r, 0.25, COLOR_TOLERANCE) &&
       nclose(fallback.g, 0.5, COLOR_TOLERANCE) &&
       nclose(fallback.b, 0.75, COLOR_TOLERANCE),

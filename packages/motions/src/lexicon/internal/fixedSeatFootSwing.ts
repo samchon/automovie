@@ -1,4 +1,4 @@
-import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -55,25 +55,25 @@ export function fixedSeatFootSwing(
     for (const side of SIDES) {
       const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       const goal: IAutoMovieHumanLimbGoal = legs.limbs[`${side}Leg`]!;
-      const ankle: IAutoMovieVector3 = Vector3.subtract(
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         foot.worldPosition,
         goal.point,
       );
-      const sole: IAutoMovieVector3 = Vector3.add(
+      const sole: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         ankle,
-        Vector3.subtract(
-          Quaternion.rotateVector(foot.worldRotation, goal.contact!),
-          Quaternion.rotateVector(goal.rotation!, goal.contact!),
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineQuaternion.rotateVector(foot.worldRotation, goal.contact!),
+          AutoMovieEngineQuaternion.rotateVector(goal.rotation!, goal.contact!),
         ),
       );
       // A legal angle differing by the rig's own resolution can move an
       // ankle/sole by at most this arc. World coordinates alone cannot
       // bound the roundoff accumulated through bilateral FK.
       const precision: number =
-        (leg + Vector3.length(goal.contact!)) *
-        ROM_TOLERANCE *
-        Quaternion.DEG2RAD;
-      if (Vector3.length(ankle) > precision || Vector3.length(sole) > precision)
+        (leg + AutoMovieEngineVector3.length(goal.contact!)) *
+        AutoMovieEngineRomTolerance *
+        AutoMovieEngineQuaternion.DEG2RAD;
+      if (AutoMovieEngineVector3.length(ankle) > precision || AutoMovieEngineVector3.length(sole) > precision)
         return false;
     }
     return true;
@@ -82,7 +82,7 @@ export function fixedSeatFootSwing(
   if (supported(requested)) return requested;
   let near: number = 0;
   let far: number = requested;
-  while (Math.abs(far - near) > ROM_TOLERANCE) {
+  while (Math.abs(far - near) > AutoMovieEngineRomTolerance) {
     const trial: number = (near + far) / 2;
     if (supported(trial)) near = trial;
     else far = trial;

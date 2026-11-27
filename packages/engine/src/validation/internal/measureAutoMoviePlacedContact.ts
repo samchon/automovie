@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
 /*
@@ -63,9 +63,9 @@ function measureSupport(
   const local: IAutoMovieVector3 = localPosition(
     sample.point,
     sample.frame.position,
-    Quaternion.inverse(sample.frame.rotation),
+    AutoMovieEngineQuaternion.inverse(sample.frame.rotation),
   );
-  const delta: IAutoMovieVector3 = Vector3.subtract(local, sample.anchor);
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(local, sample.anchor);
   const gap: number = delta.y;
   const slip: number = Math.hypot(delta.x, delta.z);
   if (!Number.isFinite(gap) || !Number.isFinite(slip)) {
@@ -138,7 +138,7 @@ function measureGrip(
   if (collector.items.length !== 0)
     return { status: "invalid", violations: collector.items };
 
-  const inverseHand: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverseHand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     sample.hand.rotation,
   );
   const position: IAutoMovieVector3 = localPosition(
@@ -146,12 +146,12 @@ function measureGrip(
     sample.hand.position,
     inverseHand,
   );
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     inverseHand,
     sample.prop.rotation,
   );
-  const distance: number = Vector3.distance(position, sample.expected.position);
-  const angle: number = Quaternion.angle(rotation, sample.expected.rotation);
+  const distance: number = AutoMovieEngineVector3.distance(position, sample.expected.position);
+  const angle: number = AutoMovieEngineQuaternion.angle(rotation, sample.expected.rotation);
   if (!Number.isFinite(distance) || !Number.isFinite(angle)) {
     collector.range(
       `${path}.distance`,
@@ -250,8 +250,8 @@ function localPosition(
   origin: IAutoMovieVector3,
   inverseOrientation: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
-  return Quaternion.rotateVector(
+  return AutoMovieEngineQuaternion.rotateVector(
     inverseOrientation,
-    Vector3.subtract(point, origin),
+    AutoMovieEngineVector3.subtract(point, origin),
   );
 }

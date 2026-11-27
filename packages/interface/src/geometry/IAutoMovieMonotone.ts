@@ -2,7 +2,7 @@
 export namespace IAutoMovieMonotone {
   /**
    * Caller-owned writable first-derivative slots for n knots, in ordinate units
-   * per knot unit. AutoMovieMonotone.slope overwrites the buffer; capacity is a
+   * per knot unit. AutoMovieEngineMonotone.slope overwrites the buffer; capacity is a
    * caller precondition.
    *
    * Each interior slope starts as the mean of its two secants, or zero where

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -256,8 +256,8 @@ export namespace QuadrupedAttachments {
       throw new RangeError(
         `The actual ${parent} does not contain its limb attachment: distance ${distance} m, radius ${solid.radius} m`,
       );
-    const parentLocal: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(solid.frame.rotation),
+    const parentLocal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(solid.frame.rotation),
       {
         x: point.x - solid.frame.translation.x,
         y: point.y - solid.frame.translation.y,

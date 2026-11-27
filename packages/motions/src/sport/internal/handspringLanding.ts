@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -61,19 +61,19 @@ export function handspringLanding(
     landingSurface.within(landed.right);
   }
   const rootDown: IAutoMovieVector3 = touched.root;
-  const rootSpeed: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(rootDown, flying(flight - 1e-3).root),
+  const rootSpeed: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(rootDown, flying(flight - 1e-3).root),
     1e3,
   );
-  const stoodFeet: IAutoMovieVector3 = Vector3.lerp(
+  const stoodFeet: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     entered.get("leftFoot")!.worldPosition,
     entered.get("rightFoot")!.worldPosition,
     0.5,
   );
   const rootUp: IAutoMovieVector3 = {
-    ...Vector3.add(
-      Vector3.lerp(landed.left, landed.right, 0.5),
-      Vector3.subtract(standing.root, stoodFeet),
+    ...AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.lerp(landed.left, landed.right, 0.5),
+      AutoMovieEngineVector3.subtract(standing.root, stoodFeet),
     ),
     y: standing.root.y + riseOfMat,
   };
@@ -87,12 +87,12 @@ export function handspringLanding(
     right: HumanFoot.rotation(yaw - stand.TOE_OUT, 0),
   };
   const bends: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
-    left: Vector3.add(landed.left, {
+    left: AutoMovieEngineVector3.add(landed.left, {
       x: forward.x,
       y: body.measure.hipHeight / 2,
       z: forward.z,
     }),
-    right: Vector3.add(landed.right, {
+    right: AutoMovieEngineVector3.add(landed.right, {
       x: forward.x,
       y: body.measure.hipHeight / 2,
       z: forward.z,
@@ -104,9 +104,9 @@ export function handspringLanding(
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ): IAutoMovieMotionHumanPosture => {
     const u: number = ease(t / span);
-    const root: IAutoMovieVector3 = Vector3.add(
-      Vector3.lerp(rootDown, rootUp, u),
-      Vector3.scale(rootSpeed, AutoMovieEngineMotionSampling.carriedRate(span, t)),
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.lerp(rootDown, rootUp, u),
+      AutoMovieEngineVector3.scale(rootSpeed, AutoMovieEngineMotionSampling.carriedRate(span, t)),
     );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of ["left", "right"] as const)

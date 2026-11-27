@@ -11,7 +11,7 @@ import {
 import { AutoMovieArchetypeCane } from "./AutoMovieArchetypeCane";
 import { AutoMovieArchetypeInfusionStand } from "./AutoMovieArchetypeInfusionStand";
 import { AutoMovieArchetypeWalker } from "./AutoMovieArchetypeWalker";
-import * as AutoMovieArchetypeMobilityAidData from "./internal/AutoMovieArchetypeMobilityAidData";
+import { AutoMovieArchetypeMobilityAidData } from "./internal/AutoMovieArchetypeMobilityAidData";
 
 /** Constructs the mobility aid archetype from its recipe. */
 export namespace AutoMovieArchetypeMobilityAid {

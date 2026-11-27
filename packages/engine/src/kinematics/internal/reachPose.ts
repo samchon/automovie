@@ -14,11 +14,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
+import { AutoMovieEngineHumanoidRestFrame } from "../../rom/AutoMovieEngineHumanoidRestFrame";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { armChainFault } from "./armChainFault";
 import { clinicalDeviation } from "./clinicalDeviation";
-import { HUMANOID_JOINT_AXES } from "../HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidJointAxes } from "../AutoMovieEngineHumanoidJointAxes";
 import { decomposeJointRotation } from "./decomposeJointRotation";
 import { hingedArmArticulation } from "./hingedArmArticulation";
 import { jointRomOvershoot } from "./jointRomOvershoot";
@@ -42,9 +42,9 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  *
  * The angles are clinical, so `validatePose` can compare them with the ROM
  * table directly. The clinical axes and the rest frame are two halves of one
- * convention: this function applies HUMANOID_JOINT_AXES under any axes
+ * convention: this function applies AutoMovieEngineHumanoidJointAxes under any axes
  * the arm bones declare (skeletonJointAxes) and so defaults `restFrames`
- * to the matching HUMANOID_REST_FRAME. Pass a table for a rig with its
+ * to the matching AutoMovieEngineHumanoidRestFrame. Pass a table for a rig with its
  * own rest convention, or `{}` for raw rest-relative angles.
  *
  * Returns `null` when `side` is not `"left"` or `"right"` (the value arrives
@@ -57,7 +57,7 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * Parameter side: Which arm reaches.
  * Parameter target: Point the hand lands on, in the skeleton's model space.
  * Parameter restFrames: Per-bone rest frames for the clinical lift; defaults to
- * `HUMANOID_REST_FRAME`.
+ * `AutoMovieEngineHumanoidRestFrame`.
  */
 export function reachPose(
   skeleton: IAutoMovieSkeleton,
@@ -65,7 +65,7 @@ export function reachPose(
   target: IAutoMovieVector3,
   restFrames: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  > = HUMANOID_REST_FRAME,
+  > = AutoMovieEngineHumanoidRestFrame,
 ): IAutoMoviePose | null {
   if (side !== "left" && side !== "right") return null;
 
@@ -103,7 +103,7 @@ export function reachPose(
   if (armChainFault(skeleton, side) !== null) return null;
 
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
-    skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
+    skeletonJointAxes(skeleton, AutoMovieEngineHumanoidJointAxes);
   const upper: IAutoMovieResolvedBone | undefined = resolvePose(
     { skeleton: skeleton.id, root: null, joints: [] },
     skeleton,

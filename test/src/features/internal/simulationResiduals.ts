@@ -1,4 +1,4 @@
-import { PhysicalRotationVector, Quaternion, ROM_TOLERANCE, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalRotationVector, AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSimulation,
   IAutoMoviePhysicalFrame,
@@ -71,11 +71,11 @@ export function simulationResiduals(
           poses,
           joint,
         );
-        const residual: number = Vector3.length(
-          PhysicalRotationVector.log(
-            Quaternion.multiply(
+        const residual: number = AutoMovieEngineVector3.length(
+          AutoMovieEnginePhysicalRotationVector.log(
+            AutoMovieEngineQuaternion.multiply(
               AutoMovieEnginePhysics.projectPhysicalJointRotation(joint, relative),
-              Quaternion.inverse(relative),
+              AutoMovieEngineQuaternion.inverse(relative),
             ),
           ),
         );
@@ -93,7 +93,7 @@ export function simulationResiduals(
 /** Companion constants of {@link simulationResiduals}. */
 export namespace simulationResiduals {
   /**
-   * The guard on a joint's residual, radians: the engine's `ROM_TOLERANCE`
+   * The guard on a joint's residual, radians: the engine's `AutoMovieEngineRomTolerance`
    * (0.01 degree), the one joint tolerance the pipeline declares, which the
    * simulated window hands the solver as its hand-back limit
    * (`planHumanSimulationBody`, `maximumJointViolation`) and the take's range
@@ -103,5 +103,5 @@ export namespace simulationResiduals {
    * MuJoCo's limits are soft (`solref`, `solimp`). A residual past it means the
    * solver failed to hold the joint and must fail.
    */
-  export const GUARD: number = (ROM_TOLERANCE * Math.PI) / 180;
+  export const GUARD: number = (AutoMovieEngineRomTolerance * Math.PI) / 180;
 }

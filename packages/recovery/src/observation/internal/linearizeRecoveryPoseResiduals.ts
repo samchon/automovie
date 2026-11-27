@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "@automovie/interface";
 
 /*
@@ -19,18 +19,18 @@ export function linearizeRecoveryPoseResiduals(
     );
   const matrices: number[][] = [model.matrix, ...model.derivatives];
   const transposes: number[][] = matrices.map((matrix: number[]): number[] =>
-    AutoMovieMatrix3.transpose(matrix),
+    AutoMovieEngineMatrix3.transpose(matrix),
   );
   const residuals: number[] = [],
     jacobian: number[][] = [];
   for (let at: number = 0; at < first.length; at++) {
     const x: number[] = [...first[at]!, 1],
       y: number[] = [...second[at]!, 1];
-    const l2: [number, number, number] = AutoMovieMatrix3.apply(
+    const l2: [number, number, number] = AutoMovieEngineMatrix3.apply(
       model.matrix,
       x,
     );
-    const l1: [number, number, number] = AutoMovieMatrix3.apply(
+    const l1: [number, number, number] = AutoMovieEngineMatrix3.apply(
       transposes[0]!,
       y,
     );
@@ -46,11 +46,11 @@ export function linearizeRecoveryPoseResiduals(
     const residual: number = incidence / denominator;
     const row: number[] = [];
     for (let parameter: number = 0; parameter < 5; parameter++) {
-      const dl2: [number, number, number] = AutoMovieMatrix3.apply(
+      const dl2: [number, number, number] = AutoMovieEngineMatrix3.apply(
         model.derivatives[parameter]!,
         x,
       );
-      const dl1: [number, number, number] = AutoMovieMatrix3.apply(
+      const dl1: [number, number, number] = AutoMovieEngineMatrix3.apply(
         transposes[parameter + 1]!,
         y,
       );

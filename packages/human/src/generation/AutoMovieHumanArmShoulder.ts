@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
@@ -44,7 +44,7 @@ export namespace AutoMovieHumanArmShoulder {
     const radius: number = rootRadius(upper, calibration, side);
     const below: number = AutoMovieHumanArmBones.ACROMION * acromionRadiale;
     const deltoid = (y: number): AutoMovieVector3Tuple => {
-      const cap: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+      const cap: AutoMovieVector3Tuple[] = AutoMovieEngineLoftChain.ring(
         upper,
         Math.min(hi, Math.max(lo, y)),
         PHASES,
@@ -69,10 +69,10 @@ export namespace AutoMovieHumanArmShoulder {
     const top = (x: number, z: number, from: number): number => {
       let a: number = Math.max(lo, from);
       let b: number = hi;
-      if (!inside(AutoMovieLoftChain.ring(upper, a, PHASES), x, z)) return a;
+      if (!inside(AutoMovieEngineLoftChain.ring(upper, a, PHASES), x, z)) return a;
       for (let i: number = 0; i < STEPS; i++) {
         const m: number = (a + b) / 2;
-        if (inside(AutoMovieLoftChain.ring(upper, m, PHASES), x, z)) a = m;
+        if (inside(AutoMovieEngineLoftChain.ring(upper, m, PHASES), x, z)) a = m;
         else b = m;
       }
       return (a + b) / 2;
@@ -155,7 +155,7 @@ function rootRadius(
     )!
     .arcs.flatMap(([from, to]: [number, number]): AutoMovieVector3Tuple[] => {
       const span: number = to >= from ? to - from : to + 2 * Math.PI - from;
-      return AutoMovieLoftChain.ring(
+      return AutoMovieEngineLoftChain.ring(
         upper,
         upper.layers[0]!.y,
         Array.from(

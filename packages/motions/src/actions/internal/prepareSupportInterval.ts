@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -22,7 +22,7 @@ import { prepareSupportLiftCourse } from "./prepareSupportLiftCourse";
 import { prepareSupportPinFloor } from "./prepareSupportPinFloor";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
-import * as PrepareSupportIntervalData from "./PrepareSupportIntervalData";
+import { PrepareSupportIntervalData } from "./PrepareSupportIntervalData";
 
 /*
  * Prepare one support interval: the joint blend between its two keys, the root
@@ -328,18 +328,18 @@ export namespace prepareSupportInterval {
       frame: IAutoMovieRigidTransform,
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.inverse(frame.rotation),
-        Vector3.subtract(point, frame.position),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(frame.rotation),
+        AutoMovieEngineVector3.subtract(point, frame.position),
       );
     const start: IAutoMovieVector3 = local(endpoints[0], points[0]);
     const end: IAutoMovieVector3 = local(endpoints[1], points[1]);
     return (frame, share) =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           frame.rotation,
-          Vector3.lerp(start, end, share),
+          AutoMovieEngineVector3.lerp(start, end, share),
         ),
       );
   }
@@ -454,7 +454,7 @@ function retainedPoint(
   points: readonly [IAutoMovieVector3, IAutoMovieVector3],
   material: IMaterial | undefined,
 ): IPoint {
-  if (material === undefined) return (share) => Vector3.lerp(...points, share);
+  if (material === undefined) return (share) => AutoMovieEngineVector3.lerp(...points, share);
   const read: ReturnType<typeof prepareSupportInterval.materialPoint> =
     prepareSupportInterval.materialPoint(material.endpoints, points);
   return (share, sites) => read(sites[material.index]!, share);
@@ -472,31 +472,31 @@ function heldGoal(
   const start: IAutoMovieQuaternion =
     material === undefined
       ? frame.rotation[0]
-      : Quaternion.multiply(
-          Quaternion.inverse(material.endpoints[0].rotation),
+      : AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(material.endpoints[0].rotation),
           frame.rotation[0],
         );
   const end: IAutoMovieQuaternion =
     material === undefined
       ? frame.rotation[1]
-      : Quaternion.multiply(
-          Quaternion.inverse(material.endpoints[1].rotation),
+      : AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(material.endpoints[1].rotation),
           frame.rotation[1],
         );
   return (share, sites) => {
-    const local: IAutoMovieQuaternion = Quaternion.slerp(start, end, share);
+    const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(start, end, share);
     const rotation: IAutoMovieQuaternion =
       material === undefined
         ? local
-        : Quaternion.multiply(sites[material.index]!.rotation, local);
+        : AutoMovieEngineQuaternion.multiply(sites[material.index]!.rotation, local);
     const at: IAutoMovieVector3 = point(share, sites);
     return {
       point:
         frame.pivot === undefined
           ? at
-          : Vector3.subtract(
+          : AutoMovieEngineVector3.subtract(
               at,
-              Quaternion.rotateVector(rotation, frame.pivot.local),
+              AutoMovieEngineQuaternion.rotateVector(rotation, frame.pivot.local),
             ),
       rotation,
       bend: bend(share, sites),

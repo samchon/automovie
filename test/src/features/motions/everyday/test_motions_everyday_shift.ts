@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, shift } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  shift
+} from "../../../../../packages/motions/src/everyday/internal/shift";
 import { strict as assert } from "node:assert";
 
 /** A seated slide keeps its sign and stays within 35% of the planted thigh. */

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeArmour } from "@automovie/archetypes";
-import { Quaternion, Vector3, AutoMoviePhysicalHullFaces, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalHullFaces, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMovieVector3,
@@ -36,9 +36,9 @@ export namespace armourJointObservation {
         shape.id,
         shape.points.map(
           (point: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               shape.transform.position,
-              Quaternion.rotateVector(shape.transform.rotation, point),
+              AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, point),
             ),
         ),
       );
@@ -62,7 +62,7 @@ export namespace armourJointObservation {
     epsilon: number,
   ): number {
     const faces: IAutoMoviePhysicalHullFaces.IFace[] =
-      AutoMoviePhysicalHullFaces.build(points).faces;
+      AutoMovieEnginePhysicalHullFaces.build(points).faces;
     let minimum: number = Infinity;
     for (let i: number = 0; i < faces.length; i++)
       for (let j: number = i + 1; j < faces.length; j++) {
@@ -70,7 +70,7 @@ export namespace armourJointObservation {
         const second: IAutoMoviePhysicalHullFaces.IFace = faces[j]!;
         const separation: number = first.offset + second.offset;
         if (
-          Vector3.length(Vector3.add(first.normal, second.normal)) <= epsilon &&
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.add(first.normal, second.normal)) <= epsilon &&
           separation > 0
         )
           minimum = Math.min(minimum, separation);
@@ -111,9 +111,9 @@ export namespace armourJointObservation {
     for (let i: number = 0; i < common.length; i++)
       for (let j: number = i + 1; j < common.length; j++)
         for (let k: number = j + 1; k < common.length; k++) {
-          const cross: IAutoMovieVector3 = Vector3.cross(
-            Vector3.subtract(common[j]!, common[i]!),
-            Vector3.subtract(common[k]!, common[i]!),
+          const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+            AutoMovieEngineVector3.subtract(common[j]!, common[i]!),
+            AutoMovieEngineVector3.subtract(common[k]!, common[i]!),
           );
           area = Math.max(area, Math.hypot(cross.x, cross.y, cross.z) / 2);
         }

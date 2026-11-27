@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
-import { HumanQuadraticProgram } from "@automovie/motions/internal";
+import {
+  HumanQuadraticProgram
+} from "../../../../../packages/motions/src/posture/internal/HumanQuadraticProgram";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

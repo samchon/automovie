@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -46,12 +46,12 @@ export namespace HumanMountedStride {
       const at: IAutoMovieRigidTransform = carrier(
         film + ((k + 0.5) / SAMPLES - 0.5) * stride,
       );
-      sum = Vector3.add(
+      sum = AutoMovieEngineVector3.add(
         sum,
-        Vector3.add(at.position, Quaternion.rotateVector(at.rotation, point)),
+        AutoMovieEngineVector3.add(at.position, AutoMovieEngineQuaternion.rotateVector(at.rotation, point)),
       );
     }
-    return Vector3.scale(sum, 1 / SAMPLES);
+    return AutoMovieEngineVector3.scale(sum, 1 / SAMPLES);
   }
 
   /*
@@ -68,7 +68,7 @@ export namespace HumanMountedStride {
     if (grip.axis === undefined || metres === 0) return grip;
     return {
       ...grip,
-      point: Vector3.add(grip.point, Vector3.scale(grip.axis, metres)),
+      point: AutoMovieEngineVector3.add(grip.point, AutoMovieEngineVector3.scale(grip.axis, metres)),
     };
   }
 
@@ -90,9 +90,9 @@ export namespace HumanMountedStride {
     if (grip.axis === undefined || reach === 0) return grip;
     return {
       ...grip,
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         grip.point,
-        Vector3.scale(
+        AutoMovieEngineVector3.scale(
           grip.axis,
           reach * Math.sin((2 * Math.PI * phase) / stride),
         ),

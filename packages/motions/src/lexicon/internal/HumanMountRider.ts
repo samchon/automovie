@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -124,13 +124,13 @@ export namespace HumanMountRider {
     const across: IAutoMovieVector3 =
       grip.axis === undefined
         ? { x: 0, y: 0, z: 0 }
-        : Vector3.cross(grip.axis, grip.normal);
+        : AutoMovieEngineVector3.cross(grip.axis, grip.normal);
     let fingers: IAutoMovieVector3;
-    if (Vector3.length(across) < 1e-6) fingers = forward(posture);
+    if (AutoMovieEngineVector3.length(across) < 1e-6) fingers = forward(posture);
     else {
       const side: number =
-        grip.across ?? (Vector3.dot(across, forward(posture)) < 0 ? -1 : 1);
-      fingers = Vector3.scale(Vector3.normalize(across), side);
+        grip.across ?? (AutoMovieEngineVector3.dot(across, forward(posture)) < 0 ? -1 : 1);
+      fingers = AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(across), side);
     }
     if (material.reinPalm !== undefined)
       return {
@@ -139,15 +139,15 @@ export namespace HumanMountRider {
         contact: material.reinPalm.point,
       };
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         grip.point,
-        Vector3.add(
-          Vector3.scale(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(
             grip.normal,
             (material.palmDepth ?? PALM * body.measure.hand) +
               (grip.radius ?? 0),
           ),
-          Vector3.scale(fingers, -CENTRE * body.measure.hand),
+          AutoMovieEngineVector3.scale(fingers, -CENTRE * body.measure.hand),
         ),
       ),
       fingers,
@@ -371,7 +371,7 @@ export namespace HumanMountRider {
       rein ??
       HumanHand.rotation(side, {
         fingers,
-        palm: Vector3.scale(grip.normal, -1),
+        palm: AutoMovieEngineVector3.scale(grip.normal, -1),
       });
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
@@ -384,10 +384,10 @@ export namespace HumanMountRider {
     let bend: IAutoMovieVector3 = hang;
     if (s < 1) {
       const hand: IFree = free();
-      point = Vector3.lerp(hand.position, target, s);
-      rotation = Quaternion.slerp(hand.rotation, turned, s);
+      point = AutoMovieEngineVector3.lerp(hand.position, target, s);
+      rotation = AutoMovieEngineQuaternion.slerp(hand.rotation, turned, s);
       // The elbow leaves where the posture shows it, so a hand taken from or given back to its rest keeps its elbow's side at the end it is free.
-      if (hand.pole !== undefined) bend = Vector3.lerp(hand.pole, hang, s);
+      if (hand.pole !== undefined) bend = AutoMovieEngineVector3.lerp(hand.pole, hang, s);
     }
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
       side,
@@ -449,7 +449,7 @@ export namespace HumanMountRider {
  * side.
  */
 function forward(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
-  return Quaternion.rotateVector(humanPostureHeading(posture), {
+  return AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), {
     x: 0,
     y: 0,
     z: 1,

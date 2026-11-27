@@ -4,8 +4,8 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 import {
-  type IAutoMovieFormationCycle,
-  type IAutoMovieFormationCycleTake,
+  type IAutoMovieRenderFormationCycle,
+  type IAutoMovieRenderFormationCycleTake,
   AutoMovieRenderFormationGeometry,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -72,10 +72,10 @@ export function test_render_scene_flatten_instanced_model_formation_cycle_poses(
     "poses",
     { takes: [take("march", 8, 0.1)] },
   );
-  const cycle: IAutoMovieFormationCycle | null = one.cycle;
+  const cycle: IAutoMovieRenderFormationCycle | null = one.cycle;
   if (cycle === null) findings.push("the pose table baked nothing");
   else {
-    const baked: IAutoMovieFormationCycleTake | undefined =
+    const baked: IAutoMovieRenderFormationCycleTake | undefined =
       cycle.takes.get("march");
     if (baked === undefined) findings.push("the take is not named march");
     else {

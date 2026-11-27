@@ -14,9 +14,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The column-major world matrix of every element, displaced by its selected
@@ -61,18 +61,18 @@ export function builtEnvironmentWorldMatrices(
     const cached: number[] | undefined = matrices.get(id);
     if (cached !== undefined) return cached;
     const element: IAutoMovieBuiltElement = byId.get(id)!;
-    const rest: number[] = Matrix4.compose(
+    const rest: number[] = AutoMovieEngineMatrix4.compose(
       element.transform.translation,
       element.transform.rotation,
       element.transform.scale,
     );
     const joint: number[] | undefined = joints.get(id);
     const local: number[] =
-      joint === undefined ? rest : Matrix4.multiply(rest, joint);
+      joint === undefined ? rest : AutoMovieEngineMatrix4.multiply(rest, joint);
     const world: number[] =
       element.parent === null
         ? local
-        : Matrix4.multiply(read(element.parent), local);
+        : AutoMovieEngineMatrix4.multiply(read(element.parent), local);
     matrices.set(id, world);
     return world;
   };
@@ -191,11 +191,11 @@ const travelDelta: (
   motion: IAutoMovieTravelMotion,
   value: number,
 ) => number[] = (motion: IAutoMovieTravelMotion, value: number): number[] => {
-  const axis: IAutoMovieVector3 = Vector3.normalize(motion.axis);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(motion.axis);
   const unit: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
   if (motion.kind === "prismatic")
-    return Matrix4.compose(
-      Vector3.scale(axis, value),
+    return AutoMovieEngineMatrix4.compose(
+      AutoMovieEngineVector3.scale(axis, value),
       { x: 0, y: 0, z: 0, w: 1 },
       unit,
     );
@@ -208,10 +208,10 @@ const travelDelta: (
   };
   // Turning about a pivot is a turn about the origin plus the offset that puts
   // the pivot back where it was.
-  return Matrix4.compose(
-    Vector3.subtract(
+  return AutoMovieEngineMatrix4.compose(
+    AutoMovieEngineVector3.subtract(
       motion.pivot,
-      Quaternion.rotateVector(rotation, motion.pivot),
+      AutoMovieEngineQuaternion.rotateVector(rotation, motion.pivot),
     ),
     rotation,
     unit,

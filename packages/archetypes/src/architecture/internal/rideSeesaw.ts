@@ -1,5 +1,5 @@
 import {
-  Quaternion,
+  AutoMovieEngineQuaternion,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -41,7 +41,7 @@ export function rideSeesaw(
 ): AutoMovieArchetypeSeesaw.IRideResult {
   const limit: number =
     Math.asin(seesaw.dimensions.pivot! / (seesaw.dimensions.length! / 2)) /
-    Quaternion.DEG2RAD;
+    AutoMovieEngineQuaternion.DEG2RAD;
   ride.pushes.forEach((at: number, index: number): void => {
     const before: number = index === 0 ? ride.settle : ride.pushes[index - 1]!;
     if (!(at >= before + ride.swing && ride.swing > 0))
@@ -79,7 +79,7 @@ export function rideSeesaw(
       AutoMovieArchetypeFrame.compose(placement, {
         scale: ONE,
         translation: { x: 0, y: seesaw.dimensions.pivot!, z: 0 },
-        rotation: Quaternion.fromAxisAngle(AXIS, angle(seconds)),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(AXIS, angle(seconds)),
       }),
   };
 }

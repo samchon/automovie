@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupportAim,
@@ -7,10 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  HumanSupportAim,
-  HumanSupportCarry,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSupportAim
+} from "../../../../../packages/motions/src/carrier/internal/HumanSupportAim";
+import {
+  HumanSupportCarry
+} from "../../../../../packages/motions/src/carrier/internal/HumanSupportCarry";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -51,7 +55,7 @@ export function test_motions_carrier_human_support_aim(): void {
   };
   const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const carried: (
     to: IAutoMovieRigidTransform,
@@ -66,11 +70,11 @@ export function test_motions_carrier_human_support_aim(): void {
     );
   const slid: IAutoMovieMotionHumanSupportCarry.ICarry = carried({
     position: { x: 1, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   });
   const turned: IAutoMovieMotionHumanSupportCarry.ICarry = carried({
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   });
   const yaw: number = (Math.atan2(-1, 10) * 180) / Math.PI;
   const slide: HumanSupportAim.ICorrection = HumanSupportAim.correction(
@@ -127,7 +131,7 @@ export function test_motions_carrier_human_support_aim(): void {
         HumanSupportCarry(
           (t: number): IAutoMovieRigidTransform => ({
             position: { x: 0, y: 0, z: 0 },
-            rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 150 * t),
+            rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 150 * t),
           }),
           0,
           seconds,

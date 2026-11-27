@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeMagazineData from "./internal/AutoMovieArchetypeMagazineData";
+import { AutoMovieArchetypeMagazineData } from "./internal/AutoMovieArchetypeMagazineData";
 
 /** Constructs the magazine archetype from its recipe. */
 export namespace AutoMovieArchetypeMagazine {
@@ -65,7 +65,7 @@ export function create(
     name: `${kind} magazine`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.box("body", v(d.width, d.length, d.depth), v(0, d.length / 2, 0), {
     color: "#2c2f33",
   });

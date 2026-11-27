@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -229,7 +229,7 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
         film,
         horse,
       );
-      const out: IAutoMovieVector3 = Vector3.normalize({
+      const out: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: horse.position.x - centre.x,
         y: 0,
         z: horse.position.z - centre.z,
@@ -335,7 +335,7 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
         film,
         horse,
       );
-      const out: IAutoMovieVector3 = Vector3.normalize({
+      const out: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: horse.position.x - centre.x,
         y: 0,
         z: horse.position.z - centre.z,

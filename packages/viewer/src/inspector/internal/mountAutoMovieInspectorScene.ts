@@ -2,17 +2,17 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
-import { type IAutoMovieDrawScene, type IAutoMovieInspectionHandle, AutoMovieRenderInspectionOverlay, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawScene, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspectionOverlay, AutoMovieRenderDraw } from "@automovie/render";
 import type * as THREE from "three";
 
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 import { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
 import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog.js";
-import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
+import type { AutoMovieViewerInspectorPlayhead } from "../AutoMovieViewerInspectorPlayhead.js";
 import { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition.js";
 import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive.js";
-import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
-import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
+import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene.js";
+import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost.js";
 import { assertAutoMovieInspectorRaster } from "./assertAutoMovieInspectorRaster.js";
 import { changesAutoMovieObservedScene } from "./changesAutoMovieObservedScene.js";
 import { firstAutoMovieInspectorSecond } from "./firstAutoMovieInspectorSecond.js";
@@ -87,7 +87,7 @@ import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInsp
  */
 export function mountAutoMovieInspectorScene(
   props: AutoMovieViewerInspector.ISceneProps,
-): IAutoMovieInspectorScene {
+): IAutoMovieViewerInspectorScene {
   const { host, playhead, report } = props;
   const diagnosticLog: AutoMovieInspectorDiagnosticLog =
     new AutoMovieInspectorDiagnosticLog(report);
@@ -102,7 +102,7 @@ export function mountAutoMovieInspectorScene(
   // The instance arrives later; one that arrives after dispose is released at once.
   props.subject
     .create()
-    .then(async (instance: IAutoMovieDrawScene): Promise<void> => {
+    .then(async (instance: IAutoMovieRenderDrawScene): Promise<void> => {
       if (disposed) instance.dispose();
       else await arrive(instance);
     })
@@ -114,7 +114,7 @@ export function mountAutoMovieInspectorScene(
    * Take an arrived instance into use once it is ready at its first second,
    * releasing it if anything fails.
    */
-  async function arrive(instance: IAutoMovieDrawScene): Promise<void> {
+  async function arrive(instance: IAutoMovieRenderDrawScene): Promise<void> {
     let seconds: number;
     try {
       assertAutoMovieInspectorRaster(props.name, instance);
@@ -136,11 +136,11 @@ export function mountAutoMovieInspectorScene(
     const held: (() => void)[] = [(): void => instance.dispose()];
     try {
       // Facts are read before the inspection adds its own objects to the scene.
-      const facts: IAutoMovieInspectorScene.IFacts =
+      const facts: IAutoMovieViewerInspectorScene.IFacts =
         readAutoMovieInspectorFacts({ instance, seconds });
       const { marks } = facts;
 
-      const { renderer, compositor }: IAutoMovieInspectorSceneHost.ICreated =
+      const { renderer, compositor }: IAutoMovieViewerInspectorSceneHost.ICreated =
         host.createRenderer();
       held.push((): void => renderer.dispose());
       const beauty: AutoMovieInspectorBeauty = new AutoMovieInspectorBeauty();
@@ -151,7 +151,7 @@ export function mountAutoMovieInspectorScene(
 
       // The newest request, or the one that asks for nothing when the scene refuses it.
       let applied: IAutoMovieCapturePlanRequest = wanted;
-      let inspection: IAutoMovieInspectionHandle;
+      let inspection: IAutoMovieRenderInspectionHandle;
       let refusal: string | null = null;
       try {
         inspection = inspectAutoMovieInspectorRequest({
@@ -214,7 +214,7 @@ export function mountAutoMovieInspectorScene(
 
     const drawable: boolean = followAutoMovieInspectorSize(now, host.size());
 
-    const snapshot: AutoMovieInspectorPlayhead.ISnapshot =
+    const snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot =
       playhead.getSnapshot();
     if (drawable && !now.seeking && (now.dirty || snapshot !== now.drawn))
       draw(now, snapshot);
@@ -227,7 +227,7 @@ export function mountAutoMovieInspectorScene(
    */
   function draw(
     now: IAutoMovieInspectorLive,
-    snapshot: AutoMovieInspectorPlayhead.ISnapshot,
+    snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot,
   ): void {
     now.dirty = false;
     now.drawn = snapshot;
@@ -272,7 +272,7 @@ export function mountAutoMovieInspectorScene(
    */
   function paint(
     now: IAutoMovieInspectorLive,
-    snapshot: AutoMovieInspectorPlayhead.ISnapshot,
+    snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot,
   ): void {
     const { instance } = now;
     try {
@@ -377,7 +377,7 @@ export function mountAutoMovieInspectorScene(
    */
   function fail(
     now: IAutoMovieInspectorLive,
-    snapshot: AutoMovieInspectorPlayhead.ISnapshot,
+    snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot,
     error: unknown,
   ): void {
     if (snapshot.playing) playhead.pause();

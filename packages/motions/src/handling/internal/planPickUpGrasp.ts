@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -88,7 +88,7 @@ export function planPickUpGrasp(
   const carried: IAutoMovieVector3 | undefined =
     interception === undefined
       ? undefined
-      : Vector3.scale(interception.velocity, pickUp.LOAD / 2);
+      : AutoMovieEngineVector3.scale(interception.velocity, pickUp.LOAD / 2);
 
   // The body the grip is taken and the lift made from: the entry's, or the
   // entry lowered, turned or stepped, and how it carries the lift
@@ -205,14 +205,14 @@ export function planPickUpGrasp(
     HumanPrehension.duration(
       context.skill,
       context.random("reach"),
-      Vector3.length(Vector3.subtract(grasp.point, entry.worldPosition)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(grasp.point, entry.worldPosition)),
       target.width,
     );
   if (carried !== undefined)
     pickUpPosture.reachable(
       context,
       side,
-      Vector3.add(grasp.point, carried),
+      AutoMovieEngineVector3.add(grasp.point, carried),
       held,
     );
   const rise: number = lift > 0 ? HumanPrehension.nominal(lift, 0) : 0;
@@ -242,7 +242,7 @@ export function planPickUpGrasp(
   ): IAutoMovieVector3 => {
     const elapsed: number = at - reach;
     const load: number = Math.min(pickUp.LOAD, elapsed);
-    return Vector3.scale(
+    return AutoMovieEngineVector3.scale(
       velocity,
       elapsed < 0
         ? elapsed * AutoMovieMotionInterval.progress(peak, 1, at / reach)
@@ -368,7 +368,7 @@ export function planPickUpGrasp(
               };
         return interception === undefined
           ? wrist
-          : Vector3.add(wrist, interceptionOffset(interception.velocity, at));
+          : AutoMovieEngineVector3.add(wrist, interceptionOffset(interception.velocity, at));
       };
 
       // The posture with the fingers shaped as they are at the second, and

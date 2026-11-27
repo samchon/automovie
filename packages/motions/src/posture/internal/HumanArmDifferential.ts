@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -34,12 +34,12 @@ export namespace HumanArmDifferential {
     r: IAutoMovieVector3,
   ): number[] {
     const out: number[] = new Array(q.length).fill(0);
-    if (Vector3.length(r) === 0) return out;
+    if (AutoMovieEngineVector3.length(r) === 0) return out;
     const point: (c: readonly number[]) => IAutoMovieVector3 = (
       c: readonly number[],
     ): IAutoMovieVector3 => {
       const p: ReturnType<typeof G.chain> = G.chain(setup, frame, c);
-      return Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, contact));
+      return AutoMovieEngineVector3.add(p.wrist, AutoMovieEngineQuaternion.rotateVector(p.hand, contact));
     };
     const free: number[] = [];
     const columns: Float64Array = new Float64Array(3 * setup.free.length);

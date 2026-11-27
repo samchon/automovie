@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -55,7 +55,7 @@ export function HumanCarriedNeckClear(
         {
           ...resolved,
           worldPosition: read.fit.place(resolved.worldPosition),
-          worldRotation: Quaternion.multiply(
+          worldRotation: AutoMovieEngineQuaternion.multiply(
             read.fit.turn,
             resolved.worldRotation,
           ),
@@ -94,7 +94,7 @@ export function HumanCarriedNeckClear(
               AutoMovieEnginePhysics.physicalShapePairDistance(
                 {
                   ...m.pose,
-                  position: Vector3.add(m.pose.position, offset),
+                  position: AutoMovieEngineVector3.add(m.pose.position, offset),
                 },
                 s,
                 y.pose,
@@ -118,8 +118,8 @@ export function HumanCarriedNeckClear(
     z: -Math.cos(yaw),
   };
   const probe: number = -gap;
-  const slope: number = (least(Vector3.scale(backward, probe)) - gap) / probe;
-  const back: IAutoMovieVector3 = Vector3.scale(
+  const slope: number = (least(AutoMovieEngineVector3.scale(backward, probe)) - gap) / probe;
+  const back: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     backward,
     slope > 0 ? -gap / slope : probe,
   );
@@ -128,7 +128,7 @@ export function HumanCarriedNeckClear(
     fit: {
       ...read.fit,
       place: (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(read.fit.place(point), back),
+        AutoMovieEngineVector3.add(read.fit.place(point), back),
     },
   };
 }

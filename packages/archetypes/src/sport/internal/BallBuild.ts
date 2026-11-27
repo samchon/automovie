@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -10,11 +10,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeBall } from "../AutoMovieArchetypeBall";
-import * as BallBuildData from "./BallBuildData";
-import {
-  round as BallBuildDataRound,
-  kg as BallBuildDataKg,
-} from "./BallBuildData";
+import { BallBuildData } from "./BallBuildData";
+
 
 /*
  * The ball and puck specifications, draw and local grip and top contacts.
@@ -119,20 +116,20 @@ export namespace BallBuild {
     >
   > = {
     football: {
-      diameter: BallBuildDataRound(0.68, 0.7, `${BallBuildData.IFAB}: circumference 68 to 70 cm`),
-      mass: BallBuildDataKg(0.41, 0.45, `${BallBuildData.IFAB}: 410 to 450 g at the start of the match`),
+      diameter: BallBuildData.round(0.68, 0.7, `${BallBuildData.IFAB}: circumference 68 to 70 cm`),
+      mass: BallBuildData.kg(0.41, 0.45, `${BallBuildData.IFAB}: 410 to 450 g at the start of the match`),
     },
     basketball: {
-      diameter: BallBuildDataRound(0.75, 0.77, `${BallBuildData.FIBA}: circumference 750 to 770 mm`),
-      mass: BallBuildDataKg(0.58, 0.62, `${BallBuildData.FIBA}: 580 to 620 g`),
+      diameter: BallBuildData.round(0.75, 0.77, `${BallBuildData.FIBA}: circumference 750 to 770 mm`),
+      mass: BallBuildData.kg(0.58, 0.62, `${BallBuildData.FIBA}: 580 to 620 g`),
     },
     volleyball: {
-      diameter: BallBuildDataRound(0.65, 0.67, `${BallBuildData.FIVB}: circumference 65 to 67 cm`),
-      mass: BallBuildDataKg(0.26, 0.28, `${BallBuildData.FIVB}: 260 to 280 g`),
+      diameter: BallBuildData.round(0.65, 0.67, `${BallBuildData.FIVB}: circumference 65 to 67 cm`),
+      mass: BallBuildData.kg(0.26, 0.28, `${BallBuildData.FIVB}: 260 to 280 g`),
     },
     handball: {
-      diameter: BallBuildDataRound(0.58, 0.6, `${BallBuildData.IHF}: circumference 58 to 60 cm`),
-      mass: BallBuildDataKg(0.425, 0.475, `${BallBuildData.IHF}: 425 to 475 g`),
+      diameter: BallBuildData.round(0.58, 0.6, `${BallBuildData.IHF}: circumference 58 to 60 cm`),
+      mass: BallBuildData.kg(0.425, 0.475, `${BallBuildData.IHF}: 425 to 475 g`),
     },
     tennis: {
       diameter: AutoMovieArchetypeBand.metres(
@@ -140,23 +137,23 @@ export namespace BallBuild {
         0.0686,
         `${BallBuildData.ITF}: size 6.54 to 6.86 cm`,
       ),
-      mass: BallBuildDataKg(0.056, 0.0594, `${BallBuildData.ITF}: 56.0 to 59.4 g`),
+      mass: BallBuildData.kg(0.056, 0.0594, `${BallBuildData.ITF}: 56.0 to 59.4 g`),
     },
     baseball: {
-      diameter: BallBuildDataRound(
+      diameter: BallBuildData.round(
         9 * AutoMovieArchetypeUnits.INCH,
         9.25 * AutoMovieArchetypeUnits.INCH,
         `${BallBuildData.OBR}: not less than nine nor more than 9 1/4 in round`,
       ),
-      mass: BallBuildDataKg(
+      mass: BallBuildData.kg(
         5 * AutoMovieArchetypeUnits.OUNCE,
         5.25 * AutoMovieArchetypeUnits.OUNCE,
         `${BallBuildData.OBR}: not less than five nor more than 5 1/4 oz`,
       ),
     },
     softball: {
-      diameter: BallBuildDataRound(0.302, 0.308, BallBuildData.WBSC),
-      mass: BallBuildDataKg(0.178, 0.1984, BallBuildData.WBSC),
+      diameter: BallBuildData.round(0.302, 0.308, BallBuildData.WBSC),
+      mass: BallBuildData.kg(0.178, 0.1984, BallBuildData.WBSC),
     },
     golf: {
       diameter: AutoMovieArchetypeBand.metres(
@@ -164,7 +161,7 @@ export namespace BallBuild {
         0.04267,
         `${BallBuildData.RANDA}: not less than 1.680 in (42.67 mm) across, the limit the model takes`,
       ),
-      mass: BallBuildDataKg(
+      mass: BallBuildData.kg(
         0.045,
         0.04593,
         `${BallBuildData.RANDA}: not greater than 1.620 oz (45.93 g); the rule sets no least weight and no maker's ball weight was read, so the lower end is provisional`,
@@ -172,8 +169,8 @@ export namespace BallBuild {
       ),
     },
     cricket: {
-      diameter: BallBuildDataRound(0.224, 0.229, `${BallBuildData.MCC}: 22.4 to 22.9 cm round`),
-      mass: BallBuildDataKg(0.1559, 0.163, `${BallBuildData.MCC}: 155.9 to 163 g`),
+      diameter: BallBuildData.round(0.224, 0.229, `${BallBuildData.MCC}: 22.4 to 22.9 cm round`),
+      mass: BallBuildData.kg(0.1559, 0.163, `${BallBuildData.MCC}: 155.9 to 163 g`),
     },
     bowling: {
       diameter: AutoMovieArchetypeBand.metres(
@@ -181,19 +178,19 @@ export namespace BallBuild {
         8.595 * AutoMovieArchetypeUnits.INCH,
         `${BallBuildData.USBC}: 8.500 to 8.595 in in diameter`,
       ),
-      mass: BallBuildDataKg(
+      mass: BallBuildData.kg(
         16 * AutoMovieArchetypeUnits.POUND,
         16 * AutoMovieArchetypeUnits.POUND,
         `${BallBuildData.USBC}: not exceeding 16.00 lb, with no minimum, the limit the model takes`,
       ),
     },
     rugby: {
-      diameter: BallBuildDataRound(0.58, 0.62, BallBuildData.RUGBY),
+      diameter: BallBuildData.round(0.58, 0.62, BallBuildData.RUGBY),
       length: AutoMovieArchetypeBand.metres(0.28, 0.3, BallBuildData.RUGBY),
-      mass: BallBuildDataKg(0.41, 0.46, BallBuildData.RUGBY),
+      mass: BallBuildData.kg(0.41, 0.46, BallBuildData.RUGBY),
     },
     americanFootball: {
-      diameter: BallBuildDataRound(
+      diameter: BallBuildData.round(
         21 * AutoMovieArchetypeUnits.INCH,
         21.25 * AutoMovieArchetypeUnits.INCH,
         BallBuildData.NFL,
@@ -203,27 +200,27 @@ export namespace BallBuild {
         11.25 * AutoMovieArchetypeUnits.INCH,
         BallBuildData.NFL,
       ),
-      mass: BallBuildDataKg(
+      mass: BallBuildData.kg(
         14 * AutoMovieArchetypeUnits.OUNCE,
         15 * AutoMovieArchetypeUnits.OUNCE,
         BallBuildData.NFL,
       ),
     },
     futsal: {
-      diameter: BallBuildDataRound(0.62, 0.64, BallBuildData.FUTSAL),
-      mass: BallBuildDataKg(0.4, 0.44, BallBuildData.FUTSAL),
+      diameter: BallBuildData.round(0.62, 0.64, BallBuildData.FUTSAL),
+      mass: BallBuildData.kg(0.4, 0.44, BallBuildData.FUTSAL),
     },
     tableTennis: {
       diameter: AutoMovieArchetypeBand.metres(0.04, 0.04, BallBuildData.ITTF),
-      mass: BallBuildDataKg(0.00267, 0.00277, BallBuildData.ITTF_MASS),
+      mass: BallBuildData.kg(0.00267, 0.00277, BallBuildData.ITTF_MASS),
     },
     padel: {
       diameter: AutoMovieArchetypeBand.metres(0.0635, 0.0677, BallBuildData.FIP),
-      mass: BallBuildDataKg(0.056, 0.0594, BallBuildData.FIP),
+      mass: BallBuildData.kg(0.056, 0.0594, BallBuildData.FIP),
     },
     squash: {
       diameter: AutoMovieArchetypeBand.metres(0.0395, 0.0405, BallBuildData.WSF),
-      mass: BallBuildDataKg(0.023, 0.025, BallBuildData.WSF),
+      mass: BallBuildData.kg(0.023, 0.025, BallBuildData.WSF),
     },
     pool: {
       diameter: AutoMovieArchetypeBand.metres(
@@ -231,24 +228,24 @@ export namespace BallBuild {
         2.255 * AutoMovieArchetypeUnits.INCH,
         BallBuildData.WPA,
       ),
-      mass: BallBuildDataKg(
+      mass: BallBuildData.kg(
         5.5 * AutoMovieArchetypeUnits.OUNCE,
         6 * AutoMovieArchetypeUnits.OUNCE,
         BallBuildData.WPA,
       ),
     },
     fieldHockey: {
-      diameter: BallBuildDataRound(0.224, 0.235, BallBuildData.FIH),
-      mass: BallBuildDataKg(0.156, 0.163, BallBuildData.FIH),
+      diameter: BallBuildData.round(0.224, 0.235, BallBuildData.FIH),
+      mass: BallBuildData.kg(0.156, 0.163, BallBuildData.FIH),
     },
     lacrosse: {
-      diameter: BallBuildDataRound(0.197, 0.203, BallBuildData.SIXES),
-      mass: BallBuildDataKg(0.14175, 0.14883, BallBuildData.SIXES),
+      diameter: BallBuildData.round(0.197, 0.203, BallBuildData.SIXES),
+      mass: BallBuildData.kg(0.14175, 0.14883, BallBuildData.SIXES),
     },
     puck: {
       diameter: AutoMovieArchetypeBand.metres(0.076, 0.076, BallBuildData.PUCK),
       length: AutoMovieArchetypeBand.metres(0.025, 0.025, BallBuildData.PUCK),
-      mass: BallBuildDataKg(0.156, 0.17, BallBuildData.PUCK),
+      mass: BallBuildData.kg(0.156, 0.17, BallBuildData.PUCK),
     },
   };
 
@@ -293,15 +290,15 @@ export namespace BallBuild {
     diameter: number,
     high: number,
   ): void {
-    const centre: IAutoMovieVector3 = Vector3.create(0, high / 2, 0);
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, high / 2, 0);
     builder.affordance({
       id: "grip",
       kind: "handle",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
         centre,
-        Vector3.create(0, 1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       grip: diameter > TWO_HANDS ? "two-hand" : "power",
@@ -310,7 +307,7 @@ export namespace BallBuild {
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, high, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, high, 0)),
       extent: null,
     });
   }

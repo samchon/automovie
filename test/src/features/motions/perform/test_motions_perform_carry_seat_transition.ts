@@ -1,10 +1,12 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { carrySeatTransition } from "@automovie/motions/internal";
+import {
+  carrySeatTransition
+} from "../../../../../packages/motions/src/perform/internal/carrySeatTransition";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -36,10 +38,10 @@ export function test_motions_perform_carry_seat_transition(): void {
   const unit = { x: 0, y: 0, z: 0, w: 1 };
   const pose: IAutoMoviePose = {
     skeleton: "rider",
-    root: Transform.of({ x: 1, y: 2, z: 3 }, unit),
+    root: AutoMovieEngineTransform.of({ x: 1, y: 2, z: 3 }, unit),
     joints: [],
   };
-  const moved = Transform.of({ x: 0.75, y: 2, z: 3 }, unit);
+  const moved = AutoMovieEngineTransform.of({ x: 0.75, y: 2, z: 3 }, unit);
   const decay: Parameters<typeof carrySeatTransition>[2] = (
     elapsed,
     current,

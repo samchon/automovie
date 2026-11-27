@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalBalanceTrace } from "../IAutoMoviePhysicalBalanceTrace";
+import type { IAutoMovieEnginePhysicalBalanceTrace } from "../IAutoMovieEnginePhysicalBalanceTrace";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { AutoMovieEnginePhysicalStanceSwing } from "../AutoMovieEnginePhysicalStanceSwing";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
@@ -92,7 +92,7 @@ export namespace physicalBalanceSwing {
 function physicalBalanceSwingImplementation(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
   sense: AutoMovieEnginePhysicalBalanceTypes.ISense;
-  trace?: IAutoMoviePhysicalBalanceTrace[];
+  trace?: IAutoMovieEnginePhysicalBalanceTrace[];
 }): physicalBalanceSwing.IResult {
   const { sense } = input;
   const state: IAutoMoviePhysicalRecoveryState = input.state;

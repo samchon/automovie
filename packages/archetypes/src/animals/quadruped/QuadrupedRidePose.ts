@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame, type AutoMovieArchetypeSpan } from "../../core";
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
@@ -149,8 +149,8 @@ export namespace QuadrupedRidePose {
             "neck",
             {
               kind: "rotation",
-              rotation: Quaternion.multiply(
-                Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, nod),
+              rotation: AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, nod),
                 neutral.frames.get("neck")!.rotation,
               ),
             },
@@ -217,7 +217,7 @@ export namespace QuadrupedRidePose {
         bone: QuadrupedPosePlan.Axial,
         angle: number,
       ): QuadrupedPosePlan.Goal {
-        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+        const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           preview.frames.get(bone)!.rotation,
           { x: 0, y: 1, z: 0 },
         );
@@ -285,7 +285,7 @@ export namespace QuadrupedRidePose {
             throw new RangeError(`The ${limb} support plane faces down`);
           const run: number =
             normal.x * (x - point.x) + normal.z * (goal.z - point.z);
-          endpoint = Vector3.addScaled(
+          endpoint = AutoMovieEngineVector3.addScaled(
             { x, y: point.y - run / normal.y, z: goal.z },
             normal,
             offset,

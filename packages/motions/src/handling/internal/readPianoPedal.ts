@@ -1,4 +1,4 @@
-import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -52,7 +52,7 @@ export function readPianoPedal(
     pedal.rides !== hinge.id ||
     hinge.rides !== undefined ||
     hinge.follows !== undefined ||
-    AffordanceArticulation.travel(
+    AutoMovieEngineAffordanceArticulation.travel(
       byId,
       source.state?.(context.start) ?? {},
       hinge.id,
@@ -63,40 +63,40 @@ export function readPianoPedal(
       "supply a fixed articulated upright piano with a released damper pedal",
     );
   const frame: IAutoMovieRigidTransform = source.frame(context.start);
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     frame.rotation,
     pedal.frame.rotation,
   );
-  const up: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(frame.rotation, hinge.frame.rotation),
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, hinge.frame.rotation),
     { x: 0, y: 1, z: 0 },
   );
-  const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 1,
     y: 0,
     z: 0,
   });
-  const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+  const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.rotation,
-    Vector3.subtract(pedal.frame.translation, hinge.frame.translation),
+    AutoMovieEngineVector3.subtract(pedal.frame.translation, hinge.frame.translation),
   );
   if (
     up.y < 1 - 1e-9 ||
-    Vector3.dot(lateral, axis) < 1 - 1e-9 ||
+    AutoMovieEngineVector3.dot(lateral, axis) < 1 - 1e-9 ||
     Math.abs(offset.y) > 1e-9
   )
     refuse(id, "stage the upright piano on a level floor");
-  const pivot: IAutoMovieVector3 = Vector3.add(
+  const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, hinge.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, hinge.frame.translation),
   );
   return {
-    point: Vector3.add(pivot, offset),
+    point: AutoMovieEngineVector3.add(pivot, offset),
     rotation,
     pivot,
     axis,

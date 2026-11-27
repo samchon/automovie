@@ -1,4 +1,4 @@
-import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieIKDriver,
   IAutoMovieQuaternion,
@@ -29,7 +29,7 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 /** A world matrix at a place. */
 const at: (position: IAutoMovieVector3) => number[] = (
   position: IAutoMovieVector3,
-): number[] => Matrix4.compose(position, IDENTITY, { x: 1, y: 1, z: 1 });
+): number[] => AutoMovieEngineMatrix4.compose(position, IDENTITY, { x: 1, y: 1, z: 1 });
 
 /** A two-segment arm along +X, 1 m each, and a goal at (0, 2, 0). */
 const world: () => Map<string, number[]> = (): Map<string, number[]> =>
@@ -83,7 +83,7 @@ const place: (
 ) => IAutoMovieVector3 = (
   source: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(source.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(source.get(id)!);
 
 /**
  * `applyIterativeIK` moves a chain toward a goal by CCD or FABRIK sweeps,

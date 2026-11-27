@@ -5,17 +5,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
-import { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
-import { AutoMovieXpbdMath } from "../AutoMovieXpbdMath";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalJointChart } from "../AutoMovieEnginePhysicalJointChart";
+import { AutoMovieEngineXpbdArticulation } from "../AutoMovieEngineXpbdArticulation";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdJoint } from "../AutoMovieEngineXpbdJoint";
+import { AutoMovieEngineXpbdMath } from "../AutoMovieEngineXpbdMath";
 import type { IAutoMovieXpbdPointImpulse } from "./IAutoMovieXpbdPointImpulse";
 import type { IAutoMovieXpbdPointResponse } from "./IAutoMovieXpbdPointResponse";
 import type { IAutoMovieXpbdResponder } from "./IAutoMovieXpbdResponder";
-import { PhysicalRotationVector } from "../PhysicalRotationVector";
+import { AutoMovieEnginePhysicalRotationVector } from "../AutoMovieEnginePhysicalRotationVector";
 import { reachesXpbdJointBound } from "./reachesXpbdJointBound";
 import { readXpbdJointCoordinate } from "./readXpbdJointCoordinate";
 import { readXpbdJointDirections } from "./readXpbdJointDirections";
@@ -43,23 +43,23 @@ import type { solveXpbdContacts } from "./solveXpbdContacts";
  * Returns: The responder for one position pass.
  */
 export function respondXpbdArticulation(
-  joints: readonly AutoMovieXpbdJoint[],
+  joints: readonly AutoMovieEngineXpbdJoint[],
   contacts: readonly solveXpbdContacts.IContact[],
 ): IAutoMovieXpbdResponder {
-  const kept: AutoMovieXpbdArticulation.IForest =
-    AutoMovieXpbdArticulation.forest(joints);
+  const kept: AutoMovieEngineXpbdArticulation.IForest =
+    AutoMovieEngineXpbdArticulation.forest(joints);
 
   // Each tree a contact touches, prepared once for the pass by its root, and
   // each of its bodies' root.
-  const prepared: Map<AutoMovieXpbdArticulation.INode, IPrepared | null> =
+  const prepared: Map<AutoMovieEngineXpbdArticulation.INode, IPrepared | null> =
     new Map();
-  const owners: Map<AutoMovieXpbdBody, AutoMovieXpbdArticulation.INode> = new Map();
+  const owners: Map<AutoMovieEngineXpbdBody, AutoMovieEngineXpbdArticulation.INode> = new Map();
   for (const contact of contacts)
     for (const body of [contact.a.body, contact.b.body]) {
-      const node: AutoMovieXpbdArticulation.INode | undefined =
+      const node: AutoMovieEngineXpbdArticulation.INode | undefined =
         kept.nodes.get(body);
       if (node === undefined || !body.dynamic) continue;
-      const top: AutoMovieXpbdArticulation.INode = AutoMovieXpbdArticulation.root(node);
+      const top: AutoMovieEngineXpbdArticulation.INode = AutoMovieEngineXpbdArticulation.root(node);
       if (prepared.has(top)) continue;
       const tree: IPrepared | null = prepare(top);
       prepared.set(top, tree);
@@ -67,8 +67,8 @@ export function respondXpbdArticulation(
         for (const state of tree.tree.states) owners.set(state.body, top);
     }
   return {
-    has: (body: AutoMovieXpbdBody): boolean => {
-      const top: AutoMovieXpbdArticulation.INode | undefined = owners.get(body);
+    has: (body: AutoMovieEngineXpbdBody): boolean => {
+      const top: AutoMovieEngineXpbdArticulation.INode | undefined = owners.get(body);
       return body.dynamic && top !== undefined && prepared.get(top) !== null;
     },
     respond: (
@@ -85,22 +85,22 @@ interface IPrepared {
   /*
    * The tree.
    */
-  tree: AutoMovieXpbdArticulation.ITree;
+  tree: AutoMovieEngineXpbdArticulation.ITree;
 
   /*
    * Its edges' joints, in the tree's edge order.
    */
-  joints: AutoMovieXpbdJoint[];
+  joints: AutoMovieEngineXpbdJoint[];
 
   /*
    * Each of its bodies' state index.
    */
-  index: Map<AutoMovieXpbdBody, number>;
+  index: Map<AutoMovieEngineXpbdBody, number>;
 
   /*
    * Its factor at `h = 0`, with the axes held so far.
    */
-  factored: AutoMovieXpbdArticulation.IFactor;
+  factored: AutoMovieEngineXpbdArticulation.IFactor;
 
   /*
    * Each edge's free coordinates as the pass has moved them
@@ -143,14 +143,14 @@ interface IRelation {
 /*
  * Build and factor one tree for a position pass; none when singular.
  */
-function prepare(top: AutoMovieXpbdArticulation.INode): IPrepared | null {
-  const joints: AutoMovieXpbdJoint[] = [];
-  const tree: AutoMovieXpbdArticulation.ITree = AutoMovieXpbdArticulation.build(
+function prepare(top: AutoMovieEngineXpbdArticulation.INode): IPrepared | null {
+  const joints: AutoMovieEngineXpbdJoint[] = [];
+  const tree: AutoMovieEngineXpbdArticulation.ITree = AutoMovieEngineXpbdArticulation.build(
     top,
     joints,
   );
-  const factored: AutoMovieXpbdArticulation.IFactor | null =
-    AutoMovieXpbdArticulation.factor(tree, 0);
+  const factored: AutoMovieEngineXpbdArticulation.IFactor | null =
+    AutoMovieEngineXpbdArticulation.factor(tree, 0);
   if (factored === null) return null;
   return {
     tree,
@@ -158,13 +158,13 @@ function prepare(top: AutoMovieXpbdArticulation.INode): IPrepared | null {
     index: new Map(
       tree.states.map(
         (
-          state: AutoMovieXpbdArticulation.IState,
+          state: AutoMovieEngineXpbdArticulation.IState,
           i: number,
-        ): [AutoMovieXpbdBody, number] => [state.body, i],
+        ): [AutoMovieEngineXpbdBody, number] => [state.body, i],
       ),
     ),
     factored,
-    coordinates: joints.map((joint: AutoMovieXpbdJoint): (number | null)[] => {
+    coordinates: joints.map((joint: AutoMovieEngineXpbdJoint): (number | null)[] => {
       const relative: IAutoMovieQuaternion = readXpbdJointRelation(joint);
       return joint.joint.axes.map(
         (declared: IAutoMoviePhysicalJointAxis): number | null =>
@@ -180,15 +180,15 @@ function prepare(top: AutoMovieXpbdArticulation.INode): IPrepared | null {
  * row's generalised inverse mass read from the sum.
  */
 function respond(
-  prepared: Map<AutoMovieXpbdArticulation.INode, IPrepared | null>,
-  owners: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdArticulation.INode>,
+  prepared: Map<AutoMovieEngineXpbdArticulation.INode, IPrepared | null>,
+  owners: ReadonlyMap<AutoMovieEngineXpbdBody, AutoMovieEngineXpbdArticulation.INode>,
   impulses: readonly IAutoMovieXpbdPointImpulse[],
 ): IAutoMovieXpbdPointResponse | null {
   // Each impulse's tree; a body no prepared tree holds has none.
-  const tops: AutoMovieXpbdArticulation.INode[] = [];
+  const tops: AutoMovieEngineXpbdArticulation.INode[] = [];
   const ready: IPrepared[] = [];
   for (const impulse of impulses) {
-    const top: AutoMovieXpbdArticulation.INode | undefined = owners.get(
+    const top: AutoMovieEngineXpbdArticulation.INode | undefined = owners.get(
       impulse.body,
     );
     if (top === undefined) return null;
@@ -201,17 +201,17 @@ function respond(
     (impulse: IAutoMovieXpbdPointImpulse, i: number): number =>
       ready[i]!.index.get(impulse.body)!,
   );
-  const moves: Map<AutoMovieXpbdArticulation.INode, IMove> = new Map();
+  const moves: Map<AutoMovieEngineXpbdArticulation.INode, IMove> = new Map();
   impulses.forEach((impulse: IAutoMovieXpbdPointImpulse, i: number): void => {
-    const response: AutoMovieXpbdArticulation.IResponse =
-      AutoMovieXpbdArticulation.propagate(
+    const response: AutoMovieEngineXpbdArticulation.IResponse =
+      AutoMovieEngineXpbdArticulation.propagate(
         ready[i]!.tree,
         ready[i]!.factored,
         false,
         {
           state: states[i]!,
-          impulse: AutoMovieXpbdArticulation.spatialImpulse(
-            Vector3.subtract(impulse.point, ready[i]!.tree.origin),
+          impulse: AutoMovieEngineXpbdArticulation.spatialImpulse(
+            AutoMovieEngineVector3.subtract(impulse.point, ready[i]!.tree.origin),
             impulse.direction,
           ),
         },
@@ -232,11 +232,11 @@ function respond(
   // displacement of its point under all of them.
   let weight: number = 0;
   impulses.forEach((impulse: IAutoMovieXpbdPointImpulse, i: number): void => {
-    weight += Vector3.dot(
+    weight += AutoMovieEngineVector3.dot(
       impulse.direction,
-      AutoMovieXpbdArticulation.pointChange(
+      AutoMovieEngineXpbdArticulation.pointChange(
         moves.get(tops[i]!)!.change[states[i]!]!,
-        Vector3.subtract(impulse.point, ready[i]!.tree.origin),
+        AutoMovieEngineVector3.subtract(impulse.point, ready[i]!.tree.origin),
       ),
     );
   });
@@ -255,8 +255,8 @@ function respond(
  * for the rest of the pass. True when any axis was newly held.
  */
 function limit(
-  prepared: Map<AutoMovieXpbdArticulation.INode, IPrepared | null>,
-  moves: ReadonlyMap<AutoMovieXpbdArticulation.INode, IMove>,
+  prepared: Map<AutoMovieEngineXpbdArticulation.INode, IPrepared | null>,
+  moves: ReadonlyMap<AutoMovieEngineXpbdArticulation.INode, IMove>,
   scale: number,
 ): boolean {
   let held: boolean = false;
@@ -264,9 +264,9 @@ function limit(
     const tree: IPrepared = prepared.get(top)!;
     let newly: boolean = false;
     tree.tree.edges.forEach(
-      (edge: AutoMovieXpbdArticulation.IEdge, e: number): void =>
+      (edge: AutoMovieEngineXpbdArticulation.IEdge, e: number): void =>
         edge.axes.forEach(
-          (axis: AutoMovieXpbdArticulation.IAxis, k: number): void => {
+          (axis: AutoMovieEngineXpbdArticulation.IAxis, k: number): void => {
             const q: number | null = tree.coordinates[e]![k]!;
             if (
               axis.locked !== true &&
@@ -283,8 +283,8 @@ function limit(
         ),
     );
     if (!newly) continue;
-    const factored: AutoMovieXpbdArticulation.IFactor | null =
-      AutoMovieXpbdArticulation.factor(tree.tree, 0);
+    const factored: AutoMovieEngineXpbdArticulation.IFactor | null =
+      AutoMovieEngineXpbdArticulation.factor(tree.tree, 0);
     if (factored === null) prepared.set(top, null);
     else tree.factored = factored;
     held = true;
@@ -303,19 +303,19 @@ function advance(tree: IPrepared, move: IMove, scale: number): void {
   // The joints' present relations, read before any body moves.
   const before: IRelation[] = tree.joints.map(relate);
   const c: number[] = move.change[0]!;
-  const top: AutoMovieXpbdBody = tree.tree.states[0]!.body;
-  AutoMovieXpbdMath.displace(
+  const top: AutoMovieEngineXpbdBody = tree.tree.states[0]!.body;
+  AutoMovieEngineXpbdMath.displace(
     top,
-    Vector3.scale(
-      AutoMovieXpbdArticulation.pointChange(
+    AutoMovieEngineVector3.scale(
+      AutoMovieEngineXpbdArticulation.pointChange(
         c,
-        Vector3.subtract(top.center, tree.tree.origin),
+        AutoMovieEngineVector3.subtract(top.center, tree.tree.origin),
       ),
       scale,
     ),
     { x: c[0]! * scale, y: c[1]! * scale, z: c[2]! * scale },
   );
-  tree.joints.forEach((joint: AutoMovieXpbdJoint, e: number): void =>
+  tree.joints.forEach((joint: AutoMovieEngineXpbdJoint, e: number): void =>
     place(
       joint,
       before[e]!,
@@ -334,10 +334,10 @@ function advance(tree: IPrepared, move: IMove, scale: number): void {
 /*
  * A joint's relation at the present poses.
  */
-function relate(joint: AutoMovieXpbdJoint): IRelation {
+function relate(joint: AutoMovieEngineXpbdJoint): IRelation {
   return {
     relative: readXpbdJointRelation(joint),
-    gap: Vector3.subtract(
+    gap: AutoMovieEngineVector3.subtract(
       anchor(joint.child, joint.childFrame().position),
       anchor(joint.parent, joint.parentFrame().position),
     ),
@@ -348,14 +348,14 @@ function relate(joint: AutoMovieXpbdJoint): IRelation {
  * A body's world point of a frame position given in its body frame.
  */
 function anchor(
-  body: AutoMovieXpbdBody,
+  body: AutoMovieEngineXpbdBody,
   position: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     body.center,
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       body.orientation,
-      Vector3.subtract(position, body.centerOfMass),
+      AutoMovieEngineVector3.subtract(position, body.centerOfMass),
     ),
   );
 }
@@ -369,17 +369,17 @@ function anchor(
  * frame's axes; the anchor gap is kept as it was.
  */
 function place(
-  joint: AutoMovieXpbdJoint,
+  joint: AutoMovieEngineXpbdJoint,
   before: IRelation,
   changes: readonly number[],
 ): void {
-  const child: AutoMovieXpbdBody = joint.child;
+  const child: AutoMovieEngineXpbdBody = joint.child;
   if (!child.dynamic) return;
   const order: readonly IAutoMoviePhysicalJointAxis["axis"][] | undefined =
     joint.joint.order;
   let relative: IAutoMovieQuaternion;
   if (order !== undefined) {
-    const angles: number[] = AutoMoviePhysicalJointChart.nearest(
+    const angles: number[] = AutoMovieEnginePhysicalJointChart.nearest(
       joint.joint,
       before.relative,
     );
@@ -389,10 +389,10 @@ function place(
         moved[order.indexOf(declared.axis)]! += changes[k]!;
       },
     );
-    relative = Quaternion.multiply(
-      Quaternion.multiply(
-        AutoMoviePhysicalJointChart.compose(order, moved),
-        Quaternion.inverse(AutoMoviePhysicalJointChart.compose(order, angles)),
+    relative = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEnginePhysicalJointChart.compose(order, moved),
+        AutoMovieEngineQuaternion.inverse(AutoMovieEnginePhysicalJointChart.compose(order, angles)),
       ),
       before.relative,
     );
@@ -403,10 +403,10 @@ function place(
     );
     let turn: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     changes.forEach((change: number, k: number): void => {
-      turn = Vector3.addScaled(turn, directions[k]!, change);
+      turn = AutoMovieEngineVector3.addScaled(turn, directions[k]!, change);
     });
-    relative = Quaternion.multiply(
-      PhysicalRotationVector.exp(turn),
+    relative = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEnginePhysicalRotationVector.exp(turn),
       before.relative,
     );
   }
@@ -414,20 +414,20 @@ function place(
   // The child's pose from its parent's through the joint's two frames.
   const pf: IAutoMovieRigidTransform = joint.parentFrame();
   const cf: IAutoMovieRigidTransform = joint.childFrame();
-  child.orientation = Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.multiply(
-        Quaternion.multiply(joint.parent.orientation, pf.rotation),
+  child.orientation = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(joint.parent.orientation, pf.rotation),
         relative,
       ),
-      Quaternion.inverse(cf.rotation),
+      AutoMovieEngineQuaternion.inverse(cf.rotation),
     ),
   );
-  child.center = Vector3.subtract(
-    Vector3.add(anchor(joint.parent, pf.position), before.gap),
-    Quaternion.rotateVector(
+  child.center = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.add(anchor(joint.parent, pf.position), before.gap),
+    AutoMovieEngineQuaternion.rotateVector(
       child.orientation,
-      Vector3.subtract(cf.position, child.centerOfMass),
+      AutoMovieEngineVector3.subtract(cf.position, child.centerOfMass),
     ),
   );
 }

@@ -1,9 +1,9 @@
 import {
-  AutoMovieXpbdBody,
+  AutoMovieEngineXpbdBody,
   AutoMovieEnginePhysicalStanceAllocation,
   AutoMovieEnginePhysicalStanceBalance,
   AutoMovieEnginePhysicalStanceHip,
-  AutoMoviePhysicalRootTracking,
+  AutoMovieEnginePhysicalRootTracking,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
@@ -184,7 +184,7 @@ export function test_engine_physics_physical_stance_allocation(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const body = (
     position: IAutoMovieVector3,
-  ): Pick<AutoMovieXpbdBody, "translation" | "rotation"> => ({
+  ): Pick<AutoMovieEngineXpbdBody, "translation" | "rotation"> => ({
     translation: (): IAutoMovieVector3 => position,
     rotation: (): IAutoMovieQuaternion => identity,
   });
@@ -217,7 +217,7 @@ export function test_engine_physics_physical_stance_allocation(): void {
   };
   const trunk: ReadonlyMap<
     string,
-    Pick<AutoMovieXpbdBody, "translation" | "rotation">
+    Pick<AutoMovieEngineXpbdBody, "translation" | "rotation">
   > = new Map([["trunk", body({ x: 0, y: 0.5, z: 0 })]]);
   const diagonal = (force: number) =>
     (["frontLeft", "backRight"] as const).map((bone) => ({
@@ -283,7 +283,7 @@ export function test_engine_physics_physical_stance_allocation(): void {
   ];
   const lift: number = 700;
   const single = (trunk: IAutoMovieVector3) => {
-    const moment: IAutoMovieVector3 = AutoMoviePhysicalRootTracking.moment({
+    const moment: IAutoMovieVector3 = AutoMovieEnginePhysicalRootTracking.moment({
       trunk,
       swings: [hip],
     });

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -259,8 +259,8 @@ export namespace wipe {
         "palm",
       );
     const travel: number = AutoMovieMotionHumanTiming.aimed(
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           point(0),
           AutoMovieMotionHumanArm.point(context.entry.posture, origin),
         ),

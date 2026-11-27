@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -20,7 +20,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
-import * as PrepareSkateboardPhraseData from "./PrepareSkateboardPhraseData";
+import { PrepareSkateboardPhraseData } from "./PrepareSkateboardPhraseData";
 
 /*
  * Transfer the entered stance between street and deck, then follow the authored
@@ -80,9 +80,9 @@ export function prepareSkateboardPhrase(
         "each foot must start on the skateboard",
       );
     const foot: (typeof entry.feet)[AutoMovieHumanSide] = entry.feet[side];
-    const contact: IAutoMovieVector3 = Vector3.add(
+    const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       foot.ankle,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         foot.rotation,
         HumanFoot.offset(body, side, "sole"),
       ),
@@ -149,7 +149,7 @@ export function prepareSkateboardPhrase(
 
   // A push plants beside the deck while the other foot travels with it.
   const outside: number = other === "left" ? 1 : -1;
-  const footLength: number = Vector3.distance(
+  const footLength: number = AutoMovieEngineVector3.distance(
     HumanFoot.offset(body, other, "heel"),
     HumanFoot.offset(body, other, "toe"),
   );
@@ -167,10 +167,10 @@ export function prepareSkateboardPhrase(
     placement: IAutoMovieRigidTransform,
     side: AutoMovieHumanSide,
   ): IAutoMovieQuaternion =>
-    Quaternion.multiply(
-      Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
         placement.rotation,
-        Quaternion.inverse(initial.rotation),
+        AutoMovieEngineQuaternion.inverse(initial.rotation),
       ),
       entry.feet[side].rotation,
     );
@@ -218,7 +218,7 @@ export function prepareSkateboardPhrase(
       fade(phases.lift, phases.apex) - fade(phases.apex, phases.land);
     const settled: number = fade(0, phases.settle);
     const toeClearance: number = PrepareSkateboardPhraseData.TOE_CLEARANCE * footLength;
-    const tailFoot: IAutoMovieVector3 = Vector3.lerp(
+    const tailFoot: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       rear,
       tail,
       fade(phases.load, phases.pop),
@@ -239,14 +239,14 @@ export function prepareSkateboardPhrase(
     const recovery: number = fade(phases.recover, phases.stance);
     const inStreet: number = departure - recovery;
     const shiftBack: number = fade(phases.lift, phases.land);
-    feet[other] = Vector3.lerp(
-      at(Vector3.lerp(tailFoot, rear, shiftBack)),
+    feet[other] = AutoMovieEngineVector3.lerp(
+      at(AutoMovieEngineVector3.lerp(tailFoot, rear, shiftBack)),
       pushPoint,
       inStreet,
     );
     if (share < phases.push)
-      feet[other] = Vector3.lerp(
-        at(Vector3.lerp(enteredRear, behind, settled)),
+      feet[other] = AutoMovieEngineVector3.lerp(
+        at(AutoMovieEngineVector3.lerp(enteredRear, behind, settled)),
         pushPoint,
         departure,
       );
@@ -263,7 +263,7 @@ export function prepareSkateboardPhrase(
       left: boardRotation(placed, "left"),
       right: boardRotation(placed, "right"),
     };
-    footRotations[other] = Quaternion.slerp(
+    footRotations[other] = AutoMovieEngineQuaternion.slerp(
       footRotations[other],
       pushRotation,
       inStreet,
@@ -275,9 +275,9 @@ export function prepareSkateboardPhrase(
       fade(phases.stance, phases.pop) - fade(phases.lift, phases.apex);
     const absorption: number =
       fade(phases.land, phases.absorb) - fade(phases.absorb, 1);
-    const balance: IAutoMovieVector3 = Vector3.lerp(
+    const balance: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       moving.root,
-      Vector3.lerp(feet[lead], pushPoint, 0.5),
+      AutoMovieEngineVector3.lerp(feet[lead], pushPoint, 0.5),
       inStreet,
     );
     const root: IAutoMovieVector3 = {

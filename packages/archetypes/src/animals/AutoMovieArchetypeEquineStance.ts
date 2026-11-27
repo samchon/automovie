@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -66,16 +66,16 @@ export namespace AutoMovieArchetypeEquineStance {
       ),
     );
     const trunk: IAutoMovieTransform = frameOf(parts.get("trunk")!);
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       trunk.rotation,
-      Quaternion.inverse(body.trunk.rotation),
+      AutoMovieEngineQuaternion.inverse(body.trunk.rotation),
     );
     let state: EquineStanceRows.IState = {
       trunk: {
         rotation,
-        translation: Vector3.subtract(
+        translation: AutoMovieEngineVector3.subtract(
           trunk.translation,
-          Quaternion.rotateVector(rotation, body.trunk.translation),
+          AutoMovieEngineQuaternion.rotateVector(rotation, body.trunk.translation),
         ),
       },
       anchors: {
@@ -296,9 +296,9 @@ export namespace AutoMovieArchetypeEquineStance {
     const transform: IAutoMovieTransform = part.transform!;
     return {
       ...transform,
-      translation: Vector3.subtract(
+      translation: AutoMovieEngineVector3.subtract(
         transform.translation,
-        Quaternion.rotateVector(transform.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(transform.rotation, {
           x: 0,
           y: height(part) / 2,
           z: 0,
@@ -318,9 +318,9 @@ export namespace AutoMovieArchetypeEquineStance {
       AutoMovieArchetypeQuadrupedBody.BONES[limb][3]!,
     )!;
     const frame: IAutoMovieTransform = frameOf(pastern);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.translation,
-      Quaternion.rotateVector(frame.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
         x: 0,
         y: height(pastern),
         z: 0,

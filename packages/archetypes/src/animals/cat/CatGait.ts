@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { CatBody } from "./CatBody";
-import * as CatGaitData from "./internal/CatGaitData";
+import { CatGaitData } from "./internal/CatGaitData";
 
 /*
  * The representative overground level walk of an adult domestic cat.

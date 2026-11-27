@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -94,9 +94,9 @@ export function test_human_native_centred_scale(): void {
       ...(centre === undefined ? {} : { centre }),
     });
   const read = (outline: IAutoMovieViewPart.IOutline, s: number): [number, number, number] => {
-    const curve = AutoMovieViewOutline.create(outline);
+    const curve = AutoMovieEngineViewOutline.create(outline);
     if ("contract" in curve) throw new Error(curve.detail);
-    const reading = AutoMovieViewOutline.at(curve, s);
+    const reading = AutoMovieEngineViewOutline.at(curve, s);
     if (typeof reading === "string" || reading.stationJet === null) throw new Error("unreadable source at " + s);
     return [reading.value, reading.stationJet[0], reading.stationJet[1]];
   };

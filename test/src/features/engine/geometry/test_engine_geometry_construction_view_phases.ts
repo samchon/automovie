@@ -1,4 +1,4 @@
-import { AutoMovieViewAxis, AutoMovieViewSection, AutoMovieEngineText, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineViewAxis, AutoMovieEngineViewSection, AutoMovieEngineText, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieViewPart,
@@ -35,7 +35,7 @@ export function test_engine_geometry_construction_view_phases(): void {
   ): IAutoMovieConstructionRealization.IRealization => {
     const part: IAutoMovieViewPart = {
       name: "phase-tube-" + name,
-      axis: AutoMovieViewAxis.horizontal(),
+      axis: AutoMovieEngineViewAxis.horizontal(),
       stations: [0, 25, 50, 75, 100],
       front: { positive: outline(1), negative: outline(-1) },
       side: { positive: outline(1), negative: outline(-1) },
@@ -43,8 +43,8 @@ export function test_engine_geometry_construction_view_phases(): void {
         kind: "shoulder",
         shoulder: {
           knots: [
-            { site: "bottom", station: 0, value: AutoMovieViewSection.ELLIPSE },
-            { site: "top", station: 100, value: AutoMovieViewSection.ELLIPSE },
+            { site: "bottom", station: 0, value: AutoMovieEngineViewSection.ELLIPSE },
+            { site: "top", station: 100, value: AutoMovieEngineViewSection.ELLIPSE },
           ],
         },
       },

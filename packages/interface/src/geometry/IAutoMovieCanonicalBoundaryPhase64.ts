@@ -2,7 +2,7 @@
  * One exact normalized dyadic boundary coordinate and its binary64 numeric
  * view.
  *
- * AutoMovieCanonicalBoundary64.phase constructs the exact affine combination of
+ * AutoMovieEngineCanonicalBoundary64.phase constructs the exact affine combination of
  * admitted finite binary64 endpoints. The key is d:<odd hexadecimal
  * numerator>p<binary exponent>, with d:0p0 for zero. local, compare and inverse
  * admit the key and require its rounded value to agree with value. Authority

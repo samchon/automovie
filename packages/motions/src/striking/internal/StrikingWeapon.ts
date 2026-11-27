@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanLimb, AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanChannel, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionWeaponContact, IAutoMovieMotionWeaponPath, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { poseBones } from "../../posture/internal/poseBones";
@@ -119,19 +119,19 @@ export namespace StrikingWeapon {
       body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"],
       hand,
     ).point;
-    const reach: IAutoMovieVector3 = Vector3.subtract(
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       knuckles,
       hand.worldPosition,
     );
-    const length: number = Vector3.length(reach);
+    const length: number = AutoMovieEngineVector3.length(reach);
     const r: number = body.measure.forearmRadius;
     return [
       bones.get(`${side}UpperArm`)!.worldPosition,
       bones.get(`${side}LowerArm`)!.worldPosition,
       hand.worldPosition,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         hand.worldPosition,
-        Vector3.scale(reach, Math.max(0, length - r) / Math.max(1e-9, length)),
+        AutoMovieEngineVector3.scale(reach, Math.max(0, length - r) / Math.max(1e-9, length)),
       ),
     ];
   }

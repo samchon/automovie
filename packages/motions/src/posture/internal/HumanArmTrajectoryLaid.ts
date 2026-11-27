@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
@@ -316,7 +316,7 @@ export namespace HumanArmTrajectoryLaid {
                 for (const p of T.SPEED)
                   most = Math.max(
                     most,
-                    Vector3.length(
+                    AutoMovieEngineVector3.length(
                       V.step(
                         context.frames[a]![k - 1]!,
                         context.frames[a]![k]!,

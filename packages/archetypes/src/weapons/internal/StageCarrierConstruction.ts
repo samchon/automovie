@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -13,7 +13,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
-import * as StageCarrierConstructionData from "./StageCarrierConstructionData";
+import { StageCarrierConstructionData } from "./StageCarrierConstructionData";
 
 /*
  * Assemble a display carrier from its stored form.
@@ -155,8 +155,8 @@ export namespace StageCarrierConstruction {
   export function facingWearer(at: IAutoMovieVector3): IAutoMovieTransform {
     return AutoMovieArchetypeFrame.facing(
       at,
-      Vector3.create(-1, 0, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(-1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     );
   }
 }

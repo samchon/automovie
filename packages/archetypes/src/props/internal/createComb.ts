@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeComb } from "../AutoMovieArchetypeComb";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { GroomingPropDraw } from "./GroomingPropDraw";
@@ -33,14 +33,14 @@ export function createComb(
   // A spine with a block of teeth under it; held sideways anywhere along the spine.
   builder.box(
     "spine",
-    Vector3.create(thick, width * 0.4, length),
-    Vector3.create(0, width * 0.8, length / 2),
+    AutoMovieEngineVector3.create(thick, width * 0.4, length),
+    AutoMovieEngineVector3.create(0, width * 0.8, length / 2),
     { color: "#3a3a3a" },
   );
   builder.box(
     "teeth",
-    Vector3.create(thick * 0.6, width * 0.6, length),
-    Vector3.create(0, width * 0.3, length / 2),
+    AutoMovieEngineVector3.create(thick * 0.6, width * 0.6, length),
+    AutoMovieEngineVector3.create(0, width * 0.3, length / 2),
     { color: "#4a4a4a" },
   );
   builder.affordance({
@@ -48,9 +48,9 @@ export function createComb(
     kind: "handle",
     symmetry: "half",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, width * 0.8, length / 2),
-      Vector3.create(1, 0, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, width * 0.8, length / 2),
+      AutoMovieEngineVector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "lateral",
@@ -62,9 +62,9 @@ export function createComb(
     kind: "ledge",
     direction: "normal",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, length / 2),
-      Vector3.create(0, -1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, 0, length / 2),
+      AutoMovieEngineVector3.create(0, -1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     length,

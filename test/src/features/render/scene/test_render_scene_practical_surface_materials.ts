@@ -1,5 +1,5 @@
 import type { IAutoMovieShot } from "@automovie/interface";
-import { type IAutoMovieModelObject, AutoMovieRenderMaterial } from "@automovie/render";
+import { type IAutoMovieRenderModelObject, AutoMovieRenderMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Group, Material, Mesh, MeshBasicMaterial, Object3D } from "three";
 
@@ -26,7 +26,7 @@ export function test_render_scene_practical_surface_materials(): void {
     ["frame", frame],
     ["alias", panel],
   ]);
-  const model: IAutoMovieModelObject = {
+  const model: IAutoMovieRenderModelObject = {
     object: new Group(),
     parts,
     bones: new Map(),
@@ -51,7 +51,7 @@ export function test_render_scene_practical_surface_materials(): void {
       },
     ],
   };
-  const resolveNode = (id: string): IAutoMovieModelObject | undefined =>
+  const resolveNode = (id: string): IAutoMovieRenderModelObject | undefined =>
     id === "display" ? model : undefined;
   const resolveMaterial = (
     _node: string,

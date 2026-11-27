@@ -1,5 +1,5 @@
 import type { IAutoMovieCompiledEffect } from "@automovie/interface";
-import type { IAutoMovieEffectViewerObject } from "./IAutoMovieEffectViewerObject.js";
+import type { IAutoMovieRenderEffectViewerObject } from "./IAutoMovieRenderEffectViewerObject.js";
 import { buildInstancedEffect as buildInstancedEffectImplementation } from "./internal/buildInstancedEffect.js";
 
 /** Public operations for Auto Movie Render Effect. */
@@ -11,7 +11,7 @@ export namespace AutoMovieRenderEffect {
    * Its returned native mesh exposes resources for caller-owned retirement; no
    * complete disposal handle or partial-setup rollback is supplied here.
    */
-  export function buildInstancedEffect(effect: IAutoMovieCompiledEffect): IAutoMovieEffectViewerObject {
+  export function buildInstancedEffect(effect: IAutoMovieCompiledEffect): IAutoMovieRenderEffectViewerObject {
     return buildInstancedEffectImplementation(effect);
   }
 }

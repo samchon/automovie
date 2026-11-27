@@ -1,4 +1,6 @@
-import { StrikingRollHand } from "@automovie/motions/internal";
+import {
+  StrikingRollHand
+} from "../../../../../packages/motions/src/striking/internal/StrikingRollHand";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { swingTwistRange } from "../../kinematics/swingTwistRange";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineSwingTwistRange } from "../../kinematics/AutoMovieEngineSwingTwistRange";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { nearestAngleAlias } from "../../math/internal/nearestAngleAlias";
-import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
-import { PhysicalRotationVector } from "../PhysicalRotationVector";
+import { AutoMovieEnginePhysicalJointChart } from "../AutoMovieEnginePhysicalJointChart";
+import { AutoMovieEnginePhysicalRotationVector } from "../AutoMovieEnginePhysicalRotationVector";
 
 /*
  * Measure every native angular constraint from displayed bone frames. A ball
@@ -23,7 +23,7 @@ import { PhysicalRotationVector } from "../PhysicalRotationVector";
  * interval, radians, the third entry zero. A joint that declares a sequential
  * chart (`order`) is read in it, as the solver admits it
  * (`projectPhysicalJointRotation`): each Tait-Bryan angle of the chart's
- * reading (`AutoMoviePhysicalJointChart.nearest`) against its free axis's
+ * reading (`AutoMovieEnginePhysicalJointChart.nearest`) against its free axis's
  * range, a locked axis's, with the turn that reading leaves about it, against
  * zero; a pose the solver admitted then reads within its limits. Otherwise
  * free-axis limits use the wrapped twist projection 2 atan2(q.axis,q.w). Locked
@@ -33,24 +33,24 @@ import { PhysicalRotationVector } from "../PhysicalRotationVector";
  */
 export function measurePhysicalJointLimits(
   joint: IAutoMovieMotionGeometry["joints"][number] &
-    Pick<AutoMoviePhysicalJointChart.IJoint, "order"> &
+    Pick<AutoMovieEnginePhysicalJointChart.IJoint, "order"> &
     Pick<IAutoMoviePhysicalJoint, "range">,
   parent: IAutoMovieRigidTransform,
   child: IAutoMovieRigidTransform,
 ): IAutoMovieMeasurePhysicalJointLimits.IResult {
-  const relative: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-    Quaternion.inverse(
-      Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+  const relative: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(
+      AutoMovieEngineQuaternion.multiply(parent.rotation, joint.parentFrame.rotation),
     ),
-    Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+    AutoMovieEngineQuaternion.multiply(child.rotation, joint.childFrame.rotation),
   );
   if (joint.range !== undefined) {
     const gate: NonNullable<IAutoMoviePhysicalJoint["range"]> = joint.range;
-    const own: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-      Quaternion.multiply(gate.basis, Quaternion.normalize(relative)),
-      Quaternion.inverse(gate.basis),
+    const own: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(gate.basis, AutoMovieEngineQuaternion.normalize(relative)),
+      AutoMovieEngineQuaternion.inverse(gate.basis),
     );
-    const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
+    const reading: IAutoMovieSwingTwistRange.IReading = AutoMovieEngineSwingTwistRange.read(
       own,
       gate.frame,
     );
@@ -64,7 +64,7 @@ export function measurePhysicalJointLimits(
         violation:
           Math.max(
             0,
-            reading.swing - swingTwistRange.radius(gate.frame, reading.azimuth),
+            reading.swing - AutoMovieEngineSwingTwistRange.radius(gate.frame, reading.azimuth),
           ) * radian,
       },
       {
@@ -84,14 +84,14 @@ export function measurePhysicalJointLimits(
       z: 0,
     };
     const unit: IAutoMovieRigidTransform["rotation"] =
-      Quaternion.normalize(relative);
-    const values: number[] = AutoMoviePhysicalJointChart.nearest(joint, unit);
+      AutoMovieEngineQuaternion.normalize(relative);
+    const values: number[] = AutoMovieEnginePhysicalJointChart.nearest(joint, unit);
     // What the chart's reading leaves of the rotation turns the locked axes:
     // a locked axis reads its own angle plus that turn's component about it.
-    const left: IAutoMovieVector3 = PhysicalRotationVector.log(
-      Quaternion.multiply(
+    const left: IAutoMovieVector3 = AutoMovieEnginePhysicalRotationVector.log(
+      AutoMovieEngineQuaternion.multiply(
         unit,
-        Quaternion.inverse(AutoMoviePhysicalJointChart.compose(order, values)),
+        AutoMovieEngineQuaternion.inverse(AutoMovieEnginePhysicalJointChart.compose(order, values)),
       ),
     );
     values.forEach((value: number, at: number): void => {

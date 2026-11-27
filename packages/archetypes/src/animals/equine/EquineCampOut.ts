@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -52,8 +52,8 @@ export namespace EquineCampOut {
     });
     const shoulders: IAutoMovieVector3 = EquineBodyPose.point(
       start.trunk,
-      Vector3.scale(
-        Vector3.add(body.chains.leftFore[0]!, body.chains.rightFore[0]!),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(body.chains.leftFore[0]!, body.chains.rightFore[0]!),
         0.5,
       ),
     );
@@ -82,7 +82,7 @@ export namespace EquineCampOut {
         trunk: loaded,
         anchors: {
           ...before.anchors,
-          [limb]: Vector3.add(before.anchors[limb], offset),
+          [limb]: AutoMovieEngineVector3.add(before.anchors[limb], offset),
         },
       });
     }
@@ -186,18 +186,18 @@ export namespace EquineCampOut {
     heading: IAutoMovieQuaternion,
   ): number {
     const chain: readonly IAutoMovieVector3[] = body.chains[limb];
-    const terminal: IAutoMovieVector3 = Vector3.subtract(chain[4]!, chain[3]!);
+    const terminal: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(chain[4]!, chain[3]!);
     const hip: IAutoMovieVector3 = EquineBodyPose.point(start.trunk, chain[0]!);
-    const ankle: IAutoMovieVector3 = Vector3.subtract(
+    const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       start.anchors[limb],
       terminal,
     );
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(heading);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(heading);
     const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(inverse, Vector3.subtract(point, shoulders));
+      AutoMovieEngineQuaternion.rotateVector(inverse, AutoMovieEngineVector3.subtract(point, shoulders));
     const h: IAutoMovieVector3 = local(hip);
-    const a: IAutoMovieVector3 = local(Vector3.add(ankle, offset));
-    const wanted: number = Vector3.distance(hip, ankle) - ROOM;
+    const a: IAutoMovieVector3 = local(AutoMovieEngineVector3.add(ankle, offset));
+    const wanted: number = AutoMovieEngineVector3.distance(hip, ankle) - ROOM;
     const across: number = h.x - a.x;
     const r: number = Math.sqrt(Math.max(0, wanted * wanted - across * across));
     const rho: number = Math.hypot(h.y, h.z);

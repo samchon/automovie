@@ -4,7 +4,7 @@ import {
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-import * as SmokingPropDrawData from "./SmokingPropDrawData";
+import { SmokingPropDrawData } from "./SmokingPropDrawData";
 
 /*
  * The seeded recipes originally published as `createSmoking`.

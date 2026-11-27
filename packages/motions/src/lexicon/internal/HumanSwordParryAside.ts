@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanSword,
@@ -25,7 +25,7 @@ export function HumanSwordParryAside(
   const lateral: IAutoMovieVector3 = s.world({ out: 1, up: 0, forward: 0 });
   const centre: IAutoMovieVector3 = context.entry.posture.root;
   const off = (p: IAutoMovieVector3): number =>
-    Vector3.dot(Vector3.subtract(p, centre), lateral);
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(p, centre), lateral);
   const side: number = off(middle) >= 0 ? 1 : -1;
   const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
     context.body.measure;
@@ -36,5 +36,5 @@ export function HumanSwordParryAside(
     0,
     clear - Math.min(side * off(ends[0]), side * off(ends[1])),
   );
-  return Vector3.scale(lateral, side * shift);
+  return AutoMovieEngineVector3.scale(lateral, side * shift);
 }

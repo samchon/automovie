@@ -1,6 +1,6 @@
 import type {
-  AutoMovieDrawSubjects,
-  IAutoMovieDrawSubject,
+  AutoMovieRenderDrawSubjects,
+  IAutoMovieRenderDrawSubject,
 } from "@automovie/render";
 
 import type { IFilm } from "./IFilm";
@@ -19,12 +19,12 @@ import { subjectOfFilm } from "./subjectOfFilm";
  * @evidence contracts/development/implementation.md#principled-implementation Maps the film registry through the one film-to-subject mapping. No film is named; the props are not read, since films need none.
  * @evidence contracts/development/implementation.md#efficient-algorithms One entry per film; the mapping lives in `subjectOfFilm`. Linear in the registered films; a film is created only when its subject is. A mapping made once per page. Each subject's dispose releases its film, as `subjectOfFilm` states.
  */
-export const subjects: AutoMovieDrawSubjects = (): Readonly<
-  Record<string, IAutoMovieDrawSubject>
+export const subjects: AutoMovieRenderDrawSubjects = (): Readonly<
+  Record<string, IAutoMovieRenderDrawSubject>
 > =>
   Object.fromEntries(
     Object.entries(films).map(
-      ([name, film]: [string, IFilm]): [string, IAutoMovieDrawSubject] => [
+      ([name, film]: [string, IFilm]): [string, IAutoMovieRenderDrawSubject] => [
         name,
         subjectOfFilm(name, film),
       ],

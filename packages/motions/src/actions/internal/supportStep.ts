@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { shankTilt } from "../../carrier/internal/shankTilt";
@@ -62,7 +62,7 @@ export function supportStep(props: supportStep.IProps): number {
     },
   );
   const up = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(point, { x: 0, y: crawl.LIFT, z: 0 });
+    AutoMovieEngineVector3.add(point, { x: 0, y: crawl.LIFT, z: 0 });
   const steps: number = Math.max(
     cleared.length > 0 ? 2 : 1,
     ...crossings.map(
@@ -188,7 +188,7 @@ export function supportStep(props: supportStep.IProps): number {
     let rise: number = crawl.LIFT;
     if (l === 0) {
       const toe: IAutoMovieVector3 = oldPlace(crossing.previous)!;
-      const facing: IAutoMovieVector3 = Vector3.normalize({
+      const facing: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: toe.x - heel.x,
         y: 0,
         z: toe.z - heel.z,
@@ -201,11 +201,11 @@ export function supportStep(props: supportStep.IProps): number {
       );
       const excess: number = Math.max(
         0,
-        lean - (ANKLE_DORSIFLEXION.unloaded - supportStep.DORSAL_MARGIN),
+        lean - (AutoMovieEngineAnkleDorsiflexion.unloaded - supportStep.DORSAL_MARGIN),
       );
       rise +=
         Math.hypot(toe.x - heel.x, toe.z - heel.z) *
-        Math.sin(excess * Quaternion.DEG2RAD);
+        Math.sin(excess * AutoMovieEngineQuaternion.DEG2RAD);
     }
     return {
       bone: socket.bone,

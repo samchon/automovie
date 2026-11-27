@@ -1,6 +1,6 @@
 import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 import { AutoMovieArchetypeStageHandBowProp } from "../AutoMovieArchetypeStageHandBowProp";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -38,7 +38,7 @@ export function createStageHandBowProp(
     AutoMovieArchetypeStageHandBowProp.KINDS,
   );
   return StageBowConstruction(kind, params, seed, (builder, d) => {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
     // The string a brace height clear of the belly; each limb a straight rod from the grip to its nock, lifted so the lower limb's tilted collider, a capsule as long as the rod, rests on the floor.
     const length: number = d.length!;

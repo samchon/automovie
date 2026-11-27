@@ -1,4 +1,6 @@
-import { buildTennisRacketHead } from "@automovie/archetypes/internal";
+import {
+  buildTennisRacketHead
+} from "../../../../../packages/archetypes/src/sport/internal/buildTennisRacketHead";
 import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMeshRayCaster } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

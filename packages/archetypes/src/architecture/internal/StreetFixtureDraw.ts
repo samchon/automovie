@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type AutoMovieArchetypeMaterial, } from "../../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { STREET_FIXTURE_BANDS } from "../constants/STREET_FIXTURE_BANDS";
@@ -61,7 +61,7 @@ export namespace StreetFixtureDraw {
             id: "post",
             kind: "bar",
             symmetry: "round",
-            frame: AutoMovieArchetypeFrame.facing(Vector3.create(0, (low + high) / 2, 0), Vector3.create(0, 0, 1), Vector3.create(0, 1, 0)),
+            frame: AutoMovieArchetypeFrame.facing(AutoMovieEngineVector3.create(0, (low + high) / 2, 0), AutoMovieEngineVector3.create(0, 0, 1), AutoMovieEngineVector3.create(0, 1, 0)),
             extent: null,
             grip: "power",
             aperture: diameter,

@@ -2,10 +2,10 @@ import type { IAutoMovieMark } from "@automovie/interface";
 import * as THREE from "three";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { AutoMovieRenderInspectionOverlay } from "../../AutoMovieRenderInspectionOverlay.js";
-import type { IAutoMovieInspectionMarkSet } from "../../IAutoMovieInspectionMarkSet.js";
-import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOverlay.js";
+import type { IAutoMovieRenderInspectionMarkSet } from "../../IAutoMovieRenderInspectionMarkSet.js";
+import type { IAutoMovieRenderInspectionOverlay } from "../../IAutoMovieRenderInspectionOverlay.js";
 import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStrokes.js";
 import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
 
@@ -32,9 +32,9 @@ import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSour
  * coordinates.
  */
 export function buildAutoMovieInspectionMarks(
-  sets: readonly IAutoMovieInspectionMarkSet[],
+  sets: readonly IAutoMovieRenderInspectionMarkSet[],
   options: { stroke: number; xray: boolean },
-): IAutoMovieInspectionOverlay {
+): IAutoMovieRenderInspectionOverlay {
   const group: THREE.Group = new THREE.Group();
   const built: IBuilt[] = [];
   const color: THREE.Color = new THREE.Color();
@@ -287,7 +287,7 @@ function markChanged(geometry: THREE.BufferGeometry): void {
     geometry.getAttribute(
       geometry.hasAttribute("instanceStart") ? "instanceStart" : "position",
     );
-  if (AutoMovieThreeKind.isInterleavedBufferAttribute(attribute))
+  if (AutoMovieRenderThreeKind.isInterleavedBufferAttribute(attribute))
     attribute.data.needsUpdate = true;
   else attribute.needsUpdate = true;
   geometry.computeBoundingBox();
@@ -308,7 +308,7 @@ function place(
     if (object.parent !== null)
       object.matrix.copy(object.parent.matrixWorld).invert();
     object.updateMatrixWorld(true);
-  } else if (AutoMovieThreeKind.isInstancedMesh(anchor) && anchor.count > 0) {
+  } else if (AutoMovieRenderThreeKind.isInstancedMesh(anchor) && anchor.count > 0) {
     anchor.getMatrixAt(0, instance);
     followAutoMovieInspectionSource(object, anchor, instance);
   } else followAutoMovieInspectionSource(object, anchor);

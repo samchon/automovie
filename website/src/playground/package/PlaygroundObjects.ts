@@ -3,9 +3,9 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanGait, AutoMovieMotionHumanObject } from "@automovie/motions";
 import * as motions from "@automovie/motions";
-import * as internal from "@automovie/motions/internal";
+import { HumanSheath } from "../../../../packages/motions/src/handling/internal/HumanSheath";
+import { HumanObstacle } from "../../../../packages/motions/src/perform/internal/HumanObstacle";
 
 import { SceneArchetype } from "../../scenes/package/SceneArchetype";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
@@ -68,10 +68,10 @@ export namespace PlaygroundObjects {
       }
   ) & { fixed?: boolean };
 
-  /** The packages' exports by name, for the members only some releases have. */
   const MOTIONS: Readonly<Record<string, unknown>> = {
     ...(motions as Readonly<Record<string, unknown>>),
-    ...(internal as Readonly<Record<string, unknown>>),
+    HumanSheath,
+    HumanObstacle,
   };
 
   /**
@@ -80,7 +80,7 @@ export namespace PlaygroundObjects {
    * @returns Whether `AutoMovieMotionHumanObject` is exported.
    */
   export function available(): boolean {
-    return typeof MOTIONS["HumanObject"] === "object";
+    return typeof MOTIONS["AutoMovieMotionHumanObject"] === "object";
   }
 
   /**
@@ -124,8 +124,8 @@ export namespace PlaygroundObjects {
           placed,
           aid === undefined
             ? travel?.placement
-            : AutoMovieMotionHumanGait.aidWalk.track(
-                AutoMovieMotionHumanObject.frame(placed),
+            : motions.AutoMovieMotionHumanGait.aidWalk.track(
+                motions.AutoMovieMotionHumanObject.frame(placed),
                 aid,
               ),
           travel?.contact,
@@ -272,16 +272,16 @@ export namespace PlaygroundObjects {
     object: IPlaygroundComposition.IObject,
   ): object => SceneArchetype.model(object);
 
-  /** `HumanObject`, or the reason it cannot be used. */
+  /** `AutoMovieMotionHumanObject`, or the reason it cannot be used. */
   function attach(): IHumanObject {
     if (!available())
       throw new Error(
-        "The installed @automovie/motions has no HumanObject, so objects cannot be placed in a performance yet",
+        "The installed @automovie/motions has no AutoMovieMotionHumanObject, so objects cannot be placed in a performance yet",
       );
-    return MOTIONS["HumanObject"] as IHumanObject;
+    return MOTIONS["AutoMovieMotionHumanObject"] as IHumanObject;
   }
 
-  /** Where an object rests: a heading on its floor point, or its whole rotation as a world frame, the two forms `HumanObject.Placement` takes, and whether it is a fixture. */
+  /** Where an object rests: a heading on its floor point, or its whole rotation as a world frame, the two forms `AutoMovieMotionHumanObject.Placement` takes, and whether it is a fixture. */
   function placement(object: IPlaygroundComposition.IObject): IPlacement {
     const fixed: { fixed?: boolean } =
       object.fixed === true ? { fixed: true } : {};

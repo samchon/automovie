@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 
-import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "../../IAutoMovieRenderViewerSubjectBounds.js";
 
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
@@ -19,7 +19,7 @@ import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspecti
  * one. It throws when a pattern matches nothing drawn, and when the flagged
  * focus finds no flagged mark, saying no mark is flagged.
  */
-export function focusAutoMovieInspection(props: AutoMovieRenderInspection.IFocusProps): IAutoMovieViewerSubjectBounds {
+export function focusAutoMovieInspection(props: AutoMovieRenderInspection.IFocusProps): IAutoMovieRenderViewerSubjectBounds {
   const focus: IAutoMovieInspectionFocus = props.focus;
   const flagged: boolean = focus.type === "flagged";
   const boxes: {

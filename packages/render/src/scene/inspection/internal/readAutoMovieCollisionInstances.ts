@@ -5,13 +5,13 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieFormationCycle } from "../../IAutoMovieFormationCycle.js";
-import type { IAutoMovieFormationCycleTake } from "../../IAutoMovieFormationCycleTake.js";
+import type { IAutoMovieRenderFormationCycle } from "../../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderFormationCycleTake } from "../../IAutoMovieRenderFormationCycleTake.js";
 import { formationCyclePosition } from "../../internal/formationCyclePosition.js";
 import { isAutoMovieFormationCycleMaterial } from "../../internal/isAutoMovieFormationCycleMaterial.js";
 import { readMaterialShaderPatches } from "../../internal/readMaterialShaderPatches.js";
 import { sampleFormationCycleMatrix } from "../../internal/sampleFormationCycleMatrix.js";
-import { AutoMovieCollisionSource } from "../../AutoMovieCollisionSource.js";
+import { AutoMovieRenderCollisionSource } from "../../AutoMovieRenderCollisionSource.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
@@ -37,11 +37,11 @@ export function readAutoMovieCollisionInstances(
   budget: { posedVertices: number; parts?: number },
   add: readAutoMovieCollisionMesh.IAdd,
 ): void {
-  const source: AutoMovieCollisionSource.IInstances | undefined =
-    AutoMovieCollisionSource.instances(mesh);
-  const cycle: IAutoMovieFormationCycle | undefined =
+  const source: AutoMovieRenderCollisionSource.IInstances | undefined =
+    AutoMovieRenderCollisionSource.instances(mesh);
+  const cycle: IAutoMovieRenderFormationCycle | undefined =
     mesh.userData.automovieFormationCycle;
-  const take: IAutoMovieFormationCycleTake | undefined = cycle?.active;
+  const take: IAutoMovieRenderFormationCycleTake | undefined = cycle?.active;
   const admitted: boolean = admits(mesh, cycle !== undefined);
   const topology: readAutoMovieCollisionTopology.ITopology | null =
     readAutoMovieCollisionTopology(mesh.geometry);
@@ -163,8 +163,8 @@ function cyclePose(
   instance: THREE.Matrix4,
   placement: THREE.Matrix4,
   topology: readAutoMovieCollisionTopology.ITopology,
-  cycle: IAutoMovieFormationCycle,
-  take: IAutoMovieFormationCycleTake,
+  cycle: IAutoMovieRenderFormationCycle,
+  take: IAutoMovieRenderFormationCycleTake,
 ): ((vertex: number, target: THREE.Vector3) => THREE.Vector3) | null {
   const phases:
     | THREE.BufferAttribute
@@ -206,8 +206,8 @@ function cyclePose(
 function cycleBounds(
   geometry: THREE.BufferGeometry,
   topology: readAutoMovieCollisionTopology.ITopology,
-  cycle: IAutoMovieFormationCycle,
-  take: IAutoMovieFormationCycleTake,
+  cycle: IAutoMovieRenderFormationCycle,
+  take: IAutoMovieRenderFormationCycleTake,
 ): THREE.Box3 | null {
   const parts:
     | THREE.BufferAttribute
@@ -242,8 +242,8 @@ function cycleBounds(
  * One stored rest-to-posed matrix, read exactly as the table holds it.
  */
 function exactSample(
-  take: IAutoMovieFormationCycleTake,
-  cycle: IAutoMovieFormationCycle,
+  take: IAutoMovieRenderFormationCycleTake,
+  cycle: IAutoMovieRenderFormationCycle,
   part: number,
   sample: number,
 ): THREE.Matrix4 {

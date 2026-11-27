@@ -1,9 +1,9 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  swingTwistRange,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineSwingTwistRange,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -148,16 +148,16 @@ export namespace HumanHandAttitude {
     const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
       written(forearm, first),
     );
-    const along: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         shown.get(hand)!.worldPosition,
         shown.get(lower)!.worldPosition,
       ),
     );
     const left: number = twist(
-      Quaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
         rotation,
-        Quaternion.inverse(shown.get(hand)!.worldRotation),
+        AutoMovieEngineQuaternion.inverse(shown.get(hand)!.worldRotation),
       ),
       along,
     );
@@ -169,9 +169,9 @@ export namespace HumanHandAttitude {
       written([forearm[0], forearm[1], forearm[2] + 1], first),
     );
     const rate: number = twist(
-      Quaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
         nudged.get(hand)!.worldRotation,
-        Quaternion.inverse(shown.get(hand)!.worldRotation),
+        AutoMovieEngineQuaternion.inverse(shown.get(hand)!.worldRotation),
       ),
       along,
     );
@@ -216,11 +216,11 @@ function wrist(
 ) => [number, number, number] {
   // The hand's rest, axes, rotation domain and range clamp, prepared once.
   const found: IAutoMovieBone | undefined = readHumanBone(body, hand);
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-    found?.rest.rotation ?? Quaternion.identity(),
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+    found?.rest.rotation ?? AutoMovieEngineQuaternion.identity(),
   );
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
-    AutoMovieEngineKinematics.skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
+    AutoMovieEngineKinematics.skeletonJointAxes(body.skeleton, AutoMovieEngineHumanoidJointAxes);
   const domain: IAutoMovieJointRotationDomain = {
     bone: hand,
     constraint: AutoMovieEngineKinematics.getConstraint(hand, found?.constraint ?? null),
@@ -234,23 +234,23 @@ function wrist(
         domain.constraint.swingTwist === undefined ||
         domain.constraint.swingTwist === null
           ? undefined
-          : swingTwistRange.fromAxes(hand, axes[hand]),
+          : AutoMovieEngineSwingTwistRange.fromAxes(hand, axes[hand]),
     );
   return (
     forearm: IAutoMovieQuaternion,
     rotation: IAutoMovieQuaternion,
   ): [number, number, number] => {
-    const local: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
+    const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
         inverse,
-        Quaternion.multiply(Quaternion.inverse(forearm), rotation),
+        AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(forearm), rotation),
       ),
     );
     const angles: ReturnType<typeof AutoMovieEngineKinematics.decomposeJointRotation> =
       AutoMovieEngineKinematics.decomposeJointRotation(
         local,
         axes[hand],
-        HUMANOID_REST_FRAME[hand],
+        AutoMovieEngineHumanoidRestFrame[hand],
         domain,
       );
     const joint: IAutoMovieJointPose = clamp({
@@ -268,7 +268,7 @@ function wrist(
  * of its swing-twist split, retaining atan2's signed endpoints.
  */
 function twist(q: IAutoMovieQuaternion, axis: IAutoMovieVector3): number {
-  const n: IAutoMovieQuaternion = Quaternion.normalize(q);
+  const n: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(q);
   const sign: number = n.w < 0 ? -1 : 1;
   return (
     (2 *

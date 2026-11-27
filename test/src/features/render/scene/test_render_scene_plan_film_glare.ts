@@ -1,4 +1,4 @@
-import { AutoMovieFilmResponseStage, type IAutoMovieFilmGlareKernel } from "@automovie/render";
+import { AutoMovieRenderFilmResponseStage, type IAutoMovieRenderFilmGlareKernel } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,13 +20,13 @@ import { TestValidator } from "@nestia/e2e";
  *    pixel stays bounded whatever the raster.
  */
 export function test_render_scene_plan_film_glare(): void {
-  const kernels: IAutoMovieFilmGlareKernel[] = AutoMovieFilmResponseStage.planGlare(720);
+  const kernels: IAutoMovieRenderFilmGlareKernel[] = AutoMovieRenderFilmResponseStage.planGlare(720);
 
   // 1. Normalized taps.
   TestValidator.predicate(
     "taps sum to one",
     kernels.every(
-      (kernel: IAutoMovieFilmGlareKernel): boolean =>
+      (kernel: IAutoMovieRenderFilmGlareKernel): boolean =>
         Math.abs(
           kernel.weights.reduce(
             (sum: number, value: number): number => sum + 2 * value,
@@ -40,7 +40,7 @@ export function test_render_scene_plan_film_glare(): void {
 
   // 2. The centre of one bright pixel.
   const spread: number = kernels.reduce(
-    (sum: number, kernel: IAutoMovieFilmGlareKernel): number =>
+    (sum: number, kernel: IAutoMovieRenderFilmGlareKernel): number =>
       sum +
       kernel.weight *
         response(kernel, 1280, 640)[640]! *
@@ -64,7 +64,7 @@ export function test_render_scene_plan_film_glare(): void {
     0.1 *
       1000 *
       kernels.reduce(
-        (sum: number, kernel: IAutoMovieFilmGlareKernel): number =>
+        (sum: number, kernel: IAutoMovieRenderFilmGlareKernel): number =>
           sum +
           kernel.weight *
             total(response(kernel, 1280, 640)) *
@@ -77,12 +77,12 @@ export function test_render_scene_plan_film_glare(): void {
   );
 
   // 4. A taller frame goes deeper, not wider.
-  const tall: IAutoMovieFilmGlareKernel = AutoMovieFilmResponseStage.planGlare(2160)[2]!;
+  const tall: IAutoMovieRenderFilmGlareKernel = AutoMovieRenderFilmResponseStage.planGlare(2160)[2]!;
   TestValidator.predicate(
     "a taller frame blurs deeper with no more taps",
     tall.level > kernels[2]!.level &&
       [tall, ...kernels].every(
-        (kernel: IAutoMovieFilmGlareKernel): boolean =>
+        (kernel: IAutoMovieRenderFilmGlareKernel): boolean =>
           kernel.weights.length <= 13,
       ),
   );
@@ -95,7 +95,7 @@ export function test_render_scene_plan_film_glare(): void {
  * centre by linear interpolation between level pixel centres.
  */
 function response(
-  kernel: IAutoMovieFilmGlareKernel,
+  kernel: IAutoMovieRenderFilmGlareKernel,
   size: number,
   at: number,
 ): number[] {

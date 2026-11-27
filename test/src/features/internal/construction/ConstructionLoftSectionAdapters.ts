@@ -1,12 +1,12 @@
 import {
-  AutoMovieLoftChain,
-  AutoMovieLoftFrame,
-  AutoMovieLoftJet,
-  AutoMovieLoftSectionConnect,
-  AutoMovieLoftSectionSource,
-  AutoMovieSeamStation,
-  AutoMovieSolidChain,
-  AutoMovieViewLoft,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftFrame,
+  AutoMovieEngineLoftJet,
+  AutoMovieEngineLoftSectionConnect,
+  AutoMovieEngineLoftSectionSource,
+  AutoMovieEngineSeamStation,
+  AutoMovieEngineSolidChain,
+  AutoMovieEngineViewLoft,
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
@@ -57,7 +57,7 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
       { site: "end", station: 1, value: sign },
     ],
   });
-  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const result: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create({
     ...input,
     stations: [0, 0.5, 1],
     front: { positive: outline(1), negative: outline(-1) },
@@ -69,7 +69,7 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
     ...original,
     layers: original.layers.slice(0, 2),
   };
-  const continuous: IAutoMovieLoftChain = AutoMovieSeamStation.continuous(copy);
+  const continuous: IAutoMovieLoftChain = AutoMovieEngineSeamStation.continuous(copy);
   if (continuous.nativeSource !== copy.nativeSource)
     failures.push(
       "The coordinator replaced the original clipped scalar owner.",
@@ -97,10 +97,10 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
       },
     ),
   };
-  const framed: IAutoMovieLoftChain = AutoMovieSolidChain.framed(unframed);
+  const framed: IAutoMovieLoftChain = AutoMovieEngineSolidChain.framed(unframed);
   if (
-    !AutoMovieLoftJet.carries(framed) ||
-    AutoMovieSolidChain.surface(framed) === null
+    !AutoMovieEngineLoftJet.carries(framed) ||
+    AutoMovieEngineSolidChain.surface(framed) === null
   )
     failures.push(
       "A regular horizontal native source did not acquire its exact frame2.",
@@ -109,17 +109,17 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
     for (const s of [0, 0.125, 0.375, 0.5])
       for (const phi of [-0.31, 0, 0.77, 3.7]) {
         close(
-          AutoMovieLoftChain.point(chain, s, phi),
-          AutoMovieLoftChain.point(original, s, phi),
+          AutoMovieEngineLoftChain.point(chain, s, phi),
+          AutoMovieEngineLoftChain.point(original, s, phi),
           "clipped source point",
           failures,
         );
-        const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+        const actual: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
           chain,
           s,
           phi,
         );
-        const expected: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+        const expected: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
           original,
           s,
           phi,
@@ -155,18 +155,18 @@ function endpoints(failures: string[]): void {
           ...new Array<number>(8).fill(0),
         ],
         slopes: new Array<number>(16).fill(0),
-        frame: AutoMovieLoftFrame.horizontal(y),
+        frame: AutoMovieEngineLoftFrame.horizontal(y),
         frameSlopes: { origin: [0, 1, 0], u: [0, 0, 0], v: [0, 0, 0] },
         frameCurvatures: { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] },
       };
-      layer.sectionSource = AutoMovieLoftSectionSource.bind(layer, {
+      layer.sectionSource = AutoMovieEngineLoftSectionSource.bind(layer, {
         kind: "native",
         inputs,
       });
       return layer;
     },
   );
-  const chain: IAutoMovieLoftChain = AutoMovieLoftSectionConnect.finish({
+  const chain: IAutoMovieLoftChain = AutoMovieEngineLoftSectionConnect.finish({
     name: "phase.endpoint-only",
     basis: "spline",
     rule: "polar",
@@ -176,10 +176,10 @@ function endpoints(failures: string[]): void {
     layers,
   });
   const continuous: IAutoMovieLoftChain =
-    AutoMovieSeamStation.continuous(chain);
+    AutoMovieEngineSeamStation.continuous(chain);
   if (
-    !AutoMovieLoftJet.carries(continuous) ||
-    AutoMovieSolidChain.surface(continuous) === null
+    !AutoMovieEngineLoftJet.carries(continuous) ||
+    AutoMovieEngineSolidChain.surface(continuous) === null
   )
     failures.push(
       "Complete endpoint/span native2 incorrectly requires projection curvature.",
@@ -199,13 +199,13 @@ function endpoints(failures: string[]): void {
   for (const phi of [-0.37, 0, 1.2, 4.3]) {
     const expected: number[] = [Math.cos(phi), 0.37, Math.sin(phi)];
     close(
-      AutoMovieLoftChain.point(cold, 0.37, phi),
+      AutoMovieEngineLoftChain.point(cold, 0.37, phi),
       expected,
       "cold endpoint-only native point",
       failures,
     );
     close(
-      AutoMovieLoftJet.at(cold, 0.37, phi).p,
+      AutoMovieEngineLoftJet.at(cold, 0.37, phi).p,
       expected,
       "cold endpoint-only native jet",
       failures,
@@ -218,21 +218,21 @@ function endpoints(failures: string[]): void {
  * read the old base field.
  */
 function incomplete(failures: string[], input: IAutoMovieViewPart): void {
-  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(input);
+  const result: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(input);
   if (result.chain === null)
     throw new Error(JSON.stringify(result.diagnostics));
   const original: IAutoMovieLoftChain = result.chain;
   const field: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
-    AutoMovieLoftSectionConnect.capture(original, 0);
+    AutoMovieEngineLoftSectionConnect.capture(original, 0);
   if (typeof field === "string") throw new Error(field);
   const first: IAutoMovieLoftChain.ILayer = { ...original.layers[0]! };
-  first.sectionSource = AutoMovieLoftSectionSource.bind(first, field);
+  first.sectionSource = AutoMovieEngineLoftSectionSource.bind(first, field);
   const broken: IAutoMovieLoftChain = {
     ...original,
     layers: [first, ...original.layers.slice(1)],
   };
   try {
-    AutoMovieLoftChain.point(broken, 0.37, 0.41);
+    AutoMovieEngineLoftChain.point(broken, 0.37, 0.41);
     failures.push(
       "An incomplete present native boundary selected the original base field.",
     );

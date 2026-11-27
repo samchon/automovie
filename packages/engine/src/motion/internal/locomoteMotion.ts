@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { timeScaleMotion } from "./timeScaleMotion";
 import { travelMotion } from "./travelMotion";
 
@@ -35,7 +35,7 @@ export const locomoteMotion: (
   if (speed <= 0) throw new Error("locomote speed must be finite and positive");
   if (gait.duration <= 0)
     throw new Error("locomote gait duration must be finite and positive");
-  const directionLength: number = Vector3.length(direction);
+  const directionLength: number = AutoMovieEngineVector3.length(direction);
   if (directionLength === 0)
     throw new Error("locomote direction must be non-zero");
 
@@ -49,7 +49,7 @@ export const locomoteMotion: (
   // still plays, so loop continuity and exact arrival are untouched.
   const base: IAutoMovieMotion =
     quantized < 0.5 ? timeScaleMotion(gait, quantized / 0.5) : gait;
-  const heading: IAutoMovieVector3 = Vector3.scale(
+  const heading: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     direction,
     1 / directionLength,
   );
@@ -57,7 +57,7 @@ export const locomoteMotion: (
   // clip arrives at exactly `distance` (followPathMotion's policy). Baking
   // the requested speed verbatim would travel speed×cycles×duration and miss
   // the destination by up to half a stride.
-  const velocity: IAutoMovieVector3 = Vector3.scale(
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     heading,
     distance / (cycles * base.duration),
   );
@@ -70,5 +70,5 @@ export const locomoteMotion: (
 /*
  * Rotations about the fixed world-up axis.
  */
-const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+const yawRotation: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });

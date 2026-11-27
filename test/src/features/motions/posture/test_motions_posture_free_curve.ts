@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -8,10 +8,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  poseBones,
-  prepareHumanFreeCurve,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  prepareHumanFreeCurve
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanFreeCurve";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -99,7 +103,7 @@ export async function test_motions_posture_free_curve(): Promise<void> {
   );
 
   // 2 and 3. On the goals, as a cold fit.
-  const radius: number = (length * ROM_TOLERANCE * Math.PI) / 180;
+  const radius: number = (length * AutoMovieEngineRomTolerance * Math.PI) / 180;
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   TestValidator.predicate(

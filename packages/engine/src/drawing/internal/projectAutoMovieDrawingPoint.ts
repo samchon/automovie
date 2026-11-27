@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Project one world point orthographically onto the view's page, unrounded.
@@ -20,9 +20,9 @@ export const projectAutoMovieDrawingPoint = (
   frame: IAutoMovieDrawingFrame,
   point: IAutoMovieVector3,
 ): IAutoMovieDrawingPoint => {
-  const local: IAutoMovieVector3 = Vector3.subtract(point, frame.origin);
+  const local: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, frame.origin);
   return {
-    x: Vector3.dot(local, frame.right),
-    y: Vector3.dot(local, frame.up),
+    x: AutoMovieEngineVector3.dot(local, frame.right),
+    y: AutoMovieEngineVector3.dot(local, frame.up),
   };
 };

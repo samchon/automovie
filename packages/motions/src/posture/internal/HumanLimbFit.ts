@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionPlanting } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionPlanting } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -142,7 +142,7 @@ export namespace HumanLimbFit {
   }
 
   /*
-   * Fit a constructor-owned continuous curve through current hinged correction.
+   * Fit a function Object() { [native code] }-owned continuous curve through current hinged correction.
    */
   export function continued(
     ...args: Parameters<typeof fit>
@@ -394,7 +394,7 @@ export namespace HumanLimbFit {
                       y: 0,
                       z: 0,
                     },
-                    worldRotation: pose.root?.rotation ?? Quaternion.identity(),
+                    worldRotation: pose.root?.rotation ?? AutoMovieEngineQuaternion.identity(),
                   }
                 : readAuthored().get(constants.parent);
             return parent === undefined
@@ -470,7 +470,7 @@ export namespace HumanLimbFit {
   }
 
   /*
-   * Only the actual continuous-curve constructor selects current hinged
+   * Only the actual continuous-curve function Object() { [native code] } selects current hinged
    * correction.
    */
   function correcting(

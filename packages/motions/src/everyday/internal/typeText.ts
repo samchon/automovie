@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -129,15 +129,15 @@ export namespace typeText {
         fix: "type on a keyboard whose key field spans the letter rows",
       });
     const frame: IAutoMovieRigidTransform = read.frame(context.start);
-    const away: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    const away: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 0,
       z: -1,
     });
     return {
-      at: Vector3.add(
+      at: AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, found.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, found.frame.translation),
       ),
       yaw: (Math.atan2(away.x, away.z) * 180) / Math.PI,
     };
@@ -266,7 +266,7 @@ export namespace typeText {
     if (
       (["left", "right"] as const).some(
         (side: AutoMovieHumanSide): boolean =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             HumanFrame.point(
               frame,
               typeText.key(side === "left" ? "f" : "j").at,
@@ -316,7 +316,7 @@ export namespace typeText {
     // fingers with that approach so the wrist stays behind the index tip.
     function handRotation(side: AutoMovieHumanSide): IAutoMovieQuaternion {
       const homePoint: IAutoMovieVector3 = HumanFrame.point(frame, home[side]);
-      const approach: IAutoMovieVector3 = Vector3.subtract(
+      const approach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         homePoint,
         shoulders[side],
       );
@@ -326,7 +326,7 @@ export namespace typeText {
               { origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw },
               { x: 0, y: 0, z: 1 },
             )
-          : Vector3.normalize({ ...approach, y: 0 });
+          : AutoMovieEngineVector3.normalize({ ...approach, y: 0 });
       const fingers: IAutoMovieVector3 = { ...planar, y: FINGER_SLOPE };
       return HumanHand.rotation(side, { fingers, palm: { x: 0, y: -1, z: 0 } });
     }

@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Append one triangle that owns its three corners and its own plane normal.
@@ -36,10 +36,10 @@ export const pushFlatTriangle: (
     readonly [IAutoMovieVector3, number, number],
   ],
 ): void => {
-  const normal: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(
-      Vector3.subtract(corners[1][0], corners[0][0]),
-      Vector3.subtract(corners[2][0], corners[0][0]),
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(
+      AutoMovieEngineVector3.subtract(corners[1][0], corners[0][0]),
+      AutoMovieEngineVector3.subtract(corners[2][0], corners[0][0]),
     ),
   );
   const base: number = target.positions.length / 3;

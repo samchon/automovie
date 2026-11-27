@@ -1,7 +1,7 @@
-export type { IAutoMovieBuildTextGeometry } from "./IAutoMovieBuildTextGeometry";
-export type { IAutoMovieFont } from "./IAutoMovieFont";
-export type { IAutoMovieFontGlyph } from "./IAutoMovieFontGlyph";
-export type { IAutoMovieFontKerning } from "./IAutoMovieFontKerning";
-export type { IAutoMovieFontSegment } from "./IAutoMovieFontSegment";
-export type { IAutoMovieFontSource } from "./IAutoMovieFontSource";
-export type { IAutoMovieLayoutText } from "./IAutoMovieLayoutText";
+export type * from "./IAutoMovieBuildTextGeometry";
+export type * from "./IAutoMovieFont";
+export type * from "./IAutoMovieFontGlyph";
+export type * from "./IAutoMovieFontKerning";
+export type * from "./IAutoMovieFontSegment";
+export type * from "./IAutoMovieFontSource";
+export type * from "./IAutoMovieLayoutText";

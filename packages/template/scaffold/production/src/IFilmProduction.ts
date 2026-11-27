@@ -14,10 +14,10 @@ import type {
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
 import type {
-  IAutoMovieDrawScene,
-  IAutoMovieDrawView,
-  IObserveAutoMoviePlacedSceneCheck,
-  ISelectAutoMoviePlacedChecksContinuity,
+  IAutoMovieRenderDrawScene,
+  IAutoMovieRenderDrawView,
+  IAutoMovieRenderObservePlacedSceneCheck,
+  IAutoMovieRenderSelectPlacedChecksContinuity,
   AutoMovieRenderInspectionCamera,
   AutoMovieRenderInspection,
 } from "@automovie/render";
@@ -59,7 +59,7 @@ export interface IFilmProduction {
    * Additional authored diagnostics for the settled film as last placed, read
    * before inspection masks or review cameras.
    */
-  inspectPlaced?: IAutoMovieDrawScene["inspectPlaced"];
+  inspectPlaced?: IAutoMovieRenderDrawScene["inspectPlaced"];
 
   /**
    * Optional source-owned shot layers, exemptions and motion cells for the
@@ -72,7 +72,7 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The film owns the layer producer; this signature has no body. The signature chooses no traversal or allocation strategy. The film owns any reuse of its shot layers. The signature acquires no resources; the film and the inspection own their lifetimes.
    */
   inspectionLayers?: (
-    sample: IAutoMovieDrawScene.IPlacedSample,
+    sample: IAutoMovieRenderDrawScene.IPlacedSample,
   ) => AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"];
 
   /**
@@ -84,8 +84,8 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The film owns the expectation producer; this signature has no body. The signature chooses no traversal or allocation strategy. The film owns any reuse of its expectations. The signature acquires no resources; the film and the inspection own their lifetimes.
    */
   inspectionChecks?: (
-    sample: IAutoMovieDrawScene.IPlacedSample,
-  ) => readonly IObserveAutoMoviePlacedSceneCheck[];
+    sample: IAutoMovieRenderDrawScene.IPlacedSample,
+  ) => readonly IAutoMovieRenderObservePlacedSceneCheck[];
 
   /**
    * Subjects the shot last placed requires the delivery camera to show at its
@@ -106,7 +106,7 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The film owns the requirement producer; this signature has no body. The signature chooses no traversal or allocation strategy. The film owns any reuse of its requirements. The signature acquires no resources; the film and the inspection own their lifetimes.
    */
   inspectionCamera?: (
-    sample: IAutoMovieDrawScene.IPlacedSample,
+    sample: IAutoMovieRenderDrawScene.IPlacedSample,
   ) => Parameters<typeof AutoMovieRenderInspectionCamera.observePlaced>[0]["targets"];
 
   /**
@@ -205,7 +205,7 @@ export interface IFilmProduction {
    * start. Absent treats the whole film as one continuous shot.
    */
   playback?: Pick<
-    ISelectAutoMoviePlacedChecksContinuity,
+    IAutoMovieRenderSelectPlacedChecksContinuity,
     "sequence" | "timeline" | "discontinuities"
   >;
 
@@ -266,7 +266,7 @@ export interface IFilmProduction {
   views?: Readonly<
     Record<
       string,
-      (seconds: number) => IAutoMovieDrawView
+      (seconds: number) => IAutoMovieRenderDrawView
     >
   >;
 

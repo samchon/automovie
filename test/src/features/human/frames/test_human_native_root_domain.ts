@@ -1,7 +1,7 @@
 import { nclose } from "../../internal/nclose";
 import {
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieViewAxis,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineViewAxis,
 } from "@automovie/engine";
 import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
 import type {
@@ -75,11 +75,11 @@ export function test_human_native_root_domain(): void {
     scenario(entry.name, (): void => {
       const a: number = entry.semiMetres * 1000;
       const parent: IAutoMovieViewPart = ellipse(
-        "made-domain-parent", 1, 1, entry.domain, AutoMovieViewAxis.horizontal(),
+        "made-domain-parent", 1, 1, entry.domain, AutoMovieEngineViewAxis.horizontal(),
       );
       const child: IAutoMovieViewPart = ellipse(
         "made-domain-child", a, breadth, [0, 1],
-        AutoMovieViewAxis.straight([2, entry.centre, 0], [0, 1, 0], [0, 0, 1]),
+        AutoMovieEngineViewAxis.straight([2, entry.centre, 0], [0, 1, 0], [0, 0, 1]),
       );
       const loop: IAutoMovieConstructionPortLoop = {
         centre: { station: entry.centre / 1000, phase: 0 },

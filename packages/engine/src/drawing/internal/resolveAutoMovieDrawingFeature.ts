@@ -10,7 +10,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTriangles";
 import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
@@ -70,25 +70,25 @@ export const resolveAutoMovieDrawingFeature = (
     const matrix: number[] = design.matrices.get(element.id)!;
     const origin: IAutoMovieVector3 = transformAutoMovieDrawingPoint(
       matrix,
-      Vector3.create(),
+      AutoMovieEngineVector3.create(),
     );
     const tip: IAutoMovieVector3 = transformAutoMovieDrawingPoint(
       matrix,
-      Vector3.create(
+      AutoMovieEngineVector3.create(
         feature.index === 0 ? 1 : 0,
         feature.index === 1 ? 1 : 0,
         feature.index === 2 ? 1 : 0,
       ),
     );
-    const direction: IAutoMovieVector3 = Vector3.subtract(tip, origin);
-    if (Vector3.length(direction) === 0)
+    const direction: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(tip, origin);
+    if (AutoMovieEngineVector3.length(direction) === 0)
       return stale(
         `element "${element.id}" axis ${feature.index} is collapsed by its own scale, so it has no direction`,
       );
     return {
       status: "resolved",
       point: origin,
-      direction: Vector3.normalize(direction),
+      direction: AutoMovieEngineVector3.normalize(direction),
       count: 3,
       reason: null,
     };
@@ -131,11 +131,11 @@ export const resolveAutoMovieDrawingFeature = (
       );
     return {
       status: "resolved",
-      point: Vector3.scale(
+      point: AutoMovieEngineVector3.scale(
         vertices.reduce(
           (sum: IAutoMovieVector3, vertex: IWelded): IAutoMovieVector3 =>
-            Vector3.add(sum, vertex.point),
-          Vector3.create(),
+            AutoMovieEngineVector3.add(sum, vertex.point),
+          AutoMovieEngineVector3.create(),
         ),
         1 / vertices.length,
       ),
@@ -175,9 +175,9 @@ export const resolveAutoMovieDrawingFeature = (
     const edge: IWeldedEdge = edges[feature.index]!;
     return {
       status: "resolved",
-      point: Vector3.scale(Vector3.add(edge.from.point, edge.to.point), 0.5),
-      direction: Vector3.normalize(
-        Vector3.subtract(edge.to.point, edge.from.point),
+      point: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(edge.from.point, edge.to.point), 0.5),
+      direction: AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(edge.to.point, edge.from.point),
       ),
       count: edges.length,
       reason: null,
@@ -194,8 +194,8 @@ export const resolveAutoMovieDrawingFeature = (
   const face: IAutoMovieDrawingTriangle = triangles[feature.index]!;
   return {
     status: "resolved",
-    point: Vector3.scale(
-      Vector3.add(Vector3.add(face.a, face.b), face.c),
+    point: AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.add(face.a, face.b), face.c),
       1 / 3,
     ),
     direction: null,

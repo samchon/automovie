@@ -1,6 +1,6 @@
 import {
-  AutoMovieMotionAudit as Audit,
-  AutoMoviePhysicalSimulation,
+  AutoMovieEngineMotionAudit as Audit,
+  AutoMovieEnginePhysicalSimulation,
 } from "@automovie/engine";
 import type {
   IAutoMovieAuditPhysicalOutcomes,
@@ -106,16 +106,16 @@ export async function test_engine_physics_audit_physical_outcomes_limits(): Prom
     missDistance: (): number => 0,
     allowUnplanned: (): boolean => false,
   };
-  TestValidator.equals("valid observed fall qualifies", AutoMoviePhysicalSimulation.auditOutcomes(promise), []);
+  TestValidator.equals("valid observed fall qualifies", AutoMovieEnginePhysicalSimulation.auditOutcomes(promise), []);
   assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
-    AutoMoviePhysicalSimulation.auditOutcomes({
+    AutoMovieEnginePhysicalSimulation.auditOutcomes({
       ...promise,
       falls: [{ ...promise.falls[0]!, tolerance: -1 }],
       observedFalls: { solid: 1000 },
     }),
   );
   assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
-    AutoMoviePhysicalSimulation.auditOutcomes({ ...promise, observedFalls: { solid: -1 } }),
+    AutoMovieEnginePhysicalSimulation.auditOutcomes({ ...promise, observedFalls: { solid: -1 } }),
   );
   const findings: number[] = [];
   for (const scenario of [

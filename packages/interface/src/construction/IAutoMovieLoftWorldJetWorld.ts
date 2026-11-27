@@ -8,7 +8,7 @@ import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
  * uses millimetres. Phase retains the caller's clock: radians for a loft/view,
  * or the normalized piece coordinate after ConstructionProfileSurface applies
  * its clock scale. The operator returns six fresh mutable vectors, mutates no
- * input and throws AutoMovieLoftAdmissionError for nonfinite outputs; malformed
+ * input and throws AutoMovieEngineLoftAdmissionError for nonfinite outputs; malformed
  * input/getter errors propagate. Lift and relief are added separately by the
  * loft owner.
  */

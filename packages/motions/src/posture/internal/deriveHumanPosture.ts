@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -82,7 +82,7 @@ export function deriveHumanPosture(
     Object.is(from.roll, posture.roll);
   const root: NonNullable<IAutoMoviePose["root"]> = placed
     ? assembled.pose.root
-    : Transform.of({ ...turned.position }, turned.rotation);
+    : AutoMovieEngineTransform.of({ ...turned.position }, turned.rotation);
   return {
     posture,
     pose: {

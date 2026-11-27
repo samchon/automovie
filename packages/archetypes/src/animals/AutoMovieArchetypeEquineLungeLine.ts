@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -89,7 +89,7 @@ export namespace AutoMovieArchetypeEquineLungeLine {
         sample: AutoMovieArchetypeRide.ISample<Id, D>,
       ): IAutoMovieVector3 => {
         const root: IAutoMovieVector3 = sample.placement.translation;
-        const out: IAutoMovieVector3 = Vector3.normalize({
+        const out: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
           x: root.x - centre.x,
           y: 0,
           z: root.z - centre.z,

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -72,8 +72,8 @@ export namespace AutoMovieArchetypeOvalBall {
     builder.rod(
       "ball",
       radius,
-      Vector3.create(-half, radius, 0),
-      Vector3.create(half, radius, 0),
+      AutoMovieEngineVector3.create(-half, radius, 0),
+      AutoMovieEngineVector3.create(half, radius, 0),
       { color: BallBuild.COLORS[kind], round: true },
     );
     BallBuild.contacts(builder, diameter, diameter);

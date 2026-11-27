@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetypeFrame } from "../../core/index";
 import type { StageTokenConstruction } from "./StageTokenConstruction";
@@ -23,7 +23,7 @@ export function stageTokenSphere(
   kind: StageTokenSphereKind,
   model: AutoMovieArchetypeProjectile.Model | undefined,
 ): ReturnType<StageTokenConstruction.Build> {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = d.diameter! / 2;
   const stone: boolean = kind === "stone";
   builder.ball(kind, r, v(0, r, 0), {

@@ -1,8 +1,8 @@
-export type { AutoMovieDiagnosticNumber } from "./AutoMovieDiagnosticNumber";
-export type { AutoMovieDiagnosticScalars } from "./AutoMovieDiagnosticScalars";
-export type { IAutoMovieByteDigest } from "./IAutoMovieByteDigest";
-export type { IAutoMovieFilePublicationOptions } from "./IAutoMovieFilePublicationOptions";
-export type { IAutoMovieFileReceipt } from "./IAutoMovieFileReceipt";
-export type { IAutoMovieJsonArraySource } from "./IAutoMovieJsonArraySource";
-export type { IAutoMovieMemoryPeaks } from "./IAutoMovieMemoryPeaks";
-export type { IAutoMovieMemoryUsage } from "./IAutoMovieMemoryUsage";
+export type * from "./AutoMovieDiagnosticNumber";
+export type * from "./AutoMovieDiagnosticScalars";
+export type * from "./IAutoMovieByteDigest";
+export type * from "./IAutoMovieFilePublicationOptions";
+export type * from "./IAutoMovieFileReceipt";
+export type * from "./IAutoMovieJsonArraySource";
+export type * from "./IAutoMovieMemoryPeaks";
+export type * from "./IAutoMovieMemoryUsage";

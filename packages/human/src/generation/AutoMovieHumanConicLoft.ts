@@ -1,11 +1,11 @@
 import { AutoMovieHumanConicRecentre } from "./AutoMovieHumanConicRecentre";
 import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
 import {
-  AutoMovieLoftChain,
-  AutoMovieNaturalSpline,
-  AutoMovieViewAxis,
-  AutoMovieViewAxisJet,
-  AutoMovieViewLoft,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineViewAxis,
+  AutoMovieEngineViewAxisJet,
+  AutoMovieEngineViewLoft,
 } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
@@ -104,11 +104,11 @@ export namespace AutoMovieHumanConicLoft {
   ): (s: number) => number[] {
     const splines: IAutoMovieNaturalCubicSpline[] = family.values.map(
       (field: number[]): IAutoMovieNaturalCubicSpline =>
-        AutoMovieNaturalSpline.create(family.knots, field),
+        AutoMovieEngineNaturalSpline.create(family.knots, field),
     );
     return (s: number): number[] =>
       splines.map((spline: IAutoMovieNaturalCubicSpline): number =>
-        AutoMovieNaturalSpline.evaluate(spline, s),
+        AutoMovieEngineNaturalSpline.evaluate(spline, s),
       );
   }
 
@@ -536,7 +536,7 @@ export namespace AutoMovieHumanConicLoft {
     // Phases spaced by turn: read on the part's own lofted chain, whose phase is its sections' B-spline parameter, not their conics' polar
     // angle. Read on the conics, the phases of a flat section 40 by 5 mm clustered where its conics turn and its rings still turned by
     // 0.46 rad between two of them, against 0.1 asked.
-    const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(made);
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(made);
     if (loft.chain === null) return made;
     const finest: number = Math.min(
       family.phase ?? Infinity,
@@ -795,7 +795,7 @@ export namespace AutoMovieHumanConicLoft {
     family: IAutoMovieHumanConicLoft.IFamily,
     stations: number[],
   ): IAutoMovieViewLoft.IResult {
-    return AutoMovieViewLoft.create(part(family, stations));
+    return AutoMovieEngineViewLoft.create(part(family, stations));
   }
 
   /*
@@ -840,7 +840,7 @@ export namespace AutoMovieHumanConicLoft {
   function carried(
     family: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up" | "roll">,
   ): IAutoMovieViewAxis.IAxis {
-    const made: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
+    const made: IAutoMovieViewAxis.IAxis | string = AutoMovieEngineViewAxis.jointed(
       family.centres,
       family.halves,
       family.up,
@@ -853,8 +853,8 @@ export namespace AutoMovieHumanConicLoft {
         ? eased(family.roll)
         : ((spline: IAutoMovieNaturalCubicSpline) =>
             (station: number): [number, number, number] =>
-              AutoMovieNaturalSpline.read(spline, station))(
-            AutoMovieNaturalSpline.create(family.roll.knots, family.roll.values),
+              AutoMovieEngineNaturalSpline.read(spline, station))(
+            AutoMovieEngineNaturalSpline.create(family.roll.knots, family.roll.values),
           );
     // With c = cos(a) and s = sin(a): u' = c u + s v and v' = c v - s u, so with the angle's derivatives a' and a'' along the station,
     // u'_1 = c u_1 + s v_1 + a' v', v'_1 = c v_1 - s u_1 - a' u', and
@@ -917,7 +917,7 @@ export namespace AutoMovieHumanConicLoft {
                   ) as AutoMovieVector3Tuple,
                 },
               };
-              return AutoMovieViewAxisJet.parameter(rolled, parameter, station);
+              return AutoMovieEngineViewAxisJet.parameter(rolled, parameter, station);
             },
           }),
     };
@@ -957,7 +957,7 @@ export namespace AutoMovieHumanConicLoft {
       return d.map((x: number): number => x / l);
     };
     for (const s of stations) {
-      const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
+      const at: (t: number) => number[] = AutoMovieEngineLoftChain.sampler(chain, s);
       const ring: number[][] = Array.from(
         { length: M },
         (_: unknown, j: number): number[] => at(j * step),

@@ -1,4 +1,4 @@
-import { AutoMovieConstructionSplitSeam } from "@automovie/engine";
+import { AutoMovieEngineConstructionSplitSeam } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplit,
@@ -50,7 +50,7 @@ export function test_engine_geometry_split_seam_runout(): void {
     2,
   );
   const ran: IAutoMovieConstructionSplitSeam.ISeam | string =
-    AutoMovieConstructionSplitSeam.create({
+    AutoMovieEngineConstructionSplitSeam.create({
       host: ConstructionRead.surface(out, "trunk"),
       station: 30,
       into: 1,

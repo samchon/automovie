@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { StrikingBody } from "./StrikingBody";
@@ -47,38 +47,38 @@ export namespace defendGoals {
     shank: number,
   ): IAutoMovieHumanLimbGoal {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const forward: IAutoMovieVector3 = Vector3.normalize({
+    const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: -incoming.x,
       y: 0,
       z: -incoming.z,
     });
-    const knee: IAutoMovieVector3 = Vector3.add(
+    const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hip,
-      Vector3.scale(
-        Vector3.normalize(
-          Vector3.add(
-            Vector3.add(Vector3.scale(forward, -0.55), Vector3.scale(up, 0.7)),
-            Vector3.scale(sideways, -0.35),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(forward, -0.55), AutoMovieEngineVector3.scale(up, 0.7)),
+            AutoMovieEngineVector3.scale(sideways, -0.35),
           ),
         ),
         thigh,
       ),
     );
-    const ankle: IAutoMovieVector3 = Vector3.add(
+    const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       knee,
-      Vector3.scale(
-        Vector3.normalize(
-          Vector3.add(Vector3.scale(up, -0.9), Vector3.scale(forward, -0.2)),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(up, -0.9), AutoMovieEngineVector3.scale(forward, -0.2)),
         ),
         shank,
       ),
     );
     return {
       point: ankle,
-      bend: Vector3.add(knee, Vector3.scale(forward, -0.2)),
+      bend: AutoMovieEngineVector3.add(knee, AutoMovieEngineVector3.scale(forward, -0.2)),
       rotation: StrikingBody.foot(
-        Vector3.normalize(
-          Vector3.add(Vector3.scale(forward, -0.6), Vector3.scale(up, 0.8)),
+        AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(forward, -0.6), AutoMovieEngineVector3.scale(up, 0.8)),
         ),
         forward,
       ),
@@ -198,17 +198,17 @@ export namespace defendGoals {
     ): IAutoMovieHumanLimbGoal => StrikingStance.glove(body, side, at, elbow);
     const shoulder = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
-    const toward: IAutoMovieVector3 = Vector3.normalize({
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: -incoming.x,
       y: 0,
       z: -incoming.z,
     });
     const low = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         shoulder(side),
-        Vector3.add(
-          Vector3.scale(up, -0.8 * m.upperArm),
-          Vector3.scale(toward, 0.5 * m.upperArm),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(up, -0.8 * m.upperArm),
+          AutoMovieEngineVector3.scale(toward, 0.5 * m.upperArm),
         ),
       );
     const out: Partial<IAutoMovieMotionHumanPosture["limbs"]> = {};
@@ -217,9 +217,9 @@ export namespace defendGoals {
     const cover = (side: AutoMovieHumanSide): void => {
       // The glove on the incoming line just in front of the region, where
       // the weapon will pass, not merely on the region's own normal.
-      const at: IAutoMovieVector3 = Vector3.subtract(
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         regionPoint(),
-        Vector3.scale(incoming, m.forearmRadius + 2 * fist),
+        AutoMovieEngineVector3.scale(incoming, m.forearmRadius + 2 * fist),
       );
       out[arm(side)] = glove(side, at, low(side));
     };
@@ -233,12 +233,12 @@ export namespace defendGoals {
         break;
       case "parry": {
         const side: AutoMovieHumanSide = outside > 0 ? "left" : "right";
-        const meet: IAutoMovieVector3 = Vector3.add(
-          Vector3.subtract(
+        const meet: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.subtract(
             regionPoint(),
-            Vector3.scale(incoming, 0.6 * m.forearm),
+            AutoMovieEngineVector3.scale(incoming, 0.6 * m.forearm),
           ),
-          Vector3.scale(across, -outside * 0.5 * fist),
+          AutoMovieEngineVector3.scale(across, -outside * 0.5 * fist),
         );
         out[arm(side)] = glove(side, meet, low(side));
         break;
@@ -249,16 +249,16 @@ export namespace defendGoals {
           bones,
           attackedSide === "left" ? "jawLeft" : "jawRight",
         );
-        const at: IAutoMovieVector3 = Vector3.add(
+        const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           jaw.point,
-          Vector3.scale(jaw.normal, 2 * m.forearmRadius),
+          AutoMovieEngineVector3.scale(jaw.normal, 2 * m.forearmRadius),
         );
         out[arm(attackedSide)] = glove(
           attackedSide,
           at,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             region().point,
-            Vector3.scale(region().normal, 0.5 * m.upperArm),
+            AutoMovieEngineVector3.scale(region().normal, 0.5 * m.upperArm),
           ),
         );
         break;
@@ -269,18 +269,18 @@ export namespace defendGoals {
           bones,
           attackedSide === "left" ? "templeLeft" : "templeRight",
         );
-        const at: IAutoMovieVector3 = Vector3.add(
-          Vector3.add(
+        const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             temple.point,
-            Vector3.scale(temple.normal, 2 * m.forearmRadius),
+            AutoMovieEngineVector3.scale(temple.normal, 2 * m.forearmRadius),
           ),
-          Vector3.scale(up, 0.3 * m.forearm),
+          AutoMovieEngineVector3.scale(up, 0.3 * m.forearm),
         );
-        const elbow: IAutoMovieVector3 = Vector3.add(
+        const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           shoulder(attackedSide),
-          Vector3.add(
-            Vector3.scale(temple.normal, m.upperArm),
-            Vector3.scale(Vector3.scale(incoming, -1), 0.3 * m.upperArm),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(temple.normal, m.upperArm),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.scale(incoming, -1), 0.3 * m.upperArm),
           ),
         );
         out[arm(attackedSide)] = glove(attackedSide, at, elbow);
@@ -294,7 +294,7 @@ export namespace defendGoals {
           defendGoals.check(
             hip,
             incoming,
-            Vector3.scale(across, outside),
+            AutoMovieEngineVector3.scale(across, outside),
             m.thigh,
             m.shank,
           );

@@ -3,7 +3,12 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot, kickBall } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  kickBall
+} from "../../../../../packages/motions/src/ballStrike/internal/kickBall";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

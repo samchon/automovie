@@ -1,7 +1,7 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import type { AutoMovieEngineXpbdJoint } from "../AutoMovieEngineXpbdJoint";
 
 /*
  * A joint's relation at the present poses: the child's anchor frame relative to
@@ -11,16 +11,16 @@ import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
  * Returns: The child's anchor frame in the parent's, unit.
  */
 export function readXpbdJointRelation(
-  joint: AutoMovieXpbdJoint,
+  joint: AutoMovieEngineXpbdJoint,
 ): IAutoMovieQuaternion {
-  const frame: IAutoMovieQuaternion = Quaternion.multiply(
+  const frame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     joint.parent.orientation,
     joint.parentFrame().rotation,
   );
-  return Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.inverse(frame),
-      Quaternion.multiply(joint.child.orientation, joint.childFrame().rotation),
+  return AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(frame),
+      AutoMovieEngineQuaternion.multiply(joint.child.orientation, joint.childFrame().rotation),
     ),
   );
 }

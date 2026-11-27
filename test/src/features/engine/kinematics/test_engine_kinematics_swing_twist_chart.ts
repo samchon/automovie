@@ -1,8 +1,8 @@
 import {
-  DEFAULT_HUMANOID_ROM,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  swingTwistRange,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineSwingTwistRange,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -12,7 +12,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `swingTwistRange` charts a ball joint's range: the swing as a share of the
+ * `AutoMovieEngineSwingTwistRange` charts a ball joint's range: the swing as a share of the
  * region's radius on its great circle laid on the unit disc by azimuth, the
  * twist inside its interval; `placed` inverts `chart`, `project` brings a
  * rotation into range, `blend` moves straight across the chart, `radius`
@@ -40,7 +40,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_kinematics_swing_twist_chart(): void {
   const gated = (b: AutoMovieHumanoidBone): boolean => {
     const c: IAutoMovieJointConstraint | null | undefined =
-      DEFAULT_HUMANOID_ROM[b];
+      AutoMovieEngineDefaultHumanoidRom[b];
     return (
       c !== undefined &&
       c !== null &&
@@ -55,32 +55,32 @@ export function test_engine_kinematics_swing_twist_chart(): void {
     "rightUpperLeg",
   ];
   const bone: AutoMovieHumanoidBone = candidates.find(gated)!;
-  const range: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM[bone]!;
+  const range: IAutoMovieJointConstraint = AutoMovieEngineDefaultHumanoidRom[bone]!;
   const T: number =
     (range.swingTwist!.twist.min + range.swingTwist!.twist.max) / 2;
   const same = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean =>
     Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w) >= 1 - 1e-12;
 
   // 1.
-  TestValidator.equals("of", swingTwistRange.of(bone), {
-    axes: HUMANOID_JOINT_AXES[bone]!,
-    frame: HUMANOID_REST_FRAME[bone],
+  TestValidator.equals("of", AutoMovieEngineSwingTwistRange.of(bone), {
+    axes: AutoMovieEngineHumanoidJointAxes[bone]!,
+    frame: AutoMovieEngineHumanoidRestFrame[bone],
   });
   TestValidator.equals(
     "no axes",
-    swingTwistRange.fromAxes(bone, undefined),
+    AutoMovieEngineSwingTwistRange.fromAxes(bone, undefined),
     undefined,
   );
-  const joint = swingTwistRange.humanoid(bone, range)!;
+  const joint = AutoMovieEngineSwingTwistRange.humanoid(bone, range)!;
   TestValidator.predicate(
     "shared",
-    swingTwistRange.humanoid(bone, range) === joint,
+    AutoMovieEngineSwingTwistRange.humanoid(bone, range) === joint,
   );
 
   // 2.
   const table: Float64Array = joint.region.table;
   const step: number = 360 / table.length;
-  TestValidator.equals("ray", swingTwistRange.radius(joint, 0), table[0]);
+  TestValidator.equals("ray", AutoMovieEngineSwingTwistRange.radius(joint, 0), table[0]);
   const k: number = Array.from(table).findIndex(
     (r: number, i: number): boolean =>
       Math.abs(r - table[(i + 1) % table.length]!) > 1e-6,
@@ -89,17 +89,17 @@ export function test_engine_kinematics_swing_twist_chart(): void {
     "between",
     k >= 0 &&
       Math.abs(
-        swingTwistRange.radius(joint, (k + 0.5) * step) -
+        AutoMovieEngineSwingTwistRange.radius(joint, (k + 0.5) * step) -
           (table[k]! + table[(k + 1) % table.length]!) / 2,
       ) <= 1e-9,
   );
 
   // 3.
-  const inside: IAutoMovieQuaternion = swingTwistRange.placed(
+  const inside: IAutoMovieQuaternion = AutoMovieEngineSwingTwistRange.placed(
     { x: 0.3, y: 0.2, twist: T },
     joint,
   );
-  const back = swingTwistRange.chart(inside, range, joint);
+  const back = AutoMovieEngineSwingTwistRange.chart(inside, range, joint);
   TestValidator.predicate(
     "round trip",
     Math.abs(back.x - 0.3) <= 1e-9 &&
@@ -108,27 +108,27 @@ export function test_engine_kinematics_swing_twist_chart(): void {
   );
   TestValidator.predicate(
     "inside",
-    swingTwistRange.overshoot(inside, range, joint) <= 1e-9,
+    AutoMovieEngineSwingTwistRange.overshoot(inside, range, joint) <= 1e-9,
   );
   TestValidator.predicate(
     "kept",
-    swingTwistRange.project(inside, range, joint) === inside ||
-      same(swingTwistRange.project(inside, range, joint), inside),
+    AutoMovieEngineSwingTwistRange.project(inside, range, joint) === inside ||
+      same(AutoMovieEngineSwingTwistRange.project(inside, range, joint), inside),
   );
 
   // 4.
-  const outside: IAutoMovieQuaternion = swingTwistRange.placed(
+  const outside: IAutoMovieQuaternion = AutoMovieEngineSwingTwistRange.placed(
     { x: 1.2, y: 0, twist: T },
     joint,
   );
   TestValidator.predicate(
     "outside",
-    swingTwistRange.overshoot(outside, range, joint) > 1,
+    AutoMovieEngineSwingTwistRange.overshoot(outside, range, joint) > 1,
   );
   TestValidator.predicate(
     "projected",
-    swingTwistRange.overshoot(
-      swingTwistRange.project(outside, range, joint),
+    AutoMovieEngineSwingTwistRange.overshoot(
+      AutoMovieEngineSwingTwistRange.project(outside, range, joint),
       range,
       joint,
     ) <= 1e-9,
@@ -139,18 +139,18 @@ export function test_engine_kinematics_swing_twist_chart(): void {
     ["above", max + 10, 10, max],
     ["below", min - 7, 7, min],
   ] satisfies [string, number, number, number][]) {
-    const twisted: IAutoMovieQuaternion = swingTwistRange.placed(
+    const twisted: IAutoMovieQuaternion = AutoMovieEngineSwingTwistRange.placed(
       { x: 0.3, y: 0.2, twist },
       joint,
     );
-    const kept = swingTwistRange.chart(
-      swingTwistRange.project(twisted, range, joint),
+    const kept = AutoMovieEngineSwingTwistRange.chart(
+      AutoMovieEngineSwingTwistRange.project(twisted, range, joint),
       range,
       joint,
     );
     TestValidator.predicate(
       `twist ${label}`,
-      Math.abs(swingTwistRange.overshoot(twisted, range, joint) - past) <=
+      Math.abs(AutoMovieEngineSwingTwistRange.overshoot(twisted, range, joint) - past) <=
         1e-6 &&
         Math.abs(kept.twist - bound) <= 1e-6 &&
         Math.abs(kept.x - 0.3) <= 1e-6,
@@ -158,17 +158,17 @@ export function test_engine_kinematics_swing_twist_chart(): void {
   }
 
   // 5.
-  const other: IAutoMovieQuaternion = swingTwistRange.placed(
+  const other: IAutoMovieQuaternion = AutoMovieEngineSwingTwistRange.placed(
     { x: -0.4, y: 0.1, twist: T + 5 },
     joint,
   );
   TestValidator.predicate(
     "ends",
-    same(swingTwistRange.blend(inside, other, 0, range, joint), inside) &&
-      same(swingTwistRange.blend(inside, other, 1, range, joint), other),
+    same(AutoMovieEngineSwingTwistRange.blend(inside, other, 0, range, joint), inside) &&
+      same(AutoMovieEngineSwingTwistRange.blend(inside, other, 1, range, joint), other),
   );
-  const middle = swingTwistRange.chart(
-    swingTwistRange.blend(inside, other, 0.5, range, joint),
+  const middle = AutoMovieEngineSwingTwistRange.chart(
+    AutoMovieEngineSwingTwistRange.blend(inside, other, 0.5, range, joint),
     range,
     joint,
   );
@@ -180,7 +180,7 @@ export function test_engine_kinematics_swing_twist_chart(): void {
   );
   TestValidator.equals(
     "prepared",
-    swingTwistRange.prepareBlend(inside, other, range, joint)(0.5),
-    swingTwistRange.blend(inside, other, 0.5, range, joint),
+    AutoMovieEngineSwingTwistRange.prepareBlend(inside, other, range, joint)(0.5),
+    AutoMovieEngineSwingTwistRange.blend(inside, other, 0.5, range, joint),
   );
 }

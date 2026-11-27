@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanLoad,
@@ -77,7 +77,7 @@ export namespace HumanLoad {
       from,
       to,
       force: (seconds: number): IAutoMovieVector3 =>
-        Vector3.scale(acceleration(seconds), -mass),
+        AutoMovieEngineVector3.scale(acceleration(seconds), -mass),
     };
   }
 
@@ -95,7 +95,7 @@ export namespace HumanLoad {
     acceleration: number,
     height: number,
     half: number,
-    gravity: number = AutoMovieGravity.STANDARD,
+    gravity: number = AutoMovieEngineGravity.STANDARD,
   ): boolean {
     return (height * Math.abs(acceleration)) / gravity > half;
   }
@@ -110,7 +110,7 @@ export namespace HumanLoad {
    */
   export function required(
     acceleration: IAutoMovieVector3,
-    gravity: number = AutoMovieGravity.STANDARD,
+    gravity: number = AutoMovieEngineGravity.STANDARD,
   ): number {
     const vertical: number = gravity + acceleration.y;
     if (!(vertical > 0)) return Number.POSITIVE_INFINITY;
@@ -132,7 +132,7 @@ export namespace HumanLoad {
     let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const f of HumanForce.within(forces, subject, seconds, seconds))
       if (f.kind === "sustained")
-        sum = Vector3.add(sum, HumanForce.at(f, seconds));
+        sum = AutoMovieEngineVector3.add(sum, HumanForce.at(f, seconds));
     return sum;
   }
 }

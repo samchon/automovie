@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -111,7 +111,7 @@ export function fitJumpAbsorption(
           miss = Math.max(
             miss,
             Math.abs(point.y),
-            Vector3.distance(point, targets[side][i]!),
+            AutoMovieEngineVector3.distance(point, targets[side][i]!),
           );
         }
       }

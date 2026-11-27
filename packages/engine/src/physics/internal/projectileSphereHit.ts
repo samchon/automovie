@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { projectileAt } from "./projectileAt";
 import { segmentSphere } from "./segmentSphere";
 
@@ -46,7 +46,7 @@ export const projectileSphereHit: (
     if (s !== null)
       return {
         time: (i - 1) * dt + s * dt,
-        point: Vector3.lerp(prev, cur, s),
+        point: AutoMovieEngineVector3.lerp(prev, cur, s),
       };
     prev = cur;
   }

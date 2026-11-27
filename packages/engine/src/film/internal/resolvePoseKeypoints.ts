@@ -8,8 +8,8 @@ import {
 } from "@automovie/interface";
 
 import { resolvePose } from "../../kinematics/internal/resolvePose";
-import { Matrix4 } from "../../math/Matrix4";
-import { DEFAULT_KEYPOINT_BONES } from "../DEFAULT_KEYPOINT_BONES";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineDefaultKeypointBones } from "../AutoMovieEngineDefaultKeypointBones";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 
@@ -37,7 +37,7 @@ export function resolvePoseKeypoints(
   props: IAutoMovieResolvePoseKeypoints.IProps,
 ): IAutoMoviePoseKeypoint[] {
   const joints: readonly AutoMovieHumanoidBone[] =
-    props.joints ?? DEFAULT_KEYPOINT_BONES;
+    props.joints ?? AutoMovieEngineDefaultKeypointBones;
   const rigByBone: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map(
     resolvePose(
       props.pose,
@@ -56,7 +56,7 @@ export function resolvePoseKeypoints(
       ],
     ),
   );
-  const world: number[] = Matrix4.compose(
+  const world: number[] = AutoMovieEngineMatrix4.compose(
     props.node.transform.translation,
     props.node.transform.rotation,
     props.node.transform.scale,
@@ -77,7 +77,7 @@ export function resolvePoseKeypoints(
     const projected: { ndcX: number; ndcY: number; depth: number } =
       projectToNdc(
         lens,
-        Matrix4.transformPoint(world, rig),
+        AutoMovieEngineMatrix4.transformPoint(world, rig),
         halfY,
         aspect,
         props.crop,

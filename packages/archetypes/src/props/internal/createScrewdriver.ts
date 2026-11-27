@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeScrewdriver } from "../AutoMovieArchetypeScrewdriver";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { HandToolDraw } from "./HandToolDraw";
@@ -42,15 +42,15 @@ export function createScrewdriver(
   builder.rod(
     "shank",
     0.003,
-    Vector3.create(0, handle, 0),
-    Vector3.create(0, length, 0),
+    AutoMovieEngineVector3.create(0, handle, 0),
+    AutoMovieEngineVector3.create(0, length, 0),
     { color: "#b9bcc0", density: 11 },
   );
   builder.affordance({
     id: "face",
     kind: "surface",
     direction: "along",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, length, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, length, 0)),
     extent: null,
   });
   return builder.build(d.mass!);

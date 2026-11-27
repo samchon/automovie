@@ -6,7 +6,7 @@ import type {
   IAutoMoviePlaybackEntry,
   IAutoMovieShot,
 } from "@automovie/interface";
-import type { IAutoMovieDrawScene } from "@automovie/render";
+import type { IAutoMovieRenderDrawScene } from "@automovie/render";
 import * as THREE from "three";
 
 import type { IFilm } from "../../IFilm";
@@ -131,7 +131,7 @@ export function installedParityFilm(): IFilm {
           shutter: { angle: 180 },
         }),
         inspectPlaced: (
-          sample: IAutoMovieDrawScene.IPlacedSample,
+          sample: IAutoMovieRenderDrawScene.IPlacedSample,
         ): IAutoMovieInspectionDiagnostics => {
           const { shot, local, entry } = placed;
           const path: string = [shot, entry ?? "handle"].join("/");

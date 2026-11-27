@@ -3,7 +3,7 @@ import type {
   IAutoMovieListInspectionKindsProps,
 } from "@automovie/interface";
 
-import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
+import { AutoMovieRenderInspectionKinds } from "../../AutoMovieRenderInspectionKinds.js";
 
 /*
  * List the styled kinds for the supplied marks and the measurements available
@@ -11,7 +11,7 @@ import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.j
  *
  * The supplied marks' kinds come first, in the order they first appear, with
  * the label and colour of their first mark. The inspection's own kinds follow
- * in `AUTO_MOVIE_INSPECTION_KINDS` order: `edge` and the `defect/<kind>` kinds
+ * in `AutoMovieRenderInspectionKinds` order: `edge` and the `defect/<kind>` kinds
  * always, since every mesh has them, except `defect/sliver`, which exists only
  * while the request sets a sliver limit, and `trail` and `trail/now` only while
  * the request names a trail. A supplied kind that has an inspection kind's name
@@ -34,7 +34,7 @@ export function listAutoMovieInspectionKinds(
         label: mark.label,
         color: mark.color,
       });
-  for (const [kind, entry] of Object.entries(AUTO_MOVIE_INSPECTION_KINDS)) {
+  for (const [kind, entry] of Object.entries(AutoMovieRenderInspectionKinds)) {
     if (kind === "defect/sliver" && props.request.sliver === null) continue;
     if (kind.startsWith("trail") && props.request.trail.length === 0) continue;
     if (!kinds.has(kind))

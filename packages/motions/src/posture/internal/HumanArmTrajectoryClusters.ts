@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -32,7 +32,7 @@ export function HumanArmTrajectoryClusters(
     const centre: IAutoMovieVector3 = { x, y, z };
     let radius: number = 0;
     for (let i: number = start; i < end; ++i)
-      radius = Math.max(radius, Vector3.distance(body[i]!.point, centre));
+      radius = Math.max(radius, AutoMovieEngineVector3.distance(body[i]!.point, centre));
     out.push({ start, end, centre, radius });
     start = end;
   }
@@ -84,7 +84,7 @@ export namespace HumanArmTrajectoryClusters {
     radius: number,
   ): boolean {
     return (
-      Vector3.distance(cluster.centre, centre) - cluster.radius - radius <
+      AutoMovieEngineVector3.distance(cluster.centre, centre) - cluster.radius - radius <
       T.REACH + MARGIN
     );
   }

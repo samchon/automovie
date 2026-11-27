@@ -15,7 +15,7 @@ import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinem
 import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { prepareChainFitRig } from "./prepareChainFitRig";
 import { prepareChainPlant } from "./prepareChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
@@ -139,10 +139,10 @@ export function prepareChainFit(
       bone: AutoMovieHumanoidBone,
       rotation: IAutoMovieQuaternion,
     ): number => {
-      const candidate: IAutoMovieQuaternion = Quaternion.normalize(rotation);
+      const candidate: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(rotation);
       let reference: IAutoMovieQuaternion | undefined = prior.get(bone);
       if (reference === undefined) {
-        reference = Quaternion.normalize(
+        reference = AutoMovieEngineQuaternion.normalize(
           jointToQuaternionOnBasis.run(
             workspace.read().referenceAngles.get(bone) ?? {
               bone,
@@ -156,7 +156,7 @@ export function prepareChainFit(
         );
         prior.set(bone, reference);
       }
-      const angle: number = Quaternion.angle(candidate, reference);
+      const angle: number = AutoMovieEngineQuaternion.angle(candidate, reference);
       return angle * angle;
     },
     authoredContinuity: (): number => {

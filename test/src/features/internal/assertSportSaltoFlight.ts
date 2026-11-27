@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanPerformance,
@@ -43,7 +43,7 @@ export function assertSportSaltoFlight(
   const to: number = at("touchdown");
   const start: IAutoMovieQuaternion = performance.pose(subject, from).root!
     .rotation;
-  const back: IAutoMovieQuaternion = Quaternion.inverse(start);
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(start);
   const samples: number = Math.ceil((to - from) * 60);
   let previous: number = 0;
   let accumulated: number = 0;
@@ -52,8 +52,8 @@ export function assertSportSaltoFlight(
     // The jump stops applying its airborne turn at touchdown itself.
     const time: number = k === samples ? to - 1e-6 : from + k / 60;
     end = performance.pose(subject, time).root!.rotation;
-    const long: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(back, end),
+    const long: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(back, end),
       { x: 0, y: 1, z: 0 },
     );
     const angle: number = Math.atan2(long.z, long.y);
@@ -64,7 +64,7 @@ export function assertSportSaltoFlight(
     previous = angle;
   }
   const observed: number = accumulated / (2 * Math.PI);
-  const landing: number = Quaternion.angle(start, end) / (2 * Math.PI);
+  const landing: number = AutoMovieEngineQuaternion.angle(start, end) / (2 * Math.PI);
   if (Math.abs(observed - turns) > 0.02)
     findings.push(
       `displayed ${observed.toFixed(4)} somersaults, requested ${turns}`,

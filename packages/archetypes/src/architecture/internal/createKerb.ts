@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeKerb } from "../AutoMovieArchetypeKerb";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -58,15 +58,15 @@ export function createKerb(
   });
   builder.box(
     kind,
-    Vector3.create(d.length, d.height, d.depth),
-    Vector3.create(0, d.height / 2, d.depth / 2),
+    AutoMovieEngineVector3.create(d.length, d.height, d.depth),
+    AutoMovieEngineVector3.create(0, d.height / 2, d.depth / 2),
     { color: kind === "kerb" ? "#9a9a96" : "#b8b2a7" },
   );
   builder.affordance({
     id: "top",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, d.height, d.depth / 2),
+      AutoMovieEngineVector3.create(0, d.height, d.depth / 2),
     ),
     extent: null,
     width: d.length,
@@ -76,9 +76,9 @@ export function createKerb(
     id: "edge",
     kind: "ledge",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, d.height, d.depth),
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, d.height, d.depth),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     length: d.length,

@@ -7,11 +7,11 @@ import {
 
 import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { AUTOMOVIE_INDEX_BYTES } from "../AUTOMOVIE_INDEX_BYTES";
-import { AUTOMOVIE_NORMAL_BYTES } from "../AUTOMOVIE_NORMAL_BYTES";
-import { AUTOMOVIE_POSITION_BYTES } from "../AUTOMOVIE_POSITION_BYTES";
-import { AUTOMOVIE_SKIN_BYTES } from "../AUTOMOVIE_SKIN_BYTES";
-import { AUTOMOVIE_UV_BYTES } from "../AUTOMOVIE_UV_BYTES";
+import { AutoMovieEngineIndexBytes } from "../AutoMovieEngineIndexBytes";
+import { AutoMovieEngineNormalBytes } from "../AutoMovieEngineNormalBytes";
+import { AutoMovieEnginePositionBytes } from "../AutoMovieEnginePositionBytes";
+import { AutoMovieEngineSkinBytes } from "../AutoMovieEngineSkinBytes";
+import { AutoMovieEngineUvBytes } from "../AutoMovieEngineUvBytes";
 
 /*
  * Exact geometry cost of one model, memoized by model id.
@@ -59,15 +59,15 @@ export function measure(
     triangles += mesh.indices === null ? count / 3 : mesh.indices.length / 3;
     geometryBytes +=
       count *
-        (AUTOMOVIE_POSITION_BYTES +
-          (mesh.normals === null ? 0 : AUTOMOVIE_NORMAL_BYTES) +
-          (mesh.uvs === null ? 0 : AUTOMOVIE_UV_BYTES) +
+        (AutoMovieEnginePositionBytes +
+          (mesh.normals === null ? 0 : AutoMovieEngineNormalBytes) +
+          (mesh.uvs === null ? 0 : AutoMovieEngineUvBytes) +
           (mesh.colors === undefined ? 0 : 3 * Float32Array.BYTES_PER_ELEMENT) +
           (mesh.reliefWeights === undefined
             ? 0
             : Float32Array.BYTES_PER_ELEMENT) +
-          (mesh.skin === null ? 0 : AUTOMOVIE_SKIN_BYTES)) +
-      (mesh.indices === null ? 0 : mesh.indices.length) * AUTOMOVIE_INDEX_BYTES;
+          (mesh.skin === null ? 0 : AutoMovieEngineSkinBytes)) +
+      (mesh.indices === null ? 0 : mesh.indices.length) * AutoMovieEngineIndexBytes;
   }
   const cost: IAutoMovieRenderModelCost = {
     model: model.id,

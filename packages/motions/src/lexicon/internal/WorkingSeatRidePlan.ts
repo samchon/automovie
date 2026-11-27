@@ -1,4 +1,4 @@
-import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPlayback, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanResolveHumanPosture, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
@@ -8,7 +8,7 @@ import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
-import * as WorkingSeatRidePlanData from "./WorkingSeatRidePlanData";
+import { WorkingSeatRidePlanData } from "./WorkingSeatRidePlanData";
 
 /*
  * The native working-seat ride. It proposes torso articulation only when
@@ -186,24 +186,24 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
       const goal: IAutoMovieHumanLimbGoal | undefined = raw.limbs[`${side}Leg`];
       if (!goal?.planted || !goal.contact || !goal.rotation) return false;
       const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
-      const ankle: IAutoMovieVector3 = Vector3.subtract(
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         foot.worldPosition,
         goal.point,
       );
-      const sole: IAutoMovieVector3 = Vector3.add(
+      const sole: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         ankle,
-        Vector3.subtract(
-          Quaternion.rotateVector(foot.worldRotation, goal.contact),
-          Quaternion.rotateVector(goal.rotation, goal.contact),
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineQuaternion.rotateVector(foot.worldRotation, goal.contact),
+          AutoMovieEngineQuaternion.rotateVector(goal.rotation, goal.contact),
         ),
       );
       const tolerance: number =
         (this.#body.measure.thigh +
           this.#body.measure.shank +
-          Vector3.length(goal.contact)) *
-        ROM_TOLERANCE *
-        Quaternion.DEG2RAD;
-      if (Vector3.length(ankle) > tolerance || Vector3.length(sole) > tolerance)
+          AutoMovieEngineVector3.length(goal.contact)) *
+        AutoMovieEngineRomTolerance *
+        AutoMovieEngineQuaternion.DEG2RAD;
+      if (AutoMovieEngineVector3.length(ankle) > tolerance || AutoMovieEngineVector3.length(sole) > tolerance)
         return false;
     }
     return true;

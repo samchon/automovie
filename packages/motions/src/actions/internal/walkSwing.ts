@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -122,15 +122,15 @@ function prepare(
   const before: walkFoot.IEnd = at(side, swing.off - WALK_TICK);
   const earlier: walkFoot.IEnd = at(side, swing.off - 2 * WALK_TICK);
   const from: walkFoot.IEnd = {
-    ankle: Vector3.add(
+    ankle: AutoMovieEngineVector3.add(
       before.ankle,
-      Vector3.subtract(before.ankle, earlier.ankle),
+      AutoMovieEngineVector3.subtract(before.ankle, earlier.ankle),
     ),
-    rotation: Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.multiply(
+    rotation: AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           before.rotation,
-          Quaternion.inverse(earlier.rotation),
+          AutoMovieEngineQuaternion.inverse(earlier.rotation),
         ),
         before.rotation,
       ),
@@ -147,8 +147,8 @@ function prepare(
   );
   return walkFoot.prepareSwing(body, side, {
     from,
-    velocity: Vector3.scale(
-      Vector3.subtract(before.ankle, earlier.ankle),
+    velocity: AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(before.ankle, earlier.ankle),
       1 / WALK_TICK,
     ),
     rates: {
@@ -225,5 +225,5 @@ function passing(
   // chord's progress (`walkFoot.prepareSwing`), so it is scaled to reach the
   // shortfall at the passing point, kept off the chord's ends.
   const at: number = Math.min(0.75, Math.max(0.25, u));
-  return Vector3.scale(out, short / Math.sin(Math.PI * at) ** 2);
+  return AutoMovieEngineVector3.scale(out, short / Math.sin(Math.PI * at) ** 2);
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineViolationCollector } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -90,17 +90,17 @@ export function pickUpIntercept(
 
   // Keep the mount's local transform once. A detached object can still carry
   // an initial mount declaration, but its displayed frame no longer follows it.
-  const localPosition: IAutoMovieVector3 = Vector3.add(
+  const localPosition: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     socket.frame.translation,
-    Quaternion.rotateVector(socket.frame.rotation, mount.offset.position),
+    AutoMovieEngineQuaternion.rotateVector(socket.frame.rotation, mount.offset.position),
   );
   const localRotation: IAutoMovieRigidTransform["rotation"] =
-    Quaternion.multiply(socket.frame.rotation, mount.offset.rotation);
+    AutoMovieEngineQuaternion.multiply(socket.frame.rotation, mount.offset.rotation);
 
   const from: IAutoMovieRigidTransform = prop.frame(context.start);
   const to: IAutoMovieRigidTransform = prop.frame(context.start + closeAt);
-  const delta: IAutoMovieVector3 = Vector3.subtract(to.position, from.position);
-  const velocity: IAutoMovieVector3 = Vector3.scale(delta, 1 / closeAt);
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to.position, from.position);
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(delta, 1 / closeAt);
 
   // This variant covers a slow conveyor with a constant horizontal course.
   // The speed cap and frame tolerance are provisional domain bounds.
@@ -108,8 +108,8 @@ export function pickUpIntercept(
   if (
     !(
       Math.abs(velocity.y) <= tolerance &&
-      Vector3.length(velocity) > tolerance &&
-      Vector3.length(velocity) <= maximumSpeed + tolerance
+      AutoMovieEngineVector3.length(velocity) > tolerance &&
+      AutoMovieEngineVector3.length(velocity) <= maximumSpeed + tolerance
     )
   )
     refuse(
@@ -138,16 +138,16 @@ export function pickUpIntercept(
 
     if (
       !(
-        Quaternion.angle(
+        AutoMovieEngineQuaternion.angle(
           sample.rotation,
-          Quaternion.multiply(carrier.rotation, localRotation),
+          AutoMovieEngineQuaternion.multiply(carrier.rotation, localRotation),
         ) <= tolerance &&
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             sample.position,
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               carrier.position,
-              Quaternion.rotateVector(carrier.rotation, localPosition),
+              AutoMovieEngineQuaternion.rotateVector(carrier.rotation, localPosition),
             ),
           ),
         ) <= tolerance
@@ -158,11 +158,11 @@ export function pickUpIntercept(
       );
     if (
       !(
-        Quaternion.angle(from.rotation, sample.rotation) <= tolerance &&
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineQuaternion.angle(from.rotation, sample.rotation) <= tolerance &&
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             sample.position,
-            Vector3.add(from.position, Vector3.scale(delta, share)),
+            AutoMovieEngineVector3.add(from.position, AutoMovieEngineVector3.scale(delta, share)),
           ),
         ) <= tolerance
       )

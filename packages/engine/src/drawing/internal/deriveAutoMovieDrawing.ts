@@ -22,7 +22,7 @@ import {
 } from "@automovie/interface";
 
 import { validateBuiltEnvironment } from "../../architecture/internal/validateBuiltEnvironment";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
@@ -491,7 +491,7 @@ const dimensionOf: (
     to: pageTo,
     value: roundAutoMovieDrawingScalar(
       spec.measure === "world"
-        ? Vector3.length(Vector3.subtract(to.point!, from.point!))
+        ? AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(to.point!, from.point!))
         : Math.hypot(pageTo.x - pageFrom.x, pageTo.y - pageFrom.y),
     ),
     reason: null,

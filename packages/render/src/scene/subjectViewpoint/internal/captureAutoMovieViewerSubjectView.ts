@@ -1,6 +1,6 @@
 import { captureViewerSnapshot } from "./captureViewerSnapshot.js";
-import type { IAutoMovieViewerSubjectView } from "../../IAutoMovieViewerSubjectView.js";
-import type { IAutoMovieViewerSubjectViewRequest } from "../../IAutoMovieViewerSubjectViewRequest.js";
+import type { IAutoMovieRenderViewerSubjectView } from "../../IAutoMovieRenderViewerSubjectView.js";
+import type { IAutoMovieRenderViewerSubjectViewRequest } from "../../IAutoMovieRenderViewerSubjectViewRequest.js";
 import { applyAutoMovieViewerSubjectPose } from "./applyAutoMovieViewerSubjectPose.js";
 
 /*
@@ -10,8 +10,8 @@ import { applyAutoMovieViewerSubjectPose } from "./applyAutoMovieViewerSubjectPo
  * freshness or actual hardware readiness.
  */
 export function captureAutoMovieViewerSubjectView(
-  request: IAutoMovieViewerSubjectViewRequest,
-): IAutoMovieViewerSubjectView {
+  request: IAutoMovieRenderViewerSubjectViewRequest,
+): IAutoMovieRenderViewerSubjectView {
   applyAutoMovieViewerSubjectPose(request.camera, request.pose);
   request.resolveForCamera(request.camera, request.renderer.domElement.height);
   return {

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBowling,
   IAutoMovieMotionHumanPrecisionDeck,
@@ -40,7 +40,7 @@ export function bowlingPinfall(
       if (root === undefined)
         throw new RangeError(`Bowling pin ${pin.id} is not in the deck cache`);
       return (
-        Quaternion.rotateVector(root.rotation, UP).y < Math.cos(tipOver(pin))
+        AutoMovieEngineQuaternion.rotateVector(root.rotation, UP).y < Math.cos(tipOver(pin))
       );
     })
     .map((pin: bowlingPinfall.IPin): string => pin.id);
@@ -116,9 +116,9 @@ function tipOver(pin: bowlingPinfall.IPin): number {
       shape.kind === "hull"
         ? shape.points.map(
             (point: IAutoMovieVector3): IAutoMovieVector3 =>
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 shape.transform.position,
-                Quaternion.rotateVector(shape.transform.rotation, point),
+                AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, point),
               ),
           )
         : [],

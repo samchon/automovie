@@ -2,7 +2,7 @@ import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftChain, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -555,7 +555,7 @@ namespace FamilyConicNail {
       if (chain !== null) {
         const layers: number[] = chain.layers.map((layer: { y: number }): number => layer.y);
         const phases: number = 192;
-        for (const s of layers) for (let j: number = 0; j < phases; ++j) made.positions.push(...AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / phases));
+        for (const s of layers) for (let j: number = 0; j < phases; ++j) made.positions.push(...AutoMovieEngineLoftChain.point(chain, s, (2 * Math.PI * j) / phases));
         for (let i: number = 0; i + 1 < layers.length; ++i)
           for (let j: number = 0; j < phases; ++j) {
             const a: number = i * phases + j;

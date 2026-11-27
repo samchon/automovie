@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -93,7 +93,7 @@ export function fitClearArmPose(
       ...sides.map(
         (side: AutoMovieHumanSide): number =>
           ((15 / 8) *
-            Vector3.distance(
+            AutoMovieEngineVector3.distance(
               goal(side).point,
               wrists.get(`${side}Hand`)!.worldPosition,
             )) /

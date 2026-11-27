@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 
 /*
  * The scene's lights as the medium's march reads them, in world space, in scene
@@ -28,7 +28,7 @@ export function collectAutoMovieMediumLights(
   scene.updateMatrixWorld();
   const lights: collectAutoMovieMediumLights.ILight[] = [];
   scene.traverseVisible((object: THREE.Object3D): void => {
-    if (!AutoMovieThreeKind.isLight(object)) return;
+    if (!AutoMovieRenderThreeKind.isLight(object)) return;
     const color: THREE.Vector3 = new THREE.Vector3(
       object.color.r,
       object.color.g,
@@ -48,8 +48,8 @@ export function collectAutoMovieMediumLights(
       shadow: null,
     };
     if (
-      AutoMovieThreeKind.isDirectionalLight(object) ||
-      AutoMovieThreeKind.isSpotLight(object)
+      AutoMovieRenderThreeKind.isDirectionalLight(object) ||
+      AutoMovieRenderThreeKind.isSpotLight(object)
     ) {
       object.target.updateMatrixWorld();
       base.direction
@@ -57,7 +57,7 @@ export function collectAutoMovieMediumLights(
         .sub(position)
         .normalize();
       base.shadow = shadows ? flatShadow(object) : null;
-      if (AutoMovieThreeKind.isDirectionalLight(object))
+      if (AutoMovieRenderThreeKind.isDirectionalLight(object))
         lights.push({ ...base, kind: "directional" });
       else
         lights.push({
@@ -66,14 +66,14 @@ export function collectAutoMovieMediumLights(
           range: object.distance,
           cone: Math.cos(object.angle),
         });
-    } else if (AutoMovieThreeKind.isPointLight(object))
+    } else if (AutoMovieRenderThreeKind.isPointLight(object))
       lights.push({
         ...base,
         kind: "point",
         range: object.distance,
         shadow: shadows ? cubeShadow(object) : null,
       });
-    else if (AutoMovieThreeKind.isRectAreaLight(object)) {
+    else if (AutoMovieRenderThreeKind.isRectAreaLight(object)) {
       const rotation: THREE.Matrix4 = new THREE.Matrix4().extractRotation(
         object.matrixWorld,
       );
@@ -226,7 +226,7 @@ function cubeShadow(
   if (
     map === null ||
     depth === null ||
-    !AutoMovieThreeKind.isWebGLCubeRenderTarget(map) ||
+    !AutoMovieRenderThreeKind.isWebGLCubeRenderTarget(map) ||
     depth.compareFunction === null
   )
     return null;

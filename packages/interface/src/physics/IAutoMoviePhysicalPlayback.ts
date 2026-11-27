@@ -10,7 +10,7 @@ import type { IAutoMoviePhysicalSupportWrench } from "./IAutoMoviePhysicalSuppor
  *
  * Duration is local film seconds and rate cached intervals/s; poses and
  * velocities retain the world-space SI meaning of PhysicsCache frames.
- * AutoMoviePhysicalPlayback retains an owned archive byte copy and recursively
+ * AutoMovieEnginePhysicalPlayback retains an owned archive byte copy and recursively
  * frozen metadata for its lifetime. Sampling allocates detached frames and
  * never advances or initializes a native solver. Archive decoding rejects
  * incompatible identity, protocol, corruption or allocation limits. This reader
@@ -79,7 +79,7 @@ export namespace IAutoMoviePhysicalPlayback {
    *
    * Format is the literal binary layout version; duration times integer rate
    * plus one gives the frame count, and segments lists unique [body,bone] keys
-   * in record order. `AutoMoviePhysicalPlayback.encode` writes metadata from a complete
+   * in record order. `AutoMovieEnginePhysicalPlayback.encode` writes metadata from a complete
    * cache; decodePhysicalPlayback validates and freezes it before a reader
    * exposes its arrays and records. The header preserves actual
    * ownership/contact/recovery history and requested support predictions

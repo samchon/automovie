@@ -15,7 +15,7 @@ export namespace AutoMovieEngineBuiltEnvironmentWorkflow {
    *
    * The authored contract requires non-negligible area and a simple ring; an
    * even-odd interpretation of self-crossing rings is outside it. Non-finite
-   * doubled signed area or magnitude at most `BUILT_PLANAR_EPSILON` (1e-9) gets
+   * doubled signed area or magnitude at most `AutoMovieEngineBuiltPlanarEpsilon` (1e-9) gets
    * one `range` finding. Otherwise a self-crossing/touching ring gets one `type`
    * finding, at `path`.
    *

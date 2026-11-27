@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -247,7 +247,7 @@ function equineDraft(
         })
       : (x: number, z: number): ArchetypeTowing.IPlane => {
           const landing: AutoMovieArchetypeQuadrupedFooting.ILanding =
-            footing.landing({ x, y: 0, z }, Quaternion.identity());
+            footing.landing({ x, y: 0, z }, AutoMovieEngineQuaternion.identity());
           return { point: landing.point, normal: landing.normal };
         };
   const towed: AutoMovieArchetypeRide.ITowedRide<

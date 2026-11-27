@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -83,7 +83,7 @@ export function sprintStartSet(
     left: bridges.left.wrist,
     right: bridges.right.wrist,
   };
-  const wrists: IAutoMovieVector3 = Vector3.lerp(wrist.left, wrist.right, 0.5);
+  const wrists: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(wrist.left, wrist.right, 0.5);
   const arm: number = sprintStartSet.REACH * (m.upperArm + m.forearm);
 
   // A world point in the run's vertical plane: along the heading from the
@@ -91,7 +91,7 @@ export function sprintStartSet(
   const plane: (p: IAutoMovieVector3) => sprintStartSetChain.IPoint = (
     p: IAutoMovieVector3,
   ): sprintStartSetChain.IPoint => ({
-    u: Vector3.dot(
+    u: AutoMovieEngineVector3.dot(
       { x: p.x - frame.origin.x, y: 0, z: p.z - frame.origin.z },
       forward,
     ),
@@ -225,20 +225,20 @@ export function sprintStartSet(
         a: AutoMovieHumanoidBone,
         b: AutoMovieHumanoidBone,
       ): IAutoMovieVector3 =>
-        Vector3.lerp(
+        AutoMovieEngineVector3.lerp(
           bones.get(a)!.worldPosition,
           bones.get(b)!.worldPosition,
           0.5,
         );
-      const root: IAutoMovieVector3 = Vector3.subtract(
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         shoulders,
         mid("leftUpperArm", "rightUpperArm"),
       );
       return {
         pitch: tilt.pitch,
         joints: tilt.joints,
-        hips: Vector3.add(root, bones.get("hips")!.worldPosition),
-        pelvis: Vector3.add(root, mid("leftUpperLeg", "rightUpperLeg")),
+        hips: AutoMovieEngineVector3.add(root, bones.get("hips")!.worldPosition),
+        pelvis: AutoMovieEngineVector3.add(root, mid("leftUpperLeg", "rightUpperLeg")),
         root,
       };
     };
@@ -246,7 +246,7 @@ export function sprintStartSet(
     return at(
       HumanTrunk.pelvisLimit(
         body,
-        Vector3.subtract(free.hips, body.rest.get("hips")!),
+        AutoMovieEngineVector3.subtract(free.hips, body.rest.get("hips")!),
         entry.yaw,
         { left: feet.left.ankle, right: feet.right.ankle },
       ),
@@ -265,22 +265,22 @@ export function sprintStartSet(
   const placed: (chain: sprintStartSetChain.ISet) => IAutoMovieVector3 = (
     chain: sprintStartSetChain.ISet,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       { ...wrists, y: chain.shoulders.v },
-      Vector3.scale(forward, chain.shoulders.u - plane(wrists).u),
+      AutoMovieEngineVector3.scale(forward, chain.shoulders.u - plane(wrists).u),
     );
 
   // The chain on the rest trunk first. The posed trunk bends along the
   // spine, so its hip-to-shoulders length and direction at that tilt are
   // read back once, the chain set again on that length and the tilt turned
   // by the direction's difference: the fit starts at the measured set.
-  const rested: IAutoMovieVector3 = Vector3.subtract(
-    Vector3.lerp(
+  const rested: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.lerp(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
       0.5,
     ),
-    Vector3.lerp(
+    AutoMovieEngineVector3.lerp(
       body.rest.get("leftUpperLeg")!,
       body.rest.get("rightUpperLeg")!,
       0.5,

@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineHumanoidRestFrame, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -191,7 +191,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         AutoMovieEngineKinematics.decomposeJointRotation(
           upper,
           chain.axes[upperBone],
-          HUMANOID_REST_FRAME[upperBone],
+          AutoMovieEngineHumanoidRestFrame[upperBone],
           chain.prepared.upperDomain,
         ),
         (): IAutoMovieQuaternion => lowerWorld,
@@ -216,7 +216,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     return (near?: IAutoMovieSwivelNear): ContinuedResult2 => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
       if (
-        Vector3.length(Vector3.subtract(props.point, chain.shoulder)) >
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(props.point, chain.shoulder)) >
         chain.span
       )
         return "the wrist is beyond the arm's span";
@@ -330,8 +330,8 @@ export namespace AutoMovieMotionHumanBendSearch {
       rank: Parameters<typeof search>[1],
     ): PrepareResult2 => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
-      const distance: number = Vector3.length(
-        Vector3.subtract(goal.point, chain.shoulder),
+      const distance: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(goal.point, chain.shoulder),
       );
       if (distance > chain.span)
         return `the wrist is ${distance.toFixed(3)} m from the shoulder and the arm is ${chain.span.toFixed(3)} m long`;

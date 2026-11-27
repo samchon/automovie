@@ -13,8 +13,8 @@ import type {
 
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import type { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
-import { Vector3 } from "../../math/Vector3";
-import { PLANT_RESIDUAL_EPSILON } from "../PLANT_RESIDUAL_EPSILON";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePlantResidualEpsilon } from "../AutoMovieEnginePlantResidualEpsilon";
 import { fitHingedChainBend } from "./fitHingedChainBend";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
@@ -27,7 +27,7 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * answer: the hinged swivel candidate first when the mid joint is a hinge, then
  * the bend hint's plane, then the 32-plane sweep and its local halvings,
  * candidates ranked by their clamped residual's bucket
- * (`PLANT_RESIDUAL_EPSILON`), then their turn from the reference pose, then the
+ * (`AutoMovieEnginePlantResidualEpsilon`), then their turn from the reference pose, then the
  * exact residual.
  * Parameter props: The current model-metre target with this workspace's unchanged
  * source fields; its point stays unchanged through this synchronous search.
@@ -86,7 +86,7 @@ export function fitChainBend(
     props.referencePose === undefined ? 0 : workspace.authoredContinuity();
   let best: IPlantCandidate = {
     kind: "source",
-    residual: Vector3.distance(authored, props.target),
+    residual: AutoMovieEngineVector3.distance(authored, props.target),
     continuity: (): number => authoredContinuity,
   };
   let composeUpper:
@@ -118,7 +118,7 @@ export function fitChainBend(
       props.restFrames?.[lower.bone];
     composeLower ??= jointToQuaternionOnBasis.prepare(lowerBasis, lowerFrame);
     const lowerRotation: IAutoMovieQuaternion = composeLower(lower);
-    const candidateResidual: number = Vector3.distance(
+    const candidateResidual: number = AutoMovieEngineVector3.distance(
       resolvePreparedChainEffector(
         {
           prepared,
@@ -198,20 +198,20 @@ export function fitChainBend(
     return { pose: plantPose(props, workspace, best), seed: null };
 
   const upper: IAutoMovieResolvedBone = prepared.upper;
-  const reachAxis: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(props.target, upper.worldPosition),
+  const reachAxis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(props.target, upper.worldPosition),
   );
-  let primary: IAutoMovieVector3 = Vector3.subtract(
+  let primary: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     pole.hinge,
-    Vector3.scale(reachAxis, Vector3.dot(pole.hinge, reachAxis)),
+    AutoMovieEngineVector3.scale(reachAxis, AutoMovieEngineVector3.dot(pole.hinge, reachAxis)),
   );
-  if (Vector3.length(primary) < 1e-6)
-    primary = Vector3.cross(reachAxis, { x: 0, y: -1, z: 0 });
-  if (Vector3.length(primary) < 1e-6)
-    primary = Vector3.cross(reachAxis, { x: 0, y: 0, z: 1 });
-  primary = Vector3.normalize(primary);
-  const secondary: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(reachAxis, primary),
+  if (AutoMovieEngineVector3.length(primary) < 1e-6)
+    primary = AutoMovieEngineVector3.cross(reachAxis, { x: 0, y: -1, z: 0 });
+  if (AutoMovieEngineVector3.length(primary) < 1e-6)
+    primary = AutoMovieEngineVector3.cross(reachAxis, { x: 0, y: 0, z: 1 });
+  primary = AutoMovieEngineVector3.normalize(primary);
+  const secondary: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(reachAxis, primary),
   );
   const normalAt: (angle: number) => IAutoMovieVector3 = (
     angle: number,
@@ -227,12 +227,12 @@ export function fitChainBend(
 
   if (props.referencePose !== undefined) {
     const referenceLower: IAutoMovieResolvedBone = workspace.referenceLower();
-    const referenceNormal: IAutoMovieVector3 = Vector3.cross(
+    const referenceNormal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
       reachAxis,
-      Vector3.subtract(referenceLower.worldPosition, upper.worldPosition),
+      AutoMovieEngineVector3.subtract(referenceLower.worldPosition, upper.worldPosition),
     );
-    if (Vector3.length(referenceNormal) >= 1e-6) {
-      consider(solve(Vector3.normalize(referenceNormal))!);
+    if (AutoMovieEngineVector3.length(referenceNormal) >= 1e-6) {
+      consider(solve(AutoMovieEngineVector3.normalize(referenceNormal))!);
       if (canFinish(props, best))
         return { pose: plantPose(props, workspace, best), seed: null };
     }
@@ -360,7 +360,7 @@ interface IPlantBendCandidate extends IPlantCandidateScore {
  */
 const plantResidualBucket: (residual: number) => number = (
   residual: number,
-): number => Math.floor(residual / PLANT_RESIDUAL_EPSILON);
+): number => Math.floor(residual / AutoMovieEnginePlantResidualEpsilon);
 
 /*
  * Residual buckets are ordered first; continuity breaks equivalent pins.
@@ -396,14 +396,14 @@ function hintNormal(
   target: IAutoMovieVector3,
   bend: IAutoMovieVector3,
 ): IAutoMovieVector3 | undefined {
-  const axis: IAutoMovieVector3 = Vector3.subtract(target, root);
-  if (Vector3.length(axis) < 1e-9) return undefined;
-  const unitAxis: IAutoMovieVector3 = Vector3.normalize(axis);
-  const toward: IAutoMovieVector3 = Vector3.subtract(bend, root);
-  const across: IAutoMovieVector3 = Vector3.subtract(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(target, root);
+  if (AutoMovieEngineVector3.length(axis) < 1e-9) return undefined;
+  const unitAxis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(axis);
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(bend, root);
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     toward,
-    Vector3.scale(unitAxis, Vector3.dot(toward, unitAxis)),
+    AutoMovieEngineVector3.scale(unitAxis, AutoMovieEngineVector3.dot(toward, unitAxis)),
   );
-  if (Vector3.length(across) < 1e-9) return undefined;
-  return Vector3.normalize(Vector3.cross(unitAxis, Vector3.normalize(across)));
+  if (AutoMovieEngineVector3.length(across) < 1e-9) return undefined;
+  return AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(unitAxis, AutoMovieEngineVector3.normalize(across)));
 }

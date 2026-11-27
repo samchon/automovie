@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryEpipolarErrorsMeasurementOperation } from "@automovie/interface";
 
 /*
@@ -15,7 +15,7 @@ export function measureRecoveryEpipolarErrors(
 ): ReturnType<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation> {
   if (first.length !== second.length)
     throw new Error("camera-error: paired points required");
-  const transpose: number[] = AutoMovieMatrix3.transpose(matrix);
+  const transpose: number[] = AutoMovieEngineMatrix3.transpose(matrix);
   return first.map(
     (
       point: readonly [number, number],
@@ -25,12 +25,12 @@ export function measureRecoveryEpipolarErrors(
       symmetricPointLinePx: number;
     } | null => {
       const other: readonly [number, number] = second[at]!;
-      const line2: [number, number, number] = AutoMovieMatrix3.apply(matrix, [
+      const line2: [number, number, number] = AutoMovieEngineMatrix3.apply(matrix, [
         point[0],
         point[1],
         1,
       ]);
-      const line1: [number, number, number] = AutoMovieMatrix3.apply(
+      const line1: [number, number, number] = AutoMovieEngineMatrix3.apply(
         transpose,
         [other[0], other[1], 1],
       );

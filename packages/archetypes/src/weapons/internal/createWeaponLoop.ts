@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeWeaponLoop } from "../AutoMovieArchetypeWeaponLoop";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -68,7 +68,7 @@ export function createWeaponLoop(
     name: kind === "belt" ? "belt loop" : "back sleeve",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const half: number = (d.aperture! + WALL) / 2;
   const span: number = d.aperture! + 2 * WALL;
   for (const [id, size, at] of [

@@ -1,11 +1,13 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanJacobian,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFitTargetSlopes } from "@automovie/motions/internal";
+import {
+  HumanFitTargetSlopes
+} from "../../../../../packages/motions/src/posture/internal/HumanFitTargetSlopes";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -19,10 +21,10 @@ const DIFFERENCE: number = 1e-8;
 
 /** A rotation vector's quaternion, `Exp`. */
 function exp(v: IAutoMovieVector3): IAutoMovieQuaternion {
-  const angle: number = Vector3.length(v);
+  const angle: number = AutoMovieEngineVector3.length(v);
   if (angle === 0) return { x: 0, y: 0, z: 0, w: 1 };
-  return Quaternion.fromAxisAngle(
-    Vector3.scale(v, 1 / angle),
+  return AutoMovieEngineQuaternion.fromAxisAngle(
+    AutoMovieEngineVector3.scale(v, 1 / angle),
     (angle * 180) / Math.PI,
   );
 }
@@ -31,10 +33,10 @@ function exp(v: IAutoMovieVector3): IAutoMovieQuaternion {
 function log(q: IAutoMovieQuaternion): IAutoMovieVector3 {
   const s: number = q.w < 0 ? -1 : 1;
   const v: IAutoMovieVector3 = { x: s * q.x, y: s * q.y, z: s * q.z };
-  const sine: number = Vector3.length(v);
+  const sine: number = AutoMovieEngineVector3.length(v);
   return sine === 0
     ? v
-    : Vector3.scale(v, (2 * Math.atan2(sine, s * q.w)) / sine);
+    : AutoMovieEngineVector3.scale(v, (2 * Math.atan2(sine, s * q.w)) / sine);
 }
 
 /** A twist with an angular part only. */
@@ -75,10 +77,10 @@ export function test_motions_posture_fit_target_slopes(): void {
       (slope: IAutoMovieVector3, k: number): boolean => {
         const omega: IAutoMovieVector3 = motions[k]!.angular;
         const at = (h: number): IAutoMovieVector3 =>
-          log(Quaternion.multiply(exp(e), exp(Vector3.scale(omega, h))));
+          log(AutoMovieEngineQuaternion.multiply(exp(e), exp(AutoMovieEngineVector3.scale(omega, h))));
         return vclose(
           slope,
-          Vector3.scale(Vector3.subtract(at(STEP), at(-STEP)), 1 / (2 * STEP)),
+          AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(at(STEP), at(-STEP)), 1 / (2 * STEP)),
           DIFFERENCE,
         );
       },
@@ -98,17 +100,17 @@ export function test_motions_posture_fit_target_slopes(): void {
       world: { x: 0, y: 1, z: 0 },
       local: { x: 0, y: 1, z: 0 },
     };
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 0, z: 1 },
     40,
   );
   const turn = (q: IAutoMovieQuaternion): IAutoMovieVector3 => {
-    const n: IAutoMovieVector3 = Quaternion.rotateVector(q, goal.local);
-    const c: IAutoMovieVector3 = Vector3.cross(goal.world, n);
-    const sine: number = Vector3.length(c);
-    return Vector3.scale(
+    const n: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(q, goal.local);
+    const c: IAutoMovieVector3 = AutoMovieEngineVector3.cross(goal.world, n);
+    const sine: number = AutoMovieEngineVector3.length(c);
+    return AutoMovieEngineVector3.scale(
       c,
-      Math.atan2(sine, Vector3.dot(goal.world, n)) / sine,
+      Math.atan2(sine, AutoMovieEngineVector3.dot(goal.world, n)) / sine,
     );
   };
   TestValidator.predicate(
@@ -117,10 +119,10 @@ export function test_motions_posture_fit_target_slopes(): void {
       (slope: IAutoMovieVector3, k: number): boolean => {
         const omega: IAutoMovieVector3 = motions[k]!.angular;
         const at = (h: number): IAutoMovieVector3 =>
-          turn(Quaternion.multiply(exp(Vector3.scale(omega, h)), rotation));
+          turn(AutoMovieEngineQuaternion.multiply(exp(AutoMovieEngineVector3.scale(omega, h)), rotation));
         return vclose(
           slope,
-          Vector3.scale(Vector3.subtract(at(STEP), at(-STEP)), 1 / (2 * STEP)),
+          AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(at(STEP), at(-STEP)), 1 / (2 * STEP)),
           DIFFERENCE,
         );
       },
@@ -140,7 +142,7 @@ export function test_motions_posture_fit_target_slopes(): void {
         (): unknown =>
           HumanFitTargetSlopes.normal(
             goal,
-            Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
             motions,
           ),
         "non-antiparallel",

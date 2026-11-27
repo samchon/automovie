@@ -9,7 +9,7 @@ import type {
 
 import { decomposeJointRotation } from "../../kinematics/internal/decomposeJointRotation";
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
-import { swingTwistRange } from "../../kinematics/swingTwistRange";
+import { AutoMovieEngineSwingTwistRange } from "../../kinematics/AutoMovieEngineSwingTwistRange";
 import { abductionRange } from "./abductionRange";
 import { swingConeBlend } from "./swingConeBlend";
 
@@ -38,7 +38,7 @@ export function clampJointRomValues(
   abduction: number | null,
   twist: number | null,
   constraint: IAutoMovieJointConstraint,
-  rig?: swingTwistRange.IPrepared,
+  rig?: AutoMovieEngineSwingTwistRange.IPrepared,
 ): IAutoMovieJointPose {
   return clampJointRomValues.into(
     bone,
@@ -75,7 +75,7 @@ export namespace clampJointRomValues {
     abduction: number | null,
     twist: number | null,
     constraint: IAutoMovieJointConstraint,
-    rig: swingTwistRange.IPrepared | undefined,
+    rig: AutoMovieEngineSwingTwistRange.IPrepared | undefined,
     input: IAutoMovieJointPose | undefined,
   ): IAutoMovieJointPose {
     return project(bone, flexion, abduction, twist, constraint, rig, input);
@@ -110,16 +110,16 @@ function project(
   abduction: number | null,
   twist: number | null,
   constraint: IAutoMovieJointConstraint,
-  rig: swingTwistRange.IPrepared | undefined,
+  rig: AutoMovieEngineSwingTwistRange.IPrepared | undefined,
   input: IAutoMovieJointPose | undefined,
 ): IAutoMovieJointPose {
   // A ball joint gated by swing and twist is brought into its range as a
-  // rotation (`swingTwistRange.project`) and read back in the reading the
+  // rotation (`AutoMovieEngineSwingTwistRange.project`) and read back in the reading the
   // three-angle box prefers.
-  const range: swingTwistRange.IPrepared | undefined =
+  const range: AutoMovieEngineSwingTwistRange.IPrepared | undefined =
     constraint.swingTwist === undefined || constraint.swingTwist === null
       ? undefined
-      : (rig ?? swingTwistRange.humanoid(bone, constraint));
+      : (rig ?? AutoMovieEngineSwingTwistRange.humanoid(bone, constraint));
   if (range !== undefined) {
     const sanitized: IAutoMovieJointPose = record(
       bone,
@@ -135,9 +135,9 @@ function project(
     );
     // A joint on the range's edge within a rounding error is inside, so a
     // clamped joint clamps to itself.
-    if (swingTwistRange.overshoot(q, constraint, range) <= EDGE)
+    if (AutoMovieEngineSwingTwistRange.overshoot(q, constraint, range) <= EDGE)
       return sanitized;
-    const projected: IAutoMovieQuaternion = swingTwistRange.project(
+    const projected: IAutoMovieQuaternion = AutoMovieEngineSwingTwistRange.project(
       q,
       constraint,
       range,

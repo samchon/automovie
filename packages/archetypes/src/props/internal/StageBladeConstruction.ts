@@ -1,8 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 import type { AutoMovieArchetypeStageBladeProp } from "../AutoMovieArchetypeStageBladeProp";
-import * as StageBladeConstructionData from "./StageBladeConstructionData";
+import { StageBladeConstructionData } from "./StageBladeConstructionData";
 
 /*
  * Build a padded hand-held silhouette.
@@ -50,7 +50,7 @@ export function StageBladeConstruction(
     name: `padded ${kind} stage prop`,
     material: "foam",
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const gripLength: number = profile.grip * length;
   const gripRadius: number = Math.min(0.016, 0.021 * length);
   const shaftRadius: number = profile.shaft * length;
@@ -175,7 +175,7 @@ export namespace StageBladeConstruction {
     profile: IProfile,
   ): void {
     const { gripLength, guardRadius, guardDepth }: IProfile = profile;
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     builder.rod(
       "guard",
       guardRadius,

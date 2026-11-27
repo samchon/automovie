@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../core";
 import { StationeryDraw } from "./internal/StationeryDraw";
@@ -37,8 +37,8 @@ export function create(
 
   builder.box(
     "board",
-    Vector3.create(width, thick, length),
-    Vector3.create(0, thick / 2, 0),
+    AutoMovieEngineVector3.create(width, thick, length),
+    AutoMovieEngineVector3.create(0, thick / 2, 0),
     { color: "#8a6a4a" },
   );
   StationeryDraw.addPanelContacts(builder, { width, length, thick }, 0);

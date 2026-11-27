@@ -17,7 +17,7 @@ import { readHumanBone } from "../../body/internal/readHumanBone";
  * reflex keeps the head vertical as the trunk tilts).
  *
  * The spine's side bend is about its +Z, negative to the performer's left, and
- * its twist about +Y turns the chest to the left (`HUMANOID_JOINT_AXES`); the
+ * its twist about +Y turns the chest to the left (`AutoMovieEngineHumanoidJointAxes`); the
  * neck and the head share those axes. A share is the fraction of the way from
  * each joint's present angle to the end of its range toward the side; a
  * negative share turns the trunk the other way by that fraction of the way to

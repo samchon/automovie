@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieTwoBoneIK,
   IAutoMovieVector3,
@@ -357,8 +357,8 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
                 y: direction.y / magnitude,
                 z: direction.z / magnitude,
               }
-            : Vector3.normalize(direction);
-        if (!direct && !(Vector3.length(axis) > 0))
+            : AutoMovieEngineVector3.normalize(direction);
+        if (!direct && !(AutoMovieEngineVector3.length(axis) > 0))
           throw new RangeError(
             "A terminal direction must have representable positive magnitude",
           );

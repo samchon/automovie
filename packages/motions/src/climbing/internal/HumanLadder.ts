@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -59,24 +59,24 @@ export function HumanLadder(
   const world: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
+    AutoMovieEngineVector3.add(frame.position, AutoMovieEngineQuaternion.rotateVector(frame.rotation, local));
   const first: IAutoMovieVector3 = world(rungs[0]!.frame.translation);
-  const rise: IAutoMovieVector3 = Vector3.subtract(
+  const rise: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     world(rungs[1]!.frame.translation),
     first,
   );
-  const spacing: number = Vector3.length(rise);
+  const spacing: number = AutoMovieEngineVector3.length(rise);
   HumanBound.within("spacing", spacing, 0.25, 0.36, "m");
   const lean: number =
     (Math.acos(Math.min(1, Math.max(-1, rise.y / spacing))) * 180) / Math.PI;
   HumanBound.within("lean", lean, 0, HumanLadder.UPRIGHT, "degrees");
-  const out: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(frame.rotation, rungs[0]!.frame.rotation),
+  const out: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, rungs[0]!.frame.rotation),
     { x: 0, y: 1, z: 0 },
   );
   const yaw: number = (Math.atan2(-out.x, -out.z) * 180) / Math.PI;
-  const lateral: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+  const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
     { x: 1, y: 0, z: 0 },
   );
   const material: IAutoMovieMotionHumanLadder.IRung[] = rungs.map(
@@ -85,20 +85,20 @@ export function HumanLadder(
       index: number,
     ): IAutoMovieMotionHumanLadder.IRung => {
       const center: IAutoMovieVector3 = world(rung.frame.translation);
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         frame.rotation,
         rung.frame.rotation,
       );
-      const along: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
         x: 1,
         y: 0,
         z: 0,
       });
-      const axis: IAutoMovieVector3 = Vector3.scale(
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         along,
-        Vector3.dot(along, lateral) < 0 ? -1 : 1,
+        AutoMovieEngineVector3.dot(along, lateral) < 0 ? -1 : 1,
       );
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
         x: 0,
         y: 1,
         z: 0,
@@ -119,9 +119,9 @@ export function HumanLadder(
             "rung IDs must be consecutive, with positive material dimensions and a transverse axis",
           fix: "author each usable bar from rung1 upward",
         });
-      const crown: IAutoMovieVector3 = Vector3.scale(
-        Vector3.normalize(
-          Vector3.subtract({ x: 0, y: 1, z: 0 }, Vector3.scale(axis, axis.y)),
+      const crown: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract({ x: 0, y: 1, z: 0 }, AutoMovieEngineVector3.scale(axis, axis.y)),
         ),
         radius,
       );
@@ -129,11 +129,11 @@ export function HumanLadder(
     },
   );
   for (let index: number = 2; index < material.length; ++index) {
-    const step: IAutoMovieVector3 = Vector3.subtract(
+    const step: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       material[index]!.center,
       material[index - 1]!.center,
     );
-    const gap: number = Vector3.length(step);
+    const gap: number = AutoMovieEngineVector3.length(step);
     HumanBound.within(`${material[index]!.id}.spacing`, gap, 0.25, 0.36, "m");
     HumanBound.within(
       `${material[index]!.id}.lean`,
@@ -225,12 +225,12 @@ export namespace HumanLadder {
         -rung.width / 2,
         Math.min(rung.width / 2, x),
       );
-      const center: IAutoMovieVector3 = Vector3.addScaled(
+      const center: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         rung.center,
         rung.axis,
         lane,
       );
-      return surface === "crown" ? Vector3.add(center, rung.crown) : center;
+      return surface === "crown" ? AutoMovieEngineVector3.add(center, rung.crown) : center;
     };
   }
 }

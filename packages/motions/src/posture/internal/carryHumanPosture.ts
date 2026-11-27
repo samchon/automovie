@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanCarryHumanPosture,
@@ -23,17 +23,17 @@ export function carryHumanPosture(
   origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame,
   now: IAutoMovieMotionHumanCarryHumanPosture.IFrame,
 ): IAutoMovieMotionHumanPosture {
-  const turn: IAutoMovieQuaternion = Quaternion.multiply(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     now.rotation,
-    Quaternion.inverse(origin.rotation),
+    AutoMovieEngineQuaternion.inverse(origin.rotation),
   );
   const carry = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       now.position,
-      Quaternion.rotateVector(turn, Vector3.subtract(point, origin.position)),
+      AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(point, origin.position)),
     );
   const heading = (rotation: IAutoMovieQuaternion): number => {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
@@ -53,7 +53,7 @@ export function carryHumanPosture(
             bend: carry(goal.bend),
             ...(goal.rotation === undefined
               ? {}
-              : { rotation: Quaternion.multiply(turn, goal.rotation) }),
+              : { rotation: AutoMovieEngineQuaternion.multiply(turn, goal.rotation) }),
           };
   }
   return {

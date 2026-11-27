@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanRopeSkipPresentation, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -106,8 +106,8 @@ export function prepareRopeSkip(
     0,
     floor - Math.min(...soles.map((point) => point.y)),
   );
-  const footStation: IAutoMovieVector3 = Vector3.scale(
-    soles.reduce((sum, point) => Vector3.add(sum, point)),
+  const footStation: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    soles.reduce((sum, point) => AutoMovieEngineVector3.add(sum, point)),
     1 / soles.length,
   );
   const orbit: number = body.measure.stature / 2;
@@ -127,12 +127,12 @@ export function prepareRopeSkip(
   const depth: number =
     Math.max(
       ...soles.map((point) =>
-        Math.abs(Vector3.dot(Vector3.subtract(point, footStation), forward)),
+        Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, footStation), forward)),
       ),
     ) + radius;
   const sagitta: number = orbit - Math.sqrt(orbit ** 2 - depth ** 2);
   const flight: number = (land - lift) * segment.plan.duration;
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const safeHalfWindow: number = Math.sqrt(
     (flight / 2) ** 2 - (2 * (4 * radius + sagitta + outlineDrop)) / g,
   );
@@ -172,28 +172,28 @@ export function prepareRopeSkip(
       "right",
       "grip",
     );
-    const leftHandle: IAutoMovieVector3 = Vector3.add(
+    const leftHandle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       leftGrip.point,
-      Vector3.scale(leftGrip.normal, gripOffset),
+      AutoMovieEngineVector3.scale(leftGrip.normal, gripOffset),
     );
-    const rightHandle: IAutoMovieVector3 = Vector3.add(
+    const rightHandle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       rightGrip.point,
-      Vector3.scale(rightGrip.normal, gripOffset),
+      AutoMovieEngineVector3.scale(rightGrip.normal, gripOffset),
     );
-    const l: IAutoMovieVector3 = Vector3.add(
+    const l: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       leftHandle,
-      Vector3.scale(leftGrip.forward, halfHandle),
+      AutoMovieEngineVector3.scale(leftGrip.forward, halfHandle),
     );
-    const r: IAutoMovieVector3 = Vector3.add(
+    const r: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       rightHandle,
-      Vector3.scale(rightGrip.forward, halfHandle),
+      AutoMovieEngineVector3.scale(rightGrip.forward, halfHandle),
     );
-    const chord: IAutoMovieVector3 = Vector3.subtract(l, r);
-    const span: number = Vector3.length(chord);
-    if (!(span > 0 && length > span && Vector3.dot(chord, left) > 0))
+    const chord: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(l, r);
+    const span: number = AutoMovieEngineVector3.length(chord);
+    if (!(span > 0 && length > span && AutoMovieEngineVector3.dot(chord, left) > 0))
       refuse(subject, seconds, "the cable cannot span the two handle tips");
-    const axis: IAutoMovieVector3 = Vector3.scale(chord, 1 / span);
-    const mid: IAutoMovieVector3 = Vector3.lerp(l, r, 0.5);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(chord, 1 / span);
+    const mid: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(l, r, 0.5);
     const before: boolean = seconds <= under;
     const u: number = Math.max(
       0,
@@ -205,26 +205,26 @@ export function prepareRopeSkip(
       ? u * u * (2 - u)
       : u;
     const angle: number = Math.PI * (before ? progress : 2 - progress);
-    const center: IAutoMovieVector3 = Vector3.add(
+    const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       { ...footStation, y: floor + 2 * radius + orbit * (1 + Math.cos(angle)) },
-      Vector3.scale(forward, orbit * Math.sin(angle)),
+      AutoMovieEngineVector3.scale(forward, orbit * Math.sin(angle)),
     );
-    const fromMid: IAutoMovieVector3 = Vector3.subtract(center, mid);
-    const offset: IAutoMovieVector3 = Vector3.subtract(
+    const fromMid: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(center, mid);
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       fromMid,
-      Vector3.scale(axis, Vector3.dot(fromMid, axis)),
+      AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(fromMid, axis)),
     );
-    const crossbar: IAutoMovieVector3 = Vector3.add(mid, offset);
+    const crossbar: IAutoMovieVector3 = AutoMovieEngineVector3.add(mid, offset);
 
     // L = w + sqrt((w - d)^2 + 4 r^2), where d joins the handle tips
     // and r is the perpendicular offset. The cable can bend at a tip.
     const width: number =
-      (length + span) / 2 - (2 * Vector3.dot(offset, offset)) / (length - span);
+      (length + span) / 2 - (2 * AutoMovieEngineVector3.dot(offset, offset)) / (length - span);
     if (!(width > 0))
       refuse(subject, seconds, "the cable is too short for the visible orbit");
-    const half: IAutoMovieVector3 = Vector3.scale(axis, width / 2);
-    const a: IAutoMovieVector3 = Vector3.add(crossbar, half);
-    const b: IAutoMovieVector3 = Vector3.subtract(crossbar, half);
+    const half: IAutoMovieVector3 = AutoMovieEngineVector3.scale(axis, width / 2);
+    const a: IAutoMovieVector3 = AutoMovieEngineVector3.add(crossbar, half);
+    const b: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(crossbar, half);
     if (Math.min(l.y, a.y, b.y, r.y) < floor + radius)
       refuse(subject, seconds, "the cord would penetrate the floor");
 
@@ -232,16 +232,16 @@ export function prepareRopeSkip(
     // the height only on each cord segment's overlap with that footprint.
     const path: readonly IAutoMovieVector3[] = [l, a, b, r];
     if (Math.cos(angle) < 0) {
-      const aX: number = Vector3.dot(a, left);
-      const bX: number = Vector3.dot(b, left);
-      const aZ: number = Vector3.dot(a, forward);
-      const bZ: number = Vector3.dot(b, forward);
+      const aX: number = AutoMovieEngineVector3.dot(a, left);
+      const bX: number = AutoMovieEngineVector3.dot(b, left);
+      const aZ: number = AutoMovieEngineVector3.dot(a, forward);
+      const bZ: number = AutoMovieEngineVector3.dot(b, forward);
       for (const { side, frames } of outlines) {
         const foot: IAutoMovieVector3[] = solePoints(frames, bones);
         const along: number[] = foot.map((point) =>
-          Vector3.dot(point, forward),
+          AutoMovieEngineVector3.dot(point, forward),
         );
-        const across: number[] = foot.map((point) => Vector3.dot(point, left));
+        const across: number[] = foot.map((point) => AutoMovieEngineVector3.dot(point, left));
         const low: number = Math.min(...foot.map((point) => point.y));
         const minZ: number = Math.min(...along) - radius;
         const maxZ: number = Math.max(...along) + radius;
@@ -276,14 +276,14 @@ export function prepareRopeSkip(
           const start: IAutoMovieVector3 = path[i - 1]!;
           const end: IAutoMovieVector3 = path[i]!;
           const z: readonly [number, number] | null = clip(
-            Vector3.dot(start, forward),
-            Vector3.dot(end, forward),
+            AutoMovieEngineVector3.dot(start, forward),
+            AutoMovieEngineVector3.dot(end, forward),
             minZ,
             maxZ,
           );
           const x: readonly [number, number] | null = clip(
-            Vector3.dot(start, left),
-            Vector3.dot(end, left),
+            AutoMovieEngineVector3.dot(start, left),
+            AutoMovieEngineVector3.dot(end, left),
             minX,
             maxX,
           );
@@ -397,7 +397,7 @@ function handle(
     rotation:
       exit.x === 0 && exit.y === 0 && exit.z < 0
         ? { x: 1, y: 0, z: 0, w: 0 }
-        : Quaternion.normalize({ x: -exit.y, y: exit.x, z: 0, w: 1 + exit.z }),
+        : AutoMovieEngineQuaternion.normalize({ x: -exit.y, y: exit.x, z: 0, w: 1 + exit.z }),
   };
 }
 

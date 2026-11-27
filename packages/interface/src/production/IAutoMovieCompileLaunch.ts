@@ -58,7 +58,7 @@ export namespace IAutoMovieCompileLaunch {
 
     /**
      * Constant acceleration in m/s²; defaults to standard gravity along world
-     * −Y (`AutoMovieGravity.DOWN`).
+     * −Y (`AutoMovieEngineGravity.DOWN`).
      */
     gravity?: IAutoMovieVector3;
 

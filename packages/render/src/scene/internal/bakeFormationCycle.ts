@@ -8,10 +8,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTOMOVIE_FORMATION_CYCLE_SAMPLES } from "../AUTOMOVIE_FORMATION_CYCLE_SAMPLES.js";
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
-import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
-import type { IBakeFormationCycleProps } from "../IBakeFormationCycleProps.js";
+import { AutoMovieRenderFormationCycleSamples } from "../AutoMovieRenderFormationCycleSamples.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake.js";
+import type { IAutoMovieRenderBakeFormationCycleProps } from "../IAutoMovieRenderBakeFormationCycleProps.js";
 import { applyPose } from "./applyPose.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { formationCycleStride } from "./formationCycleStride.js";
@@ -25,7 +25,7 @@ import { formationCycleStride } from "./formationCycleStride.js";
  * rest-space vertex to where the cycle puts it. The object is left at the last
  * sampled pose; callers extract geometry before baking, never after.
  *
- * The poses are the given pose takes (`IBakeFormationCycleProps.takes`, a
+ * The poses are the given pose takes (`IAutoMovieRenderBakeFormationCycleProps.takes`, a
  * performed member's cycle) or, without them, come from gaitMotion,
  * whose keyframe `i` of `samples` sits exactly at cycle position `i / samples`.
  * The loop-closing duplicate is omitted because texture playback wraps the last
@@ -40,10 +40,10 @@ import { formationCycleStride } from "./formationCycleStride.js";
  * the representation owner; a later take's refusal retires earlier textures.
  */
 export const bakeFormationCycle: (
-  input: IBakeFormationCycleProps,
-) => IAutoMovieFormationCycle | null = (
-  input: IBakeFormationCycleProps,
-): IAutoMovieFormationCycle | null => {
+  input: IAutoMovieRenderBakeFormationCycleProps,
+) => IAutoMovieRenderFormationCycle | null = (
+  input: IAutoMovieRenderBakeFormationCycleProps,
+): IAutoMovieRenderFormationCycle | null => {
   const skeleton: IAutoMovieSkeleton | null = input.model.skeleton;
   if (skeleton === null) return null;
 
@@ -51,7 +51,7 @@ export const bakeFormationCycle: (
   const samples: number =
     input.takes?.[0]?.poses.length ??
     input.samples ??
-    AUTOMOVIE_FORMATION_CYCLE_SAMPLES;
+    AutoMovieRenderFormationCycleSamples;
   const sources: readonly IAutoMovieFormationPoseTake[] =
     input.takes ??
     AutoMovieEngineModel.gaits(input.model).map(
@@ -115,7 +115,7 @@ export const bakeFormationCycle: (
       );
     },
   );
-  const takes: IAutoMovieFormationCycleTake[] =
+  const takes: IAutoMovieRenderFormationCycleTake[] =
     constructAutoMovieOwnedResources(
       (
         own: <Resource extends { dispose(): void }>(
@@ -205,7 +205,7 @@ export const bakeFormationCycle: (
           },
         ),
     );
-  const fallback: IAutoMovieFormationCycleTake = takes[0]!;
+  const fallback: IAutoMovieRenderFormationCycleTake = takes[0]!;
   return {
     samples,
     names: input.parts.map(
@@ -224,8 +224,8 @@ export const bakeFormationCycle: (
     takes: new Map(
       takes.map(
         (
-          take: IAutoMovieFormationCycleTake,
-        ): readonly [string, IAutoMovieFormationCycleTake] =>
+          take: IAutoMovieRenderFormationCycleTake,
+        ): readonly [string, IAutoMovieRenderFormationCycleTake] =>
           [take.gait, take] as const,
       ),
     ),

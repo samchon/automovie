@@ -1,10 +1,10 @@
 import {
-  AutoMovieMotionAudit as Audit,
-  DEFAULT_HUMANOID_ROM,
-  DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
+  AutoMovieEngineMotionAudit as Audit,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineDefaultJointAxes,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
   AutoMovieEnginePhysics,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
@@ -66,7 +66,7 @@ import { MOTION_HUMAN_PEOPLE } from "../internal/people/MOTION_HUMAN_PEOPLE";
  * simulation enforces, read from displayed frames. Rest-pose self-contact
  * between non-adjacent segments belongs to the support work of #3092.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Prepares an actual canonical Human with `AutoMovieHumanCanonicalBody.prepare`, then asserts its profile mass groups, centre, colliders and joint axes, poses ROM ends through `jointToQuaternion` and measures them with `measurePhysicalJointLimits`, and runs `AutoMovieMotionAudit` on the profile against two floors. Each scenario collects measured defects and fails on any.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares an actual canonical Human with `AutoMovieHumanCanonicalBody.prepare`, then asserts its profile mass groups, centre, colliders and joint axes, poses ROM ends through `jointToQuaternion` and measures them with `measurePhysicalJointLimits`, and runs `AutoMovieEngineMotionAudit` on the profile against two floors. Each scenario collects measured defects and fails on any.
  * @evidence contracts/development/testing.md#independent-expectations Shares are Winter Table 4.1 literals with de Leva's head share. The centre and colliders are rebuilt from `AutoMovieHumanCanonicalSolids.build` and the published joints with closed-form capsule volume and centroid, not from the provider's mass combination. Joint expectations are the clinical ROM table posed through the display conversion; a bone the ROM table gates by swing and twist has the gate as its displayed limit, so its box ends are not limits there (the box premise does not hold for it), and its expectations are the gate's twist interval and the displayed gate's own reading (`scanJointRom.overshoot`) of each posed end. The audit floors come from the lowest rebuilt collider point.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers every mass group, both collider kinds, each ROM end inside and two degrees outside its limit, off-axis leakage, a gated joint's twist ends and its box ends against the displayed gate, and a floor on each side of the lowest collider point while bone origins stay above both. Native tracking and refusals belong to test_physical_human_profile, drawn-surface fidelity to test_human_canonical_solids_surface.
  * @evidence contracts/development/testing.md#execution-ownership The portable unit test test_physical_human_profile_sources prepares one installed canonical body in memory and calls public Engine and Human entries with no simulation, viewer or file host.
@@ -240,9 +240,9 @@ export async function test_physical_human_profile_sources(): Promise<void> {
     for (const shape of s.shapes) {
       const origin: IAutoMovieVector3 = add(
         s.neutral.position,
-        Quaternion.rotateVector(s.neutral.rotation, shape.transform.position),
+        AutoMovieEngineQuaternion.rotateVector(s.neutral.rotation, shape.transform.position),
       );
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         s.neutral.rotation,
         shape.transform.rotation,
       );
@@ -262,7 +262,7 @@ export async function test_physical_human_profile_sources(): Promise<void> {
           (point: IAutoMovieVector3, index: number): void => {
             const world: IAutoMovieVector3 = add(
               origin,
-              Quaternion.rotateVector(rotation, point),
+              AutoMovieEngineQuaternion.rotateVector(rotation, point),
             );
             lowest = Math.min(lowest, world.y);
             const drawn: IAutoMovieVector3 | undefined = source.points[index];
@@ -284,7 +284,7 @@ export async function test_physical_human_profile_sources(): Promise<void> {
           colliderDefects.push(`${s.bone} capsule has no phalanx source`);
           continue;
         }
-        const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+        const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
           x: 0,
           y: shape.halfLength,
           z: 0,
@@ -338,7 +338,7 @@ export async function test_physical_human_profile_sources(): Promise<void> {
   for (const joint of profile.joints) {
     const bone: AutoMovieHumanoidBone = joint.child as AutoMovieHumanoidBone;
     const rom: IAutoMovieJointConstraint | undefined =
-      DEFAULT_HUMANOID_ROM[bone];
+      AutoMovieEngineDefaultHumanoidRom[bone];
     if (rom === undefined) continue;
     const pose = (
       angles: IAutoMovieJointPose,
@@ -347,8 +347,8 @@ export async function test_physical_human_profile_sources(): Promise<void> {
         position: REST.position,
         rotation: AutoMovieEngineKinematics.jointToQuaternion(
           angles,
-          HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES,
-          HUMANOID_REST_FRAME[bone],
+          AutoMovieEngineHumanoidJointAxes[bone] ?? AutoMovieEngineDefaultJointAxes,
+          AutoMovieEngineHumanoidRestFrame[bone],
         ),
       });
     const gate: IAutoMovieJointConstraint["swingTwist"] = rom.swingTwist;

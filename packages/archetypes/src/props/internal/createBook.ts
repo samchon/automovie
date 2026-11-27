@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeBook } from "../AutoMovieArchetypeBook";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StationeryDraw } from "./StationeryDraw";
@@ -35,29 +35,29 @@ export function createBook(
   const pageHeight: number = (thick + pageThickness) / 2;
   builder.box(
     "back",
-    Vector3.create(width, thick / 2, length),
-    Vector3.create(0, thick / 4, 0),
+    AutoMovieEngineVector3.create(width, thick / 2, length),
+    AutoMovieEngineVector3.create(0, thick / 4, 0),
     { color: "#7a3b2e" },
   );
   builder.box(
     "front",
-    Vector3.create(width, thick / 2 - pageThickness, length),
-    Vector3.create(0, (3 * thick) / 4 + pageThickness / 2, 0),
+    AutoMovieEngineVector3.create(width, thick / 2 - pageThickness, length),
+    AutoMovieEngineVector3.create(0, (3 * thick) / 4 + pageThickness / 2, 0),
     { color: "#8d4636" },
   );
   builder.box(
     "leaf",
-    Vector3.create(width, pageThickness, length),
-    Vector3.create(0, pageHeight, 0),
+    AutoMovieEngineVector3.create(width, pageThickness, length),
+    AutoMovieEngineVector3.create(0, pageHeight, 0),
     { color: "#f4f2ec" },
   );
   builder.affordance({
     id: "hinge",
     kind: "hinge",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(-width / 2, thick / 2, 0),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(-width / 2, thick / 2, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     travel: 180,
@@ -67,9 +67,9 @@ export function createBook(
     id: "page",
     kind: "hinge",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(-width / 2, pageHeight, 0),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(-width / 2, pageHeight, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     travel: 180,
@@ -80,9 +80,9 @@ export function createBook(
     kind: "handle",
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(width / 2, pageHeight, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(width / 2, pageHeight, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "precision",
@@ -96,9 +96,9 @@ export function createBook(
     kind: "handle",
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(-width / 2, thick / 2, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(-width / 2, thick / 2, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "power",
@@ -109,7 +109,7 @@ export function createBook(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, thick, 0)),
     extent: null,
     width,
     depth: length,
@@ -120,9 +120,9 @@ export function createBook(
     kind: "handle",
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(width / 2, (3 * thick) / 4 + pageThickness / 2, 0),
-      Vector3.create(1, 0, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(width / 2, (3 * thick) / 4 + pageThickness / 2, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "precision",

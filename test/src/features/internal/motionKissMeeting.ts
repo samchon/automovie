@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidSocket,
@@ -15,12 +15,20 @@ import {
   AutoMovieMotionHumanRefusal,
 } from "@automovie/motions";
 import {
-  AutoMovieMotionHumanAuditPartner,
-  AutoMovieMotionHumanLean,
-  HumanPerception,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanAuditPartner
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditPartner";
+import {
+  AutoMovieMotionHumanLean
+} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanLean";
+import {
+  HumanPerception
+} from "../../../../packages/motions/src/law/internal/HumanPerception";
+import {
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 
 import { MOTION_HUMAN_LAW_STAGES_TOUCH } from "./MOTION_HUMAN_LAW_STAGES_TOUCH";
 import { motionComplaints } from "./motionComplaints";
@@ -90,13 +98,13 @@ export function motionKissMeeting(region: KissRegion): string[] {
         first,
         {
           ...second,
-          at: Vector3.add(second.at, Vector3.subtract(mouth, forehead)),
+          at: AutoMovieEngineVector3.add(second.at, AutoMovieEngineVector3.subtract(mouth, forehead)),
         },
       ],
     };
     all.check(
       "the bow and the stationary forehead exhibit a reachable contact",
-      Vector3.distance(mouth, standingSite(scene.people[1]!, "forehead")) <=
+      AutoMovieEngineVector3.distance(mouth, standingSite(scene.people[1]!, "forehead")) <=
         1e-9,
     );
   }
@@ -162,7 +170,7 @@ export function motionKissMeeting(region: KissRegion): string[] {
           targetFrame,
           film.bones("b", seconds).get(targetFrame.bone)!,
         ).point;
-      const gap: number = Vector3.distance(mouth, target);
+      const gap: number = AutoMovieEngineVector3.distance(mouth, target);
       all.check(
         `${region}: the lips are ${gap * 1000} mm from the skin at ${seconds} s`,
         gap <= 0.005,
@@ -182,7 +190,7 @@ export function motionKissMeeting(region: KissRegion): string[] {
         ).point;
       all.check(
         "the planted forehead kiss separates after its held contact",
-        Vector3.distance(lips, forehead) > 0.005,
+        AutoMovieEngineVector3.distance(lips, forehead) > 0.005,
       );
     }
     const worst: ReturnType<
@@ -235,12 +243,12 @@ function leastForeheadSeparation(scene: motionHumanLawSweep.IScene): number {
   const tallest: number =
     kisser.at.y +
     chain(mouth.bone) +
-    Vector3.length(mouth.point) +
+    AutoMovieEngineVector3.length(mouth.point) +
     Math.max(
       ...sockets.map((name: AutoMovieHumanoidSocket): number => {
         const ground: IAutoMovieMotionHumanBody["surfaces"]["sockets"][AutoMovieHumanoidSocket] =
           body.surfaces.sockets[name];
-        return chain(ground.bone) + Vector3.length(ground.point);
+        return chain(ground.bone) + AutoMovieEngineVector3.length(ground.point);
       }),
     );
   const remained: IAutoMovieMotionHumanPosture =
@@ -269,7 +277,7 @@ function leastForeheadSeparation(scene: motionHumanLawSweep.IScene): number {
       bone.bone !== "hips";
       bone = lengths.get(bone.parent!)!
     )
-      length += Vector3.length(bone.rest.translation);
+      length += AutoMovieEngineVector3.length(bone.rest.translation);
     return length;
   }
 }

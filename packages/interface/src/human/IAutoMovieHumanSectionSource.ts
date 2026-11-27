@@ -10,7 +10,7 @@ export interface IAutoMovieHumanSectionSource {
   /**
    * The part's axis as the construction tree's record, metres; the operator's
    * frame is the engine's own reading of it
-   * (`AutoMovieConstructionViews.frame`), so the part lofted here is the part
+   * (`AutoMovieEngineConstructionViews.frame`), so the part lofted here is the part
    * the tree realizes.
    */
   axis: IAutoMovieConstructionAxis;

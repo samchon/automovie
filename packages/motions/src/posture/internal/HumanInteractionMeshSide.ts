@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineCurve, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineCurve, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieTetrahedralizedMesh,
   IAutoMovieVector3,
@@ -59,26 +59,26 @@ export namespace HumanInteractionMeshSide {
       )
       .map((corners: ISide["corners"]): ISide => {
         const [a, b, c, d] = corners;
-        const e1: IAutoMovieVector3 = Vector3.subtract(
+        const e1: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           reference[b]!,
           reference[a]!,
         );
-        const e2: IAutoMovieVector3 = Vector3.subtract(
+        const e2: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           reference[c]!,
           reference[a]!,
         );
-        const e3: IAutoMovieVector3 = Vector3.subtract(
+        const e3: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           reference[d]!,
           reference[a]!,
         );
-        const bc: IAutoMovieVector3 = Vector3.cross(e1, e2);
-        const bd: IAutoMovieVector3 = Vector3.cross(e1, e3);
-        const cd: IAutoMovieVector3 = Vector3.cross(e2, e3);
+        const bc: IAutoMovieVector3 = AutoMovieEngineVector3.cross(e1, e2);
+        const bd: IAutoMovieVector3 = AutoMovieEngineVector3.cross(e1, e3);
+        const cd: IAutoMovieVector3 = AutoMovieEngineVector3.cross(e2, e3);
         const area: number = Math.max(
-          Vector3.length(bc),
-          Vector3.length(bd),
-          Vector3.length(cd),
-          Vector3.length(Vector3.add(Vector3.subtract(cd, bd), bc)),
+          AutoMovieEngineVector3.length(bc),
+          AutoMovieEngineVector3.length(bd),
+          AutoMovieEngineVector3.length(cd),
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.add(AutoMovieEngineVector3.subtract(cd, bd), bc)),
         );
         // The activation distance is physical, even for a very thin
         // reference element. Using the element's thin original altitude as
@@ -98,9 +98,9 @@ export namespace HumanInteractionMeshSide {
     const p: IAutoMovieVector3 = at(x, a);
     return (
       triple(
-        Vector3.subtract(at(x, b), p),
-        Vector3.subtract(at(x, c), p),
-        Vector3.subtract(at(x, d), p),
+        AutoMovieEngineVector3.subtract(at(x, b), p),
+        AutoMovieEngineVector3.subtract(at(x, c), p),
+        AutoMovieEngineVector3.subtract(at(x, d), p),
       ) / side.area
     );
   }
@@ -113,14 +113,14 @@ export namespace HumanInteractionMeshSide {
    */
   export function gradient(x: Float64Array, side: ISide): IGradient {
     const [a, b, c, d] = side.corners;
-    const e1: IAutoMovieVector3 = Vector3.subtract(at(x, b), at(x, a));
-    const e2: IAutoMovieVector3 = Vector3.subtract(at(x, c), at(x, a));
-    const e3: IAutoMovieVector3 = Vector3.subtract(at(x, d), at(x, a));
-    const gb: IAutoMovieVector3 = Vector3.cross(e2, e3);
-    const gc: IAutoMovieVector3 = Vector3.cross(e3, e1);
-    const gd: IAutoMovieVector3 = Vector3.cross(e1, e2);
-    const ga: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(Vector3.add(gb, gc), gd),
+    const e1: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(x, b), at(x, a));
+    const e2: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(x, c), at(x, a));
+    const e3: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(x, d), at(x, a));
+    const gb: IAutoMovieVector3 = AutoMovieEngineVector3.cross(e2, e3);
+    const gc: IAutoMovieVector3 = AutoMovieEngineVector3.cross(e3, e1);
+    const gd: IAutoMovieVector3 = AutoMovieEngineVector3.cross(e1, e2);
+    const ga: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.add(gb, gc), gd),
       -1,
     );
     return {
@@ -154,20 +154,20 @@ export namespace HumanInteractionMeshSide {
       const [a, b, c, d] = side.corners;
       const origin: IAutoMovieVector3 = at(x, a);
       const move: IAutoMovieVector3 = at(step, a);
-      const e1: IAutoMovieVector3 = Vector3.subtract(at(x, b), origin);
-      const e2: IAutoMovieVector3 = Vector3.subtract(at(x, c), origin);
-      const e3: IAutoMovieVector3 = Vector3.subtract(at(x, d), origin);
-      const f1: IAutoMovieVector3 = Vector3.add(
+      const e1: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(x, b), origin);
+      const e2: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(x, c), origin);
+      const e3: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(x, d), origin);
+      const f1: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         e1,
-        Vector3.scale(Vector3.subtract(at(step, b), move), fraction),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(at(step, b), move), fraction),
       );
-      const f2: IAutoMovieVector3 = Vector3.add(
+      const f2: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         e2,
-        Vector3.scale(Vector3.subtract(at(step, c), move), fraction),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(at(step, c), move), fraction),
       );
-      const f3: IAutoMovieVector3 = Vector3.add(
+      const f3: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         e3,
-        Vector3.scale(Vector3.subtract(at(step, d), move), fraction),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(at(step, d), move), fraction),
       );
       const initial: number = triple(e1, e2, e3);
       const floor: number = (1 - COMPRESSION) * initial;
@@ -219,7 +219,7 @@ export namespace HumanInteractionMeshSide {
     b: IAutoMovieVector3,
     c: IAutoMovieVector3,
   ): number {
-    return Vector3.dot(a, Vector3.cross(b, c));
+    return AutoMovieEngineVector3.dot(a, AutoMovieEngineVector3.cross(b, c));
   }
 
   /*

@@ -1,6 +1,6 @@
 import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -26,7 +26,7 @@ export namespace AutoMovieHumanHeadTapeStation {
     station: number,
   ): IAutoMovieHumanHeadTapeStation.IPrepared {
     const inputs: IAutoMovieLoftViewRead.IValues | string =
-      AutoMovieLoftViewRead.values(reader.source, station);
+      AutoMovieEngineLoftViewRead.values(reader.source, station);
     if (typeof inputs === "string")
       throw new Error(`Head tape original value: ${inputs}`);
     let curve: IAutoMovieLoftSectionNative.ICurve | undefined;
@@ -38,7 +38,7 @@ export namespace AutoMovieHumanHeadTapeStation {
      */
     const native: () => IAutoMovieLoftSectionNative.ICurve =
       (): IAutoMovieLoftSectionNative.ICurve => {
-        curve ??= AutoMovieLoftSectionNative.curve(inputs);
+        curve ??= AutoMovieEngineLoftSectionNative.curve(inputs);
         return curve;
       };
     return {
@@ -168,11 +168,11 @@ export namespace AutoMovieHumanHeadTapeStation {
     );
     for (const station of stations) {
       const inputs: IAutoMovieLoftViewRead.IValues | string =
-        AutoMovieLoftViewRead.values(reader.source, station);
+        AutoMovieEngineLoftViewRead.values(reader.source, station);
       if (typeof inputs === "string")
         throw new Error(`Head tape original span: ${inputs}`);
-      const native: ReturnType<typeof AutoMovieLoftSectionNative.point> =
-        AutoMovieLoftSectionNative.point(inputs);
+      const native: ReturnType<typeof AutoMovieEngineLoftSectionNative.point> =
+        AutoMovieEngineLoftSectionNative.point(inputs);
       const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
       if (
         Math.hypot(

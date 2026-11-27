@@ -3,7 +3,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,
@@ -273,7 +273,7 @@ namespace FamilyConicArmscyeLoop {
     const chain = loft.chain;
     return stations.map((s: number, k: number): V => {
       // The ring at the column's station, read as phases about the trunk's course in its chart, and the ring point at the column's phase.
-      const read = AutoMovieLoftChain.sampler(chain, s);
+      const read = AutoMovieEngineLoftChain.sampler(chain, s);
       const ring: { phi: number; p: V }[] = Array.from({ length: 2048 }, (_: unknown, j: number) => {
         const p: V = read((2 * Math.PI * j) / 2048) as V;
         const q: V = sub(SF.toLocal(pelvis, p) as V, floor);

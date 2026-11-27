@@ -9,8 +9,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { requireBuiltConnector } from "./requireBuiltConnector";
 
@@ -72,13 +72,13 @@ export function builtConnectorCarriagePlacements(
         position: IAutoMovieVector3;
         rotation: IAutoMovieQuaternion;
         scale: IAutoMovieVector3;
-      } = Matrix4.decompose(matrix);
+      } = AutoMovieEngineMatrix4.decompose(matrix);
       return {
         carriage: carriage.id,
         element: carriage.element,
         node: `${environment.id}/${carriage.element}`,
         position: world.position,
-        rotation: Quaternion.normalize(world.rotation),
+        rotation: AutoMovieEngineQuaternion.normalize(world.rotation),
         scale: world.scale,
         serves: values.get(carriage.id)?.serves ?? null,
       };

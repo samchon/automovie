@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -55,7 +55,7 @@ export function HumanSwordCutAt(
       const [out, up]: readonly [number, number] =
         HumanSword.LINES[context.params.from ?? "above"];
       const origin: IAutoMovieVector3 = s.world({ out, up, forward: 0 }, a.yaw);
-      const travel: IAutoMovieVector3 = Vector3.scale(origin, -1);
+      const travel: IAutoMovieVector3 = AutoMovieEngineVector3.scale(origin, -1);
 
       // The contact pose: the landing part on the target, the edge leading
       // along the travel, the blade's lean and turn as the arm holds them.
@@ -78,38 +78,38 @@ export function HumanSwordCutAt(
           a.posture,
           HumanSword.FIX,
         );
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         landed.rotation,
         s.tool.axis,
       );
-      const about: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(axis, travel),
+      const about: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(axis, travel),
       );
       // The chamber: the upper arm along the line of attack and the forearm
       // square to it, raised toward where the cut comes from.
-      const chamber: IAutoMovieVector3 = Vector3.add(
+      const chamber: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         s.shoulder,
-        Vector3.add(
-          Vector3.scale(a.line, context.body.measure.upperArm),
-          Vector3.scale(origin, context.body.measure.forearm),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(a.line, context.body.measure.upperArm),
+          AutoMovieEngineVector3.scale(origin, context.body.measure.forearm),
         ),
       );
       const path = (
         progress: number,
       ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-        rotation: Quaternion.multiply(
-          Quaternion.fromAxisAngle(about, -HumanSword.SWING * (1 - progress)),
+        rotation: AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle(about, -HumanSword.SWING * (1 - progress)),
           landed.rotation,
         ),
         // Past the target the edge goes on the way it came, the second
         // half of the unit mirroring the first.
         point:
           progress <= 1
-            ? Vector3.lerp(chamber, landed.point, progress)
-            : Vector3.add(
+            ? AutoMovieEngineVector3.lerp(chamber, landed.point, progress)
+            : AutoMovieEngineVector3.add(
                 landed.point,
-                Vector3.scale(
-                  Vector3.subtract(landed.point, chamber),
+                AutoMovieEngineVector3.scale(
+                  AutoMovieEngineVector3.subtract(landed.point, chamber),
                   progress - 1,
                 ),
               ),
@@ -120,17 +120,17 @@ export function HumanSwordCutAt(
       // unit of progress at contact, the hand's chord plus the turn's
       // `SWING` (radians) about `about` of the arm from the grip to the
       // landing part, is the length the unit is timed on.
-      const arm: IAutoMovieVector3 = Quaternion.rotateVector(
+      const arm: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         landed.rotation,
-        Vector3.subtract(s.tool.tip, Vector3.scale(s.tool.axis, back)),
+        AutoMovieEngineVector3.subtract(s.tool.tip, AutoMovieEngineVector3.scale(s.tool.axis, back)),
       );
       const clock: IAutoMovieMotionClock = HumanSword.timed(
         context,
-        Vector3.length(
-          Vector3.add(
-            Vector3.subtract(landed.point, chamber),
-            Vector3.scale(
-              Vector3.cross(about, arm),
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.subtract(landed.point, chamber),
+            AutoMovieEngineVector3.scale(
+              AutoMovieEngineVector3.cross(about, arm),
               (HumanSword.SWING * Math.PI) / 180,
             ),
           ),

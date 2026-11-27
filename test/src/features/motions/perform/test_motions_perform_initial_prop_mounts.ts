@@ -2,11 +2,14 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
+  AutoMovieMotionHumanObject,
   AutoMovieMotionHumanRefusal,
-  validateInitialPropMounts,
-} from "@automovie/motions/internal";
+} from "@automovie/motions";
+
+import {
+  validateInitialPropMounts
+} from "../../../../../packages/motions/src/perform/internal/validateInitialPropMounts";
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";

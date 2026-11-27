@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -183,11 +183,11 @@ export namespace HumanSupportStepPlants {
     const placed = (item: IAutoMovieAffordance): IAutoMovieRigidTransform => {
       frame ??= reader.frame(seconds);
       return {
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, item.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, item.frame.translation),
         ),
-        rotation: Quaternion.multiply(frame.rotation, item.frame.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(frame.rotation, item.frame.rotation),
       };
     };
     return (reader.prop.affordances ?? [])
@@ -205,7 +205,7 @@ export namespace HumanSupportStepPlants {
       })
       .filter(
         (surface: ISurface): boolean =>
-          Quaternion.rotateVector(surface.rotation, { x: 0, y: 1, z: 0 }).y >=
+          AutoMovieEngineQuaternion.rotateVector(surface.rotation, { x: 0, y: 1, z: 0 }).y >=
           1 - 1e-8,
       );
   }
@@ -220,9 +220,9 @@ export namespace HumanSupportStepPlants {
     surface: ISurface,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(surface.rotation),
-      Vector3.subtract(point, surface.origin),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(surface.rotation),
+      AutoMovieEngineVector3.subtract(point, surface.origin),
     );
   }
 
@@ -261,7 +261,7 @@ export namespace HumanSupportStepPlants {
     );
     return x === null || z === null
       ? null
-      : Quaternion.rotateVector(surface.rotation, { x, y: 0, z });
+      : AutoMovieEngineQuaternion.rotateVector(surface.rotation, { x, y: 0, z });
   }
 
   /*
@@ -329,9 +329,9 @@ export namespace HumanSupportStepPlants {
           ankle: goal.point,
           rotation:
             goal.rotation ??
-            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, middle.yaw),
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, middle.yaw),
         });
-        const centre: IAutoMovieVector3 = Vector3.lerp(sole[0]!, sole[2]!, 0.5);
+        const centre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(sole[0]!, sole[2]!, 0.5);
         if (window.from > 0)
           plant.arrived =
             onto !== undefined
@@ -381,33 +381,33 @@ export namespace HumanSupportStepPlants {
               : correction;
           } else if (bearing === undefined && beside !== undefined) {
             for (const s of surfaces(context, beside, down)) {
-              const edge: IAutoMovieVector3 = Quaternion.rotateVector(
+              const edge: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
                 s.rotation,
                 { x: 0, y: 0, z: 1 },
               );
               const ahead: boolean =
-                Vector3.dot(
+                AutoMovieEngineVector3.dot(
                   edge,
-                  Vector3.subtract(to, context.entry.posture.root),
+                  AutoMovieEngineVector3.subtract(to, context.entry.posture.root),
                 ) > 0;
               const shifted: IAutoMovieVector3[] = footprint.map(
                 (p: IAutoMovieVector3): IAutoMovieVector3 =>
-                  Vector3.add(p, shift),
+                  AutoMovieEngineVector3.add(p, shift),
               );
               const along: number = outside(
                 s,
                 shifted,
                 ahead === plant.arrived,
               );
-              const length: IAutoMovieVector3 = Vector3.normalize(
-                Vector3.subtract(footprint[2]!, footprint[0]!),
+              const length: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+                AutoMovieEngineVector3.subtract(footprint[2]!, footprint[0]!),
               );
-              const facing: number = Vector3.dot(length, edge);
-              shift = Vector3.add(
+              const facing: number = AutoMovieEngineVector3.dot(length, edge);
+              shift = AutoMovieEngineVector3.add(
                 shift,
                 Math.abs(facing) > HEAD_ON
-                  ? Vector3.scale(length, along / facing)
-                  : Vector3.scale(edge, along),
+                  ? AutoMovieEngineVector3.scale(length, along / facing)
+                  : AutoMovieEngineVector3.scale(edge, along),
               );
             }
           }
@@ -417,8 +417,8 @@ export namespace HumanSupportStepPlants {
             plant.arrived
               ? moved(from, leave, 0, moved(onto, down, land, point))
               : moved(from, down, 0, point);
-          plant.shift = Vector3.subtract(
-            unplace(Vector3.add(mid, shift)),
+          plant.shift = AutoMovieEngineVector3.subtract(
+            unplace(AutoMovieEngineVector3.add(mid, shift)),
             unplace(mid),
           );
         }
@@ -451,15 +451,15 @@ function bounds(
   surface: HumanSupportStepPlants.ISurface,
   sole: readonly IAutoMovieVector3[],
 ): IBounds {
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(surface.rotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(surface.rotation);
   let left: number = Infinity;
   let right: number = -Infinity;
   let back: number = Infinity;
   let front: number = -Infinity;
   for (const point of sole) {
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(point, surface.origin),
+      AutoMovieEngineVector3.subtract(point, surface.origin),
     );
     left = Math.min(left, local.x);
     right = Math.max(right, local.x);

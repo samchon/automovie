@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -58,7 +58,7 @@ export function everydayPostureCases(
       let low: number = Infinity;
       for (const side of ["left", "right"] as const)
         for (let k: number = 0; k <= 20; k++) {
-          const p: IAutoMovieVector3 = Vector3.lerp(
+          const p: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
             b.get(`${side}UpperLeg`)!.worldPosition,
             b.get(`${side}LowerLeg`)!.worldPosition,
             k / 20,
@@ -166,8 +166,8 @@ export function everydayPostureCases(
       verdicts.push(
         within(
           `${strategy} palm at the point`,
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               HumanHand.frame(
                 body,
                 performance.bones("a", t),

@@ -5,7 +5,7 @@ import type {
   IAutoMovieSampleContourRing64,
 } from "@automovie/interface";
 
-import { AutoMovieContourLoftCurves64 as C } from "../../AutoMovieContourLoftCurves64";
+import { AutoMovieEngineContourLoftCurves64 as C } from "../../AutoMovieEngineContourLoftCurves64";
 
 /*
  * Sample one declared closed polynomial without leaking a local refusal

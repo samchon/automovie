@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 import { applyDualQuaternionSkinning as applyDualQuaternionSkinningImplementation } from "./dualQuaternionSkinning/internal/applyDualQuaternionSkinning.js";
-import { type IMaterialShaderPatch } from "./IMaterialShaderPatch.js";
+import { type IAutoMovieRenderMaterialShaderPatch } from "./IAutoMovieRenderMaterialShaderPatch.js";
 import { createDualQuaternionSkinningShaderPatch as createDualQuaternionSkinningShaderPatchImplementation } from "./dualQuaternionSkinning/internal/createDualQuaternionSkinningShaderPatch.js";
 import { dualQuaternionSkinningOf as dualQuaternionSkinningOfImplementation } from "./dualQuaternionSkinning/internal/dualQuaternionSkinningOf.js";
 import { dualQuaternionSkinningVertex as dualQuaternionSkinningVertexImplementation } from "./dualQuaternionSkinning/internal/dualQuaternionSkinningVertex.js";
@@ -22,7 +22,7 @@ export namespace AutoMovieRenderDualQuaternionSkinning {
    * rewrites the vertex source only; uniforms, fragment source and the native
    * program configuration stay with the caller and the other registered patches.
    */
-  export function createShaderPatch(): IMaterialShaderPatch {
+  export function createShaderPatch(): IAutoMovieRenderMaterialShaderPatch {
     return createDualQuaternionSkinningShaderPatchImplementation();
   }
 

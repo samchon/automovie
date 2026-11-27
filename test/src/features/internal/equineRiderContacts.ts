@@ -1,7 +1,7 @@
 import {
-  AutoMovieHumanoidSurfaceRays,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineHumanoidSurfaceRays,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -13,7 +13,9 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanHand } from "@automovie/motions/internal";
+import {
+  HumanHand
+} from "../../../../packages/motions/src/posture/internal/HumanHand";
 
 /**
  * How far a rider's displayed palm is from a horse's held contact: a round bar
@@ -56,27 +58,27 @@ export namespace equineRiderContacts {
     const socket: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"];
     // The palm skin under the socket, in the socket bone's frame, at rest.
-    const rays: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
-      AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
+    const rays: ReturnType<typeof AutoMovieEngineHumanoidSurfaceRays.tools> =
+      AutoMovieEngineHumanoidSurfaceRays.tools(body.skeleton, body.profile);
     const rest: IAutoMovieResolvedBone = rays.at(socket.bone);
     const skin: IAutoMovieVector3 = rays.exit(
       socket.bone,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         rest.worldPosition,
-        Quaternion.rotateVector(rest.worldRotation, socket.point),
+        AutoMovieEngineQuaternion.rotateVector(rest.worldRotation, socket.point),
       ),
-      Quaternion.rotateVector(rest.worldRotation, socket.normal),
+      AutoMovieEngineQuaternion.rotateVector(rest.worldRotation, socket.normal),
     );
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(rest.worldRotation),
-      Vector3.subtract(skin, rest.worldPosition),
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(rest.worldRotation),
+      AutoMovieEngineVector3.subtract(skin, rest.worldPosition),
     );
     const hand: IAutoMovieResolvedBone = bones.get(socket.bone)!;
-    const palm: IAutoMovieVector3 = Vector3.add(
+    const palm: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hand.worldPosition,
-      Quaternion.rotateVector(hand.worldRotation, local),
+      AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, local),
     );
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(contact.rotation, {
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(contact.rotation, {
       x: 1,
       y: 0,
       z: 0,
@@ -86,13 +88,13 @@ export namespace equineRiderContacts {
       -half,
       Math.min(
         half,
-        Vector3.dot(Vector3.subtract(palm, contact.translation), axis),
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(palm, contact.translation), axis),
       ),
     );
     return (
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         palm,
-        Vector3.addScaled(contact.translation, axis, along),
+        AutoMovieEngineVector3.addScaled(contact.translation, axis, along),
       ) -
       (affordance.aperture ?? 0) / 2
     );
@@ -123,18 +125,18 @@ export namespace equineRiderContacts {
     affordance: IAutoMovieAffordance,
   ): number {
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-    const palm: IAutoMovieVector3 = Vector3.add(
+    const palm: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hand.worldPosition,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         hand.worldRotation,
         HumanHand.offset(body, side, "palm").point,
       ),
     );
-    return Vector3.distance(
+    return AutoMovieEngineVector3.distance(
       palm,
-      Vector3.addScaled(
+      AutoMovieEngineVector3.addScaled(
         contact.translation,
-        Quaternion.rotateVector(contact.rotation, { x: 0, y: 1, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(contact.rotation, { x: 0, y: 1, z: 0 }),
         (affordance.aperture ?? 0) / 2,
       ),
     );

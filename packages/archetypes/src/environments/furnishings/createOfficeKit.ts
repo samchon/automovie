@@ -1,4 +1,4 @@
-import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -36,7 +36,7 @@ import { furnishRoom } from "./furnishRoom";
  * do not fit, naming the role or the `desks` count.
  */
 export function createOfficeKit(
-  params: AutoMovieEnvironmentFurnishing.IOfficeKitParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.IOfficeKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

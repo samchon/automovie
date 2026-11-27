@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeBuilder } from "../../core";
@@ -71,26 +71,26 @@ export namespace QuadrupedNostrils {
       throw new RangeError(
         "Nostrils need 0 < radius < 1 and 0 <= back < 1 of their head",
       );
-    const span: IAutoMovieVector3 = Vector3.subtract(head.nose, head.poll);
-    const length: number = Vector3.length(span);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(head.nose, head.poll);
+    const length: number = AutoMovieEngineVector3.length(span);
     if (!(length > 0))
       throw new RangeError(
         "Nostrils need a head with a finite positive length",
       );
-    const along: IAutoMovieVector3 = Vector3.scale(span, 1 / length);
-    const lateral: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross({ x: 0, y: 1, z: 0 }, along),
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(span, 1 / length);
+    const lateral: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross({ x: 0, y: 1, z: 0 }, along),
     );
     const radius: number = profile.radius * head.headRadius;
     const reach: number = head.headRadius - radius;
     const side = (sign: number): IAutoMovieVector3 => {
-      const direction: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.add(
-          Vector3.scale(lateral, sign),
-          Vector3.scale(along, 1 - profile.back),
+      const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(lateral, sign),
+          AutoMovieEngineVector3.scale(along, 1 - profile.back),
         ),
       );
-      return Vector3.addScaled(head.nose, direction, reach);
+      return AutoMovieEngineVector3.addScaled(head.nose, direction, reach);
     };
     return { left: side(1), right: side(-1), radius };
   }

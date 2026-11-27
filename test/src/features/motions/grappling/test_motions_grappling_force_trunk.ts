@@ -1,5 +1,7 @@
 import type { AutoMovieHumanoidBone, IAutoMovieBone } from "@automovie/interface";
-import { HumanForceTrunk } from "@automovie/motions/internal";
+import {
+  HumanForceTrunk
+} from "../../../../../packages/motions/src/grappling/internal/HumanForceTrunk";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

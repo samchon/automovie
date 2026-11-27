@@ -1,8 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieEnvironmentModule, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
-import type { AutoMovieEnvironment } from "../../AutoMovieEnvironment";
+import type { AutoMovieArchetypeEnvironment } from "../../AutoMovieArchetypeEnvironment";
 
 /*
  * Resolve named stops on an upright shaft, in increasing local height. A
@@ -12,16 +12,16 @@ import type { AutoMovieEnvironment } from "../../AutoMovieEnvironment";
  */
 export function liftStopHeights(
   context: IAutoMovieEnvironmentModule.IContext,
-  stops: AutoMovieEnvironment.ILiftProps["stops"],
+  stops: AutoMovieArchetypeEnvironment.ILiftProps["stops"],
   doorHeight: number,
 ): liftStopHeights.IStop[] {
-  const up: IAutoMovieVector3 = Vector3.create(0, 1, 0);
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 1, 0);
   if (
-    Vector3.distance(AutoMovieArchetypeFrame.axis(context.frame, "y"), up) >
+    AutoMovieEngineVector3.distance(AutoMovieArchetypeFrame.axis(context.frame, "y"), up) >
     ALIGNMENT
   )
     throw new Error(`Lift ${context.id} must be upright.`);
-  const inverse = Quaternion.inverse(context.frame.rotation);
+  const inverse = AutoMovieEngineQuaternion.inverse(context.frame.rotation);
   const forward: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
     context.frame,
     "z",
@@ -29,26 +29,26 @@ export function liftStopHeights(
   const result: liftStopHeights.IStop[] = Object.entries(stops).map(
     ([id, value]: [
       string,
-      AutoMovieEnvironment.ILiftStop,
+      AutoMovieArchetypeEnvironment.ILiftStop,
     ]): liftStopHeights.IStop => {
       const label: string = `Lift ${context.id} stop ${id}`;
       if (id.trim() !== id || id.length === 0 || id.includes("/"))
         throw new Error(`Lift ${context.id} has an invalid stop name: ${id}.`);
       const local: IAutoMovieVector3 = (() => {
-        if (typeof value === "number") return Vector3.create(0, value, 0);
+        if (typeof value === "number") return AutoMovieEngineVector3.create(0, value, 0);
         const anchor: IAutoMovieTransform = context.anchor(value.anchor);
         if (
-          Vector3.distance(AutoMovieArchetypeFrame.axis(anchor, "y"), up) >
+          AutoMovieEngineVector3.distance(AutoMovieArchetypeFrame.axis(anchor, "y"), up) >
             ALIGNMENT ||
-          Vector3.distance(AutoMovieArchetypeFrame.axis(anchor, "z"), forward) >
+          AutoMovieEngineVector3.distance(AutoMovieArchetypeFrame.axis(anchor, "z"), forward) >
             ALIGNMENT
         )
           throw new Error(
             `${label} sill must face the same upright landing as the shaft.`,
           );
-        return Quaternion.rotateVector(
+        return AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(anchor.translation, context.frame.translation),
+          AutoMovieEngineVector3.subtract(anchor.translation, context.frame.translation),
         );
       })();
       if (Math.hypot(local.x, local.z) > ALIGNMENT)

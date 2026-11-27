@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeLecternData from "./internal/AutoMovieArchetypeLecternData";
+import { AutoMovieArchetypeLecternData } from "./internal/AutoMovieArchetypeLecternData";
 
 /** Constructs the lectern archetype from its recipe. */
 export namespace AutoMovieArchetypeLectern {
@@ -52,7 +52,7 @@ export function create(
     name: "lectern",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const slope: number = d.slope * AutoMovieArchetypeUnits.DEGREE;
   const run: number = d.depth * Math.cos(slope);
   const front: number = d.height - d.depth * Math.sin(slope);
@@ -70,7 +70,7 @@ export function create(
     v(0, middle.y, middle.z),
     {
       color: "#7d5a3c",
-      rotation: Quaternion.fromAxisAngle(v(1, 0, 0), d.slope),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle(v(1, 0, 0), d.slope),
     },
   );
   const normal: ReturnType<typeof v> = v(0, Math.cos(slope), Math.sin(slope));

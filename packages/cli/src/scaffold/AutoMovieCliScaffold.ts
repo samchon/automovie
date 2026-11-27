@@ -1,7 +1,7 @@
 import type { IAutoMovieTemplateScaffoldProps } from "@automovie/template";
 
 import type { AutoMovieCommand } from "../command/AutoMovieCommand";
-import type { AutoMovieCliProjectNameSelection } from "./AutoMovieCliProjectNameSelection";
+import type { IAutoMovieCliProjectNameSelection } from "./IAutoMovieCliProjectNameSelection";
 import { AUTOMOVIE_DEFAULT_PROJECT_NAME } from "./internal/AUTOMOVIE_DEFAULT_PROJECT_NAME";
 import { deriveAutoMovieProjectName } from "./internal/deriveAutoMovieProjectName";
 import { promptAutoMovieProjectName } from "./internal/promptAutoMovieProjectName";
@@ -56,7 +56,7 @@ export namespace AutoMovieCliScaffold {
    * needed.
    */
   export function selectProjectName(
-    props: AutoMovieCliProjectNameSelection,
+    props: IAutoMovieCliProjectNameSelection,
   ): string | undefined {
     return selectAutoMovieProjectName(props);
   }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
@@ -9,7 +9,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanLanceCouchCarriage } from "./HumanLanceCouchCarriage";
 import { HumanLanceCouchClear } from "./HumanLanceCouchClear";
 import { HumanLanceCouchPick } from "./HumanLanceCouchPick";
-import * as HumanLanceCouchHangingData from "./HumanLanceCouchHangingData";
+import { HumanLanceCouchHangingData } from "./HumanLanceCouchHangingData";
 
 /*
  * The carry from the arm's own line: the upper arm out and down from the
@@ -37,22 +37,22 @@ export function HumanLanceCouchHanging(
   horse: HumanLanceCouchClear.IHorseBody,
   reaches: (laid: HumanLanceCouchCarriage.ICarriage) => number,
 ): HumanLanceCouchCarriage.ICarriage {
-  const d: IAutoMovieVector3 = Vector3.normalize(along);
+  const d: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(along);
   const alpha: number = Math.acos(
     Math.max(
       -1,
-      Math.min(1, Vector3.dot(arm.line, Vector3.normalize(tool.axis))),
+      Math.min(1, AutoMovieEngineVector3.dot(arm.line, AutoMovieEngineVector3.normalize(tool.axis))),
     ),
   );
   const seed: IAutoMovieVector3 =
     Math.abs(d.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 };
-  const p: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(seed, Vector3.scale(d, Vector3.dot(seed, d))),
+  const p: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(seed, AutoMovieEngineVector3.scale(d, AutoMovieEngineVector3.dot(seed, d))),
   );
-  const q: IAutoMovieVector3 = Vector3.cross(d, p);
-  const elbow: IAutoMovieVector3 = Vector3.add(
+  const q: IAutoMovieVector3 = AutoMovieEngineVector3.cross(d, p);
+  const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     shoulder,
-    Vector3.scale(Vector3.normalize(HumanLanceCouchHangingData.UPPER), arm.upperArm),
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(HumanLanceCouchHangingData.UPPER), arm.upperArm),
   );
   const options: HumanLanceCouchPick.IOption[] = [];
   let laidCount: number = 0;
@@ -62,17 +62,17 @@ export function HumanLanceCouchHanging(
     around += HumanLanceCouchHanging.AROUND
   ) {
     const phi: number = (around * Math.PI) / 180;
-    const u: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(p, Math.cos(phi)),
-      Vector3.scale(q, Math.sin(phi)),
+    const u: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(p, Math.cos(phi)),
+      AutoMovieEngineVector3.scale(q, Math.sin(phi)),
     );
-    const f: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(d, Math.cos(alpha)),
-      Vector3.scale(u, Math.sin(alpha)),
+    const f: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(d, Math.cos(alpha)),
+      AutoMovieEngineVector3.scale(u, Math.sin(alpha)),
     );
-    const grip: IAutoMovieVector3 = Vector3.add(
+    const grip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       elbow,
-      Vector3.scale(f, arm.fore),
+      AutoMovieEngineVector3.scale(f, arm.fore),
     );
     try {
       const laid: HumanLanceCouchCarriage.ICarriage = HumanLanceCouchCarriage(
@@ -86,7 +86,7 @@ export function HumanLanceCouchHanging(
       if (!HumanLanceCouchClear(horse, laid)) continue;
       options.push({
         laid,
-        turn: Quaternion.angle(laid.hand.rotation, entered),
+        turn: AutoMovieEngineQuaternion.angle(laid.hand.rotation, entered),
       });
     } catch (error: unknown) {
       if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;

@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -52,7 +52,7 @@ export function QuadrupedRestFloor(
   );
   if (!(Math.abs(norm - 1) <= 64 * Number.EPSILON))
     throw new RangeError(`Rest requires a unit rotation: ${part.id}`);
-  const unit: IAutoMovieQuaternion = Quaternion.normalize(rotation);
+  const unit: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(rotation);
   if (shape === undefined) {
     const cell: AutoMovieArchetypeConvexCell.ICell | undefined = cells?.get(part.id);
     if (cell === undefined || cell.geometry !== part.geometry)
@@ -60,7 +60,7 @@ export function QuadrupedRestFloor(
     // A linear coordinate on a closed convex cell takes its minimum at a corner.
     let minimum: number = Infinity;
     for (const point of cell.points)
-      minimum = Math.min(minimum, Quaternion.rotateVectorY(unit, point));
+      minimum = Math.min(minimum, AutoMovieEngineQuaternion.rotateVectorY(unit, point));
     return part.transform.translation.y + minimum;
   }
   const base: Pick<IAutoMoviePhysicalShape, "id" | "material" | "transform"> = {
@@ -98,7 +98,7 @@ export function QuadrupedRestFloor(
         z: shape.depth / 2,
       },
     }).min.y;
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     base.transform.rotation,
     { x: 0, y: 1, z: 0 },
   );

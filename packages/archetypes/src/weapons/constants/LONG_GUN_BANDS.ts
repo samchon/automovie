@@ -6,7 +6,7 @@ import {
 import { AutoMovieArchetypeFirearm } from "../internal/AutoMovieArchetypeFirearm";
 import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
 import type { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
-import * as LongGunBandsData from "./internal/LongGunBandsData";
+import { LongGunBandsData } from "./internal/LongGunBandsData";
 
 /*
  * The band of each free dimension of `createLongGun` a model leaves, by kind,

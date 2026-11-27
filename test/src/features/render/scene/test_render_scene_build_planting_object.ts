@@ -7,7 +7,7 @@ import type {
   IAutoMoviePlantingPlacement,
   IAutoMoviePlantingState,
 } from "@automovie/interface";
-import { AutoMovieThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
+import { AutoMovieRenderThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -94,7 +94,7 @@ export function test_render_scene_build_planting_object(): void {
       leafInstances: object.leaves?.count ?? -1,
       instancedMeshes: object.object.children.filter(
         (child: THREE.Object3D<THREE.Object3DEventMap>): boolean =>
-          AutoMovieThreeKind.isInstancedMesh(child),
+          AutoMovieRenderThreeKind.isInstancedMesh(child),
       ).length,
     },
     {

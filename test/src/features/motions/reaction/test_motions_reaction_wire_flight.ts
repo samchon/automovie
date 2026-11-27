@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { wireFlight } from "@automovie/motions/internal";
+import {
+  wireFlight
+} from "../../../../../packages/motions/src/reaction/internal/wireFlight";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

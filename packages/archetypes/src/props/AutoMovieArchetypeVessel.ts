@@ -12,7 +12,7 @@ import { AutoMovieArchetypeAshtray } from "./AutoMovieArchetypeAshtray";
 import { AutoMovieArchetypeBowl } from "./AutoMovieArchetypeBowl";
 import { AutoMovieArchetypeCookingPot } from "./AutoMovieArchetypeCookingPot";
 import { AutoMovieArchetypeVase } from "./AutoMovieArchetypeVase";
-import * as AutoMovieArchetypeVesselData from "./internal/AutoMovieArchetypeVesselData";
+import { AutoMovieArchetypeVesselData } from "./internal/AutoMovieArchetypeVesselData";
 
 /** Constructs the vessel archetype from its recipe. */
 export namespace AutoMovieArchetypeVessel {

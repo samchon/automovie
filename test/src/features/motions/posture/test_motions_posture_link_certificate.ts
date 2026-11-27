@@ -7,7 +7,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanLinkCertificate } from "@automovie/motions/internal";
+import {
+  HumanLinkCertificate
+} from "../../../../../packages/motions/src/posture/internal/HumanLinkCertificate";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

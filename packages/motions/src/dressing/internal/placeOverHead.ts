@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -38,7 +38,7 @@ import { placeOverHeadLean } from "./placeOverHeadLean";
 import { placeOverHeadPartner } from "./placeOverHeadPartner";
 import { placeOverHeadPath } from "./placeOverHeadPath";
 import { placeOverHeadStance } from "./placeOverHeadStance";
-import * as PlaceOverHeadData from "./PlaceOverHeadData";
+import { PlaceOverHeadData } from "./PlaceOverHeadData";
 
 /*
  * Set a neck loop over a partner's head. The loop's path is
@@ -130,15 +130,15 @@ function planPlaceOverHead(
   };
 
   // The handle the holding hand has: the one nearest its grip socket.
-  const socket: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(held.frame.rotation),
-    Vector3.scale(held.frame.position, -1),
+  const socket: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(held.frame.rotation),
+    AutoMovieEngineVector3.scale(held.frame.position, -1),
   );
   const handles: readonly Handle[] = ["holdLeft", "holdRight"];
   const kept: Handle = handles.reduce(
     (a: Handle, b: Handle): Handle =>
-      Vector3.distance(site(b).frame.translation, socket) <
-      Vector3.distance(site(a).frame.translation, socket)
+      AutoMovieEngineVector3.distance(site(b).frame.translation, socket) <
+      AutoMovieEngineVector3.distance(site(a).frame.translation, socket)
         ? b
         : a,
   );
@@ -158,9 +158,9 @@ function planPlaceOverHead(
   // back edge, and its half-breadth.
   const opening: IAutoMovieAffordance = site("opening");
   const wear: IAutoMovieVector3 = site("wear").frame.translation;
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     opening.frame.translation,
-    Quaternion.rotateVector(opening.frame.rotation, {
+    AutoMovieEngineQuaternion.rotateVector(opening.frame.rotation, {
       x: 0,
       y: (opening.height ?? 0) / 2,
       z: 0,
@@ -184,7 +184,7 @@ function planPlaceOverHead(
       // (the grip socket's distance from the palm), and its fingers clear the
       // partner's chest by the audit's skin as the loop is worn.
       clearance:
-        Vector3.distance(
+        AutoMovieEngineVector3.distance(
           HumanHand.offset(body, side, "grip").point,
           HumanHand.offset(body, side, "palm").point,
         ) + AutoMovieMotionHumanAuditSkin.BUILT,
@@ -205,7 +205,7 @@ function planPlaceOverHead(
       },
     );
     return {
-      position: Vector3.subtract(at, Quaternion.rotateVector(rotation, centre)),
+      position: AutoMovieEngineVector3.subtract(at, AutoMovieEngineQuaternion.rotateVector(rotation, centre)),
       rotation,
     };
   })();
@@ -299,7 +299,7 @@ function planPlaceOverHead(
     ),
   };
   const prepare: number = AutoMovieMotionHumanTiming.transport(
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       AutoMovieMotionHumanArmTarget.point(entry, origins[other]),
       grasping(presented).point,
     ),
@@ -310,11 +310,11 @@ function planPlaceOverHead(
     hold: AutoMovieMotionHumanTiming.seconds("beat"),
     retract: AutoMovieMotionHumanTiming.transport(
       Math.max(
-        Vector3.distance(
+        AutoMovieEngineVector3.distance(
           holding(path.worn).point,
           AutoMovieMotionHumanArmTarget.point(entry, origins[side]),
         ),
-        Vector3.distance(
+        AutoMovieEngineVector3.distance(
           grasping(path.worn).point,
           AutoMovieMotionHumanArmTarget.point(entry, origins[other]),
         ),

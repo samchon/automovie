@@ -1,4 +1,4 @@
-import { Vector3, hingedArmSwivel, swivelArcs } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineHingedArmSwivel, AutoMovieEngineSwivelArcs } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -19,7 +19,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * wrist's place leaves the elbow (the swivel of Tolani, Goswami and Badler
  * 2000). The elbow on the circle is `C + ρ(u cos ψ + v sin ψ)`, so its signed
  * distance past any plane is one sinusoid of the swivel, refused on the arc
- * between its roots (`swivelArcs`); a hint is kept when its swivel meets every
+ * between its roots (`AutoMovieEngineSwivelArcs`); a hint is kept when its swivel meets every
  * bound, else moved to the nearest swivel that does. The drinking range is four
  * such bounds (`AutoMovieMotionHumanDrinkingSwivel`).
  */
@@ -61,11 +61,11 @@ export namespace AutoMovieMotionHumanSwivelBound {
       bones.get(bone)!.worldPosition;
     return {
       shoulder: at(`${side}UpperArm`),
-      upper: Vector3.length(
-        Vector3.subtract(at(`${side}LowerArm`), at(`${side}UpperArm`)),
+      upper: AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(at(`${side}LowerArm`), at(`${side}UpperArm`)),
       ),
-      lower: Vector3.length(
-        Vector3.subtract(at(`${side}Hand`), at(`${side}LowerArm`)),
+      lower: AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(at(`${side}Hand`), at(`${side}LowerArm`)),
       ),
     };
   }
@@ -87,37 +87,37 @@ export namespace AutoMovieMotionHumanSwivelBound {
     bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[],
   ): boolean {
     const { shoulder, upper, lower } = of;
-    const reach: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
-    const distance: number = Vector3.length(reach);
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, shoulder);
+    const distance: number = AutoMovieEngineVector3.length(reach);
     if (
       !(distance > 1e-9) ||
       distance >= upper + lower ||
       distance <= Math.abs(upper - lower)
     )
       return false;
-    const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.scale(reach, 1 / distance);
     const foot: number =
       (upper * upper - lower * lower + distance * distance) / (2 * distance);
     const radius: number = Math.sqrt(Math.max(0, upper * upper - foot * foot));
 
     // Any direction across the line serves as the swivel's zero: the union
     // covering every swivel does not depend on where the turn starts.
-    const across: IAutoMovieVector3 = Vector3.cross(
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
       line,
       Math.abs(line.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 },
     );
-    const u: IAutoMovieVector3 = Vector3.normalize(across);
-    const v: IAutoMovieVector3 = Vector3.cross(line, u);
+    const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(across);
+    const v: IAutoMovieVector3 = AutoMovieEngineVector3.cross(line, u);
     const at: (swivel: number) => IAutoMovieVector3 = (
       swivel: number,
     ): IAutoMovieVector3 => {
       const r: number = (swivel * Math.PI) / 180;
-      return Vector3.add(
-        Vector3.scale(line, foot),
-        Vector3.scale(
-          Vector3.add(
-            Vector3.scale(u, Math.cos(r)),
-            Vector3.scale(v, Math.sin(r)),
+      return AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(line, foot),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(u, Math.cos(r)),
+            AutoMovieEngineVector3.scale(v, Math.sin(r)),
           ),
           radius,
         ),
@@ -129,25 +129,25 @@ export namespace AutoMovieMotionHumanSwivelBound {
         elbow: IAutoMovieVector3,
       ): number =>
         -(
-          Vector3.dot(
+          AutoMovieEngineVector3.dot(
             bound.normal,
-            Vector3.subtract(elbow, Vector3.subtract(bound.point, shoulder)),
+            AutoMovieEngineVector3.subtract(elbow, AutoMovieEngineVector3.subtract(bound.point, shoulder)),
           ) - bound.margin
         );
-      const arc: AdmitsArc = swivelArcs.above(
-        swivelArcs.fitted(past(at(0)), past(at(90)), past(at(180))),
+      const arc: AdmitsArc = AutoMovieEngineSwivelArcs.above(
+        AutoMovieEngineSwivelArcs.fitted(past(at(0)), past(at(90)), past(at(180))),
         0,
       );
       if (arc === "all") return false;
       if (arc !== null) refused.push(arc);
     }
-    return swivelArcs.union(refused) !== "all";
+    return AutoMovieEngineSwivelArcs.union(refused) !== "all";
   }
 
   /*
    * An elbow hint kept inside half-plane bounds: the hint itself when its
    * swivel meets them all, else the place on its circle at the nearest swivel
-   * that does, stood the swivel's resolution (`hingedArmSwivel.RESOLUTION`)
+   * that does, stood the swivel's resolution (`AutoMovieEngineHingedArmSwivel.RESOLUTION`)
    * inside that end. The hint is kept when no swivel meets them all, or the
    * wrist leaves no circle.
    * Parameter of: The arm.
@@ -163,34 +163,34 @@ export namespace AutoMovieMotionHumanSwivelBound {
     bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[],
   ): IAutoMovieVector3 {
     const { shoulder, upper, lower } = of;
-    const reach: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
-    const distance: number = Vector3.length(reach);
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, shoulder);
+    const distance: number = AutoMovieEngineVector3.length(reach);
     if (
       !(distance > 1e-9) ||
       distance >= upper + lower ||
       distance <= Math.abs(upper - lower)
     )
       return hint;
-    const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.scale(reach, 1 / distance);
     const foot: number =
       (upper * upper - lower * lower + distance * distance) / (2 * distance);
     const radius: number = Math.sqrt(Math.max(0, upper * upper - foot * foot));
-    const radial: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.subtract(hint, shoulder),
-      Vector3.scale(line, Vector3.dot(Vector3.subtract(hint, shoulder), line)),
+    const radial: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.subtract(hint, shoulder),
+      AutoMovieEngineVector3.scale(line, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(hint, shoulder), line)),
     );
-    if (!(Vector3.length(radial) > 1e-9)) return hint;
-    const u: IAutoMovieVector3 = Vector3.normalize(radial);
-    const v: IAutoMovieVector3 = Vector3.cross(line, u);
+    if (!(AutoMovieEngineVector3.length(radial) > 1e-9)) return hint;
+    const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(radial);
+    const v: IAutoMovieVector3 = AutoMovieEngineVector3.cross(line, u);
     // The elbow from the shoulder at a swivel from the hint's, degrees.
     const offset = (swivel: number): IAutoMovieVector3 => {
       const r: number = (swivel * Math.PI) / 180;
-      return Vector3.add(
-        Vector3.scale(line, foot),
-        Vector3.scale(
-          Vector3.add(
-            Vector3.scale(u, Math.cos(r)),
-            Vector3.scale(v, Math.sin(r)),
+      return AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(line, foot),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(u, Math.cos(r)),
+            AutoMovieEngineVector3.scale(v, Math.sin(r)),
           ),
           radius,
         ),
@@ -208,15 +208,15 @@ export namespace AutoMovieMotionHumanSwivelBound {
       at: IAutoMovieVector3,
     ): number =>
       -(
-        Vector3.dot(
+        AutoMovieEngineVector3.dot(
           bound.normal,
-          Vector3.subtract(at, Vector3.subtract(bound.point, shoulder)),
+          AutoMovieEngineVector3.subtract(at, AutoMovieEngineVector3.subtract(bound.point, shoulder)),
         ) - bound.margin
       );
     const refused: IAutoMovieSwivelArcs.IArc[] = [];
     for (const bound of bounds) {
-      const arc: BoundedArc = swivelArcs.above(
-        swivelArcs.fitted(
+      const arc: BoundedArc = AutoMovieEngineSwivelArcs.above(
+        AutoMovieEngineSwivelArcs.fitted(
           past(bound, zero),
           past(bound, quarter),
           past(bound, half),
@@ -226,19 +226,19 @@ export namespace AutoMovieMotionHumanSwivelBound {
       if (arc === "all") return hint;
       if (arc !== null) refused.push(arc);
     }
-    const merged: BoundedMerged = swivelArcs.union(refused);
-    const end: number | null = swivelArcs.nearest(merged, 0);
+    const merged: BoundedMerged = AutoMovieEngineSwivelArcs.union(refused);
+    const end: number | null = AutoMovieEngineSwivelArcs.nearest(merged, 0);
     if (end === null || end === 0) return hint;
 
     // The nearest end lies on a bound, where a fit that keeps the hint's
-    // swivel to its own resolution (`hingedArmSwivel.RESOLUTION`) lands on
+    // swivel to its own resolution (`AutoMovieEngineHingedArmSwivel.RESOLUTION`) lands on
     // either side of it; the hint stands that resolution inside, away from
     // the refused arc, unless that enters another.
-    const inside: number = end + Math.sign(end) * hingedArmSwivel.RESOLUTION;
-    const swivel: number = swivelArcs.covers(merged, inside, inside)
+    const inside: number = end + Math.sign(end) * AutoMovieEngineHingedArmSwivel.RESOLUTION;
+    const swivel: number = AutoMovieEngineSwivelArcs.covers(merged, inside, inside)
       ? end
       : inside;
-    return Vector3.add(shoulder, offset(swivel));
+    return AutoMovieEngineVector3.add(shoulder, offset(swivel));
   }
 }
 

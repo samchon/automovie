@@ -1,4 +1,6 @@
-import { palmSagitta } from "@automovie/motions/internal";
+import {
+  palmSagitta
+} from "../../../../../packages/motions/src/everyday/internal/palmSagitta";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

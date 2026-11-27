@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -198,8 +198,8 @@ export namespace hurdleClear {
     const left: IAutoMovieVector3 = { x: ahead.z, y: 0, z: -ahead.x };
     const along: (p: IAutoMovieVector3) => number = (
       p: IAutoMovieVector3,
-    ): number => Vector3.dot(p, ahead);
-    const before: number = along(Vector3.subtract(bar.at, approach.ankle));
+    ): number => AutoMovieEngineVector3.dot(p, ahead);
+    const before: number = along(AutoMovieEngineVector3.subtract(bar.at, approach.ankle));
     if (!(before >= TAKEOFF[0] && before <= TAKEOFF[1]))
       throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
@@ -220,7 +220,7 @@ export namespace hurdleClear {
     const top: number = bar.at.y + bar.height;
     const across: (p: IAutoMovieVector3) => number = (
       p: IAutoMovieVector3,
-    ): number => Vector3.dot(p, left);
+    ): number => AutoMovieEngineVector3.dot(p, left);
     const rootLine: number = across(entry.root);
     const line: (side: AutoMovieHumanSide) => number = (
       side: AutoMovieHumanSide,
@@ -242,11 +242,11 @@ export namespace hurdleClear {
       const lateral: number =
         line(side) + (side === "left" ? out : -out) - across(bar.at);
       return {
-        ...Vector3.add(
+        ...AutoMovieEngineVector3.add(
           bar.at,
-          Vector3.add(
-            Vector3.scale(ahead, distance),
-            Vector3.scale(left, lateral),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(ahead, distance),
+            AutoMovieEngineVector3.scale(left, lateral),
           ),
         ),
         y: height,
@@ -271,10 +271,10 @@ export namespace hurdleClear {
     // The hips: from the entry to the run's own toe-off over the stance,
     // then the parabola to the landing, the lead foot as far ahead of the
     // hips as the take-off foot was at the cut.
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const r0: IAutoMovieVector3 = AthleticsRunUp.hips(body, entry);
     const v0: IAutoMovieVector3 = context.entry.velocity.linear;
-    const flat: IAutoMovieVector3 = Vector3.scale(ahead, approach.speed);
+    const flat: IAutoMovieVector3 = AutoMovieEngineVector3.scale(ahead, approach.speed);
     // At toe-off the take-off leg stands nearly straight (McLean 1994,
     // "Biomechanics of sprint hurdling"; the knee near 165 degrees), so the
     // hips rise to `REACH` of the leg's length above the toe-off ankle,
@@ -296,11 +296,11 @@ export namespace hurdleClear {
           Math.sqrt(Math.max(0, (REACH * leg) ** 2 - behind * behind)),
       ),
     };
-    const reachAhead: number = along(Vector3.subtract(approach.ankle, r0));
+    const reachAhead: number = along(AutoMovieEngineVector3.subtract(approach.ankle, r0));
     // The landing leg meets the floor flexed to `LAND` of its length, so
     // the hips come down no higher than that reach above the lead ankle.
     const r2: IAutoMovieVector3 = {
-      ...Vector3.subtract(landing.ankle, Vector3.scale(ahead, reachAhead)),
+      ...AutoMovieEngineVector3.subtract(landing.ankle, AutoMovieEngineVector3.scale(ahead, reachAhead)),
       y: Math.min(
         r0.y,
         landing.ankle.y +
@@ -313,12 +313,12 @@ export namespace hurdleClear {
     const recovery: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: on(
         take,
-        along(Vector3.subtract(r2, bar.at)) + 0.1 * leg,
+        along(AutoMovieEngineVector3.subtract(r2, bar.at)) + 0.1 * leg,
         bar.at.y + 0.35 * leg,
       ),
       rotation: landing.rotation,
     };
-    const fly: number = along(Vector3.subtract(r2, r1)) / approach.speed;
+    const fly: number = along(AutoMovieEngineVector3.subtract(r2, r1)) / approach.speed;
     const vy: number = (r2.y - r1.y) / fly + (g * fly) / 2;
     const v1: IAutoMovieVector3 = { x: flat.x, y: vy, z: flat.z };
     const off: number = approach.stance;
@@ -327,7 +327,7 @@ export namespace hurdleClear {
     const crossing: number =
       off +
       along(
-        Vector3.subtract(Vector3.add(bar.at, Vector3.scale(ahead, middle)), r1),
+        AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.add(bar.at, AutoMovieEngineVector3.scale(ahead, middle)), r1),
       ) /
         approach.speed;
     if (!(crossing > off && crossing < down))
@@ -349,9 +349,9 @@ export namespace hurdleClear {
         const h10: number = s ** 3 - 2 * s ** 2 + s;
         const h01: number = -2 * s ** 3 + 3 * s ** 2;
         const h11: number = s ** 3 - s ** 2;
-        return Vector3.add(
-          Vector3.add(Vector3.scale(r0, h00), Vector3.scale(v0, h10 * off)),
-          Vector3.add(Vector3.scale(r1, h01), Vector3.scale(v1, h11 * off)),
+        return AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(r0, h00), AutoMovieEngineVector3.scale(v0, h10 * off)),
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(r1, h01), AutoMovieEngineVector3.scale(v1, h11 * off)),
         );
       }
       const f: number = Math.min(t, down) - off;
@@ -362,7 +362,7 @@ export namespace hurdleClear {
       };
       return t <= down
         ? flown
-        : Vector3.add(flown, Vector3.scale(flat, t - down));
+        : AutoMovieEngineVector3.add(flown, AutoMovieEngineVector3.scale(flat, t - down));
     };
 
     // The trail foot crosses the bar's plane with the hips `TUCK` past the
@@ -441,9 +441,9 @@ export namespace hurdleClear {
           };
           return {
             ...pitched,
-            root: Vector3.subtract(
+            root: AutoMovieEngineVector3.subtract(
               root(seconds),
-              Quaternion.rotateVector(humanPostureHeading(pitched), hipsRest),
+              AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(pitched), hipsRest),
             ),
           };
         },

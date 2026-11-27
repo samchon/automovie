@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import "../../math/Quaternion";
-import "../../math/Vector3";
+import "../../math/AutoMovieEngineQuaternion";
+import "../../math/AutoMovieEngineVector3";
 import { composePoseFrames } from "./composePoseFrames";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
 import { preparePoseJointResolution } from "./preparePoseJointResolution";
@@ -17,7 +17,7 @@ import { preparePosePlacement } from "./preparePosePlacement";
 import { preparePoseReading } from "./preparePoseReading";
 import { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 import type { preparePoseTupleScan } from "./preparePoseTupleScan";
-import * as PreparePoseResolutionStateData from "./PreparePoseResolutionStateData";
+import { PreparePoseResolutionStateData } from "./PreparePoseResolutionStateData";
 
 /*
  * Own the dynamic FK rows of one operation on one immutable prepared rig.

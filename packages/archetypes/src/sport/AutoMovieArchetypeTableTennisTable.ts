@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -44,22 +44,22 @@ export function create(
   const leg: number = 0.05;
   builder.box(
     "top",
-    Vector3.create(WIDTH, top, LENGTH),
-    Vector3.create(0, HEIGHT - top / 2, 0),
+    AutoMovieEngineVector3.create(WIDTH, top, LENGTH),
+    AutoMovieEngineVector3.create(0, HEIGHT - top / 2, 0),
     { color: "#1d4f8f" },
   );
   builder.box(
     "net",
-    Vector3.create(WIDTH + 2 * NET, NET, 0.004),
-    Vector3.create(0, HEIGHT + NET / 2, 0),
+    AutoMovieEngineVector3.create(WIDTH + 2 * NET, NET, 0.004),
+    AutoMovieEngineVector3.create(0, HEIGHT + NET / 2, 0),
     { color: "#f2f2f2" },
   );
   for (const x of [-1, 1])
     for (const z of [-1, 1])
       builder.box(
         `leg-${x < 0 ? "left" : "right"}-${z < 0 ? "near" : "far"}`,
-        Vector3.create(leg, HEIGHT - top, leg),
-        Vector3.create(
+        AutoMovieEngineVector3.create(leg, HEIGHT - top, leg),
+        AutoMovieEngineVector3.create(
           x * (WIDTH / 2 - 2 * leg),
           (HEIGHT - top) / 2,
           z * (LENGTH / 2 - 2 * leg),
@@ -69,7 +69,7 @@ export function create(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, HEIGHT, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, HEIGHT, 0)),
     extent: null,
     width: WIDTH,
     depth: LENGTH,
@@ -77,7 +77,7 @@ export function create(
   builder.affordance({
     id: "net",
     kind: "socket",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, HEIGHT + NET, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, HEIGHT + NET, 0)),
     extent: null,
   });
   for (const [id, z] of [
@@ -87,7 +87,7 @@ export function create(
     builder.affordance({
       id,
       kind: "socket",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, HEIGHT, z)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, HEIGHT, z)),
       extent: null,
     });
 

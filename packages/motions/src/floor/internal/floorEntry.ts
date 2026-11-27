@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBase,
@@ -233,7 +233,7 @@ export namespace floorEntry {
       to.joints,
     );
     const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-    const hipsAt: (weight: number) => IAutoMovieVector3 = Vector3.prepareLerp(
+    const hipsAt: (weight: number) => IAutoMovieVector3 = AutoMovieEngineVector3.prepareLerp(
       hips(body, from),
       hips(body, to),
     );
@@ -246,9 +246,9 @@ export namespace floorEntry {
       };
       return {
         ...heading,
-        root: Vector3.subtract(
+        root: AutoMovieEngineVector3.subtract(
           hipsAt(weight),
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             humanPostureHeading(heading),
             body.rest.get("hips")!,
           ),
@@ -318,8 +318,8 @@ export namespace floorEntry {
     const at: IAutoMovieVector3 =
       over === "hips"
         ? hips(context.body, entered)
-        : Vector3.scale(
-            Vector3.add(
+        : AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(
               context.entry.feet.left.ankle,
               context.entry.feet.right.ankle,
             ),
@@ -362,9 +362,9 @@ export namespace floorEntry {
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, HipsPosture>,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       posture.root,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading(posture),
         body.rest.get("hips")!,
       ),

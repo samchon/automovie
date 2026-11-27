@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanPerformanceSoft,
@@ -349,7 +349,7 @@ function solve(
           const f: IAutoMovieVector3 | undefined = held.get(particle);
           if (f === undefined) return;
           const was: IAutoMovieVector3 | undefined = hands.get(key);
-          hands.set(key, was === undefined ? f : Vector3.add(was, f));
+          hands.set(key, was === undefined ? f : AutoMovieEngineVector3.add(was, f));
         };
         for (const g of grips)
           if (

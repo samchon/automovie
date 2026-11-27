@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanLimb, AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbReference, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { poseBones } from "../../posture/internal/poseBones";
@@ -98,9 +98,9 @@ export function prepareSupportHeldFrames(
     const pose: IAutoMovieResolvedBone = bones.get(target.bone)!;
     return target.point === undefined
       ? { ...pose.worldPosition }
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           pose.worldPosition,
-          Quaternion.rotateVector(pose.worldRotation, target.point),
+          AutoMovieEngineQuaternion.rotateVector(pose.worldRotation, target.point),
         );
   };
   return limbs.map(
@@ -148,9 +148,9 @@ export function prepareSupportHeldFrames(
                 ? heel!
                 : ball!;
       }
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(a0.worldRotation),
-        Vector3.subtract(pivot, a0.worldPosition),
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(a0.worldRotation),
+        AutoMovieEngineVector3.subtract(pivot, a0.worldPosition),
       );
       return {
         ...frames,
@@ -159,9 +159,9 @@ export function prepareSupportHeldFrames(
           at: [
             { ...pivot },
             target === undefined
-              ? Vector3.add(
+              ? AutoMovieEngineVector3.add(
                   b0.worldPosition,
-                  Quaternion.rotateVector(b0.worldRotation, local),
+                  AutoMovieEngineQuaternion.rotateVector(b0.worldRotation, local),
                 )
               : world(target, after),
           ],

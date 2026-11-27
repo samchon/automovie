@@ -79,7 +79,7 @@ export namespace lieDownPoses {
   /*
    * A floor posture with its trunk bent to the side at the spine and the chest,
    * degrees of abduction: about the forward axis, so a negative bend tips the
-   * trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis
+   * trunk to the body's left (`AutoMovieEngineHumanoidJointAxes`' default basis). The pelvis
    * stays down while the shoulder comes over the hand leant on.
    */
   function bent(

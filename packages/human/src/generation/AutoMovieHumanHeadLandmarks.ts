@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadCompiled,
   IAutoMovieHumanHeadCorrections,
@@ -51,11 +51,11 @@ export namespace AutoMovieHumanHeadLandmarks {
   ): IAutoMovieHumanHeadCompiled {
     return {
       prior,
-      profile: AutoMovieNaturalSpline.create(
+      profile: AutoMovieEngineNaturalSpline.create(
         prior.face.profileKnots,
         prior.face.profile,
       ),
-      dorsum: AutoMovieNaturalSpline.create(
+      dorsum: AutoMovieEngineNaturalSpline.create(
         prior.face.profileKnots,
         prior.face.dorsum,
       ),
@@ -240,12 +240,12 @@ export namespace AutoMovieHumanHeadLandmarks {
       (point: P2, i: number, all: P2[]): boolean =>
         i === 0 || point[0] !== all[i - 1]![0],
     );
-    const profile: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const profile: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       knots.map((p2: P2): number => p2[0]),
       knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
     );
     function along(y: number): number {
-      return ellipse(y) + AutoMovieNaturalSpline.evaluate(profile, y);
+      return ellipse(y) + AutoMovieEngineNaturalSpline.evaluate(profile, y);
     }
 
     // Beside the midline: the tragion the upper facial depth behind the
@@ -283,7 +283,7 @@ export namespace AutoMovieHumanHeadLandmarks {
     const lead: number = prn[0] - along(prn[1]);
     // The ball and the ridge meet at the tip by a soft maximum, which stands
     // out of the lead by the ridge's share there.
-    const ridge: number = AutoMovieNaturalSpline.evaluate(compiled.profile, 0);
+    const ridge: number = AutoMovieEngineNaturalSpline.evaluate(compiled.profile, 0);
     const tipUnion: number =
       (ridge ** AutoMovieHumanHeadNose.NOSE + 1) **
       (1 / AutoMovieHumanHeadNose.NOSE);
@@ -326,7 +326,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       joint: f.joint * head.mandibularLaterotrusion * k,
       left: opening(head.face.eyePair.left),
       right: opening(head.face.eyePair.right),
-      station: AutoMovieNaturalSpline.create(
+      station: AutoMovieEngineNaturalSpline.create(
         [y0, menton, sn, eye, vertex],
         [0, 1, 2, 3, 4],
       ),

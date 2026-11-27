@@ -3,13 +3,6 @@
   "version": "0.4.2",
   "description": "automovie human motion vocabulary: body-scaled, seeded and interruptible action laws an LLM author drives through a fluent chain",
   "main": "src/index.ts",
-  "exports": {
-    ".": "./src/index.ts",
-    "./internal": "./src/internal/index.ts",
-    "./executable/internal": "./src/executable/internal/index.ts",
-    "./testing/spacecraftGlideClock": "./src/testing/internal/spacecraftGlideClock.ts",
-    "./package.json": "./package.json"
-  },
   "files": [
     "lib",
     "src",
@@ -29,10 +22,6 @@
       ".": {
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
-      },
-      "./internal": {
-        "types": "./lib/internal/index.d.ts",
-        "default": "./lib/internal/index.js"
       },
       "./package.json": "./package.json"
     }

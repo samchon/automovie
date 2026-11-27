@@ -26,7 +26,7 @@ export namespace IAutoMovieCompileAttach {
    *
    * The parent's scale is not applied, which matches the renderer for the
    * unit-scale actors staging places. Pass the same `jointAxes` the renderer
-   * poses the parent with (`HUMANOID_JOINT_AXES`), plus the same `restFrames`
+   * poses the parent with (`AutoMovieEngineHumanoidJointAxes`), plus the same `restFrames`
    * when parent clips are authored in clinical space, or the child follows a
    * bone where the renderer does not draw it. A parent with no motion holds its
    * rest pose.
@@ -91,7 +91,7 @@ export namespace IAutoMovieCompileAttach {
     /** Samples per second of the baked follow; defaults to 30. */
     fps?: number;
 
-    /** Clinical-axis remap for the parent's FK, such as `HUMANOID_JOINT_AXES`. */
+    /** Clinical-axis remap for the parent's FK, such as `AutoMovieEngineHumanoidJointAxes`. */
     jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 
     /** Per-rig clinical rest-frame remap for the parent's FK. */

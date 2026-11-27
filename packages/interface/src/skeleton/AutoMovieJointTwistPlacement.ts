@@ -14,7 +14,7 @@
  *   pose with no twist is the same rotation in both.
  *
  * The placement is an anatomical fact of each joint, declared with its axes;
- * omission keeps `"proximal"`. `HUMANOID_JOINT_AXES` declares `"distal"` for
+ * omission keeps `"proximal"`. `AutoMovieEngineHumanoidJointAxes` declares `"distal"` for
  * the upper and the lower arms, whose bones turn about their own length
  * (humeral rotation, pronation and supination), and `jointToQuaternion` and
  * `decomposeJointRotation` compose and invert in the declared order.

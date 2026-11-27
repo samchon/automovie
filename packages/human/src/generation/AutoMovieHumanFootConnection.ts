@@ -1,6 +1,6 @@
 import {
-  AutoMovieIllinois,
-  AutoMovieSolidVector as V,
+  AutoMovieEngineIllinois,
+  AutoMovieEngineSolidVector as V,
 } from "@automovie/engine";
 import type {
   AutoMovieScalarJet2,
@@ -63,7 +63,7 @@ export namespace AutoMovieHumanFootConnection {
       function residual(phi: number): number {
         return source.phase(phi).p[1] - across;
       }
-      const phi: number | null = AutoMovieIllinois.root(
+      const phi: number | null = AutoMovieEngineIllinois.root(
         residual,
         start,
         start + Math.PI,

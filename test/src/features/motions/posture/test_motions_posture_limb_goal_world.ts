@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -8,7 +8,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { humanLimbGoalWorld } from "@automovie/motions/internal";
+import {
+  humanLimbGoalWorld
+} from "../../../../../packages/motions/src/posture/internal/humanLimbGoalWorld";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -45,7 +47,7 @@ export async function test_motions_posture_limb_goal_world(): Promise<void> {
     root: null,
     joints: [],
   };
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );

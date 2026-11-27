@@ -4,7 +4,7 @@ import type {
   IAutoMovieWarmPhysicalSupportTargets,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { resolvePhysicalSupportRedundancy } from "./resolvePhysicalSupportRedundancy";
@@ -32,10 +32,10 @@ export function warmPhysicalSupportTargets(
     const relative: IAutoMovieRigidTransform["rotation"] =
       projectPhysicalJointRotation(
         joint,
-        Quaternion.multiply(
-          Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             physicalJointRelativeRotation(input.targets, joint),
-            Quaternion.inverse(
+            AutoMovieEngineQuaternion.inverse(
               physicalJointRelativeRotation(input.before, joint),
             ),
           ),

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -13,7 +13,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeShieldData from "./internal/AutoMovieArchetypeShieldData";
+import { AutoMovieArchetypeShieldData } from "./internal/AutoMovieArchetypeShieldData";
 
 /** Constructs the shield archetype from its recipe. */
 export namespace AutoMovieArchetypeShield {
@@ -79,7 +79,7 @@ export function create(
     material: kind === "strapped" ? "foam" : "composite",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const radius: number = d.diameter! / 2;
   const half: number = AutoMovieArchetypeShield.BOARD[kind] / 2;
   const bar: number = AutoMovieArchetypeShield.GRIP / 2;
@@ -96,12 +96,12 @@ export function create(
     -half - bar,
   );
   const along: IAutoMovieVector3 = strapped ? v(0, 1, 0) : v(1, 0, 0);
-  const halfGrip: IAutoMovieVector3 = Vector3.scale(along, AutoMovieArchetypeShield.BOSS);
+  const halfGrip: IAutoMovieVector3 = AutoMovieEngineVector3.scale(along, AutoMovieArchetypeShield.BOSS);
   builder.rod(
     "grip",
     bar,
-    Vector3.subtract(grip, halfGrip),
-    Vector3.add(grip, halfGrip),
+    AutoMovieEngineVector3.subtract(grip, halfGrip),
+    AutoMovieEngineVector3.add(grip, halfGrip),
     {
       color: "#4a3324",
     },

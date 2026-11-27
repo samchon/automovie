@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
 import { physicalSupportPoint } from "./internal/physicalSupportPoint";
@@ -86,7 +86,7 @@ function computeRecoverySupportGoals(
           }).point;
           return [
             limb.bone,
-            Vector3.add(Vector3.add(point, Vector3.subtract(moved, original)), {
+            AutoMovieEngineVector3.add(AutoMovieEngineVector3.add(point, AutoMovieEngineVector3.subtract(moved, original)), {
               x: 0,
               y: own?.hang ?? 0,
               z: 0,
@@ -95,7 +95,7 @@ function computeRecoverySupportGoals(
         }
         return [
           limb.bone,
-          Vector3.add(point, state?.offsets[limb.bone] ?? { x: 0, y: 0, z: 0 }),
+          AutoMovieEngineVector3.add(point, state?.offsets[limb.bone] ?? { x: 0, y: 0, z: 0 }),
         ];
       },
     ),

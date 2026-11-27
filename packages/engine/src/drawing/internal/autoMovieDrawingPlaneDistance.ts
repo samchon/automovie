@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Signed distance in metres from a view's cut plane to a world point.
@@ -18,4 +18,4 @@ import { Vector3 } from "../../math/Vector3";
 export const autoMovieDrawingPlaneDistance = (
   frame: IAutoMovieDrawingFrame,
   point: IAutoMovieVector3,
-): number => Vector3.dot(Vector3.subtract(point, frame.origin), frame.normal);
+): number => AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, frame.origin), frame.normal);

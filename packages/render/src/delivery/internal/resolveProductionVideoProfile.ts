@@ -3,8 +3,8 @@ import type {
   IAutoMovieResolveProductionVideoProfileProps,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_MP4_SRGB_COLOUR } from "../AUTOMOVIE_MP4_SRGB_COLOUR.js";
-import { AUTOMOVIE_MP4_UNITY_MATRIX } from "../AUTOMOVIE_MP4_UNITY_MATRIX.js";
+import { AutoMovieRenderMp4SrgbColour } from "../AutoMovieRenderMp4SrgbColour.js";
+import { AutoMovieRenderMp4UnityMatrix } from "../AutoMovieRenderMp4UnityMatrix.js";
 
 /*
  * Resolve an authored raster and exact frame rate to the one H.264-in-MP4
@@ -27,7 +27,7 @@ export const resolveProductionVideoProfile: (
   height: props.height,
   frameRate: props.frameRate,
   brands: { major: "isom", requiredCompatible: ["isom"] },
-  trackMatrix: [...AUTOMOVIE_MP4_UNITY_MATRIX],
+  trackMatrix: [...AutoMovieRenderMp4UnityMatrix],
   pixelAspect: "square",
-  color: AUTOMOVIE_MP4_SRGB_COLOUR,
+  color: AutoMovieRenderMp4SrgbColour,
 });

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBallSport,
@@ -130,7 +130,7 @@ export function ballSportCases(
               "right",
               palm,
             );
-            const n: IAutoMovieVector3 = Quaternion.rotateVector(
+            const n: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
               hand.worldRotation,
               local.normal,
             );
@@ -150,8 +150,8 @@ export function ballSportCases(
           break;
         }
         case "dig": {
-          const apart: number = Vector3.length(
-            Vector3.subtract(at(stroke, "leftHand"), at(stroke, "rightHand")),
+          const apart: number = AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(at(stroke, "leftHand"), at(stroke, "rightHand")),
           );
           verdicts.push(
             everydayVerdicts.within(
@@ -162,12 +162,12 @@ export function ballSportCases(
             ),
           );
           for (const side of ["left", "right"] as const) {
-            const d: IAutoMovieVector3 = Vector3.subtract(
+            const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
               at(stroke, `${side}Hand`),
               at(stroke, `${side}LowerArm`),
             );
             const below: number =
-              (Math.asin(-d.y / Vector3.length(d)) * 180) / Math.PI;
+              (Math.asin(-d.y / AutoMovieEngineVector3.length(d)) * 180) / Math.PI;
             verdicts.push({
               name: `${side} forearm 10 to 60 deg below the horizontal`,
               passed: below >= 10 && below <= 60,
@@ -206,12 +206,12 @@ export function ballSportCases(
             t + 1 / 96 <= stroke + 1e-9;
             t += 1 / 96
           ) {
-            const v: IAutoMovieVector3 = Vector3.scale(
-              Vector3.subtract(at(t + 1 / 96, "rightHand"), at(t, "rightHand")),
+            const v: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+              AutoMovieEngineVector3.subtract(at(t + 1 / 96, "rightHand"), at(t, "rightHand")),
               96,
             );
-            if (Vector3.length(v) > fastest.speed)
-              fastest = { speed: Vector3.length(v), v };
+            if (AutoMovieEngineVector3.length(v) > fastest.speed)
+              fastest = { speed: AutoMovieEngineVector3.length(v), v };
           }
           const angle: number =
             (Math.atan2(fastest.v.y, Math.hypot(fastest.v.x, fastest.v.z)) *

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeArmour } from "@automovie/archetypes";
-import { AutoMoviePhysicalHullFaces } from "@automovie/engine";
+import { AutoMovieEnginePhysicalHullFaces } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
   IAutoMoviePhysicalHullFaces,
@@ -78,7 +78,7 @@ export function test_archetype_armour_joints(): void {
         if (headRadius !== undefined)
           for (const [id, corners] of cells) {
             const faces: IAutoMoviePhysicalHullFaces.IFace[] =
-              AutoMoviePhysicalHullFaces.build(corners).faces;
+              AutoMovieEnginePhysicalHullFaces.build(corners).faces;
             const inner: number = Math.min(
               ...faces.map(
                 (face: IAutoMoviePhysicalHullFaces.IFace): number =>

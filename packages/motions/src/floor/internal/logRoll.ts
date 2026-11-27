@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -26,7 +26,7 @@ import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
 import "./lieDownPoses";
 import { logRollTurns } from "./logRollTurns";
 import { lyingTurn } from "./lyingTurn";
-import * as LogRollData from "./LogRollData";
+import { LogRollData } from "./LogRollData";
 
 /*
  * Log-roll across the floor. The lying body straightens into a log, legs
@@ -91,11 +91,11 @@ function planLogRoll(
     y: 0,
     z: -Math.sin((from.yaw * Math.PI) / 180),
   };
-  const travel: IAutoMovieVector3 = Vector3.scale(left, sign);
+  const travel: IAutoMovieVector3 = AutoMovieEngineVector3.scale(left, sign);
   const step: number = logRollTurns.perimeter(body.measure) / 2;
-  const hips: IAutoMovieVector3 = Vector3.add(
+  const hips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     entry.root,
-    Quaternion.rotateVector(humanPostureHeading(entry), body.rest.get("hips")!),
+    AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(entry), body.rest.get("hips")!),
   );
   const halves: number = logRollTurns.count(p, from.turn, step, hips, travel);
   const target: number = from.turn + sign * 180 * halves;
@@ -145,13 +145,13 @@ function planLogRoll(
     };
     const attitude: ReturnType<typeof humanPostureHeading> =
       humanPostureHeading(posture);
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       attitude,
       body.rest.get("hips")!,
     );
-    const pelvis: IAutoMovieVector3 = Vector3.add(
+    const pelvis: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hips,
-      Vector3.scale(travel, (step * Math.abs(turn - from.turn)) / 180),
+      AutoMovieEngineVector3.scale(travel, (step * Math.abs(turn - from.turn)) / 180),
     );
     return {
       ...posture,
@@ -159,7 +159,7 @@ function planLogRoll(
         x: pelvis.x - offset.x,
         y: formed
           ? -rolledSupport(
-              Quaternion.rotateVector(Quaternion.inverse(attitude), {
+              AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(attitude), {
                 x: 0,
                 y: 1,
                 z: 0,

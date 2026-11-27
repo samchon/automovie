@@ -1,6 +1,6 @@
 import { approximateAutoMovieRecoveryCompactCurves as approximateAutoMovieRecoveryCompactCurvesImplementation } from "./internal/approximateAutoMovieRecoveryCompactCurves";
 
-import { AutoMovieBernstein64 as B } from "@automovie/engine";
+import { AutoMovieEngineBernstein64 as B } from "@automovie/engine";
 import { type AutoMovieVector2Tuple, type IAutoMovieRegisteredPlanarCurvePiece, type IAutoMovieCompactCurveApproximation, type IAutoMoviePiecewisePlanarCurveSource } from "@automovie/interface";
 
 import { AutoMovieRecoveryConicApproximation as Conic } from "./AutoMovieRecoveryConicApproximation";

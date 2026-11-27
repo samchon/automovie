@@ -9,7 +9,7 @@ import type {
 import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
 import { bindPhysicalKinematicFrame } from "./bindPhysicalKinematicFrame";
 import { createPhysicalKinematicFrame } from "./createPhysicalKinematicFrame";
-import { AutoMoviePhysicalGeometry } from "../AutoMoviePhysicalGeometry";
+import { AutoMovieEnginePhysicalGeometry } from "../AutoMovieEnginePhysicalGeometry";
 import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 
 /*
@@ -52,7 +52,7 @@ export async function computePhysicalKinematicFrames(
           target.coupledGroup !== undefined,
       ),
   )
-    ? await AutoMoviePhysicalGeometry.prepare()
+    ? await AutoMovieEnginePhysicalGeometry.prepare()
     : undefined;
   for (let step: number = 0; step <= count; step++) {
     signal?.throwIfAborted();

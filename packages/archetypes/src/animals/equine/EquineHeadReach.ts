@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -83,14 +83,14 @@ export namespace EquineHeadReach {
   export function face(bars: IBars, target: IAutoMovieVector3): ITurn {
     const local: IAutoMovieVector3 = toBody(
       bars,
-      Vector3.subtract(target, bars.root),
+      AutoMovieEngineVector3.subtract(target, bars.root),
     );
     const current: IAutoMovieVector3 = toBody(bars, axis(bars.neck));
     const yaw: number =
       Math.atan2(local.x, local.z) - Math.atan2(current.x, current.z);
     const turn: IAutoMovieQuaternion = toModel(
       bars,
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw * DEGREES),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw * DEGREES),
     );
     return { neck: turn, head: turn };
   }
@@ -116,9 +116,9 @@ export namespace EquineHeadReach {
   ): ITurn {
     const local: IAutoMovieVector3 = toBody(
       bars,
-      Vector3.subtract(target, bars.root),
+      AutoMovieEngineVector3.subtract(target, bars.root),
     );
-    const a: number = Vector3.distance(bars.poll, bars.root);
+    const a: number = AutoMovieEngineVector3.distance(bars.poll, bars.root);
     const b: number = bars.muzzle + gap;
     const horizontal: number = Math.hypot(local.x, local.z);
     const distance: number = Math.hypot(horizontal, local.y);
@@ -152,11 +152,11 @@ export namespace EquineHeadReach {
       y: 0,
       z: Math.cos(bearing),
     };
-    const poll: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(forward, a * Math.cos(elevation)),
+    const poll: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(forward, a * Math.cos(elevation)),
       { x: 0, y: a * Math.sin(elevation), z: 0 },
     );
-    const towards: IAutoMovieVector3 = Vector3.subtract(local, poll);
+    const towards: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(local, poll);
     return {
       neck: turn(bars, bars.neck, bearing, elevation),
       head: turn(
@@ -179,14 +179,14 @@ export namespace EquineHeadReach {
    * Returns: The turns.
    */
   export function pitched(bars: IBars, neck: number, head: number): ITurn {
-    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(bars.body, {
+    const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(bars.body, {
       x: 1,
       y: 0,
       z: 0,
     });
     return {
-      neck: Quaternion.fromAxisAngle(lateral, neck),
-      head: Quaternion.fromAxisAngle(lateral, neck + head),
+      neck: AutoMovieEngineQuaternion.fromAxisAngle(lateral, neck),
+      head: AutoMovieEngineQuaternion.fromAxisAngle(lateral, neck + head),
     };
   }
 
@@ -194,14 +194,14 @@ export namespace EquineHeadReach {
    * A bar's +Y axis.
    */
   function axis(rotation: IAutoMovieQuaternion): IAutoMovieVector3 {
-    return Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });
+    return AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });
   }
 
   /*
    * A model-space vector in the trunk's frame.
    */
   function toBody(bars: IBars, vector: IAutoMovieVector3): IAutoMovieVector3 {
-    return Quaternion.rotateVector(Quaternion.inverse(bars.body), vector);
+    return AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(bars.body), vector);
   }
 
   /*
@@ -211,9 +211,9 @@ export namespace EquineHeadReach {
     bars: IBars,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
-    return Quaternion.multiply(
-      Quaternion.multiply(bars.body, rotation),
-      Quaternion.inverse(bars.body),
+    return AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(bars.body, rotation),
+      AutoMovieEngineQuaternion.inverse(bars.body),
     );
   }
 
@@ -237,14 +237,14 @@ export namespace EquineHeadReach {
     // A turn of +theta about +X lowers a forward-pointing bar's elevation by theta.
     return toModel(
       bars,
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, bearing * DEGREES),
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, bearing * DEGREES),
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle(
             { x: 1, y: 0, z: 0 },
             (rise - elevation) * DEGREES,
           ),
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -from * DEGREES),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -from * DEGREES),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -195,14 +195,14 @@ export namespace HumanMountedAids {
       const w: number = weight(aid, at);
       if (w === 0) continue;
       if (aid.kind === "takeUp" && grip.axis !== undefined)
-        point = Vector3.add(
+        point = AutoMovieEngineVector3.add(
           point,
-          Vector3.scale(grip.axis, -TAKE_UP * forearm * w),
+          AutoMovieEngineVector3.scale(grip.axis, -TAKE_UP * forearm * w),
         );
       if (aid.kind === "shake") {
         const phase: number =
           (at - aid.onset) / Math.max(1e-6, aid.at - aid.onset);
-        point = Vector3.add(point, {
+        point = AutoMovieEngineVector3.add(point, {
           x: 0,
           y:
             SHAKE *
@@ -213,10 +213,10 @@ export namespace HumanMountedAids {
         });
       }
       if (aid.kind === "whipTouch" && grip.axis !== undefined)
-        point = Vector3.add(
+        point = AutoMovieEngineVector3.add(
           point,
-          Vector3.scale(
-            Vector3.normalize(Vector3.add(grip.axis, { x: 0, y: 1, z: 0 })),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.add(grip.axis, { x: 0, y: 1, z: 0 })),
             FLICK * forearm * w,
           ),
         );
@@ -224,14 +224,14 @@ export namespace HumanMountedAids {
         (aid.kind === "openRein" || aid.kind === "neckRein") &&
         grip.axis !== undefined
       ) {
-        const out: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.cross({ x: 0, y: 1, z: 0 }, grip.axis),
+        const out: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.cross({ x: 0, y: 1, z: 0 }, grip.axis),
         );
         const sign: number =
           (side === "left" ? 1 : -1) * (aid.kind === "openRein" ? 1 : -1);
-        point = Vector3.add(
+        point = AutoMovieEngineVector3.add(
           point,
-          Vector3.scale(out, sign * ACROSS * forearm * w),
+          AutoMovieEngineVector3.scale(out, sign * ACROSS * forearm * w),
         );
       }
     }
@@ -266,17 +266,17 @@ export namespace HumanMountedAids {
           continue;
         const axis: IAutoMovieVector3 =
           aid.kind === "kick"
-            ? Quaternion.rotateVector(goal.rotation, { x: 1, y: 0, z: 0 })
+            ? AutoMovieEngineQuaternion.rotateVector(goal.rotation, { x: 1, y: 0, z: 0 })
             : { x: 0, y: side === "left" ? -1 : 1, z: 0 };
-        const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
           axis,
           (aid.kind === "kick" ? HEEL : -HEEL) * w,
         );
-        const ball: IAutoMovieVector3 = Vector3.add(
+        const ball: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           goal.point,
-          Quaternion.rotateVector(goal.rotation, goal.contact),
+          AutoMovieEngineQuaternion.rotateVector(goal.rotation, goal.contact),
         );
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+        const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           turn,
           goal.rotation,
         );
@@ -287,9 +287,9 @@ export namespace HumanMountedAids {
             [`${side}Leg`]: {
               ...goal,
               rotation,
-              point: Vector3.subtract(
+              point: AutoMovieEngineVector3.subtract(
                 ball,
-                Quaternion.rotateVector(rotation, goal.contact),
+                AutoMovieEngineQuaternion.rotateVector(rotation, goal.contact),
               ),
             },
           },

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformanceHold,
@@ -106,13 +106,13 @@ export function HumanPerformanceHoldKit(
       w.capture === undefined ? w.from - 1e-6 : w.from,
     );
     const hand: IAutoMovieRigidTransform = carrier(w, w.from);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.rotation);
     return {
-      position: Quaternion.rotateVector(
+      position: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(before.position, hand.position),
+        AutoMovieEngineVector3.subtract(before.position, hand.position),
       ),
-      rotation: Quaternion.multiply(inverse, before.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(inverse, before.rotation),
     };
   };
   // The offset at a second, with the grip's in-hand motion composed
@@ -140,28 +140,28 @@ export function HumanPerformanceHoldKit(
     const receiving: IAutoMovieRigidTransform = carrier(next, next.from);
     const set: IAutoMovieRigidTransform = seat(next);
     const socketed: IAutoMovieRigidTransform = {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         receiving.position,
-        Quaternion.rotateVector(receiving.rotation, set.position),
+        AutoMovieEngineQuaternion.rotateVector(receiving.rotation, set.position),
       ),
-      rotation: Quaternion.multiply(receiving.rotation, set.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(receiving.rotation, set.rotation),
     };
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.rotation);
     const k: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (at - w.from) / (w.to - w.from))),
     );
     return {
-      position: Vector3.lerp(
+      position: AutoMovieEngineVector3.lerp(
         kept.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(socketed.position, hand.position),
+          AutoMovieEngineVector3.subtract(socketed.position, hand.position),
         ),
         k,
       ),
-      rotation: Quaternion.slerp(
+      rotation: AutoMovieEngineQuaternion.slerp(
         kept.rotation,
-        Quaternion.multiply(inverse, socketed.rotation),
+        AutoMovieEngineQuaternion.multiply(inverse, socketed.rotation),
         k,
       ),
     };
@@ -180,12 +180,12 @@ export function HumanPerformanceHoldKit(
       displayed,
     );
     return {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         d.position,
-        Quaternion.rotateVector(d.rotation, stored.position),
+        AutoMovieEngineQuaternion.rotateVector(d.rotation, stored.position),
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(d.rotation, stored.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(d.rotation, stored.rotation),
       ),
     };
   };
@@ -281,12 +281,12 @@ function socket(
       "point",
     );
   return {
-    position: Vector3.add(
+    position: AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, at.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, at.frame.translation),
     ),
-    rotation: Quaternion.normalize(
-      Quaternion.multiply(frame.rotation, at.frame.rotation),
+    rotation: AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(frame.rotation, at.frame.rotation),
     ),
   };
 }

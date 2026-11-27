@@ -1,4 +1,6 @@
-import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditMotion
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditMotion";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

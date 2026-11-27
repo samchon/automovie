@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypePoolEdgeData from "./internal/AutoMovieArchetypePoolEdgeData";
+import { AutoMovieArchetypePoolEdgeData } from "./internal/AutoMovieArchetypePoolEdgeData";
 
 /** Constructs the pool edge archetype from its recipe. */
 export namespace AutoMovieArchetypePoolEdge {
@@ -139,7 +139,7 @@ export function create(
     name: kind === "deckEdge" ? "pool edge" : "starting platform",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const E: typeof AutoMovieArchetypePoolEdge.ESTIMATES = AutoMovieArchetypePoolEdge.ESTIMATES;
   const width: number = d.width!;
   const water: number = -d.freeboard!;
@@ -230,7 +230,7 @@ export function create(
   };
   builder.box("top", v(size, E.slab, size), v(0, centre.y, centre.z), {
     color: "#3a6ea5",
-    rotation: Quaternion.fromAxisAngle(v(1, 0, 0), d.slope!),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(v(1, 0, 0), d.slope!),
   });
   const normal: ReturnType<typeof v> = v(0, Math.cos(slope), Math.sin(slope));
   builder.affordance({

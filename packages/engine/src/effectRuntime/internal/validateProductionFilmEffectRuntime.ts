@@ -7,7 +7,7 @@ import { productionFrameBoundaryToSeconds } from "../../film/internal/production
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJsonError } from "../../text/AutoMovieEngineCanonicalJsonError";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
-import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
+import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
 
 /*
@@ -38,7 +38,7 @@ export function validateProductionFilmEffectRuntime(
     runtime.startFrame < 0 ||
     runtime.endFrame <= runtime.startFrame
   )
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-runtime-invalid",
       `Film effect runtime "${runtime.effect.id}" has an unsupported version, owner, clock, or interval.`,
     );
@@ -55,7 +55,7 @@ export function validateProductionFilmEffectRuntime(
     runtime.effect.intensity.from < 0 ||
     runtime.effect.intensity.from > 1
   )
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-runtime-invalid",
       `Film effect runtime "${runtime.effect.id}" has a noncanonical frame rate or malformed inner film effect.`,
     );
@@ -83,7 +83,7 @@ export function validateProductionFilmEffectRuntime(
     runtime.effect.fixedStepSeconds !==
       frameRate.denominator / frameRate.numerator
   )
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-runtime-invalid",
       `Film effect runtime "${runtime.effect.id}" differs from its content digest or exact frame clock.`,
     );
@@ -102,7 +102,7 @@ function recomputedDigest(
     );
   } catch (error) {
     if (error instanceof AutoMovieEngineCanonicalJsonError)
-      throw new AutoMovieFilmEffectRuntimeError(
+      throw new AutoMovieEngineFilmEffectRuntimeError(
         "film-effect-runtime-invalid",
         `Film effect runtime "${runtime.effect.id}" holds a value canonical JSON cannot encode: ${error.message}`,
       );

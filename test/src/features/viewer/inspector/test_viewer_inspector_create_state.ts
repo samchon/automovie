@@ -1,6 +1,6 @@
 import {
   AutoMovieViewerInspector,
-  type IAutoMovieInspectorState,
+  type IAutoMovieViewerInspectorState,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,7 +19,7 @@ export function test_viewer_inspector_create_state(): void {
     AutoMovieViewerInspector.createState("at=1&parts=a"),
     { request: AutoMovieViewerInspector.readAddress("at=1&parts=a"), error: null },
   );
-  const refused: IAutoMovieInspectorState =
+  const refused: IAutoMovieViewerInspectorState =
     AutoMovieViewerInspector.createState("colour=1");
   TestValidator.predicate(
     "an unreadable address",

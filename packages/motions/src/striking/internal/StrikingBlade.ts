@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -165,7 +165,7 @@ export namespace StrikingBlade {
       handBones,
     );
     const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         HumanHand.frame(body, bones, tool.side, "grip").point,
         context.entry.posture.root,
       ),
@@ -233,12 +233,12 @@ export namespace StrikingBlade {
       );
       if (weight >= 1) return at;
       return {
-        point: Vector3.lerp(
-          Vector3.add(posture.root, held.point),
+        point: AutoMovieEngineVector3.lerp(
+          AutoMovieEngineVector3.add(posture.root, held.point),
           at.point,
           weight,
         ),
-        rotation: Quaternion.slerp(held.rotation, at.rotation, weight),
+        rotation: AutoMovieEngineQuaternion.slerp(held.rotation, at.rotation, weight),
       };
     };
 
@@ -272,9 +272,9 @@ export namespace StrikingBlade {
     ): IAutoMovieVector3 => {
       const bones: ReturnType<typeof HumanTrunk.resolve> =
         read?.() ?? trunkAt(posture);
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         bones.get(`${tool.side}UpperArm`)!.worldPosition,
-        Quaternion.rotateVector(bones.get("chest")!.worldRotation, hint),
+        AutoMovieEngineQuaternion.rotateVector(bones.get("chest")!.worldRotation, hint),
       );
     };
     const anchor = (): IBladeAnchor => {
@@ -291,9 +291,9 @@ export namespace StrikingBlade {
         );
         return {
           reference: entered.reference,
-          hint: Quaternion.rotateVector(
-            Quaternion.inverse(at.get("chest")!.worldRotation),
-            Vector3.subtract(
+          hint: AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.inverse(at.get("chest")!.worldRotation),
+            AutoMovieEngineVector3.subtract(
               entered.bend,
               at.get(`${tool.side}UpperArm`)!.worldPosition,
             ),
@@ -343,9 +343,9 @@ export namespace StrikingBlade {
       );
       return {
         reference: HumanLimbFit.reference(posed, `${tool.side}Arm`),
-        hint: Quaternion.rotateVector(
-          Quaternion.inverse(bones.get("chest")!.worldRotation),
-          Vector3.subtract(
+        hint: AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(bones.get("chest")!.worldRotation),
+          AutoMovieEngineVector3.subtract(
             elbow,
             bones.get(`${tool.side}UpperArm`)!.worldPosition,
           ),

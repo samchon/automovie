@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalBalanceTrace } from "../IAutoMoviePhysicalBalanceTrace";
+import type { IAutoMovieEnginePhysicalBalanceTrace } from "../IAutoMovieEnginePhysicalBalanceTrace";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { resolvePhysicalRecoveryStep } from "./resolvePhysicalRecoveryStep";
 
@@ -23,7 +23,7 @@ export function physicalBalanceHandoff(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
   unavailable?: readonly string[];
   seconds: number;
-  trace?: IAutoMoviePhysicalBalanceTrace[];
+  trace?: IAutoMovieEnginePhysicalBalanceTrace[];
 }): IAutoMoviePhysicalRecoveryState {
   let state: IAutoMoviePhysicalRecoveryState = input.state;
   const owned: IAutoMovieStepPlanner.IStep[] = physicalRecoverySwing(state);

@@ -3,8 +3,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMovieGravity } from "../AutoMovieGravity";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineGravity } from "../AutoMovieEngineGravity";
 
 /*
  * Solve the **launch velocity** that lands a projectile fired from `origin` at
@@ -33,31 +33,31 @@ export const solveBallisticLaunch: (
   origin: IAutoMovieVector3,
   target: IAutoMovieVector3,
   speed: number,
-  gravity: IAutoMovieVector3 = AutoMovieGravity.DOWN,
+  gravity: IAutoMovieVector3 = AutoMovieEngineGravity.DOWN,
   arc: "direct" | "high" = "direct",
 ): IAutoMovieBallisticSolution | null => {
   if (speed <= 0) return null;
 
-  const delta: IAutoMovieVector3 = Vector3.subtract(target, origin);
-  const g: number = Vector3.length(gravity);
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(target, origin);
+  const g: number = AutoMovieEngineVector3.length(gravity);
 
   // No gravity: a straight shot down the sightline.
   if (g < 1e-9) {
-    const range: number = Vector3.length(delta);
+    const range: number = AutoMovieEngineVector3.length(delta);
     if (range < 1e-9 || speed <= 0) return null;
     return {
-      velocity: Vector3.scale(Vector3.normalize(delta), speed),
+      velocity: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(delta), speed),
       hitTime: range / speed,
     };
   }
 
-  const up: IAutoMovieVector3 = Vector3.scale(gravity, -1 / g); // unit "up" (against gravity)
-  const h: number = Vector3.dot(delta, up); // signed height along up
-  const horizontal: IAutoMovieVector3 = Vector3.subtract(
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.scale(gravity, -1 / g); // unit "up" (against gravity)
+  const h: number = AutoMovieEngineVector3.dot(delta, up); // signed height along up
+  const horizontal: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     delta,
-    Vector3.scale(up, h),
+    AutoMovieEngineVector3.scale(up, h),
   );
-  const d: number = Vector3.length(horizontal);
+  const d: number = AutoMovieEngineVector3.length(horizontal);
   const s2: number = speed * speed;
 
   // Purely vertical target: fire straight up/down; solve when it reaches h.
@@ -81,7 +81,7 @@ export const solveBallisticLaunch: (
           best === null ||
           (arc === "high" ? t > best.hitTime : t < best.hitTime)
         )
-          best = { velocity: Vector3.scale(up, v), hitTime: t };
+          best = { velocity: AutoMovieEngineVector3.scale(up, v), hitTime: t };
       }
     }
     return best;
@@ -95,10 +95,10 @@ export const solveBallisticLaunch: (
   const cosTheta: number = 1 / Math.sqrt(1 + tanTheta * tanTheta);
   const sinTheta: number = tanTheta * cosTheta;
 
-  const horizontalDir: IAutoMovieVector3 = Vector3.scale(horizontal, 1 / d);
-  const velocity: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(horizontalDir, speed * cosTheta),
-    Vector3.scale(up, speed * sinTheta),
+  const horizontalDir: IAutoMovieVector3 = AutoMovieEngineVector3.scale(horizontal, 1 / d);
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(horizontalDir, speed * cosTheta),
+    AutoMovieEngineVector3.scale(up, speed * sinTheta),
   );
   return { velocity, hitTime: d / (speed * cosTheta) };
 };

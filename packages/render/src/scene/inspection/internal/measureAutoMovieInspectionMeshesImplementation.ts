@@ -1,8 +1,8 @@
 import type { IAutoMovieMeshDefect } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderInspectionMeasured } from "../../IAutoMovieRenderInspectionMeasured.js";
 import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 
 /*
@@ -23,14 +23,14 @@ export function measureAutoMovieInspectionMeshesImplementation(
   const meshes: { path: string; mesh: THREE.Mesh }[] = [];
   for (const { path, object } of props.drawn)
     if (
-      AutoMovieThreeKind.isMesh(object) &&
-      !AutoMovieThreeKind.isBatchedMesh(object) &&
+      AutoMovieRenderThreeKind.isMesh(object) &&
+      !AutoMovieRenderThreeKind.isBatchedMesh(object) &&
       object.geometry.hasAttribute("position") &&
       shown(object)
     )
       meshes.push({ path, mesh: object });
 
-  const measured: IAutoMovieInspectionMeasured[] = [];
+  const measured: IAutoMovieRenderInspectionMeasured[] = [];
   const kept: { path: string; mesh: THREE.Mesh }[] = meshes.filter(
     ({ path }: { path: string }): boolean => !props.hidden(path),
   );

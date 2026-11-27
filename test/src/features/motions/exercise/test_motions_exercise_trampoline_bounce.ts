@@ -1,5 +1,7 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { trampolineBounce } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  trampolineBounce
+} from "../../../../../packages/motions/src/exercise/internal/trampolineBounce";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -11,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
  * depth balancing that energy, the longer fall deeper.
  */
 export function test_motions_exercise_trampoline_bounce(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const balance = (fall: number, x: number): number =>
     (trampolineBounce.K1 * x * x) / 2 +
     (trampolineBounce.K3 * x ** 4) / 4 -

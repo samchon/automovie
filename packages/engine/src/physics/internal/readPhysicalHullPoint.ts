@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
+import { AutoMovieEnginePhysicalHullFaces } from "../AutoMovieEnginePhysicalHullFaces";
 import { readPhysicalHullFacesPoint } from "./readPhysicalHullFacesPoint";
 
 /*
@@ -33,5 +33,5 @@ export function readPhysicalHullPoint(
   p: IAutoMovieVector3,
   details: boolean,
 ): IAutoMoviePhysicalHullNearest.IResult | number {
-  return readPhysicalHullFacesPoint(AutoMoviePhysicalHullFaces.build(points), p, details);
+  return readPhysicalHullFacesPoint(AutoMovieEnginePhysicalHullFaces.build(points), p, details);
 }

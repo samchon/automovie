@@ -1,4 +1,4 @@
-export type { AutoMovieArkitChannel } from "./AutoMovieArkitChannel";
-export type { AutoMovieExpressionPreset } from "./AutoMovieExpressionPreset";
-export type { IAutoMovieBlendshapeChannel } from "./IAutoMovieBlendshapeChannel";
-export type { IAutoMovieExpression } from "./IAutoMovieExpression";
+export type * from "./AutoMovieArkitChannel";
+export type * from "./AutoMovieExpressionPreset";
+export type * from "./IAutoMovieBlendshapeChannel";
+export type * from "./IAutoMovieExpression";

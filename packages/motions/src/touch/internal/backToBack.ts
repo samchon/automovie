@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
@@ -35,7 +35,7 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { backToBackLoad } from "./backToBackLoad";
 import { backToBackTogether } from "./backToBackTogether";
 import { kissBody } from "./kissBody";
-import * as BackToBackData from "./BackToBackData";
+import { BackToBackData } from "./BackToBackData";
 
 /*
  * Lean back against a seated partner's back. Each of the two reads its own and
@@ -149,16 +149,16 @@ function planBackToBack(
     y: 0,
     z: theirs.z - mine.z,
   };
-  const half: number = Vector3.length(across) / 2;
-  const meet: IAutoMovieVector3 = Vector3.add(mine, Vector3.scale(across, 0.5));
-  const toward: IAutoMovieVector3 = Vector3.normalize(across);
+  const half: number = AutoMovieEngineVector3.length(across) / 2;
+  const meet: IAutoMovieVector3 = AutoMovieEngineVector3.add(mine, AutoMovieEngineVector3.scale(across, 0.5));
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(across);
   const gap = (pitch: number): number =>
-    Vector3.dot(
-      Vector3.subtract(
+    AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(
         meet,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           mine,
-          Vector3.subtract(own(leaned(pitch), resolution), upright),
+          AutoMovieEngineVector3.subtract(own(leaned(pitch), resolution), upright),
         ),
       ),
       toward,
@@ -197,7 +197,7 @@ function planBackToBack(
     p.manner,
   );
   const approach: number = AutoMovieMotionHumanTiming.transport(
-    Vector3.distance(mine, meet),
+    AutoMovieEngineVector3.distance(mine, meet),
   );
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({

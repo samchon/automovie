@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,7 +58,7 @@ export function test_engine_motion_locomote_motion(): void {
           y: 0,
           z: 0.8 * distance,
         }) &&
-        vclose(Quaternion.rotateVector(end.rotation, { x: 0, y: 0, z: 1 }), {
+        vclose(AutoMovieEngineQuaternion.rotateVector(end.rotation, { x: 0, y: 0, z: 1 }), {
           x: 0.6,
           y: 0,
           z: 0.8,

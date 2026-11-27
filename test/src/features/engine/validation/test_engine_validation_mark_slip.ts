@@ -1,4 +1,6 @@
-import { markAutoMovieSlip } from "@automovie/engine/internal";
+import {
+  markAutoMovieSlip
+} from "../../../../../packages/engine/src/validation/internal/markAutoMovieSlip";
 import type { IAutoMovieMark, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

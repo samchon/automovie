@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import { type AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
-import * as HorseBandsData from "./internal/HorseBandsData";
+import { HorseBandsData } from "./internal/HorseBandsData";
 
 /*
  * The band of each free dimension of a saddle horse, with the source it was

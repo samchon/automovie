@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -70,17 +70,17 @@ export function prepareWalkReachSwing(
     // point, the early swing's heel recovery, the knee bending as the foot
     // trails (on the boundary itself it is the point).
     const reachOf = (point: IAutoMovieVector3): IAutoMovieVector3 => {
-      let v: IAutoMovieVector3 = Vector3.subtract(point, h);
-      const d: number = Vector3.length(v);
-      if (d > limit) v = Vector3.scale(v, limit / d);
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(frame),
+      let v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, h);
+      const d: number = AutoMovieEngineVector3.length(v);
+      if (d > limit) v = AutoMovieEngineVector3.scale(v, limit / d);
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(frame),
         v,
       );
       // The leg's own plane includes its abduction.
       const down: number = Math.hypot(local.x, local.y);
       const beta: number = Math.atan2(local.x, -local.y);
-      const extension: number = extensionAt + behind(Vector3.length(v));
+      const extension: number = extensionAt + behind(AutoMovieEngineVector3.length(v));
       // A walking leg keeps the hip-to-ankle distance and its knee angle at
       // the extension boundary; a running one (given its departure) folds.
       if (
@@ -90,7 +90,7 @@ export function prepareWalkReachSwing(
       ) {
         const reach: number = Math.hypot(local.z, down);
         const y: number = -reach * Math.cos(extension);
-        v = Quaternion.rotateVector(frame, {
+        v = AutoMovieEngineQuaternion.rotateVector(frame, {
           x: -y * Math.sin(beta),
           y: y * Math.cos(beta),
           z: -reach * Math.sin(extension),
@@ -101,16 +101,16 @@ export function prepareWalkReachSwing(
           y: -m.thigh * Math.cos(extensionAt) * Math.cos(beta),
           z: -m.thigh * Math.sin(extensionAt),
         };
-        const shank: IAutoMovieVector3 = Vector3.subtract(local, knee);
-        const length: number = Vector3.length(shank);
-        v = Quaternion.rotateVector(
+        const shank: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(local, knee);
+        const length: number = AutoMovieEngineVector3.length(shank);
+        v = AutoMovieEngineQuaternion.rotateVector(
           frame,
           length > 0
-            ? Vector3.add(knee, Vector3.scale(shank, m.shank / length))
+            ? AutoMovieEngineVector3.add(knee, AutoMovieEngineVector3.scale(shank, m.shank / length))
             : knee,
         );
       }
-      return Vector3.add(h, v);
+      return AutoMovieEngineVector3.add(h, v);
     };
     let ankle: IAutoMovieVector3 = reachOf(foot.placement.ankle);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
@@ -204,7 +204,7 @@ export function prepareWalkReachSwing(
       AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share) / bounds.fade)),
       AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, 1 - share) / bounds.fade)),
     );
-    let joined: IAutoMovieVector3 = Vector3.lerp(
+    let joined: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       foot.placement.ankle,
       ankle,
       held,
@@ -214,14 +214,14 @@ export function prepareWalkReachSwing(
     // margin it keeps inside the limit, `walkLeg.ANKLE`): the range goes
     // with the reach ranges into a landing, so the swing lands on that
     // stance's foot. Only a turn in place fades into its landing.
-    const asked: IAutoMovieQuaternion = Quaternion.slerp(
+    const asked: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
       foot.placement.rotation,
       rotation,
       held,
     );
     const ranged: IAutoMovieQuaternion = ankleRange(h, joined, asked);
     let turned: IAutoMovieQuaternion =
-      share > 0.5 ? Quaternion.slerp(asked, ranged, held) : ranged;
+      share > 0.5 ? AutoMovieEngineQuaternion.slerp(asked, ranged, held) : ranged;
     const low: number = lowest({ ankle: joined, rotation: turned });
     if (low < target) joined = { ...joined, y: joined.y + target - low };
 
@@ -283,9 +283,9 @@ export function prepareWalkReachSwing(
     // between the two by whether the reach moved the ankle at all flipped
     // the foot on a rounding.
     if (leaving !== undefined && share < 0.5) {
-      joined = Vector3.subtract(
+      joined = AutoMovieEngineVector3.subtract(
         reachOf(joined),
-        Vector3.scale(leaving, 1 - held),
+        AutoMovieEngineVector3.scale(leaving, 1 - held),
       );
       turned = ankleRange(h, joined, asked);
       const under: number = lowest({ ankle: joined, rotation: turned });
@@ -294,13 +294,13 @@ export function prepareWalkReachSwing(
       // The sole-anchor blend can pull the ankle beyond the leg's length as
       // the pelvis recedes from a backward step. Keep the boundary at full
       // extension, bringing in the swing's knee limit with its reach weight.
-      const span: IAutoMovieVector3 = Vector3.subtract(joined, h);
-      const squared: number = Vector3.dot(span, span);
+      const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(joined, h);
+      const squared: number = AutoMovieEngineVector3.dot(span, span);
       const maximum: number = straight + (limit - straight) * held;
       if (squared > maximum * maximum) {
-        joined = Vector3.addScaled(h, span, maximum / Math.sqrt(squared));
+        joined = AutoMovieEngineVector3.addScaled(h, span, maximum / Math.sqrt(squared));
         const bounded: IAutoMovieQuaternion = ankleRange(h, joined, asked);
-        turned = share > 0.5 ? Quaternion.slerp(asked, bounded, held) : bounded;
+        turned = share > 0.5 ? AutoMovieEngineQuaternion.slerp(asked, bounded, held) : bounded;
       }
     }
     return { ankle: joined, rotation: turned, toes: foot.toes, lift: raised };

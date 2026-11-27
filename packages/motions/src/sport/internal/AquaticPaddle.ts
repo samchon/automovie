@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
@@ -208,8 +208,8 @@ export namespace AquaticPaddle {
                 y: 0,
                 z: size * 0.025 * drive,
               })
-            : Vector3.scale(rail.travel, drive);
-        const root: IAutoMovieVector3 = Vector3.add(
+            : AutoMovieEngineVector3.scale(rail.travel, drive);
+        const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           rail?.root ?? hull.root,
           slide,
         );
@@ -283,37 +283,37 @@ export namespace AquaticPaddle {
       "leftUpperLeg",
       "rightUpperLeg",
     ])(upright);
-    const offset: IAutoMovieVector3 = Vector3.subtract(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       at.get("hips")!.worldPosition,
       nominal.get("hips")!.worldPosition,
     );
-    const root: IAutoMovieVector3 = Vector3.add(
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hull.root,
-      Quaternion.rotateVector(hull.inverse, offset),
+      AutoMovieEngineQuaternion.rotateVector(hull.inverse, offset),
     );
     const aft: IAutoMovieVector3 = AquaticCrew.direction(context, hull, {
       x: 0,
       y: 0,
       z: -1,
     });
-    const along: IAutoMovieVector3 = Vector3.normalize({ ...aft, y: 0 });
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({ ...aft, y: 0 });
     const { thigh, shank } = body.measure;
     const reachSquared: number = thigh ** 2 + shank ** 2 + 2 * thigh * shank;
     let distance: number = body.measure.stature * 0.18;
     for (const side of ["left", "right"] as const) {
-      const hip: IAutoMovieVector3 = Vector3.add(
+      const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         nominal.get(`${side}UpperLeg`)!.worldPosition,
         offset,
       );
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         hull.inverse,
-        Vector3.subtract(hip, hull.origin.position),
+        AutoMovieEngineVector3.subtract(hip, hull.origin.position),
       );
-      const leg: IAutoMovieVector3 = Vector3.subtract(local, hull.feet[side]);
-      const projected: number = Vector3.dot(leg, along);
+      const leg: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(local, hull.feet[side]);
+      const projected: number = AutoMovieEngineVector3.dot(leg, along);
       const discriminant: number =
-        reachSquared - Vector3.dot(leg, leg) + projected ** 2;
-      if (Vector3.dot(leg, leg) > reachSquared)
+        reachSquared - AutoMovieEngineVector3.dot(leg, leg) + projected ** 2;
+      if (AutoMovieEngineVector3.dot(leg, leg) > reachSquared)
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "footRest",
@@ -326,7 +326,7 @@ export namespace AquaticPaddle {
         Math.max(0, Math.sqrt(discriminant) - projected),
       );
     }
-    return { root, travel: Vector3.scale(along, distance) };
+    return { root, travel: AutoMovieEngineVector3.scale(along, distance) };
   }
 }
 

@@ -1,6 +1,6 @@
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
 
-import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
+import { AutoMovieEngineRec709Xyz } from "../../AutoMovieEngineRec709Xyz";
 import { autoMoviePlanckianWhite } from "./autoMoviePlanckianWhite";
 
 /*
@@ -30,7 +30,7 @@ export function autoMovieFilmResponseMatrix(
 
   // Cone responses of the two whites.
   const source: number[] = multiplyVector(
-    multiply(CAT02, AUTOMOVIE_REC709_XYZ.toXyz),
+    multiply(CAT02, AutoMovieEngineRec709Xyz.toXyz),
     autoMoviePlanckianWhite(optics.whiteBalance),
   );
   const target: number[] = multiplyVector(CAT02, [
@@ -53,10 +53,10 @@ export function autoMovieFilmResponseMatrix(
   // RGB → XYZ → LMS, scale, LMS → XYZ → RGB, then expose.
   const adaptation: number[] = multiply(
     multiply(
-      multiply(AUTOMOVIE_REC709_XYZ.fromXyz, invert(CAT02)),
+      multiply(AutoMovieEngineRec709Xyz.fromXyz, invert(CAT02)),
       multiply(gain, CAT02),
     ),
-    AUTOMOVIE_REC709_XYZ.toXyz,
+    AutoMovieEngineRec709Xyz.toXyz,
   );
   return adaptation.map((value: number): number => value * scale);
 }

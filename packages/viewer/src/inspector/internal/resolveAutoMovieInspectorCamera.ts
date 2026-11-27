@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionView } from "@automovie/interface";
-import { type IAutoMovieDrawScene, type IAutoMovieInspectionHandle, AutoMovieRenderInspectionCamera, AutoMovieRenderInspectionRequest } from "@automovie/render";
+import { type IAutoMovieRenderDrawScene, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspectionCamera, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import type * as THREE from "three";
 
 /*
@@ -16,7 +16,7 @@ export function resolveAutoMovieInspectorCamera(props: {
   /*
    * The created subject, placed at `seconds`.
    */
-  instance: IAutoMovieDrawScene;
+  instance: IAutoMovieRenderDrawScene;
 
   /*
    * The view's text, the request's first view.
@@ -26,7 +26,7 @@ export function resolveAutoMovieInspectorCamera(props: {
   /*
    * The applied inspection, whose bounds frame a focused named view.
    */
-  inspection: IAutoMovieInspectionHandle;
+  inspection: IAutoMovieRenderInspectionHandle;
 
   /*
    * The placed second.

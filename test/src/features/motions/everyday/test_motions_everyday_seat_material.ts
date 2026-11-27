@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -8,7 +8,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
-import { HumanMaterialContact, seated } from "@automovie/motions/internal";
+import {
+  HumanMaterialContact
+} from "../../../../../packages/motions/src/posture/internal/HumanMaterialContact";
+import {
+  seated
+} from "../../../../../packages/motions/src/everyday/internal/seated";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -34,7 +39,7 @@ export async function test_motions_everyday_seat_material(): Promise<void> {
       depth: 0.5,
       frame: {
         translation: { ...front, x: offset },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
         scale: { x: 1, y: 1, z: 1 },
       },
     };
@@ -43,7 +48,7 @@ export async function test_motions_everyday_seat_material(): Promise<void> {
       fixed: true,
       frame: {
         position: { x: 0, y: 0, z: 0 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       points: {
         seat: {

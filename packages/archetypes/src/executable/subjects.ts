@@ -1,10 +1,10 @@
 import type { IAutoMovieMark, IAutoMovieTransform } from "@automovie/interface";
 import {
-  type AutoMovieDrawSubjects,
-  AutoMovieThreeKind,
-  type IAutoMovieDrawScene,
-  type IAutoMovieDrawSubject,
-  type IAutoMovieModelObject,
+  type AutoMovieRenderDrawSubjects,
+  AutoMovieRenderThreeKind,
+  type IAutoMovieRenderDrawScene,
+  type IAutoMovieRenderDrawSubject,
+  type IAutoMovieRenderModelObject,
   AutoMovieRenderSceneLayout,
 } from "@automovie/render";
 import * as THREE from "three";
@@ -43,17 +43,17 @@ import { archetypeQuadrupedMarks } from "./internal/archetypeQuadrupedMarks";
  * pnpm capture --subject seats --views "three-quarter@focus=set/seat-office;right@ortho@focus=set/seat-office" --marks "affordance/*"
  * ```
  */
-export const subjects: AutoMovieDrawSubjects = (): Readonly<
-  Record<string, IAutoMovieDrawSubject>
+export const subjects: AutoMovieRenderDrawSubjects = (): Readonly<
+  Record<string, IAutoMovieRenderDrawSubject>
 > =>
   Object.fromEntries(
     Object.entries(archetypeCaptureCatalog()).map(
       ([name, entry]: [string, archetypeCaptureCatalog.ISubject]): [
         string,
-        IAutoMovieDrawSubject,
+        IAutoMovieRenderDrawSubject,
       ] => [
         name,
-        { create: async (): Promise<IAutoMovieDrawScene> => build(entry) },
+        { create: async (): Promise<IAutoMovieRenderDrawScene> => build(entry) },
       ],
     ),
   );
@@ -84,7 +84,7 @@ const FPS: number = 30;
 /*
  * Build one subject's scene.
  */
-function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
+function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieRenderDrawScene {
   const scene: THREE.Scene = new THREE.Scene();
   scene.background = new THREE.Color(0xeef1f5);
   scene.add(new THREE.AmbientLight(0xffffff, 0.75));
@@ -103,7 +103,7 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
   let cursor: number = 0;
   let depth: number = 0;
   for (const member of entry.members) {
-    const probe: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(
+    const probe: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(
       member.at(0).archetype,
     );
     const box: THREE.Box3 = new THREE.Box3().setFromObject(probe.object);
@@ -134,7 +134,7 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
       ): ReturnType<typeof archetypeQuadrupedMarks> =>
         archetypeQuadrupedMarks(member.reference),
     );
-  let current: IAutoMovieModelObject[] = [];
+  let current: IAutoMovieRenderModelObject[] = [];
   let marks: IAutoMovieMark[] = [];
   const place = (seconds: number): THREE.Object3D[] => {
     for (const built of current) release(built);
@@ -167,7 +167,7 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
               arrows[index]!,
             ),
           ];
-          const built: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(
+          const built: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(
             posed.archetype,
           );
           built.object.name = member.name;
@@ -196,7 +196,7 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
       throw error;
     }
     return current.map(
-      (built: IAutoMovieModelObject): THREE.Object3D => built.object,
+      (built: IAutoMovieRenderModelObject): THREE.Object3D => built.object,
     );
   };
 
@@ -271,11 +271,11 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
 /*
  * Take a built model out of its parent and release its geometry and materials.
  */
-function release(built: IAutoMovieModelObject): void {
+function release(built: IAutoMovieRenderModelObject): void {
   built.object.removeFromParent();
   built.object.traverse((object: THREE.Object3D): void => {
     // three's literal class flag tells a mesh, whose resources are its own.
-    if (!AutoMovieThreeKind.isMesh(object)) return;
+    if (!AutoMovieRenderThreeKind.isMesh(object)) return;
     object.geometry.dispose();
     for (const material of [object.material].flat()) material.dispose();
   });

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -49,22 +49,22 @@ export function throwObjectSwing(
       // line's nearest approach to it is measured across the floor, so a
       // line drawn over the chest, through the face, is caught as one
       // through the trunk is.
-      const line: IAutoMovieVector3 = Vector3.subtract(to, from);
+      const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
       const flat: IAutoMovieVector3 = { x: line.x, y: 0, z: line.z };
-      const span: number = Vector3.dot(flat, flat);
+      const span: number = AutoMovieEngineVector3.dot(flat, flat);
       const s: number =
         span > 1e-12
           ? Math.min(
               1,
               Math.max(
                 0,
-                Vector3.dot(Vector3.subtract(chest, from), flat) / span,
+                AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(chest, from), flat) / span,
               ),
             )
           : 0;
-      const nearest: IAutoMovieVector3 = Vector3.add(
+      const nearest: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         from,
-        Vector3.scale(line, s),
+        AutoMovieEngineVector3.scale(line, s),
       );
       const away: IAutoMovieVector3 = {
         x: nearest.x - chest.x,
@@ -76,8 +76,8 @@ export function throwObjectSwing(
         body.measure.stature -
         body.measure.chestHeight +
         2 * body.measure.forearmRadius;
-      const depth: number = radius - Vector3.length(away);
-      if (depth <= 0 || nearest.y > crown) return Vector3.lerp(from, to, u);
+      const depth: number = radius - AutoMovieEngineVector3.length(away);
+      if (depth <= 0 || nearest.y > crown) return AutoMovieEngineVector3.lerp(from, to, u);
 
       // The detour leaves the column across the floor, at the height the
       // line has there, around the front: an arm carries its hand past the
@@ -89,11 +89,11 @@ export function throwObjectSwing(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
         { x: 0, y: 0, z: 1 },
       );
-      const behind: number = Math.min(0, Vector3.dot(away, ahead));
-      const out: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.add(
-          Vector3.subtract(away, Vector3.scale(ahead, 2 * behind)),
-          Vector3.scale(ahead, depth),
+      const behind: number = Math.min(0, AutoMovieEngineVector3.dot(away, ahead));
+      const out: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.subtract(away, AutoMovieEngineVector3.scale(ahead, 2 * behind)),
+          AutoMovieEngineVector3.scale(ahead, depth),
         ),
       );
       const clear: IAutoMovieVector3 = {
@@ -102,16 +102,16 @@ export function throwObjectSwing(
         z: chest.z + out.z * radius,
       };
       // A quadratic through `clear` at its middle.
-      const control: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.scale(clear, 2),
-        Vector3.scale(Vector3.add(from, to), 0.5),
+      const control: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.scale(clear, 2),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5),
       );
-      return Vector3.add(
-        Vector3.add(
-          Vector3.scale(from, (1 - u) * (1 - u)),
-          Vector3.scale(control, 2 * u * (1 - u)),
+      return AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(from, (1 - u) * (1 - u)),
+          AutoMovieEngineVector3.scale(control, 2 * u * (1 - u)),
         ),
-        Vector3.scale(to, u * u),
+        AutoMovieEngineVector3.scale(to, u * u),
       );
     },
     elbow: (
@@ -129,7 +129,7 @@ export function throwObjectSwing(
         side,
         goal,
         (along: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.cross(along, right),
+          AutoMovieEngineVector3.cross(along, right),
       );
     },
   };

@@ -1,8 +1,8 @@
 import {
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  hingedArmSwivel,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineHingedArmSwivel,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -46,37 +46,37 @@ export function HumanArmTrajectoryEffector(
 ): (progress: number, reference: readonly number[]) => number[] | undefined {
   const start: Chain = G.chain(setup, from.frame, from.coordinates);
   const finish: Chain = G.chain(setup, to.frame, to.coordinates);
-  const away: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(to.frame.parent.rotation),
-    Vector3.subtract(finish.wrist, to.frame.parent.position),
+  const away: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(to.frame.parent.rotation),
+    AutoMovieEngineVector3.subtract(finish.wrist, to.frame.parent.position),
   );
-  const end: IAutoMovieVector3 = Vector3.add(
+  const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     from.frame.parent.position,
-    Quaternion.rotateVector(from.frame.parent.rotation, away),
+    AutoMovieEngineQuaternion.rotateVector(from.frame.parent.rotation, away),
   );
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     from.frame.parent.rotation,
-    Quaternion.multiply(
-      Quaternion.inverse(to.frame.parent.rotation),
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(to.frame.parent.rotation),
       finish.hand,
     ),
   );
   const startPoint: IAutoMovieVector3 =
     contact === undefined
       ? start.wrist
-      : Vector3.add(start.wrist, Quaternion.rotateVector(start.hand, contact));
+      : AutoMovieEngineVector3.add(start.wrist, AutoMovieEngineQuaternion.rotateVector(start.hand, contact));
   const endPoint: IAutoMovieVector3 =
     contact === undefined
       ? end
-      : Vector3.add(end, Quaternion.rotateVector(rotation, contact));
+      : AutoMovieEngineVector3.add(end, AutoMovieEngineQuaternion.rotateVector(rotation, contact));
   const root: IAutoMovieHingedChainGeometry["upper"] = {
     worldPosition: start.shoulder,
-    worldRotation: Quaternion.multiply(
+    worldRotation: AutoMovieEngineQuaternion.multiply(
       from.frame.parent.rotation,
       setup.rest.upper.rotation,
     ),
   };
-  const source: IAutoMovieHingedArmSwivel.IPrepared = hingedArmSwivel.prepare({
+  const source: IAutoMovieHingedArmSwivel.IPrepared = AutoMovieEngineHingedArmSwivel.prepare({
     upper: root,
     midOffset: setup.rest.lower.translation,
     midRest: setup.rest.lower.rotation,
@@ -86,7 +86,7 @@ export function HumanArmTrajectoryEffector(
   const anatomical: IAutoMovieAngleRange | null | undefined =
     setup.constraint.lower?.flexion;
   const frame: IAutoMovieAxisFrame | undefined =
-    HUMANOID_REST_FRAME[setup.bones.lower]?.flexion;
+    AutoMovieEngineHumanoidRestFrame[setup.bones.lower]?.flexion;
   const rad: number = Math.PI / 180;
   const fromAngle: number | null = AutoMovieEngineKinematics.toRigAngle(anatomical?.min ?? null, frame);
   const toAngle: number | null = AutoMovieEngineKinematics.toRigAngle(anatomical?.max ?? null, frame);
@@ -100,8 +100,8 @@ export function HumanArmTrajectoryEffector(
   // The tolerance is the arm's length times the square root of machine
   // epsilon, the distance resolution after recovering a bend with acos.
   const precision: number =
-    (Vector3.length(setup.rest.lower.translation) +
-      Vector3.length(setup.rest.hand.translation)) *
+    (AutoMovieEngineVector3.length(setup.rest.lower.translation) +
+      AutoMovieEngineVector3.length(setup.rest.hand.translation)) *
     Math.sqrt(Number.EPSILON);
 
   // A hand that starts low over a surface turns only once the path has
@@ -123,12 +123,12 @@ export function HumanArmTrajectoryEffector(
     const hand: IAutoMovieQuaternion | undefined =
       contact === undefined
         ? undefined
-        : Quaternion.slerp(
+        : AutoMovieEngineQuaternion.slerp(
             start.hand,
             rotation,
             Math.max(0, (progress - lifted) / (1 - lifted)),
           );
-    const point: IAutoMovieVector3 = Vector3.lerp(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       startPoint,
       endPoint,
       progress,
@@ -136,7 +136,7 @@ export function HumanArmTrajectoryEffector(
     const wrist: IAutoMovieVector3 =
       contact === undefined || hand === undefined
         ? point
-        : Vector3.subtract(point, Quaternion.rotateVector(hand, contact));
+        : AutoMovieEngineVector3.subtract(point, AutoMovieEngineQuaternion.rotateVector(hand, contact));
     const target: IAutoMovieHingedArmSwivel.IPreparedTarget = source.target(
       wrist,
       flexion,
@@ -182,13 +182,13 @@ export function HumanArmTrajectoryEffector(
         ],
       });
       const placed: Chain = G.chain(setup, from.frame, c);
-      if (Vector3.distance(placed.wrist, wrist) > precision) continue;
+      if (AutoMovieEngineVector3.distance(placed.wrist, wrist) > precision) continue;
       if (hand !== undefined) {
         HumanArmTrajectoryDistal(setup, placed.upper, hand, c);
         const shown: Chain = G.chain(setup, from.frame, c);
         if (
           1 - Math.abs(dot(hand, shown.hand)) > Math.sqrt(Number.EPSILON) ||
-          Vector3.distance(shown.wrist, wrist) > precision
+          AutoMovieEngineVector3.distance(shown.wrist, wrist) > precision
         )
           continue;
       }

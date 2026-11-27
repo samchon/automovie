@@ -1,4 +1,4 @@
-import { AutoMovieChain } from "@automovie/engine";
+import { AutoMovieEngineChain } from "@automovie/engine";
 import type {
   IAutoMovieChain,
   IAutoMovieComposition,
@@ -18,7 +18,7 @@ import { AutoMovieMotionHumanChainSport } from "./AutoMovieMotionHumanChainSport
  * action of the vocabulary, `act` for the same action by its name, `registered`
  * for a production's own law by its name, `until` to cut the last one, `sync`
  * to time it to another action or a cue, `over` to perform other actions on it
- * at once (`AutoMovieMotionHumanChainCore`), and `next` and `with` (from `AutoMovieChain`) to
+ * at once (`AutoMovieMotionHumanChainCore`), and `next` and `with` (from `AutoMovieEngineChain`) to
  * sequence and parallel whole chains, people with people. Its statics start a
  * chain (`subject`), give registered laws typed methods (`extend`) and join
  * people in a mutual action (`mutual`, and `pair` for a handshake and a
@@ -126,13 +126,13 @@ export class AutoMovieMotionHumanChain extends AutoMovieMotionHumanChainSport {
    *
    * Every chain of the cast plays first, side by side, and then every role
    * performs its part of the mutual action at once, so each person's earlier
-   * actions are placed before any role plans the meeting. `HumanMutual` holds
+   * actions are placed before any role plans the meeting. `AutoMovieMotionHumanMutual` holds
    * the vocabulary's mutual actions; a production states its own as an
    * `IHumanMutual` over its registered laws.
    *
    * ```ts
-   * HumanChain.mutual(
-   *   HumanMutual.handOver,
+   * AutoMovieMotionHumanChain.mutual(
+   *   AutoMovieMotionHumanMutual.handOver,
    *   { giver: a, receiver: b },
    *   { prop: "cup", handle: "body" },
    * );
@@ -163,7 +163,7 @@ export class AutoMovieMotionHumanChain extends AutoMovieMotionHumanChainSport {
       throw new Error(
         `${mutual.name} casts one person in two roles: ${mutual.roles.map((role: Role): string => `${role} is ${subjects[role]}`).join(", ")}`,
       );
-    return new AutoMovieChain({
+    return new AutoMovieEngineChain({
       type: "sequence",
       parts: [
         {

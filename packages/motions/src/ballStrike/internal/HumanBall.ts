@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -82,9 +82,9 @@ export namespace HumanBall {
       });
     const frame: IAutoMovieRigidTransform = readFrame();
     return {
-      centre: Vector3.add(
+      centre: AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, grip.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, grip.frame.translation),
       ),
       radius: grip.aperture! / 2,
     };

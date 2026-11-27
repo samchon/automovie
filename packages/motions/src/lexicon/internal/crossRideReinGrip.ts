@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -57,7 +57,7 @@ export function crossRideReinGrip(
     posture,
     grip,
   ).rotation!;
-  const normal: IAutoMovieVector3 = Vector3.normalize(grip.normal);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(grip.normal);
   if (shown !== undefined) {
     // The hand's turn as the law before asked it, its arm's goal, so the hold continues that goal exactly; the displayed hand where it gave none.
     const asked: IAutoMovieQuaternion | undefined =
@@ -71,9 +71,9 @@ export function crossRideReinGrip(
         undefined,
         new Set<AutoMovieHumanoidBone>([bone]),
       ).get(bone)!.worldRotation;
-    const delta: IAutoMovieQuaternion = Quaternion.multiply(
+    const delta: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       turned,
-      Quaternion.inverse(square),
+      AutoMovieEngineQuaternion.inverse(square),
     );
     const twist: number =
       (2 *
@@ -85,7 +85,7 @@ export function crossRideReinGrip(
       Math.PI;
     return twist - 360 * Math.round(twist / 360);
   }
-  const skin: IAutoMovieVector3 = Vector3.addScaled(
+  const skin: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     grip.point,
     grip.normal,
     grip.radius ?? 0,

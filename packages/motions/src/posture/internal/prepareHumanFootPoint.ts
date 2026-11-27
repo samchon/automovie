@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
@@ -38,5 +38,5 @@ function pointAt(
   local: IAutoMovieVector3,
   foot: IAutoMovieMotionHumanFoot.IPlacement,
 ): IAutoMovieVector3 {
-  return Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, local));
+  return AutoMovieEngineVector3.add(foot.ankle, AutoMovieEngineQuaternion.rotateVector(foot.rotation, local));
 }

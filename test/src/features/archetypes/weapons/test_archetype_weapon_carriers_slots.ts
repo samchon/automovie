@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeHolster } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -55,8 +55,8 @@ export function test_archetype_weapon_carriers_slots(): void {
       for (let j: number = i + 1; j < slots.length; j++)
         if (
           !(
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 slots[i]!.frame.translation,
                 slots[j]!.frame.translation,
               ),

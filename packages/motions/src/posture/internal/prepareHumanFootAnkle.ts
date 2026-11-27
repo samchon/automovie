@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieQuaternion,
@@ -32,17 +32,17 @@ export function prepareHumanFootAnkle(
   // The foot's rotation at zero pitch (heading, no roll): the images of its
   // three axes are the columns every pitch's rotation is composed with.
   const level: IAutoMovieQuaternion = HumanFootRotation.prepare(heading, 0)(0);
-  const xs: IAutoMovieVector3 = Quaternion.rotateVector(level, {
+  const xs: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(level, {
     x: 1,
     y: 0,
     z: 0,
   });
-  const ys: IAutoMovieVector3 = Quaternion.rotateVector(level, {
+  const ys: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(level, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const zs: IAutoMovieVector3 = Quaternion.rotateVector(level, {
+  const zs: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(level, {
     x: 0,
     y: 0,
     z: 1,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineViolationCollector } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -43,17 +43,17 @@ export function checkSupportTransferDock(
     checkLevel(endpoint, endpoint.rotation, start);
   }
   const samples: number = Math.ceil(duration * 120);
-  const inversePlatform: IAutoMovieQuaternion = Quaternion.inverse(
+  const inversePlatform: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     from.propFrame.rotation,
   );
-  const inverseDeck: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverseDeck: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     to.propFrame.rotation,
   );
-  const platformToSurface: IAutoMovieVector3 = Vector3.subtract(
+  const platformToSurface: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     to.origin,
     from.propFrame.position,
   );
-  const deckToSurface: IAutoMovieVector3 = Vector3.subtract(
+  const deckToSurface: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     to.origin,
     to.propFrame.position,
   );
@@ -87,19 +87,19 @@ export function checkSupportTransferDock(
 
     checkFrame(admission, from, platform, time);
     checkFrame(admission, to, deck, time);
-    const platformTurn: IAutoMovieQuaternion = Quaternion.multiply(
+    const platformTurn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       platform.rotation,
       inversePlatform,
     );
-    const deckTurn: IAutoMovieQuaternion = Quaternion.multiply(
+    const deckTurn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       deck.rotation,
       inverseDeck,
     );
-    const platformRotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const platformRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       platformTurn,
       from.rotation,
     );
-    const deckRotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const deckRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       deckTurn,
       to.rotation,
     );
@@ -109,16 +109,16 @@ export function checkSupportTransferDock(
     // Compare the named deck surface carried by each prop's rigid motion.
     // A small turn about a distant pivot can move the rectangle noticeably.
     const expected: IAutoMovieRigidTransform = {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         platform.position,
-        Quaternion.rotateVector(platformTurn, platformToSurface),
+        AutoMovieEngineQuaternion.rotateVector(platformTurn, platformToSurface),
       ),
-      rotation: Quaternion.multiply(platformTurn, to.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(platformTurn, to.rotation),
     };
     const actual: IAutoMovieRigidTransform = {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         deck.position,
-        Quaternion.rotateVector(deckTurn, deckToSurface),
+        AutoMovieEngineQuaternion.rotateVector(deckTurn, deckToSurface),
       ),
       rotation: deckRotation,
     };
@@ -127,13 +127,13 @@ export function checkSupportTransferDock(
       corners.some(
         (corner: IAutoMovieVector3): boolean =>
           !closePoint(
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               expected.position,
-              Quaternion.rotateVector(expected.rotation, corner),
+              AutoMovieEngineQuaternion.rotateVector(expected.rotation, corner),
             ),
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               actual.position,
-              Quaternion.rotateVector(actual.rotation, corner),
+              AutoMovieEngineQuaternion.rotateVector(actual.rotation, corner),
             ),
           ),
       )
@@ -217,7 +217,7 @@ function checkLevel(
   rotation: IAutoMovieQuaternion,
   time: number,
 ): void {
-  if (!(Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }).y >= 0.999999))
+  if (!(AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }).y >= 0.999999))
     throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: endpoint.axis,
@@ -235,7 +235,7 @@ function closePoint(
   expected: IAutoMovieVector3,
   actual: IAutoMovieVector3,
 ): boolean {
-  return Vector3.length(Vector3.subtract(actual, expected)) <= 0.001;
+  return AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(actual, expected)) <= 0.001;
 }
 
 /*
@@ -245,8 +245,8 @@ function aligned(
   expected: IAutoMovieRigidTransform,
   actual: IAutoMovieRigidTransform,
 ): boolean {
-  const delta: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(expected.rotation),
+  const delta: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(expected.rotation),
     actual.rotation,
   );
   return (

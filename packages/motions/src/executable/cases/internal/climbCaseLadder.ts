@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -24,7 +24,7 @@ export function climbCaseLadder(): IAutoMovieMotionHumanProp {
     (_: unknown, i: number): IAutoMovieAffordance => ({
       id: `rung${i + 1}`,
       kind: "bar",
-      frame: Transform.of({ x: 0, y: 0.3 * (i + 1), z: 0 }, out),
+      frame: AutoMovieEngineTransform.of({ x: 0, y: 0.3 * (i + 1), z: 0 }, out),
       extent: null,
       grip: "power",
       aperture: 0.03,

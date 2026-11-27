@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHeadRest, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanTarget, IAutoMovieMotionManner, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
@@ -19,7 +19,7 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { headRestAim } from "./headRestAim";
 import { kissBody } from "./kissBody";
 import { requireOtherPerformer } from "./requireOtherPerformer";
-import * as HeadRestData from "./HeadRestData";
+import { HeadRestData } from "./HeadRestData";
 
 /*
  * Rest the head on a partner. The resting head's own region, the temple on the
@@ -108,9 +108,9 @@ function planHeadRest(
   const solved: headRestAim.ISolved = aim.solve(at);
   if (solved.miss > HeadRestData.NEAR) {
     // Where the region lies from the head's region at entry, in the performer's frame: left, up, ahead.
-    const away: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -entry.yaw),
-      Vector3.subtract(at, HumanTrunk.region(body, entry, own).point),
+    const away: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -entry.yaw),
+      AutoMovieEngineVector3.subtract(at, HumanTrunk.region(body, entry, own).point),
     );
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
@@ -126,7 +126,7 @@ function planHeadRest(
     p.manner,
   );
   const approach: number = AutoMovieMotionHumanTiming.transport(
-    Vector3.distance(HumanTrunk.region(body, entry, own).point, at),
+    AutoMovieEngineVector3.distance(HumanTrunk.region(body, entry, own).point, at),
   );
   const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({
@@ -216,9 +216,9 @@ function planHeadRest(
             const goal: IAutoMovieHumanLimbGoal | undefined =
               posture.limbs[limb];
             if (goal === undefined) return posture;
-            const ahead: IAutoMovieVector3 = Vector3.scale(
-              Quaternion.rotateVector(
-                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
+            const ahead: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+              AutoMovieEngineQuaternion.rotateVector(
+                AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
                 { x: 0, y: 0, z: 1 },
               ),
               HeadRestData.SLIDE * share(seconds),
@@ -229,8 +229,8 @@ function planHeadRest(
                 ...posture.limbs,
                 [limb]: {
                   ...goal,
-                  point: Vector3.add(goal.point, ahead),
-                  bend: Vector3.add(goal.bend, ahead),
+                  point: AutoMovieEngineVector3.add(goal.point, ahead),
+                  bend: AutoMovieEngineVector3.add(goal.bend, ahead),
                 },
               },
             };
@@ -362,8 +362,8 @@ function side(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadRest>,
   at: IAutoMovieVector3,
 ): AutoMovieHumanoidRegion {
-  const left: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.entry.posture.yaw),
+  const left: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.entry.posture.yaw),
     { x: 1, y: 0, z: 0 },
   );
   const head: IAutoMovieVector3 = HumanTrunk.region(
@@ -371,7 +371,7 @@ function side(
     context.entry.posture,
     "crown",
   ).point;
-  return Vector3.dot(Vector3.subtract(at, head), left) >= 0
+  return AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(at, head), left) >= 0
     ? "templeLeft"
     : "templeRight";
 }

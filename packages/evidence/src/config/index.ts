@@ -1,2 +1,2 @@
 export * from "./AutoMovieEvidenceConfig";
-export type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
+export type * from "./IAutoMovieEvidenceConfigProps";

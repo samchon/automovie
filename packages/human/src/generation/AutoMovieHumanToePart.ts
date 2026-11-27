@@ -1,4 +1,4 @@
-import { AutoMovieViewParallelAxis } from "@automovie/engine";
+import { AutoMovieEngineViewParallelAxis } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionParallelAxis,
@@ -72,7 +72,7 @@ export namespace AutoMovieHumanToePart {
       AutoMovieHumanSiteViewPart.define(declaration);
     if (prepared.part === null) return prepared;
     const axis: IAutoMovieViewAxis.IAxis | string =
-      AutoMovieViewParallelAxis.create(
+      AutoMovieEngineViewParallelAxis.create(
         declaration.origin,
         [0, 1, 0],
         [input.along[2], 0, -input.along[0]],

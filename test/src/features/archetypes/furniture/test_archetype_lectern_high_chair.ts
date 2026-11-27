@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeUnits, AutoMovieArchetypeHighChair, AutoMovieArchetypeLectern } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,9 +33,9 @@ export function test_archetype_lectern_high_chair(): void {
   const top: IAutoMovieAffordance = lectern.affordance("top");
   near("the surface's width", top.width!, 23 * AutoMovieArchetypeUnits.INCH);
   near("the surface's depth", top.depth!, 15.75 * AutoMovieArchetypeUnits.INCH);
-  const normal: ReturnType<typeof Vector3.create> = Quaternion.rotateVector(
+  const normal: ReturnType<typeof AutoMovieEngineVector3.create> = AutoMovieEngineQuaternion.rotateVector(
     top.frame.rotation,
-    Vector3.create(0, 1, 0),
+    AutoMovieEngineVector3.create(0, 1, 0),
   );
   near(
     "the surface's slope",

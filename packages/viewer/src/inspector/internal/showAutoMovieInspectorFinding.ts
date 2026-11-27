@@ -1,5 +1,5 @@
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
-import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
+import type { IAutoMovieViewerInspectorAction } from "../IAutoMovieViewerInspectorAction.js";
 import { locateAutoMovieInspectorFinding } from "./locateAutoMovieInspectorFinding.js";
 
 /*
@@ -16,7 +16,7 @@ export function showAutoMovieInspectorFinding(
   props: AutoMovieViewerInspector.IShowFindingRequest,
 ): void {
   const { observation, paths, playhead, dispatch }: AutoMovieViewerInspector.IShowFindingRequest = props;
-  const action: IAutoMovieInspectorAction.ILocate =
+  const action: IAutoMovieViewerInspectorAction.ILocate =
     locateAutoMovieInspectorFinding({ observation, paths });
   playhead.seek(action.seconds);
   playhead.pause();

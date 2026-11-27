@@ -1,16 +1,22 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
-import { FamilyCaseKit } from "@automovie/motions/executable/internal";
 import {
-  HumanColliders,
-  HumanFrame,
-  workout,
-} from "@automovie/motions/internal";
+  FamilyCaseKit
+} from "../../../../../packages/motions/src/executable/cases/FamilyCaseKit";
+import {
+  HumanColliders
+} from "../../../../../packages/motions/src/posture/internal/HumanColliders";
+import {
+  HumanFrame
+} from "../../../../../packages/motions/src/posture/internal/HumanFrame";
+import {
+  workout
+} from "../../../../../packages/motions/src/exercise/internal/workout";
 import { TestValidator } from "@nestia/e2e";
 
 const ACTOR = "a";
@@ -72,8 +78,8 @@ function verify(
   const armShapes = HumanColliders.preparePlaced(body, ARMS);
   const headShapes = HumanColliders.preparePlaced(body, HEAD);
   const shoulder = take.bones(ACTOR, last);
-  const shoulderWidth: number = Vector3.dot(
-    Vector3.subtract(
+  const shoulderWidth: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(
       shoulder.get("leftUpperArm")!.worldPosition,
       shoulder.get("rightUpperArm")!.worldPosition,
     ),
@@ -90,14 +96,14 @@ function verify(
   for (let i: number = 0; i <= count; ++i) {
     const bones = take.bones(ACTOR, first + i * step);
     const wrist = bones.get("leftHand")!.worldPosition;
-    const width: number = Vector3.dot(
-      Vector3.subtract(wrist, bones.get("rightHand")!.worldPosition),
+    const width: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(wrist, bones.get("rightHand")!.worldPosition),
       left,
     );
     minimum = Math.min(minimum, width);
     maximum = Math.max(maximum, width);
     if (previous !== undefined)
-      speed = Math.max(speed, Vector3.distance(previous, wrist) / step);
+      speed = Math.max(speed, AutoMovieEngineVector3.distance(previous, wrist) / step);
     previous = wrist;
     if (i % 4 === 0)
       for (const hand of armShapes(bones))
@@ -125,8 +131,8 @@ function verify(
     TestValidator.predicate(
       `${id} jerk uses a slightly outboard grip overhead`,
       () => {
-        const width: number = Vector3.dot(
-          Vector3.subtract(
+        const width: number = AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(
             shoulder.get("leftHand")!.worldPosition,
             shoulder.get("rightHand")!.worldPosition,
           ),

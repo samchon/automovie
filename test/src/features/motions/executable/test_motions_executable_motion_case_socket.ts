@@ -3,7 +3,9 @@ import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { motionCaseSocket } from "@automovie/motions/executable/internal";
+import {
+  motionCaseSocket
+} from "../../../../../packages/motions/src/executable/cases/internal/motionCaseSocket";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

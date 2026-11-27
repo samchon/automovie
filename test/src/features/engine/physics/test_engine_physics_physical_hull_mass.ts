@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalHullFaces as H, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalHullFaces as H, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

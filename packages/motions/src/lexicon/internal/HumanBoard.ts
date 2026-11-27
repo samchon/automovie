@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -27,7 +27,7 @@ import { HumanBoardHandoverStill } from "./HumanBoardHandoverStill";
 import { HumanBoardKey } from "./HumanBoardKey";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-import * as HumanBoardData from "./HumanBoardData";
+import { HumanBoardData } from "./HumanBoardData";
 /*
  * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat
  * contact's moving frame the root travels from where it takes off to its seated
@@ -108,7 +108,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     const t: number = Math.max(0, Math.min(duration, time));
     const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / flight));
     const shown: IAutoMovieMotionHumanPosture = mixHumanPosture(from, key, s);
-    shown.root = Vector3.add(Vector3.lerp(from.root, key.root, s), {
+    shown.root = AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(from.root, key.root, s), {
       x: 0,
       y: 4 * height * s * (1 - s),
       z: 0,
@@ -208,9 +208,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     base: {
       kind: "seated",
       seat: {
-        at: Vector3.add(
+        at: AutoMovieEngineVector3.add(
           carrier(context.start + flight).position,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             carrier(context.start + flight).rotation,
             behind,
           ),
@@ -236,7 +236,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         world,
         hand.side,
         released
-          ? Vector3.lerp(
+          ? AutoMovieEngineVector3.lerp(
               point,
               HumanUnseatPose.hang(world, hand.side),
               AutoMovieEngineMotionSampling.minimumJerkShare((t - lets) / (duration - lets)),

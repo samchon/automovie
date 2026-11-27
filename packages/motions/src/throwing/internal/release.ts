@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionTrajectory,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -247,8 +247,8 @@ export namespace release {
       s: number,
     ): IAutoMovieVector3 =>
       carried(base.posture(Math.max(0, Math.min(clock.duration, s)))).position;
-    const velocity: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(point(open + h), point(open - h)),
+    const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(point(open + h), point(open - h)),
       1 / (2 * h),
     );
     const launches: IAutoMovieMotionPropLaunch[] = [];
@@ -281,19 +281,19 @@ export namespace release {
             reason: `${launch.prop} has no point named ${id}`,
             fix: "name points the launched prop declares",
           });
-        return Vector3.add(
+        return AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, local.point),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, local.point),
         );
       };
-      const along: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(place(launch.to), place(launch.from)),
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(place(launch.to), place(launch.from)),
       );
       launches.push({
         prop: launch.prop,
         seconds: open,
         point: frame.position,
-        velocity: Vector3.add(velocity, Vector3.scale(along, launch.speed)),
+        velocity: AutoMovieEngineVector3.add(velocity, AutoMovieEngineVector3.scale(along, launch.speed)),
         rotation: frame.rotation,
       });
     }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanHookSet,
@@ -28,13 +28,13 @@ export function hookSetTip(
 ): hookSetTip.ITip {
   HumanBound.within("angle", params.angle, 0, hookSetTip.LIFT, "deg");
   HumanBound.least("duration", params.duration, 1e-3, "s");
-  const along: IAutoMovieVector3 = Quaternion.rotateVector(rod, {
+  const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rod, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const axis: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(along, { x: 0, y: 1, z: 0 }),
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(along, { x: 0, y: 1, z: 0 }),
   );
   const duration: number = params.duration + hookSetTip.HOLD;
   return {
@@ -45,8 +45,8 @@ export function hookSetTip(
     ],
     turned: (t: number): IAutoMovieRigidTransform => ({
       position: grip.position,
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(
           axis,
           params.angle * AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, t / params.duration)).s,
         ),

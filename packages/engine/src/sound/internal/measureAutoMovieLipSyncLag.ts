@@ -1,6 +1,6 @@
 import type { IAutoMovieMeasureLipSyncLag } from "@automovie/interface";
 
-import { AUTOMOVIE_LIP_SYNC } from "../AUTOMOVIE_LIP_SYNC";
+import { AutoMovieEngineLipSync } from "../AutoMovieEngineLipSync";
 
 /*
  * Measure the lag between a speaker's mouth and a line's loudness by normalized
@@ -8,10 +8,10 @@ import { AUTOMOVIE_LIP_SYNC } from "../AUTOMOVIE_LIP_SYNC";
  *
  * Both series are standardized over the window to zero mean and unit variance.
  * For every integer lag `k` from `−W` to `W`, `W =
- * ceil(AUTOMOVIE_LIP_SYNC.windowSeconds × fps)`, the correlation is the mean of
+ * ceil(AutoMovieEngineLipSync.windowSeconds × fps)`, the correlation is the mean of
  * `mouth[t] × level[t + k]` over the frames where both exist. The lag with the
  * highest correlation wins, the smaller `|k|` on a tie and then the negative
- * one. The verdict follows `AUTOMOVIE_LIP_SYNC`: inconclusive for a constant
+ * one. The verdict follows `AutoMovieEngineLipSync`: inconclusive for a constant
  * series or a peak below the minimum, otherwise pass inside the BT.1359-1
  * window and fail outside it.
  * Parameter props: The two series over the same window and the film rate.
@@ -35,7 +35,7 @@ export function measureAutoMovieLipSyncLag(
       verdict: "inconclusive",
     };
 
-  const reach: number = Math.ceil(AUTOMOVIE_LIP_SYNC.windowSeconds * props.fps);
+  const reach: number = Math.ceil(AutoMovieEngineLipSync.windowSeconds * props.fps);
   let best: { lag: number; correlation: number } = {
     lag: 0,
     correlation: -Infinity,
@@ -62,10 +62,10 @@ export function measureAutoMovieLipSyncLag(
     lagMilliseconds: milliseconds,
     correlation: best.correlation,
     verdict:
-      best.correlation < AUTOMOVIE_LIP_SYNC.minimumCorrelation
+      best.correlation < AutoMovieEngineLipSync.minimumCorrelation
         ? "inconclusive"
-        : milliseconds >= AUTOMOVIE_LIP_SYNC.leadMilliseconds &&
-            milliseconds <= AUTOMOVIE_LIP_SYNC.lagMilliseconds
+        : milliseconds >= AutoMovieEngineLipSync.leadMilliseconds &&
+            milliseconds <= AutoMovieEngineLipSync.lagMilliseconds
           ? "pass"
           : "fail",
   };

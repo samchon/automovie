@@ -1,8 +1,10 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import {
-  lowerCameraClearanceEnvelope,
-  validateCameraClearanceEnvelope,
-} from "@automovie/engine/internal";
+  lowerCameraClearanceEnvelope
+} from "../../../../../packages/engine/src/film/staging/internal/lowerCameraClearanceEnvelope";
+import {
+  validateCameraClearanceEnvelope
+} from "../../../../../packages/engine/src/film/staging/internal/validateCameraClearanceEnvelope";
 import type { IAutoMovieCameraClearanceEnvelope } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

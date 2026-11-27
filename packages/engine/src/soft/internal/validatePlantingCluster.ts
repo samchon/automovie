@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { PLANTING_MAX_ATTEMPTS } from "../PLANTING_MAX_ATTEMPTS";
-import { PLANTING_MAX_MEMBERS } from "../PLANTING_MAX_MEMBERS";
+import { AutoMovieEnginePlantingMaxAttempts } from "../AutoMovieEnginePlantingMaxAttempts";
+import { AutoMovieEnginePlantingMaxMembers } from "../AutoMovieEnginePlantingMaxMembers";
 import { validateSoftInteger as integer } from "./validateSoftInteger";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 import { validateSoftVector as vector } from "./validateSoftVector";
@@ -30,7 +30,7 @@ export function validatePlantingCluster(
     "member count",
     cluster.count,
     1,
-    PLANTING_MAX_MEMBERS,
+    AutoMovieEnginePlantingMaxMembers,
   );
   vector(out, `${root}.anchor`, cluster.anchor);
   numeric(
@@ -74,7 +74,7 @@ export function validatePlantingCluster(
     "placement attempts",
     cluster.attempts,
     1,
-    PLANTING_MAX_ATTEMPTS,
+    AutoMovieEnginePlantingMaxAttempts,
   );
   for (const axis of ["x", "y", "z"] as const) {
     numeric(

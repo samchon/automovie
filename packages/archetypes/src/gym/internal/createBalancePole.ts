@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBalancePole } from "../AutoMovieArchetypeBalancePole";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
@@ -44,8 +44,8 @@ export function createBalancePole(
   builder.rod(
     "pole",
     d.diameter / 2,
-    Vector3.create(-d.length / 2, 0, 0),
-    Vector3.create(d.length / 2, 0, 0),
+    AutoMovieEngineVector3.create(-d.length / 2, 0, 0),
+    AutoMovieEngineVector3.create(d.length / 2, 0, 0),
     { color: "#a07a4c" },
   );
   for (const side of ["left", "right"] as const)
@@ -54,7 +54,7 @@ export function createBalancePole(
       kind: "handle",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(((side === "left" ? 1 : -1) * d.grip) / 2, 0, 0),
+        AutoMovieEngineVector3.create(((side === "left" ? 1 : -1) * d.grip) / 2, 0, 0),
       ),
       extent: null,
       length: 0.12,

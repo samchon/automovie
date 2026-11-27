@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -106,12 +106,12 @@ export function prepareWalkSwingSeams(
       u < walkReach.FADE ? seams?.departure : seams?.landing;
     if (adjustment === undefined) return;
     const weight: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare(edge / walkReach.FADE);
-    goal.point = Vector3.add(
+    goal.point = AutoMovieEngineVector3.add(
       goal.point,
-      Vector3.scale(adjustment.ankle, weight),
+      AutoMovieEngineVector3.scale(adjustment.ankle, weight),
     );
-    goal.bend = Vector3.add(goal.bend, Vector3.scale(adjustment.knee, weight));
-    goal.rotation = Quaternion.multiply(
+    goal.bend = AutoMovieEngineVector3.add(goal.bend, AutoMovieEngineVector3.scale(adjustment.knee, weight));
+    goal.rotation = AutoMovieEngineQuaternion.multiply(
       adjustment.turn(weight),
       goal.rotation!,
     );
@@ -130,7 +130,7 @@ interface IFoot {
 interface IAdjustment {
   ankle: IAutoMovieVector3;
   knee: IAutoMovieVector3;
-  turn: ReturnType<typeof Quaternion.prepareSlerp>;
+  turn: ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp>;
   toes: number;
 }
 
@@ -146,16 +146,16 @@ type Flight = NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>;
  */
 function extrapolate(last: IFoot, previous: IFoot): IFoot {
   return {
-    ankle: Vector3.add(
+    ankle: AutoMovieEngineVector3.add(
       last.ankle,
-      Vector3.subtract(last.ankle, previous.ankle),
+      AutoMovieEngineVector3.subtract(last.ankle, previous.ankle),
     ),
-    knee: Vector3.add(last.knee, Vector3.subtract(last.knee, previous.knee)),
-    rotation: Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.multiply(
+    knee: AutoMovieEngineVector3.add(last.knee, AutoMovieEngineVector3.subtract(last.knee, previous.knee)),
+    rotation: AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           last.rotation,
-          Quaternion.inverse(previous.rotation),
+          AutoMovieEngineQuaternion.inverse(previous.rotation),
         ),
         last.rotation,
       ),
@@ -169,11 +169,11 @@ function extrapolate(last: IFoot, previous: IFoot): IFoot {
  */
 function difference(held: IFoot, free: IFoot): IAdjustment {
   return {
-    ankle: Vector3.subtract(held.ankle, free.ankle),
-    knee: Vector3.subtract(held.knee, free.knee),
-    turn: Quaternion.prepareSlerp(
+    ankle: AutoMovieEngineVector3.subtract(held.ankle, free.ankle),
+    knee: AutoMovieEngineVector3.subtract(held.knee, free.knee),
+    turn: AutoMovieEngineQuaternion.prepareSlerp(
       { x: 0, y: 0, z: 0, w: 1 },
-      Quaternion.multiply(held.rotation, Quaternion.inverse(free.rotation)),
+      AutoMovieEngineQuaternion.multiply(held.rotation, AutoMovieEngineQuaternion.inverse(free.rotation)),
     ),
     toes: held.toes - free.toes,
   };

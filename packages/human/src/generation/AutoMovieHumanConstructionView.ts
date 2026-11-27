@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieConstructionAxis,
   IAutoMovieConstructionFullness,
@@ -77,7 +77,7 @@ export namespace AutoMovieHumanConstructionView {
   export function length(
     outline: IAutoMovieViewPart.IOutline,
   ): IAutoMovieConstructionOutline {
-    return AutoMovieViewOutline.scale(outline, METRES, METRES);
+    return AutoMovieEngineViewOutline.scale(outline, METRES, METRES);
   }
 
   /*
@@ -86,7 +86,7 @@ export namespace AutoMovieHumanConstructionView {
   function share(
     outline: IAutoMovieViewPart.IOutline,
   ): IAutoMovieConstructionOutline {
-    return AutoMovieViewOutline.scale(outline, METRES, 1);
+    return AutoMovieEngineViewOutline.scale(outline, METRES, 1);
   }
 
   /*

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypePullUpBarData from "./internal/AutoMovieArchetypePullUpBarData";
+import { AutoMovieArchetypePullUpBarData } from "./internal/AutoMovieArchetypePullUpBarData";
 
 /** Constructs the pull up bar archetype from its recipe. */
 export namespace AutoMovieArchetypePullUpBar {
@@ -64,23 +64,23 @@ export function create(
   builder.rod(
     "bar",
     d.diameter! / 2,
-    Vector3.create(-half, height, 0),
-    Vector3.create(half, height, 0),
+    AutoMovieEngineVector3.create(-half, height, 0),
+    AutoMovieEngineVector3.create(half, height, 0),
     { color: "#b8bcc2" },
   );
   for (const side of [1, -1] as const)
     builder.rod(
       side === 1 ? "upright-left" : "upright-right",
       AutoMovieArchetypePullUpBar.UPRIGHT,
-      Vector3.create(side * (half + AutoMovieArchetypePullUpBar.UPRIGHT), 0, 0),
-      Vector3.create(side * (half + AutoMovieArchetypePullUpBar.UPRIGHT), height, 0),
+      AutoMovieEngineVector3.create(side * (half + AutoMovieArchetypePullUpBar.UPRIGHT), 0, 0),
+      AutoMovieEngineVector3.create(side * (half + AutoMovieArchetypePullUpBar.UPRIGHT), height, 0),
       { color: "#5a5f66" },
     );
   builder.affordance({
     id: "bar",
     kind: "bar",
     symmetry: "round",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: null,
     length: d.length!,
     aperture: d.diameter!,

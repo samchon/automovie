@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineAir } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -13,7 +13,7 @@ import { nclose, vclose } from "../../internal/predicates";
 const MEETING: number = 1e-3;
 
 /** Earth's gravity as the solvers default it. */
-const GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
+const GRAVITY: IAutoMovieVector3 = AutoMovieEngineGravity.DOWN;
 
 /** Where the shot leaves, metres. */
 const ORIGIN: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
@@ -22,7 +22,7 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
 function flown(velocity: IAutoMovieVector3, t: number): IAutoMovieVector3 {
   return {
     x: ORIGIN.x + velocity.x * t,
-    y: ORIGIN.y + velocity.y * t - (AutoMovieGravity.STANDARD * t * t) / 2,
+    y: ORIGIN.y + velocity.y * t - (AutoMovieEngineGravity.STANDARD * t * t) / 2,
     z: ORIGIN.z + velocity.z * t,
   };
 }
@@ -51,8 +51,8 @@ function flown(velocity: IAutoMovieVector3, t: number): IAutoMovieVector3 {
 export function test_engine_physics_solve_moving_launch(): void {
   // 1. A held target.
   const still: IAutoMovieVector3 = { x: 7, y: 1, z: 2 };
-  const held = AutoMovieAir.solveMovingLaunch(ORIGIN, (): IAutoMovieVector3 => still, 16)!;
-  const fixed = AutoMovieAir.solveBallisticLaunch(ORIGIN, still, 16)!;
+  const held = AutoMovieEngineAir.solveMovingLaunch(ORIGIN, (): IAutoMovieVector3 => still, 16)!;
+  const fixed = AutoMovieEngineAir.solveBallisticLaunch(ORIGIN, still, 16)!;
   TestValidator.predicate(
     "a held target",
     vclose(held.velocity, fixed.velocity, PhysicalTolerance.CONVERGED) &&
@@ -75,8 +75,8 @@ export function test_engine_physics_solve_moving_launch(): void {
     y: 1,
     z: 0,
   });
-  const lead = AutoMovieAir.solveMovingLaunch(ORIGIN, slide, 20)!;
-  const partial = AutoMovieAir.solveMovingLaunch(ORIGIN, slide, 20, GRAVITY, "direct", 1);
+  const lead = AutoMovieEngineAir.solveMovingLaunch(ORIGIN, slide, 20)!;
+  const partial = AutoMovieEngineAir.solveMovingLaunch(ORIGIN, slide, 20, GRAVITY, "direct", 1);
   TestValidator.predicate(
     "a sliding target",
     lead.hitTime > 0 &&
@@ -92,7 +92,7 @@ export function test_engine_physics_solve_moving_launch(): void {
   TestValidator.equals(
     "no iteration",
     [0, -1].map((iterations: number) =>
-      AutoMovieAir.solveMovingLaunch(ORIGIN, slide, 20, GRAVITY, "direct", iterations),
+      AutoMovieEngineAir.solveMovingLaunch(ORIGIN, slide, 20, GRAVITY, "direct", iterations),
     ),
     [null, null],
   );
@@ -118,7 +118,7 @@ export function test_engine_physics_solve_moving_launch(): void {
   const closest = iterates.reduce((a, b) => (b.residual < a.residual ? b : a));
   const last = iterates[3]!;
   // The closed form above reads g as 9.81, so the solve does too.
-  const capped = AutoMovieAir.solveMovingLaunch(
+  const capped = AutoMovieEngineAir.solveMovingLaunch(
     ORIGIN,
     accel,
     20,
@@ -138,12 +138,12 @@ export function test_engine_physics_solve_moving_launch(): void {
   TestValidator.equals(
     "unreachable",
     [
-      AutoMovieAir.solveMovingLaunch(
+      AutoMovieEngineAir.solveMovingLaunch(
         ORIGIN,
         (t: number): IAutoMovieVector3 => ({ x: 40 + 30 * t, y: 1, z: 0 }),
         10,
       ),
-      AutoMovieAir.solveMovingLaunch(ORIGIN, (): IAutoMovieVector3 => still, 0),
+      AutoMovieEngineAir.solveMovingLaunch(ORIGIN, (): IAutoMovieVector3 => still, 0),
     ],
     [null, null],
   );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, swivelArcs, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineSwivelArcs, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
   IAutoMovieAxisFrame,
@@ -121,9 +121,9 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
         lower: IAutoMovieQuaternion,
       ) => (low: number, high: number) => number)
     | null {
-    const unit: IAutoMovieVector3 = Vector3.normalize(props.axis);
+    const unit: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(props.axis);
     const twistReserve: IReserve | null = reserved(props.range);
-    const scaled: boolean = Math.abs(Vector3.length(props.axis) - 1) <= 1e-12;
+    const scaled: boolean = Math.abs(AutoMovieEngineVector3.length(props.axis) - 1) <= 1e-12;
     const wrist: IWrist | null = wristOf(props, unit);
     if ((twistReserve === null || !scaled) && wrist === null) return null;
     return (
@@ -133,11 +133,11 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
       const turn: (swivel: number) => IAutoMovieQuaternion = (
         swivel: number,
       ): IAutoMovieQuaternion =>
-        Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(
-              Quaternion.multiply(
-                Quaternion.multiply(props.parent, upper(swivel)),
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.multiply(props.parent, upper(swivel)),
                 props.rest,
               ),
               lower,
@@ -170,7 +170,7 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
       if (wrist !== null) {
         const sampled: IAutoMovieVector3[] = [0, 90, 180].map(
           (swivel: number): IAutoMovieVector3 =>
-            Quaternion.rotateVector(turn(swivel), unit),
+            AutoMovieEngineQuaternion.rotateVector(turn(swivel), unit),
         );
         const along: (
           axis: IAutoMovieVector3,
@@ -178,7 +178,7 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
           axis: IAutoMovieVector3,
         ): IAutoMovieSwivelArcs.ISinusoid =>
           fit(
-            sampled.map((d: IAutoMovieVector3): number => Vector3.dot(d, axis)),
+            sampled.map((d: IAutoMovieVector3): number => AutoMovieEngineVector3.dot(d, axis)),
           );
         const read: IPointing = {
           flexion: along(wrist.flexion),
@@ -187,22 +187,22 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
         };
         let held: boolean = true;
         for (const swivel of [45, 225]) {
-          const d: IAutoMovieVector3 = Quaternion.rotateVector(
+          const d: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             turn(swivel),
             unit,
           );
           const gap: number =
             Math.abs(
               AutoMovieMotionHumanBendEnclosure.at(read.flexion, swivel) -
-                Vector3.dot(d, wrist.flexion),
+                AutoMovieEngineVector3.dot(d, wrist.flexion),
             ) +
             Math.abs(
               AutoMovieMotionHumanBendEnclosure.at(read.abduction, swivel) -
-                Vector3.dot(d, wrist.abduction),
+                AutoMovieEngineVector3.dot(d, wrist.abduction),
             ) +
             Math.abs(
               AutoMovieMotionHumanBendEnclosure.at(read.cosine, swivel) -
-                Vector3.dot(d, unit),
+                AutoMovieEngineVector3.dot(d, unit),
             );
           if (!(gap <= PREMISE)) held = false;
         }
@@ -224,7 +224,7 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
         if (pointing !== null && wrist !== null) {
           const flexion: AutoMovieMotionHumanBendEnclosure.IInterval | null =
             AutoMovieMotionHumanBendEnclosure.outer(
-              swivelArcs.scaled(pointing.abduction, -wrist.sigma),
+              AutoMovieEngineSwivelArcs.scaled(pointing.abduction, -wrist.sigma),
               pointing.cosine,
               1,
               low,
@@ -232,7 +232,7 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
             );
           const abduction: AutoMovieMotionHumanBendEnclosure.IInterval | null =
             AutoMovieMotionHumanBendEnclosure.middle(
-              swivelArcs.scaled(pointing.flexion, wrist.sigma),
+              AutoMovieEngineSwivelArcs.scaled(pointing.flexion, wrist.sigma),
               low,
               high,
             );
@@ -374,9 +374,9 @@ function wristOf(
   );
   if (basis.rotationOrder === "flexion-abduction-twist") return null;
   if (basis.twistPlacement === "distal") return null;
-  if (!(Vector3.length(Vector3.cross(basis.twist, unit)) <= 1e-12)) return null;
+  if (!(AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(basis.twist, unit)) <= 1e-12)) return null;
   const handed: number =
-    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
+    AutoMovieEngineVector3.dot(basis.twist, AutoMovieEngineVector3.cross(basis.flexion, basis.abduction)) >= 0
       ? 1
       : -1;
   const flexionReserve: IReserve | null = reserved(props.handRange.flexion);
@@ -385,7 +385,7 @@ function wristOf(
   return {
     flexion: basis.flexion,
     abduction: basis.abduction,
-    sigma: handed * Vector3.dot(basis.twist, unit) > 0 ? 1 : -1,
+    sigma: handed * AutoMovieEngineVector3.dot(basis.twist, unit) > 0 ? 1 : -1,
     frame: props.handFrame,
     flexionReserve,
     abductionReserve,
@@ -396,7 +396,7 @@ function wristOf(
  * A sinusoid fitted from its values at the parameter's 0, 90 and 180 degrees.
  */
 function fit(values: number[]): IAutoMovieSwivelArcs.ISinusoid {
-  return swivelArcs.fitted(values[0]!, values[1]!, values[2]!);
+  return AutoMovieEngineSwivelArcs.fitted(values[0]!, values[1]!, values[2]!);
 }
 
 /*

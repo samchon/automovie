@@ -1,8 +1,8 @@
 import {
   AutoMovieEnginePlanarHull,
-  AutoMovieLoftRelief,
-  AutoMovieNaturalSpline,
-  AutoMoviePolarSector,
+  AutoMovieEngineLoftRelief,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEnginePolarSector,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -26,7 +26,7 @@ import { AutoMovieHumanArmGuides } from "./AutoMovieHumanArmGuides";
  * ```
  *
  * with `rho` the polar sector section of the guides' and sectors' channels at
- * `s` (`AutoMoviePolarSector`), the reliefs windows in `(s, theta)`
+ * `s` (`AutoMovieEnginePolarSector`), the reliefs windows in `(s, theta)`
  * whose height, slope and curvature vanish at their edges, and `K(s)` the
  * scale that makes the section's hull, a taut tape, measure the girth the
  * span law asks for at `s`. So a girth input is honoured at its site on this
@@ -63,14 +63,14 @@ export namespace AutoMovieHumanArmTube {
     // so a guide can publish its jet.
     const unitRadius = (s: number, theta: number): [number, number, number] => {
       const own: IAutoMovieHumanArmTube.IShape = shape(s);
-      const r: [number, number, number] = AutoMoviePolarSector.radius(
+      const r: [number, number, number] = AutoMovieEnginePolarSector.radius(
         own.guides,
         own.fullness,
         theta,
       );
 
       for (const relief of reliefs) {
-        const j: number[] = AutoMovieLoftRelief.jet(relief, s, theta);
+        const j: number[] = AutoMovieEngineLoftRelief.jet(relief, s, theta);
         r[0] += j[0]!;
         r[1] += j[2]!;
         r[2] += j[5]!;
@@ -117,12 +117,12 @@ export namespace AutoMovieHumanArmTube {
       (_: unknown, i: number): number => from + ((to - from) * i) / count,
     );
     const ks: number[] = xs.map((s: number): number => target(s) / unitHull(s));
-    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       xs,
       ks,
     );
     const scale = (s: number): number =>
-      AutoMovieNaturalSpline.evaluate(spline, Math.min(to, Math.max(from, s)));
+      AutoMovieEngineNaturalSpline.evaluate(spline, Math.min(to, Math.max(from, s)));
 
     // The section's axes: forward across the heading, and the heading crossed
     // with forward, which is lateral on the left side.
@@ -189,7 +189,7 @@ export namespace AutoMovieHumanArmTube {
         `An arm section of ${count} control points cannot hold its guides at knots`,
       );
     const jet = (theta: number): IAutoMovieHumanSeamKnot.Jet =>
-      AutoMoviePolarSector.point(tube.radius(s, theta), theta);
+      AutoMovieEnginePolarSector.point(tube.radius(s, theta), theta);
     const guides: IAutoMovieHumanSeamKnot.IGuide[] =
       AutoMovieHumanArmGuides.ANGLES.map(
         (angle: number, j: number): IAutoMovieHumanSeamKnot.IGuide => {

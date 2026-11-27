@@ -1,13 +1,13 @@
 import {
-  AutoMovieConstructionContinuation,
-  AutoMovieConstructionPortCurve,
-  AutoMovieConstructionSeeds,
-  AutoMovieConstructionSplitBand as Band,
-  AutoMovieConstructionSplitSeam as Seam,
-  AutoMovieNaturalSpline,
-  AutoMovieSolidChain,
-  AutoMovieSolidRibbon,
-  AutoMovieSolidVector as V,
+  AutoMovieEngineConstructionContinuation,
+  AutoMovieEngineConstructionPortCurve,
+  AutoMovieEngineConstructionSeeds,
+  AutoMovieEngineConstructionSplitBand as Band,
+  AutoMovieEngineConstructionSplitSeam as Seam,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineSolidChain,
+  AutoMovieEngineSolidRibbon,
+  AutoMovieEngineSolidVector as V,
 } from "@automovie/engine";
 import { AutoMovieHumanPeriodicRailRange } from "@automovie/human";
 import type {
@@ -243,7 +243,7 @@ export function FamilyConicNativePremises(
             throw new Error(
               "proved complete curved rail bound leaves its actual source domain",
             );
-          side.along = AutoMovieNaturalSpline.periodic(distances);
+          side.along = AutoMovieEngineNaturalSpline.periodic(distances);
           keptDomains[node.partFace] =
             side.into === 1 ? [bounds[1], limits[1]] : [limits[0], bounds[0]];
           rows.push({
@@ -258,8 +258,8 @@ export function FamilyConicNativePremises(
         const {
           addresses: charts,
           inward,
-        }: ReturnType<typeof AutoMovieConstructionPortCurve.chart> =
-          AutoMovieConstructionPortCurve.chart(node.loop, n);
+        }: ReturnType<typeof AutoMovieEngineConstructionPortCurve.chart> =
+          AutoMovieEngineConstructionPortCurve.chart(node.loop, n);
         const jets = charts.map(([s, t]) => host.surface.jet(s, t));
         const loop = jets.map((jet): AutoMovieVector3Tuple => [...jet.p]);
         const outward = V.unit(
@@ -280,7 +280,7 @@ export function FamilyConicNativePremises(
             ]),
           );
           return speed > 0
-            ? AutoMovieSolidRibbon.of(
+            ? AutoMovieEngineSolidRibbon.of(
                 host.surface,
                 charts[k]![0],
                 charts[k]![1],
@@ -573,14 +573,14 @@ export function FamilyConicNativePremises(
             side,
           );
         } else {
-          const made = AutoMovieConstructionContinuation.apply(
+          const made = AutoMovieEngineConstructionContinuation.apply(
             host.chain,
             node.hostEnd,
             part.chain,
             node.partEnd,
           );
           if (typeof made === "string") throw new Error(made);
-          const surface = AutoMovieSolidChain.surface(made);
+          const surface = AutoMovieEngineSolidChain.surface(made);
           if (surface === null)
             throw new Error("continued actual surface2 unavailable");
           sources.set(node.partFace, { chain: made, surface });
@@ -610,7 +610,7 @@ export function FamilyConicNativePremises(
           hostSurface =
             observe?.seedSurface?.(node.name, "host", host.surface) ??
             host.surface;
-        const seed = AutoMovieConstructionSeeds.create(
+        const seed = AutoMovieEngineConstructionSeeds.create(
           node.seed,
           partSurface,
           part.chain.layers.map((layer) => layer.y),

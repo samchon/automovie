@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeSpoon } from "../AutoMovieArchetypeSpoon";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { HandToolDraw } from "./HandToolDraw";
@@ -40,8 +40,8 @@ export function createSpoon(
   builder.rod(
     "bowl",
     HandToolDraw.BOWL,
-    Vector3.create(0, centre, -0.001),
-    Vector3.create(0, centre, 0.001),
+    AutoMovieEngineVector3.create(0, centre, -0.001),
+    AutoMovieEngineVector3.create(0, centre, 0.001),
     { color: "#b9bcc0", surface: "steel" },
   );
   builder.affordance({
@@ -49,9 +49,9 @@ export function createSpoon(
     kind: "surface",
     direction: "normal",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, centre, 0.001),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, centre, 0.001),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });

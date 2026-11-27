@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -149,16 +149,16 @@ export namespace lineWalk {
         reason: `${p.on.prop} declares no ${id}`,
         fix: "name a beam's surface or a rope's bar",
       });
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       placed.rotation,
       found.frame.rotation,
     );
-    const top: IAutoMovieVector3 = Vector3.add(
+    const top: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       placed.position,
-      Quaternion.rotateVector(placed.rotation, found.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(placed.rotation, found.frame.translation),
     );
-    const along: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(
         rotation,
         found.kind === "bar" ? { x: 1, y: 0, z: 0 } : { x: 0, y: 0, z: 1 },
       ),
@@ -168,16 +168,16 @@ export namespace lineWalk {
     const ankle: number = body.rest.get("leftFoot")!.y;
     const onLine: (point: IAutoMovieVector3) => number = (
       p: IAutoMovieVector3,
-    ): number => Vector3.dot(Vector3.subtract(p, top), along);
+    ): number => AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(p, top), along);
 
     // The entry stands on the line's top.
     for (const side of ["left", "right"] as const) {
       const foot: IAutoMovieVector3 = context.entry.feet[side].ankle;
       const off: number = Math.abs(foot.y - ankle - top.y);
-      const across: number = Vector3.length(
-        Vector3.subtract(
-          { ...Vector3.subtract(foot, top), y: 0 },
-          Vector3.scale(along, onLine(foot)),
+      const across: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
+          { ...AutoMovieEngineVector3.subtract(foot, top), y: 0 },
+          AutoMovieEngineVector3.scale(along, onLine(foot)),
         ),
       );
       if (
@@ -224,7 +224,7 @@ export namespace lineWalk {
     ): IAutoMovieVector3 => {
       const u: number = half === Infinity ? 0.5 : (s + half) / (2 * half);
       return {
-        ...Vector3.add(top, Vector3.scale(along, s)),
+        ...AutoMovieEngineVector3.add(top, AutoMovieEngineVector3.scale(along, s)),
         y: top.y + ankle - 4 * sag * u * (1 - u),
       };
     };
@@ -281,15 +281,15 @@ export namespace lineWalk {
     // The foot that does not step last closes beside the other.
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     // Each foot's own side of the line, and how far a swinging ankle passes the bearing one: the two shank colliders' radii.
-    const heading: IAutoMovieVector3 = Vector3.scale(along, sign);
-    const leftward: IAutoMovieVector3 = Vector3.normalize({
+    const heading: IAutoMovieVector3 = AutoMovieEngineVector3.scale(along, sign);
+    const leftward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: heading.z,
       y: 0,
       z: -heading.x,
     });
     const outward: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: leftward,
-      right: Vector3.scale(leftward, -1),
+      right: AutoMovieEngineVector3.scale(leftward, -1),
     };
     const passing: number = 2 * body.measure.shankRadius;
     for (const side of ["left", "right"] as const) {
@@ -318,9 +318,9 @@ export namespace lineWalk {
         // its own side (`passing`), back on the line at each end.
         return {
           ...swung,
-          ankle: Vector3.add(
+          ankle: AutoMovieEngineVector3.add(
             swung.ankle,
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               outward[side],
               passing * Math.sin(Math.PI * Math.min(1, Math.max(0, time))),
             ),
@@ -409,12 +409,12 @@ export namespace lineWalk {
         start + step * (k + AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / PERIOD - k)));
       const sway: number =
         SWAY * body.measure.stature * Math.sin((Math.PI * t) / PERIOD);
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         {
           ...point(s),
           y: point(s).y - ankle + hipsRest.y - CROUCH * body.measure.stature,
         },
-        Vector3.scale(across, sway),
+        AutoMovieEngineVector3.scale(across, sway),
       );
     };
     // A balancing pole: each hand keeps its grip where it held it at the
@@ -454,9 +454,9 @@ export namespace lineWalk {
         };
         return {
           ...turned,
-          root: Vector3.subtract(
+          root: AutoMovieEngineVector3.subtract(
             hips,
-            Quaternion.rotateVector(humanPostureHeading(turned), hipsRest),
+            AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(turned), hipsRest),
           ),
         };
       },

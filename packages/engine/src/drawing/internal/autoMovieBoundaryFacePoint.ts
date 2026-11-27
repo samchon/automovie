@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Place one boundary-local point in world space.
@@ -35,9 +35,9 @@ export const autoMovieBoundaryFacePoint: (
   point: IAutoMoviePlanarPoint,
   depth: number = 0,
 ): IAutoMovieVector3 =>
-  Vector3.add(
+  AutoMovieEngineVector3.add(
     face.origin,
-    Quaternion.rotateVector(face.rotation, {
+    AutoMovieEngineQuaternion.rotateVector(face.rotation, {
       x: point.x,
       y: point.y,
       z: depth,

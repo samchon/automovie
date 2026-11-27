@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -30,7 +30,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { poseBones } from "../../posture/internal/poseBones";
 import { hoseBackup } from "./hoseBackup";
 import { hoseLineReaction } from "./hoseLineReaction";
-import * as HoseLineData from "./HoseLineData";
+import { HoseLineData } from "./HoseLineData";
 
 /*
  * One member of a two-member hose team holding a charged line against its
@@ -217,18 +217,18 @@ function nozzle(
   const frame: IAutoMovieRigidTransform = context
     .prop(p.prop)
     .frame(context.entry.seconds);
-  const outlet: IAutoMovieVector3 = Vector3.add(
+  const outlet: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, tip.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, tip.frame.translation),
   );
-  const stream: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(frame.rotation, tip.frame.rotation),
+  const stream: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, tip.frame.rotation),
     { x: 0, y: 1, z: 0 },
   );
   const at: IAutoMovieVector3 = context.aim(p.target, context.start).point;
-  const aimed: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
-      AutoMovieEngineMath.rotationBetween(stream, Vector3.subtract(at, outlet)),
+  const aimed: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineMath.rotationBetween(stream, AutoMovieEngineVector3.subtract(at, outlet)),
       hand.worldRotation,
     ),
   );
@@ -242,10 +242,10 @@ function nozzle(
   };
   // The aim's heading and pitch, degrees, as the line turns from its
   // stream at entry to the target, and how far the hold has carried it in.
-  const toward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(at, outlet),
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(at, outlet),
   );
-  const along: IAutoMovieVector3 = Vector3.normalize(stream);
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(stream);
   const heading: number =
     ((Math.atan2(toward.x, toward.z) - Math.atan2(along.x, along.z)) * 180) /
     Math.PI;
@@ -286,9 +286,9 @@ function nozzle(
     ): IAutoMovieHumanLimbGoal => {
       return {
         point: hand.worldPosition,
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(
-            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, sweep(seconds)),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, sweep(seconds)),
             aimed,
           ),
         ),

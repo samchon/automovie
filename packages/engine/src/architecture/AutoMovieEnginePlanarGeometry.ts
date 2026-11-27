@@ -58,7 +58,7 @@ export namespace AutoMovieEnginePlanarGeometry {
    * right, `0` on the line.
    *
    * The sign is the 2D cross product `(to - from) x (point - from)` with x right
-   * and y up. It counts as zero when its magnitude is at most `PLANAR_EPSILON`
+   * and y up. It counts as zero when its magnitude is at most `AutoMovieEnginePlanarEpsilon`
    * (1e-12) times the larger of 1 and the Manhattan lengths of `to - from` and
    * `point - from`, so the tolerance grows with the size of the figure and never
    * falls below the absolute floor. A degenerate line, `from` equal to `to`, puts
@@ -78,7 +78,7 @@ export namespace AutoMovieEnginePlanarGeometry {
    *
    * {@link polygonInside}, {@link polygonsOverlap} and footprint-ring placement
    * share this answer. A point on an edge or vertex counts as inside under
-   * {@link pointOnSegment}'s scale-relative `PLANAR_EPSILON` tolerance. The
+   * {@link pointOnSegment}'s scale-relative `AutoMovieEnginePlanarEpsilon` tolerance. The
    * polygon is an implicitly closed simple ring in either winding; an empty ring
    * contains nothing. Self-crossing rings are outside the geometric contract even
    * though the loop still evaluates parity.
@@ -95,7 +95,7 @@ export namespace AutoMovieEnginePlanarGeometry {
    * Whether a point lies on a closed segment, its endpoints included.
    *
    * The point must be collinear by {@link planarSide} and inside the segment's
-   * axis-aligned box widened by `PLANAR_EPSILON` (1e-12) on every side. A
+   * axis-aligned box widened by `AutoMovieEnginePlanarEpsilon` (1e-12) on every side. A
    * zero-length segment therefore contains exactly the points within that slack
    * of its one position.
    *
@@ -169,7 +169,7 @@ export namespace AutoMovieEnginePlanarGeometry {
    * corner is expected; consequently this function does not detect adjacent
    * backtracking or overlapping adjacent segments.
    *
-   * Contact uses {@link segmentsTouch}'s scale-relative `PLANAR_EPSILON`; a vertex
+   * Contact uses {@link segmentsTouch}'s scale-relative `AutoMovieEnginePlanarEpsilon`; a vertex
    * on a non-adjacent edge counts as touching. Point count, adjacent degeneracy
    * and area are separate caller checks: even a two- or three-point ring returns
    * true here if no non-adjacent pair exists.
@@ -202,7 +202,7 @@ export namespace AutoMovieEnginePlanarGeometry {
    * Contact counts so opening validation can refuse voids meeting along a jamb.
    *
    * Requires non-empty simple rings in one planar frame and inherits the binary64
-   * and scale-relative `PLANAR_EPSILON` behavior of {@link segmentsTouch} and
+   * and scale-relative `AutoMovieEnginePlanarEpsilon` behavior of {@link segmentsTouch} and
    * {@link pointInPolygon}. An edge contact or containment of one corner returns
    * true. Paired with a non-empty ring, an empty ring can throw a `TypeError`
    * when its missing corner reaches the containment predicate.

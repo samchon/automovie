@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -85,7 +85,7 @@ export function QuadrupedFootingClearance(
         )
       )
         continue;
-      const normal: IAutoMovieVector3 = Vector3.normalize({
+      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: -plane.slope.x,
         y: 1,
         z: -plane.slope.z,
@@ -97,9 +97,9 @@ export function QuadrupedFootingClearance(
           transform: AutoMovieArchetypeFrame.compose(
             {
               rotation,
-              translation: Quaternion.rotateVector(
+              translation: AutoMovieEngineQuaternion.rotateVector(
                 rotation,
-                Vector3.scale(plane.origin, -1),
+                AutoMovieEngineVector3.scale(plane.origin, -1),
               ),
               scale: AutoMovieArchetypeFrame.UNIT,
             },
@@ -124,10 +124,10 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * surface in each gives its horizontal extent.
  */
 const SIDES: readonly IAutoMovieQuaternion[] = [
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
 ];
 
 /*
@@ -137,9 +137,9 @@ function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const axis: IAutoMovieVector3 = Vector3.cross(from, to);
-  return Quaternion.fromAxisAngle(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, to);
+  return AutoMovieEngineQuaternion.fromAxisAngle(
     axis,
-    (Math.atan2(Vector3.length(axis), Vector3.dot(from, to)) * 180) / Math.PI,
+    (Math.atan2(AutoMovieEngineVector3.length(axis), AutoMovieEngineVector3.dot(from, to)) * 180) / Math.PI,
   );
 }

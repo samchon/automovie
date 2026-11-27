@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { HumanContactWindow } from "@automovie/motions/internal";
+import {
+  HumanContactWindow
+} from "../../../../../packages/motions/src/law/internal/HumanContactWindow";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

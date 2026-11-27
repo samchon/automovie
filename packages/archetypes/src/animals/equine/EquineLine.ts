@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -55,9 +55,9 @@ export namespace EquineLine {
       throw new RangeError("A line has a positive finite length");
     const at = (seconds: number): AutoMovieArchetypeRide.ISample<Id, D> => {
       const base: AutoMovieArchetypeRide.ISample<Id, D> = ride.at(seconds);
-      const point: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(base.placement.rotation),
-        Vector3.subtract(held(seconds, base), base.placement.translation),
+      const point: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(base.placement.rotation),
+        AutoMovieEngineVector3.subtract(held(seconds, base), base.placement.translation),
       );
       const frames: Map<string, IAutoMovieTransform> = new Map(
         base.archetype.affordances.map(

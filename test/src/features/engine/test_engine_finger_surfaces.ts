@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -10,7 +10,12 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanHand, poseBones } from "@automovie/motions/internal";
+import {
+  HumanHand
+} from "../../../../packages/motions/src/posture/internal/HumanHand";
+import {
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -100,8 +105,8 @@ export function test_engine_finger_surfaces(): void {
       const before: IAutoMovieVector3 = bones.get(
         `right${d.bone}${d.before}` as AutoMovieHumanoidBone,
       )!.worldPosition;
-      const along: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(distal, before),
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(distal, before),
       );
       const tip = placed(
         body,
@@ -113,19 +118,19 @@ export function test_engine_finger_surfaces(): void {
         flat,
         `${d.name}PadRight` as AutoMovieHumanoidRegion,
       );
-      const tipOut: number = Vector3.dot(
-        Vector3.subtract(tip.point, distal),
+      const tipOut: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(tip.point, distal),
         along,
       );
-      const padOut: number = Vector3.dot(
-        Vector3.subtract(pad.point, distal),
+      const padOut: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(pad.point, distal),
         along,
       );
       if (!(tipOut > padOut && tipOut > 0))
         complaints.push(
           `${name} ${d.name}: the tip lies ${(tipOut * 1000).toFixed(1)} mm out along the phalanx, the pad ${(padOut * 1000).toFixed(1)} mm`,
         );
-      if (!(Vector3.dot(pad.normal, palm.normal) > 0))
+      if (!(AutoMovieEngineVector3.dot(pad.normal, palm.normal) > 0))
         complaints.push(
           `${name} ${d.name}: the pad does not face the palm's side`,
         );
@@ -163,20 +168,20 @@ export function test_engine_finger_surfaces(): void {
           joints.get(`right${d.bone}${s}` as AutoMovieHumanoidBone)!
             .worldPosition,
       ) as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
-      const ab: IAutoMovieVector3 = Vector3.subtract(b, a);
-      const ac: IAutoMovieVector3 = Vector3.subtract(c, a);
-      const n: IAutoMovieVector3 = Vector3.cross(ab, ac);
-      const centre: IAutoMovieVector3 = Vector3.add(
+      const ab: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
+      const ac: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c, a);
+      const n: IAutoMovieVector3 = AutoMovieEngineVector3.cross(ab, ac);
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         a,
-        Vector3.scale(
-          Vector3.add(
-            Vector3.scale(Vector3.cross(n, ab), Vector3.dot(ac, ac)),
-            Vector3.scale(Vector3.cross(ac, n), Vector3.dot(ab, ab)),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(n, ab), AutoMovieEngineVector3.dot(ac, ac)),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(ac, n), AutoMovieEngineVector3.dot(ab, ab)),
           ),
-          1 / (2 * Vector3.dot(n, n)),
+          1 / (2 * AutoMovieEngineVector3.dot(n, n)),
         ),
       );
-      if (!(Vector3.dot(pad.normal, Vector3.subtract(centre, pad.point)) > 0))
+      if (!(AutoMovieEngineVector3.dot(pad.normal, AutoMovieEngineVector3.subtract(centre, pad.point)) > 0))
         complaints.push(
           `${name} ${d.name}: the curled pad does not face into the fist`,
         );

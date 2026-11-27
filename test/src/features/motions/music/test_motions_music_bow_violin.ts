@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
@@ -12,15 +12,29 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  HumanHand,
-  bowViolin,
-  bowViolinGrip,
-  bowViolinHairAxis,
-  bowViolinStroke,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  HumanHand
+} from "../../../../../packages/motions/src/posture/internal/HumanHand";
+import {
+  bowViolin
+} from "../../../../../packages/motions/src/music/internal/bowViolin";
+import {
+  bowViolinGrip
+} from "../../../../../packages/motions/src/music/internal/bowViolinGrip";
+import {
+  bowViolinHairAxis
+} from "../../../../../packages/motions/src/music/internal/bowViolinHairAxis";
+import {
+  bowViolinStroke
+} from "../../../../../packages/motions/src/music/internal/bowViolinStroke";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -146,28 +160,28 @@ async function activeHair(): Promise<void> {
   const along: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
   const outward: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const hair: IAutoMovieVector3 = bowViolinHairAxis(along, outward, "string1");
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     initial.worldRotation,
   );
-  const localHair: IAutoMovieVector3 = Quaternion.rotateVector(
+  const localHair: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     inverse,
-    Vector3.scale(hair, 0.16),
+    AutoMovieEngineVector3.scale(hair, 0.16),
   );
-  const transverse: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(
-      Vector3.scale(outward, -1),
-      Vector3.scale(hair, -Vector3.dot(outward, hair)),
+  const transverse: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.scale(outward, -1),
+      AutoMovieEngineVector3.scale(hair, -AutoMovieEngineVector3.dot(outward, hair)),
     ),
   );
   const hairRotation: IAutoMovieQuaternion = HumanHand.align(
     { normal: outward, forward: along },
     {
-      normal: Quaternion.rotateVector(inverse, transverse),
-      forward: Quaternion.rotateVector(inverse, hair),
+      normal: AutoMovieEngineQuaternion.rotateVector(inverse, transverse),
+      forward: AutoMovieEngineQuaternion.rotateVector(inverse, hair),
     },
   );
-  const frog: IAutoMovieVector3 = Vector3.scale(localHair, -0.3);
-  const tip: IAutoMovieVector3 = Vector3.add(frog, localHair);
+  const frog: IAutoMovieVector3 = AutoMovieEngineVector3.scale(localHair, -0.3);
+  const tip: IAutoMovieVector3 = AutoMovieEngineVector3.add(frog, localHair);
   const frame = (
     translation: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
@@ -181,7 +195,7 @@ async function activeHair(): Promise<void> {
     kind: "bar",
     length: 0.25,
     extent: null,
-    frame: frame({ x: 0.1, y: 0, z: 0 }, Quaternion.identity()),
+    frame: frame({ x: 0.1, y: 0, z: 0 }, AutoMovieEngineQuaternion.identity()),
   };
   const staged: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBowViolinParams> =
     motionActionContext(body, params, {
@@ -189,14 +203,14 @@ async function activeHair(): Promise<void> {
       carried: {
         right: {
           position: HumanHand.offset(body, "right", "grip").point,
-          rotation: Quaternion.identity(),
+          rotation: AutoMovieEngineQuaternion.identity(),
         },
       },
       props: [
         {
           subject: "violin",
           fixed: true,
-          frame: { position: grip, rotation: Quaternion.identity() },
+          frame: { position: grip, rotation: AutoMovieEngineQuaternion.identity() },
           points: {},
           affordances: [string],
         },
@@ -242,11 +256,11 @@ async function activeHair(): Promise<void> {
       "grip",
     ).point;
     const share: number = 0.18 + 0.24 * u ** 3 * (10 + u * (-15 + 6 * u));
-    const placed: IAutoMovieVector3 = Vector3.add(
+    const placed: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       handGrip,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         hand.worldRotation,
-        Vector3.add(frog, Vector3.scale(localHair, share)),
+        AutoMovieEngineVector3.add(frog, AutoMovieEngineVector3.scale(localHair, share)),
       ),
     );
     TestValidator.predicate(

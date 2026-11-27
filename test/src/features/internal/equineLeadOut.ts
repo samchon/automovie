@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeEquine, AutoMovieArchetypeQuadrupedDatumRide, type AutoMovieArchetypeQuadrupedFooting, type AutoMovieArchetypeRide, AutoMovieArchetypeHorseRide, AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
@@ -141,8 +141,8 @@ export namespace equineLeadOut {
     const rest: IAutoMovieMotionHumanBody["rest"] = body.rest;
     const shoulder: IAutoMovieVector3 = rest.get("rightUpperArm")!;
     const arm: number =
-      Vector3.distance(shoulder, rest.get("rightLowerArm")!) +
-      Vector3.distance(rest.get("rightLowerArm")!, rest.get("rightHand")!);
+      AutoMovieEngineVector3.distance(shoulder, rest.get("rightLowerArm")!) +
+      AutoMovieEngineVector3.distance(rest.get("rightLowerArm")!, rest.get("rightHand")!);
     const reach: number = REACH * arm;
     const drop: number = shoulder.y - rope;
     return {

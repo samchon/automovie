@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { defendGeometry } from "@automovie/motions/internal";
+import {
+  defendGeometry
+} from "../../../../../packages/motions/src/striking/internal/defendGeometry";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { positive } from "../../geometry/internal/positive";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Say how each laid piece samples its material, in the UV transform the PBR
@@ -57,8 +57,8 @@ export function autoMoviePatternTextureTransforms(
   const transforms: IAutoMoviePatternTextureTransform[] = [];
   const sheared: string[] = [];
   for (const placement of props.result.placements) {
-    const grain: number = placement.grainDeg * Quaternion.DEG2RAD;
-    const turn: number = placement.rotationDeg * Quaternion.DEG2RAD - grain;
+    const grain: number = placement.grainDeg * AutoMovieEngineQuaternion.DEG2RAD;
+    const turn: number = placement.rotationDeg * AutoMovieEngineQuaternion.DEG2RAD - grain;
     const cosine: number = Math.cos(turn);
     const sine: number = Math.sin(turn);
     const width: number = placement.mirror
@@ -104,7 +104,7 @@ export function autoMoviePatternTextureTransforms(
         x: (first.x * second.y - first.y * second.x) / down,
         y: down,
       },
-      rotationDeg: -angle / Quaternion.DEG2RAD,
+      rotationDeg: -angle / AutoMovieEngineQuaternion.DEG2RAD,
     });
   }
   return { transforms, sheared };

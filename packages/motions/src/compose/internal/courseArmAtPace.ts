@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -46,7 +46,7 @@ export function courseArmAtPace(
       now.forEach((p: IAutoMovieVector3, k: number): void => {
         peak = Math.max(
           peak,
-          (Vector3.distance(p, last![k]!) * steps) / (span.end - span.start),
+          (AutoMovieEngineVector3.distance(p, last![k]!) * steps) / (span.end - span.start),
         );
       });
     last = now;
@@ -81,9 +81,9 @@ function points(goal: IAutoMovieHumanLimbGoal): readonly IAutoMovieVector3[] {
           (
             limit: NonNullable<IAutoMovieHumanLimbGoal["limits"]>[number],
           ): IAutoMovieVector3 =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               goal.point,
-              Quaternion.rotateVector(goal.rotation!, limit.contact),
+              AutoMovieEngineQuaternion.rotateVector(goal.rotation!, limit.contact),
             ),
         )),
   ];
@@ -95,8 +95,8 @@ function points(goal: IAutoMovieHumanLimbGoal): readonly IAutoMovieVector3[] {
 function site(goal: IAutoMovieHumanLimbGoal): IAutoMovieVector3 {
   return goal.contact === undefined || goal.rotation === undefined
     ? goal.point
-    : Vector3.add(
+    : AutoMovieEngineVector3.add(
         goal.point,
-        Quaternion.rotateVector(goal.rotation, goal.contact),
+        AutoMovieEngineQuaternion.rotateVector(goal.rotation, goal.contact),
       );
 }

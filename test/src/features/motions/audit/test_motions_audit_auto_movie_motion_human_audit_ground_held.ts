@@ -1,4 +1,4 @@
-﻿import { Quaternion, Vector3 } from "@automovie/engine";
+﻿import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -7,12 +7,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditGround,
-  HumanFoot,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanAuditGround
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditGround";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -54,9 +62,9 @@ export async function test_motions_audit_auto_movie_motion_human_audit_ground_he
     point.key === "contact" &&
       vclose(
         point.point,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           foot.worldPosition,
-          Quaternion.rotateVector(foot.worldRotation, declared),
+          AutoMovieEngineQuaternion.rotateVector(foot.worldRotation, declared),
         ),
         ROUNDING,
       ),

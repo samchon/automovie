@@ -1,7 +1,7 @@
 import type { IAutoMovieLight } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 import { applyTransform } from "./applyTransform.js";
 
 /*
@@ -38,14 +38,14 @@ export const applyLightState: (
   applyTransform(target, light.transform);
   target.color.setRGB(light.color.r, light.color.g, light.color.b);
   target.intensity = light.intensity;
-  if (light.type === "point" && AutoMovieThreeKind.isPointLight(target))
+  if (light.type === "point" && AutoMovieRenderThreeKind.isPointLight(target))
     target.distance = light.range;
-  else if (light.type === "spot" && AutoMovieThreeKind.isSpotLight(target)) {
+  else if (light.type === "spot" && AutoMovieRenderThreeKind.isSpotLight(target)) {
     target.distance = light.range;
     target.angle = (light.coneAngle * Math.PI) / 180;
   } else if (
     light.type === "area" &&
-    AutoMovieThreeKind.isRectAreaLight(target)
+    AutoMovieRenderThreeKind.isRectAreaLight(target)
   ) {
     // Extent carries no channel, so it never changes between frames; it is
     // written here anyway because this is the one place a light's values are

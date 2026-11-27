@@ -8,7 +8,7 @@
  * brings the master to `integratedLufs` and limits its true peak below
  * `maximumTruePeakDbtp`; the delivery audit checks the decoded delivered file
  * against the same values. A production that declares none is mixed and checked
- * against engine's `AUTOMOVIE_EBU_R128_LOUDNESS` (EBU R 128: −23 LUFS, 0.5 LU,
+ * against engine's `AutoMovieEngineEbuR128Loudness` (EBU R 128: −23 LUFS, 0.5 LU,
  * −1 dBTP). The mixer refuses non-finite values and a negative tolerance.
  */
 export interface IAutoMovieLoudnessIntent {

@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, requireOtherPerformer } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  requireOtherPerformer
+} from "../../../../../packages/motions/src/touch/internal/requireOtherPerformer";
 import { strict as assert } from "node:assert";
 
 /** Each partner-only contact requires two distinct performers. */

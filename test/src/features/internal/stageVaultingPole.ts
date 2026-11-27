@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeLandingMat, AutoMovieArchetypeVaultingPole } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAcrobatics,
@@ -58,14 +58,14 @@ export function stageVaultingPole(
   );
   const lower: number =
     top -
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
     );
   // A share along the shaft's band, measured along its wrapped axis.
   const shaft: ReturnType<typeof pole.affordance> = pole.affordance("shaft");
   const upward: boolean =
-    Quaternion.rotateVector(shaft.frame.rotation, { x: 1, y: 0, z: 0 }).y > 0;
+    AutoMovieEngineQuaternion.rotateVector(shaft.frame.rotation, { x: 1, y: 0, z: 0 }).y > 0;
   const along = (fromTip: number): number =>
     upward ? fromTip / length : 1 - fromTip / length;
   // Across the rack, its top to the right (the pole's +Y turned onto -X),

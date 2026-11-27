@@ -1,4 +1,4 @@
-import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -46,7 +46,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * The facing an upright vessel's arm reaches best, with its tilt: of the
    * candidate facings, the one whose reached hand keeps the vessel's axis
    * nearest the world's up, the nearest to head on on a tie: two tilts within
-   * the joints' tolerance (`ROM_TOLERANCE`, the resolution a fit meets a
+   * the joints' tolerance (`AutoMovieEngineRomTolerance`, the resolution a fit meets a
    * rotation to) are one, so a rounding-sized difference between a hand's fit
    * and its mirror's never chooses another facing. A vessel at the lips is
    * `AutoMovieMotionHumanTouchDrink.drinking`'s.
@@ -83,13 +83,13 @@ export namespace AutoMovieMotionHumanTouchUpright {
         facing,
         read,
       );
-      if (error < least - ROM_TOLERANCE) {
+      if (error < least - AutoMovieEngineRomTolerance) {
         least = error;
         best = facing;
       }
       // A tilt is an angle, never below 0, so once the best is within the
       // tolerance of 0 no later facing can replace it.
-      if (least <= ROM_TOLERANCE) break;
+      if (least <= AutoMovieEngineRomTolerance) break;
     }
     return { facing: best, lean: 0, tilt: least };
   }
@@ -108,10 +108,10 @@ export namespace AutoMovieMotionHumanTouchUpright {
     lean: number,
   ): IAutoMovieQuaternion {
     const level: number = Math.hypot(normal.x, normal.z);
-    if (lean === 0 || !(level > 1e-6)) return Quaternion.identity();
-    return Quaternion.fromAxisAngle(
-      Vector3.normalize(
-        Vector3.cross(
+    if (lean === 0 || !(level > 1e-6)) return AutoMovieEngineQuaternion.identity();
+    return AutoMovieEngineQuaternion.fromAxisAngle(
+      AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(
           { x: normal.x / level, y: 0, z: normal.z / level },
           { x: 0, y: 1, z: 0 },
         ),

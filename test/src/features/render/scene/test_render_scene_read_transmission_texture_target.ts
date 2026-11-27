@@ -1,4 +1,4 @@
-import { AutoMovieSceneTexture } from "@automovie/render";
+import { AutoMovieRenderSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -50,7 +50,7 @@ export async function test_render_scene_read_transmission_texture_target(): Prom
     renderer: ReturnType<typeof facts>,
     camera: import("three").Camera,
   ): import("@automovie/interface").IAutoMovieRenderTextureTarget =>
-    AutoMovieSceneTexture.readTransmissionTarget({
+    AutoMovieRenderSceneTexture.readTransmissionTarget({
       owner,
       transmissionScope,
       renderer,

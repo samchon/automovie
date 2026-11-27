@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanPosture,
@@ -23,26 +23,26 @@ export function humanRomanStance(
   left: IAutoMovieRigidTransform,
   right: IAutoMovieRigidTransform,
 ): IAutoMovieMotionHumanPosture {
-  const ahead: IAutoMovieVector3 = Vector3.add(
-    Quaternion.rotateVector(left.rotation, { x: 0, y: 0, z: 1 }),
-    Quaternion.rotateVector(right.rotation, { x: 0, y: 0, z: 1 }),
+  const ahead: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineQuaternion.rotateVector(left.rotation, { x: 0, y: 0, z: 1 }),
+    AutoMovieEngineQuaternion.rotateVector(right.rotation, { x: 0, y: 0, z: 1 }),
   );
-  const middle: IAutoMovieVector3 = Vector3.lerp(
+  const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     left.position,
     right.position,
     0.5,
   );
-  const level: IAutoMovieVector3 = Vector3.normalize({
+  const level: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: ahead.x,
     y: 0,
     z: ahead.z,
   });
   const ankle = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(p, { x: 0, y: measure.ankleHeight, z: 0 });
+    AutoMovieEngineVector3.add(p, { x: 0, y: measure.ankleHeight, z: 0 });
   const knee = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       p,
-      Vector3.add(Vector3.scale(level, measure.shank), {
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(level, measure.shank), {
         x: 0,
         y: measure.shank,
         z: 0,
@@ -50,7 +50,7 @@ export function humanRomanStance(
     );
   return {
     ...entry,
-    root: Vector3.add(middle, { x: 0, y: measure.hipHeight, z: 0 }),
+    root: AutoMovieEngineVector3.add(middle, { x: 0, y: measure.hipHeight, z: 0 }),
     yaw: (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI,
     pitch: 0,
     roll: 0,

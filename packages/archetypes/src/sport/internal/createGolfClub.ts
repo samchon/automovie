@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeGolfClub } from "../AutoMovieArchetypeGolfClub";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -55,7 +55,7 @@ export function createGolfClub(
     name: kind,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const high: number = AutoMovieArchetypeGolfClub.HEAD_HEIGHT[kind];
   const hold: number = AutoMovieArchetypeGolfClub.GRIP_LENGTH;
   builder.box(

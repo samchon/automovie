@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -29,26 +29,26 @@ export function EquineMane(
   >,
   rig: AutoMovieArchetypeEquine.IRig,
 ): void {
-  const along: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(rig.poll, rig.neck),
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(rig.poll, rig.neck),
   );
-  const out: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract({ x: 0, y: 1, z: 0 }, Vector3.scale(along, along.y)),
+  const out: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract({ x: 0, y: 1, z: 0 }, AutoMovieEngineVector3.scale(along, along.y)),
   );
 
   // The hair the hand closes on: a rod of the handful's diameter along the
   // crest, its axis perpendicular to the grip's +Y so the span across the grip
   // is the aperture.
-  const middle: IAutoMovieVector3 = Vector3.add(
+  const middle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     rig.crest,
-    Vector3.scale(out, HANDFUL / 2),
+    AutoMovieEngineVector3.scale(out, HANDFUL / 2),
   );
-  const half: IAutoMovieVector3 = Vector3.scale(along, RUN / 2);
+  const half: IAutoMovieVector3 = AutoMovieEngineVector3.scale(along, RUN / 2);
   builder.rod(
     "mane",
     HANDFUL / 2,
-    Vector3.subtract(middle, half),
-    Vector3.add(middle, half),
+    AutoMovieEngineVector3.subtract(middle, half),
+    AutoMovieEngineVector3.add(middle, half),
     { color: HAIR, share: 0 },
   );
   builder.affordance({

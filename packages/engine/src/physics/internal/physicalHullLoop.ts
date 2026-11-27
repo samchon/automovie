@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { walkSortedPlanarHull } from "../../math/internal/walkSortedPlanarHull";
 
 /*
@@ -29,12 +29,12 @@ export function physicalHullLoop(
       : Math.abs(normal.y) <= Math.abs(normal.z)
         ? { x: 0, y: 1, z: 0 }
         : { x: 0, y: 0, z: 1 };
-  const u: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(normal, seed));
-  const v: IAutoMovieVector3 = Vector3.cross(normal, u);
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(normal, seed));
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.cross(normal, u);
   const flat: IPlanarPoint[] = [];
   points.forEach((p: IAutoMovieVector3, index: number): void => {
     if (member[index]!)
-      flat.push({ index, x: Vector3.dot(p, u), y: Vector3.dot(p, v) });
+      flat.push({ index, x: AutoMovieEngineVector3.dot(p, u), y: AutoMovieEngineVector3.dot(p, v) });
   });
   flat.sort(comparePlanarPoints);
   return walkSortedPlanarHull(flat, "x", "y").map(

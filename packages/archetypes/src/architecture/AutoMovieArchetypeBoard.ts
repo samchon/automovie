@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -81,7 +81,7 @@ export namespace AutoMovieArchetypeBoard {
       name: `${NAMES[kind]} ${size.name}`,
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const height: number = d.height!;
     const width: number = d.width!;
     const depth: number = d.depth!;

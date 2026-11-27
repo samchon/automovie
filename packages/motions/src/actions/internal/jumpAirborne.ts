@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -207,13 +207,13 @@ export namespace jumpAirborne {
     };
     const rotations: Record<
       AutoMovieHumanSide,
-      ReturnType<typeof Quaternion.prepareSlerp>
+      ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp>
     > = {
-      left: Quaternion.prepareSlerp(
+      left: AutoMovieEngineQuaternion.prepareSlerp(
         fixed.start.legs.left.rotation,
         fixed.end.legs.left.rotation,
       ),
-      right: Quaternion.prepareSlerp(
+      right: AutoMovieEngineQuaternion.prepareSlerp(
         fixed.start.legs.right.rotation,
         fixed.end.legs.right.rotation,
       ),
@@ -227,19 +227,19 @@ export namespace jumpAirborne {
       { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
       { x: 0, y: 0, z: 1 },
     );
-    const rightward: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(along, { x: 0, y: 1, z: 0 }),
+    const rightward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(along, { x: 0, y: 1, z: 0 }),
     );
-    const apart: IAutoMovieVector3 = Vector3.subtract(
+    const apart: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       fixed.start.legs.right.point,
       fixed.start.legs.left.point,
     );
-    const apartEnd: IAutoMovieVector3 = Vector3.subtract(
+    const apartEnd: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       fixed.end.legs.right.point,
       fixed.end.legs.left.point,
     );
-    const g0: number = Vector3.dot(apart, along);
-    const g1: number = Vector3.dot(apartEnd, along);
+    const g0: number = AutoMovieEngineVector3.dot(apart, along);
+    const g1: number = AutoMovieEngineVector3.dot(apartEnd, along);
     // A pass is a sign change of two real gaps, strictly inside the
     // flight: feet landing side by side leave a floating-point zero gap,
     // whose pass at the very end made the bump 0/0. A pair whose feet change
@@ -251,18 +251,18 @@ export namespace jumpAirborne {
         : undefined;
     const passBump: number =
       passAt === undefined ||
-      !(Vector3.dot(apart, rightward) > 0) ||
-      !(Vector3.dot(apartEnd, rightward) > 0)
+      !(AutoMovieEngineVector3.dot(apart, rightward) > 0) ||
+      !(AutoMovieEngineVector3.dot(apartEnd, rightward) > 0)
         ? 0
         : Math.max(
             0,
             2 * body.measure.shankRadius -
-              Vector3.dot(Vector3.lerp(apart, apartEnd, passAt), rightward),
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.lerp(apart, apartEnd, passAt), rightward),
           );
     const passing = (s: number): IAutoMovieVector3 =>
       passAt === undefined || passBump === 0
         ? { x: 0, y: 0, z: 0 }
-        : Vector3.scale(
+        : AutoMovieEngineVector3.scale(
             rightward,
             (passBump / 2) *
               Math.min(1, (s * (1 - s)) / (passAt * (1 - passAt))),
@@ -288,16 +288,16 @@ export namespace jumpAirborne {
       const arch: number = archHeight * Math.sin(Math.PI * u);
       const passed: IAutoMovieVector3 = passing(s);
       for (const side of ["left", "right"] as const) {
-        const point: IAutoMovieVector3 = Vector3.add(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           points[side](s, root, arch),
-          Vector3.scale(passed, side === "right" ? 1 : -1),
+          AutoMovieEngineVector3.scale(passed, side === "right" ? 1 : -1),
         );
-        const asked: IAutoMovieQuaternion = Quaternion.multiply(
+        const asked: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           turn,
           rotations[side](s),
         );
         const ranged: IAutoMovieQuaternion = ankleRange(
-          Vector3.add(root, hipOffsets[side]),
+          AutoMovieEngineVector3.add(root, hipOffsets[side]),
           point,
           asked,
         );

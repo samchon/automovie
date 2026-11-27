@@ -1,4 +1,6 @@
-import { AutoMovieMotionHumanAuditTangle } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditTangle
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditTangle";
 import { TestValidator } from "@nestia/e2e";
 
 /**

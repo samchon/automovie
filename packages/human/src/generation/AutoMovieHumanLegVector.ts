@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
 /**
@@ -55,7 +55,7 @@ export namespace AutoMovieHumanLegVector {
 
   /** Unit vector; a zero vector stays zero. */
   export function normalize(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
-    return Vector3.normalizeTuple(a);
+    return AutoMovieEngineVector3.normalizeTuple(a);
   }
 
   /** Linear interpolation `a + (b - a) t`. */

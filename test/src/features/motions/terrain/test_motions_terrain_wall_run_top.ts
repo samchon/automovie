@@ -4,11 +4,17 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  planWallRun,
-  planWallRunFlight,
-  stand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  planWallRun
+} from "../../../../../packages/motions/src/terrain/internal/planWallRun";
+import {
+  planWallRunFlight
+} from "../../../../../packages/motions/src/terrain/internal/planWallRunFlight";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

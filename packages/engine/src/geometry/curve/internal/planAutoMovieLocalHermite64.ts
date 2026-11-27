@@ -9,9 +9,9 @@ import type {
   IAutoMoviePlanLocalHermite64Plan,
 } from "@automovie/interface";
 
-import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSubdivision64";
-import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
-import { AutoMovieLocalHermiteField64 as F } from "../../AutoMovieLocalHermiteField64";
+import { AutoMovieEngineBernsteinSubdivision64 as S } from "../../AutoMovieEngineBernsteinSubdivision64";
+import { AutoMovieEngineCurveMath64 as V } from "../../AutoMovieEngineCurveMath64";
+import { AutoMovieEngineLocalHermiteField64 as F } from "../../AutoMovieEngineLocalHermiteField64";
 
 /*
  * Prepare bounded adaptive leaves for one immutable physical Hermite run.

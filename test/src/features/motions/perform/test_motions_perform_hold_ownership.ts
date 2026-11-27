@@ -2,7 +2,12 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
-import { HumanPerformanceContacts, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanPerformanceContacts
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceContacts";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

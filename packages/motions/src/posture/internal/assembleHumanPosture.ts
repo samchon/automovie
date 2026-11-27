@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -44,7 +44,7 @@ export function assembleHumanPosture(
     // any clamp runs.
     const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
       turnHumanPosture(posture);
-    const root: NonNullable<IAutoMoviePose["root"]> = Transform.of(
+    const root: NonNullable<IAutoMoviePose["root"]> = AutoMovieEngineTransform.of(
       { ...turned.position },
       turned.rotation,
     );
@@ -90,7 +90,7 @@ export function assembleHumanPosture(
   );
   const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
     turnHumanPosture(posture);
-  const root: NonNullable<IAutoMoviePose["root"]> = Transform.of(
+  const root: NonNullable<IAutoMoviePose["root"]> = AutoMovieEngineTransform.of(
     { ...turned.position },
     turned.rotation,
   );

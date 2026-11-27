@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeWatch } from "../AutoMovieArchetypeWatch";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { WornPropDraw } from "./WornPropDraw";
@@ -29,7 +29,7 @@ export function createWatch(
     d,
   }: ReturnType<typeof WornPropDraw.prepare<AutoMovieArchetypeWatch.Affordance>> =
     WornPropDraw.prepare<AutoMovieArchetypeWatch.Affordance>("watch", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const thin: number = WornPropDraw.THIN;
 
   // The strap flat along Z, the case on its middle.

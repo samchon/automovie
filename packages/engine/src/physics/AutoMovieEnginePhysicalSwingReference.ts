@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { physicalShapeBoundsImplementation } from "./internal/physicalShapeBoundsImplementation";
 import { AutoMovieEnginePhysicalStanceBalance } from "./AutoMovieEnginePhysicalStanceBalance";
 import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
@@ -60,9 +60,9 @@ export namespace AutoMovieEnginePhysicalSwingReference {
       0,
       Math.min(1, input.elapsed / AutoMovieEnginePhysicalStanceBalance.FADE),
     );
-    return Vector3.add(
-      Vector3.scale(input.actual, 1 - share),
-      Vector3.scale(input.path, share),
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(input.actual, 1 - share),
+      AutoMovieEngineVector3.scale(input.path, share),
     );
   }
 
@@ -145,16 +145,16 @@ export namespace AutoMovieEnginePhysicalSwingReference {
     const ankle: IAutoMoviePhysicalJoint = joints.find(
       (joint: IAutoMoviePhysicalJoint): boolean => joint.child === foot,
     )!;
-    const footAt: IAutoMovieVector3 = Vector3.subtract(
+    const footAt: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       input.goal,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         input.rotation,
         input.localPoint ?? { x: 0, y: 0, z: 0 },
       ),
     );
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       footAt,
-      Quaternion.rotateVector(input.rotation, ankle.childFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(input.rotation, ankle.childFrame.position),
     );
     // The joints above the ankle bring the shank's ankle anchor to it.
     const solved: IAutoMovieSolvePhysicalArticulationTargets.IResult =
@@ -190,7 +190,7 @@ export namespace AutoMovieEnginePhysicalSwingReference {
       out[parent] ?? input.base,
       joints[0]!.parentFrame.position,
     );
-    const line: IAutoMovieVector3 = Vector3.subtract(centre, hip);
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(centre, hip);
     const lacked: ("x" | "y" | "z")[] = (["x", "y", "z"] as const).filter(
       (axis: "x" | "y" | "z"): boolean =>
         !ankle.axes.some((entry): boolean => entry.axis === axis),
@@ -199,22 +199,22 @@ export namespace AutoMovieEnginePhysicalSwingReference {
     const swivel = (
       angle: number,
     ): Record<string, IAutoMovieRigidTransform> => {
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        Vector3.normalize(line),
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+        AutoMovieEngineVector3.normalize(line),
         (angle * 180) / Math.PI,
       );
       const poses: Record<string, IAutoMovieRigidTransform> = { ...out };
       for (const bone of above)
         poses[bone] = {
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             hip,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               turn,
-              Vector3.subtract(out[bone]!.position, hip),
+              AutoMovieEngineVector3.subtract(out[bone]!.position, hip),
             ),
           ),
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(turn, out[bone]!.rotation),
+          rotation: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(turn, out[bone]!.rotation),
           ),
         };
       return poses;
@@ -222,21 +222,21 @@ export namespace AutoMovieEnginePhysicalSwingReference {
     const wanted = (
       poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     ): IAutoMovieQuaternion =>
-      Quaternion.multiply(
-        Quaternion.inverse(
-          Quaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(
+          AutoMovieEngineQuaternion.multiply(
             poses[ankle.parent]!.rotation,
             ankle.parentFrame.rotation,
           ),
         ),
-        Quaternion.multiply(input.rotation, ankle.childFrame.rotation),
+        AutoMovieEngineQuaternion.multiply(input.rotation, ankle.childFrame.rotation),
       );
     const missing = (angle: number): number => {
       const q: IAutoMovieQuaternion = wanted(swivel(angle));
       const sign: number = q.w < 0 ? -1 : 1;
       return lacked.length === 1 ? sign * q[lacked[0]!] : 0;
     };
-    if (lacked.length === 1 && Vector3.length(line) > 1e-9) {
+    if (lacked.length === 1 && AutoMovieEngineVector3.length(line) > 1e-9) {
       // The secant method from the seed's swivel, zero.
       let a: number = 0;
       let b: number = 0.05;
@@ -254,7 +254,7 @@ export namespace AutoMovieEnginePhysicalSwingReference {
     // The ankle takes the planned foot's rotation relative to the shank,
     // admitted to its axes and limits; the foot hangs from the anchor.
     const shank: IAutoMovieRigidTransform = out[ankle.parent]!;
-    const socket: IAutoMovieQuaternion = Quaternion.multiply(
+    const socket: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       shank.rotation,
       ankle.parentFrame.rotation,
     );
@@ -262,16 +262,16 @@ export namespace AutoMovieEnginePhysicalSwingReference {
       ankle,
       wanted(out),
     );
-    const turned: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.multiply(socket, relative),
-        Quaternion.inverse(ankle.childFrame.rotation),
+    const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(socket, relative),
+        AutoMovieEngineQuaternion.inverse(ankle.childFrame.rotation),
       ),
     );
     out[foot] = {
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         physicalSupportPoint(shank, ankle.parentFrame.position),
-        Quaternion.rotateVector(turned, ankle.childFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(turned, ankle.childFrame.position),
       ),
       rotation: turned,
     };
@@ -352,42 +352,42 @@ function computeSwingReference(input: {
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     joint: IAutoMoviePhysicalJoint,
   ): IAutoMovieQuaternion =>
-    Quaternion.multiply(
-      Quaternion.inverse(
-        Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(
+        AutoMovieEngineQuaternion.multiply(
           poses[joint.parent]!.rotation,
           joint.parentFrame.rotation,
         ),
       ),
-      Quaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
         poses[joint.child]!.rotation,
         joint.childFrame.rotation,
       ),
     );
   for (const joint of input.joints) {
     const parent: IAutoMovieRigidTransform = out[joint.parent] ?? input.base;
-    const turn: IAutoMovieQuaternion = Quaternion.slerp(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
       relative(input.actual, joint),
       relative(input.fit, joint),
       share,
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.multiply(
-          Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(parent.rotation, joint.parentFrame.rotation),
           turn,
         ),
-        Quaternion.inverse(joint.childFrame.rotation),
+        AutoMovieEngineQuaternion.inverse(joint.childFrame.rotation),
       ),
     );
-    const pivot: IAutoMovieVector3 = Vector3.add(
+    const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parent.position,
-      Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
     );
     out[joint.child] = {
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         pivot,
-        Quaternion.rotateVector(rotation, joint.childFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(rotation, joint.childFrame.position),
       ),
       rotation,
     };

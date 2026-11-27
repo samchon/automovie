@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSledgehammerData from "./internal/AutoMovieArchetypeSledgehammerData";
+import { AutoMovieArchetypeSledgehammerData } from "./internal/AutoMovieArchetypeSledgehammerData";
 
 /** Constructs the sledgehammer archetype from its recipe. */
 export namespace AutoMovieArchetypeSledgehammer {
@@ -49,7 +49,7 @@ export function create(
     material: "steel",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const head: number = d.head;
   const reach: number = pick ? 0.28 : head / 2;
   builder.box(

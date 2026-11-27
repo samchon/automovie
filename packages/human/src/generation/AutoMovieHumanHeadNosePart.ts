@@ -1,6 +1,6 @@
 import {
-  AutoMovieNaturalSpline,
-  AutoMovieViewSection,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadLayout,
@@ -65,7 +65,7 @@ export namespace AutoMovieHumanHeadNosePart {
     const face: IAutoMovieHumanHeadPrior.IFace =
       AutoMovieHumanHeadPrior.PRIOR.face;
     const knots: readonly number[] = face.profileKnots;
-    const dorsum: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const dorsum: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       knots,
       face.dorsum,
     );
@@ -169,7 +169,7 @@ export namespace AutoMovieHumanHeadNosePart {
     }
     function half(y: number): number {
       return (
-        AutoMovieNaturalSpline.evaluate(dorsum, (y - plan.tip) / span) *
+        AutoMovieEngineNaturalSpline.evaluate(dorsum, (y - plan.tip) / span) *
         plan.noseWidth
       );
     }
@@ -196,12 +196,12 @@ export namespace AutoMovieHumanHeadNosePart {
             {
               site: "nose.columella",
               station: stations[0]!,
-              value: AutoMovieViewSection.ELLIPSE,
+              value: AutoMovieEngineViewSection.ELLIPSE,
             },
             {
               site: "nose.nasion",
               station: stations[stations.length - 1]!,
-              value: AutoMovieViewSection.ELLIPSE,
+              value: AutoMovieEngineViewSection.ELLIPSE,
             },
           ],
         },

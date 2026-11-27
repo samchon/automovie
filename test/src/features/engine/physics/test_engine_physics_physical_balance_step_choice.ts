@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance } from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalBalance,
   IAutoMoviePhysicalRecoveryState,
@@ -17,7 +17,7 @@ const ROUNDING: number = 1e-9;
 type Step = IAutoMoviePhysicalBalance.IResult["step"];
 
 /**
- * Which limb `AutoMoviePhysicalBalance.assess` steps, and how `retarget` keeps
+ * Which limb `AutoMovieEnginePhysicalBalance.assess` steps, and how `retarget` keeps
  * a committed request: among capturing steps the one whose remaining supports
  * already hold the commanded centre of pressure (Pratt et al., M2V2, VII-A); a
  * diagonal pair when no capturing single step can be unloaded at once (Chen et
@@ -138,10 +138,10 @@ export function test_engine_physics_physical_balance_step_choice(): void {
   TestValidator.equals(
     "retarget",
     [
-      AutoMoviePhysicalBalance.retarget({ unloading: true, own, best: better })
+      AutoMovieEnginePhysicalBalance.retarget({ unloading: true, own, best: better })
         ?.bone,
-      AutoMoviePhysicalBalance.retarget({ unloading: true, best: better }),
-      AutoMoviePhysicalBalance.retarget({ unloading: false, own, best: better })
+      AutoMovieEnginePhysicalBalance.retarget({ unloading: true, best: better }),
+      AutoMovieEnginePhysicalBalance.retarget({ unloading: false, own, best: better })
         ?.bone,
     ],
     [own.bone, undefined, better.bone],

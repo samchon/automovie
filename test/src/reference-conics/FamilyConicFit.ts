@@ -1,6 +1,6 @@
 import {
-  AutoMovieViewChain as Q,
-  AutoMovieNaturalSpline as S,
+  AutoMovieEngineViewChain as Q,
+  AutoMovieEngineNaturalSpline as S,
 } from "@automovie/engine";
 import type {
   IAutoMovieNaturalCubicSpline,
@@ -143,7 +143,7 @@ export namespace FamilyConicFit {
   const LINE_ROUNDS: number = 48;
 
   /**
-   * The least share of its chord at which every arc's two tangent lines must meet ahead of its start and behind its end (`AutoMovieViewChain`'s
+   * The least share of its chord at which every arc's two tangent lines must meet ahead of its start and behind its end (`AutoMovieEngineViewChain`'s
    * `a` and `b`), at every dense station, as fitted and as stored. Admissible at zero alone, a fit settles against that wall: f1's armpit slit
    * cutter, fitted with the barrier, held `a` at 0 to 0.05 of the chord over its first sections and `b` at 0.02 over its groove, and the
    * stored family, read by the engine's spline between its stations, was refused ("the tangent lines meet behind the end", `b` -0.006). A part
@@ -917,7 +917,7 @@ export namespace FamilyConicFit {
       }
     }
     // `--seeds` with `--seed-stations=<s>,...`: at each listed station, the held lines' chain and the nearest fitting section's own seed,
-    // each anchor by its chain index, layout anchor and kind at its chart point, and the chain's refusal (`AutoMovieViewChain.of`).
+    // each anchor by its chain index, layout anchor and kind at its chart point, and the chain's refusal (`AutoMovieEngineViewChain.of`).
     const listed: number[] = (
       process.argv
         .find((a: string): boolean => a.startsWith("--seed-stations="))

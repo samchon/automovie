@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieMotionHumanCourse, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBalance } from "../../everyday/internal/HumanBalance";
@@ -50,8 +50,8 @@ export namespace AutoMovieMotionHumanCourse {
     props: IAutoMovieMotionHumanCourse.IProps,
     through: number = props.to,
   ): (seconds: number) => number {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, props.yaw),
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, props.yaw),
       { x: 0, y: 0, z: 1 },
     );
     const from: number = props.from;
@@ -71,7 +71,7 @@ export namespace AutoMovieMotionHumanCourse {
           along,
           resolution,
         );
-        return Vector3.dot(mass(posture, resolution, projection), forward);
+        return AutoMovieEngineVector3.dot(mass(posture, resolution, projection), forward);
       };
       const omega: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
         AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(props.body.measure.hipHeight),

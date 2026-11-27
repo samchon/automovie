@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,8 +9,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeDinghyData from "./internal/AutoMovieArchetypeDinghyData";
-import { v } from "./internal/AutoMovieArchetypeDinghyData";
+import { AutoMovieArchetypeDinghyData } from "./internal/AutoMovieArchetypeDinghyData";
+
 
 /** The canonical producer and authoring contract for a sailing dinghy. */
 export namespace AutoMovieArchetypeDinghy {
@@ -131,12 +131,12 @@ function hull(builder: Build, length: number, beam: number): void {
     const width: number = s.half * (inner ? 0.94 : 1);
     const keel: number = s.keel + (inner ? 0.017 : 0);
     return [
-      v(-width, rim, s.z),
-      v(-width * 0.76, keel + 0.06, s.z),
-      v(-width * 0.44, keel, s.z),
-      v(width * 0.44, keel, s.z),
-      v(width * 0.76, keel + 0.06, s.z),
-      v(width, rim, s.z),
+      AutoMovieArchetypeDinghyData.v(-width, rim, s.z),
+      AutoMovieArchetypeDinghyData.v(-width * 0.76, keel + 0.06, s.z),
+      AutoMovieArchetypeDinghyData.v(-width * 0.44, keel, s.z),
+      AutoMovieArchetypeDinghyData.v(width * 0.44, keel, s.z),
+      AutoMovieArchetypeDinghyData.v(width * 0.76, keel + 0.06, s.z),
+      AutoMovieArchetypeDinghyData.v(width, rim, s.z),
     ];
   };
   const frames: readonly IRing[] = panels.map(
@@ -175,8 +175,8 @@ function hull(builder: Build, length: number, beam: number): void {
   const depth: number = length * 0.62;
   builder.box(
     "cockpit",
-    v(width, 0.055, depth),
-    v(0, FLOOR - 0.0275, -length * 0.11),
+    AutoMovieArchetypeDinghyData.v(width, 0.055, depth),
+    AutoMovieArchetypeDinghyData.v(0, FLOOR - 0.0275, -length * 0.11),
     {
       color: DECK,
     },
@@ -188,12 +188,12 @@ function hull(builder: Build, length: number, beam: number): void {
     builder.affordance({
       id,
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(v(0, FLOOR, z)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieArchetypeDinghyData.v(0, FLOOR, z)),
       extent: null,
       width,
       depth: 0.76,
     });
-  builder.box("daggerboard", v(0.046, 0.56, 0.29), v(0, -0.37, 0.51), {
+  builder.box("daggerboard", AutoMovieArchetypeDinghyData.v(0.046, 0.56, 0.29), AutoMovieArchetypeDinghyData.v(0, -0.37, 0.51), {
     color: SPARS,
   });
 }
@@ -202,19 +202,19 @@ function hull(builder: Build, length: number, beam: number): void {
  * Main sail, boom and sheet, sharing the mast pivot and a posed hand end.
  */
 function mainRig(builder: Build, length: number): void {
-  const tack: IAutoMovieVector3 = v(0, 1.18, length * 0.25);
+  const tack: IAutoMovieVector3 = AutoMovieArchetypeDinghyData.v(0, 1.18, length * 0.25);
   const boomLength: number = length * 0.64;
   const clew: IAutoMovieVector3 = { ...tack, z: tack.z - boomLength };
   const head: IAutoMovieVector3 = {
     ...tack,
     y: tack.y + (2 * MAIN_AREA) / boomLength,
   };
-  const band: IAutoMovieVector3 = Vector3.lerp(clew, head, 0.29);
-  const luff: IAutoMovieVector3 = Vector3.lerp(tack, head, 0.29);
+  const band: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(clew, head, 0.29);
+  const luff: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(tack, head, 0.29);
   builder.rod(
     "mast",
     0.045,
-    v(0, FLOOR, tack.z),
+    AutoMovieArchetypeDinghyData.v(0, FLOOR, tack.z),
     { ...head, y: head.y + 0.08 },
     { color: SPARS },
   );
@@ -226,8 +226,8 @@ function mainRig(builder: Build, length: number): void {
     builder.convex(
       id,
       face.flatMap((point) => [
-        v(-0.006, point.y, point.z),
-        v(0.006, point.y, point.z),
+        AutoMovieArchetypeDinghyData.v(-0.006, point.y, point.z),
+        AutoMovieArchetypeDinghyData.v(0.006, point.y, point.z),
       ]),
       undefined,
       { color },
@@ -235,7 +235,7 @@ function mainRig(builder: Build, length: number): void {
   builder.affordance({
     id: "boom",
     kind: "hinge",
-    frame: AutoMovieArchetypeFrame.facing(tack, v(0, 1, 0), v(0, 0, -1)),
+    frame: AutoMovieArchetypeFrame.facing(tack, AutoMovieArchetypeDinghyData.v(0, 1, 0), AutoMovieArchetypeDinghyData.v(0, 0, -1)),
     extent: null,
     reverse: 65,
     travel: 65,
@@ -250,8 +250,8 @@ function mainRig(builder: Build, length: number): void {
   });
   // Centre mainsheet: the sheet runs from the clew down to a floor block,
   // and its tail leads up from the block to the helm's forward hand.
-  const block: IAutoMovieVector3 = v(0, FLOOR + 0.11, -0.05);
-  const take: IAutoMovieVector3 = v(0, 0.7, 0.45);
+  const block: IAutoMovieVector3 = AutoMovieArchetypeDinghyData.v(0, FLOOR + 0.11, -0.05);
+  const take: IAutoMovieVector3 = AutoMovieArchetypeDinghyData.v(0, 0.7, 0.45);
   builder.ball("sheet-block", 0.049, block, { color: SPARS });
   builder.affordance({
     id: "sheetBlock",
@@ -264,14 +264,14 @@ function mainRig(builder: Build, length: number): void {
   builder.affordance({
     id: "sheetSwing",
     kind: "wheel",
-    frame: AutoMovieArchetypeFrame.facing(block, v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(block, AutoMovieArchetypeDinghyData.v(0, 1, 0), AutoMovieArchetypeDinghyData.v(0, 0, 1)),
     extent: null,
     travel: 180,
   });
   builder.affordance({
     id: "sheetLift",
     kind: "hinge",
-    frame: AutoMovieArchetypeFrame.facing(block, v(-1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(block, AutoMovieArchetypeDinghyData.v(-1, 0, 0), AutoMovieArchetypeDinghyData.v(0, 0, 1)),
     extent: null,
     reverse: 60,
     travel: 40,
@@ -283,8 +283,8 @@ function mainRig(builder: Build, length: number): void {
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
       take,
-      v(0, 0, -1),
-      Vector3.subtract(take, block),
+      AutoMovieArchetypeDinghyData.v(0, 0, -1),
+      AutoMovieEngineVector3.subtract(take, block),
     ),
     extent: null,
     grip: "power",
@@ -321,18 +321,18 @@ function mainRig(builder: Build, length: number): void {
  * hinged tiller extension does.
  */
 function helm(builder: Build, length: number): void {
-  const pivot: IAutoMovieVector3 = v(0, 0.32, -length / 2);
-  const end: IAutoMovieVector3 = v(0, 0.42, -0.95);
-  const tip: IAutoMovieVector3 = v(
+  const pivot: IAutoMovieVector3 = AutoMovieArchetypeDinghyData.v(0, 0.32, -length / 2);
+  const end: IAutoMovieVector3 = AutoMovieArchetypeDinghyData.v(0, 0.42, -0.95);
+  const tip: IAutoMovieVector3 = AutoMovieArchetypeDinghyData.v(
     0,
     end.y,
     end.z + AutoMovieArchetypeDinghy.EXTENSION,
   );
-  const grip: IAutoMovieVector3 = Vector3.lerp(end, tip, 0.6);
+  const grip: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(end, tip, 0.6);
   builder.box(
     "rudder-blade",
-    v(0.049, 0.72, 0.29),
-    v(0, -0.21, pivot.z - 0.08),
+    AutoMovieArchetypeDinghyData.v(0.049, 0.72, 0.29),
+    AutoMovieArchetypeDinghyData.v(0, -0.21, pivot.z - 0.08),
     {
       color: SPARS,
     },
@@ -342,7 +342,7 @@ function helm(builder: Build, length: number): void {
   builder.affordance({
     id: "rudder",
     kind: "hinge",
-    frame: AutoMovieArchetypeFrame.facing(pivot, v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(pivot, AutoMovieArchetypeDinghyData.v(0, 1, 0), AutoMovieArchetypeDinghyData.v(0, 0, 1)),
     extent: null,
     reverse: 40,
     travel: 40,
@@ -358,7 +358,7 @@ function helm(builder: Build, length: number): void {
   builder.affordance({
     id: "extensionSwing",
     kind: "wheel",
-    frame: AutoMovieArchetypeFrame.facing(end, v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(end, AutoMovieArchetypeDinghyData.v(0, 1, 0), AutoMovieArchetypeDinghyData.v(0, 0, 1)),
     extent: null,
     travel: 120,
     rides: "rudder",
@@ -366,7 +366,7 @@ function helm(builder: Build, length: number): void {
   builder.affordance({
     id: "extensionLift",
     kind: "hinge",
-    frame: AutoMovieArchetypeFrame.facing(end, v(-1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(end, AutoMovieArchetypeDinghyData.v(-1, 0, 0), AutoMovieArchetypeDinghyData.v(0, 0, 1)),
     extent: null,
     reverse: 20,
     travel: 90,
@@ -377,7 +377,7 @@ function helm(builder: Build, length: number): void {
     id: "tiller",
     kind: "handle",
     symmetry: "round",
-    frame: AutoMovieArchetypeFrame.facing(grip, v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(grip, AutoMovieArchetypeDinghyData.v(0, 1, 0), AutoMovieArchetypeDinghyData.v(0, 0, 1)),
     extent: null,
     grip: "power",
     aperture: 0.025,

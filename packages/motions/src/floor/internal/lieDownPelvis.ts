@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -46,14 +46,14 @@ export function lieDownPelvis(
         (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
           s.socket === bearer[side],
       )!.point;
-    const contact: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(socket("left"), socket("right")),
+    const contact: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(socket("left"), socket("right")),
       0.5,
     );
     // The bearing sockets' mean less the pelvis's offset, both at root zero.
-    return Vector3.subtract(
+    return AutoMovieEngineVector3.subtract(
       contact,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading(posed),
         body.rest.get("hips")!,
       ),

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -257,12 +257,12 @@ export namespace HumanPerformanceHold {
     }
     const { offset, hand } = hold(window);
     return {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         hand.position,
-        Quaternion.rotateVector(hand.rotation, offset.position),
+        AutoMovieEngineQuaternion.rotateVector(hand.rotation, offset.position),
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(hand.rotation, offset.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(hand.rotation, offset.rotation),
       ),
     };
   }

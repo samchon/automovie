@@ -1,7 +1,7 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
 
 /*
@@ -20,13 +20,13 @@ export function readAutoMovieRenderTextureTarget(
   target: THREE.RenderTarget,
   transmissionScope?: string,
 ): IAutoMovieRenderTextureTarget {
-  const cube: boolean = AutoMovieThreeKind.isWebGLCubeRenderTarget(target);
+  const cube: boolean = AutoMovieRenderThreeKind.isWebGLCubeRenderTarget(target);
   const unsupported: boolean =
     target.depth !== 1 ||
     target.textures.some(
       (texture: THREE.Texture): boolean =>
-        AutoMovieThreeKind.isDataArrayTexture(texture) ||
-        AutoMovieThreeKind.isData3DTexture(texture),
+        AutoMovieRenderThreeKind.isDataArrayTexture(texture) ||
+        AutoMovieRenderThreeKind.isData3DTexture(texture),
     );
   const depth: THREE.DepthTexture | null = target.depthTexture;
   const depthBytesPerTexel: number | null = !target.depthBuffer

@@ -27,7 +27,7 @@
  * individual maxima.
  *
  * The elbow's abduction and the wrist's twist do not move
- * (`DEFAULT_HUMANOID_ROM`), so they have no measured rate and no limit.
+ * (`AutoMovieEngineDefaultHumanoidRom`), so they have no measured rate and no limit.
  */
 export const HUMAN_ARM_COORDINATE_RATES: readonly number[] = [
   233.0,

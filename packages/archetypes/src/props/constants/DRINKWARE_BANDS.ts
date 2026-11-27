@@ -7,8 +7,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeDrinkware } from "../AutoMovieArchetypeDrinkware";
-import * as DrinkwareBandsData from "./internal/DrinkwareBandsData";
-import { kg } from "./internal/DrinkwareBandsData";
+import { DrinkwareBandsData } from "./internal/DrinkwareBandsData";
+
 
 /*
  * The band of each free dimension of createDrinkware, by kind, with the
@@ -38,7 +38,7 @@ export const DRINKWARE_BANDS: Readonly<
       DrinkwareBandsData.MUG,
     ),
     ...DrinkwareBandsData.LOOP,
-    mass: kg(
+    mass: DrinkwareBandsData.kg(
       0.25,
       0.35,
       "IKEA 365+ mug package weight 0.29 kg (https://www.ikea.com/ie/en/p/ikea-365-mug-white-20282942/)",
@@ -49,12 +49,12 @@ export const DRINKWARE_BANDS: Readonly<
     height: AutoMovieArchetypeBand.metres(0.055, 0.055, DrinkwareBandsData.CUP),
     diameter: AutoMovieArchetypeBand.metres(0.09, 0.09, DrinkwareBandsData.CUP),
     ...DrinkwareBandsData.LOOP,
-    mass: kg(0.18, 0.18, DrinkwareBandsData.CUP),
+    mass: DrinkwareBandsData.kg(0.18, 0.18, DrinkwareBandsData.CUP),
   },
   glass: {
     height: AutoMovieArchetypeBand.metres(0.14, 0.15, DrinkwareBandsData.GLASS, true),
     diameter: AutoMovieArchetypeBand.metres(0.083, 0.089, DrinkwareBandsData.GLASS, true),
-    mass: kg(0.3, 0.45, AutoMovieArchetypeBand.TYPICAL_MASS, true),
+    mass: DrinkwareBandsData.kg(0.3, 0.45, AutoMovieArchetypeBand.TYPICAL_MASS, true),
   },
   wineGlass: {
     height: AutoMovieArchetypeBand.metres(0.15, 0.16, DrinkwareBandsData.ISO_3591),
@@ -62,7 +62,7 @@ export const DRINKWARE_BANDS: Readonly<
     stemLength: AutoMovieArchetypeBand.metres(0.052, 0.058, DrinkwareBandsData.ISO_3591),
     stemDiameter: AutoMovieArchetypeBand.metres(0.008, 0.01, DrinkwareBandsData.ISO_3591),
     baseDiameter: AutoMovieArchetypeBand.metres(0.06, 0.07, DrinkwareBandsData.ISO_3591),
-    mass: kg(0.1, 0.15, AutoMovieArchetypeBand.TYPICAL_MASS, true),
+    mass: DrinkwareBandsData.kg(0.1, 0.15, AutoMovieArchetypeBand.TYPICAL_MASS, true),
   },
   beerBottle: {
     neckDiameter: AutoMovieArchetypeBand.metres(
@@ -75,7 +75,7 @@ export const DRINKWARE_BANDS: Readonly<
     height: AutoMovieArchetypeBand.metres(0.197, 0.229, DrinkwareBandsData.PET, true),
     diameter: AutoMovieArchetypeBand.metres(0.065, 0.065, DrinkwareBandsData.PET),
     neckDiameter: AutoMovieArchetypeBand.metres(0.028, 0.028, DrinkwareBandsData.PET),
-    mass: kg(0.0225, 0.043, DrinkwareBandsData.PET, true),
+    mass: DrinkwareBandsData.kg(0.0225, 0.043, DrinkwareBandsData.PET, true),
   },
   wineBottle: {
     height: AutoMovieArchetypeBand.metres(0.2895, 0.329, DrinkwareBandsData.BORDEAUX, true),
@@ -86,7 +86,7 @@ export const DRINKWARE_BANDS: Readonly<
       "outer neck round the 18.5 mm bore Wikipedia's Wine bottle article states (https://en.wikipedia.org/wiki/Wine_bottle); the wall is an estimate",
       true,
     ),
-    mass: kg(
+    mass: DrinkwareBandsData.kg(
       0.3,
       0.9,
       `${DrinkwareBandsData.BORDEAUX}; range of Wikipedia's Wine bottle article`,

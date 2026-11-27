@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -264,7 +264,7 @@ export namespace stagger {
         // pelvis is settled where that puts it, under the trunk's tilt: the
         // legs are fitted to the hips the pose shows.
         const reacting: number = AutoMovieEngineMotionSampling.minimumJerkShare(seconds / reaction);
-        const shift: IAutoMovieVector3 = Vector3.scale(
+        const shift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
           shiftAt(seconds),
           reacting,
         );
@@ -302,7 +302,7 @@ export namespace stagger {
     // own clearance), read at plan time against the plan's own posture (its
     // dropped pelvis and swinging thighs) at knots AutoKnots places (Vitenti et
     // al. 2024, arXiv:2412.13423; `prepareHumanAdaptiveKnots`) to the
-    // solver's own angular resolution (`ROM_TOLERANCE`); no pose query fits an
+    // solver's own angular resolution (`AutoMovieEngineRomTolerance`); no pose query fits an
     // arm.
     const composed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
@@ -333,7 +333,7 @@ export namespace stagger {
         );
         return [need.left, need.right];
       },
-      tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+      tolerance: { kind: "absolute", absolute: AutoMovieEngineRomTolerance },
       maxKnots: frames,
     }).course;
     laid.carriage = (seconds: number): readonly number[] =>

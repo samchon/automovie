@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -14,7 +14,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeLadderData from "./internal/AutoMovieArchetypeLadderData";
+import { AutoMovieArchetypeLadderData } from "./internal/AutoMovieArchetypeLadderData";
 
 /** Constructs the ladder archetype from its recipe. */
 export namespace AutoMovieArchetypeLadder {
@@ -89,12 +89,12 @@ export function create(
 
   // The ladder's own line: up, tilted back toward the wall at -Z by the pitch from the floor.
   const pitch: number = d.pitch * AutoMovieArchetypeUnits.DEGREE;
-  const along: IAutoMovieVector3 = Vector3.create(
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.create(
     0,
     Math.sin(pitch),
     -Math.cos(pitch),
   );
-  const out: IAutoMovieVector3 = Vector3.create(
+  const out: IAutoMovieVector3 = AutoMovieEngineVector3.create(
     0,
     Math.cos(pitch),
     Math.sin(pitch),
@@ -105,7 +105,7 @@ export function create(
     ["left", 1],
     ["right", -1],
   ] as const) {
-    const foot: IAutoMovieVector3 = Vector3.create(
+    const foot: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       sign * (d.width / 2 + radius),
       0,
       0,
@@ -114,7 +114,7 @@ export function create(
       `rail-${side}`,
       radius,
       foot,
-      Vector3.add(foot, Vector3.scale(along, length)),
+      AutoMovieEngineVector3.add(foot, AutoMovieEngineVector3.scale(along, length)),
       { color: "#b9bcc0" },
     );
     builder.affordance({
@@ -122,7 +122,7 @@ export function create(
       kind: "bar",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.add(foot, Vector3.scale(along, length / 2)),
+        AutoMovieEngineVector3.add(foot, AutoMovieEngineVector3.scale(along, length / 2)),
         out,
         along,
       ),
@@ -133,12 +133,12 @@ export function create(
     });
   }
   for (const k of rungNumbers) {
-    const at: IAutoMovieVector3 = Vector3.scale(along, k * d.spacing);
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.scale(along, k * d.spacing);
     builder.rod(
       `rung-${k}`,
       radius,
-      Vector3.add(at, Vector3.create(-d.width / 2, 0, 0)),
-      Vector3.add(at, Vector3.create(d.width / 2, 0, 0)),
+      AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.create(-d.width / 2, 0, 0)),
+      AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.create(d.width / 2, 0, 0)),
       { color: "#b9bcc0" },
     );
     builder.affordance({
@@ -146,7 +146,7 @@ export function create(
       kind: "bar",
       materialPart: `rung-${k}`,
       symmetry: "round",
-      frame: AutoMovieArchetypeFrame.facing(at, out, Vector3.create(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(at, out, AutoMovieEngineVector3.create(1, 0, 0)),
       extent: null,
       grip: "power",
       aperture: 2 * radius,

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -155,8 +155,8 @@ export namespace punch {
       new Set<AutoMovieHumanoidBone>([`${side}Hand`, `${rearSide}Hand`]),
     );
     let delivery: number = StrikingSkill.lone(
-      Vector3.distance(fists.get(`${side}Hand`)!.worldPosition, loneTarget),
-      Vector3.distance(fists.get(`${rearSide}Hand`)!.worldPosition, loneTarget),
+      AutoMovieEngineVector3.distance(fists.get(`${side}Hand`)!.worldPosition, loneTarget),
+      AutoMovieEngineVector3.distance(fists.get(`${rearSide}Hand`)!.worldPosition, loneTarget),
       context.skill,
     );
     if (

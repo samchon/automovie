@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionRequest } from "@automovie/interface";
-import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
+import { AutoMovieRenderThreeKind, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -58,7 +58,7 @@ export function test_render_scene_apply_inspection_edges(): void {
   const apply = (
     stage: THREE.Scene,
     changes: Partial<IAutoMovieInspectionRequest>,
-  ): IAutoMovieInspectionHandle =>
+  ): IAutoMovieRenderInspectionHandle =>
     AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask(changes),
@@ -67,7 +67,7 @@ export function test_render_scene_apply_inspection_edges(): void {
   // 1. Over the clay shade.
   const box: THREE.Mesh = cube("box");
   const stage: THREE.Scene = InspectionScene.scene(box);
-  const over: IAutoMovieInspectionHandle = apply(stage, {
+  const over: IAutoMovieRenderInspectionHandle = apply(stage, {
     marks: ["edge"],
     shade: "clay",
   });
@@ -94,7 +94,7 @@ export function test_render_scene_apply_inspection_edges(): void {
   over.restore();
 
   // 2. Alone.
-  const alone: IAutoMovieInspectionHandle = apply(stage, {
+  const alone: IAutoMovieRenderInspectionHandle = apply(stage, {
     marks: ["edge"],
     surface: false,
   });
@@ -107,7 +107,7 @@ export function test_render_scene_apply_inspection_edges(): void {
 
   // 3. A part selection.
   const pair: THREE.Scene = InspectionScene.scene(cube("near"), cube("far", 5));
-  const near: IAutoMovieInspectionHandle = apply(pair, {
+  const near: IAutoMovieRenderInspectionHandle = apply(pair, {
     marks: ["edge"],
     parts: ["near"],
   });
@@ -126,7 +126,7 @@ export function test_render_scene_apply_inspection_edges(): void {
   const sheet: THREE.Scene = InspectionScene.scene(
     InspectionScene.quad("sheet"),
   );
-  const both: IAutoMovieInspectionHandle = apply(sheet, {
+  const both: IAutoMovieRenderInspectionHandle = apply(sheet, {
     marks: ["edge", "defect/open"],
   });
   const colours: number[] = InspectionScene.strokes(sheet).flatMap((line) =>
@@ -152,7 +152,7 @@ export function test_render_scene_apply_inspection_edges(): void {
 
   // 5. Indexed and non-indexed.
   const loose: THREE.Scene = InspectionScene.scene(cube("box", 0, false));
-  const unindexed: IAutoMovieInspectionHandle = apply(loose, {
+  const unindexed: IAutoMovieRenderInspectionHandle = apply(loose, {
     marks: ["edge"],
   });
   TestValidator.equals(
@@ -167,17 +167,17 @@ export function test_render_scene_apply_inspection_edges(): void {
     [stage, loose].flatMap((scene: THREE.Scene): boolean[] => {
       const out: boolean[] = [];
       scene.traverse((object: THREE.Object3D): void => {
-        if (!AutoMovieThreeKind.isMesh(object)) return;
+        if (!AutoMovieRenderThreeKind.isMesh(object)) return;
         for (const material of [object.material].flat())
           if (
-            AutoMovieThreeKind.isMeshBasicMaterial(material) ||
-            AutoMovieThreeKind.isMeshLambertMaterial(material)
+            AutoMovieRenderThreeKind.isMeshBasicMaterial(material) ||
+            AutoMovieRenderThreeKind.isMeshLambertMaterial(material)
           )
             out.push(material.wireframe);
       });
       return out;
     });
-  const during: IAutoMovieInspectionHandle = apply(stage, { marks: ["edge"] });
+  const during: IAutoMovieRenderInspectionHandle = apply(stage, { marks: ["edge"] });
   TestValidator.equals(
     "no wireframe flag is set while edges are drawn",
     flags().includes(true),

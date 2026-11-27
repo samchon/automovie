@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -154,13 +154,13 @@ function plan(
     )!;
   const seat: IAutoMovieRigidTransform = at(from.point);
   const opening: IAutoMovieRigidTransform = at(from.aperture);
-  const line: IAutoMovieVector3 = Vector3.subtract(
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     opening.position,
     seat.position,
   );
   if (
-    !(Vector3.length(line) > Number.EPSILON) ||
-    !(Quaternion.angle(opening.rotation, seat.rotation) <= 1e-6)
+    !(AutoMovieEngineVector3.length(line) > Number.EPSILON) ||
+    !(AutoMovieEngineQuaternion.angle(opening.rotation, seat.rotation) <= 1e-6)
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
@@ -179,13 +179,13 @@ function plan(
   const shown: IAutoMovieRigidTransform = context
     .prop(prop)
     .frame(context.start);
-  if (Vector3.distance(shown.position, seat.position) > SEATED)
+  if (AutoMovieEngineVector3.distance(shown.position, seat.position) > SEATED)
     throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "from.point",
       value: from.point,
       feasible: { kind: "alternatives", values: ["the object seated there"] },
-      reason: `${prop} is ${Vector3.distance(shown.position, seat.position).toFixed(3)} m from ${from.prop}.${from.point}`,
+      reason: `${prop} is ${AutoMovieEngineVector3.distance(shown.position, seat.position).toFixed(3)} m from ${from.prop}.${from.point}`,
       fix: "draw the object from the carrier it is seated in",
     });
 
@@ -198,28 +198,28 @@ function plan(
     undefined,
     new Set<AutoMovieHumanoidBone>([bone]),
   ).get(bone)!;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.worldRotation);
   const offset: IAutoMovieRigidTransform = {
-    position: Quaternion.rotateVector(
+    position: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(shown.position, hand.worldPosition),
+      AutoMovieEngineVector3.subtract(shown.position, hand.worldPosition),
     ),
-    rotation: Quaternion.multiply(inverse, shown.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(inverse, shown.rotation),
   };
   const wrist = (frame: IAutoMovieRigidTransform): IAutoMovieRigidTransform => {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(frame.rotation, Quaternion.inverse(offset.rotation)),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(frame.rotation, AutoMovieEngineQuaternion.inverse(offset.rotation)),
     );
     return {
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         frame.position,
-        Quaternion.rotateVector(rotation, offset.position),
+        AutoMovieEngineQuaternion.rotateVector(rotation, offset.position),
       ),
       rotation,
     };
   };
   const start: IAutoMovieRigidTransform = wrist(shown);
-  const direction: IAutoMovieVector3 = Vector3.normalize(line);
+  const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(line);
   const pulled: drawFromCarrierPulling.IPulled | null = drawFromCarrierPulling(
     context,
     side,
@@ -243,17 +243,17 @@ function plan(
           pulled,
           turnedAway,
           wrist,
-          Vector3.length(line),
+          AutoMovieEngineVector3.length(line),
         );
   const bladeAt: (p: number) => IAutoMovieRigidTransform = (
     p: number,
   ): IAutoMovieRigidTransform =>
     pivot === null
       ? {
-          position: Vector3.add(shown.position, Vector3.scale(line, p)),
+          position: AutoMovieEngineVector3.add(shown.position, AutoMovieEngineVector3.scale(line, p)),
           rotation: shown.rotation,
         }
-      : pivot.blade(p, Vector3.length(line) * p);
+      : pivot.blade(p, AutoMovieEngineVector3.length(line) * p);
   const end: IAutoMovieRigidTransform =
     pivot === null ? wrist(opening) : wrist(bladeAt(1));
   pickUp.reachable(context, side, end.position, turnedAway);
@@ -263,7 +263,7 @@ function plan(
   // same minimum-jerk progress as the slider.
   const held: IAutoMovieMotionHumanPosture = context.entry.posture;
   const carried: number = HumanPrehension.carry(
-    Vector3.distance(start.position, end.position),
+    AutoMovieEngineVector3.distance(start.position, end.position),
   );
   const progress: (t: number) => number = (t: number): number =>
     AutoMovieEngineMotionSampling.minimumJerk(
@@ -394,7 +394,7 @@ function plan(
         from: 0,
         to: 1,
         travel: (seconds: number): number =>
-          Vector3.length(line) *
+          AutoMovieEngineVector3.length(line) *
           AutoMovieEngineMotionSampling.minimumJerk(
             Math.min(1, Math.max(0, seconds / duration)),
           ).s,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -208,7 +208,7 @@ export namespace getUp {
     const heading: IAutoMovieQuaternion = humanPostureHeading(entered);
 
     // On the back the chest faces up; anything else rises by the rotation.
-    const up: number = Quaternion.rotateVector(heading, { x: 0, y: 0, z: 1 }).y;
+    const up: number = AutoMovieEngineQuaternion.rotateVector(heading, { x: 0, y: 0, z: 1 }).y;
     const supine: boolean = kind === "lying" && up > 0;
     const pattern: IAutoMovieMotionHumanGetUp.Pattern = supine
       ? (context.params.pattern ?? "symmetric")
@@ -450,23 +450,23 @@ function symmetricFeet(
   };
   const sitting = feet(seated);
   const standing = feet(stood);
-  const centre = Vector3.scale(Vector3.add(sitting.left, sitting.right), 0.5);
-  const across = Vector3.scale(
-    Vector3.subtract(standing.left, standing.right),
+  const centre = AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(sitting.left, sitting.right), 0.5);
+  const across = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(standing.left, standing.right),
     0.5,
   );
   return {
     left: {
       target: {
         kind: "point",
-        at: { ...Vector3.add(centre, across), y: 0 },
+        at: { ...AutoMovieEngineVector3.add(centre, across), y: 0 },
         frame: "world",
       },
     },
     right: {
       target: {
         kind: "point",
-        at: { ...Vector3.subtract(centre, across), y: 0 },
+        at: { ...AutoMovieEngineVector3.subtract(centre, across), y: 0 },
         frame: "world",
       },
     },

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -95,11 +95,11 @@ export function WorkoutLoad(
   const axis: IAutoMovieVector3 =
     load.handle === undefined
       ? tool.tip
-      : Vector3.subtract(
+      : AutoMovieEngineVector3.subtract(
           tool.tip,
           StrikingHeld(context, side, load.prop, { tip: load.handle }).tip,
         );
-  const width: number = Vector3.length(axis);
+  const width: number = AutoMovieEngineVector3.length(axis);
   if (width <= 1e-9)
     throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
@@ -108,7 +108,7 @@ export function WorkoutLoad(
       reason: "the two load grips coincide",
       fix: "name distinct handles on the held prop",
     });
-  const line: IAutoMovieVector3 = Vector3.scale(axis, 1 / width);
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.scale(axis, 1 / width);
   const bare: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld(
     context,
     other,
@@ -130,15 +130,15 @@ export function WorkoutLoad(
   // travels.
   const balance: IAutoMovieVector3 | undefined = !midfoot
     ? undefined
-    : Vector3.scale(
+    : AutoMovieEngineVector3.scale(
         (["left", "right"] as const).reduce(
           (
             sum: IAutoMovieVector3,
             foot: AutoMovieHumanSide,
           ): IAutoMovieVector3 =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               sum,
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 HumanFoot.point(body, foot, "heel", {
                   ankle: context.entry.feet[foot].ankle,
                   rotation: context.entry.feet[foot].rotation,
@@ -182,7 +182,7 @@ export function WorkoutLoad(
         point: HumanHand.frame(body, fitted, side, "grip").point,
         rotation: actual.worldRotation,
       });
-      const miss: number = Vector3.distance(support, goal);
+      const miss: number = AutoMovieEngineVector3.distance(support, goal);
       if (miss > StrikingRoll.MISS)
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
@@ -219,7 +219,7 @@ export function WorkoutLoad(
       const level: WorkoutLoad.ILevel = WorkoutLoad.level(
         posture.yaw,
         side,
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           bones.get(`${side}Hand`)!.worldPosition,
           bones.get(`${side}LowerArm`)!.worldPosition,
         ),
@@ -253,14 +253,14 @@ export function WorkoutLoad(
       const shoulder: IAutoMovieVector3 = bones.get(
         `${side}UpperArm`,
       )!.worldPosition;
-      const reach: IAutoMovieVector3 = Vector3.subtract(keyed.point, shoulder);
-      const off: IAutoMovieVector3 = Vector3.subtract(
+      const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(keyed.point, shoulder);
+      const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         balance ?? posture.root,
-        Vector3.lerp(keyed.point, StrikingHeld.point(tool, keyed, 0), 0.5),
+        AutoMovieEngineVector3.lerp(keyed.point, StrikingHeld.point(tool, keyed, 0), 0.5),
       );
       const aside: number =
-        Vector3.dot(reach, across) + Vector3.dot(off, across);
-      const squaredReach: number = Vector3.dot(reach, reach);
+        AutoMovieEngineVector3.dot(reach, across) + AutoMovieEngineVector3.dot(off, across);
+      const squaredReach: number = AutoMovieEngineVector3.dot(reach, reach);
       const remaining: number = squaredReach - aside * aside;
       if (remaining < 0) {
         // A flexed key does not measure the performer's full reach. The
@@ -272,13 +272,13 @@ export function WorkoutLoad(
           new Set<AutoMovieHumanoidBone>([`${other}UpperArm`]),
           projection,
         ).get(`${other}UpperArm`)!.worldPosition;
-        let maximum: number = Vector3.distance(shoulder, partner);
+        let maximum: number = AutoMovieEngineVector3.distance(shoulder, partner);
         for (const arm of [side, other]) {
           const elbow: IAutoMovieVector3 = body.rest.get(`${arm}LowerArm`)!;
           maximum +=
-            Vector3.distance(body.rest.get(`${arm}UpperArm`)!, elbow) +
-            Vector3.distance(elbow, body.rest.get(`${arm}Hand`)!) +
-            Vector3.length(
+            AutoMovieEngineVector3.distance(body.rest.get(`${arm}UpperArm`)!, elbow) +
+            AutoMovieEngineVector3.distance(elbow, body.rest.get(`${arm}Hand`)!) +
+            AutoMovieEngineVector3.length(
               HumanHand.offset(
                 body,
                 arm,
@@ -287,7 +287,7 @@ export function WorkoutLoad(
               ).point,
             );
         }
-        const span: number = Vector3.length(tool.tip);
+        const span: number = AutoMovieEngineVector3.length(tool.tip);
         if (span > maximum)
           throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
@@ -301,7 +301,7 @@ export function WorkoutLoad(
       // Beyond the keyed circle the shortest extension to the centred
       // handle is purely lateral. The native arm fit owns its articulation.
       const radius: number = remaining > 0 ? Math.sqrt(remaining) : 0;
-      const keyedForth: number = Vector3.dot(reach, ahead);
+      const keyedForth: number = AutoMovieEngineVector3.dot(reach, ahead);
       // Keep turnover on its continuous vertical/forward route when the
       // bar moves from below the shoulders into the rack and overhead.
       const radial: number = Math.hypot(keyedForth, reach.y);
@@ -313,14 +313,14 @@ export function WorkoutLoad(
             Math.min(
               radius,
               keyedForth +
-                (balance === undefined ? 0 : Vector3.dot(off, ahead)),
+                (balance === undefined ? 0 : AutoMovieEngineVector3.dot(off, ahead)),
             ),
           );
       const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
         ...keyed,
-        point: Vector3.add(
-          Vector3.add(shoulder, Vector3.scale(across, aside)),
-          Vector3.add(Vector3.scale(ahead, forth), {
+        point: AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(shoulder, AutoMovieEngineVector3.scale(across, aside)),
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(ahead, forth), {
             x: 0,
             y: turnover
               ? reach.y * fit
@@ -344,8 +344,8 @@ export function WorkoutLoad(
           bare,
           0,
           StrikingHeld.point(tool, frame, 0),
-          Quaternion.rotateVector(frame.rotation, own.axis),
-          Quaternion.rotateVector(frame.rotation, own.edge),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, own.axis),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, own.edge),
         ),
       };
       const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
@@ -429,15 +429,15 @@ export namespace WorkoutLoad {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: side === "right" ? 1 : -1, y: 0, z: 0 },
     );
-    const square: IAutoMovieVector3 = Vector3.subtract(
+    const square: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       forearm,
-      Vector3.scale(across, Vector3.dot(forearm, across)),
+      AutoMovieEngineVector3.scale(across, AutoMovieEngineVector3.dot(forearm, across)),
     );
     return {
       across,
       forward:
-        Vector3.length(square) > 1e-6
-          ? Vector3.normalize(square)
+        AutoMovieEngineVector3.length(square) > 1e-6
+          ? AutoMovieEngineVector3.normalize(square)
           : { x: 0, y: -1, z: 0 },
     };
   }

@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { CamelCohorts } from "./CamelCohorts";
-import * as CamelGaitData from "./internal/CamelGaitData";
+import { CamelGaitData } from "./internal/CamelGaitData";
 
 /*
  * A provisional dromedary walk from an observed Bactrian walking point.

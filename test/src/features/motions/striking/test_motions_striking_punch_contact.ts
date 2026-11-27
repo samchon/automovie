@@ -1,4 +1,6 @@
-import { punchContact } from "@automovie/motions/internal";
+import {
+  punchContact
+} from "../../../../../packages/motions/src/striking/internal/punchContact";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

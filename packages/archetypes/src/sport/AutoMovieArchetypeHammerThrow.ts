@@ -1,12 +1,10 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import {
-  band as AutoMovieArchetypeHammerThrowDataBand,
-} from "./internal/AutoMovieArchetypeHammerThrowData";
+import { AutoMovieArchetypeHammerThrowData } from "./internal/AutoMovieArchetypeHammerThrowData";
 
 /** Canonical producer and authoring contract for Hammer Throw. */
 export namespace AutoMovieArchetypeHammerThrow {
@@ -68,14 +66,14 @@ export namespace AutoMovieArchetypeHammerThrow {
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      length: AutoMovieArchetypeHammerThrowDataBand(
+      length: AutoMovieArchetypeHammerThrowData.band(
         "m",
         1.215,
         1.215,
         "the men's at most 1215 mm measured from the inside of the handle, the limit the model takes",
       ),
-      diameter: AutoMovieArchetypeHammerThrowDataBand("m", 0.11, 0.13, "the men's head 110 to 130 mm across"),
-      mass: AutoMovieArchetypeHammerThrowDataBand(
+      diameter: AutoMovieArchetypeHammerThrowData.band("m", 0.11, 0.13, "the men's head 110 to 130 mm across"),
+      mass: AutoMovieArchetypeHammerThrowData.band(
         "kg",
         7.26,
         7.26,
@@ -83,14 +81,14 @@ export namespace AutoMovieArchetypeHammerThrow {
       ),
     },
     women: {
-      length: AutoMovieArchetypeHammerThrowDataBand(
+      length: AutoMovieArchetypeHammerThrowData.band(
         "m",
         1.195,
         1.195,
         "the women's at most 1195 mm measured from the inside of the handle, the limit the model takes",
       ),
-      diameter: AutoMovieArchetypeHammerThrowDataBand("m", 0.095, 0.11, "the women's head 95 to 110 mm across"),
-      mass: AutoMovieArchetypeHammerThrowDataBand(
+      diameter: AutoMovieArchetypeHammerThrowData.band("m", 0.095, 0.11, "the women's head 95 to 110 mm across"),
+      mass: AutoMovieArchetypeHammerThrowData.band(
         "kg",
         4,
         4,
@@ -146,7 +144,7 @@ export namespace AutoMovieArchetypeHammerThrow {
       name: `${kind}'s hammer`,
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const radius: number = d.diameter / 2;
     const bar: number = AutoMovieArchetypeHammerThrow.HANDLE;
     const top: number = d.length + bar / 2;

@@ -38,7 +38,7 @@ export function formatSceneChain(
     (object: IPlaygroundComposition.IObject): boolean =>
       object.course !== undefined,
   );
-  const imports: Set<string> = new Set<string>(["HumanChain"]);
+  const imports: Set<string> = new Set<string>(["AutoMovieMotionHumanChain"]);
   const body: string[] = [];
   const indent: (text: string, by: string) => string = (
     text: string,
@@ -155,7 +155,7 @@ export function formatSceneChain(
     if (performer.actions.length === 0) continue;
     body.push(
       `// ${performer.subject}: body ${performer.body}, at (${performer.x}, ${performer.z}) m, facing ${performer.yaw}째, ${performer.proficiency}`,
-      `const ${identifier(performer.subject)} = HumanChain.subject(${JSON.stringify(performer.subject)})`,
+      `const ${identifier(performer.subject)} = AutoMovieMotionHumanChain.subject(${JSON.stringify(performer.subject)})`,
       ...calls(performer.actions, performer.body, "  "),
     );
     body[body.length - 1] += ";";
@@ -173,12 +173,12 @@ export function formatSceneChain(
     );
   const mutuals: string[] = composition.mutuals.map(
     (mutual: IPlaygroundComposition.IMutual): string =>
-      `HumanChain.mutual(\n  ${use(names.mutuals[mutual.name] ?? mutual.name)},\n  { ${Object.entries(
+      `AutoMovieMotionHumanChain.mutual(\n  ${use(names.mutuals[mutual.name] ?? mutual.name)},\n  { ${Object.entries(
         mutual.cast,
       )
         .map(
           ([role, subject]: [string, string]): string =>
-            `${role}: HumanChain.subject(${JSON.stringify(subject)})`,
+            `${role}: AutoMovieMotionHumanChain.subject(${JSON.stringify(subject)})`,
         )
         .join(", ")} },\n  ${indent(value(mutual.params), "  ")},\n)`,
   );
@@ -205,7 +205,7 @@ export function formatSceneChain(
   // Each placed archetype is a prop the actions name; one worn at the start
   // rides the wearer's bone until a hand draws it.
   if (objects.length !== 0) {
-    imports.add("HumanObject");
+    imports.add("AutoMovieMotionHumanObject");
     body.push(
       "",
       "const props = [",
@@ -228,7 +228,7 @@ export function formatSceneChain(
           aid !== undefined
             ? ", " +
               use("HumanAidWalk") +
-              ".track(HumanObject.frame(" +
+              ".track(AutoMovieMotionHumanObject.frame(" +
               name +
               "At), " +
               value(aid) +
@@ -241,7 +241,7 @@ export function formatSceneChain(
   }, (id, seconds) => ${read}, Object.keys(${homeState}).map((articulation) => ({
     articulation, start: 0, travel: (seconds) => Reflect.get(${state}, articulation) ?? 0,
   }))`;
-        const made: string = `HumanObject.prop(${JSON.stringify(o.subject)}, ${name}, ${name}At${travel})`;
+        const made: string = `AutoMovieMotionHumanObject.prop(${JSON.stringify(o.subject)}, ${name}, ${name}At${travel})`;
         return o.worn === undefined
           ? `  ${made},`
           : `  { ...${made}, worn: ${indent(literal(o.worn, imports), "  ")} },`;
@@ -276,7 +276,7 @@ export function formatSceneChain(
 
   // The performance is built from the people, the composition, the props
   // and the laws, each list given only where the scene has one.
-  imports.add("HumanPerformance");
+  imports.add("AutoMovieMotionHumanPerformance");
   body.push(
     "",
     "// Each body id's motion body, prepared from the site's measures.",
@@ -298,7 +298,7 @@ export function formatSceneChain(
     ...(hasCues ? ["  cues,"] : []),
     ...(names.laws.length === 0 ? [] : ["  laws,"]),
     "};",
-    "const performance = new HumanPerformance(input);",
+    "const performance = new AutoMovieMotionHumanPerformance(input);",
   );
 
   const header: string[] = [
@@ -352,8 +352,8 @@ function literal(value: unknown, imports: Set<string>): string {
         imports.add("HumanObstacle");
         return `HumanObstacle.apertures(${identifier(aperture)}, ${identifier(aperture)}At)${typeof id === "string" ? `.find((o) => o.id === ${JSON.stringify(id)})!` : "[0]!"}`;
       }
-      imports.add("HumanObject");
-      return `HumanObject.seat(${identifier(seat as string)}, ${identifier(seat as string)}At${typeof id === "string" ? `, ${JSON.stringify(id)}` : ""})`;
+      imports.add("AutoMovieMotionHumanObject");
+      return `AutoMovieMotionHumanObject.seat(${identifier(seat as string)}, ${identifier(seat as string)}At${typeof id === "string" ? `, ${JSON.stringify(id)}` : ""})`;
     }
     const entries: string[] = Object.entries(value).map(
       ([key, inner]: [string, unknown]): string =>

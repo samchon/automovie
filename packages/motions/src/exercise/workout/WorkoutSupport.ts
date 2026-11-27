@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -76,9 +76,9 @@ export namespace WorkoutSupport {
     const point: (affordance: IAutoMovieAffordance) => IAutoMovieVector3 = (
       affordance: IAutoMovieAffordance,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, affordance.frame.translation),
       );
     const single: boolean = on.other === undefined;
     const affordance: IAutoMovieAffordance = find(on.affordance);
@@ -86,7 +86,7 @@ export namespace WorkoutSupport {
 
     // Two affordances, as a dip station's two bars, bear at their middle.
     return {
-      point: single ? first : Vector3.lerp(first, point(find(on.other!)), 0.5),
+      point: single ? first : AutoMovieEngineVector3.lerp(first, point(find(on.other!)), 0.5),
       frame,
       affordance,
     };

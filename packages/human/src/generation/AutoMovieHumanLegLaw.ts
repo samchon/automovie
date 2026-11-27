@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
@@ -105,7 +105,7 @@ export namespace AutoMovieHumanLegLaw {
 
     // The prior's channels.
     const spline = (values: readonly number[]): IAutoMovieNaturalCubicSpline =>
-      AutoMovieNaturalSpline.create(prior.stations, values);
+      AutoMovieEngineNaturalSpline.create(prior.stations, values);
     const shape: IAutoMovieNaturalCubicSpline[] = prior.shape[0]!.map(
       (_: number, k: number): IAutoMovieNaturalCubicSpline =>
         spline(prior.shape.map((row: readonly number[]): number => row[k]!)),
@@ -119,7 +119,7 @@ export namespace AutoMovieHumanLegLaw {
       return [
         u,
         Math.log((girth * ratio) / hull / length) -
-          AutoMovieNaturalSpline.evaluate(profile, u),
+          AutoMovieEngineNaturalSpline.evaluate(profile, u),
       ];
     };
 
@@ -135,7 +135,7 @@ export namespace AutoMovieHumanLegLaw {
       [
         0,
         Math.log(ankleSection.radius / length) -
-          AutoMovieNaturalSpline.evaluate(profile, 0),
+          AutoMovieEngineNaturalSpline.evaluate(profile, 0),
       ],
       key(prior.calf.station, inputs.calf, prior.calf.ratio),
       key(prior.knee.station, inputs.knee, prior.knee.ratio),
@@ -161,7 +161,7 @@ export namespace AutoMovieHumanLegLaw {
       forward: spline(prior.forward),
       axis: axisCurves(),
       shape,
-      correction: AutoMovieNaturalSpline.create(
+      correction: AutoMovieEngineNaturalSpline.create(
         keys.map((k: [number, number]): number => k[0]),
         keys.map((k: [number, number]): number => k[1]),
       ),
@@ -237,7 +237,7 @@ export namespace AutoMovieHumanLegLaw {
       prior.lateral.sex,
     ].map(
       (values: readonly number[]): IAutoMovieNaturalCubicSpline =>
-        AutoMovieNaturalSpline.create(prior.stations, values),
+        AutoMovieEngineNaturalSpline.create(prior.stations, values),
     );
   }
 
@@ -249,7 +249,7 @@ export namespace AutoMovieHumanLegLaw {
     inputs: IAutoMovieHumanLegConstruction.IInputs,
   ): number {
     const value = (i: number): number =>
-      AutoMovieNaturalSpline.evaluate(axis[i]!, u);
+      AutoMovieEngineNaturalSpline.evaluate(axis[i]!, u);
     return (
       value(0) * inputs.scale +
       value(1) * length +
@@ -273,7 +273,7 @@ export namespace AutoMovieHumanLegLaw {
     u: number,
   ): number[] {
     const f: number[] = shape.map((s: IAutoMovieNaturalCubicSpline): number =>
-      AutoMovieNaturalSpline.evaluate(s, u),
+      AutoMovieEngineNaturalSpline.evaluate(s, u),
     );
     const raw: number[] = AutoMovieHumanLegSampling.PHASES.map(
       (t: number): number => {
@@ -296,7 +296,7 @@ export namespace AutoMovieHumanLegLaw {
     u: number,
   ): IAutoMovieHumanLegLaw.IBare {
     const value = (s: IAutoMovieNaturalCubicSpline): number =>
-      AutoMovieNaturalSpline.evaluate(s, u);
+      AutoMovieEngineNaturalSpline.evaluate(s, u);
     const L: number = family.length;
     const radii: number[] = unit(family.shape, u);
     const R: number =

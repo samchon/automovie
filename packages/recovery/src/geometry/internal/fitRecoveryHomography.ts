@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMatrix3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryHomographyFittingOperation,
   IAutoMovieRecoveryImagePointsNormalizationOperation,
@@ -59,9 +59,9 @@ export function fitRecoveryHomography(
     0,
     1,
   ];
-  const raw: number[] = AutoMovieMatrix3.multiply(
+  const raw: number[] = AutoMovieEngineMatrix3.multiply(
     inverseTransform,
-    AutoMovieMatrix3.multiply(factors.rightColumns[8]!, a.transform),
+    AutoMovieEngineMatrix3.multiply(factors.rightColumns[8]!, a.transform),
   );
   const norm: number = Math.hypot(...raw);
   if (!(norm > 0)) throw new Error("camera-homography: nonrepresentable map");

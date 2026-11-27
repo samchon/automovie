@@ -5,7 +5,7 @@ import type { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
  * A bounded verdict over every analysis run of one design revision.
  *
  * The report has one row per domain and at most the caller-selected positive
- * gap bound, defaulting to the engine's `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS` of
+ * gap bound, defaulting to the engine's `AutoMovieEngineAnalysisReportMaxGaps` of
  * 16. Fixed bounds limit retained rows independently of run count; retained
  * revision, gap reasons and remedies still determine byte size.
  * {@link omittedGaps} counts every gap beyond the bound.

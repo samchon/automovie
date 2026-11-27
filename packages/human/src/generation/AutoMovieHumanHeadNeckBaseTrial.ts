@@ -1,4 +1,4 @@
-import { AutoMovieNativeCoordinate, AutoMovieViewOutline, AutoMovieViewSection, AutoMovieEngineCurve } from "@automovie/engine";
+import { AutoMovieEngineNativeCoordinate, AutoMovieEngineViewOutline, AutoMovieEngineViewSection, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadNeckBaseTrial,
   IAutoMovieHumanHeadNeckCurves,
@@ -52,7 +52,7 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
           return previous;
         }
         const value: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading = {
-          jet: AutoMovieViewSection.radius(template, theta),
+          jet: AutoMovieEngineViewSection.radius(template, theta),
           cos: Math.cos(theta),
           sin: Math.sin(theta),
         };
@@ -107,7 +107,7 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
     const sideX: number = backX + (frontX - backX) / 4;
     const q: number = read(radial, sideY).value / r;
     const located: IAutoMovieNativeCoordinate.IResult =
-      AutoMovieNativeCoordinate.locate(
+      AutoMovieEngineNativeCoordinate.locate(
         {
           extents: [
             q * extents[0],
@@ -116,10 +116,10 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
             q * extents[3],
           ],
           shoulders: [
-            AutoMovieViewSection.ELLIPSE,
-            AutoMovieViewSection.ELLIPSE,
-            AutoMovieViewSection.ELLIPSE,
-            AutoMovieViewSection.ELLIPSE,
+            AutoMovieEngineViewSection.ELLIPSE,
+            AutoMovieEngineViewSection.ELLIPSE,
+            AutoMovieEngineViewSection.ELLIPSE,
+            AutoMovieEngineViewSection.ELLIPSE,
           ],
         },
         0,
@@ -227,7 +227,7 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
         const theta: number = (2 * Math.PI * knot.station) / family.clock;
         const rho: number =
           (read(radial, knot.value).value / r) *
-          AutoMovieViewSection.radius(template, theta)[0];
+          AutoMovieEngineViewSection.radius(template, theta)[0];
         return [
           read(axis, knot.value).value + rho * Math.cos(theta),
           knot.value,
@@ -263,8 +263,8 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
 function prepareScalar(
   outline: IAutoMovieViewPart.IOutline,
 ): IAutoMovieViewOutline.IOutline {
-  const prepared: ReturnType<typeof AutoMovieViewOutline.create> =
-    AutoMovieViewOutline.create(outline);
+  const prepared: ReturnType<typeof AutoMovieEngineViewOutline.create> =
+    AutoMovieEngineViewOutline.create(outline);
   if ("detail" in prepared)
     throw new Error("Neck original source: " + prepared.detail);
   return prepared;
@@ -277,8 +277,8 @@ function read(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,
 ): IAutoMovieViewOutline.IReading {
-  const result: ReturnType<typeof AutoMovieViewOutline.at> =
-    AutoMovieViewOutline.at(outline, station);
+  const result: ReturnType<typeof AutoMovieEngineViewOutline.at> =
+    AutoMovieEngineViewOutline.at(outline, station);
   if (typeof result === "string") throw new Error(result);
   if (result.stationJet === null)
     throw new Error("Neck original course has no regular derivative");

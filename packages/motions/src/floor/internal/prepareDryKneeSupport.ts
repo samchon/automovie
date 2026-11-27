@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -74,7 +74,7 @@ export function prepareDryKneeSupport(
         );
       if (site === undefined) return [];
       const face: HumanMaterialContact.IFace = site.at(context.start);
-      const up: number = Quaternion.rotateVectorY(
+      const up: number = AutoMovieEngineQuaternion.rotateVectorY(
         face.frame.rotation,
         HumanMaterialContact.NORMAL,
       );
@@ -186,9 +186,9 @@ export function prepareDryKneeSupport(
           )!.worldPosition;
           const point: IAutoMovieVector3 = contact.world(bearing.point);
           const onShin: boolean =
-            Vector3.dot(
-              Vector3.subtract(point, knee),
-              Vector3.normalize(Vector3.subtract(ankle, knee)),
+            AutoMovieEngineVector3.dot(
+              AutoMovieEngineVector3.subtract(point, knee),
+              AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(ankle, knee)),
             ) > context.body.measure.shankRadius;
           const region: AutoMovieHumanoidRegion =
             contact.side === "left"

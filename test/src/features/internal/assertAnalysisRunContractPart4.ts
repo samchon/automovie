@@ -1,5 +1,5 @@
 import {
-  AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
+  AutoMovieEngineAnalysisMaxSamples,
   AutoMovieEngineAnalysis,
 } from "@automovie/engine";
 import type {
@@ -96,7 +96,7 @@ export function assertAnalysisRunContractPart4(
             solved(
               [measured()],
               Array.from(
-                { length: AUTOMOVIE_ANALYSIS_MAX_SAMPLES + 1 },
+                { length: AutoMovieEngineAnalysisMaxSamples + 1 },
                 (_: unknown, index: number): IAutoMovieAnalysisSample =>
                   at(`s${index}`, "room.reverberationTime"),
               ),

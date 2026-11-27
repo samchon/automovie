@@ -1,4 +1,4 @@
-import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieEngineCurve } from "@automovie/engine";
+import { AutoMovieEngineLoftSectionNative, AutoMovieEngineLoftViewRead, AutoMovieEngineLoftViewSource, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadTapeSource,
@@ -42,7 +42,7 @@ export namespace AutoMovieHumanHeadTapeSource {
     part: IAutoMovieViewPart,
   ): IAutoMovieHumanHeadTapeSource.IReader {
     const admitted: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(part);
+      AutoMovieEngineLoftViewSource.create(part);
     if (admitted === null || admitted.source === null)
       throw new Error(
         `Head tape has no admitted direct original source: ${part.name}`,
@@ -195,7 +195,7 @@ export namespace AutoMovieHumanHeadTapeSource {
     if (plane.b === 0)
       return { station, point: original.point, derivative: turn };
     const inputs: IAutoMovieLoftViewRead.IJets | string =
-      AutoMovieLoftViewRead.jets(reader.source, station);
+      AutoMovieEngineLoftViewRead.jets(reader.source, station);
     const frame:
       | ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>>
       | undefined = reader.part.axis.jet?.(station);
@@ -203,8 +203,8 @@ export namespace AutoMovieHumanHeadTapeSource {
       throw new Error(
         `Head tape physical source/frame derivative unavailable: ${typeof inputs === "string" ? inputs : station}`,
       );
-    const local: ReturnType<ReturnType<typeof AutoMovieLoftSectionNative.jet>> =
-      AutoMovieLoftSectionNative.jet(inputs)(phase);
+    const local: ReturnType<ReturnType<typeof AutoMovieEngineLoftSectionNative.jet>> =
+      AutoMovieEngineLoftSectionNative.jet(inputs)(phase);
     const along: AutoMovieVector3Tuple = frame.first.origin.map(
       (x: number, i: number): number =>
         x +

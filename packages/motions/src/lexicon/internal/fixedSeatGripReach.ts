@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -94,24 +94,24 @@ export function fixedSeatGripReach(
   )
     return undefined;
   const arm: number =
-    (Vector3.length(leftElbow.rest.translation) +
-      Vector3.length(rightElbow.rest.translation) +
-      Vector3.length(leftHand.rest.translation) +
-      Vector3.length(rightHand.rest.translation)) /
+    (AutoMovieEngineVector3.length(leftElbow.rest.translation) +
+      AutoMovieEngineVector3.length(rightElbow.rest.translation) +
+      AutoMovieEngineVector3.length(leftHand.rest.translation) +
+      AutoMovieEngineVector3.length(rightHand.rest.translation)) /
     2;
-  const mid: IAutoMovieVector3 = Vector3.lerp(
+  const mid: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     right.rest.translation,
     left.rest.translation,
     0.5,
   );
-  const half: IAutoMovieVector3 = Vector3.subtract(left.rest.translation, mid);
-  const breadth: number = Vector3.length(half);
+  const half: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(left.rest.translation, mid);
+  const breadth: number = AutoMovieEngineVector3.length(half);
   const central: number =
-    Vector3.length(Vector3.subtract(spine.rest.translation, socket.point)) +
-    Vector3.length(chest.rest.translation) +
-    Vector3.length(mid);
-  const l: number = Vector3.length(leftArm.rest.translation);
-  const r: number = Vector3.length(rightArm.rest.translation);
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(spine.rest.translation, socket.point)) +
+    AutoMovieEngineVector3.length(chest.rest.translation) +
+    AutoMovieEngineVector3.length(mid);
+  const l: number = AutoMovieEngineVector3.length(leftArm.rest.translation);
+  const r: number = AutoMovieEngineVector3.length(rightArm.rest.translation);
   if (!(breadth > 0 && l > 0 && r > 0)) return undefined;
   const length: number = (l + r) / 2;
   const cone: number = Math.max(
@@ -121,11 +121,11 @@ export function fixedSeatGripReach(
   const cosCone: number = Math.cos(cone);
   const sinCone: number = Math.sin(cone);
   const rest: IAutoMovieRigidTransform = {
-    position: Vector3.add(
+    position: AutoMovieEngineVector3.add(
       origin.position,
-      Quaternion.rotateVector(origin.rotation, seat.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(origin.rotation, seat.frame.translation),
     ),
-    rotation: Quaternion.multiply(origin.rotation, seat.frame.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(origin.rotation, seat.frame.rotation),
   };
   const leftYaw: IAutoMovieVector3 = {
     x: Math.cos(posture.yaw * RAD),
@@ -146,30 +146,30 @@ export function fixedSeatGripReach(
     midpoint: IAutoMovieVector3,
     halfSplit: IAutoMovieVector3,
   ): number {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       frame.rotation,
       Z,
     );
-    const across: IAutoMovieVector3 = Vector3.scale(
-      Quaternion.rotateVector(frame.rotation, X),
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, X),
       -1,
     );
-    const separation: number = angle(Vector3.dot(leftYaw, across));
+    const separation: number = angle(AutoMovieEngineVector3.dot(leftYaw, across));
     const aligned: number = Math.cos(Math.max(0, separation - turn));
     const interval: number = Math.cos(
       Math.max(0, separation - turn - halfAngle),
     );
-    const delta: IAutoMovieVector3 = Vector3.subtract(midpoint, frame.position);
-    const lateral: number = Vector3.dot(delta, across);
-    const along: number = Vector3.dot(delta, forward);
-    const off: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.subtract(delta, Vector3.scale(across, lateral)),
-      Vector3.scale(forward, Math.min(0, Math.max(-depth, along))),
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(midpoint, frame.position);
+    const lateral: number = AutoMovieEngineVector3.dot(delta, across);
+    const along: number = AutoMovieEngineVector3.dot(delta, forward);
+    const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.subtract(delta, AutoMovieEngineVector3.scale(across, lateral)),
+      AutoMovieEngineVector3.scale(forward, Math.min(0, Math.max(-depth, along))),
     );
-    const sagittal: number = Math.max(0, Vector3.length(off) - central);
+    const sagittal: number = Math.max(0, AutoMovieEngineVector3.length(off) - central);
     const split: number = Math.max(
       0,
-      Vector3.dot(halfSplit, across) - breadth * interval,
+      AutoMovieEngineVector3.dot(halfSplit, across) - breadth * interval,
     );
     const distance: number = Math.hypot(sagittal, split);
     if (distance === 0 || distance + length <= arm) return 0;
@@ -185,12 +185,12 @@ export function fixedSeatGripReach(
     rightWrist: IAutoMovieVector3,
     placed?: CurrentSeat,
   ): void => {
-    const midpoint: IAutoMovieVector3 = Vector3.lerp(
+    const midpoint: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       leftWrist,
       rightWrist,
       0.5,
     );
-    const halfSplit: IAutoMovieVector3 = Vector3.subtract(leftWrist, midpoint);
+    const halfSplit: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(leftWrist, midpoint);
     let minimum: number = projected(rest, midpoint, halfSplit);
     if (minimum <= arm) return;
     if (placed !== undefined) {
@@ -256,7 +256,7 @@ function excursion(range: IAutoMovieAngleRange | null): number {
  * Rotation of the bone's lateral axis due to its fixed bind transform.
  */
 function restTurn(bone: IAutoMovieBone): number {
-  return angle(Quaternion.rotateVector(bone.rest.rotation, X).x);
+  return angle(AutoMovieEngineQuaternion.rotateVector(bone.rest.rotation, X).x);
 }
 
 /*
@@ -267,7 +267,7 @@ function trunkTurn(
   bone: IAutoMovieBone,
 ): number {
   const limit: IAutoMovieJointConstraint | undefined =
-    bone.constraint ?? DEFAULT_HUMANOID_ROM[bone.bone];
+    bone.constraint ?? AutoMovieEngineDefaultHumanoidRom[bone.bone];
   if (limit === undefined || limit.swingTwist !== undefined) return Math.PI;
   const a: number = excursion(limit.abduction);
   const t: number = excursion(limit.twist);
@@ -296,14 +296,14 @@ function clavicleCone(
   side: number,
 ): number {
   const limit: IAutoMovieJointConstraint | undefined =
-    bone.constraint ?? DEFAULT_HUMANOID_ROM[bone.bone];
+    bone.constraint ?? AutoMovieEngineDefaultHumanoidRom[bone.bone];
   if (limit === undefined || limit.swingTwist !== undefined) return Math.PI;
   const flex: number = excursion(limit.flexion);
   const abduct: number = excursion(limit.abduction);
   return Math.min(
     Math.PI,
     restTurn(bone) +
-      angle((side * tip.x) / Vector3.length(tip)) +
+      angle((side * tip.x) / AutoMovieEngineVector3.length(tip)) +
       2 * angle(Math.cos(flex / 2) * Math.cos(abduct / 2)) +
       excursion(limit.twist),
   );

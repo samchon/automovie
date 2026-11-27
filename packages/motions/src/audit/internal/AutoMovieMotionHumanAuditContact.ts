@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditContact,
   IAutoMovieMotionHumanAuditMeasure,
@@ -104,9 +104,9 @@ export namespace AutoMovieMotionHumanAuditContact {
       if (support.kind === "ground" || motion.support === undefined)
         return point;
       const frame: IAutoMovieRigidTransform = motion.support(support, seconds);
-      return Quaternion.rotateVector(
-        Quaternion.inverse(frame.rotation),
-        Vector3.subtract(point, frame.position),
+      return AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(frame.rotation),
+        AutoMovieEngineVector3.subtract(point, frame.position),
       );
     };
     for (const side of ["left", "right"] as const) {

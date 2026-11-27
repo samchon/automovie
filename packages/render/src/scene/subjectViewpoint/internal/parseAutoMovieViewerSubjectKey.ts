@@ -1,5 +1,5 @@
-import type { AutoMovieViewerSubjectKind } from "../../AutoMovieViewerSubjectKind.js";
-import type { IAutoMovieViewerSubject } from "../../IAutoMovieViewerSubject.js";
+import type { AutoMovieRenderViewerSubjectKind } from "../../AutoMovieRenderViewerSubjectKind.js";
+import type { IAutoMovieRenderViewerSubject } from "../../IAutoMovieRenderViewerSubject.js";
 
 /*
  * Parse the first colon as category boundary and last @ as revision boundary.
@@ -9,15 +9,15 @@ import type { IAutoMovieViewerSubject } from "../../IAutoMovieViewerSubject.js";
  */
 export function parseAutoMovieViewerSubjectKey(
   key: string,
-): IAutoMovieViewerSubject {
+): IAutoMovieRenderViewerSubject {
   const separator: number = key.indexOf(":");
   if (separator === -1)
     throw new Error(
       `subject key "${key}" names no kind; write it as "<kind>:<id>"`,
     );
   const named: string = key.slice(0, separator);
-  const kind: AutoMovieViewerSubjectKind | undefined = SUBJECT_KINDS.find(
-    (candidate: AutoMovieViewerSubjectKind): boolean => candidate === named,
+  const kind: AutoMovieRenderViewerSubjectKind | undefined = SUBJECT_KINDS.find(
+    (candidate: AutoMovieRenderViewerSubjectKind): boolean => candidate === named,
   );
   if (kind === undefined)
     throw new Error(
@@ -37,7 +37,7 @@ export function parseAutoMovieViewerSubjectKey(
   return { kind, id, revision };
 }
 
-const SUBJECT_KINDS: readonly AutoMovieViewerSubjectKind[] = [
+const SUBJECT_KINDS: readonly AutoMovieRenderViewerSubjectKind[] = [
   "built-environment",
   "building",
   "storey",

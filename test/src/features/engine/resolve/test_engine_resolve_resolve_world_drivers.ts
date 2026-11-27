@@ -1,4 +1,4 @@
-import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieDriver,
   IAutoMovieNode,
@@ -47,7 +47,7 @@ const prepare: () => {
 const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   world: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(world.get(id)!);
 
 /** Root aims its +X axis at the goal, keeping +Z as its up. */
 const AIM: IAutoMovieDriver = {

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypePuttingGreen } from "../AutoMovieArchetypePuttingGreen";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
@@ -45,7 +45,7 @@ export function createPuttingGreen(
   const thick: number = depth + base;
   const half: number = side / 2;
   const ring = (angle: number, reach: number, y: number): IAutoMovieVector3 =>
-    Vector3.create(reach * Math.cos(angle), y, reach * Math.sin(angle));
+    AutoMovieEngineVector3.create(reach * Math.cos(angle), y, reach * Math.sin(angle));
 
   // Each sector joins the cup wall's chord to the square's edge, where the
   // ray at angle a leaves the square at half / max(|cos a|, |sin a|).
@@ -66,14 +66,14 @@ export function createPuttingGreen(
   }
   builder.box(
     "cupBottom",
-    Vector3.create(2 * radius, base, 2 * radius),
-    Vector3.create(0, -depth - base / 2, 0),
+    AutoMovieEngineVector3.create(2 * radius, base, 2 * radius),
+    AutoMovieEngineVector3.create(0, -depth - base / 2, 0),
     { color: "#e9e9e4" },
   );
   builder.affordance({
     id: "green",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
     width: side,
     depth: side,
@@ -81,7 +81,7 @@ export function createPuttingGreen(
   builder.affordance({
     id: "cup",
     kind: "socket",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
   });
 

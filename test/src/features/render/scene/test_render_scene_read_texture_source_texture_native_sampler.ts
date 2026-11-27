@@ -1,6 +1,6 @@
 import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
-import { AutoMovieSceneTexture } from "@automovie/render";
+import { AutoMovieRenderSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { DataTexture } from "three";
 
@@ -24,11 +24,11 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   a.minFilter = THREE.NearestMipmapNearestFilter;
   const b: DataTexture = a.clone();
   b.minFilter = THREE.LinearMipmapNearestFilter;
-  const first: IAutoMovieRenderTextureSource = AutoMovieSceneTexture.readSource(
+  const first: IAutoMovieRenderTextureSource = AutoMovieRenderSceneTexture.readSource(
     "a",
     a,
   );
-  const second: IAutoMovieRenderTextureSource = AutoMovieSceneTexture.readSource(
+  const second: IAutoMovieRenderTextureSource = AutoMovieRenderSceneTexture.readSource(
     "b",
     b,
   );
@@ -79,7 +79,7 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   fixed[1].anisotropy = 4;
   const fixedFacts: IAutoMovieRenderTextureSource[] = fixed.map(
     (texture: DataTexture, index: number): IAutoMovieRenderTextureSource =>
-      AutoMovieSceneTexture.readSource(`fixed-${index}`, texture),
+      AutoMovieRenderSceneTexture.readSource(`fixed-${index}`, texture),
   );
   TestValidator.predicate(
     "distinct native anisotropy keys remain distinct",
@@ -108,8 +108,8 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   Object.assign(fixed[1], { wrapR: 0, anisotropy: 1 });
   TestValidator.equals(
     "native falsy wrapR keys are equivalent",
-    AutoMovieSceneTexture.readSource("same", fixed[0]).uploadState,
-    AutoMovieSceneTexture.readSource("same", fixed[1]).uploadState,
+    AutoMovieRenderSceneTexture.readSource("same", fixed[0]).uploadState,
+    AutoMovieRenderSceneTexture.readSource("same", fixed[1]).uploadState,
   );
   for (const texture of fixed) texture.dispose();
   a.dispose();

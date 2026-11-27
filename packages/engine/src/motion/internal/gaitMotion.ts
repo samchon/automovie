@@ -7,8 +7,8 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
 import { addPositiveModulo } from "../../math/internal/addPositiveModulo";
 import { positiveModulo } from "../../math/internal/positiveModulo";
 import { gaitLimbFlexion } from "./gaitLimbFlexion";
@@ -84,13 +84,13 @@ function gaitRoot(
   const rootBob: NonNullable<IAutoMovieGait["rootBob"]> = gait.rootBob;
 
   const cycle: number = wrap01(time / gait.period + rootBob.phase);
-  return Transform.of(
+  return AutoMovieEngineTransform.of(
     {
       x: 0,
       y: rootBob.center + rootBob.amplitude * Math.sin(cycle * Math.PI * 2),
       z: 0,
     },
-    Quaternion.identity(),
+    AutoMovieEngineQuaternion.identity(),
   );
 }
 

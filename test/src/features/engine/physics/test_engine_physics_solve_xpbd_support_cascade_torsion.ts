@@ -1,8 +1,8 @@
 import {
-  AutoMoviePhysicalTracking,
-  AutoMovieXpbdArticulation,
-  AutoMovieXpbdSupportRows,
-  Quaternion,
+  AutoMovieEnginePhysicalTracking,
+  AutoMovieEngineXpbdArticulation,
+  AutoMovieEngineXpbdSupportRows,
+  AutoMovieEngineQuaternion,
   AutoMovieEnginePhysicalStanceBalance,
 } from "@automovie/engine";
 import type {
@@ -168,11 +168,11 @@ export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
   );
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const yawMoment = (degrees: number, rate: number): number => {
-    const current: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const current: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       degrees,
     );
-    return AutoMoviePhysicalTracking.torque(
+    return AutoMovieEnginePhysicalTracking.torque(
       current,
       AutoMovieEnginePhysicalStanceBalance.saturate(
         current,
@@ -227,16 +227,16 @@ export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
     { x: -0.1, y: 0, z: -0.05 },
     { x: 0.1, y: 0, z: -0.05 },
   ];
-  const open: number = AutoMovieXpbdSupportRows.capacity(
+  const open: number = AutoMovieEngineXpbdSupportRows.capacity(
     corners,
     t,
     [1, 1, 1, 1],
   );
   if (!(Math.abs(open - 4 * 0.15) < PhysicalTolerance.ROUNDING))
     findings.push(`four loaded corners hold ${open} against 0.6`);
-  if (AutoMovieXpbdSupportRows.capacity([{ x: 0, y: 0, z: 0 }], t, [5]) !== 0)
+  if (AutoMovieEngineXpbdSupportRows.capacity([{ x: 0, y: 0, z: 0 }], t, [5]) !== 0)
     findings.push("a patch pressed at one point has torsional capacity");
-  if (AutoMovieXpbdSupportRows.capacity(corners, t, [0, 0, 0, 0]) !== 0)
+  if (AutoMovieEngineXpbdSupportRows.capacity(corners, t, [0, 0, 0, 0]) !== 0)
     findings.push(
       "a patch with its lever points unloaded has torsional capacity",
     );
@@ -247,14 +247,14 @@ export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
   // - 0.5.
   const substep: number = 1 / 480;
   if (
-    AutoMovieXpbdArticulation.room({
+    AutoMovieEngineXpbdArticulation.room({
       force: 0,
       h: substep,
       given: 2849 * substep,
     }) !== 0
   )
     findings.push("a landing impact past its bound is taken back");
-  const left: number = AutoMovieXpbdArticulation.room({
+  const left: number = AutoMovieEngineXpbdArticulation.room({
     force: 700,
     h: substep,
     given: 0.5,
@@ -268,7 +268,7 @@ export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
 /** One support program over a free rigid body and the indices to read it by. */
 interface IProgram {
   /** The cascade's input. */
-  input: AutoMovieXpbdSupportRows.IInput;
+  input: AutoMovieEngineXpbdSupportRows.IInput;
 
   /** Each sole's normal rows. */
   normals: number[][];
@@ -300,8 +300,8 @@ function program(
   const mass: number = 10 / centres.length;
   const inertia: IAutoMovieVector3 = { x: 1, y: 2, z: 1 };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const rows: AutoMovieXpbdSupportRows.IRow[] = [];
-  const patches: AutoMovieXpbdArticulation.IPatch[] = [];
+  const rows: AutoMovieEngineXpbdSupportRows.IRow[] = [];
+  const patches: AutoMovieEngineXpbdArticulation.IPatch[] = [];
   const normals: number[][] = [];
   const torsions: number[] = [];
   centres.forEach((_: IAutoMovieVector3, state: number): void => {
@@ -341,7 +341,7 @@ function program(
   const respond = (
     impulse: readonly number[],
     on: number,
-  ): AutoMovieXpbdArticulation.IResponse => ({
+  ): AutoMovieEngineXpbdArticulation.IResponse => ({
     change: centres.map((_: IAutoMovieVector3, state: number): number[] =>
       state === on
         ? [
@@ -356,11 +356,11 @@ function program(
     ),
     rates: [],
   });
-  const responses: AutoMovieXpbdArticulation.IResponse[] = rows.map(
-    (row: AutoMovieXpbdSupportRows.IRow): AutoMovieXpbdArticulation.IResponse =>
-      respond(AutoMovieXpbdSupportRows.impulse(row), row.state),
+  const responses: AutoMovieEngineXpbdArticulation.IResponse[] = rows.map(
+    (row: AutoMovieEngineXpbdSupportRows.IRow): AutoMovieEngineXpbdArticulation.IResponse =>
+      respond(AutoMovieEngineXpbdSupportRows.impulse(row), row.state),
   );
-  const free: AutoMovieXpbdArticulation.IResponse = {
+  const free: AutoMovieEngineXpbdArticulation.IResponse = {
     change: centres.map((): number[] => [
       0,
       (moment * h) / inertia.y,
@@ -373,17 +373,17 @@ function program(
   };
   return {
     input: {
-      k: rows.map((row: AutoMovieXpbdSupportRows.IRow): number[] =>
-        responses.map((response: AutoMovieXpbdArticulation.IResponse): number =>
-          AutoMovieXpbdSupportRows.along(row, response),
+      k: rows.map((row: AutoMovieEngineXpbdSupportRows.IRow): number[] =>
+        responses.map((response: AutoMovieEngineXpbdArticulation.IResponse): number =>
+          AutoMovieEngineXpbdSupportRows.along(row, response),
         ),
       ),
-      u: rows.map((row: AutoMovieXpbdSupportRows.IRow): number =>
-        AutoMovieXpbdSupportRows.along(row, free),
+      u: rows.map((row: AutoMovieEngineXpbdSupportRows.IRow): number =>
+        AutoMovieEngineXpbdSupportRows.along(row, free),
       ),
       // The wrench about the body's centre: each sole's rows at its place.
-      columns: rows.map((row: AutoMovieXpbdSupportRows.IRow): number[] => {
-        const impulse: number[] = AutoMovieXpbdSupportRows.impulse({
+      columns: rows.map((row: AutoMovieEngineXpbdSupportRows.IRow): number[] => {
+        const impulse: number[] = AutoMovieEngineXpbdSupportRows.impulse({
           ...row,
           point: {
             x: row.point.x + centres[row.state]!.x,
@@ -417,7 +417,7 @@ function program(
 
 /** The cascade's solution of a program, or null. */
 function solve(program: IProgram): number[] | null {
-  return AutoMovieXpbdSupportRows.cascade(program.input);
+  return AutoMovieEngineXpbdSupportRows.cascade(program.input);
 }
 
 /** The body's spin about the vertical after the substep, rad/s. */

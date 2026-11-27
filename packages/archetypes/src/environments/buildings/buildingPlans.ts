@@ -5,9 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
-import type { IAutoMovieEnvironmentBuildingFootprint } from "../IAutoMovieEnvironmentBuildingFootprint";
-import type { IAutoMovieEnvironmentBuildingPoint } from "../IAutoMovieEnvironmentBuildingPoint";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
+import type { IAutoMovieArchetypeEnvironmentBuildingFootprint } from "../IAutoMovieArchetypeEnvironmentBuildingFootprint";
+import type { IAutoMovieArchetypeEnvironmentBuildingPoint } from "../IAutoMovieArchetypeEnvironmentBuildingPoint";
 import { buildingWalkable } from "./buildingWalkable";
 
 /*
@@ -20,7 +20,7 @@ import { buildingWalkable } from "./buildingWalkable";
  * Error naming an invalid level, room or opening.
  */
 export function buildingPlans(
-  props: AutoMovieEnvironment.IBuildingProps,
+  props: AutoMovieArchetypeEnvironment.IBuildingProps,
 ): buildingPlans.IPlan {
   const color: string = props.color ?? "#c1b7a5";
   if (props.type === "exterior")
@@ -67,7 +67,7 @@ export function buildingPlans(
       rooms.push({ id, region, support: region });
     }
     if (rooms.length === 0) throw new Error(`${path}.rooms is empty`);
-    const openings: AutoMovieEnvironment.IBuildingOpening[] =
+    const openings: AutoMovieArchetypeEnvironment.IBuildingOpening[] =
       structuredClone([...(level.openings ?? [])]);
     for (const opening of openings) {
       admitId(opening.id, names, `${path}.openings`);
@@ -191,7 +191,7 @@ export namespace buildingPlans {
     /*
      * Owned copy of the aperture declarations.
      */
-    readonly openings: readonly AutoMovieEnvironment.IBuildingOpening[];
+    readonly openings: readonly AutoMovieArchetypeEnvironment.IBuildingOpening[];
   }
 
   /*
@@ -253,7 +253,7 @@ export namespace buildingPlans {
  * Resolve the levels and apply one stair corridor as both required slab holes.
  */
 function prepareStair(
-  stair: AutoMovieEnvironment.IBuildingStair,
+  stair: AutoMovieArchetypeEnvironment.IBuildingStair,
   levels: readonly buildingPlans.ILevel[],
 ): buildingPlans.IStair {
   const path: string = `building.stairs.${stair.id}`;
@@ -286,7 +286,7 @@ function prepareStair(
   // the span's right-handed +Z yaw. Use one corridor for both slab cuts.
   const x: number = ((dz / run) * width) / 2;
   const z: number = ((-dx / run) * width) / 2;
-  const cut: readonly IAutoMovieEnvironmentBuildingPoint[] = [
+  const cut: readonly IAutoMovieArchetypeEnvironmentBuildingPoint[] = [
     { x: from.x - x, z: from.z - z },
     { x: from.x + x, z: from.z + z },
     { x: to.x + x, z: to.z + z },
@@ -313,7 +313,7 @@ function prepareStair(
  */
 function addCut(
   region: buildingPlans.IRegion,
-  cut: readonly IAutoMovieEnvironmentBuildingPoint[],
+  cut: readonly IAutoMovieArchetypeEnvironmentBuildingPoint[],
   path: string,
 ): buildingPlans.IRegion {
   /*
@@ -321,9 +321,9 @@ function addCut(
    */
   const ring = (
     points: readonly IAutoMovieProfilePoint[],
-  ): IAutoMovieEnvironmentBuildingPoint[] =>
+  ): IAutoMovieArchetypeEnvironmentBuildingPoint[] =>
     points.map(
-      ({ x, y }): IAutoMovieEnvironmentBuildingPoint => ({
+      ({ x, y }): IAutoMovieArchetypeEnvironmentBuildingPoint => ({
         x,
         z: y,
       }),
@@ -363,11 +363,11 @@ function admitId(id: string, names: Set<string>, path: string): void {
  * guaranteed interior frame origin.
  */
 function draftRegion(
-  footprint: IAutoMovieEnvironmentBuildingFootprint,
+  footprint: IAutoMovieArchetypeEnvironmentBuildingFootprint,
   path: string,
 ): buildingPlans.IRegion {
-  let outer: readonly IAutoMovieEnvironmentBuildingPoint[];
-  let holes: readonly (readonly IAutoMovieEnvironmentBuildingPoint[])[] =
+  let outer: readonly IAutoMovieArchetypeEnvironmentBuildingPoint[];
+  let holes: readonly (readonly IAutoMovieArchetypeEnvironmentBuildingPoint[])[] =
     [];
   let center: IAutoMovieProfilePoint | undefined;
   if (footprint.type === "polygon") {
@@ -423,7 +423,7 @@ function draftRegion(
 /*
  * Map local XZ metres to planar XY metres for triangulation.
  */
-function planPoint(point: IAutoMovieEnvironmentBuildingPoint): IAutoMovieProfilePoint {
+function planPoint(point: IAutoMovieArchetypeEnvironmentBuildingPoint): IAutoMovieProfilePoint {
   return { x: point.x, y: point.z };
 }
 

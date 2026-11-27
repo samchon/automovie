@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -191,7 +191,7 @@ export namespace HumanMountedWhip {
       if (struck > 0 && arm !== undefined)
         limbs[`${side}Arm`] = {
           ...arm,
-          point: Vector3.lerp(arm.point, target(body, posture, side), struck),
+          point: AutoMovieEngineVector3.lerp(arm.point, target(body, posture, side), struck),
           planted: false,
         };
     }
@@ -218,9 +218,9 @@ export namespace HumanMountedWhip {
       posture.joints.hips,
     )[side];
     const sign: number = side === "left" ? 1 : -1;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       hip,
-      Quaternion.rotateVector(turn, {
+      AutoMovieEngineQuaternion.rotateVector(turn, {
         x: sign * TARGET.x * body.measure.thigh,
         y: TARGET.y * body.measure.thigh,
         z: TARGET.z * body.measure.thigh,

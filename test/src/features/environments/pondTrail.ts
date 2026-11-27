@@ -1,6 +1,13 @@
-import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
-import { AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
-import { Quaternion, Transform, AutoMovieEngineGeometry } from "@automovie/engine";
+import {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import {
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
+import {
+  AutoMovieArchetypeSeat
+} from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieModel,
@@ -43,12 +50,12 @@ export function pondTrail(): compileEnvironmentExample.IInput {
       },
     ],
   };
-  const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const environment: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "pond",
     seed: 24,
     items: {
       terrain: {
-        use: AutoMovieEnvironment.terrain({
+        use: AutoMovieArchetypeEnvironment.terrain({
           size: { width: 24, depth: 20 },
           water: {
             pond: {
@@ -77,14 +84,14 @@ export function pondTrail(): compileEnvironmentExample.IInput {
         }),
       },
       bench: {
-        use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }),
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }),
         at: { anchor: "terrain/amenities/bench" },
       },
       marker: {
-        use: AutoMovieEnvironment.model({
+        use: AutoMovieArchetypeEnvironment.model({
           model: marker,
           anchors: {
-            summit: Transform.of({ x: 0, y: 1.3, z: 0 }, Quaternion.identity()),
+            summit: AutoMovieEngineTransform.of({ x: 0, y: 1.3, z: 0 }, AutoMovieEngineQuaternion.identity()),
           },
         }),
         at: { anchor: "terrain/paths/circuit/end" },

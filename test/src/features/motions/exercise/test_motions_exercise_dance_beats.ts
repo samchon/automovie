@@ -1,5 +1,7 @@
 import type { IAutoMovieScheduleCue } from "@automovie/interface";
-import { prepareDanceBeats } from "@automovie/motions/internal";
+import {
+  prepareDanceBeats
+} from "../../../../../packages/motions/src/exercise/internal/prepareDanceBeats";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

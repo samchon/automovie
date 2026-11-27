@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypePracticeBaton } from "../AutoMovieArchetypePracticeBaton";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import type { AutoMovieArchetype } from "../../core/index";
 import { ClubBuild } from "./ClubBuild";
@@ -38,8 +38,8 @@ export function createPracticeBaton(
   builder.rod(
     "shaft",
     thick,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, length, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, length, 0),
     { color: "#2c2f33" },
   );
   ClubBuild.contacts(builder, length, thick, thick, 0.08, 0.12, "power");

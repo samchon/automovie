@@ -1,7 +1,7 @@
 import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -42,7 +42,7 @@ export function stuntFallHigh(
   p: IAutoMovieMotionHumanStuntFall.IHigh,
 ): IAutoMovieMotionHumanActionPlan {
   const body: IAutoMovieMotionHumanBody = context.body;
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const yaw: number = context.entry.posture.yaw;
   const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
   const entry: ReturnType<typeof poseBones> = poseBones(
@@ -53,8 +53,8 @@ export function stuntFallHigh(
   const exit: IAutoMovieMotionHumanStuntFall.Exit = p.exit ?? "step";
   const v0: IAutoMovieVector3 =
     exit === "tip"
-      ? Vector3.scale(forward, -TIP)
-      : Vector3.scale(forward, exit === "thrown" ? THROW : STEP);
+      ? AutoMovieEngineVector3.scale(forward, -TIP)
+      : AutoMovieEngineVector3.scale(forward, exit === "thrown" ? THROW : STEP);
 
   // The landing: a pad's top or the ground, and the hips' height on it.
   const top: string = p.top ?? "surface";
@@ -66,7 +66,7 @@ export function stuntFallHigh(
     throw refusal("top", top, `${p.pad} has no dimensioned top ${top}`);
   if (
     pad !== undefined &&
-    Quaternion.rotateVectorY(
+    AutoMovieEngineQuaternion.rotateVectorY(
       pad.at(context.start).frame.rotation,
       HumanMaterialContact.NORMAL,
     ) <
@@ -94,7 +94,7 @@ export function stuntFallHigh(
       ? hips0.y - 0.5 * g * t * t
       : hips0.y - (cap * cap) / (2 * g) - cap * (t - capTime);
   const hipsAt = (time: number): IAutoMovieVector3 => ({
-    ...Vector3.add(hips0, Vector3.scale(v0, time)),
+    ...AutoMovieEngineVector3.add(hips0, AutoMovieEngineVector3.scale(v0, time)),
     y: heightAt(time),
   });
   const lying: IAutoMovieMotionHumanPosture = {

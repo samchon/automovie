@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeUnits, AutoMovieArchetypeBarrel } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -104,7 +104,7 @@ export function test_archetype_barrel(): void {
         )
           findings.push(`${kind} ${seed}: ${id} is off the top rim`);
         const outward: number =
-          Quaternion.rotateVector(frame.rotation, Vector3.create(0, 1, 0)).x *
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, AutoMovieEngineVector3.create(0, 1, 0)).x *
           out;
         if (!(outward > 1 - 1e-6))
           findings.push(`${kind} ${seed}: ${id} does not face out`);

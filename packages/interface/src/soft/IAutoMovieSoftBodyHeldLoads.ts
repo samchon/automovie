@@ -52,7 +52,7 @@ export namespace IAutoMovieSoftBodyHeldLoads {
     inverseMass: Float64Array<ArrayBufferLike>;
 
     /**
-     * 12P rest-distance slots in SOFT_BODY_NEIGHBOURS order; only the negative
+     * 12P rest-distance slots in AutoMovieEngineSoftBodyNeighbours order; only the negative
      * missing-neighbour sentinel is read here.
      */
     restLength: Float64Array<ArrayBufferLike>;

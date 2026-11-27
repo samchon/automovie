@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -31,7 +31,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanTrunkLean } from "./HumanTrunkLean";
 import { throwPotteryRise } from "./throwPotteryRise";
-import * as ThrowPotteryData from "./ThrowPotteryData";
+import { ThrowPotteryData } from "./ThrowPotteryData";
 
 /*
  * Draw up a clay wall on a turning wheel with both hands. Register as
@@ -118,11 +118,11 @@ function plan(
     id: string,
     lift: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         frame.rotation,
-        Vector3.add(site(id).frame.translation, {
+        AutoMovieEngineVector3.add(site(id).frame.translation, {
           x: 0,
           y: start + lift,
           z: 0,
@@ -146,9 +146,9 @@ function plan(
     id: string,
     lift: number,
   ): IAutoMovieVector3 =>
-    Vector3.subtract(
+    AutoMovieEngineVector3.subtract(
       face(id, lift),
-      Quaternion.rotateVector(turn(side), local(side)),
+      AutoMovieEngineQuaternion.rotateVector(turn(side), local(side)),
     );
   // The trunk leans over the wheel as little as brings both palms' places,
   // from the wall's start to its top, within the arms.
@@ -170,8 +170,8 @@ function plan(
     side: AutoMovieHumanSide,
     id: string,
   ): number =>
-    Vector3.length(
-      Vector3.subtract(
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         wrist(side, id, 0),
         bones.get(`${side}Hand`)!.worldPosition,
       ),

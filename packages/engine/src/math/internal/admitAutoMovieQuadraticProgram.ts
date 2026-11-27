@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolveQuadraticProgram,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_QUADRATIC_INFINITY } from "../../constants/AUTOMOVIE_QUADRATIC_INFINITY";
+import { AutoMovieEngineQuadraticInfinity } from "../../constants/AutoMovieEngineQuadraticInfinity";
 
 /*
  * Check explicit diagonal-program admission rules without building its sparse
@@ -84,7 +84,7 @@ function admitVector(values: readonly number[], length: number): void {
  * the numerical infinity sentinel.
  */
 function admitScalar(value: number): number {
-  if (Math.abs(value) >= AUTOMOVIE_QUADRATIC_INFINITY)
+  if (Math.abs(value) >= AutoMovieEngineQuadraticInfinity)
     throw new Error(
       "Quadratic coefficients must be finite and smaller than 1e30.",
     );

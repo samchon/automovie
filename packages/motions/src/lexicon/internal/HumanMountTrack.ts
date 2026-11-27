@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -25,16 +25,16 @@ export function HumanMountTrack(
   hip: IAutoMovieVector3,
   goal: IAutoMovieHumanLimbGoal,
 ): IAutoMovieHumanLimbGoal {
-  const line: IAutoMovieVector3 = Vector3.subtract(goal.point, hip);
-  if (Vector3.length(line) < 1e-9) return goal;
-  const axis: IAutoMovieVector3 = Vector3.normalize(line);
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goal.point, hip);
+  if (AutoMovieEngineVector3.length(line) < 1e-9) return goal;
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(line);
   const turned = (degrees: number): IAutoMovieHumanLimbGoal => ({
     ...goal,
-    bend: Vector3.add(
+    bend: AutoMovieEngineVector3.add(
       hip,
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(axis, degrees),
-        Vector3.subtract(goal.bend, hip),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees),
+        AutoMovieEngineVector3.subtract(goal.bend, hip),
       ),
     ),
   });

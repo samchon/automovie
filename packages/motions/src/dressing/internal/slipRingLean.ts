@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -61,7 +61,7 @@ export function slipRingLean(
             {
               side: arm,
               point: goal.point,
-              rotation: goal.rotation ?? Quaternion.identity(),
+              rotation: goal.rotation ?? AutoMovieEngineQuaternion.identity(),
             },
           ];
     },

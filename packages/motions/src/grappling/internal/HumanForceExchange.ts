@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, AutoMovieEngineMotionTrajectory, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3, AutoMovieEngineMotionTrajectory, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanForceSite, IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanSustainedForce, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanForceDrawn } from "./HumanForceDrawn";
@@ -140,7 +140,7 @@ export namespace HumanForceExchange {
    */
   export function resisted(
     props: IAutoMovieMotionHumanForceExchange.IResistedProps,
-    gravity: number = AutoMovieGravity.STANDARD,
+    gravity: number = AutoMovieEngineGravity.STANDARD,
   ): number | null {
     const shift: number = (props.force * props.height) / (props.mass * gravity);
     return shift <= props.edge ? shift : null;
@@ -157,7 +157,7 @@ export namespace HumanForceExchange {
    */
   export function swing(
     props: IAutoMovieMotionHumanForceExchange.ISwingProps,
-    gravity: number = AutoMovieGravity.STANDARD,
+    gravity: number = AutoMovieEngineGravity.STANDARD,
   ): IAutoMovieMotionHumanForceExchange.ISwing | null {
     const { mass, radius } = props;
     const moment: number = props.inertia + mass * radius * radius;
@@ -238,7 +238,7 @@ export namespace HumanForceExchange {
         at,
         from: props.from,
         to: props.to,
-        force: Vector3.scale(props.direction, each),
+        force: AutoMovieEngineVector3.scale(props.direction, each),
       }),
     );
   }

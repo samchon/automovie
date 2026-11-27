@@ -1,4 +1,4 @@
-import { type IAutoMovieScenePassRenderer, AutoMovieRenderScenePass, AutoMovieSceneShadow } from "@automovie/render";
+import { type IAutoMovieRenderScenePassRenderer, AutoMovieRenderScenePass, AutoMovieRenderSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -26,7 +26,7 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
   scene.add(point, new THREE.AmbientLight(), new THREE.Group());
   let refused: unknown;
   try {
-    AutoMovieSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
+    AutoMovieRenderSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
   } catch (error) {
     refused = error;
   }
@@ -36,24 +36,24 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
       refused.message.includes("point-caster") &&
       refused.message.includes("castShadow"),
   );
-  AutoMovieSceneShadow.assertProfile(scene, { enabled: true, type: "pcf" });
-  AutoMovieSceneShadow.assertProfile(scene, { enabled: false, type: "vsm" });
+  AutoMovieRenderSceneShadow.assertProfile(scene, { enabled: true, type: "pcf" });
+  AutoMovieRenderSceneShadow.assertProfile(scene, { enabled: false, type: "vsm" });
   point.castShadow = false;
-  AutoMovieSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
+  AutoMovieRenderSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
   const directional: THREE.DirectionalLight = new THREE.DirectionalLight(),
     spot: THREE.SpotLight = new THREE.SpotLight();
   directional.castShadow = true;
   spot.castShadow = true;
   scene.add(directional, spot);
-  AutoMovieSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
+  AutoMovieRenderSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
   TestValidator.equals(
     "native punctual projection preserves supplied identity and casting",
     [
-      AutoMovieSceneShadow.readLightSource("p", point),
-      AutoMovieSceneShadow.readLightSource("d", directional),
-      AutoMovieSceneShadow.readLightSource("s", spot),
-      AutoMovieSceneShadow.readLightSource("a", new THREE.AmbientLight()),
-      AutoMovieSceneShadow.readLightSource("g", new THREE.Group()),
+      AutoMovieRenderSceneShadow.readLightSource("p", point),
+      AutoMovieRenderSceneShadow.readLightSource("d", directional),
+      AutoMovieRenderSceneShadow.readLightSource("s", spot),
+      AutoMovieRenderSceneShadow.readLightSource("a", new THREE.AmbientLight()),
+      AutoMovieRenderSceneShadow.readLightSource("g", new THREE.Group()),
     ],
     [
       { id: "p", type: "point", castShadow: false },
@@ -66,7 +66,7 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
   point.name = "";
   point.castShadow = true;
   let draws: number = 0;
-  const renderer: IAutoMovieScenePassRenderer = createScenePassRendererDouble(
+  const renderer: IAutoMovieRenderScenePassRenderer = createScenePassRendererDouble(
     (): void => {
       draws++;
     },

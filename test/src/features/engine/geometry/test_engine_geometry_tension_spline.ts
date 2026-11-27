@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline, AutoMovieEngineSweep } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline, AutoMovieEngineSweep } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -33,14 +33,14 @@ export function test_engine_geometry_tension_spline(): void {
   const knots: number[] = [0, 1, 3, 4];
   const values: number[] = [0, 2, 1, 3];
   const curve = AutoMovieEngineSweep.interpolateSpline({ knots, values });
-  const natural = AutoMovieNaturalSpline.create(knots, values);
+  const natural = AutoMovieEngineNaturalSpline.create(knots, values);
   TestValidator.predicate(
     "tension 0",
     Array.from(
       { length: 400 },
       (_: unknown, k: number): number => (4 * k) / 400 + 0.005,
     ).every((x: number): boolean =>
-      near(curve(x), AutoMovieNaturalSpline.evaluate(natural, x)),
+      near(curve(x), AutoMovieEngineNaturalSpline.evaluate(natural, x)),
     ),
   );
   TestValidator.equals("flat ends", [curve(-1), curve(9)], [0, 3]);
@@ -62,10 +62,10 @@ export function test_engine_geometry_tension_spline(): void {
           f(x) <= Math.max(ys[k]!, ys[k + 1]!) + 0.1 + 1e-12,
       ),
     );
-  const cubic = AutoMovieNaturalSpline.create(xs, ys);
+  const cubic = AutoMovieEngineNaturalSpline.create(xs, ys);
   TestValidator.predicate(
     "premise",
-    !inside((x: number): number => AutoMovieNaturalSpline.evaluate(cubic, x)),
+    !inside((x: number): number => AutoMovieEngineNaturalSpline.evaluate(cubic, x)),
   );
   const tense = AutoMovieEngineSweep.interpolateSpline({ knots: xs, values: ys });
   TestValidator.predicate(

@@ -4,7 +4,9 @@ import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieRandom,
 } from "@automovie/interface";
-import { HumanSkill } from "@automovie/motions/internal";
+import {
+  HumanSkill
+} from "../../../../../packages/motions/src/skill/internal/HumanSkill";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

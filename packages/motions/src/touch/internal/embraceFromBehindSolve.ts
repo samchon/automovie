@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieClinicalAxis,
   AutoMovieHumanoidBone,
@@ -24,7 +24,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { kiss } from "./kiss";
 import { kissPose } from "./kissPose";
-import * as EmbraceFromBehindSolveData from "./EmbraceFromBehindSolveData";
+import { EmbraceFromBehindSolveData } from "./EmbraceFromBehindSolveData";
 
 /*
  * The embrace from behind's one solve and what it reads (`embraceFromBehind`):
@@ -290,12 +290,12 @@ export namespace embraceFromBehindSolve {
       axis: AutoMovieClinicalAxis,
     ): IRange => ({
       low:
-        (DEFAULT_HUMANOID_ROM.neck![axis]!.min +
-          DEFAULT_HUMANOID_ROM.head![axis]!.min) *
+        (AutoMovieEngineDefaultHumanoidRom.neck![axis]!.min +
+          AutoMovieEngineDefaultHumanoidRom.head![axis]!.min) *
         EmbraceFromBehindSolveData.RADIAN,
       high:
-        (DEFAULT_HUMANOID_ROM.neck![axis]!.max +
-          DEFAULT_HUMANOID_ROM.head![axis]!.max) *
+        (AutoMovieEngineDefaultHumanoidRom.neck![axis]!.max +
+          AutoMovieEngineDefaultHumanoidRom.head![axis]!.max) *
         EmbraceFromBehindSolveData.RADIAN,
     });
     const bounds: readonly IRange[] = [
@@ -307,7 +307,7 @@ export namespace embraceFromBehindSolve {
       neckRange("flexion"),
       neckRange("abduction"),
       neckRange("twist"),
-      { low: 0, high: DEFAULT_HUMANOID_ROM.neck!.flexion!.max * EmbraceFromBehindSolveData.RADIAN },
+      { low: 0, high: AutoMovieEngineDefaultHumanoidRom.neck!.flexion!.max * EmbraceFromBehindSolveData.RADIAN },
       { low: 0, high: kiss.RAISE * EmbraceFromBehindSolveData.RADIAN },
     ];
     const result: IAutoMovieMotionHumanSequentialConvex.IResult<
@@ -318,11 +318,11 @@ export namespace embraceFromBehindSolve {
         costs: [
           {
             f: (x: HumanSequentialConvexFunctions.Vector): number => {
-              const d: IAutoMovieVector3 = Vector3.subtract(
+              const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
                 chin(posed(solved(x)), resolution),
                 surfaces.rest,
               );
-              return Vector3.dot(d, d);
+              return AutoMovieEngineVector3.dot(d, d);
             },
             full: true,
           },
@@ -359,7 +359,7 @@ export namespace embraceFromBehindSolve {
     );
     const best: ISolved = solved(result.x);
     const posture: IAutoMovieMotionHumanPosture = posed(best);
-    const miss: number = Vector3.distance(
+    const miss: number = AutoMovieEngineVector3.distance(
       chin(posture, resolution),
       surfaces.rest,
     );

@@ -1,4 +1,4 @@
-import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
+import { AutoMovieEngineSoftBodyNeighbours } from "../AutoMovieEngineSoftBodyNeighbours";
 
 /*
  * Find one row-major particle's ordered lattice neighbour, or -1 beyond the
@@ -11,8 +11,8 @@ export function softBodyNeighbourOf(
   row: number,
   at: number,
 ): number {
-  const neighbourColumn: number = column + SOFT_BODY_NEIGHBOURS[at][0];
-  const neighbourRow: number = row + SOFT_BODY_NEIGHBOURS[at][1];
+  const neighbourColumn: number = column + AutoMovieEngineSoftBodyNeighbours[at][0];
+  const neighbourRow: number = row + AutoMovieEngineSoftBodyNeighbours[at][1];
   if (neighbourColumn < 0 || neighbourColumn >= columns) return -1;
   if (neighbourRow < 0 || neighbourRow >= rows) return -1;
   return neighbourRow * columns + neighbourColumn;

@@ -1,7 +1,7 @@
 import type { IAutoMovieRigidTransform } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Rigidly carry a copied articulation from its reference root into a declared
@@ -13,9 +13,9 @@ export function rebasePhysicalTargets(
   pose: IAutoMovieRigidTransform,
 ): Record<string, IAutoMovieRigidTransform> {
   const original: IAutoMovieRigidTransform = targets[root]!;
-  const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const delta: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     pose.rotation,
-    Quaternion.inverse(original.rotation),
+    AutoMovieEngineQuaternion.inverse(original.rotation),
   );
   return Object.fromEntries(
     Object.entries(targets).map(
@@ -25,14 +25,14 @@ export function rebasePhysicalTargets(
       ] => [
         bone,
         {
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             pose.position,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               delta,
-              Vector3.subtract(target.position, original.position),
+              AutoMovieEngineVector3.subtract(target.position, original.position),
             ),
           ),
-          rotation: Quaternion.multiply(delta, target.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(delta, target.rotation),
         },
       ],
     ),

@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { AutoMoviePhysicalInertiaTensor } from "../../physics/AutoMoviePhysicalInertiaTensor";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEnginePhysicalInertiaTensor } from "../../physics/AutoMovieEnginePhysicalInertiaTensor";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
@@ -47,7 +47,7 @@ export namespace prepareAutoMovieMassModel {
     active: boolean;
 
     /** Exact intrinsic workspace, made with the model. */
-    readonly tensor: ReturnType<typeof AutoMoviePhysicalInertiaTensor.prepare>;
+    readonly tensor: ReturnType<typeof AutoMovieEnginePhysicalInertiaTensor.prepare>;
 
     /** Exact endpoint workspace, made with the model. */
     readonly interval: ReturnType<
@@ -113,7 +113,7 @@ export namespace prepareAutoMovieMassModel {
           mass: segment.mass,
           centerOfMass: copyVector(point),
           inertia: copyVector(segment.inertia),
-          inertiaRotation: Quaternion.multiply(
+          inertiaRotation: AutoMovieEngineQuaternion.multiply(
             bone.worldRotation,
             segment.axes,
           ),
@@ -175,7 +175,7 @@ export namespace prepareAutoMovieMassModel {
     posed: resolveAutoMovieMomentum.IPosed,
   ): number[][] {
     if (prepared.active)
-      return AutoMoviePhysicalInertiaTensor.compute(posed.parts, posed.centre);
+      return AutoMovieEnginePhysicalInertiaTensor.compute(posed.parts, posed.centre);
     prepared.active = true;
     try {
       return prepared.tensor(posed.parts, posed.centre);
@@ -311,7 +311,7 @@ function prepareAutoMovieMassModelRun(
   return {
     model: { mass, segments },
     active: false,
-    tensor: AutoMoviePhysicalInertiaTensor.prepare(),
+    tensor: AutoMovieEnginePhysicalInertiaTensor.prepare(),
     interval: resolveAutoMovieMomentum.prepareIntervals(),
   };
 }
@@ -336,7 +336,7 @@ function placePoint(
   bone: IAutoMovieResolvedBone,
   segment: IAutoMovieResolveCenterOfMass.ISegment,
 ): IAutoMovieVector3 {
-  const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+  const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     bone.worldRotation,
     segment.point,
   );

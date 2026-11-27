@@ -1,11 +1,13 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupportCarry,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanSupportCarry } from "@automovie/motions/internal";
+import {
+  HumanSupportCarry
+} from "../../../../../packages/motions/src/carrier/internal/HumanSupportCarry";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -36,10 +38,10 @@ export function test_motions_carrier_human_support_carry(): void {
     seconds: number,
   ): IAutoMovieRigidTransform =>
     seconds === 0
-      ? { position: { x: 1, y: 0, z: 0 }, rotation: Quaternion.identity() }
+      ? { position: { x: 1, y: 0, z: 0 }, rotation: AutoMovieEngineQuaternion.identity() }
       : {
           position: { x: 3, y: 0, z: 0 },
-          rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
         };
   const carry: IAutoMovieMotionHumanSupportCarry.ICarry = HumanSupportCarry(
     frame,

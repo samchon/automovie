@@ -13,7 +13,7 @@ import type {
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Recover the fixed mid-to-effector rotation of a supported descendant chain
@@ -48,7 +48,7 @@ export function resolveChainEffectorBaseRotation(
     return (
       props.skeleton.bones.find(
         (bone: IAutoMovieBone): boolean => bone.bone === props.chain.effector,
-      )?.rest.rotation ?? Quaternion.identity()
+      )?.rest.rotation ?? AutoMovieEngineQuaternion.identity()
     );
   return resolveChainEffectorBaseRotation.fromPrepared(props, lower, end);
 }
@@ -101,7 +101,7 @@ export namespace resolveChainEffectorBaseRotation {
     for (const candidate of props.pose.joints)
       if (candidate.bone === props.chain.effector) joint = candidate;
     let articulation: IAutoMovieQuaternion;
-    if (joint === undefined) articulation = Quaternion.identity();
+    if (joint === undefined) articulation = AutoMovieEngineQuaternion.identity();
     else if (poseResolution !== undefined)
       articulation = poseResolution.joint(joint, resolution);
     else {
@@ -116,12 +116,12 @@ export namespace resolveChainEffectorBaseRotation {
           ? jointToQuaternion(joint, axes, frame)
           : resolution.joint(joint, axes, frame);
     }
-    return Quaternion.multiply(
-      Quaternion.multiply(
-        inverseLower ?? Quaternion.inverse(lower.worldRotation),
+    return AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
+        inverseLower ?? AutoMovieEngineQuaternion.inverse(lower.worldRotation),
         end.worldRotation,
       ),
-      Quaternion.inverse(articulation),
+      AutoMovieEngineQuaternion.inverse(articulation),
     );
   }
 

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -113,8 +113,8 @@ export namespace ArchetypeCourseTimed {
         return from.x === next.x && from.y === next.y && from.z === next.z;
       });
     const chord = (i: number): IAutoMovieVector3 =>
-      Vector3.scale(
-        Vector3.subtract(points[i + 1]!, points[i]!),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(points[i + 1]!, points[i]!),
         1 / (times[i + 1]! - times[i]!),
       );
     const tangents: IAutoMovieVector3[] = points.map(
@@ -124,10 +124,10 @@ export namespace ArchetypeCourseTimed {
         if (i === 0) {
           const h0: number = times[1]! - times[0]!;
           const h1: number = times[2]! - times[1]!;
-          return Vector3.scale(
-            Vector3.subtract(
-              Vector3.scale(chord(0), 2 * h0 + h1),
-              Vector3.scale(chord(1), h0),
+          return AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.subtract(
+              AutoMovieEngineVector3.scale(chord(0), 2 * h0 + h1),
+              AutoMovieEngineVector3.scale(chord(1), h0),
             ),
             1 / (h0 + h1),
           );
@@ -135,20 +135,20 @@ export namespace ArchetypeCourseTimed {
         if (i === n - 1) {
           const h0: number = times[n - 2]! - times[n - 3]!;
           const h1: number = times[n - 1]! - times[n - 2]!;
-          return Vector3.scale(
-            Vector3.subtract(
-              Vector3.scale(chord(n - 2), 2 * h1 + h0),
-              Vector3.scale(chord(n - 3), h1),
+          return AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.subtract(
+              AutoMovieEngineVector3.scale(chord(n - 2), 2 * h1 + h0),
+              AutoMovieEngineVector3.scale(chord(n - 3), h1),
             ),
             1 / (h0 + h1),
           );
         }
         const before: number = times[i]! - times[i - 1]!;
         const after: number = times[i + 1]! - times[i]!;
-        return Vector3.scale(
-          Vector3.add(
-            Vector3.scale(chord(i - 1), after),
-            Vector3.scale(chord(i), before),
+        return AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(chord(i - 1), after),
+            AutoMovieEngineVector3.scale(chord(i), before),
           ),
           1 / (before + after),
         );
@@ -192,17 +192,17 @@ export namespace ArchetypeCourseTimed {
       const u3: number = u2 * u;
       const p0: IAutoMovieVector3 = points[i]!;
       const p1: IAutoMovieVector3 = points[i + 1]!;
-      const m0: IAutoMovieVector3 = Vector3.scale(tangents[i]!, h);
-      const m1: IAutoMovieVector3 = Vector3.scale(tangents[i + 1]!, h);
+      const m0: IAutoMovieVector3 = AutoMovieEngineVector3.scale(tangents[i]!, h);
+      const m1: IAutoMovieVector3 = AutoMovieEngineVector3.scale(tangents[i + 1]!, h);
       const mix = (
         a: number,
         b: number,
         c: number,
         d: number,
       ): IAutoMovieVector3 =>
-        Vector3.add(
-          Vector3.add(Vector3.scale(p0, a), Vector3.scale(m0, b)),
-          Vector3.add(Vector3.scale(p1, c), Vector3.scale(m1, d)),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(p0, a), AutoMovieEngineVector3.scale(m0, b)),
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(p1, c), AutoMovieEngineVector3.scale(m1, d)),
         );
       return {
         point: mix(
@@ -211,7 +211,7 @@ export namespace ArchetypeCourseTimed {
           -2 * u3 + 3 * u2,
           u3 - u2,
         ),
-        velocity: Vector3.scale(
+        velocity: AutoMovieEngineVector3.scale(
           mix(
             6 * u2 - 6 * u,
             3 * u2 - 4 * u + 1,
@@ -220,7 +220,7 @@ export namespace ArchetypeCourseTimed {
           ),
           1 / h,
         ),
-        acceleration: Vector3.scale(
+        acceleration: AutoMovieEngineVector3.scale(
           mix(12 * u - 6, 6 * u - 4, -12 * u + 6, 6 * u - 2),
           1 / (h * h),
         ),
@@ -228,7 +228,7 @@ export namespace ArchetypeCourseTimed {
       };
     };
     const speedAt = (seconds: number): number =>
-      Vector3.length(evaluate(seconds).velocity);
+      AutoMovieEngineVector3.length(evaluate(seconds).velocity);
 
     // The arc length at the end of every piece, by Gauss-Legendre quadrature of the speed.
     const integrate = (from: number, to: number): number => {
@@ -265,7 +265,7 @@ export namespace ArchetypeCourseTimed {
       for (let step: number = 0; step < n - 1; step++)
         for (const j of [i - step, i + step]) {
           if (j < 0 || j > n - 2) continue;
-          const d: IAutoMovieVector3 = Vector3.subtract(
+          const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             points[j + 1]!,
             points[j]!,
           );
@@ -281,13 +281,13 @@ export namespace ArchetypeCourseTimed {
       leaving: boolean,
     ): IAutoMovieVector3 => {
       const duration: number = times[i + 1]! - times[i]!;
-      const displacement: IAutoMovieVector3 = Vector3.subtract(
+      const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         points[i + 1]!,
         points[i]!,
       );
-      const limit: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.scale(displacement, 3),
-        Vector3.scale(tangents[leaving ? i + 1 : i]!, duration),
+      const limit: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.scale(displacement, 3),
+        AutoMovieEngineVector3.scale(tangents[leaving ? i + 1 : i]!, duration),
       );
       if (Math.hypot(limit.x, limit.z) > 1e-9) return limit;
       if (Math.hypot(displacement.x, displacement.z) > 1e-9)
@@ -311,11 +311,11 @@ export namespace ArchetypeCourseTimed {
         return;
       }
       if (i > firstMotion && held[i - 1]) {
-        const before: IAutoMovieVector3 = Vector3.normalize(holdDirection);
-        const after: IAutoMovieVector3 = Vector3.normalize(
+        const before: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(holdDirection);
+        const after: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
           boundaryDirection(i, true),
         );
-        if (Vector3.distance(before, after) > 1e-8)
+        if (AutoMovieEngineVector3.distance(before, after) > 1e-8)
           refuse(
             "samples[" + i + "]",
             samples[i],
@@ -357,7 +357,7 @@ export namespace ArchetypeCourseTimed {
                 holdDirections.has(at.interval - 1)
               ? facingOf(holdDirections.get(at.interval - 1)!)
               : { heading: chordHeading(at.interval) ?? 0, climb: 0 };
-      const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const yaw: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         facing.heading,
       );
@@ -365,7 +365,7 @@ export namespace ArchetypeCourseTimed {
       const distance: number = distanceAt(seconds);
       return {
         distance,
-        speed: Vector3.length(v),
+        speed: AutoMovieEngineVector3.length(v),
         progress: distance,
         curvature: moving
           ? (a.x * v.z - a.z * v.x) / (ground * ground * ground)
@@ -376,10 +376,10 @@ export namespace ArchetypeCourseTimed {
           rotation:
             climb === 0
               ? yaw
-              : Quaternion.normalize(
-                  Quaternion.multiply(
+              : AutoMovieEngineQuaternion.normalize(
+                  AutoMovieEngineQuaternion.multiply(
                     yaw,
-                    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -climb),
+                    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -climb),
                   ),
                 ),
           scale: { ...AutoMovieArchetypeFrame.UNIT },

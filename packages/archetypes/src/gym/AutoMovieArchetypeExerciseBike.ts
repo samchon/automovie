@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeExerciseBikeData from "./internal/AutoMovieArchetypeExerciseBikeData";
+import { AutoMovieArchetypeExerciseBikeData } from "./internal/AutoMovieArchetypeExerciseBikeData";
 
 /** Constructs the exercise bike archetype from its recipe. */
 export namespace AutoMovieArchetypeExerciseBike {
@@ -55,7 +55,7 @@ export function create(
     name: "exercise bike",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const bracket: number = AutoMovieArchetypeExerciseBike.BRACKET;
   const tube: number = AutoMovieArchetypeExerciseBike.TUBE;
   const steel: string = "#55595f";

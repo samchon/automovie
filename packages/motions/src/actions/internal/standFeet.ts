@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -153,10 +153,10 @@ export function standFeet(
           : p.at(share),
     );
     return {
-      offset: Vector3.scale(
+      offset: AutoMovieEngineVector3.scale(
         plans.reduce(
           (sum: IAutoMovieVector3, p: IPlan, i: number): IAutoMovieVector3 =>
-            Vector3.add(sum, Vector3.subtract(placed[i]!.ankle, flat[p.side])),
+            AutoMovieEngineVector3.add(sum, AutoMovieEngineVector3.subtract(placed[i]!.ankle, flat[p.side])),
           { x: 0, y: 0, z: 0 },
         ),
         0.5,
@@ -188,7 +188,7 @@ export function standFeet(
             rotation:
               carry === undefined
                 ? placed[i]!.rotation
-                : Quaternion.multiply(carry.turn, placed[i]!.rotation),
+                : AutoMovieEngineQuaternion.multiply(carry.turn, placed[i]!.rotation),
             contact:
               share === 1 ? { ...settled[i]!.contact } : p.contact(share),
           };

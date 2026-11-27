@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -69,7 +69,7 @@ export function prepareSupportFloor(
   // which surface is already bearing on it.
   const frontUp: number =
     entryState.base.kind === "lying"
-      ? Quaternion.rotateVector(humanPostureHeading(entry), {
+      ? AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(entry), {
           x: 0,
           y: 0,
           z: 1,

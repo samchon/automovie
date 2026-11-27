@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -188,7 +188,7 @@ export namespace highFive {
       met.solid &&
       p.prop === undefined &&
       met.roles[0]!.subject !== context.subject
-        ? { ...target, normal: Vector3.scale(target.normal, -1) }
+        ? { ...target, normal: AutoMovieEngineVector3.scale(target.normal, -1) }
         : target;
 
     // A stated point is faced as the pair's own is: its normal looks back at
@@ -204,8 +204,8 @@ export namespace highFive {
             ...paired,
             point: p.at,
             normal:
-              Vector3.length(back) > 1e-6
-                ? Vector3.normalize(back)
+              AutoMovieEngineVector3.length(back) > 1e-6
+                ? AutoMovieEngineVector3.normalize(back)
                 : paired.normal,
           };
     // A meeting a window holds later than this hand needs is waited for at
@@ -287,7 +287,7 @@ export namespace highFive {
       HumanSeatedReach.need(
         role,
         shoulder,
-        Vector3.add(place.point, Vector3.subtract(shoulder, wrist.shoulder)),
+        AutoMovieEngineVector3.add(place.point, AutoMovieEngineVector3.subtract(shoulder, wrist.shoulder)),
         limit,
         `${side}UpperArm`,
       );

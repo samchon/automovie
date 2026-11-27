@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanLimbFitFrame,
@@ -25,7 +25,7 @@ export function HumanLimbFitFrame(
     goal.rests !== undefined
   )
     return null;
-  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(pose.root.rotation, {
+  const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(pose.root.rotation, {
     x: 0,
     y: 0,
     z: 1,
@@ -35,7 +35,7 @@ export function HumanLimbFitFrame(
     x: pose.root.translation.x,
     y: pose.root.translation.y,
     z: pose.root.translation.z,
-    into: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -heading),
+    into: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -heading),
   };
 }
 
@@ -74,7 +74,7 @@ export namespace HumanLimbFitFrame {
     frame: IAutoMovieMotionHumanLimbFitFrame.IFrame,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(frame.into, {
+    return AutoMovieEngineQuaternion.rotateVector(frame.into, {
       x: point.x - frame.x,
       y: point.y - (frame.y ?? 0),
       z: point.z - frame.z,
@@ -97,7 +97,7 @@ export namespace HumanLimbFitFrame {
       root: {
         ...pose.root,
         translation: point(frame, pose.root.translation),
-        rotation: Quaternion.multiply(frame.into, pose.root.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(frame.into, pose.root.rotation),
       },
     };
   }
@@ -120,7 +120,7 @@ export namespace HumanLimbFitFrame {
       bend: point(frame, goal.bend),
       ...(goal.rotation === undefined
         ? {}
-        : { rotation: Quaternion.multiply(frame.into, goal.rotation) }),
+        : { rotation: AutoMovieEngineQuaternion.multiply(frame.into, goal.rotation) }),
     };
   }
 }

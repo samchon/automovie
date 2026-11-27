@@ -12,13 +12,13 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
-import type { IAutoMovieInstanceSetViewerObject } from "../IAutoMovieInstanceSetViewerObject.js";
-import type { IAutoMovieInstanceSetViewerStats } from "../IAutoMovieInstanceSetViewerStats.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderInstanceSetViewerObject } from "../IAutoMovieRenderInstanceSetViewerObject.js";
+import type { IAutoMovieRenderInstanceSetViewerStats } from "../IAutoMovieRenderInstanceSetViewerStats.js";
 import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
-import type { IBuildInstancedInstanceSetProps } from "../IBuildInstancedInstanceSetProps.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderBuildInstancedInstanceSetProps } from "../IAutoMovieRenderBuildInstancedInstanceSetProps.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop.js";
 import { flattenInstancedModel } from "./flattenInstancedModel.js";
@@ -49,16 +49,16 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * an observed instanced frame nor compiled-shot capture integration.
  */
 export const buildInstancedInstanceSet: (
-  input: IBuildInstancedInstanceSetProps,
-) => IAutoMovieInstanceSetViewerObject = (
-  input: IBuildInstancedInstanceSetProps,
-): IAutoMovieInstanceSetViewerObject => {
+  input: IAutoMovieRenderBuildInstancedInstanceSetProps,
+) => IAutoMovieRenderInstanceSetViewerObject = (
+  input: IAutoMovieRenderBuildInstancedInstanceSetProps,
+): IAutoMovieRenderInstanceSetViewerObject => {
   return constructAutoMovieOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,
       ) => Resource,
-    ): IAutoMovieInstanceSetViewerObject => {
+    ): IAutoMovieRenderInstanceSetViewerObject => {
       const root: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
       // One decoded carrier per authored swatch. `setColorAt` copies its
       // components, and a block may hold a hundred thousand slots, so neither the
@@ -117,9 +117,9 @@ export const buildInstancedInstanceSet: (
                       `Instance set "${input.instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}" references missing runtime model "${lod.runtimeModel}".`,
                     );
                   const owner: string = `Instance set "${input.instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}"`;
-                  const loaded: IAutoMovieModelObject | undefined =
+                  const loaded: IAutoMovieRenderModelObject | undefined =
                     input.prototypeObjects?.get(lod.runtimeModel);
-                  const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieFormationCycle | null> =
+                  const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieRenderFormationCycle | null> =
                     loaded === undefined
                       ? flattenInstancedModel(model, owner)
                       : flattenInstancedObject(loaded, owner);
@@ -309,7 +309,7 @@ export const buildInstancedInstanceSet: (
           ),
         0,
       );
-      const stats: IAutoMovieInstanceSetViewerStats = {
+      const stats: IAutoMovieRenderInstanceSetViewerStats = {
         visible: { hero: 0, near: 0, far: 0 },
         culled: 0,
         hidden: input.instanceSet.count - drawn,
@@ -645,11 +645,11 @@ const exactPaletteMaterial: (
   // flags; any other material has no diffuse channel to neutralize.
   const clone: THREE.Material = borrowed ? material.clone() : material;
   if (
-    AutoMovieThreeKind.isMeshStandardMaterial(clone) ||
-    AutoMovieThreeKind.isMeshBasicMaterial(clone) ||
-    AutoMovieThreeKind.isMeshLambertMaterial(clone) ||
-    AutoMovieThreeKind.isMeshPhongMaterial(clone) ||
-    AutoMovieThreeKind.isMeshToonMaterial(clone)
+    AutoMovieRenderThreeKind.isMeshStandardMaterial(clone) ||
+    AutoMovieRenderThreeKind.isMeshBasicMaterial(clone) ||
+    AutoMovieRenderThreeKind.isMeshLambertMaterial(clone) ||
+    AutoMovieRenderThreeKind.isMeshPhongMaterial(clone) ||
+    AutoMovieRenderThreeKind.isMeshToonMaterial(clone)
   )
     clone.color.set(0xffffff);
   return clone;

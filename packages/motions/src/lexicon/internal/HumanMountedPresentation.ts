@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -19,7 +19,7 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * the arms alone. In the saddle the trunk adds its own axial rotation, which
  * `StrikingBlade.turned` splits `AutoMovieMotionHumanTrunk.CHEST` to the chest
  * and the rest to the lumbar spine, so a rider presents as far off the horse's
- * heading as the chest's and the spine's axial ranges (`DEFAULT_HUMANOID_ROM`,
+ * heading as the chest's and the spine's axial ranges (`AutoMovieEngineDefaultHumanoidRom`,
  * the bound `HumanSupportAim` keeps a moving support's aim within) allow plus
  * the arms' own `TURN`, which reaches behind the rider's shoulders, short of
  * dead astern: there the horse must turn.
@@ -184,10 +184,10 @@ export namespace HumanMountedPresentation {
     axis: string,
   ): IStation {
     const t: number = turn(bearing(0, root, target), 0, side, axis);
-    const shoulder: IAutoMovieVector3 = Vector3.add(
+    const shoulder: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       root,
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, t),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, t),
         {
           x: (side === "left" ? 1 : -1) * measure.shoulderHalfWidth,
           y: measure.shoulderHeight - measure.hipHeight,
@@ -195,14 +195,14 @@ export namespace HumanMountedPresentation {
         },
       ),
     );
-    const line: IAutoMovieVector3 = Vector3.subtract(target, shoulder);
-    if (Vector3.length(line) === 0)
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(target, shoulder);
+    if (AutoMovieEngineVector3.length(line) === 0)
       throw new Error("A mounted station's target lies at its shoulder");
-    const along: IAutoMovieVector3 = Vector3.normalize(line);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(line);
     return {
       turn: t,
       shoulder,
-      grip: Vector3.add(shoulder, Vector3.scale(along, reach)),
+      grip: AutoMovieEngineVector3.add(shoulder, AutoMovieEngineVector3.scale(along, reach)),
       axis: along,
     };
   }
@@ -212,7 +212,7 @@ export namespace HumanMountedPresentation {
    */
   function twist(bone: TwistBone): IAutoMovieAngleRange {
     const range: IAutoMovieAngleRange | null | undefined =
-      DEFAULT_HUMANOID_ROM[bone]?.twist;
+      AutoMovieEngineDefaultHumanoidRom[bone]?.twist;
     if (range === null || range === undefined)
       throw new Error(`The range-of-motion table gives the ${bone} no twist`);
     return range;

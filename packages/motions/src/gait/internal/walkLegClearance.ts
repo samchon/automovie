@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditTangleModel,
@@ -84,13 +84,13 @@ export namespace walkLegClearance {
         end: IAutoMovieVector3,
       ): [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3] => {
         const fit: walkLegCapsules.ICapsule = fits.get(bone)!;
-        const along: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(end, joint),
+        const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(end, joint),
         );
         return [
           bone,
-          Vector3.add(joint, Vector3.scale(along, fit.lo)),
-          Vector3.add(joint, Vector3.scale(along, fit.hi)),
+          AutoMovieEngineVector3.add(joint, AutoMovieEngineVector3.scale(along, fit.lo)),
+          AutoMovieEngineVector3.add(joint, AutoMovieEngineVector3.scale(along, fit.hi)),
         ];
       };
       const rigid: (
@@ -103,8 +103,8 @@ export namespace walkLegClearance {
         const fit: walkLegCapsules.ICapsule = fits.get(bone)!;
         return [
           bone,
-          Vector3.add(joint, Quaternion.rotateVector(leg.rotation, fit.from)),
-          Vector3.add(joint, Quaternion.rotateVector(leg.rotation, fit.to)),
+          AutoMovieEngineVector3.add(joint, AutoMovieEngineQuaternion.rotateVector(leg.rotation, fit.from)),
+          AutoMovieEngineVector3.add(joint, AutoMovieEngineQuaternion.rotateVector(leg.rotation, fit.to)),
         ];
       };
       return [
@@ -219,7 +219,7 @@ export namespace walkLegClearance {
       for (let k: number = 0; k < pair.probes.length; k++) {
         const local: IAutoMovieVector3 = relative(pair.probes[k]!);
         if (
-          Vector3.length(Vector3.subtract(local, sphere.centre)) >=
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(local, sphere.centre)) >=
           sphere.radius
         )
           continue;

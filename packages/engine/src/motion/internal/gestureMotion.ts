@@ -7,7 +7,7 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { Transform } from "../../math/Transform";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
 
 /*
  * Bake a supported generic gesture or jump over the requested duration using
@@ -340,7 +340,7 @@ function jumpPose(
   const knee: number = Math.min(legFlex * 1.4, 62);
   return {
     skeleton,
-    root: Transform.of({ x: 0, y: rootY, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }),
+    root: AutoMovieEngineTransform.of({ x: 0, y: rootY, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }),
     joints: [
       j("leftUpperLeg", { flexion: legFlex }),
       j("rightUpperLeg", { flexion: legFlex }),

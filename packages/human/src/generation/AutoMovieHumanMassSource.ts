@@ -1,12 +1,12 @@
 import {
-  AutoMovieConstructionViews,
-  AutoMovieIllinois,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieSolidVector,
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
+  AutoMovieEngineConstructionViews,
+  AutoMovieEngineIllinois,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
+  AutoMovieEngineSolidVector,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -46,7 +46,7 @@ export namespace AutoMovieHumanMassSource {
     const last: number = part.stations.at(-1)!;
     const outline:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
       part.front.negative,
       { top: last },
     );
@@ -66,15 +66,15 @@ export namespace AutoMovieHumanMassSource {
           boundary: IAutoMovieHumanGlutealParent.IBoundary;
         }
       | string => {
-      const edge: number | string = AutoMovieViewOutline.value(
+      const edge: number | string = AutoMovieEngineViewOutline.value(
         outline,
         station,
       );
       if (typeof edge === "string") return edge;
       const frame: ReturnType<typeof part.axis.at> = part.axis.at(station);
-      const point: AutoMovieVector3Tuple = AutoMovieSolidVector.add(
+      const point: AutoMovieVector3Tuple = AutoMovieEngineSolidVector.add(
         frame.origin,
-        AutoMovieSolidVector.scale(frame.u, edge),
+        AutoMovieEngineSolidVector.scale(frame.u, edge),
       );
       const chords: IAutoMovieHumanGlutealParent.IChord[] | string =
         connection.parent.chord(point[1], point[2]);
@@ -96,7 +96,7 @@ export namespace AutoMovieHumanMassSource {
         ...outline.knots.map(
           (k: IAutoMovieViewPart.IKnot): number => k.station,
         ),
-        ...AutoMovieViewOutline.criticalStations(outline),
+        ...AutoMovieEngineViewOutline.criticalStations(outline),
       ]),
     ].sort((a: number, b: number): number => a - b);
     const stations: number[] = anchors.flatMap(
@@ -130,7 +130,7 @@ export namespace AutoMovieHumanMassSource {
     if (bracket === undefined)
       return "The lower source guide has no sampled parent exit bracket";
     let failure: string | undefined;
-    const station: number | null = AutoMovieIllinois.root(
+    const station: number | null = AutoMovieEngineIllinois.root(
       (station: number): number => {
         const value: ReturnType<typeof at> = at(station);
         if (typeof value === "string") {
@@ -203,11 +203,11 @@ export namespace AutoMovieHumanMassSource {
       ].every(Number.isFinite)
     )
       throw new Error("A mass connection needs finite source placement");
-    const n: AutoMovieVector3Tuple = AutoMovieSolidVector.cross(
+    const n: AutoMovieVector3Tuple = AutoMovieEngineSolidVector.cross(
       [record.axis.v.x, record.axis.v.y, record.axis.v.z],
       [record.axis.u.x, record.axis.u.y, record.axis.u.z],
     );
-    const oldOrigin: AutoMovieVector3Tuple = AutoMovieConstructionViews.point(
+    const oldOrigin: AutoMovieVector3Tuple = AutoMovieEngineConstructionViews.point(
       record.axis.origin,
     );
     const scale: number = Math.max(
@@ -234,25 +234,25 @@ export namespace AutoMovieHumanMassSource {
         "A mass connection changed the original wall-to-apex clock",
       );
     const prepared: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(original);
+      AutoMovieEngineLoftViewSource.create(original);
     if (prepared === null || prepared.source === null)
       throw new Error("The original mass root field is unavailable");
     const values: IAutoMovieLoftViewRead.IValues | string =
-      AutoMovieLoftViewRead.values(prepared.source, 0);
+      AutoMovieEngineLoftViewRead.values(prepared.source, 0);
     if (typeof values === "string") throw new Error(values);
-    const rootShape: ReturnType<typeof AutoMovieLoftSectionNative.point> =
-      AutoMovieLoftSectionNative.point(values);
+    const rootShape: ReturnType<typeof AutoMovieEngineLoftSectionNative.point> =
+      AutoMovieEngineLoftSectionNative.point(values);
     const rootFrame: ReturnType<typeof original.axis.at> = original.axis.at(0);
     function originalContact(
       phi: number,
     ): IAutoMovieHumanMassSource.IContact | string {
       if (!Number.isFinite(phi)) return "Mass contact needs a finite phase";
       const local: [number, number] = rootShape(phi);
-      const point: AutoMovieVector3Tuple = AutoMovieSolidVector.add(
+      const point: AutoMovieVector3Tuple = AutoMovieEngineSolidVector.add(
         rootFrame.origin,
-        AutoMovieSolidVector.add(
-          AutoMovieSolidVector.scale(rootFrame.u, local[0]),
-          AutoMovieSolidVector.scale(rootFrame.v, local[1]),
+        AutoMovieEngineSolidVector.add(
+          AutoMovieEngineSolidVector.scale(rootFrame.u, local[0]),
+          AutoMovieEngineSolidVector.scale(rootFrame.v, local[1]),
         ),
       );
       const chords: IAutoMovieHumanGlutealParent.IChord[] | string =
@@ -311,7 +311,7 @@ export namespace AutoMovieHumanMassSource {
     ): IAutoMovieViewPart.IOutline {
       const source:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
         outline,
         radial ? { top: oldTop } : {},
       );
@@ -324,12 +324,12 @@ export namespace AutoMovieHumanMassSource {
           "Mass fullness transfer needs its original physical-station clock",
         );
       const span: number =
-        AutoMovieViewParameter.at(parameter, newTop) -
-        AutoMovieViewParameter.at(parameter, 0);
+        AutoMovieEngineViewParameter.at(parameter, newTop) -
+        AutoMovieEngineViewParameter.at(parameter, 0);
       const knots: IAutoMovieViewPart.IKnot[] = source.knots.map(
         (knot: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
           const read: IAutoMovieViewOutline.IReading | string =
-            AutoMovieViewOutline.at(source, knot.station);
+            AutoMovieEngineViewOutline.at(source, knot.station);
           if (typeof read === "string") throw new Error(read);
           return {
             site:
@@ -357,7 +357,7 @@ export namespace AutoMovieHumanMassSource {
       };
       const check:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
         result,
         radial ? { top: newTop } : {},
       );
@@ -366,11 +366,11 @@ export namespace AutoMovieHumanMassSource {
         for (const s of [
           0,
           delta,
-          ...AutoMovieViewOutline.criticalStations(check).filter(
+          ...AutoMovieEngineViewOutline.criticalStations(check).filter(
             (s: number): boolean => s < delta,
           ),
         ]) {
-          const value: number | string = AutoMovieViewOutline.value(check, s);
+          const value: number | string = AutoMovieEngineViewOutline.value(check, s);
           if (
             typeof value === "string" ||
             (knots[0]!.value > 0 ? !(value > 0) : !(value < 0))
@@ -392,8 +392,8 @@ export namespace AutoMovieHumanMassSource {
       ...record.axis,
       origin: AutoMovieHumanConstructionView.point(connection.root),
     };
-    const frame: ReturnType<typeof AutoMovieConstructionViews.frame> =
-      AutoMovieConstructionViews.frame(axis);
+    const frame: ReturnType<typeof AutoMovieEngineConstructionViews.frame> =
+      AutoMovieEngineConstructionViews.frame(axis);
     if (typeof frame === "string") throw new Error(frame);
     const part: IAutoMovieViewPart = {
       ...original,

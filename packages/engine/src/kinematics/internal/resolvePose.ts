@@ -11,9 +11,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineSkeletonRootParent } from "../AutoMovieEngineSkeletonRootParent";
 import { indexSkeletonTopologyChildren } from "./indexSkeletonTopologyChildren";
 import { jointToQuaternion } from "./jointToQuaternion";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
@@ -43,11 +43,11 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * computes their ancestors, pruning unrelated subtrees after admission.
  * Parameter pose: Joint angles and root transform to resolve.
  * Parameter skeleton: Rig the pose articulates.
- * Parameter jointAxes: Per-bone clinical axes, such as `HUMANOID_JOINT_AXES`, for
+ * Parameter jointAxes: Per-bone clinical axes, such as `AutoMovieEngineHumanoidJointAxes`, for
  * the bones that declare none of their own (skeletonJointAxes); a bone
  * in neither uses the default basis.
  * Parameter restFrames: Per-bone rest frames that read the joint angles as
- * clinical, such as `HUMANOID_REST_FRAME`; an absent bone reads its angles as
+ * clinical, such as `AutoMovieEngineHumanoidRestFrame`; an absent bone reads its angles as
  * rest-relative.
  * Parameter topology: Index of the same, unchanged skeleton from
  * AutoMovieEngineKinematics.indexSkeletonTopology, reused across poses; omitted, one is built
@@ -113,7 +113,7 @@ export const resolvePose: (
     let art: IAutoMovieQuaternion | undefined = articulation.get(bone.bone);
     if (art === undefined) {
       missingArticulation ??=
-        prepared === undefined ? IDENTITY : Quaternion.identity();
+        prepared === undefined ? IDENTITY : AutoMovieEngineQuaternion.identity();
       art = missingArticulation;
     }
     const reading: IAutoMovieResolvedBone =
@@ -132,12 +132,12 @@ export const resolvePose: (
 
   const rootTranslation: IAutoMovieVector3 =
     pose.root?.translation ??
-    (prepared === undefined ? ORIGIN : Vector3.create(0, 0, 0));
+    (prepared === undefined ? ORIGIN : AutoMovieEngineVector3.create(0, 0, 0));
   const rootRotation: IAutoMovieQuaternion =
     pose.root?.rotation ??
-    (prepared === undefined ? IDENTITY : Quaternion.identity());
+    (prepared === undefined ? IDENTITY : AutoMovieEngineQuaternion.identity());
   const roots: readonly IAutoMovieBone[] | undefined =
-    childrenByParent.get(SKELETON_ROOT_PARENT);
+    childrenByParent.get(AutoMovieEngineSkeletonRootParent);
   if (roots !== undefined && roots !== null)
     for (const root of roots) walk(root, rootRotation, rootTranslation);
 
@@ -148,12 +148,12 @@ export const resolvePose: (
  * Only the direct pure FK path borrows these defaults; no callback or output
  * receives them.
  */
-const IDENTITY: IAutoMovieQuaternion = Quaternion.identity();
+const IDENTITY: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
 
 /*
  * Model-frame origin for the same direct pure path.
  */
-const ORIGIN: IAutoMovieVector3 = Vector3.create(0, 0, 0);
+const ORIGIN: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, 0);
 
 /*
  * Include each demanded bone's parents so ordinary FK can prune unrelated

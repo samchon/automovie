@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanEventJoinRing,
@@ -33,7 +33,7 @@ export namespace AutoMovieHumanEventJoinRing {
     const sp: number =
       direction === "down" ? parent.layers[0]!.y : parent.layers[last]!.y;
     const n: number = RING;
-    const ring: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+    const ring: AutoMovieVector3Tuple[] = AutoMovieEngineLoftChain.ring(
       parent,
       sp,
       Array.from(

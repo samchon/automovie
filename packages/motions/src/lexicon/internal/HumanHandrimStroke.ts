@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHandrimStroke, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
@@ -14,8 +14,8 @@ import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { humanHandrimStrokePhases } from "./humanHandrimStrokePhases";
-import type * as HumanHandrimStrokeData from "./HumanHandrimStrokeData";
-import { carry } from "./HumanHandrimStrokeData";
+import { HumanHandrimStrokeData } from "./HumanHandrimStrokeData";
+
 
 /*
  * One single-handed or bilateral handrim engagement over a seated ride.
@@ -135,8 +135,8 @@ function planHumanHandrimStroke(
     seatBone,
     hips,
   ).point;
-  const seatGap: number = Vector3.length(
-    Vector3.subtract(socket, seated.point(context.body, chairSeat)),
+  const seatGap: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(socket, seated.point(context.body, chairSeat)),
   );
   const yawGap: number = context.entry.posture.yaw - chairSeat.yaw;
   if (
@@ -189,28 +189,28 @@ function planHumanHandrimStroke(
       const hit: ReturnType<NonNullable<typeof chair.prop.point>> =
         chair.prop.point?.(rim, context.start + at);
       if (hit === undefined) return HumanHandrimStrokeRefuseRim(on, rim, side);
-      const centre: IAutoMovieVector3 = Vector3.add(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, geometry.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, geometry.frame.translation),
       );
-      const axle: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.multiply(frame.rotation, geometry.frame.rotation),
+      const axle: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(frame.rotation, geometry.frame.rotation),
         { x: 0, y: 1, z: 0 },
       );
-      const spoke: IAutoMovieVector3 = Vector3.subtract(hit.point, centre);
-      const normal: IAutoMovieVector3 = Vector3.scale(spoke, 1 / radius);
+      const spoke: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(hit.point, centre);
+      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(spoke, 1 / radius);
       const tolerance: number = radius * Math.sqrt(Number.EPSILON);
       if (
         !(
-          Math.abs(Vector3.length(spoke) - radius) <= tolerance &&
-          Math.abs(Vector3.dot(axle, spoke)) <= tolerance
+          Math.abs(AutoMovieEngineVector3.length(spoke) - radius) <= tolerance &&
+          Math.abs(AutoMovieEngineVector3.dot(axle, spoke)) <= tolerance
         )
       )
         return HumanHandrimStrokeRefuseRim(on, rim, side);
       return {
         point: hit.point,
         normal,
-        axis: Vector3.cross(axle, normal),
+        axis: AutoMovieEngineVector3.cross(axle, normal),
         across: -1,
       };
     };
@@ -219,12 +219,12 @@ function planHumanHandrimStroke(
     const rates: IHand["rates"] = {
       catch: HandrimMaterialTransfer.rate(
         caught,
-        carry(gripAt(catchProbe, catchProbeFrame), catchProbeFrame, catchFrame),
+        HumanHandrimStrokeData.carry(gripAt(catchProbe, catchProbeFrame), catchProbeFrame, catchFrame),
         catchProbe - approach,
       ),
       release: HandrimMaterialTransfer.rate(
         released,
-        carry(
+        HumanHandrimStrokeData.carry(
           gripAt(releaseProbe, releaseProbeFrame),
           releaseProbeFrame,
           releaseFrame,
@@ -276,7 +276,7 @@ function planHumanHandrimStroke(
       const grip: HumanHandrimStrokeData.Grip =
         at < approach
           ? HandrimMaterialTransfer.advance(
-              carry(hand.caught, catchFrame, chairFrame),
+              HumanHandrimStrokeData.carry(hand.caught, catchFrame, chairFrame),
               hand.radius,
               hand.rates.catch,
               at - approach,
@@ -285,7 +285,7 @@ function planHumanHandrimStroke(
           : at <= release
             ? hand.gripAt(at, chairFrame)
             : HandrimMaterialTransfer.advance(
-                carry(hand.released, releaseFrame, chairFrame),
+                HumanHandrimStrokeData.carry(hand.released, releaseFrame, chairFrame),
                 hand.radius,
                 hand.rates.release,
                 at - release,
@@ -293,7 +293,7 @@ function planHumanHandrimStroke(
               );
       if (recovering > 0) {
         // Disengage outboard before returning to the rest arm pose.
-        const outward: IAutoMovieVector3 = Quaternion.rotateVector(
+        const outward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           chairFrame.rotation,
           {
             x: hand.side === "left" ? 1 : -1,
@@ -301,9 +301,9 @@ function planHumanHandrimStroke(
             z: 0,
           },
         );
-        grip.point = Vector3.add(
+        grip.point = AutoMovieEngineVector3.add(
           grip.point,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             outward,
             context.body.measure.hand * Math.sin(Math.PI * recovering) ** 2,
           ),
@@ -346,7 +346,7 @@ function planHumanHandrimStroke(
     for (const side of active) {
       const wrist: IAutoMovieVector3 = bones.get(`${side}Hand`)!.worldPosition;
       const goal: IAutoMovieVector3 = posed.limbs[`${side}Arm`]!.point;
-      const gap: number = Vector3.length(Vector3.subtract(wrist, goal));
+      const gap: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist, goal));
       if (!(gap <= HumanHandrimStrokeForm.CONTACT_GAP))
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",

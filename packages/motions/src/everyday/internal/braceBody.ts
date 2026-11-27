@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -58,7 +58,7 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanPosture => {
     const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / SET);
-    const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(start, goal, s);
     const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
       relaxed,
       lean * s * bearing,
@@ -107,7 +107,7 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
           ): IAutoMovieMotionHumanPosture => adjust(posture, t),
           {
             root: HumanBalance.TOLERANCE,
-            angle: ROM_TOLERANCE,
+            angle: AutoMovieEngineRomTolerance,
             step: AutoMovieMotionHumanArmCourse.STEP,
           },
         );
@@ -120,7 +120,7 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
       : AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, t - swing[1]) / transfer);
   // Its heel's rise, the one search of a read, solved at knots AutoKnots
   // places (Vitenti et al. 2024, arXiv:2412.13423) to the rise's angular
-  // resolution (`ROM_TOLERANCE`), knots forced where the foot leaves and
+  // resolution (`AutoMovieEngineRomTolerance`), knots forced where the foot leaves and
   // lands, and read from their course.
   const rise: (seconds: number) => number[] = ((): ((
     seconds: number,
@@ -140,7 +140,7 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
           walkLeg.dorsal(load(t)),
         ),
       ],
-      tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+      tolerance: { kind: "absolute", absolute: AutoMovieEngineRomTolerance },
       step: AutoMovieMotionHumanArmCourse.STEP,
     });
   })();

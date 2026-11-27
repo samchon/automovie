@@ -2,7 +2,7 @@ import type { IAutoMovieHingedArmSwivel, IAutoMovieHingedArticulation, IAutoMovi
 
 import type { hingedArmCandidate } from "./hingedArmCandidate";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
-import { hingedArmSwivel } from "../hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../AutoMovieEngineHingedArmSwivel";
 import { hingedSwivelAhead } from "./hingedSwivelAhead";
 import { hingedSwivelBounded } from "./hingedSwivelBounded";
 import { hingedSwivelNear } from "./hingedSwivelNear";
@@ -120,21 +120,21 @@ export function hingedArmArticulation(
   props: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps,
 ): IAutoMovieHingedArticulation | null {
   // The bend branches toward the target, each stopped inside the mid joint's
-  // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
+  // own range (`AutoMovieEngineHingedArmSwivel.branches`): a hinge angle outside the range
   // stops at the nearer limit, so the effector rests on the legal shell along
   // the line to the target, as it does on the geometric shell. Of two
   // branches the one stopping nearer the target is kept; branches inside the
   // range stop nowhere and tie.
   const found: IAutoMovieHingedArmSwivel.IStop[] | null =
     props.prepared === undefined
-      ? hingedArmSwivel.branches(props)
+      ? AutoMovieEngineHingedArmSwivel.branches(props)
       : props.prepared.branches();
   if (found === null) return null;
-  const pose: (theta: number) => ReturnType<typeof hingedArmSwivel.pose> =
+  const pose: (theta: number) => ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> =
     props.prepared === undefined
-      ? (theta: number): ReturnType<typeof hingedArmSwivel.pose> =>
-          hingedArmSwivel.pose(props, theta)
-      : (theta: number): ReturnType<typeof hingedArmSwivel.pose> =>
+      ? (theta: number): ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> =>
+          AutoMovieEngineHingedArmSwivel.pose(props, theta)
+      : (theta: number): ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> =>
           props.prepared!.pose(theta);
   const stops: IBranch[] = found
     .map(
@@ -153,7 +153,7 @@ export function hingedArmArticulation(
     ...stops.map((stop: IBranch): number => stop.shortfall),
   );
   // The candidates of one branch: the chain posed at its hinge angle and a
-  // swivel (`hingedArmSwivel.pose`), scored, and named by both so the chosen
+  // swivel (`AutoMovieEngineHingedArmSwivel.pose`), scored, and named by both so the chosen
   // one can seed a nearby fit.
   const prober =
     (
@@ -196,7 +196,7 @@ export function hingedArmArticulation(
   const record = (stop: IBranch): ISweep => {
     let branch: ISweep | undefined = completed.get(stop);
     if (branch === undefined) {
-      const posed: ReturnType<typeof hingedArmSwivel.pose> = pose(stop.theta);
+      const posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> = pose(stop.theta);
       branch = {
         posed,
         probe: prober(stop, posed),
@@ -416,7 +416,7 @@ export function hingedArmArticulation(
     const near: IAutoMovieSwivelNear = props.near;
     const branch: number = Math.min(near.branch, found.length - 1);
     const stop: IBranch = { ...found[branch]!, branch };
-    const posed: ReturnType<typeof hingedArmSwivel.pose> = pose(stop.theta);
+    const posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> = pose(stop.theta);
 
     // A continued placed fit answers at its pole where the pole is legal,
     // and otherwise follows it from the seed within the legal interval the
@@ -601,14 +601,14 @@ export function hingedArmArticulation(
 }
 
 /*
- * The sweep's swivel step, degrees (`hingedArmSwivel.STEP`).
+ * The sweep's swivel step, degrees (`AutoMovieEngineHingedArmSwivel.STEP`).
  */
-const SWIVEL_STEP: number = hingedArmSwivel.STEP;
+const SWIVEL_STEP: number = AutoMovieEngineHingedArmSwivel.STEP;
 
 /*
- * Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`).
+ * Golden-section passes per refinement (`AutoMovieEngineHingedArmSwivel.REFINEMENTS`).
  */
-const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
+const REFINEMENTS: number = AutoMovieEngineHingedArmSwivel.REFINEMENTS;
 
 /*
  * Bisections of a legality edge on a placed pole's walk (`IProps.placed`): a 3

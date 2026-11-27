@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeHammer } from "../AutoMovieArchetypeHammer";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { HandToolDraw } from "./HandToolDraw";
@@ -34,8 +34,8 @@ export function createHammer(
 
   builder.box(
     "head",
-    Vector3.create(0.028, 0.03, 0.11),
-    Vector3.create(0, length - 0.015, 0),
+    AutoMovieEngineVector3.create(0.028, 0.03, 0.11),
+    AutoMovieEngineVector3.create(0, length - 0.015, 0),
     { color: "#55595f", density: 11 },
   );
   builder.affordance({
@@ -43,9 +43,9 @@ export function createHammer(
     kind: "surface",
     direction: "normal",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, length - 0.015, 0.055),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, length - 0.015, 0.055),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });

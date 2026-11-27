@@ -1,6 +1,6 @@
 import type { IAutoMovieContactReceipt } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalSimulationCheckpointCapture } from "../IAutoMoviePhysicalSimulationCheckpointCapture";
+import type { IAutoMovieEnginePhysicalSimulationCheckpointCapture } from "../IAutoMovieEnginePhysicalSimulationCheckpointCapture";
 
 /*
  * Keep, after one completed fixed step, everything a later edit resumes from
@@ -17,7 +17,7 @@ import type { IAutoMoviePhysicalSimulationCheckpointCapture } from "../IAutoMovi
  * the open contact episodes by pair key and the softened tracking's end
  * seconds by body/bone key, both read; and the completed step.
  */
-export function capturePhysicalSimulationCheckpoint(input: IAutoMoviePhysicalSimulationCheckpointCapture): void {
+export function capturePhysicalSimulationCheckpoint(input: IAutoMovieEnginePhysicalSimulationCheckpointCapture): void {
   const { cache, world, bound, active, softened, step } = input;
   cache.checkpoints.set(step, world.takeSnapshot());
   cache.controllerCheckpoints.set(step, {

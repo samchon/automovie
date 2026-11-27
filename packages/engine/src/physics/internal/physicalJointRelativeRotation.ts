@@ -3,7 +3,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Parent-frame to child-frame rotation of one joint in a pose record, as the
@@ -13,14 +13,14 @@ export function physicalJointRelativeRotation(
   poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   joint: IAutoMoviePhysicalJoint,
 ): IAutoMovieRigidTransform["rotation"] {
-  return Quaternion.multiply(
-    Quaternion.inverse(
-      Quaternion.multiply(
+  return AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(
+      AutoMovieEngineQuaternion.multiply(
         poses[joint.parent]!.rotation,
         joint.parentFrame.rotation,
       ),
     ),
-    Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
       poses[joint.child]!.rotation,
       joint.childFrame.rotation,
     ),

@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanGraspUse } from "@automovie/interface";
-import { handToFaceDrinkable } from "@automovie/motions/internal";
+import {
+  handToFaceDrinkable
+} from "../../../../../packages/motions/src/daily/internal/handToFaceDrinkable";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -42,7 +42,7 @@ export namespace HumanGraspHand {
         forward: target.axis,
       });
       const rotation: IAutoMovieQuaternion = tilted(
-        Quaternion.fromAxisAngle(target.approach, tilt),
+        AutoMovieEngineQuaternion.fromAxisAngle(target.approach, tilt),
         turn,
       );
       return placed(fixed.palm, near(target), rotation);
@@ -78,7 +78,7 @@ export namespace HumanGraspHand {
         previous = {
           turn,
           alignment,
-          tilt: Quaternion.prepareAxisAngle(target.approach),
+          tilt: AutoMovieEngineQuaternion.prepareAxisAngle(target.approach),
           point: near(target),
         };
       }
@@ -97,7 +97,7 @@ export namespace HumanGraspHand {
 type ITurnsPrevious = {
   turn: number;
   alignment: IAutoMovieQuaternion;
-  tilt: ReturnType<typeof Quaternion.prepareAxisAngle>;
+  tilt: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle>;
   point: IAutoMovieVector3;
 };
 
@@ -143,9 +143,9 @@ function geometry(
  * along the approach.
  */
 function near(target: HumanGrasp.IFrame): IAutoMovieVector3 {
-  return Vector3.subtract(
+  return AutoMovieEngineVector3.subtract(
     target.point,
-    Vector3.scale(target.approach, target.width / 2),
+    AutoMovieEngineVector3.scale(target.approach, target.width / 2),
   );
 }
 
@@ -156,7 +156,7 @@ function tilted(
   around: IAutoMovieQuaternion,
   turn: IAutoMovieQuaternion,
 ): IAutoMovieQuaternion {
-  return Quaternion.normalize(Quaternion.multiply(around, turn));
+  return AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(around, turn));
 }
 
 /*
@@ -168,7 +168,7 @@ function placed(
   rotation: IAutoMovieQuaternion,
 ): IAutoMovieMotionHumanHand.IWrist {
   return {
-    point: Vector3.subtract(point, Quaternion.rotateVector(rotation, palm)),
+    point: AutoMovieEngineVector3.subtract(point, AutoMovieEngineQuaternion.rotateVector(rotation, palm)),
     rotation,
   };
 }

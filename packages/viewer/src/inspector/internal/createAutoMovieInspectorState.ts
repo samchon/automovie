@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectorState } from "../IAutoMovieInspectorState.js";
+import type { IAutoMovieViewerInspectorState } from "../IAutoMovieViewerInspectorState.js";
 import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.js";
 
@@ -8,7 +8,7 @@ import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.j
  */
 export function createAutoMovieInspectorState(
   text: string,
-): IAutoMovieInspectorState {
+): IAutoMovieViewerInspectorState {
   return reduceAutoMovieInspectorState(
     { request: readAutoMovieInspectorAddress(""), error: null },
     { type: "text", text },

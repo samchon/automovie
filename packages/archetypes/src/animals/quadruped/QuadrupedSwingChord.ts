@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -36,9 +36,9 @@ export namespace QuadrupedSwingChord {
     return (
       stance.lifted ?? {
         ...stance.landed.placement,
-        translation: Vector3.add(
+        translation: AutoMovieEngineVector3.add(
           stance.landed.placement.translation,
-          Quaternion.rotateVector(stance.landed.placement.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(stance.landed.placement.rotation, {
             x: 0,
             y: 0,
             z: stance.travel,
@@ -91,16 +91,16 @@ export namespace QuadrupedSwingChord {
     touched: IAutoMovieTransform,
     amount: number,
   ): IAutoMovieVector3 {
-    const body: IAutoMovieVector3 = Vector3.add(
+    const body: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       current.translation,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         current.rotation,
-        Vector3.lerp(local(lifting, released), local(landing, touched), amount),
+        AutoMovieEngineVector3.lerp(local(lifting, released), local(landing, touched), amount),
       ),
     );
     // On the ground at both ends the hoof is at rest in the world: the world
     // chord's point gives way to the body-carried one by weight.
-    const ground: IAutoMovieVector3 = Vector3.lerp(lifting, landing, amount);
+    const ground: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(lifting, landing, amount);
     return {
       x: blend(ground.x, body.x, amount),
       y: lifting.y + (landing.y - lifting.y) * amount,
@@ -115,9 +115,9 @@ export namespace QuadrupedSwingChord {
     point: IAutoMovieVector3,
     frame: IAutoMovieTransform,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(point, frame.translation),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
+      AutoMovieEngineVector3.subtract(point, frame.translation),
     );
   }
 }

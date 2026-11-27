@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSurface, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { lieDown } from "../../floor/internal/lieDown";
@@ -8,7 +8,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 import { prepareSurfboardPosture } from "./prepareSurfboardPosture";
-import * as PrepareSurfboardPhraseData from "./PrepareSurfboardPhraseData";
+import { PrepareSurfboardPhraseData } from "./PrepareSurfboardPhraseData";
 
 /*
  * Mount a staged surfboard, paddle and transfer from the palms to the feet.
@@ -72,7 +72,7 @@ export function prepareSurfboardPhrase(
   if (
     start.pitch < PrepareSurfboardPhraseData.PRONE_ENTRY_PITCH ||
     Math.abs(entryHip.y - water) > PrepareSurfboardPhraseData.PRONE_ENTRY_DEPTH * leg ||
-    Vector3.distance(localHip, prone) > leg
+    AutoMovieEngineVector3.distance(localHip, prone) > leg
   )
     HumanSurfaceBoard.refuseBoard(
       params.on,
@@ -106,14 +106,14 @@ export function prepareSurfboardPhrase(
   const proneBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, resolveHumanPosture(body, pronePose));
   const proneTurn: IAutoMovieQuaternion = humanPostureHeading(pronePose);
-  const inverseProne: IAutoMovieQuaternion = Quaternion.inverse(proneTurn);
+  const inverseProne: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(proneTurn);
   const proneHeight: number =
-    Quaternion.rotateVector(proneTurn, hips).y -
+    AutoMovieEngineQuaternion.rotateVector(proneTurn, hips).y -
     AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       sternum,
       proneBones.get(sternum.bone)!,
     ).point.y;
-  const stanceMid: IAutoMovieVector3 = Vector3.lerp(front, rear, 0.5);
+  const stanceMid: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(front, rear, 0.5);
   const entryJoints: readonly AutoMovieHumanoidBone[] = Object.keys({
     ...start.joints,
     ...pronePose.joints,

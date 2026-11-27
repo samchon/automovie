@@ -4,9 +4,11 @@ import type {
   IAutoMovieSurfaceGraphicLayer,
 } from "@automovie/interface";
 import {
-  buildAutoMovieSurfaceGraphicKey,
-  createAutoMovieSystemTextTexture,
-} from "@automovie/render/internal";
+  buildAutoMovieSurfaceGraphicKey
+} from "../../../../../packages/render/src/scene/surfaceGraphic/internal/buildAutoMovieSurfaceGraphicKey";
+import {
+  createAutoMovieSystemTextTexture
+} from "../../../../../packages/render/src/scene/surfaceGraphic/internal/createAutoMovieSystemTextTexture";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 

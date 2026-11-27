@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplementation";
 
 /*
@@ -28,11 +28,11 @@ export function projectileAt(
   const state: IAutoMovieProjectileState =
     p.drag === undefined
       ? {
-          position: Vector3.add(
-            Vector3.add(p.origin, Vector3.scale(p.velocity, t)),
-            Vector3.scale(p.gravity, 0.5 * t * t),
+          position: AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(p.origin, AutoMovieEngineVector3.scale(p.velocity, t)),
+            AutoMovieEngineVector3.scale(p.gravity, 0.5 * t * t),
           ),
-          velocity: Vector3.add(p.velocity, Vector3.scale(p.gravity, t)),
+          velocity: AutoMovieEngineVector3.add(p.velocity, AutoMovieEngineVector3.scale(p.gravity, t)),
         }
       : (p.flight ?? ProjectileDragFlightImplementation.projectileDragFlight(p)).at(t);
   if (p.attitude === undefined) return state;
@@ -41,17 +41,17 @@ export function projectileAt(
       return {
         ...state,
         rotation:
-          Vector3.length(state.velocity) > 0
+          AutoMovieEngineVector3.length(state.velocity) > 0
             ? AutoMovieEngineKinematics.aimRotation(FORWARD, state.velocity)
             : IDENTITY,
       };
     case "spin":
       return {
         ...state,
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
             p.attitude.rotation ?? IDENTITY,
-            Quaternion.fromAxisAngle(p.attitude.axis, p.attitude.rate * t),
+            AutoMovieEngineQuaternion.fromAxisAngle(p.attitude.axis, p.attitude.rate * t),
           ),
         ),
       };

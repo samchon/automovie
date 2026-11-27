@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -82,7 +82,7 @@ export namespace writeWith {
     lever: IAutoMovieVector3,
   ): void {
     for (const point of points)
-      pickUp.reachable(context, side, Vector3.subtract(point, lever));
+      pickUp.reachable(context, side, AutoMovieEngineVector3.subtract(point, lever));
   }
 
   /*
@@ -109,7 +109,7 @@ export namespace writeWith {
     origin: IAutoMovieVector3,
     facing: IAutoMovieQuaternion,
     clock: IAutoMovieMotionClock,
-    turn: IAutoMovieQuaternion = Quaternion.identity(),
+    turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity(),
     together?: ReturnType<typeof AutoMovieMotionHumanArm.together>,
   ): writeWith.ISteadied {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
@@ -121,11 +121,11 @@ export namespace writeWith {
       facing,
     );
     const held: IAutoMovieMotionHumanHeld.IHeld = aim.held;
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(turn, aim.rotation),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(turn, aim.rotation),
     );
     const contact: IAutoMovieVector3 = aim.contact;
-    const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+    const lever: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, contact);
     // The steadying tip presses over the radius it declares; none, a point.
     const radius: number =
       held.affordances.find(
@@ -164,7 +164,7 @@ export namespace writeWith {
           _posture: IAutoMovieMotionHumanPosture,
           _seconds: number,
         ): IAutoMovieHumanLimbGoal => ({
-          point: Vector3.subtract(target, lever),
+          point: AutoMovieEngineVector3.subtract(target, lever),
           rotation,
           contact,
           bend,
@@ -206,19 +206,19 @@ export namespace writeWith {
       .frame(context.entry.seconds);
     return {
       held,
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
           frame.rotation,
-          Quaternion.inverse(held.frame.rotation),
+          AutoMovieEngineQuaternion.inverse(held.frame.rotation),
         ),
       ),
-      contact: Vector3.add(
+      contact: AutoMovieEngineVector3.add(
         HumanHand.offset(context.body, other, "grip").point,
         AutoMovieMotionHumanHeld.point(held, steady.tip).point,
       ),
-      target: Vector3.add(
+      target: AutoMovieEngineVector3.add(
         origin,
-        Quaternion.rotateVector(facing, {
+        AutoMovieEngineQuaternion.rotateVector(facing, {
           x: steady.at.x,
           y: 0,
           z: steady.at.z,
@@ -267,19 +267,19 @@ export namespace writeWith {
     steady: writeWith.ILever,
     path: readonly IAutoMovieVector3[] = [stroke.point],
   ): writeWith.ISplay {
-    const up: IAutoMovieVector3 = Quaternion.rotateVector(facing, {
+    const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(facing, {
       x: 0,
       y: 1,
       z: 0,
     });
     const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(v, Vector3.scale(up, Vector3.dot(v, up)));
+      AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(up, AutoMovieEngineVector3.dot(v, up)));
     const need: number = body.measure.hand + 2 * HumanArmTrajectoryTerms.DEPTH;
     const grip = (
       l: writeWith.ILever,
       q: IAutoMovieQuaternion,
     ): IAutoMovieVector3 =>
-      Vector3.subtract(l.point, Quaternion.rotateVector(q, l.lever));
+      AutoMovieEngineVector3.subtract(l.point, AutoMovieEngineQuaternion.rotateVector(q, l.lever));
     // The least flat distance of the stroking grip, carried along the path
     // with its lever fixed, from the steadying grip.
     const apart = (
@@ -288,39 +288,39 @@ export namespace writeWith {
     ): number => {
       const fixed: IAutoMovieVector3 = grip(steady, b);
       const at = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        flat(Vector3.subtract(grip({ point, lever: stroke.lever }, a), fixed));
+        flat(AutoMovieEngineVector3.subtract(grip({ point, lever: stroke.lever }, a), fixed));
       let least: number = Infinity;
       for (let i: number = 0; i < path.length; ++i) {
         const p: IAutoMovieVector3 = at(path[i]!);
-        least = Math.min(least, Vector3.length(p));
+        least = Math.min(least, AutoMovieEngineVector3.length(p));
         if (i + 1 === path.length) break;
-        const d: IAutoMovieVector3 = Vector3.subtract(at(path[i + 1]!), p);
-        const dd: number = Vector3.dot(d, d);
+        const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(path[i + 1]!), p);
+        const dd: number = AutoMovieEngineVector3.dot(d, d);
         if (!(dd > 0)) continue;
-        const u: number = Math.max(0, Math.min(1, -Vector3.dot(p, d) / dd));
+        const u: number = Math.max(0, Math.min(1, -AutoMovieEngineVector3.dot(p, d) / dd));
         least = Math.min(
           least,
-          Vector3.length(Vector3.add(p, Vector3.scale(d, u))),
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(d, u))),
         );
       }
       return least;
     };
-    const none: IAutoMovieQuaternion = Quaternion.identity();
+    const none: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
     if (apart(none, none) >= need) return { stroke: none, steady: none };
     // Each grip swings toward its own side of the other's: the sense whose
     // first motion of the grip, -(up x lever), points away from the other.
     const away: IAutoMovieVector3 = flat(
-      Vector3.subtract(grip(stroke, none), grip(steady, none)),
+      AutoMovieEngineVector3.subtract(grip(stroke, none), grip(steady, none)),
     );
     const sense = (l: writeWith.ILever, outward: IAutoMovieVector3): number =>
-      Vector3.dot(Vector3.scale(Vector3.cross(up, l.lever), -1), outward) >= 0
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(up, l.lever), -1), outward) >= 0
         ? 1
         : -1;
     const s: number = sense(stroke, away);
-    const f: number = sense(steady, Vector3.scale(away, -1));
+    const f: number = sense(steady, AutoMovieEngineVector3.scale(away, -1));
     const turns = (degrees: number): writeWith.ISplay => ({
-      stroke: Quaternion.fromAxisAngle(up, s * degrees),
-      steady: Quaternion.fromAxisAngle(up, f * degrees),
+      stroke: AutoMovieEngineQuaternion.fromAxisAngle(up, s * degrees),
+      steady: AutoMovieEngineQuaternion.fromAxisAngle(up, f * degrees),
     });
     let lo: number = 0;
     let hi: number = 90;

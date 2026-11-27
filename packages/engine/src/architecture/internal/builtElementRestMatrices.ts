@@ -3,7 +3,7 @@ import {
   IAutoMovieBuiltEnvironment,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 
 /*
  * A lookup from element id to its rest-pose world matrix, tolerant of a record
@@ -44,7 +44,7 @@ export const builtElementRestMatrices: (
     const element: IAutoMovieBuiltElement | undefined = byId.get(id);
     if (element === undefined) return null;
     visiting.add(id);
-    const local: number[] = Matrix4.compose(
+    const local: number[] = AutoMovieEngineMatrix4.compose(
       element.transform.translation,
       element.transform.rotation,
       element.transform.scale,
@@ -57,7 +57,7 @@ export const builtElementRestMatrices: (
         ? local
         : parent === null
           ? null
-          : Matrix4.multiply(parent, local);
+          : AutoMovieEngineMatrix4.multiply(parent, local);
     memo.set(id, world);
     return world;
   };

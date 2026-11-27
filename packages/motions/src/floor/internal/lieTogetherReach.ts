@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -41,9 +41,9 @@ export namespace lieTogetherReach {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     rest: number,
   ): IAutoMovieVector3 {
-    const full: number = Vector3.length(offset);
+    const full: number = AutoMovieEngineVector3.length(offset);
     if (full < SETTLED) return offset;
-    const way: IAutoMovieVector3 = Vector3.scale(offset, 1 / full);
+    const way: IAutoMovieVector3 = AutoMovieEngineVector3.scale(offset, 1 / full);
     const mine: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(
         body,
@@ -59,7 +59,7 @@ export namespace lieTogetherReach {
       for (const m of mine) {
         const pose: IAutoMovieMotionHumanColliders.IPlaced["pose"] = {
           ...m.pose,
-          position: Vector3.addScaled(m.pose.position, way, s),
+          position: AutoMovieEngineVector3.addScaled(m.pose.position, way, s),
         };
         for (const y of yours)
           for (const a of m.shapes)
@@ -77,7 +77,7 @@ export namespace lieTogetherReach {
       if (left < SETTLED) break;
       s = Math.min(full, s + left);
     }
-    return Vector3.scale(way, s);
+    return AutoMovieEngineVector3.scale(way, s);
   }
 
   /*

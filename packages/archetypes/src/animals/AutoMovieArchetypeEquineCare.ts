@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -79,9 +79,9 @@ export namespace AutoMovieArchetypeEquineCare {
 
     // The barrel's sides at the middle of the trunk capsule, stroked backward.
     const trunk: IBar = bar(parts.get("trunk")!);
-    const middle: IAutoMovieVector3 = Vector3.lerp(trunk.from, trunk.to, 0.5);
-    const back: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(trunk.from, trunk.to),
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(trunk.from, trunk.to, 0.5);
+    const back: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(trunk.from, trunk.to),
     );
     for (const [id, sign] of [
       ["groomLeft", 1],
@@ -90,7 +90,7 @@ export namespace AutoMovieArchetypeEquineCare {
       add(
         id,
         "trunk",
-        Vector3.addScaled(middle, { x: sign, y: 0, z: 0 }, trunk.radius),
+        AutoMovieEngineVector3.addScaled(middle, { x: sign, y: 0, z: 0 }, trunk.radius),
         { x: sign, y: 0, z: 0 },
         back,
         null,
@@ -98,16 +98,16 @@ export namespace AutoMovieArchetypeEquineCare {
 
     // The poll's crown, dorsal to the head capsule's axis.
     const head: IBar = bar(parts.get("head")!);
-    const along: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(head.to, head.from),
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(head.to, head.from),
     );
-    const up: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
+    const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
     );
     add(
       "poll",
       "head",
-      Vector3.addScaled(head.from, up, head.radius),
+      AutoMovieEngineVector3.addScaled(head.from, up, head.radius),
       up,
       { x: 1, y: 0, z: 0 },
       null,
@@ -140,17 +140,17 @@ export namespace AutoMovieArchetypeEquineCare {
       const id: AutoMovieArchetypeQuadrupedBody.Bone =
         AutoMovieArchetypeQuadrupedBody.BONES[limb][3];
       const pastern: IBar = bar(parts.get(id)!);
-      const axis: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(pastern.to, pastern.from),
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(pastern.to, pastern.from),
       );
       const sign: number = limb.startsWith("left") ? 1 : -1;
-      const outside: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.addScaled({ x: sign, y: 0, z: 0 }, axis, -sign * axis.x),
+      const outside: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.addScaled({ x: sign, y: 0, z: 0 }, axis, -sign * axis.x),
       );
       add(
         `${limb}Hoof`,
         id,
-        Vector3.lerp(pastern.from, pastern.to, 0.5),
+        AutoMovieEngineVector3.lerp(pastern.from, pastern.to, 0.5),
         outside,
         axis,
         pastern.radius,
@@ -188,18 +188,18 @@ export namespace AutoMovieArchetypeEquineCare {
           (candidate: IAutoMovieModelPart): boolean => candidate.id === part,
         )!.transform!;
         const was: IAutoMovieTransform = rest.get(part)!;
-        const turn: IAutoMovieQuaternion = Quaternion.multiply(
+        const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           now.rotation,
-          Quaternion.inverse(was.rotation),
+          AutoMovieEngineQuaternion.inverse(was.rotation),
         );
         return AutoMovieArchetypeFrame.compose(
           sample.placement,
           AutoMovieArchetypeFrame.move(
             {
               rotation: turn,
-              translation: Vector3.subtract(
+              translation: AutoMovieEngineVector3.subtract(
                 now.translation,
-                Quaternion.rotateVector(turn, was.translation),
+                AutoMovieEngineQuaternion.rotateVector(turn, was.translation),
               ),
             },
             record.frame,
@@ -239,13 +239,13 @@ export namespace AutoMovieArchetypeEquineCare {
       (geometry.shape.type !== "capsule" && geometry.shape.type !== "cylinder")
     )
       throw new RangeError(`The ${part.id} is not a bar`);
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform!.rotation,
       { x: 0, y: geometry.shape.height / 2, z: 0 },
     );
     return {
-      from: Vector3.subtract(part.transform!.translation, half),
-      to: Vector3.add(part.transform!.translation, half),
+      from: AutoMovieEngineVector3.subtract(part.transform!.translation, half),
+      to: AutoMovieEngineVector3.add(part.transform!.translation, half),
       radius: geometry.shape.radius,
     };
   }

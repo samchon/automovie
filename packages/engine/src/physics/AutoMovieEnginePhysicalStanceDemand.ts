@@ -6,11 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../math/internal/convexHull2D";
-import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
-import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import { AutoMovieEnginePhysicalBalance } from "./AutoMovieEnginePhysicalBalance";
+import type { AutoMovieEngineXpbdBody } from "./AutoMovieEngineXpbdBody";
 import { AutoMovieEnginePhysicalBipedPressure } from "./AutoMovieEnginePhysicalBipedPressure";
 import type { AutoMovieEnginePhysicalIcpController } from "./AutoMovieEnginePhysicalIcpController";
 import { AutoMovieEnginePhysicalLegCapacity } from "./AutoMovieEnginePhysicalLegCapacity";
@@ -36,7 +36,7 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
     /** The body. */
     body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Its native segments. */
-    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    segments: ReadonlyMap<string, AutoMovieEngineXpbdBody>;
     /** The planted stance limbs, whose outlines bound the command. */
     stance: readonly Limb[];
     /**
@@ -190,7 +190,7 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
     const { settings, body, segments } = input;
     const floor: number = settings.floor;
     const gravity: number =
-      Vector3.length(settings.gravity) *
+      AutoMovieEngineVector3.length(settings.gravity) *
       (body.mode.kind === "exaggerated" ? body.mode.gravity : 1);
     const mass: number = body.profile.mass;
     const height: number = input.center.y - floor;
@@ -237,16 +237,16 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
     let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const segment of body.profile.segments) {
-      const rigid: AutoMovieXpbdBody = segments.get(segment.bone)!;
-      const at: IAutoMovieVector3 = Vector3.add(
+      const rigid: AutoMovieEngineXpbdBody = segments.get(segment.bone)!;
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         rigid.translation(),
-        Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
+        AutoMovieEngineQuaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
       );
       const share: number = segment.mass / mass;
-      center = Vector3.add(center, Vector3.scale(at, share));
-      velocity = Vector3.add(
+      center = AutoMovieEngineVector3.add(center, AutoMovieEngineVector3.scale(at, share));
+      velocity = AutoMovieEngineVector3.add(
         velocity,
-        Vector3.scale(rigid.velocityAtPoint(at), share),
+        AutoMovieEngineVector3.scale(rigid.velocityAtPoint(at), share),
       );
     }
     // The body's rotation counts in its capture point (`spin`).
@@ -261,7 +261,7 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
     // Section VII-E1, "stop in double support").
     const reference: IAutoMovieVector3 = input.landed
       ? AutoMovieEnginePhysicalStanceSupport.centroid(planted, floor)
-      : AutoMoviePhysicalBalance.nearest(planted, {
+      : AutoMovieEnginePhysicalBalance.nearest(planted, {
           x: input.center.x + input.velocity.x / omega,
           y: floor,
           z: input.center.z + input.velocity.z / omega,
@@ -288,7 +288,7 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
     // what the two points' offset carries. Its yaw is borne as asked: the
     // feet turn the body only by their friction about the vertical, which the
     // support cascade's torsional rows carry within their levers' cones
-    // (`AutoMovieXpbdSupportRows`; design-4017-qp3, Section 1, rule 2).
+    // (`AutoMovieEngineXpbdSupportRows`; design-4017-qp3, Section 1, rule 2).
     const limbs: readonly Limb[] =
       (body.supportTracking?.pattern ?? body.balance?.pattern)?.limbs ??
       input.stance;
@@ -298,12 +298,12 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
     const capacity: IAutoMovieVector3[] | undefined =
       AutoMovieEnginePhysicalLegCapacity.region(
         bearing.map(({ limb, points }) => {
-          const middle: IAutoMovieVector3 = Vector3.scale(
+          const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
             points.reduce(
               (
                 sum: IAutoMovieVector3,
                 p: IAutoMovieVector3,
-              ): IAutoMovieVector3 => Vector3.add(sum, p),
+              ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, p),
               { x: 0, y: 0, z: 0 },
             ),
             1 / Math.max(1, points.length),
@@ -330,12 +330,12 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
       bearing.map(({ limb, points }) => ({
         limb,
         point: {
-          ...Vector3.scale(
+          ...AutoMovieEngineVector3.scale(
             points.reduce(
               (
                 sum: IAutoMovieVector3,
                 p: IAutoMovieVector3,
-              ): IAutoMovieVector3 => Vector3.add(sum, p),
+              ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, p),
               { x: 0, y: 0, z: 0 },
             ),
             1 / Math.max(1, points.length),
@@ -431,7 +431,7 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
               }
             : {}),
         });
-    const aimed: IAutoMovieVector3 = Vector3.scale(
+    const aimed: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       {
         x: mass * omega * omega * (center.x - pivot.x),
         y: lift,
@@ -445,17 +445,17 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
     // (`physicalRootExternal`, `physicalCentroidalTask`).
     const most: number = body.maximumRootForce * input.strength;
     const force: IAutoMovieVector3 =
-      icp && Vector3.length(aimed) > most
-        ? Vector3.scale(aimed, most / Vector3.length(aimed))
+      icp && AutoMovieEngineVector3.length(aimed) > most
+        ? AutoMovieEngineVector3.scale(aimed, most / AutoMovieEngineVector3.length(aimed))
         : aimed;
     const reaction: IAutoMovieVector3 = {
       x: -(pressure.z - pivot.z) * lift,
       y: input.torque.y,
       z: (pressure.x - pivot.x) * lift,
     };
-    const torque: IAutoMovieVector3 = Vector3.add(
-      Vector3.cross(Vector3.subtract(center, input.origin), force),
-      Vector3.scale(reaction, input.strength),
+    const torque: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.cross(AutoMovieEngineVector3.subtract(center, input.origin), force),
+      AutoMovieEngineVector3.scale(reaction, input.strength),
     );
     const objective: IResult["objective"] = icp
       ? AutoMovieEnginePhysicalStancePressure.objective({

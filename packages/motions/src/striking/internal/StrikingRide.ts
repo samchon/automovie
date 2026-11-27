@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -171,18 +171,18 @@ export namespace StrikingRide {
           met,
           first,
           frame(lagged),
-          Vector3.dot(Vector3.subtract(goal.point, held), met.normal),
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(goal.point, held), met.normal),
         );
         if (pushed === 0) return posture;
-        const shift: IAutoMovieVector3 = Vector3.scale(met.normal, pushed);
+        const shift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(met.normal, pushed);
         return {
           ...posture,
           limbs: {
             ...posture.limbs,
             [limb]: {
               ...goal,
-              point: Vector3.add(goal.point, shift),
-              bend: Vector3.add(goal.bend, shift),
+              point: AutoMovieEngineVector3.add(goal.point, shift),
+              bend: AutoMovieEngineVector3.add(goal.bend, shift),
             },
           },
         };
@@ -208,19 +208,19 @@ export namespace StrikingRide {
     now: IFrame,
     withdrawn: number,
   ): number {
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       now.rotation,
-      Quaternion.inverse(first.rotation),
+      AutoMovieEngineQuaternion.inverse(first.rotation),
     );
-    const carried: IAutoMovieVector3 = Vector3.add(
+    const carried: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       now.position,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         turn,
-        Vector3.subtract(met.point, first.position),
+        AutoMovieEngineVector3.subtract(met.point, first.position),
       ),
     );
-    const advanced: number = Vector3.dot(
-      Vector3.subtract(carried, met.point),
+    const advanced: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(carried, met.point),
       met.normal,
     );
     return Math.max(0, advanced - withdrawn);
@@ -254,24 +254,24 @@ export namespace StrikingRide {
       HumanColliders.reading(other.body, bones);
     const [a, b] = props.axis(props.stop);
     const gap = (shift: IAutoMovieVector3): number =>
-      geometry.segment(Vector3.add(a, shift), Vector3.add(b, shift)).distance;
+      geometry.segment(AutoMovieEngineVector3.add(a, shift), AutoMovieEngineVector3.add(b, shift)).distance;
     const axis = (k: ContactAxisK): IAutoMovieVector3 => ({
       x: k === 0 ? NORMAL_STEP : 0,
       y: k === 1 ? NORMAL_STEP : 0,
       z: k === 2 ? NORMAL_STEP : 0,
     });
     const slope = (k: ContactSlopeK): number =>
-      gap(axis(k)) - gap(Vector3.scale(axis(k), -1));
+      gap(axis(k)) - gap(AutoMovieEngineVector3.scale(axis(k), -1));
     const gradient: IAutoMovieVector3 = {
       x: slope(0),
       y: slope(1),
       z: slope(2),
     };
-    if (!(Vector3.length(gradient) > 1e-9)) return null;
+    if (!(AutoMovieEngineVector3.length(gradient) > 1e-9)) return null;
     let point: IAutoMovieVector3 = a;
     let least: number = Number.POSITIVE_INFINITY;
     for (let i: number = 0; i <= AXIS_SAMPLES; i++) {
-      const at: IAutoMovieVector3 = Vector3.lerp(a, b, i / AXIS_SAMPLES);
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(a, b, i / AXIS_SAMPLES);
       const d: number = geometry.segment(at, at).distance;
       if (d < least) {
         least = d;
@@ -280,7 +280,7 @@ export namespace StrikingRide {
     }
     return {
       point,
-      normal: Vector3.normalize(gradient),
+      normal: AutoMovieEngineVector3.normalize(gradient),
       bone: geometry.segment(a, b).bone,
     };
   }

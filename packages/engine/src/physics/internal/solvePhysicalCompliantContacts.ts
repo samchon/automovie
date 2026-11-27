@@ -4,10 +4,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdCollider } from "../AutoMovieXpbdCollider";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdCollider } from "../AutoMovieEngineXpbdCollider";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
 import { physicalShapePairContact } from "./physicalShapePairContact";
 
 /*
@@ -42,7 +42,7 @@ import { physicalShapePairContact } from "./physicalShapePairContact";
  * received, and the separation (m).
  */
 export function solvePhysicalCompliantContacts(
-  world: AutoMovieXpbdWorld,
+  world: AutoMovieEngineXpbdWorld,
   surfaces: ReadonlyMap<
     number,
     IAutoMovieSolvePhysicalCompliantContacts.ISurface
@@ -68,8 +68,8 @@ export function solvePhysicalCompliantContacts(
    * when it has none.
    */
   function respond(
-    first: AutoMovieXpbdCollider,
-    second: AutoMovieXpbdCollider,
+    first: AutoMovieEngineXpbdCollider,
+    second: AutoMovieEngineXpbdCollider,
   ): IAutoMovieSolvePhysicalCompliantContacts.IMeasurement | null {
     const handle: number = first.handle;
     const other: number = second.handle;
@@ -89,14 +89,14 @@ export function solvePhysicalCompliantContacts(
         second.shape,
       );
     if (contact.distance > 0) return null;
-    const parentA: AutoMovieXpbdBody = first.parent();
-    const parentB: AutoMovieXpbdBody = second.parent();
-    const point: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(contact.pointA, contact.pointB),
+    const parentA: AutoMovieEngineXpbdBody = first.parent();
+    const parentB: AutoMovieEngineXpbdBody = second.parent();
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(contact.pointA, contact.pointB),
       0.5,
     );
     const normal: IAutoMovieVector3 = contact.normal;
-    const velocity: IAutoMovieVector3 = Vector3.subtract(
+    const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       parentA.velocityAtPoint(point),
       parentB.velocityAtPoint(point),
     );
@@ -119,17 +119,17 @@ export function solvePhysicalCompliantContacts(
     const impulse: number = Math.max(
       0,
       ((dt / scale) * -contact.distance +
-        (coefficient / scale) * Vector3.dot(velocity, normal)) /
+        (coefficient / scale) * AutoMovieEngineVector3.dot(velocity, normal)) /
         ((compliance / scale) * (firstWeight + secondWeight) +
           (coefficient / scale) * inverse),
     );
 
     if (!(impulse > 0)) return null;
-    const tangent: IAutoMovieVector3 = Vector3.subtract(
+    const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       velocity,
-      Vector3.scale(normal, Vector3.dot(velocity, normal)),
+      AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(velocity, normal)),
     );
-    const speed: number = Vector3.length(tangent);
+    const speed: number = AutoMovieEngineVector3.length(tangent);
     const direction: IAutoMovieVector3 =
       speed > 0
         ? { x: tangent.x / speed, y: tangent.y / speed, z: tangent.z / speed }
@@ -144,9 +144,9 @@ export function solvePhysicalCompliantContacts(
             speed / tangentInverse,
           )
         : 0;
-    const combined: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(normal, impulse),
-      Vector3.scale(direction, friction),
+    const combined: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(normal, impulse),
+      AutoMovieEngineVector3.scale(direction, friction),
     );
     const firstImpulse: IAutoMovieVector3 | null = transfer(
       parentA,
@@ -181,12 +181,12 @@ export function solvePhysicalCompliantContacts(
  * for a kinematic body.
  */
 function transfer(
-  body: AutoMovieXpbdBody,
+  body: AutoMovieEngineXpbdBody,
   combined: IAutoMovieVector3,
   gain: number,
 ): IAutoMovieVector3 | null {
   if (!body.isDynamic()) return null;
-  return Vector3.scale(combined, gain);
+  return AutoMovieEngineVector3.scale(combined, gain);
 }
 
 /*
@@ -198,7 +198,7 @@ function received(
   normal: IAutoMovieVector3,
   sign: number,
 ): number {
-  return impulse ? Math.max(0, sign * Vector3.dot(normal, impulse)) : 0;
+  return impulse ? Math.max(0, sign * AutoMovieEngineVector3.dot(normal, impulse)) : 0;
 }
 
 /*
@@ -206,14 +206,14 @@ function received(
  * rotated full inertia; zero for a kinematic body.
  */
 function inverseMass(
-  body: AutoMovieXpbdBody,
+  body: AutoMovieEngineXpbdBody,
   point: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ): number {
   if (!body.isDynamic()) return 0;
-  const cross: IAutoMovieVector3 = Vector3.cross(
-    Vector3.subtract(point, body.worldCom()),
+  const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+    AutoMovieEngineVector3.subtract(point, body.worldCom()),
     normal,
   );
-  return body.inverseMass() + Vector3.dot(cross, body.inverseInertia(cross));
+  return body.inverseMass() + AutoMovieEngineVector3.dot(cross, body.inverseInertia(cross));
 }

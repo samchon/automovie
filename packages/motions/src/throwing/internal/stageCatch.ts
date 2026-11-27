@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -99,11 +99,11 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
           fix: "place the catch before another grip or launch takes the prop",
         });
       const expected: IAutoMovieVector3 = centre(approach.frame);
-      const movement: IAutoMovieVector3 = Vector3.subtract(
+      const movement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         expected,
         centre(approach.before),
       );
-      if (!(Vector3.length(movement) > 0))
+      if (!(AutoMovieEngineVector3.length(movement) > 0))
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "intercept",
@@ -113,7 +113,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
         });
       interception = {
         contact: at - context.start,
-        speed: Vector3.scale(movement, 1 / (at - previous)),
+        speed: AutoMovieEngineVector3.scale(movement, 1 / (at - previous)),
         before: (seconds: number): IAutoMovieVector3 =>
           seconds >= at - context.start
             ? expected
@@ -172,7 +172,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
         ? {}
         : { handContactFrom: context.start + prepare * plan.duration }),
       matches: (frame: IAutoMovieRigidTransform): boolean =>
-        Vector3.length(Vector3.subtract(centre(frame), expected)) <=
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(centre(frame), expected)) <=
         flightParity,
     };
     if (!capture.matches(approached?.frame ?? reader.frame(placedAt)))

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -50,23 +50,23 @@ export function prepareGlideSlope(
     );
   if (face === undefined)
     return refuse(`${subject} has no finite face at ${named.id}`);
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     face.frame.rotation,
     UP,
   );
-  if (Vector3.dot(normal, Quaternion.rotateVector(expected, UP)) < NORMAL)
+  if (AutoMovieEngineVector3.dot(normal, AutoMovieEngineQuaternion.rotateVector(expected, UP)) < NORMAL)
     return refuse(
       `${subject}/${named.id} does not match the authored grade and heading`,
     );
-  const heading: IAutoMovieVector3 = Quaternion.rotateVector(expected, {
+  const heading: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(expected, {
     x: 0,
     y: 0,
     z: 1,
   });
-  const right: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(normal, heading),
+  const right: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(normal, heading),
   );
-  const ahead: IAutoMovieVector3 = Vector3.cross(right, normal);
+  const ahead: IAutoMovieVector3 = AutoMovieEngineVector3.cross(right, normal);
   const rotation: IAutoMovieQuaternion = AutoMovieEngineMath.quaternionFromBasis(
     right,
     normal,
@@ -78,10 +78,10 @@ export function prepareGlideSlope(
         face.outline[(index + 1) % face.outline.length]!;
       const x: number = a.z - b.z;
       const z: number = b.x - a.x;
-      const local: IAutoMovieVector3 = Vector3.normalize({ x, y: 0, z });
+      const local: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({ x, y: 0, z });
       const oriented: number[] = face.outline.map(
         (point: IAutoMovieVector3): number =>
-          Vector3.dot(local, Vector3.subtract(point, a)),
+          AutoMovieEngineVector3.dot(local, AutoMovieEngineVector3.subtract(point, a)),
       );
       const positive: boolean = oriented.every(
         (value: number): boolean => value >= -1e-9,
@@ -95,9 +95,9 @@ export function prepareGlideSlope(
         );
       return {
         point: HumanMaterialContact.world(face, a),
-        normal: Quaternion.rotateVector(
+        normal: AutoMovieEngineQuaternion.rotateVector(
           face.frame.rotation,
-          positive ? local : Vector3.scale(local, -1),
+          positive ? local : AutoMovieEngineVector3.scale(local, -1),
         ),
       };
     },
@@ -106,24 +106,24 @@ export function prepareGlideSlope(
     rotation,
     point: named.id,
     enter: (position: IAutoMovieVector3): IAutoMovieVector3 => {
-      const distance: number = Vector3.dot(
-        Vector3.subtract(position, face.frame.position),
+      const distance: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(position, face.frame.position),
         normal,
       );
       if (Math.abs(distance) > CONTACT)
         return refuse(
           `an entering sole is ${(Math.abs(distance) * 1000).toFixed(1)} mm from ${named.id}`,
         );
-      return Vector3.addScaled(position, normal, -distance);
+      return AutoMovieEngineVector3.addScaled(position, normal, -distance);
     },
     travel: (start, local, distance, curvature): void => {
       const turn: number = curvature * distance;
       for (const edge of bounds) {
-        const x: number = Vector3.dot(edge.normal, right);
-        const z: number = Vector3.dot(edge.normal, ahead);
-        const base: number = Vector3.dot(
+        const x: number = AutoMovieEngineVector3.dot(edge.normal, right);
+        const z: number = AutoMovieEngineVector3.dot(edge.normal, ahead);
+        const base: number = AutoMovieEngineVector3.dot(
           edge.normal,
-          Vector3.subtract(start, edge.point),
+          AutoMovieEngineVector3.subtract(start, edge.point),
         );
         const from: number = base + x * local.x + z * local.z;
         let minimum: number = Math.min(from, from + z * distance);
@@ -211,4 +211,4 @@ const CONTACT: number = 0.005;
 /*
  * Angular agreement required between the material and authored plane.
  */
-const NORMAL: number = Math.cos(0.25 * Quaternion.DEG2RAD);
+const NORMAL: number = Math.cos(0.25 * AutoMovieEngineQuaternion.DEG2RAD);

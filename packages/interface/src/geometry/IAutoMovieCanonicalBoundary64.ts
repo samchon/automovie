@@ -2,7 +2,7 @@ import type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBo
 
 /**
  * Exact normalized boundary addresses and directed interval incidence.
- * AutoMovieCanonicalBoundary64 admits finite phases in [0,1], distinct interval
+ * AutoMovieEngineCanonicalBoundary64 admits finite phases in [0,1], distinct interval
  * endpoints and unique use IDs. Authority identity is declared independently of
  * numeric position. Inversion borrows its monotone map and anchors; partition
  * returns new atom arrays and diagnostics.

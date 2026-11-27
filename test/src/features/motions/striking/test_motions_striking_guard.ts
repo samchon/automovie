@@ -1,4 +1,6 @@
-import { StrikingGuard } from "@automovie/motions/internal";
+import {
+  StrikingGuard
+} from "../../../../../packages/motions/src/striking/internal/StrikingGuard";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

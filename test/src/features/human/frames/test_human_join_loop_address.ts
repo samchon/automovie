@@ -1,4 +1,4 @@
-import { AutoMovieLoftViewFullSource } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -54,7 +54,7 @@ export function test_human_join_loop_address(): void {
 
   // 2. A turning host: its own skin points come back at the chart point they were read at.
   const turning: IAutoMovieViewPart = AutoMovieHumanConicLoft.part(tube("turning", [[0, 0, 0], [0, 100, 0], [60, 160, 0]], [20], 120), every(120));
-  const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(turning);
+  const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieEngineLoftViewFullSource.create(turning);
   for (const station of [30, 95, 105, 118])
     for (let k: number = 0; k < 8; ++k) {
       const phase: number = (2 * Math.PI * (k + 0.3)) / 8;

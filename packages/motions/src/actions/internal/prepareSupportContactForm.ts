@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -46,8 +46,8 @@ export function prepareSupportContactForm(
     );
     for (const side of ["left", "right"] as const)
       if (bones.has(`${side}Toes`))
-        feet[side] = Quaternion.rotateVector(
-          Quaternion.inverse(bones.get(`${side}Toes`)!.worldRotation),
+        feet[side] = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(bones.get(`${side}Toes`)!.worldRotation),
           { x: 0, y: -1, z: 0 },
         );
   }

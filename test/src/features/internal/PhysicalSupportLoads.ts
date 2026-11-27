@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
@@ -18,12 +18,12 @@ export namespace PhysicalSupportLoads {
         sum: IAutoMovieVector3,
         segment: IAutoMoviePhysicalSegment,
       ): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           sum,
-          Vector3.scale(
-            Vector3.add(
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(
               poses[segment.bone]!.position,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 poses[segment.bone]!.rotation,
                 segment.centerOfMass,
               ),

@@ -1,4 +1,4 @@
-import { swivelArcs } from "@automovie/engine";
+import { AutoMovieEngineSwivelArcs } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieSwivelArcs,
@@ -197,8 +197,8 @@ export namespace courseLimbSwivelKnots {
       const feasible: IAutoMovieSwivelArcs.IArc | null =
         seed.feasible !== undefined &&
         next.feasible !== undefined &&
-        swivelArcs.holding([next.feasible], at[0]!) !== null
-          ? swivelArcs.holding([seed.feasible], at[0]!)
+        AutoMovieEngineSwivelArcs.holding([next.feasible], at[0]!) !== null
+          ? AutoMovieEngineSwivelArcs.holding([seed.feasible], at[0]!)
           : null;
       out.set(limb, {
         swivel: at[0]!,

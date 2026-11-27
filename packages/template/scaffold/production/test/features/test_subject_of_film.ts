@@ -2,7 +2,7 @@ import type {
   IAutoMovieFilmOptics,
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
-import type { IAutoMovieDrawScene } from "@automovie/render";
+import type { IAutoMovieRenderDrawScene } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -61,7 +61,7 @@ export async function test_subject_of_film(): Promise<void> {
       dispose: (): void => {},
     }),
   });
-  const subject: IAutoMovieDrawScene = await subjectOfFilm(
+  const subject: IAutoMovieRenderDrawScene = await subjectOfFilm(
     "film",
     film(true),
   ).create();
@@ -86,7 +86,7 @@ export async function test_subject_of_film(): Promise<void> {
   subject.dispose();
 
   // 3. A film without seekShot.
-  const bare: IAutoMovieDrawScene = await subjectOfFilm(
+  const bare: IAutoMovieRenderDrawScene = await subjectOfFilm(
     "film",
     film(false),
   ).create();

@@ -5,15 +5,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 import { recordPhysicalContact } from "./recordPhysicalContact";
 
 /*
  * Record the rigid contacts the world's last step solved, one receipt sample
  * per touching collider pair, in the world's canonical pair order
- * (`AutoMovieXpbdWorld.manifolds`: creation order of the first collider, then
+ * (`AutoMovieEngineXpbdWorld.manifolds`: creation order of the first collider, then
  * of the second).
  *
  * A manifold's impulse is the sum of the normal impulses the step applied at
@@ -37,7 +37,7 @@ import { recordPhysicalContact } from "./recordPhysicalContact";
  * Parameter found: Pair keys touched in this cache frame, added to.
  */
 export function collectPhysicalContacts(
-  world: AutoMovieXpbdWorld,
+  world: AutoMovieEngineXpbdWorld,
   input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
   seconds: number,
@@ -89,7 +89,7 @@ export function collectPhysicalContacts(
       const extra: number = sign * impulse * (policy.impulse - 1);
       bound.bodies
         .get(`${side.body}/${side.bone}`)!
-        .applyImpulseAtPoint(Vector3.scale(normal, extra), point);
+        .applyImpulseAtPoint(AutoMovieEngineVector3.scale(normal, extra), point);
     }
   }
 }

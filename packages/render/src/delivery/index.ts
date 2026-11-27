@@ -2,8 +2,8 @@ export * from "./AutoMovieRenderDelivery.js";
 
 
 
-export * from "./AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
+export * from "./AutoMovieRenderProductionAacProfile.js";
 export * from "./AutoMovieRenderPoseKeypointSidecar.js";
 export * from "./AutoMovieRenderVideo.js";
-export * from "./AUTOMOVIE_MP4_SRGB_COLOUR.js";
-export * from "./AUTOMOVIE_MP4_UNITY_MATRIX.js";
+export * from "./AutoMovieRenderMp4SrgbColour.js";
+export * from "./AutoMovieRenderMp4UnityMatrix.js";

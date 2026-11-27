@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
@@ -38,7 +38,7 @@ import { lieTogetherFrame } from "./lieTogetherFrame";
 import { lieTogetherNeck } from "./lieTogetherNeck";
 import { lieTogetherReach } from "./lieTogetherReach";
 import { lieTogetherShifted } from "./lieTogetherShifted";
-import * as LieTogetherData from "./LieTogetherData";
+import { LieTogetherData } from "./LieTogetherData";
 
 /*
  * Lie together with a partner. Both already lie on the support (`lieDown`,
@@ -213,8 +213,8 @@ function planLieTogether(
       const back: IAutoMovieMotionHumanStrikingBody.IRegionResult =
         region(other);
       return flat(
-        Vector3.subtract(
-          Vector3.add(back.point, Vector3.scale(back.normal, LieTogetherData.REST)),
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.add(back.point, AutoMovieEngineVector3.scale(back.normal, LieTogetherData.REST)),
           HumanTrunk.region(body, entry, mine).point,
         ),
       );
@@ -223,7 +223,7 @@ function planLieTogether(
     const lower: IAutoMovieVector3 = meet("abdomen", "lowerBack");
     const normal: IAutoMovieVector3 = region("upperBack").normal;
     slide =
-      Vector3.dot(lower, normal) > Vector3.dot(upper, normal) ? lower : upper;
+      AutoMovieEngineVector3.dot(lower, normal) > AutoMovieEngineVector3.dot(upper, normal) ? lower : upper;
     // The pelvis is read on its own colliders: where the slid hips come
     // nearer the partner's than `REST`, the slide stops that much short
     // along the back's normal (the regions let the hips overlap 41 mm).
@@ -256,9 +256,9 @@ function planLieTogether(
               AutoMovieEnginePhysics.physicalShapePairDistance(m.pose, s, y.pose, t),
             );
     if (gap < LieTogetherData.REST)
-      slide = Vector3.add(
+      slide = AutoMovieEngineVector3.add(
         slide,
-        Vector3.scale(Vector3.normalize(flat(normal)), LieTogetherData.REST - gap),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(flat(normal)), LieTogetherData.REST - gap),
       );
   } else {
     const left: IAutoMovieVector3 = HumanTrunk.region(
@@ -274,8 +274,8 @@ function planLieTogether(
     own = left.y <= right.y ? "cheekLeft" : "cheekRight";
     const cheek: IAutoMovieVector3 = own === "cheekLeft" ? left : right;
     const near: AutoMovieHumanoidRegion =
-      Vector3.distance(region("chestLeft").point, cheek) <=
-      Vector3.distance(region("chestRight").point, cheek)
+      AutoMovieEngineVector3.distance(region("chestLeft").point, cheek) <=
+      AutoMovieEngineVector3.distance(region("chestRight").point, cheek)
         ? "chestLeft"
         : "chestRight";
     // The body slides toward that chest across the support until any part
@@ -287,13 +287,13 @@ function planLieTogether(
     slide = lieTogetherReach.slide(
       body,
       folded(entry, 1),
-      flat(Vector3.subtract(region(near).point, cheek)),
+      flat(AutoMovieEngineVector3.subtract(region(near).point, cheek)),
       partner.body,
       bones,
       LieTogetherData.REST,
     );
     const under: IAutoMovieMotionHumanColliders.IHit | undefined =
-      lieTogetherReach.beneath(partner.body, bones, Vector3.add(cheek, slide));
+      lieTogetherReach.beneath(partner.body, bones, AutoMovieEngineVector3.add(cheek, slide));
     if (under === undefined)
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
@@ -306,27 +306,27 @@ function planLieTogether(
     const shoulder: AutoMovieHumanoidRegion =
       near === "chestLeft" ? "shoulderLeft" : "shoulderRight";
     theirs =
-      Vector3.distance(region(near).point, under.point) <=
-      Vector3.distance(region(shoulder).point, under.point)
+      AutoMovieEngineVector3.distance(region(near).point, under.point) <=
+      AutoMovieEngineVector3.distance(region(shoulder).point, under.point)
         ? near
         : shoulder;
     neck = lieTogetherNeck.lift(
       body,
       lieTogetherShifted(entry, slide),
       own,
-      Vector3.addScaled(under.point, under.normal, LieTogetherData.REST),
+      AutoMovieEngineVector3.addScaled(under.point, under.normal, LieTogetherData.REST),
     );
   }
   // A body settles from within its arm's reach of where it settles.
   const apart: number =
     body.measure.upperArm + body.measure.forearm + body.measure.hand;
-  if (Vector3.length(slide) > apart)
+  if (AutoMovieEngineVector3.length(slide) > apart)
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "partner",
       value: p.partner,
       feasible: { kind: "range", minimum: null, maximum: apart, unit: "m" },
-      reason: `the body lies ${(Vector3.length(slide) * 1000).toFixed(0)} mm from where it settles against the partner`,
+      reason: `the body lies ${(AutoMovieEngineVector3.length(slide) * 1000).toFixed(0)} mm from where it settles against the partner`,
       fix: "lie down nearer the partner",
     });
 
@@ -337,16 +337,16 @@ function planLieTogether(
       ? lieTogetherCurl.solve(
           body,
           lieTogetherShifted(entry, slide),
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             region("upperBack").point,
-            Vector3.scale(region("upperBack").normal, LieTogetherData.REST),
+            AutoMovieEngineVector3.scale(region("upperBack").normal, LieTogetherData.REST),
           ),
           region("upperBack").normal,
           partner.body,
           bones,
         )
       : lieTogetherCurl.NONE;
-  const travel: IAutoMovieVector3 = Vector3.add(slide, bent.shift);
+  const travel: IAutoMovieVector3 = AutoMovieEngineVector3.add(slide, bent.shift);
 
   // The arm folds before the body closes in on the partner: the slide's
   // clearance is read with the arm folded (`lieTogetherReach`), and a
@@ -368,7 +368,7 @@ function planLieTogether(
       (Math.PI / 180),
   );
   const settle: number =
-    folding + AutoMovieMotionHumanTiming.transport(Vector3.length(travel));
+    folding + AutoMovieMotionHumanTiming.transport(AutoMovieEngineVector3.length(travel));
   const duration: number = settle + p.hold;
   const settled: IAutoMovieMotionHumanPosture = folded(
     lieTogetherNeck.apply(
@@ -419,7 +419,7 @@ function planLieTogether(
           : folded(
               lieTogetherNeck.apply(
                 lieTogetherCurl.apply(
-                  lieTogetherShifted(entry, Vector3.scale(travel, k)),
+                  lieTogetherShifted(entry, AutoMovieEngineVector3.scale(travel, k)),
                   bent,
                   k,
                 ),

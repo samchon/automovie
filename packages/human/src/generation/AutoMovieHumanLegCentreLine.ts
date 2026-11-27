@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   IAutoMovieHumanLegAxis,
   IAutoMovieHumanLegCentreLine,
@@ -67,17 +67,17 @@ export namespace AutoMovieHumanLegCentreLine {
         b: { at: number; offset: number },
       ): number => a.at - b.at,
     );
-    const u: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const u: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       forward.map((m: { at: number; offset: number }): number => m.at),
       forward.map((m: { at: number; offset: number }): number => m.offset),
     );
-    const v: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const v: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       [input.ankle.at, input.knee, input.crotch.at],
       [low[1], 0, high[1]],
     );
     return (s: number): [number, number] => [
-      AutoMovieNaturalSpline.evaluate(u, s),
-      AutoMovieNaturalSpline.evaluate(v, s),
+      AutoMovieEngineNaturalSpline.evaluate(u, s),
+      AutoMovieEngineNaturalSpline.evaluate(v, s),
     ];
   }
 }

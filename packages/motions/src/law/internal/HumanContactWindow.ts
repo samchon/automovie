@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidRegion,
@@ -282,15 +282,15 @@ export namespace HumanContactWindow {
         Math.max(0, Math.min(seconds, duration) * RATE),
       );
       const k: number = Math.min(table.length - 2, Math.floor(at));
-      const offset: IAutoMovieVector3 = Vector3.lerp(
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         table[k]!,
         table[k + 1]!,
         at - k,
       );
       limbs[leg] = {
         ...goal,
-        point: Vector3.add(goal.point, offset),
-        bend: Vector3.add(goal.bend, offset),
+        point: AutoMovieEngineVector3.add(goal.point, offset),
+        bend: AutoMovieEngineVector3.add(goal.bend, offset),
       };
     }
     return { ...posture, limbs };
@@ -377,30 +377,30 @@ export namespace HumanContactWindow {
       (point: IAutoMovieVector3, t: number): IAutoMovieVector3 =>
         t === 0 || t === n - 1
           ? point
-          : Vector3.add(
-              Vector3.scale(
-                Vector3.subtract(points[t + 1]!, point),
+          : AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(
+                AutoMovieEngineVector3.subtract(points[t + 1]!, point),
                 0.5 * RATE,
               ),
-              Vector3.scale(
-                Vector3.subtract(point, points[t - 1]!),
+              AutoMovieEngineVector3.scale(
+                AutoMovieEngineVector3.subtract(point, points[t - 1]!),
                 0.5 * RATE,
               ),
             ),
     );
     // Four samples put index 3 at the endpoint. Establish its velocity
     // before the start's extrapolation, which reads that index as velocity.
-    velocities[n - 1] = Vector3.add(
+    velocities[n - 1] = AutoMovieEngineVector3.add(
       velocities[n - 2]!,
-      Vector3.subtract(velocities[n - 2]!, velocities[n - 3]!),
+      AutoMovieEngineVector3.subtract(velocities[n - 2]!, velocities[n - 3]!),
     );
-    velocities[0] = Vector3.subtract(
+    velocities[0] = AutoMovieEngineVector3.subtract(
       velocities[1]!,
-      Vector3.subtract(velocities[3]!, velocities[2]!),
+      AutoMovieEngineVector3.subtract(velocities[3]!, velocities[2]!),
     );
     const raw: boolean[] = velocities.map(
       (velocity: IAutoMovieVector3): boolean =>
-        Vector3.length(velocity) < THRESHOLD,
+        AutoMovieEngineVector3.length(velocity) < THRESHOLD,
     );
     const before: number = Math.floor(FILTER / 2);
     const after: number = Math.floor((FILTER - 1) / 2);
@@ -452,30 +452,30 @@ export namespace HumanContactWindow {
     const out: IAutoMovieVector3[] = [];
     points.forEach((input: IAutoMovieVector3, t: number): void => {
       const inputState: boolean = states[t]!;
-      const inputVelocity: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(input, target),
+      const inputVelocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(input, target),
         1 / (dt + EPSILON),
       );
       target = input;
 
       // inertialize_update: decay the offset, then add it to the fed input.
       const y: number = (4 * LN2) / (HALFLIFE + DAMPING_EPSILON) / 2;
-      const j1: IAutoMovieVector3 = Vector3.add(
+      const j1: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         offsetV,
-        Vector3.scale(offsetX, y),
+        AutoMovieEngineVector3.scale(offsetX, y),
       );
       const eydt: number = negexp(y * dt);
-      offsetX = Vector3.scale(
-        Vector3.add(offsetX, Vector3.scale(j1, dt)),
+      offsetX = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(offsetX, AutoMovieEngineVector3.scale(j1, dt)),
         eydt,
       );
-      offsetV = Vector3.scale(
-        Vector3.subtract(offsetV, Vector3.scale(j1, y * dt)),
+      offsetV = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(offsetV, AutoMovieEngineVector3.scale(j1, y * dt)),
         eydt,
       );
-      position = Vector3.add(lock ? point : input, offsetX);
+      position = AutoMovieEngineVector3.add(lock ? point : input, offsetX);
 
-      const unlock: boolean = lock && Vector3.distance(point, input) > UNLOCK;
+      const unlock: boolean = lock && AutoMovieEngineVector3.distance(point, input) > UNLOCK;
       if (!state && inputState) {
         lock = true;
         // contact_point.y = foot_height: the floor beneath the lock.
@@ -483,12 +483,12 @@ export namespace HumanContactWindow {
           ...position,
           y: floor === undefined ? input.y : floor(position),
         };
-        offsetX = Vector3.subtract(Vector3.add(input, offsetX), point);
-        offsetV = Vector3.add(inputVelocity, offsetV);
+        offsetX = AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.add(input, offsetX), point);
+        offsetV = AutoMovieEngineVector3.add(inputVelocity, offsetV);
       } else if ((lock && state && !inputState) || unlock) {
         lock = false;
-        offsetX = Vector3.subtract(Vector3.add(point, offsetX), input);
-        offsetV = Vector3.subtract(offsetV, inputVelocity);
+        offsetX = AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.add(point, offsetX), input);
+        offsetV = AutoMovieEngineVector3.subtract(offsetV, inputVelocity);
       }
       state = inputState;
 
@@ -500,7 +500,7 @@ export namespace HumanContactWindow {
         floor === undefined
           ? position
           : { ...position, y: Math.max(position.y, floor(position)) };
-      out.push(Vector3.subtract(shown, input));
+      out.push(AutoMovieEngineVector3.subtract(shown, input));
     });
     return out;
   }

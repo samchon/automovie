@@ -1,4 +1,4 @@
-import { AutoMovieComposition } from "@automovie/engine";
+import { AutoMovieEngineComposition } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanChainCore,
@@ -73,7 +73,7 @@ export namespace HumanGunCrew {
       Pick<IAutoMovieMotionHumanChainCore.ISync, "index">,
     stations: readonly IStageStation[],
   ): IAutoMovieComposition {
-    return AutoMovieComposition.parallel(
+    return AutoMovieEngineComposition.parallel(
       ...stations.map(
         (station: IStageStation): IAutoMovieComposition =>
           AutoMovieMotionHumanChain.subject(station.subject)
@@ -100,7 +100,7 @@ export namespace HumanGunCrew {
       point: "muzzle",
     } as const;
     const vent = { kind: "prop", subject: scene.gun, point: "vent" } as const;
-    return AutoMovieComposition.parallel(
+    return AutoMovieEngineComposition.parallel(
       AutoMovieMotionHumanChain.subject(roles.n3).registered(
         HumanGunDrill.coverVent.name,
         { target: vent },

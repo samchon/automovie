@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeAxillaryCrutchData from "./internal/AutoMovieArchetypeAxillaryCrutchData";
+import { AutoMovieArchetypeAxillaryCrutchData } from "./internal/AutoMovieArchetypeAxillaryCrutchData";
 
 /** Constructs the axillary crutch archetype from its recipe. */
 export namespace AutoMovieArchetypeAxillaryCrutch {
@@ -68,25 +68,25 @@ export function create(
   builder.rod(
     "shaft",
     r,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, length - pad, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, length - pad, 0),
     { color: "#b8bcc2" },
   );
   builder.rod(
     "handgrip",
     r,
-    Vector3.create(0, grip, -AutoMovieArchetypeAxillaryCrutch.GRIP_LENGTH / 2),
-    Vector3.create(0, grip, AutoMovieArchetypeAxillaryCrutch.GRIP_LENGTH / 2),
+    AutoMovieEngineVector3.create(0, grip, -AutoMovieArchetypeAxillaryCrutch.GRIP_LENGTH / 2),
+    AutoMovieEngineVector3.create(0, grip, AutoMovieArchetypeAxillaryCrutch.GRIP_LENGTH / 2),
     { color: "#2c2f33" },
   );
   builder.box(
     "pad",
-    Vector3.create(
+    AutoMovieEngineVector3.create(
       AutoMovieArchetypeAxillaryCrutch.PAD_DEPTH,
       pad,
       AutoMovieArchetypeAxillaryCrutch.PAD_WIDTH,
     ),
-    Vector3.create(0, length - pad / 2, 0),
+    AutoMovieEngineVector3.create(0, length - pad / 2, 0),
     { color: "#3a3d42" },
   );
   builder.affordance({
@@ -94,9 +94,9 @@ export function create(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, grip, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, grip, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "power",
@@ -107,16 +107,16 @@ export function create(
     id: "tip",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, -1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, -1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });
   builder.affordance({
     id: "pad",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, length, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, length, 0)),
     extent: null,
     width: AutoMovieArchetypeAxillaryCrutch.PAD_DEPTH,
     depth: AutoMovieArchetypeAxillaryCrutch.PAD_WIDTH,

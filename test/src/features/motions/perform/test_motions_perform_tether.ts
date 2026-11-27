@@ -5,12 +5,17 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
-  HumanPerformanceTether,
+  AutoMovieMotionHumanObject,
   AutoMovieMotionHumanRefusal,
-  humanTetherCatenary,
-} from "@automovie/motions/internal";
+} from "@automovie/motions";
+import {
+  HumanPerformanceTether
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceTether";
+
+import {
+  humanTetherCatenary
+} from "../../../../../packages/motions/src/perform/internal/humanTetherCatenary";
 import { TestValidator } from "@nestia/e2e";
 
 import { actingPerformanceState } from "../../internal/fixtures/actingPerformanceState";

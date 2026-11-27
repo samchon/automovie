@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { nearestAngleAlias } from "../../math/internal/nearestAngleAlias";
 import { AutoMovieEngineClinicalAngle } from "../../rom/internal/AutoMovieEngineClinicalAngle";
 import { alternateRigJointAngles } from "./alternateRigJointAngles";
@@ -457,10 +457,10 @@ const handednessOf: (basis: IAutoMovieJointAxes) => IHandedness = (
   // triple is made right-handed by extracting against −twist, then negating the
   // recovered twist (a rotation about −t by θ is one about t by −θ).
   const handed: 1 | -1 =
-    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
+    AutoMovieEngineVector3.dot(basis.twist, AutoMovieEngineVector3.cross(basis.flexion, basis.abduction)) >= 0
       ? 1
       : -1;
-  return { handed, twistAxis: Vector3.scale(basis.twist, handed) };
+  return { handed, twistAxis: AutoMovieEngineVector3.scale(basis.twist, handed) };
 };
 
 /*

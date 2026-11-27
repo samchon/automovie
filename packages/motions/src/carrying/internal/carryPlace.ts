@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -74,7 +74,7 @@ export function carryPlace(
         resolution,
       );
       return {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           shoulder,
           turn({
             x: out * m.forearmRadius,
@@ -103,9 +103,9 @@ export function carryPlace(
         side,
         "palm",
       ).point;
-      const finger: number = m.hand - Vector3.length(palm);
+      const finger: number = m.hand - AutoMovieEngineVector3.length(palm);
       return {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           hip,
           turn({ x: out * (m.thighRadius + finger), y: 0, z: 0.2 * arm }),
         ),

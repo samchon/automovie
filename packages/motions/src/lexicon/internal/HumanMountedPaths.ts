@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -51,7 +51,7 @@ export namespace HumanMountedPaths {
       humanPostureHeading(posture),
       posture.joints.hips,
     );
-    return Vector3.lerp(joints.left, joints.right, 0.5);
+    return AutoMovieEngineVector3.lerp(joints.left, joints.right, 0.5);
   }
 
   /*
@@ -73,12 +73,12 @@ export namespace HumanMountedPaths {
       if (
         a?.planted !== true ||
         b?.planted !== true ||
-        Vector3.distance(a.point, b.point) > 1e-3
+        AutoMovieEngineVector3.distance(a.point, b.point) > 1e-3
       )
         return undefined;
       ankles.push(b.point);
     }
-    return Vector3.lerp(ankles[0]!, ankles[1]!, 0.5);
+    return AutoMovieEngineVector3.lerp(ankles[0]!, ankles[1]!, 0.5);
   }
 
   /*
@@ -97,21 +97,21 @@ export namespace HumanMountedPaths {
     about: IAutoMovieVector3 | undefined,
     share: number,
   ): IAutoMovieVector3 {
-    if (about === undefined) return Vector3.lerp(from, to, share);
-    const a: IAutoMovieVector3 = Vector3.subtract(from, about);
-    const b: IAutoMovieVector3 = Vector3.subtract(to, about);
-    const ra: number = Vector3.length(a);
-    const rb: number = Vector3.length(b);
-    const turned: IAutoMovieVector3 = Vector3.lerp(
-      Vector3.scale(a, 1 / ra),
-      Vector3.scale(b, 1 / rb),
+    if (about === undefined) return AutoMovieEngineVector3.lerp(from, to, share);
+    const a: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(from, about);
+    const b: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, about);
+    const ra: number = AutoMovieEngineVector3.length(a);
+    const rb: number = AutoMovieEngineVector3.length(b);
+    const turned: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
+      AutoMovieEngineVector3.scale(a, 1 / ra),
+      AutoMovieEngineVector3.scale(b, 1 / rb),
       share,
     );
-    const length: number = Vector3.length(turned);
-    if (length < 1e-6) return Vector3.lerp(from, to, share);
-    return Vector3.add(
+    const length: number = AutoMovieEngineVector3.length(turned);
+    if (length < 1e-6) return AutoMovieEngineVector3.lerp(from, to, share);
+    return AutoMovieEngineVector3.add(
       about,
-      Vector3.scale(turned, (ra + (rb - ra) * share) / length),
+      AutoMovieEngineVector3.scale(turned, (ra + (rb - ra) * share) / length),
     );
   }
 
@@ -175,9 +175,9 @@ export namespace HumanMountedPaths {
     for (const side of ["left", "right"] as const) {
       const id: string | undefined = figure.supports?.[`${side}Hand`];
       if (id !== undefined)
-        out[side] = Quaternion.rotateVector(
-          Quaternion.inverse(now.rotation),
-          Vector3.subtract(
+        out[side] = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(now.rotation),
+          AutoMovieEngineVector3.subtract(
             HumanMountedFrame.contact(support, id, film),
             now.position,
           ),
@@ -346,16 +346,16 @@ export namespace HumanMountedPaths {
       goal.contact !== undefined &&
       goal.rotation !== undefined &&
       goal.on === undefined
-        ? Vector3.add(
+        ? AutoMovieEngineVector3.add(
             goal.point,
-            Quaternion.rotateVector(goal.rotation, goal.contact),
+            AutoMovieEngineQuaternion.rotateVector(goal.rotation, goal.contact),
           )
         : undefined;
     const a: IAutoMovieVector3 | undefined = ball(from.limbs[`${side}Leg`]);
     const b: IAutoMovieVector3 | undefined = ball(to.limbs[`${side}Leg`]);
     return a !== undefined &&
       b !== undefined &&
-      Vector3.distance(a, b) <= HumanMount.ON
+      AutoMovieEngineVector3.distance(a, b) <= HumanMount.ON
       ? b
       : undefined;
   }
@@ -402,7 +402,7 @@ export namespace HumanMountedPaths {
           if (
             a === undefined ||
             b === undefined ||
-            Vector3.distance(a, b) < 1e-6 ||
+            AutoMovieEngineVector3.distance(a, b) < 1e-6 ||
             (was !== undefined &&
               was === figures[i]!.supports?.[`${side}Foot`]) ||
             rested(i === 0 ? entry : keys[i - 1]!, key, side) !== undefined
@@ -412,8 +412,8 @@ export namespace HumanMountedPaths {
           for (let k: number = 0; k < 4 && clear; ++k)
             clear =
               seats.clear(
-                Vector3.lerp(a, b, k / 4),
-                Vector3.lerp(a, b, (k + 1) / 4),
+                AutoMovieEngineVector3.lerp(a, b, k / 4),
+                AutoMovieEngineVector3.lerp(a, b, (k + 1) / 4),
               ) >= m.shankRadius;
           if (!clear)
             out[side] = {

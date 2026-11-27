@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalHullLoop } from "./physicalHullLoop";
 
 /*
@@ -213,8 +213,8 @@ function supporting(
   tolerance: number,
 ): IPlane | null {
   const raw: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  Vector3.crossDifferenceInto(raw, points[i]!, points[j]!, points[k]!);
-  const area: number = Vector3.length(raw);
+  AutoMovieEngineVector3.crossDifferenceInto(raw, points[i]!, points[j]!, points[k]!);
+  const area: number = AutoMovieEngineVector3.length(raw);
 
   // Collinear or coincident triples span no plane.
   if (!(area > tolerance * extent)) return null;
@@ -224,11 +224,11 @@ function supporting(
     y: raw.y * reciprocal,
     z: raw.z * reciprocal,
   };
-  let offset: number = Vector3.dot(normal, points[i]!);
+  let offset: number = AutoMovieEngineVector3.dot(normal, points[i]!);
   let front: boolean = false;
   let back: boolean = false;
   for (const p of points) {
-    const d: number = Vector3.dot(normal, p) - offset;
+    const d: number = AutoMovieEngineVector3.dot(normal, p) - offset;
     if (d > tolerance) front = true;
     else if (d < -tolerance) back = true;
     if (front && back) return null;
@@ -245,7 +245,7 @@ function supporting(
   let covering: boolean = false;
   const member: boolean[] = points.map(
     (p: IAutoMovieVector3, index: number): boolean => {
-      const included: boolean = Vector3.dot(normal, p) - offset >= -tolerance;
+      const included: boolean = AutoMovieEngineVector3.dot(normal, p) - offset >= -tolerance;
       if (included && index !== i && index !== j && index !== k)
         covering = true;
       return included;

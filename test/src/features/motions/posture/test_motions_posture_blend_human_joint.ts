@@ -5,7 +5,9 @@ import type {
   IAutoMovieJointConstraint,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { blendHumanJoint } from "@automovie/motions/internal";
+import {
+  blendHumanJoint
+} from "../../../../../packages/motions/src/posture/internal/blendHumanJoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";

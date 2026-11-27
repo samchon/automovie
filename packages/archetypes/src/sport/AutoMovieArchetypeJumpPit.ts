@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeJumpPitData from "./internal/AutoMovieArchetypeJumpPitData";
+import { AutoMovieArchetypeJumpPitData } from "./internal/AutoMovieArchetypeJumpPitData";
 
 /** Constructs the jump pit archetype from its recipe. */
 export namespace AutoMovieArchetypeJumpPit {
@@ -55,15 +55,15 @@ export function create(
   // The board: its far edge the take-off line at the origin.
   builder.box(
     "board",
-    Vector3.create(d.boardLength, AutoMovieArchetypeJumpPit.BOARD_DEPTH, d.boardWidth),
-    Vector3.create(0, -AutoMovieArchetypeJumpPit.BOARD_DEPTH / 2, -d.boardWidth / 2),
+    AutoMovieEngineVector3.create(d.boardLength, AutoMovieArchetypeJumpPit.BOARD_DEPTH, d.boardWidth),
+    AutoMovieEngineVector3.create(0, -AutoMovieArchetypeJumpPit.BOARD_DEPTH / 2, -d.boardWidth / 2),
     { color: "#f2f2ee" },
   );
   builder.affordance({
     id: "board",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, 0, -d.boardWidth / 2),
+      AutoMovieEngineVector3.create(0, 0, -d.boardWidth / 2),
     ),
     extent: null,
     width: d.boardLength,
@@ -75,14 +75,14 @@ export function create(
   const centre: number = d.gap + length / 2;
   builder.box(
     "sand",
-    Vector3.create(d.width, AutoMovieArchetypeJumpPit.SAND_DEPTH, length),
-    Vector3.create(0, -AutoMovieArchetypeJumpPit.SAND_DEPTH / 2, centre),
+    AutoMovieEngineVector3.create(d.width, AutoMovieArchetypeJumpPit.SAND_DEPTH, length),
+    AutoMovieEngineVector3.create(0, -AutoMovieArchetypeJumpPit.SAND_DEPTH / 2, centre),
     { color: "#d8c08a" },
   );
   builder.affordance({
     id: "sand",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, centre)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, centre)),
     extent: null,
     width: d.width,
     depth: length,

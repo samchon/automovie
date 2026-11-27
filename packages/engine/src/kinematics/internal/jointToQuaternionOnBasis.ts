@@ -7,7 +7,7 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { multiplyQuaternionInto } from "../../math/internal/multiplyQuaternionInto";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
@@ -42,26 +42,26 @@ export namespace jointToQuaternionOnBasis {
     basis: IAutoMovieJointAxes,
     frame?: IAutoMovieRestFrame,
   ): IAutoMovieQuaternion {
-    const qFlexion: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const qFlexion: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       basis.flexion,
       readAngle(joint, "flexion", frame?.flexion),
     );
-    const qAbduction: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const qAbduction: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       basis.abduction,
       readAngle(joint, "abduction", frame?.abduction),
     );
-    const qTwist: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const qTwist: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       basis.twist,
       readAngle(joint, "twist", frame?.twist),
     );
     if (basis.rotationOrder === "flexion-abduction-twist")
-      return Quaternion.multiply(
+      return AutoMovieEngineQuaternion.multiply(
         qFlexion,
-        Quaternion.multiply(qAbduction, qTwist),
+        AutoMovieEngineQuaternion.multiply(qAbduction, qTwist),
       );
     return basis.twistPlacement === "distal"
-      ? Quaternion.multiply(qAbduction, Quaternion.multiply(qFlexion, qTwist))
-      : Quaternion.multiply(qTwist, Quaternion.multiply(qAbduction, qFlexion));
+      ? AutoMovieEngineQuaternion.multiply(qAbduction, AutoMovieEngineQuaternion.multiply(qFlexion, qTwist))
+      : AutoMovieEngineQuaternion.multiply(qTwist, AutoMovieEngineQuaternion.multiply(qAbduction, qFlexion));
   }
 
   /*
@@ -293,7 +293,7 @@ function scalarComposition(
       if (shared !== undefined) inner = shared;
       else {
         if (dynamicInner === undefined)
-          dynamicInner = Quaternion.multiply(left, right);
+          dynamicInner = AutoMovieEngineQuaternion.multiply(left, right);
         else multiplyQuaternionInto(dynamicInner, left, right);
         inner = dynamicInner;
       }

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeBuilder } from "../../core";
@@ -77,29 +77,29 @@ export namespace QuadrupedJaw {
       throw new RangeError(
         "A jaw needs 0 < radius < 1 and 0 <= hinge < 1 of its head",
       );
-    const span: IAutoMovieVector3 = Vector3.subtract(head.nose, head.poll);
-    const length: number = Vector3.length(span);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(head.nose, head.poll);
+    const length: number = AutoMovieEngineVector3.length(span);
     if (!(length > 0))
       throw new RangeError("A jaw needs a head with a finite positive length");
-    const along: IAutoMovieVector3 = Vector3.scale(span, 1 / length);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(span, 1 / length);
 
     // World down with its component along the head removed: the head's ventral direction in its sagittal plane.
-    const down: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled({ x: 0, y: -1, z: 0 }, along, along.y),
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled({ x: 0, y: -1, z: 0 }, along, along.y),
     );
     const radius: number = profile.radius * head.headRadius;
-    const offset: IAutoMovieVector3 = Vector3.scale(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       down,
       head.headRadius - radius,
     );
     return {
-      hinge: Vector3.add(
-        Vector3.addScaled(head.poll, along, profile.hinge * length),
+      hinge: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.addScaled(head.poll, along, profile.hinge * length),
         offset,
       ),
-      chin: Vector3.add(head.nose, offset),
+      chin: AutoMovieEngineVector3.add(head.nose, offset),
       radius,
-      axis: Vector3.normalize(Vector3.cross(along, down)),
+      axis: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(along, down)),
     };
   }
 

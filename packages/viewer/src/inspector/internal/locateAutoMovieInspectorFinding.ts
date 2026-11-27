@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
+import type { IAutoMovieViewerInspectorAction } from "../IAutoMovieViewerInspectorAction.js";
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 
 /*
@@ -12,7 +12,7 @@ import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
  */
 export function locateAutoMovieInspectorFinding(
   request: AutoMovieViewerInspector.IFindingLocationRequest,
-): IAutoMovieInspectorAction.ILocate {
+): IAutoMovieViewerInspectorAction.ILocate {
   const { observation, paths: drawn }: AutoMovieViewerInspector.IFindingLocationRequest = request;
   const known: Set<string> = new Set(drawn);
   const label: string[] = [];

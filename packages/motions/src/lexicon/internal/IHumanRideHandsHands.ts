@@ -1,4 +1,4 @@
-import type { RigidCarrierSample } from "@automovie/engine";
+import type { AutoMovieEngineRigidCarrierSample } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanPosture,
@@ -37,7 +37,7 @@ export interface IHumanRideHandsHands {
   gripsAt: (
     film: number,
     frame: IAutoMovieRigidTransform,
-    sample?: RigidCarrierSample.IRead,
+    sample?: AutoMovieEngineRigidCarrierSample.IRead,
   ) => Grips;
 
   /*

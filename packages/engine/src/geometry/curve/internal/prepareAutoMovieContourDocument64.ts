@@ -7,7 +7,7 @@ import type {
   IAutoMoviePreparedContourEvent64,
 } from "@automovie/interface";
 
-import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
+import { AutoMovieEngineCurveMath64 as M } from "../../AutoMovieEngineCurveMath64";
 import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
 
 /*

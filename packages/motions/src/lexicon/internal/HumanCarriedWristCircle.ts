@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -12,26 +12,26 @@ export function HumanCarriedWristCircle(
   wrist: IAutoMovieVector3,
   shoulder: IAutoMovieVector3,
 ): ICarriedWristCircle {
-  const axis: IAutoMovieVector3 = Vector3.normalize(normal);
-  const hand: IAutoMovieVector3 = Vector3.subtract(wrist, point);
-  const arm: IAutoMovieVector3 = Vector3.subtract(shoulder, point);
-  const handAxial: number = Vector3.dot(hand, axis);
-  const armAxial: number = Vector3.dot(arm, axis);
-  const handRadius: IAutoMovieVector3 = Vector3.addScaled(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(normal);
+  const hand: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(wrist, point);
+  const arm: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(shoulder, point);
+  const handAxial: number = AutoMovieEngineVector3.dot(hand, axis);
+  const armAxial: number = AutoMovieEngineVector3.dot(arm, axis);
+  const handRadius: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     hand,
     axis,
     -handAxial,
   );
-  const armRadius: IAutoMovieVector3 = Vector3.addScaled(arm, axis, -armAxial);
+  const armRadius: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(arm, axis, -armAxial);
   return {
     distance: Math.hypot(
       armAxial - handAxial,
-      Vector3.length(armRadius) - Vector3.length(handRadius),
+      AutoMovieEngineVector3.length(armRadius) - AutoMovieEngineVector3.length(handRadius),
     ),
     degrees:
       (Math.atan2(
-        Vector3.dot(axis, Vector3.cross(handRadius, armRadius)),
-        Vector3.dot(handRadius, armRadius),
+        AutoMovieEngineVector3.dot(axis, AutoMovieEngineVector3.cross(handRadius, armRadius)),
+        AutoMovieEngineVector3.dot(handRadius, armRadius),
       ) *
         180) /
       Math.PI,

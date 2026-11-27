@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanArmGeometry } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -80,8 +80,8 @@ export function HumanArmTrajectoryLay(
         for (const p of T.SPEED)
           step = Math.max(
             step,
-            Vector3.length(
-              Vector3.subtract(arm.probes[p]![0], before[a]!.probes[p]![0]),
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(arm.probes[p]![0], before[a]!.probes[p]![0]),
             ),
           );
       },

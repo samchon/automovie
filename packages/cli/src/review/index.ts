@@ -1,3 +1,3 @@
 export * from "./AutoMovieCliReview";
-export type { AutoMovieCliReviewTypes } from "./AutoMovieCliReviewTypes";
+export type * from "./AutoMovieCliReviewTypes";
 export * from "./IAutoMovieCliReviewObservation";

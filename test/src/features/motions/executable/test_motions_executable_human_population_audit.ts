@@ -1,5 +1,19 @@
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
-import { HumanPopulationAccess, HumanPopulationAnchors, HumanPopulationAudit, f1, f2 } from "@automovie/motions/executable/internal";
+import {
+  HumanPopulationAccess
+} from "../../../../../packages/motions/src/executable/population/HumanPopulationAccess";
+import {
+  HumanPopulationAnchors
+} from "../../../../../packages/motions/src/executable/population/HumanPopulationAnchors";
+import {
+  HumanPopulationAudit
+} from "../../../../../packages/motions/src/executable/population/HumanPopulationAudit";
+import {
+  f1
+} from "../../../../../packages/motions/src/executable/population/human-parameters/internal/f1";
+import {
+  f2
+} from "../../../../../packages/motions/src/executable/population/human-parameters/internal/f2";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

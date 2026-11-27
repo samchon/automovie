@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -33,7 +33,7 @@ import { HumanLanceCouchPick } from "./HumanLanceCouchPick";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-import * as HumanLanceCouchData from "./HumanLanceCouchData";
+import { HumanLanceCouchData } from "./HumanLanceCouchData";
 
 /*
  * A lance couched and lowered to a skill-at-arms target from the saddle
@@ -107,13 +107,13 @@ function planHumanLanceCouch(
     "right",
     "grip",
     { x: 0, y: 0, z: 0 },
-    Quaternion.identity(),
+    AutoMovieEngineQuaternion.identity(),
     "relaxed",
   ).point;
   const arm: HumanLanceCouchCarriage.IArm = {
     upperArm: m.upperArm,
-    fore: m.forearm + Vector3.length(wrist),
-    line: Vector3.normalize(Vector3.scale(wrist, -1)),
+    fore: m.forearm + AutoMovieEngineVector3.length(wrist),
+    line: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.scale(wrist, -1)),
   };
 
   // The stations in the seat frame, from the seated root.
@@ -122,10 +122,10 @@ function planHumanLanceCouch(
     context.body,
     local,
   ).get("rightUpperArm")!.worldPosition;
-  const level: IAutoMovieVector3 = Vector3.normalize(HumanLanceCouchData.LEVEL);
+  const level: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(HumanLanceCouchData.LEVEL);
   // The hand the rider enters with, in the seat frame: the carry turns from it as little as it can.
-  const holding: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(carrier(context.start).rotation),
+  const holding: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(carrier(context.start).rotation),
     poseBones(
       context.body,
       context.entry.pose,
@@ -159,9 +159,9 @@ function planHumanLanceCouch(
   const seen = (t: number): IAutoMovieVector3 => {
     const film: number = context.start + t;
     const seat: IAutoMovieRigidTransform = carrier(film);
-    return Quaternion.rotateVector(
-      Quaternion.inverse(seat.rotation),
-      Vector3.subtract(
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(seat.rotation),
+      AutoMovieEngineVector3.subtract(
         HumanMountedFrame.contact(target, params.target.point, film),
         seat.position,
       ),
@@ -187,7 +187,7 @@ function planHumanLanceCouch(
   let closest: number = 0;
   for (let t: number = 0; t <= params.duration; t += HumanLanceCouchData.FRAME) {
     const apart: number =
-      Vector3.distance(seen(t), shoulder) - (tool.length + armReach);
+      AutoMovieEngineVector3.distance(seen(t), shoulder) - (tool.length + armReach);
     if (apart < nearest) {
       nearest = apart;
       closest = t;
@@ -277,7 +277,7 @@ function planHumanLanceCouch(
         t <= strike ? ease(t, strike - params.lower) : 1 - ease(t, strike);
       const now: IAutoMovieRigidTransform = carrier(film);
       const toWorld = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(now.position, Quaternion.rotateVector(now.rotation, p));
+        AutoMovieEngineVector3.add(now.position, AutoMovieEngineQuaternion.rotateVector(now.rotation, p));
       const shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
         local,
         HumanMountedFrame.LOCAL,
@@ -286,11 +286,11 @@ function planHumanLanceCouch(
       // Eased between the two carriages in the seat frame, then carried into the world.
       const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
         point: toWorld(
-          Vector3.lerp(carried.hand.point, landed.hand.point, down),
+          AutoMovieEngineVector3.lerp(carried.hand.point, landed.hand.point, down),
         ),
-        rotation: Quaternion.multiply(
+        rotation: AutoMovieEngineQuaternion.multiply(
           now.rotation,
-          Quaternion.slerp(carried.hand.rotation, landed.hand.rotation, down),
+          AutoMovieEngineQuaternion.slerp(carried.hand.rotation, landed.hand.rotation, down),
         ),
       };
       // The lance arm keeps clear of the horse's own body, its shapes carried on its frame at this second, so a couch through the horse refuses naming its part.
@@ -310,13 +310,13 @@ function planHumanLanceCouch(
         rightArm: {
           ...goal(
             frame,
-            toWorld(Vector3.lerp(carried.elbow, landed.elbow, down)),
+            toWorld(AutoMovieEngineVector3.lerp(carried.elbow, landed.elbow, down)),
           ),
           clearExternal: horse,
         },
       };
       // The bridle hand: both reins at their middle.
-      const reins: IAutoMovieVector3 = Vector3.lerp(
+      const reins: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         HumanMountedFrame.contact(support, "leftRein", film),
         HumanMountedFrame.contact(support, "rightRein", film),
         0.5,
@@ -388,23 +388,23 @@ function striking(
         y: Math.sin(e),
         z: Math.cos(e) * Math.cos(a),
       };
-      const grip: IAutoMovieVector3 = Vector3.add(
+      const grip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         target,
-        Vector3.scale(back, tool.length),
+        AutoMovieEngineVector3.scale(back, tool.length),
       );
-      if (Vector3.distance(grip, shoulder) > reach) continue;
+      if (AutoMovieEngineVector3.distance(grip, shoulder) > reach) continue;
       try {
         const laid: HumanLanceCouchCarriage.ICarriage = HumanLanceCouchCarriage(
           arm,
           shoulder,
           tool,
           grip,
-          Vector3.scale(back, -1),
+          AutoMovieEngineVector3.scale(back, -1),
         );
         if (!HumanLanceCouchClear(horse, laid)) continue;
         options.push({
           laid,
-          turn: Quaternion.angle(laid.hand.rotation, from),
+          turn: AutoMovieEngineQuaternion.angle(laid.hand.rotation, from),
         });
       } catch (error: unknown) {
         if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;

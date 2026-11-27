@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionAirborneRotation,
 } from "@automovie/engine";
 import type {
@@ -61,7 +61,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
   tabulatedGrid();
   const findings: string[] = [];
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: (["hips", "head"] as const).map(
@@ -82,7 +82,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
     reads++;
     seen.push(t);
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       ((0.25 * t + 0.1 * t * t) * 180) / Math.PI,
     );
@@ -146,8 +146,8 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
       findings.push(
         `at ${t} s the principal moments miss the closed form by ${off}`,
       );
-    const missed: number = Vector3.length(
-      Vector3.subtract(relative, { x: 1 + 0.8 * t, y: 0, z: 0 }),
+    const missed: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(relative, { x: 1 + 0.8 * t, y: 0, z: 0 }),
     );
     if (!(missed <= 1e-6))
       findings.push(
@@ -188,7 +188,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
       momentum: { x: 3, y: 0.4, z: 0.2 },
       tolerance: { relative: 1e-10, absolute: 1e-10 },
     }).orientation(1);
-  const apart: number = Quaternion.angle(
+  const apart: number = AutoMovieEngineQuaternion.angle(
     flown(history),
     flown(AutoMovieEngineMotionAirborneRotation.history(model, shape, { from: 0, to: 1 })),
   );
@@ -232,7 +232,7 @@ function tabulatedGrid(): void {
         mass: 1,
         point: { x: 0, y: 0, z: 0 },
         inertia: { x: 0.5, y: 0.5, z: 0.5 },
-        axes: Quaternion.identity(),
+        axes: AutoMovieEngineQuaternion.identity(),
       }),
     ),
   };
@@ -240,7 +240,7 @@ function tabulatedGrid(): void {
     radius: number,
     radians: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       (radians * 180) / Math.PI,
     );

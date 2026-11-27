@@ -6,8 +6,8 @@ export namespace IAutoMovieLoftCapRead {
    * Prepared local and frame derivatives at one positive original-cap station.
    *
    * Null means that no retained original cap owns this station. A collapsed tip
-   * or unavailable physical derivatives cause AutoMovieLoftCapRead.jet to throw
-   * AutoMovieLoftAdmissionError; axis callback and stale-binding errors
+   * or unavailable physical derivatives cause AutoMovieEngineLoftCapRead.jet to throw
+   * AutoMovieEngineLoftAdmissionError; axis callback and stale-binding errors
    * propagate. Finite point evaluation alone does not qualify a station for
    * this result. The receiving loft jet cache retains the closure and copied
    * rows under its immutable chain key.

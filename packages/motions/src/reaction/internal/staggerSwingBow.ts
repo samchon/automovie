@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -75,7 +75,7 @@ export function staggerSwingBow(
     largest(0),
     largest(1),
     2 *
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         HumanFoot.point(body, step.side, "toe", step.from),
         HumanFoot.point(body, step.side, "heel", step.from),
       ),

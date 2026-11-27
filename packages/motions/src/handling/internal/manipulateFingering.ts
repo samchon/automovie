@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -91,7 +91,7 @@ export function manipulateFingering(
       const lift: number = released.depth + typeText.HOVER;
       const drop: number = pressed.depth + typeText.HOVER;
       const sequential: number = Math.hypot(
-        Vector3.distance(pressed.point, released.point),
+        AutoMovieEngineVector3.distance(pressed.point, released.point),
         lift + drop,
       );
       const concurrent: number = Math.max(lift, drop);
@@ -101,7 +101,7 @@ export function manipulateFingering(
         let best: number = Infinity;
         let arg: Finger = f;
         for (const [g, c] of cost) {
-          const travel: number = Vector3.distance(
+          const travel: number = AutoMovieEngineVector3.distance(
             current.get(f)!,
             previous.get(g)!,
           );

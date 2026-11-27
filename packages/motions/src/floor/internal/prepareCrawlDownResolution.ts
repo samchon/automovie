@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -58,7 +58,7 @@ export function prepareCrawlDownResolution(
         pose(posture),
         resolution(),
       );
-      return Vector3.lerp(
+      return AutoMovieEngineVector3.lerp(
         bones.get("leftUpperArm")!.worldPosition,
         bones.get("rightUpperArm")!.worldPosition,
         0.5,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -192,9 +192,9 @@ export namespace vehicleFront {
     frame: IAutoMovieRigidTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(point, frame.position),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
+      AutoMovieEngineVector3.subtract(point, frame.position),
     );
   }
 
@@ -208,9 +208,9 @@ export namespace vehicleFront {
     frame: IAutoMovieRigidTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, point),
     );
   }
 
@@ -224,8 +224,8 @@ export namespace vehicleFront {
     reader: IAutoMovieMotionHumanPropReader,
     seconds: number,
   ): IAutoMovieVector3 {
-    return Vector3.scale(
-      Vector3.subtract(
+    return AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(
         reader.frame(seconds + DT).position,
         reader.frame(seconds - DT).position,
       ),

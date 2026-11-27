@@ -1,4 +1,4 @@
-import { AutoMovieBernstein64 as S } from "@automovie/engine";
+import { AutoMovieEngineBernstein64 as S } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMoviePolylineFit,
@@ -12,7 +12,7 @@ import type {
 
 import { RecoveryChartAreaObservations as A } from "./RecoveryChartAreaObservations";
 import { RecoveryChartCollar as L } from "./RecoveryChartCollar";
-import { RecoveryChartFit as J } from "../../fitting/RecoveryChartFit";
+import { AutoMovieRecoveryChartFit as J } from "../../fitting/AutoMovieRecoveryChartFit";
 import { RecoveryChartLeafControls as K } from "./RecoveryChartLeafControls";
 import { RecoveryChartRefinementClosure as E } from "./RecoveryChartRefinementClosure";
 import { prepareRecoveryChartLeafBoundary } from "../../geometry/internal/prepareRecoveryChartLeafBoundary";

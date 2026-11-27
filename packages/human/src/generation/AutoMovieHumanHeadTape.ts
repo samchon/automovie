@@ -1,4 +1,4 @@
-import { AutoMovieIllinois } from "@automovie/engine";
+import { AutoMovieEngineIllinois } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadTape,
@@ -344,7 +344,7 @@ export namespace AutoMovieHumanHeadTape {
    * The family's course length increases with the cranial power over the
    * retained 1.6..6 range, so the residual `length - tape` changes sign across
    * it. Its root is found by the engine's Illinois regula falsi
-   * (`AutoMovieIllinois`; Dowell and Jarratt, BIT 11, 1971), which keeps the
+   * (`AutoMovieEngineIllinois`; Dowell and Jarratt, BIT 11, 1971), which keeps the
    * sign bracket like the former safeguarded secant but replaces its forced
    * bisection on every fourth step by the Illinois halving of a stagnant end,
    * converging superlinearly at this simple root. Each residual is one member
@@ -402,7 +402,7 @@ export namespace AutoMovieHumanHeadTape {
       throw new Error(
         `Public head tape has no retained-family bracket: target=${plan.tape}, source lengths=${low.course.lengthMm},${high.course.lengthMm}`,
       );
-    AutoMovieIllinois.root(
+    AutoMovieEngineIllinois.root(
       (power: number): number => trial(power).course.lengthMm - plan.tape,
       1.6,
       6,

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeSpectacles } from "../AutoMovieArchetypeSpectacles";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { WornPropDraw } from "./WornPropDraw";
@@ -30,7 +30,7 @@ export function createSpectacles(
       params,
       seed,
     );
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const thin: number = WornPropDraw.THIN;
 
   // The front standing on its lenses' bottom edge, the temples back from its ends.

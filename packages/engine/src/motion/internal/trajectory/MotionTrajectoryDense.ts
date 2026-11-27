@@ -6,7 +6,7 @@ import type {
 
 import { polynomialUnitRoots } from "../../../math/internal/polynomialUnitRoots";
 import { rotationVectorJacobian } from "../../../math/internal/rotationVectorJacobian";
-import type { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
+import type { AutoMovieEngineMotionTrajectoryFailure } from "../../AutoMovieEngineMotionTrajectoryFailure";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
@@ -83,7 +83,7 @@ export function MotionTrajectoryDense(props: {
    * Owned first failing physical probe; absent on acceptance or numeric
    * rejection.
    */
-  probe?: NonNullable<MotionTrajectoryFailure["rejection"]>["probe"];
+  probe?: NonNullable<AutoMovieEngineMotionTrajectoryFailure["rejection"]>["probe"];
 } | null {
   const { t, h, x, q, end, stages }: typeof props = props;
   const terms: number[][] =

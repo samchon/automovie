@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineBuiltEnvironment, AutoMovieEngineMath, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineBuiltEnvironment, AutoMovieEngineMath, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -163,10 +163,10 @@ function addWall(
   const dz: number = wall.to.y - wall.from.y;
   const width: number = Math.hypot(dx, dz);
   const local: IAutoMovieTransform = frame(
-    Vector3.create(wall.from.x, level.elevation, wall.from.y),
-    Quaternion.fromAxisAngle(
-      Vector3.create(0, 1, 0),
-      Math.atan2(-dz, dx) / Quaternion.DEG2RAD,
+    AutoMovieEngineVector3.create(wall.from.x, level.elevation, wall.from.y),
+    AutoMovieEngineQuaternion.fromAxisAngle(
+      AutoMovieEngineVector3.create(0, 1, 0),
+      Math.atan2(-dz, dx) / AutoMovieEngineQuaternion.DEG2RAD,
     ),
   );
   const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
@@ -198,7 +198,7 @@ function addWall(
   );
   const center: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     local,
-    frame(Vector3.create(width / 2, level.height / 2, 0)),
+    frame(AutoMovieEngineVector3.create(width / 2, level.height / 2, 0)),
   );
   addElement(
     assembly,
@@ -261,11 +261,11 @@ function addOpening(
       `opening "${id}" does not fit its wall's width, clear height or end joints`,
     );
   const facing: IAutoMovieQuaternion = turn
-    ? Quaternion.fromAxisAngle(Vector3.create(0, 1, 0), 180)
-    : Quaternion.identity();
+    ? AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieEngineVector3.create(0, 1, 0), 180)
+    : AutoMovieEngineQuaternion.identity();
   const datum: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     local,
-    frame(Vector3.create(center, sill, 0), facing),
+    frame(AutoMovieEngineVector3.create(center, sill, 0), facing),
   );
   const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     context.frame,
@@ -282,7 +282,7 @@ function addOpening(
       ["head", clearCenter, clearHeight],
     ] as const)
       assembly.anchors[`${leafKey}/clear/${edge}`] =
-        AutoMovieArchetypeFrame.compose(world, frame(Vector3.create(x, y, 0)));
+        AutoMovieArchetypeFrame.compose(world, frame(AutoMovieEngineVector3.create(x, y, 0)));
   assembly.environment.openings.push({
     id: leafKey,
     kind: opening.kind,
@@ -362,7 +362,7 @@ function addThreshold(
         thickness,
       ).map(
         (point: IAutoMoviePlanarPoint): IAutoMovieVector3 =>
-          AutoMovieEngineFilm.placeTransformedPoint(world, Vector3.create(point.x, 0, point.y)),
+          AutoMovieEngineFilm.placeTransformedPoint(world, AutoMovieEngineVector3.create(point.x, 0, point.y)),
       ),
       height: { kind: "constant", value: world.translation.y },
       ...(availableFrom === undefined ? {} : { availableFrom }),
@@ -378,7 +378,7 @@ function addThreshold(
       bidirectional: true,
       route: [-thickness / 2, thickness / 2].map(
         (z: number): IAutoMovieVector3 =>
-          AutoMovieEngineFilm.placeTransformedPoint(world, Vector3.create(center, 0, z)),
+          AutoMovieEngineFilm.placeTransformedPoint(world, AutoMovieEngineVector3.create(center, 0, z)),
       ),
       width,
       clearHeight: clearance,
@@ -407,12 +407,12 @@ function addWallJoints(
       const key: string = `${end.x},${end.y}`;
       const tips: IAutoMovieVector3[] = points.get(key) ?? [];
       tips.push(
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           end.x - dz * halfOverLength,
           0,
           end.y + dx * halfOverLength,
         ),
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           end.x + dz * halfOverLength,
           0,
           end.y - dx * halfOverLength,
@@ -493,8 +493,8 @@ function rectangle(
  */
 function horizontalPlate(y: number): IAutoMovieTransform {
   return frame(
-    Vector3.create(0, y, 0),
-    Quaternion.fromAxisAngle(Vector3.create(1, 0, 0), 90),
+    AutoMovieEngineVector3.create(0, y, 0),
+    AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieEngineVector3.create(1, 0, 0), 90),
   );
 }
 
@@ -503,7 +503,7 @@ function horizontalPlate(y: number): IAutoMovieTransform {
  */
 function frame(
   translation: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion = Quaternion.identity(),
+  rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity(),
 ): IAutoMovieTransform {
-  return { translation, rotation, scale: Vector3.create(1, 1, 1) };
+  return { translation, rotation, scale: AutoMovieEngineVector3.create(1, 1, 1) };
 }

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
+import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost.js";
 
 /*
  * The browser's scene host for one canvas: a `WebGLRenderer` drawing into it,
@@ -14,10 +14,10 @@ import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHo
  */
 export function createAutoMovieInspectorCanvasHost(
   canvas: HTMLCanvasElement,
-): IAutoMovieInspectorSceneHost {
+): IAutoMovieViewerInspectorSceneHost {
   const view: Window = canvas.ownerDocument.defaultView ?? window;
   return {
-    createRenderer: (): IAutoMovieInspectorSceneHost.ICreated => {
+    createRenderer: (): IAutoMovieViewerInspectorSceneHost.ICreated => {
       const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
         canvas,
         antialias: true,
@@ -27,7 +27,7 @@ export function createAutoMovieInspectorCanvasHost(
     requestFrame: (callback: (nowMs: number) => void): number =>
       view.requestAnimationFrame(callback),
     cancelFrame: (handle: number): void => view.cancelAnimationFrame(handle),
-    size: (): IAutoMovieInspectorSceneHost.ISize => ({
+    size: (): IAutoMovieViewerInspectorSceneHost.ISize => ({
       width: canvas.clientWidth,
       height: canvas.clientHeight,
       pixelRatio: view.devicePixelRatio,

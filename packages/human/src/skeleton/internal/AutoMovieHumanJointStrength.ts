@@ -149,7 +149,7 @@ const MCNABB: Readonly<Record<string, number>> = {
 /*
  * The clinical channels the models cover, by the bone the joint moves: the
  * motion toward the channel's clinical maximum, then toward its minimum. The
- * rig's clinical signs (`DEFAULT_HUMANOID_ROM`, `HUMANOID_REST_FRAME`) put
+ * rig's clinical signs (`AutoMovieEngineDefaultHumanoidRom`, `AutoMovieEngineHumanoidRestFrame`) put
  * flexion positive at the hip, knee and elbow, abduction positive at the hip
  * and shoulder, external rotation positive at the hip, dorsiflexion positive
  * at the ankle and extension positive at the wrist.

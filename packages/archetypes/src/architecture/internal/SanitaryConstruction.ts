@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -469,7 +469,7 @@ const CHROME: string = "#c9ccd1";
 /*
  * The shorthand every construction below uses.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * The builder every kind's construction fills.

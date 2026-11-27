@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieArcLengthJet,
@@ -29,11 +29,11 @@ export namespace AutoMovieHumanWebCrest {
     const sp: number = down
       ? parent.layers[0]!.y
       : parent.layers[parent.layers.length - 1]!.y;
-    const onParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
+    const onParent: (t: number) => Vec3 = AutoMovieEngineLoftChain.sampler(
       parent,
       sp,
     );
-    const inParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
+    const inParent: (t: number) => Vec3 = AutoMovieEngineLoftChain.sampler(
       parent,
       sp + (down ? H : -H),
     );
@@ -41,7 +41,7 @@ export namespace AutoMovieHumanWebCrest {
     // The parent's station curve at a phase, leaving its ring outward: its
     // first and second derivatives by the one-sided three-point rule, the jet
     // a column copies so it leaves the parent G2 (`AutoMovieHumanSeam`, J1).
-    const deepParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
+    const deepParent: (t: number) => Vec3 = AutoMovieEngineLoftChain.sampler(
       parent,
       sp + (down ? 2 * H : -2 * H),
     );

@@ -1,5 +1,7 @@
 import { AutoMovieRenderSceneMotion } from "@automovie/render";
-import { objectTransform } from "@automovie/render/internal";
+import {
+  objectTransform
+} from "../../../../../packages/render/src/scene/internal/objectTransform";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

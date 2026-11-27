@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -54,7 +54,7 @@ export namespace pickUpAdjust {
    * A stance turned toward a grip its arm still misses: the trunk twists on the
    * pelvis toward the grip, the chest and the lumbar spine sharing the turn
    * (`AutoMovieMotionHumanTrunk.CHEST`), as far as their axial rotation allows
-   * (DEFAULT_HUMANOID_ROM): the least turn that brings the shoulder within the
+   * (AutoMovieEngineDefaultHumanoidRom): the least turn that brings the shoulder within the
    * arm of the wrist's place on the grip, or else the turn that brings it
    * nearest. A person whose hand cannot reach a grip turns toward it first.
    * Parameter context: The action's context.
@@ -76,7 +76,7 @@ export namespace pickUpAdjust {
       bone: TurnedRangeBone2,
     ): IAutoMovieAngleRange => {
       const twist: IAutoMovieAngleRange | null | undefined =
-        DEFAULT_HUMANOID_ROM[bone]?.twist;
+        AutoMovieEngineDefaultHumanoidRom[bone]?.twist;
       if (twist === null || twist === undefined)
         throw new Error(`The range-of-motion table gives the ${bone} no twist`);
       return twist;
@@ -130,8 +130,8 @@ export namespace pickUpAdjust {
     let prepared: ReturnType<typeof prepareHumanPoseResolution> | undefined =
       prepareHumanPoseResolution();
     const far: (degrees: number) => number = (degrees: number): number =>
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           grip,
           pickUpAdjustShoulder(
             side,

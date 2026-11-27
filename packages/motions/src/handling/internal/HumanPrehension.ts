@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
   AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
@@ -185,9 +185,9 @@ export namespace HumanPrehension {
     seconds: number,
   ): IAutoMovieMotionHumanPrehension.ITransport {
     if (!(seconds > 0)) throw new Error("A transport lasts a positive time");
-    const via: IAutoMovieVector3 = Vector3.subtract(
+    const via: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       to,
-      Vector3.scale(Vector3.normalize(approach), setback),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(approach), setback),
     );
     // A direct reach has no approach stretch: one unit spans the whole time,
     // so its peak speed is the minimum-jerk 1.875 times the mean and not the
@@ -196,19 +196,19 @@ export namespace HumanPrehension {
       setback === 0
         ? [
             {
-              displacement: Vector3.subtract(to, from),
+              displacement: AutoMovieEngineVector3.subtract(to, from),
               start: 0,
               duration: seconds,
             },
           ]
         : [
             {
-              displacement: Vector3.subtract(via, from),
+              displacement: AutoMovieEngineVector3.subtract(via, from),
               start: 0,
               duration: APPROACH.end * seconds,
             },
             {
-              displacement: Vector3.subtract(to, via),
+              displacement: AutoMovieEngineVector3.subtract(to, via),
               start: APPROACH.start * seconds,
               duration: (1 - APPROACH.start) * seconds,
             },
@@ -226,7 +226,7 @@ export namespace HumanPrehension {
           Math.min(seconds, Math.max(0, t)),
         ),
       turn: (t: number): IAutoMovieQuaternion =>
-        Quaternion.slerp(
+        AutoMovieEngineQuaternion.slerp(
           rotation.from,
           rotation.to,
           AutoMovieEngineMotionSampling.minimumJerkShare(t / turning),

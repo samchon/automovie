@@ -1,4 +1,6 @@
-import { cartwheel } from "@automovie/motions/internal";
+import {
+  cartwheel
+} from "../../../../../packages/motions/src/sport/internal/cartwheel";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

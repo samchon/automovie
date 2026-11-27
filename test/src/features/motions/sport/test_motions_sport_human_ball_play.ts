@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanBallPlay } from "@automovie/motions/internal";
+import {
+  HumanBallPlay
+} from "../../../../../packages/motions/src/sport/internal/HumanBallPlay";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

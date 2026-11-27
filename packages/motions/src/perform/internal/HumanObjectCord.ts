@@ -1,4 +1,4 @@
-import { Quaternion, SOFT_MAX_PARTICLES, Vector3, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineSoftMaxParticles, AutoMovieEngineVector3, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMotionHumanObject,
@@ -39,7 +39,7 @@ export function HumanObjectCord(
     });
   if (
     props.links < 2 ||
-    props.links >= SOFT_MAX_PARTICLES
+    props.links >= AutoMovieEngineSoftMaxParticles
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
@@ -48,7 +48,7 @@ export function HumanObjectCord(
       feasible: {
         kind: "range",
         minimum: 2,
-        maximum: SOFT_MAX_PARTICLES - 1,
+        maximum: AutoMovieEngineSoftMaxParticles - 1,
         unit: "links",
         whole: true,
       },
@@ -68,13 +68,13 @@ export function HumanObjectCord(
   const ends: IAutoMovieMotionHumanObject.ISpanEnds = model.span(id);
   const frame: IAutoMovieRigidTransform =
     props.owner.motion?.(0) ?? props.owner.frame;
-  const from: IAutoMovieVector3 = Vector3.add(
+  const from: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, ends.from),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, ends.from),
   );
-  const to: IAutoMovieVector3 = Vector3.add(
+  const to: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, ends.to),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, ends.to),
   );
   const length: number = declaration.length;
   const leftLinks: number = Math.floor(props.links / 2);
@@ -166,7 +166,7 @@ export namespace HumanObjectCord {
     links: number,
     gravity: IAutoMovieVector3,
   ): number[] {
-    const chord: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const chord: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
     const distance: number = Math.hypot(chord.x, chord.y, chord.z);
     const precision: number =
       Number.EPSILON *
@@ -200,9 +200,9 @@ export namespace HumanObjectCord {
       y: chord.y / distance,
       z: chord.z / distance,
     };
-    const middle: IAutoMovieVector3 = Vector3.add(
-      Vector3.lerp(from, to, 0.5),
-      Vector3.scale(sagDirection(axis, gravity), sag),
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.lerp(from, to, 0.5),
+      AutoMovieEngineVector3.scale(sagDirection(axis, gravity), sag),
     );
     const leftLinks: number = Math.floor(links / 2);
     const rightLinks: number = links - leftLinks;
@@ -210,8 +210,8 @@ export namespace HumanObjectCord {
     for (let particle: number = 1; particle < links; ++particle) {
       const point: IAutoMovieVector3 =
         particle <= leftLinks
-          ? Vector3.lerp(from, middle, particle / leftLinks)
-          : Vector3.lerp(middle, to, (particle - leftLinks) / rightLinks);
+          ? AutoMovieEngineVector3.lerp(from, middle, particle / leftLinks)
+          : AutoMovieEngineVector3.lerp(middle, to, (particle - leftLinks) / rightLinks);
       out.push(point.x, point.y, point.z);
     }
     out.push(to.x, to.y, to.z);
@@ -226,12 +226,12 @@ function sagDirection(
   chord: IAutoMovieVector3,
   gravity: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const normal: IAutoMovieVector3 = Vector3.cross(
-    Vector3.normalize(gravity),
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+    AutoMovieEngineVector3.normalize(gravity),
     chord,
   );
-  if (Vector3.length(normal) > 0)
-    return Vector3.normalize(Vector3.cross(chord, normal));
+  if (AutoMovieEngineVector3.length(normal) > 0)
+    return AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(chord, normal));
   const perpendicular: IAutoMovieVector3 =
     Math.abs(chord.x) <= Math.abs(chord.y) &&
     Math.abs(chord.x) <= Math.abs(chord.z)
@@ -239,7 +239,7 @@ function sagDirection(
       : Math.abs(chord.y) <= Math.abs(chord.z)
         ? { x: 0, y: 1, z: 0 }
         : { x: 0, y: 0, z: 1 };
-  return Vector3.normalize(
-    Vector3.cross(chord, Vector3.cross(perpendicular, chord)),
+  return AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(chord, AutoMovieEngineVector3.cross(perpendicular, chord)),
   );
 }

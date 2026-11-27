@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -128,9 +128,9 @@ export function grappleArms(
     side: AutoMovieHumanSide,
     normal: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.normalize(
-      Vector3.scale(
-        Vector3.cross({ x: 0, y: 1, z: 0 }, normal),
+    AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.cross({ x: 0, y: 1, z: 0 }, normal),
         side === "left" ? 1 : -1,
       ),
     );
@@ -150,9 +150,9 @@ export function grappleArms(
     // material's normal; the offset is zero at release and at the end.
     if (props.sleeve === side && seconds > release && seconds < rest) {
       const phase: number = (seconds - release) / (rest - release);
-      contact.point = Vector3.add(
+      contact.point = AutoMovieEngineVector3.add(
         contact.point,
-        Vector3.scale(
+        AutoMovieEngineVector3.scale(
           contact.normal,
           grappleArms.SEPARATION *
             body.measure.hand *
@@ -188,8 +188,8 @@ export function grappleArms(
         undefined,
         new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
       ).get(`${side}UpperArm`)!.worldPosition;
-      const offset: IAutoMovieVector3 = Vector3.subtract(laid.point, at);
-      const distance: number = Vector3.length(offset);
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(laid.point, at);
+      const distance: number = AutoMovieEngineVector3.length(offset);
       if (distance > reachable)
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",

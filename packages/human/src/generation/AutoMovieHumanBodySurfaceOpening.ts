@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanApertureSpan,
   IAutoMovieHumanBodyApertures,
@@ -77,7 +77,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     // The rim's vertices, each the surface at its own chain's chart point.
     const rim: [number, number, number][] = points.map(
       (p: IPoint): [number, number, number] =>
-        AutoMovieLoftChain.point(chain(context, p.chain), p.s, p.t),
+        AutoMovieEngineLoftChain.point(chain(context, p.chain), p.s, p.t),
     );
     context.rims.set(prepared.aperture.name, rim);
     const ring: number[] = AutoMovieHumanLoftMesh.vertices(context.mesh, rim);
@@ -271,7 +271,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     const place = (v: number): [number, number] => {
       const [s, t] = hole.charts.get(v)!;
       return flat(
-        AutoMovieLoftChain.point(chain(context, hole.owners.get(v)!), s, t),
+        AutoMovieEngineLoftChain.point(chain(context, hole.owners.get(v)!), s, t),
       );
     };
     const centre: [number, number] = rim.reduce(

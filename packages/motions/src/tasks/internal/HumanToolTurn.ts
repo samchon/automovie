@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -20,14 +20,14 @@ export function HumanToolTurn(
   axis: IAutoMovieVector3,
   about: IAutoMovieVector3,
 ): (degrees: number) => IHumanToolTurnResult {
-  const turning: ReturnType<typeof Quaternion.prepareAxisAngle> =
-    Quaternion.prepareAxisAngle(axis);
+  const turning: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+    AutoMovieEngineQuaternion.prepareAxisAngle(axis);
   return (degrees: number): IHumanToolTurnResult2 => {
     const turn: IAutoMovieQuaternion = turning(degrees);
-    const orbit: IAutoMovieVector3 = Vector3.subtract(pose.grip, about);
+    const orbit: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(pose.grip, about);
     return {
-      grip: Vector3.add(about, Quaternion.rotateVector(turn, orbit)),
-      rotation: Quaternion.multiply(turn, pose.rotation),
+      grip: AutoMovieEngineVector3.add(about, AutoMovieEngineQuaternion.rotateVector(turn, orbit)),
+      rotation: AutoMovieEngineQuaternion.multiply(turn, pose.rotation),
     };
   };
 }

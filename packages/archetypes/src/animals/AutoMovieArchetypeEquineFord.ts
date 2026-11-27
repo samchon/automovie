@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, type AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide } from "../core";
 import { AutoMovieArchetypeEquineFordPlan } from "./AutoMovieArchetypeEquineFordPlan";
@@ -150,7 +150,7 @@ function equineFord<
   const land: number = float + swim.length / swim.speed;
   const end: IAutoMovieTransform = entry.plan.at(float).placement;
   const ahead: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(end, "z");
-  const forward: IAutoMovieVector3 = Vector3.normalize({
+  const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: ahead.x,
     y: 0,
     z: ahead.z,
@@ -160,14 +160,14 @@ function equineFord<
   // The floating carriage: the neutral back `immersion` below the water.
   const trunk: IAutoMovieModelPart = part(animal, "trunk");
   const level: number = water - swim.immersion - top(trunk);
-  const yaw: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle(
+  const yaw: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     heading,
   );
   const carriage = (seconds: number): IAutoMovieTransform => ({
-    translation: Vector3.add(
+    translation: AutoMovieEngineVector3.add(
       { x: end.translation.x, y: level, z: end.translation.z },
-      Vector3.scale(forward, swim.speed * (seconds - float)),
+      AutoMovieEngineVector3.scale(forward, swim.speed * (seconds - float)),
     ),
     rotation: { ...yaw },
     scale: { ...AutoMovieArchetypeFrame.UNIT },
@@ -360,9 +360,9 @@ function equineFord<
       const bridged: IAutoMovieTransform = QuadrupedWorldPose.bridge(
         {
           ...left,
-          translation: Vector3.add(
+          translation: AutoMovieEngineVector3.add(
             left.translation,
-            Vector3.scale(forward, swim.speed * elapsed),
+            AutoMovieEngineVector3.scale(forward, swim.speed * elapsed),
           ),
         },
         placement,
@@ -426,7 +426,7 @@ function equineFord<
             {
               root: {
                 ...pose.root,
-                translation: Vector3.add(pose.root.translation, {
+                translation: AutoMovieEngineVector3.add(pose.root.translation, {
                   x: 0,
                   y: lift,
                   z: 0,
@@ -496,7 +496,7 @@ function equineFord<
         return footing.landing(
           AutoMovieArchetypeFrame.compose(grounded.placement, hoof.transform!)
             .translation,
-          Quaternion.identity(),
+          AutoMovieEngineQuaternion.identity(),
         ).point.y;
       },
     );

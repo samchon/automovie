@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -134,7 +134,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
     );
     const drawn: IAutoMovieVector3 = axes.reduce(
       (sum: IAutoMovieVector3, e: IAutoMovieVector3, i: number) =>
-        Vector3.add(sum, Vector3.scale(e, spreads[i]! * z[i]!)),
+        AutoMovieEngineVector3.add(sum, AutoMovieEngineVector3.scale(e, spreads[i]! * z[i]!)),
       { x: 0, y: 0, z: 0 },
     );
     const offset: IAutoMovieVector3 = {

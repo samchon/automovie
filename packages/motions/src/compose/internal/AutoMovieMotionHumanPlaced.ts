@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -73,7 +73,7 @@ export namespace AutoMovieMotionHumanPlaced {
             props.place(posture, seconds, resolution, projection);
           return target(
             posture,
-            { point: at.point, normal: Vector3.scale(at.facing, -1) },
+            { point: at.point, normal: AutoMovieEngineVector3.scale(at.facing, -1) },
             at.forward,
           );
         },
@@ -107,17 +107,17 @@ export namespace AutoMovieMotionHumanPlaced {
     nudge?: IAutoMovieMotionHumanTargetGrid.INudge,
   ): IAutoMovieVector3 {
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
-    const hips: IAutoMovieVector3 = Vector3.add(
+    const hips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       posture.root,
-      Quaternion.rotateVector(humanPostureHeading(posture), rest),
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), rest),
     );
-    const standing: IAutoMovieVector3 = Quaternion.rotateVector(
+    const standing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       humanPostureHeading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
       rest,
     );
     return AutoMovieMotionHumanTarget.fallback(
       body,
-      { root: Vector3.subtract(hips, standing), yaw: posture.yaw },
+      { root: AutoMovieEngineVector3.subtract(hips, standing), yaw: posture.yaw },
       AutoMovieMotionHumanTargetGrid.place(
         body,
         side,
@@ -196,7 +196,7 @@ export namespace AutoMovieMotionHumanPlaced {
       undefined,
       HumanBoneGroups.CHEST,
     ).get("chest")!;
-    const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(
+    const inverse: ReturnType<typeof AutoMovieEngineQuaternion.inverse> = AutoMovieEngineQuaternion.inverse(
       from.worldRotation,
     );
     return (
@@ -210,14 +210,14 @@ export namespace AutoMovieMotionHumanPlaced {
         resolution,
         HumanBoneGroups.CHEST,
       ).get("chest")!;
-      const rotation: ReturnType<typeof Quaternion.multiply> =
-        Quaternion.multiply(to.worldRotation, inverse);
+      const rotation: ReturnType<typeof AutoMovieEngineQuaternion.multiply> =
+        AutoMovieEngineQuaternion.multiply(to.worldRotation, inverse);
       return (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           to.worldPosition,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             rotation,
-            Vector3.subtract(point, from.worldPosition),
+            AutoMovieEngineVector3.subtract(point, from.worldPosition),
           ),
         );
     };
@@ -243,7 +243,7 @@ export namespace AutoMovieMotionHumanPlaced {
       resolution,
       HumanBoneGroups.SHOULDERS,
     );
-    return Vector3.lerp(
+    return AutoMovieEngineVector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
       bones.get("rightUpperArm")!.worldPosition,
       0.5,
@@ -294,9 +294,9 @@ export namespace AutoMovieMotionHumanPlaced {
     rest: IAutoMovieVector3,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.subtract(
+    return AutoMovieEngineVector3.subtract(
       point,
-      Quaternion.rotateVector(humanPostureHeading(posture), rest),
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), rest),
     );
   }
 
@@ -309,7 +309,7 @@ export namespace AutoMovieMotionHumanPlaced {
   export function girdle(
     body: Pick<IAutoMovieMotionHumanBody, "rest">,
   ): IAutoMovieVector3 {
-    return Vector3.lerp(
+    return AutoMovieEngineVector3.lerp(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
       0.5,
@@ -330,7 +330,7 @@ export namespace AutoMovieMotionHumanPlaced {
     body: Pick<IAutoMovieMotionHumanBody, "rest">,
     rise: number,
   ): number {
-    const d: IAutoMovieVector3 = Vector3.subtract(
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       girdle(body),
       body.rest.get("hips")!,
     );

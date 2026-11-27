@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMovieExplicitInstanceTransform,
   IAutoMoviePatternInstancing,
@@ -108,7 +108,7 @@ export function test_architecture_surface_pattern_instancing(): void {
             (one: IAutoMovieExplicitInstanceTransform): boolean =>
               qclose(one.rotation, { x: 0, y: 0, z: 0, w: 1 }) &&
               vclose(
-                Quaternion.rotateVector(one.rotation, { x: 1, y: 0, z: 0 }),
+                AutoMovieEngineQuaternion.rotateVector(one.rotation, { x: 1, y: 0, z: 0 }),
                 {
                   x: 1,
                   y: 0,
@@ -172,7 +172,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "localX",
         (): boolean =>
-          vclose(Quaternion.rotateVector(floorRotation, { x: 1, y: 0, z: 0 }), {
+          vclose(AutoMovieEngineQuaternion.rotateVector(floorRotation, { x: 1, y: 0, z: 0 }), {
             x: 0,
             y: 0,
             z: 1,
@@ -181,7 +181,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "localY",
         (): boolean =>
-          vclose(Quaternion.rotateVector(floorRotation, { x: 0, y: 1, z: 0 }), {
+          vclose(AutoMovieEngineQuaternion.rotateVector(floorRotation, { x: 0, y: 1, z: 0 }), {
             x: 1,
             y: 0,
             z: 0,
@@ -190,7 +190,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "localZ",
         (): boolean =>
-          vclose(Quaternion.rotateVector(floorRotation, { x: 0, y: 0, z: 1 }), {
+          vclose(AutoMovieEngineQuaternion.rotateVector(floorRotation, { x: 0, y: 0, z: 1 }), {
             x: 0,
             y: 1,
             z: 0,
@@ -256,7 +256,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         "localX",
         (): boolean =>
           vclose(
-            Quaternion.rotateVector(turned.transforms[0]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(turned.transforms[0]!.rotation, {
               x: 1,
               y: 0,
               z: 0,
@@ -268,7 +268,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         "localY",
         (): boolean =>
           vclose(
-            Quaternion.rotateVector(turned.transforms[0]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(turned.transforms[0]!.rotation, {
               x: 0,
               y: 1,
               z: 0,

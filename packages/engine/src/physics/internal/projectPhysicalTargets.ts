@@ -5,8 +5,8 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
 /*
@@ -42,14 +42,14 @@ export function projectPhysicalTargets(
       if (!originalParent || !originalChild)
         throw new Error(`Missing physical target at ${joint.id}`);
       const original: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(
+            AutoMovieEngineQuaternion.multiply(
               originalParent.rotation,
               joint.parentFrame.rotation,
             ),
           ),
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             originalChild.rotation,
             joint.childFrame.rotation,
           ),
@@ -57,27 +57,27 @@ export function projectPhysicalTargets(
       const relative: IAutoMovieRigidTransform["rotation"] =
         projectPhysicalJointRotation(joint, original);
       const rotation: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(
-          Quaternion.multiply(
-            Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(parent.rotation, joint.parentFrame.rotation),
             relative,
           ),
-          Quaternion.inverse(joint.childFrame.rotation),
+          AutoMovieEngineQuaternion.inverse(joint.childFrame.rotation),
         );
-      const position: IAutoMovieRigidTransform["position"] = Vector3.subtract(
-        Vector3.add(
+      const position: IAutoMovieRigidTransform["position"] = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           parent.position,
-          Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
         ),
-        Quaternion.rotateVector(rotation, joint.childFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(rotation, joint.childFrame.position),
       );
       targets[joint.child] = { position, rotation };
       maximumTranslation = Math.max(
         maximumTranslation,
-        Vector3.length(Vector3.subtract(position, originalChild.position)),
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(position, originalChild.position)),
       );
-      const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-        Quaternion.inverse(originalChild.rotation),
+      const delta: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(originalChild.rotation),
         rotation,
       );
       maximumRotation = Math.max(

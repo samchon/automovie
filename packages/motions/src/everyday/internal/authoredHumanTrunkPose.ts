@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -41,7 +41,7 @@ export function authoredHumanTrunkPose(
     turnHumanPosture({ ...posture, limbs: {} });
   return {
     skeleton: body.skeleton.id,
-    root: Transform.of(turned.position, turned.rotation),
+    root: AutoMovieEngineTransform.of(turned.position, turned.rotation),
     joints: list,
   };
 }

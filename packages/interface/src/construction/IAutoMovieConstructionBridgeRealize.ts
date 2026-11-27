@@ -10,7 +10,7 @@ export namespace IAutoMovieConstructionBridgeRealize {
    * the other's.
    *
    * The band is a split's band with one stretch, the host's whole end ring, and
-   * no seam (`AutoMovieConstructionSplitBand.fan`): its start ribbon is the
+   * no seam (`AutoMovieEngineConstructionSplitBand.fan`): its start ribbon is the
    * host's own 2-jet along its station line out of its end, its end ribbon the
    * part's own 2-jet at the rail toward its kept side, both scaled by the
    * strip's common factor to preserve each sampled boundary 2-jet's geometric

@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { bracketedMinimum } from "../../math/internal/bracketedMinimum";
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
 import { physicalHullFacesSegment } from "./physicalHullFacesSegment";
@@ -33,11 +33,11 @@ function frameOf(
   shape: IAutoMoviePhysicalShape,
 ): IFrame {
   return {
-    centre: Vector3.add(
+    centre: AutoMovieEngineVector3.add(
       pose.position,
-      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+      AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
     ),
-    rotation: Quaternion.multiply(pose.rotation, shape.transform.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(pose.rotation, shape.transform.rotation),
   };
 }
 
@@ -49,12 +49,12 @@ function roundEnds(
   rotation: IAutoMovieQuaternion,
   halfLength: number,
 ): readonly [IAutoMovieVector3, IAutoMovieVector3] {
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: halfLength,
     z: 0,
   });
-  return [Vector3.subtract(centre, axis), Vector3.add(centre, axis)];
+  return [AutoMovieEngineVector3.subtract(centre, axis), AutoMovieEngineVector3.add(centre, axis)];
 }
 
 /*
@@ -130,7 +130,7 @@ function physicalShapeQueryPrepare(
   const fixed: IFrame = frameOf(pose, shape);
   const prepared: IFrame = {
     ...fixed,
-    inverse: Quaternion.inverse(fixed.rotation),
+    inverse: AutoMovieEngineQuaternion.inverse(fixed.rotation),
     ...(shape.kind === "sphere" || shape.kind === "capsule"
       ? {
           round: roundEnds(
@@ -201,28 +201,28 @@ function query(
     if (!details) return closest.distance - shape.radius;
     const normal: IAutoMovieVector3 =
       closest.distance > 1e-12
-        ? Vector3.scale(
-            Vector3.subtract(closest.pointA, closest.pointB),
+        ? AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.subtract(closest.pointA, closest.pointB),
             1 / closest.distance,
           )
-        : Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 });
+        : AutoMovieEngineQuaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 });
     return {
       distance: closest.distance - shape.radius,
-      point: Vector3.add(closest.pointB, Vector3.scale(normal, shape.radius)),
+      point: AutoMovieEngineVector3.add(closest.pointB, AutoMovieEngineVector3.scale(normal, shape.radius)),
       normal,
       at: closest.pointA,
     };
   }
   const inverse: IAutoMovieQuaternion =
-    frame.inverse ?? Quaternion.inverse(rotation);
-  const la: IAutoMovieVector3 = Quaternion.rotateVector(
+    frame.inverse ?? AutoMovieEngineQuaternion.inverse(rotation);
+  const la: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     inverse,
-    Vector3.subtract(a, centre),
+    AutoMovieEngineVector3.subtract(a, centre),
   );
   const lb: IAutoMovieVector3 =
     a === b
       ? la
-      : Quaternion.rotateVector(inverse, Vector3.subtract(b, centre));
+      : AutoMovieEngineQuaternion.rotateVector(inverse, AutoMovieEngineVector3.subtract(b, centre));
   const dx: number = lb.x - la.x;
   const dy: number = lb.y - la.y;
   const dz: number = lb.z - la.z;
@@ -317,9 +317,9 @@ function query(
   const found: ILocal = local(along(parameter));
   return {
     distance: found.distance - widened(parameter),
-    point: Vector3.add(centre, Quaternion.rotateVector(rotation, found.point)),
-    normal: Quaternion.rotateVector(rotation, found.normal),
-    at: Vector3.add(a, Vector3.scale(Vector3.subtract(b, a), parameter)),
+    point: AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, found.point)),
+    normal: AutoMovieEngineQuaternion.rotateVector(rotation, found.normal),
+    at: AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(b, a), parameter)),
   };
 }
 
@@ -376,7 +376,7 @@ function boxNearest(
   return {
     distance: outside,
     point,
-    normal: Vector3.scale(Vector3.subtract(p, point), 1 / outside),
+    normal: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(p, point), 1 / outside),
   };
 }
 
@@ -419,15 +419,15 @@ function roundNearest(
   if (!details) {
     if (axis === undefined) axis = { x: 0, y, z: 0 };
     else axis.y = y;
-    return Vector3.distance(p, axis) - radius;
+    return AutoMovieEngineVector3.distance(p, axis) - radius;
   }
   const offset: IAutoMovieVector3 = { x: p.x - 0, y: p.y - y, z: p.z - 0 };
-  const away: number = Vector3.length(offset);
+  const away: number = AutoMovieEngineVector3.length(offset);
   const normal: IAutoMovieVector3 =
-    away > 1e-12 ? Vector3.scale(offset, 1 / away) : { x: 1, y: 0, z: 0 };
+    away > 1e-12 ? AutoMovieEngineVector3.scale(offset, 1 / away) : { x: 1, y: 0, z: 0 };
   return {
     distance: away - radius,
-    point: Vector3.add({ x: 0, y, z: 0 }, Vector3.scale(normal, radius)),
+    point: AutoMovieEngineVector3.add({ x: 0, y, z: 0 }, AutoMovieEngineVector3.scale(normal, radius)),
     normal,
   };
 }

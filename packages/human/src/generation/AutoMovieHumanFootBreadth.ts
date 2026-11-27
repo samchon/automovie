@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionAxis,
@@ -147,7 +147,7 @@ export namespace AutoMovieHumanFootBreadth {
       for (const quarter of [1, 3] as const) {
         const outline:
           | IAutoMovieViewOutline.IOutline
-          | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+          | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
           quarter === 1 ? part.side.positive : part.side.negative,
           { bottom: first, top: last },
         );
@@ -155,7 +155,7 @@ export namespace AutoMovieHumanFootBreadth {
         const candidates: number[] | string =
           domain[0] === domain[1]
             ? [domain[0]]
-            : AutoMovieViewOutline.supportStations(
+            : AutoMovieEngineViewOutline.supportStations(
                 outline,
                 velocity.across,
                 dot(start.v, across),
@@ -164,7 +164,7 @@ export namespace AutoMovieHumanFootBreadth {
         if (typeof candidates === "string")
           return `${part.name}: ${candidates}`;
         for (const station of candidates) {
-          const edge: number | string = AutoMovieViewOutline.value(
+          const edge: number | string = AutoMovieEngineViewOutline.value(
             outline,
             station,
           );
@@ -249,7 +249,7 @@ export namespace AutoMovieHumanFootBreadth {
         | IAutoMovieViewPart.IOutline
         | IAutoMovieConstructionOutline =
         origin === undefined
-          ? AutoMovieViewOutline.scale(source, 1000, 1000)
+          ? AutoMovieEngineViewOutline.scale(source, 1000, 1000)
           : source;
       values.push(
         (converted.knots[1]!.value - converted.knots[0]!.value) /

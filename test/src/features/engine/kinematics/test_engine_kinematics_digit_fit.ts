@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEngineKinematicsChains } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematicsChains } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieFitDigitToTarget,
@@ -33,7 +33,7 @@ import { throwsError } from "../../internal/throwsError";
 export async function test_engine_kinematics_digit_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const skeleton = body.skeleton;
-  const jointAxes = AutoMovieEngineKinematics.skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
+  const jointAxes = AutoMovieEngineKinematics.skeletonJointAxes(skeleton, AutoMovieEngineHumanoidJointAxes);
   const bones: AutoMovieHumanoidBone[] = [
     "leftIndexProximal",
     "leftIndexIntermediate",
@@ -48,7 +48,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
     pose: IAutoMoviePose,
     name: AutoMovieHumanoidBone,
   ): IAutoMovieResolvedBone =>
-    AutoMovieEngineKinematics.resolvePose(pose, skeleton, jointAxes, HUMANOID_REST_FRAME).find(
+    AutoMovieEngineKinematics.resolvePose(pose, skeleton, jointAxes, AutoMovieEngineHumanoidRestFrame).find(
       (b: IAutoMovieResolvedBone): boolean => b.bone === name,
     )!;
   const flexed: IAutoMoviePose = {
@@ -72,7 +72,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
     },
     target: T,
     jointAxes,
-    restFrames: HUMANOID_REST_FRAME,
+    restFrames: AutoMovieEngineHumanoidRestFrame,
   };
 
   // 1.
@@ -80,7 +80,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
   TestValidator.predicate(
     "reached",
     fitted.residual <= 1e-5 &&
-      Math.abs(Vector3.distance(fitted.point, T) - fitted.residual) <= 1e-12,
+      Math.abs(AutoMovieEngineVector3.distance(fitted.point, T) - fitted.residual) <= 1e-12,
   );
 
   // 2.
@@ -107,7 +107,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
     chains: [chain],
     colliders: [],
     jointAxes,
-    restFrames: HUMANOID_REST_FRAME,
+    restFrames: AutoMovieEngineHumanoidRestFrame,
   });
   TestValidator.predicate(
     "free curl",
@@ -131,16 +131,16 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
           material: "default",
           transform: {
             position: { x: 0, y: 0, z: 0 },
-            rotation: Quaternion.identity(),
+            rotation: AutoMovieEngineQuaternion.identity(),
           },
           kind: "sphere",
           radius: 0.2,
         },
-        frame: { position: base, rotation: Quaternion.identity() },
+        frame: { position: base, rotation: AutoMovieEngineQuaternion.identity() },
       },
     ],
     jointAxes,
-    restFrames: HUMANOID_REST_FRAME,
+    restFrames: AutoMovieEngineHumanoidRestFrame,
   });
   TestValidator.predicate(
     "blocked",

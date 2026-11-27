@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -317,9 +317,9 @@ export namespace walkStepFoot {
       )
         return {
           placement: {
-            ankle: Vector3.add(
+            ankle: AutoMovieEngineVector3.add(
               airborne.foot.placement.ankle,
-              Vector3.scale(airborne.velocity, t - step.toeOff),
+              AutoMovieEngineVector3.scale(airborne.velocity, t - step.toeOff),
             ),
             rotation: { ...airborne.foot.placement.rotation },
           },
@@ -420,15 +420,15 @@ function inheritedStance(
   const placed: IAutoMovieMotionHumanWalkFoot.IFoot = staged(strike + settle);
   const output: IAutoMovieVector3 = HumanFoot.offset(body, side, foot.socket);
   const input: IAutoMovieVector3 = foot.contact ?? output;
-  const contact: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+  const contact: ReturnType<typeof AutoMovieEngineVector3.prepareLerp> = AutoMovieEngineVector3.prepareLerp(
     input,
     output,
   );
-  const anchor: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+  const anchor: ReturnType<typeof AutoMovieEngineVector3.prepareLerp> = AutoMovieEngineVector3.prepareLerp(
     foot.anchor,
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       placed.placement.ankle,
-      Quaternion.rotateVector(placed.placement.rotation, output),
+      AutoMovieEngineQuaternion.rotateVector(placed.placement.rotation, output),
     ),
   );
   return (seconds: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
@@ -437,7 +437,7 @@ function inheritedStance(
     if (seconds >= strike + settle) return staged(seconds);
     const share: number = AutoMovieEngineMotionSampling.minimumJerkShare((seconds - strike) / settle);
     const rotation: IAutoMovieMotionHumanFoot.IPlacement["rotation"] =
-      Quaternion.slerp(
+      AutoMovieEngineQuaternion.slerp(
         foot.placement.rotation,
         placed.placement.rotation,
         share,
@@ -445,9 +445,9 @@ function inheritedStance(
     return {
       placement: {
         rotation,
-        ankle: Vector3.subtract(
+        ankle: AutoMovieEngineVector3.subtract(
           anchor(share),
-          Quaternion.rotateVector(rotation, contact(share)),
+          AutoMovieEngineQuaternion.rotateVector(rotation, contact(share)),
         ),
       },
       toes: foot.toes + (placed.toes - foot.toes) * share,

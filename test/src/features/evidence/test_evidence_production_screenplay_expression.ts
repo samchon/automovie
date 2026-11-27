@@ -1,9 +1,15 @@
+import type {
+  IProductionConfigProps
+} from "../../../../packages/evidence/src/narrative/IProductionConfigProps";
 import {
-  type IProductionConfigProps,
-  createPackageContract,
-  createPackagePopulationContract,
-  createProductionConfig,
-} from "@automovie/evidence/internal";
+  createPackageContract
+} from "../../../../packages/evidence/src/narrative/internal/createPackageContract";
+import {
+  createPackagePopulationContract
+} from "../../../../packages/evidence/src/narrative/internal/createPackagePopulationContract";
+import {
+  createProductionConfig
+} from "../../../../packages/evidence/src/narrative/internal/createProductionConfig";
 import { AutoMovieTemplateScaffold } from "@automovie/template";
 import assert from "node:assert/strict";
 import fs from "node:fs";

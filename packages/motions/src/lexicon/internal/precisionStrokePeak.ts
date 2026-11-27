@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieVector3,
@@ -32,7 +32,7 @@ export function precisionStrokePeak(
     if (point !== undefined && last !== undefined && seconds > before)
       fastest = Math.max(
         fastest,
-        Vector3.length(Vector3.subtract(point, last)) / (seconds - before),
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, last)) / (seconds - before),
       );
     last = point;
     before = seconds;

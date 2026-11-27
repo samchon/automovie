@@ -11,17 +11,17 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieRenderTypography } from "../../../typography/AutoMovieRenderTypography.js";
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieModelObject } from "../../IAutoMovieModelObject.js";
-import type { IMaterialShaderPatch } from "../../IMaterialShaderPatch.js";
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderModelObject } from "../../IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "../../IAutoMovieRenderMaterialShaderPatch.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { decodeAutoMovieImage } from "../../internal/decodeAutoMovieImage.js";
-import { AutoMovieFilmResponseStage } from "../../AutoMovieFilmResponseStage.js";
-import type { IAutoMovieFilmResponseRenderer } from "../../IAutoMovieFilmResponseRenderer.js";
-import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "../../AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
-import type { IAutoMovieSurfaceGraphicsObject } from "../../IAutoMovieSurfaceGraphicsObject.js";
-import type { IPrepareAutoMovieSurfaceGraphicsProps } from "../../IPrepareAutoMovieSurfaceGraphicsProps.js";
+import { AutoMovieRenderFilmResponseStage } from "../../AutoMovieRenderFilmResponseStage.js";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../../IAutoMovieRenderFilmResponseRenderer.js";
+import { AutoMovieRenderSurfaceGraphicKey } from "../../AutoMovieRenderSurfaceGraphicKey.js";
+import type { IAutoMovieRenderSurfaceGraphicsObject } from "../../IAutoMovieRenderSurfaceGraphicsObject.js";
+import type { IAutoMovieRenderPrepareSurfaceGraphicsProps } from "../../IAutoMovieRenderPrepareSurfaceGraphicsProps.js";
 import { buildAutoMovieSurfaceGraphicKey } from "./buildAutoMovieSurfaceGraphicKey.js";
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 
@@ -51,8 +51,8 @@ import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceG
  * track, after releasing everything already made.
  */
 export async function prepareAutoMovieSurfaceGraphics(
-  props: IPrepareAutoMovieSurfaceGraphicsProps,
-): Promise<IAutoMovieSurfaceGraphicsObject> {
+  props: IAutoMovieRenderPrepareSurfaceGraphicsProps,
+): Promise<IAutoMovieRenderSurfaceGraphicsObject> {
   const tracks: readonly IAutoMovieSurfaceGraphicTrack[] =
     props.shot.surfaceGraphics ?? [];
   const models: Map<string, IAutoMovieModel> = new Map(
@@ -109,7 +109,7 @@ export async function prepareAutoMovieSurfaceGraphics(
       const model: IAutoMovieModel | undefined = models.get(
         modelOfNode.get(track.node) ?? "",
       );
-      const object: IAutoMovieModelObject | undefined = props.resolveNode(
+      const object: IAutoMovieRenderModelObject | undefined = props.resolveNode(
         track.node,
       );
       const surface: IAutoMovieAffordance | undefined = (
@@ -137,7 +137,7 @@ export async function prepareAutoMovieSurfaceGraphics(
 
       const root: THREE.Group = new THREE.Group();
       root.name = label;
-      root.userData[AUTOMOVIE_SURFACE_GRAPHIC_KEY] = true;
+      root.userData[AutoMovieRenderSurfaceGraphicKey] = true;
       const { translation, rotation }: typeof surface.frame = surface.frame;
       root.position.set(translation.x, translation.y, translation.z);
       root.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
@@ -243,7 +243,7 @@ export async function prepareAutoMovieSurfaceGraphics(
       );
     },
     renderFeeds: (
-      renderer: IAutoMovieFilmResponseRenderer,
+      renderer: IAutoMovieRenderFilmResponseRenderer,
       scene: THREE.Scene,
       camera: (id: string) => THREE.Camera | undefined,
       response?: { optics: IAutoMovieFilmOptics; seconds: number },
@@ -271,7 +271,7 @@ export async function prepareAutoMovieSurfaceGraphics(
               `Surface feed camera "${feed.camera}" is not built`,
             );
           const perspective: THREE.PerspectiveCamera | null =
-            AutoMovieThreeKind.isPerspectiveCamera(view) ? view : null;
+            AutoMovieRenderThreeKind.isPerspectiveCamera(view) ? view : null;
           const aspect: number | undefined = perspective?.aspect;
           if (perspective !== null) {
             perspective.aspect = feed.target.width / feed.target.height;
@@ -285,7 +285,7 @@ export async function prepareAutoMovieSurfaceGraphics(
             else {
               // The film's own response, so the screen shows the exposed and
               // graded picture; each feed keeps a stage at its own raster.
-              feed.stage ??= new AutoMovieFilmResponseStage();
+              feed.stage ??= new AutoMovieRenderFilmResponseStage();
               feed.stage.draw({
                 renderer,
                 scene,
@@ -344,7 +344,7 @@ async function prepareImage(
   model: IAutoMovieModel,
   layer: IAutoMovieSurfaceGraphicLayer.IImage,
   label: string,
-  props: IPrepareAutoMovieSurfaceGraphicsProps,
+  props: IAutoMovieRenderPrepareSurfaceGraphicsProps,
   textures: Map<string, THREE.Texture>,
 ): Promise<void> {
   const key: string = imageKey(model, layer.asset);
@@ -398,7 +398,7 @@ interface IFeed {
   /*
    * The film response stage the feed draws through, made on its first use.
    */
-  stage: AutoMovieFilmResponseStage | null;
+  stage: AutoMovieRenderFilmResponseStage | null;
 }
 
 /*
@@ -407,10 +407,10 @@ interface IFeed {
  * encoded for a display, so the screen's white is the graphic's luminance. At 0
  * the target holds the scene's linear light and is read as it is.
  */
-function decodeFeedPatch(encoded: { value: number }): IMaterialShaderPatch {
+function decodeFeedPatch(encoded: { value: number }): IAutoMovieRenderMaterialShaderPatch {
   return {
     key: "automovie-surface-feed-decode",
-    apply: (shader: IMaterialShaderSource): void => {
+    apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {
       shader.uniforms.automovieFeedEncoded = encoded;
       shader.fragmentShader = shader.fragmentShader
         .replace(

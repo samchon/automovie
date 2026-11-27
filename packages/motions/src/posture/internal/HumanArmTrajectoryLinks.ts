@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Vector3 } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, AutoMovieEngineVector3 } from "@automovie/engine";
 
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -65,14 +65,14 @@ export function HumanArmTrajectoryLinks(
       HumanArmTrajectoryLinks.origins(placed)[link.owner];
     for (const probe of link.probes) {
       const p: IAutoMovieVector3 = placed.probes[probe]![0];
-      link.radius = Math.max(link.radius, Vector3.distance(p, link.centre));
-      link.reach = Math.max(link.reach, Vector3.distance(p, origin));
+      link.radius = Math.max(link.radius, AutoMovieEngineVector3.distance(p, link.centre));
+      link.reach = Math.max(link.reach, AutoMovieEngineVector3.distance(p, origin));
     }
     for (const solid of link.solids)
       for (const p of solid.points)
         link.reach = Math.max(
           link.reach,
-          Vector3.distance(p, origin) + solid.radius,
+          AutoMovieEngineVector3.distance(p, origin) + solid.radius,
         );
   }
   return [...links.values()];
@@ -256,7 +256,7 @@ export namespace HumanArmTrajectoryLinks {
       const first: AutoMovieEnginePhysicsGjkTypes.ISolid = start[i]!;
       let reach: number = 0;
       for (const point of first.points)
-        reach = Math.max(reach, Vector3.distance(point, pivot));
+        reach = Math.max(reach, AutoMovieEngineVector3.distance(point, pivot));
       const radius: number =
         solid.radius + ((reach + first.radius) * angle * angle) / 8;
       const bound: AutoMovieEnginePhysicsGjkTypes.IBound = AutoMovieEnginePhysics.physicalShapeGjk(

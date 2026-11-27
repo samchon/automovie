@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -79,7 +79,7 @@ export function standCases(
     );
     if (Math.abs(shoulders - hips) > 0.03 || Math.abs(ear - hips) > 0.03)
       plumbOk = false;
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bones.get("head")!.worldRotation,
       { x: 0, y: 0, z: 1 },
     );

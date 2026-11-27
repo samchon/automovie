@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance, AutoMoviePhysicalTracking } from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance, AutoMovieEnginePhysicalTracking } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,12 +20,12 @@ export function test_engine_physics_balance_exhaustion(): void {
   const duration: number = 0.25;
   TestValidator.equals(
     "opens",
-    AutoMoviePhysicalBalance.exhaustion({ unrecoverable: true, seconds: 1, duration }),
+    AutoMovieEnginePhysicalBalance.exhaustion({ unrecoverable: true, seconds: 1, duration }),
     { lostSince: 1, exhausted: false },
   );
   TestValidator.equals(
     "one tick before",
-    AutoMoviePhysicalBalance.exhaustion({
+    AutoMovieEnginePhysicalBalance.exhaustion({
       unrecoverable: true,
       lostSince: 1,
       seconds: 1.24,
@@ -35,7 +35,7 @@ export function test_engine_physics_balance_exhaustion(): void {
   );
   TestValidator.equals(
     "at the duration",
-    AutoMoviePhysicalBalance.exhaustion({
+    AutoMovieEnginePhysicalBalance.exhaustion({
       unrecoverable: true,
       lostSince: 1,
       seconds: 1.25,
@@ -45,7 +45,7 @@ export function test_engine_physics_balance_exhaustion(): void {
   );
   TestValidator.equals(
     "recovers",
-    AutoMoviePhysicalBalance.exhaustion({
+    AutoMovieEnginePhysicalBalance.exhaustion({
       unrecoverable: false,
       lostSince: 1,
       seconds: 2,
@@ -55,7 +55,7 @@ export function test_engine_physics_balance_exhaustion(): void {
   );
   TestValidator.equals(
     "failed landing",
-    AutoMoviePhysicalBalance.exhaustion({
+    AutoMovieEnginePhysicalBalance.exhaustion({
       unrecoverable: false,
       failedLanding: true,
       seconds: 2,
@@ -66,10 +66,10 @@ export function test_engine_physics_balance_exhaustion(): void {
   TestValidator.equals(
     "withdrawal",
     [
-      AutoMoviePhysicalTracking.withdrawn({ strength: 0 }),
-      AutoMoviePhysicalTracking.withdrawn({ strength: 0, jointStrength: { knee: 1 } }),
-      AutoMoviePhysicalTracking.withdrawn({ strength: 0, jointStrength: { knee: 0 } }),
-      AutoMoviePhysicalTracking.withdrawn({ strength: 1e-9 }),
+      AutoMovieEnginePhysicalTracking.withdrawn({ strength: 0 }),
+      AutoMovieEnginePhysicalTracking.withdrawn({ strength: 0, jointStrength: { knee: 1 } }),
+      AutoMovieEnginePhysicalTracking.withdrawn({ strength: 0, jointStrength: { knee: 0 } }),
+      AutoMovieEnginePhysicalTracking.withdrawn({ strength: 1e-9 }),
     ],
     [true, false, true, false],
   );

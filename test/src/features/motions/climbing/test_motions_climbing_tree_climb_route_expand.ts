@@ -1,10 +1,16 @@
 import type { IAutoMovieMotionHumanSupport } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  type treeClimbRoute,
-  treeClimbRouteExpand,
-  type treeLimbs,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import type {
+  treeClimbRoute
+} from "../../../../../packages/motions/src/climbing/treeClimb/treeClimbRoute";
+import {
+  treeClimbRouteExpand
+} from "../../../../../packages/motions/src/climbing/treeClimb/treeClimbRouteExpand";
+import type {
+  treeLimbs
+} from "../../../../../packages/motions/src/climbing/treeClimb/treeLimbs";
 import { TestValidator } from "@nestia/e2e";
 
 /**

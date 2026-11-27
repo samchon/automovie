@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
@@ -74,7 +74,7 @@ export namespace wireArrest {
     bound: number,
     lower: number,
   ): IArrest {
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const checks: readonly (readonly [string, number, boolean])[] = [
       ["drop", params.drop, params.drop > 0],
       ["stop", params.stop, params.stop >= 0],
@@ -129,7 +129,7 @@ export namespace wireArrest {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IArrest>,
   ): IAutoMovieMotionHumanActionPlan {
     const params: IAutoMovieMotionHumanWireFlight.IArrest = context.params;
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const bound: number = params.deceleration ?? 2 * g;
     const lower: number = params.duration ?? 1;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;

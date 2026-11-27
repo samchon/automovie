@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -59,16 +59,16 @@ export namespace EquineStanceMoves {
       1,
       Math.ceil(Math.abs(cue.degrees) / STEP),
     );
-    const hinds: IAutoMovieVector3 = Vector3.lerp(
+    const hinds: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       start.anchors.leftHind,
       start.anchors.rightHind,
       0.5,
     );
     const pivot: IAutoMovieVector3 =
       cue.about === "centre"
-        ? Vector3.lerp(
+        ? AutoMovieEngineVector3.lerp(
             hinds,
-            Vector3.lerp(start.anchors.leftFore, start.anchors.rightFore, 0.5),
+            AutoMovieEngineVector3.lerp(start.anchors.leftFore, start.anchors.rightFore, 0.5),
             0.5,
           )
         : hinds;
@@ -82,9 +82,9 @@ export namespace EquineStanceMoves {
       motion: AutoMovieArchetypeFrame.IMotion,
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         motion.translation,
-        Quaternion.rotateVector(motion.rotation, point),
+        AutoMovieEngineQuaternion.rotateVector(motion.rotation, point),
       );
 
     // A turn to the left (positive about up) steps the right side first, the outside of the turn.
@@ -178,8 +178,8 @@ export namespace EquineStanceMoves {
             limbs: EquineStanceSupport.placed(before.anchors),
           };
         const swing: number = AutoMovieEngineMotionSampling.minimumJerkShare((local - LOAD) / (1 - LOAD));
-        const anchor: IAutoMovieVector3 = Vector3.add(
-          Vector3.lerp(
+        const anchor: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.lerp(
             before.anchors[limb],
             states[s + 1]!.anchors[limb],
             swing,
@@ -267,8 +267,8 @@ export namespace EquineStanceMoves {
     start: EquineStanceRows.IState,
     cue: AutoMovieArchetypeEquineStanceCue.ISetBack,
   ): EquineStanceRows.IPlan {
-    const shoulders: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(body.chains.leftFore[0]!, body.chains.rightFore[0]!),
+    const shoulders: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(body.chains.leftFore[0]!, body.chains.rightFore[0]!),
       0.5,
     );
     const sat: AutoMovieArchetypeFrame.IMotion = AutoMovieArchetypeFrame.chain(

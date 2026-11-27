@@ -1,5 +1,13 @@
 import type { IAutoMovieMotionHumanFormation, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanFormation, HumanFormationPath, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanFormation
+} from "../../../../../packages/motions/src/ensemble/internal/HumanFormation";
+import {
+  HumanFormationPath
+} from "../../../../../packages/motions/src/ensemble/internal/HumanFormationPath";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

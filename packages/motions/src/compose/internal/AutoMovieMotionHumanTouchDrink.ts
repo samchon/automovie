@@ -1,4 +1,4 @@
-import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -220,13 +220,13 @@ export namespace AutoMovieMotionHumanTouchDrink {
       "upright",
     );
     const contact: IAutoMovieVector3 = laid.contact ?? { x: 0, y: 0, z: 0 };
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       laid.point,
-      Quaternion.rotateVector(laid.rotation!, contact),
+      AutoMovieEngineQuaternion.rotateVector(laid.rotation!, contact),
     );
     // The vessel's axis in the hand: the one the grasp stands upright.
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(rotation),
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(rotation),
       { x: 0, y: 1, z: 0 },
     );
     let nearest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined;
@@ -236,8 +236,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
       AutoMovieMotionHumanDrinkingLean.least(
         (lean: number): IAutoMovieMotionHumanTouchDrink.IHeld | undefined => {
           missed.begin();
-          const turned: IAutoMovieQuaternion = Quaternion.normalize(
-            Quaternion.multiply(
+          const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(
               AutoMovieMotionHumanTouchUpright.tip(place.normal, lean),
               rotation,
             ),
@@ -245,9 +245,9 @@ export namespace AutoMovieMotionHumanTouchDrink {
           const goal: IAutoMovieHumanLimbGoal = {
             ...laid,
             rotation: turned,
-            point: Vector3.subtract(
+            point: AutoMovieEngineVector3.subtract(
               at,
-              Quaternion.rotateVector(turned, contact),
+              AutoMovieEngineQuaternion.rotateVector(turned, contact),
             ),
           };
           // The same vessel in the drinking phase: the hand keeps the turn
@@ -271,12 +271,12 @@ export namespace AutoMovieMotionHumanTouchDrink {
               {
                 ...there,
                 rotation: turned,
-                point: Vector3.subtract(
-                  Vector3.add(
+                point: AutoMovieEngineVector3.subtract(
+                  AutoMovieEngineVector3.add(
                     there.point,
-                    Quaternion.rotateVector(there.rotation!, contact),
+                    AutoMovieEngineQuaternion.rotateVector(there.rotation!, contact),
                   ),
-                  Quaternion.rotateVector(turned, contact),
+                  AutoMovieEngineQuaternion.rotateVector(turned, contact),
                 ),
               },
               true,
@@ -355,7 +355,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     const anatomy: (name: TrialAnatomyName) => string = (
       name: TrialAnatomyName2,
     ): string =>
-      Vector3.dot(
+      AutoMovieEngineVector3.dot(
         axis,
         AutoMovieMotionHumanTouchEffector.axis(side, name),
       ).toFixed(2);
@@ -406,7 +406,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
         bend: bound(wrist.point, hint),
       };
       const improves = (arm: IAutoMovieMotionHumanDrinkingArm.IArm): boolean =>
-        holds(arm) && arm.tilt < tilt - ROM_TOLERANCE;
+        holds(arm) && arm.tilt < tilt - AutoMovieEngineRomTolerance;
       const arm: ReturnType<typeof read> = read(
         posture,
         candidate,
@@ -431,7 +431,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       // A tilt is an angle, never below 0, and a later facing replaces the
       // best only below it by the tolerance, so none can replace a tilt
       // within it of 0.
-      if (tilt <= ROM_TOLERANCE) break;
+      if (tilt <= AutoMovieEngineRomTolerance) break;
     }
     if (best === undefined || selected === undefined) return undefined;
     const shown: IAutoMovieMotionHumanDrinkingArm.IArm = read(

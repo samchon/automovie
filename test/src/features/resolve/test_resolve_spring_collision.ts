@@ -1,4 +1,4 @@
-import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieSpringDriver,
   IAutoMovieTransform,
@@ -12,7 +12,7 @@ import { vclose } from "../internal/vclose";
 const W: (p: IAutoMovieVector3) => number[] = (
   p: IAutoMovieVector3,
 ): number[] =>
-  Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
+  AutoMovieEngineMatrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
 const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
   x: number,
@@ -50,7 +50,7 @@ const world: () => Map<string, number[]> = (): Map<string, number[]> =>
 const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   w: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(w.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(w.get(id)!);
 
 /**
  * After the length constraint, spring sphere collisions push each joint to sphere radius plus hitRadius in array order, using an upward fallback at a coincident center.

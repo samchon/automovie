@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -20,7 +20,9 @@ import {
   AutoMovieMotionHumanPerformance,
   AutoMovieMotionHumanRefusal,
 } from "@automovie/motions";
-import { HumanPropFrame } from "@automovie/motions/internal";
+import {
+  HumanPropFrame
+} from "../../../../packages/motions/src/perform/internal/HumanPropFrame";
 
 import { assertTakeClean } from "./assertTakeClean";
 
@@ -149,7 +151,7 @@ export namespace everydayTake {
     let most: number = 0;
     for (let i: number = 1; i <= 24; ++i) {
       const t: number = from + ((to - from) * i) / 24;
-      most = Math.max(most, Vector3.distance(read(t).position, rest.position));
+      most = Math.max(most, AutoMovieEngineVector3.distance(read(t).position, rest.position));
     }
     return most;
   }
@@ -181,9 +183,9 @@ export namespace everydayTake {
         ? rest
         : posedSite(model, take.state(subject, t), id);
     const frame: IAutoMovieRigidTransform = take.prop(subject, t);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, site.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, site.frame.translation),
     );
   }
 

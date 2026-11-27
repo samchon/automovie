@@ -1,4 +1,6 @@
-import { walkLeg } from "@automovie/motions/internal";
+import {
+  walkLeg
+} from "../../../../../packages/motions/src/actions/internal/walkLeg";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

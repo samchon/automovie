@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanAcrobatics } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -18,7 +18,7 @@ export function test_motions_next_acrobatics_window(): void {
   const from: IAutoMovieVector3 = { x: 1, y: 2, z: -3 };
   const velocity: IAutoMovieVector3 = {
     x: -2,
-    y: AutoMovieGravity.STANDARD,
+    y: AutoMovieEngineGravity.STANDARD,
     z: 3,
   };
   const apex: IAutoMovieVector3 =
@@ -29,11 +29,11 @@ export function test_motions_next_acrobatics_window(): void {
     const t: number = index / 10;
     const point: IAutoMovieVector3 =
       AutoMovieMotionHumanAcrobatics.GymnasticsFlight.at(from, velocity, t);
-    const belowApex: number = (AutoMovieGravity.STANDARD / 2) * (t - 1) ** 2;
+    const belowApex: number = (AutoMovieEngineGravity.STANDARD / 2) * (t - 1) ** 2;
     TestValidator.predicate(
       `free-flight position in metres at ${t}s`,
       nclose(point.x, 1 - 2 * t) &&
-        nclose(point.y, 2 + AutoMovieGravity.STANDARD / 2 - belowApex) &&
+        nclose(point.y, 2 + AutoMovieEngineGravity.STANDARD / 2 - belowApex) &&
         nclose(point.z, -3 + 3 * t),
     );
   }
@@ -58,7 +58,7 @@ export function test_motions_next_acrobatics_window(): void {
  * 2. A surface above the apex has no crossing.
  */
 function descendingCrossing(): void {
-  const speed: number = AutoMovieGravity.STANDARD;
+  const speed: number = AutoMovieEngineGravity.STANDARD;
   const descent: number | null =
     AutoMovieMotionHumanAcrobatics.GymnasticsFlight.fall(
       0,

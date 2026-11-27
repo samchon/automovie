@@ -1,4 +1,6 @@
-import { readAutoMovieEnvironmentColorSpace } from "@automovie/render/internal";
+import {
+  readAutoMovieEnvironmentColorSpace
+} from "../../../../../packages/render/src/scene/internal/readAutoMovieEnvironmentColorSpace";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

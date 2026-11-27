@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { projectileAt } from "./projectileAt";
 import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplementation";
 
@@ -66,10 +66,10 @@ export namespace ProjectileContinueImplementation {
         "a projectile continues only from a contact with a normal",
       );
     const state: IAutoMovieProjectileState = projectileAt(projectile, hit.time);
-    const n: IAutoMovieVector3 = Vector3.normalize(hit.normal);
-    const vn: number = Vector3.dot(state.velocity, n);
-    const normal: IAutoMovieVector3 = Vector3.scale(n, vn);
-    const tangent: IAutoMovieVector3 = Vector3.subtract(state.velocity, normal);
+    const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(hit.normal);
+    const vn: number = AutoMovieEngineVector3.dot(state.velocity, n);
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(n, vn);
+    const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(state.velocity, normal);
     const admit: (name: string, value: number, maximum?: number) => void = (
       name: string,
       value: number,
@@ -96,7 +96,7 @@ export namespace ProjectileContinueImplementation {
           "a projectile cannot roll against outward normal gravity",
         );
       const deceleration: number = resistance * Math.max(0, -normalGravity);
-      const speed: number = Vector3.length(velocity);
+      const speed: number = AutoMovieEngineVector3.length(velocity);
       const lasting: number =
         deceleration > 0 ? speed / deceleration : speed > 0 ? Infinity : 0;
       return {
@@ -112,15 +112,15 @@ export namespace ProjectileContinueImplementation {
     switch (outcome.kind) {
       case "stick": {
         admit("embedding depth", outcome.depth);
-        const speed: number = Vector3.length(state.velocity);
+        const speed: number = AutoMovieEngineVector3.length(state.velocity);
         return {
           kind: "rest",
           from: hit.time,
           position:
             speed > 0
-              ? Vector3.add(
+              ? AutoMovieEngineVector3.add(
                   state.position,
-                  Vector3.scale(state.velocity, outcome.depth / speed),
+                  AutoMovieEngineVector3.scale(state.velocity, outcome.depth / speed),
                 )
               : state.position,
           ...held,
@@ -148,14 +148,14 @@ export namespace ProjectileContinueImplementation {
 
         // Newton's restitution and Coulomb's friction act on the velocity
         // relative to the struck surface.
-        const relative: IAutoMovieVector3 = Vector3.subtract(
+        const relative: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           state.velocity,
           surface,
         );
-        const approach: number = Vector3.dot(relative, n);
-        const across: IAutoMovieVector3 = Vector3.subtract(
+        const approach: number = AutoMovieEngineVector3.dot(relative, n);
+        const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           relative,
-          Vector3.scale(n, approach),
+          AutoMovieEngineVector3.scale(n, approach),
         );
         const rebound: number = -outcome.restitution * approach;
         const spin: IAutoMovieVector3 = ball?.spin ?? STILL;
@@ -165,11 +165,11 @@ export namespace ProjectileContinueImplementation {
         const slide: IAutoMovieVector3 =
           ball === undefined
             ? across
-            : Vector3.subtract(
+            : AutoMovieEngineVector3.subtract(
                 across,
-                Vector3.scale(Vector3.cross(spin, n), ball.radius),
+                AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(spin, n), ball.radius),
               );
-        const slip: number = Vector3.length(slide);
+        const slip: number = AutoMovieEngineVector3.length(slide);
         const stop: number =
           ball === undefined
             ? slip
@@ -182,18 +182,18 @@ export namespace ProjectileContinueImplementation {
               )
             : 0;
         const along: IAutoMovieVector3 =
-          slip > 0 ? Vector3.scale(slide, 1 / slip) : STILL;
-        const kept: IAutoMovieVector3 = Vector3.subtract(
+          slip > 0 ? AutoMovieEngineVector3.scale(slide, 1 / slip) : STILL;
+        const kept: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           across,
-          Vector3.scale(along, impulse),
+          AutoMovieEngineVector3.scale(along, impulse),
         );
-        const velocity: IAutoMovieVector3 = Vector3.add(
+        const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           surface,
-          Vector3.add(Vector3.scale(n, rebound), kept),
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(n, rebound), kept),
         );
 
         // Only inward gravity can return the rebound to this surface.
-        const normalGravity: number = Vector3.dot(projectile.gravity, n);
+        const normalGravity: number = AutoMovieEngineVector3.dot(projectile.gravity, n);
         const pull: number = Math.max(0, -normalGravity);
         if (
           outcome.roll !== undefined &&
@@ -201,9 +201,9 @@ export namespace ProjectileContinueImplementation {
             outcome.roll.radius
         )
           return roll(
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               velocity,
-              Vector3.scale(n, Vector3.dot(velocity, n)),
+              AutoMovieEngineVector3.scale(n, AutoMovieEngineVector3.dot(velocity, n)),
             ),
             outcome.roll.resistance,
             normalGravity,
@@ -214,10 +214,10 @@ export namespace ProjectileContinueImplementation {
           ...(ball === undefined
             ? {}
             : {
-                spin: Vector3.add(
+                spin: AutoMovieEngineVector3.add(
                   spin,
-                  Vector3.scale(
-                    Vector3.cross(n, along),
+                  AutoMovieEngineVector3.scale(
+                    AutoMovieEngineVector3.cross(n, along),
                     impulse / (ball.gyration * ball.radius),
                   ),
                 ),
@@ -243,7 +243,7 @@ export namespace ProjectileContinueImplementation {
         return roll(
           tangent,
           outcome.resistance,
-          Vector3.dot(projectile.gravity, n),
+          AutoMovieEngineVector3.dot(projectile.gravity, n),
         );
       case "pass": {
         admit("speed loss", outcome.loss, 1);
@@ -252,7 +252,7 @@ export namespace ProjectileContinueImplementation {
           from: hit.time,
           projectile: relaunched(projectile, {
             origin: state.position,
-            velocity: Vector3.scale(state.velocity, 1 - outcome.loss),
+            velocity: AutoMovieEngineVector3.scale(state.velocity, 1 - outcome.loss),
             ...(projectile.attitude === undefined ||
             projectile.attitude.kind === "velocity"
               ? {}
@@ -287,21 +287,21 @@ export namespace ProjectileContinueImplementation {
         return projectileAt(segment.projectile, seconds - segment.from);
       case "roll": {
         const t: number = Math.min(seconds, segment.until) - segment.from;
-        const speed: number = Vector3.length(segment.velocity);
+        const speed: number = AutoMovieEngineVector3.length(segment.velocity);
         const along: IAutoMovieVector3 =
           speed > 0
-            ? Vector3.scale(segment.velocity, 1 / speed)
+            ? AutoMovieEngineVector3.scale(segment.velocity, 1 / speed)
             : segment.velocity;
         const moving: number = Math.max(0, speed - segment.deceleration * t);
         return {
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             segment.origin,
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               along,
               speed * t - 0.5 * segment.deceleration * t * t,
             ),
           ),
-          velocity: Vector3.scale(along, moving),
+          velocity: AutoMovieEngineVector3.scale(along, moving),
           ...(segment.rotation === undefined
             ? {}
             : { rotation: segment.rotation }),

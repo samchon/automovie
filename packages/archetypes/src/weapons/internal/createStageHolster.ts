@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageHolster } from "../AutoMovieArchetypeStageHolster";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StageCarrierConstruction } from "./StageCarrierConstruction";
@@ -25,7 +25,7 @@ export function createStageHolster(
   AutoMovieArchetypeStageHolster.Dimension
 > {
   return StageCarrierConstruction("holster", params, seed, (builder, d) => {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     builder.box("loop", v(0.01, 0.06, 0.06), v(0, 0, 0), {
       color: "#2c2f33",
     });

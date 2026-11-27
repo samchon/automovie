@@ -1,5 +1,10 @@
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanPropReader, IAutoMovieRigidTransform } from "@automovie/interface";
-import { type AthleticsRunUp, highJumpBar } from "@automovie/motions/internal";
+import type {
+  AthleticsRunUp
+} from "../../../../../packages/motions/src/sport/internal/AthleticsRunUp";
+import {
+  highJumpBar
+} from "../../../../../packages/motions/src/sport/internal/highJumpBar";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

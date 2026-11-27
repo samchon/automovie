@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -75,7 +75,7 @@ export namespace handshakeOffer {
       side,
       "palm",
     ).point;
-    return Vector3.length({
+    return AutoMovieEngineVector3.length({
       ...socket,
       x: socket.x + (side === "left" ? 1 : -1) * body.measure.forearm,
     });

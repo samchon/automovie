@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -252,7 +252,7 @@ function obstacleLanding(
   const world: IAutoMovieRigidTransform = reader.frame(context.start);
   const placed: IAutoMovieRigidTransform = {
     position: frame.local(world.position),
-    rotation: Quaternion.multiply(
+    rotation: AutoMovieEngineQuaternion.multiply(
       HumanFrame.turn(-context.entry.posture.yaw),
       world.rotation,
     ),

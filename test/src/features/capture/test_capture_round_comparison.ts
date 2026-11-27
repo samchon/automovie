@@ -9,7 +9,7 @@ import type {
   IAutoMovieInspectionCamera,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -83,7 +83,7 @@ export async function test_capture_round_comparison(): Promise<void> {
       draw: async (
         cell: IAutoMovieCaptureCell,
       ): Promise<IAutoMovieCaptureDrawing> => draw(cell),
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out",
         round: plan.request.round,

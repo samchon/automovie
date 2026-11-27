@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
   IAutoMovieHumanLimbGoal,
@@ -23,7 +23,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
  * line, its turn about the vertical and its rise. The arms' goals turn by the
  * whole turn about the vertical through the root, and the trunk follows them as
  * far as the chest's and the lumbar spine's axial ranges
- * (`DEFAULT_HUMANOID_ROM`) hold, the two sharing it
+ * (`AutoMovieEngineDefaultHumanoidRom`) hold, the two sharing it
  * (`AutoMovieMotionHumanTrunk.CHEST`); the rest is the arms', on top of what
  * the presentation already gave them. The rise goes to the arms' goals alone,
  * turned about the horizontal axis through the pivot square to the line. An aim
@@ -58,11 +58,11 @@ export namespace HumanSupportAim {
     carry: IAutoMovieMotionHumanSupportCarry.ICarry,
     aim: IAutoMovieMotionHumanSupportAim.IAim,
   ): ICorrection {
-    const carried: IAutoMovieVector3 = Quaternion.rotateVector(
+    const carried: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       carry.turn,
-      Vector3.subtract(aim.target, aim.pivot),
+      AutoMovieEngineVector3.subtract(aim.target, aim.pivot),
     );
-    const wanted: IAutoMovieVector3 = Vector3.subtract(
+    const wanted: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       aim.target,
       carry.point(aim.pivot),
     );
@@ -95,30 +95,30 @@ export namespace HumanSupportAim {
   ): IAutoMovieMotionHumanPosture {
     const c: ICorrection = correction(carry, aim);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const yawed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(up, c.yaw);
+    const yawed: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(up, c.yaw);
     const about = (
       q: IAutoMovieQuaternion,
       origin: IAutoMovieVector3,
       p: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         origin,
-        Quaternion.rotateVector(q, Vector3.subtract(p, origin)),
+        AutoMovieEngineQuaternion.rotateVector(q, AutoMovieEngineVector3.subtract(p, origin)),
       );
     const pivot: IAutoMovieVector3 = about(
       yawed,
       posture.root,
       carry.point(aim.pivot),
     );
-    const line: IAutoMovieVector3 = Vector3.subtract(aim.target, pivot);
-    const across: IAutoMovieVector3 = Vector3.cross(line, up);
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(aim.target, pivot);
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(line, up);
     const raised: IAutoMovieQuaternion =
-      Vector3.length(across) === 0
-        ? Quaternion.identity()
-        : Quaternion.fromAxisAngle(Vector3.normalize(across), c.pitch);
+      AutoMovieEngineVector3.length(across) === 0
+        ? AutoMovieEngineQuaternion.identity()
+        : AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieEngineVector3.normalize(across), c.pitch);
     const move = (p: IAutoMovieVector3): IAutoMovieVector3 =>
       about(raised, pivot, about(yawed, posture.root, p));
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(raised, yawed);
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(raised, yawed);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const limb of ["leftArm", "rightArm"] as const) {
       const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
@@ -130,8 +130,8 @@ export namespace HumanSupportAim {
         ...(goal.rotation === undefined
           ? {}
           : {
-              rotation: Quaternion.normalize(
-                Quaternion.multiply(turn, goal.rotation),
+              rotation: AutoMovieEngineQuaternion.normalize(
+                AutoMovieEngineQuaternion.multiply(turn, goal.rotation),
               ),
             }),
       };
@@ -273,7 +273,7 @@ export namespace HumanSupportAim {
    */
   function twist(bone: TwistBone): IAutoMovieAngleRange {
     const range: IAutoMovieAngleRange | null | undefined =
-      DEFAULT_HUMANOID_ROM[bone]?.twist;
+      AutoMovieEngineDefaultHumanoidRom[bone]?.twist;
     if (range === null || range === undefined)
       throw new Error(`The range-of-motion table gives the ${bone} no twist`);
     return range;

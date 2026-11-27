@@ -1,1 +1,1 @@
-export type { IAutoMovieEvidenceDevelopmentProps } from "./IAutoMovieEvidenceDevelopmentProps";
+export type * from "./IAutoMovieEvidenceDevelopmentProps";

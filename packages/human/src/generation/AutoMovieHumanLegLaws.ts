@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   AutoMovieHumanSexPair,
   IAutoMovieHumanBodyMeasures,
@@ -104,12 +104,12 @@ export namespace AutoMovieHumanLegLaws {
       (a: { height: number }, b: { height: number }): number =>
         a.height - b.height,
     );
-    const skin: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const skin: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       rows.map((row: { height: number }): number => row.height),
       rows.map((row: { value: number }): number => row.value),
     );
     const frontShare = (height: number): number =>
-      AutoMovieNaturalSpline.evaluate(
+      AutoMovieEngineNaturalSpline.evaluate(
         skin,
         Math.max(rows[0]!.height, Math.min(rows.at(-1)!.height, height)),
       );

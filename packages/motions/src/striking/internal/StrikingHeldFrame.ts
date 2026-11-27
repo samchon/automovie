@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -49,11 +49,11 @@ export namespace StrikingHeldFrame {
     const runFrom: IAutoMovieVector3 | undefined =
       points.from === undefined
         ? undefined
-        : Vector3.subtract(
+        : AutoMovieEngineVector3.subtract(
             tip.point,
             AutoMovieMotionHumanHeld.point(held, points.from).point,
           );
-    if (runFrom !== undefined && Vector3.length(runFrom) === 0)
+    if (runFrom !== undefined && AutoMovieEngineVector3.length(runFrom) === 0)
       throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "from",
@@ -63,17 +63,17 @@ export namespace StrikingHeldFrame {
       });
     const axis: IAutoMovieVector3 =
       runFrom !== undefined
-        ? Vector3.normalize(runFrom)
+        ? AutoMovieEngineVector3.normalize(runFrom)
         : pointed.direction === "normal"
-          ? Vector3.normalize(tip.point)
-          : Vector3.normalize(tip.direction);
-    const pointFrame: IAutoMovieQuaternion = Quaternion.multiply(
+          ? AutoMovieEngineVector3.normalize(tip.point)
+          : AutoMovieEngineVector3.normalize(tip.direction);
+    const pointFrame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       held.frame.rotation,
       pointed.frame.rotation,
     );
     const roll: readonly [IAutoMovieVector3, IAutoMovieVector3] = [
-      Quaternion.rotateVector(pointFrame, { x: 0, y: 0, z: 1 }),
-      Quaternion.rotateVector(pointFrame, { x: 1, y: 0, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(pointFrame, { x: 0, y: 0, z: 1 }),
+      AutoMovieEngineQuaternion.rotateVector(pointFrame, { x: 1, y: 0, z: 0 }),
     ];
     const edged: IReadEdged | undefined =
       points.edge !== undefined &&
@@ -87,8 +87,8 @@ export namespace StrikingHeldFrame {
     )?.length;
     const length: number =
       runFrom === undefined
-        ? Math.max(0, Vector3.dot(tip.point, axis))
-        : Vector3.length(runFrom);
+        ? Math.max(0, AutoMovieEngineVector3.dot(tip.point, axis))
+        : AutoMovieEngineVector3.length(runFrom);
     return {
       prop,
       side,
@@ -101,9 +101,9 @@ export namespace StrikingHeldFrame {
         edged === undefined || run === undefined
           ? null
           : [
-              Vector3.dot(Vector3.subtract(tip.point, edged.point), axis) -
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(tip.point, edged.point), axis) -
                 run / 2,
-              Vector3.dot(Vector3.subtract(tip.point, edged.point), axis) +
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(tip.point, edged.point), axis) +
                 run / 2,
             ],
       held,
@@ -141,11 +141,11 @@ export namespace StrikingHeldFrame {
         { x: 0, y: 0, z: 1 },
       ]),
     ]) {
-      const across: IAutoMovieVector3 = Vector3.subtract(
+      const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         candidate,
-        Vector3.scale(axis, Vector3.dot(candidate, axis)),
+        AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(candidate, axis)),
       );
-      if (Vector3.length(across) > 1e-6) return Vector3.normalize(across);
+      if (AutoMovieEngineVector3.length(across) > 1e-6) return AutoMovieEngineVector3.normalize(across);
     }
     return { x: 1, y: 0, z: 0 };
   };

@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { inertializeOffset } from "./inertializeOffset";
 import { samplePoseVelocity as samplePoseVelocityImplementation } from "./samplePoseVelocity";
 
@@ -128,9 +128,9 @@ export function inertializePose(
     const x: IAutoMovieVector3 = same
       ? zero
       : samplePoseVelocityImplementation.rotationVector(
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             codec.rotation(bone, s),
-            Quaternion.inverse(codec.rotation(bone, t)),
+            AutoMovieEngineQuaternion.inverse(codec.rotation(bone, t)),
           ),
         );
     const v: IAutoMovieVector3 = {
@@ -144,11 +144,11 @@ export function inertializePose(
   const st: IAutoMovieVector3 = source.pose.root?.translation ?? zero;
   const tt: IAutoMovieVector3 = target.pose.root?.translation ?? zero;
   const sr: IAutoMovieQuaternion =
-    source.pose.root?.rotation ?? Quaternion.identity();
+    source.pose.root?.rotation ?? AutoMovieEngineQuaternion.identity();
   const tr: IAutoMovieQuaternion =
-    target.pose.root?.rotation ?? Quaternion.identity();
+    target.pose.root?.rotation ?? AutoMovieEngineQuaternion.identity();
   const rotation0: IAutoMovieVector3 = samplePoseVelocityImplementation.rotationVector(
-    Quaternion.multiply(sr, Quaternion.inverse(tr)),
+    AutoMovieEngineQuaternion.multiply(sr, AutoMovieEngineQuaternion.inverse(tr)),
   );
   const spin0: IAutoMovieVector3 = {
     x: source.velocity.angular.x - target.velocity.angular.x,
@@ -207,8 +207,8 @@ export function inertializePose(
           ? base
           : codec.angles(
               bone,
-              Quaternion.normalize(
-                Quaternion.multiply(offset, codec.rotation(bone, base)),
+              AutoMovieEngineQuaternion.normalize(
+                AutoMovieEngineQuaternion.multiply(offset, codec.rotation(bone, base)),
               ),
             );
       joints.push({
@@ -220,7 +220,7 @@ export function inertializePose(
     }
     const t: IAutoMovieVector3 = pose.root?.translation ?? zero;
     const r: IAutoMovieQuaternion =
-      pose.root?.rotation ?? Quaternion.identity();
+      pose.root?.rotation ?? AutoMovieEngineQuaternion.identity();
     const translation: IAutoMovieVector3 = { ...t };
     for (const k of AXES)
       translation[k] += inertializeOffset(
@@ -232,12 +232,12 @@ export function inertializePose(
       ).value;
     const offset: IAutoMovieQuaternion =
       decayed(rotation0, spin0, duration, elapsed, through) ??
-      Quaternion.identity();
+      AutoMovieEngineQuaternion.identity();
     return {
       skeleton: pose.skeleton,
       root: {
         translation,
-        rotation: Quaternion.normalize(Quaternion.multiply(offset, r)),
+        rotation: AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(offset, r)),
         scale: pose.root?.scale ?? { x: 1, y: 1, z: 1 },
       },
       joints,
@@ -282,7 +282,7 @@ function decayed(
   const angle: number = Math.hypot(turn.x, turn.y, turn.z);
   return angle < 1e-12
     ? null
-    : Quaternion.fromAxisAngle(
+    : AutoMovieEngineQuaternion.fromAxisAngle(
         { x: turn.x / angle, y: turn.y / angle, z: turn.z / angle },
         (angle * 180) / Math.PI,
       );

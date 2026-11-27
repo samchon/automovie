@@ -203,13 +203,13 @@ export function createAutoMovieRecoveryArtifact(
         ...(base.tensorReports.length || base.analyticReports.length
           ? ["realizeAutoMovieBicubicAtlas64"]
           : []),
-        "AutoMovieLocalHermiteField64.prepare",
+        "AutoMovieEngineLocalHermiteField64.prepare",
         "tessellateAutoMovieLocalHermite64",
       ],
       callPath: [
         "reconstructAutoMovieRecoveryLocal",
         "IAutoMovieCurve64.Cubic + source-free ordinary continuation",
-        "AutoMovieLocalHermiteField64.prepare",
+        "AutoMovieEngineLocalHermiteField64.prepare",
         "tessellateAutoMovieLocalHermite64",
         "createAutoMovieRecoveryMeshSpool",
         "IAutoMovieModel.parts[].geometry.mesh",

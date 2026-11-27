@@ -2,7 +2,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
-import { type IAutoMovieInspectionDiagnosticOverlay, AutoMovieRenderInspectionOverlay } from "@automovie/render";
+import { type IAutoMovieRenderInspectionDiagnosticOverlay, AutoMovieRenderInspectionOverlay } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -23,7 +23,7 @@ import * as THREE from "three";
  */
 export function test_render_scene_create_inspection_diagnostic_overlay(): void {
   const scene: THREE.Scene = new THREE.Scene();
-  const overlay: IAutoMovieInspectionDiagnosticOverlay =
+  const overlay: IAutoMovieRenderInspectionDiagnosticOverlay =
     AutoMovieRenderInspectionOverlay.createDiagnosticOverlay();
   const seen: { object: THREE.Object3D | undefined; start: number }[] = [];
   const draw: (

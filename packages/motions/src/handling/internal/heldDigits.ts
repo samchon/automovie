@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -89,23 +89,23 @@ export function heldDigits(
       held.side,
       PADS[d.by.digit],
     );
-    const pad: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(hand.worldRotation),
-      Vector3.subtract(surface.point, hand.worldPosition),
+    const pad: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+      AutoMovieEngineVector3.subtract(surface.point, hand.worldPosition),
     );
     // The joint's pivot and its axis (a turn's `+Y`, a slide's `+X`) in the
     // hand's frame, from the hand bone's origin as the pad is.
-    const pivot: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
+    const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         HumanHand.offset(context.body, held.side, "grip").point,
         held.frame.position,
       ),
-      Quaternion.rotateVector(held.frame.rotation, joint.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(held.frame.rotation, joint.frame.translation),
     );
     const turning: boolean = joint.kind === "hinge";
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(
-        Quaternion.multiply(held.frame.rotation, joint.frame.rotation),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(held.frame.rotation, joint.frame.rotation),
         turning ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 },
       ),
     );
@@ -131,14 +131,14 @@ export function heldDigits(
       const travel: number = w.drive.travel(seconds) - w.start;
       goals[w.digit] = {
         point: w.turning
-          ? Vector3.add(
+          ? AutoMovieEngineVector3.add(
               w.pivot,
-              Quaternion.rotateVector(
-                Quaternion.fromAxisAngle(w.axis, travel),
-                Vector3.subtract(w.pad, w.pivot),
+              AutoMovieEngineQuaternion.rotateVector(
+                AutoMovieEngineQuaternion.fromAxisAngle(w.axis, travel),
+                AutoMovieEngineVector3.subtract(w.pad, w.pivot),
               ),
             )
-          : Vector3.add(w.pad, Vector3.scale(w.axis, travel)),
+          : AutoMovieEngineVector3.add(w.pad, AutoMovieEngineVector3.scale(w.axis, travel)),
         surface: "pad",
         on: `${held.side}Hand`,
         contact: true,
@@ -170,24 +170,24 @@ export namespace heldDigits {
     const rest: IAutoMovieVector3 = site.frame.translation;
     const pivot: IAutoMovieVector3 = joint.frame.translation;
     return TURNING.has(joint.kind)
-      ? Vector3.add(
+      ? AutoMovieEngineVector3.add(
           pivot,
-          Quaternion.rotateVector(
-            Quaternion.fromAxisAngle(
-              Quaternion.rotateVector(joint.frame.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.fromAxisAngle(
+              AutoMovieEngineQuaternion.rotateVector(joint.frame.rotation, {
                 x: 0,
                 y: 1,
                 z: 0,
               }),
               travel,
             ),
-            Vector3.subtract(rest, pivot),
+            AutoMovieEngineVector3.subtract(rest, pivot),
           ),
         )
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           rest,
-          Vector3.scale(
-            Quaternion.rotateVector(joint.frame.rotation, { x: 1, y: 0, z: 0 }),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineQuaternion.rotateVector(joint.frame.rotation, { x: 1, y: 0, z: 0 }),
             travel,
           ),
         );

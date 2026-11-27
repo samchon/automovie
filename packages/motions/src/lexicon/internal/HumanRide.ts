@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  RigidCarrierSample,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRigidCarrierSample,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -237,25 +237,25 @@ export namespace HumanRide {
         began: IAutoMovieVector3,
         film: number,
         now: IAutoMovieRigidTransform,
-        sample?: RigidCarrierSample.IRead,
+        sample?: AutoMovieEngineRigidCarrierSample.IRead,
       ): IAutoMovieVector3 => {
         const moved: IAutoMovieVector3 | undefined =
           sample?.point(id).translation ??
           support.prop.point?.(id, film)?.point;
         return moved === undefined
           ? { x: 0, y: 0, z: 0 }
-          : Vector3.subtract(
+          : AutoMovieEngineVector3.subtract(
               moved,
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 now.position,
-                Quaternion.rotateVector(
-                  Quaternion.multiply(now.rotation, turned),
-                  Vector3.subtract(began, origin.position),
+                AutoMovieEngineQuaternion.rotateVector(
+                  AutoMovieEngineQuaternion.multiply(now.rotation, turned),
+                  AutoMovieEngineVector3.subtract(began, origin.position),
                 ),
               ),
             );
       };
-      const turned: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
+      const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(origin.rotation);
       // The pose and any certified candidate use the same actual carrier read.
       const written = <T>(
         at: number,
@@ -266,8 +266,8 @@ export namespace HumanRide {
       ): T => {
         const film: number = context.start + Math.min(seconds, Math.max(0, at));
         const now: IAutoMovieRigidTransform = support.frame(film);
-        const sample: RigidCarrierSample.IRead | undefined =
-          RigidCarrierSample.playback(support.prop)?.sample(film);
+        const sample: AutoMovieEngineRigidCarrierSample.IRead | undefined =
+          AutoMovieEngineRigidCarrierSample.playback(support.prop)?.sample(film);
         const taken: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, at / TAKE));
         const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(
           film,
@@ -289,8 +289,8 @@ export namespace HumanRide {
         // The pelvis keeps its place on the seat, so it tips with a support that leans or pitches; the heading stays the unwrapped one the carry gives.
         const tipped: Pick<IAutoMovieMotionHumanPosture, RideWrittenTipped> =
           humanPostureHeading.angles(
-            Quaternion.multiply(
-              Quaternion.multiply(now.rotation, turned),
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.multiply(now.rotation, turned),
               humanPostureHeading(leant),
             ),
           );
@@ -298,7 +298,7 @@ export namespace HumanRide {
         // Rising, the seat lifts off the saddle along the mount's own up and comes back once a stride; the feet stay on their rests.
         const lift: number = posting.lift(at);
 
-        const up: IAutoMovieVector3 = Quaternion.rotateVector(now.rotation, {
+        const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(now.rotation, {
           x: 0,
           y: 1,
           z: 0,
@@ -314,7 +314,7 @@ export namespace HumanRide {
           if (goal === undefined) continue;
           limbs[`${pedal.side}Leg`] = {
             ...goal,
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               goal.point,
               strayed(pedal.id, pedal.began, film, now),
             ),
@@ -399,9 +399,9 @@ export namespace HumanRide {
                 contact:
                   goal.contact ??
                   HumanFoot.offset(context.body, pedal.side, "ball"),
-                bend: Vector3.add(
+                bend: AutoMovieEngineVector3.add(
                   hips[pedal.side],
-                  Quaternion.rotateVector(humanPostureHeading(out), {
+                  AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(out), {
                     x: 0,
                     y: 0,
                     z: context.body.measure.thigh,

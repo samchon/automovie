@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -41,18 +41,18 @@ export function handoverCases(): IMotionCaptureCase[] {
     ): IAutoMovieAffordance => ({
       id,
       kind: "handle",
-      frame: Transform.of(
+      frame: AutoMovieEngineTransform.of(
         { x: 0, y, z: 0 },
-        Quaternion.normalize(
-          Quaternion.multiply(
-            Quaternion.fromAxisAngle(
+        AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.fromAxisAngle(
               { x: 0, y: 1, z: 0 },
               toward > 0 ? 180 : 0,
             ),
-            Quaternion.normalize(
-              Quaternion.multiply(
-                Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-                Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+            AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+                AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
               ),
             ),
           ),
@@ -66,7 +66,7 @@ export function handoverCases(): IMotionCaptureCase[] {
       subject: "bottle",
       frame: {
         position: { x: shoulder.x, y: a.measure.hipHeight, z: 0.3 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       points: {},
       shapes: [
@@ -75,7 +75,7 @@ export function handoverCases(): IMotionCaptureCase[] {
           material: "glass",
           transform: {
             position: { x: 0, y: 0.095, z: 0 },
-            rotation: Quaternion.identity(),
+            rotation: AutoMovieEngineQuaternion.identity(),
           },
           kind: "capsule",
           radius: 0.035,
@@ -131,9 +131,9 @@ export function handoverCases(): IMotionCaptureCase[] {
     const release: number = event(giving, "release");
     const centre = (t: number): IAutoMovieVector3 => {
       const f = performance.prop("bottle", t);
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         f.position,
-        Quaternion.rotateVector(f.rotation, { x: 0, y: 0.095, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(f.rotation, { x: 0, y: 0.095, z: 0 }),
       );
     };
     const sternum = (
@@ -145,25 +145,25 @@ export function handoverCases(): IMotionCaptureCase[] {
         body.surfaces.regions.sternum,
         performance.bones(subject, t).get(body.surfaces.regions.sternum.bone)!,
       ).point;
-    const middle: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(sternum("a", a, closed), sternum("b", b, closed)),
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(sternum("a", a, closed), sternum("b", b, closed)),
       0.5,
     );
-    const exchange: number = Vector3.distance(centre(closed), middle);
+    const exchange: number = AutoMovieEngineVector3.distance(centre(closed), middle);
     let jump: number = 0;
     let previous: IAutoMovieVector3 = performance.prop("bottle", 0).position;
     for (let t: number = 1 / 240; t <= performance.duration; t += 1 / 240) {
       const now: IAutoMovieVector3 = performance.prop("bottle", t).position;
-      jump = Math.max(jump, Vector3.distance(now, previous));
+      jump = Math.max(jump, AutoMovieEngineVector3.distance(now, previous));
       previous = now;
     }
     const offset = (t: number): IAutoMovieVector3 => {
       const hand: IAutoMovieResolvedBone = performance
         .bones("b", t)
         .get("rightHand")!;
-      return Quaternion.rotateVector(
-        Quaternion.inverse(hand.worldRotation),
-        Vector3.subtract(
+      return AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+        AutoMovieEngineVector3.subtract(
           performance.prop("bottle", t).position,
           hand.worldPosition,
         ),
@@ -171,7 +171,7 @@ export function handoverCases(): IMotionCaptureCase[] {
     };
     let held: number = 0;
     for (let t: number = release; t <= performance.duration; t += 1 / 24)
-      held = Math.max(held, Vector3.distance(offset(t), offset(release)));
+      held = Math.max(held, AutoMovieEngineVector3.distance(offset(t), offset(release)));
     let deepest: number = Infinity;
     for (let t: number = closed; t <= release; t += 1 / 48)
       deepest = Math.min(
@@ -197,7 +197,7 @@ export function handoverCases(): IMotionCaptureCase[] {
         )
           slip = Math.max(
             slip,
-            Vector3.distance(
+            AutoMovieEngineVector3.distance(
               performance.bones(subject, t).get(foot)!.worldPosition,
               from,
             ),
@@ -205,7 +205,7 @@ export function handoverCases(): IMotionCaptureCase[] {
       }
       for (let t: number = 0; t <= performance.duration; t += 1 / 24)
         for (const j of performance.pose(subject, t).joints) {
-          const c = DEFAULT_HUMANOID_ROM[j.bone];
+          const c = AutoMovieEngineDefaultHumanoidRom[j.bone];
           if (c !== undefined)
             overshoot = Math.max(overshoot, AutoMovieEngineKinematics.jointRomOvershoot(j, c));
         }

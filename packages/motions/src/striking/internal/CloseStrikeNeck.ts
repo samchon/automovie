@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -82,7 +82,7 @@ export function CloseStrikeNeck(
             region,
             0,
           );
-          const around: IAutoMovieVector3 = Vector3.normalize({
+          const around: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
             x: placed.point.x - entry.root.x,
             y: 0,
             z: placed.point.z - entry.root.z,

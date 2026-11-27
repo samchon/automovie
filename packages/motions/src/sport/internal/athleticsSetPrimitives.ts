@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanPosture,
@@ -54,15 +54,15 @@ export function athleticsSetPrimitives(
             chest: flexed(posture.joints, "chest", w - 0.2 * t * t),
           },
         };
-        const hips: IAutoMovieVector3 = Vector3.add(
+        const hips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           hipsAt(w),
-          Vector3.scale(push, t * t),
+          AutoMovieEngineVector3.scale(push, t * t),
         );
         return {
           ...pitched,
-          root: Vector3.subtract(
+          root: AutoMovieEngineVector3.subtract(
             hips,
-            Quaternion.rotateVector(humanPostureHeading(pitched), hipsRest),
+            AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(pitched), hipsRest),
           ),
         };
       },
@@ -120,7 +120,7 @@ export namespace athleticsSetPrimitives {
     /*
      * The `hipsAt` `athletics.plan` prepared.
      */
-    hipsAt: ReturnType<typeof Vector3.prepareLerp>;
+    hipsAt: ReturnType<typeof AutoMovieEngineVector3.prepareLerp>;
 
     /*
      * The `push` `athletics.plan` prepared.

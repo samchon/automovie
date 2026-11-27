@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 
 /*
  * Fold planned subject viewpoints against current observation receipts.
@@ -117,8 +117,8 @@ const validateCurrentContext = (
     current.target.subject !== unit.description.id ||
     current.target.shot !== unit.target.shot ||
     current.revision !== unit.description.revision ||
-    SHA256_DIGEST_PATTERN.test(current.compileFingerprint) === false ||
-    SHA256_DIGEST_PATTERN.test(current.planIdentity) === false
+    AutoMovieEngineSha256DigestPattern.test(current.compileFingerprint) === false ||
+    AutoMovieEngineSha256DigestPattern.test(current.planIdentity) === false
   )
     throw new Error(
       "Subject review current context must exactly name the resolved unit, current compile, ordered plan, and canonical runtime.",

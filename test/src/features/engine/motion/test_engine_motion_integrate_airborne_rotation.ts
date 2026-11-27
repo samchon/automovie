@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionAirborneRotation,
 } from "@automovie/engine";
 import type {
@@ -112,7 +112,7 @@ export function test_engine_motion_integrate_airborne_rotation(): void {
     const b: number = 0.5 * t;
     orientations &&=
       qunit(q, 1e-12) &&
-      Quaternion.angle(q, {
+      AutoMovieEngineQuaternion.angle(q, {
         x: Math.sin(a) * Math.cos(b),
         y: Math.cos(a) * Math.sin(b),
         z: Math.sin(a) * Math.sin(b),
@@ -130,7 +130,7 @@ export function test_engine_motion_integrate_airborne_rotation(): void {
         omega.y - 1,
         omega.z - 0.01 * Math.sin(t),
       ) <= RATE;
-    const world: IAutoMovieVector3 = Quaternion.rotateVector(q, {
+    const world: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(q, {
       x: omega.x,
       y: 2 * omega.y - 2,
       z: omega.z,
@@ -202,7 +202,7 @@ function counterspin(): boolean {
     for (let step: number = 0; step <= 20; ++step) {
       const t: number = step / 20;
       holds &&=
-        Quaternion.angle(flight.orientation(t), {
+        AutoMovieEngineQuaternion.angle(flight.orientation(t), {
           x: -Math.sin(t / 2),
           y: 0,
           z: 0,
@@ -290,11 +290,11 @@ function scaled(): boolean {
     { x: 0, y: 1, z: 0 },
     { x: 0, y: 0, z: 1 },
   ];
-  const turned: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 2, z: 3 },
     97,
   );
-  const mixed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const mixed: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 2, y: -1, z: 1 },
     53,
   );
@@ -305,7 +305,7 @@ function scaled(): boolean {
         for (const adaptive of [false, true]) {
           const columns: IAutoMovieVector3[] = units.map(
             (unit: IAutoMovieVector3): IAutoMovieVector3 =>
-              Quaternion.rotateVector(basis, unit),
+              AutoMovieEngineQuaternion.rotateVector(basis, unit),
           );
           const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
             AutoMovieEngineMotionAirborneRotation.integrate({
@@ -319,14 +319,14 @@ function scaled(): boolean {
               t0: 0,
               t1: 1,
               q0: world,
-              momentum: Quaternion.rotateVector(world, {
+              momentum: AutoMovieEngineQuaternion.rotateVector(world, {
                 x: 3 * scale,
                 y: 0,
                 z: 0,
               }),
               variations: columns.map(
                 (column: IAutoMovieVector3): IAutoMovieVector3 =>
-                  Quaternion.rotateVector(world, column),
+                  AutoMovieEngineQuaternion.rotateVector(world, column),
               ),
               ...(adaptive
                 ? { tolerance: { relative: 1e-10, absolute: 0 } }
@@ -337,11 +337,11 @@ function scaled(): boolean {
             const angle: number = 1.5 * t;
             const expected: IAutoMovieVector3[] = airborneSensitivity(t);
             holds &&=
-              Quaternion.angle(
+              AutoMovieEngineQuaternion.angle(
                 flight.orientation(t),
-                Quaternion.multiply(
+                AutoMovieEngineQuaternion.multiply(
                   world,
-                  Quaternion.fromAxisAngle(units[0]!, (angle * 180) / Math.PI),
+                  AutoMovieEngineQuaternion.fromAxisAngle(units[0]!, (angle * 180) / Math.PI),
                 ),
               ) <= ANGLE;
             flight
@@ -394,14 +394,14 @@ function principalAxes(): boolean {
         t0: 0,
         t1: 1,
         q0: IDENTITY,
-        momentum: Vector3.scale(direction, 40),
+        momentum: AutoMovieEngineVector3.scale(direction, 40),
       });
     for (let step: number = 0; step <= 20; ++step) {
       const t: number = step / 20;
       holds &&=
-        Quaternion.angle(
+        AutoMovieEngineQuaternion.angle(
           flight.orientation(t),
-          Quaternion.fromAxisAngle(
+          AutoMovieEngineQuaternion.fromAxisAngle(
             direction,
             ((40 / moments[axis]) * t * 180) / Math.PI,
           ),
@@ -436,8 +436,8 @@ function tuck(): boolean {
   const tucked: number =
     1.2 + 2 * (0.02 + AIRBORNE_CORE_END_MASS * 0.25 * 0.25);
   const ratio: number =
-    Vector3.length(airborneBodyRate(flight, 0.8, 0.01)) /
-    Vector3.length(airborneBodyRate(flight, 0.2, 0.01)) /
+    AutoMovieEngineVector3.length(airborneBodyRate(flight, 0.8, 0.01)) /
+    AutoMovieEngineVector3.length(airborneBodyRate(flight, 0.2, 0.01)) /
     (layout / tucked);
   return Math.abs(ratio - 1) <= 1e-4;
 }
@@ -449,7 +449,7 @@ function flip(): boolean {
   ]);
   const epsilon: number = 0.01;
   const w: number = 2 * Math.PI;
-  const momentum: IAutoMovieVector3 = Vector3.scale(
+  const momentum: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     { x: Math.sin(epsilon), y: Math.cos(epsilon), z: 0 },
     2 * w,
   );
@@ -469,7 +469,7 @@ function flip(): boolean {
   let drift: number = 0;
   for (let t: number = 0.02; t <= 3 * bound - 0.02; t += 0.01) {
     const q: IAutoMovieQuaternion = flight.orientation(t);
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(q, {
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(q, {
       x: 0,
       y: 1,
       z: 0,
@@ -479,15 +479,15 @@ function flip(): boolean {
     if (flipped === null && away > 90) flipped = t;
     if (flipped !== null && t > flipped && away < 20) returned = true;
     const body: IAutoMovieVector3 = airborneBodyRate(flight, t, 1e-3);
-    const world: IAutoMovieVector3 = Quaternion.rotateVector(q, {
+    const world: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(q, {
       x: body.x,
       y: 2 * body.y,
       z: 3 * body.z,
     });
     drift = Math.max(
       drift,
-      Vector3.length(Vector3.subtract(world, momentum)) /
-        Vector3.length(momentum),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(world, momentum)) /
+        AutoMovieEngineVector3.length(momentum),
     );
   }
   return flipped !== null && flipped <= bound && returned && drift <= 1e-3;

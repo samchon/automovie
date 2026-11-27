@@ -14,8 +14,8 @@ import {
 
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
-import { Quaternion } from "../../math/Quaternion";
-import { MOTION_ROOT_NODE_ID } from "../../resolve/MOTION_ROOT_NODE_ID";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineMotionRootNodeId } from "../../resolve/AutoMovieEngineMotionRootNodeId";
 import { lowerSkeletonNodes } from "../../resolve/internal/lowerSkeletonNodes";
 import { AutoMovieEngineMotionSampling } from "../AutoMovieEngineMotionSampling";
 import { sampleTimes } from "./sampleTimes";
@@ -105,13 +105,13 @@ export function motionToClip(
       const joint: IAutoMovieJointPose | undefined = joints.get(bone.bone);
       const articulation: IAutoMovieQuaternion =
         joint === undefined
-          ? Quaternion.identity()
+          ? AutoMovieEngineQuaternion.identity()
           : jointToQuaternion(
               joint,
               jointAxes[bone.bone],
               props.restFrames?.[bone.bone],
             );
-      const local: IAutoMovieQuaternion = Quaternion.multiply(
+      const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         bone.rest.rotation,
         articulation,
       );
@@ -168,12 +168,12 @@ const rootTrack: (
       values.push(t.x, t.y, t.z);
     } else {
       const r: IAutoMovieQuaternion =
-        pose.root?.rotation ?? Quaternion.identity();
+        pose.root?.rotation ?? AutoMovieEngineQuaternion.identity();
       values.push(r.x, r.y, r.z, r.w);
     }
   }
   return {
-    channel: { kind: "node", node: `${prefix}${MOTION_ROOT_NODE_ID}`, path },
+    channel: { kind: "node", node: `${prefix}${AutoMovieEngineMotionRootNodeId}`, path },
     times: [...times],
     values,
     interpolation: "linear",

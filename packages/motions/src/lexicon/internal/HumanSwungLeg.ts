@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, hingedArmSwivel, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineHingedArmSwivel, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -245,7 +245,7 @@ export namespace HumanSwungLeg {
           IAutoMovieSwivelSeed | null | undefined,
         ][])
           if (seed !== undefined && seed !== null)
-            near[other] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+            near[other] = { ...seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
         resolveHumanPosture.seeded(body, posture, undefined, near);
       seeds = solved.seeds;
@@ -413,10 +413,10 @@ export namespace HumanSwungLeg {
 
   /*
    * How near a bound a fitted angle reads as pinned there, degrees: a tenth of
-   * a degree, ten times the range table's own tolerance (`ROM_TOLERANCE`), so a
+   * a degree, ten times the range table's own tolerance (`AutoMovieEngineRomTolerance`), so a
    * fit projected onto a bound is caught.
    */
-  const EDGE: number = 10 * ROM_TOLERANCE;
+  const EDGE: number = 10 * AutoMovieEngineRomTolerance;
 
   /*
    * A leg's bones, hip to toes.

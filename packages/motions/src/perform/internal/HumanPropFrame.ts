@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPropFrame,
   IAutoMovieQuaternion,
@@ -23,12 +23,12 @@ export namespace HumanPropFrame {
     local: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
     return {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         parent.position,
-        Quaternion.rotateVector(parent.rotation, local.position),
+        AutoMovieEngineQuaternion.rotateVector(parent.rotation, local.position),
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(parent.rotation, local.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(parent.rotation, local.rotation),
       ),
     };
   }
@@ -43,13 +43,13 @@ export namespace HumanPropFrame {
     parent: IAutoMovieRigidTransform,
     world: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(parent.rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(parent.rotation);
     return {
-      position: Quaternion.rotateVector(
+      position: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(world.position, parent.position),
+        AutoMovieEngineVector3.subtract(world.position, parent.position),
       ),
-      rotation: Quaternion.multiply(inverse, world.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(inverse, world.rotation),
     };
   }
 
@@ -63,13 +63,13 @@ export namespace HumanPropFrame {
     world: IAutoMovieRigidTransform,
     local: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(world.rotation, Quaternion.inverse(local.rotation)),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(world.rotation, AutoMovieEngineQuaternion.inverse(local.rotation)),
     );
     return {
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         world.position,
-        Quaternion.rotateVector(rotation, local.position),
+        AutoMovieEngineQuaternion.rotateVector(rotation, local.position),
       ),
       rotation,
     };

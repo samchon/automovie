@@ -1,8 +1,20 @@
 
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanObject } from "@automovie/motions";
-import { HumanPerception, HumanPerformanceAim, HumanPerformanceRead, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+import {
+  HumanPerception
+} from "../../../../../packages/motions/src/law/internal/HumanPerception";
+import {
+  HumanPerformanceAim
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceAim";
+import {
+  HumanPerformanceRead
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceRead";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

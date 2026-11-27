@@ -219,7 +219,7 @@ export namespace AutoMovieMotionHumanMount {
    * which `StrikingBlade.turned` splits `AutoMovieMotionHumanTrunk.CHEST` to
    * the chest and the rest to the lumbar spine, so a rider presents as far off
    * the horse's heading as the chest's and the spine's axial ranges
-   * (`DEFAULT_HUMANOID_ROM`, the bound `HumanSupportAim` keeps a moving
+   * (`AutoMovieEngineDefaultHumanoidRom`, the bound `HumanSupportAim` keeps a moving
    * support's aim within) allow plus the arms' own `TURN`, which reaches behind
    * the rider's shoulders, short of dead astern: there the horse must turn.
    */

@@ -1,4 +1,4 @@
-import { AutoMovieCurveMath64 as C } from "@automovie/engine";
+import { AutoMovieEngineCurveMath64 as C } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieCurveMath64,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `AutoMovieCurveMath64` is binary64 vector and cubic Bernstein arithmetic.
+ * `AutoMovieEngineCurveMath64` is binary64 vector and cubic Bernstein arithmetic.
  *
  * Throughout, the straight cubic L has controls (0,0,0), (1,0,0), (2,0,0),
  * (3,0,0), so that x(t) = 3t.

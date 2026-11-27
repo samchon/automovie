@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -40,20 +40,20 @@ export namespace AutoMovieMotionHumanArmRide {
     own: HumanArmTrajectory.ISite,
   ): Omit<NonNullable<HumanArmTrajectory.ISite["on"]>, "arm"> {
     const turn: IAutoMovieQuaternion = lead.rotation!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(turn);
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(turn);
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       lead.point,
-      Quaternion.rotateVector(turn, lead.contact),
+      AutoMovieEngineQuaternion.rotateVector(turn, lead.contact),
     );
     return {
       owner: "hand",
-      point: Quaternion.rotateVector(
+      point: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(own.point, wrist),
+        AutoMovieEngineVector3.subtract(own.point, wrist),
       ),
       ...(own.rotation === undefined
         ? {}
-        : { rotation: Quaternion.multiply(inverse, own.rotation) }),
+        : { rotation: AutoMovieEngineQuaternion.multiply(inverse, own.rotation) }),
     };
   }
 
@@ -90,14 +90,14 @@ export namespace AutoMovieMotionHumanArmRide {
       new Set([carried]),
     );
     const by: IAutoMovieResolvedBone = bones.get(carried)!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(by.worldRotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(by.worldRotation);
     const segment: IAutoMovieMotionHumanColliders.IPlaced | undefined =
       HumanColliders.placed(body, bones).find(
         (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
           s.bone === by.bone,
       );
-    let normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(point, by.worldPosition),
+    let normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(point, by.worldPosition),
     );
     let least: number = Infinity;
     for (const shape of segment?.shapes ?? []) {
@@ -114,14 +114,14 @@ export namespace AutoMovieMotionHumanArmRide {
     }
     return {
       owner,
-      point: Quaternion.rotateVector(
+      point: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, by.worldPosition),
+        AutoMovieEngineVector3.subtract(point, by.worldPosition),
       ),
-      normal: Quaternion.rotateVector(inverse, normal),
+      normal: AutoMovieEngineQuaternion.rotateVector(inverse, normal),
       ...(rotation === undefined
         ? {}
-        : { rotation: Quaternion.multiply(inverse, rotation) }),
+        : { rotation: AutoMovieEngineQuaternion.multiply(inverse, rotation) }),
     };
   }
 }

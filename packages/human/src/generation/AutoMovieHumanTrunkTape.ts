@@ -1,9 +1,9 @@
 import {
   AutoMovieEnginePlanarHull,
-  AutoMovieIllinois,
-  AutoMovieViewCurves,
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
+  AutoMovieEngineIllinois,
+  AutoMovieEngineViewCurves,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   IAutoMovieConstructionView,
@@ -80,7 +80,7 @@ export namespace AutoMovieHumanTrunkTape {
     input: IAutoMovieHumanTrunkTape.IInput,
   ): IAutoMovieHumanTrunkTape.IResult {
     const reach: IAutoMovieViewSection.IRange | null =
-      AutoMovieViewSection.range(input.plane.box);
+      AutoMovieEngineViewSection.range(input.plane.box);
     if (reach === null)
       return {
         shoulder: null,
@@ -163,7 +163,7 @@ export namespace AutoMovieHumanTrunkTape {
         { length: PHASES },
         (_: unknown, i: number): [number, number] => {
           const phi: number = (2 * Math.PI * i) / PHASES;
-          const rho: number = AutoMovieViewSection.radius(section, phi)[0];
+          const rho: number = AutoMovieEngineViewSection.radius(section, phi)[0];
           return [
             input.plane.origin[0] + rho * Math.cos(phi),
             input.plane.origin[1] + rho * Math.sin(phi),
@@ -270,7 +270,7 @@ export namespace AutoMovieHumanTrunkTape {
       };
     }
     if (input.tape <= low || input.tape >= high) return outside();
-    const r: number | null = AutoMovieIllinois.root(
+    const r: number | null = AutoMovieEngineIllinois.root(
       (s: number): number => perimeter(s) - input.tape,
       lo,
       hi,
@@ -329,7 +329,7 @@ export namespace AutoMovieHumanTrunkTape {
       Math.abs(axis.origin.y * 1000 - y) > ON_PLANE
     )
       return `${mass.part.name}: tape needs the actual fixed AP chart at the common generating level`;
-    const prepared: IAutoMovieViewCurves.IResult = AutoMovieViewCurves.create(
+    const prepared: IAutoMovieViewCurves.IResult = AutoMovieEngineViewCurves.create(
       mass.part,
     );
     if (prepared.diagnostics.length !== 0)
@@ -343,13 +343,13 @@ export namespace AutoMovieHumanTrunkTape {
         ...curve.outline.knots.map(
           (knot: IAutoMovieViewPart.IKnot): number => knot.station,
         ),
-        ...AutoMovieViewOutline.criticalStations(curve.outline),
+        ...AutoMovieEngineViewOutline.criticalStations(curve.outline),
       ]);
       for (let sample: number = 0; sample <= LINE_SAMPLES; sample++)
         stations.add(s0 + ((s1 - s0) * sample) / LINE_SAMPLES);
       for (const station of stations) {
         const point: IAutoMovieViewCurves.IReading | string =
-          AutoMovieViewCurves.at(curve, mass.part.axis, station);
+          AutoMovieEngineViewCurves.at(curve, mass.part.axis, station);
         if (typeof point === "string") return `${mass.part.name}: ${point}`;
         const position: [number, number] = [point.point[0], point.point[2]];
         out.push(position);

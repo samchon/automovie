@@ -1,4 +1,9 @@
-import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import {
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
 import type { IAutoMovieMotion } from "@automovie/interface";
 
 import { locationTrackedRideFixture } from "../internal/locationTrackedRideFixture";
@@ -15,7 +20,7 @@ export function bankedParkRide(): compileEnvironmentExample.IInput {
           anchor: "coaster/stops/departure",
           offset: { x: 1.6, y: 0, z: -4 },
         },
-        use: AutoMovieEnvironment.terrain({
+        use: AutoMovieArchetypeEnvironment.terrain({
           size: { width: 12, depth: 10 },
           paths: {
             approach: {
@@ -30,7 +35,7 @@ export function bankedParkRide(): compileEnvironmentExample.IInput {
         }),
       },
       concession: {
-        use: AutoMovieEnvironmentFurnishing.cafeKit({
+        use: AutoMovieArchetypeEnvironmentFurnishing.cafeKit({
           room: { width: 8, depth: 6 },
           tables: 1,
         }),

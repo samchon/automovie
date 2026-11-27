@@ -61,7 +61,7 @@ export namespace IAutoMovieHumanHeadCanonical {
      * cranial`). The front, back and side support outlines, the axis, the
      * stations and the pole are built once before the power is read. Every
      * shoulder and departure knot carries explicit zero first and second jets,
-     * so `AutoMovieViewOutline` interpolates each knot span by its own quintic
+     * so `AutoMovieEngineViewOutline` interpolates each knot span by its own quintic
      * Hermite: a span's values and station derivatives depend only on its two
      * end knots. On and below nasion both members share the spans `gonion ->
      * nasion` (shoulder constant `vault`; the pre-closure member's single span

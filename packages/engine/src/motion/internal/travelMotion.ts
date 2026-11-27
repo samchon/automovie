@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Repeat an admitted in-place clip a positive safe-integer number of cycles and
@@ -55,7 +55,7 @@ export function travelMotion(
       const baseTranslation: IAutoMovieVector3 | undefined =
         facing === undefined || baseRoot === null
           ? baseRoot?.translation
-          : Quaternion.rotateVector(facing, baseRoot.translation);
+          : AutoMovieEngineQuaternion.rotateVector(facing, baseRoot.translation);
       const translation: IAutoMovieVector3 = {
         x: (baseTranslation?.x ?? 0) + velocity.x * globalT,
         y: (baseTranslation?.y ?? 0) + velocity.y * globalT,
@@ -71,7 +71,7 @@ export function travelMotion(
             rotation:
               facing === undefined
                 ? (baseRoot?.rotation ?? { ...IDENTITY_ROT })
-                : Quaternion.multiply(
+                : AutoMovieEngineQuaternion.multiply(
                     facing,
                     baseRoot?.rotation ?? IDENTITY_ROT,
                   ),

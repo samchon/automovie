@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 
 /*
@@ -36,10 +36,10 @@ export function applyFilmIndirectPatch(
 ): boolean {
   if (
     !(
-      AutoMovieThreeKind.isMeshStandardMaterial(material) ||
-      AutoMovieThreeKind.isMeshLambertMaterial(material) ||
-      AutoMovieThreeKind.isMeshPhongMaterial(material) ||
-      AutoMovieThreeKind.isMeshToonMaterial(material)
+      AutoMovieRenderThreeKind.isMeshStandardMaterial(material) ||
+      AutoMovieRenderThreeKind.isMeshLambertMaterial(material) ||
+      AutoMovieRenderThreeKind.isMeshPhongMaterial(material) ||
+      AutoMovieRenderThreeKind.isMeshToonMaterial(material)
     )
   )
     return false;
@@ -54,7 +54,7 @@ export function applyFilmIndirectPatch(
   material.userData.autoMovieFilmIndirect = true;
   AutoMovieRenderMaterial.addShaderPatch(material, {
     key: "automovie-film-indirect",
-    apply: (shader: IMaterialShaderSource): void => {
+    apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.fragmentShader = shader.fragmentShader
         .replace(

@@ -1,7 +1,7 @@
 import {
-  AutoMovieHumanoidSurfaceRays,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineHumanoidSurfaceRays,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -29,25 +29,25 @@ import type { HumanRideHands } from "./HumanRideHands";
 export function measureRidePalmDepth(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
-  surfaces: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools>,
+  surfaces: ReturnType<typeof AutoMovieEngineHumanoidSurfaceRays.tools>,
 ): number {
   const palm: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"];
   const bone: IAutoMovieResolvedBone = surfaces.at(palm.bone);
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     bone.worldRotation,
     palm.normal,
   );
-  const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
+  const fingers: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     bone.worldRotation,
     palm.forward!,
   );
-  const station: IAutoMovieVector3 = Vector3.add(
+  const station: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     bone.worldPosition,
-    Vector3.scale(fingers, HumanMountRider.CENTRE * body.measure.hand),
+    AutoMovieEngineVector3.scale(fingers, HumanMountRider.CENTRE * body.measure.hand),
   );
   const skin: IAutoMovieVector3 = surfaces.exit(palm.bone, station, normal);
-  return Vector3.dot(Vector3.subtract(skin, station), normal);
+  return AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(skin, station), normal);
 }
 
 /*
@@ -84,8 +84,8 @@ export namespace measureRidePalmDepth {
       },
     );
     if (rounded.length === 0) return;
-    const surfaces: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
-      AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
+    const surfaces: ReturnType<typeof AutoMovieEngineHumanoidSurfaceRays.tools> =
+      AutoMovieEngineHumanoidSurfaceRays.tools(body.skeleton, body.profile);
     for (const side of rounded)
       handles[side]!.palmDepth = measureRidePalmDepth(body, side, surfaces);
   }

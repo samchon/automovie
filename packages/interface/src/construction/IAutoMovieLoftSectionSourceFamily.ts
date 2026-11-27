@@ -4,7 +4,7 @@ import type { IAutoMovieLoftViewRead } from "./IAutoMovieLoftViewRead";
  * Complete endpoint generating data after orientation into the receiving
  * station/phase chart.
  *
- * AutoMovieLoftSectionSource.bind admits this family, clones it into
+ * AutoMovieEngineLoftSectionSource.bind admits this family, clones it into
  * independent field and snapshot records, and binds both to the receiving
  * layer's actual coefficient rows. endpoint later refuses a changed or
  * malformed family rather than treating it as absent legacy geometry. Native

@@ -1,4 +1,4 @@
-import { AutoMovieSceneRenderMode, AutoMovieSceneResource, AutoMovieSceneShadow } from "@automovie/render";
+import { AutoMovieRenderSceneRenderMode, AutoMovieRenderSceneResource, AutoMovieRenderSceneShadow } from "@automovie/render";
 import type * as THREE from "three";
 
 /*
@@ -13,13 +13,13 @@ export function releaseMountedViewer(
   scene: THREE.Scene,
   stopLoop: () => void,
 ): void {
-  AutoMovieSceneRenderMode.restoreState([
+  AutoMovieRenderSceneRenderMode.restoreState([
     stopLoop,
     (): void => {
-      AutoMovieSceneShadow.resetTargets(scene, renderer);
+      AutoMovieRenderSceneShadow.resetTargets(scene, renderer);
     },
     (): void => {
-      AutoMovieSceneResource.releaseRenderer(renderer);
+      AutoMovieRenderSceneResource.releaseRenderer(renderer);
     },
   ]);
 }

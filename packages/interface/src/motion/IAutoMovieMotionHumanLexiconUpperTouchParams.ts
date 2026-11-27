@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanSelfAction } from "./IAutoMovieMotionHumanSelfAction";
-import type { AutoMovieMotionHumanTuckHairParams } from "./AutoMovieMotionHumanTuckHairParams";
+import type { IAutoMovieMotionHumanTuckHairParams } from "./IAutoMovieMotionHumanTuckHairParams";
 
 /**
  * Open parameters of the upperTouch lexicon family, keyed by each runtime
@@ -47,5 +47,5 @@ export interface IAutoMovieMotionHumanLexiconUpperTouchParams {
   selfShoulderRoll: Omit<IAutoMovieMotionHumanSelfAction.IParams, "kind">;
 
   /** Sweep hair behind an ear. */
-  tuckHair: AutoMovieMotionHumanTuckHairParams;
+  tuckHair: IAutoMovieMotionHumanTuckHairParams;
 }

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingAim,
   IAutoMovieSuperposeMinimumJerk,
@@ -33,7 +33,7 @@ export function punchCorrected(
     );
   const goals: IAutoMovieVector3[] = [tracker.planned];
   for (const unit of units)
-    goals.push(Vector3.add(goals.at(-1)!, unit.displacement));
+    goals.push(AutoMovieEngineVector3.add(goals.at(-1)!, unit.displacement));
   const startAt = (index: number): number => units[index]!.start;
   const arrived = (seconds: number): number =>
     PreparedHumanIntervals.upperBound(units.length, startAt, seconds);

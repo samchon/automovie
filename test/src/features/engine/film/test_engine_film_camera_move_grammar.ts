@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -233,7 +233,7 @@ export function test_engine_film_camera_move_grammar(): void {
   };
   TestValidator.predicate(
     "whip lands with −Z on the aim",
-    vclose(Quaternion.rotateVector(landing, { x: 0, y: 0, z: -1 }), {
+    vclose(AutoMovieEngineQuaternion.rotateVector(landing, { x: 0, y: 0, z: -1 }), {
       x: 0,
       y: 0,
       z: -1,

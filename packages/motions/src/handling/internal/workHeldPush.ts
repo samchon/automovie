@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -134,15 +134,15 @@ export function workHeldPush(
     moved === undefined
       ? from
       : {
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             moved.position,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               moved.rotation,
-              Vector3.subtract(from.position, still.place(start)),
+              AutoMovieEngineVector3.subtract(from.position, still.place(start)),
             ),
           ),
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(moved.rotation, from.rotation),
+          rotation: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(moved.rotation, from.rotation),
           ),
         };
   const grasped: workHeldPush.IGrasp =
@@ -171,8 +171,8 @@ export function workHeldPush(
   );
   return {
     travel: Math.max(
-      Vector3.length(Vector3.subtract(wrist(start), hand.worldPosition)),
-      Vector3.length(Vector3.subtract(holder.position, holding.worldPosition)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist(start), hand.worldPosition)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(holder.position, holding.worldPosition)),
     ),
     holder: (clock: IAutoMovieMotionClock): IAutoMovieMotionHumanPrimitive[] =>
       moved === undefined
@@ -184,9 +184,9 @@ export function workHeldPush(
               clock,
               holder.position,
               holder.rotation,
-              Quaternion.rotateVector(
-                Quaternion.inverse(holding.worldRotation),
-                Vector3.subtract(entry.position, holding.worldPosition),
+              AutoMovieEngineQuaternion.rotateVector(
+                AutoMovieEngineQuaternion.inverse(holding.worldRotation),
+                AutoMovieEngineVector3.subtract(entry.position, holding.worldPosition),
               ),
             ),
           ],
@@ -318,25 +318,25 @@ function grasp(
   const place: (travel: number) => IAutoMovieVector3 = (
     travel: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         frame.rotation,
         heldDigits.posed(joint, contact, travel),
       ),
     );
-  const turned: IAutoMovieQuaternion = Quaternion.multiply(
+  const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     frame.rotation,
     contact.frame.rotation,
   );
-  const line: IAutoMovieVector3 = Vector3.normalize(
-    Quaternion.rotateVector(turned, { x: 1, y: 0, z: 0 }),
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineQuaternion.rotateVector(turned, { x: 1, y: 0, z: 0 }),
   );
   const grasped: IAutoMovieMotionHumanHand.IWrist = HumanGraspRoll(
     HumanGrasp.hand(context.body, other, {
       point: place(start),
-      approach: Vector3.normalize(
-        Quaternion.rotateVector(turned, { x: 0, y: -1, z: 0 }),
+      approach: AutoMovieEngineVector3.normalize(
+        AutoMovieEngineQuaternion.rotateVector(turned, { x: 0, y: -1, z: 0 }),
       ),
       axis: line,
       width: contact.aperture ?? 0,
@@ -348,7 +348,7 @@ function grasp(
   return {
     place,
     wrist: (travel: number): IAutoMovieVector3 =>
-      Vector3.add(grasped.point, Vector3.subtract(place(travel), place(start))),
+      AutoMovieEngineVector3.add(grasped.point, AutoMovieEngineVector3.subtract(place(travel), place(start))),
     turn: grasped.rotation,
   };
 }
@@ -382,17 +382,17 @@ function presentation(
     z: ahead + context.body.measure.forearm,
   });
   // World +X is the performer's left at heading 0.
-  const away: IAutoMovieVector3 = Vector3.subtract(
+  const away: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     HumanFrame.point(floor, { x: other === "left" ? 1 : -1, y: 0, z: 0 }),
     HumanFrame.point(floor, { x: 0, y: 0, z: 0 }),
   );
-  const along: IAutoMovieVector3 = Vector3.subtract(
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     still.place(end),
     still.place(start),
   );
   const level: IAutoMovieVector3 = { x: along.x, y: 0, z: along.z };
   const degrees: number =
-    Vector3.length(level) === 0
+    AutoMovieEngineVector3.length(level) === 0
       ? 0
       : (Math.atan2(
           level.z * away.x - level.x * away.z,
@@ -402,7 +402,7 @@ function presentation(
         Math.PI;
   return {
     position: point,
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
   };
 }
 

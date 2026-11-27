@@ -3,14 +3,14 @@ import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieResolveCe
 
 
 
-import { AutoMoviePhysicalInertiaTensor } from "../../../physics/AutoMoviePhysicalInertiaTensor";
+import { AutoMovieEnginePhysicalInertiaTensor } from "../../../physics/AutoMovieEnginePhysicalInertiaTensor";
 
 /*
  * The three reductions a flight's shape history makes of posed bones, chosen
  * together for one mass model: the posed mass parts of a bone map, the momentum
  * of the motion between two posed instants, and a posed instant's composite
  * inertia tensor about its centre; with the admission of that tensor. A raw
- * model reduces through `AutoMovieEngineKinematics.resolveAutoMovieMomentum` and `AutoMoviePhysicalInertiaTensor`;
+ * model reduces through `AutoMovieEngineKinematics.resolveAutoMovieMomentum` and `AutoMovieEnginePhysicalInertiaTensor`;
  * a prepared token through its own entries, which share its private last-frame
  * work. Constructing the reduction of a prepared token reads the token once, so
  * a released token is refused before any shape is read.
@@ -38,7 +38,7 @@ export function AirborneShapeReduction(
         ): IAutoMovieBodyMomentum =>
           AutoMovieEngineKinematics.resolveAutoMovieMomentumBetween(model, before, after, seconds),
         tensor: (posed: AutoMovieEngineKinematics.IPosedBody): number[][] =>
-          AutoMoviePhysicalInertiaTensor.compute(posed.parts, posed.centre),
+          AutoMovieEnginePhysicalInertiaTensor.compute(posed.parts, posed.centre),
         admit,
       }
     : {

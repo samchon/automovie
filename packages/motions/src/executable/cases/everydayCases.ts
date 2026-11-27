@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -115,7 +115,7 @@ export function everydayCases(
       const pa: IAutoMovieVector3 = sternum("a", walking.end);
       const pb: IAutoMovieVector3 = sternum("b", walking.end);
       const gap: number = Math.hypot(pa.x - pb.x, pa.z - pb.z);
-      const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         performance.bones("a", walking.end).get("hips")!.worldRotation,
         { x: 0, y: 0, z: 1 },
       );
@@ -190,8 +190,8 @@ export function everydayCases(
             within(
               `${eye} on target ${i}`,
               angle(
-                Quaternion.rotateVector(e.worldRotation, { x: 0, y: 0, z: 1 }),
-                Vector3.subtract(point, e.worldPosition),
+                AutoMovieEngineQuaternion.rotateVector(e.worldRotation, { x: 0, y: 0, z: 1 }),
+                AutoMovieEngineVector3.subtract(point, e.worldPosition),
               ),
               2,
               "deg",
@@ -262,7 +262,7 @@ export function everydayCases(
           verdicts.push(
             within(
               `${right} ${side} ${goal.surface} at its place`,
-              Vector3.length(Vector3.subtract(got.point, goal.point)),
+              AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(got.point, goal.point)),
               0.015,
               "mm",
             ),

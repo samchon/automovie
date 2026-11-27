@@ -1,9 +1,11 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { hookSetTip } from "@automovie/motions/internal";
+import {
+  hookSetTip
+} from "../../../../../packages/motions/src/tasks/internal/hookSetTip";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -11,7 +13,7 @@ import { throwsError } from "../../internal/throwsError";
 import { vclose } from "../../internal/vclose";
 
 /** A rod lying ahead: its +Y turned a quarter about +X onto +Z. */
-const AHEAD: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+const AHEAD: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
   { x: 1, y: 0, z: 0 },
   90,
 );
@@ -42,13 +44,13 @@ export function test_motions_tasks_hook_set(): void {
   TestValidator.predicate(
     "the tip raised at the set",
     vclose(
-      Quaternion.rotateVector(tip.turned(0.5).rotation, { x: 0, y: 0, z: 1 }),
+      AutoMovieEngineQuaternion.rotateVector(tip.turned(0.5).rotation, { x: 0, y: 0, z: 1 }),
       { x: 0, y: Math.sin(r), z: Math.cos(r) },
       1e-12,
     ) &&
       vclose(tip.turned(0.5).position, grip.position, 0) &&
       vclose(
-        Quaternion.rotateVector(tip.turned(0).rotation, { x: 0, y: 0, z: 1 }),
+        AutoMovieEngineQuaternion.rotateVector(tip.turned(0).rotation, { x: 0, y: 0, z: 1 }),
         { x: 0, y: 0, z: 1 },
         1e-12,
       ) &&

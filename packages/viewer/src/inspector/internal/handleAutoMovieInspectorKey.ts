@@ -1,7 +1,7 @@
-import { AutoMovieFrameGrid } from "@automovie/render";
+import { AutoMovieRenderFrameGrid } from "@automovie/render";
 
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
-import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
+import type { AutoMovieViewerInspectorPlayhead } from "../AutoMovieViewerInspectorPlayhead.js";
 
 /*
  * The inspector's playback keys, as a video player's: Space and K play or
@@ -35,7 +35,7 @@ import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.j
  */
 export function handleAutoMovieInspectorKey(
   event: AutoMovieViewerInspector.IHandleKeyEvent,
-  playhead: AutoMovieInspectorPlayhead,
+  playhead: AutoMovieViewerInspectorPlayhead,
   fps: number | null,
 ): AutoMovieViewerInspector.IHandleKeyResult {
   // A shortcut, or a key a control answers itself, stays with the page.
@@ -50,19 +50,19 @@ export function handleAutoMovieInspectorKey(
   };
   const step: (direction: -1 | 1) => number = (direction: -1 | 1): number => {
     playhead.pause();
-    const { seconds, durationSeconds }: AutoMovieInspectorPlayhead.ISnapshot =
+    const { seconds, durationSeconds }: AutoMovieViewerInspectorPlayhead.ISnapshot =
       playhead.getSnapshot();
     if (fps === null) return seek(seconds + direction / 24);
 
-    const last: number = AutoMovieFrameGrid.last(durationSeconds, fps);
-    const frame: number = AutoMovieFrameGrid.nearest(
+    const last: number = AutoMovieRenderFrameGrid.last(durationSeconds, fps);
+    const frame: number = AutoMovieRenderFrameGrid.nearest(
       seconds,
       durationSeconds,
       fps,
       last,
     );
     return seek(
-      AutoMovieFrameGrid.time(frame + direction, durationSeconds, fps),
+      AutoMovieRenderFrameGrid.time(frame + direction, durationSeconds, fps),
     );
   };
   const toggle: () => null = (): null => {

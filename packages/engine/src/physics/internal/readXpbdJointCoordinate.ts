@@ -4,7 +4,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
+import { AutoMovieEnginePhysicalJointChart } from "../AutoMovieEnginePhysicalJointChart";
 
 /*
  * A free axis's coordinate, the one the joint's admission clamps
@@ -28,7 +28,7 @@ export function readXpbdJointCoordinate(
   const sign: number = relative.w < 0 ? -1 : 1;
   return order === undefined
     ? 2 * Math.atan2(relative[declared.axis] * sign, Math.abs(relative.w))
-    : AutoMoviePhysicalJointChart.nearest(joint, relative)[
+    : AutoMovieEnginePhysicalJointChart.nearest(joint, relative)[
         order.indexOf(declared.axis)
       ]!;
 }

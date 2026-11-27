@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
-import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake.js";
 
 /*
  * Read and linearly mix two neighboring canonical baked samples into a CPU
@@ -12,15 +12,15 @@ import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTa
  * appearance.
  */
 export const sampleFormationCycleMatrix: (
-  cycle: IAutoMovieFormationCycle,
+  cycle: IAutoMovieRenderFormationCycle,
   part: number,
   position: number,
-  take?: IAutoMovieFormationCycleTake,
+  take?: IAutoMovieRenderFormationCycleTake,
 ) => THREE.Matrix4 = (
-  cycle: IAutoMovieFormationCycle,
+  cycle: IAutoMovieRenderFormationCycle,
   part: number,
   position: number,
-  take: IAutoMovieFormationCycleTake = cycle.active,
+  take: IAutoMovieRenderFormationCycleTake = cycle.active,
 ): THREE.Matrix4 => {
   if (part < 0 || part >= cycle.names.length)
     throw new RangeError(

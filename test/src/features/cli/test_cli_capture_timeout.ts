@@ -1,6 +1,6 @@
 import {
-  AutoMovieDrawSession,
-  type IAutoMovieDrawPage,
+  AutoMovieRenderDrawSession,
+  type IAutoMovieRenderDrawPage,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { AutoMovieCliCapture, AutoMovieCliRender } from "automovie";
@@ -70,7 +70,7 @@ export async function test_cli_capture_timeout(): Promise<void> {
   const timeout: number = 600_000;
   const navigationError: Error = new Error("navigation reached its deadline");
   let navigationTimeout: number | undefined;
-  const page: IAutoMovieDrawPage = {
+  const page: IAutoMovieRenderDrawPage = {
     addInitScript: async (): Promise<void> => {},
     goto: async (
       _url: string,
@@ -88,7 +88,7 @@ export async function test_cli_capture_timeout(): Promise<void> {
     close: async (): Promise<void> => {},
   };
   await assert.rejects(
-    AutoMovieDrawSession.open({
+    AutoMovieRenderDrawSession.open({
       page,
       url: "http://127.0.0.1/index.html",
       props: { subject: "person", props: null },

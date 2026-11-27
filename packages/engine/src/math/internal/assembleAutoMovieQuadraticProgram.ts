@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolveQuadraticProgram,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_QUADRATIC_INFINITY } from "../../constants/AUTOMOVIE_QUADRATIC_INFINITY";
+import { AutoMovieEngineQuadraticInfinity } from "../../constants/AutoMovieEngineQuadraticInfinity";
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 
 /*
@@ -14,7 +14,7 @@ import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram
  * throws before anything is built. Column `c` holds its nonzeros at
  * `columns[c]` up to `columns[c + 1]`, in ascending row order, and a weight of
  * exactly zero is kept as an explicit entry. A null row endpoint becomes
- * `-AUTOMOVIE_QUADRATIC_INFINITY` or `AUTOMOVIE_QUADRATIC_INFINITY`, the
+ * `-AutoMovieEngineQuadraticInfinity` or `AutoMovieEngineQuadraticInfinity`, the
  * kernel's unbounded sentinel.
  * Parameter input: Program in sparse-row form; it is only read.
  * Returns: Kernel input whose `columns`, `rowIndices`, `values`, `lower` and
@@ -55,8 +55,8 @@ export function assembleAutoMovieQuadraticProgram(
       rowIndices[at] = i;
       values[at] = row.weights[j]!;
     }
-    lower[i] = row.lower ?? -AUTOMOVIE_QUADRATIC_INFINITY;
-    upper[i] = row.upper ?? AUTOMOVIE_QUADRATIC_INFINITY;
+    lower[i] = row.lower ?? -AutoMovieEngineQuadraticInfinity;
+    upper[i] = row.upper ?? AutoMovieEngineQuadraticInfinity;
   }
   return {
     diagonal: input.diagonal,

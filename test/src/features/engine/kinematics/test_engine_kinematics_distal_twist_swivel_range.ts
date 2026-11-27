@@ -1,9 +1,9 @@
-import { distalTwistSwivelRange } from "@automovie/engine";
+import { AutoMovieEngineDistalTwistSwivelRange } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `distalTwistSwivelRange.of(props)` reads, over a turn of the swivel, where a
+ * `AutoMovieEngineDistalTwistSwivelRange.of(props)` reads, over a turn of the swivel, where a
  * distally twisting mid segment can take the twist a requested end rotation
  * asks of it inside its own range: the breakpoints, the admission test and a
  * lower bound of the miss elsewhere.
@@ -25,7 +25,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_engine_kinematics_distal_twist_swivel_range(): void {
   const D: number = Math.PI / 180;
-  const circle: Omit<distalTwistSwivelRange.IProps, "range"> = {
+  const circle: Omit<AutoMovieEngineDistalTwistSwivelRange.IProps, "range"> = {
     axis: { x: 1, y: 0, z: 0 },
     normal: { x: 0, y: 1, z: 0 },
     ahead: { x: 0, y: 0, z: 1 },
@@ -35,7 +35,7 @@ export function test_engine_kinematics_distal_twist_swivel_range(): void {
       z: Math.cos(s * D),
     }),
   };
-  const range: distalTwistSwivelRange.IRange = distalTwistSwivelRange.of({
+  const range: AutoMovieEngineDistalTwistSwivelRange.IRange = AutoMovieEngineDistalTwistSwivelRange.of({
     ...circle,
     range: [-30, 30],
   });
@@ -59,8 +59,8 @@ export function test_engine_kinematics_distal_twist_swivel_range(): void {
   const miss = range.miss([-10, 10], 1);
   TestValidator.predicate("miss", miss(0, 2) === 0 && miss(100, 102) > 0);
 
-  const positiveTwist: distalTwistSwivelRange.IRange =
-    distalTwistSwivelRange.of({
+  const positiveTwist: AutoMovieEngineDistalTwistSwivelRange.IRange =
+    AutoMovieEngineDistalTwistSwivelRange.of({
       ...circle,
       range: [0, 30],
     });

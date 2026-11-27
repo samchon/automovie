@@ -1,11 +1,11 @@
 
 
-import "../../math/Quaternion";
-import "../../math/Vector3";
+import "../../math/AutoMovieEngineQuaternion";
+import "../../math/AutoMovieEngineVector3";
 
 
 import "./resolvePose";
-import * as ResolveAttachmentData from "./ResolveAttachmentData";
+import { ResolveAttachmentData } from "./ResolveAttachmentData";
 
 export namespace resolveAttachment {
   /*

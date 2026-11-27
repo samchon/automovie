@@ -1,6 +1,6 @@
 import type { IAutoMovieRigidTransform } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 
 /*
  * Own one simultaneous native scene per controller tick. A later ownership

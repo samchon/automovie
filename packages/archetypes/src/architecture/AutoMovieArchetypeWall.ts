@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeWallData from "./internal/AutoMovieArchetypeWallData";
+import { AutoMovieArchetypeWallData } from "./internal/AutoMovieArchetypeWallData";
 
 /** Constructs the wall archetype from its recipe. */
 export namespace AutoMovieArchetypeWall {
@@ -63,17 +63,17 @@ export function create(
   });
   builder.box(
     "wall",
-    Vector3.create(length, height, thickness),
-    Vector3.create(0, height / 2, 0),
+    AutoMovieEngineVector3.create(length, height, thickness),
+    AutoMovieEngineVector3.create(0, height / 2, 0),
     { color: "#d8d2c4" },
   );
   builder.affordance({
     id: "face",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, height / 2, thickness / 2),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, height / 2, thickness / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     width: length,
@@ -83,7 +83,7 @@ export function create(
     id: "top",
     kind: "ledge",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, height, thickness / 2),
+      AutoMovieEngineVector3.create(0, height, thickness / 2),
     ),
     extent: null,
     length,
@@ -93,7 +93,7 @@ export function create(
       id: "seat",
       kind: "seat",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, height, thickness / 2),
+        AutoMovieEngineVector3.create(0, height, thickness / 2),
       ),
       extent: null,
       width: length,

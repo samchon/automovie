@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -83,24 +83,24 @@ export namespace EquineRecumbency {
       halt.placement,
       trunk.transform!.translation,
     );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       halt.placement.rotation,
       { x: 0, y: 0, z: 1 },
     );
-    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-      Vector3.normalize({ x: along.x, y: 0, z: along.z }),
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+      AutoMovieEngineVector3.normalize({ x: along.x, y: 0, z: along.z }),
       cue.side === "left" ? -90 : 90,
     );
     const turned: IAutoMovieTransform = {
       ...halt.placement,
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(turn, halt.placement.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(turn, halt.placement.rotation),
       ),
-      translation: Vector3.add(
+      translation: AutoMovieEngineVector3.add(
         pivot,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           turn,
-          Vector3.subtract(halt.placement.translation, pivot),
+          AutoMovieEngineVector3.subtract(halt.placement.translation, pivot),
         ),
       ),
     };
@@ -124,7 +124,7 @@ export namespace EquineRecumbency {
     );
     const lying: IAutoMovieTransform = {
       ...turned,
-      translation: Vector3.add(turned.translation, { x: 0, y: -lowest, z: 0 }),
+      translation: AutoMovieEngineVector3.add(turned.translation, { x: 0, y: -lowest, z: 0 }),
     };
     const rise: number = cue.from + cue.down + cue.hold;
     const end: number = rise + cue.down;

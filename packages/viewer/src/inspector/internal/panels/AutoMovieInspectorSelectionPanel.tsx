@@ -13,8 +13,8 @@ import {
   useState,
 } from "react";
 
-import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
-import type { IAutoMovieInspectorPathNode } from "../../IAutoMovieInspectorPathNode.js";
+import type { IAutoMovieViewerInspectorAction } from "../../IAutoMovieViewerInspectorAction.js";
+import type { IAutoMovieViewerInspectorPathNode } from "../../IAutoMovieViewerInspectorPathNode.js";
 import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
 
 
@@ -28,8 +28,8 @@ import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
 export function AutoMovieInspectorSelectionPanel(
   props: AutoMovieInspectorSelectionPanel.IProps,
 ): JSX.Element {
-  const tree: IAutoMovieInspectorPathNode[] = useMemo(
-    (): IAutoMovieInspectorPathNode[] =>
+  const tree: IAutoMovieViewerInspectorPathNode[] = useMemo(
+    (): IAutoMovieViewerInspectorPathNode[] =>
       AutoMovieViewerInspector.buildPathTree(props.paths),
     [props.paths],
   );
@@ -79,7 +79,7 @@ export function AutoMovieInspectorSelectionPanel(
         <span style={{ alignSelf: "flex-end", paddingLeft: 6 }}>Path</span>
       </div>
       <ul style={{ listStyle: "none", paddingLeft: 0, margin: 0 }}>
-        {tree.map((node: IAutoMovieInspectorPathNode): JSX.Element | null =>
+        {tree.map((node: IAutoMovieViewerInspectorPathNode): JSX.Element | null =>
           shown(node, needle) ? (
             <Row
               key={node.path}
@@ -110,7 +110,7 @@ export namespace AutoMovieInspectorSelectionPanel {
     /*
      * Where edits go.
      */
-    dispatch: (action: IAutoMovieInspectorAction) => void;
+    dispatch: (action: IAutoMovieViewerInspectorAction) => void;
   }
 }
 
@@ -127,11 +127,11 @@ const DISCLOSURE: number = 16;
 /*
  * Whether a node or any node under it matches the filter.
  */
-function shown(node: IAutoMovieInspectorPathNode, needle: string): boolean {
+function shown(node: IAutoMovieViewerInspectorPathNode, needle: string): boolean {
   return (
     needle === "" ||
     node.path.toLowerCase().includes(needle) ||
-    node.children.some((child: IAutoMovieInspectorPathNode): boolean =>
+    node.children.some((child: IAutoMovieViewerInspectorPathNode): boolean =>
       shown(child, needle),
     )
   );
@@ -140,9 +140,9 @@ function shown(node: IAutoMovieInspectorPathNode, needle: string): boolean {
 /*
  * The number of paths under a node.
  */
-function count(node: IAutoMovieInspectorPathNode): number {
+function count(node: IAutoMovieViewerInspectorPathNode): number {
   return node.children.reduce(
-    (sum: number, child: IAutoMovieInspectorPathNode): number =>
+    (sum: number, child: IAutoMovieViewerInspectorPathNode): number =>
       sum + 1 + count(child),
     0,
   );
@@ -152,10 +152,10 @@ function count(node: IAutoMovieInspectorPathNode): number {
  * One node with its controls and, folded until opened, its children.
  */
 function Row(props: {
-  node: IAutoMovieInspectorPathNode;
+  node: IAutoMovieViewerInspectorPathNode;
   needle: string;
   inspection: IAutoMovieInspectionRequest;
-  dispatch: (action: IAutoMovieInspectorAction) => void;
+  dispatch: (action: IAutoMovieViewerInspectorAction) => void;
 }): JSX.Element {
   const { node, needle, inspection, dispatch }: typeof props = props;
   const [open, setOpen]: [boolean, Dispatch<SetStateAction<boolean>>] =
@@ -173,10 +173,10 @@ function Row(props: {
   // A filter opens every node it keeps, so the matches are seen.
   const expanded: boolean = open || needle !== "";
   const toggle: (
-    type: IAutoMovieInspectorAction.IToggle["type"],
+    type: IAutoMovieViewerInspectorAction.IToggle["type"],
     list: readonly string[],
   ) => JSX.Element = (
-    type: IAutoMovieInspectorAction.IToggle["type"],
+    type: IAutoMovieViewerInspectorAction.IToggle["type"],
     list: readonly string[],
   ): JSX.Element => (
     <input
@@ -272,7 +272,7 @@ function Row(props: {
       {expanded ? (
         <ul style={{ listStyle: "none", paddingLeft: 14, margin: 0 }}>
           {node.children.map(
-            (child: IAutoMovieInspectorPathNode): JSX.Element | null =>
+            (child: IAutoMovieViewerInspectorPathNode): JSX.Element | null =>
               shown(child, needle) ? (
                 <Row
                   key={child.path}

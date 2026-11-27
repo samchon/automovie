@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieConstructionOutlineRange,
@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
 type Created = IAutoMovieViewOutline.IResult;
 
 /**
- * `AutoMovieViewOutline.create` and `at` admit a floating-point excess within
+ * `AutoMovieEngineViewOutline.create` and `at` admit a floating-point excess within
  * the shared relative construction tolerance, 5e-3 of the outline's own extent,
  * and refuse a real excess.
  *
@@ -63,7 +63,7 @@ export function test_engine_geometry_view_outline_tolerance(): void {
     station: number,
   ): IAutoMovieViewOutline.IReading => {
     const reading: IAutoMovieViewOutline.IReading | string =
-      AutoMovieViewOutline.at(source, station);
+      AutoMovieEngineViewOutline.at(source, station);
     if (typeof reading === "string") throw new Error(reading);
     return reading;
   };
@@ -75,11 +75,11 @@ export function test_engine_geometry_view_outline_tolerance(): void {
   // 1.
   admitted(
     "range 100.1",
-    AutoMovieViewOutline.create({ ...outline([0, 50, 100.1]), range }),
+    AutoMovieEngineViewOutline.create({ ...outline([0, 50, 100.1]), range }),
   );
   refused(
     "range 101",
-    AutoMovieViewOutline.create({ ...outline([0, 50, 101]), range }),
+    AutoMovieEngineViewOutline.create({ ...outline([0, 50, 101]), range }),
     "outline",
     "outside its declared range",
   );
@@ -87,14 +87,14 @@ export function test_engine_geometry_view_outline_tolerance(): void {
   // 2.
   const pole: IAutoMovieViewOutline.IOutline = admitted(
     "pole -3.55e-15",
-    AutoMovieViewOutline.create(outline([5, 10, -3.552713678800501e-15]), {
+    AutoMovieEngineViewOutline.create(outline([5, 10, -3.552713678800501e-15]), {
       top: 2,
     }),
   );
   TestValidator.equals("pole reads 0", read(pole, 2).value, 0);
   refused(
     "pole 0.5",
-    AutoMovieViewOutline.create(outline([5, 10, 0.5]), { top: 2 }),
+    AutoMovieEngineViewOutline.create(outline([5, 10, 0.5]), { top: 2 }),
     "pole knot",
     "is not 0 at the finite pole station",
   );
@@ -102,7 +102,7 @@ export function test_engine_geometry_view_outline_tolerance(): void {
   // 3.
   const angle: IAutoMovieViewOutline.IOutline = admitted(
     "angle",
-    AutoMovieViewOutline.create(
+    AutoMovieEngineViewOutline.create(
       outline([10, 11, 10], { type: "angle", bottom: 0, top: 4 }),
     ),
   );
@@ -113,7 +113,7 @@ export function test_engine_geometry_view_outline_tolerance(): void {
     [near.value, near.parameter],
     [end.value, end.parameter],
   );
-  const far: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
+  const far: IAutoMovieViewOutline.IReading | string = AutoMovieEngineViewOutline.at(
     angle,
     4.1,
   );

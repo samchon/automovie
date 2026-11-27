@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieTransform,
@@ -407,12 +407,12 @@ export namespace ArchetypeTowing {
             solved.pitch / (pitchSign * AutoMovieArchetypeUnits.DEGREE);
         const yaw: number =
           front === null ? theta + (forward < 0 ? Math.PI : 0) : phi;
-        const rotation: IAutoMovieTransform["rotation"] = Quaternion.multiply(
-          Quaternion.fromAxisAngle(
+        const rotation: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle(
             { x: 0, y: 1, z: 0 },
             yaw / AutoMovieArchetypeUnits.DEGREE,
           ),
-          Quaternion.fromAxisAngle(
+          AutoMovieEngineQuaternion.fromAxisAngle(
             { x: 1, y: 0, z: 0 },
             front === null ? solved.pitch / AutoMovieArchetypeUnits.DEGREE : 0,
           ),
@@ -424,9 +424,9 @@ export namespace ArchetypeTowing {
         };
         return {
           placement: {
-            translation: Vector3.subtract(
+            translation: AutoMovieEngineVector3.subtract(
               world,
-              Quaternion.rotateVector(rotation, pivot),
+              AutoMovieEngineQuaternion.rotateVector(rotation, pivot),
             ),
             rotation,
             scale: { ...AutoMovieArchetypeFrame.UNIT },

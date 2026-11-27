@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -15,7 +15,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
-import * as CrawlChainData from "./CrawlChainData";
+import { CrawlChainData } from "./CrawlChainData";
 
 /*
  * Build the chain for a body.
@@ -47,13 +47,13 @@ export function crawlChain(
   const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 => floor.local(upright.get(bone)!.worldPosition);
-  const chest: IAutoMovieVector3 = Vector3.subtract(
-    Vector3.lerp(at("leftUpperArm"), at("rightUpperArm"), 0.5),
-    Vector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
+  const chest: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.lerp(at("leftUpperArm"), at("rightUpperArm"), 0.5),
+    AutoMovieEngineVector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
   );
   const thigh: number = body.measure.thigh;
   const shank: number = body.measure.shank;
-  const t: number = Vector3.length(chest);
+  const t: number = AutoMovieEngineVector3.length(chest);
   const l: number = crawlChain.LEG * (thigh + shank);
   const r: number =
     crawlChain.ARM * (body.measure.upperArm + body.measure.forearm);
@@ -245,7 +245,7 @@ export function crawlChain(
     v: (at("leftLowerLeg").y + at("rightLowerLeg").y) / 2,
   };
   const hipRest: crawlChain.IPlanar = planar(
-    Vector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
+    AutoMovieEngineVector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
   );
   const resting: number =
     Math.atan2(rest.u - hipRest.u, hipRest.v - rest.v) * DEG;

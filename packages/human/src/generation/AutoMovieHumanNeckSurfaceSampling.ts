@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieLoftParameter } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineLoftParameter } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanNeckSurface,
@@ -37,12 +37,12 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
     phases: readonly number[],
     scale: number,
   ): IAutoMovieHumanNeckSurface.ISection {
-    const points: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+    const points: AutoMovieVector3Tuple[] = AutoMovieEngineLoftChain.ring(
       chain,
       station,
       phases,
     );
-    const dense: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+    const dense: AutoMovieVector3Tuple[] = AutoMovieEngineLoftChain.ring(
       chain,
       station,
       MEASURE_PHASES,
@@ -65,7 +65,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
       minZ = Math.min(minZ, point[2]);
       maxZ = Math.max(maxZ, point[2]);
     }
-    const frame: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(
+    const frame: IAutoMovieLoftSectionFrame = AutoMovieEngineLoftChain.frame(
       chain,
       station,
     );
@@ -73,7 +73,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
       chain: chain.name,
       stationMm: station,
       requestedHeight: requestedHeight * scale,
-      centre: scaled(AutoMovieLoftChain.axis(chain, station), scale),
+      centre: scaled(AutoMovieEngineLoftChain.axis(chain, station), scale),
       frame: {
         origin: scaled(frame.origin, scale),
         u: [...frame.u],
@@ -84,9 +84,9 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
           scaled(point, scale),
       ),
       sourcePhases: [...phases],
-      displayCoordinates: AutoMovieLoftParameter.phases(
+      displayCoordinates: AutoMovieEngineLoftParameter.phases(
         "arclength",
-        AutoMovieLoftChain.local(chain, station, points),
+        AutoMovieEngineLoftChain.local(chain, station, points),
       ),
       circumference: circumference * scale,
       breadth: (maxZ - minZ) * scale,

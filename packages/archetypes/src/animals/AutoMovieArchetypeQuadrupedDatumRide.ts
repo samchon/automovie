@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import type { AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
@@ -79,7 +79,7 @@ function quadrupedDatumRide<
     false,
   )!.landing(
     { x: course.start.x, y: 0, z: course.start.z },
-    Quaternion.identity(),
+    AutoMovieEngineQuaternion.identity(),
   ).point.y;
   const ride: AutoMovieArchetypeRide.IRide<Affordance, Dimension> =
     AutoMovieArchetypeQuadruped.ride(
@@ -102,7 +102,7 @@ function quadrupedDatumRide<
     );
   const raise = (placement: IAutoMovieTransform): IAutoMovieTransform => ({
     ...placement,
-    translation: Vector3.add(placement.translation, { x: 0, y: datum, z: 0 }),
+    translation: AutoMovieEngineVector3.add(placement.translation, { x: 0, y: datum, z: 0 }),
   });
   return {
     ...ride,

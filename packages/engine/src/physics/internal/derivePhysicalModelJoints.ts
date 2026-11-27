@@ -11,11 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
-import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
+import { AutoMovieEngineHumanoidJointAxes } from "../../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { derivePhysicalActuators } from "./derivePhysicalActuators";
@@ -47,16 +47,16 @@ export function derivePhysicalModelJoints(
           segment.bone === bone.bone,
       )!;
       const source: IAutoMovieJointAxes = normalizeJointAxes(
-        bone.axes ?? HUMANOID_JOINT_AXES[bone.bone] ?? DEFAULT_JOINT_AXES,
+        bone.axes ?? AutoMovieEngineHumanoidJointAxes[bone.bone] ?? AutoMovieEngineDefaultJointAxes,
         `physical.${bone.bone}`,
       );
-      const x: IAutoMovieVector3 = Vector3.normalize(source.flexion);
-      const y: IAutoMovieVector3 = Vector3.normalize(source.twist);
-      const z: IAutoMovieVector3 = Vector3.cross(x, y);
-      const abduction: IAutoMovieVector3 = Vector3.normalize(source.abduction);
+      const x: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(source.flexion);
+      const y: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(source.twist);
+      const z: IAutoMovieVector3 = AutoMovieEngineVector3.cross(x, y);
+      const abduction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(source.abduction);
       if (
-        Math.abs(Vector3.dot(x, y)) > 1e-6 ||
-        Math.abs(Math.abs(Vector3.dot(z, abduction)) - 1) > 1e-6
+        Math.abs(AutoMovieEngineVector3.dot(x, y)) > 1e-6 ||
+        Math.abs(Math.abs(AutoMovieEngineVector3.dot(z, abduction)) - 1) > 1e-6
       )
         throw new Error(`Physical model axes are not orthogonal: ${bone.bone}`);
       const basis: IAutoMovieRigidTransform["rotation"] =
@@ -81,7 +81,7 @@ export function derivePhysicalModelJoints(
             constraint?.[name];
           if (constraint && range === null) return [];
           const sign: 1 | -1 =
-            name === "abduction" && Vector3.dot(z, abduction) < 0 ? -1 : 1;
+            name === "abduction" && AutoMovieEngineVector3.dot(z, abduction) < 0 ? -1 : 1;
           const minimum: number = ((range?.min ?? -180) * Math.PI) / 180;
           const maximum: number = ((range?.max ?? 180) * Math.PI) / 180;
           return [
@@ -104,13 +104,13 @@ export function derivePhysicalModelJoints(
         parent: parent.bone,
         child: child.bone,
         parentFrame: {
-          position: Quaternion.rotateVector(
-            Quaternion.inverse(parent.neutral.rotation),
-            Vector3.subtract(child.neutral.position, parent.neutral.position),
+          position: AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.inverse(parent.neutral.rotation),
+            AutoMovieEngineVector3.subtract(child.neutral.position, parent.neutral.position),
           ),
-          rotation: Quaternion.multiply(
-            Quaternion.multiply(
-              Quaternion.inverse(parent.neutral.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.inverse(parent.neutral.rotation),
               child.neutral.rotation,
             ),
             basis,

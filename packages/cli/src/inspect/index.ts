@@ -1,2 +1,2 @@
 export * from "./AutoMovieCliInspect";
-export type { AutoMovieCliInspectTypes } from "./AutoMovieCliInspectTypes";
+export type * from "./AutoMovieCliInspectTypes";

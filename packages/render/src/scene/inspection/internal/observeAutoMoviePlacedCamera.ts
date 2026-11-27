@@ -3,7 +3,7 @@ import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieCameraInspection, IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import type { Mesh } from "three";
 
-import type { IAutoMovieDrawScene } from "../../../draw/IAutoMovieDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "../../../draw/IAutoMovieRenderDrawScene.js";
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
 import { measureAutoMovieCameraFrameEdge } from "./measureAutoMovieCameraFrameEdge.js";
 import { measureAutoMovieCameraNearClip } from "./measureAutoMovieCameraNearClip.js";
@@ -57,7 +57,7 @@ export function observeAutoMoviePlacedCamera(
       ...(targetBounds === undefined ? {} : { targetBounds }),
       ...(maxOcclusionRatio === undefined ? {} : { maxOcclusionRatio }),
     };
-    const raster: IAutoMovieDrawScene.IPlacedSample["auditRaster"] =
+    const raster: IAutoMovieRenderDrawScene.IPlacedSample["auditRaster"] =
       !preview && maxOcclusionRatio !== undefined
         ? sample.auditRaster
         : undefined;

@@ -1,6 +1,6 @@
-import type { IObserveAutoMoviePlacedSceneNativeSupport } from "../../IObserveAutoMoviePlacedSceneNativeSupport.js";
-import type { IObserveAutoMoviePlacedSceneNativeGrip } from "../../IObserveAutoMoviePlacedSceneNativeGrip.js";
-import type { IObserveAutoMoviePlacedSceneCheck } from "../../IObserveAutoMoviePlacedSceneCheck.js";
+import type { IAutoMovieRenderObservePlacedSceneNativeSupport } from "../../IAutoMovieRenderObservePlacedSceneNativeSupport.js";
+import type { IAutoMovieRenderObservePlacedSceneNativeGrip } from "../../IAutoMovieRenderObservePlacedSceneNativeGrip.js";
+import type { IAutoMovieRenderObservePlacedSceneCheck } from "../../IAutoMovieRenderObservePlacedSceneCheck.js";
 import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
@@ -53,7 +53,7 @@ export function measureAutoMoviePlacedObligation(
 type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
 type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
 
-type IInput = IObserveAutoMoviePlacedSceneCheck["input"];
+type IInput = IAutoMovieRenderObservePlacedSceneCheck["input"];
 
 /*
  * A checked outcome without a witness.
@@ -72,8 +72,8 @@ function nativeContact(
   scene: Object3D,
   matrices: Map<Object3D, Matrix4 | undefined>,
   input:
-    | IObserveAutoMoviePlacedSceneNativeSupport
-    | IObserveAutoMoviePlacedSceneNativeGrip,
+    | IAutoMovieRenderObservePlacedSceneNativeSupport
+    | IAutoMovieRenderObservePlacedSceneNativeGrip,
 ): IAutoMoviePlacedContact.IProps {
   if (input.kind === "scene-support") {
     const { sample, path, maxGap, maxSlip } = input;

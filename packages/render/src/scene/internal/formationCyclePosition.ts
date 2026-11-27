@@ -1,4 +1,4 @@
-import type { IAutoMovieFormationCadence } from "../IAutoMovieFormationCadence.js";
+import type { IAutoMovieRenderFormationCadence } from "../IAutoMovieRenderFormationCadence.js";
 
 /*
  * Where one member stands in its cycle, in `[0, 1)`.
@@ -12,11 +12,11 @@ import type { IAutoMovieFormationCadence } from "../IAutoMovieFormationCadence.j
  * captured bytes across GPU arithmetic or unrelated host state.
  */
 export const formationCyclePosition: (
-  cadence: Pick<IAutoMovieFormationCadence, "advance" | "turn">,
+  cadence: Pick<IAutoMovieRenderFormationCadence, "advance" | "turn">,
   phase: number,
   radius?: number,
 ) => number = (
-  cadence: Pick<IAutoMovieFormationCadence, "advance" | "turn">,
+  cadence: Pick<IAutoMovieRenderFormationCadence, "advance" | "turn">,
   phase: number,
   /*
    * The member's distance from its unit's origin, in meters.

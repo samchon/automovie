@@ -1,13 +1,13 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../../geometry/PLANAR_EPSILON";
+import { AutoMovieEnginePlanarEpsilon } from "../../geometry/AutoMovieEnginePlanarEpsilon";
 import { planarSide } from "./planarSide";
 
 /*
  * Whether a point lies on a closed segment, its endpoints included.
  *
  * The point must be collinear by planarSide and inside the segment's
- * axis-aligned box widened by `PLANAR_EPSILON` (1e-12) on every side. A
+ * axis-aligned box widened by `AutoMovieEnginePlanarEpsilon` (1e-12) on every side. A
  * zero-length segment therefore contains exactly the points within that slack
  * of its one position.
  * Parameter point: Point to test, in the caller's planar frame.
@@ -22,9 +22,9 @@ export function pointOnSegment(
 ): boolean {
   return (
     planarSide(from, to, point) === 0 &&
-    point.x >= Math.min(from.x, to.x) - PLANAR_EPSILON &&
-    point.x <= Math.max(from.x, to.x) + PLANAR_EPSILON &&
-    point.y >= Math.min(from.y, to.y) - PLANAR_EPSILON &&
-    point.y <= Math.max(from.y, to.y) + PLANAR_EPSILON
+    point.x >= Math.min(from.x, to.x) - AutoMovieEnginePlanarEpsilon &&
+    point.x <= Math.max(from.x, to.x) + AutoMovieEnginePlanarEpsilon &&
+    point.y >= Math.min(from.y, to.y) - AutoMovieEnginePlanarEpsilon &&
+    point.y <= Math.max(from.y, to.y) + AutoMovieEnginePlanarEpsilon
   );
 }

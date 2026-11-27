@@ -19,8 +19,8 @@ import type {
 } from "@automovie/interface";
 
 import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { STATIC_SUPPORT_HEIGHT_EPSILON } from "../../motion/constants/STATIC_SUPPORT_HEIGHT_EPSILON";
 import { AutoMovieEngineMotionPlanting } from "../../motion";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
@@ -105,15 +105,15 @@ export function plantPerformShotStanceFeet(
     if (node === undefined) continue;
     const translation: IAutoMovieVector3 = node.transform.translation;
     const rotation: IAutoMovieQuaternion = node.transform.rotation;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(rotation);
     function toModel(point: IAutoMovieVector3): IAutoMovieVector3 {
-      return Quaternion.rotateVector(
+      return AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, translation),
+        AutoMovieEngineVector3.subtract(point, translation),
       );
     }
     function toWorld(point: IAutoMovieVector3): IAutoMovieVector3 {
-      return Vector3.add(translation, Quaternion.rotateVector(rotation, point));
+      return AutoMovieEngineVector3.add(translation, AutoMovieEngineQuaternion.rotateVector(rotation, point));
     }
 
     let support: IAutoMovieTimedGround | undefined;

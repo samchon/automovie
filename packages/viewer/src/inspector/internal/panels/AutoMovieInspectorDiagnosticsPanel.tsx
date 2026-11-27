@@ -1,9 +1,9 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import type { ChangeEvent, JSX } from "react";
 
-import type { AutoMovieInspectorPlayhead } from "../../AutoMovieInspectorPlayhead.js";
-import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
-import type { IAutoMovieInspectorScene } from "../../IAutoMovieInspectorScene.js";
+import type { AutoMovieViewerInspectorPlayhead } from "../../AutoMovieViewerInspectorPlayhead.js";
+import type { IAutoMovieViewerInspectorAction } from "../../IAutoMovieViewerInspectorAction.js";
+import type { IAutoMovieViewerInspectorScene } from "../../IAutoMovieViewerInspectorScene.js";
 import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
 
 /*
@@ -15,7 +15,7 @@ export function AutoMovieInspectorDiagnosticsPanel(props: {
   /*
    * Reported incidents, newest first.
    */
-  incidents: readonly IAutoMovieInspectorScene.IIncident[];
+  incidents: readonly IAutoMovieViewerInspectorScene.IIncident[];
 
   /*
    * The identity paths the scene draws.
@@ -35,12 +35,12 @@ export function AutoMovieInspectorDiagnosticsPanel(props: {
   /*
    * The playhead a located finding stops at.
    */
-  playhead: AutoMovieInspectorPlayhead;
+  playhead: AutoMovieViewerInspectorPlayhead;
 
   /*
    * Where edits go.
    */
-  dispatch: (action: IAutoMovieInspectorAction) => void;
+  dispatch: (action: IAutoMovieViewerInspectorAction) => void;
 }): JSX.Element {
   const show: (
     observation: IAutoMovieInspectionDiagnostics.IObservation,
@@ -73,7 +73,7 @@ export function AutoMovieInspectorDiagnosticsPanel(props: {
         <ol style={{ margin: 0, paddingLeft: 18 }}>
           {props.incidents.map(
             (
-              incident: IAutoMovieInspectorScene.IIncident,
+              incident: IAutoMovieViewerInspectorScene.IIncident,
               index: number,
             ): JSX.Element => {
               const witness: IAutoMovieInspectionDiagnostics.IObservation =

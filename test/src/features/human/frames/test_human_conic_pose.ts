@@ -1,4 +1,4 @@
-import { AutoMovieViewAxis, AutoMovieViewJointedCourse } from "@automovie/engine";
+import { AutoMovieEngineViewAxis, AutoMovieEngineViewJointedCourse } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicPose as Q,
@@ -21,12 +21,12 @@ import type {
  *
  * Scenarios:
  * 1. The set-back share is the engine's: for corners of 0.3, 1.2 and 2 rad and a half of 7 mm, `7 share(angle)` is the set-back
- *    `AutoMovieViewJointedCourse.prepare` reads, the share grows with the angle from 1 at a straight joint, and `course` dates each turn
+ *    `AutoMovieEngineViewJointedCourse.prepare` reads, the share grows with the angle from 1 at a straight joint, and `course` dates each turn
  *    where the engine does.
  * 2. A posed half keeps the set-back: a made course of two segments (100 and 80 mm, half 20 mm) bent 0.6 rad, posed at 1.5 rad and at
  *    0.1 rad; the engine's set-back on the posed centres and halves is the reference one within 1e-9 mm, and the half itself changed.
  * 3. A point of the far bone stays on it: the point 50 mm from the joint centre along the second segment has a station on the
- *    reference course (`AutoMovieViewAxis.runs`); mapped to the posed course, the engine's axis stands there at the joint centre plus
+ *    reference course (`AutoMovieEngineViewAxis.runs`); mapped to the posed course, the engine's axis stands there at the joint centre plus
  *    50 mm along the posed segment, within 1e-9 mm, which a rigid rotation of the bone about its joint asks for.
  * 4. The station map is the identity at the reference angle (none is returned), keeps the first run's stations, is continuous at every
  *    breakpoint and increasing, and shifts every station past the turn by the turn's change of arclength.
@@ -64,7 +64,7 @@ export function test_human_conic_pose(): void {
     if (!(error <= limit) || a.length !== b.length) failures.push(`${label}: ${JSON.stringify(a)} against ${JSON.stringify(b)} (error ${error})`);
   };
   const prepared = (centres: V3[], halves: number[]): IAutoMovieViewJointedCourse.ICourse => {
-    const made: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(centres, halves);
+    const made: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieEngineViewJointedCourse.prepare(centres, halves);
     if (typeof made === "string") throw new Error("made course refused: " + made);
     return made;
   };
@@ -97,9 +97,9 @@ export function test_human_conic_pose(): void {
       failures.push(`no map at ${angle}`);
       continue;
     }
-    const run: IAutoMovieViewAxis.IRun = (AutoMovieViewAxis.runs(reference, [20]) as IAutoMovieViewAxis.IRun[])[1]!;
+    const run: IAutoMovieViewAxis.IRun = (AutoMovieEngineViewAxis.runs(reference, [20]) as IAutoMovieViewAxis.IRun[])[1]!;
     const station: number = run.start + (50 - run.from);
-    const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(posed, halves, [0, 0, 1]) as IAutoMovieViewAxis.IAxis;
+    const axis: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.jointed(posed, halves, [0, 0, 1]) as IAutoMovieViewAxis.IAxis;
     near("far bone at " + angle, axis.at(map(station)).origin, [50 * Math.cos(angle), 50 * Math.sin(angle), 0], 1e-9);
 
     const [start, end]: number[] = [before.turns[0]!.start, before.turns[0]!.start + 40];
@@ -137,7 +137,7 @@ export function test_human_conic_pose(): void {
   const [leg, hung]: IAutoMovieHumanConicPose.ICourse[] = [Q.course(stored.body.leg.centres, stored.body.leg.halves), Q.course(neutral.body.leg.centres, neutral.body.leg.halves)];
   near("leg bones at neutral", hung!.lengths, leg!.lengths, 1e-9);
   near("leg set-backs at neutral", hung!.setbacks, leg!.setbacks, 1e-9);
-  if (typeof AutoMovieViewJointedCourse.prepare(neutral.body.leg.centres, neutral.body.leg.halves) === "string") failures.push("the engine refuses the neutral leg's course");
+  if (typeof AutoMovieEngineViewJointedCourse.prepare(neutral.body.leg.centres, neutral.body.leg.halves) === "string") failures.push("the engine refuses the neutral leg's course");
 
   // 7: a corner fixed on the parent, the far centre turned with the child about a pivot off the course.
   const pivot: V3 = [10, 25, 0];
@@ -151,7 +151,7 @@ export function test_human_conic_pose(): void {
   const carry: ((station: number) => number) | null = Q.map(stood!, hung2!);
   if (carry === null || !(Math.abs(length - 80) > 5)) failures.push(`the hinged course did not change length: ${length}`);
   else {
-    const line: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(hinged, kept, [0, 0, 1]) as IAutoMovieViewAxis.IAxis;
+    const line: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.jointed(hinged, kept, [0, 0, 1]) as IAutoMovieViewAxis.IAxis;
     for (const back of [30, 55]) near("child's run " + back + " mm from its centre", line.at(carry(stood!.total - back)).origin, [swung[0] - (back * swung[0]) / length, swung[1] - (back * swung[1]) / length, 0], 1e-9);
     near("first run kept under the hinge", [carry(0), carry(40), carry(stood!.starts[0]!)], [0, 40, stood!.starts[0]!], 1e-9);
     near("the turn's span takes the difference", [carry(stood!.starts[0]! + 40) - carry(stood!.starts[0]!)], [2 * kept[0]! + (length - 80)], 1e-9);

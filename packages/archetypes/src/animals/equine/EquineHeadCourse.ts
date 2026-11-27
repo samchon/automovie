@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -165,8 +165,8 @@ export namespace EquineHeadCourse {
     share: number,
   ): EquineHeadReach.ITurn {
     return {
-      neck: Quaternion.slerp(from.neck, to.neck, share),
-      head: Quaternion.slerp(from.head, to.head, share),
+      neck: AutoMovieEngineQuaternion.slerp(from.neck, to.neck, share),
+      head: AutoMovieEngineQuaternion.slerp(from.head, to.head, share),
     };
   }
 
@@ -183,12 +183,12 @@ export namespace EquineHeadCourse {
     obstacles: readonly IObstacle[],
   ): IClearance {
     let least: IClearance = { gap: Infinity, where: "" };
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(bars.head, {
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(bars.head, {
       x: 0,
       y: 1,
       z: 0,
     });
-    const nose: IAutoMovieVector3 = Vector3.addScaled(
+    const nose: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       bars.poll,
       along,
       bars.muzzle - radii.head,
@@ -196,16 +196,16 @@ export namespace EquineHeadCourse {
     for (let k: number = 0; k <= CHECKS; k++) {
       const share: number = k / CHECKS;
       const turn: EquineHeadReach.ITurn = shown(path, start, goal, share);
-      const poll: IAutoMovieVector3 = Vector3.add(
+      const poll: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         bars.root,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           turn.neck,
-          Vector3.subtract(bars.poll, bars.root),
+          AutoMovieEngineVector3.subtract(bars.poll, bars.root),
         ),
       );
-      const tip: IAutoMovieVector3 = Vector3.add(
+      const tip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         poll,
-        Quaternion.rotateVector(turn.head, Vector3.subtract(nose, bars.poll)),
+        AutoMovieEngineQuaternion.rotateVector(turn.head, AutoMovieEngineVector3.subtract(nose, bars.poll)),
       );
       const allowance: number = k === CHECKS ? TOUCH : 0;
       for (const obstacle of obstacles) {

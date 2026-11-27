@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -156,24 +156,24 @@ export const HumanWeaponPresentFire: IAutoMovieMotionHumanActionLaw<IAutoMovieMo
         const off: number =
           HumanWeaponPresent.DISPERSION * Math.sqrt(random.float(0));
         const around: number = 360 * random.float(1);
-        const square: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(bore, around),
+        const square: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(bore, around),
           about,
         );
-        const direction: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(square, off),
+        const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(square, off),
           bore,
         );
         const seconds: number = clock.at("strokeStart") + (fired.lock ?? 0);
         launches.push({
           prop: fired.prop,
           seconds,
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             held.point,
-            Quaternion.rotateVector(held.rotation, s.tool.tip),
+            AutoMovieEngineQuaternion.rotateVector(held.rotation, s.tool.tip),
           ),
-          velocity: Vector3.add(
-            Vector3.scale(direction, fired.speed),
+          velocity: AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(direction, fired.speed),
             HumanSupportFrame.at(context, context.start + seconds).velocity,
           ),
           attitude: { kind: "velocity" },

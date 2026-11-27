@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -66,7 +66,7 @@ export function restElbowSupport(
     point: placed.point,
     rotation: HumanHand.rotation(side, {
       fingers: outward,
-      palm: Vector3.scale(placed.normal, -1),
+      palm: AutoMovieEngineVector3.scale(placed.normal, -1),
     }),
     elbow,
   };

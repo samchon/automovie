@@ -6,8 +6,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 
 /*
  * Build each bone's rigid motion from rest to pose, the transform a point or a
@@ -55,10 +55,10 @@ export const createAutoMovieBoneMotion: (
       throw new Error(`bone ${bone} is missing from the rest or posed bones`);
     let rotation: IAutoMovieQuaternion | undefined = cache.get(bone);
     if (rotation === undefined) {
-      rotation = Quaternion.normalize(
-        Quaternion.multiply(
+      rotation = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
           p.worldRotation,
-          Quaternion.inverse(r.worldRotation),
+          AutoMovieEngineQuaternion.inverse(r.worldRotation),
         ),
       );
       cache.set(bone, rotation);
@@ -67,9 +67,9 @@ export const createAutoMovieBoneMotion: (
     return {
       rotation: q,
       apply: (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           p.worldPosition,
-          Quaternion.rotateVector(q, Vector3.subtract(point, r.worldPosition)),
+          AutoMovieEngineQuaternion.rotateVector(q, AutoMovieEngineVector3.subtract(point, r.worldPosition)),
         ),
     };
   };

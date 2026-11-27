@@ -1,8 +1,8 @@
 import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4, type Scene, type PerspectiveCamera, type OrthographicCamera } from "three";
 import type { IAutoMovieCameraInspection, IAutoMovieInspectionCamera, IAutoMovieInspectionDiagnostics, IAutoMovieInspectionView, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieDrawScene } from "../draw/IAutoMovieDrawScene.js";
-import type { IAutoMovieDrawView } from "../draw/IAutoMovieDrawView.js";
-import type { IAutoMovieViewerSubjectBounds } from "./IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieRenderDrawScene } from "../draw/IAutoMovieRenderDrawScene.js";
+import type { IAutoMovieRenderDrawView } from "../draw/IAutoMovieRenderDrawView.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
 import { boundAutoMovieCameraSubject as boundAutoMovieCameraSubjectImplementation } from "./inspection/internal/boundAutoMovieCameraSubject.js";
 import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImplementation } from "./inspection/internal/listAutoMovieCameraSubjectMeshes.js";
 import { measureAutoMovieCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./inspection/internal/measureAutoMovieCameraFrameEdgeSurface.js";
@@ -23,7 +23,7 @@ export namespace AutoMovieRenderInspectionCamera {
       /** The view's text, kept in the record. */
       text: string;
       /** World box a fitted view frames, or null when nothing is drawn. */
-      bounds: IAutoMovieViewerSubjectBounds | null;
+      bounds: IAutoMovieRenderViewerSubjectBounds | null;
       /**
        * The subject's delivery camera: the film view itself, and the field of
        * view and clips the other views take.
@@ -31,7 +31,7 @@ export namespace AutoMovieRenderInspectionCamera {
       camera: PerspectiveCamera;
       /** The subject's own views by name, each placing a camera at a second. */
       views?: Readonly<
-        Record<string, (seconds: number) => IAutoMovieDrawView>
+        Record<string, (seconds: number) => IAutoMovieRenderDrawView>
       >;
       /** The film second drawn. */
       seconds: number;
@@ -155,7 +155,7 @@ export namespace AutoMovieRenderInspectionCamera {
     /** Settled sample and its active source requirements. */
     export interface IObservePlacedProps {
       /** Settled original scene and delivery projection, before inspection effects. */
-      sample: IAutoMovieDrawScene.IPlacedSample;
+      sample: IAutoMovieRenderDrawScene.IPlacedSample;
       /** Source-owned requirements active at this sample's exact time. */
       targets: readonly IObservePlacedRequirement[];
     }
@@ -338,7 +338,7 @@ export namespace AutoMovieRenderInspectionCamera {
    * Admits two vertex paths. A rigid `Mesh` keeps the stock pre-render callbacks,
    * has no position morphs and no material that moves vertices on the GPU, so its
    * buffer positions times its world matrix are what the delivery draws. An
-   * `AutoMovieSkinnedMesh` with a stock surface whose shader matches its skinning
+   * `AutoMovieRenderSkinnedMesh` with a stock surface whose shader matches its skinning
    * method reads posed positions from the skin's own CPU evaluation, which agrees
    * with the GPU blend within the mesh's stated float32 tolerance.
    *

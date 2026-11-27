@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -42,8 +42,8 @@ export function unloadedFoot(
   if (excess <= 0) return goal;
   return {
     ...goal,
-    rotation: Quaternion.multiply(
-      Quaternion.fromAxisAngle(bent.axis, excess),
+    rotation: AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(bent.axis, excess),
       goal.rotation,
     ),
   };

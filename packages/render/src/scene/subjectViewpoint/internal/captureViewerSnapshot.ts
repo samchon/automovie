@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieViewerSnapshot } from "../../IAutoMovieViewerSnapshot.js";
-import type { IAutoMovieViewerSnapshotOptions } from "../../IAutoMovieViewerSnapshotOptions.js";
-import type { IAutoMovieViewerSnapshotRenderer } from "../../IAutoMovieViewerSnapshotRenderer.js";
+import type { IAutoMovieRenderViewerSnapshot } from "../../IAutoMovieRenderViewerSnapshot.js";
+import type { IAutoMovieRenderViewerSnapshotOptions } from "../../IAutoMovieRenderViewerSnapshotOptions.js";
+import type { IAutoMovieRenderViewerSnapshotRenderer } from "../../IAutoMovieRenderViewerSnapshotRenderer.js";
 
 /*
  * Render synchronously through the supplied original host and immediately
@@ -12,16 +12,16 @@ import type { IAutoMovieViewerSnapshotRenderer } from "../../IAutoMovieViewerSna
  * current-source hardware readiness or valid nonblank pixels.
  */
 export const captureViewerSnapshot: (
-  renderer: IAutoMovieViewerSnapshotRenderer,
+  renderer: IAutoMovieRenderViewerSnapshotRenderer,
   scene: THREE.Scene,
   camera: THREE.Camera,
-  options?: IAutoMovieViewerSnapshotOptions,
-) => IAutoMovieViewerSnapshot = (
-  renderer: IAutoMovieViewerSnapshotRenderer,
+  options?: IAutoMovieRenderViewerSnapshotOptions,
+) => IAutoMovieRenderViewerSnapshot = (
+  renderer: IAutoMovieRenderViewerSnapshotRenderer,
   scene: THREE.Scene,
   camera: THREE.Camera,
-  options: IAutoMovieViewerSnapshotOptions = {},
-): IAutoMovieViewerSnapshot => {
+  options: IAutoMovieRenderViewerSnapshotOptions = {},
+): IAutoMovieRenderViewerSnapshot => {
   const mimeType: string = options.mimeType ?? "image/png";
   renderer.render(scene, camera);
   return {

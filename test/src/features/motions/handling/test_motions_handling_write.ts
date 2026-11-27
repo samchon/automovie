@@ -1,5 +1,10 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, writeAdmission } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  writeAdmission
+} from "../../../../../packages/motions/src/handling/internal/writeAdmission";
 import { strict as assert } from "node:assert";
 
 /** A carried tool keeps its working point against a separate stable surface. */

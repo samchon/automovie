@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMotionTrajectory } from "../../motion/AutoMovieEngineMotionTrajectory";
-import { AutoMovieAir } from "../AutoMovieAir";
+import { AutoMovieEngineAir } from "../AutoMovieEngineAir";
 
 /*
  * Private implementation of the projectile operation and its related readers.
@@ -52,7 +52,7 @@ export namespace ProjectileDragFlightImplementation {
     projectile: IAutoMovieProjectile,
   ): IAutoMovieProjectileFlight {
     const drag: IAutoMovieProjectile.IDrag = projectile.drag!;
-    const density: number = drag.density ?? AutoMovieAir.DENSITY;
+    const density: number = drag.density ?? AutoMovieEngineAir.DENSITY;
     for (const [name, value] of [
       ["coefficient", drag.coefficient],
       ["area", drag.area],
@@ -106,8 +106,8 @@ export namespace ProjectileDragFlightImplementation {
 
     // The probe: the launch point moving along the launch direction at the
     // largest speed the flight can reach.
-    const v0: number = Vector3.length(projectile.velocity);
-    const gravity: number = Vector3.length(g);
+    const v0: number = AutoMovieEngineVector3.length(projectile.velocity);
+    const gravity: number = AutoMovieEngineVector3.length(g);
 
     const terminal: number =
       gravity > 0 ? (k > 0 ? Math.sqrt(gravity / k) : Infinity) : 0;
@@ -116,9 +116,9 @@ export namespace ProjectileDragFlightImplementation {
     const probeSpeed: number = k === 0 ? v0 : fastest;
     const along: IAutoMovieVector3 =
       v0 > 0
-        ? Vector3.scale(projectile.velocity, probeSpeed / v0)
+        ? AutoMovieEngineVector3.scale(projectile.velocity, probeSpeed / v0)
         : gravity > 0
-          ? Vector3.scale(g, probeSpeed / gravity)
+          ? AutoMovieEngineVector3.scale(g, probeSpeed / gravity)
           : { x: 0, y: 0, z: 0 };
     const probe: number[] = [...x0.slice(0, 3), along.x, along.y, along.z];
     let h: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();

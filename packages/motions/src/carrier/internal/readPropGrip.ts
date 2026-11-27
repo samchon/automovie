@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -55,7 +55,7 @@ export function readPropGrip(
   const rotation: IAutoMovieQuaternion | undefined =
     affordance === undefined
       ? undefined
-      : Quaternion.multiply(
+      : AutoMovieEngineQuaternion.multiply(
           support.frame(seconds).rotation,
           affordance.frame.rotation,
         );
@@ -65,7 +65,7 @@ export function readPropGrip(
     radius: (affordance?.aperture ?? 0) / 2,
     ...(rotation === undefined
       ? {}
-      : { axis: Quaternion.rotateVector(rotation, HANDLE) }),
+      : { axis: AutoMovieEngineQuaternion.rotateVector(rotation, HANDLE) }),
   };
 }
 

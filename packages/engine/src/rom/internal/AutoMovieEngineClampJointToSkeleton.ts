@@ -9,9 +9,9 @@ import type {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidJointAxes } from "../../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
-import { swingTwistRange } from "../../kinematics/swingTwistRange";
+import { AutoMovieEngineSwingTwistRange } from "../../kinematics/AutoMovieEngineSwingTwistRange";
 import { clampJointRom } from "./clampJointRom";
 import { clampJointRomValues } from "./clampJointRomValues";
 import { getConstraint } from "./getConstraint";
@@ -44,7 +44,7 @@ export namespace AutoMovieEngineClampJointToSkeleton {
      * its constraint and frame once, and every incoming joint is projected.
      *
      * An optional axes table must be the complete result of
-     * skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES) for this same operation.
+     * skeletonJointAxes(skeleton, AutoMovieEngineHumanoidJointAxes) for this same operation.
      * Without it, that merge is made only when a constrained joint first needs
      * its frame. Axis admission still occurs inside the actual projection.
      *
@@ -91,8 +91,8 @@ export namespace AutoMovieEngineClampJointToSkeleton {
                 constraint.swingTwist === null
               )
                 return undefined;
-              axes ??= skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
-              return swingTwistRange.fromAxes(name, axes[name]);
+              axes ??= skeletonJointAxes(skeleton, AutoMovieEngineHumanoidJointAxes);
+              return AutoMovieEngineSwingTwistRange.fromAxes(name, axes[name]);
             },
           );
           clamps.set(name, found);
@@ -168,7 +168,7 @@ export namespace AutoMovieEngineClampJointToSkeleton {
           constraint.swingTwist === undefined ||
           constraint.swingTwist === null
             ? undefined
-            : swingTwistRange.of(bone, skeleton),
+            : AutoMovieEngineSwingTwistRange.of(bone, skeleton),
       );
     }
 
@@ -301,12 +301,12 @@ function prepareConstraintPair(
       ): IAutoMovieJointPose => ({ bone, flexion, abduction, twist }),
     };
   const source: IAutoMovieJointRotationFrame | undefined = readRig();
-  const rig: swingTwistRange.IPrepared | undefined =
+  const rig: AutoMovieEngineSwingTwistRange.IPrepared | undefined =
     source === undefined ||
     constraint.swingTwist === undefined ||
     constraint.swingTwist === null
       ? undefined
-      : swingTwistRange.prepare(bone, source, constraint);
+      : AutoMovieEngineSwingTwistRange.prepare(bone, source, constraint);
   return {
     joint: (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
       clampJointRom(joint, constraint, rig),

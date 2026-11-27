@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBuilder,
@@ -271,8 +271,8 @@ export namespace HandToolDraw {
     builder.rod(
       "handle",
       radius,
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, length, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, length, 0),
       options.steel === true
         ? { color: "#b9bcc0", surface: "steel" }
         : { color: "#8a5a35" },
@@ -283,13 +283,13 @@ export namespace HandToolDraw {
       kind: "handle",
       symmetry: options.round === true ? "round" : "half",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           0,
           options.atButt === true ? held / 2 : length - held / 2,
           0,
         ),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: options.precision === true ? "precision" : "power",

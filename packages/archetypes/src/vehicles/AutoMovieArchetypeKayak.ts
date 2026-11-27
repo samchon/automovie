@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -12,8 +12,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeKayakData from "./internal/AutoMovieArchetypeKayakData";
-import { v } from "./internal/AutoMovieArchetypeKayakData";
+import { AutoMovieArchetypeKayakData } from "./internal/AutoMovieArchetypeKayakData";
+
 
 /** The canonical producer and authoring contract for a kayak. */
 export namespace AutoMovieArchetypeKayak {
@@ -51,12 +51,12 @@ export namespace AutoMovieArchetypeKayak {
       draw,
     });
     hull(builder, dimensions);
-    const seat: IAutoMovieVector3 = v(0, FLOOR + 0.094, -0.29);
+    const seat: IAutoMovieVector3 = AutoMovieArchetypeKayakData.v(0, FLOOR + 0.094, -0.29);
     const seatDepth: number = 0.32;
     const seatWidth: number = 0.39;
     builder.box(
       "seat-pan",
-      v(seatWidth, 0.058, seatDepth),
+      AutoMovieArchetypeKayakData.v(seatWidth, 0.058, seatDepth),
       { ...seat, y: seat.y - 0.029 },
       {
         color: POLYMER,
@@ -64,9 +64,9 @@ export namespace AutoMovieArchetypeKayak {
     );
     builder.box(
       "seat-back",
-      v(seatWidth * 0.84, 0.17, 0.064),
-      v(0, seat.y + 0.062, seat.z - seatDepth * 0.48),
-      { color: POLYMER, rotation: Quaternion.fromAxisAngle(v(1, 0, 0), -9) },
+      AutoMovieArchetypeKayakData.v(seatWidth * 0.84, 0.17, 0.064),
+      AutoMovieArchetypeKayakData.v(0, seat.y + 0.062, seat.z - seatDepth * 0.48),
+      { color: POLYMER, rotation: AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieArchetypeKayakData.v(1, 0, 0), -9) },
     );
     builder.affordance({
       id: "seat",
@@ -187,12 +187,12 @@ function hull(
     const bottom: number = s.bottom + (inner ? WALL : 0);
     const chine: number = (s.bottom + rim) * 0.46 + (inner ? WALL : 0);
     return [
-      v(-w * 0.94, rim, s.z),
-      v(-w, chine, s.z),
-      v(-w * 0.56, bottom, s.z),
-      v(w * 0.56, bottom, s.z),
-      v(w, chine, s.z),
-      v(w * 0.94, rim, s.z),
+      AutoMovieArchetypeKayakData.v(-w * 0.94, rim, s.z),
+      AutoMovieArchetypeKayakData.v(-w, chine, s.z),
+      AutoMovieArchetypeKayakData.v(-w * 0.56, bottom, s.z),
+      AutoMovieArchetypeKayakData.v(w * 0.56, bottom, s.z),
+      AutoMovieArchetypeKayakData.v(w, chine, s.z),
+      AutoMovieArchetypeKayakData.v(w * 0.94, rim, s.z),
     ];
   };
   const sections = stations.map((s) => ({
@@ -221,7 +221,7 @@ function hull(
     ] as const) {
       const corners: IAutoMovieVector3[] = [first, next].flatMap((s) => [
         s.outer[index]!,
-        v(sign * s.opening, rim, s.z),
+        AutoMovieArchetypeKayakData.v(sign * s.opening, rim, s.z),
       ]);
       builder.convex(
         `deck-${i}-${index}`,
@@ -233,8 +233,8 @@ function hull(
         builder.rod(
           `coaming-${i}-${index}`,
           0.012,
-          v(sign * first.opening, rim, first.z),
-          v(sign * next.opening, rim, next.z),
+          AutoMovieArchetypeKayakData.v(sign * first.opening, rim, first.z),
+          AutoMovieArchetypeKayakData.v(sign * next.opening, rim, next.z),
           { color: POLYMER },
         );
     }
@@ -249,17 +249,17 @@ function brace(
   id: AutoMovieArchetypeKayak.Brace,
   sign: number,
 ): void {
-  const at: IAutoMovieVector3 = v(sign * 0.16, FLOOR + 0.125, 0.53);
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    v(1, 0, 0),
+  const at: IAutoMovieVector3 = AutoMovieArchetypeKayakData.v(sign * 0.16, FLOOR + 0.125, 0.53);
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+    AutoMovieArchetypeKayakData.v(1, 0, 0),
     -70,
   );
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     rotation,
-    v(0, 1, 0),
+    AutoMovieArchetypeKayakData.v(0, 1, 0),
   );
-  const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, v(0, 0, 1));
-  builder.box(`${id}-plate`, v(0.105, 0.024, 0.21), at, {
+  const toes: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, AutoMovieArchetypeKayakData.v(0, 0, 1));
+  builder.box(`${id}-plate`, AutoMovieArchetypeKayakData.v(0.105, 0.024, 0.21), at, {
     color: POLYMER,
     rotation,
   });
@@ -267,7 +267,7 @@ function brace(
     id,
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.add(at, Vector3.scale(normal, 0.012)),
+      AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(normal, 0.012)),
       normal,
       toes,
     ),

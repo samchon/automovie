@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -66,7 +66,7 @@ export function HumanBoardHandoverStill(
     if (
       holds.some(
         (held: HumanBoardHandover.IHold): boolean =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             fitted.get(`${held.side}Hand`)!.worldPosition,
             held.point,
           ) > AutoMovieMotionHumanAuditTangle.BUILT,

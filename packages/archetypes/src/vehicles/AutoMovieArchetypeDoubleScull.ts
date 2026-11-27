@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,8 +9,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeDoubleScullData from "./internal/AutoMovieArchetypeDoubleScullData";
-import { v } from "./internal/AutoMovieArchetypeDoubleScullData";
+import { AutoMovieArchetypeDoubleScullData } from "./internal/AutoMovieArchetypeDoubleScullData";
+
 
 /** Constructs the double scull archetype from its recipe. */
 export namespace AutoMovieArchetypeDoubleScull {
@@ -141,12 +141,12 @@ function shell(builder: Build, length: number, beam: number): void {
     const floor: number = s.bottom + (inset ? WALL : 0);
     const chine: number = inset ? WALL : 0;
     return [
-      v(-w * 1.1, RIM, s.z),
-      v(-w, chine, s.z),
-      v(-w * 0.57, floor, s.z),
-      v(w * 0.57, floor, s.z),
-      v(w, chine, s.z),
-      v(w * 1.1, RIM, s.z),
+      AutoMovieArchetypeDoubleScullData.v(-w * 1.1, RIM, s.z),
+      AutoMovieArchetypeDoubleScullData.v(-w, chine, s.z),
+      AutoMovieArchetypeDoubleScullData.v(-w * 0.57, floor, s.z),
+      AutoMovieArchetypeDoubleScullData.v(w * 0.57, floor, s.z),
+      AutoMovieArchetypeDoubleScullData.v(w, chine, s.z),
+      AutoMovieArchetypeDoubleScullData.v(w * 1.1, RIM, s.z),
     ];
   };
   const rings = sections.map((s) => ({
@@ -197,14 +197,14 @@ function station(
   for (const side of [-1, 1])
     builder.box(
       `${id}-rail-${side}`,
-      v(0.023, 0.035, SEAT.travel + SEAT.depth),
-      v(side * 0.105, railY, at + SEAT.travel / 2),
+      AutoMovieArchetypeDoubleScullData.v(0.023, 0.035, SEAT.travel + SEAT.depth),
+      AutoMovieArchetypeDoubleScullData.v(side * 0.105, railY, at + SEAT.travel / 2),
       { color: CARBON },
     );
   builder.box(
     coaster,
-    v(SEAT.width, 0.03, SEAT.depth),
-    v(0, SEAT.y - 0.015, at),
+    AutoMovieArchetypeDoubleScullData.v(SEAT.width, 0.03, SEAT.depth),
+    AutoMovieArchetypeDoubleScullData.v(0, SEAT.y - 0.015, at),
     {
       color: CARBON,
     },
@@ -213,9 +213,9 @@ function station(
     id: slide,
     kind: "slider",
     frame: AutoMovieArchetypeFrame.facing(
-      v(0, railY, at),
-      v(0, 1, 0),
-      v(0, 0, 1),
+      AutoMovieArchetypeDoubleScullData.v(0, railY, at),
+      AutoMovieArchetypeDoubleScullData.v(0, 1, 0),
+      AutoMovieArchetypeDoubleScullData.v(0, 0, 1),
     ),
     extent: null,
     travel: SEAT.travel,
@@ -225,31 +225,31 @@ function station(
     id: `${id}Seat`,
     kind: "seat",
     frame: AutoMovieArchetypeFrame.facing(
-      v(0, SEAT.y, front),
-      v(0, 1, 0),
-      v(-1, 0, 0),
+      AutoMovieArchetypeDoubleScullData.v(0, SEAT.y, front),
+      AutoMovieArchetypeDoubleScullData.v(0, 1, 0),
+      AutoMovieArchetypeDoubleScullData.v(-1, 0, 0),
     ),
     extent: null,
     depth: SEAT.depth,
     width: SEAT.width,
     rides: slide,
   });
-  const footRotation = Quaternion.fromAxisAngle(v(1, 0, 0), PLATE.tilt);
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const footRotation = AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieArchetypeDoubleScullData.v(1, 0, 0), PLATE.tilt);
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     footRotation,
-    v(0, 1, 0),
+    AutoMovieArchetypeDoubleScullData.v(0, 1, 0),
   );
-  const along: IAutoMovieVector3 = Quaternion.rotateVector(
+  const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     footRotation,
-    v(0, 0, -1),
+    AutoMovieArchetypeDoubleScullData.v(0, 0, -1),
   );
   for (const [side, sign] of [
     ["Left", -1],
     ["Right", 1],
   ] as const) {
     const name: `${AutoMovieArchetypeDoubleScull.Station}${typeof side}` = `${id}${side}`;
-    const foot: IAutoMovieVector3 = v(sign * 0.067, -0.015, at - 0.47);
-    builder.box(`${name}-footplate`, v(PLATE.width, 0.024, PLATE.depth), foot, {
+    const foot: IAutoMovieVector3 = AutoMovieArchetypeDoubleScullData.v(sign * 0.067, -0.015, at - 0.47);
+    builder.box(`${name}-footplate`, AutoMovieArchetypeDoubleScullData.v(PLATE.width, 0.024, PLATE.depth), foot, {
       color: CARBON,
       rotation: footRotation,
     });
@@ -257,7 +257,7 @@ function station(
       id: `${name}Foot`,
       kind: "surface",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.add(foot, Vector3.scale(normal, 0.012)),
+        AutoMovieEngineVector3.add(foot, AutoMovieEngineVector3.scale(normal, 0.012)),
         normal,
         along,
       ),
@@ -284,21 +284,21 @@ function scull(
   const bladeLength: number = 0.44;
   const gripLength: number = 0.115;
   const bladeEnd: number = length - inboard;
-  const pivot: IAutoMovieVector3 = v(
+  const pivot: IAutoMovieVector3 = AutoMovieArchetypeDoubleScullData.v(
     sign * 0.795,
     SEAT.y + (sign < 0 ? 0.26 : 0.16),
     z,
   );
   const at = (distance: number): IAutoMovieVector3 =>
-    Vector3.add(pivot, v(sign * distance, 0, 0));
-  const along: IAutoMovieVector3 = v(sign, 0, 0);
-  const up: IAutoMovieVector3 = v(0, 1, 0);
+    AutoMovieEngineVector3.add(pivot, AutoMovieArchetypeDoubleScullData.v(sign * distance, 0, 0));
+  const along: IAutoMovieVector3 = AutoMovieArchetypeDoubleScullData.v(sign, 0, 0);
+  const up: IAutoMovieVector3 = AutoMovieArchetypeDoubleScullData.v(0, 1, 0);
   const turn: AutoMovieArchetypeDoubleScull.Affordance = `${name}Sweep`;
   const dip: AutoMovieArchetypeDoubleScull.Affordance = `${name}Dip`;
   const grip: string = `${name}-grip`;
   const shaft: string = `${name}-shaft`;
   const blade: string = `${name}-blade`;
-  builder.rod(`${name}-rigger`, 0.016, v(sign * 0.17, RIM, z + 0.24), pivot, {
+  builder.rod(`${name}-rigger`, 0.016, AutoMovieArchetypeDoubleScullData.v(sign * 0.17, RIM, z + 0.24), pivot, {
     color: CARBON,
   });
   builder.rod(grip, 0.017, at(-inboard), at(-inboard + gripLength), {
@@ -315,7 +315,7 @@ function scull(
   );
   builder.box(
     blade,
-    v(bladeLength, 0.22, 0.012),
+    AutoMovieArchetypeDoubleScullData.v(bladeLength, 0.22, 0.012),
     at(bladeEnd - bladeLength / 2),
     {
       color: DECK,
@@ -324,14 +324,14 @@ function scull(
   builder.affordance({
     id: turn,
     kind: "wheel",
-    frame: AutoMovieArchetypeFrame.facing(pivot, v(0, -sign, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(pivot, AutoMovieArchetypeDoubleScullData.v(0, -sign, 0), AutoMovieArchetypeDoubleScullData.v(0, 0, 1)),
     extent: null,
     travel: 60,
   });
   builder.affordance({
     id: dip,
     kind: "hinge",
-    frame: AutoMovieArchetypeFrame.facing(pivot, v(0, 0, sign), along),
+    frame: AutoMovieArchetypeFrame.facing(pivot, AutoMovieArchetypeDoubleScullData.v(0, 0, sign), along),
     extent: null,
     travel: 15,
     reverse: 20,
@@ -345,7 +345,7 @@ function scull(
     frame: AutoMovieArchetypeFrame.facing(
       at(-inboard + gripLength / 2),
       up,
-      Vector3.scale(along, -1),
+      AutoMovieEngineVector3.scale(along, -1),
     ),
     extent: null,
     grip: "power",
@@ -356,7 +356,7 @@ function scull(
   builder.affordance({
     id: `${name}BladeTip`,
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.facing(at(bladeEnd), along, v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(at(bladeEnd), along, AutoMovieArchetypeDoubleScullData.v(0, 0, 1)),
     extent: null,
     width: 0.012,
     depth: 0.22,

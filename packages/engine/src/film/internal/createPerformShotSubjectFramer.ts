@@ -25,8 +25,8 @@ import { animatedBaseAt } from "./animatedBaseAt";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 import { computeRestHeight } from "./computeRestHeight";
-import { DEFAULT_SUBJECT_HEIGHT } from "../DEFAULT_SUBJECT_HEIGHT";
-import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
+import { AutoMovieEngineDefaultSubjectHeight } from "../AutoMovieEngineDefaultSubjectHeight";
+import { AutoMovieEngineMinMeasuredSubjectHeight } from "../AutoMovieEngineMinMeasuredSubjectHeight";
 import { formationMemberExtent } from "./formationMemberExtent";
 import { formationSubjectBox } from "./formationSubjectBox";
 import { framedBoxOf } from "./framedBoxOf";
@@ -48,8 +48,8 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * boxes, with node placements from baked world transforms or actor translations
  * and formation footprints from their cues. Height and radius are fixed from
  * the union at the camera move's start. A moving group's follow or truck
- * updates the base while retaining that fit. Below MIN_MEASURED_SUBJECT_HEIGHT,
- * height takes DEFAULT_SUBJECT_HEIGHT.
+ * updates the base while retaining that fit. Below AutoMovieEngineMinMeasuredSubjectHeight,
+ * height takes AutoMovieEngineDefaultSubjectHeight.
  *
  * Any other subject resolves to one point, from the live resolver when it
  * answers and the staged placements otherwise, and is boxed through
@@ -196,9 +196,9 @@ export function createPerformShotSubjectFramer(
         return {
           base: framed.base,
           height:
-            framed.height >= MIN_MEASURED_SUBJECT_HEIGHT
+            framed.height >= AutoMovieEngineMinMeasuredSubjectHeight
               ? framed.height
-              : DEFAULT_SUBJECT_HEIGHT,
+              : AutoMovieEngineDefaultSubjectHeight,
           radius: framed.radius,
           at: moving
             ? (seconds: number): IAutoMovieVector3 =>

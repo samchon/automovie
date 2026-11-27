@@ -1,4 +1,6 @@
-import { buildTennisNet } from "@automovie/archetypes/internal";
+import {
+  buildTennisNet
+} from "../../../../../packages/archetypes/src/sport/internal/buildTennisNet";
 import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMeshRayCaster } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

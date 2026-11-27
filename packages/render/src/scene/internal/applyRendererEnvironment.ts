@@ -23,7 +23,7 @@ import type { IAutoMovieRendererEnvironmentHandle } from "../IAutoMovieRendererE
  * This precedence governs the compiled-scene pass (`AutoMovieRenderScenePass.render`)
  * and its budget projection, which draw straight to their target. On the draw
  * path a draw scene's `optics` owns exposure and curve instead:
- * `AutoMovieFilmResponseStage` holds the renderer's own curve at none and its
+ * `AutoMovieRenderFilmResponseStage` holds the renderer's own curve at none and its
  * exposure at one while the beauty pass draws into its linear target.
  */
 export const applyRendererEnvironment: (

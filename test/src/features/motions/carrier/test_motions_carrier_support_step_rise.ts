@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, HumanSupportStep } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSupportStep
+} from "../../../../../packages/motions/src/carrier/internal/HumanSupportStep";
 import { TestValidator } from "@nestia/e2e";
 
 /**

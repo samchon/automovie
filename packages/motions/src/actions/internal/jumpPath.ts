@@ -1,4 +1,4 @@
-import { AutoMovieStationHermite, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineStationHermite, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieStationHermite,
   IAutoMovieVector3,
@@ -47,10 +47,10 @@ export namespace jumpPath {
     };
     return (t: number): IAutoMovieVector3 => {
       const u: number = Math.min(1, Math.max(0, t / duration));
-      const [x, y, z]: number[] = AutoMovieStationHermite.combine(
+      const [x, y, z]: number[] = AutoMovieEngineStationHermite.combine(
         from,
         into,
-        AutoMovieStationHermite.weights(u, duration, 0, true),
+        AutoMovieEngineStationHermite.weights(u, duration, 0, true),
       );
 
       // The copied endpoint arrays have exactly three entries.

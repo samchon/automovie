@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The span of a two-bone chain whose mid joint bends only about its own hinge,
@@ -65,8 +65,8 @@ export namespace hingedArmSpan {
    */
   export function prepare(chain: IChain): ISpan {
     const valid: boolean = !(
-      Vector3.length(chain.midOffset) < 1e-6 ||
-      Vector3.length(chain.endOffset) < 1e-6
+      AutoMovieEngineVector3.length(chain.midOffset) < 1e-6 ||
+      AutoMovieEngineVector3.length(chain.endOffset) < 1e-6
     );
     return { valid, geometry: valid ? of(chain) : null };
   }
@@ -78,40 +78,40 @@ export namespace hingedArmSpan {
    * cannot change the span (amplitude below `SPAN_EPSILON`).
    */
   export function of(chain: IChain): IGeometry | null {
-    if (Vector3.length(chain.hinge) < 1e-6) return null;
-    const hinge: IAutoMovieVector3 = Vector3.normalize(chain.hinge);
-    const along: number = Vector3.dot(hinge, chain.endOffset);
-    const swung: IAutoMovieVector3 = Vector3.subtract(
+    if (AutoMovieEngineVector3.length(chain.hinge) < 1e-6) return null;
+    const hinge: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(chain.hinge);
+    const along: number = AutoMovieEngineVector3.dot(hinge, chain.endOffset);
+    const swung: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       chain.endOffset,
-      Vector3.scale(hinge, along),
+      AutoMovieEngineVector3.scale(hinge, along),
     );
-    const radius: number = Vector3.length(swung);
+    const radius: number = AutoMovieEngineVector3.length(swung);
     const k: number =
-      Vector3.dot(chain.midOffset, chain.midOffset) +
-      Vector3.dot(chain.endOffset, chain.endOffset) +
+      AutoMovieEngineVector3.dot(chain.midOffset, chain.midOffset) +
+      AutoMovieEngineVector3.dot(chain.endOffset, chain.endOffset) +
       2 *
         along *
-        Vector3.dot(
+        AutoMovieEngineVector3.dot(
           chain.midOffset,
-          Quaternion.rotateVector(chain.midRest, hinge),
+          AutoMovieEngineQuaternion.rotateVector(chain.midRest, hinge),
         );
     let alpha: number = 0;
     let beta: number = 0;
     if (radius >= SPAN_EPSILON) {
-      const unit: IAutoMovieVector3 = Vector3.scale(swung, 1 / radius);
+      const unit: IAutoMovieVector3 = AutoMovieEngineVector3.scale(swung, 1 / radius);
       alpha =
         2 *
         radius *
-        Vector3.dot(
+        AutoMovieEngineVector3.dot(
           chain.midOffset,
-          Quaternion.rotateVector(chain.midRest, unit),
+          AutoMovieEngineQuaternion.rotateVector(chain.midRest, unit),
         );
       beta =
         2 *
         radius *
-        Vector3.dot(
+        AutoMovieEngineVector3.dot(
           chain.midOffset,
-          Quaternion.rotateVector(chain.midRest, Vector3.cross(hinge, unit)),
+          AutoMovieEngineQuaternion.rotateVector(chain.midRest, AutoMovieEngineVector3.cross(hinge, unit)),
         );
     }
     const span: number = Math.hypot(alpha, beta);

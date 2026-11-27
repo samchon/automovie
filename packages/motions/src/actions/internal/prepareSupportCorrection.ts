@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
@@ -142,7 +142,7 @@ export function prepareSupportCorrection(
       posture: { ...posture, joints, limbs: {} },
       variables,
       targets,
-      centre: { point: Vector3.lerp(centre, target, weight), axes: ["x", "z"] },
+      centre: { point: AutoMovieEngineVector3.lerp(centre, target, weight), axes: ["x", "z"] },
     });
     if (!fitted.feasible)
       HumanPhysics.unsupported(

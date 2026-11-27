@@ -1,4 +1,4 @@
-import { AutoMovieSceneTexture } from "@automovie/render";
+import { AutoMovieRenderSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { Texture, TextureEventMap, WebGLRenderTarget } from "three";
 
@@ -25,7 +25,7 @@ export async function test_render_scene_read_render_texture_target(): Promise<vo
     });
   TestValidator.equals(
     "actual attachment population",
-    AutoMovieSceneTexture.readRenderTarget("view", target, "shot"),
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target, "shot"),
     {
       owner: "view",
       transmissionScope: "shot",
@@ -42,15 +42,15 @@ export async function test_render_scene_read_render_texture_target(): Promise<vo
   target.textures[1].type = THREE.FloatType;
   TestValidator.equals(
     "actual component formats",
-    AutoMovieSceneTexture.readRenderTarget("view", target).formats,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).formats,
     ["rgba16f", "rgba32f"],
   );
   target.setSize(4.5, 3.75);
   TestValidator.equals(
     "fractional target fields project to integer profile extents",
     [
-      AutoMovieSceneTexture.readRenderTarget("view", target).width,
-      AutoMovieSceneTexture.readRenderTarget("view", target).height,
+      AutoMovieRenderSceneTexture.readRenderTarget("view", target).width,
+      AutoMovieRenderSceneTexture.readRenderTarget("view", target).height,
     ],
     [4, 3],
   );
@@ -58,24 +58,24 @@ export async function test_render_scene_read_render_texture_target(): Promise<vo
   target.depthTexture = new THREE.DepthTexture(4, 4, THREE.UnsignedShortType);
   TestValidator.equals(
     "short depth",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     2,
   );
   TestValidator.equals(
     "custom depth is a texture",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthTexture,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthTexture,
     true,
   );
   target.depthTexture.format = THREE.DepthStencilFormat;
   TestValidator.equals(
     "resolved short stencil depth remains four bytes",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     4,
   );
   target.depthTexture.type = THREE.FloatType;
   TestValidator.equals(
     "resolved float stencil depth remains eight bytes",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     8,
   );
   target.depthTexture.format = THREE.DepthFormat;
@@ -83,52 +83,52 @@ export async function test_render_scene_read_render_texture_target(): Promise<vo
   target.stencilBuffer = true;
   TestValidator.equals(
     "stencil upgrades short depth",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     4,
   );
   target.depthTexture.type = THREE.FloatType;
   TestValidator.equals(
     "float depth with stencil",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     8,
   );
   target.stencilBuffer = false;
   TestValidator.equals(
     "float depth",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     4,
   );
   for (const type of [THREE.UnsignedIntType, THREE.UnsignedInt248Type]) {
     target.depthTexture.type = type;
     TestValidator.equals(
       "integer depth",
-      AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+      AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
       4,
     );
   }
   target.depthTexture.type = THREE.IntType;
   TestValidator.equals(
     "unsupported depth type",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     null,
   );
   target.depthTexture.type = THREE.UnsignedIntType;
   target.depthTexture.setValues({ format: THREE.RGBAFormat });
   TestValidator.equals(
     "unsupported depth channel format",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     null,
   );
   target.depthTexture.setValues({ format: THREE.DepthFormat });
   TestValidator.equals(
     "supported adjacent depth format",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     4,
   );
   for (const texture of target.textures) texture.generateMipmaps = false;
   TestValidator.equals(
     "no generated target chain",
-    AutoMovieSceneTexture.readRenderTarget("view", target).mipmapped,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).mipmapped,
     false,
   );
   target.texture.mipmaps = [
@@ -137,24 +137,24 @@ export async function test_render_scene_read_render_texture_target(): Promise<vo
   ];
   TestValidator.equals(
     "explicit target mip chain",
-    AutoMovieSceneTexture.readRenderTarget("view", target).mipmapped,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).mipmapped,
     true,
   );
   target.depthBuffer = false;
   TestValidator.equals(
     "absent depth",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthBytesPerTexel,
     0,
   );
   TestValidator.equals(
     "disabled depth texture is excluded from the target profile",
-    AutoMovieSceneTexture.readRenderTarget("view", target).depthTexture,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).depthTexture,
     false,
   );
   target.depth = 2;
   TestValidator.equals(
     "volume target is not 2D",
-    AutoMovieSceneTexture.readRenderTarget("view", target).formats,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).formats,
     [undefined, undefined],
   );
   const cube: import("three").WebGLCubeRenderTarget =
@@ -162,8 +162,8 @@ export async function test_render_scene_read_render_texture_target(): Promise<vo
   TestValidator.equals(
     "cube target retains its actual face population",
     [
-      AutoMovieSceneTexture.readRenderTarget("cube", cube).formats,
-      AutoMovieSceneTexture.readRenderTarget("cube", cube).faces,
+      AutoMovieRenderSceneTexture.readRenderTarget("cube", cube).formats,
+      AutoMovieRenderSceneTexture.readRenderTarget("cube", cube).faces,
     ],
     [["rgba8"], 6],
   );
@@ -174,26 +174,26 @@ export async function test_render_scene_read_render_texture_target(): Promise<vo
     });
   TestValidator.equals(
     "native RG half attachment",
-    AutoMovieSceneTexture.readRenderTarget("rg", rg).formats,
+    AutoMovieRenderSceneTexture.readRenderTarget("rg", rg).formats,
     ["rg16f"],
   );
   rg.texture.internalFormat = "RG16F";
   TestValidator.equals(
     "explicit RG half attachment",
-    AutoMovieSceneTexture.readRenderTarget("rg", rg).formats,
+    AutoMovieRenderSceneTexture.readRenderTarget("rg", rg).formats,
     ["rg16f"],
   );
   target.depth = 1;
   target.texture = new THREE.DataArrayTexture(new Uint8Array(64), 4, 4, 1);
   TestValidator.equals(
     "array target is not 2D",
-    AutoMovieSceneTexture.readRenderTarget("view", target).formats,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).formats,
     [undefined, undefined],
   );
   target.texture = new THREE.Data3DTexture(new Uint8Array(64), 4, 4, 1);
   TestValidator.equals(
     "3D target is not 2D",
-    AutoMovieSceneTexture.readRenderTarget("view", target).formats,
+    AutoMovieRenderSceneTexture.readRenderTarget("view", target).formats,
     [undefined, undefined],
   );
   cube.dispose();

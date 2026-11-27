@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeTable } from "../AutoMovieArchetypeTable";
-import * as TableBandsData from "./internal/TableBandsData";
+import { TableBandsData } from "./internal/TableBandsData";
 
 /*
  * The band of each free dimension of `createTable`, by kind, with the sources

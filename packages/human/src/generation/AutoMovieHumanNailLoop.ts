@@ -1,5 +1,5 @@
 import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanNail,
   IAutoMovieHumanNailLoop,
@@ -40,7 +40,7 @@ export namespace AutoMovieHumanNailLoop {
     // The plate's own chart point `[u, v]` of its ring at a station and a phase.
     const ring = (station: number, phase: number): [number, number] => {
       const frame: IAutoMovieLoftSectionFrame = axis.at(station);
-      const p: number[] = AutoMovieLoftChain.point(plate, station, phase);
+      const p: number[] = AutoMovieEngineLoftChain.point(plate, station, phase);
       const d: number[] = [0, 1, 2].map((k: number): number => p[k]! - frame.origin[k]!);
       return [d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2], d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2]];
     };
@@ -79,7 +79,7 @@ export namespace AutoMovieHumanNailLoop {
     // Inside the curve the skin lies under the plate's face; outside it stands over it, or no face is there.
     const outside = (clock: number, share: number): boolean => {
       const [s, t]: [number, number] = chart(clock, share);
-      const found: { gap: number } | null = over(AutoMovieLoftChain.point(host, s, t));
+      const found: { gap: number } | null = over(AutoMovieEngineLoftChain.point(host, s, t));
       return found === null || found.gap > 0;
     };
     const shape: number[] = [];
@@ -98,7 +98,7 @@ export namespace AutoMovieHumanNailLoop {
       shape.push(a);
     }
     const [s, t]: [number, number] = chart(0, shape[0]!);
-    const seed: { station: number; phase: number } | null = over(AutoMovieLoftChain.point(host, s, t));
+    const seed: { station: number; phase: number } | null = over(AutoMovieEngineLoftChain.point(host, s, t));
     if (seed === null) throw new Error("nail loop: " + nail.plate.name + "'s curve has no point on the plate at clock 0");
     return {
       centre: [centre[0] / 1000, centre[1]],

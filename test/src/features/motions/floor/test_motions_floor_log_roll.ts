@@ -5,16 +5,29 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanBody } from "@automovie/motions";
 import {
-  HumanColliders,
+  AutoMovieMotionHumanBody,
   AutoMovieMotionHumanRefusal,
-  lieDown,
-  logRoll,
-  logRollTurns,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+} from "@automovie/motions";
+import {
+  HumanColliders
+} from "../../../../../packages/motions/src/posture/internal/HumanColliders";
+
+import {
+  lieDown
+} from "../../../../../packages/motions/src/floor/internal/lieDown";
+import {
+  logRoll
+} from "../../../../../packages/motions/src/floor/internal/logRoll";
+import {
+  logRollTurns
+} from "../../../../../packages/motions/src/floor/internal/logRollTurns";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

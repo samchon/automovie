@@ -1,6 +1,0 @@
-
-
-
-
-
-export * from "../AutoMovieRenderDualQuaternionSkinning.js";

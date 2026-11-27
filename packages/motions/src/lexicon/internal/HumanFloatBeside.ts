@@ -1,7 +1,7 @@
 import {
-  AutoMovieHumanoidSurfaceRays,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineHumanoidSurfaceRays,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -148,12 +148,12 @@ function planHumanFloatBeside(
     ])(still);
   const shoulder: IAutoMovieVector3 = arm.get(`${near}UpperArm`)!.worldPosition;
   const length: number =
-    Vector3.distance(shoulder, arm.get(`${near}LowerArm`)!.worldPosition) +
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(shoulder, arm.get(`${near}LowerArm`)!.worldPosition) +
+    AutoMovieEngineVector3.distance(
       arm.get(`${near}LowerArm`)!.worldPosition,
       arm.get(`${near}Hand`)!.worldPosition,
     ) +
-    Vector3.length(HumanHand.offset(body, near, "palm").point);
+    AutoMovieEngineVector3.length(HumanHand.offset(body, near, "palm").point);
   const trim: number | null = HumanWater.float(
     body,
     poseBones(body, resolveHumanPosture(body, still)),
@@ -193,19 +193,19 @@ function planHumanFloatBeside(
   // The palm's skin under its socket, found once on the body's own surface at rest, in the socket bone's frame.
   const socket: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.sockets[near === "left" ? "palmLeft" : "palmRight"];
-  const rays: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
-    AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
+  const rays: ReturnType<typeof AutoMovieEngineHumanoidSurfaceRays.tools> =
+    AutoMovieEngineHumanoidSurfaceRays.tools(body.skeleton, body.profile);
   const rest: IAutoMovieResolvedBone = rays.at(socket.bone);
-  const palm: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(rest.worldRotation),
-    Vector3.subtract(
+  const palm: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(rest.worldRotation),
+    AutoMovieEngineVector3.subtract(
       rays.exit(
         socket.bone,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           rest.worldPosition,
-          Quaternion.rotateVector(rest.worldRotation, socket.point),
+          AutoMovieEngineQuaternion.rotateVector(rest.worldRotation, socket.point),
         ),
-        Quaternion.rotateVector(rest.worldRotation, socket.normal),
+        AutoMovieEngineQuaternion.rotateVector(rest.worldRotation, socket.normal),
       ),
       rest.worldPosition,
     ),
@@ -217,8 +217,8 @@ function planHumanFloatBeside(
     near,
     "palm",
   );
-  const depth: number = Vector3.dot(socketed.point, socketed.normal);
-  const ahead: number = Vector3.dot(socketed.point, socketed.forward);
+  const depth: number = AutoMovieEngineVector3.dot(socketed.point, socketed.normal);
+  const ahead: number = AutoMovieEngineVector3.dot(socketed.point, socketed.forward);
   const requested: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>([socket.bone]);
 
@@ -278,14 +278,14 @@ function planHumanFloatBeside(
         const to: IAutoMovieMotionHumanPosture = float(frame, grip.point, 0);
         const from: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
           entry,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             entry.root,
-            Vector3.subtract(frame.position, first.position),
+            AutoMovieEngineVector3.subtract(frame.position, first.position),
           ),
         );
         torso = {
           ...to,
-          root: Vector3.add(Vector3.lerp(from.root, to.root, u), {
+          root: AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(from.root, to.root, u), {
             x: 0,
             y: 4 * HumanFloatBesideForm.ARC * u * (1 - u),
             z: 0,
@@ -298,10 +298,10 @@ function planHumanFloatBeside(
             from.rotation === undefined
               ? undefined
               : {
-                  about: Vector3.lerp(from.rotation.about, to.root, u),
-                  turn: Quaternion.slerp(
+                  about: AutoMovieEngineVector3.lerp(from.rotation.about, to.root, u),
+                  turn: AutoMovieEngineQuaternion.slerp(
                     from.rotation.turn,
-                    Quaternion.identity(),
+                    AutoMovieEngineQuaternion.identity(),
                     u,
                   ),
                 },
@@ -320,24 +320,24 @@ function planHumanFloatBeside(
       const across: IAutoMovieVector3 | undefined =
         grip.axis === undefined
           ? undefined
-          : Vector3.cross(grip.axis, grip.normal);
+          : AutoMovieEngineVector3.cross(grip.axis, grip.normal);
       // The fingers keep the side the hold was taken on (`sideRideGrips`, chosen once where it begins): a side re-taken against the floating torso's heading at every second would turn the hand over on the part.
       const turn: NonNullable<HumanRideHands.IMaterialGrip["across"]> =
         grip.across ??
         (across !== undefined &&
-        Vector3.dot(across, HumanFrame.forward(torso.yaw)) < 0
+        AutoMovieEngineVector3.dot(across, HumanFrame.forward(torso.yaw)) < 0
           ? -1
           : 1);
       const seated: HumanRideHands.IMaterialGrip =
-        across === undefined || Vector3.length(across) < 1e-6
+        across === undefined || AutoMovieEngineVector3.length(across) < 1e-6
           ? { ...grip, palmDepth: depth }
           : {
               ...grip,
               palmDepth: depth,
               across: turn,
-              point: Vector3.addScaled(
+              point: AutoMovieEngineVector3.addScaled(
                 grip.point,
-                Vector3.scale(Vector3.normalize(across), turn),
+                AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(across), turn),
                 HumanMountRider.CENTRE * body.measure.hand - ahead,
               ),
             };
@@ -373,22 +373,22 @@ function planHumanFloatBeside(
         poseBones(body, pose.pose, read(), requested);
       // The displayed palm's skin, carried by its bone, must lie on the held part's skin about its run.
       const bone: IAutoMovieResolvedBone = bones.get(socket.bone)!;
-      const skin: IAutoMovieVector3 = Vector3.add(
+      const skin: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         bone.worldPosition,
-        Quaternion.rotateVector(bone.worldRotation, palm),
+        AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, palm),
       );
       const axis: IAutoMovieVector3 =
         grip.axis ??
-        Quaternion.rotateVector(
-          Quaternion.multiply(frame.rotation, part.frame.rotation),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.multiply(frame.rotation, part.frame.rotation),
           { x: 1, y: 0, z: 0 },
         );
       const along: number = Math.max(
         -run,
-        Math.min(run, Vector3.dot(Vector3.subtract(skin, grip.point), axis)),
+        Math.min(run, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(skin, grip.point), axis)),
       );
       const miss: number = Math.abs(
-        Vector3.distance(skin, Vector3.addScaled(grip.point, axis, along)) -
+        AutoMovieEngineVector3.distance(skin, AutoMovieEngineVector3.addScaled(grip.point, axis, along)) -
           part.aperture! / 2,
       );
       if (!(miss <= HumanFloatBesideForm.REACH))
@@ -428,7 +428,7 @@ function planHumanFloatBeside(
  * A frame's heading about +Y, degrees, 0 facing +Z.
  */
 function heading(rotation: IAutoMovieQuaternion): number {
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 0,
     z: 1,

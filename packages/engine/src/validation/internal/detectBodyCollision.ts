@@ -17,7 +17,7 @@ import {
 
 import { indexSkeletonTopology } from "../../kinematics/internal/indexSkeletonTopology";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
@@ -137,7 +137,7 @@ export function detectBodyCollision(
       actor: props.a.node,
       target: props.b.node,
       object: null,
-      point: Vector3.scale(Vector3.add(pen.pointA, pen.pointB), 0.5),
+      point: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(pen.pointA, pen.pointB), 0.5),
       actionIndex: null,
       reaction: null,
     }),
@@ -311,12 +311,12 @@ const suggestResponse: (
     rate,
   );
 
-  const rawNormal: IAutoMovieVector3 = Vector3.subtract(
+  const rawNormal: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     deepest.pointB,
     deepest.pointA,
   );
   const normal: IAutoMovieVector3 =
-    Vector3.dot(rawNormal, rawNormal) > 0 ? rawNormal : FALLBACK_NORMAL;
+    AutoMovieEngineVector3.dot(rawNormal, rawNormal) > 0 ? rawNormal : FALLBACK_NORMAL;
 
   return suggestCollisionResponse({
     a: impactBody(props.a.body, velA, props.a.node),
@@ -341,8 +341,8 @@ const velocity: (
   bone: AutoMovieHumanoidBone,
   rate: number,
 ): IAutoMovieVector3 =>
-  Vector3.scale(
-    Vector3.subtract(maps[frame]!.get(bone)!, maps[prev]!.get(bone)!),
+  AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(maps[frame]!.get(bone)!, maps[prev]!.get(bone)!),
     rate,
   );
 

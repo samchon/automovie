@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -101,16 +101,16 @@ export namespace stopDropRoll {
     // The lying cross-section and the side the body rolls toward.
     const deep: number = body.measure.chestDepth / 2;
     const wide: number = body.measure.shoulderHalfWidth;
-    const heading: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const heading: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       lying.yaw,
     );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(heading, {
       x: 0,
       y: 0,
       z: 1,
     });
-    const right: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+    const right: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(heading, {
       x: -1,
       y: 0,
       z: 0,
@@ -137,13 +137,13 @@ export namespace stopDropRoll {
       // sideways by the arc the body rolls along the floor.
       const lift: number = rest(theta) - deep;
       const arc: number = theta * ((deep + wide) / 2);
-      const moved: IAutoMovieVector3 = Vector3.add(
+      const moved: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         { x: 0, y: lift, z: 0 },
-        Vector3.scale(right, arc),
+        AutoMovieEngineVector3.scale(right, arc),
       );
       return {
         ...lying,
-        root: Vector3.add(lying.root, moved),
+        root: AutoMovieEngineVector3.add(lying.root, moved),
         // The turn about the body's long axis, a line along the heading
         // through the lying cross-section's centre, which the roll has
         // carried up and sideways with the root: the turn is about where
@@ -151,11 +151,11 @@ export namespace stopDropRoll {
         // left behind would swing the body about a line it no longer lies
         // on, down through the floor).
         rotation: {
-          about: Vector3.add(
+          about: AutoMovieEngineVector3.add(
             { x: lying.root.x, y: deep, z: lying.root.z },
             moved,
           ),
-          turn: Quaternion.fromAxisAngle(along, degrees),
+          turn: AutoMovieEngineQuaternion.fromAxisAngle(along, degrees),
         },
       };
     };
@@ -176,15 +176,15 @@ export namespace stopDropRoll {
       ]),
     );
     const head: IAutoMovieResolvedBone = bones.get("head")!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       head.worldRotation,
     );
     const local: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
       bone: AutoMovieHumanoidBone,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(bones.get(bone)!.worldPosition, head.worldPosition),
+        AutoMovieEngineVector3.subtract(bones.get(bone)!.worldPosition, head.worldPosition),
       );
     const hung: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>> =
       {
@@ -211,8 +211,8 @@ export namespace stopDropRoll {
       for (const side of ["left", "right"] as const) {
         const to: IAutoMovieHumanLimbGoal = face(body, side);
         limbs[`${side}Arm`] = {
-          point: Vector3.lerp(hung[side].point, to.point, w),
-          bend: Vector3.lerp(hung[side].bend, to.bend, w),
+          point: AutoMovieEngineVector3.lerp(hung[side].point, to.point, w),
+          bend: AutoMovieEngineVector3.lerp(hung[side].bend, to.bend, w),
           on: "head",
         };
       }

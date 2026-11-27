@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -221,7 +221,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     );
     if (Math.abs(norm - 1) > 64 * Number.EPSILON)
       throw new RangeError(`Quadruped ${part.id} requires a unit quaternion`);
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       x: 0,
       y: shape.height / 2,
       z: 0,

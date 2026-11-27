@@ -1,7 +1,7 @@
 import {
-  ANKLE_DORSIFLEXION,
-  DEFAULT_HUMANOID_ROM,
-  Vector3,
+  AutoMovieEngineAnkleDorsiflexion,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -25,19 +25,19 @@ import { walkRockerReachBoundary } from "./walkRockerReachBoundary";
 export namespace walkLeg {
   /*
    * Degrees a foot keeps inside the ankle's plantar limit (`PLANTAR`) and its
-   * dorsal one, loaded or unloaded (`ANKLE_DORSIFLEXION`).
+   * dorsal one, loaded or unloaded (`AutoMovieEngineAnkleDorsiflexion`).
    */
   export const ANKLE: number = 2;
 
   /*
    * The ankle's plantarflexion limit, degrees: the lesser of the two feet's in
-   * the range table (`DEFAULT_HUMANOID_ROM`, the AAOS norm of 50 as
-   * `ANKLE_DORSIFLEXION` relays it).
+   * the range table (`AutoMovieEngineDefaultHumanoidRom`, the AAOS norm of 50 as
+   * `AutoMovieEngineAnkleDorsiflexion` relays it).
    */
   export const PLANTAR: number = Math.min(
     ...(["leftFoot", "rightFoot"] as const).map((bone: PLANTARBone): number => {
       const flexion: IAutoMovieAngleRange | null | undefined =
-        DEFAULT_HUMANOID_ROM[bone]?.flexion;
+        AutoMovieEngineDefaultHumanoidRom[bone]?.flexion;
       if (flexion === null || flexion === undefined)
         throw new Error(`The range-of-motion table gives ${bone} no flexion`);
       return -flexion.min;
@@ -124,13 +124,13 @@ export namespace walkLeg {
     );
     const bend: ReturnType<typeof prepareBehind> = prepareBehind(body);
     return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number =>
-      // The hip-to-ankle line's components and its length (`Vector3.distance`
+      // The hip-to-ankle line's components and its length (`AutoMovieEngineVector3.distance`
       // is the length of the difference), read without a vector record.
       ((Math.atan2(
         -((ankle.x - hip.x) * forward.x + (ankle.z - hip.z) * forward.z),
         -(ankle.y - hip.y),
       ) -
-        bend(Vector3.distance(ankle, hip))) *
+        bend(AutoMovieEngineVector3.distance(ankle, hip))) *
         180) /
       Math.PI;
   }
@@ -138,7 +138,7 @@ export namespace walkLeg {
   /*
    * Prepare one exact heading through a foot's repeated ankle-clearance trials:
    * a foot that bears no weight, its rotation kept inside the unloaded ankle's
-   * range relative to its shank (`ANKLE_DORSIFLEXION.unloaded` and `PLANTAR`),
+   * range relative to its shank (`AutoMovieEngineAnkleDorsiflexion.unloaded` and `PLANTAR`),
    * less `ANKLE`.
    * Parameter body: The measured leg geometry, fixed through the trials.
    * Parameter heading: The foot heading in degrees at this trial loop's start.
@@ -193,7 +193,7 @@ export namespace walkLeg {
    * Parameter width: The room, degrees, under which the heel begins to rise; zero
    * keeps the asked pitch until the limit itself.
    * Parameter dorsal: The ankle's dorsal limit, degrees: an unloaded foot's
-   * (`ANKLE_DORSIFLEXION.unloaded`) when absent, more as the foot takes
+   * (`AutoMovieEngineAnkleDorsiflexion.unloaded`) when absent, more as the foot takes
    * weight (`dorsal`).
    * Returns: The pitch, no higher than the asked one.
    */
@@ -205,7 +205,7 @@ export namespace walkLeg {
     heading: number,
     pitch: number,
     width: number,
-    dorsal: number = ANKLE_DORSIFLEXION.unloaded,
+    dorsal: number = AutoMovieEngineAnkleDorsiflexion.unloaded,
   ): number {
     return prepareHeelRise(
       body,
@@ -222,7 +222,7 @@ export namespace walkLeg {
    * that bears any share of the body's weight the weight-bearing limit (39,
    * Konor, Morton, Eckerson and Grindstaff 2012, Int J Sports Phys Ther
    * 7(3):279, the weight-bearing lunge), one that bears none the passive one
-   * (20, the AAOS norm), both from `ANKLE_DORSIFLEXION`. The limit is binary,
+   * (20, the AAOS norm), both from `AutoMovieEngineAnkleDorsiflexion`. The limit is binary,
    * as the take's range audit reads it by the contact window: the studies
    * measure the two conditions, and no study relates the limit to a partial
    * load, so none is interpolated between them.
@@ -230,7 +230,7 @@ export namespace walkLeg {
    * Returns: Degrees.
    */
   export function dorsal(share: number): number {
-    return share > 0 ? ANKLE_DORSIFLEXION.loaded : ANKLE_DORSIFLEXION.unloaded;
+    return share > 0 ? AutoMovieEngineAnkleDorsiflexion.loaded : AutoMovieEngineAnkleDorsiflexion.unloaded;
   }
 
   /*
@@ -252,7 +252,7 @@ export namespace walkLeg {
     pivot: IAutoMovieVector3,
     heading: number,
     width: number,
-    dorsal: number = ANKLE_DORSIFLEXION.unloaded,
+    dorsal: number = AutoMovieEngineAnkleDorsiflexion.unloaded,
   ): (hip: IAutoMovieVector3, pitch: number, dorsalAt?: number) => number {
     const at: (degrees: number) => IAutoMovieVector3 = HumanFoot.prepareAnkle(
       body,
@@ -282,7 +282,7 @@ export namespace walkLeg {
         pitch,
         width,
         true,
-        (degrees: number): boolean => Vector3.distance(at(degrees), hip) > span,
+        (degrees: number): boolean => AutoMovieEngineVector3.distance(at(degrees), hip) > span,
         (low: number, high: number): number | undefined =>
           entry(hip, low, high, walkLegRise.REACHED),
       );
@@ -312,7 +312,7 @@ export namespace walkLeg {
     const shank: number = lean(hip, ankle);
     const pitch: number = direction.pitch;
     const clamped: number = Math.min(
-      -shank + ANKLE_DORSIFLEXION.unloaded - ANKLE,
+      -shank + AutoMovieEngineAnkleDorsiflexion.unloaded - ANKLE,
       Math.max(-shank - PLANTAR + ANKLE, pitch),
     );
     return clamped === pitch

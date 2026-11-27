@@ -1,18 +1,18 @@
-import type { IMaterialOverlayShape } from "../../IMaterialOverlayShape.js";
+import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape.js";
 
 /*
  * The vertex shader passing each overlay image's transformed UV.
  */
 export const materialOverlayVertex: (
   vertexShader: string,
-  shapes: readonly IMaterialOverlayShape[],
+  shapes: readonly IAutoMovieRenderMaterialOverlayShape[],
 ) => string = (
   vertexShader: string,
-  shapes: readonly IMaterialOverlayShape[],
+  shapes: readonly IAutoMovieRenderMaterialOverlayShape[],
 ): string => {
   const declarations: string[] = [];
   const assignments: string[] = [];
-  shapes.forEach((shape: IMaterialOverlayShape, i: number): void => {
+  shapes.forEach((shape: IAutoMovieRenderMaterialOverlayShape, i: number): void => {
     declarations.push(
       `uniform mat3 overlayColorTransform${i};`,
       `varying vec2 vOverlayColorUv${i};`,

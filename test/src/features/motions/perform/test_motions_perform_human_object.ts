@@ -6,8 +6,11 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanObject } from "@automovie/motions";
-import { AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";

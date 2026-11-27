@@ -1,4 +1,4 @@
-import { AutoMovieLoftSection } from "@automovie/engine";
+import { AutoMovieEngineLoftSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodySurfaceLoft,
   IAutoMovieHumanSurfaceAppendage,
@@ -344,8 +344,8 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     target: IAutoMovieLoftChain,
     end: "bottom" | "top",
   ): boolean {
-    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
-      AutoMovieLoftSection.phase(target, endHeight(target, end));
+    const source: ReturnType<typeof AutoMovieEngineLoftSection.phase> =
+      AutoMovieEngineLoftSection.phase(target, endHeight(target, end));
     if (source === null) return false;
     const first: readonly number[] = source(0).p;
     return [Math.PI / 2, Math.PI, (3 * Math.PI) / 2].some(

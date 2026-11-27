@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -177,7 +177,7 @@ export namespace HumanGait {
         const step: number = HumanGaitCounted(way, count);
         const speed: number = (step * cadence) / 60;
         return {
-          ...walk.walking((speed * speed) / (AutoMovieGravity.STANDARD * l)),
+          ...walk.walking((speed * speed) / (AutoMovieEngineGravity.STANDARD * l)),
           step: (): number => step / l,
           arms: MARCH.arms,
           unevenness: MARCH.unevenness,
@@ -219,7 +219,7 @@ export namespace HumanGait {
         const speed: number = (step * DOUBLE.cadence) / 60;
         return {
           ...run.GAITS.jog,
-          froude: (speed * speed) / (AutoMovieGravity.STANDARD * l),
+          froude: (speed * speed) / (AutoMovieEngineGravity.STANDARD * l),
           step: (): number => step / l,
           unevenness: MARCH.unevenness,
           called: true,

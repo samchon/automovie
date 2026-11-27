@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineMotionSampling,
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -40,7 +40,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * palms are laid on the top at its near edge, then the body tucks over the
  * hands alone in the floor laws' squat (`getUp.POSES`). The flight is ballistic
  * in the root from the push-off under standard gravity
- * (`AutoMovieGravity.STANDARD`), on the least-speed arc from the tucked root to
+ * (`AutoMovieEngineGravity.STANDARD`), on the least-speed arc from the tucked root to
  * the landing's (the push that reaches it with the least effort), the joints
  * blended from the tuck to the landing on minimum-jerk shares; the flight is
  * declared without turns, so the flight pass gives the whole body's rotation
@@ -116,7 +116,7 @@ export namespace squatVault {
    */
   export function arc(h: number, d: number): IArc {
     const lift: number = h + Math.sqrt(h * h + d * d);
-    const launch: number = Math.sqrt(AutoMovieGravity.STANDARD * lift);
+    const launch: number = Math.sqrt(AutoMovieEngineGravity.STANDARD * lift);
     const angle: number = Math.atan2(lift, d);
     return {
       lift,
@@ -138,7 +138,7 @@ export namespace squatVault {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSquatVault.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const yaw: number = context.entry.posture.yaw;
     const heading: IAutoMovieVector3 = HumanFrame.forward(yaw);
 
@@ -155,14 +155,14 @@ export namespace squatVault {
     const half: number = (declared.depth ?? 0) / 2;
     const ends: IAutoMovieVector3[] = [-1, 1].map(
       (sign: number): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           top,
-          Quaternion.rotateVector(rotation, { x: 0, y: 0, z: sign * half }),
+          AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: sign * half }),
         ),
     );
     const along: (p: IAutoMovieVector3) => number = (
       p: IAutoMovieVector3,
-    ): number => Vector3.dot(p, heading);
+    ): number => AutoMovieEngineVector3.dot(p, heading);
     const [near, far]: [IAutoMovieVector3, IAutoMovieVector3] = (
       along(ends[0]!) <= along(ends[1]!) ? ends : [ends[1]!, ends[0]!]
     ) as [IAutoMovieVector3, IAutoMovieVector3];
@@ -182,9 +182,9 @@ export namespace squatVault {
       target: {
         kind: "point",
         frame: "world",
-        at: Vector3.add(
+        at: AutoMovieEngineVector3.add(
           near,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             left,
             (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth,
           ),
@@ -217,9 +217,9 @@ export namespace squatVault {
     // The landing: the quiet stance with the heels a foot's length past the
     // far edge.
     const heel: number = -HumanFoot.offset(body, "left", "heel").z;
-    const ground: IAutoMovieVector3 = Vector3.add(
+    const ground: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       { ...far, y: 0 },
-      Vector3.scale(heading, heel + body.measure.footLength),
+      AutoMovieEngineVector3.scale(heading, heel + body.measure.footLength),
     );
     const landing: IAutoMovieMotionHumanPosture = stand.posture(
       body,
@@ -241,10 +241,10 @@ export namespace squatVault {
     // `h` over a run `d` its speed squared is `g (h + sqrt(h^2 + d^2))` and
     // its angle's tangent `(h + sqrt(h^2 + d^2)) / d`.
     const run: IAutoMovieVector3 = {
-      ...Vector3.subtract(landing.root, tucked.root),
+      ...AutoMovieEngineVector3.subtract(landing.root, tucked.root),
       y: 0,
     };
-    const d: number = Vector3.length(run);
+    const d: number = AutoMovieEngineVector3.length(run);
     const h: number = landing.root.y - tucked.root.y;
     if (!(d > 0))
       throw new AutoMovieMotionHumanRefusal({
@@ -255,7 +255,7 @@ export namespace squatVault {
         fix: "vault a box that lies ahead of the body",
       });
     const { flight, rise }: squatVault.IArc = arc(h, d);
-    const speed: IAutoMovieVector3 = Vector3.scale(run, 1 / flight);
+    const speed: IAutoMovieVector3 = AutoMovieEngineVector3.scale(run, 1 / flight);
     const hold: number = context.params.hold ?? 0.5;
     const touchdown: number = push + flight;
     const duration: number = touchdown + hold;

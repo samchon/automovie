@@ -1,4 +1,4 @@
-import { AffordanceArticulation, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -46,7 +46,7 @@ export function withHumanStagePropLink(
           "Link key seconds must be finite and strictly increasing",
         );
       if (
-        !AffordanceArticulation.input(byId, articulation, key.degrees).success
+        !AutoMovieEngineAffordanceArticulation.input(byId, articulation, key.degrees).success
       )
         throw new Error(`Inadmissible hinge travel at link key ${index}`);
       return { ...key };

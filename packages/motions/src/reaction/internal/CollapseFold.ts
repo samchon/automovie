@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanCollapse,
   IAutoMovieMotionHumanJoints,
 } from "@automovie/interface";
-import * as CollapseFoldData from "./CollapseFoldData";
+import { CollapseFoldData } from "./CollapseFoldData";
 
 /*
  * Evaluate a collapse's fold.

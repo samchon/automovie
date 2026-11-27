@@ -1,6 +1,6 @@
 import {
-  AutoMovieConstructionViews,
-  AutoMovieViewAxis,
+  AutoMovieEngineConstructionViews,
+  AutoMovieEngineViewAxis,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -102,7 +102,7 @@ export namespace AutoMovieHumanWalkPart {
     const positions: ReturnType<typeof AutoMovieHumanConstructionView.point>[] =
       raw.map(AutoMovieHumanConstructionView.point);
     const centres: AutoMovieVector3Tuple[] = positions.map(
-      AutoMovieConstructionViews.point,
+      AutoMovieEngineConstructionViews.point,
     );
     const metreHalves: number[] = [
       ...input.joints.map((j: { half: number }): number => j.half),
@@ -122,7 +122,7 @@ export namespace AutoMovieHumanWalkPart {
     const halves: number[] = metreHalves.map(
       (half: number): number => half * 1000,
     );
-    const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
+    const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieEngineViewAxis.runs(
       centres,
       halves,
     );
@@ -187,7 +187,7 @@ export namespace AutoMovieHumanWalkPart {
 
   /*
    * Station adapter: the station of the point a share along a bone, on the
-   * engine's jointed course (`AutoMovieViewAxis.runs`). On the bone's straight
+   * engine's jointed course (`AutoMovieEngineViewAxis.runs`). On the bone's straight
    * run it is the run's own station; inside a turn, where the course cuts the
    * corner and no station lies on the bone's line, it is read linearly in the
    * distance along the bones between the turn's two run ends, so the stations

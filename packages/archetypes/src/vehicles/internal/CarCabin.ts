@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -39,7 +39,7 @@ export namespace CarCabin {
     }
 
     // The van's sliding door, behind the bulkhead on the kerb side.
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const kerb: number = -l.side;
     const width: number = l.d.sideDoorWidth!;
     const height: number = l.d.sideDoorHeight!;
@@ -100,7 +100,7 @@ export namespace CarCabin {
       l,
       "driverSeat",
       "driver",
-      Vector3.create(reference.x, l.surface, reference.z),
+      AutoMovieEngineVector3.create(reference.x, l.surface, reference.z),
       0.5,
     );
     seat(
@@ -108,7 +108,7 @@ export namespace CarCabin {
       l,
       "passengerSeat",
       "passenger",
-      Vector3.create(-reference.x, l.surface, reference.z),
+      AutoMovieEngineVector3.create(-reference.x, l.surface, reference.z),
       0.5,
     );
     if (l.kind !== "van")
@@ -117,7 +117,7 @@ export namespace CarCabin {
         l,
         "rearSeat",
         "rear",
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           0,
           l.surface,
           l.door -
@@ -142,7 +142,7 @@ export namespace CarCabin {
     >,
     l: CarBody.ILayout,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const d: Readonly<
       Partial<Record<AutoMovieArchetypeCar.Dimension, number>>
     > = l.d;
@@ -153,31 +153,31 @@ export namespace CarCabin {
     builder.rod(
       "steering-rim",
       d.steeringDiameter! / 2,
-      Vector3.subtract(hub, Vector3.scale(axis, 0.015)),
-      Vector3.add(hub, Vector3.scale(axis, 0.015)),
+      AutoMovieEngineVector3.subtract(hub, AutoMovieEngineVector3.scale(axis, 0.015)),
+      AutoMovieEngineVector3.add(hub, AutoMovieEngineVector3.scale(axis, 0.015)),
       { color: DARK },
     );
     builder.rod(
       "steering-column",
       0.02,
-      Vector3.subtract(hub, Vector3.scale(axis, 0.3)),
+      AutoMovieEngineVector3.subtract(hub, AutoMovieEngineVector3.scale(axis, 0.3)),
       hub,
       { color: GREY },
     );
     builder.rod(
       "steering-spoke",
       0.008,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         hub,
-        Vector3.add(
-          Vector3.scale(axis, 0.02),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(axis, 0.02),
           v(-d.steeringDiameter! / 2, 0, 0),
         ),
       ),
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         hub,
-        Vector3.add(
-          Vector3.scale(axis, 0.02),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(axis, 0.02),
           v(d.steeringDiameter! / 2, 0, 0),
         ),
       ),
@@ -197,7 +197,7 @@ export namespace CarCabin {
 
     // The right grasp is on the rim and turns with the same column. The rim's
     // round section is wrapped alike from any side, like a rail.
-    const rim: IAutoMovieVector3 = Vector3.add(
+    const rim: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hub,
       v(-d.steeringDiameter! / 2, 0, 0),
     );
@@ -208,7 +208,7 @@ export namespace CarCabin {
       frame: AutoMovieArchetypeFrame.facing(
         rim,
         axis,
-        Vector3.cross(axis, v(-1, 0, 0)),
+        AutoMovieEngineVector3.cross(axis, v(-1, 0, 0)),
       ),
       extent: null,
       grip: "power",
@@ -247,7 +247,7 @@ export namespace CarCabin {
       id: "accelerator",
       kind: "pedal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.add(at, Vector3.scale(sole, 0.005)),
+        AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(sole, 0.005)),
         sole,
         v(1, 0, 0),
       ),
@@ -318,7 +318,7 @@ function door(
   end: number,
   pillar: boolean,
 ): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const x: number = sign * l.half;
   const part: string = `door-${PART[role]}`;
   const panel: number = 0.04;
@@ -465,21 +465,21 @@ function seat(
   const rear: number = reference.z - 0.1;
   builder.box(
     `cushion-${name}`,
-    Vector3.create(width, 0.12, depth),
-    Vector3.create(reference.x, reference.y - 0.06, rear + depth / 2),
+    AutoMovieEngineVector3.create(width, 0.12, depth),
+    AutoMovieEngineVector3.create(reference.x, reference.y - 0.06, rear + depth / 2),
     { color: CLOTH, density: 0.2 },
   );
   builder.box(
     `backrest-${name}`,
-    Vector3.create(width, 0.6, 0.1),
-    Vector3.create(reference.x, reference.y + 0.3, rear - 0.05),
+    AutoMovieEngineVector3.create(width, 0.6, 0.1),
+    AutoMovieEngineVector3.create(reference.x, reference.y + 0.3, rear - 0.05),
     { color: CLOTH, density: 0.2 },
   );
   builder.affordance({
     id,
     kind: "seat",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(reference.x, reference.y, rear + depth),
+      AutoMovieEngineVector3.create(reference.x, reference.y, rear + depth),
     ),
     extent: null,
     depth,
@@ -493,9 +493,9 @@ function seat(
       id: `${id}Back`,
       kind: "hinge",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(reference.x, reference.y, rear),
-        Vector3.create(-1, 0, 0),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(reference.x, reference.y, rear),
+        AutoMovieEngineVector3.create(-1, 0, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       travel: l.d.recline!,

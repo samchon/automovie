@@ -1,6 +1,6 @@
 import {
-  AutoMovieViewOutline,
-  AutoMovieSolidVector as V,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineSolidVector as V,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanFootDorsum,
@@ -41,7 +41,7 @@ export namespace AutoMovieHumanFootDorsum {
     const top: number = input.part.stations.at(-1)!;
     const original:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
       input.part.front.positive,
       { bottom, top },
     );

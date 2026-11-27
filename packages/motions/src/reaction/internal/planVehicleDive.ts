@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionEvent,
@@ -65,7 +65,7 @@ export function planVehicleDive(
   const at: IAutoMovieVector3 = vehicleFront.local(frame, hips);
   // Away from the car's centre line, toward the nearer edge of its path.
   const out: number = at.x >= 0 ? 1 : -1;
-  const outward: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+  const outward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
     x: out,
     y: 0,
     z: 0,
@@ -75,7 +75,7 @@ export function planVehicleDive(
     { x: 1, y: 0, z: 0 },
   );
   const side: AutoMovieHumanSide =
-    p.side ?? (Vector3.dot(left, outward) >= 0 ? "left" : "right");
+    p.side ?? (AutoMovieEngineVector3.dot(left, outward) >= 0 ? "left" : "right");
   const params: IAutoMovieMotionHumanDive.IParams = { kind: "dive", side };
   const leap: IAutoMovieMotionHumanActionPlan = dive.plan({
     ...context,

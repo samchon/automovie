@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -95,7 +95,7 @@ export function driveCar(
       ? CourseWheelTravel.timed(
           { ...plan, course: plan.course },
           (state: AutoMovieArchetypeCourse.IState): number[] => {
-            const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+            const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
               state.placement.rotation,
               { x: 0, y: 0, z: 1 },
             );

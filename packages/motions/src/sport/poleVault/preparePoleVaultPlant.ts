@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -52,9 +52,9 @@ export function preparePoleVaultPlant(
   const endOf: (bones: ITrial["bones"]) => IAutoMovieVector3 = (
     bones: ITrial["bones"],
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       HumanHand.frame(props.body, bones, props.side, "grip").point,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         bones.get(`${props.side}Hand`)!.worldRotation,
         props.end,
       ),

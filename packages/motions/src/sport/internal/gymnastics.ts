@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -164,14 +164,14 @@ export namespace gymnastics {
     const height: number = laid.y + REACH * (m.upperArm + m.forearm);
     const girdle: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.girdle(body);
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
-    const standing: IAutoMovieVector3 = Vector3.add(
+    const standing: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       entry.root,
-      Quaternion.rotateVector(humanPostureHeading(entry), hipsRest),
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(entry), hipsRest),
     );
     // The hips from the shoulders at the hands' touchdown, in the entry's frame.
-    const carried: IAutoMovieVector3 = Quaternion.rotateVector(
+    const carried: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       humanPostureHeading({ yaw: 0, pitch: DOWN, roll: 0 }),
-      Vector3.subtract(hipsRest, girdle),
+      AutoMovieEngineVector3.subtract(hipsRest, girdle),
     );
     // The hips go as far ahead of the ankles as the planted legs reach at that height.
     const ankles: number =
@@ -191,13 +191,13 @@ export namespace gymnastics {
     const hands: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: 0,
       y: 0,
-      z: ahead - Vector3.dot(laid, forward) / 2,
+      z: ahead - AutoMovieEngineVector3.dot(laid, forward) / 2,
     });
-    const down: IAutoMovieVector3 = Vector3.add(
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       shoulders,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading({ yaw: entry.yaw, pitch: DOWN, roll: 0 }),
-        Vector3.subtract(hipsRest, girdle),
+        AutoMovieEngineVector3.subtract(hipsRest, girdle),
       ),
     );
     // The pitch that stands the hips straight above the shoulders.
@@ -234,9 +234,9 @@ export namespace gymnastics {
             root:
               swung > 0
                 ? AutoMovieMotionHumanPlaced.root(pitched, girdle, shoulders)
-                : Vector3.subtract(
-                    Vector3.lerp(standing, down, folded),
-                    Quaternion.rotateVector(
+                : AutoMovieEngineVector3.subtract(
+                    AutoMovieEngineVector3.lerp(standing, down, folded),
+                    AutoMovieEngineQuaternion.rotateVector(
                       humanPostureHeading(pitched),
                       hipsRest,
                     ),
@@ -289,9 +289,9 @@ export namespace gymnastics {
             // The straight leg's ankle and foot as the pitched body carries them.
             const turn: IAutoMovieQuaternion = humanPostureHeading(posture);
             const carried: IAutoMovieMotionHumanFoot.IPlacement = {
-              ankle: Vector3.add(
+              ankle: AutoMovieEngineVector3.add(
                 posture.root,
-                Quaternion.rotateVector(turn, ankleRest),
+                AutoMovieEngineQuaternion.rotateVector(turn, ankleRest),
               ),
               rotation: turn,
             };

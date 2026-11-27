@@ -5,7 +5,7 @@ import {
   AutoMovieArchetypeRefusal,
   type AutoMovieArchetypeRide,
 } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -82,7 +82,7 @@ function state(seconds: number): AutoMovieArchetypeCourse.IState {
     reverse: false,
     placement: {
       translation: { x: 8 + 2 * t, y: 2, z: 20 },
-      rotation: Quaternion.fromAxisAngle(
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         90 * Math.max(0, t - 1),
       ),

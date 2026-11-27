@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeRowingMachineData from "./internal/AutoMovieArchetypeRowingMachineData";
+import { AutoMovieArchetypeRowingMachineData } from "./internal/AutoMovieArchetypeRowingMachineData";
 
 /** Constructs the rowing machine archetype from its recipe. */
 export namespace AutoMovieArchetypeRowingMachine {
@@ -69,7 +69,7 @@ export function create(
     name: `rowing machine on ${legs.name} legs`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const rail: number = AutoMovieArchetypeRowingMachine.RAIL;
   const seat: Readonly<{ width: number; depth: number; thick: number }> =
     AutoMovieArchetypeRowingMachine.SEAT;
@@ -140,13 +140,13 @@ export function create(
     );
     builder.box(`${id}Plate`, v(plate.width, plate.height, 0.02), centre, {
       color: "#55595f",
-      rotation: Quaternion.fromAxisAngle(v(1, 0, 0), tilt),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle(v(1, 0, 0), tilt),
     });
     builder.affordance({
       id,
       kind: "pedal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.add(centre, Vector3.scale(normal, 0.01)),
+        AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(normal, 0.01)),
         normal,
         v(1, 0, 0),
       ),

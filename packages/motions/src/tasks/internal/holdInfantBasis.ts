@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -22,8 +22,8 @@ export function holdInfantBasis(
     { normal: { x: 0, y: 1, z: 0 }, forward: { x: 0, y: 0, z: 1 } },
     {
       normal: line,
-      forward: Vector3.normalize(
-        Vector3.subtract(face, Vector3.scale(line, Vector3.dot(face, line))),
+      forward: AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(face, AutoMovieEngineVector3.scale(line, AutoMovieEngineVector3.dot(face, line))),
       ),
     },
   );

@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBindingLimb,
@@ -48,7 +48,7 @@ export namespace AutoMovieHumanCrotchBinding {
     let low: number = Infinity;
     if (trunk !== undefined)
       for (const layer of trunk.layers)
-        for (const p of AutoMovieLoftChain.ring(trunk, layer.y, PHASES))
+        for (const p of AutoMovieEngineLoftChain.ring(trunk, layer.y, PHASES))
           if (Math.abs(p[2]) < BAND) low = Math.min(low, p[1]);
     return low * scale;
   }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineSchedule } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -311,16 +311,16 @@ export namespace AutoMovieMotionHumanAuditTangle {
       }
       let point: IAutoMovieVector3 | undefined = list[corner];
       if (point === undefined) {
-        point = Vector3.add(
+        point = AutoMovieEngineVector3.add(
           placed[part]!.pose.position,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             placed[part]!.pose.rotation,
             m.parts[part]!.probes[corner]!,
           ),
         );
         list[corner] = point;
       }
-      return Math.max(1e-3, Vector3.distance(point, shoulder));
+      return Math.max(1e-3, AutoMovieEngineVector3.distance(point, shoulder));
     };
 
     let worst: number = 0;
@@ -330,7 +330,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
       for (let j: number = 0; j < placed.length; j++) {
         if (m.related[i]![j]! || mine[j]) continue;
         const reach: number = m.parts[i]!.radius + m.parts[j]!.radius;
-        if (Vector3.distance(a, centre(j)) >= reach) continue;
+        if (AutoMovieEngineVector3.distance(a, centre(j)) >= reach) continue;
         const over: Float64Array = M.beyond(m, placed, i, j, targets);
         for (let k: number = 0; k < over.length; k++) {
           if (!(over[k]! > 0)) continue;

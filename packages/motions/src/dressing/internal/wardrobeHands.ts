@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -191,8 +191,8 @@ export namespace wardrobeHands {
   ): IAutoMovieRigidTransform {
     const u: number = AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, Math.max(0, fraction))).s;
     return {
-      position: Vector3.lerp(from.position, to.position, u),
-      rotation: Quaternion.slerp(from.rotation, to.rotation, u),
+      position: AutoMovieEngineVector3.lerp(from.position, to.position, u),
+      rotation: AutoMovieEngineQuaternion.slerp(from.rotation, to.rotation, u),
     };
   }
 
@@ -212,9 +212,9 @@ export namespace wardrobeHands {
     if (channels !== undefined && !channels.includes(`${side}Arm`))
       return posture;
     const site: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
-    const point: IAutoMovieVector3 = Vector3.subtract(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       target.position,
-      Quaternion.rotateVector(target.rotation, site),
+      AutoMovieEngineQuaternion.rotateVector(target.rotation, site),
     );
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.solve({
       body,
@@ -243,9 +243,9 @@ export namespace wardrobeHands {
   ) => IAutoMovieMotionHumanPosture {
     const site: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
     const wrist = (target: IAutoMovieRigidTransform): IAutoMovieVector3 =>
-      Vector3.subtract(
+      AutoMovieEngineVector3.subtract(
         target.position,
-        Quaternion.rotateVector(target.rotation, site),
+        AutoMovieEngineQuaternion.rotateVector(target.rotation, site),
       );
     const elbow: (seconds: number) => IAutoMovieVector3 = prepareHumanElbowPath(
       duration,
@@ -287,7 +287,7 @@ export namespace wardrobeHands {
     from: IAutoMovieRigidTransform,
     delta: IAutoMovieVector3,
   ): IAutoMovieRigidTransform {
-    return { ...from, position: Vector3.add(from.position, delta) };
+    return { ...from, position: AutoMovieEngineVector3.add(from.position, delta) };
   }
 
   /*
@@ -308,7 +308,7 @@ export namespace wardrobeHands {
     ).rotation;
     return {
       ...STILL,
-      rotation: Quaternion.slerp(
+      rotation: AutoMovieEngineQuaternion.slerp(
         STILL.rotation,
         turn,
         AutoMovieEngineMotionSampling.minimumJerkShare(fraction),
@@ -373,7 +373,7 @@ export namespace wardrobeHands {
     tolerance: number,
   ): void {
     const shown: IAutoMovieRigidTransform = grip(context.body, posture, side);
-    const miss: number = Vector3.distance(shown.position, expected.position);
+    const miss: number = AutoMovieEngineVector3.distance(shown.position, expected.position);
     if (!(miss <= tolerance))
       throw refusal(
         "reach",
@@ -391,7 +391,7 @@ export namespace wardrobeHands {
   ): number {
     return Math.max(
       0.23,
-      AutoMovieMotionHumanTiming(Vector3.distance(a.position, b.position), {
+      AutoMovieMotionHumanTiming(AutoMovieEngineVector3.distance(a.position, b.position), {
         solid: false,
       }),
     );
@@ -430,33 +430,33 @@ export namespace wardrobeHands {
       model,
       frame(slider),
     );
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(at.rotation, {
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(at.rotation, {
       x: 1,
       y: 0,
       z: 0,
     });
-    const out: IAutoMovieVector3 = Quaternion.rotateVector(at.rotation, {
+    const out: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(at.rotation, {
       x: 0,
       y: 1,
       z: 0,
     });
     const hand: IAutoMovieRigidTransform = grip(body, entry.posture, side);
-    const a: IAutoMovieVector3 = Vector3.add(
+    const a: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       at.position,
-      Vector3.scale(axis, base),
+      AutoMovieEngineVector3.scale(axis, base),
     );
-    const b: IAutoMovieVector3 = Vector3.add(
+    const b: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       at.position,
-      Vector3.scale(axis, terminal),
+      AutoMovieEngineVector3.scale(axis, terminal),
     );
     const rotations: IAutoMovieRigidTransform["rotation"][] = [
       hand.rotation,
       ...[0, 45, -45, 90, -90, 135, -135, 180].map(
         (angle: number): IAutoMovieRigidTransform["rotation"] =>
           HumanHand.rotation(side, {
-            fingers: Vector3.scale(out, -1),
-            palm: Quaternion.rotateVector(
-              Quaternion.fromAxisAngle(out, angle),
+            fingers: AutoMovieEngineVector3.scale(out, -1),
+            palm: AutoMovieEngineQuaternion.rotateVector(
+              AutoMovieEngineQuaternion.fromAxisAngle(out, angle),
               axis,
             ),
           }),
@@ -553,7 +553,7 @@ export namespace wardrobeHands {
             arm(body, entry.posture, side, { position, rotation }),
             side,
           );
-          return Vector3.distance(shown.position, position);
+          return AutoMovieEngineVector3.distance(shown.position, position);
         }),
       );
       if (miss < best) {

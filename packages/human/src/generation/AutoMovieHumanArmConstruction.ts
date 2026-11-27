@@ -26,7 +26,7 @@ import { AutoMovieHumanHandConstruction } from "./AutoMovieHumanHandConstruction
 import "./AutoMovieHumanHandEvents";
 import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
 import "./AutoMovieHumanHandSide";
-import { events, sided } from "./internal/AutoMovieHumanArmConstructionData";
+import { AutoMovieHumanArmConstructionData } from "./internal/AutoMovieHumanArmConstructionData";
 
 /**
  * Both arms and hands composed from their pieces, by one construction on the
@@ -77,7 +77,7 @@ export namespace AutoMovieHumanArmConstruction {
         ...calibration.chains,
         ...limbs.flatMap((l: ILimb): IAutoMovieLoftChain[] => l.chains),
       ],
-      events: [...calibration.events, ...events()],
+      events: [...calibration.events, ...AutoMovieHumanArmConstructionData.events()],
       poles: [
         ...calibration.poles,
         ...limbs.flatMap((l: ILimb): IAutoMovieHumanSurfacePole[] => l.poles),
@@ -201,7 +201,7 @@ export namespace AutoMovieHumanArmConstruction {
     const centre: AutoMovieVector3Tuple =
       calibration.trunk !== undefined
         ? [...calibration.trunk.glenohumeral]
-        : sided(
+        : AutoMovieHumanArmConstructionData.sided(
             AutoMovieHumanArmShoulder.glenohumeral(
               calibration,
               side,
@@ -293,8 +293,8 @@ export namespace AutoMovieHumanArmConstruction {
         }),
       );
     const landmarks: IAutoMovieHumanArmConstruction.IBones = {
-      elbow: sided(built.law.elbow, sign),
-      crease: sided(built.law.crease, sign),
+      elbow: AutoMovieHumanArmConstructionData.sided(built.law.elbow, sign),
+      crease: AutoMovieHumanArmConstructionData.sided(built.law.crease, sign),
       length: built.measures.length,
       thumb: built.thumb,
       digits: built.lines,
@@ -348,7 +348,7 @@ export namespace AutoMovieHumanArmConstruction {
     );
     if (bone === undefined)
       throw new Error(`The skeleton lacks the ${side} elbow`);
-    return sided(bone.position, sign);
+    return AutoMovieHumanArmConstructionData.sided(bone.position, sign);
   }
 
   /*

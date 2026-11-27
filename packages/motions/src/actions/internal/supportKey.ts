@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -373,7 +373,7 @@ export namespace supportKey {
         joints[pair.bone] = blend(pair.bone, from, to, w);
       }
       return {
-        root: Vector3.lerp(a.root, b.root, w),
+        root: AutoMovieEngineVector3.lerp(a.root, b.root, w),
         yaw: a.yaw + yaw * w,
         pitch: a.pitch + pitch * w,
         roll: a.roll + roll * w,

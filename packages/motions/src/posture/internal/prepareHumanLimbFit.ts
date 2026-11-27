@@ -1,6 +1,6 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
   AutoMovieEngineMotionKinematics,
 } from "@automovie/engine";
 import type {
@@ -76,8 +76,8 @@ export function prepareHumanLimbFit(
           },
         }),
     topology: body.topology,
-    jointAxes: HUMANOID_JOINT_AXES,
-    restFrames: HUMANOID_REST_FRAME,
+    jointAxes: AutoMovieEngineHumanoidJointAxes,
+    restFrames: AutoMovieEngineHumanoidRestFrame,
   };
   return AutoMovieEngineMotionKinematics.prepareSeededChainFit(
     source,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -73,11 +73,11 @@ export namespace ReactionFeet {
             s.socket === "ball",
         )!.point,
         length:
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             body.rest.get(`${side}UpperLeg`)!,
             body.rest.get(`${side}LowerLeg`)!,
           ) +
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             body.rest.get(`${side}LowerLeg`)!,
             body.rest.get(`${side}Foot`)!,
           ),
@@ -183,22 +183,22 @@ export namespace ReactionFeet {
           const point: IAutoMovieVector3 =
             shown === undefined
               ? foot.ankle
-              : Vector3.lerp(foot.ankle, shown.get(bone)!.worldPosition, s);
+              : AutoMovieEngineVector3.lerp(foot.ankle, shown.get(bone)!.worldPosition, s);
           const rotation: IAutoMovieQuaternion =
             shown === undefined
               ? foot.rotation
-              : Quaternion.slerp(
+              : AutoMovieEngineQuaternion.slerp(
                   foot.rotation,
-                  Quaternion.multiply(
+                  AutoMovieEngineQuaternion.multiply(
                     shown.get(bone)!.worldRotation,
-                    Quaternion.inverse(rest.get(bone)!.worldRotation),
+                    AutoMovieEngineQuaternion.inverse(rest.get(bone)!.worldRotation),
                   ),
                   s,
                 );
           limbs[`${side}Leg`] = {
             point,
             rotation,
-            bend: Vector3.add(point, ahead),
+            bend: AutoMovieEngineVector3.add(point, ahead),
             planted: s === 0,
           } satisfies IAutoMovieHumanLimbGoal;
         }
@@ -255,32 +255,32 @@ export namespace ReactionFeet {
     hip: IAutoMovieVector3,
     length: number,
   ): IHeeled {
-    if (Vector3.distance(hip, foot.ankle) <= length)
+    if (AutoMovieEngineVector3.distance(hip, foot.ankle) <= length)
       return { ankle: foot.ankle, rotation: foot.rotation, toes: 0 };
-    const k: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(foot.rotation, { x: 1, y: 0, z: 0 }),
+    const k: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(foot.rotation, { x: 1, y: 0, z: 0 }),
     );
-    const r: IAutoMovieVector3 = Vector3.subtract(foot.ankle, ball);
-    const along: IAutoMovieVector3 = Vector3.scale(k, Vector3.dot(r, k));
-    const across: IAutoMovieVector3 = Vector3.subtract(r, along);
-    const turned: IAutoMovieVector3 = Vector3.cross(k, across);
-    const d: IAutoMovieVector3 = Vector3.subtract(hip, ball);
-    const A: number = Vector3.dot(d, across);
-    const B: number = Vector3.dot(d, turned);
+    const r: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(foot.ankle, ball);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(k, AutoMovieEngineVector3.dot(r, k));
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(r, along);
+    const turned: IAutoMovieVector3 = AutoMovieEngineVector3.cross(k, across);
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(hip, ball);
+    const A: number = AutoMovieEngineVector3.dot(d, across);
+    const B: number = AutoMovieEngineVector3.dot(d, turned);
     const c: number =
-      (Vector3.dot(d, d) + Vector3.dot(r, r) - length * length) / 2 -
-      Vector3.dot(d, along);
+      (AutoMovieEngineVector3.dot(d, d) + AutoMovieEngineVector3.dot(r, r) - length * length) / 2 -
+      AutoMovieEngineVector3.dot(d, along);
     const rho: number = Math.hypot(A, B);
     const phi: number = Math.atan2(B, A);
     const spread: number = Math.acos(Math.max(-1, Math.min(1, c / rho)));
     const ankle = (theta: number): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         ball,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           along,
-          Vector3.add(
-            Vector3.scale(across, Math.cos(theta)),
-            Vector3.scale(turned, Math.sin(theta)),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(across, Math.cos(theta)),
+            AutoMovieEngineVector3.scale(turned, Math.sin(theta)),
           ),
         ),
       );
@@ -298,8 +298,8 @@ export namespace ReactionFeet {
           );
     return {
       ankle: ankle(theta),
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(k, (theta * 180) / Math.PI),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(k, (theta * 180) / Math.PI),
         foot.rotation,
       ),
       toes: (Math.abs(theta) * 180) / Math.PI,

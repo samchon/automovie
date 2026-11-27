@@ -4,10 +4,14 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanHand,
-  HumanHand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  AutoMovieMotionHumanHand
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanHand";
+import {
+  HumanHand
+} from "../../../../../packages/motions/src/posture/internal/HumanHand";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

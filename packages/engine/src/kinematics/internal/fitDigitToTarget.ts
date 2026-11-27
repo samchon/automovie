@@ -13,17 +13,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { descendDigitTasks } from "./descendDigitTasks";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
-import { swingTwistRange } from "../swingTwistRange";
+import { AutoMovieEngineSwingTwistRange } from "../AutoMovieEngineSwingTwistRange";
 
 /*
  * Put a point of a digit (its tip or its pad, a frame on its distal phalanx) on
@@ -55,7 +55,7 @@ import { swingTwistRange } from "../swingTwistRange";
  * is projected into the range (`clampJointToSkeleton`) before it is measured.
  * The point counts as reached within the effector's motion for one resolution
  * step of every joint, and a descent stops when its step moves no joint by more
- * than `ROM_TOLERANCE`, the resolution to which the engine resolves a joint's
+ * than `AutoMovieEngineRomTolerance`, the resolution to which the engine resolves a joint's
  * angle. The fit is a continuation: it descends from the pose's own angles for
  * the digit, so a caller that seeds each fit from the one before follows a
  * moving target in one basin, its joints moving continuously. Only when that
@@ -165,7 +165,7 @@ export function fitDigitToTarget(
           constraint.swingTwist === undefined ||
           constraint.swingTwist === null
             ? undefined
-            : swingTwistRange.of(bone, input.skeleton),
+            : AutoMovieEngineSwingTwistRange.of(bone, input.skeleton),
       ),
     );
   }
@@ -222,11 +222,11 @@ export function fitDigitToTarget(
     if (resolved === undefined)
       throw new Error(`A digit fit cannot resolve ${input.effector.bone}`);
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         resolved.worldPosition,
-        Quaternion.rotateVector(resolved.worldRotation, input.effector.point),
+        AutoMovieEngineQuaternion.rotateVector(resolved.worldRotation, input.effector.point),
       ),
-      normal: Quaternion.rotateVector(
+      normal: AutoMovieEngineQuaternion.rotateVector(
         resolved.worldRotation,
         input.effector.normal,
       ),
@@ -259,7 +259,7 @@ export function fitDigitToTarget(
   // The primary residual, metres: where the effector is less the target.
   // The secondary, metres: the normal's misalignment and the coupling, each
   // as an arc length on the distal phalanx.
-  const length: number = Vector3.length(input.effector.point);
+  const length: number = AutoMovieEngineVector3.length(input.effector.point);
   const primary: (x: readonly number[]) => number[] = (
     x: readonly number[],
   ): number[] => {
@@ -271,7 +271,7 @@ export function fitDigitToTarget(
     ];
   };
   const targetNormal: IAutoMovieVector3 | undefined =
-    input.normal === undefined ? undefined : Vector3.normalize(input.normal);
+    input.normal === undefined ? undefined : AutoMovieEngineVector3.normalize(input.normal);
   const secondary: (x: readonly number[]) => number[] = (
     x: readonly number[],
   ): number[] => {
@@ -279,7 +279,7 @@ export function fitDigitToTarget(
     const list: IAutoMovieJointPose[] = candidate.joints;
     const r: number[] = [];
     if (targetNormal !== undefined) {
-      const miss: IAutoMovieVector3 = Vector3.cross(
+      const miss: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
         candidate.frame.normal,
         targetNormal,
       );
@@ -301,7 +301,7 @@ export function fitDigitToTarget(
   ): number =>
     variables.reduce(
       (sum: number, _v: IVariable, i: number): number =>
-        sum + Math.hypot(J1[0]![i]!, J1[1]![i]!, J1[2]![i]!) * ROM_TOLERANCE,
+        sum + Math.hypot(J1[0]![i]!, J1[1]![i]!, J1[2]![i]!) * AutoMovieEngineRomTolerance,
       0,
     );
   const seed: number[] = read(input.pose.joints);
@@ -313,7 +313,7 @@ export function fitDigitToTarget(
       primary,
       secondary,
       project: (x: readonly number[]): number[] => read(joints(x)),
-      step: ROM_TOLERANCE,
+      step: AutoMovieEngineRomTolerance,
       tolerance,
     });
 
@@ -342,7 +342,7 @@ export function fitDigitToTarget(
     joints: fitted,
     point: at.point,
     normal: at.normal,
-    residual: Vector3.length(Vector3.subtract(at.point, input.target)),
+    residual: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at.point, input.target)),
   };
 }
 
@@ -390,9 +390,9 @@ const softTarget: (
   const links: number[] = points
     .slice(1)
     .map((point: IAutoMovieVector3, i: number): number =>
-      Vector3.length(Vector3.subtract(point, points[i]!)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, points[i]!)),
     );
-  links.push(Vector3.length(input.effector.point));
+  links.push(AutoMovieEngineVector3.length(input.effector.point));
   const reach: number = links.reduce(
     (sum: number, link: number): number => sum + link,
     0,
@@ -410,12 +410,12 @@ const softTarget: (
     reach,
     1 / (4 * Math.min(...curvatures) * input.rate ** 2),
   );
-  const delta: IAutoMovieVector3 = Vector3.subtract(input.target, points[0]!);
-  const distance: number = Vector3.length(delta);
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(input.target, points[0]!);
+  const distance: number = AutoMovieEngineVector3.length(delta);
   if (distance === 0 || distance <= reach - width) return input.target;
   const eased: number =
     reach - width * Math.exp(-(distance - (reach - width)) / width);
-  return Vector3.add(points[0]!, Vector3.scale(delta, eased / distance));
+  return AutoMovieEngineVector3.add(points[0]!, AutoMovieEngineVector3.scale(delta, eased / distance));
 };
 
 /*

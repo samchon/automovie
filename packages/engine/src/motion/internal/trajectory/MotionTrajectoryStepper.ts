@@ -4,10 +4,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 import { MotionTrajectoryDense } from "./MotionTrajectoryDense";
-import { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
+import { AutoMovieEngineMotionTrajectoryFailure } from "../../AutoMovieEngineMotionTrajectoryFailure";
 import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 
@@ -68,7 +68,7 @@ export namespace MotionTrajectoryStepper {
     const emptyTerms: number[][] | undefined =
       controlled === 0 ? [] : undefined;
     let q: IAutoMovieQuaternion | null = oriented
-      ? Quaternion.normalize(props.q0!)
+      ? AutoMovieEngineQuaternion.normalize(props.q0!)
       : null;
     let k1: IAutoMovieIntegrateMotionTrajectory.IRate = rate(t, x, q);
     let rateQ: IAutoMovieQuaternion | null = q;
@@ -78,7 +78,7 @@ export namespace MotionTrajectoryStepper {
     let h: number = first;
     let rejected: boolean = false;
     let previous: number = CONTROL.previous;
-    let rejection: MotionTrajectoryFailure["rejection"];
+    let rejection: AutoMovieEngineMotionTrajectoryFailure["rejection"];
     const exponent: number = 0.2 - CONTROL.beta * 0.75;
     let attempts: number = 0;
     while (t < t1) {
@@ -98,7 +98,7 @@ export namespace MotionTrajectoryStepper {
         initial = false;
       }
       if (0.1 * Math.abs(h) <= Math.abs(t) * Number.EPSILON || !(t + h > t))
-        throw new MotionTrajectoryFailure(t, h, rejection, props.errorScope);
+        throw new AutoMovieEngineMotionTrajectoryFailure(t, h, rejection, props.errorScope);
       ++attempts;
       // Tableau consistency sum(A_i)=C_i preserves a common stage exactly;
       // sum(E)=0 gives the same stable difference form for embedded error.
@@ -189,7 +189,7 @@ export namespace MotionTrajectoryStepper {
         // The embedded weights sum to zero mathematically. Differencing
         // their shared first stage avoids a spurious defect for constant rates.
         const e: IAutoMovieVector3 = sum(E, us!, h, 0)!;
-        const scale: number = absolute + relative * Vector3.length(r!);
+        const scale: number = absolute + relative * AutoMovieEngineVector3.length(r!);
         rotationSquares =
           ratio(e.x, scale) + ratio(e.y, scale) + ratio(e.z, scale);
       }
@@ -202,9 +202,9 @@ export namespace MotionTrajectoryStepper {
       let dense: MotionTrajectoryRead.IDenseStep | undefined;
       const rms: number = norm;
       let physical: number | undefined;
-      let kind: NonNullable<MotionTrajectoryFailure["rejection"]>["kind"] =
+      let kind: NonNullable<AutoMovieEngineMotionTrajectoryFailure["rejection"]>["kind"] =
         "rms";
-      let probe: NonNullable<MotionTrajectoryFailure["rejection"]>["probe"];
+      let probe: NonNullable<AutoMovieEngineMotionTrajectoryFailure["rejection"]>["probe"];
       if (norm <= 1) {
         const built: ReturnType<typeof MotionTrajectoryDense> =
           MotionTrajectoryDense({
@@ -260,7 +260,7 @@ export namespace MotionTrajectoryStepper {
         const reduced: number =
           h / Math.min(1 / CONTROL.least, stretched / CONTROL.safety);
         if (props.partition !== undefined && !props.partition.split(t, reduced))
-          throw new MotionTrajectoryFailure(
+          throw new AutoMovieEngineMotionTrajectoryFailure(
             t,
             reduced,
             rejection,
@@ -285,7 +285,7 @@ export namespace MotionTrajectoryStepper {
       steps.push(dense!);
       t = last ? t1 : t + h;
       x = xn;
-      q = oriented ? Quaternion.normalize(endpointQ!) : null;
+      q = oriented ? AutoMovieEngineQuaternion.normalize(endpointQ!) : null;
       k1 = k7;
       rateQ = endpointQ;
       rejected = false;

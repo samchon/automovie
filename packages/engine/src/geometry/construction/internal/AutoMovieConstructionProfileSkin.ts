@@ -4,8 +4,8 @@ import type {
   IAutoMovieSolidMesh,
 } from "@automovie/interface";
 
-import { AutoMovieSolidBody } from "../../AutoMovieSolidBody";
-import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
+import { AutoMovieEngineSolidBody } from "../../AutoMovieEngineSolidBody";
+import { AutoMovieEngineSolidMesh } from "../../AutoMovieEngineSolidMesh";
 
 /*
  * Close actual collapsed profile tips through the drawn source boundary.
@@ -66,7 +66,7 @@ export function AutoMovieConstructionProfileSkin(
     }
     const kept: boolean[] = end.checks.map(
       (arc: (typeof end.checks)[number]): boolean =>
-        AutoMovieSolidBody.kept(body.faces[arc.face]!, end.station, arc.phase),
+        AutoMovieEngineSolidBody.kept(body.faces[arc.face]!, end.station, arc.phase),
     );
     if (kept.every((value: boolean): boolean => !value)) continue;
     if (
@@ -83,8 +83,8 @@ export function AutoMovieConstructionProfileSkin(
       );
       continue;
     }
-    const owner: number = AutoMovieSolidMesh.owner(body.mesh, end.surface);
-    const apex: number = AutoMovieSolidMesh.vertex(
+    const owner: number = AutoMovieEngineSolidMesh.owner(body.mesh, end.surface);
+    const apex: number = AutoMovieEngineSolidMesh.vertex(
       body.mesh,
       end.surface.point!(end.station, 0),
       owner,
@@ -98,7 +98,7 @@ export function AutoMovieConstructionProfileSkin(
         apex,
       ],
     );
-    AutoMovieSolidMesh.close(body.mesh, triangles, end.surface, false);
+    AutoMovieEngineSolidMesh.close(body.mesh, triangles, end.surface, false);
   }
 }
 

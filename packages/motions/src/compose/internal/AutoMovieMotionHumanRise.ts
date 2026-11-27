@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -62,11 +62,11 @@ export namespace AutoMovieMotionHumanRise {
     degrees: number,
   ): IAutoMovieVector3 {
     const travel = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
-      Vector3.subtract(
+      AutoMovieEngineVector3.subtract(
         foot(body, side, stance[side], degrees).ankle,
         stance[side].ankle,
       );
-    return Vector3.scale(Vector3.add(travel("left"), travel("right")), 0.5);
+    return AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(travel("left"), travel("right")), 0.5);
   }
 
   /*

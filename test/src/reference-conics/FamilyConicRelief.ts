@@ -12,7 +12,7 @@ import type { FamilyConicSection as C } from "./FamilyConicSection";
  * The engine moves a wall point at chart station `s` and phase `t` along the
  * relief's fixed axis by a height `d(s, t)`, a tensor-product uniform cubic
  * B-spline over the relief's window with its three outer rings of control
- * points zero (`AutoMovieLoftRelief`). The height that carries a wall point
+ * points zero (`AutoMovieEngineLoftRelief`). The height that carries a wall point
  * onto the observed skin is the distance from that point to the observed
  * section along the axis, so the control heights solve a linear
  * least-squares problem; a second-difference penalty keeps the net fair
@@ -604,7 +604,7 @@ export namespace FamilyConicRelief {
     return best === null ? null : { along: best, normal };
   }
 
-  /** The engine's uniform cubic B-spline span and weights at a parameter (`AutoMovieLoftRelief`'s private `basis`). */
+  /** The engine's uniform cubic B-spline span and weights at a parameter (`AutoMovieEngineLoftRelief`'s private `basis`). */
   function basis(x: number, count: number): [number, number[]] {
     const i: number = Math.min(count - 4, Math.max(0, Math.floor(x)));
     const f: number = x - i;

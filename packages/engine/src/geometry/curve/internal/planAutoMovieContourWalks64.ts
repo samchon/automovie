@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlanContourWalks64Ring,
 } from "@automovie/interface";
 
-import { AutoMovieContourLoftCurves64 } from "../../AutoMovieContourLoftCurves64";
+import { AutoMovieEngineContourLoftCurves64 } from "../../AutoMovieEngineContourLoftCurves64";
 
 /*
  * Freezes branch slit choices before emission and expands them through shared
@@ -46,7 +46,7 @@ export function planAutoMovieContourWalks64<
     if (walks.has(key)) return;
     let points: AutoMovieVector3Tuple[] = [...rings[selection[0]].points];
     for (let i: number = 1; i < selection.length; i++)
-      points = AutoMovieContourLoftCurves64.join(
+      points = AutoMovieEngineContourLoftCurves64.join(
         [...points],
         [...rings[selection[i]].points],
         inserted,

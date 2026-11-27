@@ -1,5 +1,7 @@
-/*
- * No maker's page was read.
- */
-export const STAGED: string =
-  "a snorkel: its dimensions and mass are provisional estimates, no maker's page was read";
+export namespace AutoMovieArchetypeSnorkelData {
+  /*
+   * No maker's page was read.
+   */
+  export const STAGED: string =
+    "a snorkel: its dimensions and mass are provisional estimates, no maker's page was read";
+}

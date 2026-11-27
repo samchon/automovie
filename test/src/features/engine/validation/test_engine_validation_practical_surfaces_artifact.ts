@@ -1,4 +1,6 @@
-import { appendPracticalSurfacesArtifact } from "@automovie/engine/internal";
+import {
+  appendPracticalSurfacesArtifact
+} from "../../../../../packages/engine/src/validation/internal/appendPracticalSurfacesArtifact";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMoviePracticalSurfaceTrack,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
@@ -73,7 +73,7 @@ export namespace StrikingHeldGoal {
       "grip",
     ).point;
     const fixed: IGeometry = {
-      contact: Vector3.add(grip, offset(tool, back)),
+      contact: AutoMovieEngineVector3.add(grip, offset(tool, back)),
       limits: tool.prop === undefined ? undefined : limits(tool, back, grip),
     };
     return (
@@ -89,7 +89,7 @@ export namespace StrikingHeldGoal {
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     back: number,
   ): IAutoMovieVector3 {
-    return Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back));
+    return AutoMovieEngineVector3.subtract(tool.tip, AutoMovieEngineVector3.scale(tool.axis, back));
   }
 }
 
@@ -119,9 +119,9 @@ function read(
   fixed?: IGeometry,
 ): IAutoMovieHumanLimbGoal {
   return {
-    point: Vector3.subtract(
+    point: AutoMovieEngineVector3.subtract(
       frame.point,
-      Quaternion.rotateVector(frame.rotation, grip),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, grip),
     ),
     rotation: frame.rotation,
     bend,
@@ -129,7 +129,7 @@ function read(
     elbow: "strain",
     contact:
       fixed === undefined
-        ? Vector3.add(grip, StrikingHeldGoal.offset(tool, back))
+        ? AutoMovieEngineVector3.add(grip, StrikingHeldGoal.offset(tool, back))
         : { ...fixed.contact },
     ...(tool.prop === undefined
       ? {}
@@ -160,7 +160,7 @@ function limits(
 ): IAutoMovieHumanEffectorPointLimit[] {
   return [back > 0 ? back : tool.length, 0].map(
     (behind: number): IAutoMovieHumanEffectorPointLimit => ({
-      contact: Vector3.add(grip, StrikingHeldGoal.offset(tool, behind)),
+      contact: AutoMovieEngineVector3.add(grip, StrikingHeldGoal.offset(tool, behind)),
       bound: StrikingRoll.MISS,
     }),
   );

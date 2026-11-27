@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeVaultingPoleData from "./internal/AutoMovieArchetypeVaultingPoleData";
+import { AutoMovieArchetypeVaultingPoleData } from "./internal/AutoMovieArchetypeVaultingPoleData";
 
 /** Constructs the vaulting pole archetype from its recipe. */
 export namespace AutoMovieArchetypeVaultingPole {
@@ -83,7 +83,7 @@ export function create(
     name: `vaulting pole, ${series.name} series`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const length: number = d.length;
   const radius: number = d.diameter / 2;
   const top: number = length - d.hold;

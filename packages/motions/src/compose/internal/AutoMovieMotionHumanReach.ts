@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -76,7 +76,7 @@ export namespace AutoMovieMotionHumanReach {
     length: number,
     point: IAutoMovieVector3,
   ): IAutoMovieMotionHumanReach.ICheck {
-    const distance: number = Vector3.length(Vector3.subtract(point, root));
+    const distance: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, root));
     return {
       root,
       length,
@@ -97,10 +97,10 @@ export namespace AutoMovieMotionHumanReach {
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     if (check.shortfall <= 0) return point;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       check.root,
-      Vector3.scale(
-        Vector3.subtract(point, check.root),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(point, check.root),
         check.length / check.distance,
       ),
     );

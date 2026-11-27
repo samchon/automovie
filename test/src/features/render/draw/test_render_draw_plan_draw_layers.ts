@@ -4,7 +4,7 @@ import type {
   IAutoMovieSequence,
 } from "@automovie/interface";
 import {
-  type IAutoMovieDrawScene,
+  type IAutoMovieRenderDrawScene,
   AutoMovieRenderDraw,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -40,7 +40,7 @@ function cut(kind: "crossDissolve" | "fade"): {
 
 /** A shot placement that records nothing; the plan only checks it exists. */
 const SEEK_SHOT: NonNullable<
-  IAutoMovieDrawScene["seekShot"]
+  IAutoMovieRenderDrawScene["seekShot"]
 > = async (): Promise<void> => {};
 
 /**
@@ -64,9 +64,9 @@ const SEEK_SHOT: NonNullable<
 export function test_render_draw_plan_draw_layers(): void {
   const placed: (
     kind: "crossDissolve" | "fade",
-  ) => ReturnType<typeof cut> & Pick<IAutoMovieDrawScene, "seekShot"> = (
+  ) => ReturnType<typeof cut> & Pick<IAutoMovieRenderDrawScene, "seekShot"> = (
     kind: "crossDissolve" | "fade",
-  ): ReturnType<typeof cut> & Pick<IAutoMovieDrawScene, "seekShot"> => ({
+  ): ReturnType<typeof cut> & Pick<IAutoMovieRenderDrawScene, "seekShot"> => ({
     ...cut(kind),
     seekShot: SEEK_SHOT,
   });

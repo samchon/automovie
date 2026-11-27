@@ -1,20 +1,20 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { isAutoMovieFloat32Point } from "../../inspection/isAutoMovieFloat32Point.js";
 import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
-import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
 
 /*
  * Bake and mount the original cartoon marks on the actual polygon front.
  */
 export function mountHumanCartoonFace(
   object: THREE.Group,
-  head: Pick<AutoMovieHumanPolygon.IDrawing["head"], "min" | "max" | "frontAt">,
+  head: Pick<AutoMovieRenderHumanPolygon.IDrawing["head"], "min" | "max" | "frontAt">,
 ): void {
   const centreZ: number = (head.min[2] + head.max[2]) / 2;
   for (const child of object.children) {
-    if (!AutoMovieThreeKind.isMesh(child))
+    if (!AutoMovieRenderThreeKind.isMesh(child))
       throw new Error("A cartoon face part must be a mesh");
     const part: THREE.Mesh = child;
     part.updateMatrix();

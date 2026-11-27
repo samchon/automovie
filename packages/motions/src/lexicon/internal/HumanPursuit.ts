@@ -202,8 +202,8 @@ export namespace HumanPursuit {
    * the looks to them and another action can sync to one.
    *
    * ```ts
-   * const chain = HumanPursuit.search(HumanChain.subject("a"), [p, q], "seek");
-   * new HumanPerformance({ ..., composition: chain.node, layers: { a: HumanPursuit.sweeps(2, "seek") } });
+   * const chain = HumanPursuit.search(AutoMovieMotionHumanChain.subject("a"), [p, q], "seek");
+   * new AutoMovieMotionHumanPerformance({ ..., composition: chain.node, layers: { a: HumanPursuit.sweeps(2, "seek") } });
    * ```
    * Parameter chain: The searcher's chain so far.
    * Parameter places: The floor points visited, in order, world metres.

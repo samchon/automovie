@@ -1,4 +1,4 @@
-import { AutoMovieEngineMath, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -25,7 +25,7 @@ import { composeAutoMovieMotionHumanAction } from "../../compose/internal/compos
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { beatFlamesBeats } from "./beatFlamesBeats";
-import * as BeatFlamesData from "./BeatFlamesData";
+import { BeatFlamesData } from "./BeatFlamesData";
 
 /*
  * Beat flames on a lying partner with a held cloth: a wet sack or a flapper
@@ -84,28 +84,28 @@ function plan(
   );
   // The hand's attitude that lays the cloth's face flat on the region: the
   // face's outward normal turned, the least way, against the region's.
-  const entry: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
+  const entry: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       frame.rotation,
-      Quaternion.inverse(held.frame.rotation),
+      AutoMovieEngineQuaternion.inverse(held.frame.rotation),
     ),
   );
   const working: IAutoMovieMotionHumanHeld.IPointResult =
     AutoMovieMotionHumanHeld.point(held, "face");
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       AutoMovieEngineMath.rotationBetween(
-        Quaternion.rotateVector(entry, working.direction),
-        Vector3.scale(region.normal, -1),
+        AutoMovieEngineQuaternion.rotateVector(entry, working.direction),
+        AutoMovieEngineVector3.scale(region.normal, -1),
       ),
       entry,
     ),
   );
-  const contact: IAutoMovieVector3 = Vector3.add(
+  const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     HumanHand.offset(context.body, side, "grip").point,
     working.point,
   );
-  const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+  const lever: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, contact);
   const beats: beatFlamesBeats.IBeats = beatFlamesBeats(p.count, region);
   const count: number = beats.count;
   const down: IAutoMovieVector3 = beats.down;
@@ -117,7 +117,7 @@ function plan(
     [down, up].map(
       (point: IAutoMovieVector3): HumanTrunkLean.IWrist => ({
         side,
-        point: Vector3.subtract(point, lever),
+        point: AutoMovieEngineVector3.subtract(point, lever),
         rotation,
       }),
     ),
@@ -127,13 +127,13 @@ function plan(
     prepare:
       tempo *
       AutoMovieMotionHumanTiming.transport(
-        Vector3.distance(up, frame.position),
+        AutoMovieEngineVector3.distance(up, frame.position),
       ),
     attack: tempo * BeatFlamesData.BEAT * count,
     retract:
       tempo *
       AutoMovieMotionHumanTiming.transport(
-        Vector3.distance(up, frame.position),
+        AutoMovieEngineVector3.distance(up, frame.position),
       ),
   });
   const ready: number = clock.at("strokeStart");
@@ -197,7 +197,7 @@ function plan(
             _posture: IAutoMovieMotionHumanPosture,
             seconds: number,
           ): IAutoMovieHumanLimbGoal => ({
-            point: Vector3.subtract(face(seconds), lever),
+            point: AutoMovieEngineVector3.subtract(face(seconds), lever),
             rotation,
             contact,
             bend,

@@ -1,6 +1,8 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanUnseatFlight } from "@automovie/motions/internal";
+import {
+  HumanUnseatFlight
+} from "../../../../../packages/motions/src/lexicon/internal/HumanUnseatFlight";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -25,7 +27,7 @@ const NONE: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * 3. Released at the floor it has landed already.
  */
 export function test_motions_lexicon_unseat_flight(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const thrown: HumanUnseatFlight.IFlight = HumanUnseatFlight(
     { x: 0, y: 1.2, z: 0 },
     { x: 2, y: 0, z: 0 },

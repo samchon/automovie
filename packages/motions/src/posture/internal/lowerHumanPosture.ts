@@ -10,7 +10,7 @@ import { AutoMovieMotionHumanAuditLimits } from "../../audit/internal/AutoMovieM
 import { hipJoints } from "./hipJoints";
 import { humanPostureHeading } from "./humanPostureHeading";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import * as LowerHumanPostureData from "./LowerHumanPostureData";
+import { LowerHumanPostureData } from "./LowerHumanPostureData";
 
 /*
  * A posture with its root lowered along gravity to the highest height at which

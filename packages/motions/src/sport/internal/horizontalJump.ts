@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
@@ -136,11 +136,11 @@ export namespace horizontalJump {
     const world: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
       local: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         placed.position,
-        Quaternion.rotateVector(placed.rotation, local),
+        AutoMovieEngineQuaternion.rotateVector(placed.rotation, local),
       );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(placed.rotation, {
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(placed.rotation, {
       x: 0,
       y: 0,
       z: 1,
@@ -157,7 +157,7 @@ export namespace horizontalJump {
       "toe",
       context.entry.feet[approach.foot],
     );
-    const over: number = Vector3.dot(Vector3.subtract(toe, line), along);
+    const over: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(toe, line), along);
     if (over > 0)
       throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
@@ -172,21 +172,21 @@ export namespace horizontalJump {
     // place is the ankles' midpoint, the heel's offset ahead of the heels.
     const heel: number = -HumanFoot.point(body, "left", "heel", {
       ankle: { x: 0, y: 0, z: 0 },
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
     }).z;
     const ahead: IAutoMovieVector3 = approach.heading;
     const reach: number =
       (p.distance -
-        Vector3.dot(Vector3.subtract(approach.ankle, line), along)) /
-      Vector3.dot(ahead, along);
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(approach.ankle, line), along)) /
+      AutoMovieEngineVector3.dot(ahead, along);
     const to: IAutoMovieVector3 = {
-      ...Vector3.add(approach.ankle, Vector3.scale(ahead, reach + heel)),
+      ...AutoMovieEngineVector3.add(approach.ankle, AutoMovieEngineVector3.scale(ahead, reach + heel)),
       y: world(sand.frame.translation).y,
     };
 
     // The equal-height projectile at ANGLE over the take-off foot's
     // horizontal travel: its apex, and the speed it needs.
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const tan: number = Math.tan((ANGLE * Math.PI) / 180);
     const travel: number = reach + heel;
     const needed: number = Math.sqrt((g * travel) / (2 * tan));

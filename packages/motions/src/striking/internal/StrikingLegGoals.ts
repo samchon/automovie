@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -90,14 +90,14 @@ export namespace StrikingLegGoals {
     body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], "shank"> },
     foot: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieVector3 {
-    const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, {
+    const toes: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(foot.rotation, {
       x: 0,
       y: 0,
       z: 1,
     });
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       foot.ankle,
-      Vector3.add(Vector3.scale(toes, 0.5 * body.measure.shank), {
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(toes, 0.5 * body.measure.shank), {
         x: 0,
         y: body.measure.shank,
         z: 0,

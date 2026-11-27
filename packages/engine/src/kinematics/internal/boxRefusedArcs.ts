@@ -5,9 +5,9 @@ import type {
   IAutoMovieSwivelArcs,
 } from "@automovie/interface";
 
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
-import { swivelArcs } from "../swivelArcs";
-import { swivelJointReadings } from "../swivelJointReadings";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
+import { AutoMovieEngineSwivelArcs } from "../AutoMovieEngineSwivelArcs";
+import { AutoMovieEngineSwivelJointReadings } from "../AutoMovieEngineSwivelJointReadings";
 
 /*
  * The arcs of swivels a joint's three-angle box provably refuses in each of the
@@ -15,16 +15,16 @@ import { swivelJointReadings } from "../swivelJointReadings";
  * bone-local rotation is a fixed rotation turned about a fixed axis by the
  * swivel (the chain root of `hingedArmSwivel.pose`), as `boxExcludedSwivels`
  * states them: each clinical bound is a sinusoid of the swivel
- * (`swivelJointReadings.bounds`; Tolani, Goswami and Badler 2000, section
- * 3.2.3), refused on the arc where it exceeds `MARGIN` (`swivelArcs.above`), an
+ * (`AutoMovieEngineSwivelJointReadings.bounds`; Tolani, Goswami and Badler 2000, section
+ * 3.2.3), refused on the arc where it exceeds `MARGIN` (`AutoMovieEngineSwivelArcs.above`), an
  * abduction ceiling that rises with flexion at its highest
- * (`swivelJointReadings.interval`). A swing cone (`swingDeg`) couples flexion
+ * (`AutoMovieEngineSwivelJointReadings.interval`). A swing cone (`swingDeg`) couples flexion
  * and abduction, so its boundary is no sinusoid's root: it is refused on each
  * one-degree piece of the turn where its closed-form bound over the piece
- * certainly exceeds it (`swivelJointReadings.coneExceeded`), the only limit
+ * certainly exceeds it (`AutoMovieEngineSwivelJointReadings.coneExceeded`), the only limit
  * read piece by piece. The pieces are found by halving the turn: an interval
  * the cone certainly exceeds is refused whole and one it certainly stays within
- * (`swivelJointReadings.coneWithin`) holds none, so only the pieces near the
+ * (`AutoMovieEngineSwivelJointReadings.coneWithin`) holds none, so only the pieces near the
  * cone's boundary are read one by one.
  * Parameter props: The joint and its rotation by swivel; `joint` is not read.
  * Returns: Each chart's merged refused arcs, degrees, the principal chart
@@ -40,26 +40,26 @@ export function boxRefusedArcs(
     (constraint.swingTwist !== undefined && constraint.swingTwist !== null)
   )
     return [[], []];
-  const reading: IReading = swivelJointReadings.of(props.basis, props.rotation);
-  const cone: swivelJointReadings.ICone | null = swivelJointReadings.cone(
+  const reading: IReading = AutoMovieEngineSwivelJointReadings.of(props.basis, props.rotation);
+  const cone: AutoMovieEngineSwivelJointReadings.ICone | null = AutoMovieEngineSwivelJointReadings.cone(
     constraint,
     props.frame,
     reading,
   );
   const chart = (alternate: boolean): IRefused => {
     const arcs: IAutoMovieSwivelArcs.IArc[] = [];
-    for (const axis of swivelJointReadings.AXES) {
-      const range: IAutoMovieAngleRange | null = swivelJointReadings.interval(
+    for (const axis of AutoMovieEngineSwivelJointReadings.AXES) {
+      const range: IAutoMovieAngleRange | null = AutoMovieEngineSwivelJointReadings.interval(
         constraint,
         axis,
       );
       if (range === null) continue;
-      for (const bound of swivelJointReadings.bounds(
+      for (const bound of AutoMovieEngineSwivelJointReadings.bounds(
         reading[axis],
-        swivelJointReadings.rig(range, props.frame?.[axis]),
+        AutoMovieEngineSwivelJointReadings.rig(range, props.frame?.[axis]),
         alternate,
       )) {
-        const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+        const arc: IAutoMovieSwivelArcs.IArc | "all" | null = AutoMovieEngineSwivelArcs.above(
           bound,
           MARGIN,
         );
@@ -68,7 +68,7 @@ export function boxRefusedArcs(
       }
     }
     if (cone !== null) {
-      const axes: IRefused = swivelArcs.union(arcs);
+      const axes: IRefused = AutoMovieEngineSwivelArcs.union(arcs);
       // The cone's refused pieces by interval bisection on the piece grid
       // (branch and bound, Moore 1966, "Interval Analysis"): an interval the
       // axes refuse already is left, one the cone certainly exceeds is refused
@@ -77,16 +77,16 @@ export function boxRefusedArcs(
       // holds over each of its pieces, so the refused pieces are exactly the
       // grid's.
       const refine = (low: number, high: number): void => {
-        if (swivelArcs.covers(axes, low, high)) return;
+        if (AutoMovieEngineSwivelArcs.covers(axes, low, high)) return;
         if (
-          swivelJointReadings.coneExceeded(cone, low, high, alternate, MARGIN)
+          AutoMovieEngineSwivelJointReadings.coneExceeded(cone, low, high, alternate, MARGIN)
         ) {
           arcs.push({ from: low, to: high });
           return;
         }
         if (
           high - low <= PIECE ||
-          swivelJointReadings.coneWithin(cone, low, high, alternate, MARGIN)
+          AutoMovieEngineSwivelJointReadings.coneWithin(cone, low, high, alternate, MARGIN)
         )
           return;
         const middle: number =
@@ -96,7 +96,7 @@ export function boxRefusedArcs(
       };
       refine(0, TURN);
     }
-    return swivelArcs.union(arcs);
+    return AutoMovieEngineSwivelArcs.union(arcs);
   };
   return [chart(false), chart(true)];
 }
@@ -107,9 +107,9 @@ export function boxRefusedArcs(
 type IRefused = IAutoMovieSwivelArcs.IArc[] | "all";
 
 /*
- * A joint's three angles as the swivel reads them (`swivelJointReadings.of`).
+ * A joint's three angles as the swivel reads them (`AutoMovieEngineSwivelJointReadings.of`).
  */
-type IReading = ReturnType<typeof swivelJointReadings.of>;
+type IReading = ReturnType<typeof AutoMovieEngineSwivelJointReadings.of>;
 
 /*
  * The piece of swivels, degrees, a cone's refusal is read over: the sweep's
@@ -124,7 +124,7 @@ const TURN: number = 360;
 
 /*
  * How far past a bound, in sine or projected units, a reading must lie to be
- * refused: the joints' tolerance (`ROM_TOLERANCE`) in radians, past the
+ * refused: the joints' tolerance (`AutoMovieEngineRomTolerance`) in radians, past the
  * rounding of every step and the decomposition's gimbal band.
  */
-const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;
+const MARGIN: number = (AutoMovieEngineRomTolerance * Math.PI) / 180;

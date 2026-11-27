@@ -1,6 +1,6 @@
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 
 /*
@@ -17,11 +17,11 @@ import type { solveXpbdContacts } from "./solveXpbdContacts";
 export function readXpbdManifolds(
   contacts: readonly solveXpbdContacts.IContact[],
   h: number,
-): AutoMovieXpbdWorld.IManifold[] {
-  const result: AutoMovieXpbdWorld.IManifold[] = [];
+): AutoMovieEngineXpbdWorld.IManifold[] {
+  const result: AutoMovieEngineXpbdWorld.IManifold[] = [];
   for (const contact of contacts) {
     if (contact.a.sensor || contact.b.sensor) continue;
-    let manifold: AutoMovieXpbdWorld.IManifold | undefined =
+    let manifold: AutoMovieEngineXpbdWorld.IManifold | undefined =
       result[result.length - 1];
     if (manifold === undefined || manifold.pair !== contact.pair) {
       manifold = {
@@ -35,15 +35,15 @@ export function readXpbdManifolds(
       result.push(manifold);
     }
     manifold.points.push({
-      point: Vector3.scale(
-        Vector3.add(
-          Vector3.add(
+      point: AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             contact.a.body.center,
-            Quaternion.rotateVector(contact.a.body.orientation, contact.localA),
+            AutoMovieEngineQuaternion.rotateVector(contact.a.body.orientation, contact.localA),
           ),
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             contact.b.body.center,
-            Quaternion.rotateVector(contact.b.body.orientation, contact.localB),
+            AutoMovieEngineQuaternion.rotateVector(contact.b.body.orientation, contact.localB),
           ),
         ),
         0.5,

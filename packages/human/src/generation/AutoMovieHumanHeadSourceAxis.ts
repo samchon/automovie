@@ -1,6 +1,6 @@
 import {
-  AutoMovieViewOutline,
-  AutoMovieViewParallelAxis,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParallelAxis,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -42,15 +42,15 @@ export namespace AutoMovieHumanHeadSourceAxis {
     const declaration: IAutoMovieConstructionParallelAxis = {
       type: "parallel",
       origin: {
-        x: AutoMovieViewOutline.scale(origin.x, 0.001, 0.001),
-        y: AutoMovieViewOutline.scale(origin.y, 0.001, 0.001),
-        z: AutoMovieViewOutline.scale(origin.z, 0.001, 0.001),
+        x: AutoMovieEngineViewOutline.scale(origin.x, 0.001, 0.001),
+        y: AutoMovieEngineViewOutline.scale(origin.y, 0.001, 0.001),
+        z: AutoMovieEngineViewOutline.scale(origin.z, 0.001, 0.001),
       },
       u: { x: u[0], y: u[1], z: u[2] },
       v: { x: v[0], y: v[1], z: v[2] },
     };
     const axis: IAutoMovieViewAxis.IAxis | string =
-      AutoMovieViewParallelAxis.from(declaration);
+      AutoMovieEngineViewParallelAxis.from(declaration);
     if (typeof axis === "string") throw new Error(`Head source axis: ${axis}`);
     return axis;
   }

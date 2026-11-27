@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanLogRoll,
@@ -47,7 +47,7 @@ export namespace logRollTurns {
         });
       return p.halfTurns;
     }
-    const along: number = Vector3.dot(Vector3.subtract(p.to!, hips), travel);
+    const along: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(p.to!, hips), travel);
     if (!(along > step / 2))
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",

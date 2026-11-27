@@ -1,11 +1,13 @@
-﻿import { Vector3 } from "@automovie/engine";
+﻿import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanBody,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditBalance } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditBalance
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditBalance";
 import { TestValidator } from "@nestia/e2e";
 
 import { auditStanceMotion } from "../../internal/auditStanceMotion";
@@ -49,7 +51,7 @@ export async function test_motions_audit_auto_movie_motion_human_audit_balance_m
             ? bone
             : {
                 ...bone,
-                worldPosition: Vector3.add(bone.worldPosition, {
+                worldPosition: AutoMovieEngineVector3.add(bone.worldPosition, {
                   x: 0,
                   y: 0,
                   z: LEAN,

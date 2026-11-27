@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Enclose emitted recipe-local stems and leaf cards for installation
@@ -62,7 +62,7 @@ export function plantingCanopyBounds(
   for (const leaf of leaves)
     for (let x: number = -1; x <= 1; x += 2)
       for (let y: number = -1; y <= 1; y += 2) {
-        const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+        const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           leaf.rotation,
           {
             x: (x * leaf.scale.x) / 2,

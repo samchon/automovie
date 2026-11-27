@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanLimb, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieMotionHumanChannel, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -54,9 +54,9 @@ export function prepareSupportHelperGrip(
       other,
       bone,
     );
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       point,
-      Quaternion.rotateVector(goal.rotation, own.point),
+      AutoMovieEngineQuaternion.rotateVector(goal.rotation, own.point),
     );
     return {
       ...posture,

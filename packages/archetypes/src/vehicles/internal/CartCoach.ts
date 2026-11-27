@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -27,7 +27,7 @@ export namespace CartCoach {
     >,
     d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     gear(builder, d, {
       track: d.track!,
       pole: d.poleLength!,
@@ -94,7 +94,7 @@ export namespace CartCoach {
     >,
     d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const c: typeof AutoMovieArchetypeCart.CARRIAGE = AutoMovieArchetypeCart.CARRIAGE;
     const track: number = d.width! - c.hubs;
     const wheelbase: number = d.wheelbase!;
@@ -300,7 +300,7 @@ function gear(
     surface?: AutoMovieArchetypeFriction.Material;
   },
 ): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const wheelbase: number = d.wheelbase!;
   const front: number = d.frontWheelDiameter! / 2;
   CartWheel.pair(builder, {

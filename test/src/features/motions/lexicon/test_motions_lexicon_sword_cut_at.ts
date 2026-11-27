@@ -1,4 +1,6 @@
-import { HumanSwordTiming } from "@automovie/motions/internal";
+import {
+  HumanSwordTiming
+} from "../../../../../packages/motions/src/lexicon/internal/HumanSwordTiming";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,4 +1,4 @@
-import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -7,7 +7,12 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { hipJoints, poseBones } from "@automovie/motions/internal";
+import {
+  hipJoints
+} from "../../../../../packages/motions/src/posture/internal/hipJoints";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -50,7 +55,7 @@ export async function test_motions_posture_hip_joints(): Promise<void> {
 
   // 2. As a full pose.
   const root: IAutoMovieVector3 = { x: 1, y: 0.9, z: 2 };
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     40,
   );
@@ -65,7 +70,7 @@ export async function test_motions_posture_hip_joints(): Promise<void> {
     body,
     {
       skeleton: body.skeleton.id,
-      root: Transform.of(root, turn),
+      root: AutoMovieEngineTransform.of(root, turn),
       joints: [{ bone: "hips", flexion: 10, abduction: 5, twist: -8 }],
     },
   );
@@ -77,7 +82,7 @@ export async function test_motions_posture_hip_joints(): Promise<void> {
 
   // 3. Rigid with the root.
   const moved: IAutoMovieVector3 = { x: 1, y: 0, z: -2 };
-  const quarter: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const quarter: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );
@@ -92,7 +97,7 @@ export async function test_motions_posture_hip_joints(): Promise<void> {
       (side: AutoMovieHumanSide): boolean =>
         vclose(
           carried[side],
-          Vector3.add(moved, Quaternion.rotateVector(quarter, rest[side])),
+          AutoMovieEngineVector3.add(moved, AutoMovieEngineQuaternion.rotateVector(quarter, rest[side])),
           1e-9,
         ),
     ),

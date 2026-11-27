@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
@@ -41,41 +41,41 @@ export function HumanMountPushPitch(
   pivot: IAutoMovieVector3,
   target: number,
 ): HumanMountPush.IPitch | null {
-  const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-  if (Vector3.length(reach) < 1e-9) return null;
-  const u: IAutoMovieVector3 = Vector3.normalize(reach);
+  const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ankle, hip);
+  if (AutoMovieEngineVector3.length(reach) < 1e-9) return null;
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(reach);
   const w: IAutoMovieVector3 | null = HumanMountPushSquare(
-    Vector3.subtract(pole, hip),
+    AutoMovieEngineVector3.subtract(pole, hip),
     u,
   );
   if (w === null) return null;
-  const hinge: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(u, w));
+  const hinge: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(u, w));
   const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.subtract(v, Vector3.scale(hinge, Vector3.dot(hinge, v)));
-  const normal: IAutoMovieVector3 = Vector3.normalize(
-    flat(Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 })),
+    AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(hinge, AutoMovieEngineVector3.dot(hinge, v)));
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    flat(AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 })),
   );
   const toes: IAutoMovieVector3 | null = HumanMountPushSquare(
-    flat(Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 })),
+    flat(AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 })),
     normal,
   );
   if (toes === null) return null;
 
   // In-plane coordinates about the hip: x along the leg, y toward the pole.
   const plane = (v: IAutoMovieVector3): IPoint => ({
-    x: Vector3.dot(v, u),
-    y: Vector3.dot(v, w),
+    x: AutoMovieEngineVector3.dot(v, u),
+    y: AutoMovieEngineVector3.dot(v, w),
   });
-  const radians: number = target * Quaternion.DEG2RAD;
+  const radians: number = target * AutoMovieEngineQuaternion.DEG2RAD;
   const a: number = body.measure.thigh;
-  const centre: IPoint = plane(Vector3.subtract(pivot, hip));
+  const centre: IPoint = plane(AutoMovieEngineVector3.subtract(pivot, hip));
   const c: IPoint = plane(
-    Vector3.add(
-      Vector3.subtract(ankle, pivot),
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(normal, Math.cos(radians)),
-          Vector3.scale(toes, Math.sin(radians)),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.subtract(ankle, pivot),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(normal, Math.cos(radians)),
+          AutoMovieEngineVector3.scale(toes, Math.sin(radians)),
         ),
         body.measure.shank,
       ),
@@ -105,8 +105,8 @@ export function HumanMountPushPitch(
   }
 
   // Each knee's turn of `c`, and whether it bends toward the pole off the moved leg.
-  const p: IPoint = plane(Vector3.subtract(pole, hip));
-  const a0: IPoint = plane(Vector3.subtract(ankle, pivot));
+  const p: IPoint = plane(AutoMovieEngineVector3.subtract(pole, hip));
+  const a0: IPoint = plane(AutoMovieEngineVector3.subtract(ankle, pivot));
   const turns: IKneeTurn[] = knees.map((k: IPoint): IKneeTurn => {
     const r: IPoint = { x: k.x - centre.x, y: k.y - centre.y };
     const angle: number = Math.atan2(
@@ -129,12 +129,12 @@ export function HumanMountPushPitch(
     (best: IKneeTurn, t: IKneeTurn): IKneeTurn =>
       Math.abs(t.angle) < Math.abs(best.angle) ? t : best,
   );
-  const degrees: number = chosen.angle / Quaternion.DEG2RAD;
+  const degrees: number = chosen.angle / AutoMovieEngineQuaternion.DEG2RAD;
   return {
     axis: hinge,
     degrees,
     down:
-      Vector3.dot(Vector3.cross(normal, toes), hinge) >= 0 ? degrees : -degrees,
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(normal, toes), hinge) >= 0 ? degrees : -degrees,
   };
 }
 

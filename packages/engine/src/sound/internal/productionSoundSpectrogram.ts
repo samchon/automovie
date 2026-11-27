@@ -1,6 +1,6 @@
 import type { IAutoMovieProductionSoundRaster } from "@automovie/interface";
 
-import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "../AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
+import { AutoMovieEngineProductionSoundEvidenceRasters } from "../AutoMovieEngineProductionSoundEvidenceRasters";
 import { assertProductionSoundRasterInput } from "./assertProductionSoundRasterInput";
 
 /*
@@ -12,8 +12,8 @@ export const productionSoundSpectrogram: (
   height?: number,
 ) => IAutoMovieProductionSoundRaster = (
   pcm: Float32Array,
-  width: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.spectrogram.width,
-  height: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.spectrogram
+  width: number = AutoMovieEngineProductionSoundEvidenceRasters.spectrogram.width,
+  height: number = AutoMovieEngineProductionSoundEvidenceRasters.spectrogram
     .height,
 ): IAutoMovieProductionSoundRaster => {
   assertProductionSoundRasterInput(pcm, width, height, "spectrogram");

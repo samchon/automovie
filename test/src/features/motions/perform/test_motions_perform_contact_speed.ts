@@ -2,7 +2,9 @@ import type {
   IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformanceContactSpeed } from "@automovie/motions/internal";
+import {
+  HumanPerformanceContactSpeed
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceContactSpeed";
 import { TestValidator } from "@nestia/e2e";
 
 /**

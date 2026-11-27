@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeMirrorData from "./internal/AutoMovieArchetypeMirrorData";
+import { AutoMovieArchetypeMirrorData } from "./internal/AutoMovieArchetypeMirrorData";
 
 /** Constructs the mirror archetype from its recipe. */
 export namespace AutoMovieArchetypeMirror {
@@ -77,7 +77,7 @@ export function create(
       size.name === undefined ? "standing mirror" : `wall mirror ${size.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const width: number = d.width!;
   const height: number = d.height!;
   let centre: ReturnType<typeof v>;

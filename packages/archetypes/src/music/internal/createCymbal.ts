@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -35,7 +35,7 @@ export function createCymbal(
   const mass: number = 3;
   const bronze: string = "#c89439";
   const steel: string = "#8c969c";
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const builder: AutoMovieArchetypeBuilder<"edge" | "bell", never> =
     new AutoMovieArchetypeBuilder({
       id: typeof params === "string" ? params : params.id,

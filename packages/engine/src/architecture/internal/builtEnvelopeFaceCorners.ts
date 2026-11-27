@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { ObservationGeometry } from "./ObservationGeometry";
 
@@ -44,7 +44,7 @@ export function builtEnvelopeFaceCorners(
         : facades[i]!;
       if (a.building !== b.building) continue;
       if (
-        Vector3.length(Vector3.cross(a.normal, b.normal)) <=
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(a.normal, b.normal)) <=
         ObservationGeometry.Epsilon
       )
         continue;
@@ -56,29 +56,29 @@ export function builtEnvelopeFaceCorners(
       const meetings: IAutoMovieVector3[] = [];
       for (const left of a.vertices)
         for (const right of b.vertices) {
-          const gap: number = Vector3.length(Vector3.subtract(left, right));
+          const gap: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(left, right));
           if (gap > Math.min(tolerance, best + ObservationGeometry.Epsilon))
             continue;
           if (gap < best - ObservationGeometry.Epsilon) {
             best = gap;
             meetings.length = 0;
           }
-          meetings.push(Vector3.scale(Vector3.add(left, right), 0.5));
+          meetings.push(AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(left, right), 0.5));
         }
       if (meetings.length === 0) continue;
-      const meeting: IAutoMovieVector3 = Vector3.scale(
+      const meeting: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         meetings.reduce(
           (
             sum: IAutoMovieVector3,
             point: IAutoMovieVector3,
-          ): IAutoMovieVector3 => Vector3.add(sum, point),
+          ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, point),
           { x: 0, y: 0, z: 0 },
         ),
         1 / meetings.length,
       );
-      const toB: IAutoMovieVector3 = Vector3.subtract(b.centroid, meeting);
-      if (Vector3.length(toB) <= ObservationGeometry.Epsilon) continue;
-      const turn: number = Vector3.dot(a.normal, Vector3.normalize(toB));
+      const toB: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b.centroid, meeting);
+      if (AutoMovieEngineVector3.length(toB) <= ObservationGeometry.Epsilon) continue;
+      const turn: number = AutoMovieEngineVector3.dot(a.normal, AutoMovieEngineVector3.normalize(toB));
       if (Math.abs(turn) <= ObservationGeometry.Epsilon) continue;
       corners.push({
         id: `${a.boundary}+${b.boundary}`,
@@ -86,7 +86,7 @@ export function builtEnvelopeFaceCorners(
         facades: [a.boundary, b.boundary],
         kind: turn < 0 ? "exterior" : "reentrant",
         position: meeting,
-        normal: Vector3.normalize(Vector3.add(a.normal, b.normal)),
+        normal: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.add(a.normal, b.normal)),
       });
     }
   return corners.sort(

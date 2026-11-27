@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanForceSite,
   IAutoMovieImpact,
@@ -59,7 +59,7 @@ export namespace HumanForce {
     if (hit.velocity === undefined || hit.mass === undefined) return null;
     if (hit.exit !== undefined)
       return of(
-        Vector3.scale(Vector3.subtract(hit.velocity, hit.exit), hit.mass),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(hit.velocity, hit.exit), hit.mass),
       );
     if (hit.normal === undefined) return null;
     const still: Pick<IAutoMovieImpactBodyState, OfHitStill> = {
@@ -75,7 +75,7 @@ export namespace HumanForce {
 
     // The engine's impulse acts along the normal on the striker; the
     // receiver takes its opposite.
-    return of(Vector3.scale(response.impulse, -1));
+    return of(AutoMovieEngineVector3.scale(response.impulse, -1));
   }
 
   /*

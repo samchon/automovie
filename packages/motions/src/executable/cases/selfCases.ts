@@ -1,4 +1,4 @@
-import { AutoMovieChain } from "@automovie/engine";
+import { AutoMovieEngineChain } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -320,6 +320,6 @@ function perform(
         proficiency: { level: "trained" as const },
       },
     ],
-    composition: new AutoMovieChain(chain.node).node,
+    composition: new AutoMovieEngineChain(chain.node).node,
   });
 }

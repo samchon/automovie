@@ -5,8 +5,8 @@ import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrate
 import type { AutoMovieEngineKinematicsTypes } from "../../../kinematics/AutoMovieEngineKinematicsTypes";
 
 import { resolveAutoMovieMomentumRates } from "../../../kinematics/internal/resolveAutoMovieMomentumRates";
-import { Quaternion } from "../../../math/Quaternion";
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 import type { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
 import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
@@ -215,15 +215,15 @@ export function AirborneShapeHistory(
     if (boundary === undefined) {
       boundary = {
         central: momentum(a, b),
-        change: Vector3.subtract(momentum(centre, b), momentum(a, centre)),
+        change: AutoMovieEngineVector3.subtract(momentum(centre, b), momentum(a, centre)),
       };
       boundaries.set(centre, boundary);
     }
     return AirborneShapeInertia(
       matrix,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         boundary.central,
-        Vector3.scale(boundary.change, (2 * (seconds - centre)) / (b - a)),
+        AutoMovieEngineVector3.scale(boundary.change, (2 * (seconds - centre)) / (b - a)),
       ),
       statistics,
     );
@@ -344,7 +344,7 @@ export namespace AirborneShapeHistory {
    * history is retained by this numeric registry.
    */
   export function inverse(instant: IInstant): IAutoMovieQuaternion | undefined {
-    return Quaternion.inverse(instant.inertia.rotation);
+    return AutoMovieEngineQuaternion.inverse(instant.inertia.rotation);
   }
 }
 

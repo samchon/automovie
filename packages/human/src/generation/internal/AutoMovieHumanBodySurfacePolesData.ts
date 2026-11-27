@@ -1,4 +1,6 @@
 import { AutoMovieHumanBodySurfaceRead } from "../AutoMovieHumanBodySurfaceRead";
 
-export const { endHeight, capHeight }: typeof AutoMovieHumanBodySurfaceRead =
-  AutoMovieHumanBodySurfaceRead;
+export namespace AutoMovieHumanBodySurfacePolesData {
+  export const { endHeight, capHeight }: typeof AutoMovieHumanBodySurfaceRead =
+    AutoMovieHumanBodySurfaceRead;
+}

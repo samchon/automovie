@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPropReader,
@@ -41,12 +41,12 @@ export function AquaticEdge(
     });
   return {
     id,
-    lip: Vector3.add(
+    lip: AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, contact.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, contact.frame.translation),
     ),
-    out: Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: 1 }),
-    across: Quaternion.rotateVector(frame.rotation, { x: 1, y: 0, z: 0 }),
+    out: AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: 1 }),
+    across: AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 1, y: 0, z: 0 }),
   };
 }
 
@@ -130,12 +130,12 @@ export namespace AquaticEdge {
     side: number,
     up: number,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       edge.lip,
-      Vector3.add(
-        Vector3.add(
-          Vector3.scale(edge.out, out),
-          Vector3.scale(edge.across, side),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(edge.out, out),
+          AutoMovieEngineVector3.scale(edge.across, side),
         ),
         { x: 0, y: up, z: 0 },
       ),

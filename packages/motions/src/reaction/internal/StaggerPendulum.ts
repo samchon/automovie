@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -170,7 +170,7 @@ export class StaggerPendulum {
     this.across = fixed.across;
     this.entered = fixed.entered;
     this.feet = { ...this.entered };
-    this.v = Vector3.scale(StaggerPendulum.flat(push), speed);
+    this.v = AutoMovieEngineVector3.scale(StaggerPendulum.flat(push), speed);
     this.width = fixed.width;
     this.length = fixed.length;
     this.bend = fixed.bend;
@@ -191,7 +191,7 @@ export class StaggerPendulum {
     this.phases = [];
     this.steps = [];
     this.s = { x: 0, y: 0, z: 0 };
-    this.v = Vector3.scale(StaggerPendulum.flat(this.push), this.speed);
+    this.v = AutoMovieEngineVector3.scale(StaggerPendulum.flat(this.push), this.speed);
     this.t = 0;
   }
 
@@ -225,7 +225,7 @@ export class StaggerPendulum {
    * The extrapolated centre of mass, from the entry's centre of mass.
    */
   public xi(): IAutoMovieVector3 {
-    return Vector3.add(this.s, Vector3.scale(this.v, 1 / this.w));
+    return AutoMovieEngineVector3.add(this.s, AutoMovieEngineVector3.scale(this.v, 1 / this.w));
   }
 
   /*
@@ -314,12 +314,12 @@ export class StaggerPendulum {
         this.w,
         seconds,
       );
-      return Vector3.add(end.s, Vector3.scale(end.v, 1 / this.w));
+      return AutoMovieEngineVector3.add(end.s, AutoMovieEngineVector3.scale(end.v, 1 / this.w));
     };
     let p1: IAutoMovieVector3 = staggerNearest(outline, this.xi());
     for (let k: number = 0; k < StaggerPendulum.PASSES; k++) {
       const next: IAutoMovieVector3 = staggerNearest(outline, lifted(p1));
-      const moved: number = Vector3.distance(next, p1);
+      const moved: number = AutoMovieEngineVector3.distance(next, p1);
       p1 = next;
       if (moved <= StaggerPendulum.FIXED) break;
     }
@@ -372,12 +372,12 @@ export class StaggerPendulum {
         seconds,
       );
       return StaggerPendulum.flat(
-        Vector3.add(end.s, Vector3.scale(end.v, 1 / this.w)),
+        AutoMovieEngineVector3.add(end.s, AutoMovieEngineVector3.scale(end.v, 1 / this.w)),
       );
     };
     const a: IAutoMovieVector3 = xiAt({ x: 0, y: 0, z: 0 });
     const c: number = xiAt({ x: 1, y: 0, z: 0 }).x - a.x;
-    return Vector3.scale(a, 1 / (1 - c));
+    return AutoMovieEngineVector3.scale(a, 1 / (1 - c));
   }
 
   /*
@@ -397,13 +397,13 @@ export class StaggerPendulum {
     const ch: number = Math.cosh(w * seconds);
     const sh: number = Math.sinh(w * seconds);
     this.phases.push({ from: this.t, p, s: this.s, v: this.v });
-    const next: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(p, Vector3.scale(Vector3.subtract(this.s, p), ch)),
-      Vector3.scale(this.v, sh / w),
+    const next: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(this.s, p), ch)),
+      AutoMovieEngineVector3.scale(this.v, sh / w),
     );
-    this.v = Vector3.add(
-      Vector3.scale(Vector3.subtract(this.s, p), w * sh),
-      Vector3.scale(this.v, ch),
+    this.v = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(this.s, p), w * sh),
+      AutoMovieEngineVector3.scale(this.v, ch),
     );
     this.s = next;
     this.t += seconds;
@@ -424,10 +424,10 @@ export class StaggerPendulum {
     direction: IAutoMovieVector3,
     of: Readonly<Record<OfEntryItem, number>>,
   ): number {
-    const length: number = Vector3.length(direction);
+    const length: number = AutoMovieEngineVector3.length(direction);
     if (!(length > 0)) return of.side;
-    const ahead: number = Vector3.dot(direction, this.forward) / length;
-    const aside: number = Vector3.dot(direction, this.across) / length;
+    const ahead: number = AutoMovieEngineVector3.dot(direction, this.forward) / length;
+    const aside: number = AutoMovieEngineVector3.dot(direction, this.across) / length;
     const along: number = ahead >= 0 ? of.forward : of.backward;
     return 1 / Math.sqrt((ahead / along) ** 2 + (aside / of.side) ** 2);
   }
@@ -466,7 +466,7 @@ export class StaggerPendulum {
       },
       relative: world.map(
         (q: IAutoMovieVector3): IAutoMovieVector3 =>
-          StaggerPendulum.flat(Vector3.subtract(q, this.centre)),
+          StaggerPendulum.flat(AutoMovieEngineVector3.subtract(q, this.centre)),
       ),
     };
     this.footprints[side] = made;

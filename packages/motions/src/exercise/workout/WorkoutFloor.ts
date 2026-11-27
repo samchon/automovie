@@ -11,7 +11,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { prepareWorkoutKeyFrames } from "../internal/prepareWorkoutKeyFrames";
-import * as WorkoutFloorData from "./internal/WorkoutFloorData";
+import { WorkoutFloorData } from "./internal/WorkoutFloorData";
 
 /*
  * The exercises of the workout law done on the hands and the toes or feet : the

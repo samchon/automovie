@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -56,8 +56,8 @@ export function create(
       name: `skipping rope handle ${handle.name}`,
       draw,
     });
-  const v: typeof Vector3.create = Vector3.create;
-  const tip: ReturnType<typeof Vector3.create> = v(0, 0, length / 2);
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
+  const tip: ReturnType<typeof AutoMovieEngineVector3.create> = v(0, 0, length / 2);
   builder.rod("barrel", gripDiameter / 2, v(0, 0, -length / 2), tip, {
     color: "#2c2f33",
   });

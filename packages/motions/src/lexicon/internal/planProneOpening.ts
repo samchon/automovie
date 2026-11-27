@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -43,7 +43,7 @@ export function planProneOpening(
     context.entry.base.kind !== "lying" ||
     rootFrame === undefined ||
     rootFrame === null ||
-    Quaternion.rotateVector(rootFrame.rotation, { x: 0, y: 0, z: 1 }).y > -PRONE
+    AutoMovieEngineQuaternion.rotateVector(rootFrame.rotation, { x: 0, y: 0, z: 1 }).y > -PRONE
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "base",
@@ -149,7 +149,7 @@ export function planProneOpening(
     const phase: number = scaled - index;
     const progress: number = (index + AutoMovieEngineMotionSampling.minimumJerkShare(phase)) / strokes;
     const root: IAutoMovieVector3 = frame.point(
-      Vector3.lerp(from, finish, progress),
+      AutoMovieEngineVector3.lerp(from, finish, progress),
     );
     const base: IAutoMovieMotionHumanPosture = { ...entry, root };
     const mount: number = Math.min(
@@ -162,11 +162,11 @@ export function planProneOpening(
     const { side, wrist } = placements[index]!;
     const forearm: IAutoMovieResolvedBone = rest.get(`${side}LowerArm`)!;
     const hand: IAutoMovieResolvedBone = rest.get(`${side}Hand`)!;
-    const offset: IAutoMovieVector3 = Vector3.subtract(root, entry.root);
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(root, entry.root);
     const lifted: number = LIFT * Math.sin(Math.PI * mount);
     const weight: number = AutoMovieEngineMotionSampling.minimumJerkShare(mount);
-    const point: IAutoMovieVector3 = Vector3.lerp(
-      Vector3.add(hand.worldPosition, offset),
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
+      AutoMovieEngineVector3.add(hand.worldPosition, offset),
       wrist.point,
       weight,
     );
@@ -184,8 +184,8 @@ export function planProneOpening(
     }
     const goal: IAutoMovieHumanLimbGoal = {
       point: { ...point, y: point.y + lifted },
-      rotation: Quaternion.slerp(hand.worldRotation, wrist.rotation, weight),
-      bend: Vector3.add(forearm.worldPosition, offset),
+      rotation: AutoMovieEngineQuaternion.slerp(hand.worldRotation, wrist.rotation, weight),
+      bend: AutoMovieEngineVector3.add(forearm.worldPosition, offset),
       ...(mount === 1 ? { contact: palm[side].point, planted: true } : {}),
     };
     return { ...base, joints, limbs: { [side + "Arm"]: goal } };

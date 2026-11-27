@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewAxis, AutoMovieEngineViewLoft, AutoMovieEngineViewSection, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieLoftChain,
@@ -44,7 +44,7 @@ export function test_engine_geometry_construction_view_reliefs(): void {
   });
   const tube: IAutoMovieViewPart = {
     name: "relief-tube",
-    axis: AutoMovieViewAxis.horizontal(),
+    axis: AutoMovieEngineViewAxis.horizontal(),
     stations: [0, 25, 50, 75, 100],
     front: { positive: outline(1), negative: outline(-1) },
     side: { positive: outline(1), negative: outline(-1) },
@@ -52,8 +52,8 @@ export function test_engine_geometry_construction_view_reliefs(): void {
       kind: "shoulder",
       shoulder: {
         knots: [
-          { site: "bottom", station: 0, value: AutoMovieViewSection.ELLIPSE },
-          { site: "top", station: 100, value: AutoMovieViewSection.ELLIPSE },
+          { site: "bottom", station: 0, value: AutoMovieEngineViewSection.ELLIPSE },
+          { site: "top", station: 100, value: AutoMovieEngineViewSection.ELLIPSE },
         ],
       },
     },
@@ -62,7 +62,7 @@ export function test_engine_geometry_construction_view_reliefs(): void {
   };
   const distance = (a: readonly number[], b: readonly number[]): number =>
     Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!);
-  const bare: IAutoMovieLoftChain | null = AutoMovieViewLoft.create(tube).chain;
+  const bare: IAutoMovieLoftChain | null = AutoMovieEngineViewLoft.create(tube).chain;
   if (bare === null) throw new Error("the made tube did not loft");
   const composed: IAutoMovieLoftChain = { ...bare, reliefs: [relief] };
 
@@ -70,8 +70,8 @@ export function test_engine_geometry_construction_view_reliefs(): void {
   TestValidator.predicate(
     "the relief lifts the centre",
     distance(
-      AutoMovieLoftChain.point(composed, 50, 0),
-      AutoMovieLoftChain.point(bare, 50, 0),
+      AutoMovieEngineLoftChain.point(composed, 50, 0),
+      AutoMovieEngineLoftChain.point(bare, 50, 0),
     ) > 1,
   );
 
@@ -95,8 +95,8 @@ export function test_engine_geometry_construction_view_reliefs(): void {
       TestValidator.predicate(
         `station ${s} phase ${phi}`,
         distance(
-          AutoMovieLoftChain.point(chain, s, phi),
-          AutoMovieLoftChain.point(composed, s, phi),
+          AutoMovieEngineLoftChain.point(chain, s, phi),
+          AutoMovieEngineLoftChain.point(composed, s, phi),
         ) <= 1e-9,
       );
 }

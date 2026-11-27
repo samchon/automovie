@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBody,
@@ -125,8 +125,8 @@ export function kissPresentedHand(
     AutoMovieEngineMath.pointInHull({ x, y: 0, z }, support);
   // Cervical and pelvic turns share the heading of the actual presented
   // surface. The lip offset determines the remaining translation over the feet.
-  const desired: IAutoMovieVector3 = Vector3.scale(heldHand.normal, -1);
-  const to: IAutoMovieVector3 = Vector3.subtract(at, hip);
+  const desired: IAutoMovieVector3 = AutoMovieEngineVector3.scale(heldHand.normal, -1);
+  const to: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at, hip);
   const localYaw = (v: IAutoMovieVector3): number =>
     (Math.atan2(
       Math.cos(yaw) * v.x - Math.sin(yaw) * v.z,
@@ -173,19 +173,19 @@ export function kissPresentedHand(
         postureAt({ ...c, flexion: delta }),
         resolution,
       ).normal;
-      const tangent: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(changed, base),
+      const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(changed, base),
         1 / delta,
       );
-      const speed: number = Vector3.length(tangent);
+      const speed: number = AutoMovieEngineVector3.length(tangent);
       if (speed > 0)
         c.flexion = Math.max(
           -30,
           Math.min(
             45,
             Math.atan2(
-              Vector3.dot(desired, tangent) / speed,
-              Vector3.dot(desired, base),
+              AutoMovieEngineVector3.dot(desired, tangent) / speed,
+              AutoMovieEngineVector3.dot(desired, base),
             ) / speed,
           ),
         );
@@ -214,12 +214,12 @@ export function kissPresentedHand(
       const delta: number =
         Math.cbrt(Number.EPSILON) *
         Math.max(1, Math.abs(c.pitch), Math.abs(c.roll));
-      const dp: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(offset(orient(c.pitch + delta, c.roll)), d),
+      const dp: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(offset(orient(c.pitch + delta, c.roll)), d),
         1 / delta,
       );
-      const dr: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(offset(orient(c.pitch, c.roll + delta)), d),
+      const dr: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(offset(orient(c.pitch, c.roll + delta)), d),
         1 / delta,
       );
       const det: number = dp.x * dr.y - dp.y * dr.x;
@@ -246,7 +246,7 @@ export function kissPresentedHand(
       continue;
     turned.sink = sink;
     const fit: ISkin = observe(turned);
-    turned.miss = Vector3.distance(at, fit.point);
+    turned.miss = AutoMovieEngineVector3.distance(at, fit.point);
     const depth: number = Math.max(...fit.depths);
     if (turned.miss <= NEAR && depth < worst) {
       best = turned;

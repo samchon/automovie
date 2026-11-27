@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import type { physicalInertiaFactor } from "../../physics/internal/physicalInertiaFactor";
 import { AirborneConstantShapeHistory } from "./airborne/AirborneConstantShapeHistory";
 import { AirborneMomentumDefect } from "./airborne/AirborneMomentumDefect";
@@ -20,7 +20,7 @@ import { AirborneShapeHistory } from "./airborne/AirborneShapeHistory";
 import { AirborneShapeStatistics } from "./airborne/AirborneShapeStatistics";
 import { AirborneTabulatedShapeHistory } from "./airborne/AirborneTabulatedShapeHistory";
 import { AutoMovieEngineMotionTrajectory } from "../AutoMovieEngineMotionTrajectory";
-import { MotionTrajectoryFailure } from "../MotionTrajectoryFailure";
+import { AutoMovieEngineMotionTrajectoryFailure } from "../AutoMovieEngineMotionTrajectoryFailure";
 import { solveAirborneInvariant } from "./solveAirborneInvariant";
 
 /*
@@ -126,7 +126,7 @@ export namespace IntegrateAirborneRotationImplementation {
         previous.rotation.y = rotation.y;
         previous.rotation.z = rotation.z;
         previous.rotation.w = rotation.w;
-        previous.back = Quaternion.inverse(previous.rotation);
+        previous.back = AutoMovieEngineQuaternion.inverse(previous.rotation);
         return previous.back;
       }
       const current: IAutoMovieQuaternion = {
@@ -135,7 +135,7 @@ export namespace IntegrateAirborneRotationImplementation {
         z: rotation.z,
         w: rotation.w,
       };
-      const back: IAutoMovieQuaternion = Quaternion.inverse(current);
+      const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(current);
       previous = { rotation: current, back };
       return back;
     };
@@ -162,8 +162,8 @@ export namespace IntegrateAirborneRotationImplementation {
         ): IAutoMovieIntegrateMotionTrajectory.IRate => {
           const instant: IAutoMovieIntegrateAirborneRotation.IInstant =
             history(t);
-          const back: IAutoMovieQuaternion = Quaternion.inverse(q!);
-          const carried: IAutoMovieVector3 = Quaternion.rotateVector(
+          const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(q!);
+          const carried: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             back,
             momentum,
           );
@@ -177,7 +177,7 @@ export namespace IntegrateAirborneRotationImplementation {
               ? (AirborneShapeHistory.inverse(instant) ??
                 principalInverse(instant.inertia.rotation))
               : undefined;
-          const rootMomentum: IAutoMovieVector3 = Vector3.subtract(
+          const rootMomentum: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             carried,
             instant.relative,
           );
@@ -194,7 +194,7 @@ export namespace IntegrateAirborneRotationImplementation {
             const etaX: number = x[offset]!;
             const etaY: number = x[offset + 1]!;
             const etaZ: number = x[offset + 2]!;
-            const forcing: IAutoMovieVector3 = Quaternion.rotateVector(
+            const forcing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
               back,
               variations[i]!,
             );
@@ -234,7 +234,7 @@ export namespace IntegrateAirborneRotationImplementation {
       });
     } catch (error) {
       if (
-        error instanceof MotionTrajectoryFailure &&
+        error instanceof AutoMovieEngineMotionTrajectoryFailure &&
         error.scope === errorScope
       )
         throw AirborneMomentumDefect.failure(
@@ -466,7 +466,7 @@ export namespace IntegrateAirborneRotationImplementation {
   ): IAutoMovieVector3 {
     const factor: physicalInertiaFactor.IPrepared | undefined =
       AirborneShapeHistory.factor(instant);
-    const carried: IAutoMovieVector3 = Vector3.subtract(
+    const carried: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       momentum,
       instant.relative,
     );
@@ -483,12 +483,12 @@ export namespace IntegrateAirborneRotationImplementation {
   function inverse(
     frame: IAutoMoviePrincipalTensorFrame,
     vector: IAutoMovieVector3,
-    back: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation),
+    back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(frame.rotation),
   ): IAutoMovieVector3 {
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(back, vector);
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(back, vector);
     local.x /= frame.moments.x;
     local.y /= frame.moments.y;
     local.z /= frame.moments.z;
-    return Quaternion.rotateVector(frame.rotation, local);
+    return AutoMovieEngineQuaternion.rotateVector(frame.rotation, local);
   }
 }

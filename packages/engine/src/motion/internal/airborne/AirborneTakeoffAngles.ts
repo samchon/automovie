@@ -5,9 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineMotionTrajectory } from "../../AutoMovieEngineMotionTrajectory";
-import * as AirborneTakeoffAnglesData from "./internal/AirborneTakeoffAnglesData";
+import { AirborneTakeoffAnglesData } from "./internal/AirborneTakeoffAnglesData";
 
 /*
  * The shooting attitude angles from an already inverted reference frame.
@@ -25,19 +25,19 @@ export function AirborneTakeoffAngles(
   into: IAutoMovieQuaternion,
   q: IAutoMovieQuaternion,
 ): IAutoMovieSolveAirborneTakeoff.IAngles {
-  const m: IAutoMovieQuaternion = Quaternion.multiply(into, q);
-  const long: IAutoMovieVector3 = Quaternion.rotateVector(m, AirborneTakeoffAnglesData.LONGITUDINAL);
+  const m: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(into, q);
+  const long: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(m, AirborneTakeoffAnglesData.LONGITUDINAL);
   const tilt: number = -Math.asin(Math.max(-1, Math.min(1, long.x)));
   const somersault: number = Math.atan2(long.z, long.y);
   const degrees: number = 180 / Math.PI;
-  const back: IAutoMovieQuaternion = Quaternion.inverse(
-    Quaternion.multiply(
-      Quaternion.fromAxisAngle(AirborneTakeoffAnglesData.LATERAL, somersault * degrees),
-      Quaternion.fromAxisAngle(AirborneTakeoffAnglesData.FORWARD, tilt * degrees),
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(AirborneTakeoffAnglesData.LATERAL, somersault * degrees),
+      AutoMovieEngineQuaternion.fromAxisAngle(AirborneTakeoffAnglesData.FORWARD, tilt * degrees),
     ),
   );
-  const lateral: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(back, m),
+  const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(back, m),
     AirborneTakeoffAnglesData.LATERAL,
   );
   return { somersault, tilt, twist: Math.atan2(-lateral.z, lateral.x) };
@@ -66,7 +66,7 @@ export namespace AirborneTakeoffAngles {
     flight: IAutoMovieIntegrateAirborneRotation.IFlight,
     frame: IAutoMovieQuaternion,
   ): IAutoMovieSolveAirborneTakeoff.IAngles {
-    const into: IAutoMovieQuaternion = Quaternion.inverse(frame);
+    const into: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(frame);
     let somersault: number = 0;
     let twist: number = 0;
     let tilt: number = 0;

@@ -4,7 +4,7 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
+import { AutoMovieEngineSolidVector } from "../../AutoMovieEngineSolidVector";
 
 /*
  * Where a ball rolling in a fold touches its two walls, read in the plane
@@ -185,7 +185,7 @@ const {
   solve2,
   sub,
   unit,
-}: typeof AutoMovieSolidVector = AutoMovieSolidVector;
+}: typeof AutoMovieEngineSolidVector = AutoMovieEngineSolidVector;
 /*
  * World vector, mm.
  */

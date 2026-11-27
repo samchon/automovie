@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieJointAxes,
@@ -69,8 +69,8 @@ export function AutoMovieMotionHumanBendStrain(
     if (rotation !== undefined) {
       // The canonical rig rests unrotated, so the hand's rotation in the
       // forearm's frame is the turn the forearm and the wrist share.
-      const needed: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(Quaternion.inverse(lowerWorld()), rotation),
+      const needed: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(lowerWorld()), rotation),
       );
       const split: ReturnType<typeof AutoMovieEngineMath.decomposeSwingTwist> = AutoMovieEngineMath.decomposeSwingTwist(
         needed,
@@ -90,9 +90,9 @@ export function AutoMovieMotionHumanBendStrain(
         handAxes === undefined
           ? null
           : AutoMovieEngineKinematics.decomposeJointRotation(
-              Quaternion.normalize(split.swing),
+              AutoMovieEngineQuaternion.normalize(split.swing),
               handAxes,
-              HUMANOID_REST_FRAME[`${side}Hand`],
+              AutoMovieEngineHumanoidRestFrame[`${side}Hand`],
               { bone: `${side}Hand`, constraint: hand },
             );
       const unmade: number =
@@ -247,7 +247,7 @@ function half(range: IHalfRange | null): number | null {
  */
 function degrees(q: IAutoMovieQuaternion): number {
   return (
-    (Quaternion.angle(Quaternion.normalize(q), Quaternion.identity()) * 180) /
+    (AutoMovieEngineQuaternion.angle(AutoMovieEngineQuaternion.normalize(q), AutoMovieEngineQuaternion.identity()) * 180) /
     Math.PI
   );
 }
@@ -259,12 +259,12 @@ function about(
   q: IAutoMovieQuaternion,
   axis: IAutoMovieVector3 | undefined,
 ): number {
-  const n: IAutoMovieQuaternion = Quaternion.normalize(q);
+  const n: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(q);
   const sign: number = n.w < 0 ? -1 : 1;
   const sine: number = Math.hypot(n.x, n.y, n.z);
   return axis === undefined || sine < 1e-9
     ? 0
-    : ((Vector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
+    : ((AutoMovieEngineVector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
         ((2 * Math.atan2(sine, Math.abs(n.w)) * 180) / Math.PI);
 }
 

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -99,13 +99,13 @@ function bar(part: IAutoMovieModelPart): ISegment | null {
     (geometry.shape.type !== "capsule" && geometry.shape.type !== "cylinder")
   )
     return null;
-  const half: IAutoMovieVector3 = Quaternion.rotateVector(
+  const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     part.transform.rotation,
     { x: 0, y: geometry.shape.height / 2, z: 0 },
   );
   return {
-    from: Vector3.subtract(part.transform.translation, half),
-    to: Vector3.add(part.transform.translation, half),
+    from: AutoMovieEngineVector3.subtract(part.transform.translation, half),
+    to: AutoMovieEngineVector3.add(part.transform.translation, half),
     radius: geometry.shape.radius,
   };
 }

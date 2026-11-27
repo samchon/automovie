@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -170,7 +170,7 @@ export function planSnowGlide(
       moving?.rotation ??
       (affordance === undefined
         ? undefined
-        : Quaternion.multiply(
+        : AutoMovieEngineQuaternion.multiply(
             pole.frame(film).rotation,
             affordance.frame.rotation,
           ));
@@ -180,7 +180,7 @@ export function planSnowGlide(
       radius,
       ...(rotation === undefined
         ? {}
-        : { axis: Quaternion.rotateVector(rotation, HANDLE) }),
+        : { axis: AutoMovieEngineQuaternion.rotateVector(rotation, HANDLE) }),
     };
   };
   read(catchAt);
@@ -230,7 +230,7 @@ export function planSnowGlide(
           AutoMovieEngineMotionSampling.minimumJerkShare(
             (at - release) / (duration - release),
           ));
-      const kick: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation!, {
+      const kick: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(foot.rotation!, {
         x: 0,
         y: 0,
         z: -stroke.kick * amount,
@@ -241,8 +241,8 @@ export function planSnowGlide(
           ...posture.limbs,
           [leg]: {
             ...foot,
-            point: Vector3.add(foot.point, kick),
-            bend: Vector3.add(foot.bend, kick),
+            point: AutoMovieEngineVector3.add(foot.point, kick),
+            bend: AutoMovieEngineVector3.add(foot.bend, kick),
           },
         },
       };

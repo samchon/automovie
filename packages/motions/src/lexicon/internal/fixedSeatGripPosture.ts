@@ -1,8 +1,8 @@
 import {
-  DEFAULT_HUMANOID_ROM,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -67,14 +67,14 @@ export function fixedSeatGripPosture(
     if (arm === undefined) return undefined;
     arms.push(arm);
   }
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(seat.rotation, {
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(seat.rotation, {
     x: 0,
     y: 0,
     z: 1,
   });
   const available: number = Math.max(
     0,
-    Vector3.dot(Vector3.subtract(seat.position, bearing), forward),
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(seat.position, bearing), forward),
   );
   const axis: IAutoMovieVector3 = {
     x: Math.cos(seated.yaw * RAD),
@@ -82,27 +82,27 @@ export function fixedSeatGripPosture(
     z: -Math.sin(seated.yaw * RAD),
   };
   function targets(angle: number, shift: number, points: Points): ITarget[] {
-    const q: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axis, angle),
-      pivot: IAutoMovieVector3 = Vector3.add(
+    const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(axis, angle),
+      pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         bearing,
-        Vector3.scale(forward, shift),
+        AutoMovieEngineVector3.scale(forward, shift),
       );
     return arms.map((arm: IClavicle): ITarget => {
-      const parent: IAutoMovieVector3 = Vector3.add(
+      const parent: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         pivot,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           q,
-          Vector3.subtract(arm.placed.worldPosition, bearing),
+          AutoMovieEngineVector3.subtract(arm.placed.worldPosition, bearing),
         ),
       );
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           q,
           arm.placed.worldRotation,
         ),
         target: IAutoMovieVector3 = points[arm.side]!;
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(rotation),
-        Vector3.subtract(target, parent),
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(rotation),
+        AutoMovieEngineVector3.subtract(target, parent),
       );
       const a: number = maximum(
           arm.sign * local.x,
@@ -122,17 +122,17 @@ export function fixedSeatGripPosture(
     upper: number = available,
     preferred: number = 0;
   for (const t of targets(degrees, available, wrists)) {
-    const best: IAutoMovieVector3 = Vector3.add(
+    const best: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       t.parent,
-      Quaternion.rotateVector(t.rotation, tip(t.arm, ...t.best)),
+      AutoMovieEngineQuaternion.rotateVector(t.rotation, tip(t.arm, ...t.best)),
     );
-    const off: IAutoMovieVector3 = Vector3.subtract(
+    const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       t.target,
-      Vector3.subtract(best, Vector3.scale(forward, available)),
+      AutoMovieEngineVector3.subtract(best, AutoMovieEngineVector3.scale(forward, available)),
     );
-    const along: number = Vector3.dot(off, forward),
-      across: number = Vector3.length(
-        Vector3.subtract(off, Vector3.scale(forward, along)),
+    const along: number = AutoMovieEngineVector3.dot(off, forward),
+      across: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(off, AutoMovieEngineVector3.scale(forward, along)),
       );
     if (across > t.arm.arm) return undefined;
     const radius: number = Math.sqrt(
@@ -149,7 +149,7 @@ export function fixedSeatGripPosture(
   if (lower > upper) return undefined;
   const station: number = Math.max(lower, Math.min(upper, preferred));
   return {
-    shift: Vector3.scale(forward, station),
+    shift: AutoMovieEngineVector3.scale(forward, station),
     joints: (angle: number, share: number, points: Points): Joints => {
       const joints: Joints = {};
       for (const t of targets(angle, station * share, points)) {
@@ -157,12 +157,12 @@ export function fixedSeatGripPosture(
           f: number = (AutoMovieEngineKinematics.toRigAngle(arm.entry[0], arm.flexFrame) ?? 0) * RAD,
           a: number = (AutoMovieEngineKinematics.toRigAngle(arm.entry[1], arm.abductFrame) ?? 0) * RAD;
         const demand: number =
-          (Vector3.dot(t.local, t.local) +
+          (AutoMovieEngineVector3.dot(t.local, t.local) +
             arm.length * arm.length -
             arm.arm * arm.arm) /
           2;
         const score: (s: number) => number = (s: number): number =>
-          Vector3.dot(
+          AutoMovieEngineVector3.dot(
             t.local,
             tip(arm, f + (t.best[0] - f) * s, a + (t.best[1] - a) * s),
           );
@@ -274,7 +274,7 @@ function clavicle(
     hand: OptionalBone = body.bones.get(`${side}Hand`);
   const placed: IAutoMovieResolvedBone | undefined = bones.get(name);
   const limit: OptionalConstraint =
-    bone?.constraint ?? DEFAULT_HUMANOID_ROM[name];
+    bone?.constraint ?? AutoMovieEngineDefaultHumanoidRom[name];
   const axes: OptionalAxes = body.poseResolution.jointAxes[name];
   if (
     !bone ||
@@ -293,8 +293,8 @@ function clavicle(
   )
     return undefined;
   const v: IAutoMovieVector3 = upper.rest.translation,
-    flexFrame: OptionalFrame = HUMANOID_REST_FRAME[name]?.flexion,
-    abductFrame: OptionalFrame = HUMANOID_REST_FRAME[name]?.abduction;
+    flexFrame: OptionalFrame = AutoMovieEngineHumanoidRestFrame[name]?.flexion,
+    abductFrame: OptionalFrame = AutoMovieEngineHumanoidRestFrame[name]?.abduction;
   const flex: Pair = range(limit.flexion, flexFrame),
     far: number = Math.max(Math.abs(flex[0]), Math.abs(flex[1]));
   // A fixed sign of the flexed lateral component separates elevation from protraction.
@@ -308,10 +308,10 @@ function clavicle(
     bone: name,
     placed,
     tip: v,
-    length: Vector3.length(v),
+    length: AutoMovieEngineVector3.length(v),
     arm:
-      Vector3.length(elbow.rest.translation) +
-      Vector3.length(hand.rest.translation),
+      AutoMovieEngineVector3.length(elbow.rest.translation) +
+      AutoMovieEngineVector3.length(hand.rest.translation),
     sign: Math.sign(v.x),
     flex,
     abduct: range(limit.abduction, abductFrame),

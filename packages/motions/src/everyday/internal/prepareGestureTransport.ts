@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -63,7 +63,7 @@ export function prepareGestureTransport(
       ).point;
       farthest = Math.max(
         farthest,
-        Vector3.length(Vector3.subtract(hand.point, from)),
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(hand.point, from)),
       );
     }
     return farthest;

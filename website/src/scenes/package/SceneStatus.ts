@@ -86,14 +86,14 @@ export namespace SceneStatus {
       if (!(action.name in AutoMovieMotionHumanActions)) {
         if (!rows.has(action.name)) missing.add(`the action ${action.name}`);
         else if (!PlaygroundChain.has("registered"))
-          missing.add("HumanChain.registered");
+          missing.add("AutoMovieMotionHumanChain.registered");
       }
       if (action.over !== undefined && action.over.length !== 0) {
-        if (!PlaygroundChain.has("over")) missing.add("HumanChain.over");
+        if (!PlaygroundChain.has("over")) missing.add("AutoMovieMotionHumanChain.over");
         action.over.forEach(visit);
       }
       if (action.sync !== undefined && !PlaygroundChain.has("sync"))
-        missing.add("HumanChain.sync");
+        missing.add("AutoMovieMotionHumanChain.sync");
     };
     for (const performer of composition.performers)
       performer.actions.forEach(visit);
@@ -103,7 +103,7 @@ export namespace SceneStatus {
     const objects: readonly IPlaygroundComposition.IObject[] =
       composition.objects ?? [];
     if (objects.length !== 0 && !PlaygroundObjects.available())
-      missing.add("HumanObject");
+      missing.add("AutoMovieMotionHumanObject");
     for (const object of objects)
       if (!exported.has(object.producer))
         missing.add(`the archetype ${object.producer}`);

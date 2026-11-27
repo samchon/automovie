@@ -1,5 +1,7 @@
 import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-import { StanceVerdicts } from "@automovie/motions/executable/internal";
+import {
+  StanceVerdicts
+} from "../../../../../packages/motions/src/executable/cases/StanceVerdicts";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

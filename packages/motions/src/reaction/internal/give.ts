@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -157,7 +157,7 @@ export namespace give {
       const trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         headAt(entry, resolution);
       const head: IAutoMovieVector3 = trunk.get("head")!.worldPosition;
-      const away: IAutoMovieVector3 = Vector3.scale(
+      const away: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         HumanFrame.local(
           { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
           AutoMovieMotionHumanTarget.away(
@@ -207,7 +207,7 @@ export namespace give {
               };
             },
             shift: (seconds: number): IAutoMovieVector3 =>
-              Vector3.scale(
+              AutoMovieEngineVector3.scale(
                 reaction.away,
                 intensity *
                   AutoMovieMotionHumanRange.shift(body, SHIFT) *
@@ -252,16 +252,16 @@ export namespace give {
       ];
       const tried: [number, number, number] = [held[0], held[1], held[2]];
       tried[axis] += 10;
-      const moved: IAutoMovieVector3 = Quaternion.rotateVector(
+      const moved: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         headAt(entry, resolution, { ...entry.joints, neck: tried }).get("head")!
           .worldRotation,
         probe,
       );
-      const rest: IAutoMovieVector3 = Quaternion.rotateVector(
+      const rest: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         trunk.get("head")!.worldRotation,
         probe,
       );
-      return Vector3.dot(Vector3.subtract(moved, rest), left) >= 0 ? 1 : -1;
+      return AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(moved, rest), left) >= 0 ? 1 : -1;
     };
     const twist: IAutoMovieMotionHumanJoints.Angles =
       AutoMovieMotionHumanHead.share(

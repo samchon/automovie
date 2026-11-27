@@ -1,10 +1,10 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core/index";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeHandholdData from "./internal/AutoMovieArchetypeHandholdData";
+import { AutoMovieArchetypeHandholdData } from "./internal/AutoMovieArchetypeHandholdData";
 
 /** Constructs the handhold archetype from its recipe. */
 export namespace AutoMovieArchetypeHandhold {
@@ -119,7 +119,7 @@ export function create(
       strap.name === undefined ? "grab pole" : `hanging strap ${strap.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const height: number = d.height!;
   const diameter: number = d.diameter!;
   if (kind === "pole") {

@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieMotionHumanActionPlan,
@@ -185,7 +185,7 @@ export namespace readHumanSegmentAnchors {
         person,
         segment,
         second(segment, i, spacing),
-        { seeds: kept, tolerance: hingedArmSwivel.RESOLUTION },
+        { seeds: kept, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION },
         undefined,
         prepared,
       );

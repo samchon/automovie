@@ -3,7 +3,7 @@ import type {
   IAutoMovieEvaluateHermiteGregory64,
 } from "@automovie/interface";
 
-import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
+import { AutoMovieEngineCurveMath64 as M } from "../../AutoMovieEngineCurveMath64";
 
 /*
  * Evaluate a rational Hermite transfinite chart and its analytic first

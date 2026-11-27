@@ -11,8 +11,8 @@ import {
 
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { AUTOMOVIE_ANALYSIS_DOMAINS } from "../AUTOMOVIE_ANALYSIS_DOMAINS";
-import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "../AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
+import { AutoMovieEngineAnalysisDomains } from "../AutoMovieEngineAnalysisDomains";
+import { AutoMovieEngineAnalysisReportMaxGaps } from "../AutoMovieEngineAnalysisReportMaxGaps";
 import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
 
 /*
@@ -49,7 +49,7 @@ export function summarizeAutoMovieAnalysis(
     throw new Error(
       "an analysis report must state the design revision it is about",
     );
-  const bound: number = props.maxGaps ?? AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS;
+  const bound: number = props.maxGaps ?? AutoMovieEngineAnalysisReportMaxGaps;
   if (
     !(
       bound >= 1 &&
@@ -70,7 +70,7 @@ export function summarizeAutoMovieAnalysis(
 
   const rollups: Map<AutoMovieAnalysisDomain, IAutoMovieAnalysisDomainRollup> =
     new Map<AutoMovieAnalysisDomain, IAutoMovieAnalysisDomainRollup>(
-      AUTOMOVIE_ANALYSIS_DOMAINS.map(
+      AutoMovieEngineAnalysisDomains.map(
         (
           domain: AutoMovieAnalysisDomain,
         ): [AutoMovieAnalysisDomain, IAutoMovieAnalysisDomainRollup] => [
@@ -160,7 +160,7 @@ export function summarizeAutoMovieAnalysis(
     });
   }
 
-  for (const domain of AUTOMOVIE_ANALYSIS_DOMAINS) {
+  for (const domain of AutoMovieEngineAnalysisDomains) {
     const rollup: IAutoMovieAnalysisDomainRollup = rollups.get(domain)!;
     if (rollup.required && rollup.runs === 0)
       gap({
@@ -174,7 +174,7 @@ export function summarizeAutoMovieAnalysis(
   }
 
   const domains: IAutoMovieAnalysisDomainRollup[] =
-    AUTOMOVIE_ANALYSIS_DOMAINS.map(
+    AutoMovieEngineAnalysisDomains.map(
       (domain: AutoMovieAnalysisDomain): IAutoMovieAnalysisDomainRollup =>
         rollups.get(domain)!,
     );

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanGuard, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingStance, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPerception } from "../../law/internal/HumanPerception";
@@ -58,7 +58,7 @@ export namespace StrikingGuardYield {
     const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       other.bones(seen, STANCE_BONES);
     const hips: IAutoMovieResolvedBone = shown.get("hips")!;
-    const facingOf: IAutoMovieVector3 = Quaternion.rotateVector(
+    const facingOf: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       hips.worldRotation,
       { x: 0, y: 0, z: 1 },
     );
@@ -71,9 +71,9 @@ export namespace StrikingGuardYield {
       y: 0,
       z: root.position.z - context.entry.posture.root.z,
     };
-    const apart: number = Vector3.length(toward);
+    const apart: number = AutoMovieEngineVector3.length(toward);
     if (!(apart > 0)) return null;
-    const axis: IAutoMovieVector3 = Vector3.scale(toward, 1 / apart);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(toward, 1 / apart);
 
     // The other's guard held, facing this fighter's own faced region.
     const region: IAutoMovieMotionHumanBody["surfaces"]["regions"][keyof IAutoMovieMotionHumanBody["surfaces"]["regions"]] =
@@ -92,8 +92,8 @@ export namespace StrikingGuardYield {
       left: shown.get("leftFoot")!.worldPosition,
       right: shown.get("rightFoot")!.worldPosition,
     };
-    const ahead: number = Vector3.dot(
-      Vector3.subtract(feet.right, feet.left),
+    const ahead: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(feet.right, feet.left),
       forwardOf(root.yaw),
     );
     const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -130,17 +130,17 @@ export namespace StrikingGuardYield {
     // Translate each query point instead of placing either body's colliders
     // again. The two poses remain fixed throughout the separation search.
     const gap: (step: number) => number = (step: number): number => {
-      const move: IAutoMovieVector3 = Vector3.scale(axis, step);
+      const move: IAutoMovieVector3 = AutoMovieEngineVector3.scale(axis, step);
       let least: number = Infinity;
       for (const bone of ours.values()) {
-        const point: IAutoMovieVector3 = Vector3.subtract(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           bone.worldPosition,
           move,
         );
         least = Math.min(least, otherDistance(point, point).distance);
       }
       for (const bone of theirs.values()) {
-        const point: IAutoMovieVector3 = Vector3.add(bone.worldPosition, move);
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(bone.worldPosition, move);
         least = Math.min(least, ownDistance(point, point).distance);
       }
       return least;
@@ -172,7 +172,7 @@ export namespace StrikingGuardYield {
       clear,
       TOLERANCE,
     );
-    return Vector3.scale(axis, -step / 2);
+    return AutoMovieEngineVector3.scale(axis, -step / 2);
   }
 
   /*

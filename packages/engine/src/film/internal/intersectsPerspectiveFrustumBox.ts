@@ -6,8 +6,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspectiveFrustum";
 
@@ -47,14 +47,14 @@ export function intersectsPerspectiveFrustumBox(
 ): boolean {
   const crop: IAutoMovieDeliveryCropNdc = deliveryCropNdc(props.crop);
   const halfX: number = props.halfY * props.aspect;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     props.camera.rotation,
   );
   const corners: IAutoMovieVector3[] = boxCorners(props.min, props.max).map(
     (corner: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(corner, props.camera.position),
+        AutoMovieEngineVector3.subtract(corner, props.camera.position),
       ),
   );
   for (const [from, to] of BOX_EDGES)
@@ -131,9 +131,9 @@ function frustumCorners(
     [crop.left, crop.right].flatMap((sx: number): IAutoMovieVector3[] =>
       [crop.bottom, crop.top].map(
         (sy: number): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             props.camera.position,
-            Quaternion.rotateVector(props.camera.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(props.camera.rotation, {
               x: sx * depth * halfX,
               y: sy * depth * props.halfY,
               z: -depth,

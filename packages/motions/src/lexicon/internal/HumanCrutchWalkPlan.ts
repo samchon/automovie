@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -139,7 +139,7 @@ export function HumanCrutchWalkPlan(
       crutches[side].tip,
     );
   const tipsAt = (seconds: number): IAutoMovieVector3 =>
-    Vector3.lerp(tipAt("left", seconds), tipAt("right", seconds), 0.5);
+    AutoMovieEngineVector3.lerp(tipAt("left", seconds), tipAt("right", seconds), 0.5);
 
   // Both feet turn about the entry station or the midpoint of the staged tips.
   const centre: IAutoMovieVector3 = params.origin ?? tipsAt(0);
@@ -155,10 +155,10 @@ export function HumanCrutchWalkPlan(
     (side: AutoMovieHumanSide): number => {
       const [heel, ball]: IAutoMovieMotionHumanFoot.ISocket[] =
         HumanFoot.sockets(body, bones, side);
-      return Vector3.dot(
-        Vector3.subtract(
+      return AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(
           initial[side],
-          Vector3.lerp(heel!.point, ball!.point, 0.5),
+          AutoMovieEngineVector3.lerp(heel!.point, ball!.point, 0.5),
         ),
         HumanFrame.forward(entry.yaw),
       );
@@ -172,7 +172,7 @@ export function HumanCrutchWalkPlan(
     station: number,
   ): IAutoMovieMotionHumanSupport.IContact => {
     const carried: IAutoMovieVector3 = crutchWalkCourse.stationed(
-      { position: initial[feet[i]!], rotation: Quaternion.identity() },
+      { position: initial[feet[i]!], rotation: AutoMovieEngineQuaternion.identity() },
       centre,
       params.stations[station],
     ).position;
@@ -185,8 +185,8 @@ export function HumanCrutchWalkPlan(
     const reach: number =
       pattern === "threePoint"
         ? 0
-        : Vector3.dot(
-            Vector3.subtract(tipsAt(timing.stations[station]!.plant), carried),
+        : AutoMovieEngineVector3.dot(
+            AutoMovieEngineVector3.subtract(tipsAt(timing.stations[station]!.plant), carried),
             forward,
           ) +
           ahead[i]! +
@@ -197,7 +197,7 @@ export function HumanCrutchWalkPlan(
       target: {
         kind: "point",
         frame: "world",
-        at: Vector3.add(carried, Vector3.scale(forward, Math.max(0, reach))),
+        at: AutoMovieEngineVector3.add(carried, AutoMovieEngineVector3.scale(forward, Math.max(0, reach))),
         normal: UP,
       },
     };
@@ -219,7 +219,7 @@ export function HumanCrutchWalkPlan(
     return pad === undefined
       ? -Infinity
       : crutches[side].start.position.y +
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             crutches[side].start.rotation,
             pad.frame.translation,
           ).y;
@@ -307,9 +307,9 @@ export function HumanCrutchWalkPlan(
       crutches[side].start,
       seconds,
     );
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, crutches[side].grip),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, crutches[side].grip),
     );
   };
   const offset =
@@ -322,9 +322,9 @@ export function HumanCrutchWalkPlan(
           seconds > m.from && seconds < m.to,
       );
       if (move === undefined) return STILL;
-      return Vector3.subtract(
+      return AutoMovieEngineVector3.subtract(
         gripAt(side, seconds),
-        Vector3.lerp(
+        AutoMovieEngineVector3.lerp(
           gripAt(side, move.from),
           gripAt(side, move.to),
           AutoMovieEngineMotionSampling.minimumJerkShare((seconds - move.from) / (move.to - move.from)),

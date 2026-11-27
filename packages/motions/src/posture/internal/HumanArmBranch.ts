@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
@@ -32,7 +32,7 @@ export function HumanArmBranch(
   read: readonly [number, number, number],
   near: readonly [number, number, number],
 ): [number, number, number] {
-  const shown: number = Math.cos((0.5 * ROM_TOLERANCE * Math.PI) / 180);
+  const shown: number = Math.cos((0.5 * AutoMovieEngineRomTolerance * Math.PI) / 180);
   let best: [number, number, number] = [read[0], read[1], read[2]];
   let least: number = apart(read, near);
   for (let middle: number = 0; middle < 3; middle++) {

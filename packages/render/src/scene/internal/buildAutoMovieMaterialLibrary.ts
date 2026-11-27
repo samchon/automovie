@@ -5,8 +5,8 @@ import type {
   IAutoMovieModel,
 } from "@automovie/interface";
 
-import type { IAutoMovieMaterialLibrary } from "../IAutoMovieMaterialLibrary.js";
-import type { IBuildAutoMovieMaterialLibraryProps } from "../IBuildAutoMovieMaterialLibraryProps.js";
+import type { IAutoMovieRenderMaterialLibrary } from "../IAutoMovieRenderMaterialLibrary.js";
+import type { IAutoMovieRenderBuildMaterialLibraryProps } from "../IAutoMovieRenderBuildMaterialLibraryProps.js";
 import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { materialTextureBindings } from "./materialTextureBindings.js";
@@ -32,10 +32,10 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * the same failure for repeated callers.
  */
 export const buildAutoMovieMaterialLibrary: (
-  props: IBuildAutoMovieMaterialLibraryProps,
-) => Promise<IAutoMovieMaterialLibrary> = async (
-  props: IBuildAutoMovieMaterialLibraryProps,
-): Promise<IAutoMovieMaterialLibrary> => {
+  props: IAutoMovieRenderBuildMaterialLibraryProps,
+) => Promise<IAutoMovieRenderMaterialLibrary> = async (
+  props: IAutoMovieRenderBuildMaterialLibraryProps,
+): Promise<IAutoMovieRenderMaterialLibrary> => {
   const requested: Set<string> = new Set<string>();
   for (const id of props.materialIds) {
     if (id === null) continue;

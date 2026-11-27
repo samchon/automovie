@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarriedCouplingLoad, IAutoMovieMotionHumanLoad, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -72,11 +72,11 @@ export namespace HumanCarriedCouplingLoad {
       undefined,
       sole ? coupling.centre : undefined,
     );
-    const pair: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(at.own, at.mass),
-          Vector3.scale(at.borne, at.load),
+    const pair: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(at.own, at.mass),
+          AutoMovieEngineVector3.scale(at.borne, at.load),
         ),
         1 / (at.mass + at.load),
       ),
@@ -192,13 +192,13 @@ export namespace HumanCarriedCouplingLoad {
         (c: IAutoMovieMotionCoupling.IContact): boolean =>
           c.load === 0 || c.at !== undefined,
       )
-        ? Vector3.scale(
+        ? AutoMovieEngineVector3.scale(
             own.reduce(
               (
                 s: IAutoMovieVector3,
                 c: IAutoMovieMotionCoupling.IContact,
               ): IAutoMovieVector3 =>
-                c.load === 0 ? s : Vector3.add(s, Vector3.scale(c.at!, c.load)),
+                c.load === 0 ? s : AutoMovieEngineVector3.add(s, AutoMovieEngineVector3.scale(c.at!, c.load)),
               { x: 0, y: 0, z: 0 },
             ),
             1 / share,
@@ -211,9 +211,9 @@ export namespace HumanCarriedCouplingLoad {
     const centre: IAutoMovieVector3 =
       frame === undefined
         ? pressed
-        : Quaternion.rotateVector(
-            Quaternion.inverse(frame.rotation),
-            Vector3.subtract(pressed, frame.position),
+        : AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.inverse(frame.rotation),
+            AutoMovieEngineVector3.subtract(pressed, frame.position),
           );
     const model: IAutoMovieResolveCenterOfMass.IModel = bearer.massModel;
 
@@ -234,13 +234,13 @@ export namespace HumanCarriedCouplingLoad {
       mass: model.mass,
       own: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, bones),
       load: coupling.mass * share,
-      borne: Vector3.add(
+      borne: AutoMovieEngineVector3.add(
         anchor.worldPosition,
-        Quaternion.rotateVector(anchor.worldRotation, centre),
+        AutoMovieEngineQuaternion.rotateVector(anchor.worldRotation, centre),
       ),
       get pivot(): IAutoMovieVector3 {
-        return Vector3.scale(
-          Vector3.add(
+        return AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
             bones.get("leftFoot")!.worldPosition,
             bones.get("rightFoot")!.worldPosition,
           ),

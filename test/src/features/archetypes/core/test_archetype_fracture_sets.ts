@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeDoor, AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -171,12 +171,12 @@ export function test_archetype_fracture_sets(): void {
       name: "fixture",
       draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
     })
-      .box("a", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
-      .box("b", Vector3.create(1, 1, 1), Vector3.create(0, 1.5, 0))
+      .box("a", AutoMovieEngineVector3.create(1, 1, 1), AutoMovieEngineVector3.create(0, 0.5, 0))
+      .box("b", AutoMovieEngineVector3.create(1, 1, 1), AutoMovieEngineVector3.create(0, 1.5, 0))
       .affordance({
         id: "top",
         kind: "surface",
-        frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 2, 0)),
+        frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 2, 0)),
         extent: null,
         width: 1,
         depth: 1,

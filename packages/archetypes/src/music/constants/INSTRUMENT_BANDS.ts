@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
-import * as InstrumentBandsData from "./internal/InstrumentBandsData";
+import { InstrumentBandsData } from "./internal/InstrumentBandsData";
 
 /*
  * The band of each free dimension of createInstrument, by kind.

@@ -1,5 +1,5 @@
 import {
-  Quaternion,
+  AutoMovieEngineQuaternion,
   AutoMovieEngineMotionKinematics,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
@@ -46,7 +46,7 @@ export function test_engine_kinematics_prescribed_twist_fallback(): void {
   };
   const rest = (z: number): IAutoMovieTransform => ({
     translation: { x: 0, y: 0, z },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
     scale: { x: 1, y: 1, z: 1 },
   });
   const skeleton: IAutoMovieSkeleton = {
@@ -78,9 +78,9 @@ export function test_engine_kinematics_prescribed_twist_fallback(): void {
   };
   const degrees: number = 180 / Math.PI;
   const turn: number = 0.02;
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.fromAxisAngle(axes.twist, turn),
-    Quaternion.fromAxisAngle(axes.abduction, 0.277 * degrees),
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle(axes.twist, turn),
+    AutoMovieEngineQuaternion.fromAxisAngle(axes.abduction, 0.277 * degrees),
   );
   const fit: AutoMovieEngineMotionKinematics.ISeededChainFitWorkspace =
     AutoMovieEngineMotionKinematics.prepareSeededChainFit({

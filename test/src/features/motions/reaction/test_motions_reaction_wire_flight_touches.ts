@@ -5,7 +5,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { wireFlightTouches } from "@automovie/motions/internal";
+import {
+  wireFlightTouches
+} from "../../../../../packages/motions/src/reaction/internal/wireFlightTouches";
 import { strict as assert } from "node:assert";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

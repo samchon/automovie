@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeCellFrontData from "./internal/AutoMovieArchetypeCellFrontData";
+import { AutoMovieArchetypeCellFrontData } from "./internal/AutoMovieArchetypeCellFrontData";
 
 /** Constructs the cell front archetype from its recipe. */
 export namespace AutoMovieArchetypeCellFront {
@@ -74,7 +74,7 @@ export function create(
     name: "cell front",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const span: number = (bars - 1) * d.spacing;
   for (let k: number = 0; k < bars; k++) {
     const x: number = -span / 2 + k * d.spacing;

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -169,7 +169,7 @@ export function MartialArtStancePhrase(
           Math.sin(Math.PI * shown),
         ),
       };
-      const centre: IAutoMovieVector3 = Vector3.lerp(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         feet[rear].ankle,
         finish.ankle,
         transfer,
@@ -177,7 +177,7 @@ export function MartialArtStancePhrase(
       const yaw: number =
         start.yaw + martialArtStanceTurn(form, lead, shown, recover);
 
-      const horizontal: IAutoMovieVector3 = Vector3.lerp(
+      const horizontal: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         posture.root,
         { ...centre, y: posture.root.y },
         shown,
@@ -319,7 +319,7 @@ export function MartialArtStancePhrase(
           const rollBack: number = karate
             ? 0
             : outward * 4 * recover * (1 - recover) * m.forearmRadius;
-          const site: IAutoMovieVector3 = Vector3.lerp(near, far, swing);
+          const site: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(near, far, swing);
           return {
             point: HumanFrame.point(frame, { ...site, x: site.x + rollBack }),
             facing,

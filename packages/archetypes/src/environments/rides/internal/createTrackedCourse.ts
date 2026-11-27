@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineSweep } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSweepFrame,
@@ -40,7 +40,7 @@ export function createTrackedCourse(
 
   const chords: number[] = [0];
   for (let i: number = 1; i < points.length; ++i) {
-    const distance: number = Vector3.distance(points[i - 1]!, points[i]!);
+    const distance: number = AutoMovieEngineVector3.distance(points[i - 1]!, points[i]!);
     const total: number = chords[i - 1]! + distance;
     if (total <= chords[i - 1]!)
       throw new Error(`Track chord at waypoint ${i} must increase finitely`);
@@ -49,27 +49,27 @@ export function createTrackedCourse(
     chords.push(total);
   }
 
-  const firstDirection: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(points[1]!, points[0]!),
+  const firstDirection: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(points[1]!, points[0]!),
   );
   const direction: IAutoMovieVector3 = closed
-    ? Vector3.normalize(
-        Vector3.add(
+    ? AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.add(
           firstDirection,
-          Vector3.normalize(
-            Vector3.subtract(points[0]!, points[points.length - 2]!),
+          AutoMovieEngineVector3.normalize(
+            AutoMovieEngineVector3.subtract(points[0]!, points[points.length - 2]!),
           ),
         ),
       )
     : firstDirection;
-  if (Vector3.length(direction) < 1e-9)
+  if (AutoMovieEngineVector3.length(direction) < 1e-9)
     throw new Error("Closed track reverses at the seam");
-  const defaultLateral: IAutoMovieVector3 = Vector3.cross(UP, direction);
+  const defaultLateral: IAutoMovieVector3 = AutoMovieEngineVector3.cross(UP, direction);
   const path: IAutoMovieSweepPath = AutoMovieEngineSweep.frameSweepSpine({
     points,
     normal:
       input.lateral ??
-      (Vector3.length(defaultLateral) > 1e-9
+      (AutoMovieEngineVector3.length(defaultLateral) > 1e-9
         ? defaultLateral
         : { x: 1, y: 0, z: 0 }),
     ...(closed ? { tangents: { start: direction, end: direction } } : {}),
@@ -80,8 +80,8 @@ export function createTrackedCourse(
   // Transport around a loop need not return the first lateral axis. Distribute the measured correction along the loop.
   const correction: number = closed
     ? Math.atan2(
-        Vector3.dot(first.normal, Vector3.cross(last.x, first.x)),
-        Vector3.dot(last.x, first.x),
+        AutoMovieEngineVector3.dot(first.normal, AutoMovieEngineVector3.cross(last.x, first.x)),
+        AutoMovieEngineVector3.dot(last.x, first.x),
       ) / AutoMovieArchetypeUnits.DEGREE
     : 0;
   const chordLength: number = chords[chords.length - 1]!;
@@ -96,7 +96,7 @@ export function createTrackedCourse(
         ((1 - fraction) * chords[i - 1]! + fraction * chords[i]!) / chordLength;
       const point: IAutoMovieVector3 = path.point(u);
       const total: number =
-        stations[stations.length - 1]! + Vector3.distance(previous, point);
+        stations[stations.length - 1]! + AutoMovieEngineVector3.distance(previous, point);
       if (total <= stations[stations.length - 1]!)
         throw new Error(
           `Track spline interval at waypoint ${i} must increase finitely`,
@@ -143,10 +143,10 @@ export function createTrackedCourse(
       );
       return {
         translation: frame.origin,
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
             rotation,
-            Quaternion.fromAxisAngle(FORWARD, bank),
+            AutoMovieEngineQuaternion.fromAxisAngle(FORWARD, bank),
           ),
         ),
         scale: { ...AutoMovieArchetypeFrame.UNIT },

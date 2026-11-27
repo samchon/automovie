@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMoviePhysicalInertiaTensor, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalInertiaTensor, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieQuaternion,
@@ -90,7 +90,7 @@ export function test_engine_mass_tensor_spin(): void {
             `${label}: tensor ${i},${j} is ${actual[i]![j]}, expected ${expected[i]![j]}`,
           );
   };
-  const first: number[][] = AutoMoviePhysicalInertiaTensor.compute([part], about);
+  const first: number[][] = AutoMovieEnginePhysicalInertiaTensor.compute([part], about);
   checkTensor("dense shifted box", first);
   if (first[0] === first[1] || first[1] === first[2] || first[0] === first[2])
     findings.push("tensor rows share mutable storage");
@@ -100,19 +100,19 @@ export function test_engine_mass_tensor_spin(): void {
   };
   checkTensor(
     "rigid translation",
-    AutoMoviePhysicalInertiaTensor.compute([shifted], { x: 11, y: -6, z: -1 }),
+    AutoMovieEnginePhysicalInertiaTensor.compute([shifted], { x: 11, y: -6, z: -1 }),
   );
   first[0]![1] = NaN;
   if (!nclose(first[1]![0]!, expected[1]![0]!, 1e-12))
     findings.push("editing one owned tensor row changed another");
   checkTensor(
     "after returned tensor mutation",
-    AutoMoviePhysicalInertiaTensor.compute([part], about),
+    AutoMovieEnginePhysicalInertiaTensor.compute([part], about),
   );
 
-  part.inertiaRotation = Quaternion.identity();
+  part.inertiaRotation = AutoMovieEngineQuaternion.identity();
   const velocity: IAutoMovieVector3 = { x: 2, y: -3, z: 5 };
-  const spin: IAutoMovieVector3 = AutoMoviePhysicalInertiaTensor.spin(
+  const spin: IAutoMovieVector3 = AutoMovieEnginePhysicalInertiaTensor.spin(
     part,
     rotation,
     velocity,
@@ -131,9 +131,9 @@ export function test_engine_mass_tensor_spin(): void {
       findings.push(`${label}: spin is ${JSON.stringify(actual)}`);
   };
   checkSpin("supplied dense principal rotation", spin);
-  const straight: IAutoMovieVector3 = AutoMoviePhysicalInertiaTensor.spin(
+  const straight: IAutoMovieVector3 = AutoMovieEnginePhysicalInertiaTensor.spin(
     part,
-    Quaternion.identity(),
+    AutoMovieEngineQuaternion.identity(),
     velocity,
   );
   if (
@@ -150,7 +150,7 @@ export function test_engine_mass_tensor_spin(): void {
   spin.z = -Infinity;
   checkSpin(
     "after returned spin mutation",
-    AutoMoviePhysicalInertiaTensor.spin(part, rotation, velocity),
+    AutoMovieEnginePhysicalInertiaTensor.spin(part, rotation, velocity),
   );
 
   for (const dense of [true, false]) {
@@ -184,7 +184,7 @@ export function test_engine_mass_tensor_spin(): void {
       { x: 0, y: 0, z: 1 },
     ];
     for (let i: number = 0; i < 3; i++) {
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         principal.rotation,
         basis[i]!,
       );
@@ -197,8 +197,8 @@ export function test_engine_mass_tensor_spin(): void {
         : { x: 4 * axis.x, y: 2 * axis.y, z: 3 * axis.z };
       if (
         !(
-          Vector3.length(
-            Vector3.subtract(applied, Vector3.scale(axis, i + 2)),
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(applied, AutoMovieEngineVector3.scale(axis, i + 2)),
           ) <= 1e-9
         )
       )

@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, look } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  look
+} from "../../../../../packages/motions/src/everyday/internal/look";
 import { strict as assert } from "node:assert";
 
 /** The attended field includes its ±60° edges. A cue admits a wider turn. */

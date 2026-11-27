@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -113,9 +113,9 @@ export namespace HumanPropCatchHands {
     if (fitted === undefined || !HumanColliders.bones(body).has(hand))
       return false;
 
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, sphere.centre),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, sphere.centre),
     );
     return (
       HumanColliders.distance(body, new Map([[hand, fitted]]), centre)

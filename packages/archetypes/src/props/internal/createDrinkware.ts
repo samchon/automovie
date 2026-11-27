@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeDrinkware } from "../AutoMovieArchetypeDrinkware";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -112,8 +112,8 @@ export function createDrinkware(
   builder.rod(
     "body",
     radius,
-    Vector3.create(0, stem, 0),
-    Vector3.create(0, top, 0),
+    AutoMovieEngineVector3.create(0, stem, 0),
+    AutoMovieEngineVector3.create(0, top, 0),
     { color },
   );
   builder.affordance({
@@ -121,9 +121,9 @@ export function createDrinkware(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, (stem + top) / 2, 0),
-      Vector3.create(-1, 0, 0),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, (stem + top) / 2, 0),
+      AutoMovieEngineVector3.create(-1, 0, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     grip: "power",
@@ -141,22 +141,22 @@ export function createDrinkware(
     builder.rod(
       "handle",
       bar,
-      Vector3.create(reach, low, 0),
-      Vector3.create(reach, high, 0),
+      AutoMovieEngineVector3.create(reach, low, 0),
+      AutoMovieEngineVector3.create(reach, high, 0),
       { color, round: true },
     );
     builder.rod(
       "handle-low",
       bar,
-      Vector3.create(radius, low, 0),
-      Vector3.create(reach, low, 0),
+      AutoMovieEngineVector3.create(radius, low, 0),
+      AutoMovieEngineVector3.create(reach, low, 0),
       { color },
     );
     builder.rod(
       "handle-high",
       bar,
-      Vector3.create(radius, high, 0),
-      Vector3.create(reach, high, 0),
+      AutoMovieEngineVector3.create(radius, high, 0),
+      AutoMovieEngineVector3.create(reach, high, 0),
       { color },
     );
     builder.affordance({
@@ -164,9 +164,9 @@ export function createDrinkware(
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(reach, height / 2, 0),
-        Vector3.create(1, 0, 0),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(reach, height / 2, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "hook",
@@ -180,15 +180,15 @@ export function createDrinkware(
     builder.rod(
       "foot",
       d.baseDiameter! / 2,
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, 0.004, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, 0.004, 0),
       { color },
     );
     builder.rod(
       "stem",
       thin,
-      Vector3.create(0, 0.004, 0),
-      Vector3.create(0, stem, 0),
+      AutoMovieEngineVector3.create(0, 0.004, 0),
+      AutoMovieEngineVector3.create(0, stem, 0),
       { color },
     );
     builder.affordance({
@@ -196,9 +196,9 @@ export function createDrinkware(
       kind: "handle",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, (0.004 + stem) / 2, 0),
-        Vector3.create(-1, 0, 0),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, (0.004 + stem) / 2, 0),
+        AutoMovieEngineVector3.create(-1, 0, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "precision",
@@ -213,8 +213,8 @@ export function createDrinkware(
     builder.rod(
       "neck",
       rim,
-      Vector3.create(0, top, 0),
-      Vector3.create(0, height, 0),
+      AutoMovieEngineVector3.create(0, top, 0),
+      AutoMovieEngineVector3.create(0, height, 0),
       { color },
     );
     builder.affordance({
@@ -222,9 +222,9 @@ export function createDrinkware(
       kind: "handle",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, top + neck / 2, 0),
-        Vector3.create(-1, 0, 0),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, top + neck / 2, 0),
+        AutoMovieEngineVector3.create(-1, 0, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "power",
@@ -235,7 +235,7 @@ export function createDrinkware(
       id: "mouth",
       kind: "socket",
       direction: "along",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
       extent: null,
     });
   }
@@ -243,7 +243,7 @@ export function createDrinkware(
     id: "lip",
     kind: "ledge",
     direction: "along",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, rim)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, rim)),
     extent: null,
   });
   // A beer bottle breaks at the energies a drop tower measured on half-litre beer bottles: its body leaves as shards and its neck stays in the hand.

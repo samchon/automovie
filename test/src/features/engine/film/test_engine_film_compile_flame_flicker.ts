@@ -1,4 +1,6 @@
-import { compileAutoMovieFlameFlicker } from "@automovie/engine/internal";
+import {
+  compileAutoMovieFlameFlicker
+} from "../../../../../packages/engine/src/film/flame/internal/compileAutoMovieFlameFlicker";
 import type { IAutoMovieFlameCue } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

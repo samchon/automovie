@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanEntryState,
@@ -36,7 +36,7 @@ export namespace shiftStandingWeightSteps {
     const a: IAutoMovieQuaternion = bone.worldRotation;
     const b: IAutoMovieQuaternion = entry.rotation;
     return (
-      Vector3.length(Vector3.subtract(bone.worldPosition, entry.ankle)) <=
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(bone.worldPosition, entry.ankle)) <=
         PLANT_DISTANCE &&
       Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w) >= PLANT_TURN
     );

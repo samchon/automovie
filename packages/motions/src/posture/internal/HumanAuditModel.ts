@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditTangleModel,
@@ -93,9 +93,9 @@ export namespace HumanAuditModel {
         ): IAutoMovieVector3[] =>
           model.parts[i]!.probes.map(
             (probe: IAutoMovieVector3): IAutoMovieVector3 =>
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 segment.pose.position,
-                Quaternion.rotateVector(segment.pose.rotation, probe),
+                AutoMovieEngineQuaternion.rotateVector(segment.pose.rotation, probe),
               ),
           ),
       ),

@@ -15,7 +15,7 @@ export interface IAutoMovieMotionClipBridge {
   /**
    * The skeleton lowered to nodes: one `bone` node per {@link IAutoMovieBone}
    * (id = bone name, parent = parent bone or the synthetic root), under a
-   * `group` root node ({@link MOTION_ROOT_NODE_ID}) that carries the motion's
+   * `group` root node ({@link AutoMovieEngineMotionRootNodeId}) that carries the motion's
    * root transform.
    */
   nodes: IAutoMovieNode[];

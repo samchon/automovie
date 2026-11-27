@@ -1,4 +1,4 @@
-import { GAZE_PRESET_CHANNELS } from "@automovie/engine";
+import { AutoMovieEngineGazePresetChannels } from "@automovie/engine";
 import type {
   AutoMovieArkitChannel,
   AutoMovieExpressionPreset,
@@ -75,5 +75,5 @@ export const AUTOMOVIE_EXPRESSION_PRESET_CHANNELS: Readonly<
   blinkLeft: [["eyeBlinkLeft", 1]],
   blinkRight: [["eyeBlinkRight", 1]],
   // The gaze rows are shared with the engine's eye-bone gaze.
-  ...GAZE_PRESET_CHANNELS,
+  ...AutoMovieEngineGazePresetChannels,
 };

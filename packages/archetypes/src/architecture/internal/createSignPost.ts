@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeSignPost } from "../AutoMovieArchetypeSignPost";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
@@ -28,7 +28,7 @@ export function createSignPost(
 ): AutoMovieArchetype<AutoMovieArchetypeSignPost.Affordance, AutoMovieArchetypeSignPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<AutoMovieArchetypeSignPost.Affordance> =
     StreetFixtureDraw.begin("signPost", "sign post", "composite", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const bottom: number = d.height!;
   const size: number = d.head!;
   const side: number = d.diameter!;

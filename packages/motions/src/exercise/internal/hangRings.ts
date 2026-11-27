@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -55,9 +55,9 @@ export function hangRings(
     const found: IAutoMovieAffordance = (read.prop.affordances ?? []).find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     )!;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       placed.position,
-      Quaternion.rotateVector(placed.rotation, found.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(placed.rotation, found.frame.translation),
     );
   };
   const first: IAutoMovieVector3 = point(on.affordance);
@@ -69,7 +69,7 @@ export function hangRings(
     { x: 1, y: 0, z: 0 },
   );
   const leftmost: boolean =
-    Vector3.dot(Vector3.subtract(first, second), left) >= 0;
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(first, second), left) >= 0;
   const grips: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: leftmost ? first : second,
     right: leftmost ? second : first,
@@ -166,7 +166,7 @@ export function hangRings(
             ? goal
             : {
                 ...goal,
-                point: Vector3.lerp(from.worldPosition, goal.point, w),
+                point: AutoMovieEngineVector3.lerp(from.worldPosition, goal.point, w),
               },
       };
     }

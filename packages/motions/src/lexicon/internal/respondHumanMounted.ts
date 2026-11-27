@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -55,7 +55,7 @@ export function respondHumanMounted(
   const lean: number = (Math.atan2(surge, GRAVITY) * 180) / Math.PI;
   const turn: Pick<IAutoMovieMotionHumanPosture, RespondHumanMountedTurn> =
     humanPostureHeading.angles(
-      Quaternion.multiply(now, Quaternion.inverse(start)),
+      AutoMovieEngineQuaternion.multiply(now, AutoMovieEngineQuaternion.inverse(start)),
     );
   const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
   for (const [bone, part] of SHARES) {

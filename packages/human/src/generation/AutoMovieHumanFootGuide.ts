@@ -1,4 +1,4 @@
-import { AutoMovieSeamStation } from "@automovie/engine";
+import { AutoMovieEngineSeamStation } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanFootFrame,
@@ -20,7 +20,7 @@ import { AutoMovieHumanFootGuideSmoothing } from "./AutoMovieHumanFootGuideSmoot
  * plane's station and its place in that plane, and the place is the natural
  * cubic spline of the station through the knots' places smoothed to their own
  * scatter (`AutoMovieHumanFootGuideSmoothing`; the shared C2 rule,
- * `AutoMovieSeamStation`). So the guide meets every plane once by
+ * `AutoMovieEngineSeamStation`). So the guide meets every plane once by
  * construction, through the yaw fan, the hand-over and the turn alike, and its
  * place in the planes is C2; a guide over chord length climbed within a few
  * planes where it joined a vertical cut's low extreme to a horizontal cut's
@@ -109,8 +109,8 @@ export namespace AutoMovieHumanFootGuide {
       t,
       kept.map((q: IKnot): number[] => [q.across, q.up]),
     );
-    const curvatures: number[][] = AutoMovieSeamStation.curvatures(t, values);
-    const slopes: number[][] = AutoMovieSeamStation.slopes(
+    const curvatures: number[][] = AutoMovieEngineSeamStation.curvatures(t, values);
+    const slopes: number[][] = AutoMovieEngineSeamStation.slopes(
       t,
       values,
       curvatures,

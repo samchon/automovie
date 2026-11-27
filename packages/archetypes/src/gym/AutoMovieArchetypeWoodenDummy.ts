@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeWoodenDummyData from "./internal/AutoMovieArchetypeWoodenDummyData";
+import { AutoMovieArchetypeWoodenDummyData } from "./internal/AutoMovieArchetypeWoodenDummyData";
 
 /** Constructs the wooden dummy archetype from its recipe. */
 export namespace AutoMovieArchetypeWoodenDummy {
@@ -58,7 +58,7 @@ export function create(
     name: "wooden dummy",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const radius: number = d.diameter / 2;
   const arm: number = 0.025;
   const upper: number = d.shoulder;
@@ -114,7 +114,7 @@ export function create(
   face(
     "leg",
     v(0, knee, 0.55 * legEnd + 1.4 * arm),
-    Vector3.normalize(v(0, 0.4, 1)),
+    AutoMovieEngineVector3.normalize(v(0, 0.4, 1)),
     2.8 * arm,
   );
   return builder.build(d.mass);

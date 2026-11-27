@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -82,7 +82,7 @@ export namespace walkLegCapsules {
     const offset: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
       side: AutoMovieHumanSide,
     ): IAutoMovieVector3 =>
-      Vector3.subtract(
+      AutoMovieEngineVector3.subtract(
         body.rest.get(`${side}Toes`)!,
         body.rest.get(`${side}Foot`)!,
       );
@@ -185,9 +185,9 @@ export namespace walkLegCapsules {
     prepared: IPrepared,
     leg: IAutoMovieMotionHumanWalkLegClearance.ILeg,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       leg.ankle,
-      Quaternion.rotateVector(leg.rotation, prepared.toes[leg.side]),
+      AutoMovieEngineQuaternion.rotateVector(leg.rotation, prepared.toes[leg.side]),
     );
   }
 
@@ -292,8 +292,8 @@ export namespace walkLegCapsules {
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
   ): (otherFrom: IAutoMovieVector3, otherTo: IAutoMovieVector3) => number {
-    const direction: IAutoMovieVector3 = Vector3.subtract(to, from);
-    const squared: number = Vector3.dot(direction, direction);
+    const direction: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
+    const squared: number = AutoMovieEngineVector3.dot(direction, direction);
     return (otherFrom: IAutoMovieVector3, otherTo: IAutoMovieVector3): number =>
       apartFrom(from, direction, squared, otherFrom, otherTo);
   }
@@ -322,10 +322,10 @@ export namespace walkLegCapsules {
         const pose: IAutoMovieRigidTransform = m.rest[i]!.pose;
         const points: IAutoMovieVector3[] = part.probes.map(
           (probe: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.subtract(
-              Vector3.add(
+            AutoMovieEngineVector3.subtract(
+              AutoMovieEngineVector3.add(
                 pose.position,
-                Quaternion.rotateVector(pose.rotation, probe),
+                AutoMovieEngineQuaternion.rotateVector(pose.rotation, probe),
               ),
               joint,
             ),
@@ -334,20 +334,20 @@ export namespace walkLegCapsules {
         let origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
         let axis: IAutoMovieVector3;
         if (child !== undefined)
-          axis = Vector3.normalize(
-            Vector3.subtract(
+          axis = AutoMovieEngineVector3.normalize(
+            AutoMovieEngineVector3.subtract(
               body.rest.get(`${matched[1]}${child}` as AutoMovieHumanoidBone)!,
               joint,
             ),
           );
         else {
           for (const p of points)
-            origin = Vector3.add(origin, Vector3.scale(p, 1 / points.length));
+            origin = AutoMovieEngineVector3.add(origin, AutoMovieEngineVector3.scale(p, 1 / points.length));
 
           // The principal direction by power iteration on the scatter.
           const centred: IAutoMovieVector3[] = points.map(
             (p: IAutoMovieVector3): IAutoMovieVector3 =>
-              Vector3.subtract(p, origin),
+              AutoMovieEngineVector3.subtract(p, origin),
           );
           const scatter: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
             v: IAutoMovieVector3,
@@ -356,7 +356,7 @@ export namespace walkLegCapsules {
             let y: number = 0;
             let z: number = 0;
             for (const d of centred) {
-              const weight: number = Vector3.dot(d, v);
+              const weight: number = AutoMovieEngineVector3.dot(d, v);
               x += d.x * weight;
               y += d.y * weight;
               z += d.z * weight;
@@ -366,29 +366,29 @@ export namespace walkLegCapsules {
           axis = SEED;
           for (let k: number = 0; k < POWER_STEPS; k++) {
             const next: IAutoMovieVector3 = scatter(axis);
-            if (Vector3.length(next) < DEGENERATE) break;
-            axis = Vector3.normalize(next);
+            if (AutoMovieEngineVector3.length(next) < DEGENERATE) break;
+            axis = AutoMovieEngineVector3.normalize(next);
           }
         }
         let lo: number = Infinity;
         let hi: number = -Infinity;
         let radius: number = 0;
         for (const p of points) {
-          const d: IAutoMovieVector3 = Vector3.subtract(p, origin);
-          const s: number = Vector3.dot(d, axis);
+          const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(p, origin);
+          const s: number = AutoMovieEngineVector3.dot(d, axis);
           lo = Math.min(lo, s);
           hi = Math.max(hi, s);
           radius = Math.max(
             radius,
-            Vector3.length(Vector3.subtract(d, Vector3.scale(axis, s))),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(d, AutoMovieEngineVector3.scale(axis, s))),
           );
         }
         out.set(part.bone, {
           line: child !== undefined,
           lo,
           hi,
-          from: Vector3.add(origin, Vector3.scale(axis, lo)),
-          to: Vector3.add(origin, Vector3.scale(axis, hi)),
+          from: AutoMovieEngineVector3.add(origin, AutoMovieEngineVector3.scale(axis, lo)),
+          to: AutoMovieEngineVector3.add(origin, AutoMovieEngineVector3.scale(axis, hi)),
           radius,
         });
       },
@@ -428,10 +428,10 @@ export namespace walkLegCapsules {
     p2: IAutoMovieVector3,
     q2: IAutoMovieVector3,
   ): number {
-    const d2: IAutoMovieVector3 = Vector3.subtract(q2, p2);
-    const r: IAutoMovieVector3 = Vector3.subtract(p1, p2);
-    const e: number = Vector3.dot(d2, d2);
-    const f: number = Vector3.dot(d2, r);
+    const d2: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(q2, p2);
+    const r: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(p1, p2);
+    const e: number = AutoMovieEngineVector3.dot(d2, d2);
+    const f: number = AutoMovieEngineVector3.dot(d2, r);
     const clamp: (v: number) => number = (v: number): number =>
       Math.min(1, Math.max(0, v));
     let s: number;
@@ -443,12 +443,12 @@ export namespace walkLegCapsules {
       s = 0;
       t = clamp(f / e);
     } else {
-      const c: number = Vector3.dot(d1, r);
+      const c: number = AutoMovieEngineVector3.dot(d1, r);
       if (e <= DEGENERATE) {
         t = 0;
         s = clamp(-c / a);
       } else {
-        const b: number = Vector3.dot(d1, d2);
+        const b: number = AutoMovieEngineVector3.dot(d1, d2);
         const denom: number = a * e - b * b;
         s = denom > DEGENERATE ? clamp((b * f - c * e) / denom) : 0;
         t = (b * s + f) / e;
@@ -461,10 +461,10 @@ export namespace walkLegCapsules {
         }
       }
     }
-    return Vector3.length(
-      Vector3.subtract(
-        Vector3.add(p1, Vector3.scale(d1, s)),
-        Vector3.add(p2, Vector3.scale(d2, t)),
+    return AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(p1, AutoMovieEngineVector3.scale(d1, s)),
+        AutoMovieEngineVector3.add(p2, AutoMovieEngineVector3.scale(d2, t)),
       ),
     );
   }

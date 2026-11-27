@@ -13,8 +13,8 @@ import {
 
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { AUTOMOVIE_RENDER_METRICS } from "../AUTOMOVIE_RENDER_METRICS";
-import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "../AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS";
+import { AutoMovieEngineRenderMetrics } from "../AutoMovieEngineRenderMetrics";
+import { AutoMovieEngineRenderReportMaxContributors } from "../AutoMovieEngineRenderReportMaxContributors";
 
 /*
  * Check one inventory against one declared budget and produce the bounded
@@ -63,7 +63,7 @@ export function evaluateAutoMovieRenderBudget(
     maxContributors?: number;
   } = props;
   const limit: number =
-    props.maxContributors ?? AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS;
+    props.maxContributors ?? AutoMovieEngineRenderReportMaxContributors;
   if (limit < 1)
     throw new Error(
       `render report contributor bound must be a positive safe integer, but was ${limit}`,
@@ -84,7 +84,7 @@ export function evaluateAutoMovieRenderBudget(
       ],
     ),
   );
-  const findings: IAutoMovieRenderFinding[] = AUTOMOVIE_RENDER_METRICS.map(
+  const findings: IAutoMovieRenderFinding[] = AutoMovieEngineRenderMetrics.map(
     (
       metric:
         | "triangles"

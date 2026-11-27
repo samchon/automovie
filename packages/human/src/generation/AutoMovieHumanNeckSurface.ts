@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanNeckSurface,
@@ -101,7 +101,7 @@ export namespace AutoMovieHumanNeckSurface {
       (_: unknown, i: number): number => (2 * Math.PI * i) / 8,
     );
     const lowerStation: number = upper.layers[upper.layers.length - 1]!.y;
-    const lowerHeight: number = AutoMovieLoftChain.axis(upper, lowerStation)[1];
+    const lowerHeight: number = AutoMovieEngineLoftChain.axis(upper, lowerStation)[1];
     const lower: IAutoMovieHumanNeckSurface.ISection =
       AutoMovieHumanNeckSurfaceSampling.section(
         upper,
@@ -254,8 +254,8 @@ function course(
     for (let i: number = 1; i < chain.layers.length; ++i) {
       let lo: number = chain.layers[i - 1]!.y;
       let hi: number = chain.layers[i]!.y;
-      let a: number = AutoMovieLoftChain.axis(chain, lo)[1] - height;
-      const b: number = AutoMovieLoftChain.axis(chain, hi)[1] - height;
+      let a: number = AutoMovieEngineLoftChain.axis(chain, lo)[1] - height;
+      const b: number = AutoMovieEngineLoftChain.axis(chain, hi)[1] - height;
       if (Math.abs(a) <= 1e-6) add(chain, lo);
       if (Math.abs(b) <= 1e-6) add(chain, hi);
       if (Math.abs(a) <= 1e-6 || Math.abs(b) <= 1e-6 || a * b >= 0) continue;
@@ -263,7 +263,7 @@ function course(
       // A source interval brackets the target; no world-Y/station identity is used.
       for (let iteration: number = 0; iteration < 64; ++iteration) {
         const mid: number = (lo + hi) / 2;
-        const value: number = AutoMovieLoftChain.axis(chain, mid)[1] - height;
+        const value: number = AutoMovieEngineLoftChain.axis(chain, mid)[1] - height;
         if (Math.abs(value) <= 1e-6 || hi - lo <= 1e-6) {
           hi = mid;
           lo = mid;

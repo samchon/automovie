@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -12,7 +12,7 @@ export function HumanWeaponPoseReach(
   u: IAutoMovieVector3,
   r: number,
 ): number | undefined {
-  const b: number = Vector3.dot(d, u);
-  const disc: number = b * b - Vector3.dot(d, d) + r * r;
+  const b: number = AutoMovieEngineVector3.dot(d, u);
+  const disc: number = b * b - AutoMovieEngineVector3.dot(d, d) + r * r;
   return disc < 0 ? undefined : -b + Math.sqrt(disc);
 }

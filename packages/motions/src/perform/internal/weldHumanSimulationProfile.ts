@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMoviePhysicalJoint,
@@ -79,17 +79,17 @@ export function weldHumanSimulationProfile(
         .map(([bone]: [string, string]): string => bone);
       if (riders.length === 0) return s;
       const frame: IAutoMovieRigidTransform = s.neutral;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation);
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(frame.rotation);
 
       // A rider's frame in its carrier's frame at the neutral pose.
       const relative: (bone: string) => IAutoMovieRigidTransform = (
         bone: string,
       ): IAutoMovieRigidTransform => ({
-        position: Quaternion.rotateVector(
+        position: AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(segment(bone).neutral.position, frame.position),
+          AutoMovieEngineVector3.subtract(segment(bone).neutral.position, frame.position),
         ),
-        rotation: Quaternion.multiply(inverse, segment(bone).neutral.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(inverse, segment(bone).neutral.rotation),
       });
       const place: (
         at: IAutoMovieRigidTransform,
@@ -98,7 +98,7 @@ export function weldHumanSimulationProfile(
         at: IAutoMovieRigidTransform,
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
-        Vector3.add(at.position, Quaternion.rotateVector(at.rotation, point));
+        AutoMovieEngineVector3.add(at.position, AutoMovieEngineQuaternion.rotateVector(at.rotation, point));
       const parts: IAutoMovieCombinePhysicalMassProperties.IPart[] = [
         {
           mass: s.mass,
@@ -115,7 +115,7 @@ export function weldHumanSimulationProfile(
           mass: rider.mass,
           centerOfMass: place(at, rider.centerOfMass),
           inertia: rider.inertia,
-          inertiaRotation: Quaternion.multiply(
+          inertiaRotation: AutoMovieEngineQuaternion.multiply(
             at.rotation,
             rider.inertiaRotation,
           ),
@@ -126,7 +126,7 @@ export function weldHumanSimulationProfile(
             id: weldHumanSimulationProfile.shapeId(bone, shape.id),
             transform: {
               position: place(at, shape.transform.position),
-              rotation: Quaternion.multiply(
+              rotation: AutoMovieEngineQuaternion.multiply(
                 at.rotation,
                 shape.transform.rotation,
               ),
@@ -161,18 +161,18 @@ export function weldHumanSimulationProfile(
   }
   return {
     ...profile,
-    centerOfMass: Vector3.scale(
+    centerOfMass: AutoMovieEngineVector3.scale(
       segments.reduce(
         (
           sum: IAutoMovieVector3,
           s: IAutoMoviePhysicalSegment,
         ): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             sum,
-            Vector3.scale(
-              Vector3.add(
+            AutoMovieEngineVector3.scale(
+              AutoMovieEngineVector3.add(
                 s.neutral.position,
-                Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
+                AutoMovieEngineQuaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
               ),
               s.mass,
             ),

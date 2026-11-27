@@ -1,7 +1,7 @@
 import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 
-import type { IAutoMovieInspectionDiagnosticOverlay } from "../../IAutoMovieInspectionDiagnosticOverlay.js";
-import type { IRenderAutoMovieInspectionDiagnosticsProps } from "../../IRenderAutoMovieInspectionDiagnosticsProps.js";
+import type { IAutoMovieRenderInspectionDiagnosticOverlay } from "../../IAutoMovieRenderInspectionDiagnosticOverlay.js";
+import type { IAutoMovieRenderInspectionDiagnosticsProps } from "../../IAutoMovieRenderInspectionDiagnosticsProps.js";
 import { createAutoMovieInspectionDiagnosticOverlay } from "./createAutoMovieInspectionDiagnosticOverlay.js";
 
 /*
@@ -16,9 +16,9 @@ import { createAutoMovieInspectionDiagnosticOverlay } from "./createAutoMovieIns
  * Returns: Legend entries for the kinds of witnesses drawn.
  */
 export function renderWithAutoMovieInspectionDiagnostics(
-  props: IRenderAutoMovieInspectionDiagnosticsProps,
+  props: IAutoMovieRenderInspectionDiagnosticsProps,
 ): IAutoMovieInspectionLegendEntry[] {
-  const overlay: IAutoMovieInspectionDiagnosticOverlay =
+  const overlay: IAutoMovieRenderInspectionDiagnosticOverlay =
     createAutoMovieInspectionDiagnosticOverlay();
   try {
     return overlay.render(props);

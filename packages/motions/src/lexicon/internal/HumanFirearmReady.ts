@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanStrikingHeld,
@@ -139,7 +139,7 @@ export namespace HumanFirearmReady {
     const { tool, arm, chest, line, low, posture } = props;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const region: IReady = READY[low ? "lowReady" : "highReady"];
-    const sights: IAutoMovieVector3 = low ? line : Vector3.scale(line, -1);
+    const sights: IAutoMovieVector3 = low ? line : AutoMovieEngineVector3.scale(line, -1);
     const frame = (
       values: readonly number[],
     ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
@@ -151,25 +151,25 @@ export namespace HumanFirearmReady {
       ];
       // The bore along the level line raised by the elevation.
       const e: number = (elevation * Math.PI) / 180;
-      const bore: IAutoMovieVector3 = Vector3.add(
-        Vector3.scale(line, Math.cos(e)),
-        Vector3.scale(up, Math.sin(e)),
+      const bore: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(line, Math.cos(e)),
+        AutoMovieEngineVector3.scale(up, Math.sin(e)),
       );
       return StrikingHeld.hand(
         tool,
         tool.length,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           chest,
-          Vector3.add(
-            Vector3.scale(line, ahead * arm),
-            Vector3.scale(up, rise * arm),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(line, ahead * arm),
+            AutoMovieEngineVector3.scale(up, rise * arm),
           ),
         ),
         bore,
         roll === 0
           ? sights
-          : Quaternion.rotateVector(
-              Quaternion.fromAxisAngle(Vector3.normalize(bore), roll),
+          : AutoMovieEngineQuaternion.rotateVector(
+              AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieEngineVector3.normalize(bore), roll),
               sights,
             ),
       );

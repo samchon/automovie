@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -164,7 +164,7 @@ export function prepareHumanPostureCourse(
       out[limb] = { ...keyed.limbs[limb]!, point: take(), bend: take() };
     for (const limb of contacted) out[limb]!.contact = take();
     for (const limb of rotated) {
-      out[limb]!.rotation = Quaternion.normalize({
+      out[limb]!.rotation = AutoMovieEngineQuaternion.normalize({
         x: c[k]!,
         y: c[k + 1]!,
         z: c[k + 2]!,

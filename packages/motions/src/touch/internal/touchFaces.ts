@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanPosture,
@@ -29,8 +29,8 @@ export function touchFaces(
   const left: IAutoMovieResolvedBone | undefined = bones.get("leftUpperArm");
   const right: IAutoMovieResolvedBone | undefined = bones.get("rightUpperArm");
   if (left === undefined || right === undefined) return undefined;
-  const middle: IAutoMovieVector3 = Vector3.lerp(first, second, 0.5);
-  const centre: IAutoMovieVector3 = Vector3.lerp(
+  const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(first, second, 0.5);
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     left.worldPosition,
     right.worldPosition,
     0.5,

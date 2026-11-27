@@ -1,7 +1,7 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
 
 /*
  * Add the reference pose's geodesic distance bound to an existing hinge branch
@@ -32,13 +32,13 @@ export function hingedReferenceInterval(
     const middle: number = (low + high) / 2;
     if (middle !== last) {
       distance =
-        (Quaternion.angleAfterNormalize(upper(middle), reference) * 180) /
+        (AutoMovieEngineQuaternion.angleAfterNormalize(upper(middle), reference) * 180) /
         Math.PI;
       last = middle;
     }
     const minimum: number = Math.max(
       0,
-      distance - (high - low) / 2 - ROM_TOLERANCE,
+      distance - (high - low) / 2 - AutoMovieEngineRomTolerance,
     );
     return geometric(low, high) + weight * (minimum + lower);
   };

@@ -1,4 +1,4 @@
-import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -35,7 +35,7 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  * the role and the work aisle, or when `cooks` is not 1 or 2.
  */
 export function createKitchenKit(
-  params: AutoMovieEnvironmentFurnishing.IKitchenKitParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.IKitchenKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

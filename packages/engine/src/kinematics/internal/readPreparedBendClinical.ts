@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 
-import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
-import { HUMANOID_JOINT_AXES } from "../HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidRestFrame } from "../../rom/AutoMovieEngineHumanoidRestFrame";
+import { AutoMovieEngineHumanoidJointAxes } from "../AutoMovieEngineHumanoidJointAxes";
 
 /*
  * Capture the current clinical words consumed by an ordinary elbow sweep.
@@ -34,8 +34,8 @@ export function readPreparedBendClinical(
   ])
     range(constraint, words);
   for (const bone of [upperBone, lowerBone, handBone]) {
-    frame(HUMANOID_REST_FRAME[bone], words);
-    const basis: IAutoMovieJointAxes | undefined = HUMANOID_JOINT_AXES[bone];
+    frame(AutoMovieEngineHumanoidRestFrame[bone], words);
+    const basis: IAutoMovieJointAxes | undefined = AutoMovieEngineHumanoidJointAxes[bone];
     words.push(basis === undefined ? undefined : "default axes");
     if (basis !== undefined) axes(basis, words);
   }

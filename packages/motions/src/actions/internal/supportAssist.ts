@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieMotionMeeting, IAutoMovieMotionMeetingKind, IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingTiming, IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
@@ -8,7 +8,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
-import * as SupportAssistData from "./SupportAssistData";
+import { SupportAssistData } from "./SupportAssistData";
 
 /*
  * The synchronized grip's point at the current support key.
@@ -51,7 +51,7 @@ export function supportAssist(
     const b: GripPoint = keys[before + 1];
     return a === undefined || b === undefined || phase === before
       ? a
-      : Vector3.lerp(a, b, phase - before);
+      : AutoMovieEngineVector3.lerp(a, b, phase - before);
   };
 }
 

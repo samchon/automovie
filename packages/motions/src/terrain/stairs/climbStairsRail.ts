@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -87,7 +87,7 @@ export function climbStairsRail(
     HumanHandTarget.prepareFrame(body, side, normal, {
       surface: "grip",
       shape: "relaxed",
-      forward: side === "left" ? Vector3.scale(along, -1) : along,
+      forward: side === "left" ? AutoMovieEngineVector3.scale(along, -1) : along,
     });
   const offset: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
   const entry: Parameters<typeof AutoMovieMotionHumanArm.carry>[2] = {
@@ -178,8 +178,8 @@ export function climbStairsRail(
     );
     miss = Math.max(
       miss,
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           HumanHand.frame(body, bones, side, "grip").point,
           toPoint(observed.root),
         ),

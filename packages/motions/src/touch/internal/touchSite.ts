@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -48,36 +48,36 @@ export function touchSite(
   ): IAutoMovieMotionHumanTouchSite.IFrame => {
     const n: IAutoMovieVector3 = frame.normal;
     const lay = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
+      AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(n, AutoMovieEngineVector3.dot(v, n)));
     let offset: IAutoMovieVector3;
     if ("along" in site) offset = { x: 0, y: 0, z: 0 };
     else if ("rule" in site && !("draw" in site)) {
       const toward: IAutoMovieVector3 = lay(
-        Vector3.subtract(shoulder, frame.point),
+        AutoMovieEngineVector3.subtract(shoulder, frame.point),
       );
-      const length: number = Vector3.length(toward);
-      offset = Vector3.scale(
+      const length: number = AutoMovieEngineVector3.length(toward);
+      offset = AutoMovieEngineVector3.scale(
         toward,
         length > site.within ? site.within / length : 1,
       );
     } else {
       const raised: IAutoMovieVector3 = lay({ x: 0, y: 1, z: 0 });
-      const up: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.length(raised) > 1e-6 ? raised : lay({ x: 0, y: 0, z: 1 }),
+      const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.length(raised) > 1e-6 ? raised : lay({ x: 0, y: 0, z: 1 }),
       );
-      const out: IAutoMovieVector3 = Vector3.cross(up, n);
+      const out: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, n);
       offset =
         "draw" in site
-          ? Vector3.add(
-              Vector3.scale(up, polar![0]),
-              Vector3.scale(out, polar![1]),
+          ? AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(up, polar![0]),
+              AutoMovieEngineVector3.scale(out, polar![1]),
             )
-          : Vector3.add(
-              Vector3.scale(up, site.up ?? 0),
-              Vector3.scale(out, site.out ?? 0),
+          : AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(up, site.up ?? 0),
+              AutoMovieEngineVector3.scale(out, site.out ?? 0),
             );
     }
-    return { point: Vector3.add(frame.point, offset), normal: n };
+    return { point: AutoMovieEngineVector3.add(frame.point, offset), normal: n };
   };
 }
 
@@ -133,11 +133,11 @@ export namespace touchSite {
         reason: `${subject} declares no contact named ${id} with a length to lie along`,
         fix: "name a contact of the prop that has a length, or state the site as an offset",
       });
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       found.frame.rotation,
       { x: share * found.length, y: 0, z: 0 },
     );
     return (seconds: number): IAutoMovieVector3 =>
-      Quaternion.rotateVector(read.frame(seconds).rotation, local);
+      AutoMovieEngineQuaternion.rotateVector(read.frame(seconds).rotation, local);
   }
 }

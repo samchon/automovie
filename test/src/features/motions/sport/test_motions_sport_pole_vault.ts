@@ -1,16 +1,24 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  poleVaultBend,
-  poleVaultOnLine,
-  poleVaultSwing,
-  poleVaultTakeoffAngle,
-  preparePoleVaultLinks,
-} from "@automovie/motions/internal";
+  poleVaultBend
+} from "../../../../../packages/motions/src/sport/poleVault/poleVaultBend";
+import {
+  poleVaultOnLine
+} from "../../../../../packages/motions/src/sport/poleVault/poleVaultOnLine";
+import {
+  poleVaultSwing
+} from "../../../../../packages/motions/src/sport/poleVault/poleVaultSwing";
+import {
+  poleVaultTakeoffAngle
+} from "../../../../../packages/motions/src/sport/poleVault/poleVaultTakeoffAngle";
+import {
+  preparePoleVaultLinks
+} from "../../../../../packages/motions/src/sport/poleVault/preparePoleVaultLinks";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -40,7 +48,7 @@ function materialContact(): void {
               ...rest,
               frame: {
                 ...rest.frame,
-                rotation: Quaternion.fromAxisAngle(
+                rotation: AutoMovieEngineQuaternion.fromAxisAngle(
                   { x: 1, y: 0, z: 0 },
                   state[rest.id] ?? 0,
                 ),
@@ -62,7 +70,7 @@ function materialContact(): void {
         1e-12,
       ) &&
         vclose(
-          Quaternion.rotateVector(moved!.rotation, { x: 0, y: 1, z: 0 }),
+          AutoMovieEngineQuaternion.rotateVector(moved!.rotation, { x: 0, y: 1, z: 0 }),
           { x: 0, y: Math.cos(radians), z: Math.sin(radians) },
           1e-12,
         ) &&

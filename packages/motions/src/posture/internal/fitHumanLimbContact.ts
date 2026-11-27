@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -37,9 +37,9 @@ export function fitHumanLimbContact(
     frame = { rotation, position };
   };
   let fitted: IAutoMovieSeededChainFit = fit(goal.point, undefined, capture);
-  const anchor: IAutoMovieVector3 = Vector3.add(
+  const anchor: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     goal.point,
-    Quaternion.rotateVector(goal.rotation, goal.contact),
+    AutoMovieEngineQuaternion.rotateVector(goal.rotation, goal.contact),
   );
 
   // Every re-aim of the instant continues the seed its own first fit chose,
@@ -53,7 +53,7 @@ export function fitHumanLimbContact(
   const seed: IAutoMovieSwivelNear | undefined =
     fitted.seed === null
       ? undefined
-      : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION };
+      : { ...fitted.seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
   let point: IAutoMovieVector3 = goal.point;
   const history: IReaimIteration[] = [];
   let nearestRotation: IAutoMovieQuaternion | undefined;
@@ -65,12 +65,12 @@ export function fitHumanLimbContact(
   for (let i: number = 0; i < REAIM_PASSES; ++i) {
     const reached: IAutoMovieQuaternion =
       frame?.rotation ?? fitter.rotation(fitted.pose);
-    const aim: IAutoMovieVector3 = Vector3.subtract(
+    const aim: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       anchor,
-      Quaternion.rotateVector(reached, goal.contact),
+      AutoMovieEngineQuaternion.rotateVector(reached, goal.contact),
     );
-    const miss: IAutoMovieVector3 = Vector3.subtract(aim, point);
-    const missSize: number = Vector3.length(miss);
+    const miss: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(aim, point);
+    const missSize: number = AutoMovieEngineVector3.length(miss);
     if (missSize < nearestMiss) {
       nearest = fitted;
       nearestPoint = point;
@@ -101,17 +101,17 @@ export function fitHumanLimbContact(
               worldPosition: frame.position(),
               worldRotation: frame.rotation,
             };
-      const contact: IAutoMovieVector3 = Vector3.add(
+      const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         achieved.worldPosition,
-        Quaternion.rotateVector(achieved.worldRotation, goal.contact),
+        AutoMovieEngineQuaternion.rotateVector(achieved.worldRotation, goal.contact),
       );
-      const residual: IAutoMovieVector3 = Vector3.subtract(anchor, contact);
-      const error: number = Vector3.length(residual);
+      const residual: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(anchor, contact);
+      const error: number = AutoMovieEngineVector3.length(residual);
       if (error >= nearestMiss) break;
       nearest = fitted;
       nearestMiss = error;
       if (error < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
-      point = Vector3.add(point, residual);
+      point = AutoMovieEngineVector3.add(point, residual);
       frame = undefined;
       fitted = fit(point, seed, capture);
     }
@@ -177,19 +177,19 @@ function mixed(
   if (history.length === 0) return aim;
   const differences: IReaimDifference[] = history.map(
     (kept: IReaimIteration): IReaimDifference => ({
-      residual: Vector3.subtract(miss, kept.miss),
-      image: Vector3.subtract(aim, kept.image),
+      residual: AutoMovieEngineVector3.subtract(miss, kept.miss),
+      image: AutoMovieEngineVector3.subtract(aim, kept.image),
     }),
   );
   const single = (): IAutoMovieVector3 => {
     const first: IReaimDifference = differences[0]!;
-    const size: number = Vector3.dot(first.residual, first.residual);
+    const size: number = AutoMovieEngineVector3.dot(first.residual, first.residual);
     if (!(size > 1e-18)) return aim;
     const mixing: number = Math.max(
       -MIXING,
-      Math.min(MIXING, Vector3.dot(first.residual, miss) / size),
+      Math.min(MIXING, AutoMovieEngineVector3.dot(first.residual, miss) / size),
     );
-    return Vector3.subtract(aim, Vector3.scale(first.image, mixing));
+    return AutoMovieEngineVector3.subtract(aim, AutoMovieEngineVector3.scale(first.image, mixing));
   };
   if (differences.length === 1) return single();
 
@@ -202,15 +202,15 @@ function mixed(
     let v: IAutoMovieVector3 = difference.residual;
     const column: number[] = [];
     for (const q of basis) {
-      const c: number = Vector3.dot(q, v);
+      const c: number = AutoMovieEngineVector3.dot(q, v);
       column.push(c);
-      v = Vector3.subtract(v, Vector3.scale(q, c));
+      v = AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(q, c));
     }
-    const norm: number = Vector3.length(v);
-    if (!(norm > 1e-9 * Math.max(1e-12, Vector3.length(difference.residual))))
+    const norm: number = AutoMovieEngineVector3.length(v);
+    if (!(norm > 1e-9 * Math.max(1e-12, AutoMovieEngineVector3.length(difference.residual))))
       continue;
     column.push(norm);
-    basis.push(Vector3.scale(v, 1 / norm));
+    basis.push(AutoMovieEngineVector3.scale(v, 1 / norm));
     kept.push(difference);
     r.push(column);
   }
@@ -220,7 +220,7 @@ function mixed(
   const n: number = kept.length;
   const gamma: number[] = new Array<number>(n).fill(0);
   for (let k: number = n - 1; k >= 0; --k) {
-    let s: number = Vector3.dot(basis[k]!, miss);
+    let s: number = AutoMovieEngineVector3.dot(basis[k]!, miss);
     for (let j: number = k + 1; j < n; ++j) s -= r[j]![k]! * gamma[j]!;
     gamma[k] = s / r[k]![k]!;
   }
@@ -232,7 +232,7 @@ function mixed(
     return single();
   let next: IAutoMovieVector3 = aim;
   kept.forEach((difference: IReaimDifference, k: number): void => {
-    next = Vector3.subtract(next, Vector3.scale(difference.image, gamma[k]!));
+    next = AutoMovieEngineVector3.subtract(next, AutoMovieEngineVector3.scale(difference.image, gamma[k]!));
   });
   return next;
 }

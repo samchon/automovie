@@ -1,4 +1,4 @@
-import { AutoMovieStepPlanner as Planner, AutoMovieEngineCompositionContact } from "@automovie/engine";
+import { AutoMovieEngineStepPlanner as Planner, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieResolveContactEvents,
   IAutoMovieStepPlanner,

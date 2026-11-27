@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -87,12 +87,12 @@ export namespace AutoMovieArchetypeEquineSaddleProp {
       if (shape.type === "box")
         builder.box(
           part.id,
-          Vector3.create(shape.width, shape.height, shape.depth),
+          AutoMovieEngineVector3.create(shape.width, shape.height, shape.depth),
           frame.translation,
           { rotation: frame.rotation },
         );
       else if (shape.type === "cylinder" || shape.type === "capsule") {
-        const half: IAutoMovieVector3 = Quaternion.rotateVector(
+        const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           frame.rotation,
           {
             x: 0,
@@ -103,8 +103,8 @@ export namespace AutoMovieArchetypeEquineSaddleProp {
         builder.rod(
           part.id,
           shape.radius,
-          Vector3.subtract(frame.translation, half),
-          Vector3.add(frame.translation, half),
+          AutoMovieEngineVector3.subtract(frame.translation, half),
+          AutoMovieEngineVector3.add(frame.translation, half),
           { round: shape.type === "capsule" },
         );
       } else if (shape.type === "sphere")
@@ -127,9 +127,9 @@ export namespace AutoMovieArchetypeEquineSaddleProp {
       throw new RangeError(
         "A saddle prop needs the saddled horse's saddle tree",
       );
-    const edge: IAutoMovieVector3 = Vector3.add(
+    const edge: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       tree.transform.translation,
-      Quaternion.rotateVector(tree.transform.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(tree.transform.rotation, {
         x: tree.geometry.shape.width / 2,
         y: tree.geometry.shape.height / 2,
         z: 0,
@@ -141,8 +141,8 @@ export namespace AutoMovieArchetypeEquineSaddleProp {
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
         edge,
-        Quaternion.rotateVector(tree.transform.rotation, { x: 1, y: 0, z: 0 }),
-        Quaternion.rotateVector(tree.transform.rotation, { x: 0, y: 0, z: 1 }),
+        AutoMovieEngineQuaternion.rotateVector(tree.transform.rotation, { x: 1, y: 0, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(tree.transform.rotation, { x: 0, y: 0, z: 1 }),
       ),
       extent: null,
       grip: "power",

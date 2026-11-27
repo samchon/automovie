@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Quaternion, AutoMovieEngineFilm, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineQuaternion, AutoMovieEngineFilm, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActorContext,
@@ -188,7 +188,7 @@ export function test_perform_motion_actor_context(): void {
   const root = {
     ...IDENTITY_TRANSFORM,
     translation: { x: 0, y: 0, z: 1 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 45),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 45),
   };
   const motion = makeMotion(
     [keyframe(0, makePose([], root)), keyframe(1, makePose([], root))],
@@ -215,7 +215,7 @@ export function test_perform_motion_actor_context(): void {
     undefined,
     (_actor, time) => ({
       position: { x: time, y: 0, z: 0 },
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
       facingDeg: 0,
     }),
   );

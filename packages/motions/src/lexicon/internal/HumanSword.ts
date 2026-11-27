@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -208,7 +208,7 @@ export namespace HumanSword {
         : context.aim(p.target, context.start).point;
     const line: IAutoMovieVector3 = StrikingTarget.line(
       root,
-      given ?? Vector3.add(root, s.world({ out: 0, up: 0, forward: 1 })),
+      given ?? AutoMovieEngineVector3.add(root, s.world({ out: 0, up: 0, forward: 1 })),
       context.entry.posture.yaw,
     );
     const yaw: number = StrikingTarget.heading(line);
@@ -221,8 +221,8 @@ export namespace HumanSword {
       travel: number = StrikingAdvance.travel(context, candidate),
     ): boolean =>
       given === undefined ||
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           given,
           StrikingBlade.shoulder(context, s.tool.side, candidate, line, travel),
         ),
@@ -272,7 +272,7 @@ export namespace HumanSword {
     return {
       target:
         given ??
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           reach,
           s.world(
             {
@@ -345,8 +345,8 @@ export namespace HumanSword {
       return HumanBound.within("feint", params.feint, 0, 1, "", "both");
     if (params.outcome !== "parried") return 1;
     const guard: number = context.body.measure.forearm;
-    const s0: number = -Vector3.dot(Vector3.subtract(from, target), line);
-    const s1: number = -Vector3.dot(Vector3.subtract(to, target), line);
+    const s0: number = -AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(from, target), line);
+    const s1: number = -AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(to, target), line);
     if (s0 <= guard) return 0;
     return s1 < guard ? Math.min(1, (s0 - guard) / (s0 - s1)) : 1;
   };
@@ -368,13 +368,13 @@ export namespace HumanSword {
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       frame.point,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         frame.rotation,
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           tool.tip,
-          Vector3.scale(tool.axis, THIRDS[0] * tool.length),
+          AutoMovieEngineVector3.scale(tool.axis, THIRDS[0] * tool.length),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSpeedProfile,
@@ -334,7 +334,7 @@ export namespace ArchetypeCourseLegs {
           row,
           Math.min(row.span, distance - row.from),
         );
-        const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        const yaw: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
           pose.heading,
         );
@@ -361,10 +361,10 @@ export namespace ArchetypeCourseLegs {
             rotation:
               climb === 0
                 ? yaw
-                : Quaternion.normalize(
-                    Quaternion.multiply(
+                : AutoMovieEngineQuaternion.normalize(
+                    AutoMovieEngineQuaternion.multiply(
                       yaw,
-                      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -climb),
+                      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -climb),
                     ),
                   ),
             scale: { ...AutoMovieArchetypeFrame.UNIT },

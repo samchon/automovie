@@ -1,8 +1,8 @@
 import {
-  AutoMovieStationHermite,
-  Quaternion,
-  RigidCarrierSample,
-  Vector3,
+  AutoMovieEngineStationHermite,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRigidCarrierSample,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionTrajectory,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
@@ -169,8 +169,8 @@ export namespace HumanMountOffSupports {
     if (name !== undefined && site === undefined) return undefined;
     const fixed: boolean =
       name === undefined &&
-      (RigidCarrierSample.holds(prop.prop)?.some(
-        (hold: RigidCarrierSample.IHold): boolean =>
+      (AutoMovieEngineRigidCarrierSample.holds(prop.prop)?.some(
+        (hold: AutoMovieEngineRigidCarrierSample.IHold): boolean =>
           hold.contains(start) && hold.contains(start + release),
       ) ?? false);
     return frame(
@@ -215,18 +215,18 @@ export namespace HumanMountOffSupports {
       a: IAutoMovieVector3,
       b: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.scale(Vector3.subtract(Vector3.scale(a, 4), b), 1 / (2 * h));
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(end.rotation);
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.scale(a, 4), b), 1 / (2 * h));
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(end.rotation);
     const delta = (other: IAutoMovieRigidTransform): IAutoMovieVector3 =>
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
-          Quaternion.multiply(other.rotation, inverse),
+          AutoMovieEngineQuaternion.multiply(other.rotation, inverse),
         ),
         -1,
       );
     const velocity: IAutoMovieVector3 = rate(
-      Vector3.subtract(end.position, near.position),
-      Vector3.subtract(end.position, far.position),
+      AutoMovieEngineVector3.subtract(end.position, near.position),
+      AutoMovieEngineVector3.subtract(end.position, far.position),
     );
     return {
       end,
@@ -242,17 +242,17 @@ export namespace HumanMountOffSupports {
    * socket and the measured swivel branch in their owning ankle coordinates.
    */
   export function foot(goal: Foot, held: IFrame): IFoot {
-    const bend: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(goal.rotation),
-      Vector3.subtract(goal.bend, goal.point),
+    const bend: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(goal.rotation),
+      AutoMovieEngineVector3.subtract(goal.bend, goal.point),
     );
     const place = (ankle: IAutoMovieRigidTransform): Foot => ({
       ...goal,
       point: ankle.position,
       rotation: ankle.rotation,
-      bend: Vector3.add(
+      bend: AutoMovieEngineVector3.add(
         ankle.position,
-        Quaternion.rotateVector(ankle.rotation, bend),
+        AutoMovieEngineQuaternion.rotateVector(ankle.rotation, bend),
       ),
     });
     const first: IAutoMovieRigidTransform = held.at(0);
@@ -275,24 +275,24 @@ export namespace HumanMountOffSupports {
    * and derivatives are zero at the destination, so the floor is unaltered.
    */
   export function departure(rate: IRate, span: number): Offset | undefined {
-    const speed: number = Vector3.length(rate.spin) / Quaternion.DEG2RAD;
+    const speed: number = AutoMovieEngineVector3.length(rate.spin) / AutoMovieEngineQuaternion.DEG2RAD;
     if (
       !(span > 0) ||
-      (Vector3.dot(rate.velocity, rate.velocity) === 0 && speed === 0)
+      (AutoMovieEngineVector3.dot(rate.velocity, rate.velocity) === 0 && speed === 0)
     )
       return undefined;
-    const turn: ReturnType<typeof Quaternion.prepareAxisAngle> =
-      Quaternion.prepareAxisAngle(rate.spin);
+    const turn: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+      AutoMovieEngineQuaternion.prepareAxisAngle(rate.spin);
     return (elapsed: number): IAutoMovieRigidTransform => {
       const u: number = Math.min(1, Math.max(0, elapsed / span));
-      const weight: number = AutoMovieStationHermite.weights(
+      const weight: number = AutoMovieEngineStationHermite.weights(
         u,
         span,
         0,
         true,
       )[1]!;
       return {
-        position: Vector3.scale(rate.velocity, weight),
+        position: AutoMovieEngineVector3.scale(rate.velocity, weight),
         rotation: turn(speed * weight),
       };
     };

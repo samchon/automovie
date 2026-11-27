@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanKickGeometry,
@@ -200,14 +200,14 @@ export namespace KickContact {
         const solved: IAutoMovieMotionHumanStrikingReach.ISolution =
           KickChain.solve(chain, base, hip);
         source = { base, hip, solved };
-        const reach: IAutoMovieVector3 = Vector3.subtract(solved.point, hip);
-        const span: number = Vector3.length(reach);
-        const ahead: number = Vector3.dot(reach, props.line) / span;
+        const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(solved.point, hip);
+        const span: number = AutoMovieEngineVector3.length(reach);
+        const ahead: number = AutoMovieEngineVector3.dot(reach, props.line) / span;
         forward = Math.max(
           0,
           Math.min(
             limit,
-            Vector3.dot(Vector3.subtract(chain.planned, hip), props.line) -
+            AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(chain.planned, hip), props.line) -
               KickForm.STEP_ROOM_SHARE * m.thigh,
           ),
         );
@@ -298,12 +298,12 @@ export namespace KickContact {
         // direction. The lack is signed: a weapon the hip's range leaves
         // beyond the point steps the support foot back by the excess.
         if (step !== undefined) break;
-        const toward: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(chain.planned, hip),
+        const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(chain.planned, hip),
         );
-        const ahead: number = Vector3.dot(toward, props.line);
-        const lack: number = Vector3.dot(
-          Vector3.subtract(chain.planned, fit.reached),
+        const ahead: number = AutoMovieEngineVector3.dot(toward, props.line);
+        const lack: number = AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(chain.planned, fit.reached),
           toward,
         );
 
@@ -318,7 +318,7 @@ export namespace KickContact {
                   m.thigh,
                   m.shank,
                   KickForm.FLEXION[chain.technique][1],
-                ) - Vector3.distance(hip, fit.ankle),
+                ) - AutoMovieEngineVector3.distance(hip, fit.ankle),
               )
             : 0;
         if (!(ahead > 1e-3)) break;
@@ -336,7 +336,7 @@ export namespace KickContact {
           throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "target",
-            value: `${(Vector3.distance(hip, chain.planned) * 1000).toFixed(0)} mm`,
+            value: `${(AutoMovieEngineVector3.distance(hip, chain.planned) * 1000).toFixed(0)} mm`,
             feasible: {
               kind: "alternatives",
               values: ["a target the support foot's step settles on"],

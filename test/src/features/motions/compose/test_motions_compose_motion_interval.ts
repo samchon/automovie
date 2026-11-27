@@ -1,4 +1,6 @@
-import { AutoMovieMotionInterval } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionInterval
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionInterval";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

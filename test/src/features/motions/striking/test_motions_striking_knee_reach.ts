@@ -1,5 +1,10 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { KneeForm, KneeReach } from "@automovie/motions/internal";
+import {
+  KneeForm
+} from "../../../../../packages/motions/src/striking/internal/KneeForm";
+import {
+  KneeReach
+} from "../../../../../packages/motions/src/striking/internal/KneeReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

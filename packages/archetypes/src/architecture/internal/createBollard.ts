@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeBollard } from "../AutoMovieArchetypeBollard";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
@@ -23,7 +23,7 @@ export function createBollard(
 ): AutoMovieArchetype<AutoMovieArchetypeBollard.Affordance, AutoMovieArchetypeBollard.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<AutoMovieArchetypeBollard.Affordance> =
     StreetFixtureDraw.begin("bollard", "bollard", "steel", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const height: number = d.height!;
   const diameter: number = d.diameter!;
   builder.rod("shaft", diameter / 2, v(0, 0, 0), v(0, height, 0), {

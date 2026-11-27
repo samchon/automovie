@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -38,30 +38,30 @@ export function AutoMovieMotionHumanElbowPlace(
   ).get(bone)!.worldPosition;
   const upper: number = body.measure.upperArm;
   const fore: number = body.measure.forearm;
-  const line: IAutoMovieVector3 = Vector3.subtract(goal.point, shoulder);
-  const d: number = Math.min(upper + fore - 1e-6, Vector3.length(line));
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goal.point, shoulder);
+  const d: number = Math.min(upper + fore - 1e-6, AutoMovieEngineVector3.length(line));
   const u: IAutoMovieVector3 =
-    Vector3.length(line) > 1e-9
-      ? Vector3.normalize(line)
+    AutoMovieEngineVector3.length(line) > 1e-9
+      ? AutoMovieEngineVector3.normalize(line)
       : { x: 0, y: -1, z: 0 };
   const toward: IAutoMovieVector3 = pole(u);
-  const across: IAutoMovieVector3 = Vector3.subtract(
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     toward,
-    Vector3.scale(u, Vector3.dot(toward, u)),
+    AutoMovieEngineVector3.scale(u, AutoMovieEngineVector3.dot(toward, u)),
   );
   const w: IAutoMovieVector3 =
-    Vector3.length(across) > 1e-9 ? Vector3.normalize(across) : across;
+    AutoMovieEngineVector3.length(across) > 1e-9 ? AutoMovieEngineVector3.normalize(across) : across;
   const cosine: number = Math.max(
     -1,
     Math.min(1, (upper * upper + d * d - fore * fore) / (2 * upper * d)),
   );
   return {
     ...goal,
-    bend: Vector3.add(
+    bend: AutoMovieEngineVector3.add(
       shoulder,
-      Vector3.add(
-        Vector3.scale(u, upper * cosine),
-        Vector3.scale(w, upper * Math.sqrt(1 - cosine * cosine)),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(u, upper * cosine),
+        AutoMovieEngineVector3.scale(w, upper * Math.sqrt(1 - cosine * cosine)),
       ),
     ),
     elbow: "placed",

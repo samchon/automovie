@@ -1,11 +1,11 @@
 import {
-  AutoMovieConstructionContinuation,
-  AutoMovieLoftChain,
-  AutoMovieLoftFrame,
-  AutoMovieLoftJet,
-  AutoMovieLoftSectionConnect,
-  AutoMovieLoftSectionSource,
-  AutoMovieViewLoft,
+  AutoMovieEngineConstructionContinuation,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftFrame,
+  AutoMovieEngineLoftJet,
+  AutoMovieEngineLoftSectionConnect,
+  AutoMovieEngineLoftSectionSource,
+  AutoMovieEngineViewLoft,
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
@@ -83,7 +83,7 @@ function original(failures: string[], input: IAutoMovieViewPart): void {
         [2, 0, 0],
         phi,
       );
-      const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, s, phi);
+      const jet: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(chain, s, phi);
       const c: number = Math.cos(phi);
       const t: number = Math.sin(phi);
       const radial: (row: readonly number[]) => number = (
@@ -129,7 +129,7 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
   for (const hostEnd of ["bottom", "top"] as const)
     for (const partEnd of ["bottom", "top"] as const) {
       const result: IAutoMovieLoftChain | string =
-        AutoMovieConstructionContinuation.apply(host, hostEnd, child, partEnd);
+        AutoMovieEngineConstructionContinuation.apply(host, hostEnd, child, partEnd);
       if (typeof result === "string") {
         failures.push(result);
         continue;
@@ -138,12 +138,12 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
       const hs: number = hostEnd === "bottom" ? 0 : 1;
       const ps: number = partEnd === "bottom" ? 0 : 1;
       for (const phi of [-0.37, 0, 0.43, 2.7, 7.1]) {
-        const a: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+        const a: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
           host,
           hs,
           sign * phi,
         );
-        const b: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+        const b: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
           result,
           ps,
           phi,
@@ -158,7 +158,7 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
             failures,
           );
         }
-        const near: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+        const near: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
           result,
           ps + (partEnd === "bottom" ? 1 : -1) * 2 ** -24,
           phi,
@@ -186,16 +186,16 @@ function mixed(failures: string[]): void {
   };
   const bottom: IAutoMovieLoftChain.ILayer = layer(0, 1);
   const top: IAutoMovieLoftChain.ILayer = layer(1, 1e16);
-  bottom.sectionSource = AutoMovieLoftSectionSource.bind(bottom, {
+  bottom.sectionSource = AutoMovieEngineLoftSectionSource.bind(bottom, {
     kind: "native",
     inputs,
   });
-  top.sectionSource = AutoMovieLoftSectionSource.bind(top, {
+  top.sectionSource = AutoMovieEngineLoftSectionSource.bind(top, {
     kind: "basis",
     order: 8,
     rows: [[...top.coefficients], [...top.slopes], [...top.curvatures!]],
   });
-  const chain: IAutoMovieLoftChain = AutoMovieLoftSectionConnect.finish({
+  const chain: IAutoMovieLoftChain = AutoMovieEngineLoftSectionConnect.finish({
     name: "phase.mixed",
     basis: "spline",
     order: 8,
@@ -208,8 +208,8 @@ function mixed(failures: string[]): void {
   const first: number = 30 * u ** 2 - 60 * u ** 3 + 30 * u ** 4;
   const second: number = 60 * u - 180 * u ** 2 + 120 * u ** 3;
   const expected: number = 1 + q * (1e16 - 1);
-  const point: [number, number, number] = AutoMovieLoftChain.point(chain, u, 0);
-  const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, u, 0);
+  const point: [number, number, number] = AutoMovieEngineLoftChain.point(chain, u, 0);
+  const jet: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(chain, u, 0);
   close(
     [point[0], jet.p[0], jet.s[0], jet.ss[0]],
     [expected, expected, first * (1e16 - 1), second * (1e16 - 1)],
@@ -218,7 +218,7 @@ function mixed(failures: string[]): void {
     failures,
   );
   for (const s of [0, 1]) {
-    const result: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, s, 0);
+    const result: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(chain, s, 0);
     close(
       [result.p[0], result.s[0], result.ss[0]],
       [s === 0 ? 1 : 1e16, 0, 0],
@@ -243,14 +243,14 @@ function availability(failures: string[], input: IAutoMovieViewPart): void {
       { site: "end", station: 1, value: 2 * sign },
     ],
   });
-  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const result: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create({
     ...input,
     front: { positive: root(1), negative: root(-1) },
   });
   if (result.chain === null)
     throw new Error(JSON.stringify(result.diagnostics));
   try {
-    AutoMovieLoftJet.at(result.chain, 0, 0.37);
+    AutoMovieEngineLoftJet.at(result.chain, 0, 0.37);
     failures.push("Missing physical source2 was replaced by an analytic jet.");
   } catch (error: unknown) {
     if (!(error instanceof Error) || !error.message.includes("unavailable"))
@@ -278,25 +278,25 @@ function copies(failures: string[], input: IAutoMovieViewPart): void {
       }),
     ),
   };
-  const expected: [number, number, number] = AutoMovieLoftChain.point(
+  const expected: [number, number, number] = AutoMovieEngineLoftChain.point(
     chain,
     0.37,
     0.41,
   );
   close(
-    AutoMovieLoftChain.point(copy, 0.37, 0.41),
+    AutoMovieEngineLoftChain.point(copy, 0.37, 0.41),
     expected,
     1e-12,
     "cold numeric copy",
     failures,
   );
-  const held: ReturnType<typeof AutoMovieLoftChain.sampler> =
-    AutoMovieLoftChain.sampler(chain, 0.37);
+  const held: ReturnType<typeof AutoMovieEngineLoftChain.sampler> =
+    AutoMovieEngineLoftChain.sampler(chain, 0.37);
   const first: [number, number, number] = held(0.41);
   first[0] = 999;
   for (let q: number = 0; q < 10; q++) {
-    AutoMovieLoftChain.point(chain, q / 10, 0.41);
-    AutoMovieLoftJet.at(chain, q / 10, 0.41);
+    AutoMovieEngineLoftChain.point(chain, q / 10, 0.41);
+    AutoMovieEngineLoftJet.at(chain, q / 10, 0.41);
   }
   close(
     held(0.41),
@@ -317,7 +317,7 @@ function copies(failures: string[], input: IAutoMovieViewPart): void {
     ),
   };
   try {
-    AutoMovieLoftChain.point(stale, 0.37, 0.41);
+    AutoMovieEngineLoftChain.point(stale, 0.37, 0.41);
     failures.push("A stale present native source silently selected geometry.");
   } catch (error: unknown) {
     if (!(error instanceof Error) || !error.message.includes("rewritten"))
@@ -327,7 +327,7 @@ function copies(failures: string[], input: IAutoMovieViewPart): void {
 
 /** The actual producer, with its diagnostic result preserved on failure. */
 function made(input: IAutoMovieViewPart): IAutoMovieLoftChain {
-  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(input);
+  const result: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(input);
   if (result.chain === null)
     throw new Error(JSON.stringify(result.diagnostics));
   return result.chain;
@@ -356,7 +356,7 @@ function layer(y: number, x: number): IAutoMovieLoftChain.ILayer {
     ],
     slopes: new Array<number>(16).fill(0),
     curvatures: new Array<number>(16).fill(0),
-    frame: AutoMovieLoftFrame.horizontal(y),
+    frame: AutoMovieEngineLoftFrame.horizontal(y),
     frameSlopes: { origin: [0, 1, 0], u: [0, 0, 0], v: [0, 0, 0] },
     frameCurvatures: { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] },
   };

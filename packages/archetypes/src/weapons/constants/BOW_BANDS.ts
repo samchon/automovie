@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBand,
@@ -6,7 +6,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
-import * as BowBandsData from "./internal/BowBandsData";
+import { BowBandsData } from "./internal/BowBandsData";
 
 /*
  * The band of each free dimension of createBow a kind's model and draw
@@ -39,8 +39,8 @@ export const BOW_BANDS: Readonly<
     depth: AutoMovieArchetypeBand.metres(0.03, 0.04, BowBandsData.POWER, true),
     draw: AutoMovieArchetypeBand.of(
       "N",
-      49 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
-      54 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      49 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
+      54 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       BowBandsData.KSL,
       true,
     ),

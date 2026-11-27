@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
@@ -39,7 +39,7 @@ export function test_engine_physics_physical_joint_motor_command(): void {
   const base: Parameters<typeof AutoMovieEnginePhysics.physicalJointMotorCommand>[0] = {
     joint,
     current: identity,
-    target: Quaternion.fromAxisAngle(
+    target: AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 0, z: 1 },
       0.3 * (180 / Math.PI),
     ),
@@ -65,7 +65,7 @@ export function test_engine_physics_physical_joint_motor_command(): void {
   const around: IAutoMoviePhysicalJointMotorCommand.IOutput =
     AutoMovieEnginePhysics.physicalJointMotorCommand({
       ...base,
-      target: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 350),
+      target: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 350),
     });
   TestValidator.predicate(
     "short-arc error",
@@ -77,7 +77,7 @@ export function test_engine_physics_physical_joint_motor_command(): void {
   const compound: IAutoMoviePhysicalJointMotorCommand.IOutput =
     AutoMovieEnginePhysics.physicalJointMotorCommand({
       ...base,
-      target: Quaternion.fromAxisAngle(
+      target: AutoMovieEngineQuaternion.fromAxisAngle(
         { x: Math.SQRT1_2, y: Math.SQRT1_2, z: 0 },
         0.4 * (180 / Math.PI),
       ),
@@ -148,11 +148,11 @@ export function test_engine_physics_physical_joint_motor_command(): void {
   const limited: IAutoMoviePhysicalJointMotorCommand.IOutput =
     AutoMovieEnginePhysics.physicalJointMotorCommand({
       ...base,
-      current: Quaternion.fromAxisAngle(
+      current: AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 0, z: 1 },
         0.6 * (180 / Math.PI),
       ),
-      target: Quaternion.fromAxisAngle(
+      target: AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 0, z: 1 },
         0.9 * (180 / Math.PI),
       ),

@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { detailNormalFragment } from "./detailNormalFragment.js";
 import { detailNormalVertex } from "./detailNormalVertex.js";
 
@@ -19,7 +19,7 @@ export const createDetailNormalShaderPatch: (
   key: string;
   apply: (
     shader: Pick<
-      IMaterialShaderSource,
+      IAutoMovieRenderMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ) => void;
@@ -37,7 +37,7 @@ export const createDetailNormalShaderPatch: (
    */
   apply: (
     shader: Pick<
-      IMaterialShaderSource,
+      IAutoMovieRenderMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ) => void;
@@ -56,7 +56,7 @@ export const createDetailNormalShaderPatch: (
     key: "automovie-detail-normal",
     apply: (
       shader: Pick<
-        IMaterialShaderSource,
+        IAutoMovieRenderMaterialShaderSource,
         "vertexShader" | "fragmentShader" | "uniforms"
       >,
     ): void => {

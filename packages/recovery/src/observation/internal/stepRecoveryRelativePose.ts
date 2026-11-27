@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieRecoveryRelativePoseStepOperation,
@@ -18,13 +18,13 @@ export function stepRecoveryRelativePose(
   if (step.length !== 5 || tangent.length !== 2)
     throw new Error("camera-refinement: finite five-coordinate step required");
   const angle: number = Math.hypot(step[0]!, step[1]!, step[2]!);
-  const quaternion: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const quaternion: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: step[0]!, y: step[1]!, z: step[2]! },
     (angle * 180) / Math.PI,
   );
   const rotation: number[] = new Array<number>(9);
   for (let column: number = 0; column < 3; column++) {
-    const value: IAutoMovieVector3 = Quaternion.rotateVector(quaternion, {
+    const value: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(quaternion, {
       x: pose.rotation[column]!,
       y: pose.rotation[3 + column]!,
       z: pose.rotation[6 + column]!,

@@ -1,8 +1,8 @@
 import {
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  hingedArmSwivel,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineHingedArmSwivel,
   AutoMovieEngineMotionPlanting,
   AutoMovieEnginePhysics,
   AutoMovieEngineKinematics,
@@ -20,7 +20,7 @@ import type {
 import { poseBones } from "../../posture/internal/poseBones";
 import { fitSeatedAnkleCrossShape } from "./fitSeatedAnkleCrossShape";
 import { fitSeatedAnkleCrossSweep } from "./fitSeatedAnkleCrossSweep";
-import * as FitSeatedAnkleCrossData from "./FitSeatedAnkleCrossData";
+import { FitSeatedAnkleCrossData } from "./FitSeatedAnkleCrossData";
 
 /*
  * Fit the ankle against the carrying leg's posed body; first travel outside
@@ -53,7 +53,7 @@ export function fitSeatedAnkleCross(
       chain: { upper, lower, effector: foot },
       topology: body.topology,
       jointAxes: body.poseResolution.jointAxes,
-      restFrames: HUMANOID_REST_FRAME,
+      restFrames: AutoMovieEngineHumanoidRestFrame,
     },
     undefined,
     body.poseResolution,
@@ -134,8 +134,8 @@ export function fitSeatedAnkleCross(
     return {
       moving: readMoving(frames),
       ankle: frames.get(foot)!.worldPosition,
-      order: Vector3.dot(
-        Vector3.subtract(frames.get(lower)!.worldPosition, bearing),
+      order: AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(frames.get(lower)!.worldPosition, bearing),
         outward,
       ),
     };
@@ -166,8 +166,8 @@ export function fitSeatedAnkleCross(
     midOffset: chain.lowerOffset,
     midRest: chain.lowerRotation,
     endOffset: chain.effectorOffset,
-    hinge: Quaternion.rotateVector(
-      Quaternion.inverse(chain.lower.worldRotation),
+    hinge: AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(chain.lower.worldRotation),
       chain.hinge,
     ),
     target: { ...bearing, y: surface.y + outlineHeight / 2 },
@@ -178,18 +178,18 @@ export function fitSeatedAnkleCross(
     swivel: number,
   ): ILegPose | undefined => {
     const shape = { ...geometry, target };
-    const branch = hingedArmSwivel
+    const branch = AutoMovieEngineHingedArmSwivel
       .branches(shape)
       ?.find(({ shortfall }) => shortfall <= fitGap);
     if (!branch) return undefined;
-    const fit = hingedArmSwivel.pose(shape, branch.theta)(swivel);
+    const fit = AutoMovieEngineHingedArmSwivel.pose(shape, branch.theta)(swivel);
     const leg = {
       hip: {
         bone: upper,
         ...AutoMovieEngineKinematics.decomposeJointRotation(
           fit.upper,
           upperAxes,
-          HUMANOID_REST_FRAME[upper],
+          AutoMovieEngineHumanoidRestFrame[upper],
           chain.upperDomain,
         ),
       },
@@ -198,7 +198,7 @@ export function fitSeatedAnkleCross(
         ...AutoMovieEngineKinematics.decomposeJointRotation(
           fit.lower,
           lowerAxes,
-          HUMANOID_REST_FRAME[lower],
+          AutoMovieEngineHumanoidRestFrame[lower],
           chain.lowerDomain,
         ),
       },
@@ -226,13 +226,13 @@ export function fitSeatedAnkleCross(
       .map((row) => radius(ankleAtEntry, row)),
   );
   const kneeRadius = Math.max(
-    Vector3.length(chain.effectorOffset) + footRadius,
+    AutoMovieEngineVector3.length(chain.effectorOffset) + footRadius,
     ...neutral
       .filter(({ bone }) => bone === lower)
       .map((row) => radius(before.get(lower)!.worldPosition, row)),
   );
   const hipRadius = Math.max(
-    Vector3.length(chain.lowerOffset) + kneeRadius,
+    AutoMovieEngineVector3.length(chain.lowerOffset) + kneeRadius,
     ...neutral
       .filter(({ bone }) => bone === upper)
       .map((row) => radius(before.get(upper)!.worldPosition, row)),
@@ -261,16 +261,16 @@ export function fitSeatedAnkleCross(
 
   // Choose the bearing position itself from the convex body witnesses. Try
   // both sides of the chart seam, in the engine's normal swivel increments.
-  for (let step = 0; step < 360 / hingedArmSwivel.STEP; ++step) {
+  for (let step = 0; step < 360 / AutoMovieEngineHingedArmSwivel.STEP; ++step) {
     const swivel =
-      Math.ceil(step / 2) * (step % 2 === 0 ? -1 : 1) * hingedArmSwivel.STEP;
+      Math.ceil(step / 2) * (step % 2 === 0 ? -1 : 1) * AutoMovieEngineHingedArmSwivel.STEP;
     let target = geometry.target;
     for (let correction = 0; correction < 12; ++correction) {
       const end = at(target, swivel);
       if (!end) break;
       const positioned = read(end);
       if (
-        Vector3.distance(target, positioned.ankle) > fitGap ||
+        AutoMovieEngineVector3.distance(target, positioned.ankle) > fitGap ||
         positioned.order <= 0
       )
         break;
@@ -292,7 +292,7 @@ export function fitSeatedAnkleCross(
           for (
             let flexion = over.hip.flexion ?? 0;
             flexion <= range.flexion.max;
-            flexion += hingedArmSwivel.STEP
+            flexion += AutoMovieEngineHingedArmSwivel.STEP
           ) {
             const opened: ILegPose = {
               hip: { ...over.hip, flexion, abduction, twist: 0 },
@@ -404,9 +404,9 @@ function liftedAbove(
   const from = contact.ankle;
   for (const sign of [1, -1]) {
     for (
-      let amount = hingedArmSwivel.STEP;
+      let amount = AutoMovieEngineHingedArmSwivel.STEP;
       amount <= 180;
-      amount += hingedArmSwivel.STEP
+      amount += AutoMovieEngineHingedArmSwivel.STEP
     ) {
       const over = lift(origin + sign * amount);
       if (!admits(over)) break;

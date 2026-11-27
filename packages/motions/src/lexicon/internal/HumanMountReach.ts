@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -95,8 +95,8 @@ export namespace HumanMountReach {
             ...frame([at(0), at(1), at(2)]),
             reach:
               HumanMountRider.ARM *
-              (Vector3.length(Vector3.subtract(elbow, at(0))) +
-                Vector3.length(Vector3.subtract(wrist, elbow))),
+              (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(elbow, at(0))) +
+                AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist, elbow))),
           },
         ];
       }),
@@ -110,11 +110,11 @@ export namespace HumanMountReach {
       for (const [side, c] of circles) {
         const point: IAutoMovieVector3 | undefined = points[side];
         if (point === undefined) continue;
-        const off: IAutoMovieVector3 = Vector3.subtract(c.a, point);
+        const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c.a, point);
         arms.push({
-          k: Vector3.dot(off, off) + Vector3.dot(c.b, c.b) - c.reach * c.reach,
-          cos: 2 * Vector3.dot(off, c.b),
-          sin: 2 * Vector3.dot(off, c.c),
+          k: AutoMovieEngineVector3.dot(off, off) + AutoMovieEngineVector3.dot(c.b, c.b) - c.reach * c.reach,
+          cos: 2 * AutoMovieEngineVector3.dot(off, c.b),
+          sin: 2 * AutoMovieEngineVector3.dot(off, c.c),
         });
       }
       const neutral: boolean = least <= 0 && most >= 0;

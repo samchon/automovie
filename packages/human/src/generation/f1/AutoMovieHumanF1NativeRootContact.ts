@@ -2,8 +2,8 @@ import {
   AutoMovieHumanNativeRadialContact as Radial,
 } from "../AutoMovieHumanNativeRadialContact";
 import {
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieSolidVector as Vector,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineSolidVector as Vector,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,

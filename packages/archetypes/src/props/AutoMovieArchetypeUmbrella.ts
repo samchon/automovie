@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { AutoMovieArchetypeUmbrellaRunner } from "./AutoMovieArchetypeUmbrellaRunner";
-import * as AutoMovieArchetypeUmbrellaData from "./internal/AutoMovieArchetypeUmbrellaData";
+import { AutoMovieArchetypeUmbrellaData } from "./internal/AutoMovieArchetypeUmbrellaData";
 
 /** Constructs the umbrella archetype from its recipe. */
 export namespace AutoMovieArchetypeUmbrella {
@@ -72,7 +72,7 @@ export function create(
     name: params.open === true ? "open umbrella" : "umbrella",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const handle: number = AutoMovieArchetypeUmbrella.HANDLE;
   builder.rod("handle", d.gripDiameter / 2, v(0, 0, 0), v(0, handle, 0), {
     color: "#3a2a1e",

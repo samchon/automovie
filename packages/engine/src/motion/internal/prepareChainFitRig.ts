@@ -7,10 +7,10 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import type { prepareChainFit } from "./prepareChainFit";
 import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
@@ -55,27 +55,27 @@ export function prepareChainFitRig(
     twist: null,
   };
   const heldJoint: IAutoMovieJointPose = held;
-  const heldRotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const heldRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     prepared?.effectorBaseRotation ??
       constant.bone(props.chain.effector)?.rest.rotation ??
-      Quaternion.identity(),
+      AutoMovieEngineQuaternion.identity(),
     jointToQuaternionOnBasis.run(
       heldJoint,
       constant.basis(props.chain.effector, "jointToQuaternion axes"),
       props.restFrames?.[props.chain.effector],
     ),
   );
-  const heldInverse: IAutoMovieQuaternion = Quaternion.inverse(heldRotation);
-  const hingeGeometry: hingedArmSwivel.IPrepared | null =
+  const heldInverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(heldRotation);
+  const hingeGeometry: AutoMovieEngineHingedArmSwivel.IPrepared | null =
     prepared === null
       ? null
-      : hingedArmSwivel.prepare(
+      : AutoMovieEngineHingedArmSwivel.prepare(
           {
             upper: prepared.upper,
             midOffset: prepared.lowerOffset,
             midRest: prepared.lowerRotation,
             endOffset: prepared.effectorOffset,
-            hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES)
+            hinge: (props.jointAxes?.[props.chain.lower] ?? AutoMovieEngineDefaultJointAxes)
               .flexion,
           },
           constant.span,
@@ -100,7 +100,7 @@ export function prepareChainFitRig(
     reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null =>
       reference.rotation(bone, rig),
     referenceWeight: reference.weight,
-    hingedGeometry: (): hingedArmSwivel.IPrepared | null => hingeGeometry,
+    hingedGeometry: (): AutoMovieEngineHingedArmSwivel.IPrepared | null => hingeGeometry,
   };
   return rig;
 }
@@ -137,7 +137,7 @@ function prepareReferences(
         reference =
           joint === undefined
             ? null
-            : Quaternion.normalize(
+            : AutoMovieEngineQuaternion.normalize(
                 jointToQuaternionOnBasis.run(
                   joint,
                   rig.jointBasis(bone, "jointToQuaternion axes"),

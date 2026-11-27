@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
@@ -97,18 +97,18 @@ export function prepareHumanTrunkBalance(
       },
     );
     if (AutoMovieEngineMath.pointInHull(centre, hull)) return posture;
-    const angular: number = Vector3.length(motion.angular);
+    const angular: number = AutoMovieEngineVector3.length(motion.angular);
     if (angular === 0) return posture;
-    const axis: IAutoMovieVector3 = Vector3.scale(motion.angular, 1 / angular);
-    const radial: IAutoMovieVector3 = Vector3.addScaled(
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(motion.angular, 1 / angular);
+    const radial: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       spun,
       axis,
-      -Vector3.dot(spun, axis),
+      -AutoMovieEngineVector3.dot(spun, axis),
     );
     const arc: IArc = {
-      fixed: Vector3.subtract(centre, radial),
+      fixed: AutoMovieEngineVector3.subtract(centre, radial),
       radial,
-      tangent: Vector3.cross(axis, radial),
+      tangent: AutoMovieEngineVector3.cross(axis, radial),
     };
     const clamped: IAutoMovieJointPose = joint.clamped.get("spine")!;
     const flexion: number = clamped.flexion ?? 0;
@@ -128,8 +128,8 @@ export function prepareHumanTrunkBalance(
         trial.twist !== clamped.twist
       )
         continue;
-      const place: IAutoMovieVector3 = Vector3.addScaled(
-        Vector3.addScaled(arc.fixed, arc.radial, Math.cos(radians)),
+      const place: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
+        AutoMovieEngineVector3.addScaled(arc.fixed, arc.radial, Math.cos(radians)),
         arc.tangent,
         Math.sin(radians),
       );
@@ -185,14 +185,14 @@ function* crossings(
   hull: readonly IAutoMovieVector3[],
 ): Iterable<number> {
   for (const [index, point] of hull.entries()) {
-    const edge: IAutoMovieVector3 = Vector3.subtract(
+    const edge: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       hull[(index + 1) % hull.length]!,
       point,
     );
     const inward: IAutoMovieVector3 = { x: -edge.z, y: 0, z: edge.x };
-    const a: number = Vector3.dot(arc.radial, inward);
-    const b: number = Vector3.dot(arc.tangent, inward);
-    const c: number = Vector3.dot(Vector3.subtract(point, arc.fixed), inward);
+    const a: number = AutoMovieEngineVector3.dot(arc.radial, inward);
+    const b: number = AutoMovieEngineVector3.dot(arc.tangent, inward);
+    const c: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, arc.fixed), inward);
     const radius: number = Math.hypot(a, b);
     if (radius === 0 || Math.abs(c) > radius) continue;
     const phase: number = Math.atan2(b, a);

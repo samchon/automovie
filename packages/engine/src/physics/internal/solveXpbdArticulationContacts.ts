@@ -1,10 +1,10 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import { AutoMovieXpbdSupportRows as Rows } from "../AutoMovieXpbdSupportRows";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineXpbdArticulation } from "../AutoMovieEngineXpbdArticulation";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import { AutoMovieEngineXpbdSupportRows as Rows } from "../AutoMovieEngineXpbdSupportRows";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
 import { solveXpbdArticulationTask as Task } from "./solveXpbdArticulationTask";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
@@ -15,7 +15,7 @@ import { solveXpbdSupportComplementarity } from "./solveXpbdSupportComplementari
  * impulse-based articulated contact (Mirtich 1996, "Impulse-based Dynamic
  * Simulation of Rigid Body Systems", chapter 6).
  *
- * The rows are the supports' (`AutoMovieXpbdSupportRows`): a normal row per
+ * The rows are the supports' (`AutoMovieEngineXpbdSupportRows`): a normal row per
  * touching point and two tangential rows per patch. A unit test impulse along
  * every row, propagated through the tree's factor with the motors' damping in
  * it, gives the rows' coupling matrix `K`. A tree with a root task solves the
@@ -51,7 +51,7 @@ export namespace solveXpbdArticulationContacts {
 
   /*
    * One support row's unit impulse in IHMC's whole-body objective
-   * (`AutoMovieXpbdWorld.IObjective`): its force, its moment about the vertical
+   * (`AutoMovieEngineXpbdWorld.IObjective`): its force, its moment about the vertical
    * through the centre of mass when the yaw rate is commanded (develop
    * `LinearMomentumRateControlModule` l.421), and, when its body's contacts
    * count (`WrenchMatrixCalculator.getNextCenterOfPressureInput` l.269-281),
@@ -69,14 +69,14 @@ export namespace solveXpbdArticulationContacts {
   export function objectiveRow(
     row: Pick<IRow, "direction" | "moment">,
     point: IAutoMovieVector3,
-    body: AutoMovieXpbdBody,
-    objective: AutoMovieXpbdWorld.IObjective,
+    body: AutoMovieEngineXpbdBody,
+    objective: AutoMovieEngineXpbdWorld.IObjective,
   ): number[] {
     const d: IAutoMovieVector3 = row.direction;
     const about = (center: IAutoMovieVector3): IAutoMovieVector3 =>
       row.moment === true
         ? d
-        : Vector3.cross(Vector3.subtract(point, center), d);
+        : AutoMovieEngineVector3.cross(AutoMovieEngineVector3.subtract(point, center), d);
     const force: number[] = row.moment === true ? [0, 0, 0] : [d.x, d.y, d.z];
     const yaw: number[] = objective.yaw ? [about(objective.yaw.center).y] : [];
     const pressure = objective.pressure;
@@ -106,12 +106,12 @@ export namespace solveXpbdArticulationContacts {
    * recording nothing, when no support takes part or the rows are singular.
    */
   export function solve(
-    tree: AutoMovieXpbdArticulation.ITree,
-    factored: AutoMovieXpbdArticulation.IFactor,
-    base: AutoMovieXpbdArticulation.IResponse,
+    tree: AutoMovieEngineXpbdArticulation.ITree,
+    factored: AutoMovieEngineXpbdArticulation.IFactor,
+    base: AutoMovieEngineXpbdArticulation.IResponse,
     contacts: readonly solveXpbdContacts.IContact[],
     h: number,
-    task?: AutoMovieXpbdWorld.IRootTask,
+    task?: AutoMovieEngineXpbdWorld.IRootTask,
     warm?: solveXpbdSupportCascade.IWarm,
   ): IHeld {
     const set: ISet = Rows.collect(tree, contacts, h);
@@ -139,16 +139,16 @@ export namespace solveXpbdArticulationContacts {
       );
       if (tasked !== null) return tasked;
     }
-    const responses: AutoMovieXpbdArticulation.IResponse[] = set.rows.map(
-      (row: IRow): AutoMovieXpbdArticulation.IResponse =>
-        AutoMovieXpbdArticulation.propagate(tree, factored, false, {
+    const responses: AutoMovieEngineXpbdArticulation.IResponse[] = set.rows.map(
+      (row: IRow): AutoMovieEngineXpbdArticulation.IResponse =>
+        AutoMovieEngineXpbdArticulation.propagate(tree, factored, false, {
           state: row.state,
           impulse: Rows.impulse(row),
         }),
     );
     const k: number[][] = set.rows.map((row: IRow, r: number): number[] =>
       responses.map(
-        (response: AutoMovieXpbdArticulation.IResponse, s: number): number => {
+        (response: AutoMovieEngineXpbdArticulation.IResponse, s: number): number => {
           const value: number = Rows.along(row, response);
           return r === s ? value * (1 + REGULARIZATION) : value;
         },
@@ -195,8 +195,8 @@ export namespace solveXpbdArticulationContacts {
    * support rows' records.
    */
   export function combine(
-    base: AutoMovieXpbdArticulation.IResponse,
-    responses: readonly AutoMovieXpbdArticulation.IResponse[],
+    base: AutoMovieEngineXpbdArticulation.IResponse,
+    responses: readonly AutoMovieEngineXpbdArticulation.IResponse[],
     x: readonly number[],
     set: ISet,
   ): IHeld {
@@ -214,12 +214,12 @@ export namespace solveXpbdArticulationContacts {
         impulse: Math.hypot(x[patch.tangents[0]!]!, x[patch.tangents[1]!]!),
       });
     }
-    const response: AutoMovieXpbdArticulation.IResponse = {
+    const response: AutoMovieEngineXpbdArticulation.IResponse = {
       change: base.change.map((change: number[], i: number): number[] =>
         change.map((value: number, m: number): number => {
           let sum: number = value;
           responses.forEach(
-            (each: AutoMovieXpbdArticulation.IResponse, s: number): void => {
+            (each: AutoMovieEngineXpbdArticulation.IResponse, s: number): void => {
               sum += x[s]! * each.change[i]![m]!;
             },
           );
@@ -230,7 +230,7 @@ export namespace solveXpbdArticulationContacts {
         rates.map((value: number, a: number): number => {
           let sum: number = value;
           responses.forEach(
-            (each: AutoMovieXpbdArticulation.IResponse, s: number): void => {
+            (each: AutoMovieEngineXpbdArticulation.IResponse, s: number): void => {
               sum += x[s]! * each.rates[e]![a]!;
             },
           );
@@ -260,7 +260,7 @@ export namespace solveXpbdArticulationContacts {
    */
   export interface IHeld {
     /** The motors' response with the supports' impulses added. */
-    response: AutoMovieXpbdArticulation.IResponse;
+    response: AutoMovieEngineXpbdArticulation.IResponse;
 
     /** The supports' impulses to record on their contacts. */
     records: IRecord[];
@@ -374,9 +374,9 @@ export namespace solveXpbdArticulationContacts {
    * order; the set itself when none is released.
    */
   function keep(
-    tree: AutoMovieXpbdArticulation.ITree,
+    tree: AutoMovieEngineXpbdArticulation.ITree,
     set: ISet,
-    released: ReadonlySet<AutoMovieXpbdBody> | undefined,
+    released: ReadonlySet<AutoMovieEngineXpbdBody> | undefined,
   ): ISet {
     if (released === undefined || released.size === 0) return set;
     const kept: ISet = { rows: [], patches: [] };

@@ -12,8 +12,8 @@ import {
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { sampleCompiledEffect } from "../effectRuntime/internal/sampleCompiledEffect";
 import { resolveCameraAt } from "../film/internal/resolveCameraAt";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 
 /*
  * Sample one compiled effect cue at shot-local seconds and report analytic
@@ -98,8 +98,8 @@ export function measureAutoMovieGeometryEffect(
     z: (effect.bounds.min.z + effect.bounds.max.z) / 2,
   };
 
-  const cameraDistance: number = Vector3.length(
-    Vector3.subtract(cameraTransform.position, center),
+  const cameraDistance: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(cameraTransform.position, center),
   );
 
   const sample: IAutoMovieEffectSample = sampleCompiledEffect(
@@ -113,7 +113,7 @@ export function measureAutoMovieGeometryEffect(
     (effect.bounds.max.y - effect.bounds.min.y) *
     (effect.bounds.max.z - effect.bounds.min.z);
 
-  const direction: IAutoMovieVector3 = Quaternion.rotateVector(
+  const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     cameraTransform.rotation,
     {
       x: 0,

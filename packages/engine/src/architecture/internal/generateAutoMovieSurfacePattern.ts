@@ -12,13 +12,13 @@ import type {
 } from "@automovie/interface";
 
 import { positive } from "../../geometry/internal/positive";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { seededValue } from "../../math/internal/seededValue";
 import { autoMoviePatternFindings } from "./autoMoviePatternFindings";
 import { autoMoviePatternPolygonArea } from "./autoMoviePatternPolygonArea";
 import { canonicalAutoMoviePatternPolygon } from "./canonicalAutoMoviePatternPolygon";
 import { clipAutoMoviePatternPolygon } from "./clipAutoMoviePatternPolygon";
-import { AUTOMOVIE_MAX_PATTERN_CELLS } from "../AUTOMOVIE_MAX_PATTERN_CELLS";
+import { AutoMovieEngineMaxPatternCells } from "../AutoMovieEngineMaxPatternCells";
 
 /*
  * Lay one pattern and measure exactly what was laid.
@@ -43,7 +43,7 @@ import { AUTOMOVIE_MAX_PATTERN_CELLS } from "../AUTOMOVIE_MAX_PATTERN_CELLS";
  * malformed declaration throws an `Error` naming the field: duplicate ids,
  * non-finite or non-positive sizes, a non-convex region or exclusion,
  * overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone
- * spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells,
+ * spanning more than `AutoMovieEngineMaxPatternCells` lattice cells,
  * non-safe-integer derived lattice bounds, or a generated module reaching
  * beyond its cell's declared reach. Quality defects are not thrown; they are
  * returned as `findings` (sliver, unsupported-piece, module-overlap,
@@ -151,9 +151,9 @@ const layZone: (
   );
   const cells: number =
     (columns.max - columns.min + 1) * (rows.max - rows.min + 1);
-  if (cells < 1 || cells > AUTOMOVIE_MAX_PATTERN_CELLS)
+  if (cells < 1 || cells > AutoMovieEngineMaxPatternCells)
     throw new Error(
-      `pattern zone "${zone.id}" spans ${cells} lattice cells, above the ${AUTOMOVIE_MAX_PATTERN_CELLS} cell limit`,
+      `pattern zone "${zone.id}" spans ${cells} lattice cells, above the ${AutoMovieEngineMaxPatternCells} cell limit`,
     );
   const seen: Set<string> = new Set();
   for (let row: number = rows.min; row <= rows.max; ++row)
@@ -350,7 +350,7 @@ const moduleCorners: (
 ) => IAutoMoviePatternPoint[] = (
   candidate: IAutoMoviePatternCandidate,
 ): IAutoMoviePatternPoint[] => {
-  const angle: number = candidate.rotationDeg * Quaternion.DEG2RAD;
+  const angle: number = candidate.rotationDeg * AutoMovieEngineQuaternion.DEG2RAD;
   const cosine: number = Math.cos(angle);
   const sine: number = Math.sin(angle);
   const halfU: number = candidate.size.u / 2;

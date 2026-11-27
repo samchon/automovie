@@ -1,7 +1,7 @@
 import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -66,7 +66,7 @@ export function ropeSwing(
       (measure.shoulderHeight - measure.hipHeight) +
       0.5 * (measure.upperArm + measure.forearm),
   };
-  const hold: number = Vector3.distance(anchor, grip);
+  const hold: number = AutoMovieEngineVector3.distance(anchor, grip);
   if (hold > line.length)
     throw ropeLine.refusal(
       "line",
@@ -80,9 +80,9 @@ export function ropeSwing(
     y: 0,
     z: landing.z - anchor.z,
   };
-  const u: IAutoMovieVector3 = Vector3.normalize(level);
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(level);
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const course: ropeSwingCourse.ICourse = ropeSwingCourse(anchor, u, hips0);
   const stood: number = landing.y + measure.hipHeight;
 
@@ -140,9 +140,9 @@ export function ropeSwing(
   };
   const lean: (toward: IAutoMovieVector3) => number = (
     toward: IAutoMovieVector3,
-  ): number => (Math.atan2(Vector3.dot(toward, u), toward.y) * 180) / Math.PI;
-  const released: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(anchor, hipsOf(release.release)),
+  ): number => (Math.atan2(AutoMovieEngineVector3.dot(toward, u), toward.y) * 180) / Math.PI;
+  const released: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(anchor, hipsOf(release.release)),
   );
   const shape: (
     hips: IAutoMovieVector3,
@@ -153,7 +153,7 @@ export function ropeSwing(
     toward: IAutoMovieVector3,
     joints: IAutoMovieMotionHumanPosture["joints"],
   ): IAutoMovieMotionHumanPosture => ({
-    root: Vector3.subtract(hips, Vector3.scale(toward, measure.hipHeight)),
+    root: AutoMovieEngineVector3.subtract(hips, AutoMovieEngineVector3.scale(toward, measure.hipHeight)),
     yaw,
     pitch: lean(toward),
     roll: 0,
@@ -169,26 +169,26 @@ export function ropeSwing(
   // Solve the carried hanging arms at the first displayed hang during plan
   // preparation. Reading the film out of order cannot choose another fit.
   const firstHips: IAutoMovieVector3 = course.at(0);
-  const firstToward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(anchor, firstHips),
+  const firstToward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(anchor, firstHips),
   );
-  const hand: IAutoMovieVector3 = Vector3.subtract(
+  const hand: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     anchor,
-    Vector3.scale(firstToward, hold),
+    AutoMovieEngineVector3.scale(firstToward, hold),
   );
-  const elbows: IAutoMovieVector3 = Vector3.add(
+  const elbows: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     hand,
-    Vector3.scale(u, -measure.upperArm),
+    AutoMovieEngineVector3.scale(u, -measure.upperArm),
   );
-  const handSide: IAutoMovieVector3 = Vector3.scale(
+  const handSide: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     perpendicular(u),
     measure.shoulderHalfWidth / 2,
   );
   const hung: IAutoMovieMotionHumanPosture = {
     ...shape(firstHips, firstToward, hangJoints),
     limbs: {
-      leftArm: { point: Vector3.add(hand, handSide), bend: elbows },
-      rightArm: { point: Vector3.subtract(hand, handSide), bend: elbows },
+      leftArm: { point: AutoMovieEngineVector3.add(hand, handSide), bend: elbows },
+      rightArm: { point: AutoMovieEngineVector3.subtract(hand, handSide), bend: elbows },
     },
   };
   const solved: IAutoMovieMotionHumanPosture["joints"] =
@@ -222,13 +222,13 @@ export function ropeSwing(
         ).joints;
       return shape(
         hips,
-        Vector3.normalize(Vector3.lerp(released, up, k)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.lerp(released, up, k)),
         joints,
       );
     }
     // Hanging, the hands on the rope where it reached them at the take-off.
-    const toward: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(anchor, hips),
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(anchor, hips),
     );
     return blendIn(t, shape(hips, toward, { ...hungJoints }));
   };
@@ -377,8 +377,8 @@ function surfaceCentre(
       `${subject} has no fixed surface ${id}`,
     );
   const world: IAutoMovieRigidTransform = reader.frame(context.start);
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     world.position,
-    Quaternion.rotateVector(world.rotation, surface.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(world.rotation, surface.frame.translation),
   );
 }

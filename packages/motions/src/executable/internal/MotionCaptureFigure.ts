@@ -3,7 +3,7 @@ import type {
   IAutoMovieHumanCanonicalBody,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { AutoMovieHumanPolygon } from "@automovie/render";
+import { AutoMovieRenderHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
 /*
@@ -23,7 +23,7 @@ export class MotionCaptureFigure {
    */
   public readonly object: THREE.Group;
 
-  private readonly drawing: AutoMovieHumanPolygon.IDrawing;
+  private readonly drawing: AutoMovieRenderHumanPolygon.IDrawing;
 
   private readonly body: IAutoMovieHumanCanonicalBody.IBody;
 
@@ -36,7 +36,7 @@ export class MotionCaptureFigure {
     this.body = body;
     const rest: ReturnType<typeof AutoMovieHumanCanonicalBody.display> =
       AutoMovieHumanCanonicalBody.display(body);
-    this.drawing = AutoMovieHumanPolygon.build(
+    this.drawing = AutoMovieRenderHumanPolygon.build(
       rest,
       color === undefined
         ? {}

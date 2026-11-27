@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { embraceFromBehindSolve } from "@automovie/motions/internal";
+import {
+  embraceFromBehindSolve
+} from "../../../../../packages/motions/src/touch/internal/embraceFromBehindSolve";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

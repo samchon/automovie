@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -121,11 +121,11 @@ export namespace hostageHold {
       };
 
     // The walk back: away from the hostage, over the hold.
-    const facing: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.entry.posture.yaw),
+    const facing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.entry.posture.yaw),
       { x: 0, y: 0, z: 1 },
     );
-    const travel: IAutoMovieVector3 = Vector3.scale(facing, -back);
+    const travel: IAutoMovieVector3 = AutoMovieEngineVector3.scale(facing, -back);
     const end: number = placed + seconds;
     const steps: PairWalk.IStep[] = PairWalk.steps(
       context.entry,
@@ -136,7 +136,7 @@ export namespace hostageHold {
     const moved: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 =>
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         travel,
         AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, (t - placed) / seconds))),
       );
@@ -144,9 +144,9 @@ export namespace hostageHold {
     const knee: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (
       ankle: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         ankle,
-        Vector3.add({ x: 0, y: 0.45 * hip, z: 0 }, Vector3.scale(facing, 0.3)),
+        AutoMovieEngineVector3.add({ x: 0, y: 0.45 * hip, z: 0 }, AutoMovieEngineVector3.scale(facing, 0.3)),
       );
     const { base: _base, ...holding }: IAutoMovieMotionHumanActionPlan = held;
     return {
@@ -182,13 +182,13 @@ export namespace hostageHold {
           if (goal !== undefined && goal.on === undefined)
             limbs[arm] = {
               ...goal,
-              point: Vector3.add(goal.point, offset),
-              bend: Vector3.add(goal.bend, offset),
+              point: AutoMovieEngineVector3.add(goal.point, offset),
+              bend: AutoMovieEngineVector3.add(goal.bend, offset),
             };
         }
         return {
           ...shown,
-          root: Vector3.add(shown.root, offset),
+          root: AutoMovieEngineVector3.add(shown.root, offset),
           limbs: { ...limbs, ...PairWalk.legs(context.entry, steps, t, knee) },
         };
       },

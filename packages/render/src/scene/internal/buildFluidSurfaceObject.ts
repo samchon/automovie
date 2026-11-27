@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieFluidSurfaceObject } from "../IAutoMovieFluidSurfaceObject.js";
+import type { IAutoMovieRenderFluidSurfaceObject } from "../IAutoMovieRenderFluidSurfaceObject.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /*
@@ -24,7 +24,7 @@ export const buildFluidSurfaceObject: (props: {
   surface: IAutoMovieFluidSurface;
   material?: THREE.Material;
   mode?: AutoMovieWaterFeatureMode;
-}) => IAutoMovieFluidSurfaceObject = (props: {
+}) => IAutoMovieRenderFluidSurfaceObject = (props: {
   surface: IAutoMovieFluidSurface;
   /*
    * Water material; a translucent default is created when absent.
@@ -35,7 +35,7 @@ export const buildFluidSurfaceObject: (props: {
    * it.
    */
   mode?: AutoMovieWaterFeatureMode;
-}): IAutoMovieFluidSurfaceObject => {
+}): IAutoMovieRenderFluidSurfaceObject => {
   const geometry: THREE.BufferGeometry<
     THREE.NormalBufferAttributes,
     THREE.BufferGeometryEventMap

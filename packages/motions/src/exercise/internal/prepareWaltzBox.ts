@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanDance,
   IAutoMovieMotionHumanFoot,
@@ -57,19 +57,19 @@ export function prepareWaltzBox(
       seconds: number,
     ): IAutoMovieMotionHumanFoot.IPlacement => {
       const angle: number = yaw(seconds);
-      const moved: IAutoMovieVector3 = Vector3.scale(travel, progress(seconds));
-      return angle === 0 && Vector3.length(moved) === 0
+      const moved: IAutoMovieVector3 = AutoMovieEngineVector3.scale(travel, progress(seconds));
+      return angle === 0 && AutoMovieEngineVector3.length(moved) === 0
         ? placement
         : {
-            ankle: Vector3.add(
+            ankle: AutoMovieEngineVector3.add(
               HumanFrame.point(
                 { origin: start, yaw: angle },
-                Vector3.subtract(placement.ankle, start),
+                AutoMovieEngineVector3.subtract(placement.ankle, start),
               ),
               moved,
             ),
-            rotation: Quaternion.multiply(
-              Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, angle),
+            rotation: AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, angle),
               placement.rotation,
             ),
           };

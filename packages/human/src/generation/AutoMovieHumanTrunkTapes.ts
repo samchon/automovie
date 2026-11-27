@@ -1,7 +1,7 @@
 import {
   AutoMovieEnginePlanarHull,
-  AutoMovieLoftRelief,
-  AutoMovieSplineCurve,
+  AutoMovieEngineLoftRelief,
+  AutoMovieEngineSplineCurve,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkSection,
@@ -41,7 +41,7 @@ export namespace AutoMovieHumanTrunkTapes {
       (_: unknown, i: number): [number, number] => {
         const t: number = (2 * Math.PI * i) / count;
         const p: [number, number, number, number] =
-          AutoMovieSplineCurve.evaluate(
+          AutoMovieEngineSplineCurve.evaluate(
             c,
             AutoMovieHumanTrunkQuadrant.ORDER,
             t,
@@ -49,7 +49,7 @@ export namespace AutoMovieHumanTrunkTapes {
         let x: number = p[0];
         let z: number = p[1];
         for (const r of reliefs) {
-          const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
+          const d: number = AutoMovieEngineLoftRelief.height(r, s.y, t)[0];
           x += d * r.axis[0];
           z += d * r.axis[2];
         }

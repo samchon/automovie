@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineFluid,
-  FLUID_MAX_FLOWS,
-  FLUID_MAX_SPRAYS,
-  FLUID_MAX_SPRAY_PARTICLES,
+  AutoMovieEngineFluidMaxFlows,
+  AutoMovieEngineFluidMaxSprays,
+  AutoMovieEngineFluidMaxSprayParticles,
 } from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
@@ -108,17 +108,17 @@ export function runFluidDomainPopulationCases(props: {
   const tooMany: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       sources: Array.from(
-        { length: FLUID_MAX_FLOWS + 1 },
+        { length: AutoMovieEngineFluidMaxFlows + 1 },
         (_: unknown, at: number): ReturnType<typeof source> =>
           source({ id: `jet-${at}` }),
       ),
       drains: Array.from(
-        { length: FLUID_MAX_FLOWS + 1 },
+        { length: AutoMovieEngineFluidMaxFlows + 1 },
         (_: unknown, at: number): ReturnType<typeof drain> =>
           drain({ id: `drain-${at}` }),
       ),
       sprays: Array.from(
-        { length: FLUID_MAX_SPRAYS + 1 },
+        { length: AutoMovieEngineFluidMaxSprays + 1 },
         (_: unknown, at: number): ReturnType<typeof spray> =>
           spray({ id: `mist-${at}` }),
       ),
@@ -210,7 +210,7 @@ export function runFluidDomainPopulationCases(props: {
           spread: 2,
           size: 0,
           lodDistance: 0,
-          maxParticles: FLUID_MAX_SPRAY_PARTICLES + 1,
+          maxParticles: AutoMovieEngineFluidMaxSprayParticles + 1,
           seed: 1.5,
           direction: { x: 0, y: 0, z: 0 },
         }),

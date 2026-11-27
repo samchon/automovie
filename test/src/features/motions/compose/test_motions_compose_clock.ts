@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
-  AutoMovieMotionClock as C,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock as C
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
 import { TestValidator } from "@nestia/e2e";
 
 import {

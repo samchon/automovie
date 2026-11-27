@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -35,22 +35,22 @@ export namespace StrikingSupport {
     tool: Pick<IAutoMovieMotionHumanStrikingHeld.ITool, "axis" | "edge">,
     offset: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       frame.rotation,
       tool.axis,
     );
-    const edge: IAutoMovieVector3 = Quaternion.rotateVector(
+    const edge: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       frame.rotation,
       tool.edge,
     );
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.point,
-      Vector3.add(
-        Vector3.add(
-          Vector3.scale(axis, offset.x),
-          Vector3.scale(edge, offset.y),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(axis, offset.x),
+          AutoMovieEngineVector3.scale(edge, offset.y),
         ),
-        Vector3.scale(Vector3.cross(axis, edge), offset.z),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(axis, edge), offset.z),
       ),
     );
   }
@@ -72,11 +72,11 @@ export namespace StrikingSupport {
     support: IAutoMovieMotionHumanStrikingBlade.ISupport,
   ): IAutoMovieHumanLimbGoal {
     const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       frame.rotation,
       tool.axis,
     );
-    const edge: IAutoMovieVector3 = Quaternion.rotateVector(
+    const edge: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       frame.rotation,
       tool.edge,
     );

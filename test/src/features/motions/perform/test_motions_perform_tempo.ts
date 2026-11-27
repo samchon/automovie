@@ -3,9 +3,11 @@ import type {
   IAutoMovieMotionHumanActionPlan,
 } from "@automovie/interface";
 import {
-  HumanPerformanceTempo,
-  AutoMovieMotionHumanRefusal,
-} from "@automovie/motions/internal";
+  HumanPerformanceTempo
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceTempo";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

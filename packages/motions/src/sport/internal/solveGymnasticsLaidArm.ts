@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -83,7 +83,7 @@ export function solveGymnasticsLaidArm(
       : {
           [limb]: {
             ...seed,
-            tolerance: hingedArmSwivel.RESOLUTION,
+            tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
             prescribed: true,
           },
         },

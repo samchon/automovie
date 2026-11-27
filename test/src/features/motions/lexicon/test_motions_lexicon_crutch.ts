@@ -9,13 +9,23 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  crutchHeldLeg,
-  crutchHeldLegSweptDepth,
-  crutchSitKit,
-  crutchSitPath,
-  crutchStairsFlight,
-  crutchWalkCourse,
-} from "@automovie/motions/internal";
+  crutchHeldLeg
+} from "../../../../../packages/motions/src/lexicon/internal/crutchHeldLeg";
+import {
+  crutchHeldLegSweptDepth
+} from "../../../../../packages/motions/src/lexicon/internal/crutchHeldLegSweptDepth";
+import {
+  crutchSitKit
+} from "../../../../../packages/motions/src/lexicon/internal/crutchSitKit";
+import {
+  crutchSitPath
+} from "../../../../../packages/motions/src/lexicon/internal/crutchSitPath";
+import {
+  crutchStairsFlight
+} from "../../../../../packages/motions/src/lexicon/internal/crutchStairsFlight";
+import {
+  crutchWalkCourse
+} from "../../../../../packages/motions/src/lexicon/internal/crutchWalkCourse";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -26,7 +26,7 @@ export function lieOnSurfaceFits(
   const width: number = surface.width ?? 0;
   const tall: number = body.measure.stature + margin;
   const broad: number =
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
     ) +

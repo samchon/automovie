@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBag } from "../AutoMovieArchetypeBag";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -108,8 +108,8 @@ export function createBag(
     const wall: number = AutoMovieArchetypeBag.WALL;
     builder.box(
       "body",
-      Vector3.create(width, wall, depth),
-      Vector3.create(0, wall / 2, 0),
+      AutoMovieEngineVector3.create(width, wall, depth),
+      AutoMovieEngineVector3.create(0, wall / 2, 0),
       { color },
     );
     for (const [id, z] of [
@@ -118,8 +118,8 @@ export function createBag(
     ] as const)
       builder.box(
         id,
-        Vector3.create(width, height - wall, wall),
-        Vector3.create(0, (height + wall) / 2, z),
+        AutoMovieEngineVector3.create(width, height - wall, wall),
+        AutoMovieEngineVector3.create(0, (height + wall) / 2, z),
         { color },
       );
     for (const [id, x] of [
@@ -128,17 +128,17 @@ export function createBag(
     ] as const)
       builder.box(
         id,
-        Vector3.create(wall, height - wall, depth - 2 * wall),
-        Vector3.create(x, (height + wall) / 2, 0),
+        AutoMovieEngineVector3.create(wall, height - wall, depth - 2 * wall),
+        AutoMovieEngineVector3.create(x, (height + wall) / 2, 0),
         { color },
       );
     builder.affordance({
       id: "opening",
       kind: "aperture",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, height, 0),
-        Vector3.create(0, -1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, height, 0),
+        AutoMovieEngineVector3.create(0, -1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       width: width - 2 * wall,
@@ -147,7 +147,7 @@ export function createBag(
     builder.affordance({
       id: "inside",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, wall, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, wall, 0)),
       extent: null,
       width: width - 2 * wall,
       depth: depth - 2 * wall,
@@ -155,8 +155,8 @@ export function createBag(
   } else
     builder.box(
       "body",
-      Vector3.create(width, height, depth),
-      Vector3.create(0, height / 2, 0),
+      AutoMovieEngineVector3.create(width, height, depth),
+      AutoMovieEngineVector3.create(0, height / 2, 0),
       { color },
     );
   const bar: number = d.handleDiameter! / 2;
@@ -170,8 +170,8 @@ export function createBag(
     builder.rod(
       id,
       bar,
-      Vector3.create(-span / 2, y, 0),
-      Vector3.create(span / 2, y, 0),
+      AutoMovieEngineVector3.create(-span / 2, y, 0),
+      AutoMovieEngineVector3.create(span / 2, y, 0),
       { color: "#5a4630" },
     );
     for (const [side, sign] of [
@@ -181,15 +181,15 @@ export function createBag(
       builder.rod(
         `${id}-riser-${side}`,
         bar / 2,
-        Vector3.create((sign * span) / 2, height, 0),
-        Vector3.create((sign * span) / 2, y, 0),
+        AutoMovieEngineVector3.create((sign * span) / 2, height, 0),
+        AutoMovieEngineVector3.create((sign * span) / 2, y, 0),
         { color: "#5a4630" },
       );
     builder.affordance({
       id,
       kind: "handle",
       symmetry: "round",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, y, 0)),
       extent: null,
       grip: id === "strap" ? "hook" : "power",
       aperture: 2 * bar,
@@ -212,8 +212,8 @@ export function createBag(
       builder.rod(
         `strap-${side}`,
         bar,
-        Vector3.create(x, height * 0.15, z),
-        Vector3.create(x, height * 0.95, z),
+        AutoMovieEngineVector3.create(x, height * 0.15, z),
+        AutoMovieEngineVector3.create(x, height * 0.95, z),
         { color: "#5a4630" },
       );
       builder.affordance({
@@ -221,9 +221,9 @@ export function createBag(
         kind: "handle",
         symmetry: "none",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(x, height * 0.55, z),
-          Vector3.create(0, 0, -1),
-          Vector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(x, height * 0.55, z),
+          AutoMovieEngineVector3.create(0, 0, -1),
+          AutoMovieEngineVector3.create(0, 1, 0),
         ),
         extent: null,
         grip: "hook",
@@ -244,8 +244,8 @@ export function createBag(
     builder.rod(
       "pull",
       bar,
-      Vector3.create(-width * 0.2, height + 0.02, z),
-      Vector3.create(width * 0.2, height + 0.02, z),
+      AutoMovieEngineVector3.create(-width * 0.2, height + 0.02, z),
+      AutoMovieEngineVector3.create(width * 0.2, height + 0.02, z),
       { color: "#22262b" },
     );
     for (const [side, sign] of [
@@ -255,17 +255,17 @@ export function createBag(
       builder.rod(
         `pull-post-${side}`,
         0.008,
-        Vector3.create(sign * width * 0.2, height + 0.02 - travel, z),
-        Vector3.create(sign * width * 0.2, height + 0.02, z),
+        AutoMovieEngineVector3.create(sign * width * 0.2, height + 0.02 - travel, z),
+        AutoMovieEngineVector3.create(sign * width * 0.2, height + 0.02, z),
         { color: "#8a8d91" },
       );
     builder.affordance({
       id: "telescope",
       kind: "slider",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, height + 0.02, z),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, height + 0.02, z),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       travel,
@@ -276,7 +276,7 @@ export function createBag(
       kind: "bar",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, height + 0.02, z),
+        AutoMovieEngineVector3.create(0, height + 0.02, z),
       ),
       extent: null,
       grip: "power",

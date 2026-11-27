@@ -8,7 +8,7 @@ import type {
   IAutoMovieCaptureSubject,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { rejectsError } from "../internal/rejectsError";
@@ -148,7 +148,7 @@ export async function test_capture_video_pairing(): Promise<void> {
     });
     await AutoMovieRenderCapture.run({
       plan,
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out",
         round: plan.request.round,

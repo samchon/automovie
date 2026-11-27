@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -101,7 +101,7 @@ export namespace walkLocomoteSolve {
         )(0);
         leavings.set(
           `${swing.side}:${swing.off}`,
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             ranged[swing.side](
               context.ground.settle(swing.off, {
                 left: steps.foot("left", swing.off),

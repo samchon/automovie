@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { SmokingPropDraw } from "./internal/SmokingPropDraw";
@@ -30,15 +30,15 @@ export namespace AutoMovieArchetypeLighter {
     const wheel: number = depth * 0.3;
     builder.box(
       "body",
-      Vector3.create(width, height - 2 * wheel, depth),
-      Vector3.create(0, (height - 2 * wheel) / 2, 0),
+      AutoMovieEngineVector3.create(width, height - 2 * wheel, depth),
+      AutoMovieEngineVector3.create(0, (height - 2 * wheel) / 2, 0),
       { color: "#c0392b" },
     );
     builder.rod(
       "wheel",
       wheel,
-      Vector3.create(-width * 0.2, height - wheel, depth * 0.1),
-      Vector3.create(width * 0.2, height - wheel, depth * 0.1),
+      AutoMovieEngineVector3.create(-width * 0.2, height - wheel, depth * 0.1),
+      AutoMovieEngineVector3.create(width * 0.2, height - wheel, depth * 0.1),
       { color: "#8a8d91" },
     );
     builder.affordance({
@@ -46,9 +46,9 @@ export namespace AutoMovieArchetypeLighter {
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, (height - 2 * wheel) / 2, 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, (height - 2 * wheel) / 2, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "power",
@@ -59,9 +59,9 @@ export namespace AutoMovieArchetypeLighter {
       id: "wheel",
       kind: "knob",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, height - wheel, depth * 0.1),
-        Vector3.create(1, 0, 0),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, height - wheel, depth * 0.1),
+        AutoMovieEngineVector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       travel: 90,
@@ -71,7 +71,7 @@ export namespace AutoMovieArchetypeLighter {
       id: "valve",
       kind: "button",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, height - 2 * wheel, -depth * 0.25),
+        AutoMovieEngineVector3.create(0, height - 2 * wheel, -depth * 0.25),
       ),
       extent: null,
       travel: 0.003,
@@ -81,7 +81,7 @@ export namespace AutoMovieArchetypeLighter {
       kind: "socket",
       direction: "along",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, height + 0.015, depth * 0.3),
+        AutoMovieEngineVector3.create(0, height + 0.015, depth * 0.3),
       ),
       extent: null,
     });

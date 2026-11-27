@@ -1,11 +1,11 @@
-import { AutoMovieBernsteinAlgebra64 as B } from "@automovie/engine";
+import { AutoMovieEngineBernsteinAlgebra64 as B } from "@automovie/engine";
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `AutoMovieBernsteinAlgebra64` is Bernstein coefficient algebra: evaluation,
+ * `AutoMovieEngineBernsteinAlgebra64` is Bernstein coefficient algebra: evaluation,
  * differentiation, degree elevation, product, sum and scaling, each equal to
  * the algebraic polynomial it stands for.
  *

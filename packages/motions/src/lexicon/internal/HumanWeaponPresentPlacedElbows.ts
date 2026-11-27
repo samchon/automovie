@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -63,8 +63,8 @@ export function HumanWeaponPresentPlacedElbows(
           goal.rotation,
           "relaxed",
         ).point;
-        const outward: IAutoMovieVector3 = Vector3.normalize(
-          Quaternion.rotateVector(chest, {
+        const outward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineQuaternion.rotateVector(chest, {
             x: arm === "left" ? 1 : -1,
             y: -0.5,
             z: 0,

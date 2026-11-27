@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The bend hint's side term of a hinged chain's swivel, read in closed form.
@@ -104,11 +104,11 @@ function read(
 ): ICircle | null {
   const zero: IAutoMovieVector3 = offset(0);
   const quarter: IAutoMovieVector3 = offset(90);
-  const off: number = Vector3.length(zero);
-  const across: number = Vector3.length(quarter);
+  const off: number = AutoMovieEngineVector3.length(zero);
+  const across: number = AutoMovieEngineVector3.length(quarter);
   if (!(off >= 1e-9 && across >= 1e-9)) return null;
-  const a: number = Vector3.dot(zero, side) / off;
-  const b: number = Vector3.dot(quarter, side) / across;
+  const a: number = AutoMovieEngineVector3.dot(zero, side) / off;
+  const b: number = AutoMovieEngineVector3.dot(quarter, side) / across;
   return {
     off,
     reach: Math.hypot(a, b),

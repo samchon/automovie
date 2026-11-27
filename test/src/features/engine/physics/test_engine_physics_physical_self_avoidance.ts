@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -44,7 +44,7 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     targets,
     joint,
     ["upper-0", "lower-0", "support-0"],
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
   );
   const fitted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
     AutoMovieEnginePhysics.planPhysicalContactTargets({
@@ -104,17 +104,17 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
       connected.targets[connection.parent]!;
     const child: IAutoMovieRigidTransform =
       connected.targets[connection.child]!;
-    const first: IAutoMovieRigidTransform["position"] = Vector3.add(
+    const first: IAutoMovieRigidTransform["position"] = AutoMovieEngineVector3.add(
       parent.position,
-      Quaternion.rotateVector(parent.rotation, connection.parentFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(parent.rotation, connection.parentFrame.position),
     );
-    const second: IAutoMovieRigidTransform["position"] = Vector3.add(
+    const second: IAutoMovieRigidTransform["position"] = AutoMovieEngineVector3.add(
       child.position,
-      Quaternion.rotateVector(child.rotation, connection.childFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(child.rotation, connection.childFrame.position),
     );
     TestValidator.predicate(
       "root-only feedback cannot disconnect " + connection.id,
-      Vector3.length(Vector3.subtract(first, second)) <
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(first, second)) <
         PhysicalTolerance.ACCUMULATED,
     );
   }

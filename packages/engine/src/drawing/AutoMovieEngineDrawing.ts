@@ -141,7 +141,7 @@ export namespace AutoMovieEngineDrawing {
    * Each world half-space `normal . p <= offset` becomes the page half-plane `a x
    * + b y <= c` through the frame's origin, right and up axes, and the section is
    * what survives clipping a square of half-extent
-   * {@link AUTOMOVIE_DRAWING_CELL_BOUND} by all of them. The square is what makes
+   * {@link AutoMovieEngineDrawingCellBound} by all of them. The square is what makes
    * an unbounded cell detectable: a result that still reaches it was never closed
    * by the design, so `bounded` is `false` and the caller reports a gap instead
    * of printing the square as a room.
@@ -191,7 +191,7 @@ export namespace AutoMovieEngineDrawing {
    * Where the cut plane passes through a triangle soup, as world segments.
    *
    * One segment per triangle with a corner strictly on each side of the plane,
-   * beyond {@link AUTOMOVIE_DRAWING_EPSILON}. A triangle lying in the plane, or
+   * beyond {@link AutoMovieEngineDrawingEpsilon}. A triangle lying in the plane, or
    * only touching it, contributes nothing: a face tangent to the cut is not a
    * section, and emitting its edges would draw every interior diagonal of a slab
    * whose top sits at the cut height.
@@ -487,7 +487,7 @@ export namespace AutoMovieEngineDrawing {
    * The scale is drafting scale: one model metre is `1000 / scale` page
    * millimetres, so a 1:50 plan prints at 1:50, and pen weights and text height
    * are page millimetres. The page is the drawing's extent plus a fixed
-   * {@link AUTOMOVIE_DRAWING_SVG_MARGIN} on each side, with y flipped because SVG
+   * {@link AutoMovieEngineDrawingSvgMargin} on each side, with y flipped because SVG
    * y grows downward. Numbers are rounded and printed to three decimals and every
    * attribute value is XML-escaped, so one drawing and view yield one byte
    * sequence.
@@ -515,7 +515,7 @@ export namespace AutoMovieEngineDrawing {
    * places its sagitta by. The centre therefore sits on the chord's right for a
    * positive bulge, at a signed distance that runs to infinity as the bulge goes
    * to zero, and the sweep runs clockwise, which is what puts the arc on the
-   * left. A bulge within {@link AUTOMOVIE_OPENING_BULGE_EPSILON} of zero, or an
+   * left. A bulge within {@link AutoMovieEngineOpeningBulgeEpsilon} of zero, or an
    * edge with coincident ends, is straight.
    *
    * @param from Edge start, in profile-frame metres.
@@ -593,7 +593,7 @@ export namespace AutoMovieEngineDrawing {
   /**
    * Whether any edge of an opening profile bulges into a visible arc.
    *
-   * Uses the same {@link AUTOMOVIE_OPENING_BULGE_EPSILON} threshold as
+   * Uses the same {@link AutoMovieEngineOpeningBulgeEpsilon} threshold as
    * `autoMovieOpeningArc`, so a profile reported here as arced has a bulge the
    * drafted outline and the measured area also treat as curved, unless that
    * edge's ends coincide. Absent bulges mean every edge is straight.
@@ -633,7 +633,7 @@ export namespace AutoMovieEngineDrawing {
    *
    * Each edge contributes its start point, and a bulged edge then contributes the
    * interior chord points of its arc at a fixed angular step of
-   * {@link AUTOMOVIE_DRAWING_ARC_STEP}, so the returned ring is an implicitly
+   * {@link AutoMovieEngineDrawingArcStep}, so the returned ring is an implicitly
    * closed polyline in the profile's planar frame. The density is fixed rather
    * than adaptive so a drawing's linework, and its digest, depend on the design
    * and not on the size of the arc.
@@ -655,7 +655,7 @@ export namespace AutoMovieEngineDrawing {
    * leaves standing.
    *
    * Each triangle is clipped against the plane, with corners within
-   * {@link AUTOMOVIE_DRAWING_EPSILON} of it kept, and the surviving convex polygon
+   * {@link AutoMovieEngineDrawingEpsilon} of it kept, and the surviving convex polygon
    * is re-fanned into triangles that keep the source winding. New edges lying in
    * the plane are exactly what the cut linework draws, and the drafter drops
    * their silhouette so no segment is drafted twice.
@@ -718,7 +718,7 @@ export namespace AutoMovieEngineDrawing {
    * size and basis; a room is its own row, because two alike rooms are still two
    * rooms to visit. Rows are ordered by kind, model, size, basis and first
    * member, and marked `<kind>-NN` in that order. A row names at most
-   * {@link AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS} members and counts the rest.
+   * {@link AutoMovieEngineDrawingScheduleMaxMembers} members and counts the rest.
    *
    * An opening's size comes from its authored void or its fill's world extent,
    * labelled fill because the leaf is not the hole; with neither source its sizes
@@ -811,7 +811,7 @@ export namespace AutoMovieEngineDrawing {
    * openings by kind and model occurrences by model. Nothing is looked up,
    * defaulted or carried over from a previous revision.
    *
-   * Every subject in {@link AUTOMOVIE_QUANTITY_SUBJECTS} gets one finding, so an
+   * Every subject in {@link AutoMovieEngineQuantitySubjects} gets one finding, so an
    * absent quantity is a stated zero rather than a missing row. A finding names
    * its largest owners up to the bound, counts and sums the rest, and says
    * whether its total is exact; the space-volume total is approximate because
@@ -820,7 +820,7 @@ export namespace AutoMovieEngineDrawing {
    *
    * @param props.environment Design the quantities are measured from.
    * @param props.maxContributors Owners named per finding; defaults to
-   *   {@link AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS}.
+   *   {@link AutoMovieEngineQuantityMaxContributors}.
    * @returns The quantity report.
    */
   export function measureAutoMovieQuantities(
@@ -900,7 +900,7 @@ export namespace AutoMovieEngineDrawing {
   }
   /**
    * Round one drawing scalar onto the fixed output grid of
-   * {@link AUTOMOVIE_DRAWING_DECIMALS} decimal places.
+   * {@link AutoMovieEngineDrawingDecimals} decimal places.
    *
    * Halves round towards positive infinity, as `Math.round` does, and negative
    * zero is normalized to zero: `-0` and `0` stringify differently in a digest's

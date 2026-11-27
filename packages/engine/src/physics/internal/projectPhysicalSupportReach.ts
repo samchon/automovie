@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Bounded cyclic projection of a common root translation onto support-reach
@@ -29,19 +29,19 @@ export function projectPhysicalSupportReach(
   let translation: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (let iteration: number = 0; iteration < input.iterations; iteration++) {
     for (const support of input.supports) {
-      const delta: IAutoMovieVector3 = Vector3.subtract(
+      const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         support.target,
-        Vector3.add(support.origin, translation),
+        AutoMovieEngineVector3.add(support.origin, translation),
       );
-      const distance: number = Vector3.length(delta);
+      const distance: number = AutoMovieEngineVector3.length(delta);
       if (distance > support.radius)
-        translation = Vector3.add(
+        translation = AutoMovieEngineVector3.add(
           translation,
-          Vector3.scale(delta, (distance - support.radius) / distance),
+          AutoMovieEngineVector3.scale(delta, (distance - support.radius) / distance),
         );
-      const length: number = Vector3.length(translation);
+      const length: number = AutoMovieEngineVector3.length(translation);
       if (length > input.maximumTranslation)
-        translation = Vector3.scale(
+        translation = AutoMovieEngineVector3.scale(
           translation,
           input.maximumTranslation / length,
         );
@@ -63,10 +63,10 @@ export function projectPhysicalSupportReach(
       0,
       ...input.supports.map(
         (support: (typeof input.supports)[number]): number =>
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               support.target,
-              Vector3.add(support.origin, translation),
+              AutoMovieEngineVector3.add(support.origin, translation),
             ),
           ) - support.radius,
       ),

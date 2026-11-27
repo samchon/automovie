@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { prepareStageNodeClaim } from "@automovie/engine/internal";
+import {
+  prepareStageNodeClaim
+} from "../../../../../packages/engine/src/film/staging/internal/prepareStageNodeClaim";
 import { TestValidator } from "@nestia/e2e";
 
 /**

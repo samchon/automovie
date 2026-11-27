@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -79,9 +79,9 @@ function plan(
   )!;
   const gripToMark: ReturnType<typeof AutoMovieMotionHumanHeld.point> =
     AutoMovieMotionHumanHeld.point(held, mark);
-  const roll: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(held.frame.rotation, marker.frame.rotation),
-    Vector3.create(1, 0, 0),
+  const roll: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(held.frame.rotation, marker.frame.rotation),
+    AutoMovieEngineVector3.create(1, 0, 0),
   );
   const tool: IAutoMovieMotionHumanStrikingHeld.ITool = {
     ...read,
@@ -94,9 +94,9 @@ function plan(
     supportGrip(context, held, tool, other);
   const yaw: number = context.entry.posture.yaw;
   const sign: number = hand === "left" ? 1 : -1;
-  const origin: IAutoMovieVector3 = Vector3.create(0, 0, 0);
+  const origin: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, 0);
   const world = ([x, y, z]: humanStagePropBeat.Vector): IAutoMovieVector3 =>
-    HumanFrame.point({ origin, yaw }, Vector3.create(sign * x, y, z));
+    HumanFrame.point({ origin, yaw }, AutoMovieEngineVector3.create(sign * x, y, z));
   const line: IAutoMovieVector3 = world([0, 0, 1]);
   const advance: IAutoMovieMotionHumanStrikingAdvance.Advance =
     at === undefined ? beat.advance : "none";
@@ -121,9 +121,9 @@ function plan(
     path: (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const share: number = Math.min(1, Math.max(0, progress));
       const pose: humanStagePropBeat.IPose = beat.sample(share);
-      const grip: IAutoMovieVector3 = Vector3.add(
+      const grip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         shoulder,
-        Vector3.scale(world(pose.grip), arm),
+        AutoMovieEngineVector3.scale(world(pose.grip), arm),
       );
       const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
         StrikingHeld.hand(tool, 0, origin, world(pose.axis), world(pose.roll));
@@ -133,10 +133,10 @@ function plan(
       const centred: IAutoMovieVector3 =
         support === null
           ? grip
-          : Vector3.subtract(
+          : AutoMovieEngineVector3.subtract(
               grip,
-              Vector3.scale(
-                Quaternion.rotateVector(
+              AutoMovieEngineVector3.scale(
+                AutoMovieEngineQuaternion.rotateVector(
                   frame.rotation,
                   supportPoint(tool, support),
                 ),
@@ -144,9 +144,9 @@ function plan(
               ),
             );
       if (at === undefined) return { point: centred, rotation: frame.rotation };
-      const markGrip: IAutoMovieVector3 = Vector3.add(at, frame.point);
+      const markGrip: IAutoMovieVector3 = AutoMovieEngineVector3.add(at, frame.point);
       return {
-        point: Vector3.lerp(centred, markGrip, share * share),
+        point: AutoMovieEngineVector3.lerp(centred, markGrip, share * share),
         rotation: frame.rotation,
       };
     },
@@ -167,12 +167,12 @@ function supportPoint(
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,
   support: IAutoMovieMotionHumanStrikingBlade.ISupport,
 ): IAutoMovieVector3 {
-  return Vector3.add(
-    Vector3.add(
-      Vector3.scale(tool.axis, support.offset.x),
-      Vector3.scale(tool.edge, support.offset.y),
+  return AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(tool.axis, support.offset.x),
+      AutoMovieEngineVector3.scale(tool.edge, support.offset.y),
     ),
-    Vector3.scale(Vector3.cross(tool.axis, tool.edge), support.offset.z),
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(tool.axis, tool.edge), support.offset.z),
   );
 }
 
@@ -244,9 +244,9 @@ function supportGrip(
   ).point;
   return {
     offset: {
-      x: Vector3.dot(point, tool.axis),
-      y: Vector3.dot(point, tool.edge),
-      z: Vector3.dot(point, Vector3.cross(tool.axis, tool.edge)),
+      x: AutoMovieEngineVector3.dot(point, tool.axis),
+      y: AutoMovieEngineVector3.dot(point, tool.edge),
+      z: AutoMovieEngineVector3.dot(point, AutoMovieEngineVector3.cross(tool.axis, tool.edge)),
     },
     handle: "axis",
   };

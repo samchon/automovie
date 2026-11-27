@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -89,23 +89,23 @@ export function HumanArmSeedHold(
       ).shoulder;
       const rest: IAutoMovieMotionHumanArmGeometry.ISetup["rest"] = setup.rest;
       const reach: number =
-        Vector3.length(rest.lower.translation) +
-        Vector3.length(rest.hand.translation) +
-        Vector3.length(site.contact);
-      const offset: IAutoMovieVector3 = Vector3.subtract(site.point, shoulder);
+        AutoMovieEngineVector3.length(rest.lower.translation) +
+        AutoMovieEngineVector3.length(rest.hand.translation) +
+        AutoMovieEngineVector3.length(site.contact);
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(site.point, shoulder);
       const normal: IAutoMovieVector3 | undefined = point.normals[a]![1];
       // The sum of link lengths bounds contact displacement on every
       // projection. A surface site only bounds the two tangent components.
-      const required: number = Vector3.length(
+      const required: number = AutoMovieEngineVector3.length(
         normal === undefined
           ? offset
-          : Vector3.subtract(
+          : AutoMovieEngineVector3.subtract(
               offset,
-              Vector3.scale(normal, Vector3.dot(offset, normal)),
+              AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(offset, normal)),
             ),
       );
       const radial: number =
-        normal === undefined && Vector3.length(site.contact) === 0
+        normal === undefined && AutoMovieEngineVector3.length(site.contact) === 0
           ? HumanArmWristShell(setup) - required
           : 0;
       const beyond: number =
@@ -257,7 +257,7 @@ export function HumanArmSeedHold(
         const sites: (M.ISite | undefined)[] = [...chosen];
         sites[a] = {
           ...site,
-          point: Vector3.add(site.point, Vector3.scale(axis, distance)),
+          point: AutoMovieEngineVector3.add(site.point, AutoMovieEngineVector3.scale(axis, distance)),
           disc: 0,
         };
         const moved: M.IContext = pointAt(sites);
@@ -332,22 +332,22 @@ function follow(
       1,
       site,
     );
-    const delta: IAutoMovieVector3 = Vector3.subtract(
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       located.point,
       P.pad(placed[a]!, site.contact),
     );
     const normal: IAutoMovieVector3 | undefined = located.normal;
     const slide: IAutoMovieVector3 =
       nearest && normal !== undefined
-        ? Vector3.subtract(
+        ? AutoMovieEngineVector3.subtract(
             delta,
-            Vector3.scale(normal, Vector3.dot(delta, normal)),
+            AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(delta, normal)),
           )
         : delta;
-    const distance: number = Vector3.length(slide);
+    const distance: number = AutoMovieEngineVector3.length(slide);
     if (distance === 0 || (nearest && distance <= site.disc)) return [...q];
     const displacement: IAutoMovieVector3 = nearest
-      ? Vector3.scale(slide, (distance - site.disc) / distance)
+      ? AutoMovieEngineVector3.scale(slide, (distance - site.disc) / distance)
       : slide;
     const step: number[] = HumanArmDifferential.step(
       c.setups[a]!,

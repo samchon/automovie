@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
@@ -79,9 +79,9 @@ export namespace AquaticSail {
       undefined,
       new Set(["hips"]),
     ).get("hips")!.worldPosition;
-    const hips: IAutoMovieVector3 = Quaternion.rotateVector(
+    const hips: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       hull.inverse,
-      Vector3.subtract(enteredHips, hull.origin.position),
+      AutoMovieEngineVector3.subtract(enteredHips, hull.origin.position),
     );
     const initialSide: number =
       params.side === undefined
@@ -108,7 +108,7 @@ export namespace AquaticSail {
       y: 0,
       z: 1,
     });
-    const ahead: IAutoMovieVector3 = Vector3.normalize({ ...facing, y: 0 });
+    const ahead: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({ ...facing, y: 0 });
     const passing: number =
       2 * body.measure.shankRadius + AutoMovieMotionHumanAuditSkin.BUILT;
 
@@ -286,7 +286,7 @@ export namespace AquaticSail {
       const from = (
         state: Readonly<Record<string, number>>,
       ): IAutoMovieVector3 =>
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           posed(state, control.handle).translation,
           posed(state, swing.id).translation,
         );
@@ -294,7 +294,7 @@ export namespace AquaticSail {
       // The rest line, the handle's radius and the articulations' senses
       // are read from the model's own posing.
       const rest: IAutoMovieVector3 = from({});
-      const radius: number = Vector3.length(rest);
+      const radius: number = AutoMovieEngineVector3.length(rest);
       const swingSign: number =
         Math.sign(heading(from({ [swing.id]: 10 })) - heading(rest)) || 1;
       const liftSign: number =
@@ -308,7 +308,7 @@ export namespace AquaticSail {
           : (AquaticCrew.span(u, leadStart, leadEnd) +
               AquaticCrew.span(u, trailStart, trailEnd)) /
             2;
-        const hand: IAutoMovieVector3 = Vector3.add(
+        const hand: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           {
             x: hips.x + cross * (aborted ? 0.48 : 1) * stride,
             y:
@@ -326,12 +326,12 @@ export namespace AquaticSail {
           parent === undefined
             ? restSwing
             : posed({ [parent.articulation]: parent.travel(t) }, swing.id);
-        const d: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.multiply(
+        const d: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.multiply(
             restSwing.rotation,
-            Quaternion.inverse(joint.rotation),
+            AutoMovieEngineQuaternion.inverse(joint.rotation),
           ),
-          Vector3.subtract(hand, joint.translation),
+          AutoMovieEngineVector3.subtract(hand, joint.translation),
         );
         const level: number = radius ** 2 - d.x ** 2 - d.z ** 2;
         return level > d.y ** 2 ? { ...d, y: Math.sqrt(level) } : d;

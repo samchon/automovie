@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -247,13 +247,13 @@ export namespace flinch {
             body,
             side,
             { x: 0, y: 1, z: 0 },
-            Vector3.scale(face.normal, -1),
+            AutoMovieEngineVector3.scale(face.normal, -1),
           );
-        const point: IAutoMovieVector3 = Vector3.subtract(
-          Vector3.add(
-            Vector3.add(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(
               face.point,
-              Vector3.scale(face.normal, m.forearmRadius + fist),
+              AutoMovieEngineVector3.scale(face.normal, m.forearmRadius + fist),
             ),
             out,
           ),
@@ -337,7 +337,7 @@ export namespace flinch {
             roll: -lean * share(seconds) * away().x,
           }),
           shift: (seconds: number): IAutoMovieVector3 =>
-            Vector3.scale(away(), shift * share(seconds)),
+            AutoMovieEngineVector3.scale(away(), shift * share(seconds)),
         }),
         AutoMovieMotionHumanJoints.pulse(clock, rise, fall, startle),
         arm("left"),

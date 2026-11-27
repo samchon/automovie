@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeUnits } from "../../core";
-import * as FieldGunData from "./internal/FieldGunData";
+import { FieldGunData } from "./internal/FieldGunData";
 
 /*
  * The 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the

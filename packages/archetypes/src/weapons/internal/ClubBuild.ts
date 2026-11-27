@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBand,
@@ -9,7 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeClub } from "../AutoMovieArchetypeClub";
-import * as ClubBuildData from "./ClubBuildData";
+import { ClubBuildData } from "./ClubBuildData";
 
 /*
  * The measured club recipes, seed draw and model contacts retained by the bat
@@ -214,9 +214,9 @@ export namespace ClubBuild {
       kind: "handle",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, middle, 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, middle, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: grip,
@@ -228,9 +228,9 @@ export namespace ClubBuild {
       kind: "surface",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, length - SWEET, thick),
-        Vector3.create(0, 0, 1),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, length - SWEET, thick),
+        AutoMovieEngineVector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
     });

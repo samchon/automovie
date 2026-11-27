@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypePlayingCard } from "../AutoMovieArchetypePlayingCard";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -46,8 +46,8 @@ export function createPlayingCard(
   });
   builder.box(
     "card",
-    Vector3.create(CARD.width, CARD.thickness, CARD.length),
-    Vector3.create(0, CARD.thickness / 2, 0),
+    AutoMovieEngineVector3.create(CARD.width, CARD.thickness, CARD.length),
+    AutoMovieEngineVector3.create(0, CARD.thickness / 2, 0),
     { color: "#b22a2a" },
   );
   TabletopStack.contacts(builder, CARD.thickness, CARD.thickness);

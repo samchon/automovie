@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeMedalData from "./internal/AutoMovieArchetypeMedalData";
+import { AutoMovieArchetypeMedalData } from "./internal/AutoMovieArchetypeMedalData";
 
 /** Constructs the medal archetype from its recipe. */
 export namespace AutoMovieArchetypeMedal {
@@ -54,8 +54,8 @@ export function create(
   const thick: number = 0.008;
   builder.box(
     "ribbon",
-    Vector3.create(0.035, d.ribbon, 0.002),
-    Vector3.create(0, -d.ribbon / 2, 0),
+    AutoMovieEngineVector3.create(0.035, d.ribbon, 0.002),
+    AutoMovieEngineVector3.create(0, -d.ribbon / 2, 0),
     {
       color: "#1f4fa3",
     },
@@ -63,17 +63,17 @@ export function create(
   builder.rod(
     "disc",
     d.diameter / 2,
-    Vector3.create(0, -d.ribbon - d.diameter / 2, -thick / 2),
-    Vector3.create(0, -d.ribbon - d.diameter / 2, thick / 2),
+    AutoMovieEngineVector3.create(0, -d.ribbon - d.diameter / 2, -thick / 2),
+    AutoMovieEngineVector3.create(0, -d.ribbon - d.diameter / 2, thick / 2),
     { color: "#c9a227" },
   );
   builder.affordance({
     id: "hold",
     kind: "handle",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, -d.ribbon - 0.02, thick / 2),
-      Vector3.create(0, 0, 1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, -d.ribbon - 0.02, thick / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     grip: "lateral",
@@ -83,9 +83,9 @@ export function create(
     id: "wear",
     kind: "socket",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, -d.ribbon - d.diameter / 2, -thick / 2),
-      Vector3.create(0, 0, -1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, -d.ribbon - d.diameter / 2, -thick / 2),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
   });

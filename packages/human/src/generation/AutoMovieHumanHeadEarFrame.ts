@@ -1,4 +1,4 @@
-import { AutoMovieViewCurves, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewCurves, AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieHumanEar,
   IAutoMovieHumanHeadEarFrame,
@@ -51,7 +51,7 @@ export namespace AutoMovieHumanHeadEarFrame {
     top?: number,
   ): IAutoMovieHumanHeadEarFrame.IFrame {
     const source: IAutoMovieViewCurves.IResult =
-      AutoMovieViewCurves.create(mass);
+      AutoMovieEngineViewCurves.create(mass);
     const outline: IAutoMovieViewOutline.IOutline | null =
       source.curves.find(
         (curve: IAutoMovieViewCurves.ICurve): boolean =>
@@ -62,7 +62,7 @@ export namespace AutoMovieHumanHeadEarFrame {
         `Ear orientation needs the actual original head side guide: ${source.diagnostics.map((d: { detail: string }): string => d.detail).join("; ")}`,
       );
     const reading: IAutoMovieViewOutline.IReading | string =
-      AutoMovieViewOutline.at(outline, plan.landmarks.tragion[1]);
+      AutoMovieEngineViewOutline.at(outline, plan.landmarks.tragion[1]);
     if (typeof reading === "string" || reading.stationJet === null)
       throw new Error(
         "Ear orientation needs a finite side-guide derivative at tragion",

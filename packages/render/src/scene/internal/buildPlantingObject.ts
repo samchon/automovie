@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import type { IAutoMoviePlantingObject } from "../IAutoMoviePlantingObject.js";
+import type { IAutoMovieRenderPlantingObject } from "../IAutoMovieRenderPlantingObject.js";
 import type { IBuildPlantingObjectProps } from "./IBuildPlantingObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
@@ -34,9 +34,9 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  */
 export const buildPlantingObject: (
   props: IBuildPlantingObjectProps,
-) => IAutoMoviePlantingObject = (
+) => IAutoMovieRenderPlantingObject = (
   props: IBuildPlantingObjectProps,
-): IAutoMoviePlantingObject => {
+): IAutoMovieRenderPlantingObject => {
   const geometryDisposals: (() => void)[] = [];
   const instanceDisposals: (() => void)[] = [];
   const dispose: () => void = restoreAutoMovieRenderModeOnce((): void => {

@@ -1,4 +1,4 @@
-import { AutoMovieBernstein64 as S } from "@automovie/engine";
+import { AutoMovieEngineBernstein64 as S } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,

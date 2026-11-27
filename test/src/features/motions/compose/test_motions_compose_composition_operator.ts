@@ -4,9 +4,11 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  composeAutoMovieMotionHumanAction,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  composeAutoMovieMotionHumanAction
+} from "../../../../../packages/motions/src/compose/internal/composeAutoMovieMotionHumanAction";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

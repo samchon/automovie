@@ -11,8 +11,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineGravity } from "../../physics/AutoMovieEngineGravity";
 import { projectileAt } from "../../physics/internal/projectileAt";
 import { projectileTrajectory } from "../../physics/internal/projectileTrajectory";
 import { solveBallisticLaunch } from "../../physics/internal/solveBallisticLaunch";
@@ -105,9 +105,9 @@ export function compileLaunch(
     const aimRef: IAutoMovieVector3 =
       targetAt !== undefined ? landing.position : props.target;
     const incoming: IAutoMovieVector3 =
-      Vector3.length(landing.velocity) < STILL_SPEED
-        ? Vector3.normalize(Vector3.subtract(aimRef, props.origin))
-        : Vector3.normalize(landing.velocity);
+      AutoMovieEngineVector3.length(landing.velocity) < STILL_SPEED
+        ? AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(aimRef, props.origin))
+        : AutoMovieEngineVector3.normalize(landing.velocity);
     react = {
       verb: "react",
       actor: targetNode,
@@ -115,7 +115,7 @@ export function compileLaunch(
       duration: "auto",
       from: {
         kind: "point",
-        point: Vector3.subtract(landing.position, incoming),
+        point: AutoMovieEngineVector3.subtract(landing.position, incoming),
       },
       force: action.onHit.force,
       unbalance: action.onHit.unbalance,
@@ -177,7 +177,7 @@ export function compileLaunch(
 /*
  * The default fall the launch solves against: standard gravity, world −Y.
  */
-const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
+const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieEngineGravity.DOWN;
 
 /*
  * Below this landing speed in m/s the incoming direction is undefined.

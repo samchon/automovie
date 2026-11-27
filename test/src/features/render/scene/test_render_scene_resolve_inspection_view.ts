@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind, AutoMovieRenderInspectionCamera, AutoMovieRenderInspectionRequest } from "@automovie/render";
+import { AutoMovieRenderThreeKind, AutoMovieRenderInspectionCamera, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -50,7 +50,7 @@ export function test_render_scene_resolve_inspection_view(): void {
     "ortho scale",
     ortho.record.metresPerPixel !== null &&
       Math.abs(ortho.record.metresPerPixel - 0.1) < CAMERA_TOLERANCE &&
-      AutoMovieThreeKind.isOrthographicCamera(ortho.camera) &&
+      AutoMovieRenderThreeKind.isOrthographicCamera(ortho.camera) &&
       Math.abs(ortho.camera.top - 2.5) < CAMERA_TOLERANCE,
   );
 

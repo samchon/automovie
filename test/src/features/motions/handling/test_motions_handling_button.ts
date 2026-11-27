@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, admitButtonMotion } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  admitButtonMotion
+} from "../../../../../packages/motions/src/handling/internal/admitButtonMotion";
 import { strict as assert } from "node:assert";
 
 /** A button stroke has signed travel, positive dimensions and positive time. */

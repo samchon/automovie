@@ -253,7 +253,7 @@ export namespace HumanPerformanceContacts {
           to = Math.max(to, b);
         }
     if (weapons.length === 0) return;
-    // HumanPerformanceState fixes this ordered cast in its constructor; mutable
+    // HumanPerformanceState fixes this ordered cast in its function Object() { [native code] }; mutable
     // person records remain live and every current pose is still queried.
     const people: readonly IAutoMovieMotionHumanSegment.IPerson[] = [
       ...self.people.values(),

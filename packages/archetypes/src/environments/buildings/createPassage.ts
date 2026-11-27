@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineGeometry,
-  Quaternion,
-  Transform,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineTransform,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 
 import type {
@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeStairs } from "../../architecture/AutoMovieArchetypeStairs";
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
 import { buildingModel } from "./buildingModel";
 
 /*
@@ -35,9 +35,9 @@ import { buildingModel } from "./buildingModel";
  * fitted opening or invalid flight dimensions.
  */
 export function createPassage(
-  props: AutoMovieEnvironment.IPassageProps,
+  props: AutoMovieArchetypeEnvironment.IPassageProps,
 ): IAutoMovieEnvironmentModule {
-  const recipe: AutoMovieEnvironment.IPassageProps =
+  const recipe: AutoMovieArchetypeEnvironment.IPassageProps =
     structuredClone(props);
   const depth: number = recipe.thickness ?? 0.18;
   const color: string = recipe.color ?? "#aaa398";
@@ -82,7 +82,7 @@ export function createPassage(
       recipe.kind === "stairs" && from.translation.y > to.translation.y;
     const begin: IAutoMovieVector3 = (reversed ? to : from).translation;
     const end: IAutoMovieVector3 = (reversed ? from : to).translation;
-    const difference: IAutoMovieVector3 = Vector3.subtract(end, begin);
+    const difference: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(end, begin);
     const run: number = Math.hypot(difference.x, difference.z);
     const rise: number = difference.y;
     const endpoints: string = `passage "${context.id}" between "${landingName(recipe.from)}" and "${landingName(recipe.to)}"`;
@@ -95,9 +95,9 @@ export function createPassage(
       [recipe.to, to],
     ] as const) {
       if (typeof endpoint === "string") continue;
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+      const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         landingFrame.rotation,
-        Vector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(0, 0, 1),
       );
       const alignment: number = Math.abs(
         (difference.x * normal.x + difference.z * normal.z) /
@@ -125,12 +125,12 @@ export function createPassage(
         `${endpoints} requires different landing heights; choose a level passage for equal heights`,
       );
 
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-      Vector3.create(0, 1, 0),
-      Math.atan2(difference.x, difference.z) / Quaternion.DEG2RAD,
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+      AutoMovieEngineVector3.create(0, 1, 0),
+      Math.atan2(difference.x, difference.z) / AutoMovieEngineQuaternion.DEG2RAD,
     );
     const pose: IAutoMovieTransform = {
-      ...Transform.identity(),
+      ...AutoMovieEngineTransform.identity(),
       translation: begin,
       rotation,
     };
@@ -149,10 +149,10 @@ export function createPassage(
       };
       const id: string = `${context.id}/${flat ? `step${index + 1}` : "deck"}`;
       const top: IAutoMovieVector3[] = [
-        Vector3.create(-recipe.width / 2, leg.fromHeight, leg.from),
-        Vector3.create(-recipe.width / 2, leg.toHeight, leg.to),
-        Vector3.create(recipe.width / 2, leg.toHeight, leg.to),
-        Vector3.create(recipe.width / 2, leg.fromHeight, leg.from),
+        AutoMovieEngineVector3.create(-recipe.width / 2, leg.fromHeight, leg.from),
+        AutoMovieEngineVector3.create(-recipe.width / 2, leg.toHeight, leg.to),
+        AutoMovieEngineVector3.create(recipe.width / 2, leg.toHeight, leg.to),
+        AutoMovieEngineVector3.create(recipe.width / 2, leg.fromHeight, leg.from),
       ];
       models.push(
         buildingModel(
@@ -209,7 +209,7 @@ export function createPassage(
  * Read the declared endpoint's exact anchor path for diagnostics.
  */
 function landingName(
-  endpoint: AutoMovieEnvironment.IPassageEndpoint,
+  endpoint: AutoMovieArchetypeEnvironment.IPassageEndpoint,
 ): string {
   return typeof endpoint === "string" ? endpoint : endpoint.opening;
 }
@@ -220,7 +220,7 @@ function landingName(
  */
 function landing(
   context: IAutoMovieEnvironmentModule.IContext,
-  endpoint: AutoMovieEnvironment.IPassageEndpoint,
+  endpoint: AutoMovieArchetypeEnvironment.IPassageEndpoint,
   width: number,
   height: number | undefined,
 ): IAutoMovieTransform {
@@ -229,7 +229,7 @@ function landing(
   const left: IAutoMovieTransform = context.anchor(`${id}/clear/left`);
   const right: IAutoMovieTransform = context.anchor(`${id}/clear/right`);
   const head: IAutoMovieTransform = context.anchor(`${id}/clear/head`);
-  const span: IAutoMovieVector3 = Vector3.subtract(
+  const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     right.translation,
     left.translation,
   );
@@ -244,7 +244,7 @@ function landing(
     );
   return {
     ...left,
-    translation: Vector3.add(left.translation, Vector3.scale(span, 0.5)),
+    translation: AutoMovieEngineVector3.add(left.translation, AutoMovieEngineVector3.scale(span, 0.5)),
   };
 }
 
@@ -288,8 +288,8 @@ function place(
   pose: IAutoMovieTransform,
   local: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     pose.translation,
-    Quaternion.rotateVector(pose.rotation, local),
+    AutoMovieEngineQuaternion.rotateVector(pose.rotation, local),
   );
 }

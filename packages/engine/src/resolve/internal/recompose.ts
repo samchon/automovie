@@ -1,6 +1,6 @@
 import { IAutoMovieTransform } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 import { readLocal } from "./readLocal";
 import { readWorld } from "./readWorld";
 
@@ -19,8 +19,8 @@ export function recompose(
   const parentWorld: number[] = readWorld(world, id, "recompose parent");
   for (const child of childrenById.get(id) ?? []) {
     const t: IAutoMovieTransform = readLocal(localById, child);
-    const local: number[] = Matrix4.compose(t.translation, t.rotation, t.scale);
-    world.set(child, Matrix4.multiply(parentWorld, local));
+    const local: number[] = AutoMovieEngineMatrix4.compose(t.translation, t.rotation, t.scale);
+    world.set(child, AutoMovieEngineMatrix4.multiply(parentWorld, local));
     recompose(child, world, localById, childrenById);
   }
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -295,13 +295,13 @@ export namespace AutoMovieArchetypeEquineLunge {
         Id,
         D | AutoMovieArchetypeQuadrupedBody.Dimension
       > = going.at(halt);
-      const middle: IAutoMovieVector3 = Vector3.scale(
+      const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         AutoMovieArchetypeQuadrupedBody.LIMBS.reduce(
           (
             sum: IAutoMovieVector3,
             limb: AutoMovieArchetypeQuadrupedBody.Limb,
           ): IAutoMovieVector3 =>
-            Vector3.add(sum, endpoint(stopped.archetype.parts, limb)),
+            AutoMovieEngineVector3.add(sum, endpoint(stopped.archetype.parts, limb)),
           { x: 0, y: 0, z: 0 },
         ),
         1 / AutoMovieArchetypeQuadrupedBody.LIMBS.length,
@@ -412,9 +412,9 @@ export namespace AutoMovieArchetypeEquineLunge {
         pastern.geometry.shape.type === "cylinder")
         ? pastern.geometry.shape.height
         : NaN;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.translation,
-      Quaternion.rotateVector(frame.rotation, { x: 0, y: height / 2, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: height / 2, z: 0 }),
     );
   }
 
@@ -422,7 +422,7 @@ export namespace AutoMovieArchetypeEquineLunge {
    * A placement's heading, degrees, 0 along +Z, positive toward +X.
    */
   function headingOf(placement: IAutoMovieTransform): number {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       placement.rotation,
       { x: 0, y: 0, z: 1 },
     );

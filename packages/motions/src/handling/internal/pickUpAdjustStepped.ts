@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -75,8 +75,8 @@ export function pickUpAdjustStepped(
     y: 0,
     z: wrist.z - from.z,
   };
-  if (Vector3.length(flat) < 1e-9) return null;
-  const toward: IAutoMovieVector3 = Vector3.normalize(flat);
+  if (AutoMovieEngineVector3.length(flat) < 1e-9) return null;
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(flat);
   const arm: number =
     context.body.measure.upperArm + context.body.measure.forearm;
   const longest: number =
@@ -87,7 +87,7 @@ export function pickUpAdjustStepped(
   // A target to the side is stepped toward with the foot on its side;
   // nearer the midline either foot is tried, the reaching side's first.
   const yaw: number = (stance.posture.yaw * Math.PI) / 180;
-  const across: number = Vector3.dot(toward, {
+  const across: number = AutoMovieEngineVector3.dot(toward, {
     x: Math.cos(yaw),
     y: 0,
     z: -Math.sin(yaw),
@@ -156,9 +156,9 @@ export function pickUpAdjustStepped(
         ),
       );
       const moved: number = length * AutoMovieEngineMotionSampling.minimumJerkShare(u);
-      const shifted: IAutoMovieVector3 = Vector3.add(
+      const shifted: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         posture.root,
-        Vector3.scale(toward, (length * share) / 2),
+        AutoMovieEngineVector3.scale(toward, (length * share) / 2),
       );
 
       // The pelvis comes down as far as either planted leg asks to reach
@@ -201,7 +201,7 @@ export function pickUpAdjustStepped(
         ? 0
         : Math.max(
             0,
-            short(Vector3.addScaled(hip, toward, length / 2), ankle.point),
+            short(AutoMovieEngineVector3.addScaled(hip, toward, length / 2), ankle.point),
           );
     const gap: (
       places: readonly pickUpStepReach.IReach[],
@@ -210,12 +210,12 @@ export function pickUpAdjustStepped(
       places: readonly pickUpStepReach.IReach[],
       length: number,
     ): number => {
-      const at: IAutoMovieVector3 = Vector3.addScaled(from, toward, length / 2);
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(from, toward, length / 2);
       at.y -= dropAt(length);
       return Math.max(
         ...places.map(
           ([place, limit]: pickUpStepReach.IReach): number =>
-            Vector3.length(Vector3.subtract(place, at)) - limit,
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(place, at)) - limit,
         ),
       );
     };

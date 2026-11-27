@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeTablewareData from "./internal/AutoMovieArchetypeTablewareData";
+import { AutoMovieArchetypeTablewareData } from "./internal/AutoMovieArchetypeTablewareData";
 
 /** Constructs the tableware archetype from its recipe. */
 export namespace AutoMovieArchetypeTableware {
@@ -79,7 +79,7 @@ export function create(
     name: kind,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const height: number = d.height!;
   const round: boolean = kind !== "platter";
   const length: number = round ? d.diameter! : d.length!;

@@ -8,8 +8,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { PaddleBlade } from "./internal/PaddleBlade";
-import * as AutoMovieArchetypeKayakPaddleData from "./internal/AutoMovieArchetypeKayakPaddleData";
-import { v } from "./internal/AutoMovieArchetypeKayakPaddleData";
+import { AutoMovieArchetypeKayakPaddleData } from "./internal/AutoMovieArchetypeKayakPaddleData";
+
 
 /** Constructs the kayak paddle archetype from its recipe. */
 export namespace AutoMovieArchetypeKayakPaddle {
@@ -53,7 +53,7 @@ export function create(
 
   // The shaft's 29 mm diameter is authored.
   const diameter: number = 0.029;
-  builder.rod("shaft", diameter / 2, v(-shoulder, 0, 0), v(shoulder, 0, 0), {
+  builder.rod("shaft", diameter / 2, AutoMovieArchetypeKayakPaddleData.v(-shoulder, 0, 0), AutoMovieArchetypeKayakPaddleData.v(shoulder, 0, 0), {
     color: "#353b40",
   });
   for (const [side, sign] of [
@@ -73,8 +73,8 @@ export function create(
     PaddleBlade.grip(
       builder,
       `${side}Grip`,
-      v(sign * 0.27, 0, 0),
-      v(-sign, 0, 0),
+      AutoMovieArchetypeKayakPaddleData.v(sign * 0.27, 0, 0),
+      AutoMovieArchetypeKayakPaddleData.v(-sign, 0, 0),
       diameter,
       0.15,
     );

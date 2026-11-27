@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -29,8 +29,8 @@ export function jumpPushPassing(
     { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
     { x: 0, y: 0, z: 1 },
   );
-  const aside: IAutoMovieVector3 = Vector3.scale(
-    Vector3.normalize(Vector3.cross({ x: 0, y: 1, z: 0 }, forward)),
+  const aside: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross({ x: 0, y: 1, z: 0 }, forward)),
     reaching === "left" ? 1 : -1,
   );
   const clearance: number = 2 * body.measure.shankRadius;
@@ -39,12 +39,12 @@ export function jumpPushPassing(
     into: IAutoMovieVector3,
     s: number,
   ): IAutoMovieVector3 => {
-    const g0: number = Vector3.dot(
-      Vector3.subtract(from, support.ankle),
+    const g0: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(from, support.ankle),
       forward,
     );
-    const g1: number = Vector3.dot(
-      Vector3.subtract(into, support.ankle),
+    const g1: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(into, support.ankle),
       forward,
     );
     // A pass is a sign change of two real gaps (`PASS_GAP`), strictly
@@ -52,14 +52,14 @@ export function jumpPushPassing(
     if (!(g0 * g1 < 0) || !(Math.min(Math.abs(g0), Math.abs(g1)) > PASS_GAP))
       return { x: 0, y: 0, z: 0 };
     const at: number = g0 / (g0 - g1);
-    const gap: number = Vector3.dot(
-      Vector3.subtract(Vector3.lerp(from, into, at), support.ankle),
+    const gap: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.lerp(from, into, at), support.ankle),
       aside,
     );
     const bump: number = Math.max(0, clearance - gap);
     // Held at the full bump from the pass to its mirror share, so a pass
     // near either end does not swell the bump past it in between.
-    return Vector3.scale(
+    return AutoMovieEngineVector3.scale(
       aside,
       bump * Math.min(1, (s * (1 - s)) / (at * (1 - at))),
     );

@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Every reason a joint-axis basis cannot serve the clinical angle conversions,
@@ -30,7 +30,7 @@ export function validateJointAxesBasis(
   const usable: Set<AutoMovieJointAxis> = new Set();
 
   for (const jointAxis of JOINT_AXES) {
-    const length: number = Vector3.length(axes[jointAxis]);
+    const length: number = AutoMovieEngineVector3.length(axes[jointAxis]);
     if (length <= MIN_AXIS_LENGTH)
       issues.push({
         path: `${path}.${jointAxis}`,
@@ -42,12 +42,12 @@ export function validateJointAxesBasis(
 
   if (usable.size === JOINT_AXES.length) {
     const unit: Record<AutoMovieJointAxis, IAutoMovieVector3> = {
-      flexion: Vector3.normalize(axes.flexion),
-      abduction: Vector3.normalize(axes.abduction),
-      twist: Vector3.normalize(axes.twist),
+      flexion: AutoMovieEngineVector3.normalize(axes.flexion),
+      abduction: AutoMovieEngineVector3.normalize(axes.abduction),
+      twist: AutoMovieEngineVector3.normalize(axes.twist),
     };
     for (const [a, b] of AXIS_PAIRS)
-      if (Math.abs(Vector3.dot(unit[a], unit[b])) > MAX_AXIS_DOT)
+      if (Math.abs(AutoMovieEngineVector3.dot(unit[a], unit[b])) > MAX_AXIS_DOT)
         issues.push({
           path: `${path}.${b}`,
           expected: `${a} and ${b} axes must be orthogonal`,

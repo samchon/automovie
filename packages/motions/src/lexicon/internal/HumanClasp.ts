@@ -17,7 +17,7 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-import * as HumanClaspData from "./HumanClaspData";
+import { HumanClaspData } from "./HumanClaspData";
 
 /*
  * Hold on with the hands (`IAutoMovieMotionHumanClasp`): the entry posture

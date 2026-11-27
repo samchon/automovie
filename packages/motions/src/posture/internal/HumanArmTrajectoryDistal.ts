@@ -1,6 +1,6 @@
 import {
-  HUMANOID_REST_FRAME,
-  Quaternion,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
   AutoMovieEngineMotionDistalTwist,
 } from "@automovie/engine";
 import type {
@@ -34,12 +34,12 @@ export function HumanArmTrajectoryDistal(
         abduction: c[7]!,
         twist: c[8]!,
       },
-      above: Quaternion.multiply(upper, setup.rest.lower.rotation),
+      above: AutoMovieEngineQuaternion.multiply(upper, setup.rest.lower.rotation),
       lowerBasis: setup.basis(setup.bones.lower, "contact transport forearm"),
-      lowerFrame: HUMANOID_REST_FRAME[setup.bones.lower],
+      lowerFrame: AutoMovieEngineHumanoidRestFrame[setup.bones.lower],
       effectorRest: setup.rest.hand.rotation,
       effectorBasis: setup.basis(setup.bones.hand, "contact transport wrist"),
-      effectorFrame: HUMANOID_REST_FRAME[setup.bones.hand],
+      effectorFrame: AutoMovieEngineHumanoidRestFrame[setup.bones.hand],
       rotation: hand,
       skeleton: setup.body.skeleton,
     });
@@ -48,18 +48,18 @@ export function HumanArmTrajectoryDistal(
   // so its representation of that same rotation is the frame neutral.
   c[5] =
     split.joint.twist ??
-    HUMANOID_REST_FRAME[setup.bones.lower]?.twist?.neutral ??
+    AutoMovieEngineHumanoidRestFrame[setup.bones.lower]?.twist?.neutral ??
     0;
   c[6] =
     split.projection.joint.flexion ??
-    HUMANOID_REST_FRAME[setup.bones.hand]?.flexion?.neutral ??
+    AutoMovieEngineHumanoidRestFrame[setup.bones.hand]?.flexion?.neutral ??
     0;
   c[7] =
     split.projection.joint.abduction ??
-    HUMANOID_REST_FRAME[setup.bones.hand]?.abduction?.neutral ??
+    AutoMovieEngineHumanoidRestFrame[setup.bones.hand]?.abduction?.neutral ??
     0;
   c[8] =
     split.projection.joint.twist ??
-    HUMANOID_REST_FRAME[setup.bones.hand]?.twist?.neutral ??
+    AutoMovieEngineHumanoidRestFrame[setup.bones.hand]?.twist?.neutral ??
     0;
 }

@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieResolveBalanceOutcome,
   IAutoMovieVector3,
@@ -54,7 +54,7 @@ export function test_engine_balance_outcome(): void {
   const margin: number = 0.13;
   const step: number = 0.238;
   const first: number = 0.458;
-  const w0: number = Math.sqrt(AutoMovieGravity.STANDARD / length);
+  const w0: number = Math.sqrt(AutoMovieEngineGravity.STANDARD / length);
   const centre: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const support: IAutoMovieVector3[] = [
     { x: -half, y: 0, z: -half },
@@ -100,7 +100,7 @@ export function test_engine_balance_outcome(): void {
   const directions: IAutoMovieVector3[] = [
     { x: 0, y: 0, z: 1 },
     { x: -1, y: 0, z: 0 },
-    Vector3.normalize({ x: 1, y: 0, z: 1 }),
+    AutoMovieEngineVector3.normalize({ x: 1, y: 0, z: 1 }),
   ];
   for (const mass of [38, 76, 118])
     for (const d of directions) {
@@ -108,15 +108,15 @@ export function test_engine_balance_outcome(): void {
       const absorb: number = mass * w0 * edge;
       const read: IAutoMovieResolveBalanceOutcome.IOutcome = outcome(
         mass,
-        Vector3.scale(d, absorb),
+        AutoMovieEngineVector3.scale(d, absorb),
       );
       if (!close(read.bounds.absorb, absorb, 1e-9))
         findings.push(
           `${mass} kg along ${JSON.stringify(d)}: absorb bound ${read.bounds.absorb}, closed form ${absorb}`,
         );
-      if (outcome(mass, Vector3.scale(d, 0.99 * absorb)).outcome !== "absorb")
+      if (outcome(mass, AutoMovieEngineVector3.scale(d, 0.99 * absorb)).outcome !== "absorb")
         findings.push(`${mass} kg: 1 % under the absorb bound does not absorb`);
-      if (outcome(mass, Vector3.scale(d, 1.01 * absorb)).outcome !== "step")
+      if (outcome(mass, AutoMovieEngineVector3.scale(d, 1.01 * absorb)).outcome !== "step")
         findings.push(`${mass} kg: 1 % over the absorb bound does not step`);
 
       // 3. The step bound.
@@ -126,9 +126,9 @@ export function test_engine_balance_outcome(): void {
         findings.push(
           `${mass} kg: step bound ${read.bounds.step}, closed form ${stepped}`,
         );
-      if (outcome(mass, Vector3.scale(d, 0.99 * stepped)).outcome !== "step")
+      if (outcome(mass, AutoMovieEngineVector3.scale(d, 0.99 * stepped)).outcome !== "step")
         findings.push(`${mass} kg: 1 % under the step bound does not step`);
-      if (outcome(mass, Vector3.scale(d, 1.01 * stepped)).outcome !== "fall")
+      if (outcome(mass, AutoMovieEngineVector3.scale(d, 1.01 * stepped)).outcome !== "fall")
         findings.push(`${mass} kg: 1 % over the step bound does not fall`);
     }
 
@@ -164,7 +164,7 @@ export function test_engine_balance_outcome(): void {
     findings.push(
       `a push 0.5 m above the centre: angular change ${JSON.stringify(above.angular)}, expected (10, 0, 0)`,
     );
-  if (Vector3.length(outcome(76, { x: 0, y: 0, z: 20 }).angular) !== 0)
+  if (AutoMovieEngineVector3.length(outcome(76, { x: 0, y: 0, z: 20 }).angular) !== 0)
     findings.push("a push at the centre changes the angular momentum");
 
   // 6. Steps grow with the impulse and stay within reach along the push.
@@ -194,7 +194,7 @@ export function test_engine_balance_outcome(): void {
     for (const s of read.steps) {
       if (Math.abs(s.x) > 1e-12)
         findings.push(`${j.toFixed(1)} N s: a step off the push at x ${s.x}`);
-      if (Vector3.length(Vector3.subtract(s, from)) > allowed + 1e-12)
+      if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(s, from)) > allowed + 1e-12)
         findings.push(`${j.toFixed(1)} N s: a step longer than the reach`);
       from = s;
       allowed = reach + margin;

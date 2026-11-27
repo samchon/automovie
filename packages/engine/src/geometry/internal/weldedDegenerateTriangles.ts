@@ -11,7 +11,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * topology weld grid.
  *
  * Two corners repeat when their positions round to the same cell of the
- * engine's shared nanometre grid, `MESH_WELD_GRID`, even if they are different
+ * engine's shared nanometre grid, `AutoMovieEngineMeshWeldGrid`, even if they are different
  * index entries, so a seam pole or a collapsed fan counts. The portrait Float32
  * gate uses these ordinals to tell an existing seam or pole from a face newly
  * collapsed by single precision, the physical partition matcher requires a

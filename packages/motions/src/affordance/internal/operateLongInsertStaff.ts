@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanOperateInsert,
@@ -53,7 +53,7 @@ export function operateLongInsertStaff(
       reason: `${mechanism.prop} declares no working point and handle or bar with a length along it to regrip`,
       fix: "insert a staff that declares its grippable run, or insert no deeper than one grip reaches",
     });
-  const middle: number = Vector3.distance(
+  const middle: number = AutoMovieEngineVector3.distance(
     bar.frame.translation,
     tip.frame.translation,
   );

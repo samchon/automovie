@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMath,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
@@ -93,31 +93,31 @@ export namespace EquineComfortRows {
       body.chains[locked][0]!,
     );
     const roll: number = cue.side === "left" ? -REST.tilt : REST.tilt;
-    const flat: IAutoMovieVector3 = Vector3.subtract(
+    const flat: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       body.chains[resting][4]!,
       body.chains[resting][3]!,
     );
-    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+    const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(heading, {
       x: 1,
       y: 0,
       z: 0,
     });
     const toe: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
       flat,
-      Quaternion.rotateVector(Quaternion.fromAxisAngle(lateral, REST.tip), {
+      AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.fromAxisAngle(lateral, REST.tip), {
         x: 0,
         y: -1,
         z: 0,
       }),
     );
     const tipped = (share: number): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.slerp({ x: 0, y: 0, z: 0, w: 1 }, toe, share),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.slerp({ x: 0, y: 0, z: 0, w: 1 }, toe, share),
         flat,
       );
     const from: IAutoMovieVector3 = start.anchors[resting];
-    const to: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
+    const to: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         from,
         EquineStanceSupport.along(start.trunk, {
           x: 0,
@@ -181,12 +181,12 @@ export namespace EquineComfortRows {
     );
     const pivot: IAutoMovieVector3 = EquineBodyPose.point(
       start.trunk,
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         AutoMovieArchetypeQuadrupedBody.LIMBS.reduce(
           (
             sum: IAutoMovieVector3,
             limb: AutoMovieArchetypeQuadrupedBody.Limb,
-          ) => Vector3.add(sum, body.chains[limb][0]!),
+          ) => AutoMovieEngineVector3.add(sum, body.chains[limb][0]!),
           ZERO,
         ),
         1 / AutoMovieArchetypeQuadrupedBody.LIMBS.length,

@@ -3,7 +3,9 @@ import type {
   IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { StrikingAim } from "@automovie/motions/internal";
+import {
+  StrikingAim
+} from "../../../../../packages/motions/src/striking/internal/StrikingAim";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

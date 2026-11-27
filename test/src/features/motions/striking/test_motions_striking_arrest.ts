@@ -1,4 +1,6 @@
-import { StrikingArrest } from "@automovie/motions/internal";
+import {
+  StrikingArrest
+} from "../../../../../packages/motions/src/striking/internal/StrikingArrest";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

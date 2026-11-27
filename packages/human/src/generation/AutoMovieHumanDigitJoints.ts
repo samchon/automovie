@@ -1,4 +1,4 @@
-import { AutoMovieHandAnthropometry } from "@automovie/engine";
+import { AutoMovieEngineHandAnthropometry } from "@automovie/engine";
 import type {
   AutoMovieHumanSex as AutoMovieHumanSexType,
   IAutoMovieHandAnthropometry,
@@ -12,7 +12,7 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  * at.
  *
  * Source: the population table `@automovie/engine`'s
- * `AutoMovieHandAnthropometry` holds (Rastgoo Balov et al. 2026, SAGE Open
+ * `AutoMovieEngineHandAnthropometry` holds (Rastgoo Balov et al. 2026, SAGE Open
  * Med, PMC13039577, Tables 1 and 2: the right hands of 51 women and 49 men,
  * each digit's breadth and girth at its first and second joint from the tip,
  * with the hand length; means), which the objects a hand takes read too.
@@ -42,9 +42,9 @@ export namespace AutoMovieHumanDigitJoints {
   ): IAutoMovieHandAnthropometry.IJoint {
     const k: 0 | 1 = sex === AutoMovieHumanSex.Female ? 0 : 1;
     const scale: number =
-      handLength / AutoMovieHandAnthropometry.HAND_LENGTH[k];
+      handLength / AutoMovieEngineHandAnthropometry.HAND_LENGTH[k];
     const read: IAutoMovieHandAnthropometry.IJoint =
-      AutoMovieHandAnthropometry.JOINTS[k][digit - 1]![joint - 1]!;
+      AutoMovieEngineHandAnthropometry.JOINTS[k][digit - 1]![joint - 1]!;
     return { breadth: scale * read.breadth, girth: scale * read.girth };
   }
 }

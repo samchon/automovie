@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanPianoPedal } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, pianoPedalStroke } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  pianoPedalStroke
+} from "../../../../../packages/motions/src/handling/internal/pianoPedalStroke";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,5 +1,7 @@
-import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import { AutoMovieEngineSpace, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import { AutoMovieEngineSpace, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
@@ -37,8 +39,8 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Enumerates the normalized plan and passage cases, expected dimensions, and each named refusal.
  */
 export function test_location_floor_plan(): void {
-  const first: ReturnType<typeof AutoMovieEnvironment.building> =
-    AutoMovieEnvironment.building({
+  const first: ReturnType<typeof AutoMovieArchetypeEnvironment.building> =
+    AutoMovieArchetypeEnvironment.building({
       type: "levels",
       levels: [
         {
@@ -116,8 +118,8 @@ export function test_location_floor_plan(): void {
         },
       ],
     });
-  const second: ReturnType<typeof AutoMovieEnvironment.building> =
-    AutoMovieEnvironment.building({
+  const second: ReturnType<typeof AutoMovieArchetypeEnvironment.building> =
+    AutoMovieArchetypeEnvironment.building({
       type: "levels",
       levels: [
         {
@@ -139,8 +141,8 @@ export function test_location_floor_plan(): void {
         },
       ],
     });
-  const span: ReturnType<typeof AutoMovieEnvironment.passage> =
-    AutoMovieEnvironment.passage({
+  const span: ReturnType<typeof AutoMovieArchetypeEnvironment.passage> =
+    AutoMovieArchetypeEnvironment.passage({
       kind: "bridge",
       from: { opening: "east/ground/landing" },
       to: { opening: "west/ground/landing" },
@@ -148,11 +150,11 @@ export function test_location_floor_plan(): void {
       clearHeight: 2,
     });
   const east: {
-    use: ReturnType<typeof AutoMovieEnvironment.building>;
+    use: ReturnType<typeof AutoMovieArchetypeEnvironment.building>;
     at: { x: number; y: number; z: number };
   } = { use: first, at: { x: 0, y: 3, z: 0 } };
   const west: typeof east = { use: second, at: { x: -8, y: 3, z: 0 } };
-  const site: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const site: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "walkway-test",
     items: { east, west, bridge: { use: span } },
   });
@@ -162,9 +164,9 @@ export function test_location_floor_plan(): void {
       const face: IAutoMovieBuiltBoundary["face"] = wall.face;
       if (face === undefined || face.origin.x !== 6 || face.origin.y !== 3)
         return false;
-      const end: IAutoMovieVector3 = Vector3.add(
+      const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         face.origin,
-        Quaternion.rotateVector(face.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(face.rotation, {
           x: face.outline[1]!.x,
           y: 0,
           z: 0,
@@ -226,7 +228,7 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      AutoMovieEnvironment.create({
+      AutoMovieArchetypeEnvironment.create({
         id: "displaced",
         items: {
           east,
@@ -238,13 +240,13 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      AutoMovieEnvironment.create({
+      AutoMovieArchetypeEnvironment.create({
         id: "overwide",
         items: {
           east,
           west,
           bridge: {
-            use: AutoMovieEnvironment.passage({
+            use: AutoMovieArchetypeEnvironment.passage({
               kind: "bridge",
               from: { opening: "east/ground/landing" },
               to: { opening: "west/ground/landing" },
@@ -257,7 +259,7 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      AutoMovieEnvironment.create({
+      AutoMovieArchetypeEnvironment.create({
         id: "oblique",
         items: {
           east,
@@ -268,8 +270,8 @@ export function test_location_floor_plan(): void {
     /passage "oblique\/bridge" must approach opening "east\/ground\/landing" perpendicular/,
   );
   assert.throws(
-    (): ReturnType<typeof AutoMovieEnvironment.building> =>
-      AutoMovieEnvironment.building({
+    (): ReturnType<typeof AutoMovieArchetypeEnvironment.building> =>
+      AutoMovieArchetypeEnvironment.building({
         type: "levels",
         levels: [{ id: "ground", rooms: { a: { type: "rectangle", value: { x: 0, z: 0, width: 4, depth: 4 } }, b: { type: "rectangle", value: { x: 3, z: 3, width: 2, depth: 2 } } } }],
       }),

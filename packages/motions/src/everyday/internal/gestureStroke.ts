@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -176,48 +176,48 @@ export namespace gestureStroke {
     // heading frame. Pointing and self-touch already read the posed trunk.
     if (TRUNK_POSED.has(kind)) return goal;
     const heading: IAutoMovieQuaternion = humanPostureHeading(input.base);
-    const tilt: IAutoMovieQuaternion = Quaternion.multiply(
+    const tilt: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       heading,
-      Quaternion.inverse(HumanFrame.turn(input.base.yaw)),
+      AutoMovieEngineQuaternion.inverse(HumanFrame.turn(input.base.yaw)),
     );
     const bent: gestureStroke.IBend | undefined = input.bend;
     if (
-      Quaternion.angle(tilt, Quaternion.identity()) < 1e-9 &&
+      AutoMovieEngineQuaternion.angle(tilt, AutoMovieEngineQuaternion.identity()) < 1e-9 &&
       bent === undefined
     )
       return goal;
     const root: IAutoMovieVector3 = input.base.root;
-    let point: IAutoMovieVector3 = Vector3.add(
+    let point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       root,
-      Quaternion.rotateVector(tilt, Vector3.subtract(goal.point, root)),
+      AutoMovieEngineQuaternion.rotateVector(tilt, AutoMovieEngineVector3.subtract(goal.point, root)),
     );
     let rotation: IAutoMovieQuaternion | undefined =
       goal.rotation === undefined
         ? undefined
-        : Quaternion.multiply(tilt, goal.rotation);
+        : AutoMovieEngineQuaternion.multiply(tilt, goal.rotation);
     if (bent !== undefined) {
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(heading),
-        Vector3.subtract(point, root),
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(heading),
+        AutoMovieEngineVector3.subtract(point, root),
       );
-      point = Vector3.add(
+      point = AutoMovieEngineVector3.add(
         root,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           heading,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             bent.to,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               bent.rotation,
-              Vector3.subtract(local, bent.from),
+              AutoMovieEngineVector3.subtract(local, bent.from),
             ),
           ),
         ),
       );
       if (rotation !== undefined)
-        rotation = Quaternion.multiply(
-          Quaternion.multiply(
-            Quaternion.multiply(heading, bent.rotation),
-            Quaternion.inverse(heading),
+        rotation = AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(heading, bent.rotation),
+            AutoMovieEngineQuaternion.inverse(heading),
           ),
           rotation,
         );
@@ -262,31 +262,31 @@ export namespace gestureStroke {
       undefined,
       HumanBoneGroups.CHEST,
     ).get("chest")!;
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       posed.worldRotation,
-      Quaternion.inverse(straight.worldRotation),
+      AutoMovieEngineQuaternion.inverse(straight.worldRotation),
     );
     if (
-      Quaternion.angle(turn, Quaternion.identity()) < 1e-9 &&
-      Vector3.distance(posed.worldPosition, straight.worldPosition) < 1e-9
+      AutoMovieEngineQuaternion.angle(turn, AutoMovieEngineQuaternion.identity()) < 1e-9 &&
+      AutoMovieEngineVector3.distance(posed.worldPosition, straight.worldPosition) < 1e-9
     )
       return undefined;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       humanPostureHeading(posture),
     );
-    const heading: IAutoMovieQuaternion = Quaternion.inverse(inverse);
+    const heading: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(inverse);
     return {
-      rotation: Quaternion.multiply(
-        Quaternion.multiply(inverse, turn),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(inverse, turn),
         heading,
       ),
-      from: Quaternion.rotateVector(
+      from: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(straight.worldPosition, posture.root),
+        AutoMovieEngineVector3.subtract(straight.worldPosition, posture.root),
       ),
-      to: Quaternion.rotateVector(
+      to: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(posed.worldPosition, posture.root),
+        AutoMovieEngineVector3.subtract(posed.worldPosition, posture.root),
       ),
     };
   }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -30,7 +30,7 @@ import { crossingClearance } from "./crossingClearance";
 import { crossingSurface } from "./crossingSurface";
 import { prepareVaultArmFrames } from "./prepareVaultArmFrames";
 import { stepVaultSupport } from "./stepVaultSupport";
-import * as PlanNamedVaultData from "./PlanNamedVaultData";
+import { PlanNamedVaultData } from "./PlanNamedVaultData";
 
 /*
  * Cross a raised fixed top with one palm and the opposite foot bearing on it:
@@ -282,15 +282,15 @@ function prepareVaultLayer(
     body,
     resolveHumanPosture.seeded(body, supported.posture(landing)).pose,
   );
-  const toward: IAutoMovieVector3 = Vector3.subtract(
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     palm,
     landed.get(`${hand}UpperArm`)!.worldPosition,
   );
   const level: IAutoMovieVector3 = { x: toward.x, y: 0, z: toward.z };
   const fingers: IAutoMovieVector3 =
-    Vector3.length(level) < 0.012
+    AutoMovieEngineVector3.length(level) < 0.012
       ? HumanFrame.forward(yaw)
-      : Vector3.normalize(level);
+      : AutoMovieEngineVector3.normalize(level);
   const spans: Array<{ from: number; to: number }> = palmWindows
     .map(
       (
@@ -377,7 +377,7 @@ function prepareVaultLayer(
         // reach to the palm as the palm lands: a direction taken from the
         // moving forearm reverses as the shoulder passes over the palm and
         // would turn the hand half round.
-        const point: IAutoMovieVector3 = Vector3.lerp(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
           wrist,
           goal.point,
           palmWeight,
@@ -395,7 +395,7 @@ function prepareVaultLayer(
           Math.max(0, deck.height + PlanNamedVaultData.ARC * measure.forearm - point.y);
         limbs[arm] = {
           point: { ...point, y: point.y + lift + arc },
-          rotation: Quaternion.slerp(rotation, goal.rotation, palmWeight),
+          rotation: AutoMovieEngineQuaternion.slerp(rotation, goal.rotation, palmWeight),
           bend: elbow,
           ...(handGap === 0 ? { contact: palmPoint, planted: true } : {}),
         };

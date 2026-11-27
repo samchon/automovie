@@ -1,8 +1,8 @@
 import {
-  AutoMovieAir,
+  AutoMovieEngineAir,
   AutoMovieEnginePhysics,
-  AutoMovieGravity,
-  Quaternion,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
 } from "@automovie/engine";
 import {
   type IAutoMovieInteractionEvent,
@@ -101,19 +101,19 @@ function flight(
       "A departing fragment needs finite colliders on or above the floor at the fracture.",
     );
 
-  const velocity: IAutoMovieVector3 = Quaternion.rotateVector(
+  const velocity: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.rotation,
     localVelocity,
   );
   const projectile: IAutoMovieProjectile = {
     origin: frame.position,
     velocity,
-    gravity: AutoMovieGravity.DOWN,
+    gravity: AutoMovieEngineGravity.DOWN,
   };
 
   // The positive root of h + vy*t - g*t²/2. Rationalize the descending
   // branch to avoid subtracting nearly equal speeds near the floor.
-  const gravity: number = AutoMovieGravity.STANDARD;
+  const gravity: number = AutoMovieEngineGravity.STANDARD;
   const impactSpeed: number = Math.hypot(
     velocity.y,
     Math.sqrt(height) * Math.sqrt(2 * gravity),
@@ -122,7 +122,7 @@ function flight(
     velocity.y < 0
       ? height / (impactSpeed / 2 - velocity.y / 2)
       : velocity.y / gravity + impactSpeed / gravity;
-  const landed: IAutoMovieVector3 = AutoMovieAir.projectileAt(
+  const landed: IAutoMovieVector3 = AutoMovieEngineAir.projectileAt(
     projectile,
     stop,
   ).position;
@@ -133,7 +133,7 @@ function flight(
   return (seconds: number): IAutoMovieRigidTransform => ({
     position:
       seconds < stop
-        ? AutoMovieAir.projectileAt(projectile, seconds).position
+        ? AutoMovieEngineAir.projectileAt(projectile, seconds).position
         : { ...rest },
     rotation: { ...frame.rotation },
   });

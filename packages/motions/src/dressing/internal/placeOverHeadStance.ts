@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -86,7 +86,7 @@ export function placeOverHeadStance(
       const shoulder: IAutoMovieVector3 = placed.get(
         `${arm}UpperArm`,
       )!.worldPosition;
-      const miss: number = Vector3.distance(shoulder, target.point) - reach;
+      const miss: number = AutoMovieEngineVector3.distance(shoulder, target.point) - reach;
       if (miss <= 0) continue;
       if (
         !AutoMovieMotionHumanTouchStance.reaches(

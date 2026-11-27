@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -333,9 +333,9 @@ export namespace punchFootwork {
           ? { left: leadDown, right: rearDown }
           : { left: rearDown, right: leadDown };
       const written: Omit<IAutoMovieMotionHumanPosture, "limbs"> = {
-        root: Vector3.add(
+        root: AutoMovieEngineVector3.add(
           { ...entry.root, y: entry.root.y - dip * turning },
-          Vector3.scale(line, 0.5 * (moved + followed)),
+          AutoMovieEngineVector3.scale(line, 0.5 * (moved + followed)),
         ),
         yaw: entry.yaw + PELVIS_SHARE * turn * turning,
         pitch: entry.pitch,
@@ -373,8 +373,8 @@ export namespace punchFootwork {
             foot,
           );
         return {
-          ankle: Vector3.lerp(foot.ankle, eased.ankle, weight),
-          rotation: Quaternion.slerp(foot.rotation, eased.rotation, weight),
+          ankle: AutoMovieEngineVector3.lerp(foot.ankle, eased.ankle, weight),
+          rotation: AutoMovieEngineQuaternion.slerp(foot.rotation, eased.rotation, weight),
         };
       };
       return lowerHumanPosture(

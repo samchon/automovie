@@ -1,12 +1,12 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
-import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake.js";
 import type { IAutoMovieInstancedGeometry } from "../IAutoMovieInstancedGeometry.js";
 import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
-import type { IBakeFormationCycleProps } from "../IBakeFormationCycleProps.js";
+import type { IAutoMovieRenderBakeFormationCycleProps } from "../IAutoMovieRenderBakeFormationCycleProps.js";
 import { bakeFormationCycle } from "./bakeFormationCycle.js";
 import { AutoMovieRenderSceneLayout } from "../AutoMovieRenderSceneLayout.js";
 import { collectAutoMovieOwnedResources } from "./collectAutoMovieOwnedResources.js";
@@ -38,24 +38,24 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 export const flattenInstancedModel: (
   model: IAutoMovieModel,
   owner?: string,
-  bake?: Pick<IBakeFormationCycleProps, "samples" | "takes">,
+  bake?: Pick<IAutoMovieRenderBakeFormationCycleProps, "samples" | "takes">,
 ) => IAutoMovieInstancedModelRepresentation = (
   model: IAutoMovieModel,
   owner: string = `Instanced runtime model "${model.id}"`,
-  bake?: Pick<IBakeFormationCycleProps, "samples" | "takes">,
+  bake?: Pick<IAutoMovieRenderBakeFormationCycleProps, "samples" | "takes">,
 ): IAutoMovieInstancedModelRepresentation => {
   const built: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel(model);
   const sourceResources: readonly { dispose(): void }[] =
     collectAutoMovieOwnedResources(built.object);
   const temporary: Set<THREE.BufferGeometry | THREE.Skeleton> = new Set();
   built.object.traverse((object: THREE.Object3D): void => {
-    if (!AutoMovieThreeKind.isMesh(object)) return;
+    if (!AutoMovieRenderThreeKind.isMesh(object)) return;
     temporary.add(object.geometry);
-    if (AutoMovieThreeKind.isSkinnedMesh(object))
+    if (AutoMovieRenderThreeKind.isSkinnedMesh(object))
       temporary.add(object.skeleton);
   });
   let representation: IAutoMovieInstancedGeometry | undefined;
-  let cycle: IAutoMovieFormationCycle | null = null;
+  let cycle: IAutoMovieRenderFormationCycle | null = null;
   try {
     built.object.updateMatrixWorld(true);
     const parts: ReturnType<typeof instancedModelParts> = instancedModelParts(
@@ -107,7 +107,7 @@ export const flattenInstancedModel: (
       ...(cycle === null
         ? []
         : [...cycle.takes.values()].map(
-            (take: IAutoMovieFormationCycleTake): THREE.Texture => take.texture,
+            (take: IAutoMovieRenderFormationCycleTake): THREE.Texture => take.texture,
           )),
     ]);
     reportAutoMovieResourceRetirement(

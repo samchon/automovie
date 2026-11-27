@@ -1,4 +1,6 @@
-import { HumanPathParameterization } from "@automovie/motions/internal";
+import {
+  HumanPathParameterization
+} from "../../../../../packages/motions/src/posture/internal/HumanPathParameterization";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

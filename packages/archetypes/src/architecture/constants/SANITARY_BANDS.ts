@@ -5,7 +5,7 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 import "../AutoMovieArchetypeTap";
-import * as SanitaryBandsData from "./internal/SanitaryBandsData";
+import { SanitaryBandsData } from "./internal/SanitaryBandsData";
 
 /*
  * The band of each free dimension of createSanitary, by kind.

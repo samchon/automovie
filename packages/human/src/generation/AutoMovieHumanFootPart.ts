@@ -144,7 +144,7 @@ export namespace AutoMovieHumanFootPart {
     input: IAutoMovieHumanFootPart.IInput,
   ): IAutoMovieHumanSectionSource {
     // The chart: u up and v = up x along, so the stations advance along
-    // v x u = along (`AutoMovieViewAxis.straight`). With the toes
+    // v x u = along (`AutoMovieEngineViewAxis.straight`). With the toes
     // forward v points to the body's right: medial on the left foot, lateral
     // on the right. The laws give the left foot's edges as up, lateral, down,
     // medial, so the left foot's side edges swap into the chart and the

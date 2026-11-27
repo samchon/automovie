@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -39,8 +39,8 @@ export function racketStance(
   const ready: number = clock.at("ready");
   const relax: number = clock.at("relax");
   const flight: Window = [clock.at("strokeStart"), clock.at("stroke")];
-  const width: number = Vector3.dot(
-    Vector3.subtract(entry.feet.left.ankle, entry.feet.right.ankle),
+  const width: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(entry.feet.left.ankle, entry.feet.right.ankle),
     leftward,
   );
   const widening: number = Math.max(
@@ -57,8 +57,8 @@ export function racketStance(
       ["relax", "end"],
     );
   const offset = (foot: AutoMovieHumanSide, distance: number): number =>
-    Vector3.dot(
-      Vector3.subtract(entry.feet[foot].ankle, entry.posture.root),
+    AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(entry.feet[foot].ankle, entry.posture.root),
       leftward,
     ) + (foot === "left" ? distance : -distance);
   const approach: racketStanceTransfer.ITransfer = racketStanceTransfer(
@@ -98,7 +98,7 @@ export function racketStance(
             : seconds > relax && widening + spread > 0
               ? recovery.offset(seconds)
               : 0;
-        const root: IAutoMovieVector3 = Vector3.addScaled(
+        const root: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
           posture.root,
           leftward,
           shift,
@@ -123,11 +123,11 @@ export function racketStance(
     const side: number = foot === "left" ? 1 : -1;
     const open: IAutoMovieMotionHumanFoot.IPlacement = {
       ...rest,
-      ankle: Vector3.addScaled(rest.ankle, leftward, side * widening),
+      ankle: AutoMovieEngineVector3.addScaled(rest.ankle, leftward, side * widening),
     };
     const landed: IAutoMovieMotionHumanFoot.IPlacement = {
       ...rest,
-      ankle: Vector3.addScaled(open.ankle, leftward, side * spread),
+      ankle: AutoMovieEngineVector3.addScaled(open.ankle, leftward, side * spread),
     };
     const outward: Window = approach.swings[foot === lead ? 0 : 1];
     const inward: Window = recovery.swings[foot === follow ? 0 : 1];
@@ -164,7 +164,7 @@ export function racketStance(
             return stepBack(racketStanceTransfer.ease(inward, seconds));
           if (!split || seconds <= flight[0]) return open;
           if (seconds >= flight[1]) return landed;
-          const ankle: IAutoMovieVector3 = Vector3.addScaled(
+          const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
             open.ankle,
             leftward,
             side * spread * racketStanceTransfer.ease(flight, seconds),

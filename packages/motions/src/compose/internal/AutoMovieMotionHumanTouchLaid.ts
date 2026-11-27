@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -62,7 +62,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     elbow: BendElbow = "natural",
     lean?: number,
   ): IAutoMovieVector3 {
-    const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(place.normal);
     const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
       normal,
       posture.yaw,
@@ -205,16 +205,16 @@ export namespace AutoMovieMotionHumanTouchLaid {
     from?: IAutoMovieVector3,
     lean?: number,
   ): IAutoMovieHumanLimbGoal {
-    const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(place.normal);
     const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
       normal,
       posture.yaw,
       tangent,
       side,
     );
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       place.point,
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         normal,
         AutoMovieMotionHumanTouchEffector.pad(body, side, effector),
       ),
@@ -279,12 +279,12 @@ export namespace AutoMovieMotionHumanTouchLaid {
     );
 
     // Settled when the elbow moves less than the solver resolves it: its
-    // swivel resolution (`hingedArmSwivel.RESOLUTION`) swept on the upper
+    // swivel resolution (`AutoMovieEngineHingedArmSwivel.RESOLUTION`) swept on the upper
     // arm. Two elbows of one shoulder lie within two upper arms, so a
     // settling at least as fast as halving meets that within as many rounds
     // as halvings of two upper arms down to it; one still moving refuses.
     const tolerance: number =
-      (body.measure.upperArm * hingedArmSwivel.RESOLUTION * Math.PI) / 180;
+      (body.measure.upperArm * AutoMovieEngineHingedArmSwivel.RESOLUTION * Math.PI) / 180;
     const rounds: number =
       Math.ceil(Math.log2((2 * body.measure.upperArm) / tolerance)) + 1;
     let moved: number = Infinity;
@@ -330,8 +330,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
         new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]),
       ).get(`${side}LowerArm`)!.worldPosition;
       moved = Math.max(
-        Vector3.distance(next, hint),
-        Vector3.distance(taken, from ?? hint),
+        AutoMovieEngineVector3.distance(next, hint),
+        AutoMovieEngineVector3.distance(taken, from ?? hint),
       );
       hint = next;
       from = taken;
@@ -418,26 +418,26 @@ export namespace AutoMovieMotionHumanTouchLaid {
         from,
       );
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-      const across: IAutoMovieVector3 = Vector3.subtract(
+      const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         up,
-        Vector3.scale(way, Vector3.dot(up, way)),
+        AutoMovieEngineVector3.scale(way, AutoMovieEngineVector3.dot(up, way)),
       );
       return [
-        Vector3.scale(way, -1),
-        Vector3.length(across) > 1e-6 ? Vector3.normalize(across) : travel,
+        AutoMovieEngineVector3.scale(way, -1),
+        AutoMovieEngineVector3.length(across) > 1e-6 ? AutoMovieEngineVector3.normalize(across) : travel,
       ];
     }
     if (lay === "limb") {
       // A flat effector lies along the touched limb, square to the normal,
       // where the segment does not curve away under it.
       const axis: IAutoMovieVector3 = facing ?? travel;
-      const across: IAutoMovieVector3 = Vector3.subtract(
+      const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         axis,
-        Vector3.scale(normal, Vector3.dot(axis, normal)),
+        AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(axis, normal)),
       );
       return [
         normal,
-        Vector3.length(across) > 1e-6 ? Vector3.normalize(across) : travel,
+        AutoMovieEngineVector3.length(across) > 1e-6 ? AutoMovieEngineVector3.normalize(across) : travel,
       ];
     }
     if (lay !== "upright") return [normal, travel];
@@ -455,8 +455,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
       lean,
     );
     return [
-      Quaternion.rotateVector(turn, faced),
-      Quaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(turn, faced),
+      AutoMovieEngineQuaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
     ];
   }
 }

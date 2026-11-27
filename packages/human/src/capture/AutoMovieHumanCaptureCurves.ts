@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionCurve,
   IAutoMovieHumanF1,
@@ -76,7 +76,7 @@ export namespace AutoMovieHumanCaptureCurves {
             { length: PHASES },
             (_: unknown, j: number): number[] | null => {
               try {
-                const p: number[] = AutoMovieLoftChain.point(
+                const p: number[] = AutoMovieEngineLoftChain.point(
                   chain,
                   station,
                   (2 * Math.PI * j) / PHASES,

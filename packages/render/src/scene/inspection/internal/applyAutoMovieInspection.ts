@@ -8,19 +8,19 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieSectionRenderer } from "../../IAutoMovieSectionRenderer.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderSectionRenderer } from "../../IAutoMovieRenderSectionRenderer.js";
 import { applyAutoMovieSectionPlanes } from "../../internal/applyAutoMovieSectionPlanes.js";
 import { restoreAutoMovieRenderModeOnce } from "../../internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../../internal/restoreAutoMovieRenderModeState.js";
-import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
-import type { IApplyAutoMovieInspectionProps } from "../../IApplyAutoMovieInspectionProps.js";
-import type { IAutoMovieInspectionHandle } from "../../IAutoMovieInspectionHandle.js";
-import type { IAutoMovieInspectionMarkSet } from "../../IAutoMovieInspectionMarkSet.js";
-import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
-import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOverlay.js";
-import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "../../IAutoMovieRenderViewerSubjectBounds.js";
+import { AutoMovieRenderInspectionPalette } from "../../AutoMovieRenderInspectionPalette.js";
+import type { IAutoMovieRenderApplyInspectionProps } from "../../IAutoMovieRenderApplyInspectionProps.js";
+import type { IAutoMovieRenderInspectionHandle } from "../../IAutoMovieRenderInspectionHandle.js";
+import type { IAutoMovieRenderInspectionMarkSet } from "../../IAutoMovieRenderInspectionMarkSet.js";
+import type { IAutoMovieRenderInspectionMeasured } from "../../IAutoMovieRenderInspectionMeasured.js";
+import type { IAutoMovieRenderInspectionOverlay } from "../../IAutoMovieRenderInspectionOverlay.js";
+import type { IAutoMovieRenderInspectionPath } from "../../IAutoMovieRenderInspectionPath.js";
 import { admitAutoMovieInspectionPatterns } from "./admitAutoMovieInspectionPatterns.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
 import { AutoMovieRenderInspectionMarks } from "../../AutoMovieRenderInspectionMarks.js";
@@ -108,8 +108,8 @@ import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionCo
  * ```
  */
 export function applyAutoMovieInspection(
-  props: IApplyAutoMovieInspectionProps,
-): IAutoMovieInspectionHandle {
+  props: IAutoMovieRenderApplyInspectionProps,
+): IAutoMovieRenderInspectionHandle {
   const scene: THREE.Scene = props.scene;
   const request: IAutoMovieInspectionRequest = props.request;
   if (!(request.stroke > 0))
@@ -135,7 +135,7 @@ export function applyAutoMovieInspection(
     );
 
   // Measured marks on every drawn, visible mesh the request does not hide, read before any state changes.
-  const drawn: IAutoMovieInspectionPath[] = listAutoMovieInspectionPaths(scene);
+  const drawn: IAutoMovieRenderInspectionPath[] = listAutoMovieInspectionPaths(scene);
   const {
     meshes,
     measured,
@@ -169,22 +169,22 @@ export function applyAutoMovieInspection(
   ): IChosen =>
     AutoMovieRenderInspectionMarks.choose({ marks, asks, selects, hidden, anchors });
   const ownMarks: IAutoMovieMark[] = measured.flatMap(
-    (set: IAutoMovieInspectionMeasured): IAutoMovieMark[] =>
+    (set: IAutoMovieRenderInspectionMeasured): IAutoMovieMark[] =>
       set.marks.filter((mark: IAutoMovieMark): boolean => selects(mark.path)),
   );
   const reserved: { use: string; color: number }[] = [
-    { use: "the flag", color: AUTO_MOVIE_INSPECTION_PALETTE.flagged },
+    { use: "the flag", color: AutoMovieRenderInspectionPalette.flagged },
     ...(request.shade === "clay"
-      ? [{ use: "the clay shade", color: AUTO_MOVIE_INSPECTION_PALETTE.clay }]
+      ? [{ use: "the clay shade", color: AutoMovieRenderInspectionPalette.clay }]
       : request.shade === "faces"
         ? [
             {
               use: "the front of a surface",
-              color: AUTO_MOVIE_INSPECTION_PALETTE.front,
+              color: AutoMovieRenderInspectionPalette.front,
             },
             {
               use: "the back of a surface",
-              color: AUTO_MOVIE_INSPECTION_PALETTE.back,
+              color: AutoMovieRenderInspectionPalette.back,
             },
           ]
         : []),
@@ -196,21 +196,21 @@ export function applyAutoMovieInspection(
   const paint: (
     sets: Iterable<[THREE.Object3D | null, readonly IAutoMovieMark[]]>,
     kinds: ReadonlyMap<string, { color: number }>,
-  ) => IAutoMovieInspectionMarkSet[] = (
+  ) => IAutoMovieRenderInspectionMarkSet[] = (
     sets: Iterable<[THREE.Object3D | null, readonly IAutoMovieMark[]]>,
     kinds: ReadonlyMap<string, { color: number }>,
-  ): IAutoMovieInspectionMarkSet[] =>
+  ): IAutoMovieRenderInspectionMarkSet[] =>
     [...sets].map(
       ([anchor, marks]: [
         THREE.Object3D | null,
         readonly IAutoMovieMark[],
-      ]): IAutoMovieInspectionMarkSet => ({
+      ]): IAutoMovieRenderInspectionMarkSet => ({
         anchor,
         marks: marks.map(
           (mark: IAutoMovieMark): { mark: IAutoMovieMark; color: number } => ({
             mark,
             color: mark.flagged
-              ? AUTO_MOVIE_INSPECTION_PALETTE.flagged
+              ? AutoMovieRenderInspectionPalette.flagged
               : kinds.get(mark.kind)!.color,
           }),
         ),
@@ -218,7 +218,7 @@ export function applyAutoMovieInspection(
     );
   const objectPaths: string[] = [
     ...new Set<string>(
-      drawn.map((entry: IAutoMovieInspectionPath): string => entry.path),
+      drawn.map((entry: IAutoMovieRenderInspectionPath): string => entry.path),
     ),
   ].filter(selects);
   const surfaces: IAutoMovieInspectionLegendEntry[] = surfaceLegend(
@@ -240,7 +240,7 @@ export function applyAutoMovieInspection(
     for (const { path, object } of drawn)
       if (
         !selects(path) ||
-        (!request.surface && AutoMovieThreeKind.isMesh(object))
+        (!request.surface && AutoMovieRenderThreeKind.isMesh(object))
       ) {
         masks.set(object, object.layers.mask);
         object.layers.mask = 0;
@@ -276,11 +276,11 @@ export function applyAutoMovieInspection(
         reserved,
         recolor: request.color,
       });
-    const own: IAutoMovieInspectionOverlay = buildAutoMovieInspectionMarks(
+    const own: IAutoMovieRenderInspectionOverlay = buildAutoMovieInspectionMarks(
       paint(
         measured.map(
           (
-            set: IAutoMovieInspectionMeasured,
+            set: IAutoMovieRenderInspectionMeasured,
           ): [THREE.Object3D, IAutoMovieMark[]] => [
             set.anchor,
             set.marks.filter((mark: IAutoMovieMark): boolean =>
@@ -294,7 +294,7 @@ export function applyAutoMovieInspection(
     );
     undo.push(own.dispose);
     group.add(own.object);
-    let overlay: IAutoMovieInspectionOverlay = buildAutoMovieInspectionMarks(
+    let overlay: IAutoMovieRenderInspectionOverlay = buildAutoMovieInspectionMarks(
       paint(current.sets, kinds),
       style,
     );
@@ -302,7 +302,7 @@ export function applyAutoMovieInspection(
     group.add(overlay.object);
 
     // Section: the cut and the restore of the clipping state it borrows belong to the section owner.
-    const renderer: IAutoMovieSectionRenderer = props.renderer ?? {
+    const renderer: IAutoMovieRenderSectionRenderer = props.renderer ?? {
       localClippingEnabled: false,
     };
     if (request.section !== null)
@@ -351,7 +351,7 @@ export function applyAutoMovieInspection(
             reserved,
             recolor: request.color,
           });
-        const built: IAutoMovieInspectionOverlay =
+        const built: IAutoMovieRenderInspectionOverlay =
           buildAutoMovieInspectionMarks(paint(next.sets, nextKinds), style);
         if (request.section !== null)
           applyAutoMovieSectionPlanes({
@@ -384,7 +384,7 @@ export function applyAutoMovieInspection(
         ]): IPlaced[] =>
           marks.map((mark: IAutoMovieMark): IPlaced => ({ mark, anchor })),
       ),
-      ...measured.flatMap((set: IAutoMovieInspectionMeasured): IPlaced[] =>
+      ...measured.flatMap((set: IAutoMovieRenderInspectionMeasured): IPlaced[] =>
         set.marks
           .filter((mark: IAutoMovieMark): boolean => selects(mark.path))
           .map(
@@ -392,8 +392,8 @@ export function applyAutoMovieInspection(
           ),
       ),
     ];
-    const shownObjects: IAutoMovieInspectionPath[] = drawn.filter(
-      (entry: IAutoMovieInspectionPath): boolean => selects(entry.path),
+    const shownObjects: IAutoMovieRenderInspectionPath[] = drawn.filter(
+      (entry: IAutoMovieRenderInspectionPath): boolean => selects(entry.path),
     );
 
     return {
@@ -434,7 +434,7 @@ export function applyAutoMovieInspection(
       },
       bounds: (
         focus?: IAutoMovieInspectionFocus | null,
-      ): IAutoMovieViewerSubjectBounds | null =>
+      ): IAutoMovieRenderViewerSubjectBounds | null =>
         focus === undefined || focus === null
           ? AutoMovieRenderInspectionGeometry.measureBounds(scene)
           : AutoMovieRenderInspection.focus({
@@ -505,9 +505,9 @@ function surfaceLegend(
   return [
     {
       label: "surface front",
-      color: AUTO_MOVIE_INSPECTION_PALETTE.front,
+      color: AutoMovieRenderInspectionPalette.front,
       count,
     },
-    { label: "surface back", color: AUTO_MOVIE_INSPECTION_PALETTE.back, count },
+    { label: "surface back", color: AutoMovieRenderInspectionPalette.back, count },
   ];
 }

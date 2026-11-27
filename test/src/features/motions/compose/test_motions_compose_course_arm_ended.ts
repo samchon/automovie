@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { courseArmGoalBase } from "@automovie/motions/internal";
+import {
+  courseArmGoalBase
+} from "../../../../../packages/motions/src/compose/internal/courseArmGoalBase";
 import { TestValidator } from "@nestia/e2e";
 
 import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan";

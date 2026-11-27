@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
@@ -17,12 +17,12 @@ export function carExitAnkleAt(
 ): IAutoMovieVector3 {
   const at: IAutoMovieVector3 =
     phase <= 0.5
-      ? Vector3.lerp(
+      ? AutoMovieEngineVector3.lerp(
           start,
           sill,
           AutoMovieMotionInterval.progress(liftShare, 0.5, phase),
         )
-      : Vector3.lerp(
+      : AutoMovieEngineVector3.lerp(
           sill,
           end,
           AutoMovieMotionInterval.progress(0.5, 1 - liftShare, phase),

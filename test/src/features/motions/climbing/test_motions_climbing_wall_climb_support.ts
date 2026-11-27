@@ -2,7 +2,12 @@ import type {
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionHumanWallClimb,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, wallClimbSupport } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  wallClimbSupport
+} from "../../../../../packages/motions/src/climbing/internal/wallClimbSupport";
 import { TestValidator } from "@nestia/e2e";
 
 /**

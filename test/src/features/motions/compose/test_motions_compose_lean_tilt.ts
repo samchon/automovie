@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanLean } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanLean
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanLean";
 import { TestValidator } from "@nestia/e2e";
 
 /**

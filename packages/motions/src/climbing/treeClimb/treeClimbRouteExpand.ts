@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLieDown,
@@ -24,7 +24,7 @@ export function treeClimbRouteExpand(
   tree: treeLimbs.ITree,
   stances: readonly treeClimbRoute.IStance[],
 ): treeClimbRoute.IRoute {
-  const weight: number = body.massModel.mass * AutoMovieGravity.STANDARD;
+  const weight: number = body.massModel.mass * AutoMovieEngineGravity.STANDARD;
   const staged: Map<string, treeClimbRoute.IHold> = new Map();
   const out: IAutoMovieMotionHumanSupport.IStance[] = [];
   const emit = (

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanCoatPartner, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieResolvedBone, IAutoMovieRigidTransform } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
@@ -9,7 +9,7 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
 import { wardrobeHands } from "./wardrobeHands";
-import * as CoatPartnerData from "./CoatPartnerData";
+import { CoatPartnerData } from "./CoatPartnerData";
 
 /*
  * Help a partner into a coat. The dresser's holding hand carries the jacket's
@@ -200,15 +200,15 @@ function collar(
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     partner.bones(seconds, new Set(names));
   const rotation: IAutoMovieRigidTransform["rotation"] =
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, partner.root(seconds).yaw);
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, partner.root(seconds).yaw);
   return {
-    position: Vector3.add(
-      Vector3.lerp(
+    position: AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.lerp(
         bones.get("leftUpperArm")!.worldPosition,
         bones.get("rightUpperArm")!.worldPosition,
         0.5,
       ),
-      Quaternion.rotateVector(rotation, CoatPartnerData.COLLAR),
+      AutoMovieEngineQuaternion.rotateVector(rotation, CoatPartnerData.COLLAR),
     ),
     rotation,
   };

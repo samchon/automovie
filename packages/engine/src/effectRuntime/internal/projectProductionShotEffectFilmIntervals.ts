@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../../film/internal/productionFrameBoundaryToSeconds";
-import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
+import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 import { estimateProductionFilmFrame } from "./estimateProductionFilmFrame";
 import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTimelineFrameRate";
 
@@ -24,7 +24,7 @@ import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTim
  * diagnostics own that refusal. Intervals come out in segment order, then in
  * the shot's effect order. A cue with a negative or non-finite start, an end
  * not after its start, or an unrepresentable bound throws
- * `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`, as does
+ * `AutoMovieEngineFilmEffectRuntimeError` with `film-effect-input-invalid`, as does
  * an inconsistent clock.
  */
 export const projectProductionShotEffectFilmIntervals = (
@@ -102,7 +102,7 @@ const sourceInterval = (
       ? firstFrameAtOrAfter(effect.end, frameRate)
       : null;
   if (startFrame === null || endFrame === null)
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-input-invalid",
       `Shot effect cue "${effect.id}" on shot "${shot}" has an invalid or unrepresentable second interval ${effect.start}..${effect.end}.`,
     );

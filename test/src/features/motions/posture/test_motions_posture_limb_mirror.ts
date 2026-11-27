@@ -1,11 +1,13 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import { HumanLimbMirror } from "@automovie/motions/internal";
+import {
+  HumanLimbMirror
+} from "../../../../../packages/motions/src/posture/internal/HumanLimbMirror";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -37,11 +39,11 @@ export function test_motions_posture_limb_mirror(): void {
   const goal: IAutoMovieHumanLimbGoal = {
     point: { x: 0.3, y: 1, z: 0.2 },
     bend: { x: 0.4, y: 1, z: -0.3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30),
     on: "leftLowerArm",
   };
   const mirrored: IAutoMovieHumanLimbGoal = HumanLimbMirror.goal(goal);
-  const back: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     -30,
   );

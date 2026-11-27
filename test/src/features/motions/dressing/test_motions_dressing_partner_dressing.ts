@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, requireHatHand } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  requireHatHand
+} from "../../../../../packages/motions/src/dressing/internal/requireHatHand";
 import { strict as assert } from "node:assert";
 
 /** The hat gesture needs the selected hand free to take the brim. */

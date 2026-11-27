@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import { type AutoMovieArchetype } from "../../core";
@@ -28,7 +28,7 @@ export namespace EquineFordBarReads {
    */
   export function top(bar: IAutoMovieModelPart): number {
     const solid: EquineFordConstants.IBar = shape(bar);
-    const up: number = Quaternion.rotateVectorY(
+    const up: number = AutoMovieEngineQuaternion.rotateVectorY(
       bar.transform!.rotation,
       EquineFordConstants.UP,
     );

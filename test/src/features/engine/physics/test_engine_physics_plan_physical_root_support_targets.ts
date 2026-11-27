@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
@@ -38,13 +38,13 @@ export function test_engine_physics_plan_physical_root_support_targets(): void {
     });
   const findings: string[] = [];
   if (
-    Vector3.length(Vector3.subtract(planned.body!.position, actual.position)) >
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(planned.body!.position, actual.position)) >
     PhysicalTolerance.ROUNDING
   )
     findings.push("feedback changed the actual-root premise");
   for (const limb of body.supportTracking.pattern.limbs) {
-    const error: number = Vector3.length(
-      Vector3.subtract(
+    const error: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         planned[limb.bone]!.position,
         targets[limb.bone]!.position,
       ),

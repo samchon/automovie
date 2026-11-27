@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -121,30 +121,30 @@ export namespace pickUpOver {
       frame === undefined ? undefined : bones.get(frame);
     const inverse: IAutoMovieQuaternion =
       at === undefined
-        ? Quaternion.identity()
-        : Quaternion.inverse(at.worldRotation);
+        ? AutoMovieEngineQuaternion.identity()
+        : AutoMovieEngineQuaternion.inverse(at.worldRotation);
     const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
       p: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       at === undefined
         ? p
-        : Quaternion.rotateVector(
+        : AutoMovieEngineQuaternion.rotateVector(
             inverse,
-            Vector3.subtract(p, at.worldPosition),
+            AutoMovieEngineVector3.subtract(p, at.worldPosition),
           );
     const turn: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
       q: IAutoMovieQuaternion,
     ): IAutoMovieQuaternion =>
       at === undefined
         ? q
-        : Quaternion.normalize(Quaternion.multiply(inverse, q));
+        : AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(inverse, q));
 
     // The timing: the reach, the load and the lift, as standing.
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
     const reach: number = HumanPrehension.duration(
       context.skill,
       context.random("reach"),
-      Vector3.distance(chosen.wrist.point, hand.worldPosition),
+      AutoMovieEngineVector3.distance(chosen.wrist.point, hand.worldPosition),
       target.width,
     );
     const rise: number = lift > 0 ? HumanPrehension.nominal(lift, 0) : 0;
@@ -226,9 +226,9 @@ export namespace pickUpOver {
         const wrist: IAutoMovieVector3 =
           t < reach
             ? transport.wrist(t)
-            : Vector3.add(
+            : AutoMovieEngineVector3.add(
                 chosen.wrist.point,
-                Vector3.scale(
+                AutoMovieEngineVector3.scale(
                   up,
                   rise > 0
                     ? lift *

@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieCombinePhysicalMassProperties, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMoviePhysicalInertiaTensor } from "../../physics/AutoMoviePhysicalInertiaTensor";
+import { AutoMovieEnginePhysicalInertiaTensor } from "../../physics/AutoMovieEnginePhysicalInertiaTensor";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 
@@ -108,7 +108,7 @@ export function resolveAutoMovieMomentumRates(
     const vx: number = rate.velocity.x - velocity.x;
     const vy: number = rate.velocity.y - velocity.y;
     const vz: number = rate.velocity.z - velocity.z;
-    const spin: IAutoMovieVector3 = AutoMoviePhysicalInertiaTensor.spin(
+    const spin: IAutoMovieVector3 = AutoMovieEnginePhysicalInertiaTensor.spin(
       part,
       part.inertiaRotation,
       rate.angular,

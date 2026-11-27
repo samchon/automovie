@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -160,7 +160,7 @@ export namespace selfAction {
           {
             point: { ...place.point, y: place.point.y - drop },
             normal: r.pump
-              ? Vector3.subtract(
+              ? AutoMovieEngineVector3.subtract(
                   AutoMovieMotionHumanTarget.fallback(
                     body,
                     posture,

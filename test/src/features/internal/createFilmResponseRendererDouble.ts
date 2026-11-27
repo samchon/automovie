@@ -1,4 +1,4 @@
-import type { IAutoMovieFilmResponseRenderer } from "@automovie/render";
+import type { IAutoMovieRenderFilmResponseRenderer } from "@automovie/render";
 import * as THREE from "three";
 
 /**
@@ -24,7 +24,7 @@ export function createFilmResponseRendererDouble(props: {
 }): createFilmResponseRendererDouble.IDouble {
   const renders: createFilmResponseRendererDouble.IRender[] = [];
   let target: THREE.WebGLRenderTarget | null = null;
-  const renderer: IAutoMovieFilmResponseRenderer = {
+  const renderer: IAutoMovieRenderFilmResponseRenderer = {
     toneMapping: props.toneMapping,
     toneMappingExposure: props.exposure,
     autoClear: true,
@@ -57,7 +57,7 @@ export namespace createFilmResponseRendererDouble {
   /** The double and its log. */
   export interface IDouble {
     /** The renderer to hand to the stage. */
-    renderer: IAutoMovieFilmResponseRenderer;
+    renderer: IAutoMovieRenderFilmResponseRenderer;
 
     /** Every render call, in order. */
     renders: IRender[];

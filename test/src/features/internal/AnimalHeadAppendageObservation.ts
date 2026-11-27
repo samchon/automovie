@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "@automovie/archetypes";
-import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieCylinderShape,
   IAutoMovieModelPart,
@@ -146,7 +146,7 @@ export namespace AnimalHeadAppendageObservation {
       head.geometry.shape.type !== "capsule"
     )
       throw new Error("The actual ox head must retain its generated capsule");
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       head.transform!.rotation,
       { x: 0, y: -head.geometry.shape.height / 2, z: 0 },
     );
@@ -204,7 +204,7 @@ export namespace AnimalHeadAppendageObservation {
     part: IAutoMovieModelPart,
     sign: -1 | 1,
   ): IAutoMovieVector3 {
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform!.rotation,
       { x: 0, y: (sign * cylinder(part).height) / 2, z: 0 },
     );
@@ -220,8 +220,8 @@ export namespace AnimalHeadAppendageObservation {
     parent: IAutoMovieModelPart,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(parent.transform!.rotation),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(parent.transform!.rotation),
       {
         x: point.x - parent.transform!.translation.x,
         y: point.y - parent.transform!.translation.y,

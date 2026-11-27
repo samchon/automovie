@@ -7,7 +7,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieViewOutline } from "../../AutoMovieViewOutline";
+import { AutoMovieEngineViewOutline } from "../../AutoMovieEngineViewOutline";
 
 /*
  * Prepare ViewLoft's existing value readers, reusing retained direct sources.
@@ -59,13 +59,13 @@ export function AutoMovieViewLoftInputs(
     closing: boolean = false,
   ): AutoMovieViewLoftInputsScalar | null => {
     const prepared: IAutoMovieViewOutline.IResult =
-      reused[name] ?? AutoMovieViewOutline.create(outline, closing ? ends : {});
+      reused[name] ?? AutoMovieEngineViewOutline.create(outline, closing ? ends : {});
     if ("detail" in prepared) {
       report(prepared.contract, `${name}: ${prepared.detail}`);
       return null;
     }
     return (station: number): number => {
-      const value: number | string = AutoMovieViewOutline.value(
+      const value: number | string = AutoMovieEngineViewOutline.value(
         prepared,
         station,
       );

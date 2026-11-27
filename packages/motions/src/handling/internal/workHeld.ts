@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -41,7 +41,7 @@ import { heldDigits } from "./heldDigits";
 import { pickUp } from "./pickUp";
 import { workHeldPush } from "./workHeldPush";
 import { writeWith } from "./writeWith";
-import * as WorkHeldData from "./WorkHeldData";
+import { WorkHeldData } from "./WorkHeldData";
 
 /*
  * Work a prop the hand already holds without letting go: the fingers drive its
@@ -226,13 +226,13 @@ function place(
   const prop: IAutoMovieRigidTransform = context
     .prop(subject)
     .frame(context.entry.seconds);
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.worldRotation);
   const offset: IAutoMovieRigidTransform = {
-    position: Quaternion.rotateVector(
+    position: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(prop.position, hand.worldPosition),
+      AutoMovieEngineVector3.subtract(prop.position, hand.worldPosition),
     ),
-    rotation: Quaternion.multiply(inverse, prop.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(inverse, prop.rotation),
   };
   // A level prop keeps its declared up on the world's up at whichever
   // heading the arm holds it exactly (`HumanGrasp.reachable`), as a level
@@ -242,19 +242,19 @@ function place(
   ) => IAutoMovieMotionHumanHand.IWrist = (
     rest: IAutoMovieQuaternion,
   ): IAutoMovieMotionHumanHand.IWrist => {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(rest, Quaternion.inverse(offset.rotation)),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(rest, AutoMovieEngineQuaternion.inverse(offset.rotation)),
     );
     return {
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         point,
-        Quaternion.rotateVector(rotation, offset.position),
+        AutoMovieEngineQuaternion.rotateVector(rotation, offset.position),
       ),
       rotation,
     };
   };
-  const declared: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
+  const declared: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       HumanFrame.turn(posture.yaw),
       context.prop(subject).prop.frame.rotation,
     ),
@@ -268,8 +268,8 @@ function place(
           AutoMovieMotionHumanBend.hang(context.body, posture, side),
           (turn: number): IAutoMovieMotionHumanHand.IWrist =>
             holding(
-              Quaternion.multiply(
-                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn),
+              AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn),
                 declared,
               ),
             ),
@@ -295,9 +295,9 @@ function place(
           { x: 0, y: 0, z: -WorkHeldData.RIM },
         ].map(
           (axis: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit => ({
-            contact: Vector3.add(
+            contact: AutoMovieEngineVector3.add(
               offset.position,
-              Quaternion.rotateVector(offset.rotation, axis),
+              AutoMovieEngineQuaternion.rotateVector(offset.rotation, axis),
             ),
             bound: WorkHeldData.RIM * Math.sin((WorkHeldData.LEVEL * Math.PI) / 180),
           }),
@@ -308,7 +308,7 @@ function place(
     rotation,
     contact: offset.position,
     limits: rim,
-    travel: Vector3.length(Vector3.subtract(wrist, hand.worldPosition)),
+    travel: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist, hand.worldPosition)),
   };
 }
 
@@ -352,21 +352,21 @@ function taking(
     context.entry.pose,
   ).get(`${side}Hand`)!;
   const frame: IAutoMovieRigidTransform = reader.frame(context.entry.seconds);
-  const point: IAutoMovieVector3 = Vector3.add(
+  const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, socket.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, socket.frame.translation),
   );
   const rotation: IAutoMovieQuaternion = hand.worldRotation;
-  const contact: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(rotation),
-    Vector3.subtract(point, hand.worldPosition),
+  const contact: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(rotation),
+    AutoMovieEngineVector3.subtract(point, hand.worldPosition),
   );
   const target: IAutoMovieVector3 = context
     .prop(take.prop)
     .frame(context.entry.seconds).position;
-  const wrist: IAutoMovieVector3 = Vector3.subtract(
+  const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     target,
-    Quaternion.rotateVector(rotation, contact),
+    AutoMovieEngineQuaternion.rotateVector(rotation, contact),
   );
   writeWith.reach(context, side, [wrist], { x: 0, y: 0, z: 0 });
   return {
@@ -374,7 +374,7 @@ function taking(
     rotation,
     contact,
     limits: [],
-    travel: Vector3.length(Vector3.subtract(wrist, hand.worldPosition)),
+    travel: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist, hand.worldPosition)),
   };
 }
 

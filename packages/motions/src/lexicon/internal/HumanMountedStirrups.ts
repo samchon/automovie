@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -195,7 +195,7 @@ export namespace HumanMountedStirrups {
         0,
       ),
     };
-    const ankles: IAutoMovieVector3 = Vector3.lerp(
+    const ankles: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       feet.left.ankle,
       feet.right.ankle,
       0.5,
@@ -215,7 +215,7 @@ export namespace HumanMountedStirrups {
     );
 
     // The root stands where the hips' middle lies `back` behind the stirrups, or where the socket's clearance puts it, never less than clears the saddle's rise.
-    const middle: IAutoMovieVector3 = Vector3.lerp(rest.left, rest.right, 0.5);
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(rest.left, rest.right, 0.5);
     const lifted: IAutoMovieVector3 | undefined =
       shape.clear === undefined
         ? undefined
@@ -266,7 +266,7 @@ export namespace HumanMountedStirrups {
       entry.joints.hips,
     );
     for (const side of ["left", "right"] as const) {
-      const length: number = Vector3.distance(hips[side], feet[side].ankle);
+      const length: number = AutoMovieEngineVector3.distance(hips[side], feet[side].ankle);
       if (!(length >= near + slack && length <= far - slack + 1e-9))
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
@@ -305,9 +305,9 @@ export namespace HumanMountedStirrups {
     const leg = (side: AutoMovieHumanSide): IAutoMovieHumanLimbGoal => ({
       point: feet[side].ankle,
       rotation: feet[side].rotation,
-      bend: Vector3.add(
+      bend: AutoMovieEngineVector3.add(
         hips[side],
-        Vector3.scale(HumanFrame.forward(facing), m.thigh),
+        AutoMovieEngineVector3.scale(HumanFrame.forward(facing), m.thigh),
       ),
       planted: true,
       contact: HumanFoot.offset(body, side, "ball"),

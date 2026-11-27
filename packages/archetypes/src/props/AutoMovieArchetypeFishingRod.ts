@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { LongImplementDraw } from "./internal/LongImplementDraw";
@@ -37,8 +37,8 @@ export function create(
   builder.rod(
     "rod",
     radius,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, length, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, length, 0),
     {
       color: "#2c2f33",
     },
@@ -48,9 +48,9 @@ export function create(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, grip / 2, 0),
-      Vector3.create(0, 0, -1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, grip / 2, 0),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     grip: "power",
@@ -61,7 +61,7 @@ export function create(
     id: "tip",
     kind: "surface",
     direction: "along",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, length, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, length, 0)),
     extent: null,
   });
   return builder.build(d.mass!);

@@ -1,4 +1,4 @@
-import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
@@ -71,14 +71,14 @@ export function HumanArcheryCue(
     ),
   );
   const state: Readonly<Record<string, number>> = fixture.state?.(at) ?? {};
-  const articulation: string | null = AffordanceArticulation.leader(
+  const articulation: string | null = AutoMovieEngineAffordanceArticulation.leader(
     byId,
     "string",
   );
   const start: number | null =
     articulation === null
       ? null
-      : AffordanceArticulation.travel(byId, state, articulation);
+      : AutoMovieEngineAffordanceArticulation.travel(byId, state, articulation);
   if (
     articulation === null ||
     start === null ||
@@ -100,7 +100,7 @@ export function HumanArcheryCue(
   if (
     nock === undefined ||
     tail === undefined ||
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       worldPoint(fixture.frame(at), nock.frame.translation),
       worldPoint(moved.frame(at), tail),
     ) > SEATING_TOLERANCE
@@ -169,9 +169,9 @@ function worldPoint(
   frame: IAutoMovieRigidTransform,
   local: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, local),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, local),
   );
 }
 

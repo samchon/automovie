@@ -1,2 +1,2 @@
-export * from "./AutoMovieFrameGrid.js";
+export * from "./AutoMovieRenderFrameGrid.js";
 export * from "./AutoMovieRenderScrub.js";

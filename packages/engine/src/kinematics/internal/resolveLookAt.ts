@@ -9,14 +9,14 @@ import {
   type IAutoMovieMotionSample,
 } from "@automovie/interface";
 
-import { GAZE_PRESET_CHANNELS } from "../GAZE_PRESET_CHANNELS";
+import { AutoMovieEngineGazePresetChannels } from "../AutoMovieEngineGazePresetChannels";
 
 /*
  * Turn the gaze channels of a sampled expression into eye-bone rotations, for a
  * model whose IAutoMovieLookAt is `"bone"`.
  *
  * Each eye channel's weight is its gaze preset's expansion
- * (GAZE_PRESET_CHANNELS) times the preset intensity, replaced by the
+ * (AutoMovieEngineGazePresetChannels) times the preset intensity, replaced by the
  * expression's own blendshape for that channel when it lists one, and clamped
  * to `[0, 1]` with a non-finite value read as `0`, the rules the viewer's morph
  * expansion applies. A weight scales the declared range in its direction
@@ -49,7 +49,7 @@ export function resolveLookAt(
 
   const preset: readonly (readonly [AutoMovieArkitChannel, number])[] | null =
     (
-      GAZE_PRESET_CHANNELS as Partial<
+      AutoMovieEngineGazePresetChannels as Partial<
         Record<
           AutoMovieExpressionPreset,
           readonly (readonly [AutoMovieArkitChannel, number])[]

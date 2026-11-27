@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectorPathNode } from "../IAutoMovieInspectorPathNode.js";
+import type { IAutoMovieViewerInspectorPathNode } from "../IAutoMovieViewerInspectorPathNode.js";
 
 /*
  * Arrange identity paths into the tree of their names, for the selection panel.
@@ -18,16 +18,16 @@ import type { IAutoMovieInspectorPathNode } from "../IAutoMovieInspectorPathNode
  */
 export function buildAutoMovieInspectorPathTree(
   paths: readonly string[],
-): IAutoMovieInspectorPathNode[] {
-  const roots: IAutoMovieInspectorPathNode[] = [];
-  const nodes: Map<string, IAutoMovieInspectorPathNode> = new Map<
+): IAutoMovieViewerInspectorPathNode[] {
+  const roots: IAutoMovieViewerInspectorPathNode[] = [];
+  const nodes: Map<string, IAutoMovieViewerInspectorPathNode> = new Map<
     string,
-    IAutoMovieInspectorPathNode
+    IAutoMovieViewerInspectorPathNode
   >();
   for (const path of paths) {
     const names: string[] = path === "" ? [""] : path.split("/");
-    let siblings: IAutoMovieInspectorPathNode[] = roots;
-    let node: IAutoMovieInspectorPathNode | undefined;
+    let siblings: IAutoMovieViewerInspectorPathNode[] = roots;
+    let node: IAutoMovieViewerInspectorPathNode | undefined;
     let prefix: string = "";
     for (let depth: number = 0; depth < names.length; depth++) {
       prefix = depth === 0 ? names[0]! : `${prefix}/${names[depth]!}`;

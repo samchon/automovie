@@ -2,7 +2,7 @@ import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionView } from "@au
 import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { type ChangeEvent, type JSX, useState } from "react";
 
-import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
+import type { IAutoMovieViewerInspectorAction } from "../../IAutoMovieViewerInspectorAction.js";
 
 /*
  * View: the subject's camera (`film`), a named view (the subject's own or a fitted viewpoint) with orthographic projection, following each second and a focus, or a fixed camera by coordinates, typed with any scale and up its text carries.
@@ -166,7 +166,7 @@ export namespace AutoMovieInspectorViewPanel {
     /*
      * Where edits go.
      */
-    dispatch: (action: IAutoMovieInspectorAction) => void;
+    dispatch: (action: IAutoMovieViewerInspectorAction) => void;
   }
 }
 

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieJointConstraint,
@@ -33,7 +33,7 @@ export async function test_engine_kinematics_gaze_chain_joints(): Promise<void> 
     const override: IAutoMovieJointConstraint | null = rig.bones.find(
       (bone: IAutoMovieBone): boolean => bone.bone === name,
     )!.constraint;
-    return override === null ? DEFAULT_HUMANOID_ROM[name]! : override;
+    return override === null ? AutoMovieEngineDefaultHumanoidRom[name]! : override;
   };
   const H: number = range("head").flexion!.max;
   const N: number = range("neck").flexion!.max;

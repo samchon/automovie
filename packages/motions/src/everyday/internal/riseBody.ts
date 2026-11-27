@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -222,7 +222,7 @@ export namespace riseBody {
     /*
      * The socket's edging forward on the seat, if it edges.
      */
-    edged: ReturnType<typeof Vector3.prepareLerp> | undefined;
+    edged: ReturnType<typeof AutoMovieEngineVector3.prepareLerp> | undefined;
 
     /*
      * The edging's seconds.

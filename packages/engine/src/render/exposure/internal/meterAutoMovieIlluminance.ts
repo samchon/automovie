@@ -8,8 +8,8 @@ import type {
 
 import { autoMovieContextSolids } from "../../../analysis/internal/autoMovieContextSolids";
 import { autoMovieSkyIlluminance } from "../../../analysis/internal/autoMovieSkyIlluminance";
-import { Quaternion } from "../../../math/Quaternion";
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 
 /*
  * Meter the illuminance at a point of a scene, as an incident-light meter held
@@ -51,12 +51,12 @@ export function meterAutoMovieIlluminance(
   props: IAutoMovieMeterIlluminance.IProps,
 ): IAutoMovieMeterIlluminance.IResult {
   const { point }: IAutoMovieMeterIlluminance.IProps = props;
-  const length: number = Vector3.length(props.normal);
+  const length: number = AutoMovieEngineVector3.length(props.normal);
   if (!(length > 0))
     throw new Error(
       "meterAutoMovieIlluminance: normal must be finite and non-zero.",
     );
-  const normal: IAutoMovieVector3 = Vector3.scale(props.normal, 1 / length);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(props.normal, 1 / length);
 
   const contributions: IAutoMovieMeterIlluminance.IContribution[] =
     props.lights.map(
@@ -128,24 +128,24 @@ const incidence: (
   point: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ): number => {
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     light.transform.rotation,
     FORWARD,
   );
   if (light.type === "directional")
-    return Math.max(0, -Vector3.dot(normal, Vector3.normalize(forward)));
+    return Math.max(0, -AutoMovieEngineVector3.dot(normal, AutoMovieEngineVector3.normalize(forward)));
   if (light.type === "area") return projectedSolidAngle(light, point, normal);
 
-  const offset: IAutoMovieVector3 = Vector3.subtract(
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     light.transform.translation,
     point,
   );
-  const squared: number = Vector3.dot(offset, offset);
+  const squared: number = AutoMovieEngineVector3.dot(offset, offset);
   if (squared === 0) return 0;
   const distance: number = Math.sqrt(squared);
-  const toward: IAutoMovieVector3 = Vector3.scale(offset, 1 / distance);
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(offset, 1 / distance);
   if (light.type === "spot") {
-    const axis: number = -Vector3.dot(toward, Vector3.normalize(forward));
+    const axis: number = -AutoMovieEngineVector3.dot(toward, AutoMovieEngineVector3.normalize(forward));
     if (!(axis > Math.cos((light.coneAngle * Math.PI) / 180))) return 0;
   }
   const window: number =
@@ -153,7 +153,7 @@ const incidence: (
       ? Math.min(1, Math.max(0, 1 - (distance / light.range) ** 4)) ** 2
       : 1;
   return (
-    (Math.max(0, Vector3.dot(normal, toward)) * window) /
+    (Math.max(0, AutoMovieEngineVector3.dot(normal, toward)) * window) /
     Math.max(squared, NEAREST_SQUARED)
   );
 };
@@ -175,15 +175,15 @@ const projectedSolidAngle: (
 ): number => {
   const rotation: IAutoMovieQuaternion = light.transform.rotation;
   const centre: IAutoMovieVector3 = light.transform.translation;
-  const front: IAutoMovieVector3 = Quaternion.rotateVector(rotation, FORWARD);
-  if (Vector3.dot(Vector3.subtract(point, centre), front) <= 0) return 0;
+  const front: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, FORWARD);
+  if (AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, centre), front) <= 0) return 0;
 
-  const across: IAutoMovieVector3 = Vector3.scale(
-    Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 }),
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineQuaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 }),
     light.width / 2,
   );
-  const up: IAutoMovieVector3 = Vector3.scale(
-    Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
     light.height / 2,
   );
 
@@ -195,10 +195,10 @@ const projectedSolidAngle: (
     [-1, 1],
   ].map(
     ([u, v]: number[]): IAutoMovieVector3 =>
-      Vector3.subtract(
-        Vector3.add(
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           centre,
-          Vector3.add(Vector3.scale(across, u!), Vector3.scale(up, v!)),
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(across, u!), AutoMovieEngineVector3.scale(up, v!)),
         ),
         point,
       ),
@@ -212,11 +212,11 @@ const projectedSolidAngle: (
   for (let i: number = 0; i < clipped.length; ++i) {
     const a: IAutoMovieVector3 = clipped[i]!;
     const b: IAutoMovieVector3 = clipped[(i + 1) % clipped.length]!;
-    const cross: IAutoMovieVector3 = Vector3.cross(a, b);
-    const sine: number = Vector3.length(cross);
+    const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(a, b);
+    const sine: number = AutoMovieEngineVector3.length(cross);
     if (sine === 0) continue;
-    const angle: number = Math.atan2(sine, Vector3.dot(a, b));
-    sum += (angle * Vector3.dot(cross, normal)) / sine;
+    const angle: number = Math.atan2(sine, AutoMovieEngineVector3.dot(a, b));
+    sum += (angle * AutoMovieEngineVector3.dot(cross, normal)) / sine;
   }
   return Math.abs(sum) / 2;
 };
@@ -237,13 +237,13 @@ const clipAbove: (
   for (let i: number = 0; i < polygon.length; ++i) {
     const current: IAutoMovieVector3 = polygon[i]!;
     const next: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
-    const here: number = Vector3.dot(current, normal);
-    const there: number = Vector3.dot(next, normal);
+    const here: number = AutoMovieEngineVector3.dot(current, normal);
+    const there: number = AutoMovieEngineVector3.dot(next, normal);
     if (here >= 0) output.push(current);
     if (here >= 0 !== there >= 0) {
       const t: number = here / (here - there);
       output.push(
-        Vector3.add(current, Vector3.scale(Vector3.subtract(next, current), t)),
+        AutoMovieEngineVector3.add(current, AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(next, current), t)),
       );
     }
   }

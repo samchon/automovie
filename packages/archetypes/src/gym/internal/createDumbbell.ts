@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeDumbbell } from "../AutoMovieArchetypeDumbbell";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -76,16 +76,16 @@ export function createDumbbell(
   builder.rod(
     "handle",
     slim,
-    Vector3.create(-half, 0, 0),
-    Vector3.create(half, 0, 0),
+    AutoMovieEngineVector3.create(-half, 0, 0),
+    AutoMovieEngineVector3.create(half, 0, 0),
     { color: "#b8bcc2" },
   );
   for (const side of [1, -1] as const)
     builder.rod(
       side === 1 ? "head-left" : "head-right",
       radius,
-      Vector3.create(side * half, 0, 0),
-      Vector3.create(side * (half + AutoMovieArchetypeDumbbell.SQUAT * radius), 0, 0),
+      AutoMovieEngineVector3.create(side * half, 0, 0),
+      AutoMovieEngineVector3.create(side * (half + AutoMovieArchetypeDumbbell.SQUAT * radius), 0, 0),
       { color: "#2c2f33" },
     );
   builder.affordance({
@@ -93,9 +93,9 @@ export function createDumbbell(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, 0, -1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     grip: "power",

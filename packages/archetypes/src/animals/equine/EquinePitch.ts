@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core";
@@ -125,7 +125,7 @@ export namespace EquinePitch {
     absorb: number,
   ): IPlan {
     const flight: number = landing - takeoff;
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     return {
       push,
       takeoff,
@@ -150,7 +150,7 @@ export namespace EquinePitch {
     const { push, takeoff, landing, absorb, centre, rise, turn, launch } =
       pitch;
     if (!(seconds > push && seconds < absorb)) return { y: 0, z: 0, pitch: 0 };
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const flight: number = landing - takeoff;
     let height: number;
     let angle: number;
@@ -200,20 +200,20 @@ export namespace EquinePitch {
     )
       return placement;
     return {
-      translation: Vector3.add(
+      translation: AutoMovieEngineVector3.add(
         placement.translation,
-        Quaternion.rotateVector(placement.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(placement.rotation, {
           x: 0,
           y: tilt?.y ?? 0,
           z: tilt?.z ?? 0,
         }),
       ),
-      rotation: Quaternion.multiply(
-        Quaternion.multiply(
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           placement.rotation,
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
         ),
-        Quaternion.fromAxisAngle(
+        AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 1, y: 0, z: 0 },
           (-(tilt?.pitch ?? 0) * 180) / Math.PI,
         ),

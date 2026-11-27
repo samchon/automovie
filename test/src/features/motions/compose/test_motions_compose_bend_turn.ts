@@ -1,13 +1,15 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBendChain,
-  AutoMovieMotionHumanBendTurn,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanBendChain
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBendChain";
+import {
+  AutoMovieMotionHumanBendTurn
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBendTurn";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -47,21 +49,21 @@ export async function test_motions_compose_bend_turn(): Promise<void> {
     body,
     posture,
     side: "left",
-    point: Vector3.add(shoulder, { x: 0, y: 0, z: 0.5 }),
+    point: AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: 0.5 }),
   };
-  const middle: IAutoMovieVector3 = Vector3.add(shoulder, {
+  const middle: IAutoMovieVector3 = AutoMovieEngineVector3.add(shoulder, {
     x: 0,
     y: 0,
     z: 0.25,
   });
-  const hint: IAutoMovieVector3 = Vector3.add(middle, { x: 0, y: 0.2, z: 0 });
+  const hint: IAutoMovieVector3 = AutoMovieEngineVector3.add(middle, { x: 0, y: 0.2, z: 0 });
 
   // 1. A quarter turn: +Z × +Y is −X.
   TestValidator.predicate(
     "a quarter turn about the line",
     vclose(
       AutoMovieMotionHumanBendTurn(props, hint, 90),
-      Vector3.add(middle, { x: -0.2, y: 0, z: 0 }),
+      AutoMovieEngineVector3.add(middle, { x: -0.2, y: 0, z: 0 }),
       ROUNDING,
     ),
   );
@@ -80,7 +82,7 @@ export async function test_motions_compose_bend_turn(): Promise<void> {
         ROUNDING,
       ) &&
       nclose(
-        Vector3.distance(AutoMovieMotionHumanBendTurn(props, hint, 47), middle),
+        AutoMovieEngineVector3.distance(AutoMovieMotionHumanBendTurn(props, hint, 47), middle),
         0.2,
         ROUNDING,
       ),

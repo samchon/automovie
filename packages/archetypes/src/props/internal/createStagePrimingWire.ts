@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStagePrimingWire } from "../AutoMovieArchetypeStagePrimingWire";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { HandToolDraw } from "./HandToolDraw";
@@ -33,7 +33,7 @@ export function createStagePrimingWire(
     seed,
   );
   const length: number = d.length!;
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
   // The ring a finger and thumb pinch, then the stem to its point.
   const wire: number = PRIMING_WIRE.wire;

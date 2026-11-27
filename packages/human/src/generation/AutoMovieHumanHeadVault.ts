@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadBackProfile,
   IAutoMovieHumanHeadLandmarks,
@@ -133,12 +133,12 @@ export namespace AutoMovieHumanHeadVault {
       const neck: NonNullable<typeof plan.neck.curves> = plan.neck.curves;
       const source:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
         neck.centre,
       );
       if ("detail" in source)
         throw new Error(`Neck posterior origin: ${source.detail}`);
-      const value: number | string = AutoMovieViewOutline.value(
+      const value: number | string = AutoMovieEngineViewOutline.value(
         source,
         neck.band[1],
       );

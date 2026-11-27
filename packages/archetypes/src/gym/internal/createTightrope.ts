@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeTightrope } from "../AutoMovieArchetypeTightrope";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
@@ -44,23 +44,23 @@ export function createTightrope(
   builder.rod(
     "wire",
     d.diameter / 2,
-    Vector3.create(-half, height, 0),
-    Vector3.create(half, height, 0),
+    AutoMovieEngineVector3.create(-half, height, 0),
+    AutoMovieEngineVector3.create(half, height, 0),
     { color: "#c8c3b8" },
   );
   for (const side of [1, -1] as const)
     builder.rod(
       side === 1 ? "post-left" : "post-right",
       AutoMovieArchetypeTightrope.POST,
-      Vector3.create(side * (half + AutoMovieArchetypeTightrope.POST), 0, 0),
-      Vector3.create(side * (half + AutoMovieArchetypeTightrope.POST), height + 0.1, 0),
+      AutoMovieEngineVector3.create(side * (half + AutoMovieArchetypeTightrope.POST), 0, 0),
+      AutoMovieEngineVector3.create(side * (half + AutoMovieArchetypeTightrope.POST), height + 0.1, 0),
       { color: "#6b5a46" },
     );
   builder.affordance({
     id: "bar",
     kind: "bar",
     symmetry: "round",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: null,
     length: d.span,
     aperture: d.diameter,

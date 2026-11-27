@@ -1,7 +1,7 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core/index";
-import * as AutoMovieArchetypeHatchData from "./internal/AutoMovieArchetypeHatchData";
+import { AutoMovieArchetypeHatchData } from "./internal/AutoMovieArchetypeHatchData";
 
 /** Constructs the hatch archetype from its recipe. */
 export namespace AutoMovieArchetypeHatch {
@@ -48,7 +48,7 @@ export function create(
     name: "roof hatch",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const { width, length, curb, wall, cover } = AutoMovieArchetypeHatchData.HATCH;
   const red: string = "#8c3b22";
   const outerX: number = length + 2 * wall;

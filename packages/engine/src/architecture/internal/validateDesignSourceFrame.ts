@@ -4,7 +4,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { validateTransformScalars } from "../../validation/internal/validateTransformScalars";
 
@@ -128,9 +128,9 @@ export function validateDesignSourceFrame(
     axisXLength > AXIS_EPSILON &&
     axisYLength > AXIS_EPSILON &&
     Math.abs(
-      Vector3.dot(
-        Vector3.scale(frame.axisX, 1 / axisXLength),
-        Vector3.scale(frame.axisY, 1 / axisYLength),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.scale(frame.axisX, 1 / axisXLength),
+        AutoMovieEngineVector3.scale(frame.axisY, 1 / axisYLength),
       ),
     ) >
       1 - AXIS_EPSILON

@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
@@ -138,7 +138,7 @@ export namespace thrown {
       entry.yaw,
     );
     const travel: IAutoMovieVector3 =
-      rig === "blast" ? away : Vector3.scale(away, -1);
+      rig === "blast" ? away : AutoMovieEngineVector3.scale(away, -1);
     const heading: number = (Math.atan2(-travel.x, -travel.z) * 180) / Math.PI;
     const turn: number = wrap(heading - entry.yaw);
 
@@ -147,7 +147,7 @@ export namespace thrown {
     const lying: KnockdownFloor.IFold = KnockdownFloor.fold(fitted, 1, 1);
     const floor: number = KnockdownFloor.prepareMeasure(body)(lying).floor;
     const start: number = entry.root.y;
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const rise: number = Math.sqrt(2 * g * height);
     const flight: number =
       (rise + Math.sqrt(rise * rise + 2 * g * (start - floor))) / g;
@@ -168,7 +168,7 @@ export namespace thrown {
     // the flight's pitch, the pitch it would have flown with.
     const back: number = body.measure.chestDepth / 2;
     const closing: number =
-      wall === undefined ? 0 : speed * Vector3.dot(travel, wall.normal);
+      wall === undefined ? 0 : speed * AutoMovieEngineVector3.dot(travel, wall.normal);
     const leading: (t: number) => number = (t: number): number => {
       const pitch: number =
         shape.pitch + (lying.pitch - shape.pitch) * Math.min(1, t / flight);
@@ -181,8 +181,8 @@ export namespace thrown {
     };
     const reach: number = ((): number => {
       if (wall === undefined || !(closing < 0)) return Infinity;
-      const d0: number = Vector3.dot(
-        Vector3.subtract(entry.root, wall.point),
+      const d0: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(entry.root, wall.point),
         wall.normal,
       );
       const gap: (t: number) => number = (t: number): number =>
@@ -327,7 +327,7 @@ export namespace thrown {
               _before?: IAutoMovieMotionHumanPrimitive.Reader,
             ): IAutoMovieMotionHumanPosture => {
               const t: number = Math.min(flown, Math.max(0, seconds - takeoff));
-              const world: IAutoMovieVector3 = Vector3.scale(travel, speed * t);
+              const world: IAutoMovieVector3 = AutoMovieEngineVector3.scale(travel, speed * t);
               const sliding: number = Math.min(
                 slide,
                 Math.max(0, seconds - impact),

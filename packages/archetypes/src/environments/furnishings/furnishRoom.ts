@@ -1,11 +1,11 @@
-import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type { AutoMovieFurnishingWall, IAutoMovieEnvironmentContribution, IAutoMovieEnvironmentModule, IAutoMovieFurnishingLayout, IAutoMovieModel, IAutoMoviePropBox, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieTransform, IAutoMovieWallMount } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { FurnishingRect } from "./FurnishingRect";
 import { createEnvironmentProp } from "./internal/createEnvironmentProp";
 import { resolveFurnishingPieces } from "./resolveFurnishingPieces";
-import * as FurnishRoomData from "./internal/FurnishRoomData";
+import { FurnishRoomData } from "./internal/FurnishRoomData";
 
 /*
  * Furnish a rectangular room with related pieces and a grid of repeated prop
@@ -160,7 +160,7 @@ export function furnishRoom(
         node: `${context.id}/${role}`,
         wall: `${context.id}/walls/${wall}`,
         point: AutoMovieArchetypeFrame.point(context.frame, point),
-        normal: Quaternion.rotateVector(context.frame.rotation, normal),
+        normal: AutoMovieEngineQuaternion.rotateVector(context.frame.rotation, normal),
       });
     }
   }

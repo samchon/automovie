@@ -10,10 +10,10 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
-import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
-import { AutoMovieLoftViewRead } from "../../AutoMovieLoftViewRead";
-import { AutoMovieLoftViewSource } from "../../AutoMovieLoftViewSource";
+import { AutoMovieEngineLoftAdmissionError } from "../../AutoMovieEngineLoftAdmissionError";
+import { AutoMovieEngineLoftSectionNative } from "../../AutoMovieEngineLoftSectionNative";
+import { AutoMovieEngineLoftViewRead } from "../../AutoMovieEngineLoftViewRead";
+import { AutoMovieEngineLoftViewSource } from "../../AutoMovieEngineLoftViewSource";
 
 /*
  * Exact native-source adapter to the original piecewise-profile reader.
@@ -34,13 +34,13 @@ export function AutoMovieConstructionNativeProfile(
     !identity.revisions.constraints ||
     !identity.revisions.topology
   )
-    throw new AutoMovieLoftAdmissionError(
+    throw new AutoMovieEngineLoftAdmissionError(
       "Native profile requires actual material/binding owners and source dependency identities.",
     );
   const prepared: IAutoMovieLoftViewSource.IResult | null =
-    AutoMovieLoftViewSource.create(part);
+    AutoMovieEngineLoftViewSource.create(part);
   if (prepared === null || prepared.source === null)
-    throw new AutoMovieLoftAdmissionError(
+    throw new AutoMovieEngineLoftAdmissionError(
       `Native profile needs its actual direct scalar source: ${JSON.stringify(prepared?.diagnostics ?? [])}`,
     );
   const source: IAutoMovieLoftViewSource.ISource = prepared.source;
@@ -96,19 +96,19 @@ export function AutoMovieConstructionNativeProfile(
   let latest: Station | undefined;
   const at: (station: number) => Station = (station: number): Station => {
     if (station < source.domain[0] || station > source.domain[1])
-      throw new AutoMovieLoftAdmissionError(
+      throw new AutoMovieEngineLoftAdmissionError(
         "Native profile query is outside its actual source domain.",
       );
     if (latest?.at === station) return latest;
     const values: IAutoMovieLoftViewRead.IValues | string =
-      AutoMovieLoftViewRead.values(source, station);
+      AutoMovieEngineLoftViewRead.values(source, station);
     if (typeof values === "string")
-      throw new AutoMovieLoftAdmissionError(values);
+      throw new AutoMovieEngineLoftAdmissionError(values);
     const value: Station = {
       at: station,
       point: values.extents.every((extent: number): boolean => extent === 0)
         ? null
-        : AutoMovieLoftSectionNative.point(values),
+        : AutoMovieEngineLoftSectionNative.point(values),
       values,
       phase: undefined,
       jet: undefined,
@@ -128,7 +128,7 @@ export function AutoMovieConstructionNativeProfile(
     ): IAutoMovieConstructionProfileSource.IPhase => {
       const current: Station = at(station);
       if (current.point === null) return { p: [0, 0], t: [0, 0], tt: [0, 0] };
-      current.phase ??= AutoMovieLoftSectionNative.phase(current.values);
+      current.phase ??= AutoMovieEngineLoftSectionNative.phase(current.values);
       return current.phase(phase);
     },
     jet: (
@@ -139,9 +139,9 @@ export function AutoMovieConstructionNativeProfile(
       if (current.point === null) return null;
       if (current.jet === undefined) {
         const inputs: IAutoMovieLoftViewRead.IJets | string =
-          AutoMovieLoftViewRead.jets(source, station);
+          AutoMovieEngineLoftViewRead.jets(source, station);
         if (typeof inputs === "string") return null;
-        current.jet = AutoMovieLoftSectionNative.jet(inputs);
+        current.jet = AutoMovieEngineLoftSectionNative.jet(inputs);
       }
       return current.jet(phase);
     },

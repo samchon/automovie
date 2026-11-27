@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { seedPhysicalChainTarget } from "./seedPhysicalChainTarget";
@@ -69,8 +69,8 @@ export function solvePhysicalChainTarget(
     }),
   );
   const gap: () => number = (): number =>
-    Vector3.length(
-      Vector3.subtract(
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         physicalSupportPoint(targets[endpoint]!, input.localPoint),
         input.goal,
       ),
@@ -103,7 +103,7 @@ export function solvePhysicalChainTarget(
       targets[endpoint]!,
       input.localPoint,
     );
-    const error: IAutoMovieVector3 = Vector3.subtract(input.goal, tip);
+    const error: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(input.goal, tip);
     const columns: {
       joint: IAutoMoviePhysicalJoint;
       axis: IAutoMoviePhysicalJointAxis;
@@ -112,24 +112,24 @@ export function solvePhysicalChainTarget(
     let scale: number = 0;
     for (const joint of joints) {
       const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
-      const frame: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+      const frame: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
         parent.rotation,
         joint.parentFrame.rotation,
       );
-      const pivot: IAutoMovieVector3 = Vector3.add(
+      const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         parent.position,
-        Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
       );
-      const lever: IAutoMovieVector3 = Vector3.subtract(tip, pivot);
-      scale = Math.max(scale, Vector3.length(lever));
+      const lever: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(tip, pivot);
+      scale = Math.max(scale, AutoMovieEngineVector3.length(lever));
       for (const axis of joint.axes) {
         if (!(axis.maximum > axis.minimum)) continue;
-        const direction: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
+        const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame, {
           x: axis.axis === "x" ? 1 : 0,
           y: axis.axis === "y" ? 1 : 0,
           z: axis.axis === "z" ? 1 : 0,
         });
-        columns.push({ joint, axis, column: Vector3.cross(direction, lever) });
+        columns.push({ joint, axis, column: AutoMovieEngineVector3.cross(direction, lever) });
       }
     }
     if (columns.length === 0 || !(scale > 0)) break;
@@ -155,7 +155,7 @@ export function solvePhysicalChainTarget(
     const y: IAutoMovieVector3 | undefined = solve3(m, error);
     if (!y) break;
     const steps: number[] = columns.map((entry): number =>
-      Vector3.dot(entry.column, y),
+      AutoMovieEngineVector3.dot(entry.column, y),
     );
     const largest: number = Math.max(...steps.map(Math.abs));
     const shrink: number = largest > MAXIMUM_STEP ? MAXIMUM_STEP / largest : 1;
@@ -176,13 +176,13 @@ export function solvePhysicalChainTarget(
   ): void {
     const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
     const child: IAutoMovieRigidTransform = targets[joint.child]!;
-    const frame: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    const frame: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
       parent.rotation,
       joint.parentFrame.rotation,
     );
-    const relative: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-      Quaternion.inverse(frame),
-      Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+    const relative: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(frame),
+      AutoMovieEngineQuaternion.multiply(child.rotation, joint.childFrame.rotation),
     );
     // A rotation about one free axis can create a locked quaternion coordinate
     // or move another free coordinate outside its box. Admit all of them.
@@ -191,8 +191,8 @@ export function solvePhysicalChainTarget(
       y: axis.axis === "y" ? 1 : 0,
       z: axis.axis === "z" ? 1 : 0,
     };
-    const candidate: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-      Quaternion.fromAxisAngle(localAxis, (request * 180) / Math.PI),
+    const candidate: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(localAxis, (request * 180) / Math.PI),
       relative,
     );
     const admitted: IAutoMovieRigidTransform["rotation"] =

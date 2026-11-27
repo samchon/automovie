@@ -1,4 +1,4 @@
-import { AUTOMOVIE_FILM_GLARE_KERNELS } from "../AUTOMOVIE_FILM_GLARE_KERNELS";
+import { AutoMovieEngineFilmGlareKernels } from "../AutoMovieEngineFilmGlareKernels";
 
 /*
  * The GPU targets one film response stage allocates at a `width × height` pixel
@@ -32,7 +32,7 @@ export function measureAutoMovieFilmResponseTargets(
   const levelSize: (at: number) => number = (at: number): number =>
     Math.max(1, Math.ceil(width / 2 ** at)) *
     Math.max(1, Math.ceil(height / 2 ** at));
-  const levels: number[] = AUTOMOVIE_FILM_GLARE_KERNELS.map(
+  const levels: number[] = AutoMovieEngineFilmGlareKernels.map(
     (kernel: { sigma: number }): number =>
       Math.max(0, Math.floor(Math.log2((kernel.sigma * height) / 2))),
   );

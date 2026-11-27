@@ -1,6 +1,6 @@
 import type { IAutoMovieSwivelNear } from "@automovie/interface";
 
-import { hingedArmSwivel } from "../hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../AutoMovieEngineHingedArmSwivel";
 import { refineHingedSwivel } from "./refineHingedSwivel";
 
 /*
@@ -81,7 +81,7 @@ export function hingedSwivelNear<T extends { overshoot: number }>(props: {
       : Math.log(ratio);
   const passes: number = Math.max(
     0,
-    Math.ceil(contraction / Math.log(hingedArmSwivel.GOLDEN)),
+    Math.ceil(contraction / Math.log(AutoMovieEngineHingedArmSwivel.GOLDEN)),
   );
 
   // The closed-form candidates less than a step from a centre, each in the
@@ -116,6 +116,6 @@ export function hingedSwivelNear<T extends { overshoot: number }>(props: {
 }
 
 /*
- * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
+ * The articulation's swivel step, degrees (`AutoMovieEngineHingedArmSwivel.STEP`).
  */
-const STEP: number = hingedArmSwivel.STEP;
+const STEP: number = AutoMovieEngineHingedArmSwivel.STEP;

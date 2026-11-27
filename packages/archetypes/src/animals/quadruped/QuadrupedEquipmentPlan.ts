@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -119,7 +119,7 @@ export class QuadrupedEquipmentPlan {
     clearance: number = 0,
   ): void {
     this.positive(`${id}.radius`, radius);
-    this.positive(`${id}.length`, Vector3.length(Vector3.subtract(to, from)));
+    this.positive(`${id}.length`, AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(to, from)));
     this.nonnegative(`${id}.clearance`, clearance);
     this.#solids.rod(id, radius, from, to, clearance);
     this.#parts.push({ kind: "rod", id, radius, from, to, color });

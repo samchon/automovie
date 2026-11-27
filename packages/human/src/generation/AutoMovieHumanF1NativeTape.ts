@@ -1,5 +1,5 @@
 import { AutoMovieHumanF1NativeCalibration } from "./AutoMovieHumanF1NativeCalibration";
-import { AutoMovieLoftViewFullSource as Full, AutoMovieEngineMath, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource as Full, AutoMovieEngineMath, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieHumanF1Engineering,
   IAutoMovieLoftViewFullSource,

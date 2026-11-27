@@ -30,7 +30,7 @@ import { readAutoMovieDeliveryProbe } from "./readAutoMovieDeliveryProbe";
 export async function auditAutoMovieDeliveryProfile(props: {
   render: Pick<
     typeof Render,
-    | "AUTOMOVIE_MP4_SRGB_COLOUR"
+    | "AutoMovieRenderMp4SrgbColour"
     | "AutoMovieRenderDelivery"
   >;
   path: string;
@@ -43,7 +43,7 @@ export async function auditAutoMovieDeliveryProfile(props: {
   try {
     probe = await readAutoMovieDeliveryProbe(
       props.path,
-      props.render.AUTOMOVIE_MP4_SRGB_COLOUR,
+      props.render.AutoMovieRenderMp4SrgbColour,
     );
   } catch (error) {
     return [

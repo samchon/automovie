@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -97,7 +97,7 @@ export function prepareSupportHeldLegs(
           out[limb] = {
             branch: seed.branch,
             swivel: seed.swivel,
-            tolerance: hingedArmSwivel.RESOLUTION,
+            tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
           };
       }
       return out;
@@ -122,7 +122,7 @@ export function prepareSupportHeldLegs(
         out[limb] = {
           branch: from.branch,
           swivel: from.swivel + w * delta,
-          tolerance: hingedArmSwivel.RESOLUTION,
+          tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
         };
       }
       return out;

@@ -1,4 +1,4 @@
-import { Quaternion, ROM_TOLERANCE, hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieHumanLimbGoal,
@@ -18,7 +18,7 @@ import type { prepareHumanPostureProjection } from "./prepareHumanPostureProject
  * toward one end, solved when the curve is prepared: placed by AutoKnots
  * (Vitenti et al. 2024, arXiv:2412.13423; `prepareHumanAdaptiveKnots.seeded`)
  * on the legs' swivels, to the solver's own angular resolution
- * (`ROM_TOLERANCE`, degrees), each knot's solve seeded from the knot before it
+ * (`AutoMovieEngineRomTolerance`, degrees), each knot's solve seeded from the knot before it
  * toward the origin. A sub-interval converges only where the paper's criteria
  * hold and its midpoint's actual target, fitted from the sub-interval's knot
  * nearer the origin, meets the original branch, swivel and rotation gates
@@ -99,7 +99,7 @@ export function HumanFreeCurveIntervals(
         middle: prepareHumanAdaptiveKnots.IPoint<IAnchor | undefined>,
         left: prepareHumanAdaptiveKnots.IPoint<IAnchor | undefined>,
       ): boolean => middle.payload !== undefined || left.payload === undefined,
-      tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+      tolerance: { kind: "absolute", absolute: AutoMovieEngineRomTolerance },
     });
 
   // The chain from the origin outward, up to the first knot whose fit failed.
@@ -185,7 +185,7 @@ type ICorrection = HumanFreeCurveFit.ICorrection;
 
 /*
  * A validated previous foot and a current orientation goal bound an interval
- * before IK. An accepted foot lies within ROM_TOLERANCE of its goal and within
+ * before IK. An accepted foot lies within AutoMovieEngineRomTolerance of its goal and within
  * STEP of the previous achieved orientation. A second ROM tolerance is reserved
  * for the independently evaluated quaternion angles. Such an interval is not
  * direct and is halved without a fit.
@@ -203,10 +203,10 @@ function excludesFootTurn(
     if (goal === undefined) continue;
     const previous: IAutoMovieQuaternion = prior.rotations[3 * index + 2]!;
     const angle: number =
-      (Quaternion.angleAfterNormalize(previous, Quaternion.normalize(goal)) *
+      (AutoMovieEngineQuaternion.angleAfterNormalize(previous, AutoMovieEngineQuaternion.normalize(goal)) *
         180) /
       Math.PI;
-    if (angle > hingedArmSwivel.STEP + 2 * ROM_TOLERANCE) return true;
+    if (angle > AutoMovieEngineHingedArmSwivel.STEP + 2 * AutoMovieEngineRomTolerance) return true;
   }
   return false;
 }

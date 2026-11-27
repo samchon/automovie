@@ -1,11 +1,13 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanMountOffSupports } from "@automovie/motions/internal";
+import {
+  HumanMountOffSupports
+} from "../../../../../../packages/motions/src/lexicon/internal/HumanMountOffSupports";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../../internal/vclose";
@@ -29,12 +31,12 @@ export function test_motions_mounted_dismount_supports(): void {
     const t: number = film - start;
     return {
       position: { x: t, y: 0, z: 2 * t },
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90 * t),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90 * t),
     };
   };
   const root: IAutoMovieRigidTransform = {
     position: { x: 0, y: 1, z: 2 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const seat: HumanMountOffSupports.IFrame = HumanMountOffSupports.frame(
     material,
@@ -43,7 +45,7 @@ export function test_motions_mounted_dismount_supports(): void {
     root,
   );
   const ankle: IAutoMovieVector3 = { x: 1, y: 2, z: 0 };
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     30,
   );
@@ -74,11 +76,11 @@ export function test_motions_mounted_dismount_supports(): void {
       vclose(seat.at(1).position, { x: 0, y: 0, z: 4 }) &&
       vclose(halfway.point, { x: -1, y: 1, z: 2 }) &&
       vclose(halfway.bend, { x: -1.5, y: 1, z: 2 }) &&
-      vclose(Quaternion.rotateVector(halfway.rotation, toe), toeDirection) &&
+      vclose(AutoMovieEngineQuaternion.rotateVector(halfway.rotation, toe), toeDirection) &&
       vclose(
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           halfway.point,
-          Quaternion.rotateVector(halfway.rotation, contact),
+          AutoMovieEngineQuaternion.rotateVector(halfway.rotation, contact),
         ),
         { x: -0.95, y: 1, z: 2 + 0.05 * Math.sqrt(3) },
       ) &&
@@ -114,14 +116,14 @@ export function test_motions_mounted_dismount_supports(): void {
   const forward: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
   TestValidator.predicate(
     "the Hermite departure sends its motion forward and leaves the landing fixed",
-    vclose(middle.position, Vector3.scale(velocity, 5 / 32), error) &&
-      vclose(Quaternion.rotateVector(middle.rotation, forward), {
+    vclose(middle.position, AutoMovieEngineVector3.scale(velocity, 5 / 32), error) &&
+      vclose(AutoMovieEngineQuaternion.rotateVector(middle.rotation, forward), {
         x: Math.cos(turn),
         y: Math.sin(turn),
         z: 0,
       }) &&
       vclose(airborne(1).position, { x: 0, y: 0, z: 0 }) &&
-      vclose(Quaternion.rotateVector(airborne(1).rotation, forward), forward) &&
+      vclose(AutoMovieEngineQuaternion.rotateVector(airborne(1).rotation, forward), forward) &&
       reads.length === count,
   );
 }

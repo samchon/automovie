@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { sitPlace } from "../../everyday/internal/sitPlace";
@@ -74,21 +74,21 @@ export function prepareCoupledMount(
     }),
   );
   const advance = supportedReach(body, support, anchors, hips);
-  const root = Vector3.add(preferred.root, advance);
+  const root = AutoMovieEngineVector3.add(preferred.root, advance);
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const { side, ankle, frame } of anchors) {
     const name: "leftLeg" | "rightLeg" = `${side}Leg`;
     const hip: IAutoMovieResolvedBone | undefined = hips.get(`${side}UpperLeg`);
     if (hip === undefined) return { reason: `the rig has no ${side} hip` };
-    const joint = Vector3.add(hip.worldPosition, advance);
-    const across: IAutoMovieVector3 = Quaternion.rotateVector(
+    const joint = AutoMovieEngineVector3.add(hip.worldPosition, advance);
+    const across: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       support.seat.frame.rotation,
       { x: 1, y: 0, z: 0 },
     );
-    const outward: IAutoMovieVector3 = Vector3.scale(
+    const outward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       across,
-      Vector3.dot(
-        Vector3.subtract(frame.position, support.seat.frame.position),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(frame.position, support.seat.frame.position),
         across,
       ),
     );
@@ -98,7 +98,7 @@ export function prepareCoupledMount(
       body,
       joint,
       ankle.position,
-      Vector3.add(joint, outward),
+      AutoMovieEngineVector3.add(joint, outward),
     );
     if (bend === null)
       return { reason: `the ${side} leg has no knee plane at its tread` };
@@ -136,7 +136,7 @@ export function prepareCoupledMount(
           ...plate.shape,
           transform: {
             position: { x: 0, y: max.y - depth / 2, z: 0 },
-            rotation: Quaternion.identity(),
+            rotation: AutoMovieEngineQuaternion.identity(),
           },
           halfExtents: {
             x: (max.x - min.x) / 2,
@@ -326,18 +326,18 @@ function prepareAnkle(
     { position: foot.worldPosition, rotation: foot.worldRotation },
     { position: bone.worldPosition, rotation: bone.worldRotation },
   );
-  const contact = Vector3.add(
+  const contact = AutoMovieEngineVector3.add(
     footLocal.position,
-    Quaternion.rotateVector(footLocal.rotation, candidate.anchor.point),
+    AutoMovieEngineQuaternion.rotateVector(footLocal.rotation, candidate.anchor.point),
   );
-  const rotation = Quaternion.multiply(
+  const rotation = AutoMovieEngineQuaternion.multiply(
     frame.rotation,
     candidate.ankle.rotation,
   );
   const material = candidate.anchor.material;
-  const target = Vector3.add(
+  const target = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, {
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       ...material,
       y: material.y + HumanBodyFitMerit.REQUIRED_TOLERANCE / 2,
     }),
@@ -346,9 +346,9 @@ function prepareAnkle(
     side,
     frame,
     ankle: {
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         target,
-        Quaternion.rotateVector(rotation, contact),
+        AutoMovieEngineQuaternion.rotateVector(rotation, contact),
       ),
       rotation,
     },
@@ -365,7 +365,7 @@ function supportedReach(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
 ): IAutoMovieVector3 {
   type Interval = readonly [number, number];
-  const direction = Quaternion.rotateVector(support.seat.frame.rotation, {
+  const direction = AutoMovieEngineQuaternion.rotateVector(support.seat.frame.rotation, {
     x: 0,
     y: 0,
     z: 1,
@@ -373,14 +373,14 @@ function supportedReach(
   const { point, range } = support.domain;
   let stations: Interval[] = [[range[0] - point.z, range[1] - point.z]];
   for (const { side, ankle } of feet) {
-    const difference = Vector3.subtract(
+    const difference = AutoMovieEngineVector3.subtract(
       ankle.position,
       bones.get(`${side}UpperLeg`)!.worldPosition,
     );
-    const along = Vector3.dot(direction, difference);
+    const along = AutoMovieEngineVector3.dot(direction, difference);
     const across = Math.max(
       0,
-      Vector3.dot(difference, difference) - along ** 2,
+      AutoMovieEngineVector3.dot(difference, difference) - along ** 2,
     );
     const geometry = body.chains[`${side}Leg`]?.rig?.span.geometry;
     const [minimum, maximum] = sitPlace.band(body, side);
@@ -414,7 +414,7 @@ function supportedReach(
     const candidate = Math.max(start, Math.min(end, 0));
     return Math.abs(candidate) < Math.abs(nearest) ? candidate : nearest;
   }, Infinity);
-  return Vector3.scale(direction, Number.isFinite(best) ? best : 0);
+  return AutoMovieEngineVector3.scale(direction, Number.isFinite(best) ? best : 0);
 }
 
 /*
@@ -489,7 +489,7 @@ function bearingPoints(
   surface: IAutoMoviePhysicalShape,
   band: number,
 ): IAutoMovieVector3[] {
-  const normal = Quaternion.rotateVector(site.rotation, { x: 0, y: -1, z: 0 });
+  const normal = AutoMovieEngineQuaternion.rotateVector(site.rotation, { x: 0, y: -1, z: 0 });
   const points: IAutoMovieVector3[] = [];
   for (const actor of actors)
     for (const shape of actor.shapes)
@@ -502,9 +502,9 @@ function bearingPoints(
         band,
       ))
         if (
-          Vector3.distance(pointA, pointB) <= band &&
+          AutoMovieEngineVector3.distance(pointA, pointB) <= band &&
           Math.abs(
-            Vector3.dot(normal, Vector3.subtract(pointB, site.position)),
+            AutoMovieEngineVector3.dot(normal, AutoMovieEngineVector3.subtract(pointB, site.position)),
           ) <= HumanBodyFit.TOLERANCE
         )
           points.push(pointB);
@@ -594,7 +594,7 @@ function tread(
     body,
     pose,
     { side, plate, iron },
-    Quaternion.identity(),
+    AutoMovieEngineQuaternion.identity(),
   );
   return candidate === undefined
     ? undefined
@@ -615,9 +615,9 @@ function admitted(
   const footBone = side === "left" ? "leftFoot" : "rightFoot";
   const foot = bones.get(footBone)!;
   const knee = bones.get(side === "left" ? "leftLowerLeg" : "rightLowerLeg")!;
-  const local = Quaternion.rotateVector(
-    Quaternion.inverse(frame.rotation),
-    Vector3.subtract(witness.pointB, frame.position),
+  const local = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(frame.rotation),
+    AutoMovieEngineVector3.subtract(witness.pointB, frame.position),
   );
   const { min, max } = AutoMovieEnginePhysics.physicalShapeBounds(plate.pose, plate.shape);
   const top = {
@@ -625,11 +625,11 @@ function admitted(
     y: max.y,
     z: Math.max(min.z, Math.min(max.z, local.z)),
   };
-  const bearing = Vector3.add(
+  const bearing = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, top),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, top),
   );
-  if (Vector3.distance(witness.pointA, bearing) > HumanFoot.BEARING)
+  if (AutoMovieEngineVector3.distance(witness.pointA, bearing) > HumanFoot.BEARING)
     return undefined;
   const seed = HumanLimbFit.seed(
     body,
@@ -642,9 +642,9 @@ function admitted(
       point: foot.worldPosition,
       rotation: foot.worldRotation,
       bend: knee.worldPosition,
-      contact: Quaternion.rotateVector(
-        Quaternion.inverse(foot.worldRotation),
-        Vector3.subtract(bearing, foot.worldPosition),
+      contact: AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(foot.worldRotation),
+        AutoMovieEngineVector3.subtract(bearing, foot.worldPosition),
       ),
       planted: true,
       ...(seed === null ? {} : { seed }),

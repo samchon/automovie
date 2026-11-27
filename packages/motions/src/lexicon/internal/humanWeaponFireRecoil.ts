@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -21,18 +21,18 @@ export function humanWeaponFireRecoil(
   edge: IAutoMovieVector3,
   rise: number,
 ): humanWeaponFireRecoil.IRecoil {
-  const bore: IAutoMovieVector3 = Quaternion.rotateVector(rotation, axis);
-  const across: IAutoMovieVector3 = Vector3.cross(bore, { x: 0, y: 1, z: 0 });
+  const bore: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, axis);
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(bore, { x: 0, y: 1, z: 0 });
   const about: IAutoMovieVector3 =
-    Vector3.length(across) < 1e-6
-      ? Quaternion.rotateVector(rotation, Vector3.cross(axis, edge))
-      : Vector3.normalize(across);
+    AutoMovieEngineVector3.length(across) < 1e-6
+      ? AutoMovieEngineQuaternion.rotateVector(rotation, AutoMovieEngineVector3.cross(axis, edge))
+      : AutoMovieEngineVector3.normalize(across);
   return {
     bore,
     about,
     turned: (progress: number): IAutoMovieQuaternion =>
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(about, rise * Math.min(1, progress)),
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(about, rise * Math.min(1, progress)),
         rotation,
       ),
   };

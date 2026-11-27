@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "../../IAutoMovieRenderViewerSubjectBounds.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 
 /*
@@ -23,7 +23,7 @@ import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
  */
 export function measureAutoMovieInspectionBounds(
   root: THREE.Object3D,
-): IAutoMovieViewerSubjectBounds | null {
+): IAutoMovieRenderViewerSubjectBounds | null {
   root.updateWorldMatrix(true, true);
   const box: THREE.Box3 = new THREE.Box3();
   const point: THREE.Vector3 = new THREE.Vector3();
@@ -38,7 +38,7 @@ export function measureAutoMovieInspectionBounds(
     if (object.layers.mask === 0) return;
 
     // A screen-space line is a mesh of one widened quad per segment; its segments are its two instanced end attributes.
-    if (AutoMovieThreeKind.isLineSegments2(object)) {
+    if (AutoMovieRenderThreeKind.isLineSegments2(object)) {
       const geometry: THREE.BufferGeometry = object.geometry;
       for (const end of ["instanceStart", "instanceEnd"])
         if (geometry.hasAttribute(end)) {
@@ -51,11 +51,11 @@ export function measureAutoMovieInspectionBounds(
         }
       return;
     }
-    if (AutoMovieThreeKind.isMesh(object)) {
-      if (AutoMovieThreeKind.isBatchedMesh(object)) return;
+    if (AutoMovieRenderThreeKind.isMesh(object)) {
+      if (AutoMovieRenderThreeKind.isBatchedMesh(object)) return;
       if (!object.geometry.hasAttribute("position")) return;
       const count: number = object.geometry.getAttribute("position").count;
-      if (!AutoMovieThreeKind.isInstancedMesh(object)) {
+      if (!AutoMovieRenderThreeKind.isInstancedMesh(object)) {
         for (let i: number = 0; i < count; i++) {
           object.getVertexPosition(i, point);
           include(object.matrixWorld);
@@ -84,8 +84,8 @@ export function measureAutoMovieInspectionBounds(
         }
       }
     } else if (
-      AutoMovieThreeKind.isLine(object) ||
-      AutoMovieThreeKind.isPoints(object)
+      AutoMovieRenderThreeKind.isLine(object) ||
+      AutoMovieRenderThreeKind.isPoints(object)
     ) {
       if (!object.geometry.hasAttribute("position")) return;
       const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =

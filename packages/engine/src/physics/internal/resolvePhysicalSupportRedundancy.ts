@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { decomposeAutoMovieSingularMatrix } from "../../math/internal/decomposeAutoMovieSingularMatrix";
 import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 import { AutoMovieEnginePhysicalSingularBudget } from "../AutoMovieEnginePhysicalSingularBudget";
@@ -347,7 +347,7 @@ export function resolvePhysicalSupportRedundancy(
         (index === undefined ? axis.minimum : values[index]!) / 2,
       );
     }
-    return Quaternion.normalize({ ...tangent, w: 1 });
+    return AutoMovieEngineQuaternion.normalize({ ...tangent, w: 1 });
   }
 }
 

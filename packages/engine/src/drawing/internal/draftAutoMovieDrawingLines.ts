@@ -21,8 +21,8 @@ import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingSilhouetteEdges } from "./autoMovieDrawingSilhouetteEdges";
 import { clipAutoMovieDrawingTriangles } from "./clipAutoMovieDrawingTriangles";
-import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
-import { AUTOMOVIE_DRAWING_ROLES } from "../AUTOMOVIE_DRAWING_ROLES";
+import { AutoMovieEngineDrawingEpsilon } from "../AutoMovieEngineDrawingEpsilon";
+import { AutoMovieEngineDrawingRoles } from "../AutoMovieEngineDrawingRoles";
 import { projectAutoMovieDrawingPoint } from "./projectAutoMovieDrawingPoint";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
 
@@ -87,7 +87,7 @@ export const draftAutoMovieDrawingLines = (
     const distance: { min: number; max: number } = autoMovieDrawingRange(
       cornerDistances(frame, drawable.triangles),
     );
-    if (cut && distance.min > AUTOMOVIE_DRAWING_EPSILON) {
+    if (cut && distance.min > AutoMovieEngineDrawingEpsilon) {
       if (view.overhead === null || distance.min > view.overhead) continue;
       draftSilhouette(drafted, drawable, "overhead", frame, cut);
       continue;
@@ -190,7 +190,7 @@ const onPlane = (
   point: IAutoMovieVector3,
 ): boolean =>
   Math.abs(autoMovieDrawingPlaneDistance(frame, point)) <=
-  AUTOMOVIE_DRAWING_EPSILON;
+  AutoMovieEngineDrawingEpsilon;
 
 /*
  * Project, round and orient one edge, dropping it when it has no length.
@@ -249,8 +249,8 @@ const compareLines = (
   left: IAutoMovieDrawingLine,
   right: IAutoMovieDrawingLine,
 ): number =>
-  AUTOMOVIE_DRAWING_ROLES.indexOf(left.role) -
-    AUTOMOVIE_DRAWING_ROLES.indexOf(right.role) ||
+  AutoMovieEngineDrawingRoles.indexOf(left.role) -
+    AutoMovieEngineDrawingRoles.indexOf(right.role) ||
   compareAutoMovieRenderIds(left.layer, right.layer) ||
   compareAutoMovieRenderIds(left.owner, right.owner) ||
   comparePoints(left.from, right.from) ||

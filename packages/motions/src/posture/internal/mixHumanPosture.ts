@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanDigitGoal,
@@ -43,7 +43,7 @@ export function mixHumanPosture(
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.add(a, Vector3.scale(Vector3.subtract(b, a), weight));
+    AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(b, a), weight));
   const joints: IAutoMovieMotionHumanPosture["joints"] = {};
   for (const bone of new Set([
     ...Object.keys(from.joints),
@@ -94,9 +94,9 @@ export function mixHumanPosture(
       ? undefined
       : {
           about: move((a ?? b)!.about, (b ?? a)!.about),
-          turn: Quaternion.slerp(
-            a?.turn ?? Quaternion.identity(),
-            b?.turn ?? Quaternion.identity(),
+          turn: AutoMovieEngineQuaternion.slerp(
+            a?.turn ?? AutoMovieEngineQuaternion.identity(),
+            b?.turn ?? AutoMovieEngineQuaternion.identity(),
             weight,
           ),
         };

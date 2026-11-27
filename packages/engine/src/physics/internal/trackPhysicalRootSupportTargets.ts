@@ -4,8 +4,8 @@ import type {
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
-import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
+import { AutoMovieEnginePhysicalTargetInterval as Interval } from "../AutoMovieEnginePhysicalTargetInterval";
 import { planPhysicalRootSupportTargets } from "./planPhysicalRootSupportTargets";
 
 /*

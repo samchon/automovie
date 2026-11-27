@@ -1,7 +1,7 @@
 import {
-  AutoMovieViewCurves,
-  AutoMovieViewLoft,
-  AutoMovieViewOutline,
+  AutoMovieEngineViewCurves,
+  AutoMovieEngineViewLoft,
+  AutoMovieEngineViewOutline,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanNeckConstruction,
@@ -53,7 +53,7 @@ export namespace AutoMovieHumanNeckConstruction {
     placement: IAutoMovieHumanNeckSource.IOutput,
   ): IAutoMovieHumanNeckConstruction.IOutput {
     const part: IAutoMovieViewPart = define(mass, placement);
-    return { part, loft: AutoMovieViewLoft.create(part) };
+    return { part, loft: AutoMovieEngineViewLoft.create(part) };
   }
 
   /**
@@ -79,7 +79,7 @@ export namespace AutoMovieHumanNeckConstruction {
         "Neck adapter needs an increasing regular interval inside the actual head source",
       );
     const source: IAutoMovieViewCurves.IResult =
-      AutoMovieViewCurves.create(mass);
+      AutoMovieEngineViewCurves.create(mass);
     if (source.diagnostics.length !== 0)
       throw new Error(
         `Neck adapter source: ${JSON.stringify(source.diagnostics)}`,
@@ -94,7 +94,7 @@ export namespace AutoMovieHumanNeckConstruction {
     ): IAutoMovieViewPart.IOutline {
       function read(station: number): IAutoMovieViewOutline.IReading {
         const value: IAutoMovieViewOutline.IReading | string =
-          AutoMovieViewOutline.at(prepared, station);
+          AutoMovieEngineViewOutline.at(prepared, station);
         if (typeof value === "string")
           throw new Error(`Neck interval source: ${value}`);
         return value;
@@ -162,7 +162,7 @@ export namespace AutoMovieHumanNeckConstruction {
     ): IAutoMovieViewPart.IOutline {
       const prepared:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(outline);
       if ("detail" in prepared)
         throw new Error(`Neck interval fullness: ${prepared.detail}`);
       return interval(outline, prepared);

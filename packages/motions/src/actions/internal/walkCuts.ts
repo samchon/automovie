@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
 
 import "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import * as WalkCutsData from "./WalkCutsData";
+import { WalkCutsData } from "./WalkCutsData";
 
 /*
  * The walk's cancel table (`walk.interrupts`). Another walk, a run, an

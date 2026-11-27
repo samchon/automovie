@@ -5,10 +5,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../math/internal/convexHull2D";
-import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieEngineXpbdBody } from "./AutoMovieEngineXpbdBody";
 
 
 /** The centre-of-pressure region the feet's capacities leave. */
@@ -87,10 +87,10 @@ export namespace AutoMovieEnginePhysicalLegCapacity {
     second: readonly IAutoMovieVector3[],
   ): IAutoMovieVector3[] {
     if (second.length < 3) return [...first];
-    const middle: IAutoMovieVector3 = Vector3.scale(
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       second.reduce(
         (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(sum, p),
+          AutoMovieEngineVector3.add(sum, p),
         { x: 0, y: 0, z: 0 },
       ),
       1 / second.length,
@@ -126,7 +126,7 @@ export namespace AutoMovieEnginePhysicalLegCapacity {
 
 function computeLegCapacity(input: {
   profile: Pick<IAutoMoviePhysicalProfile, "joints">;
-  segments: ReadonlyMap<string, Pick<AutoMovieXpbdBody, "translation" | "rotation">>;
+  segments: ReadonlyMap<string, Pick<AutoMovieEngineXpbdBody, "translation" | "rotation">>;
   chain: readonly string[];
   point: IAutoMovieVector3;
   normal?: IAutoMovieVector3;
@@ -137,25 +137,25 @@ function computeLegCapacity(input: {
     const joint: IAutoMoviePhysicalJoint | undefined = input.profile.joints.find(
       (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
     );
-    const parent: Pick<AutoMovieXpbdBody, "translation" | "rotation"> | undefined = joint
+    const parent: Pick<AutoMovieEngineXpbdBody, "translation" | "rotation"> | undefined = joint
       ? input.segments.get(joint.parent)
       : undefined;
     if (!joint || !parent) continue;
-    const frame: IAutoMovieQuaternion = Quaternion.multiply(
+    const frame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       parent.rotation(),
       joint.parentFrame.rotation,
     );
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parent.translation(),
-      Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
     );
-    const moment: IAutoMovieVector3 = Vector3.cross(
-      Vector3.subtract(input.point, centre),
+    const moment: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+      AutoMovieEngineVector3.subtract(input.point, centre),
       normal,
     );
     for (const axis of joint.axes) {
-      const turn: number = Vector3.dot(
-        Quaternion.rotateVector(frame, {
+      const turn: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineQuaternion.rotateVector(frame, {
           x: axis.axis === "x" ? 1 : 0,
           y: axis.axis === "y" ? 1 : 0,
           z: axis.axis === "z" ? 1 : 0,

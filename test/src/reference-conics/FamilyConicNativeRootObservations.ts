@@ -1,5 +1,5 @@
 import type { FamilyConicNativePremises } from "./FamilyConicNativePremises";
-import { AutoMovieSolidVector as V } from "@automovie/engine";
+import { AutoMovieEngineSolidVector as V } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionSeedTrace,

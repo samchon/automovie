@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics, AutoMovieEngineMotionAirborneTakeoff } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics, AutoMovieEngineMotionAirborneTakeoff } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -54,10 +54,10 @@ export async function test_engine_motion_solve_airborne_takeoff_unwrapped(): Pro
         ),
         t0: 0,
         t1: 1,
-        q0: Quaternion.identity(),
+        q0: AutoMovieEngineQuaternion.identity(),
         momentum: { x: 50, y: 0, z: 0 },
       }),
-      Quaternion.identity(),
+      AutoMovieEngineQuaternion.identity(),
     );
   const left: IAutoMovieSolveAirborneTakeoff.IAngles = attitude("left");
   const right: IAutoMovieSolveAirborneTakeoff.IAngles = attitude("right");

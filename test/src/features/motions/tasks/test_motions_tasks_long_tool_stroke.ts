@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { LongToolStroke } from "@automovie/motions/internal";
+import {
+  LongToolStroke
+} from "../../../../../packages/motions/src/tasks/internal/LongToolStroke";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

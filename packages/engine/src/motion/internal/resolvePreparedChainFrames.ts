@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
@@ -77,12 +77,12 @@ function effectorRotation(
   props: IProps,
   reading: IReading,
 ): IAutoMovieQuaternion {
-  return Quaternion.multiply(
-    Quaternion.multiply(
+  return AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
       reading.lower.worldRotation,
       props.prepared.effectorBaseRotation,
     ),
-    reading.endArticulation ?? Quaternion.identity(),
+    reading.endArticulation ?? AutoMovieEngineQuaternion.identity(),
   );
 }
 
@@ -127,8 +127,8 @@ function read(props: IProps): IReading {
   }
   const frame: IAutoMovieChainBone = resolvePreparedChainLower.fromRotations(
     props.prepared,
-    upperArticulation ?? Quaternion.identity(),
-    lowerArticulation ?? Quaternion.identity(),
+    upperArticulation ?? AutoMovieEngineQuaternion.identity(),
+    lowerArticulation ?? AutoMovieEngineQuaternion.identity(),
   );
   return {
     lower: frame,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -57,13 +57,13 @@ export function environmentRailCatch(
   )
     throw refuse(rail.point, "the authored rail must be a fixed finite bar");
   const world: IAutoMovieRigidTransform = reader.frame(context.start);
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(world.rotation, bar.frame.rotation),
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(world.rotation, bar.frame.rotation),
     { x: 1, y: 0, z: 0 },
   );
-  const middle: IAutoMovieVector3 = Vector3.add(
+  const middle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     world.position,
-    Quaternion.rotateVector(world.rotation, bar.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(world.rotation, bar.frame.translation),
   );
   const body: IAutoMovieMotionHumanBody = context.body;
   const posed: ReturnType<typeof poseBones> = poseBones(
@@ -76,14 +76,14 @@ export function environmentRailCatch(
 
   // The grip's nearest point on the bar's grippable span to the shoulder.
   const half: number = (bar.length - (bar.aperture ?? 0)) / 2;
-  const axial: number = Vector3.dot(Vector3.subtract(shoulder, middle), axis);
-  const goal: IAutoMovieVector3 = Vector3.add(
+  const axial: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(shoulder, middle), axis);
+  const goal: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     middle,
-    Vector3.scale(axis, Math.max(-half, Math.min(half, axial))),
+    AutoMovieEngineVector3.scale(axis, Math.max(-half, Math.min(half, axial))),
   );
   if (
     half <= 0 ||
-    Vector3.distance(shoulder, goal) >
+    AutoMovieEngineVector3.distance(shoulder, goal) >
       body.measure.upperArm + body.measure.forearm + REACH
   )
     throw refuse(rail.point, "the bar is outside the entering hand's reach");
@@ -96,9 +96,9 @@ export function environmentRailCatch(
   const settled: IAutoMovieMotionHumanPosture = stand.posture(
     body,
     {
-      ...Vector3.add(
+      ...AutoMovieEngineVector3.add(
         context.entry.posture.root,
-        Vector3.scale(direction, body.measure.footLength * STEP),
+        AutoMovieEngineVector3.scale(direction, body.measure.footLength * STEP),
       ),
       y: HumanSupportFrame.floor(body, context.entry),
     },

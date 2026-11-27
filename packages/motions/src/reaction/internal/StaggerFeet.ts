@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -355,9 +355,9 @@ export class StaggerFeet {
       ...swung,
       placement: {
         ...swung.placement,
-        ankle: Vector3.add(
+        ankle: AutoMovieEngineVector3.add(
           swung.placement.ankle,
-          Vector3.scale(normal, bow * bump),
+          AutoMovieEngineVector3.scale(normal, bow * bump),
         ),
       },
 
@@ -409,7 +409,7 @@ export class StaggerFeet {
         y: 0,
         z: to.ankle.z - from.ankle.z,
       };
-      const size: number = Vector3.length(travel);
+      const size: number = AutoMovieEngineVector3.length(travel);
       this.swings.set(step, {
         from,
         normal:

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -67,7 +67,7 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
     );
     if (tip === undefined)
       return refuse("prop", params.prop, "the placed aid has no floor tip");
-    const footOffset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const footOffset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       start.rotation,
       tip.frame.translation,
     );
@@ -94,7 +94,7 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
     // The feet turn with the aid about the entry station, or about their own
     // midpoint when the walk gives none.
     const center: IAutoMovieVector3 =
-      params.origin ?? Vector3.lerp(initial[0]!, initial[1]!, 0.5);
+      params.origin ?? AutoMovieEngineVector3.lerp(initial[0]!, initial[1]!, 0.5);
     const prefer: IAutoMovieMotionHumanSupport.IStance["prefer"] =
       getUp.quiet(body);
     let leading: IAutoMovieMotionHumanSupport.IContact = foot(
@@ -116,12 +116,12 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
     let turn: number = 0;
     for (const station of params.stations) {
       const heading: number = station.turn ?? 0;
-      const next: IAutoMovieVector3 = Vector3.add(center, {
+      const next: IAutoMovieVector3 = AutoMovieEngineVector3.add(center, {
         x: station.x,
         y: 0,
         z: station.z,
       });
-      const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         UP,
         heading,
       );
@@ -135,11 +135,11 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
         });
       leading = foot(
         lead,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           next,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             rotation,
-            Vector3.subtract(initial[0]!, center),
+            AutoMovieEngineVector3.subtract(initial[0]!, center),
           ),
         ),
       );
@@ -151,11 +151,11 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
       });
       trailing = foot(
         trail,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           next,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             rotation,
-            Vector3.subtract(initial[1]!, center),
+            AutoMovieEngineVector3.subtract(initial[1]!, center),
           ),
         ),
       );
@@ -189,8 +189,8 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
         context.start + seconds,
       );
       if (
-        Vector3.distance(actual.position, intended.position) > FLOOR ||
-        Quaternion.angle(actual.rotation, intended.rotation) > 1
+        AutoMovieEngineVector3.distance(actual.position, intended.position) > FLOOR ||
+        AutoMovieEngineQuaternion.angle(actual.rotation, intended.rotation) > 1
       )
         return refuse(
           "prop",
@@ -366,17 +366,17 @@ function course(
       // The aid moves rigidly with the walker: displaced by the station and
       // turned about the entry station (`origin`), or about its own staged
       // frame when none is given: p' = p + d + (R - I)(p - origin).
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, heading);
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(UP, heading);
       const pivot: IAutoMovieVector3 = props.origin ?? start.position;
       const pose: IAutoMovieRigidTransform = {
-        position: Vector3.add(
-          Vector3.add(pivot, { x: station.x, y: 0, z: station.z }),
-          Quaternion.rotateVector(
+        position: AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(pivot, { x: station.x, y: 0, z: station.z }),
+          AutoMovieEngineQuaternion.rotateVector(
             turn,
-            Vector3.subtract(start.position, pivot),
+            AutoMovieEngineVector3.subtract(start.position, pivot),
           ),
         ),
-        rotation: Quaternion.multiply(turn, start.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(turn, start.rotation),
       };
       const move: IAdvance = {
         from: clock,
@@ -406,7 +406,7 @@ function frameAt(
     if (seconds < move.to) {
       const share: number = (seconds - move.from) / (move.to - move.from);
       const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(share);
-      const position: IAutoMovieVector3 = Vector3.lerp(
+      const position: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         move.floor[0].position,
         move.floor[1].position,
         blend,
@@ -414,7 +414,7 @@ function frameAt(
       const height: number = AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(share, 1 - share));
       return {
         position: { ...position, y: position.y + LIFT * height },
-        rotation: Quaternion.slerp(
+        rotation: AutoMovieEngineQuaternion.slerp(
           move.floor[0].rotation,
           move.floor[1].rotation,
           blend,

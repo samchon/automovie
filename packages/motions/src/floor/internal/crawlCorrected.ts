@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -40,7 +40,7 @@ export function crawlCorrected(
       ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
       {
         root: HumanBalance.TOLERANCE,
-        angle: ROM_TOLERANCE,
+        angle: AutoMovieEngineRomTolerance,
         step: AutoMovieMotionHumanArmCourse.STEP,
       },
     );

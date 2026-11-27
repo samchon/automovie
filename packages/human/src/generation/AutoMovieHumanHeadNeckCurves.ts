@@ -1,4 +1,4 @@
-import { AutoMovieIllinois, AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineIllinois, AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadNeckCurves,
   IAutoMovieViewSection,
@@ -72,12 +72,12 @@ export namespace AutoMovieHumanHeadNeckCurves {
       number,
       {
         section: IAutoMovieViewSection.ISection;
-        measured: ReturnType<typeof AutoMovieViewSection.measure>;
+        measured: ReturnType<typeof AutoMovieEngineViewSection.measure>;
       }
     > = new Map();
     function normal(
       front: number,
-    ): ReturnType<typeof AutoMovieViewSection.measure> {
+    ): ReturnType<typeof AutoMovieEngineViewSection.measure> {
       const previous: ReturnType<typeof trials.get> = trials.get(front);
       if (previous !== undefined) return previous.measured;
       const source: IAutoMovieViewSection.ISection = section(
@@ -85,7 +85,7 @@ export namespace AutoMovieHumanHeadNeckCurves {
         work,
       );
       const started: number = performance.now();
-      const measured: ReturnType<typeof AutoMovieViewSection.measure> =
+      const measured: ReturnType<typeof AutoMovieEngineViewSection.measure> =
         normalLength(source, m);
       if (work !== undefined) {
         work.normalMetric += performance.now() - started;
@@ -125,7 +125,7 @@ export namespace AutoMovieHumanHeadNeckCurves {
       throw new Error(
         "Neck normal conic has no selected positive anterior-reach bracket",
       );
-    const front: number | null = AutoMovieIllinois.root(
+    const front: number | null = AutoMovieEngineIllinois.root(
       (candidate: number): number => normal(candidate).lengthMm - normalTarget,
       frontLo,
       frontHi,
@@ -137,7 +137,7 @@ export namespace AutoMovieHumanHeadNeckCurves {
         "Neck normal conic has no selected finite anterior-reach root",
       );
     const extents: [number, number, number, number] = [front, r, back, r];
-    const normalMeasured: ReturnType<typeof AutoMovieViewSection.measure> =
+    const normalMeasured: ReturnType<typeof AutoMovieEngineViewSection.measure> =
       normal(front);
     const template: IAutoMovieViewSection.ISection = trials.get(front)!.section;
     const projected: [number, number] = [
@@ -261,13 +261,13 @@ export namespace AutoMovieHumanHeadNeckCurves {
     work?: IAutoMovieHumanHeadNeckCurves.IWork,
   ): IAutoMovieViewSection.ISection {
     const started: number = performance.now();
-    const rho: number = AutoMovieViewSection.ELLIPSE;
-    const value: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    const rho: number = AutoMovieEngineViewSection.ELLIPSE;
+    const value: IAutoMovieViewSection.ISection = AutoMovieEngineViewSection.bare(
       { extents },
       [rho, rho, rho, rho],
     );
     const prepared: number = performance.now();
-    const fault: string | null = AutoMovieViewSection.fault(value);
+    const fault: string | null = AutoMovieEngineViewSection.fault(value);
     if (work !== undefined) {
       work.normalSection += prepared - started;
       work.normalAdmission += performance.now() - prepared;
@@ -285,9 +285,9 @@ export namespace AutoMovieHumanHeadNeckCurves {
   function normalLength(
     source: IAutoMovieViewSection.ISection,
     slope: number,
-  ): ReturnType<typeof AutoMovieViewSection.measure> {
-    const measured: ReturnType<typeof AutoMovieViewSection.measure> =
-      AutoMovieViewSection.measure(source, [1 / Math.hypot(1, slope), 1]);
+  ): ReturnType<typeof AutoMovieEngineViewSection.measure> {
+    const measured: ReturnType<typeof AutoMovieEngineViewSection.measure> =
+      AutoMovieEngineViewSection.measure(source, [1 / Math.hypot(1, slope), 1]);
     if (![measured.lengthMm, measured.differenceMm].every(Number.isFinite))
       throw new Error("Neck normal original-source native metric failed");
     return measured;

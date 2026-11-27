@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
 import { physicalShapeSupport } from "./physicalShapeSupport";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -52,32 +52,32 @@ export function linearizePhysicalSeparation(
   if (!receipt || receipt.separation >= 0) return (): number => 0;
   const scale: number = Math.max(
     1,
-    Vector3.length(a.pose.position),
-    Vector3.length(b.pose.position),
+    AutoMovieEngineVector3.length(a.pose.position),
+    AutoMovieEngineVector3.length(b.pose.position),
   );
   const band: number = Math.sqrt(Number.EPSILON) * scale;
   const sides: AutoMovieEnginePhysics.IPhysicalSeparationSide[] = [
     side(a, b, receipt.normal, receipt.separation, band, [
       {
-        pointA: Vector3.subtract(
+        pointA: AutoMovieEngineVector3.subtract(
           receipt.point,
-          Vector3.scale(receipt.normal, receipt.separation / 2),
+          AutoMovieEngineVector3.scale(receipt.normal, receipt.separation / 2),
         ),
-        pointB: Vector3.add(
+        pointB: AutoMovieEngineVector3.add(
           receipt.point,
-          Vector3.scale(receipt.normal, receipt.separation / 2),
+          AutoMovieEngineVector3.scale(receipt.normal, receipt.separation / 2),
         ),
       },
     ]),
   ];
   // Pushed out the other way along the same axis, the pair may need the
   // same depth: the signed distance then has a kink, and both sides model it.
-  const opposite: IAutoMovieVector3 = Vector3.scale(receipt.normal, -1);
+  const opposite: IAutoMovieVector3 = AutoMovieEngineVector3.scale(receipt.normal, -1);
   const gap: number =
-    Vector3.dot(
+    AutoMovieEngineVector3.dot(
       opposite,
       physicalShapeSupport(b.pose, b.shape, receipt.normal),
-    ) - Vector3.dot(opposite, physicalShapeSupport(a.pose, a.shape, opposite));
+    ) - AutoMovieEngineVector3.dot(opposite, physicalShapeSupport(a.pose, a.shape, opposite));
   if (Math.abs(gap - receipt.separation) <= band) {
     const other: AutoMovieEnginePhysics.IPhysicalSeparationSide = side(
       a,
@@ -100,10 +100,10 @@ export function linearizePhysicalSeparation(
           Math.min(
             ...entry.witnesses.map(
               (witness: AutoMovieEnginePhysics.IPhysicalSeparationWitness): number =>
-                Vector3.dot(
+                AutoMovieEngineVector3.dot(
                   entry.normal,
-                  Vector3.subtract(
-                    Vector3.subtract(
+                  AutoMovieEngineVector3.subtract(
+                    AutoMovieEngineVector3.subtract(
                       physicalSupportPoint(poseB, witness.localB),
                       physicalSupportPoint(poseA, witness.localA),
                     ),
@@ -145,7 +145,7 @@ function side(
       ): AutoMovieEnginePhysics.IPhysicalSeparationWitness => ({
         localA: local(a.pose, point.pointA),
         localB: local(b.pose, point.pointB),
-        difference: Vector3.subtract(point.pointB, point.pointA),
+        difference: AutoMovieEngineVector3.subtract(point.pointB, point.pointA),
       }),
     ),
   };
@@ -158,8 +158,8 @@ function local(
   pose: IAutoMovieRigidTransform,
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Quaternion.rotateVector(
-    Quaternion.inverse(pose.rotation),
-    Vector3.subtract(point, pose.position),
+  return AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(pose.rotation),
+    AutoMovieEngineVector3.subtract(point, pose.position),
   );
 }

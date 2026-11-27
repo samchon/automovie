@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -87,7 +87,7 @@ export namespace AquaticScull {
       carrier.require(`${station}${title}Handle`, "handle");
       // Start at the hull's reference waterline. Derive each angle from its
       // own lock elevation so the two visible blades can work at equal depth.
-      const arm: number = Vector3.distance(
+      const arm: number = AutoMovieEngineVector3.distance(
         lock.frame.translation,
         tip.frame.translation,
       );
@@ -271,9 +271,9 @@ function stroke(total: number): IStroke {
  * The anatomical seat socket bears in the middle of the moving seat surface.
  */
 function seatPoint(seat: AquaticProp.IContact): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     seat.world.translation,
-    Quaternion.rotateVector(seat.world.rotation, {
+    AutoMovieEngineQuaternion.rotateVector(seat.world.rotation, {
       x: 0,
       y: 0,
       z: -(seat.affordance.depth ?? 0) / 2,
@@ -290,17 +290,17 @@ function stretcher(
   side: AutoMovieHumanSide,
   plate: AquaticProp.IContact["world"],
 ): IStretcherGoal {
-  const rotation: IAutoMovieTransform["rotation"] = Quaternion.multiply(
+  const rotation: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     plate.rotation,
-    Quaternion.fromAxisAngle(UP, 90),
+    AutoMovieEngineQuaternion.fromAxisAngle(UP, 90),
   );
   const contact: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
   return {
     rotation,
     contact,
-    ankle: Vector3.subtract(
+    ankle: AutoMovieEngineVector3.subtract(
       plate.translation,
-      Quaternion.rotateVector(rotation, contact),
+      AutoMovieEngineQuaternion.rotateVector(rotation, contact),
     ),
   };
 }
@@ -319,7 +319,7 @@ function admitRail(
   const { body } = context;
   const heading = humanPostureHeading.angles(seat.world.rotation);
   const root: IAutoMovieVector3 = seated.root(body, seatPoint(seat), heading);
-  const along: IAutoMovieVector3 = Quaternion.rotateVector(
+  const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     slide.world.rotation,
     {
       x: 1,
@@ -334,15 +334,15 @@ function admitRail(
       "surface",
     ).world;
     const foot = stretcher(context, side, plate);
-    const hip: IAutoMovieVector3 = Vector3.add(
+    const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       root,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         seat.world.rotation,
         body.rest.get(`${side}UpperLeg`)!,
       ),
     );
-    const from: IAutoMovieVector3 = Vector3.subtract(hip, foot.ankle);
-    const squared: number = Vector3.dot(from, from);
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(hip, foot.ankle);
+    const squared: number = AutoMovieEngineVector3.dot(from, from);
     const [near, far] = sitPlace.band(body, side);
     if (squared < near ** 2 || squared >= far ** 2)
       throw new AutoMovieMotionHumanRefusal({
@@ -352,7 +352,7 @@ function admitRail(
         reason: `the ${side} leg cannot fit its foot stretcher at the catch`,
         fix: "choose a shell station with foot stretchers in the performer's seated reach",
       });
-    const projected: number = Vector3.dot(from, along);
+    const projected: number = AutoMovieEngineVector3.dot(from, along);
     travel = Math.min(
       travel,
       Math.sqrt(far ** 2 - squared + projected ** 2) - projected,

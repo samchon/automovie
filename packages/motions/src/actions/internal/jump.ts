@@ -29,7 +29,7 @@ import type { jumpPushEnd } from "./jumpPushEnd";
 import type { jumpState } from "./jumpState";
 import { jumpTakeoff } from "./jumpTakeoff";
 import { standUpright } from "./standUpright";
-import * as JumpData from "./JumpData";
+import { JumpData } from "./JumpData";
 
 /*
  * A jump to a floor point: a push-off from a planted foot, a ballistic flight

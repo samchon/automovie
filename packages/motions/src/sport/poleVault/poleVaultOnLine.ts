@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -18,16 +18,16 @@ export function poleVaultOnLine(
   grip: IAutoMovieVector3,
   length: number,
 ): IAutoMovieVector3 | undefined {
-  const a: number = Vector3.dot(slide, slide);
+  const a: number = AutoMovieEngineVector3.dot(slide, slide);
   if (!(a > 1e-12)) return undefined;
-  const offset: IAutoMovieVector3 = Vector3.subtract(from, grip);
-  const b: number = 2 * Vector3.dot(slide, offset);
-  const c: number = Vector3.dot(offset, offset) - length * length;
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(from, grip);
+  const b: number = 2 * AutoMovieEngineVector3.dot(slide, offset);
+  const c: number = AutoMovieEngineVector3.dot(offset, offset) - length * length;
   const discriminant: number = b * b - 4 * a * c;
   if (discriminant < 0) return undefined;
   const along: number = Math.max(
     0,
     Math.min(1, (-b + Math.sqrt(discriminant)) / (2 * a)),
   );
-  return Vector3.add(from, Vector3.scale(slide, along));
+  return AutoMovieEngineVector3.add(from, AutoMovieEngineVector3.scale(slide, along));
 }

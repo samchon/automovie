@@ -5,8 +5,8 @@ import type {
   IAutoMovieSolidRail,
 } from "@automovie/interface";
 
-import { AutoMovieSolidBlend } from "../../AutoMovieSolidBlend";
-import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
+import { AutoMovieEngineSolidBlend } from "../../AutoMovieEngineSolidBlend";
+import { AutoMovieEngineSolidVector } from "../../AutoMovieEngineSolidVector";
 
 /*
  * Observe the join's original consecutive-normal dot predicate at its sampled
@@ -38,8 +38,8 @@ export function AutoMovieSolidJoinNormalCheck(
     cross,
     dot,
     norm,
-  }: Pick<typeof AutoMovieSolidVector, "sub" | "cross" | "dot" | "norm"> =
-    AutoMovieSolidVector;
+  }: Pick<typeof AutoMovieEngineSolidVector, "sub" | "cross" | "dot" | "norm"> =
+    AutoMovieEngineSolidVector;
   const step: number = period / (16 * curve.points.length);
   for (const c of columns) {
     const before: IAutoMovieSolidJoin.IColumn | null = column(
@@ -59,10 +59,10 @@ export function AutoMovieSolidJoinNormalCheck(
     for (let k: number = 0; k <= shares; k++) {
       const w: number = k / shares;
       const along: Vec3 = sub(
-        AutoMovieSolidBlend.jet(after.start, after.end, w).point,
-        AutoMovieSolidBlend.jet(before.start, before.end, w).point,
+        AutoMovieEngineSolidBlend.jet(after.start, after.end, w).point,
+        AutoMovieEngineSolidBlend.jet(before.start, before.end, w).point,
       );
-      const first: Vec3 = AutoMovieSolidBlend.jet(c.start, c.end, w).first;
+      const first: Vec3 = AutoMovieEngineSolidBlend.jet(c.start, c.end, w).first;
       const n: Vec3 = cross(along, first);
       if (previous !== null) {
         const alignment: number = dot(previous, n);

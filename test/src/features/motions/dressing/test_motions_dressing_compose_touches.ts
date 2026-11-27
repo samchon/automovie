@@ -4,10 +4,14 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import {
-  composeHumanAdjustCuff,
-  composeHumanStraightenPartnerTie,
-  composeHumanStraightenTie,
-} from "@automovie/motions/internal";
+  composeHumanAdjustCuff
+} from "../../../../../packages/motions/src/dressing/internal/composeHumanAdjustCuff";
+import {
+  composeHumanStraightenPartnerTie
+} from "../../../../../packages/motions/src/dressing/internal/composeHumanStraightenPartnerTie";
+import {
+  composeHumanStraightenTie
+} from "../../../../../packages/motions/src/dressing/internal/composeHumanStraightenTie";
 import { TestValidator } from "@nestia/e2e";
 
 /**

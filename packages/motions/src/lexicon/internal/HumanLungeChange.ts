@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
@@ -256,26 +256,26 @@ export namespace HumanLungeChange {
   ): HumanRideHands.IMaterialGrip {
     const axis: IAutoMovieVector3 = line.axis ?? out;
     const toward: IAutoMovieVector3 =
-      Vector3.dot(axis, out) >= 0 ? axis : Vector3.scale(axis, -1);
+      AutoMovieEngineVector3.dot(axis, out) >= 0 ? axis : AutoMovieEngineVector3.scale(axis, -1);
     const held: HumanRideHands.IMaterialGrip =
       target.along === 0
         ? line
         : {
             ...line,
-            point: Vector3.addScaled(line.point, toward, target.along),
+            point: AutoMovieEngineVector3.addScaled(line.point, toward, target.along),
           };
     if (target.line >= 1) return held;
     if (target.line <= 0) return { ...aim, reinPalm: line.reinPalm };
     const w: number = target.line;
     const sense: IAutoMovieVector3 =
-      aim.axis === undefined || Vector3.dot(toward, aim.axis) >= 0
+      aim.axis === undefined || AutoMovieEngineVector3.dot(toward, aim.axis) >= 0
         ? toward
-        : Vector3.scale(toward, -1);
+        : AutoMovieEngineVector3.scale(toward, -1);
     return {
       ...held,
-      point: Vector3.lerp(aim.point, held.point, w),
-      axis: Vector3.normalize(Vector3.lerp(aim.axis ?? sense, sense, w)),
-      normal: Vector3.normalize(Vector3.lerp(aim.normal, held.normal, w)),
+      point: AutoMovieEngineVector3.lerp(aim.point, held.point, w),
+      axis: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.lerp(aim.axis ?? sense, sense, w)),
+      normal: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.lerp(aim.normal, held.normal, w)),
     };
   }
 

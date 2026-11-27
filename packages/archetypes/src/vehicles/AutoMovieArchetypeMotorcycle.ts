@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { rideMotorcycle } from "./internal/rideMotorcycle";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -16,7 +16,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeMotorcycleData from "./internal/AutoMovieArchetypeMotorcycleData";
+import { AutoMovieArchetypeMotorcycleData } from "./internal/AutoMovieArchetypeMotorcycleData";
 
 /** The canonical producer and authoring contract. */
 export namespace AutoMovieArchetypeMotorcycle {
@@ -101,7 +101,7 @@ export namespace AutoMovieArchetypeMotorcycle {
       name: kind,
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const radius: number = d.wheelDiameter / 2;
     const nose: number = d.frontWheelDiameter / 2;
     const half: number = d.wheelbase / 2;

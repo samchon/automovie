@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeHobble } from "../AutoMovieArchetypeHobble";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -60,14 +60,14 @@ export function createHobble(
       builder,
       id,
       wall,
-      Vector3.create(x, -CUFF.width / 2, 0),
-      Vector3.create(x, CUFF.width / 2, 0),
+      AutoMovieEngineVector3.create(x, -CUFF.width / 2, 0),
+      AutoMovieEngineVector3.create(x, CUFF.width / 2, 0),
       "#4a2f1b",
     );
   builder.span(
     "strap",
-    builder.anchor("leftCuff", Vector3.create(half - ring, 0, 0)),
-    builder.anchor("rightCuff", Vector3.create(-half + ring, 0, 0)),
+    builder.anchor("leftCuff", AutoMovieEngineVector3.create(half - ring, 0, 0)),
+    builder.anchor("rightCuff", AutoMovieEngineVector3.create(-half + ring, 0, 0)),
     STRAP,
     { color: "#4a2f1b" },
     params.strap - 2 * ring,

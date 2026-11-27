@@ -1,4 +1,4 @@
-import { Quaternion, RigidCarrierSample, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineRigidCarrierSample, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -41,7 +41,7 @@ export namespace AutoMovieMotionHumanObject {
       ? { position: placement.position, rotation: placement.rotation }
       : {
           position: placement.at,
-          rotation: Quaternion.fromAxisAngle(
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle(
             { x: 0, y: 1, z: 0 },
             placement.yaw,
           ),
@@ -110,7 +110,7 @@ export namespace AutoMovieMotionHumanObject {
           affordance.id,
           {
             point: affordance.frame.translation,
-            normal: Quaternion.rotateVector(affordance.frame.rotation, {
+            normal: AutoMovieEngineQuaternion.rotateVector(affordance.frame.rotation, {
               x: 0,
               y: 1,
               z: 0,
@@ -158,7 +158,7 @@ export namespace AutoMovieMotionHumanObject {
               return {
                 point: at.translation,
                 rotation: at.rotation,
-                normal: Quaternion.rotateVector(at.rotation, {
+                normal: AutoMovieEngineQuaternion.rotateVector(at.rotation, {
                   x: 0,
                   y: 1,
                   z: 0,
@@ -167,7 +167,7 @@ export namespace AutoMovieMotionHumanObject {
             },
           }),
     };
-    RigidCarrierSample.adapt(prop, model, motion, contact);
+    AutoMovieEngineRigidCarrierSample.adapt(prop, model, motion, contact);
     return prop;
   }
 
@@ -252,8 +252,8 @@ export namespace AutoMovieMotionHumanObject {
         fix: "name one of the object's seats, or sit on an object that has one",
       });
     const world: IAutoMovieRigidTransform = frame(placement);
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(world.rotation, found.frame.rotation),
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(world.rotation, found.frame.rotation),
       { x: 0, y: 0, z: 1 },
     );
     const rests: ReturnType<typeof footrests> = footrests(
@@ -262,12 +262,12 @@ export namespace AutoMovieMotionHumanObject {
       world,
     );
     return {
-      at: Vector3.add(
+      at: AutoMovieEngineVector3.add(
         world.position,
-        Quaternion.rotateVector(world.rotation, found.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(world.rotation, found.frame.translation),
       ),
       yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
-      ...tilted(Quaternion.multiply(world.rotation, found.frame.rotation)),
+      ...tilted(AutoMovieEngineQuaternion.multiply(world.rotation, found.frame.rotation)),
       ...(found.depth === undefined ? {} : { depth: found.depth }),
       ...(found.back === undefined ? {} : { back: found.back }),
       ...(found.workingSeat === undefined
@@ -300,18 +300,18 @@ export namespace AutoMovieMotionHumanObject {
     seat: IAutoMovieAffordance,
     world: IAutoMovieRigidTransform,
   ): ISeatFootrests {
-    const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
+    const inverse: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.inverse(
       seat.frame.rotation,
     );
     const seated = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, seat.frame.translation),
+        AutoMovieEngineVector3.subtract(point, seat.frame.translation),
       );
     const placed = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         world.position,
-        Quaternion.rotateVector(world.rotation, point),
+        AutoMovieEngineQuaternion.rotateVector(world.rotation, point),
       );
     const below = (kinds: readonly string[]): IAutoMovieAffordance[] =>
       affordances
@@ -322,8 +322,8 @@ export namespace AutoMovieMotionHumanObject {
         )
         .sort(
           (a: IAutoMovieAffordance, b: IAutoMovieAffordance): number =>
-            Vector3.length(seated(a.frame.translation)) -
-            Vector3.length(seated(b.frame.translation)),
+            AutoMovieEngineVector3.length(seated(a.frame.translation)) -
+            AutoMovieEngineVector3.length(seated(b.frame.translation)),
         );
     const out: ISeatFootrests = { at: {}, ids: {} };
 
@@ -338,13 +338,13 @@ export namespace AutoMovieMotionHumanObject {
     if (Object.keys(out.at).length !== 0) return out;
     const bar: IAutoMovieAffordance | undefined = below(["bar"])[0];
     if (bar === undefined || bar.length === undefined) return out;
-    const reach: IAutoMovieVector3 = Quaternion.rotateVector(
+    const reach: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bar.frame.rotation,
       { x: bar.length / 4, y: 0, z: 0 },
     );
     const ends: IAutoMovieVector3[] = [
-      Vector3.add(bar.frame.translation, reach),
-      Vector3.subtract(bar.frame.translation, reach),
+      AutoMovieEngineVector3.add(bar.frame.translation, reach),
+      AutoMovieEngineVector3.subtract(bar.frame.translation, reach),
     ].sort(
       (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
         seated(b).x - seated(a).x,

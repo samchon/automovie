@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -92,12 +92,12 @@ export namespace balletPositions {
       front,
       body.measure.footLength,
     ); // Centre the pair on the entry's feet.
-    const centre: IAutoMovieVector3 = Vector3.lerp(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       heels.left,
       heels.right,
       0.5,
     );
-    const floor: IAutoMovieVector3 = Vector3.lerp(
+    const floor: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       HumanFoot.point(body, "left", "heel", context.entry.feet.left),
       HumanFoot.point(body, "right", "heel", context.entry.feet.right),
       0.5,
@@ -111,7 +111,7 @@ export namespace balletPositions {
         "heel",
         HumanFrame.point(
           { origin: floor, yaw },
-          Vector3.subtract(heels[side], centre),
+          AutoMovieEngineVector3.subtract(heels[side], centre),
         ),
         yaw + out(side, turnout),
         0,
@@ -171,9 +171,9 @@ export namespace balletPositions {
     body: IAutoMovieMotionHumanBody,
     entry: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       entry.root,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading(entry),
         body.rest.get("hips")!,
       ),
@@ -259,12 +259,12 @@ export namespace balletPositions {
     const rise: number =
       risen(body, front, placed[front], 1).ankle.y - placed[front].ankle.y;
     const depth: number = drop(body);
-    const ankles: IAutoMovieVector3 = Vector3.lerp(
+    const ankles: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       placed.left.ankle,
       placed.right.ankle,
       0.5,
     );
-    const entered: IAutoMovieVector3 = Vector3.lerp(
+    const entered: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       context.entry.feet.left.ankle,
       context.entry.feet.right.ankle,
       0.5,
@@ -280,7 +280,7 @@ export namespace balletPositions {
       right: [],
       hips: (t: number): IAutoMovieVector3 => {
         const moved: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / arrive));
-        const over: IAutoMovieVector3 = Vector3.lerp(entered, ankles, moved);
+        const over: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(entered, ankles, moved);
         const m: number = share(t);
         return {
           x: standing.x + over.x - entered.x,

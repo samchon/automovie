@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -55,14 +55,14 @@ export function HumanFloorReading(
   const members: number[][] = bearing.map((): number[] => []);
   for (const segment of HumanColliders.placed(body, bones))
     for (const shape of segment.shapes) {
-      const centre: IAutoMovieVector3 = Vector3.add(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         segment.pose.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           segment.pose.rotation,
           shape.transform.position,
         ),
       );
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         segment.pose.rotation,
         shape.transform.rotation,
       );
@@ -102,9 +102,9 @@ export function HumanFloorReading(
       const at: IAutoMovieResolvedBone = bones.get(target.bone)!;
       return target.point === undefined
         ? at.worldPosition
-        : Vector3.add(
+        : AutoMovieEngineVector3.add(
             at.worldPosition,
-            Quaternion.rotateVector(at.worldRotation, target.point),
+            AutoMovieEngineQuaternion.rotateVector(at.worldRotation, target.point),
           );
     }),
     turns: targets.map(
@@ -208,7 +208,7 @@ function candidates(
   const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.add(centre, Quaternion.rotateVector(rotation, local));
+    AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, local));
   if (shape.kind === "sphere") {
     out.push({ point: centre, lift: shape.radius });
     return;

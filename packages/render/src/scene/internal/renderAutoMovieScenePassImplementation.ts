@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieScenePassRenderer } from "../IAutoMovieScenePassRenderer.js";
+import type { IAutoMovieRenderScenePassRenderer } from "../IAutoMovieRenderScenePassRenderer.js";
 import { applyRenderMode } from "./applyRenderMode.js";
 import { applyRendererEnvironment } from "./applyRendererEnvironment.js";
 import { assertAutoMovieSceneShadowProfile } from "./assertAutoMovieSceneShadowProfile.js";
@@ -24,14 +24,14 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * error. Caller-owned scene and renderer are retained.
  */
 export const renderAutoMovieScenePassImplementation: (
-  renderer: IAutoMovieScenePassRenderer,
+  renderer: IAutoMovieRenderScenePassRenderer,
   scene: THREE.Scene,
   camera: THREE.Camera,
   environment: IAutoMovieSceneEnvironment | null | undefined,
   pass: AutoMovieGuidePass,
   delivery?: IAutoMovieSceneEnvironment["toneMapping"],
 ) => void = (
-  renderer: IAutoMovieScenePassRenderer,
+  renderer: IAutoMovieRenderScenePassRenderer,
   scene: THREE.Scene,
   camera: THREE.Camera,
   environment: IAutoMovieSceneEnvironment | null | undefined,

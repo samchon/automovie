@@ -1,7 +1,7 @@
 import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMath,
 } from "@automovie/engine";
 import type {
@@ -60,20 +60,20 @@ export function poleVaultSwinging(
     takeoff,
     readGrip,
   }: poleVaultSwinging.IPrepared = prepared;
-  const reach0: IAutoMovieVector3 = Vector3.subtract(gripAt, tipAt);
+  const reach0: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(gripAt, tipAt);
   const radius0: poleVaultSwing.IPlane = {
-    forward: Vector3.dot(reach0, ahead),
+    forward: AutoMovieEngineVector3.dot(reach0, ahead),
     up: reach0.y,
   };
   const swing: poleVaultSwing.ISwing = poleVaultSwing({
     radius: radius0,
     velocity: {
-      forward: Vector3.dot(takeoff.velocity, ahead),
+      forward: AutoMovieEngineVector3.dot(takeoff.velocity, ahead),
       up: takeoff.velocity.y,
     },
     mass: body.profile.mass,
     buckling: (p.rating ?? body.profile.mass) * poleVaultSwing.RATING,
-    gravity: AutoMovieGravity.STANDARD,
+    gravity: AutoMovieEngineGravity.STANDARD,
     upright: 0,
     run: speed,
   });
@@ -84,7 +84,7 @@ export function poleVaultSwinging(
   const towards: (angle: number) => IAutoMovieVector3 = (
     angle: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(Vector3.scale(ahead, Math.sin(angle)), {
+    AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(ahead, Math.sin(angle)), {
       x: 0,
       y: Math.cos(angle),
       z: 0,
@@ -94,13 +94,13 @@ export function poleVaultSwinging(
   // way when the hands hold it turned.
   const plantBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     readGrip(resolveHumanPosture(body, from));
-  const plantRotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const plantRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     plantBones.get(side === "left" ? "leftHand" : "rightHand")!.worldRotation,
     held.frame.rotation,
   );
   const bow: number =
-    Vector3.dot(
-      Quaternion.rotateVector(plantRotation, { x: 0, y: 0, z: 1 }),
+    AutoMovieEngineVector3.dot(
+      AutoMovieEngineQuaternion.rotateVector(plantRotation, { x: 0, y: 0, z: 1 }),
       towards(chord0 + Math.PI / 2),
     ) >= 0
       ? 1
@@ -138,7 +138,7 @@ export function poleVaultSwinging(
     const material: IAutoMovieRigidTransform = materialAt(seconds)[index + 1]!;
     const moved: IAutoMovieRigidTransform = HumanPropFrame.parent(material, {
       position: hand.grip,
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
     });
     return HumanPropFrame.parent(
       HumanPropFrame.parent(hand.held, moved),
@@ -157,26 +157,26 @@ export function poleVaultSwinging(
     const chord: number = Math.atan2(at.position.forward, at.position.up);
     const material: IAutoMovieRigidTransform[] = materialAt(t);
     const tip: IAutoMovieVector3 = material[0]!.position;
-    const local: IAutoMovieVector3 = Vector3.subtract(
+    const local: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       material[1]!.position,
       tip,
     );
     const heading: IAutoMovieVector3 = towards(chord);
-    const orientation: IAutoMovieQuaternion = Quaternion.multiply(
+    const orientation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       AutoMovieEngineMath.rotationBetween(towards(chord0), heading),
       plantRotation,
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-      AutoMovieEngineMath.rotationBetween(Quaternion.rotateVector(orientation, local), heading),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineMath.rotationBetween(AutoMovieEngineQuaternion.rotateVector(orientation, local), heading),
       orientation,
     );
     const frame: IAutoMovieRigidTransform = {
       rotation,
-      position: Vector3.subtract(tipAt, Quaternion.rotateVector(rotation, tip)),
+      position: AutoMovieEngineVector3.subtract(tipAt, AutoMovieEngineQuaternion.rotateVector(rotation, tip)),
     };
-    const shift: IAutoMovieVector3 = Vector3.scale(
+    const shift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       heading,
-      Vector3.length(local) - swing.length,
+      AutoMovieEngineVector3.length(local) - swing.length,
     );
     const turned: IAutoMovieMotionHumanPosture = turnFrom(
       0,
@@ -184,7 +184,7 @@ export function poleVaultSwinging(
     );
     const base: IAutoMovieMotionHumanPosture = HumanPostureRaw.translated(
       turned,
-      Vector3.add(turned.root, shift),
+      AutoMovieEngineVector3.add(turned.root, shift),
     );
     return walkPoleFrame.write(
       base,
@@ -194,17 +194,17 @@ export function poleVaultSwinging(
             frame,
             material[index + 1]!,
           );
-          const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+          const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
             at.rotation,
-            Quaternion.inverse(hand.held.rotation),
+            AutoMovieEngineQuaternion.inverse(hand.held.rotation),
           );
           return {
             side: hand.side,
             grip: at.position,
             rotation,
-            wrist: Vector3.subtract(
+            wrist: AutoMovieEngineVector3.subtract(
               at.position,
-              Quaternion.rotateVector(rotation, hand.socket),
+              AutoMovieEngineQuaternion.rotateVector(rotation, hand.socket),
             ),
           };
         },

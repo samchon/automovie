@@ -1,4 +1,4 @@
-import { AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanLimbFrame,
@@ -96,10 +96,10 @@ export namespace AutoMovieHumanLimbFrame {
       },
     );
     return {
-      coefficients: AutoMovieSplineCurve.interpolate(
+      coefficients: AutoMovieEngineSplineCurve.interpolate(
         local.map((q: AutoMovieVector3Tuple): [number, number] => [q[0], q[1]]),
       ),
-      lift: AutoMovieSplineCurve.interpolate(
+      lift: AutoMovieEngineSplineCurve.interpolate(
         local.map((q: AutoMovieVector3Tuple): [number, number] => [q[2], 0]),
       ).slice(0, order),
     };

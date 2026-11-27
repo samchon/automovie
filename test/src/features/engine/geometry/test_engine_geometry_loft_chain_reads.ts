@@ -1,11 +1,11 @@
-import { AutoMovieLoftChain, AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type { IAutoMovieLoftChain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `AutoMovieLoftChain` reads a chain of section layers along its stations: the
+ * `AutoMovieEngineLoftChain` reads a chain of section layers along its stations: the
  * section coefficients by the Hermite rule (`coefficients`, `derivative`), the
  * principal interval (`bracket`), the plane (`frame`), the central axis
  * (`axis`, the section's control-point mean placed in its plane), plane
@@ -24,7 +24,7 @@ import { throwsError } from "../../internal/throwsError";
  * 2. The frame at 2.5 is horizontal through y = 2.5; the axis is (1.25, 2.5, 3).
  * 3. `local` of the world point (4, 2.5, 3) is (4, 3); the ring at phases 0 and pi
  *    lies in y = 2.5; no layer lifts, so `lift` is null.
- * 4. `section` of a spline chain is `AutoMovieSplineCurve.evaluate`.
+ * 4. `section` of a spline chain is `AutoMovieEngineSplineCurve.evaluate`.
  */
 export function test_engine_geometry_loft_chain_reads(): void {
   const a: number[] = [3, 1, -1, 1, 3, 5, 3, 1];
@@ -54,19 +54,19 @@ export function test_engine_geometry_loft_chain_reads(): void {
   TestValidator.predicate(
     "coefficients",
     near(
-      AutoMovieLoftChain.coefficients(chain, 2.5),
+      AutoMovieEngineLoftChain.coefficients(chain, 2.5),
       a.map((v: number, i: number): number => v + 0.25 * (b[i]! - v)),
     ),
   );
   TestValidator.predicate(
     "derivative",
-    near(AutoMovieLoftChain.derivative(chain, 2.5), slopes),
+    near(AutoMovieEngineLoftChain.derivative(chain, 2.5), slopes),
   );
   TestValidator.equals(
     "bracket",
     [
-      AutoMovieLoftChain.bracket(chain, 2.5),
-      AutoMovieLoftChain.bracket(chain, 10),
+      AutoMovieEngineLoftChain.bracket(chain, 2.5),
+      AutoMovieEngineLoftChain.bracket(chain, 10),
     ],
     [
       [0, 1],
@@ -75,37 +75,37 @@ export function test_engine_geometry_loft_chain_reads(): void {
   );
   TestValidator.predicate(
     "outside",
-    throwsError((): unknown => AutoMovieLoftChain.coefficients(chain, 11)),
+    throwsError((): unknown => AutoMovieEngineLoftChain.coefficients(chain, 11)),
   );
 
   // 2.
-  TestValidator.equals("frame", AutoMovieLoftChain.frame(chain, 2.5), {
+  TestValidator.equals("frame", AutoMovieEngineLoftChain.frame(chain, 2.5), {
     origin: [0, 2.5, 0],
     u: [1, 0, 0],
     v: [0, 0, 1],
   });
   TestValidator.predicate(
     "axis",
-    near(AutoMovieLoftChain.axis(chain, 2.5), [1.25, 2.5, 3]),
+    near(AutoMovieEngineLoftChain.axis(chain, 2.5), [1.25, 2.5, 3]),
   );
 
   // 3.
   TestValidator.predicate(
     "local",
-    near(AutoMovieLoftChain.local(chain, 2.5, [[4, 2.5, 3]])[0]!, [4, 3]),
+    near(AutoMovieEngineLoftChain.local(chain, 2.5, [[4, 2.5, 3]])[0]!, [4, 3]),
   );
   TestValidator.predicate(
     "ring",
-    AutoMovieLoftChain.ring(chain, 2.5, [0, Math.PI]).every(
+    AutoMovieEngineLoftChain.ring(chain, 2.5, [0, Math.PI]).every(
       (p) => Math.abs(p[1] - 2.5) <= 1e-12,
     ),
   );
-  TestValidator.equals("lift", AutoMovieLoftChain.lift(chain, 2.5), null);
+  TestValidator.equals("lift", AutoMovieEngineLoftChain.lift(chain, 2.5), null);
 
   // 4.
   TestValidator.equals(
     "section",
-    AutoMovieLoftChain.section(chain, a, 0.7),
-    AutoMovieSplineCurve.evaluate(a, 4, 0.7),
+    AutoMovieEngineLoftChain.section(chain, a, 0.7),
+    AutoMovieEngineSplineCurve.evaluate(a, 4, 0.7),
   );
 }

@@ -11,8 +11,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 
@@ -254,9 +254,9 @@ function sphereCenter(
   transform: IAutoMovieTransform,
   center: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     transform.translation,
-    Quaternion.rotateVector(transform.rotation, {
+    AutoMovieEngineQuaternion.rotateVector(transform.rotation, {
       x: center.x * transform.scale.x,
       y: center.y * transform.scale.y,
       z: center.z * transform.scale.z,
@@ -275,20 +275,20 @@ function rotationArcMargin(
   second: IAutoMovieTransform,
   center: IAutoMovieVector3,
 ): number {
-  const a: IAutoMovieQuaternion = Quaternion.normalize(first.rotation);
-  const b: IAutoMovieQuaternion = Quaternion.normalize(second.rotation);
+  const a: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(first.rotation);
+  const b: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(second.rotation);
   const dot: number = Math.min(
     1,
     Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w),
   );
   const angle: number = 2 * Math.acos(dot);
   const maximumOffset: number = Math.max(
-    Vector3.length({
+    AutoMovieEngineVector3.length({
       x: center.x * first.scale.x,
       y: center.y * first.scale.y,
       z: center.z * first.scale.z,
     }),
-    Vector3.length({
+    AutoMovieEngineVector3.length({
       x: center.x * second.scale.x,
       y: center.y * second.scale.y,
       z: center.z * second.scale.z,

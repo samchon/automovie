@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -77,12 +77,12 @@ export namespace restClasped {
     const abdomen: IAutoMovieVector3 = trunk.region("abdomen").point;
     const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> =
       joints(trunk);
-    const ray: IAutoMovieVector3 = Vector3.addScaled(
+    const ray: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       groin,
       ahead,
       body.measure.stature,
     );
-    const inward: IAutoMovieVector3 = Vector3.scale(ahead, -1);
+    const inward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(ahead, -1);
     const layLeft: Lay = prepareLaid(
       body,
       "left",
@@ -147,7 +147,7 @@ export namespace restClasped {
         const goal: IAutoMovieMotionHumanRest.IGoal = both[side];
         far = Math.max(
           far,
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             HumanHand.place(
               body,
               side,
@@ -207,7 +207,7 @@ export namespace restClasped {
       joints(trunk);
     const place: HumanTrunk.ISurface = trunk.surface(
       {
-        ...Vector3.subtract(back, Vector3.scale(ahead, body.measure.stature)),
+        ...AutoMovieEngineVector3.subtract(back, AutoMovieEngineVector3.scale(ahead, body.measure.stature)),
         y: back.y - 0.03 * body.measure.stature,
       },
       ahead,
@@ -314,7 +314,7 @@ function segment(
   from: SegmentFrom,
   to: SegmentTo,
 ): number {
-  return Vector3.distance(
+  return AutoMovieEngineVector3.distance(
     body.rest.get(`${side}${to}`)!,
     body.rest.get(`${side}${from}`)!,
   );
@@ -366,10 +366,10 @@ function prepareLaid(
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
   ): IAutoMovieMotionHumanRest.IGoal => {
-    const into: IAutoMovieVector3 = Vector3.scale(normal, -1);
+    const into: IAutoMovieVector3 = AutoMovieEngineVector3.scale(normal, -1);
     let rotation: IAutoMovieQuaternion = hand.align({
       normal: into,
-      forward: restForearm.across(into, Vector3.subtract(point, shoulder)),
+      forward: restForearm.across(into, AutoMovieEngineVector3.subtract(point, shoulder)),
     });
     for (let i: number = 0; i < 3; i++)
       rotation = hand.align({
@@ -422,10 +422,10 @@ function stacked(
     left.shape,
   );
   return lay(
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       wrist.point,
-      Quaternion.rotateVector(wrist.rotation, face.point),
+      AutoMovieEngineQuaternion.rotateVector(wrist.rotation, face.point),
     ),
-    Quaternion.rotateVector(wrist.rotation, face.normal),
+    AutoMovieEngineQuaternion.rotateVector(wrist.rotation, face.normal),
   );
 }

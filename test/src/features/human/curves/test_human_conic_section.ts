@@ -1,4 +1,4 @@
-import { AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineViewChain } from "@automovie/engine";
 import { AutoMovieHumanConicSection } from "@automovie/human";
 import type {
   AutoMovieVector2Tuple,
@@ -24,7 +24,7 @@ import type {
  * 12. The lens layout reads an ellipse 6 by 40 mm, its length along `v`, from its faces' extremes on the median line and its ends' extremes, with its four guides in order.
  * 13. A least per arc holds only its own arc: on the ellipse's box with every stored shoulder 0.2, a layout listing least shoulders 0.3, 0, 0.25 and 0 reads its chain's shoulders as 0.3, 0.2, 0.25 and 0.2, and a layout with the one least 0.3 reads all four as 0.3; `continuous` at a side extreme keeps each of its two arcs at or above that arc's own least.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb`, `bilateral` and `units` and reads the resulting engine chain with `AutoMovieViewChain.radius`.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb`, `bilateral` and `units` and reads the resulting engine chain with `AutoMovieEngineViewChain.radius`.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's polar radius `1 / sqrt((cos / a)^2 + (sin / b)^2)` is a closed form; the subdivision weights are Farin's rational de Casteljau step at `t = 1/2` with end weights renormalised, a property of conics independent of this code; mirror symmetry is a geometric identity.
  * @evidence contracts/development/testing.md#distinguishing-cases A centred symmetric box, an off-centre box with touch offsets and unequal shoulders, a perturbed median that must change one quarter only, a bilateral layout, and an out-of-range share.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_section`, with no reference body, loft or figure.
@@ -37,7 +37,7 @@ export function test_human_conic_section(): void {
     values: number[],
     layout: IAutoMovieHumanConicSection.ILayout,
     phi: number,
-  ): number => AutoMovieViewChain.radius(S.chain(values, layout), phi);
+  ): number => AutoMovieEngineViewChain.radius(S.chain(values, layout), phi);
   const phases: number[] = Array.from(
     { length: 72 },
     (_: unknown, k: number): number => (2 * Math.PI * (k + 0.37)) / 72,
@@ -150,7 +150,7 @@ export function test_human_conic_section(): void {
   else if (
     !(
       Math.abs(
-        AutoMovieViewChain.radius(chain, 0.7) - radius(bounded, S.limb(0), 0.7),
+        AutoMovieEngineViewChain.radius(chain, 0.7) - radius(bounded, S.limb(0), 0.7),
       ) <= 1e-12
     )
   )

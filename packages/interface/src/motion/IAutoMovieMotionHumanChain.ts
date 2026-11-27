@@ -13,7 +13,7 @@ import type { IAutoMovieMotionHumanMutual } from "./IAutoMovieMotionHumanMutual"
  * action of the vocabulary, `act` for the same action by its name, `registered`
  * for a production's own law by its name, `until` to cut the last one, `sync`
  * to time it to another action or a cue, `over` to perform other actions on it
- * at once (`AutoMovieMotionHumanChainCore`), and `next` and `with` (from `AutoMovieChain`) to
+ * at once (`AutoMovieMotionHumanChainCore`), and `next` and `with` (from `AutoMovieEngineChain`) to
  * sequence and parallel whole chains, people with people. Its statics start a
  * chain (`subject`), give registered laws typed methods (`extend`) and join
  * people in a mutual action (`mutual`, and `pair` for a handshake and a
@@ -44,7 +44,7 @@ export interface IAutoMovieMotionHumanChain extends IAutoMovieMotionHumanChainSp
  * action of the vocabulary, `act` for the same action by its name, `registered`
  * for a production's own law by its name, `until` to cut the last one, `sync`
  * to time it to another action or a cue, `over` to perform other actions on it
- * at once (`AutoMovieMotionHumanChainCore`), and `next` and `with` (from `AutoMovieChain`) to
+ * at once (`AutoMovieMotionHumanChainCore`), and `next` and `with` (from `AutoMovieEngineChain`) to
  * sequence and parallel whole chains, people with people. Its statics start a
  * chain (`subject`), give registered laws typed methods (`extend`) and join
  * people in a mutual action (`mutual`, and `pair` for a handshake and a

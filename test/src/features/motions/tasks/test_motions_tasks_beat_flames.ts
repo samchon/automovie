@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { beatFlamesBeats } from "@automovie/motions/internal";
+import {
+  beatFlamesBeats
+} from "../../../../../packages/motions/src/tasks/internal/beatFlamesBeats";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

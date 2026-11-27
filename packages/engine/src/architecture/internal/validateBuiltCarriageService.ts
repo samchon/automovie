@@ -10,7 +10,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 import { builtEnvironmentContainsPoint } from "./builtEnvironmentContainsPoint";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
@@ -87,7 +87,7 @@ export function validateBuiltCarriageService(
             const carriage: IAutoMovieConnectorCarriage = carriages.get(
               claim.carriage,
             )!;
-            const point: IAutoMovieVector3 = Matrix4.position(
+            const point: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(
               matrices.get(carriage.element)!,
             );
             if (

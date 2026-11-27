@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
 import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { applyAutoMovieSectionPlanes } from "../../internal/applyAutoMovieSectionPlanes.js";
 
 /*
@@ -24,7 +24,7 @@ export function applyAutoMovieInspectionSectionImplementation(props: AutoMovieRe
     { planes: THREE.Plane[] | null; intersection: boolean }
   >();
   props.scene.traverse((object: THREE.Object3D): void => {
-    if (!AutoMovieThreeKind.isDrawn(object)) return;
+    if (!AutoMovieRenderThreeKind.isDrawn(object)) return;
     for (const one of [object.material].flat())
       if (!clipping.has(one))
         clipping.set(one, {

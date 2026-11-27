@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeParallelBarsData from "./internal/AutoMovieArchetypeParallelBarsData";
+import { AutoMovieArchetypeParallelBarsData } from "./internal/AutoMovieArchetypeParallelBarsData";
 
 /** Constructs the parallel bars archetype from its recipe. */
 export namespace AutoMovieArchetypeParallelBars {
@@ -103,16 +103,16 @@ export function create(
     builder.rod(
       `bar-${name}`,
       slim,
-      Vector3.create(x, height, -half),
-      Vector3.create(x, height, half),
+      AutoMovieEngineVector3.create(x, height, -half),
+      AutoMovieEngineVector3.create(x, height, half),
       { color: "#c9a36b" },
     );
     for (const end of [1, -1] as const)
       builder.rod(
         `upright-${name}-${end === 1 ? "front" : "back"}`,
         AutoMovieArchetypeParallelBars.UPRIGHT,
-        Vector3.create(x, 0, end * half * AutoMovieArchetypeParallelBars.SET),
-        Vector3.create(x, height - slim, end * half * AutoMovieArchetypeParallelBars.SET),
+        AutoMovieEngineVector3.create(x, 0, end * half * AutoMovieArchetypeParallelBars.SET),
+        AutoMovieEngineVector3.create(x, height - slim, end * half * AutoMovieArchetypeParallelBars.SET),
         { color: "#5a5f66" },
       );
     builder.affordance({
@@ -120,9 +120,9 @@ export function create(
       kind: "bar",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(x, height, 0),
-        Vector3.create(0, 1, 0),
-        Vector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(x, height, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, 0, 1),
       ),
       extent: null,
       length: d.length!,

@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
 
 /*
@@ -24,31 +24,31 @@ export function prepareAutoMovieSurfaceFrame(
   if (points.length !== 3)
     throw new Error("Surface preparation requires exactly three points.");
 
-  const first: IAutoMovieVector3 = Vector3.subtract(points[1], points[0]);
-  const second: IAutoMovieVector3 = Vector3.subtract(points[2], points[0]);
+  const first: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(points[1], points[0]);
+  const second: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(points[2], points[0]);
 
   // Differences of finite points can overflow binary64.
-  if (!Vector3.isFinite(first) || !Vector3.isFinite(second))
+  if (!AutoMovieEngineVector3.isFinite(first) || !AutoMovieEngineVector3.isFinite(second))
     throw new Error("Surface point differences exceed finite coordinates.");
 
-  let normal: IAutoMovieVector3 = Vector3.cross(
-    Vector3.normalize(first),
-    Vector3.normalize(second),
+  let normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+    AutoMovieEngineVector3.normalize(first),
+    AutoMovieEngineVector3.normalize(second),
   );
   if (referenceNormal !== undefined) {
     if (
-      !Vector3.isFinite(referenceNormal) ||
-      Vector3.length(referenceNormal) === 0
+      !AutoMovieEngineVector3.isFinite(referenceNormal) ||
+      AutoMovieEngineVector3.length(referenceNormal) === 0
     )
       throw new Error("Surface reference normal must be finite and nonzero.");
 
-    const alignment: number = Vector3.dot(
-      Vector3.normalize(normal),
-      Vector3.normalize(referenceNormal),
+    const alignment: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.normalize(normal),
+      AutoMovieEngineVector3.normalize(referenceNormal),
     );
     if (alignment === 0)
       throw new Error("Surface reference normal cannot select a normal sign.");
-    if (alignment < 0) normal = Vector3.scale(normal, -1);
+    if (alignment < 0) normal = AutoMovieEngineVector3.scale(normal, -1);
   }
 
   // Divide before addition so a representable centroid need not overflow its sum.
@@ -64,13 +64,13 @@ export function prepareAutoMovieSurfaceFrame(
   });
   const offsets: IAutoMovieVector3[] = points.map(
     (point: IAutoMovieVector3): IAutoMovieVector3 => {
-      const delta: IAutoMovieVector3 = Vector3.subtract(point, origin);
+      const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, origin);
       const offset: IAutoMovieVector3 = {
-        x: Vector3.dot(delta, basis.x),
-        y: Vector3.dot(delta, basis.y),
-        z: Vector3.dot(delta, basis.normal),
+        x: AutoMovieEngineVector3.dot(delta, basis.x),
+        y: AutoMovieEngineVector3.dot(delta, basis.y),
+        z: AutoMovieEngineVector3.dot(delta, basis.normal),
       };
-      if (!Vector3.isFinite(offset))
+      if (!AutoMovieEngineVector3.isFinite(offset))
         throw new Error("Surface offsets exceed finite coordinates.");
       return offset;
     },

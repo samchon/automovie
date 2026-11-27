@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematics,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
@@ -315,9 +315,9 @@ export namespace AutoMovieArchetypeEquineExpression {
         poll: poll.translation,
         head: poll.rotation,
         muzzle,
-        body: Quaternion.multiply(
+        body: AutoMovieEngineQuaternion.multiply(
           current.get("trunk")!.rotation,
-          Quaternion.inverse(prepared.trunk),
+          AutoMovieEngineQuaternion.inverse(prepared.trunk),
         ),
       };
     }
@@ -340,7 +340,7 @@ export namespace AutoMovieArchetypeEquineExpression {
               geometry.shape.type !== "cylinder")
           )
             return [];
-          const half: IAutoMovieVector3 = Quaternion.rotateVector(
+          const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             part.transform.rotation,
             { x: 0, y: geometry.shape.height / 2, z: 0 },
           );
@@ -349,7 +349,7 @@ export namespace AutoMovieArchetypeEquineExpression {
               base,
               AutoMovieArchetypeFrame.point(
                 other.placement,
-                Vector3.addScaled(part.transform!.translation, half, sign),
+                AutoMovieEngineVector3.addScaled(part.transform!.translation, half, sign),
               ),
             );
           return [

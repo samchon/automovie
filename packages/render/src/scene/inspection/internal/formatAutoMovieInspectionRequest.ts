@@ -11,7 +11,7 @@ import { parseAutoMovieInspectionRequest } from "./parseAutoMovieInspectionReque
  * `parseAutoMovieInspectionRequest` reads, so a request made in one host
  * repeats in another as an address or a command line.
  *
- * Keys come in the order of `AUTO_MOVIE_INSPECTION_KEYS`, and a key whose value
+ * Keys come in the order of `AutoMovieRenderInspectionKeys`, and a key whose value
  * is the parser's absent value is left out, so the request that asks for
  * nothing is the empty list. Lists are joined by commas, colours written
  * `pattern=rrggbb`, switches are written `1` or `0`, numbers in JavaScript's

@@ -1,4 +1,4 @@
 export * from "./AutoMovieRecoveryFitting";
 export * from "./AutoMovieRecoveryProfileFitting";
-export * from "./RecoveryBezierFit";
-export * from "./RecoveryChartFit";
+export * from "./AutoMovieRecoveryBezierFit";
+export * from "./AutoMovieRecoveryChartFit";

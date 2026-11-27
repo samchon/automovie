@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
@@ -14,13 +14,23 @@ import {
   AutoMovieMotionHumanStance,
 } from "@automovie/motions";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanTrunk,
-  HumanBalance,
-  HumanFoot,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  AutoMovieMotionHumanTrunk
+} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTrunk";
+import {
+  HumanBalance
+} from "../../../../packages/motions/src/everyday/internal/HumanBalance";
+import {
+  HumanFoot
+} from "../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -457,7 +467,7 @@ export namespace motionComposeTrunk {
     bone: AutoMovieHumanoidBone,
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(pose.get(bone)!.worldRotation, v);
+    return AutoMovieEngineQuaternion.rotateVector(pose.get(bone)!.worldRotation, v);
   }
 
   /** How far the farther ball of a foot is from its standing plant. */

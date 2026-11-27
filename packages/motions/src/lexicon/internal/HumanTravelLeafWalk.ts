@@ -1,4 +1,4 @@
-import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -89,21 +89,21 @@ export namespace HumanTravelLeafWalk {
       from: number,
       to: number,
     ): number => ((((to - from) % 360) + 540) % 360) - 180;
-    const yaw: ReturnType<typeof Quaternion.prepareAxisAngle> =
-      Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+    const yaw: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+      AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
     const yawY: (v: IAutoMovieVector3, degrees: number) => IAutoMovieVector3 = (
       v: IAutoMovieVector3,
       degrees: number,
-    ): IAutoMovieVector3 => Quaternion.rotateVector(yaw(degrees), v);
+    ): IAutoMovieVector3 => AutoMovieEngineQuaternion.rotateVector(yaw(degrees), v);
     const taken: IPlanTaken = props.handle(take);
-    const local: IAutoMovieVector3 = Vector3.subtract(taken.point, mid0);
+    const local: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(taken.point, mid0);
     const takenHeading: number = heading(taken.normal);
 
     // The feet's midpoint and the turn the take relation asks at a second.
     function asked(t: number): IAskedResult {
       const h: IAskedH = props.handle(t);
       const turn: number = turned(takenHeading, heading(h.normal));
-      const at: IAutoMovieVector3 = Vector3.subtract(
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         h.point,
         yawY(local, turn),
       );
@@ -115,7 +115,7 @@ export namespace HumanTravelLeafWalk {
     let before: IAutoMovieVector3 = asked(take).mid;
     for (let t: number = take + TICK; t <= seconds + 1e-9; t += TICK) {
       const now: IAutoMovieVector3 = asked(t).mid;
-      if (Vector3.length(Vector3.subtract(now, before)) > 1e-4) rests = t;
+      if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(now, before)) > 1e-4) rests = t;
       before = now;
     }
     const last: IPlanLast = asked(rests);
@@ -126,7 +126,7 @@ export namespace HumanTravelLeafWalk {
     for (let t: number = take + SPACING; t < rests; t += SPACING) {
       const p: IAutoMovieVector3 = asked(t).mid;
       const prior: IAutoMovieVector3 = way.at(-1) ?? mid0;
-      if (Vector3.length(Vector3.subtract(p, prior)) > 0.02) way.push(p);
+      if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p, prior)) > 0.02) way.push(p);
     }
 
     // The hinge: the centre the stance turns about, from the first and the
@@ -147,7 +147,7 @@ export namespace HumanTravelLeafWalk {
     };
     const facing: IAutoMovieMotionHumanWalkFacing.IFacing = {
       toward: hinge,
-      turn: turned(heading(Vector3.subtract(hinge, mid0)), yaw0),
+      turn: turned(heading(AutoMovieEngineVector3.subtract(hinge, mid0)), yaw0),
     };
     const walked: IAutoMovieMotionHumanActionPlan = walkOnEntryFloor(context, {
       to: last.mid,
@@ -258,14 +258,14 @@ export namespace HumanTravelLeafWalk {
     });
     const lower: IAutoMovieMotionHumanSupportCarry.ICarry = {
       point: frame.local,
-      turn: Quaternion.identity(),
+      turn: AutoMovieEngineQuaternion.identity(),
       yaw: 0,
     };
     const raise: IAutoMovieMotionHumanSupportCarry.ICarry = {
       ...lower,
       point: frame.point,
     };
-    const root: IAutoMovieTransform = entry.pose.root ?? Transform.identity();
+    const root: IAutoMovieTransform = entry.pose.root ?? AutoMovieEngineTransform.identity();
     const walked: IAutoMovieMotionHumanActionPlan = walk.plan({
       ...context,
       params,

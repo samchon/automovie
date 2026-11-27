@@ -1,16 +1,16 @@
 import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import { AutoMovieRenderSkinnedMesh } from "../AutoMovieRenderSkinnedMesh.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
 
 /*
  * Apply solved world bone frames to an existing complete skin rig, retaining
  * unlisted bones' authored local transforms.
  */
 export function createAutoMoviePhysicalPoseAdapter(
-  model: IAutoMovieModelObject,
+  model: IAutoMovieRenderModelObject,
 ): (poses: Readonly<Record<string, IAutoMovieRigidTransform>>) => void {
   const bones: Map<string, THREE.Object3D> = new Map(model.bones);
   const owned: Map<THREE.Object3D, string> = new Map(
@@ -26,7 +26,7 @@ export function createAutoMoviePhysicalPoseAdapter(
   const skeletons: Set<THREE.Skeleton> = new Set();
   model.object.traverse((object: THREE.Object3D): void => {
     if (owned.has(object)) ordered.push({ name: owned.get(object)!, object });
-    if (AutoMovieThreeKind.isSkinnedMesh(object)) {
+    if (AutoMovieRenderThreeKind.isSkinnedMesh(object)) {
       skins.push(object);
       skeletons.add(object.skeleton);
     }
@@ -100,9 +100,9 @@ export function createAutoMoviePhysicalPoseAdapter(
     model.object.updateWorldMatrix(true, true);
     for (const skeleton of skeletons) skeleton.update();
     for (const skin of skins) {
-      if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(skin))
+      if (AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(skin))
         skin.invalidatePose();
-      else AutoMovieSkinnedMesh.clearBounds(skin);
+      else AutoMovieRenderSkinnedMesh.clearBounds(skin);
     }
   };
 }

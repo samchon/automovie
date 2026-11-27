@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -82,7 +82,7 @@ export function crawlKneeling(
       const kneeAt: IAutoMovieVector3 = knees[side];
       const foot: kneelKeys.IFoot = tucks[side].foot;
       const placement: IAutoMovieMotionHumanFoot.IPlacement = placements[side](
-        Vector3.add(kneeAt, tucks[side].offset),
+        AutoMovieEngineVector3.add(kneeAt, tucks[side].offset),
       );
       legged.limbs[`${side}Leg`] = {
         point: placement.ankle,

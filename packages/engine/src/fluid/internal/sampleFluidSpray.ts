@@ -8,7 +8,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { seededValue } from "../../math/internal/seededValue";
 
 /*
@@ -111,7 +111,7 @@ const emit: (props: {
   const oldest: number = Math.floor((props.time - spray.lifetime) * spray.rate);
   const gravity: number = domain.solver.gravity;
   const axis: IAutoMovieVector3 = spray.direction;
-  const axisLength: number = Vector3.length(axis);
+  const axisLength: number = AutoMovieEngineVector3.length(axis);
 
   // Walk the kept indices newest-first, the multiples of the stride, so the
   // hard cap keeps the freshest particles and a far camera never visits the

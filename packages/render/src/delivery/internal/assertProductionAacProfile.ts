@@ -3,14 +3,14 @@ import type {
   IAutoMovieProductionAudioProbe,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_PRODUCTION_AAC_PROFILE } from "../AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
+import { AutoMovieRenderProductionAacProfile } from "../AutoMovieRenderProductionAacProfile.js";
 
 /*
  * Refuse a probed MP4 audio track that is not the AAC profile the delivery
  * encoder writes.
  *
  * The sample entry must be `mp4a` with an AudioSpecificConfig declaring AAC-LC,
- * 48,000 Hz and two channels, as `AUTOMOVIE_PRODUCTION_AAC_PROFILE` holds; the
+ * 48,000 Hz and two channels, as `AutoMovieRenderProductionAacProfile` holds; the
  * sample entry's own channel count and rate and the track's media timescale
  * must agree with them; and the track must hold at least one coded sample.
  * Presentation timing is not checked here: the decoded delivery audit measures
@@ -24,35 +24,35 @@ export const assertProductionAacProfile: (
 ) => void = (actual: IAutoMovieProductionAudioProbe): void => {
   const entry: IAutoMovieProductionAacDescription = actual.sampleEntry;
   const comparisons: Array<[string, unknown, unknown]> = [
-    ["codec", AUTOMOVIE_PRODUCTION_AAC_PROFILE.codec, entry.codec],
+    ["codec", AutoMovieRenderProductionAacProfile.codec, entry.codec],
     [
       "audioObjectType",
-      AUTOMOVIE_PRODUCTION_AAC_PROFILE.audioObjectType,
+      AutoMovieRenderProductionAacProfile.audioObjectType,
       entry.audioObjectType,
     ],
     [
       "sampleRate",
-      AUTOMOVIE_PRODUCTION_AAC_PROFILE.sampleRate,
+      AutoMovieRenderProductionAacProfile.sampleRate,
       entry.sampleRate,
     ],
     [
       "channelCount",
-      AUTOMOVIE_PRODUCTION_AAC_PROFILE.channelCount,
+      AutoMovieRenderProductionAacProfile.channelCount,
       entry.channelCount,
     ],
     [
       "sampleEntry.channels",
-      AUTOMOVIE_PRODUCTION_AAC_PROFILE.channelCount,
+      AutoMovieRenderProductionAacProfile.channelCount,
       actual.channels,
     ],
     [
       "sampleEntry.sampleRate",
-      AUTOMOVIE_PRODUCTION_AAC_PROFILE.sampleRate,
+      AutoMovieRenderProductionAacProfile.sampleRate,
       actual.sampleRate,
     ],
     [
       "timebase.mediaTimescale",
-      AUTOMOVIE_PRODUCTION_AAC_PROFILE.sampleRate,
+      AutoMovieRenderProductionAacProfile.sampleRate,
       actual.timebase.mediaTimescale,
     ],
     ["sampleCount", true, actual.sampleCount > 0],

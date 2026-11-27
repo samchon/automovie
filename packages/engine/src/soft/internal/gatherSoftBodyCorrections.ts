@@ -1,6 +1,6 @@
 import type { IAutoMovieGatherSoftBodyCorrections } from "@automovie/interface";
 
-import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
+import { AutoMovieEngineSoftBodyNeighbours } from "../AutoMovieEngineSoftBodyNeighbours";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
 /*
@@ -27,9 +27,9 @@ export function gatherSoftBodyCorrections(
         continue;
       }
       fold.fill(0);
-      for (let at: number = 0; at < SOFT_BODY_NEIGHBOURS.length; ++at) {
+      for (let at: number = 0; at < AutoMovieEngineSoftBodyNeighbours.length; ++at) {
         const rest: number =
-          props.restLength[particle * SOFT_BODY_NEIGHBOURS.length + at];
+          props.restLength[particle * AutoMovieEngineSoftBodyNeighbours.length + at];
         if (rest < 0) continue;
         const other: number = softBodyNeighbourOf(
           columns,
@@ -46,11 +46,11 @@ export function gatherSoftBodyCorrections(
         const share: number =
           inverseMass[particle] / (inverseMass[particle] + inverseMass[other]);
         const factor: number =
-          (props.stiffness[SOFT_BODY_NEIGHBOURS[at][2]] *
+          (props.stiffness[AutoMovieEngineSoftBodyNeighbours[at][2]] *
             share *
             (length - rest)) /
           length;
-        const slot: number = 3 * foldSlot(SOFT_BODY_NEIGHBOURS[at]);
+        const slot: number = 3 * foldSlot(AutoMovieEngineSoftBodyNeighbours[at]);
         fold[slot] += factor * dx;
         fold[slot + 1] += factor * dy;
         fold[slot + 2] += factor * dz;

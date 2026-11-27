@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -86,7 +86,7 @@ export namespace groupDanceCircle {
         (context.entry.feet.left.ankle.z + context.entry.feet.right.ankle.z) /
         2,
     };
-    const radius: number = Vector3.length(Vector3.subtract(start, centre));
+    const radius: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(start, centre));
     const angle0: number = Math.atan2(start.x - centre.x, start.z - centre.z);
     const half: number =
       Math.hypot(
@@ -154,9 +154,9 @@ export namespace groupDanceCircle {
       };
       const yaw: number = (Math.atan2(-out.x, -out.z) * 180) / Math.PI;
       const left: IAutoMovieVector3 = { x: -out.z, y: 0, z: out.x };
-      const point: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(centre, Vector3.scale(out, radius)),
-        Vector3.scale(left, side === "left" ? half : -half),
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(out, radius)),
+        AutoMovieEngineVector3.scale(left, side === "left" ? half : -half),
       );
       return {
         ankle: { ...point, y: floor },
@@ -230,7 +230,7 @@ export namespace groupDanceCircle {
         surface: "palm",
         shape: "relaxed",
         point,
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
         bend: { ...point, y: point.y - 0.3 },
       };
     };

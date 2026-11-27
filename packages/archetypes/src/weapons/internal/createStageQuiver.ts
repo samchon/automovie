@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageQuiver } from "../AutoMovieArchetypeStageQuiver";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StageCarrierConstruction } from "./StageCarrierConstruction";
@@ -29,7 +29,7 @@ export function createStageQuiver(
     params,
     seed,
     (builder, d, slots) => {
-      const v: typeof Vector3.create = Vector3.create;
+      const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
       // A quiver: a tube standing on its bottom, open at the top.
       const length: number = d.length!;
       const r: number = d.diameter! / 2;

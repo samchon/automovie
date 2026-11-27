@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -57,8 +57,8 @@ export function create(
   const panelCenter: number = poleHeight - panelHeight / 2;
   builder.box(
     "panel",
-    Vector3.create(width, panelHeight, depth),
-    Vector3.create(0, panelCenter, 0),
+    AutoMovieEngineVector3.create(width, panelHeight, depth),
+    AutoMovieEngineVector3.create(0, panelCenter, 0),
     { color: "#885149" },
   );
   for (const [pole, grip, x] of [
@@ -68,16 +68,16 @@ export function create(
     builder.rod(
       pole,
       poleDiameter / 2,
-      Vector3.create(x, 0, 0),
-      Vector3.create(x, poleHeight, 0),
+      AutoMovieEngineVector3.create(x, 0, 0),
+      AutoMovieEngineVector3.create(x, poleHeight, 0),
     );
     builder.affordance({
       id: grip,
       kind: "handle",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(x, panelBottom / 2, 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(x, panelBottom / 2, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "power",
@@ -91,9 +91,9 @@ export function create(
     id: "face",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, panelCenter, depth / 2),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, panelCenter, depth / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     width,

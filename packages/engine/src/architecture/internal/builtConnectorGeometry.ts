@@ -8,7 +8,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { requireBuiltConnector } from "./requireBuiltConnector";
 
 /*
@@ -38,12 +38,12 @@ export function builtConnectorGeometry(
   const cumulative: number[] = [0];
   let run: number = 0;
   for (let index: number = 0; index + 1 < route.length; ++index) {
-    const delta: IAutoMovieVector3 = Vector3.subtract(
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       route[index + 1]!,
       route[index]!,
     );
     run += Math.hypot(delta.x, delta.z);
-    cumulative.push(cumulative[index]! + Vector3.length(delta));
+    cumulative.push(cumulative[index]! + AutoMovieEngineVector3.length(delta));
   }
   const total: number = cumulative[cumulative.length - 1]!;
   if (route.length < 2 || total === 0)

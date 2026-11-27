@@ -7,7 +7,7 @@ import type { IAutoMovieConstructionProfilePiece } from "./IAutoMovieConstructio
  * domain is in metres inside the family's domain. orientation describes winding
  * in the plane; surfaceOrientation independently sets the world surface sign
  * and defaults to +1. pole declares whole-loop collapse only at named ends; an
- * absent pole leaves regular open ends. AutoMovieConstructionProfile
+ * absent pole leaves regular open ends. AutoMovieEngineConstructionProfile
  * preparation resolves sources and domains; declaring a loop does not prove
  * simplicity or global regularity.
  */

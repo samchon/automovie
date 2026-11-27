@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../math/AutoMovieEngineMatrix4";
 import { assertAutoMovieCurveBoundary64 } from "./curve/internal/assertAutoMovieCurveBoundary64";
 import { assertFiniteCurveVector } from "./curve/internal/assertFiniteCurveVector";
 import { freezeCurveBoundary } from "./curve/internal/freezeCurveBoundary";
@@ -87,7 +87,7 @@ export class AutoMovieEngineCurveParentContext {
       const world: number[] =
         parent === undefined
           ? local
-          : Matrix4.multiply(this.matrices.get(parent.bone)!, local);
+          : AutoMovieEngineMatrix4.multiply(this.matrices.get(parent.bone)!, local);
       if (!isDenseFinite(world))
         throw new Error("Resolved curve frame must remain finite");
       function row(i: number): Readonly<AutoMovieVector3Tuple> { return [world[i]!, world[4 + i]!, world[8 + i]!]; }
@@ -158,7 +158,7 @@ export class AutoMovieEngineCurveParentContext {
   ): Readonly<AutoMovieVector3Tuple> {
     if (!this.frames.has(bone)) throw new Error("Unknown bone");
     assertFiniteCurveVector(point);
-    const pointWorld: IAutoMovieVector3 = Matrix4.transformPoint(
+    const pointWorld: IAutoMovieVector3 = AutoMovieEngineMatrix4.transformPoint(
       this.matrices.get(bone)!,
       {
         x: point[0],

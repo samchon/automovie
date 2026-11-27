@@ -1,4 +1,4 @@
-import { AutoMovieViewHermite as Hermite, AutoMovieNaturalSpline as Natural, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineViewHermite as Hermite, AutoMovieEngineNaturalSpline as Natural, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieNaturalCubicSpline,
   IAutoMovieViewHermite,

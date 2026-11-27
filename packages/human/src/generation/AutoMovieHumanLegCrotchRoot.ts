@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
@@ -91,7 +91,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
     const taken: IAutoMovieHumanLegCrotchRoot.IArcs = arcs(calibration, side);
     return taken.arcs.flatMap(
       ([from, to]: [number, number]): AutoMovieVector3Tuple[] =>
-        AutoMovieLoftChain.ring(
+        AutoMovieEngineLoftChain.ring(
           taken.trunk,
           taken.trunk.layers[0]!.y,
           phases(from, to),
@@ -132,7 +132,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
       if (found === undefined)
         rows.set(
           run,
-          (found = AutoMovieLoftChain.ring(trunk, y - run, ringPhases).map(
+          (found = AutoMovieEngineLoftChain.ring(trunk, y - run, ringPhases).map(
             (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
               p[0],
               p[1],

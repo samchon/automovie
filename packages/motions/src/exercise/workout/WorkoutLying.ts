@@ -9,7 +9,7 @@ import type {
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
-import * as WorkoutLyingData from "./internal/WorkoutLyingData";
+import { WorkoutLyingData } from "./internal/WorkoutLyingData";
 
 /*
  * The exercises of the workout law done lying, sitting on the floor or on

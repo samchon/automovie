@@ -1,17 +1,17 @@
 import {
-  AutoMovieFilmIndirectStage,
-  AutoMovieFilmResponseStage,
-  type IAutoMovieDrawScene,
+  AutoMovieRenderFilmIndirectStage,
+  AutoMovieRenderFilmResponseStage,
+  type IAutoMovieRenderDrawScene,
 } from "@automovie/render";
 import type * as THREE from "three";
 
-import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
+import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost.js";
 
 /*
  * The inspector's beauty picture: a subject's optics and indirect shading
  * through the stages the draw page delivers one sample with.
  *
- * `draw` runs `AutoMovieFilmResponseStage` inside `AutoMovieFilmIndirectStage`,
+ * `draw` runs `AutoMovieRenderFilmResponseStage` inside `AutoMovieRenderFilmIndirectStage`,
  * which admits the subject's `shading` at the second against its optics, bakes
  * probes when their revision changed and measures the occlusion of indirect
  * light for the drawn camera first, so a shaded subject's paused frame shows
@@ -26,14 +26,14 @@ export class AutoMovieInspectorBeauty {
   /*
    * The stage giving a subject's optics their response.
    */
-  private readonly response_: AutoMovieFilmResponseStage =
-    new AutoMovieFilmResponseStage();
+  private readonly response_: AutoMovieRenderFilmResponseStage =
+    new AutoMovieRenderFilmResponseStage();
 
   /*
    * The stage measuring a subject's indirect shading around the draw.
    */
-  private readonly indirect_: AutoMovieFilmIndirectStage =
-    new AutoMovieFilmIndirectStage();
+  private readonly indirect_: AutoMovieRenderFilmIndirectStage =
+    new AutoMovieRenderFilmIndirectStage();
 
   /*
    * Draw the placed subject's beauty picture at `seconds` onto the canvas.
@@ -42,12 +42,12 @@ export class AutoMovieInspectorBeauty {
     /*
      * The inspector's renderer.
      */
-    renderer: IAutoMovieInspectorSceneHost.IRenderer;
+    renderer: IAutoMovieViewerInspectorSceneHost.IRenderer;
 
     /*
      * The created subject, placed at `seconds`.
      */
-    instance: IAutoMovieDrawScene;
+    instance: IAutoMovieRenderDrawScene;
 
     /*
      * The camera drawn through.
@@ -72,7 +72,7 @@ export class AutoMovieInspectorBeauty {
     const { renderer, instance, camera, seconds, width, height }: typeof props =
       props;
     const optics:
-      | ReturnType<NonNullable<IAutoMovieDrawScene["optics"]>>
+      | ReturnType<NonNullable<IAutoMovieRenderDrawScene["optics"]>>
       | undefined = instance.optics?.(seconds);
     this.indirect_.draw(
       {

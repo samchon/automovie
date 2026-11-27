@@ -3,16 +3,16 @@ import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieIntegrateAirbor
 
 
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
-import { AutoMoviePhysicalInertiaTensor } from "../../../physics/AutoMoviePhysicalInertiaTensor";
+import { AutoMovieEnginePhysicalInertiaTensor } from "../../../physics/AutoMovieEnginePhysicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngineMotionAirborneRotation";
 import { AutoMovieEngineMotionSampling } from "../../AutoMovieEngineMotionSampling";
 import { tabulateAirborneShapeKnots } from "../tabulateAirborneShapeKnots";
-import * as AirborneTabulatedShapeHistoryData from "./internal/AirborneTabulatedShapeHistoryData";
+import { AirborneTabulatedShapeHistoryData } from "./internal/AirborneTabulatedShapeHistoryData";
 
 /*
  * A shape history tabulated once on uniform knots and interpolated: the
@@ -469,7 +469,7 @@ function pointMomentum(
   let z: number = 0;
   for (let i: number = 0; i < at.parts.length; i++) {
     const part: IAutoMovieCombinePhysicalMassProperties.IPart = at.parts[i]!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       part.inertiaRotation,
     );
     let vx: number = 0;
@@ -486,7 +486,7 @@ function pointMomentum(
       vz += weight * other.centerOfMass.z;
       if (knot === k) continue;
       const turn: IAutoMovieVector3 = AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
-        Quaternion.multiply(other.inertiaRotation, inverse),
+        AutoMovieEngineQuaternion.multiply(other.inertiaRotation, inverse),
       );
       wx += weight * turn.x;
       wy += weight * turn.y;
@@ -495,7 +495,7 @@ function pointMomentum(
     const rx: number = part.centerOfMass.x - at.centre.x;
     const ry: number = part.centerOfMass.y - at.centre.y;
     const rz: number = part.centerOfMass.z - at.centre.z;
-    const spin: IAutoMovieVector3 = AutoMoviePhysicalInertiaTensor.spin(
+    const spin: IAutoMovieVector3 = AutoMovieEnginePhysicalInertiaTensor.spin(
       part,
       part.inertiaRotation,
       {

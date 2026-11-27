@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 import { type IAutoMovieSemanticMaskBinding, type IAutoMovieSemanticMaskCoverage, type IAutoMovieScene, type IAutoMovieSemanticMask } from "@automovie/interface";
-import type { IAutoMovieSemanticMaskHandle } from "./IAutoMovieSemanticMaskHandle.js";
+import type { IAutoMovieRenderSemanticMaskHandle } from "./IAutoMovieRenderSemanticMaskHandle.js";
 import { auditAutoMovieSemanticMaskSceneImplementation } from "./semanticMask/internal/auditAutoMovieSemanticMaskSceneImplementation.js";
 import { applyAutoMovieSemanticMaskImplementation } from "./semanticMask/internal/applyAutoMovieSemanticMaskImplementation.js";
 import { attachAutoMovieSemanticMask as attachAutoMovieSemanticMaskImplementation } from "./semanticMask/internal/attachAutoMovieSemanticMask.js";
@@ -55,7 +55,7 @@ export namespace AutoMovieRenderSemanticMask {
    * baked formation cycle is carried onto replacement materials through the
    * beauty hook. Compilation and delivered pixels remain rendering observations.
    */
-  export function apply(props: IApplyProps): IAutoMovieSemanticMaskHandle {
+  export function apply(props: IApplyProps): IAutoMovieRenderSemanticMaskHandle {
     return applyAutoMovieSemanticMaskImplementation(props);
   }
   /**

@@ -1,6 +1,6 @@
 import type {
-  AutoMovieDrawSubjects,
-  IAutoMovieDrawScene,
+  AutoMovieRenderDrawSubjects,
+  IAutoMovieRenderDrawScene,
 } from "@automovie/render";
 
 import { bankedParkRide } from "./bankedParkRide";
@@ -11,9 +11,9 @@ import { pondTrail } from "./pondTrail";
 import { railShuttle } from "./railShuttle";
 
 /** Draw the compiled production examples through the ordinary capture host. */
-export const subjects: AutoMovieDrawSubjects = () => ({
+export const subjects: AutoMovieRenderDrawSubjects = () => ({
   "hillside-stop": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(hillsideStop(), {
         sill: () => ({
           position: { x: 5, y: 3.1, z: -3.6 },
@@ -26,7 +26,7 @@ export const subjects: AutoMovieDrawSubjects = () => ({
       }),
   },
   "pond-trail": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(pondTrail(), {
         shoreline: () => ({
           position: { x: 22, y: 6, z: 2 },
@@ -39,7 +39,7 @@ export const subjects: AutoMovieDrawSubjects = () => ({
       }),
   },
   "bridge-campus": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(bridgeCampus(), {
         span: () => ({
           position: { x: 9.5, y: 7, z: -3 },
@@ -72,7 +72,7 @@ export const subjects: AutoMovieDrawSubjects = () => ({
       }),
   },
   "banked-park-ride": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(bankedParkRide(), {
         station: () => ({
           position: { x: 10, y: 4, z: -11 },
@@ -85,7 +85,7 @@ export const subjects: AutoMovieDrawSubjects = () => ({
       }),
   },
   "rail-shuttle": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(railShuttle(), {
         board: () => ({
           position: { x: 6, y: 2.1, z: 9.6 },

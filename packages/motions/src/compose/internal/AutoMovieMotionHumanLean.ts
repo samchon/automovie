@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
@@ -70,9 +70,9 @@ export namespace AutoMovieMotionHumanLean {
     more: IAutoMovieMotionHumanLean.IAngles,
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const held: IAutoMovieVector3 = Vector3.add(
+    const held: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       posture.root,
-      Quaternion.rotateVector(humanPostureHeading(posture), hips),
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), hips),
     );
     const tilted: IAutoMovieMotionHumanPosture = {
       ...posture,
@@ -81,9 +81,9 @@ export namespace AutoMovieMotionHumanLean {
     };
     return {
       ...tilted,
-      root: Vector3.subtract(
+      root: AutoMovieEngineVector3.subtract(
         held,
-        Quaternion.rotateVector(humanPostureHeading(tilted), hips),
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(tilted), hips),
       ),
     };
   }
@@ -104,9 +104,9 @@ export namespace AutoMovieMotionHumanLean {
     point: IAutoMovieVector3,
     more: IAutoMovieMotionHumanLean.IAngles,
   ): IAutoMovieMotionHumanPosture {
-    const own: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(humanPostureHeading(posture)),
-      Vector3.subtract(point, posture.root),
+    const own: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(humanPostureHeading(posture)),
+      AutoMovieEngineVector3.subtract(point, posture.root),
     );
     const tilted: IAutoMovieMotionHumanPosture = {
       ...posture,
@@ -115,9 +115,9 @@ export namespace AutoMovieMotionHumanLean {
     };
     return {
       ...tilted,
-      root: Vector3.subtract(
+      root: AutoMovieEngineVector3.subtract(
         point,
-        Quaternion.rotateVector(humanPostureHeading(tilted), own),
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(tilted), own),
       ),
     };
   }
@@ -155,7 +155,7 @@ export namespace AutoMovieMotionHumanLean {
         );
         const moved: IAutoMovieMotionHumanPosture = {
           ...tilted,
-          root: Vector3.add(tilted.root, travel),
+          root: AutoMovieEngineVector3.add(tilted.root, travel),
         };
         const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           props.body,
@@ -199,11 +199,11 @@ export namespace AutoMovieMotionHumanLean {
       ...posture,
       pitch: posture.pitch + pitch,
     };
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       humanPostureHeading(tipped),
       hips,
     );
-    return { ...tipped, root: Vector3.subtract(target, offset) };
+    return { ...tipped, root: AutoMovieEngineVector3.subtract(target, offset) };
   }
 
   /*

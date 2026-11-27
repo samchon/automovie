@@ -10,10 +10,14 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
-  HumanPerformanceRead,
-  HumanPropCatchHands,
-  HumanPropSweepHands,
-} from "@automovie/motions/internal";
+  HumanPerformanceRead
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceRead";
+import {
+  HumanPropCatchHands
+} from "../../../../../packages/motions/src/perform/internal/HumanPropCatchHands";
+import {
+  HumanPropSweepHands
+} from "../../../../../packages/motions/src/perform/internal/HumanPropSweepHands";
 import { TestValidator } from "@nestia/e2e";
 
 import { actingPerformanceState } from "../../internal/fixtures/actingPerformanceState";

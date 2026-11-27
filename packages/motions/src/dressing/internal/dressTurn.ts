@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -93,11 +93,11 @@ export function dressTurn(props: IDressTurnProps): number {
       resolved.pose,
       resolution(),
     );
-    const miss: number = Vector3.length(
-      Vector3.subtract(
-        Vector3.add(
+    const miss: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           gripAt(bones),
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             bones.get(`${props.side}Hand`)!.worldRotation,
             props.wear,
           ),
@@ -145,13 +145,13 @@ export namespace dressTurn {
     inverse: IAutoMovieQuaternion,
     offset: IAutoMovieVector3,
   ): IDressTurnCarriedResult {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(worn.rotation, inverse),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(worn.rotation, inverse),
     );
     return {
-      grip: Vector3.subtract(
+      grip: AutoMovieEngineVector3.subtract(
         worn.position,
-        Quaternion.rotateVector(rotation, offset),
+        AutoMovieEngineQuaternion.rotateVector(rotation, offset),
       ),
       rotation,
     };

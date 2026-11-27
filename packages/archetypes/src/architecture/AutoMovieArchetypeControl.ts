@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -84,7 +84,7 @@ export namespace AutoMovieArchetypeControl {
       name: kind === "lever" ? "ball lever" : "selector dial",
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const y: number = d.height;
     const black: string = "#1d1d1d";
     if (kind === "dial") {

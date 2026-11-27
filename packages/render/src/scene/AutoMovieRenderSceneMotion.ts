@@ -7,7 +7,7 @@ import { applyLightMotion as applyLightMotionImplementation } from "./internal/a
 
 import type * as THREE from "three";
 import { invalidateAutoMovieSkinnedPose as invalidateAutoMovieSkinnedPoseImplementation } from "./internal/invalidateAutoMovieSkinnedPose.js";
-import { type IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import { type IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
 import { type AutoMovieHumanoidBone, type IAutoMovieRigLocalTransform, type IAutoMovieRigidTransform, type IAutoMovieTransform, type IAutoMoviePose, type IAutoMovieSkeleton, type IAutoMovieJointAxes, type IAutoMovieRestFrame, type IAutoMovieExpression, type IAutoMovieHumanVisemeWeights, type IAutoMovieClip, type IAutoMovieLight } from "@automovie/interface";
 import { applyAutoMovieRigLocals as applyAutoMovieRigLocalsImplementation } from "./internal/applyAutoMovieRigLocals.js";
 import { createAutoMoviePhysicalPoseAdapter as createAutoMoviePhysicalPoseAdapterImplementation } from "./internal/createAutoMoviePhysicalPoseAdapter.js";
@@ -45,7 +45,7 @@ export namespace AutoMovieRenderSceneMotion {
    * invalidates skinned bounds and CPU pose caches. The caller owns semantic
    * evaluation, morph weights, imported-runtime flushing and rendering.
    */
-  export function applyRigLocals(target: IAutoMovieModelObject, locals: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieRigLocalTransform>, root: IAutoMovieRigLocalTransform): void {
+  export function applyRigLocals(target: IAutoMovieRenderModelObject, locals: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieRigLocalTransform>, root: IAutoMovieRigLocalTransform): void {
     applyAutoMovieRigLocalsImplementation(target, locals, root);
   }
 
@@ -53,7 +53,7 @@ export namespace AutoMovieRenderSceneMotion {
    * Apply solved world bone frames to an existing complete skin rig, retaining
    * unlisted bones' authored local transforms.
    */
-  export function createPhysicalPoseAdapter(model: IAutoMovieModelObject): (poses: Readonly<Record<string, IAutoMovieRigidTransform>>) => void {
+  export function createPhysicalPoseAdapter(model: IAutoMovieRenderModelObject): (poses: Readonly<Record<string, IAutoMovieRigidTransform>>) => void {
     return createAutoMoviePhysicalPoseAdapterImplementation(model);
   }
 
@@ -94,7 +94,7 @@ export namespace AutoMovieRenderSceneMotion {
    * MEANT to map, so a typo in the bone map is distinguishable from an
    * intentional gap instead of both silently not articulating.
    */
-  export function applyPose(target: IAutoMovieModelObject, pose: IAutoMoviePose, skeleton: IAutoMovieSkeleton, jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>, restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>): AutoMovieHumanoidBone[] {
+  export function applyPose(target: IAutoMovieRenderModelObject, pose: IAutoMoviePose, skeleton: IAutoMovieSkeleton, jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>, restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>): AutoMovieHumanoidBone[] {
     return applyPoseImplementation(target, pose, skeleton, jointAxes, restFrames);
   }
 
@@ -113,7 +113,7 @@ export namespace AutoMovieRenderSceneMotion {
    * 0.5 × 1 + 0.5 × 0.6 = 0.8. The mouth layer's channels replace the authored
    * values of the same channels.
    */
-  export function applyExpression(target: IAutoMovieModelObject, expression: IAutoMovieExpression | null, visemes?: IAutoMovieHumanVisemeWeights): void {
+  export function applyExpression(target: IAutoMovieRenderModelObject, expression: IAutoMovieExpression | null, visemes?: IAutoMovieHumanVisemeWeights): void {
     applyExpressionImplementation(target, expression, visemes);
   }
 
@@ -173,7 +173,7 @@ export namespace AutoMovieRenderSceneMotion {
    * Lights are resolved by id and never by position. `buildScene` adds them as
    * top-level children and the segmentation mask palette is keyed by top-level
    * child index, so an index-addressed light would silently re-target whenever
-   * staging inserts one; {@link IAutoMovieSceneObject.lights} is the id index
+   * staging inserts one; {@link IAutoMovieRenderSceneObject.lights} is the id index
    * built for exactly this call.
    *
    * Every staged light is written, not only the ones a clip addresses, which is

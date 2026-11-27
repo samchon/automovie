@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSupportCarry, IAutoMovieMotionHumanSurface, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
@@ -9,7 +9,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 import { HumanSupportStepPlants } from "./HumanSupportStepPlants";
-import * as HumanSupportStepData from "./HumanSupportStepData";
+import { HumanSupportStepData } from "./HumanSupportStepData";
 
 /*
  * Step from one support to another, either of which may move: from a fixed
@@ -71,13 +71,13 @@ export function HumanSupportStep(
     if (prop === undefined || begin === end) return point;
     const a: IAutoMovieRigidTransform = frame(prop, begin, site);
     const b: IAutoMovieRigidTransform = frame(prop, end, site);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       b.position,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         b.rotation,
-        Quaternion.rotateVector(
-          Quaternion.inverse(a.rotation),
-          Vector3.subtract(point, a.position),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(a.rotation),
+          AutoMovieEngineVector3.subtract(point, a.position),
         ),
       ),
     );
@@ -121,7 +121,7 @@ export function HumanSupportStep(
     ...entry,
     velocity: {
       ...entry.velocity,
-      linear: Vector3.subtract(entry.velocity.linear, carried),
+      linear: AutoMovieEngineVector3.subtract(entry.velocity.linear, carried),
     },
     posture: HumanSupportCarry.posture(lower, entry.posture),
     pose:
@@ -164,7 +164,7 @@ export function HumanSupportStep(
 
   // How far the entry's soles sit from the declared surface they stand on,
   // which the feet keep when they arrive on a fixed landing.
-  const feet: IAutoMovieVector3 = Vector3.lerp(
+  const feet: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     context.entry.feet.left.ankle,
     context.entry.feet.right.ankle,
     0.5,
@@ -234,7 +234,7 @@ export function HumanSupportStep(
     at: number,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
-    const shifted: IAutoMovieVector3 = Vector3.add(point, plant.shift);
+    const shifted: IAutoMovieVector3 = AutoMovieEngineVector3.add(point, plant.shift);
     if (plant.site !== undefined) {
       // Meet the deck at touchdown, then travel in that material frame.
       const touchdown: IAutoMovieVector3 = plant.arrived
@@ -276,7 +276,7 @@ export function HumanSupportStep(
         const weight: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           (share - before.window.to) / (plant.window.from - before.window.to),
         );
-        return Vector3.lerp(
+        return AutoMovieEngineVector3.lerp(
           borne(before, at, point),
           borne(plant, at, point),
           weight,
@@ -304,7 +304,7 @@ export function HumanSupportStep(
   const body = (at: number, point: IAutoMovieVector3): IAutoMovieVector3 => {
     const left: number = bearing("left", at);
     const right: number = bearing("right", at);
-    return Vector3.lerp(
+    return AutoMovieEngineVector3.lerp(
       carry("left", at, point),
       carry("right", at, point),
       left + right === 0 ? 0.5 : right / (left + right),
@@ -320,11 +320,11 @@ export function HumanSupportStep(
     site?: string,
   ): number => {
     if (prop === undefined || begin === end) return 0;
-    const delta: IAutoMovieQuaternion = Quaternion.multiply(
+    const delta: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       frame(prop, end, site).rotation,
-      Quaternion.inverse(frame(prop, begin, site).rotation),
+      AutoMovieEngineQuaternion.inverse(frame(prop, begin, site).rotation),
     );
-    return (2 * Math.atan2(delta.y, delta.w)) / Quaternion.DEG2RAD;
+    return (2 * Math.atan2(delta.y, delta.w)) / AutoMovieEngineQuaternion.DEG2RAD;
   };
 
   // How far a plant's support has turned the foot by a second, and one
@@ -413,8 +413,8 @@ export function HumanSupportStep(
           ...(side === undefined || goal.rotation === undefined
             ? {}
             : {
-                rotation: Quaternion.multiply(
-                  Quaternion.fromAxisAngle(HumanSupportStepData.UP, spin(side, at)),
+                rotation: AutoMovieEngineQuaternion.multiply(
+                  AutoMovieEngineQuaternion.fromAxisAngle(HumanSupportStepData.UP, spin(side, at)),
                   goal.rotation,
                 ),
               }),

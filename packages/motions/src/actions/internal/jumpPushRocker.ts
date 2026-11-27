@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -166,9 +166,9 @@ export function jumpPushRocker(
 export namespace jumpPushRocker {
   /*
    * A heel rise's tolerance, degrees: the angular resolution its rule reads
-   * flat to (`ROM_TOLERANCE`), the bound AutoKnots places the rise's knots to.
+   * flat to (`AutoMovieEngineRomTolerance`), the bound AutoKnots places the rise's knots to.
    */
-  export const TOLERANCE: number = ROM_TOLERANCE;
+  export const TOLERANCE: number = AutoMovieEngineRomTolerance;
 
   /*
    * What a jump push builds its rocker from.

@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeHull } from "./physicalShapeHull";
 
 /*
@@ -144,12 +144,12 @@ export function validatePhysicalProfile(
           );
       }
     mass += segment.mass;
-    moment = Vector3.add(
+    moment = AutoMovieEngineVector3.add(
       moment,
-      Vector3.scale(
-        Vector3.add(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
           segment.neutral.position,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             segment.neutral.rotation,
             segment.centerOfMass,
           ),
@@ -183,8 +183,8 @@ export function validatePhysicalProfile(
   }
   if (mass > 0)
     fail(
-      Vector3.length(
-        Vector3.subtract(Vector3.scale(moment, 1 / mass), profile.centerOfMass),
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.scale(moment, 1 / mass), profile.centerOfMass),
       ) <= 1e-8,
       "centerOfMass: segment sum",
     );
@@ -213,22 +213,22 @@ export function validatePhysicalProfile(
         segment.bone === joint.child,
     );
     if (parent && child) {
-      const first: IAutoMovieVector3 = Vector3.add(
+      const first: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         parent.neutral.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           parent.neutral.rotation,
           joint.parentFrame.position,
         ),
       );
-      const second: IAutoMovieVector3 = Vector3.add(
+      const second: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         child.neutral.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           child.neutral.rotation,
           joint.childFrame.position,
         ),
       );
       fail(
-        Vector3.length(Vector3.subtract(first, second)) <= 1e-8,
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(first, second)) <= 1e-8,
         `${path}.neutralAnchors`,
       );
     }

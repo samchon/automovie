@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   IAutoMovieHumanLegProfile,
   IAutoMovieHumanLegStations,
@@ -119,14 +119,14 @@ export namespace AutoMovieHumanLegProfile {
       if (i > 0 && !(placed[i]!.at > placed[i - 1]!.at))
         throw new Error("Two landmark rows stand at one height");
     }
-    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       placed.map((p: IAutoMovieHumanLegProfile.IKnot): number => p.at),
       placed.map((p: IAutoMovieHumanLegProfile.IKnot): number => p.value),
     );
     const low: number = placed[0]!.at;
     const high: number = placed[placed.length - 1]!.at;
     return (s: number): number =>
-      AutoMovieNaturalSpline.evaluate(spline, Math.min(high, Math.max(low, s)));
+      AutoMovieEngineNaturalSpline.evaluate(spline, Math.min(high, Math.max(low, s)));
   }
 
   /**

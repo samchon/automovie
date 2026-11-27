@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -180,8 +180,8 @@ export namespace HumanFitPairs {
     const current: HumanBodyFitRows.IReading = step.at;
     const g: IGap = prepared ?? gap(current.bones, pair);
     const distance: number = g.distance;
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(g.a, g.b),
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(g.a, g.b),
     );
     return {
       row: {
@@ -189,8 +189,8 @@ export namespace HumanFitPairs {
         index: step.index,
         coef: step.motions.map(
           (motion: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
-            Vector3.dot(
-              Vector3.subtract(
+            AutoMovieEngineVector3.dot(
+              AutoMovieEngineVector3.subtract(
                 HumanJacobian.velocity(motion, pair.a.bone, g.a),
                 HumanJacobian.velocity(motion, pair.b.bone, g.b),
               ),

@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanBoardAdmit } from "@automovie/motions/internal";
+import {
+  HumanBoardAdmit
+} from "../../../../../packages/motions/src/lexicon/internal/HumanBoardAdmit";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

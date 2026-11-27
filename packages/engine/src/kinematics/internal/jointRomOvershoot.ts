@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineJointRomScan } from "../../rom/internal/AutoMovieEngineJointRomScan";
-import type { swingTwistRange } from "../swingTwistRange";
+import type { AutoMovieEngineSwingTwistRange } from "../AutoMovieEngineSwingTwistRange";
 
 /*
  * The total range-of-motion overshoot of one joint's clinical angles, in
@@ -25,7 +25,7 @@ import type { swingTwistRange } from "../swingTwistRange";
 export function jointRomOvershoot(
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
-  rig?: swingTwistRange.IPrepared,
+  rig?: AutoMovieEngineSwingTwistRange.IPrepared,
 ): number {
   return constraint === null
     ? 0

@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance } from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalBalance,
@@ -84,7 +84,7 @@ export namespace PhysicalStepChoice {
     capture: IAutoMovieVector3,
     extra: Partial<IAutoMoviePhysicalBalance.IAssessInput> = {},
   ): IAutoMoviePhysicalBalance.IResult {
-    return AutoMoviePhysicalBalance.assess({
+    return AutoMovieEnginePhysicalBalance.assess({
       center: { x: capture.x, y: HEIGHT, z: capture.z },
       velocity: { x: 0, y: 0, z: 0 },
       gravity: G,

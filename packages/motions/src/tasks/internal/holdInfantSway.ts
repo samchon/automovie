@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanHoldInfant,
   IAutoMovieVector3,
@@ -22,7 +22,7 @@ export function holdInfantSway(
   seconds: number,
 ): IAutoMovieVector3 {
   if (rock === undefined) return { x: 0, y: 0, z: 0 };
-  return Vector3.scale(
+  return AutoMovieEngineVector3.scale(
     toward,
     rock.amplitude *
       Math.sin(2 * Math.PI * rock.frequency * Math.max(0, seconds - settle)),

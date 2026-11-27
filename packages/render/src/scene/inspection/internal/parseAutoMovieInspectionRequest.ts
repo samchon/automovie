@@ -15,7 +15,7 @@ import { readInspectionVector } from "./readInspectionVector.js";
  *
  * `read` returns the text of a key, or null or undefined when the key is
  * absent. A key that is present without a value reads as the empty string,
- * which turns a switch on. `AUTO_MOVIE_INSPECTION_KEYS` lists every key read,
+ * which turns a switch on. `AutoMovieRenderInspectionKeys` lists every key read,
  * and `formatAutoMovieInspectionRequest` writes a request back as these
  * values.
  *

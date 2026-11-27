@@ -1,4 +1,4 @@
-import { AutoMovieLoftSectionNative } from "@automovie/engine";
+import { AutoMovieEngineLoftSectionNative } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanGlutealConnection,
@@ -49,9 +49,9 @@ export namespace AutoMovieHumanGlutealConnection {
       input.footprint[2],
       input.footprint[input.lateral === 1 ? 3 : 1],
     ];
-    let read: ReturnType<typeof AutoMovieLoftSectionNative.phase>;
+    let read: ReturnType<typeof AutoMovieEngineLoftSectionNative.phase>;
     try {
-      read = AutoMovieLoftSectionNative.phase({
+      read = AutoMovieEngineLoftSectionNative.phase({
         extents,
         shoulders: [
           input.shoulder,

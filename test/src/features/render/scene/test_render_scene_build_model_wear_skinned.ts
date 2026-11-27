@@ -7,9 +7,9 @@ import type {
   IAutoMovieModel,
 } from "@automovie/interface";
 import {
-  AutoMovieThreeKind,
-  type IAutoMovieModelObject,
-  type IMaterialShaderSource,
+  AutoMovieRenderThreeKind,
+  type IAutoMovieRenderModelObject,
+  type IAutoMovieRenderMaterialShaderSource,
   AutoMovieRenderSceneLayout,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -55,10 +55,10 @@ export function test_render_scene_build_model_wear_skinned(): void {
       wear,
     }),
   );
-  const built: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(model);
+  const built: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(model);
   let found: THREE.SkinnedMesh | null = null;
   built.object.traverse((object: THREE.Object3D): void => {
-    if (AutoMovieThreeKind.isSkinnedMesh(object)) found = object;
+    if (AutoMovieRenderThreeKind.isSkinnedMesh(object)) found = object;
   });
   const mesh: THREE.SkinnedMesh = found!;
   const geometry: THREE.BufferGeometry = mesh.geometry;
@@ -85,7 +85,7 @@ export function test_render_scene_build_model_wear_skinned(): void {
       reach: 0.02,
     });
   const material: THREE.Material = singleMaterial(mesh.material);
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(material);
   const texture: THREE.DataTexture = shader.uniforms.uWearEdges!.value;
   const data: THREE.TypedArray | null = texture.image.data;
   if (data === null) throw new Error("Expected wear edge data");

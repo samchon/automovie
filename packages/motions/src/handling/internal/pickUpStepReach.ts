@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -14,10 +14,10 @@ export function pickUpStepReach(
   let near: number = 0;
   let far: number = longest / 2;
   for (const [point, reach] of places) {
-    const delta: IAutoMovieVector3 = Vector3.subtract(point, from);
-    const along: number = Vector3.dot(delta, toward);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, from);
+    const along: number = AutoMovieEngineVector3.dot(delta, toward);
     const halfSquared: number =
-      reach * reach + along * along - Vector3.dot(delta, delta);
+      reach * reach + along * along - AutoMovieEngineVector3.dot(delta, delta);
     if (halfSquared < 0) return null;
     const half: number = Math.sqrt(halfSquared);
     near = Math.max(near, along - half);

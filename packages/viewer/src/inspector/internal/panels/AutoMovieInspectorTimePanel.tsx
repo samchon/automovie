@@ -1,8 +1,8 @@
 import { type ChangeEvent, type JSX, useSyncExternalStore } from "react";
 
-import type { AutoMovieInspectorPlayhead } from "../../AutoMovieInspectorPlayhead.js";
+import type { AutoMovieViewerInspectorPlayhead } from "../../AutoMovieViewerInspectorPlayhead.js";
 import { AutoMovieInspectorTimeReadout } from "../AutoMovieInspectorTimeReadout.js";
-import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
+import type { IAutoMovieViewerInspectorAction } from "../../IAutoMovieViewerInspectorAction.js";
 
 /*
  * The transport under the canvas: one play or pause button, the scrubber and clock, and the preview speed.
@@ -60,7 +60,7 @@ export namespace AutoMovieInspectorTimePanel {
     /*
      * The playhead driven.
      */
-    playhead: AutoMovieInspectorPlayhead;
+    playhead: AutoMovieViewerInspectorPlayhead;
 
     /*
      * The subject's frames per second, the slider's step, or null before a subject is ready.
@@ -70,7 +70,7 @@ export namespace AutoMovieInspectorTimePanel {
     /*
      * Where a paused or sought second goes.
      */
-    dispatch: (action: IAutoMovieInspectorAction) => void;
+    dispatch: (action: IAutoMovieViewerInspectorAction) => void;
   }
 }
 

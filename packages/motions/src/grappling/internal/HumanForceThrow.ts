@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineMotionTrajectory, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineMotionTrajectory, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanForceSite, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanForceThrow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
@@ -67,25 +67,25 @@ export namespace HumanForceThrow {
     // The swing's plane holds the vertical and the pull; its axis turns
     // the vertical toward the pull.
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const axis: IAutoMovieVector3 = Vector3.cross(up, direction);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, direction);
     const shape: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(body, frozen);
     const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       model,
       shape,
     );
-    const r: IAutoMovieVector3 = Vector3.subtract(centre, point);
+    const r: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(centre, point);
     const radius: number = Math.hypot(
-      Vector3.dot(r, direction),
-      Vector3.dot(r, up),
+      AutoMovieEngineVector3.dot(r, direction),
+      AutoMovieEngineVector3.dot(r, up),
     );
     const start: number = Math.atan2(
-      Vector3.dot(r, direction),
-      Vector3.dot(r, up),
+      AutoMovieEngineVector3.dot(r, direction),
+      AutoMovieEngineVector3.dot(r, up),
     );
-    const tangent: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(direction, Math.cos(start)),
-      Vector3.scale(up, -Math.sin(start)),
+    const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(direction, Math.cos(start)),
+      AutoMovieEngineVector3.scale(up, -Math.sin(start)),
     );
     const tensor: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(model, shape);
     const about: number = [0, 1, 2].reduce(
@@ -104,7 +104,7 @@ export namespace HumanForceThrow {
         inertia: about,
         radius,
         angle: start,
-        rate: (props.speed * Vector3.dot(direction, tangent)) / radius,
+        rate: (props.speed * AutoMovieEngineVector3.dot(direction, tangent)) / radius,
 
         // A horizontal pull at the grips turns the body about the fulcrum by
         // its force times the grips' height above it.
@@ -117,13 +117,13 @@ export namespace HumanForceThrow {
         axis: "outcome",
         value: "thrown",
         feasible: null,
-        reason: `the momentum the pull left does not carry the body over the thrower's ${fulcrum}: at the broken base (${broken.toFixed(3)} s) the centre stands ${(centre.y - point.y).toFixed(3)} m above the fulcrum and ${Vector3.dot(r, direction).toFixed(3)} m along the pull, ${((start * 180) / Math.PI).toFixed(1)} degrees from its vertical, turning at ${((props.speed * Vector3.dot(direction, tangent)) / radius).toFixed(3)} rad/s`,
+        reason: `the momentum the pull left does not carry the body over the thrower's ${fulcrum}: at the broken base (${broken.toFixed(3)} s) the centre stands ${(centre.y - point.y).toFixed(3)} m above the fulcrum and ${AutoMovieEngineVector3.dot(r, direction).toFixed(3)} m along the pull, ${((start * 180) / Math.PI).toFixed(1)} degrees from its vertical, turning at ${((props.speed * AutoMovieEngineVector3.dot(direction, tangent)) / radius).toFixed(3)} rad/s`,
         fix: "pull harder, or bring the fulcrum under the body's centre",
       });
     const turnAt: (angle: number) => IAutoMovieQuaternion = (
       angle: number,
     ): IAutoMovieQuaternion =>
-      Quaternion.fromAxisAngle(axis, ((angle - start) * 180) / Math.PI);
+      AutoMovieEngineQuaternion.fromAxisAngle(axis, ((angle - start) * 180) / Math.PI);
     const release: number = broken + swing.release;
     const state: IPlanState = swing.sample?.(swing.release) ?? {
       angle: swing.angle(swing.release),
@@ -131,15 +131,15 @@ export namespace HumanForceThrow {
     };
     const turned: IAutoMovieQuaternion = turnAt(state.angle);
     const rate: number = state.rate;
-    const from: IAutoMovieVector3 = Vector3.add(
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       point,
-      Quaternion.rotateVector(turned, r),
+      AutoMovieEngineQuaternion.rotateVector(turned, r),
     );
-    const velocity: IAutoMovieVector3 = Vector3.scale(
-      Vector3.cross(axis, Quaternion.rotateVector(turned, r)),
+    const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.cross(axis, AutoMovieEngineQuaternion.rotateVector(turned, r)),
       rate,
     );
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
 
     // The flight lasts at most until the centre itself reaches the floor.
     const fall: number =
@@ -152,7 +152,7 @@ export namespace HumanForceThrow {
       z: from.z + velocity.z * tau,
     });
     const heading: IAutoMovieQuaternion = humanPostureHeading(frozen);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(heading);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(heading);
     const own: IAutoMovieMotionHumanPosture = {
       ...frozen,
       root: { x: 0, y: 0, z: 0 },
@@ -162,13 +162,13 @@ export namespace HumanForceThrow {
     };
     const local: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(body, own);
-    const momentum: IAutoMovieVector3 = Vector3.scale(
-      Quaternion.rotateVector(turned, apply(tensor, axis)),
+    const momentum: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineQuaternion.rotateVector(turned, apply(tensor, axis)),
       rate,
     );
 
     // This authored geometry is held for the entire rigid flight. Its copied
-    // native constructor proves that fact without inspecting callback samples.
+    // native function Object() { [native code] } proves that fact without inspecting callback samples.
     const end: number = Math.max(fall, AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep());
     const fixed: AutoMovieEngineMotionAirborneRotation.ICachedHistory | undefined =
       end < Infinity
@@ -194,7 +194,7 @@ export namespace HumanForceThrow {
           fixed ?? ((): IAutoMovieIntegrateAirborneRotation.IInstant => rigid!),
         t0: 0,
         t1: end,
-        q0: Quaternion.normalize(Quaternion.multiply(turned, heading)),
+        q0: AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(turned, heading)),
         momentum,
       });
     } finally {
@@ -203,22 +203,22 @@ export namespace HumanForceThrow {
     const turnIn: (tau: number) => IAutoMovieQuaternion = (
       tau: number,
     ): IAutoMovieQuaternion =>
-      Quaternion.normalize(
-        Quaternion.multiply(flight.orientation(tau), inverse),
+      AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(flight.orientation(tau), inverse),
       );
 
     // The landing: the first step at which the lowest joint reaches the floor.
     const offsets: IAutoMovieVector3[] = Array.from(
       shape.values(),
       (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
-        Vector3.subtract(bone.worldPosition, centre),
+        AutoMovieEngineVector3.subtract(bone.worldPosition, centre),
     );
     const lowest: (tau: number) => number = (tau: number): number => {
       const c: IAutoMovieVector3 = path(tau);
       const q: IAutoMovieQuaternion = turnIn(tau);
       let low: number = Number.POSITIVE_INFINITY;
       for (const offset of offsets)
-        low = Math.min(low, c.y + Quaternion.rotateVectorY(q, offset));
+        low = Math.min(low, c.y + AutoMovieEngineQuaternion.rotateVectorY(q, offset));
       return low;
     };
     let land: number = fall;
@@ -266,7 +266,7 @@ export namespace HumanForceThrow {
         const c: IAutoMovieVector3 = path(tau);
         return {
           ...frozen,
-          root: Vector3.add(frozen.root, Vector3.subtract(c, centre)),
+          root: AutoMovieEngineVector3.add(frozen.root, AutoMovieEngineVector3.subtract(c, centre)),
           rotation: { about: c, turn: turnIn(tau) },
         };
       },
@@ -287,9 +287,9 @@ export namespace HumanForceThrow {
   ): IAutoMovieVector3 {
     if (typeof at !== "string") {
       const bone: IAutoMovieResolvedBone = bones.get(at.bone)!;
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         bone.worldPosition,
-        Quaternion.rotateVector(bone.worldRotation, at.point),
+        AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, at.point),
       );
     }
     const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =

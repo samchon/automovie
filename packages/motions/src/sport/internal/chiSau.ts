@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -141,13 +141,13 @@ export namespace chiSau {
       );
       const there: IAutoMovieVector3 = partner.root(context.start).position;
       const here: IAutoMovieVector3 = entry.root;
-      const forward: IAutoMovieVector3 = Vector3.normalize({
+      const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: there.x - here.x,
         y: 0,
         z: there.z - here.z,
       });
-      const left: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(UP, forward),
+      const left: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(UP, forward),
       );
       const stature: number =
         0.5 * (body.measure.stature + partner.body.measure.stature);
@@ -165,10 +165,10 @@ export namespace chiSau {
         (side === "left") === first ? 0 : Math.PI;
       return {
         centre: {
-          left: Vector3.add(middle, Vector3.scale(left, HALF * stature)),
-          right: Vector3.add(middle, Vector3.scale(left, -HALF * stature)),
+          left: AutoMovieEngineVector3.add(middle, AutoMovieEngineVector3.scale(left, HALF * stature)),
+          right: AutoMovieEngineVector3.add(middle, AutoMovieEngineVector3.scale(left, -HALF * stature)),
         },
-        line: first ? forward : Vector3.scale(forward, -1),
+        line: first ? forward : AutoMovieEngineVector3.scale(forward, -1),
         forward,
         left,
         phase: { left: mine("left"), right: mine("right") },
@@ -195,33 +195,33 @@ export namespace chiSau {
         const theta: number =
           (2 * Math.PI * cycles * seconds) / duration + r.phase[side];
         const radius: number = RADIUS * stature;
-        const contact: IAutoMovieVector3 = Vector3.add(
+        const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           r.centre[side],
-          Vector3.add(
-            Vector3.scale(UP, radius * Math.sin(theta)),
-            Vector3.scale(r.line, radius * (Math.cos(theta) - 1)),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(UP, radius * Math.sin(theta)),
+            AutoMovieEngineVector3.scale(r.line, radius * (Math.cos(theta) - 1)),
           ),
         );
         // Everyone's left forearm lies on top.
         const over: number = side === "left" ? 1 : -1;
-        const point: IAutoMovieVector3 = Vector3.add(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           contact,
-          Vector3.scale(UP, over * WRIST * stature),
+          AutoMovieEngineVector3.scale(UP, over * WRIST * stature),
         );
-        const outward: IAutoMovieVector3 = Vector3.scale(
+        const outward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
           r.left,
           side === "left" ? 1 : -1,
         );
-        const bend: IAutoMovieVector3 = Vector3.add(
+        const bend: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           point,
-          Vector3.scale(
-            Vector3.normalize(
-              Vector3.add(
-                Vector3.add(
-                  Vector3.scale(r.forward, -0.7),
-                  Vector3.scale(UP, -0.5),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.normalize(
+              AutoMovieEngineVector3.add(
+                AutoMovieEngineVector3.add(
+                  AutoMovieEngineVector3.scale(r.forward, -0.7),
+                  AutoMovieEngineVector3.scale(UP, -0.5),
                 ),
-                Vector3.scale(outward, 0.3),
+                AutoMovieEngineVector3.scale(outward, 0.3),
               ),
             ),
             body.measure.forearm,
@@ -236,7 +236,7 @@ export namespace chiSau {
             body,
             side,
             r.forward,
-            Vector3.scale(UP, -over),
+            AutoMovieEngineVector3.scale(UP, -over),
           ),
         };
       };
@@ -263,12 +263,12 @@ export namespace chiSau {
             w >= 1
               ? target
               : {
-                  point: Vector3.lerp(from.point, target.point, w),
-                  bend: Vector3.lerp(from.bend, target.bend, w),
+                  point: AutoMovieEngineVector3.lerp(from.point, target.point, w),
+                  bend: AutoMovieEngineVector3.lerp(from.bend, target.bend, w),
                   ...(from.rotation === undefined
                     ? { rotation: target.rotation }
                     : {
-                        rotation: Quaternion.slerp(
+                        rotation: AutoMovieEngineQuaternion.slerp(
                           from.rotation,
                           target.rotation!,
                           w,

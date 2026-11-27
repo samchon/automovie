@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieVector3 as V } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -59,8 +59,8 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
     feasible(result);
     TestValidator.predicate(
       `${name}: full weight and zero moment`,
-      Vector3.length(result.residual.force) < 0.001 &&
-        Vector3.length(result.residual.torque) < 0.001,
+      AutoMovieEngineVector3.length(result.residual.force) < 0.001 &&
+        AutoMovieEngineVector3.length(result.residual.torque) < 0.001,
     );
     for (const bone of new Set(
       points.map((point: (typeof points)[number]): string => point.bone),
@@ -73,10 +73,10 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
           sum + point.force.y,
         0,
       );
-      const cop: V = Vector3.scale(
+      const cop: V = AutoMovieEngineVector3.scale(
         own.reduce(
           (sum: V, point: (typeof own)[number]): V =>
-            Vector3.add(sum, Vector3.scale(point.point, point.force.y)),
+            AutoMovieEngineVector3.add(sum, AutoMovieEngineVector3.scale(point.point, point.force.y)),
           { x: 0, y: 0, z: 0 },
         ),
         1 / normal,
@@ -128,8 +128,8 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
   feasible(moving);
   TestValidator.predicate(
     "translation and yaw share feasible actual contact forces",
-    Vector3.length(moving.residual.force) < 0.001 &&
-      Vector3.length(moving.residual.torque) < 0.001,
+    AutoMovieEngineVector3.length(moving.residual.force) < 0.001 &&
+      AutoMovieEngineVector3.length(moving.residual.torque) < 0.001,
   );
   const single: Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"] = [
     { bone: "point", point: { x: 0, y: 0, z: 0 }, friction: 0.5 },
@@ -144,7 +144,7 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
   feasible(diagonal);
   TestValidator.predicate(
     "infeasible diagonal force remains visible",
-    Vector3.length(diagonal.residual.force) > 50,
+    AutoMovieEngineVector3.length(diagonal.residual.force) > 50,
   );
   const pull: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> = AutoMovieEnginePhysics.distributePhysicalSupportWrench({
     origin,

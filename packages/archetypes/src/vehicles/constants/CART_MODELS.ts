@@ -1,7 +1,7 @@
 import { HORSE_BANDS } from "../../animals/equine/HORSE_BANDS";
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../../core";
 import type { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
-import * as CartModelsData from "./internal/CartModelsData";
+import { CartModelsData } from "./internal/CartModelsData";
 
 /*
  * The read carriers by kind, each whole, with the options picked on their own

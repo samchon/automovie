@@ -1,5 +1,7 @@
-import { irregularRockForm } from "@automovie/archetypes/internal";
-import { AutoMoviePhysicalHullFaces } from "@automovie/engine";
+import {
+  irregularRockForm
+} from "../../../../../packages/archetypes/src/nature/internal/irregularRockForm";
+import { AutoMovieEnginePhysicalHullFaces } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -10,7 +12,7 @@ export function test_archetypes_nature_irregular_rock_form(): void {
   const seed: string = "8b3702c591f41a6d";
   const diameter: number = 0.5;
   const { cell, top, side } = irregularRockForm(seed, diameter);
-  const hull = AutoMoviePhysicalHullFaces.build(cell.points);
+  const hull = AutoMovieEnginePhysicalHullFaces.build(cell.points);
   const tolerance: number = hull.tolerance;
   const bounds = (axis: keyof IAutoMovieVector3): [number, number] => {
     const values = cell.points.map((point): number => point[axis]);

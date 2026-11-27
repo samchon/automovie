@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { prepareHumanPostureCorrection } from "@automovie/motions/internal";
+import {
+  prepareHumanPostureCorrection
+} from "../../../../../packages/motions/src/compose/internal/prepareHumanPostureCorrection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

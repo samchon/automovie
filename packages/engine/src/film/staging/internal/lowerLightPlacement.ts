@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics } from "../../../kinematics/AutoMovieEngineKinematics";
-import { Transform } from "../../../math/Transform";
+import { AutoMovieEngineTransform } from "../../../math/AutoMovieEngineTransform";
 
 /*
  * Lower one accepted light placement into the scene light it describes.
@@ -34,7 +34,7 @@ import { Transform } from "../../../math/Transform";
 export function lowerLightPlacement(
   light: IAutoMovieStageLight,
 ): IAutoMovieLight {
-  const transform: IAutoMovieTransform = Transform.of(
+  const transform: IAutoMovieTransform = AutoMovieEngineTransform.of(
     light.position ?? { x: 0, y: 0, z: 0 },
     light.direction === undefined
       ? identityRotation()

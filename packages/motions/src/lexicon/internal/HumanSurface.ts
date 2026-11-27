@@ -18,7 +18,7 @@ import { HumanSwingPump } from "../../carrier/internal/HumanSwingPump";
 import { measureSurfaceGlide } from "../../carrier/internal/measureSurfaceGlide";
 import { planSnowGlide } from "../../carrier/snow/internal/planSnowGlide";
 import { swungArms } from "../../carrier/internal/swungArms";
-import * as HumanSurfaceData from "./HumanSurfaceData";
+import { HumanSurfaceData } from "./HumanSurfaceData";
 
 /*
  * Surface travel under the performer. The ice and snow laws own their paths. A

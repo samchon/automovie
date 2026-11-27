@@ -11,10 +11,10 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../kinematics/DEFAULT_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../kinematics/AutoMovieEngineDefaultJointAxes";
 import { AutoMovieEngineKinematicsJointRotation } from "../kinematics/AutoMovieEngineKinematicsJointRotation";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
-import { Quaternion } from "../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
 import type { prepareChainFit } from "./internal/prepareChainFit";
 import { resolveBoneMap } from "./internal/resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./internal/resolveChainEffectorBaseRotation";
@@ -153,9 +153,9 @@ function splitPose(
   const composeLower: ReturnType<typeof AutoMovieEngineKinematicsJointRotation.prepareJointToQuaternionOnBasis> =
     AutoMovieEngineKinematicsJointRotation.prepareJointToQuaternionOnBasis(lowerBasis, lowerFrame);
   const articulated: IAutoMovieQuaternion = composeLower(current);
-  const above: IAutoMovieQuaternion = Quaternion.multiply(
+  const above: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     world.worldRotation,
-    Quaternion.inverse(articulated),
+    AutoMovieEngineQuaternion.inverse(articulated),
   );
   const effectorBone: IAutoMovieBone | undefined =
     rig === undefined
@@ -171,7 +171,7 @@ function splitPose(
           world,
           map.get(props.chain.effector)!,
         )
-      : (effectorBone?.rest.rotation ?? Quaternion.identity()));
+      : (effectorBone?.rest.rotation ?? AutoMovieEngineQuaternion.identity()));
   const options: Parameters<typeof AutoMovieEngineMotionDistalTwist.solve>[0] = {
     joint: current,
     effector: held,
@@ -190,11 +190,11 @@ function splitPose(
       : {}),
     effectorRestInverse:
       (prepared === undefined ? undefined : rig?.effectorRestInverse()) ??
-      Quaternion.inverse(rest),
+      AutoMovieEngineQuaternion.inverse(rest),
     effectorBasis:
       rig?.basis(props.chain.effector, "splitDistalTwist axes") ??
       normalizeJointAxes(
-        axes[props.chain.effector] ?? DEFAULT_JOINT_AXES,
+        axes[props.chain.effector] ?? AutoMovieEngineDefaultJointAxes,
         "splitDistalTwist axes",
       ),
     effectorFrame: props.restFrames?.[props.chain.effector],

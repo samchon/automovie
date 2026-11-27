@@ -5,7 +5,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { HumanTrunkTurn } from "@automovie/motions/internal";
+import {
+  HumanTrunkTurn
+} from "../../../../../packages/motions/src/posture/internal/HumanTrunkTurn";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

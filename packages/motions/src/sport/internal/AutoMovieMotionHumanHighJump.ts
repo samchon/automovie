@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineKinematics,
-  AutoMovieGravity,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
@@ -220,11 +220,11 @@ export namespace AutoMovieMotionHumanHighJump {
     const riseFrom: (height: number) => number = (height: number): number => {
       HumanBound.above("bar", bar, height - reserve, "m");
       const speed: number = Math.sqrt(
-        2 * AutoMovieGravity.STANDARD * (apex - height),
+        2 * AutoMovieEngineGravity.STANDARD * (apex - height),
       );
       if (speed > RISE) {
         const ceiling: number =
-          height + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD);
+          height + (RISE * RISE) / (2 * AutoMovieEngineGravity.STANDARD);
         if (reserve > 0 && ceiling >= bar)
           HumanBound.within("apexReserve", reserve, 0, ceiling - bar, "m");
         throw new AutoMovieMotionHumanRefusal({
@@ -324,7 +324,7 @@ export namespace AutoMovieMotionHumanHighJump {
       ...takeoff.velocity,
       y: riseFrom(c0.y),
     };
-    const rising: number = v.y / AutoMovieGravity.STANDARD;
+    const rising: number = v.y / AutoMovieEngineGravity.STANDARD;
 
     // A plant converts run-up speed into lift and loses horizontal speed
     // (world-class finalists leave at 4.14 m/s from faster approaches,
@@ -363,7 +363,7 @@ export namespace AutoMovieMotionHumanHighJump {
       body,
       model,
       from: flying(down),
-      velocity: { x: v.x, y: v.y - AutoMovieGravity.STANDARD * down, z: v.z },
+      velocity: { x: v.x, y: v.y - AutoMovieEngineGravity.STANDARD * down, z: v.z },
       height: surface,
     });
 
@@ -397,19 +397,19 @@ export namespace AutoMovieMotionHumanHighJump {
       y: 0,
       z: cross.axis.x,
     };
-    const speed: number = Vector3.dot(v, normal);
+    const speed: number = AutoMovieEngineVector3.dot(v, normal);
     if (cross.length !== undefined && Math.abs(speed) > 1e-6) {
-      const away: IAutoMovieVector3 = Vector3.subtract(cross.point, c0);
-      const seconds: number = Vector3.dot(away, normal) / speed;
+      const away: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(cross.point, c0);
+      const seconds: number = AutoMovieEngineVector3.dot(away, normal) / speed;
       const axis: IAutoMovieVector3 = { ...cross.axis, y: 0 };
-      const along: number = Vector3.dot(
-        Vector3.subtract(Vector3.scale(v, seconds), away),
+      const along: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.scale(v, seconds), away),
         axis,
       );
       if (
         seconds > 0 &&
         off + seconds < touchdown &&
-        Math.abs(along) <= (cross.length * Vector3.dot(axis, axis)) / 2
+        Math.abs(along) <= (cross.length * AutoMovieEngineVector3.dot(axis, axis)) / 2
       ) {
         events.push({ name: "barCrossing", share: (off + seconds) / duration });
         events.sort(

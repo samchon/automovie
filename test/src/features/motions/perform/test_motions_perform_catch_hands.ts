@@ -6,7 +6,12 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformanceRead, HumanPropCatchHands } from "@automovie/motions/internal";
+import {
+  HumanPerformanceRead
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceRead";
+import {
+  HumanPropCatchHands
+} from "../../../../../packages/motions/src/perform/internal/HumanPropCatchHands";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

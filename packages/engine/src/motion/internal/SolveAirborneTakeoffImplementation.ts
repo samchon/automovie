@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AirborneTakeoffAngles } from "./airborne/AirborneTakeoffAngles";
 import { AirborneTakeoffLinear } from "./airborne/AirborneTakeoffLinear";
 import { AirborneTakeoffTrial } from "./airborne/AirborneTakeoffTrial";
@@ -80,9 +80,9 @@ export namespace SolveAirborneTakeoffImplementation {
         `The take-off needs a positive finite tolerance, got ${tolerance}`,
       );
 
-    const axes: IAutoMovieQuaternion = props.frame ?? Quaternion.identity();
-    const frame: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(props.q0, axes),
+    const axes: IAutoMovieQuaternion = props.frame ?? AutoMovieEngineQuaternion.identity();
+    const frame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(props.q0, axes),
     );
 
     /*
@@ -170,7 +170,7 @@ export namespace SolveAirborneTakeoffImplementation {
     try {
       const { turning, lagging } = AirborneTakeoffLinear(
         props,
-        Quaternion.inverse(axes),
+        AutoMovieEngineQuaternion.inverse(axes),
         props.integration === undefined ? undefined : tolerance,
       );
 
@@ -247,12 +247,12 @@ export namespace SolveAirborneTakeoffImplementation {
               true,
             );
       const { r } = judged;
-      const momentum: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
+      const momentum: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame, {
         x: local[0]!,
         y: local[1]!,
         z: local[2]!,
       });
-      const magnitude: number = Vector3.length(momentum);
+      const magnitude: number = AutoMovieEngineVector3.length(momentum);
       return {
         momentum,
         residual: {
@@ -294,7 +294,7 @@ export namespace SolveAirborneTakeoffImplementation {
     frame: IAutoMovieQuaternion,
     q: IAutoMovieQuaternion,
   ): IAutoMovieSolveAirborneTakeoff.IAngles {
-    return AirborneTakeoffAngles(Quaternion.inverse(frame), q);
+    return AirborneTakeoffAngles(AutoMovieEngineQuaternion.inverse(frame), q);
   }
 
   /*

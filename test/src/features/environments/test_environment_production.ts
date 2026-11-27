@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, AutoMovieEngineWorld, Quaternion, Vector3, AutoMovieEngineFilm, AutoMovieEngineSequence, AutoMovieEngineSpace } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineWorld, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineFilm, AutoMovieEngineSequence, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieMotionHumanBody,
@@ -8,7 +8,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanBody } from "@automovie/motions";
-import { HumanFoot, poseBones } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
@@ -140,24 +145,24 @@ export function test_environment_production(): void {
       const pose: IAutoMoviePose = actorPose(compiled, "opener", time);
       const wrist = readHand(pose).get("rightHand")!.worldPosition;
       const turn = AutoMovieEngineSequence.sampleClipSequence(motion, time).get(channel)!.value;
-      return Quaternion.rotateVector(
-        Quaternion.inverse({
+      return AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse({
           x: turn[0]!,
           y: turn[1]!,
           z: turn[2]!,
           w: turn[3]!,
         }),
-        Vector3.subtract(wrist, stagedLeaf.translation),
+        AutoMovieEngineVector3.subtract(wrist, stagedLeaf.translation),
       );
     },
   );
   TestValidator.predicate(
     "the compiled wrist holds within 5 mm of its first grip throughout the leaf's turn",
     nclose(alignment, Math.SQRT1_2, 0.001) &&
-      Vector3.length(Vector3.subtract(wrists[0]!, handle)) < 0.1 &&
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrists[0]!, handle)) < 0.1 &&
       wrists.every(
         (wrist: IAutoMovieVector3): boolean =>
-          Vector3.length(Vector3.subtract(wrist, wrists[0]!)) < 0.005,
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist, wrists[0]!)) < 0.005,
       ),
   );
   const through: IAutoMoviePose = actorPose(compiled, "visitor", 9.8);
@@ -211,8 +216,8 @@ export function test_environment_production(): void {
     body,
     actorPose(trailShot, "walker", trail.seconds),
   );
-  const endpoint: IAutoMovieVector3 = Vector3.scale(
-    Vector3.add(
+  const endpoint: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.add(
       endFeet.get("leftFoot")!.worldPosition,
       endFeet.get("rightFoot")!.worldPosition,
     ),
@@ -369,11 +374,11 @@ function actorPose(
   return {
     ...pose,
     root: {
-      translation: Vector3.add(
+      translation: AutoMovieEngineVector3.add(
         placement.translation,
-        Quaternion.rotateVector(placement.rotation, pose.root.translation),
+        AutoMovieEngineQuaternion.rotateVector(placement.rotation, pose.root.translation),
       ),
-      rotation: Quaternion.multiply(placement.rotation, pose.root.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(placement.rotation, pose.root.rotation),
       scale: pose.root.scale,
     },
   };

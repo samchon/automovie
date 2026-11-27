@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoverySourceTerminalsObservationOperation,
 } from "@automovie/interface";
 
-import { RecoverySlabGraph } from "../../geometry/RecoverySlabGraph";
+import { AutoMovieRecoverySlabGraph } from "../../geometry/AutoMovieRecoverySlabGraph";
 import { critical } from "./critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 
@@ -48,7 +48,7 @@ export function observeRecoverySourceTerminals(
     "boundary-regular-path-v1",
   );
   const graph: ReturnType<IAutoMovieRecoverySlabGraph.Prepare> =
-    RecoverySlabGraph.prepare({
+    AutoMovieRecoverySlabGraph.prepare({
       triangles: prepared.mesh.triangles,
       canon: prepared.canon,
       heights,

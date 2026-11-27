@@ -1,6 +1,6 @@
 import {
-  ANKLE_DORSIFLEXION,
-  DEFAULT_HUMANOID_ROM,
+  AutoMovieEngineAnkleDorsiflexion,
+  AutoMovieEngineDefaultHumanoidRom,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -19,7 +19,7 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * A body cannot bend an elbow backward or turn a knee sideways, however smooth
  * and collision-free the result looks. The reading takes the displayed pose's
  * clinical joint angles at each grid instant and measures each joint against
- * the humanoid range table the pose gate enforces (`DEFAULT_HUMANOID_ROM`), by
+ * the humanoid range table the pose gate enforces (`AutoMovieEngineDefaultHumanoidRom`), by
  * the gate's own scan (`AutoMovieEngineKinematics.scanJointRom`): an angle outside its interval
  * overshoots by its distance to the nearer bound, an angle on an axis the joint
  * does not have by its whole magnitude, and a ball joint's combined flexion and
@@ -50,7 +50,7 @@ export namespace AutoMovieMotionHumanAuditRange {
       let faulted: boolean = false;
       for (const joint of motion.pose(subject, t).joints) {
         const constraint: IAutoMovieJointConstraint | undefined =
-          DEFAULT_HUMANOID_ROM[joint.bone];
+          AutoMovieEngineDefaultHumanoidRom[joint.bone];
         if (constraint === undefined) continue;
         AutoMovieEngineKinematics.scanJointRom(
           joint,
@@ -82,8 +82,8 @@ export namespace AutoMovieMotionHumanAuditRange {
    * ankle's limit.
    *
    * A foot bearing the body dorsiflexes as far as the loaded limit
-   * (`ANKLE_DORSIFLEXION.loaded`); a foot that bears no weight reaches only the
-   * passive, unloaded one (`ANKLE_DORSIFLEXION.unloaded`), read here apart from
+   * (`AutoMovieEngineAnkleDorsiflexion.loaded`); a foot that bears no weight reaches only the
+   * passive, unloaded one (`AutoMovieEngineAnkleDorsiflexion.unloaded`), read here apart from
    * the range table's one limit for the joint. A foot bears weight while a
    * plant, a pivot or a bearing slide window holds it, on the ground or on a
    * prop or a person that bears it (a tread, a deck, a partner's hands), the
@@ -137,7 +137,7 @@ export namespace AutoMovieMotionHumanAuditRange {
         if (joint.bone !== "leftFoot" && joint.bone !== "rightFoot") continue;
         if (joint.bone === "leftFoot" ? left : right) continue;
         const flexion: number = joint.flexion ?? 0;
-        const value: number = flexion - ANKLE_DORSIFLEXION.unloaded;
+        const value: number = flexion - AutoMovieEngineAnkleDorsiflexion.unloaded;
         if (value <= 0) continue;
         faulted = true;
         if (value > out.overshoot.value)

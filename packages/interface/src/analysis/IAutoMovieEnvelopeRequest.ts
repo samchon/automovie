@@ -10,7 +10,7 @@ import type { IAutoMovieIndoorCondition } from "./IAutoMovieIndoorCondition";
  * `analyzeAutoMovieEnvelope` throws on a blank id, subject or revision, an
  * invalid context, an undeclared instant, a non-finite indoor temperature, an
  * indoor humidity outside `[0, 1]`, no assembly or more than
- * `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, a malformed assembly, layer or bridge, or a
+ * `AutoMovieEngineAnalysisMaxSamples`, a malformed assembly, layer or bridge, or a
  * malformed target. A null instant, or one without an outdoor air temperature,
  * yields two `not-run` runs.
  */
@@ -37,7 +37,7 @@ export interface IAutoMovieEnvelopeRequest {
   indoor: IAutoMovieIndoorCondition;
 
   /**
-   * Envelope build-ups; at least one, at most `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`,
+   * Envelope build-ups; at least one, at most `AutoMovieEngineAnalysisMaxSamples`,
    * ids unique.
    */
   assemblies: readonly IAutoMovieEnvelopeAssembly[];

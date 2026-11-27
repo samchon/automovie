@@ -1,9 +1,9 @@
 import { AutoMovieArchetypeDoor } from "@automovie/archetypes";
 import {
-  AutoMovieComposition,
-  Quaternion,
-  Transform,
-  Vector3,
+  AutoMovieEngineComposition,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineTransform,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
@@ -153,7 +153,7 @@ const release: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams
 function carrierMotion(seconds: number): IAutoMovieRigidTransform {
   return {
     position: { ...origin, z: 0.12 * seconds },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
 }
 
@@ -186,10 +186,10 @@ function verifyDoorSite(door: IAutoMovieMotionHumanProp): void {
       narrow === undefined ||
       full === undefined ||
       !(
-        Vector3.distance(narrow.frame.translation, full.frame.translation) <=
+        AutoMovieEngineVector3.distance(narrow.frame.translation, full.frame.translation) <=
         1e-6
       ) ||
-      !(Quaternion.angle(narrow.frame.rotation, full.frame.rotation) <= 1e-6)
+      !(AutoMovieEngineQuaternion.angle(narrow.frame.rotation, full.frame.rotation) <= 1e-6)
     )
       throw new Error(
         `the prepared door pull must match its full pose at ${seconds}s`,
@@ -234,7 +234,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
   );
   const frame: IAutoMovieRigidTransform = {
     position: origin,
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   return {
     ...takeMetadata(),
@@ -280,7 +280,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
                 id: "grip",
                 kind: "handle",
                 symmetry: "round",
-                frame: Transform.of(origin, frame.rotation),
+                frame: AutoMovieEngineTransform.of(origin, frame.rotation),
                 extent: null,
                 aperture: 0.15,
               },
@@ -300,7 +300,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
               {
                 id: "rack",
                 kind: "socket",
-                frame: Transform.of(origin, frame.rotation),
+                frame: AutoMovieEngineTransform.of(origin, frame.rotation),
                 extent: null,
               },
             ],
@@ -311,8 +311,8 @@ export function createMotionTakeSource(): IMotionTakeSource {
             mounted: { prop: "carrier", point: "rack", offset: frame },
           },
         ],
-        composition: AutoMovieComposition.sequence(
-          AutoMovieComposition.parallel(
+        composition: AutoMovieEngineComposition.sequence(
+          AutoMovieEngineComposition.parallel(
             AutoMovieMotionHumanChain.subject("emitter").registered(
               "releaseFoamBall",
               { hold: 2 },

@@ -11,8 +11,8 @@ import {
   type IAutoMovieDrawingToSvg,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_DRAWING_ROLES } from "../AUTOMOVIE_DRAWING_ROLES";
-import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "../AUTOMOVIE_DRAWING_SVG_MARGIN";
+import { AutoMovieEngineDrawingRoles } from "../AutoMovieEngineDrawingRoles";
+import { AutoMovieEngineDrawingSvgMargin } from "../AutoMovieEngineDrawingSvgMargin";
 
 /*
  * Serialize one derived drawing as a self-describing SVG sheet.
@@ -28,7 +28,7 @@ import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "../AUTOMOVIE_DRAWING_SVG_MARGIN";
  * The scale is drafting scale: one model metre is `1000 / scale` page
  * millimetres, so a 1:50 plan prints at 1:50, and pen weights and text height
  * are page millimetres. The page is the drawing's extent plus a fixed
- * AUTOMOVIE_DRAWING_SVG_MARGIN on each side, with y flipped because SVG
+ * AutoMovieEngineDrawingSvgMargin on each side, with y flipped because SVG
  * y grows downward. Numbers are rounded and printed to three decimals and every
  * attribute value is XML-escaped, so one drawing and view yield one byte
  * sequence.
@@ -49,7 +49,7 @@ export const autoMovieDrawingToSvg = (
     throw new Error(
       `drawing "${drawing.view}" cannot be drawn with the pen of view "${view.id}"`,
     );
-  for (const role of AUTOMOVIE_DRAWING_ROLES) {
+  for (const role of AutoMovieEngineDrawingRoles) {
     const weight: number = view.style.weights[role];
     if (weight <= 0)
       throw new Error(
@@ -72,15 +72,15 @@ export const autoMovieDrawingToSvg = (
     max: { x: 0, y: 0 },
   };
   const width: number =
-    (extent.max.x - extent.min.x) * perMetre + AUTOMOVIE_DRAWING_SVG_MARGIN * 2;
+    (extent.max.x - extent.min.x) * perMetre + AutoMovieEngineDrawingSvgMargin * 2;
   const height: number =
-    (extent.max.y - extent.min.y) * perMetre + AUTOMOVIE_DRAWING_SVG_MARGIN * 2;
+    (extent.max.y - extent.min.y) * perMetre + AutoMovieEngineDrawingSvgMargin * 2;
   const at = (point: IAutoMovieDrawingPoint): { x: string; y: string } => ({
     x: number(
-      (point.x - extent.min.x) * perMetre + AUTOMOVIE_DRAWING_SVG_MARGIN,
+      (point.x - extent.min.x) * perMetre + AutoMovieEngineDrawingSvgMargin,
     ),
     y: number(
-      (extent.max.y - point.y) * perMetre + AUTOMOVIE_DRAWING_SVG_MARGIN,
+      (extent.max.y - point.y) * perMetre + AutoMovieEngineDrawingSvgMargin,
     ),
   });
   const points = (polygon: readonly IAutoMovieDrawingPoint[]): string =>

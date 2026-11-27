@@ -1,4 +1,4 @@
-import { AutoMovieComposition } from "@automovie/engine";
+import { AutoMovieEngineComposition } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieChain,
@@ -261,7 +261,7 @@ export namespace HumanStagePiste {
     const exchange: IAutoMovieChain = bout(take);
     const anchors: IAnchors = deciding(take);
     return {
-      composition: AutoMovieComposition.sequence(...approach, exchange),
+      composition: AutoMovieEngineComposition.sequence(...approach, exchange),
       announced: (schedule: IAutoMovieSchedule): IAnnouncement | undefined => {
         const at: number | undefined = decisive(schedule, anchors.decides);
         if (at === undefined) return undefined;

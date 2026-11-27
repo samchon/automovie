@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -8,7 +8,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import * as GymnasticsPalmRiseData from "./GymnasticsPalmRiseData";
+import { GymnasticsPalmRiseData } from "./GymnasticsPalmRiseData";
 
 /*
  * A palm laid flat on the floor whose wrist would have to extend past its range
@@ -39,11 +39,11 @@ export function GymnasticsPalmRise(
 ): GymnasticsPalmRise.IRise {
   if (goal.rotation === undefined) return { goal, joints: {} };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const forearm: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(shoulder, goal.point),
+  const forearm: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(shoulder, goal.point),
   );
   const extension: number =
-    (Math.atan2(Vector3.dot(forearm, up), -Vector3.dot(forearm, fingers)) *
+    (Math.atan2(AutoMovieEngineVector3.dot(forearm, up), -AutoMovieEngineVector3.dot(forearm, fingers)) *
       180) /
     Math.PI;
   const rise: number = Math.min(
@@ -51,13 +51,13 @@ export function GymnasticsPalmRise(
     Math.max(0, extension - (GymnasticsPalmRiseData.WRIST - GymnasticsPalmRiseData.MARGIN)),
   );
   if (!(rise > 0)) return { goal, joints: {} };
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    Vector3.normalize(Vector3.cross(up, fingers)),
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+    AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(up, fingers)),
     rise,
   );
-  const pivot: IAutoMovieVector3 = Vector3.add(
+  const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     goal.point,
-    Quaternion.rotateVector(goal.rotation, knuckle),
+    AutoMovieEngineQuaternion.rotateVector(goal.rotation, knuckle),
   );
   const joints: IAutoMovieMotionHumanPosture["joints"] = {};
   for (const finger of GymnasticsPalmRiseData.FINGERS)
@@ -73,11 +73,11 @@ export function GymnasticsPalmRise(
   return {
     goal: {
       ...goal,
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         pivot,
-        Quaternion.rotateVector(turn, Vector3.subtract(goal.point, pivot)),
+        AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(goal.point, pivot)),
       ),
-      rotation: Quaternion.normalize(Quaternion.multiply(turn, goal.rotation)),
+      rotation: AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(turn, goal.rotation)),
     },
     joints,
   };
@@ -115,9 +115,9 @@ export namespace GymnasticsPalmRise {
     hand: IAutoMovieResolvedBone,
     middle: IAutoMovieResolvedBone,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(hand.worldRotation),
-      Vector3.subtract(middle.worldPosition, hand.worldPosition),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+      AutoMovieEngineVector3.subtract(middle.worldPosition, hand.worldPosition),
     );
   }
 }

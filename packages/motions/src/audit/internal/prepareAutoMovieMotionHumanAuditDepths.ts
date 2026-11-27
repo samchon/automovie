@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -39,7 +39,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
   a: IAutoMovieMotionHumanColliders.IPlaced,
   room?: Float64Array,
 ) => Float64Array {
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(b.pose.rotation);
 
   // Each shape's bounding sphere in the segment's frame: a probe outside it
   // is outside the shape, which then adds no depth.
@@ -49,9 +49,9 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         HumanColliders.bound(shape);
       const squared: number = ball.radius * ball.radius;
       return {
-        centre: Vector3.add(
+        centre: AutoMovieEngineVector3.add(
           shape.transform.position,
-          Quaternion.rotateVector(shape.transform.rotation, ball.centre),
+          AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, ball.centre),
         ),
         radius: ball.radius,
         outsideSquared:
@@ -69,7 +69,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
   const inverses: (IAutoMovieQuaternion | undefined)[] = b.shapes.map(
     (shape: IAutoMoviePhysicalShape): IAutoMovieQuaternion | undefined =>
       shape.kind === "hull"
-        ? Quaternion.inverse(shape.transform.rotation)
+        ? AutoMovieEngineQuaternion.inverse(shape.transform.rotation)
         : undefined,
   );
   const hulls: (IAutoMoviePhysicalHullFaces.IFace[] | undefined)[] =
@@ -84,13 +84,13 @@ export function prepareAutoMovieMotionHumanAuditDepths(
     a: IAutoMovieMotionHumanColliders.IPlaced,
     room?: Float64Array,
   ): Float64Array => {
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       inverse,
       a.pose.rotation,
     );
-    const position: IAutoMovieVector3 = Quaternion.rotateVector(
+    const position: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(a.pose.position, b.pose.position),
+      AutoMovieEngineVector3.subtract(a.pose.position, b.pose.position),
     );
     const out: Float64Array = new Float64Array(probes.length);
     const rx: number = rotation.x;
@@ -99,7 +99,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
     const rw: number = rotation.w;
     for (let k: number = 0; k < probes.length; k++) {
       // The probe in the segment's frame: `position + rotation * probe`, in
-      // the engine's own expressions (`readRotatedVector`, `Vector3.add`) on
+      // the engine's own expressions (`readRotatedVector`, `AutoMovieEngineVector3.add`) on
       // components, so each value is the one the record forms gave.
       const probe: IAutoMovieVector3 = probes[k]!;
       const tx: number = 2 * (ry * probe.z - rz * probe.y);
@@ -118,7 +118,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         const by: number = ly - ball.centre.y;
         const bz: number = lz - ball.centre.z;
         const squared: number = bx * bx + by * by + bz * bz;
-        // `Vector3.distance`: the square root wherever the square neither
+        // `AutoMovieEngineVector3.distance`: the square root wherever the square neither
         // underflows nor overflows, its own scaled form elsewhere.
         const ordinary: boolean = squared >= 2 ** -1000 && squared <= 2 ** 1000;
         // Monotonicity of sqrt proves the original outside comparison.
@@ -126,7 +126,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
           continue;
         const apart: number = ordinary
           ? Math.sqrt(squared)
-          : Vector3.distance({ x: lx, y: ly, z: lz }, ball.centre);
+          : AutoMovieEngineVector3.distance({ x: lx, y: ly, z: lz }, ball.centre);
         if (room !== undefined) roomy = Math.max(roomy, ball.radius - apart);
         if (apart >= ball.radius) continue;
         if (shape.kind !== "hull") {

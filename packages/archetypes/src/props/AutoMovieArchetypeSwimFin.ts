@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSwimFinData from "./internal/AutoMovieArchetypeSwimFinData";
+import { AutoMovieArchetypeSwimFinData } from "./internal/AutoMovieArchetypeSwimFinData";
 
 /** Constructs the swim fin archetype from its recipe. */
 export namespace AutoMovieArchetypeSwimFin {
@@ -46,7 +46,7 @@ export function create(
     material: "rubber",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.box("pocket", v(0.11, 0.08, 0.28), v(0, 0.04, 0.12), {
     color: "#1f2a36",
   });

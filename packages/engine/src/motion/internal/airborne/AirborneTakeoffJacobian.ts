@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 
 /*
  * The endpoint angle Jacobian of a flight's integrated momentum tangents.
@@ -34,13 +34,13 @@ export function AirborneTakeoffJacobian(
   let sinTilt: number = 0;
   variations.forEach((eta: IAutoMovieVector3, i: number): void => {
     if (back === undefined) {
-      back = Quaternion.inverse(axes);
+      back = AutoMovieEngineQuaternion.inverse(axes);
       cosTwist = Math.cos(end.twist);
       sinTwist = Math.sin(end.twist);
       cosTilt = Math.cos(end.tilt);
       sinTilt = Math.sin(end.tilt);
     }
-    const v: IAutoMovieVector3 = Quaternion.rotateVector(back, eta);
+    const v: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(back, eta);
     const phi: number = (cosTwist * v.x + sinTwist * v.z) / cosTilt;
     rows[0]![i] = phi;
     rows[1]![i] = -sinTwist * v.x + cosTwist * v.z;

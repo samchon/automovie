@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -28,7 +28,7 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatDrag } from "./HumanUnseatDrag";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-import * as HumanUnseatData from "./HumanUnseatData";
+import { HumanUnseatData } from "./HumanUnseatData";
 
 /*
  * A rider leaving a moving saddle (`IAutoMovieMotionHumanUnseat`): carried on
@@ -167,8 +167,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
 
   // The release state: the carried root's own velocity, and the fall's push turned with the carrier.
   const at: IAutoMovieMotionHumanPosture = seatedAt(leave);
-  const velocity: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(
       seatedAt(leave + HumanUnseatData.STEP).root,
       seatedAt(Math.max(0, leave - HumanUnseatData.STEP)).root,
     ),
@@ -176,10 +176,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
   const turn: IAutoMovieRigidTransform = carrier(context.start + leave);
   const sign: number = side === "left" ? 1 : -1;
-  const push: IAutoMovieVector3 = Vector3.scale(
-    Quaternion.rotateVector(
+  const push: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineQuaternion.rotateVector(
       turn.rotation,
-      Vector3.normalize({
+      AutoMovieEngineVector3.normalize({
         ...HumanUnseatData.PUSHES[params.fall].direction,
         x: sign * HumanUnseatData.PUSHES[params.fall].direction.x,
       }),
@@ -234,7 +234,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       flight,
     );
   const travel: IAutoMovieVector3 = {
-    ...Vector3.subtract(flight.landed, at.root),
+    ...AutoMovieEngineVector3.subtract(flight.landed, at.root),
     y: 0,
   };
   const facing: number = standing
@@ -307,7 +307,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieQuaternion =>
     HumanHand.rotation(side, {
-      fingers: Quaternion.rotateVector(
+      fingers: AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
         { x: side === "left" ? 1 : -1, y: 0, z: 0 },
       ),
@@ -331,9 +331,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           requested: palmDown(lain),
           axis: { x: 0, y: 1, z: 0 },
           wrist: (rotation: IAutoMovieQuaternion): IAutoMovieVector3 =>
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               onFloor(lain),
-              Quaternion.rotateVector(rotation, palm),
+              AutoMovieEngineQuaternion.rotateVector(rotation, palm),
             ),
           name: "fall",
         }).turn;
@@ -375,9 +375,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       if (standing) return flown(t);
       const reached: IAutoMovieMotionHumanPosture = reaching(t);
       // The palm on the floor at its reachable heading, from the touch on; until then the goal is only where the course is bound.
-      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
           palmDown(reached),
         ),
       );
@@ -386,9 +386,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         ...reached.limbs,
         [`${side}Arm`]: {
           ...floor,
-          point: Vector3.subtract(
+          point: AutoMovieEngineVector3.subtract(
             onFloor(reached),
-            Quaternion.rotateVector(rotation, palm),
+            AutoMovieEngineQuaternion.rotateVector(rotation, palm),
           ),
           contact: palm,
           rotation,

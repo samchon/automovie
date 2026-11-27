@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalProfile,
@@ -97,26 +97,26 @@ export function physicalMovingPair(
     const seconds: number = step / 120;
     const root: IAutoMovieRigidTransform = {
       position: { x: 0.4 * seconds, y: 2 + 0.05 * seconds, z: 0.02 * seconds },
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 20 * seconds),
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30 * seconds),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 20 * seconds),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30 * seconds),
       ),
     };
-    const turned: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    const turned: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
       root.rotation,
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 0, y: 0, z: 1 },
           12 * Math.sin(Math.PI * seconds),
         ),
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 8 * seconds),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 8 * seconds),
       ),
     );
     target.segments.root = root;
     target.segments.child = {
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         AutoMovieEnginePhysics.physicalSupportPoint(root, profile.joints[0]!.parentFrame.position),
-        Quaternion.rotateVector(turned, profile.joints[0]!.childFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(turned, profile.joints[0]!.childFrame.position),
       ),
       rotation: turned,
     };

@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, throwPotteryRise } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  throwPotteryRise
+} from "../../../../../packages/motions/src/handling/internal/throwPotteryRise";
 import { TestValidator } from "@nestia/e2e";
 
 /** The wheel's `raise` travel, metres (dyadic, so every difference is exact). */

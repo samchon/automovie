@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
 import type { IAutoMovieXpbdContactRow } from "./IAutoMovieXpbdContactRow";
 import type { IAutoMovieXpbdResponder } from "./IAutoMovieXpbdResponder";
 import { pairXpbdContactRow } from "./pairXpbdContactRow";
@@ -27,8 +27,8 @@ import { pairXpbdContactRow } from "./pairXpbdContactRow";
  */
 export function correctXpbdContactRow(
   trees: IAutoMovieXpbdResponder | undefined,
-  first: AutoMovieXpbdBody,
-  second: AutoMovieXpbdBody,
+  first: AutoMovieEngineXpbdBody,
+  second: AutoMovieEngineXpbdBody,
   away: IAutoMovieVector3,
   c: number,
   armA: IAutoMovieVector3,

@@ -34,7 +34,7 @@ import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingSpaceBox } from "./autoMovieDrawingSpaceBox";
 import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
 import { autoMovieOpeningNominalExtent } from "./autoMovieOpeningNominalExtent";
-import { AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS } from "../AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS";
+import { AutoMovieEngineDrawingScheduleMaxMembers } from "../AutoMovieEngineDrawingScheduleMaxMembers";
 import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
@@ -52,7 +52,7 @@ import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
  * size and basis; a room is its own row, because two alike rooms are still two
  * rooms to visit. Rows are ordered by kind, model, size, basis and first
  * member, and marked `<kind>-NN` in that order. A row names at most
- * AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS members and counts the rest.
+ * AutoMovieEngineDrawingScheduleMaxMembers members and counts the rest.
  *
  * An opening's size comes from its authored void or its fill's world extent,
  * labelled fill because the leaf is not the hole; with neither source its sizes
@@ -138,10 +138,10 @@ export function deriveAutoMovieDrawingSchedule(
         width: head.width,
         height: head.height,
         count: bucket.length,
-        members: members.slice(0, AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS),
+        members: members.slice(0, AutoMovieEngineDrawingScheduleMaxMembers),
         omittedMembers: Math.max(
           0,
-          members.length - AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS,
+          members.length - AutoMovieEngineDrawingScheduleMaxMembers,
         ),
         basis: head.basis,
         place: head.place,
@@ -313,10 +313,10 @@ const spaceOccurrences: (
                 max: roundAutoMovieDrawingVector(content.max),
               },
         fidelity: builtEnvironmentSpaceFidelity(environment, space.id),
-        contents: nodes.slice(0, AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS),
+        contents: nodes.slice(0, AutoMovieEngineDrawingScheduleMaxMembers),
         omittedContents: Math.max(
           0,
-          nodes.length - AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS,
+          nodes.length - AutoMovieEngineDrawingScheduleMaxMembers,
         ),
         adjacent: builtEnvironmentAdjacentSpaces(environment, space.id).sort(
           compareAutoMovieRenderIds,

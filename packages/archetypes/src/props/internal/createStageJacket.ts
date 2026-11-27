@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageJacket } from "../AutoMovieArchetypeStageJacket";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -46,7 +46,7 @@ export function createStageJacket(
       params,
     );
   const d: Record<AutoMovieArchetypeStageJacket.Dimension, number> = draw.dimensions(BANDS);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const builder: AutoMovieArchetypeBuilder<
     AutoMovieArchetypeStageJacket.Affordance,
     AutoMovieArchetypeStageJacket.Dimension

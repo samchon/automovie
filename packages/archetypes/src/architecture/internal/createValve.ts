@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeValve } from "../AutoMovieArchetypeValve";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
@@ -52,7 +52,7 @@ export function createValve(
     name: `gate valve ${model.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
   const bore: number = d.bore;
   const axis: number = bore / 2;

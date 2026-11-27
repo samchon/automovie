@@ -12,8 +12,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { PRIMITIVE_RADIAL_SEGMENTS } from "../../geometry/PRIMITIVE_RADIAL_SEGMENTS";
-import { PRIMITIVE_SPHERE_RINGS } from "../../geometry/PRIMITIVE_SPHERE_RINGS";
+import { AutoMovieEnginePrimitiveRadialSegments } from "../../geometry/AutoMovieEnginePrimitiveRadialSegments";
+import { AutoMovieEnginePrimitiveSphereRings } from "../../geometry/AutoMovieEnginePrimitiveSphereRings";
 
 /*
  * Measure filled rest-axis cores of the engine's tessellated primitive solids.
@@ -232,7 +232,7 @@ const columnOfShape: (
 ): { across: number; deep: number; centre: number; half: number } | null => {
   if (geometry.type !== "primitive") return null;
   const shape: IAutoMoviePrimitiveShape = geometry.shape;
-  const radialApothem: number = Math.cos(Math.PI / PRIMITIVE_RADIAL_SEGMENTS);
+  const radialApothem: number = Math.cos(Math.PI / AutoMovieEnginePrimitiveRadialSegments);
   if (shape.type === "sphere") {
     // Each latitude-cell plane is sin(mu)*u/cos(delta) + cos(mu)*y =
     // R*cos(epsilon), and its normal length is at most 1/cos(delta).
@@ -241,7 +241,7 @@ const columnOfShape: (
     const core: number =
       (shape.radius *
         radialApothem *
-        Math.cos(Math.PI / (2 * PRIMITIVE_SPHERE_RINGS))) /
+        Math.cos(Math.PI / (2 * AutoMovieEnginePrimitiveSphereRings))) /
       Math.SQRT2;
     return {
       across: core,

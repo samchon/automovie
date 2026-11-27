@@ -8,7 +8,7 @@ import {
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { applyLightOverride } from "./applyLightOverride";
-import { LIGHT_CHANNEL_PROPERTIES } from "../LIGHT_CHANNEL_PROPERTIES";
+import { AutoMovieEngineLightChannelProperties } from "../AutoMovieEngineLightChannelProperties";
 import { parseLightPointer } from "./parseLightPointer";
 import { sampleClip } from "./sampleClip";
 
@@ -47,7 +47,7 @@ export function resolveShotLighting(
           `light clip "${clip.id}" addresses missing light "${target.light}"`,
         );
       const property: IAutoMovieLightChannelProperty =
-        LIGHT_CHANNEL_PROPERTIES[target.property];
+        AutoMovieEngineLightChannelProperties[target.property];
       if (!property.carries(light.type))
         throw new Error(
           `light clip "${clip.id}" addresses "${target.property}", which ${AutoMovieEngineText.withArticle(light.type)} light does not carry`,

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -140,12 +140,12 @@ export function swimCases(
           },
         );
         const relative = (t: number): IAutoMovieVector3 =>
-          Vector3.subtract(at(t, "rightHand"), at(t, "hips"));
+          AutoMovieEngineVector3.subtract(at(t, "rightHand"), at(t, "hips"));
         let drift: number = 0;
         for (const t of starts.slice(1))
           drift = Math.max(
             drift,
-            Vector3.length(Vector3.subtract(relative(t), relative(starts[0]!))),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(relative(t), relative(starts[0]!))),
           );
         verdicts.push(
           everydayVerdicts.within(

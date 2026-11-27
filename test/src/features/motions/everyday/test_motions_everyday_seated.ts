@@ -4,11 +4,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  riseSeatOff,
-  seated,
-  seatedCourse,
-  seatedFlatHand,
-} from "@automovie/motions/internal";
+  riseSeatOff
+} from "../../../../../packages/motions/src/everyday/internal/riseSeatOff";
+import {
+  seated
+} from "../../../../../packages/motions/src/everyday/internal/seated";
+import {
+  seatedCourse
+} from "../../../../../packages/motions/src/everyday/internal/seatedCourse";
+import {
+  seatedFlatHand
+} from "../../../../../packages/motions/src/everyday/internal/seatedFlatHand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

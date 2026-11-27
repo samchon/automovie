@@ -1,5 +1,5 @@
 import {
-  AUTOMOVIE_SABINE_CONSTANT,
+  AutoMovieEngineSabineConstant,
   AutoMovieEngineAnalysis,
 } from "@automovie/engine";
 import type {
@@ -99,7 +99,7 @@ export function assertAnalysisRoomAcousticsPart1(): {
         fields: string[][];
       } = {
         domain: hall.domain,
-        sabine: AUTOMOVIE_SABINE_CONSTANT,
+        sabine: AutoMovieEngineSabineConstant,
         absorption: of(hall, "room.absorptionArea"),
         reverberation: of(hall, "room.reverberationTime"),
         constant: of(hall, "room.constant"),

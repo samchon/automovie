@@ -1,11 +1,11 @@
 import {
-  DEFAULT_HUMANOID_ROM,
-  DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  AutoMoviePhysicalHull,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineDefaultJointAxes,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysicalHull,
   AutoMovieEngineMath,
   AutoMovieEnginePhysics,
   AutoMovieEngineKinematics,
@@ -62,9 +62,9 @@ import { AutoMovieHumanJointStrength } from "./internal/AutoMovieHumanJointStren
  * Each segment's centre of mass and inertia are those of its colliders as
  * uniform solids, combined by the parallel-axis theorem, the way physics
  * engines derive inertia from shapes. Joints sit at each child joint with
- * identity frames; every clinical axis of `DEFAULT_HUMANOID_ROM` becomes a
- * physical axis along its `HUMANOID_JOINT_AXES` direction with limits read
- * through `HUMANOID_REST_FRAME`, so the physical zero is the T-pose. A drive's
+ * identity frames; every clinical axis of `AutoMovieEngineDefaultHumanoidRom` becomes a
+ * physical axis along its `AutoMovieEngineHumanoidJointAxes` direction with limits read
+ * through `AutoMovieEngineHumanoidRestFrame`, so the physical zero is the T-pose. A drive's
  * strength is the person's peak joint torque where Harbo, Brincks and Andersen
  * (2012) measured the motion, each direction its own
  * (`AutoMovieHumanJointStrength`): hip and knee flexion and extension, ankle
@@ -112,8 +112,8 @@ export namespace AutoMovieHumanCanonicalProfile {
         throw new Error(`The polygon profile needs the joint ${name}`);
       return found;
     };
-    const hulls: ReturnType<typeof AutoMoviePhysicalHull.createShapeFactory> =
-      AutoMoviePhysicalHull.createShapeFactory();
+    const hulls: ReturnType<typeof AutoMovieEnginePhysicalHull.createShapeFactory> =
+      AutoMovieEnginePhysicalHull.createShapeFactory();
     const identity: IAutoMovieQuaternion = hulls.rotation;
     const at = (name: string): IAutoMovieVector3 => j(name).position;
     // A rig bone's origin is its joint; the toes bone sits at the hallux's root.
@@ -147,17 +147,17 @@ export namespace AutoMovieHumanCanonicalProfile {
       radius: number,
       tip: boolean,
     ): void => {
-      const span: number = Vector3.length(Vector3.subtract(end, from));
+      const span: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(end, from));
       const inward: number = tip ? Math.min(radius, span) : 0;
       const to: IAutoMovieVector3 =
         span > 1e-9
-          ? Vector3.subtract(
+          ? AutoMovieEngineVector3.subtract(
               end,
-              Vector3.scale(Vector3.subtract(end, from), inward / span),
+              AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(end, from), inward / span),
             )
           : end;
-      const axis: IAutoMovieVector3 = Vector3.subtract(to, from);
-      const length: number = Vector3.length(axis);
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
+      const length: number = AutoMovieEngineVector3.length(axis);
       const rotation: IAutoMovieQuaternion =
         length > 1e-9 ? AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, axis) : identity;
       const full: number = length + 2 * radius;
@@ -167,8 +167,8 @@ export namespace AutoMovieHumanCanonicalProfile {
           id: "body",
           material: "skin",
           transform: {
-            position: Vector3.subtract(
-              Vector3.scale(Vector3.add(from, to), 0.5),
+            position: AutoMovieEngineVector3.subtract(
+              AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5),
               origin(bone),
             ),
             rotation,
@@ -278,7 +278,7 @@ export namespace AutoMovieHumanCanonicalProfile {
                 ): IAutoMovieCombinePhysicalMassProperties.IPart => ({
                   mass: density * part.volume,
                   centerOfMass: part.shape.transform.position,
-                  inertia: Vector3.scale(part.inertia, density * part.volume),
+                  inertia: AutoMovieEngineVector3.scale(part.inertia, density * part.volume),
                   inertiaRotation: part.inertiaRotation,
                 }),
               ),
@@ -329,25 +329,25 @@ export namespace AutoMovieHumanCanonicalProfile {
           (candidate: IAutoMoviePhysicalSegment): boolean =>
             candidate.bone === bone,
         )!;
-        const principal: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.inverse(
-            Quaternion.multiply(s.neutral.rotation, s.inertiaRotation),
+        const principal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(
+            AutoMovieEngineQuaternion.multiply(s.neutral.rotation, s.inertiaRotation),
           ),
           axis,
         );
-        const arm: IAutoMovieVector3 = Vector3.subtract(
-          Vector3.add(
+        const arm: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.add(
             s.neutral.position,
-            Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
+            AutoMovieEngineQuaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
           ),
           pivot,
         );
-        const along: number = Vector3.dot(arm, axis);
+        const along: number = AutoMovieEngineVector3.dot(arm, axis);
         return (
           s.inertia.x * principal.x * principal.x +
           s.inertia.y * principal.y * principal.y +
           s.inertia.z * principal.z * principal.z +
-          s.mass * (Vector3.dot(arm, arm) - along * along) +
+          s.mass * (AutoMovieEngineVector3.dot(arm, arm) - along * along) +
           children(bone).reduce(
             (sum: number, c: AutoMovieHumanoidBone): number => sum + of(c),
             0,
@@ -365,7 +365,7 @@ export namespace AutoMovieHumanCanonicalProfile {
         parent,
         child,
         parentFrame: {
-          position: Vector3.subtract(origin(child), origin(parent)),
+          position: AutoMovieEngineVector3.subtract(origin(child), origin(parent)),
           rotation: identity,
         },
         childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
@@ -387,10 +387,10 @@ export namespace AutoMovieHumanCanonicalProfile {
           sum: IAutoMovieVector3,
           s: IAutoMoviePhysicalSegment,
         ): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             sum,
-            Vector3.scale(
-              Vector3.add(s.neutral.position, s.centerOfMass),
+            AutoMovieEngineVector3.scale(
+              AutoMovieEngineVector3.add(s.neutral.position, s.centerOfMass),
               s.mass / total,
             ),
           ),
@@ -554,10 +554,10 @@ function soleOf(
     y: axis === "y" ? 1 : 0,
     z: axis === "z" ? 1 : 0,
   };
-  const up: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract({ x: 0, y: 1, z: 0 }, Vector3.scale(lateral, lateral.y)),
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract({ x: 0, y: 1, z: 0 }, AutoMovieEngineVector3.scale(lateral, lateral.y)),
   );
-  const forward: IAutoMovieVector3 = Vector3.cross(up, lateral);
+  const forward: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, lateral);
   const vertices: ISoleVertex[] = [];
   const centroids: IAutoMovieVector3[] = [];
   for (const part of parts) {
@@ -573,12 +573,12 @@ function soleOf(
     );
     for (const point of points) vertices.push({ point, heel });
     centroids.push(
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         points.reduce(
           (
             sum: IAutoMovieVector3,
             point: IAutoMovieVector3,
-          ): IAutoMovieVector3 => Vector3.add(sum, point),
+          ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, point),
           { x: 0, y: 0, z: 0 },
         ),
         1 / points.length,
@@ -595,10 +595,10 @@ function soleOf(
   // The lower common tangent in the sagittal plane: the heel and forefoot
   // vertices whose line every vertex lies on or above.
   function s(p: IAutoMovieVector3): number {
-    return Vector3.dot(p, forward);
+    return AutoMovieEngineVector3.dot(p, forward);
   }
   function h(p: IAutoMovieVector3): number {
-    return Vector3.dot(p, up);
+    return AutoMovieEngineVector3.dot(p, up);
   }
   let best: ISoleTangent | undefined;
   let span: number = 0;
@@ -621,34 +621,34 @@ function soleOf(
       span = length;
     }
   if (best === undefined) return undefined;
-  const along: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.add(
-      Vector3.scale(forward, s(best.fore) - s(best.heel)),
-      Vector3.scale(up, h(best.fore) - h(best.heel)),
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(forward, s(best.fore) - s(best.heel)),
+      AutoMovieEngineVector3.scale(up, h(best.fore) - h(best.heel)),
     ),
   );
-  let normal: IAutoMovieVector3 = Vector3.cross(along, lateral);
-  if (Vector3.dot(normal, up) < 0) normal = Vector3.scale(normal, -1);
+  let normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(along, lateral);
+  if (AutoMovieEngineVector3.dot(normal, up) < 0) normal = AutoMovieEngineVector3.scale(normal, -1);
   const widths: number[] = vertices.map((v: ISoleVertex): number =>
-    Vector3.dot(v.point, lateral),
+    AutoMovieEngineVector3.dot(v.point, lateral),
   );
   const low: number = Math.min(...widths);
   const high: number = Math.max(...widths);
   const thickness: number = Math.min(
     ...centroids.map((c: IAutoMovieVector3): number =>
-      Vector3.dot(Vector3.subtract(c, best!.heel), normal),
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(c, best!.heel), normal),
     ),
   );
   if (!(thickness > 0) || !(high > low)) return undefined;
-  const base: IAutoMovieVector3 = Vector3.add(
+  const base: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     best.heel,
-    Vector3.scale(lateral, (low + high) / 2 - Vector3.dot(best.heel, lateral)),
+    AutoMovieEngineVector3.scale(lateral, (low + high) / 2 - AutoMovieEngineVector3.dot(best.heel, lateral)),
   );
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     base,
-    Vector3.add(
-      Vector3.scale(along, span / 2),
-      Vector3.scale(normal, thickness / 2),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(along, span / 2),
+      AutoMovieEngineVector3.scale(normal, thickness / 2),
     ),
   );
   // The box's local Y is the sole's normal and its local X the flexion axis
@@ -658,15 +658,15 @@ function soleOf(
     { x: 0, y: 1, z: 0 },
     normal,
   );
-  const turned: IAutoMovieVector3 = Quaternion.rotateVector(tilt, {
+  const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(tilt, {
     x: 1,
     y: 0,
     z: 0,
   });
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     AutoMovieEngineMath.rotationBetween(
       turned,
-      Vector3.scale(lateral, Vector3.dot(turned, lateral) < 0 ? -1 : 1),
+      AutoMovieEngineVector3.scale(lateral, AutoMovieEngineVector3.dot(turned, lateral) < 0 ? -1 : 1),
     ),
     tilt,
   );
@@ -719,7 +719,7 @@ function orderOf(
   bone: AutoMovieHumanoidBone,
 ): Pick<IAutoMoviePhysicalJoint, "order"> {
   const axes: IAutoMovieJointAxes =
-    HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES;
+    AutoMovieEngineHumanoidJointAxes[bone] ?? AutoMovieEngineDefaultJointAxes;
   const flexion: IAutoMoviePhysicalJointAxis["axis"] = letterOf(axes.flexion);
   const abduction: IAutoMoviePhysicalJointAxis["axis"] = letterOf(
     axes.abduction,
@@ -744,9 +744,9 @@ function axesOf(
   person: AutoMovieHumanJointStrength.IPerson,
   inertia: (letter: IAutoMoviePhysicalJointAxis["axis"]) => number,
 ): IAutoMoviePhysicalJointAxis[] {
-  const rom = DEFAULT_HUMANOID_ROM[bone];
+  const rom = AutoMovieEngineDefaultHumanoidRom[bone];
   const axes: IAutoMovieJointAxes =
-    HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES;
+    AutoMovieEngineHumanoidJointAxes[bone] ?? AutoMovieEngineDefaultJointAxes;
   const out: IAutoMoviePhysicalJointAxis[] = [];
   for (const clinical of ["flexion", "abduction", "twist"] as const) {
     const range = rom?.[clinical];
@@ -758,7 +758,7 @@ function axesOf(
     )
       continue;
     const sign: number = Math.sign(d[letter]);
-    const frame = HUMANOID_REST_FRAME[bone]?.[clinical];
+    const frame = AutoMovieEngineHumanoidRestFrame[bone]?.[clinical];
     const physical = (c: number): number =>
       (sign * AutoMovieEngineKinematics.toRigAngle(c, frame)! * Math.PI) / 180;
     const ends: number[] = [physical(range.min), physical(range.max)].sort(

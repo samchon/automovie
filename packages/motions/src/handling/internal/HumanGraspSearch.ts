@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -135,7 +135,7 @@ export function HumanGraspSearch(
         (((resolved.values[limb]?.error ?? angle(dot)) * Math.PI) / 180) *
           lever +
         1000 *
-          Vector3.length(Vector3.subtract(hand.worldPosition, key.wrist.point)),
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(hand.worldPosition, key.wrist.point)),
       departure,
       judged: key.judge === undefined ? 0 : key.judge(bones),
     };
@@ -394,19 +394,19 @@ function departureOf(
   const shoulder: IAutoMovieVector3 = bones.get(
     `${side}UpperArm`,
   )!.worldPosition;
-  const line: IAutoMovieVector3 = Vector3.subtract(
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     hand.worldPosition,
     shoulder,
   );
-  const span: number = Vector3.dot(line, line);
+  const span: number = AutoMovieEngineVector3.dot(line, line);
   const radial: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
-    const from: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, shoulder);
     return span > 0
-      ? Vector3.subtract(
+      ? AutoMovieEngineVector3.subtract(
           from,
-          Vector3.scale(line, Vector3.dot(from, line) / span),
+          AutoMovieEngineVector3.scale(line, AutoMovieEngineVector3.dot(from, line) / span),
         )
       : from;
   };
@@ -414,10 +414,10 @@ function departureOf(
     bones.get(`${side}LowerArm`)!.worldPosition,
   );
   const hintSide: IAutoMovieVector3 = radial(key.bend);
-  const sides: number = Vector3.length(shownSide) * Vector3.length(hintSide);
+  const sides: number = AutoMovieEngineVector3.length(shownSide) * AutoMovieEngineVector3.length(hintSide);
   return sides > 1e-12
     ? (Math.acos(
-        Math.max(-1, Math.min(1, Vector3.dot(shownSide, hintSide) / sides)),
+        Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(shownSide, hintSide) / sides)),
       ) *
         180) /
         Math.PI

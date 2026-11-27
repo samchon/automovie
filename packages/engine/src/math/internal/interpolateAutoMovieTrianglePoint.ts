@@ -1,6 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../Vector3";
+import { AutoMovieEngineVector3 } from "../AutoMovieEngineVector3";
 import { adjacentAutoMovieFloat64 as outward } from "./adjacentAutoMovieFloat64";
 
 /*
@@ -40,8 +40,8 @@ export function interpolateAutoMovieTrianglePoint(
       sum: IAutoMovieVector3,
       p: IAutoMovieVector3,
       at: number,
-    ): IAutoMovieVector3 => Vector3.add(sum, Vector3.scale(p, weights[at])),
-    Vector3.create(),
+    ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, AutoMovieEngineVector3.scale(p, weights[at])),
+    AutoMovieEngineVector3.create(),
   );
   return point;
 }

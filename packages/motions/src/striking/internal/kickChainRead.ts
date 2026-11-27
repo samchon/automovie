@@ -1,4 +1,4 @@
-import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -78,9 +78,9 @@ export function kickChainRead(
   )!;
   const reached: IAutoMovieVector3 =
     props.technique === "round"
-      ? Vector3.add(
-          Vector3.lerp(knee, foot.worldPosition, solved.along / m.shank),
-          Vector3.scale(
+      ? AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.lerp(knee, foot.worldPosition, solved.along / m.shank),
+          AutoMovieEngineVector3.scale(
             props.direction,
             StrikingWeapon.girth(
               StrikingWeapon.legRadii(body)[1],
@@ -88,8 +88,8 @@ export function kickChainRead(
             ),
           ),
         )
-      : Vector3.add(
-          Vector3.add(
+      : AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             foot.worldPosition,
             StrikingBody.socket(
               body,
@@ -97,9 +97,9 @@ export function kickChainRead(
               foot.worldRotation,
             ),
           ),
-          Vector3.scale(props.direction, StrikingWeapon.legRadii(body)[2][0]),
+          AutoMovieEngineVector3.scale(props.direction, StrikingWeapon.legRadii(body)[2][0]),
         );
-  const residual: number = Vector3.distance(reached, props.planned);
+  const residual: number = AutoMovieEngineVector3.distance(reached, props.planned);
   const flexion: number =
     pose.joints.find((j): boolean => j.bone === `${side}LowerLeg`)?.flexion ??
     0;
@@ -143,7 +143,7 @@ export namespace kickChainRead {
   ): KickChain.IFit["status"] {
     return residual > KickForm.RESIDUAL
       ? "short"
-      : flexion > KickForm.FLEXION[technique][1] + ROM_TOLERANCE
+      : flexion > KickForm.FLEXION[technique][1] + AutoMovieEngineRomTolerance
         ? "jammed"
         : "reached";
   }
@@ -165,11 +165,11 @@ function slip(
   const foot: IAutoMovieResolvedBone = bones.get(
     `${support}Foot` as AutoMovieHumanoidBone,
   )!;
-  return Vector3.distance(
-    Vector3.add(
+  return AutoMovieEngineVector3.distance(
+    AutoMovieEngineVector3.add(
       foot.worldPosition,
-      Quaternion.rotateVector(foot.worldRotation, offset),
+      AutoMovieEngineQuaternion.rotateVector(foot.worldRotation, offset),
     ),
-    Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, offset)),
+    AutoMovieEngineVector3.add(goal.point, AutoMovieEngineQuaternion.rotateVector(goal.rotation, offset)),
   );
 }

@@ -1,4 +1,4 @@
-import { Vector3, AutoMoviePhysicalHullFaces, AutoMoviePhysicalHull, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysicalHullFaces, AutoMovieEnginePhysicalHull, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanCanonicalSolids,
@@ -58,15 +58,15 @@ export namespace AutoMovieHumanCanonicalSolids {
       run: IAutoMovieVector3[][],
       points: IAutoMovieVector3[],
     ): boolean => {
-      const hull: IAutoMoviePhysicalHullFaces.IHull = AutoMoviePhysicalHullFaces.build(points);
+      const hull: IAutoMoviePhysicalHullFaces.IHull = AutoMovieEnginePhysicalHullFaces.build(points);
       return (
         hull.buried <= hull.tolerance &&
         run.every((ring: IAutoMovieVector3[]): boolean =>
           ring.every(
             (p: IAutoMovieVector3, index: number): boolean =>
-              AutoMoviePhysicalHull.nearest(
+              AutoMovieEnginePhysicalHull.nearest(
                 points,
-                Vector3.lerp(p, ring[(index + 1) % ring.length]!, 0.5),
+                AutoMovieEngineVector3.lerp(p, ring[(index + 1) % ring.length]!, 0.5),
               ).distance >= -hull.tolerance,
           ),
         )
@@ -122,7 +122,7 @@ export namespace AutoMovieHumanCanonicalSolids {
           centre: solid.centerOfMass,
           // The centred points are a translation of the run, so their hull
           // is read from the run's instead of being searched again.
-          points: AutoMoviePhysicalHullFaces.shift(points, solid.centerOfMass),
+          points: AutoMovieEnginePhysicalHullFaces.shift(points, solid.centerOfMass),
           volume: solid.volume,
           inertia: solid.inertia,
           inertiaRotation: solid.inertiaRotation,

@@ -1,5 +1,5 @@
-import type { IAutoMovieViewerTurntableOptions } from "../../IAutoMovieViewerTurntableOptions.js";
-import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
+import type { IAutoMovieRenderViewerTurntableOptions } from "../../IAutoMovieRenderViewerTurntableOptions.js";
+import type { IAutoMovieRenderViewerViewpoint } from "../../IAutoMovieRenderViewerViewpoint.js";
 
 /*
  * Generate fresh viewpoints in elevation-ring then azimuth order, with rounded
@@ -8,8 +8,8 @@ import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.
  * practical output bound remain caller premises.
  */
 export function autoMovieViewerTurntableViewpoints(
-  options: IAutoMovieViewerTurntableOptions,
-): IAutoMovieViewerViewpoint[] {
+  options: IAutoMovieRenderViewerTurntableOptions,
+): IAutoMovieRenderViewerViewpoint[] {
   if (options.azimuthCount < 1)
     throw new RangeError(
       `turntable azimuth count must be a positive integer, not ${options.azimuthCount}`,
@@ -21,7 +21,7 @@ export function autoMovieViewerTurntableViewpoints(
     throw new RangeError(
       `turntable distance factor must be positive, not ${distanceFactor}`,
     );
-  const viewpoints: IAutoMovieViewerViewpoint[] = [];
+  const viewpoints: IAutoMovieRenderViewerViewpoint[] = [];
   const taken: Set<string> = new Set<string>();
   for (const elevationDeg of options.elevationsDeg)
     for (let index: number = 0; index < options.azimuthCount; index++) {

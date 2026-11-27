@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageHammerProp } from "../AutoMovieArchetypeStageHammerProp";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StageShaftConstruction } from "./StageShaftConstruction";
@@ -29,7 +29,7 @@ export function createStageHammerProp(
     seed,
     0.8,
     (builder, height) => {
-      const v: typeof Vector3.create = Vector3.create;
+      const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
       const width: number = 0.24 * height;
       const centre: number = 0.06 * height;
       builder.box(

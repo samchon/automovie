@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanTouchEffector, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
@@ -77,12 +77,12 @@ export namespace TouchVerdicts {
     seconds: number,
   ): number {
     const at = place(performance, region, seconds);
-    const want: IAutoMovieVector3 = Vector3.add(
+    const want: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       at.point,
-      Vector3.scale(Vector3.normalize(at.normal), standoff),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(at.normal), standoff),
     );
-    return Vector3.length(
-      Vector3.subtract(
+    return AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         AutoMovieMotionHumanTouchEffector.point(
           body,
           performance.bones(subject, seconds),
@@ -120,8 +120,8 @@ export namespace TouchVerdicts {
   ): number {
     const at = place(performance, region, seconds);
     return (
-      Vector3.dot(
-        Vector3.subtract(
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(
           AutoMovieMotionHumanTouchEffector.point(
             body,
             performance.bones(subject, seconds),
@@ -130,7 +130,7 @@ export namespace TouchVerdicts {
           ),
           at.point,
         ),
-        Vector3.normalize(at.normal),
+        AutoMovieEngineVector3.normalize(at.normal),
       ) - standoff
     );
   }
@@ -221,13 +221,13 @@ export namespace TouchVerdicts {
         if (segment.bone === `${side}LowerArm`)
           for (const shape of segment.shapes)
             for (const local of skin(shape)) {
-              const point: IAutoMovieVector3 = Vector3.add(
+              const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
                 segment.pose.position,
-                Quaternion.rotateVector(
+                AutoMovieEngineQuaternion.rotateVector(
                   segment.pose.rotation,
-                  Vector3.add(
+                  AutoMovieEngineVector3.add(
                     shape.transform.position,
-                    Quaternion.rotateVector(shape.transform.rotation, local),
+                    AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, local),
                   ),
                 ),
               );

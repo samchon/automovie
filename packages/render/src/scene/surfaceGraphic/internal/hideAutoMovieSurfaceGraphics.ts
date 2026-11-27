@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "../../AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
+import { AutoMovieRenderSurfaceGraphicKey } from "../../AutoMovieRenderSurfaceGraphicKey.js";
 
 /*
  * Hide every currently visible surface graphic root in a scene and return the
@@ -16,7 +16,7 @@ export function hideAutoMovieSurfaceGraphics(scene: THREE.Scene): () => void {
   const hidden: THREE.Object3D[] = [];
   scene.traverse((object: THREE.Object3D): void => {
     if (
-      object.userData[AUTOMOVIE_SURFACE_GRAPHIC_KEY] === true &&
+      object.userData[AutoMovieRenderSurfaceGraphicKey] === true &&
       object.visible
     ) {
       object.visible = false;

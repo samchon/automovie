@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry } from "@automovie/engine";
 import type { IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
 import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -14,7 +14,7 @@ import * as THREE from "three";
  */
 export async function test_render_scene_observe_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
-    await AutoMoviePhysicalGeometry.prepare();
+    await AutoMovieEnginePhysicalGeometry.prepare();
   const observe = (gap: number): AutoMovieRenderInspection.IPlacedSceneCollisionResult & {
     spent: number;
   } => {

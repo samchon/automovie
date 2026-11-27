@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -58,7 +58,7 @@ import { floorEntry } from "./floorEntry";
  * Toe-off, in a dive: over the crouch's last `TOE_OFF` seconds each planted
  * foot rolls about its ball, the heel rising, by the angle (solved on the
  * planted take-off, `SECANT`) that brings the take-off's ankle to what a
- * weightless ankle reaches (`ANKLE_DORSIFLEXION.unloaded`), so the feet leave
+ * weightless ankle reaches (`AutoMovieEngineAnkleDorsiflexion.unloaded`), so the feet leave
  * the floor plantarflexed, as the push-off's plantarflexion leaves them, and
  * stay so in the air.
  *
@@ -329,8 +329,8 @@ export namespace dive {
       const joints: IAutoMovieMotionHumanPosture["joints"] =
         GymnasticsFlight.frozen(body, crouchedOn(1, on)).joints;
       return {
-        left: (joints.leftFoot?.[0] ?? 0) - ANKLE_DORSIFLEXION.unloaded,
-        right: (joints.rightFoot?.[0] ?? 0) - ANKLE_DORSIFLEXION.unloaded,
+        left: (joints.leftFoot?.[0] ?? 0) - AutoMovieEngineAnkleDorsiflexion.unloaded,
+        right: (joints.rightFoot?.[0] ?? 0) - AutoMovieEngineAnkleDorsiflexion.unloaded,
       };
     };
     const lift: Lift = diveLift({ kind, excess, rolled });

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -186,7 +186,7 @@ export namespace martialArt {
         s: number,
       ): IAutoMovieMotionHumanPosture => ({
         ...posture,
-        root: Vector3.add(posture.root, offset(s)),
+        root: AutoMovieEngineVector3.add(posture.root, offset(s)),
       }),
     });
     const lead: (
@@ -201,7 +201,7 @@ export namespace martialArt {
       AutoMovieMotionHumanLeg.arc(
         stance[side],
         {
-          ankle: Vector3.add(stance[side].ankle, by),
+          ankle: AutoMovieEngineVector3.add(stance[side].ankle, by),
           rotation: stance[side].rotation,
         },
         0.03 * m.stature,
@@ -254,8 +254,8 @@ export namespace martialArt {
     ];
 
     if (p.kind === "horseStance" || p.kind === "chokuZuki") {
-      const apart: number = Vector3.dot(
-        Vector3.subtract(stance.left.ankle, stance.right.ankle),
+      const apart: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(stance.left.ankle, stance.right.ankle),
         leftward,
       );
       const out: number = Math.max(
@@ -264,10 +264,10 @@ export namespace martialArt {
       );
       const sink: number = 0.2 * m.thigh * modifiers.extent;
       primitives.push(
-        stepped("left", Vector3.scale(leftward, out)),
+        stepped("left", AutoMovieEngineVector3.scale(leftward, out)),
         root(
           (s: number): IAutoMovieVector3 =>
-            Vector3.add(Vector3.scale(leftward, (out / 2) * into(s)), {
+            AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(leftward, (out / 2) * into(s)), {
               x: 0,
               y: -sink * into(s),
               z: 0,
@@ -427,7 +427,7 @@ export namespace martialArt {
               body,
               entry,
               "left",
-              lead("left", Vector3.scale(forward, stride), s),
+              lead("left", AutoMovieEngineVector3.scale(forward, stride), s),
               bearing(s),
             ),
             rightLeg: AutoMovieMotionHumanLeg.goal(
@@ -439,7 +439,7 @@ export namespace martialArt {
             ),
           }),
         }),
-        stepped("left", Vector3.scale(forward, stride)),
+        stepped("left", AutoMovieEngineVector3.scale(forward, stride)),
       );
       for (const side of ["left", "right"] as const)
         primitives.push(
@@ -463,7 +463,7 @@ export namespace martialArt {
                 IAutoMovieMotionHumanActionPlan["posture"]
               >[2],
             ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
-              point: Vector3.add(
+              point: AutoMovieEngineVector3.add(
                 AutoMovieMotionHumanPlaced.joint(
                   body,
                   posture,

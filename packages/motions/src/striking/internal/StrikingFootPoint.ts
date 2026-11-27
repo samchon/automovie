@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -59,9 +59,9 @@ export namespace StrikingFootPoint {
     rotation: IAutoMovieQuaternion,
     bump: number,
   ): IAutoMovieQuaternion {
-    return Quaternion.multiply(
+    return AutoMovieEngineQuaternion.multiply(
       rotation,
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, POINT * bump),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, POINT * bump),
     );
   }
 

@@ -1,9 +1,9 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
-import * as HandToFaceSheetData from "./HandToFaceSheetData";
+import { HandToFaceSheetData } from "./HandToFaceSheetData";
 
 /*
  * Where a held sheet is read: where the holding hand, its upper arm hanging
@@ -34,21 +34,21 @@ export function handToFaceSheet(
     undefined,
     HandToFaceSheetData.SIGHT[side],
   );
-  const eyes: IAutoMovieVector3 = Vector3.scale(
-    Vector3.add(
+  const eyes: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.add(
       bones.get("leftEye")!.worldPosition,
       bones.get("rightEye")!.worldPosition,
     ),
     0.5,
   );
   if (context.carrier?.name === "walk") {
-    const sight: IAutoMovieVector3 = Quaternion.rotateVector(
+    const sight: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bones.get("head")!.worldRotation,
       HandToFaceSheetData.WALK_SIGHT,
     );
-    const viewed: IAutoMovieVector3 = Vector3.add(
+    const viewed: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       eyes,
-      Vector3.scale(sight, HandToFaceSheetData.WALK_DISTANCE),
+      AutoMovieEngineVector3.scale(sight, HandToFaceSheetData.WALK_DISTANCE),
     );
     const upper: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
@@ -59,9 +59,9 @@ export function handToFaceSheet(
     );
     if (
       heading.z > 0 &&
-      Vector3.distance(upper, viewed) <= m.upperArm + m.forearm + m.hand / 2
+      AutoMovieEngineVector3.distance(upper, viewed) <= m.upperArm + m.forearm + m.hand / 2
     )
-      return { point: viewed, normal: Vector3.scale(sight, -1) };
+      return { point: viewed, normal: AutoMovieEngineVector3.scale(sight, -1) };
   }
   const frame: IAutoMovieMotionHumanFrame = {
     origin: { x: 0, y: 0, z: 0 },
@@ -120,7 +120,7 @@ export function handToFaceSheet(
   });
   return {
     point,
-    normal: Vector3.normalize(Vector3.subtract(eyes, point)),
+    normal: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(eyes, point)),
   };
 }
 
@@ -172,14 +172,14 @@ export namespace handToFaceSheet {
       undefined,
       HandToFaceSheetData.SIGHT[side],
     );
-    const eyes: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(
+    const eyes: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(
         bones.get("leftEye")!.worldPosition,
         bones.get("rightEye")!.worldPosition,
       ),
       0.5,
     );
-    const line: IAutoMovieVector3 = Vector3.subtract(
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       handToFaceSheet(context, posture, side).point,
       eyes,
     );

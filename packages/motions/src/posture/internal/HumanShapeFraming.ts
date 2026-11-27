@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanColliders,
   IAutoMoviePhysicalHullFaces,
@@ -25,12 +25,12 @@ export function HumanShapeFraming(
     ...(shape.kind === "hull"
       ? {
           faces: planes(shape),
-          origin: Vector3.add(
+          origin: AutoMovieEngineVector3.add(
             pose.position,
-            Quaternion.rotateVector(pose.rotation, shape.transform.position),
+            AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
           ),
-          inverse: Quaternion.inverse(
-            Quaternion.multiply(pose.rotation, shape.transform.rotation),
+          inverse: AutoMovieEngineQuaternion.inverse(
+            AutoMovieEngineQuaternion.multiply(pose.rotation, shape.transform.rotation),
           ),
         }
       : {}),
@@ -104,7 +104,7 @@ export namespace HumanShapeFraming {
     const faces: Float64Array | undefined = shape.faces;
     if (faces === undefined) return false;
     // The point in the hull's own frame: the inverse rotation applied to its
-    // offset from the frame's origin (`Quaternion.rotateVector`, unrolled).
+    // offset from the frame's origin (`AutoMovieEngineQuaternion.rotateVector`, unrolled).
     const q: IAutoMovieQuaternion = shape.inverse!;
     const vx: number = p.x - shape.origin!.x;
     const vy: number = p.y - shape.origin!.y;
@@ -151,13 +151,13 @@ export namespace HumanShapeFraming {
     const local: IAutoMovieMotionHumanColliders.IBall =
       HumanColliderBound(shape);
     return {
-      centre: Vector3.add(
+      centre: AutoMovieEngineVector3.add(
         pose.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           pose.rotation,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             shape.transform.position,
-            Quaternion.rotateVector(shape.transform.rotation, local.centre),
+            AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, local.centre),
           ),
         ),
       ),

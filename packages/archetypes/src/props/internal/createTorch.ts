@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeTorch } from "../AutoMovieArchetypeTorch";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -53,7 +53,7 @@ export function createTorch(
     name: "torch",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const head: number = AutoMovieArchetypeTorch.HEAD;
   const barrel: number = d.length - head;
   const r: number = d.diameter / 2;

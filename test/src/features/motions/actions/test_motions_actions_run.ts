@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -11,11 +11,17 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
-  resolveHumanPosture,
-  run,
-  stand,
-  walkSteps,
-} from "@automovie/motions/internal";
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  run
+} from "../../../../../packages/motions/src/gait/internal/run";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
+import {
+  walkSteps
+} from "../../../../../packages/motions/src/gait/internal/walkSteps";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -43,7 +49,7 @@ async function flightCut(): Promise<void> {
     z: number,
   ): IAutoMovieMotionHumanEntryState.IFoot => ({
     ankle: { x, y: body.measure.ankleHeight + 0.1, z },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
     planted: false,
     velocity: { x: 0, y: 0, z: 1 },
     acceleration: origin,
@@ -58,7 +64,7 @@ async function flightCut(): Promise<void> {
         rightLeg: {
           ...posture.limbs.rightLeg!,
           point: { x: -0.11, y: body.measure.ankleHeight + 0.027, z: 0.46 },
-          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 20),
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 20),
         },
       },
     },
@@ -244,7 +250,7 @@ async function flightCutPlayback(): Promise<void> {
     const before: IAutoMovieVector3 = ankle(side, -delta);
     TestValidator.predicate(
       "the displayed ankle joins through the flight",
-      Vector3.distance(before, after) < 0.002,
+      AutoMovieEngineVector3.distance(before, after) < 0.002,
     );
     TestValidator.predicate(
       "shuffled playback retains the same ankle",
@@ -271,7 +277,7 @@ const HIP: number = 0.9;
  */
 export async function test_motions_actions_run(): Promise<void> {
   const body: run.IBody = { measure: { hipHeight: HIP } };
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   TestValidator.predicate(
     "the run",
     nclose(run.speed(body, "run"), Math.sqrt(1.3 * g * HIP), ROUNDING) &&

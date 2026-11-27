@@ -735,7 +735,7 @@ export namespace AutoMovieEngineBuiltEnvironment {
    * resolving to a default, because it does not narrow or widen what "touching"
    * means, it withdraws the meaning: every distance would be outside a negative
    * band, so the answer would be a confident `floating` or `sunk` for a member
-   * that rests exactly. An omitted tolerance is `AUTOMOVIE_SUPPORT_TOLERANCE`,
+   * that rests exactly. An omitted tolerance is `AutoMovieEngineSupportTolerance`,
    * `1e-9` metres.
    *
    * Both bases travel with the verdict. A subject the record carries no vertices
@@ -804,7 +804,7 @@ export namespace AutoMovieEngineBuiltEnvironment {
    *
    * @param props.environment Building record to sweep.
    * @param props.groundY World height a body may rest on directly, in metres.
-   * @param props.tolerance Contact slack in metres; `AUTOMOVIE_SUPPORT_TOLERANCE`
+   * @param props.tolerance Contact slack in metres; `AutoMovieEngineSupportTolerance`
    *   when omitted.
    * @returns The counts, the floating bodies and the unresolved bodies.
    */
@@ -972,7 +972,7 @@ export namespace AutoMovieEngineBuiltEnvironment {
    * operation answers an empty list. Throws an `Error` when the opening does not
    * exist, a panel's element is missing, or travel limits are non-finite,
    * unordered, empty, exclude rest at zero, or span more than a full revolute
-   * turn plus `AUTOMOVIE_FULL_TURN_EPSILON`; these are the travel rules
+   * turn plus `AutoMovieEngineFullTurnEpsilon`; these are the travel rules
    * `validateBuiltEnvironment` applies.
    *
    * @param environment Building record holding the opening.
@@ -993,7 +993,7 @@ export namespace AutoMovieEngineBuiltEnvironment {
    * would outlaw a round oculus for no geometric reason. Then every coordinate
    * must be finite, each non-finite one reported at `<path>[i].<axis>`, and no
    * two consecutive corners, the closing pair included, may lie within
-   * `BUILT_PLANAR_EPSILON` (1e-9 m) of each other. A failed count or a non-finite
+   * `AutoMovieEngineBuiltPlanarEpsilon` (1e-9 m) of each other. A failed count or a non-finite
    * corner stops before the later test, which could not be computed.
    *
    * @param outline Closed ring of corners, in metres.

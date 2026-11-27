@@ -4,12 +4,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditContact,
-  AutoMovieMotionHumanAuditGround,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanAuditContact
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditContact";
+import {
+  AutoMovieMotionHumanAuditGround
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditGround";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
 import { TestValidator } from "@nestia/e2e";
 
 import { auditStanceMotion } from "../../internal/auditStanceMotion";

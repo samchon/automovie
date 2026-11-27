@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -192,8 +192,8 @@ const ANGLE = 30;
 
 /**
  * Pins that every paired humanoid joint's clinical angle means the same
- * anatomical motion on the left and the right, through `HUMANOID_JOINT_AXES`
- * and `HUMANOID_REST_FRAME`.
+ * anatomical motion on the left and the right, through `AutoMovieEngineHumanoidJointAxes`
+ * and `AutoMovieEngineHumanoidRestFrame`.
  *
  * The rig is synthetic: every bone in the canonical T-pose with an identity
  * rest rotation, so each bone's world rotation is its joint's articulation
@@ -216,7 +216,7 @@ export function test_engine_kinematics_resolve_pose_side_convention(): void {
   for (const c of CASES) {
     const left: IAutoMovieQuaternion = rotation(skeleton, `left${c.bone}`, c);
     const right: IAutoMovieQuaternion = rotation(skeleton, `right${c.bone}`, c);
-    const moved: IAutoMovieVector3 = Quaternion.rotateVector(left, c.probe);
+    const moved: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(left, c.probe);
     const [axis, sign] = c.toward;
     TestValidator.predicate(
       `left ${c.bone} ${c.axis} is ${c.motion}`,
@@ -236,7 +236,7 @@ function rotation(
   c: ICase,
 ): IAutoMovieQuaternion {
   const neutral: number =
-    HUMANOID_REST_FRAME[bone as AutoMovieHumanoidBone]?.[c.axis]?.neutral ?? 0;
+    AutoMovieEngineHumanoidRestFrame[bone as AutoMovieHumanoidBone]?.[c.axis]?.neutral ?? 0;
   const joint: IAutoMovieJointPose = {
     bone: bone as AutoMovieHumanoidBone,
     flexion: null,
@@ -247,8 +247,8 @@ function rotation(
   return AutoMovieEngineKinematics.resolvePose(
     { skeleton: skeleton.id, root: null, joints: [joint] },
     skeleton,
-    HUMANOID_JOINT_AXES,
-    HUMANOID_REST_FRAME,
+    AutoMovieEngineHumanoidJointAxes,
+    AutoMovieEngineHumanoidRestFrame,
   ).find((r: IAutoMovieResolvedBone): boolean => r.bone === bone)!
     .worldRotation;
 }

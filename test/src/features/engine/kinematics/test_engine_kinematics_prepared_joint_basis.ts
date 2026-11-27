@@ -1,6 +1,6 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
   AutoMovieEngineKinematicsJointRotation,
 } from "@automovie/engine";
 import type {
@@ -25,8 +25,8 @@ import { TestValidator } from "@nestia/e2e";
  *    composed rotation, which in turn reads the joint back within 1e-9.
  */
 export function test_engine_kinematics_prepared_joint_basis(): void {
-  const basis: IAutoMovieJointAxes = HUMANOID_JOINT_AXES.leftUpperArm!;
-  const frame = HUMANOID_REST_FRAME.leftUpperArm;
+  const basis: IAutoMovieJointAxes = AutoMovieEngineHumanoidJointAxes.leftUpperArm!;
+  const frame = AutoMovieEngineHumanoidRestFrame.leftUpperArm;
   const joints = [
     { flexion: 30, abduction: 20, twist: 10 },
     { flexion: -45, abduction: 60, twist: -15 },

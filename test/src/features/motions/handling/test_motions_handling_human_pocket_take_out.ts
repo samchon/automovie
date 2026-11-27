@@ -3,7 +3,9 @@ import type {
   IAutoMovieIntent,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain } from "@automovie/motions";
-import { HumanPocket } from "@automovie/motions/internal";
+import {
+  HumanPocket
+} from "../../../../../packages/motions/src/handling/internal/HumanPocket";
 import { TestValidator } from "@nestia/e2e";
 
 /**

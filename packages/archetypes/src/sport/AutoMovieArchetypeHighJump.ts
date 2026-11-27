@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -13,7 +13,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeHighJumpData from "./internal/AutoMovieArchetypeHighJumpData";
+import { AutoMovieArchetypeHighJumpData } from "./internal/AutoMovieArchetypeHighJumpData";
 
 /** Constructs the high jump archetype from its recipe. */
 export namespace AutoMovieArchetypeHighJump {
@@ -124,7 +124,7 @@ export function create(
     name: kind === "highJump" ? "high jump" : "pole vault",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const radius: number = d.diameter! / 2;
   const centre: number = d.height! - radius;
   const length: number = d.length!;
@@ -296,7 +296,7 @@ function box(
   >,
   d: Partial<Record<AutoMovieArchetypeHighJump.Dimension, number>>,
 ): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const depth: number = d.boxDepth!;
   const run: number = Math.sqrt(d.boxFloor! ** 2 - depth ** 2);
   const front: IAutoMovieVector3 = v(0, 0, -d.boxLength!);
@@ -312,24 +312,24 @@ function box(
     to: IAutoMovieVector3,
     behind: IAutoMovieVector3,
   ): void => {
-    const span: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
     const tilt: number =
       Math.atan2(-span.y, span.z) / AutoMovieArchetypeUnits.DEGREE;
     builder.box(
       id,
-      v(width, t, Vector3.length(span)),
-      Vector3.add(
-        Vector3.scale(Vector3.add(from, to), 0.5),
-        Vector3.scale(behind, t / 2),
+      v(width, t, AutoMovieEngineVector3.length(span)),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5),
+        AutoMovieEngineVector3.scale(behind, t / 2),
       ),
       {
         color: "#4a4d52",
-        rotation: Quaternion.fromAxisAngle(v(1, 0, 0), tilt),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(v(1, 0, 0), tilt),
       },
     );
   };
-  plate("box-floor", front, foot, Vector3.normalize(v(0, -run, -depth)));
-  plate("box-stop", foot, lip, Vector3.normalize(v(0, foot.z - lip.z, depth)));
+  plate("box-floor", front, foot, AutoMovieEngineVector3.normalize(v(0, -run, -depth)));
+  plate("box-stop", foot, lip, AutoMovieEngineVector3.normalize(v(0, foot.z - lip.z, depth)));
   builder.affordance({
     id: "box",
     kind: "socket",

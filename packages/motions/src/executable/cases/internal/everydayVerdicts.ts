@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFoot } from "../../../posture/internal/HumanFoot";
@@ -129,7 +129,7 @@ export namespace everydayVerdicts {
         .joints as IAutoMovieJointPose[])
         worst = Math.max(
           worst,
-          AutoMovieEngineKinematics.jointRomOvershoot(joint, DEFAULT_HUMANOID_ROM[joint.bone] ?? null),
+          AutoMovieEngineKinematics.jointRomOvershoot(joint, AutoMovieEngineDefaultHumanoidRom[joint.bone] ?? null),
         );
     return worst;
   }

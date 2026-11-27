@@ -1,7 +1,7 @@
 import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanFootSource,
@@ -62,7 +62,7 @@ export namespace AutoMovieHumanFootSource {
     part: IAutoMovieViewPart,
   ): IAutoMovieHumanFootSource.IComplete {
     const prepared: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(part);
+      AutoMovieEngineLoftViewSource.create(part);
     if (prepared === null)
       throw new Error(`${part.name}: direct original fullness is unavailable`);
     if (prepared.source === null)
@@ -90,14 +90,14 @@ export namespace AutoMovieHumanFootSource {
     if (owner.field === undefined)
       throw new Error("A direct original contact has no prepared native field");
     const values: IAutoMovieLoftViewRead.IValues | string =
-      AutoMovieLoftViewRead.values(owner.field, station);
+      AutoMovieEngineLoftViewRead.values(owner.field, station);
     if (typeof values === "string") throw new Error(values);
     const jets: IAutoMovieLoftViewRead.IJets | string =
-      AutoMovieLoftViewRead.jets(owner.field, station);
+      AutoMovieEngineLoftViewRead.jets(owner.field, station);
     return {
-      phase: AutoMovieLoftSectionNative.phase(values),
+      phase: AutoMovieEngineLoftSectionNative.phase(values),
       jet:
-        typeof jets === "string" ? null : AutoMovieLoftSectionNative.jet(jets),
+        typeof jets === "string" ? null : AutoMovieEngineLoftSectionNative.jet(jets),
       unavailable: typeof jets === "string" ? jets : null,
     };
   }

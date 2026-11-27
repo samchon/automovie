@@ -6,11 +6,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanEnsemble,
-  AutoMovieMotionHumanRefusal,
-  humanQueueAdvance,
-  humanQueueMarks,
-} from "@automovie/motions/internal";
+  HumanEnsemble
+} from "../../../../../packages/motions/src/ensemble/internal/HumanEnsemble";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  humanQueueAdvance
+} from "../../../../../packages/motions/src/ensemble/internal/humanQueueAdvance";
+import {
+  humanQueueMarks
+} from "../../../../../packages/motions/src/ensemble/internal/humanQueueMarks";
 import { TestValidator } from "@nestia/e2e";
 
 import { compositionIntents } from "../../internal/compositionIntents";

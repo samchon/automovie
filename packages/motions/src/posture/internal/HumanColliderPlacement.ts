@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  Vector3,
-  AutoMoviePhysicalHullFaces,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysicalHullFaces,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -161,12 +161,12 @@ function minima(
     if (posed === undefined) continue;
     const name: AutoMovieHumanoidBone = posed.bone;
     const origin: IAutoMovieVector3 = posed.worldPosition;
-    const offset: number = Quaternion.rotateVectorY(
+    const offset: number = AutoMovieEngineQuaternion.rotateVectorY(
       posed.worldRotation,
       segment.offset,
     );
     const position: number = origin.y + offset;
-    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    const rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
       posed.worldRotation,
       segment.rotation,
     );
@@ -214,7 +214,7 @@ function place(
     // The rotated offset is fresh; keep the original origin-plus-offset order.
     const bone: AutoMovieHumanoidBone = posed.bone;
     const origin: IAutoMovieVector3 = posed.worldPosition;
-    const position: IAutoMovieVector3 = Quaternion.rotateVector(
+    const position: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       posed.worldRotation,
       segment.offset,
     );
@@ -226,7 +226,7 @@ function place(
       bone,
       pose: {
         position,
-        rotation: Quaternion.multiply(posed.worldRotation, segment.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(posed.worldRotation, segment.rotation),
       },
       shapes: segment.shapes,
     });
@@ -250,7 +250,7 @@ function sided(
       ? null
       : {
           bone: segment.bone,
-          offset: Vector3.subtract(segment.neutral.position, rest),
+          offset: AutoMovieEngineVector3.subtract(segment.neutral.position, rest),
           rotation: segment.neutral.rotation,
           shapes: segment.shapes,
         };
@@ -306,7 +306,7 @@ function mirrored(segment: ISided, bone: string): ISided {
           rotation: mirrorTurn(shape.transform.rotation),
         };
         if (shape.kind !== "hull") return { ...shape, transform };
-        const points: IAutoMovieVector3[] = AutoMoviePhysicalHullFaces.mirrorX(
+        const points: IAutoMovieVector3[] = AutoMovieEnginePhysicalHullFaces.mirrorX(
           shape.points,
         );
         return {
@@ -315,7 +315,7 @@ function mirrored(segment: ISided, bone: string): ISided {
           points,
           ...(shape.hull === undefined
             ? {}
-            : { hull: AutoMoviePhysicalHullFaces.mirrorHull(points, shape.hull) }),
+            : { hull: AutoMovieEnginePhysicalHullFaces.mirrorHull(points, shape.hull) }),
         };
       },
     ),

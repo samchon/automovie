@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionAirborneRotation,
 } from "@automovie/engine";
 import type {
@@ -140,8 +140,8 @@ export function test_engine_motion_integrate_airborne_rotation_history(): void {
     let continuous: boolean = true;
     for (const t of [SPAN.from + delta, SPAN.to - delta])
       continuous &&=
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             history(t + eta).relative,
             history(t - eta).relative,
           ),
@@ -185,7 +185,7 @@ function rings(): void {
   ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
     t: number,
   ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       (0.25 * t * 180) / Math.PI,
     );
@@ -212,12 +212,12 @@ function rings(): void {
     const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.5);
     TestValidator.predicate(
       "the ring pair's composite moments and momentum",
-      Vector3.length(
-        Vector3.subtract(instant.inertia.moments, { x: 4, y: 4, z: 4 }),
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(instant.inertia.moments, { x: 4, y: 4, z: 4 }),
       ) <= 1e-12 &&
         qunit(instant.inertia.rotation) &&
-        Vector3.length(
-          Vector3.subtract(instant.relative, { x: 1, y: 0, z: 0 }),
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(instant.relative, { x: 1, y: 0, z: 0 }),
         ) <= 1e-9,
     );
   } finally {
@@ -262,15 +262,15 @@ function span(): boolean {
   const pushed = nodding((t: number): number => 0.3 * Math.min(0, t - 0.5));
   const landed = nodding((t: number): number => 0.3 * Math.max(0, t - 1));
   let holds: boolean =
-    Vector3.length(lag(pushed, 0.5)) > 0.1 &&
-    Vector3.length(lag(pushed, 0.5, sides)) === 0 &&
-    Vector3.length(lag(landed, 1, sides)) === 0;
+    AutoMovieEngineVector3.length(lag(pushed, 0.5)) > 0.1 &&
+    AutoMovieEngineVector3.length(lag(pushed, 0.5, sides)) === 0 &&
+    AutoMovieEngineVector3.length(lag(landed, 1, sides)) === 0;
   const smooth = nodding((t: number): number => 0.3 * Math.sin(t));
   for (const at of [0.5, 1]) {
     const central: IAutoMovieVector3 = lag(smooth, at);
     holds &&=
-      Vector3.length(Vector3.subtract(lag(smooth, at, sides), central)) <=
-      AutoMovieEngineMotionAirborneRotation.DELTA ** 2 * Vector3.length(central);
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(lag(smooth, at, sides), central)) <=
+      AutoMovieEngineMotionAirborneRotation.DELTA ** 2 * AutoMovieEngineVector3.length(central);
   }
   return holds;
 }

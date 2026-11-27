@@ -1,10 +1,10 @@
 import {
-  AutoMovieXpbdBody,
-  AutoMovieXpbdCollider,
-  AutoMovieXpbdJoint,
-  AutoMovieXpbdWorld,
-  AutoMovieXpbdArticulation,
-  AutoMovieXpbdSupportRows,
+  AutoMovieEngineXpbdBody,
+  AutoMovieEngineXpbdCollider,
+  AutoMovieEngineXpbdJoint,
+  AutoMovieEngineXpbdWorld,
+  AutoMovieEngineXpbdArticulation,
+  AutoMovieEngineXpbdSupportRows,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -53,7 +53,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
       targetVelocity: origin(),
       strength: 1,
     });
-    const motor: AutoMovieXpbdJoint.IMotor | undefined =
+    const motor: AutoMovieEngineXpbdJoint.IMotor | undefined =
       link.joint.motors.get("z");
     if (motor?.maximumTorque !== 249 || motor.reverseTorque !== 94)
       findings.push(`configured bounds ${JSON.stringify(motor)}`);
@@ -90,7 +90,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
     [10, 2, 5],
     [2, 2, 2],
   ] as const) {
-    const x: number[] | null = AutoMovieXpbdSupportRows.cascade(program(cap, reverse));
+    const x: number[] | null = AutoMovieEngineXpbdSupportRows.cascade(program(cap, reverse));
     if (x === null) findings.push(`cascade ${cap}/${reverse} has no solution`);
     else if (
       !(Math.abs(x[3]! - expected) < PhysicalTolerance.CONVERGED) ||
@@ -108,13 +108,13 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
    * off.
    */
   function hang(forward: number, backward: number): ILink {
-    const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(origin());
+    const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld(origin());
     world.timestep = h;
-    const base: AutoMovieXpbdBody = world.createBody(false, {
+    const base: AutoMovieEngineXpbdBody = world.createBody(false, {
       position: origin(),
       rotation: identity(),
     });
-    const body: AutoMovieXpbdBody = world.createBody(true, {
+    const body: AutoMovieEngineXpbdBody = world.createBody(true, {
       position: { x: 0, y: -ARM, z: 0 },
       rotation: identity(),
     });
@@ -124,7 +124,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
       { x: INERTIA, y: INERTIA / 4, z: INERTIA },
       identity(),
     );
-    const joint: AutoMovieXpbdJoint = world.createJoint(
+    const joint: AutoMovieEngineXpbdJoint = world.createJoint(
       {
         id: "pivot",
         parent: "base",
@@ -158,9 +158,9 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
   function program(
     cap: number,
     reverse: number,
-  ): AutoMovieXpbdSupportRows.IInput {
-    const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(origin());
-    const floor: AutoMovieXpbdCollider = world.createCollider(
+  ): AutoMovieEngineXpbdSupportRows.IInput {
+    const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld(origin());
+    const floor: AutoMovieEngineXpbdCollider = world.createCollider(
       world.createBody(false, { position: origin(), rotation: identity() }),
       {
         id: "floor",
@@ -173,7 +173,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
       0,
       false,
     );
-    const contact: AutoMovieXpbdWorld.IContact = {
+    const contact: AutoMovieEngineXpbdWorld.IContact = {
       a: floor,
       b: floor,
       pair: 0,
@@ -194,7 +194,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
     const row = (
       direction: IAutoMovieVector3,
       lower?: number,
-    ): AutoMovieXpbdArticulation.IRow => ({
+    ): AutoMovieEngineXpbdArticulation.IRow => ({
       state: 1,
       point: origin(),
       direction,
@@ -263,7 +263,7 @@ const INERTIA: number = 0.02;
 
 /** A link on a fixed base. */
 interface ILink {
-  world: AutoMovieXpbdWorld;
-  body: AutoMovieXpbdBody;
-  joint: AutoMovieXpbdJoint;
+  world: AutoMovieEngineXpbdWorld;
+  body: AutoMovieEngineXpbdBody;
+  joint: AutoMovieEngineXpbdJoint;
 }

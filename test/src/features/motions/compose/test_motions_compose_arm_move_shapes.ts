@@ -6,7 +6,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanArm } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanArm
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArm";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

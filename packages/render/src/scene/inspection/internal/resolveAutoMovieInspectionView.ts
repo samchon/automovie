@@ -6,11 +6,11 @@ import type {
 import * as THREE from "three";
 
 import type { AutoMovieRenderInspectionCamera } from "../../AutoMovieRenderInspectionCamera.js";
-import type { IAutoMovieDrawView } from "../../../draw/IAutoMovieDrawView.js";
+import type { IAutoMovieRenderDrawView } from "../../../draw/IAutoMovieRenderDrawView.js";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
-import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderViewerSubjectPose } from "../../IAutoMovieRenderViewerSubjectPose.js";
+import type { IAutoMovieRenderViewerViewpoint } from "../../IAutoMovieRenderViewerViewpoint.js";
 import { autoMovieViewerNamedViewpoints } from "../../subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
 import { frameAutoMovieViewerSubject } from "../../subjectViewpoint/internal/frameAutoMovieViewerSubject.js";
 
@@ -78,7 +78,7 @@ export function resolveAutoMovieInspectionView(
 
   // A fixed camera and a subject's view are a position and a target.
   const own:
-    | ((seconds: number) => IAutoMovieDrawView)
+    | ((seconds: number) => IAutoMovieRenderDrawView)
     | undefined =
     view.type === "named" ? props.views?.[view.name] : undefined;
   if (view.type === "fixed" || own !== undefined) {
@@ -89,7 +89,7 @@ export function resolveAutoMovieInspectionView(
       throw new Error(
         `Inspection view "${props.text}" is the subject's own view, which takes no switch`,
       );
-    const placed: IAutoMovieDrawView =
+    const placed: IAutoMovieRenderDrawView =
       view.type === "fixed" ? view : own!(props.seconds);
     const up: IAutoMovieVector3 =
       view.type === "fixed" && view.up !== null
@@ -132,10 +132,10 @@ export function resolveAutoMovieInspectionView(
   }
 
   // A named viewpoint is fitted to the bounds.
-  const viewpoints: IAutoMovieViewerViewpoint[] =
+  const viewpoints: IAutoMovieRenderViewerViewpoint[] =
     autoMovieViewerNamedViewpoints();
-  const viewpoint: IAutoMovieViewerViewpoint | undefined = viewpoints.find(
-    (candidate: IAutoMovieViewerViewpoint): boolean =>
+  const viewpoint: IAutoMovieRenderViewerViewpoint | undefined = viewpoints.find(
+    (candidate: IAutoMovieRenderViewerViewpoint): boolean =>
       candidate.id === view.name,
   );
   if (viewpoint === undefined)
@@ -143,7 +143,7 @@ export function resolveAutoMovieInspectionView(
       `Inspection view "${props.text}" names no view; the names are ${[
         ...Object.keys(props.views ?? {}),
         ...viewpoints.map(
-          (candidate: IAutoMovieViewerViewpoint): string => candidate.id,
+          (candidate: IAutoMovieRenderViewerViewpoint): string => candidate.id,
         ),
       ].join(", ")}, besides film and x,y,z:tx,ty,tz`,
     );
@@ -153,7 +153,7 @@ export function resolveAutoMovieInspectionView(
     );
   const up: IAutoMovieVector3 = upOf(viewpoint);
   if (!view.orthographic) {
-    const pose: IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
+    const pose: IAutoMovieRenderViewerSubjectPose = frameAutoMovieViewerSubject(
       props.bounds,
       viewpoint,
       { fovDeg: props.camera.fov, aspect },
@@ -240,7 +240,7 @@ const FLOOR: number = 0.5;
  * The picture-up a viewpoint documents: `-Z` from the top, `+Z` from the
  * bottom, `+Y` otherwise.
  */
-function upOf(viewpoint: IAutoMovieViewerViewpoint): IAutoMovieVector3 {
+function upOf(viewpoint: IAutoMovieRenderViewerViewpoint): IAutoMovieVector3 {
   if (Math.abs(viewpoint.elevationDeg) !== 90) return { x: 0, y: 1, z: 0 };
   const sign: number = Math.sign(viewpoint.elevationDeg);
   const azimuth: number = THREE.MathUtils.degToRad(viewpoint.azimuthDeg);
@@ -260,8 +260,8 @@ function aim(
   camera.up.set(up.x, up.y, up.z);
   camera.lookAt(target.x, target.y, target.z);
   if (
-    AutoMovieThreeKind.isPerspectiveCamera(camera) ||
-    AutoMovieThreeKind.isOrthographicCamera(camera)
+    AutoMovieRenderThreeKind.isPerspectiveCamera(camera) ||
+    AutoMovieRenderThreeKind.isOrthographicCamera(camera)
   )
     camera.updateProjectionMatrix();
   camera.updateMatrixWorld(true);
@@ -286,15 +286,15 @@ function record(
   const up: THREE.Vector3 = new THREE.Vector3(0, 1, 0)
     .transformDirection(camera.matrixWorld)
     .normalize();
-  const orthographic: boolean = AutoMovieThreeKind.isOrthographicCamera(camera);
+  const orthographic: boolean = AutoMovieRenderThreeKind.isOrthographicCamera(camera);
   return {
     view: text,
     projection: orthographic ? "orthographic" : "perspective",
     position: { x: position.x, y: position.y, z: position.z },
     target: target ?? { x: ahead.x, y: ahead.y, z: ahead.z },
     up: { x: up.x, y: up.y, z: up.z },
-    fovDeg: AutoMovieThreeKind.isPerspectiveCamera(camera) ? camera.fov : null,
-    metresPerPixel: AutoMovieThreeKind.isOrthographicCamera(camera)
+    fovDeg: AutoMovieRenderThreeKind.isPerspectiveCamera(camera) ? camera.fov : null,
+    metresPerPixel: AutoMovieRenderThreeKind.isOrthographicCamera(camera)
       ? (camera.top - camera.bottom) / height
       : null,
     near: camera.near,

@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieEngineXpbdBody } from "./AutoMovieEngineXpbdBody";
 import type { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 import type { AutoMovieEnginePhysicalStanceSeat } from "./AutoMovieEnginePhysicalStanceSeat";
 
@@ -26,7 +26,7 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     /** The body's provider profile. */
     profile: IAutoMoviePhysicalProfile;
     /** The world segment wrappers, by bone, read before this step's integration. */
-    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    segments: ReadonlyMap<string, AutoMovieEngineXpbdBody>;
     /** The numerical support and motor policy. */
     policy: IAutoMoviePhysicalRecoveryPolicy;
     /** The authored world placements, by bone. */
@@ -152,7 +152,7 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     /** The profile segment that has no joint as its child. */
     segment: IAutoMoviePhysicalSegment;
     /** The root segment's rigid-body wrapper. */
-    body: AutoMovieXpbdBody;
+    body: AutoMovieEngineXpbdBody;
   };
 
   /** Input for the whole-body centroidal momentum task. */
@@ -162,7 +162,7 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     profile: IAutoMoviePhysicalProfile;
 
     /** The body's rigid segments by bone. */
-    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    segments: ReadonlyMap<string, AutoMovieEngineXpbdBody>;
 
     /** Every segment's sampled goal. */
     goals: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>;

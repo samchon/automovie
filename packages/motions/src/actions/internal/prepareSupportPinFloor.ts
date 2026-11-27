@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -59,9 +59,9 @@ export function prepareSupportPinFloor(
         projection,
       );
     const bone: IAutoMovieResolvedBone = bones.get(target.bone)!;
-    const point: IAutoMovieVector3 = Vector3.add(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       bone.worldPosition,
-      Quaternion.rotateVector(bone.worldRotation, offset),
+      AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, offset),
     );
     return {
       point: { ...point, y: point.y + posture.root.y },

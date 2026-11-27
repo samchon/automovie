@@ -1,4 +1,4 @@
-import type { AutoMovieScheduleError } from "@automovie/engine";
+import type { AutoMovieEngineScheduleError } from "@automovie/engine";
 import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -14,7 +14,7 @@ import { HumanHitTrack } from "./HumanHitTrack";
  * composition repairs.
  */
 export function HumanScheduleRefusal(
-  error: AutoMovieScheduleError,
+  error: AutoMovieEngineScheduleError,
   instance: (subject: string, capability: string) => number,
 ): Error {
   const where: Partial<IAutoMovieMotionHumanRefusal.IWhere> =

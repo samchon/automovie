@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createKerb as createKerbImplementation } from "./internal/createKerb";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand } from "../core";
-import * as AutoMovieArchetypeKerbData from "./internal/AutoMovieArchetypeKerbData";
+import { AutoMovieArchetypeKerbData } from "./internal/AutoMovieArchetypeKerbData";
 
 /** Public operations for Auto Movie Archetype Kerb. */
 export namespace AutoMovieArchetypeKerb {

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
@@ -139,14 +139,14 @@ export namespace headRestAim {
         const base: IAutoMovieVector3 = region(solved);
         const columns: IAutoMovieVector3[] = [0, 1, 2, 3].map(
           (k: number): IAutoMovieVector3 =>
-            Vector3.subtract(region(nudged(solved, k, 1)), base),
+            AutoMovieEngineVector3.subtract(region(nudged(solved, k, 1)), base),
         );
         return (to: IAutoMovieVector3): ISolved => {
           const moved: ISolved = clamp(
-            stepped(solved, columns, Vector3.subtract(to, base)),
+            stepped(solved, columns, AutoMovieEngineVector3.subtract(to, base)),
             side,
           );
-          return { ...moved, miss: Vector3.distance(region(moved), to) };
+          return { ...moved, miss: AutoMovieEngineVector3.distance(region(moved), to) };
         };
       },
     };
@@ -164,7 +164,7 @@ export namespace headRestAim {
     // Every candidate is held within the ranges before it is scored.
     const scored: (s: ISolved) => ISolved = (s: ISolved): ISolved => {
       const held: ISolved = clamp(s, side);
-      return { ...held, miss: Vector3.distance(region(held), at) };
+      return { ...held, miss: AutoMovieEngineVector3.distance(region(held), at) };
     };
     const least: (candidates: readonly ISolved[]) => ISolved = (
       candidates: readonly ISolved[],

@@ -1,6 +1,8 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
-import { StrikingFootPoint } from "@automovie/motions/internal";
+import {
+  StrikingFootPoint
+} from "../../../../../packages/motions/src/striking/internal/StrikingFootPoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -8,7 +10,7 @@ import { qclose } from "../../internal/qclose";
 
 /** A toe 0.06 m below and 0.15 m ahead of the ankle: its height. */
 const TOE = (q: IAutoMovieQuaternion): number =>
-  Quaternion.rotateVector(q, { x: 0, y: -0.06, z: 0.15 }).y;
+  AutoMovieEngineQuaternion.rotateVector(q, { x: 0, y: -0.06, z: 0.15 }).y;
 
 /**
  * A pointed striking foot (`StrikingFootPoint.pointed`, `lift`): the foot
@@ -29,7 +31,7 @@ export function test_motions_striking_foot_point(): void {
     StrikingFootPoint.POINT === 25 &&
       qclose(
         pointed,
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 25),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 25),
         1e-12,
       ),
   );

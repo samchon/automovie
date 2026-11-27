@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, AutoMovieHumanoidSurfaceRays, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidSurfaceRays, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMoviePhysicalSegment, IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -22,8 +22,8 @@ export function HumanFootOutline(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
 ): readonly IAutoMovieHumanoidSurfaces.IFrame[] {
-  const tools: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
-    AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
+  const tools: ReturnType<typeof AutoMovieEngineHumanoidSurfaceRays.tools> =
+    AutoMovieEngineHumanoidSurfaceRays.tools(body.skeleton, body.profile);
   const Side: OfReadSide = side === "left" ? "Left" : "Right";
   const heel: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.sockets[`heel${Side}`];
@@ -82,18 +82,18 @@ function shapePoints(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
 ): IAutoMovieVector3[] {
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
   );
   const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.add(centre, Quaternion.rotateVector(rotation, local));
+    AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, local));
   const round: (
     middle: IAutoMovieVector3,
     radius: number,
@@ -103,7 +103,7 @@ function shapePoints(
   ): IAutoMovieVector3[] =>
     ROUND.map(
       (d: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(middle, Vector3.scale(d, radius)),
+        AutoMovieEngineVector3.add(middle, AutoMovieEngineVector3.scale(d, radius)),
     );
   if (shape.kind === "hull") return shape.points.map(at);
   if (shape.kind === "box") {

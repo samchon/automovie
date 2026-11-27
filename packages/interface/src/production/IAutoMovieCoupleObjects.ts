@@ -66,7 +66,7 @@ export namespace IAutoMovieCoupleObjects {
 
     /**
      * Synchronous per-parent clinical axis lookup. Missing callback or
-     * undefined answer uses HUMANOID_JOINT_AXES; returned records are borrowed
+     * undefined answer uses AutoMovieEngineHumanoidJointAxes; returned records are borrowed
      * and exceptions propagate.
      */
     jointAxes?: (

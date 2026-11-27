@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -328,8 +328,8 @@ export namespace crawl {
     // middle `level` metres along, each hip joint a thigh from its knee
     // (`crawlFrame.over`); on the way down the hips sit `back` behind and
     // the trunk leans by `lean` of its pitch.
-    const separation: number = Vector3.length(
-      Vector3.subtract(local("leftUpperLeg"), local("rightUpperLeg")),
+    const separation: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(local("leftUpperLeg"), local("rightUpperLeg")),
     );
     const kneeling: (
       posture: IAutoMovieMotionHumanPosture,

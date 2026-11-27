@@ -1,5 +1,10 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, playWindInstrument } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  playWindInstrument
+} from "../../../../../packages/motions/src/daily/internal/playWindInstrument";
 import { strict as assert } from "node:assert";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";

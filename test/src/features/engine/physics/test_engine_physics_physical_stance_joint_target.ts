@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEnginePhysicalStanceJointTarget, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysicalStanceJointTarget, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMovieQuaternion,
@@ -36,15 +36,15 @@ const SIGNIFICANT: number = 1e-3;
 export function test_engine_physics_physical_stance_joint_target(): void {
   const findings: string[] = [];
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const frame: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const frame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     20,
   );
-  const goalThigh: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const goalThigh: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     -15,
   );
-  const goalShank: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const goalShank: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     20,
   );
@@ -56,9 +56,9 @@ export function test_engine_physics_physical_stance_joint_target(): void {
   };
 
   // 1. The knee keeps the goal posture.
-  const expected: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(Quaternion.multiply(goalThigh, frame)),
-    Quaternion.multiply(goalShank, frame),
+  const expected: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(AutoMovieEngineQuaternion.multiply(goalThigh, frame)),
+    AutoMovieEngineQuaternion.multiply(goalShank, frame),
   );
   for (const knee of [10, 70]) {
     const target: IAutoMovieQuaternion = AutoMovieEnginePhysicalStanceJointTarget.compute({
@@ -67,7 +67,7 @@ export function test_engine_physics_physical_stance_joint_target(): void {
       childFrame: frame,
       actual: {
         parent: goalThigh,
-        child: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, knee),
+        child: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, knee),
         parentSpin: zero,
         childSpin: zero,
       },
@@ -79,11 +79,11 @@ export function test_engine_physics_physical_stance_joint_target(): void {
 
   // 2. The hip holds the pelvis at its intended world orientation.
   const intended: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const pitched: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const pitched: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     (0.3 * 180) / Math.PI,
   );
-  const thigh: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const thigh: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     -10,
   );
@@ -100,12 +100,12 @@ export function test_engine_physics_physical_stance_joint_target(): void {
     goal,
     intended: { rotation: intended, spin: zero },
   }).target;
-  const pelvis: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.multiply(
-      Quaternion.multiply(thigh, frame),
-      Quaternion.inverse(hip),
+  const pelvis: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(thigh, frame),
+      AutoMovieEngineQuaternion.inverse(hip),
     ),
-    Quaternion.inverse(frame),
+    AutoMovieEngineQuaternion.inverse(frame),
   );
   if (!near(pelvis, intended))
     findings.push(
@@ -128,9 +128,9 @@ export function test_engine_physics_physical_stance_joint_target(): void {
         channel: axis,
       })),
     } satisfies IAutoMoviePhysicalJoint,
-    current: Quaternion.multiply(
-      Quaternion.inverse(Quaternion.multiply(pitched, frame)),
-      Quaternion.multiply(thigh, frame),
+    current: AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(AutoMovieEngineQuaternion.multiply(pitched, frame)),
+      AutoMovieEngineQuaternion.multiply(thigh, frame),
     ),
     target: hip,
     velocity: zero,
@@ -142,8 +142,8 @@ export function test_engine_physics_physical_stance_joint_target(): void {
   // joint frame turned into the world: it must oppose the pelvis's +x pitch.
   const speed: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const axis of command.axes) speed[axis.axis] = axis.speed;
-  const onPelvis: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(pitched, frame),
+  const onPelvis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(pitched, frame),
     { x: -speed.x, y: -speed.y, z: -speed.z },
   );
   if (
@@ -155,12 +155,12 @@ export function test_engine_physics_physical_stance_joint_target(): void {
     );
 
   // 3. The planted foot holds its latched world orientation.
-  const latched: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const latched: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     5,
   );
   for (const lean of [-12, 18]) {
-    const shank: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const shank: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       lean,
     );
@@ -177,9 +177,9 @@ export function test_engine_physics_physical_stance_joint_target(): void {
       goal,
       latched,
     }).target;
-    const foot: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(Quaternion.multiply(shank, frame), ankle),
-      Quaternion.inverse(frame),
+    const foot: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.multiply(shank, frame), ankle),
+      AutoMovieEngineQuaternion.inverse(frame),
     );
     if (!near(foot, latched))
       findings.push(
@@ -191,8 +191,8 @@ export function test_engine_physics_physical_stance_joint_target(): void {
   // rad and rolled 0.1 rad, the hip's target leaves the pitch as it is and
   // turns back the roll only, the error's twist about x removed; the spin
   // asked along x is the pelvis's own, 2 rad/s, and none across it.
-  const rolled: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, (0.1 * 180) / Math.PI),
+  const rolled: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, (0.1 * 180) / Math.PI),
     pitched,
   );
   const axis: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
@@ -210,16 +210,16 @@ export function test_engine_physics_physical_stance_joint_target(): void {
     intended: { rotation: intended, spin: zero },
     release: axis,
   });
-  const kept: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.multiply(
-      Quaternion.multiply(thigh, frame),
-      Quaternion.inverse(released.target),
+  const kept: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(thigh, frame),
+      AutoMovieEngineQuaternion.inverse(released.target),
     ),
-    Quaternion.inverse(frame),
+    AutoMovieEngineQuaternion.inverse(frame),
   );
-  const error: IAutoMovieQuaternion = Quaternion.multiply(
+  const error: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     kept,
-    Quaternion.inverse(rolled),
+    AutoMovieEngineQuaternion.inverse(rolled),
   );
   if (
     !(Math.abs(error.x) < PhysicalTolerance.ACCUMULATED) ||
@@ -228,8 +228,8 @@ export function test_engine_physics_physical_stance_joint_target(): void {
     findings.push(
       `a hip released about x moves the pelvis by ${JSON.stringify(error)}`,
     );
-  const asked: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(kept, frame),
+  const asked: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(kept, frame),
     released.velocity,
   );
   if (

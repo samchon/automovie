@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -92,10 +92,10 @@ export function manipulatePlan(
           press.normal,
           press.depth,
         );
-        const contact: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.inverse(rotation),
-          Vector3.subtract(
-            Vector3.addScaled(press.site, press.normal, -press.depth),
+        const contact: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(rotation),
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.addScaled(press.site, press.normal, -press.depth),
             wrist,
           ),
         );
@@ -199,7 +199,7 @@ export function manipulatePlan(
           ),
         );
         limbs[`${hand.side}Arm`] = {
-          point: Vector3.lerp(previous.wrist, current.wrist, approach),
+          point: AutoMovieEngineVector3.lerp(previous.wrist, current.wrist, approach),
           rotation: hand.rotation,
           bend: hand.bend,
           elbow: "strain",
@@ -215,7 +215,7 @@ export function manipulatePlan(
         const lift: number =
           typeText.HOVER - (typeText.HOVER + press.depth) * down;
         digits[current.digit] = {
-          point: Vector3.add(press.site, Vector3.scale(press.normal, lift)),
+          point: AutoMovieEngineVector3.add(press.site, AutoMovieEngineVector3.scale(press.normal, lift)),
           normal: press.normal,
           surface: "tip",
           contact: lift <= 0,

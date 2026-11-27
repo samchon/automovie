@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -62,7 +62,7 @@ export namespace AquaticPosture {
       const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
       return {
         ...to,
-        root: Vector3.lerp(from.root, to.root, u),
+        root: AutoMovieEngineVector3.lerp(from.root, to.root, u),
         yaw: from.yaw + (to.yaw - from.yaw) * u,
         pitch: from.pitch + (to.pitch - from.pitch) * u,
         roll: from.roll + (to.roll - from.roll) * u,
@@ -71,14 +71,14 @@ export namespace AquaticPosture {
           from.rotation === undefined && to.rotation === undefined
             ? undefined
             : {
-                about: Vector3.lerp(
+                about: AutoMovieEngineVector3.lerp(
                   from.rotation?.about ?? from.root,
                   to.rotation?.about ?? to.root,
                   u,
                 ),
-                turn: Quaternion.slerp(
-                  from.rotation?.turn ?? Quaternion.identity(),
-                  to.rotation?.turn ?? Quaternion.identity(),
+                turn: AutoMovieEngineQuaternion.slerp(
+                  from.rotation?.turn ?? AutoMovieEngineQuaternion.identity(),
+                  to.rotation?.turn ?? AutoMovieEngineQuaternion.identity(),
                   u,
                 ),
               },
@@ -151,9 +151,9 @@ export namespace AquaticPosture {
           ? undefined
           : {
               ...posture.rotation,
-              about: Vector3.add(
+              about: AutoMovieEngineVector3.add(
                 posture.rotation.about,
-                Vector3.subtract(root, posture.root),
+                AutoMovieEngineVector3.subtract(root, posture.root),
               ),
             },
     };

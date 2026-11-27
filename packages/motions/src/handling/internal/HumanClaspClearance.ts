@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -151,9 +151,9 @@ function placedDigits(
         from: from.worldPosition,
         to:
           next === undefined
-            ? Vector3.add(
+            ? AutoMovieEngineVector3.add(
                 from.worldPosition,
-                Quaternion.rotateVector(from.worldRotation, chain.tip),
+                AutoMovieEngineQuaternion.rotateVector(from.worldRotation, chain.tip),
               )
             : bones.get(next)!.worldPosition,
         radius: chain.radius,

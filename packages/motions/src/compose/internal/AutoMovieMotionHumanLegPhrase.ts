@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanContactWindow,
@@ -60,11 +60,11 @@ export namespace AutoMovieMotionHumanLegPhrase {
     share: number,
   ): IAutoMovieMotionHumanFoot.IPlacement {
     return {
-      ankle: Vector3.add(
+      ankle: AutoMovieEngineVector3.add(
         from.ankle,
-        Vector3.scale(Vector3.subtract(to.ankle, from.ankle), share),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(to.ankle, from.ankle), share),
       ),
-      rotation: Quaternion.slerp(
+      rotation: AutoMovieEngineQuaternion.slerp(
         from.rotation,
         to.rotation,
         Math.min(1, Math.max(0, share)),
@@ -85,9 +85,9 @@ export namespace AutoMovieMotionHumanLegPhrase {
     from: IAutoMovieMotionHumanFoot.IPlacement,
     to: IAutoMovieMotionHumanFoot.IPlacement,
   ): (share: number) => IAutoMovieMotionHumanFoot.IPlacement {
-    const rotation: ReturnType<typeof Quaternion.prepareSlerp> =
-      Quaternion.prepareSlerp(from.rotation, to.rotation);
-    const ankle: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+    const rotation: ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp> =
+      AutoMovieEngineQuaternion.prepareSlerp(from.rotation, to.rotation);
+    const ankle: ReturnType<typeof AutoMovieEngineVector3.prepareLerp> = AutoMovieEngineVector3.prepareLerp(
       from.ankle,
       to.ankle,
     );
@@ -349,7 +349,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
         y: stance.ankle.y + (moving.ankle.y - stance.ankle.y) * share,
         z: stance.ankle.z + (moving.ankle.z - stance.ankle.z) * across,
       },
-      rotation: Quaternion.slerp(stance.rotation, moving.rotation, lifted),
+      rotation: AutoMovieEngineQuaternion.slerp(stance.rotation, moving.rotation, lifted),
     };
     const lowest = (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
       Math.min(

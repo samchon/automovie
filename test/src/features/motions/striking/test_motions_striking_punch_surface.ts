@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { punchSurface } from "@automovie/motions/internal";
+import {
+  punchSurface
+} from "../../../../../packages/motions/src/striking/internal/punchSurface";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageCasing } from "../AutoMovieArchetypeStageCasing";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -24,7 +24,7 @@ export function createStageCasing(
   AutoMovieArchetypeStageCasing.Affordance,
   AutoMovieArchetypeStageCasing.Dimension
 > {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStageCasing.Dimension> =
     new AutoMovieArchetypeDrawSession(
       "stageCasing",

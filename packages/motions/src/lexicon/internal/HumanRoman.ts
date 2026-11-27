@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -56,7 +56,7 @@ function planHumanRoman(context: Context): IAutoMovieMotionHumanActionPlan {
   const duration: number = step + params.hold;
   for (let k: number = 0; k <= 16; ++k) {
     const film: number = context.start + step + (params.hold * k) / 16;
-    const span: number = Vector3.distance(
+    const span: number = AutoMovieEngineVector3.distance(
       left(film).position,
       right(film).position,
     );

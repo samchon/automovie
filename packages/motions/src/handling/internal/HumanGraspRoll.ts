@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
@@ -32,18 +32,18 @@ export function HumanGraspRoll(
   const across: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
-  const offset: IAutoMovieVector3 = Vector3.subtract(grasp.point, point);
+    AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(v, axis)));
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(grasp.point, point);
   const p: IAutoMovieVector3 = across(offset);
-  const q: IAutoMovieVector3 = across(Vector3.subtract(toward, point));
-  if (Vector3.length(p) < 1e-9 || Vector3.length(q) < 1e-9) return grasp;
+  const q: IAutoMovieVector3 = across(AutoMovieEngineVector3.subtract(toward, point));
+  if (AutoMovieEngineVector3.length(p) < 1e-9 || AutoMovieEngineVector3.length(q) < 1e-9) return grasp;
   const degrees: number =
-    (Math.atan2(Vector3.dot(axis, Vector3.cross(p, q)), Vector3.dot(p, q)) *
+    (Math.atan2(AutoMovieEngineVector3.dot(axis, AutoMovieEngineVector3.cross(p, q)), AutoMovieEngineVector3.dot(p, q)) *
       180) /
     Math.PI;
-  const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axis, degrees);
+  const roll: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees);
   return {
-    point: Vector3.add(point, Quaternion.rotateVector(roll, offset)),
-    rotation: Quaternion.normalize(Quaternion.multiply(roll, grasp.rotation)),
+    point: AutoMovieEngineVector3.add(point, AutoMovieEngineQuaternion.rotateVector(roll, offset)),
+    rotation: AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(roll, grasp.rotation)),
   };
 }

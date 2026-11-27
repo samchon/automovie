@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -36,13 +36,13 @@ export namespace archetypeSpanObservation {
       throw new Error(
         "The observed line must be an actual transformed cylinder",
       );
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform.rotation,
       { x: 0, y: part.geometry.shape.height / 2, z: 0 },
     );
     return [
-      Vector3.subtract(part.transform.translation, half),
-      Vector3.add(part.transform.translation, half),
+      AutoMovieEngineVector3.subtract(part.transform.translation, half),
+      AutoMovieEngineVector3.add(part.transform.translation, half),
     ];
   }
 }

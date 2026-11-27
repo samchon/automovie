@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -128,9 +128,9 @@ export namespace HumanTravelCar {
           { origin: { x: 0, y: 0, z: 0 }, yaw: seat.yaw },
           { x: 0, y: 0, z: 1 },
         );
-        const centre: IAutoMovieVector3 = Vector3.subtract(
+        const centre: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           seat.at,
-          Vector3.scale(facing, depth / 2),
+          AutoMovieEngineVector3.scale(facing, depth / 2),
         );
         let out: IAutoMovieVector3 = {
           x: through.across.z,
@@ -142,14 +142,14 @@ export namespace HumanTravelCar {
             (centre.z - through.at.z) * out.z >
           0
         )
-          out = Vector3.scale(out, -1);
+          out = AutoMovieEngineVector3.scale(out, -1);
         const outward: number = (Math.atan2(out.x, out.z) * 180) / Math.PI;
 
         // Sit down sideways, facing out of the door.
         const aside: IAutoMovieMotionHumanSeated.ISeat = {
           ...seat,
           at: {
-            ...Vector3.add(centre, Vector3.scale(out, depth / 2)),
+            ...AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(out, depth / 2)),
             y: seat.at.y,
           },
           yaw: outward,

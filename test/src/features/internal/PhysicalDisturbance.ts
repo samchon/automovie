@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance, Quaternion, Vector3, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalStanceSupport, AutoMovieEnginePhysicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalStanceSupport, AutoMovieEnginePhysicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
 import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   IAutoMovieMotionHumanBody,
@@ -500,7 +500,7 @@ export namespace PhysicalDisturbance {
     return (
       (policy.reactionSeconds ?? 0) +
       AutoMovieEnginePhysicalStanceBalance.FADE +
-      AutoMoviePhysicalBalance.duration(reach, 0, peak)
+      AutoMovieEnginePhysicalBalance.duration(reach, 0, peak)
     );
   }
 
@@ -744,14 +744,14 @@ export namespace PhysicalDisturbance {
       subject.profile.segments.reduce(
         (sum: number, segment: IAutoMoviePhysicalSegment): number => {
           const state = frame.bodies[id]![segment.bone]!;
-          const arm: IAutoMovieVector3 = Quaternion.rotateVector(
+          const arm: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             state.rotation,
             segment.centerOfMass,
           );
           return (
             sum +
             segment.mass *
-              (state.velocity.y + Vector3.cross(state.angularVelocity, arm).y)
+              (state.velocity.y + AutoMovieEngineVector3.cross(state.angularVelocity, arm).y)
           );
         },
         0,
@@ -776,7 +776,7 @@ export namespace PhysicalDisturbance {
       ...cache.supportWrenches
         .filter((wrench): boolean => wrench.body === id)
         .map(
-          (wrench): number => Vector3.length(wrench.allocated.force) - maximum,
+          (wrench): number => AutoMovieEngineVector3.length(wrench.allocated.force) - maximum,
         ),
     );
     if (excess > 1e-6)
@@ -904,8 +904,8 @@ export namespace PhysicalDisturbance {
 
   /** The angle between two orientations, degrees. */
   function turn(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
-    const q: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(b),
+    const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(b),
       a,
     );
     return (2 * Math.acos(Math.min(1, Math.abs(q.w))) * 180) / Math.PI;
@@ -972,7 +972,7 @@ export namespace PhysicalDisturbance {
       limbsOf(subject),
       0,
     );
-    const nearest: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+    const nearest: IAutoMovieVector3 = AutoMovieEnginePhysicalBalance.nearest(
       polygon,
       capture,
     );
@@ -1044,12 +1044,12 @@ export namespace PhysicalDisturbance {
         sum: IAutoMovieVector3,
         segment: IAutoMoviePhysicalSegment,
       ): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           sum,
-          Vector3.scale(
-            Vector3.add(
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(
               poses[segment.bone]!.position,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 poses[segment.bone]!.rotation,
                 segment.centerOfMass,
               ),

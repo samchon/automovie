@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -147,8 +147,8 @@ export function ballCourt(
             radius,
           );
           return {
-            point: Vector3.add(shoulders, turn(yaw, offset)),
-            facing: Vector3.normalize(turn(yaw, facing)),
+            point: AutoMovieEngineVector3.add(shoulders, turn(yaw, offset)),
+            facing: AutoMovieEngineVector3.normalize(turn(yaw, facing)),
             forward: dribble
               ? turn(yaw, { x: 0, y: 0, z: 1 })
               : { x: 0, y: 1, z: 0 },
@@ -202,9 +202,9 @@ export function ballCourt(
   const push: number =
     restitution !== undefined && restitution > 0 && restitution < 1
       ? Math.sqrt(
-          2 * AutoMovieGravity.STANDARD * drop * (1 / restitution ** 2 - 1),
+          2 * AutoMovieEngineGravity.STANDARD * drop * (1 / restitution ** 2 - 1),
         )
-      : 1.3 * Math.sqrt(AutoMovieGravity.STANDARD * arm);
+      : 1.3 * Math.sqrt(AutoMovieEngineGravity.STANDARD * arm);
   const velocity: IAutoMovieVector3 = dribble
     ? { x: 0, y: -push, z: 0 }
     : { x: 0, y: 0, z: 0 };

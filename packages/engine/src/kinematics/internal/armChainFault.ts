@@ -7,15 +7,15 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { HUMANOID_JOINT_AXES } from "../HUMANOID_JOINT_AXES";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineHumanoidJointAxes } from "../AutoMovieEngineHumanoidJointAxes";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
 /*
  * Why the analytic arm IK cannot articulate one arm chain of `skeleton`, or
  * `null` when it can.
  *
- * `HUMANOID_JOINT_AXES` puts the arm's flexion on local +Y because the
+ * `AutoMovieEngineHumanoidJointAxes` puts the arm's flexion on local +Y because the
  * canonical humanoid rests in the VRM T-pose with its arms along local ±X. On a
  * rig whose forearm rests along that flexion axis, such as arms hanging along
  * −Y, elbow flexion only rolls the forearm about its own length: the hand never
@@ -35,7 +35,7 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * chain it cannot measure.
  * Parameter skeleton: Rig whose arm chain is read; only rest offsets are used.
  * Parameter side: Which arm to test.
- * Parameter jointAxes: Per-bone clinical axes; defaults to `HUMANOID_JOINT_AXES`,
+ * Parameter jointAxes: Per-bone clinical axes; defaults to `AutoMovieEngineHumanoidJointAxes`,
  * the table every arm computation applies, under any axes the lower arm
  * declares itself.
  */
@@ -48,7 +48,7 @@ export const armChainFault: (
   side: "left" | "right",
   jointAxes: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  > = HUMANOID_JOINT_AXES,
+  > = AutoMovieEngineHumanoidJointAxes,
 ): IAutoMovieArmChainFault | null => {
   const lowerName: AutoMovieHumanoidBone =
     side === "left" ? "leftLowerArm" : "rightLowerArm";
@@ -64,7 +64,7 @@ export const armChainFault: (
   // (`worldRot = parentWorld · rest · articulation`), so it rotates the hand's
   // rest offset directly: both vectors are read in that one bone-local frame.
   const fore: IAutoMovieVector3 = hand.rest.translation;
-  const foreLength: number = Vector3.length(fore);
+  const foreLength: number = AutoMovieEngineVector3.length(fore);
   if (foreLength < 1e-6) return null;
 
   const flexion: IAutoMovieVector3 | undefined = skeletonJointAxes(
@@ -72,11 +72,11 @@ export const armChainFault: (
     jointAxes,
   )[lowerName]?.flexion;
   if (flexion === undefined) return null;
-  const hingeLength: number = Vector3.length(flexion);
+  const hingeLength: number = AutoMovieEngineVector3.length(flexion);
   if (hingeLength < 1e-6) return null;
 
-  const sine: number = Vector3.length(
-    Vector3.cross(Vector3.normalize(flexion), Vector3.normalize(fore)),
+  const sine: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.cross(AutoMovieEngineVector3.normalize(flexion), AutoMovieEngineVector3.normalize(fore)),
   );
   if (sine >= PARALLEL_SINE) return null;
 

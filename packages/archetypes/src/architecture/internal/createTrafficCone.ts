@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeTrafficCone } from "../AutoMovieArchetypeTrafficCone";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
@@ -34,7 +34,7 @@ export function createTrafficCone(
       params,
       seed,
     );
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const height: number = d.height!;
   const plate: number = PLATE_RATIO * height;
   const base: number = CONE.base * height;

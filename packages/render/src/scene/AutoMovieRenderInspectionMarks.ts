@@ -1,6 +1,6 @@
 import type * as THREE from "three";
-import { type IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
-import { type IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.js";
+import { type IAutoMovieRenderInspectionOverlay } from "./IAutoMovieRenderInspectionOverlay.js";
+import { type IAutoMovieRenderInspectionMarkSet } from "./IAutoMovieRenderInspectionMarkSet.js";
 import { buildAutoMovieInspectionMarks as buildAutoMovieInspectionMarksImplementation } from "./inspection/internal/buildAutoMovieInspectionMarks.js";
 import { chooseAutoMovieInspectionMarks as chooseAutoMovieInspectionMarksImplementation } from "./inspection/internal/chooseAutoMovieInspectionMarks.js";
 import { type IAutoMovieInspectionSweepUnit, type IAutoMovieInspectionSweepProps, type IAutoMovieInspectionLegendEntry, type IAutoMovieMark, type IAutoMovieInspectionKindStyle, type IAutoMovieInspectionDiagnostics } from "@automovie/interface";
@@ -72,7 +72,7 @@ export namespace AutoMovieRenderInspectionMarks {
    * up, arrows whose origins and vectors differ in number, and a mark without
    * coordinates.
    */
-  export function build(sets: readonly IAutoMovieInspectionMarkSet[], options: { stroke: number; xray: boolean }): IAutoMovieInspectionOverlay {
+  export function build(sets: readonly IAutoMovieRenderInspectionMarkSet[], options: { stroke: number; xray: boolean }): IAutoMovieRenderInspectionOverlay {
     return buildAutoMovieInspectionMarksImplementation(sets, options);
   }
 

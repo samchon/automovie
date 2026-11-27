@@ -1,5 +1,5 @@
 import {
-  AutoMovieXpbdBody,
+  AutoMovieEngineXpbdBody,
   AutoMovieEnginePhysicalLegCapacity,
   AutoMovieEnginePhysicalStanceAllocation,
 } from "@automovie/engine";
@@ -34,7 +34,7 @@ export function test_engine_physics_physical_leg_capacity(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const rigid = (
     position: IAutoMovieVector3,
-  ): Pick<AutoMovieXpbdBody, "translation" | "rotation"> => ({
+  ): Pick<AutoMovieEngineXpbdBody, "translation" | "rotation"> => ({
     translation: (): IAutoMovieVector3 => position,
     rotation: (): IAutoMovieQuaternion => identity,
   });
@@ -42,7 +42,7 @@ export function test_engine_physics_physical_leg_capacity(): void {
   // 1. The bent leg's capacity.
   const segments: ReadonlyMap<
     string,
-    Pick<AutoMovieXpbdBody, "translation" | "rotation">
+    Pick<AutoMovieEngineXpbdBody, "translation" | "rotation">
   > = new Map([
     ["pelvis", rigid({ x: 0, y: 1, z: 0 })],
     ["thigh", rigid({ x: 0, y: 0.55, z: 0.3 })],

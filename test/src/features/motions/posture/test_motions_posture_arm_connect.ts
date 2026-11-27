@@ -1,4 +1,6 @@
-import { HumanArmConnect } from "@automovie/motions/internal";
+import {
+  HumanArmConnect
+} from "../../../../../packages/motions/src/posture/internal/HumanArmConnect";
 import { TestValidator } from "@nestia/e2e";
 
 /**

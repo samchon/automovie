@@ -3,9 +3,9 @@ import { materialTextureBindings as materialTextureBindingsImplementation } from
 
 import type * as THREE from "three";
 import { type IAutoMovieShot, type AutoMovieTextureBinding, type IAutoMovieMaterial, type IAutoMovieRenderTextureResidency } from "@automovie/interface";
-import { type IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
-import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
-import type { IMaterialShaderPatch } from "./IMaterialShaderPatch.js";
+import { type IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderTextureResolver } from "./IAutoMovieRenderTextureResolver.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "./IAutoMovieRenderMaterialShaderPatch.js";
 import { buildMaterial as buildMaterialImplementation } from "./internal/buildMaterial.js";
 import { addMaterialShaderPatch as addMaterialShaderPatchImplementation } from "./internal/addMaterialShaderPatch.js";
 import { applyMaterialShaderPatches as applyMaterialShaderPatchesImplementation } from "./internal/applyMaterialShaderPatches.js";
@@ -45,20 +45,20 @@ export namespace AutoMovieRenderMaterial {
   /** Build one owned Three physical material for a canonical material record. */
   export const build: (
     material: IAutoMovieMaterial,
-    resolveTexture?: IAutoMovieTextureResolver,
+    resolveTexture?: IAutoMovieRenderTextureResolver,
   ) => THREE.MeshPhysicalMaterial = (
     material: IAutoMovieMaterial,
-    resolveTexture?: IAutoMovieTextureResolver,
+    resolveTexture?: IAutoMovieRenderTextureResolver,
   ): THREE.MeshPhysicalMaterial =>
     buildMaterialImplementation(material, resolveTexture);
 
   /** Register a material shader patch in stable key order. */
   export const addShaderPatch: (
     material: THREE.Material,
-    patch: IMaterialShaderPatch,
+    patch: IAutoMovieRenderMaterialShaderPatch,
   ) => void = (
     material: THREE.Material,
-    patch: IMaterialShaderPatch,
+    patch: IAutoMovieRenderMaterialShaderPatch,
   ): void => addMaterialShaderPatchImplementation(material, patch);
 
   /** Apply shader patch operations in registration order. */
@@ -90,7 +90,7 @@ export namespace AutoMovieRenderMaterial {
    * @throws {Error} A target has no distinct single-material mesh, or its
    *   selected variant is unavailable.
    */
-  export function applyPracticalSurfaceMaterials(shot: IAutoMovieShot, seconds: number, resolveNode: (node: string) => IAutoMovieModelObject | undefined, resolveMaterial: (
+  export function applyPracticalSurfaceMaterials(shot: IAutoMovieShot, seconds: number, resolveNode: (node: string) => IAutoMovieRenderModelObject | undefined, resolveMaterial: (
     node: string,
     part: string,
     material: string,
@@ -147,7 +147,7 @@ export namespace AutoMovieRenderMaterial {
    */
   export function readShaderPatches(
     material: THREE.Material,
-  ): readonly IMaterialShaderPatch[] {
+  ): readonly IAutoMovieRenderMaterialShaderPatch[] {
     return readShaderPatchesImplementation(material);
   }
 }

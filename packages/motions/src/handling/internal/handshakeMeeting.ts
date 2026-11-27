@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -75,7 +75,7 @@ export namespace handshakeMeeting {
           ): handshakeOffer.IMeeting =>
             handshakeOffer.point(a, b, props.side, props.pump),
         );
-        return { meet: met.point, along: Vector3.add(met.point, met.fingers) };
+        return { meet: met.point, along: AutoMovieEngineVector3.add(met.point, met.fingers) };
       },
       timing: (
         role: IAutoMovieMotionMeetingRole,
@@ -132,7 +132,7 @@ export namespace handshakeMeeting {
       shared.frame,
       shared.contacts.meet!,
     );
-    const along: IAutoMovieVector3 = Vector3.subtract(
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       HumanFrame.point(shared.frame, shared.contacts.along!),
       point,
     );
@@ -169,7 +169,7 @@ export namespace handshakeMeeting {
         fingers:
           shared.roles[0]?.subject === context.subject
             ? along
-            : Vector3.scale(along, -1),
+            : AutoMovieEngineVector3.scale(along, -1),
       },
       lean: HumanSeatedReach.need(
         {

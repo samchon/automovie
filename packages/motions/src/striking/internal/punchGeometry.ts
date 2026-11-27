@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
   AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
@@ -321,8 +321,8 @@ export namespace punchGeometry {
     ]!;
     const guardEnd = (): IAutoMovieHumanLimbGoal => ended;
     const rotationAt = (t: number): IAutoMovieQuaternion =>
-      Quaternion.slerp(
-        Quaternion.slerp(startRotation, rotation, out(t)),
+      AutoMovieEngineQuaternion.slerp(
+        AutoMovieEngineQuaternion.slerp(startRotation, rotation, out(t)),
         startRotation,
         back(t),
       );
@@ -332,7 +332,7 @@ export namespace punchGeometry {
     const landed: IAutoMovieVector3 =
       p.feint === undefined
         ? solved.end
-        : Vector3.lerp(
+        : AutoMovieEngineVector3.lerp(
             origin,
             solved.end,
             StrikingRoom.feint(context, p.at, {
@@ -340,7 +340,7 @@ export namespace punchGeometry {
               aimed: contact.first,
               origin,
               end: solved.end,
-              reach: Vector3.length(socket),
+              reach: AutoMovieEngineVector3.length(socket),
               line,
               launch: t0,
             }),
@@ -357,7 +357,7 @@ export namespace punchGeometry {
       direction:
         p.feint === undefined
           ? contact.direction
-          : Vector3.subtract(reached, origin),
+          : AutoMovieEngineVector3.subtract(reached, origin),
       launch: t0 + lag,
       contact: t0 + shown,
       speed: p.feint === undefined ? StrikingSkill.IMPACT_SPEED_SHARE.punch : 1,
@@ -419,8 +419,8 @@ export namespace punchGeometry {
     // The wrist's share of its way from the guard to where the arm lands on
     // the launch plan, on its free path at a clock: the delivery's own reach
     // of the hand, through the contact and held there after.
-    const way: IAutoMovieVector3 = Vector3.subtract(landed, origin);
-    const span: number = Vector3.dot(way, way);
+    const way: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(landed, origin);
+    const span: number = AutoMovieEngineVector3.dot(way, way);
     const travelled = (clock: number): number =>
       clock >= shown || !(span > 0)
         ? 1
@@ -428,8 +428,8 @@ export namespace punchGeometry {
             0,
             Math.min(
               1,
-              Vector3.dot(
-                Vector3.subtract(stroke.free(t0 + clock), origin),
+              AutoMovieEngineVector3.dot(
+                AutoMovieEngineVector3.subtract(stroke.free(t0 + clock), origin),
                 way,
               ) / span,
             ),
@@ -470,10 +470,10 @@ export namespace punchGeometry {
         ...guard,
         [off]: {
           ...to,
-          point: Vector3.lerp(entryOff.point, to.point, w),
-          bend: Vector3.lerp(entryOff.bend, to.bend, w),
+          point: AutoMovieEngineVector3.lerp(entryOff.point, to.point, w),
+          bend: AutoMovieEngineVector3.lerp(entryOff.bend, to.bend, w),
           ...(entryOff.rotation !== undefined && to.rotation !== undefined
-            ? { rotation: Quaternion.slerp(entryOff.rotation, to.rotation, w) }
+            ? { rotation: AutoMovieEngineQuaternion.slerp(entryOff.rotation, to.rotation, w) }
             : {}),
         },
       };
@@ -532,7 +532,7 @@ export namespace punchGeometry {
         planned: tracker.planned,
         // Where the arm lands once every correction has arrived.
         get reached(): IAutoMovieVector3 {
-          return Vector3.add(landing.solved.end, socket);
+          return AutoMovieEngineVector3.add(landing.solved.end, socket);
         },
         get status(): IAutoMovieMotionHumanStrikingReach.ISolution["status"] {
           return landing.solved.status;
@@ -565,9 +565,9 @@ export namespace punchGeometry {
         );
         return compose(
           t,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             stroke.free(t0 + clock),
-            Vector3.scale(Vector3.subtract(guardEnd().point, origin), w),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(guardEnd().point, origin), w),
           ),
           clock,
           undefined,

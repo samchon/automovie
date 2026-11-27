@@ -3,9 +3,11 @@ import type {
   IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
 import {
-  climbStairsPrints,
-  stepVaultSupport,
-} from "@automovie/motions/internal";
+  climbStairsPrints
+} from "../../../../../packages/motions/src/terrain/stairs/climbStairsPrints";
+import {
+  stepVaultSupport
+} from "../../../../../packages/motions/src/terrain/internal/stepVaultSupport";
 import { TestValidator } from "@nestia/e2e";
 
 /**

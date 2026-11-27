@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -94,13 +94,13 @@ export namespace AutoMovieArchetypeEquineHobble {
         cannon.geometry.shape.type === "cylinder")
         ? cannon.geometry.shape.height
         : NaN;
-    const down: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    const down: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 1,
       z: 0,
     });
     return {
-      translation: Vector3.addScaled(
+      translation: AutoMovieEngineVector3.addScaled(
         frame.translation,
         down,
         length / 2 - ABOVE,

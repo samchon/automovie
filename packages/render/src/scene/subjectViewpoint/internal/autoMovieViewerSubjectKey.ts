@@ -1,4 +1,4 @@
-import type { IAutoMovieViewerSubject } from "../../IAutoMovieViewerSubject.js";
+import type { IAutoMovieRenderViewerSubject } from "../../IAutoMovieRenderViewerSubject.js";
 
 /*
  * Format a caller-supplied subject as kind:id or kind:id@revision without
@@ -6,7 +6,7 @@ import type { IAutoMovieViewerSubject } from "../../IAutoMovieViewerSubject.js";
  * when present, and an id without @ when revision is null.
  */
 export function autoMovieViewerSubjectKey(
-  subject: IAutoMovieViewerSubject,
+  subject: IAutoMovieRenderViewerSubject,
 ): string {
   return subject.revision === null
     ? `${subject.kind}:${subject.id}`

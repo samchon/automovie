@@ -1,7 +1,7 @@
 import {
-  AutoMovieViewCurves,
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
+  AutoMovieEngineViewCurves,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -23,7 +23,7 @@ import { AutoMovieHumanHeadMassSource } from "./AutoMovieHumanHeadMassSource";
 /**
  * The head mass and its neck (cranium, face and neck without the nose, lips and
  * ears) as a part drawn from its three views, the input of the view-to-section
- * operator (`AutoMovieViewLoft`).
+ * operator (`AutoMovieEngineViewLoft`).
  *
  * - Side view: the actual upper front source and lower conic-template band share
  *   their endpoint value and parameter jets through one root-clock bridge. A
@@ -289,7 +289,7 @@ export namespace AutoMovieHumanHeadMassPart {
     for (let k: number = 0; k < 50; k++) {
       const mid: number = (lo + hi) / 2;
       const phi: number = sign * mid;
-      if (AutoMovieViewSection.radius(section, phi)[0] * Math.cos(phi) > target)
+      if (AutoMovieEngineViewSection.radius(section, phi)[0] * Math.cos(phi) > target)
         lo = mid;
       else hi = mid;
     }
@@ -298,7 +298,7 @@ export namespace AutoMovieHumanHeadMassPart {
       x,
       y,
       frame.origin[2] +
-        AutoMovieViewSection.radius(section, phi)[0] * Math.sin(phi),
+        AutoMovieEngineViewSection.radius(section, phi)[0] * Math.sin(phi),
     ];
   }
 
@@ -365,7 +365,7 @@ export namespace AutoMovieHumanHeadMassPart {
         `Head attachment lateral place ${z} is outside its source section at ${y}`,
       );
     function lateral(phi: number): number {
-      return AutoMovieViewSection.radius(section, phi)[0] * Math.sin(phi);
+      return AutoMovieEngineViewSection.radius(section, phi)[0] * Math.sin(phi);
     }
     let lo: number = 0;
     let hi: number = Math.PI / 2;
@@ -376,7 +376,7 @@ export namespace AutoMovieHumanHeadMassPart {
     }
     const phi: number = target === side ? Math.PI / 2 : (lo + hi) / 2;
     const [r, first, second]: [number, number, number] =
-      AutoMovieViewSection.radius(section, phi);
+      AutoMovieEngineViewSection.radius(section, phi);
     const turn: number = r * r + 2 * first * first - r * second;
     if (!(turn > 0))
       throw new Error(
@@ -400,7 +400,7 @@ export namespace AutoMovieHumanHeadMassPart {
     extents: [number, number, number, number];
   } {
     const source: IAutoMovieViewCurves.IResult =
-      AutoMovieViewCurves.create(part);
+      AutoMovieEngineViewCurves.create(part);
     function scalar(index: number): number {
       const outline: IAutoMovieViewOutline.IOutline | null =
         source.curves[index]!.outline;
@@ -408,7 +408,7 @@ export namespace AutoMovieHumanHeadMassPart {
         throw new Error(
           `Head attachment: ${source.diagnostics.map((d: IAutoMovieViewCurves.IResult["diagnostics"][number]): string => d.detail).join("; ")}`,
         );
-      const value: number | string = AutoMovieViewOutline.value(outline, y);
+      const value: number | string = AutoMovieEngineViewOutline.value(outline, y);
       if (typeof value === "string")
         throw new Error(`Head attachment: ${value}`);
       return value;
@@ -430,10 +430,10 @@ export namespace AutoMovieHumanHeadMassPart {
     function read(outline: IAutoMovieViewPart.IOutline): number {
       const prepared:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(outline);
       if ("detail" in prepared)
         throw new Error(`Head attachment fullness: ${prepared.detail}`);
-      const value: number | string = AutoMovieViewOutline.value(prepared, y);
+      const value: number | string = AutoMovieEngineViewOutline.value(prepared, y);
       if (typeof value === "string")
         throw new Error(`Head attachment fullness: ${value}`);
       return value;
@@ -445,7 +445,7 @@ export namespace AutoMovieHumanHeadMassPart {
         ? read(part.fullness.departures[q]!)
         : 0;
     }
-    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    const section: IAutoMovieViewSection.ISection = AutoMovieEngineViewSection.bare(
       { extents },
       [
         common + departure(0),
@@ -454,7 +454,7 @@ export namespace AutoMovieHumanHeadMassPart {
         common + departure(3),
       ],
     );
-    const fault: string | null = AutoMovieViewSection.fault(section);
+    const fault: string | null = AutoMovieEngineViewSection.fault(section);
     if (fault !== null)
       throw new Error(`Head attachment section at ${y}: ${fault}`);
     return { section, extents, frame: part.axis.at(y) };

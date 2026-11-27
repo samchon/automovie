@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -190,15 +190,15 @@ export namespace AutoMovieMotionHumanDrinkingArm {
         axis === undefined
           ? angle(bones.get(`${side}Hand`)!.worldRotation, goal)
           : degrees(
-              Vector3.dot(
-                Vector3.normalize(
-                  Quaternion.rotateVector(
+              AutoMovieEngineVector3.dot(
+                AutoMovieEngineVector3.normalize(
+                  AutoMovieEngineQuaternion.rotateVector(
                     bones.get(`${side}Hand`)!.worldRotation,
                     axis,
                   ),
                 ),
-                Vector3.normalize(
-                  Quaternion.rotateVector(goal.rotation!, axis),
+                AutoMovieEngineVector3.normalize(
+                  AutoMovieEngineQuaternion.rotateVector(goal.rotation!, axis),
                 ),
               ),
             ),
@@ -328,7 +328,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       touch.held === undefined
         ? AutoMovieMotionHumanTouchEffector.local(body, side, touch.effector)
             .forward
-        : Quaternion.rotateVector(Quaternion.inverse(touch.held), {
+        : AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(touch.held), {
             x: 0,
             y: 1,
             z: 0,
@@ -349,20 +349,20 @@ export namespace AutoMovieMotionHumanDrinkingArm {
         b: IAutoMovieVector3,
         share: number,
       ): IAutoMovieVector3 =>
-        Quaternion.rotateVector(
-          Quaternion.slerp(Quaternion.identity(), AutoMovieEngineMath.rotationBetween(a, b), share),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.slerp(AutoMovieEngineQuaternion.identity(), AutoMovieEngineMath.rotationBetween(a, b), share),
           a,
         );
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-      const from: IAutoMovieVector3 = Quaternion.rotateVector(start, axis);
+      const from: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(start, axis);
       const wanted: IAutoMovieVector3 = toward(
         from,
-        toward(up, Quaternion.rotateVector(end, axis), tipped(weight)),
+        toward(up, AutoMovieEngineQuaternion.rotateVector(end, axis), tipped(weight)),
         weight,
       );
-      return Quaternion.normalize(
-        Quaternion.multiply(
-          AutoMovieEngineMath.rotationBetween(Quaternion.rotateVector(hand, axis), wanted),
+      return AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineMath.rotationBetween(AutoMovieEngineQuaternion.rotateVector(hand, axis), wanted),
           hand,
         ),
       );
@@ -478,13 +478,13 @@ function angle(
   reached: IAutoMovieQuaternion,
   goal: IAutoMovieHumanLimbGoal,
 ): number {
-  const asked: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(Quaternion.normalize(goal.rotation!)),
+  const asked: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(AutoMovieEngineQuaternion.normalize(goal.rotation!)),
     { x: 0, y: 1, z: 0 },
   );
   return degrees(
-    Vector3.normalize(
-      Quaternion.rotateVector(Quaternion.normalize(reached), asked),
+    AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.normalize(reached), asked),
     ).y,
   );
 }

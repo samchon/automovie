@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsGjkTypes, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 
 import type {
   AutoMovieHumanoidBone,
@@ -239,7 +239,7 @@ export namespace HumanFitExterior {
       index: step.index,
       coef: step.motions.map(
         (motion: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
-          -Vector3.dot(HumanJacobian.velocity(motion, pair.bone, pointA), normal) *
+          -AutoMovieEngineVector3.dot(HumanJacobian.velocity(motion, pair.bone, pointA), normal) *
           step.units[i]! *
           mm,
       ),

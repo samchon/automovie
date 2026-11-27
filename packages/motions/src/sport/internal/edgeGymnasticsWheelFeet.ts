@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -18,7 +18,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * A wheel's bearing windows (`GymnasticsWheel`) with each foot's edge declared
  * where the foot rolls past the ankle's range: the wheel's carried foot turns
  * with its leg, so at an end of its window it stands rolled; where that roll
- * passes the ankle's (`DEFAULT_HUMANOID_ROM`'s foot abduction), the laid foot
+ * passes the ankle's (`AutoMovieEngineDefaultHumanoidRom`'s foot abduction), the laid foot
  * bears on the edge the roll lowers (`HumanFoot.edge`) and turns about it
  * (`AutoMovieMotionHumanFootRelax`), so the window declares that edge as the
  * point held and the plant audits read the point the foot bears on. Read once
@@ -35,7 +35,7 @@ export function edgeGymnasticsWheelFeet(
   duration: number,
   carried: (seconds: number) => IAutoMovieMotionHumanPosture,
 ): IAutoMovieMotionHumanContactWindow[] {
-  const range: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.max;
+  const range: number = AutoMovieEngineDefaultHumanoidRom.leftFoot!.abduction!.max;
   return contacts.map(
     (
       c: IAutoMovieMotionHumanContactWindow,

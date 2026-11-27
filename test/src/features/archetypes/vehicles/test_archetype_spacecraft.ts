@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeSpacecraft } from "@automovie/archetypes";
-import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -262,11 +262,11 @@ export function test_archetype_spacecraft(): void {
       rail.length!,
       archetypeExtent(set, "z", [id]).size,
     );
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       rail.frame.rotation,
       { x: 0, y: 1, z: 0 },
     );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       rail.frame.rotation,
       { x: 1, y: 0, z: 0 },
     );

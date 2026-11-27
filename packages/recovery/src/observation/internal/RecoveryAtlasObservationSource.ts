@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryEventRegion } from "./RecoveryEventRegion";
-import { RecoveryScalarIndex as I } from "../../geometry/RecoveryScalarIndex";
+import { AutoMovieRecoveryScalarIndex as I } from "../../geometry/AutoMovieRecoveryScalarIndex";
 import { AutoMovieRecoveryProfileFitting } from "../../fitting/AutoMovieRecoveryProfileFitting";
 
 /*

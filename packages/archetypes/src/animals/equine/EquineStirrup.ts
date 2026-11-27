@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -47,7 +47,7 @@ export function EquineStirrup(
   const half: number = width / 2 + radius;
   const branchRadius: number = radius / 2;
   const point = (x: number, y: number, z: number = 0): IAutoMovieVector3 =>
-    Vector3.create(tread.x + x, tread.y + y, tread.z + z);
+    AutoMovieEngineVector3.create(tread.x + x, tread.y + y, tread.z + z);
   const metal: AutoMovieArchetypeBuilder.IOptions = {
     color: "#b9bcc0",
     share: 0,
@@ -59,13 +59,13 @@ export function EquineStirrup(
 
   builder.box(
     prefix,
-    Vector3.create(width, TREAD.thickness, TREAD.depth),
+    AutoMovieEngineVector3.create(width, TREAD.thickness, TREAD.depth),
     point(0, -TREAD.thickness / 2),
     metal,
   );
   builder.box(
     `${prefix}-base`,
-    Vector3.create(2 * half, TREAD.thickness / 2, TREAD.depth),
+    AutoMovieEngineVector3.create(2 * half, TREAD.thickness / 2, TREAD.depth),
     point(0, (-3 * TREAD.thickness) / 4),
     metal,
   );
@@ -140,7 +140,7 @@ export function EquineStirrup(
     radius: barrel.radius + LEATHER_RADIUS,
   });
   const placed = (section: ISection, offset: number): IAutoMovieVector3 =>
-    Vector3.create(sign * section.x, axis + section.y, tread.z + offset);
+    AutoMovieEngineVector3.create(sign * section.x, axis + section.y, tread.z + offset);
   builder.rod(
     `${prefix}-bar`,
     radius,

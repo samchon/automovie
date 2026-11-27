@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -72,7 +72,7 @@ export namespace crutchSitPath {
     return {
       grip: grip.frame.translation,
       tip: tip.frame.translation,
-      length: Vector3.distance(grip.frame.translation, tip.frame.translation),
+      length: AutoMovieEngineVector3.distance(grip.frame.translation, tip.frame.translation),
     };
   }
 
@@ -94,10 +94,10 @@ export namespace crutchSitPath {
   ): IAutoMovieRigidTransform {
     const rotation: IAutoMovieQuaternion = HumanHand.align(
       { normal: UP, forward: { x: 0, y: 0, z: 1 } },
-      { normal: Vector3.normalize(Vector3.subtract(toward, tip)), forward },
+      { normal: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(toward, tip)), forward },
     );
     return {
-      position: Vector3.subtract(tip, Quaternion.rotateVector(rotation, c.tip)),
+      position: AutoMovieEngineVector3.subtract(tip, AutoMovieEngineQuaternion.rotateVector(rotation, c.tip)),
       rotation,
     };
   }
@@ -126,9 +126,9 @@ export namespace crutchSitPath {
     minimum: number,
     disc: number,
   ): IAutoMovieRigidTransform {
-    const reach: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(wrist, shoulder);
     const level: IAutoMovieVector3 = { x: reach.x, y: 0, z: reach.z };
-    const horizontal: number = Vector3.length(level);
+    const horizontal: number = AutoMovieEngineVector3.length(level);
     const distance: number = Math.hypot(horizontal, reach.y);
     const missing: number = minimum + disc - distance;
     if (missing <= -disc) return frame;
@@ -141,9 +141,9 @@ export namespace crutchSitPath {
     const spread: number =
       Math.sqrt(Math.max(0, radius * radius - reach.y * reach.y)) - horizontal;
     const direction: IAutoMovieVector3 =
-      horizontal === 0 ? outward : Vector3.scale(level, 1 / horizontal);
+      horizontal === 0 ? outward : AutoMovieEngineVector3.scale(level, 1 / horizontal);
     return {
-      position: Vector3.addScaled(frame.position, direction, spread),
+      position: AutoMovieEngineVector3.addScaled(frame.position, direction, spread),
       rotation: frame.rotation,
     };
   }
@@ -164,11 +164,11 @@ export namespace crutchSitPath {
     const s: number = Math.min(1, Math.max(0, share));
     const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(s);
     return {
-      position: Vector3.add(
-        Vector3.lerp(from.position, to.position, blend),
-        Vector3.scale(UP, LIFT * AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(s, 1 - s))),
+      position: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.lerp(from.position, to.position, blend),
+        AutoMovieEngineVector3.scale(UP, LIFT * AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(s, 1 - s))),
       ),
-      rotation: Quaternion.slerp(from.rotation, to.rotation, blend),
+      rotation: AutoMovieEngineQuaternion.slerp(from.rotation, to.rotation, blend),
     };
   }
 
@@ -218,19 +218,19 @@ export namespace crutchSitPath {
     prop: string,
     affordances: readonly IAutoMovieAffordance[],
   ): IAutoMovieMotionHumanHeld.IHeld {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       HumanHand.facing(side, yaw, { fingers: "down", palm: "in" }),
     );
     return {
       prop,
       side,
       frame: {
-        position: Quaternion.rotateVector(
+        position: AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.scale(Quaternion.rotateVector(frame.rotation, c.grip), -1),
+          AutoMovieEngineVector3.scale(AutoMovieEngineQuaternion.rotateVector(frame.rotation, c.grip), -1),
         ),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(inverse, frame.rotation),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(inverse, frame.rotation),
         ),
       },
       affordances,
@@ -262,22 +262,22 @@ export namespace crutchSitPath {
       undefined,
       HumanHand.frameBones(body, side, "grip"),
     );
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       bones.get(`${side}Hand`)!.worldRotation,
     );
     return {
       prop,
       side,
       frame: {
-        position: Quaternion.rotateVector(
+        position: AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             frame.position,
             HumanHand.frame(body, bones, side, "grip").point,
           ),
         ),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(inverse, frame.rotation),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(inverse, frame.rotation),
         ),
       },
       affordances,

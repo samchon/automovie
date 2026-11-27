@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -15,7 +15,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanBound } from "../../law/internal/HumanBound";
 import { crossAnkleEntry } from "./crossAnkleEntry";
 import { fitSeatedAnkleCross } from "./fitSeatedAnkleCross";
-import * as CrossAnkleOverKneeData from "./CrossAnkleOverKneeData";
+import { CrossAnkleOverKneeData } from "./CrossAnkleOverKneeData";
 
 /*
  * Cross one ankle over the other knee while seated, hold, and put the foot
@@ -115,8 +115,8 @@ function planCrossAnkleOverKnee(
       fix: "specify a finite hold that leaves time to return the foot",
     });
   const posture: IAutoMovieMotionHumanPosture = entry.posture;
-  const outward: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
+  const outward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
     { x: side === "left" ? 1 : -1, y: 0, z: 0 },
   );
   const path = fitSeatedAnkleCross(body, entry, side, outward, CrossAnkleOverKneeData.FIT_GAP);

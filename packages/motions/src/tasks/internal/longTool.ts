@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -93,8 +93,8 @@ export namespace longTool {
     );
     const face: IAutoMovieMotionHumanHeld.IPointResult =
       AutoMovieMotionHumanHeld.point(held, "face");
-    const length: number = Vector3.length(face.point);
-    const line: IAutoMovieVector3 = Vector3.scale(face.point, 1 / length);
+    const length: number = AutoMovieEngineVector3.length(face.point);
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.scale(face.point, 1 / length);
     const align: ReturnType<typeof HumanHand.prepareAlignment> =
       HumanHand.prepareAlignment({ normal: line, forward: face.direction });
 
@@ -135,19 +135,19 @@ export namespace longTool {
       0,
       Math.min(1, (hips.y - params.at.y) / body.measure.hipHeight),
     );
-    const bowed: IAutoMovieVector3 = Vector3.add(
+    const bowed: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hips,
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(
-          Vector3.normalize(
-            Vector3.cross({ x: 0, y: 1, z: 0 }, axes({ x: 0, y: 0, z: 1 })),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(
+          AutoMovieEngineVector3.normalize(
+            AutoMovieEngineVector3.cross({ x: 0, y: 1, z: 0 }, axes({ x: 0, y: 0, z: 1 })),
           ),
           BOW * down,
         ),
-        Vector3.subtract(shoulder(trail), hips),
+        AutoMovieEngineVector3.subtract(shoulder(trail), hips),
       ),
     );
-    const far: number = Vector3.distance(stroke.contact, bowed);
+    const far: number = AutoMovieEngineVector3.distance(stroke.contact, bowed);
     if (far > REACH_LIMIT * arm)
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
@@ -239,9 +239,9 @@ export namespace longTool {
         "grip",
       );
       shaped.limbs[`${trail}Arm`] = {
-        point: Vector3.subtract(
+        point: AutoMovieEngineVector3.subtract(
           pose.grip,
-          Quaternion.rotateVector(rotation, gripFrame.point),
+          AutoMovieEngineQuaternion.rotateVector(rotation, gripFrame.point),
         ),
         rotation,
         contact: gripFrame.point,
@@ -251,7 +251,7 @@ export namespace longTool {
       shaped.limbs[`${lead}Arm`] = closed(
         body,
         lead,
-        Vector3.add(pose.grip, Vector3.scale(pose.line, pose.slide)),
+        AutoMovieEngineVector3.add(pose.grip, AutoMovieEngineVector3.scale(pose.line, pose.slide)),
         pose.line,
         stroke.chest,
       );
@@ -291,9 +291,9 @@ export namespace longTool {
     line: IAutoMovieVector3,
     chest: IAutoMovieVector3,
   ): IAutoMovieHumanLimbGoal {
-    const toward: IAutoMovieVector3 = Vector3.subtract(point, chest);
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(toward, Vector3.scale(line, Vector3.dot(toward, line))),
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, chest);
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(toward, AutoMovieEngineVector3.scale(line, AutoMovieEngineVector3.dot(toward, line))),
     );
     const frame: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
       body,
@@ -304,17 +304,17 @@ export namespace longTool {
       normal,
       forward: line,
     });
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       point,
-      Quaternion.rotateVector(rotation, frame.point),
+      AutoMovieEngineQuaternion.rotateVector(rotation, frame.point),
     );
     return {
       point: wrist,
       rotation,
       contact: frame.point,
-      bend: Vector3.add(
+      bend: AutoMovieEngineVector3.add(
         wrist,
-        Vector3.add(Vector3.scale(normal, -0.2), { x: 0, y: -0.15, z: 0 }),
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(normal, -0.2), { x: 0, y: -0.15, z: 0 }),
       ),
     };
   }
@@ -328,10 +328,10 @@ export namespace longTool {
     shoulder: IAutoMovieVector3,
     leadward: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const mid: IAutoMovieVector3 = Vector3.lerp(grip, shoulder, 0.5);
-    return Vector3.add(
+    const mid: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(grip, shoulder, 0.5);
+    return AutoMovieEngineVector3.add(
       mid,
-      Vector3.add(Vector3.scale(leadward, -0.15), {
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(leadward, -0.15), {
         x: 0,
         y: -0.15,
         z: 0,

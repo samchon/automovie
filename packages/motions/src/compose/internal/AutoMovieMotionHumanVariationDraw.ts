@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanVariation,
@@ -139,15 +139,15 @@ export namespace AutoMovieMotionHumanVariationDraw {
    */
   export function basis(direction: IAutoMovieVector3): IAutoMovieVector3[] {
     const along: IAutoMovieVector3 =
-      Vector3.length(direction) > 1e-9
-        ? Vector3.normalize(direction)
+      AutoMovieEngineVector3.length(direction) > 1e-9
+        ? AutoMovieEngineVector3.normalize(direction)
         : { x: 0, y: 0, z: 1 };
     const reference: IAutoMovieVector3 =
       Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 };
-    const first: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(reference, along),
+    const first: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(reference, along),
     );
-    return [along, first, Vector3.cross(along, first)];
+    return [along, first, AutoMovieEngineVector3.cross(along, first)];
   }
 
   /*

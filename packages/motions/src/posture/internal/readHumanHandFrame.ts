@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -17,7 +17,7 @@ export function readHumanHandFrame(
   const local: IAutoMovieMotionHumanHand.IFrame = offset();
   const turn: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
     v: IAutoMovieVector3,
-  ): IAutoMovieVector3 => Quaternion.rotateVector(hand.worldRotation, v);
+  ): IAutoMovieVector3 => AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, v);
   if (!digital)
     return {
       point: worldPoint(hand.worldPosition, local.point, hand.worldRotation),
@@ -119,7 +119,7 @@ function worldPoint(
   point: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
-  return Vector3.add(position, Quaternion.rotateVector(rotation, point));
+  return AutoMovieEngineVector3.add(position, AutoMovieEngineQuaternion.rotateVector(rotation, point));
 }
 
 /*

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -110,8 +110,8 @@ export namespace HumanGraspUse {
     const shoulder: IAutoMovieVector3 = joint(`${side}UpperArm`);
     const elbow: IAutoMovieVector3 = joint(`${side}LowerArm`);
     const arm: number =
-      Vector3.length(Vector3.subtract(elbow, shoulder)) +
-      Vector3.length(Vector3.subtract(joint(`${side}Hand`), elbow));
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(elbow, shoulder)) +
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(joint(`${side}Hand`), elbow));
     const heading: number = (yaw * Math.PI) / 180;
     return {
       x: shoulder.x + 0.6 * arm * Math.sin(heading),
@@ -171,12 +171,12 @@ export namespace HumanGraspUse {
         ...(props.use.round === undefined ? {} : { round: props.use.round }),
         ...(props.clear === undefined ? {} : { clear: props.clear }),
       });
-    const inHand: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(props.wrist.rotation),
-      Vector3.subtract(
-        Vector3.add(
+    const inHand: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(props.wrist.rotation),
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           world.position,
-          Quaternion.rotateVector(world.rotation, tip.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(world.rotation, tip.frame.translation),
         ),
         props.wrist.point,
       ),
@@ -196,7 +196,7 @@ export namespace HumanGraspUse {
             { tip: props.use.tip },
           );
     const back: number =
-      tool === undefined || site !== undefined ? 0 : Vector3.length(tool.tip);
+      tool === undefined || site !== undefined ? 0 : AutoMovieEngineVector3.length(tool.tip);
 
     // The roll about the asked line, or the turn about the surface's normal,
     // is free in a use that names only that much: the shared chooser takes
@@ -208,19 +208,19 @@ export namespace HumanGraspUse {
     const keyed: (roll: number) => IAutoMovieMotionHumanHand.IWrist = (
       roll: number,
     ): IAutoMovieMotionHumanHand.IWrist => {
-      const rolled: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(rollAt(roll), laid),
+      const rolled: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(rollAt(roll), laid),
       );
       return {
-        point: Vector3.subtract(
+        point: AutoMovieEngineVector3.subtract(
           site ?? ahead,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             rolled,
             tool === undefined
               ? inHand
-              : Vector3.add(
+              : AutoMovieEngineVector3.add(
                   socket,
-                  Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back)),
+                  AutoMovieEngineVector3.subtract(tool.tip, AutoMovieEngineVector3.scale(tool.axis, back)),
                 ),
           ),
         ),
@@ -249,9 +249,9 @@ export namespace HumanGraspUse {
           posture: context.entry.posture,
           tool,
           frame: {
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               wrist.point,
-              Quaternion.rotateVector(wrist.rotation, socket),
+              AutoMovieEngineQuaternion.rotateVector(wrist.rotation, socket),
             ),
             rotation: wrist.rotation,
           },
@@ -266,11 +266,11 @@ export namespace HumanGraspUse {
           bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
         ): number => {
           const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
-          return Vector3.length(
-            Vector3.subtract(
-              Vector3.add(
+          return AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
+              AutoMovieEngineVector3.add(
                 hand.worldPosition,
-                Quaternion.rotateVector(hand.worldRotation, inHand),
+                AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, inHand),
               ),
               site!,
             ),
@@ -318,7 +318,7 @@ export namespace HumanGraspUse {
         undefined,
         previous === null
           ? undefined
-          : { ...previous, tolerance: hingedArmSwivel.RESOLUTION },
+          : { ...previous, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION },
       );
       previous = arm.seed;
       // Both judges read the hand bone alone (the grip socket and the held

@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -17,7 +17,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { bowlingSlideSchedule } from "./bowlingSlideSchedule";
-import * as BowlingSlideData from "./BowlingSlideData";
+import { BowlingSlideData } from "./BowlingSlideData";
 
 /*
  * Carry the body on the sliding foot opposite the delivery hand.
@@ -75,11 +75,11 @@ function plan(
     { yaw: entry.yaw, origin: { x: 0, y: 0, z: 0 } },
     { x: 0, y: 0, z: 1 },
   );
-  const shift: IAutoMovieVector3 = Vector3.scale(direction, distance);
+  const shift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(direction, distance);
   // The shank's tilt forward of the line from the hip down to an ankle as the
   // knee bends to fit the leg to it, degrees (law of cosines).
   const tilt = (top: IAutoMovieVector3, ankle: IAutoMovieVector3): number => {
-    const d: number = Vector3.length(Vector3.subtract(top, ankle));
+    const d: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(top, ankle));
     const thigh: number = body.measure.thigh;
     const shank: number = body.measure.shank;
     return (
@@ -104,7 +104,7 @@ function plan(
   const stopped: IAutoMovieVector3 = hipJoints(
     body,
     {
-      ...Vector3.add(entry.root, Vector3.scale(shift, 0.65)),
+      ...AutoMovieEngineVector3.add(entry.root, AutoMovieEngineVector3.scale(shift, 0.65)),
       y: entry.root.y - 0.11 * leg,
     },
     HumanFrame.turn(entry.yaw),
@@ -118,7 +118,7 @@ function plan(
   // delivery, degrees.
   const lean = (top: IAutoMovieVector3, ankle: IAutoMovieVector3): number =>
     (Math.atan2(
-      Vector3.dot(Vector3.subtract(top, ankle), direction),
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(top, ankle), direction),
       top.y - ankle.y,
     ) *
       180) /
@@ -144,15 +144,15 @@ function plan(
         Math.min(1, Math.max(0, (time - to) / (settle - to))),
       );
       const trailing: number = Math.min(1, (time - from) / (settle - from));
-      const root: IAutoMovieVector3 = Vector3.add(
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         entry.root,
-        Vector3.scale(shift, 0.65 * travel),
+        AutoMovieEngineVector3.scale(shift, 0.65 * travel),
       );
       root.y -= 0.11 * leg * travel * (1 - recovery);
       const posture: IAutoMovieMotionHumanPosture = { ...entry, root };
-      const slidingAnkle: IAutoMovieVector3 = Vector3.add(
+      const slidingAnkle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         feet[lead].ankle,
-        Vector3.scale(shift, travel),
+        AutoMovieEngineVector3.scale(shift, travel),
       );
       // The step lifts the foot off in the first third of the recovery,
       // travels in the middle third and only sets it down in the last.
@@ -167,9 +167,9 @@ function plan(
         ),
       );
       const swing: number = Math.sin(Math.PI * Math.min(1, trailing)) ** 2;
-      const stepped: IAutoMovieVector3 = Vector3.add(
+      const stepped: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         feet[trail].ankle,
-        Vector3.scale(shift, 0.35 * step),
+        AutoMovieEngineVector3.scale(shift, 0.35 * step),
       );
       // As the body glides and lowers the trailing leg sweeps out behind,
       // nearly straight (`REACH`), rather than folding over a foot left in
@@ -192,14 +192,14 @@ function plan(
         ),
       );
       const behind: IAutoMovieVector3 = {
-        ...Vector3.subtract(reached, Vector3.scale(direction, back)),
+        ...AutoMovieEngineVector3.subtract(reached, AutoMovieEngineVector3.scale(direction, back)),
         y: height,
       };
       const sweep: number = travel * (1 - step);
       const trailingAnkle: IAutoMovieVector3 = {
-        ...Vector3.add(
+        ...AutoMovieEngineVector3.add(
           stepped,
-          Vector3.scale(Vector3.subtract(behind, stepped), sweep),
+          AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(behind, stepped), sweep),
         ),
         y: height,
       };
@@ -238,12 +238,12 @@ function plan(
       // about it and stands flat on its step at the end.
       const flat: IAutoMovieMotionHumanFoot.IPlacement = turn(0);
       const flattened: IAutoMovieMotionHumanFoot.IPlacement = turn(1 - landing);
-      const toe: IAutoMovieVector3 = Vector3.subtract(
+      const toe: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         HumanFoot.point(body, trail, "toe", flat),
         HumanFoot.point(body, trail, "toe", flattened),
       );
       const pitched: IAutoMovieMotionHumanFoot.IPlacement = {
-        ankle: Vector3.add(trailingAnkle, { x: toe.x, y: 0, z: toe.z }),
+        ankle: AutoMovieEngineVector3.add(trailingAnkle, { x: toe.x, y: 0, z: toe.z }),
         rotation: flattened.rotation,
       }; // In the slide the toe drags on the approach (its declared bearing
       // contact) and is only kept out of the floor; in the recovery step it

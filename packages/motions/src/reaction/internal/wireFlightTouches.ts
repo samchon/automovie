@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -89,7 +89,7 @@ export namespace wireFlightTouches {
           context.start + at,
         );
         // The hip or the shoulder, from the root along the body's axis.
-        const base: IAutoMovieVector3 = Vector3.add(root(at), {
+        const base: IAutoMovieVector3 = AutoMovieEngineVector3.add(root(at), {
           x: 0,
           y: leg
             ? context.body.measure.hipHeight
@@ -99,7 +99,7 @@ export namespace wireFlightTouches {
         const reach: number = leg
           ? context.body.measure.hipHeight
           : context.body.measure.upperArm + context.body.measure.forearm;
-        const gap: number = Vector3.distance(base, aim.point);
+        const gap: number = AutoMovieEngineVector3.distance(base, aim.point);
         if (gap > reach)
           throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
@@ -119,9 +119,9 @@ export namespace wireFlightTouches {
           leg,
           side,
           limb,
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             aim.point,
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               aim.normal,
               leg ? ANKLE * context.body.measure.stature : PALM,
             ),
@@ -156,11 +156,11 @@ export namespace wireFlightTouches {
       const posture: IAutoMovieMotionHumanPosture = held.posture(
         Math.min(seconds, Math.max(0, at)),
       );
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
         humanPostureHeading(posture),
       );
       const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Quaternion.rotateVector(inverse, Vector3.subtract(point, posture.root));
+        AutoMovieEngineQuaternion.rotateVector(inverse, AutoMovieEngineVector3.subtract(point, posture.root));
       const own: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
       if (own !== undefined)
         return {
@@ -197,11 +197,11 @@ export namespace wireFlightTouches {
         from: IAutoMovieVector3,
         to: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           posture.root,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             turn,
-            Vector3.add(from, Vector3.scale(Vector3.subtract(to, from), u)),
+            AutoMovieEngineVector3.add(from, AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(to, from), u)),
           ),
         );
       return { point: world(a.point, b.point), bend: world(a.bend, b.bend) };
@@ -267,7 +267,7 @@ export namespace wireFlightTouches {
                 ...posture.limbs,
                 [p.limb]: {
                   point: p.point,
-                  bend: Vector3.add(p.point, {
+                  bend: AutoMovieEngineVector3.add(p.point, {
                     x: 0,
                     y: p.leg ? 0.3 : -0.2,
                     z: 0,

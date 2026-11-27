@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -31,9 +31,9 @@ export function createTrackedRails(
       const indices: number[] = [];
       for (const frame of frames)
         for (const [x, y] of PROFILE) {
-          const point: IAutoMovieVector3 = Vector3.add(
+          const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             frame.translation,
-            Quaternion.rotateVector(frame.rotation, { x: x + offset, y, z: 0 }),
+            AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: x + offset, y, z: 0 }),
           );
           positions.push(point.x, point.y, point.z);
         }

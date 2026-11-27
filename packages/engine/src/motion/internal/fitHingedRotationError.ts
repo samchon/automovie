@@ -12,7 +12,7 @@ import type {
 
 import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { basisOf } from "./basisOf";
 import type { prepareChainFit } from "./prepareChainFit";
@@ -68,7 +68,7 @@ export function fitHingedRotationError(
   const effectorBasis: IAutoMovieJointAxes =
     rig?.basis(effector, "decomposeJointRotation axes") ??
     basisOf(effectorBone?.axes ?? props.jointAxes?.[effector]);
-  const wanted: IAutoMovieQuaternion = Quaternion.normalize(rotation);
+  const wanted: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(rotation);
   const lowerFrame: IAutoMovieRestFrame | undefined =
     props.restFrames?.[props.chain.lower];
   const effectorFrame: IAutoMovieRestFrame | undefined =
@@ -103,7 +103,7 @@ export function fitHingedRotationError(
       clamp: clampEffector,
     });
   const restInverse: IAutoMovieQuaternion =
-    rig?.effectorRestInverse() ?? Quaternion.inverse(rest);
+    rig?.effectorRestInverse() ?? AutoMovieEngineQuaternion.inverse(rest);
   const clamps: NonNullable<
     AutoMovieEngineMotionDistalTwist.IProps["clamps"]
   > = {
@@ -176,7 +176,7 @@ export function fitHingedRotationError(
     (): IAutoMovieQuaternion => {
       if (rig !== undefined) return rig.heldRotation();
       if (heldRotation === undefined)
-        heldRotation = Quaternion.multiply(
+        heldRotation = AutoMovieEngineQuaternion.multiply(
           rest,
           jointToQuaternionOnBasis.run(held, effectorBasis, effectorFrame),
         );
@@ -190,7 +190,7 @@ export function fitHingedRotationError(
     raw: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion => {
     if (rig !== undefined) return rig.heldRotationInverse();
-    if (heldInverse === undefined) heldInverse = Quaternion.inverse(raw);
+    if (heldInverse === undefined) heldInverse = AutoMovieEngineQuaternion.inverse(raw);
     return heldInverse;
   };
   return (
@@ -200,8 +200,8 @@ export function fitHingedRotationError(
   ): number => {
     const above: IAutoMovieQuaternion =
       preparedAbove ??
-      Quaternion.multiply(
-        Quaternion.multiply(prepared.upper.worldRotation, upper),
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(prepared.upper.worldRotation, upper),
         prepared.lowerRotation,
       );
     const x: number = lower.x;
@@ -274,14 +274,14 @@ export function fitHingedRotationError(
       lowerRotationResult = lowerRotation(result.joint);
       projected = result.projection;
     }
-    const mid: IAutoMovieQuaternion = Quaternion.multiply(
+    const mid: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       above,
       lowerRotationResult,
     );
-    const local: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
+    const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
         restInverse,
-        Quaternion.multiply(Quaternion.inverse(mid), rotation),
+        AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(mid), rotation),
       ),
     );
     // The selected distal score already projected this exact demand. The
@@ -295,10 +295,10 @@ export function fitHingedRotationError(
       Object.is(projected.local.w, local.w)
         ? projected.quaternion
         : project.withQuaternion(local).quaternion;
-    const shown: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(mid, rest),
+    const shown: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(mid, rest),
       selected,
     );
-    return (Quaternion.angleAfterNormalize(shown, wanted) * 180) / Math.PI;
+    return (AutoMovieEngineQuaternion.angleAfterNormalize(shown, wanted) * 180) / Math.PI;
   };
 }

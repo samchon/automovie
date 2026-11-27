@@ -1,5 +1,5 @@
 import { AutoMovieArchetypePell } from "../AutoMovieArchetypePell";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
@@ -39,7 +39,7 @@ export function createPell(
     name: "pell",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.rod("post", d.diameter / 2, v(0, 0, 0), v(0, d.height, 0), {
     color: "#a9825a",
   });

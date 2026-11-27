@@ -9,8 +9,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeStick } from "../AutoMovieArchetypeStick";
-import * as StickBuildData from "./StickBuildData";
-import { v } from "./StickBuildData";
+import { StickBuildData } from "./StickBuildData";
+
 
 /*
  * The sport-stick draw and contacts shared by the individual shape producers.
@@ -211,9 +211,9 @@ export namespace StickBuild {
       kind: "handle",
       symmetry: symmetry,
       frame: AutoMovieArchetypeFrame.facing(
-        v(0, (length + head) / 2, 0),
-        v(0, 0, 1),
-        v(0, 1, 0),
+        StickBuildData.v(0, (length + head) / 2, 0),
+        StickBuildData.v(0, 0, 1),
+        StickBuildData.v(0, 1, 0),
       ),
       extent: null,
       grip: "two-hand",
@@ -224,7 +224,7 @@ export namespace StickBuild {
       id: "blade",
       kind: "surface",
       direction: "normal",
-      frame: AutoMovieArchetypeFrame.facing(face, v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(face, StickBuildData.v(0, 0, 1), StickBuildData.v(1, 0, 0)),
       extent: null,
       width: faceWidth,
       depth: head,

@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { rotationVectorJacobian } from "../../../math/internal/rotationVectorJacobian";
 import { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
@@ -36,7 +36,7 @@ export namespace MotionTrajectoryQuaternion {
       if (u >= 1) return qs[i + 1]!;
       if (interval === undefined || interval.index !== i) {
         const vector: IAutoMovieVector3 = AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
-          Quaternion.multiply(Quaternion.inverse(qs[i]!), qs[i + 1]!),
+          AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(qs[i]!), qs[i + 1]!),
         );
         const slope: IAutoMovieVector3 | null = rotationVectorJacobian.inverse(
           vector,

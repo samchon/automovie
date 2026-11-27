@@ -4,7 +4,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
 
@@ -72,8 +72,8 @@ export function validateBuiltSpaceShell(
     const a: IAutoMovieVector3 = shell.vertices[corners[0]!]!;
     const b: IAutoMovieVector3 = shell.vertices[corners[1]!]!;
     const c: IAutoMovieVector3 = shell.vertices[corners[2]!]!;
-    const area: number = Vector3.length(
-      Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
+    const area: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.cross(AutoMovieEngineVector3.subtract(b, a), AutoMovieEngineVector3.subtract(c, a)),
     );
     // Cross products of finite vertices can overflow binary64.
     if (area <= FACET_AREA_EPSILON || overflowsBinary64(area)) {

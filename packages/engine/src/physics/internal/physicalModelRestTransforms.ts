@@ -4,8 +4,8 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Neutral bone transforms in the model frame, using the same unscaled rest FK
@@ -41,11 +41,11 @@ export function physicalModelRestTransforms(
           }
         : transforms.get(bone.parent)!;
     transforms.set(bone.bone, {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         parent.position,
-        Quaternion.rotateVector(parent.rotation, bone.rest.translation),
+        AutoMovieEngineQuaternion.rotateVector(parent.rotation, bone.rest.translation),
       ),
-      rotation: Quaternion.multiply(parent.rotation, bone.rest.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(parent.rotation, bone.rest.rotation),
     });
   }
   return transforms;

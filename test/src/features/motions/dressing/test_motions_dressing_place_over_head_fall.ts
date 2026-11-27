@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { placeOverHeadPath } from "@automovie/motions/internal";
+import {
+  placeOverHeadPath
+} from "../../../../../packages/motions/src/dressing/internal/placeOverHeadPath";
 import { strict as assert } from "node:assert";
 
 import { nclose } from "../../internal/nclose";

@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlaybackLayer,
 } from "@automovie/interface";
 
-import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
 
 /*
  * Place a draw subject as one layer of its film picture shows it at an output
@@ -39,7 +39,7 @@ import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
  */
 export async function placeAutoMovieDrawLayer(
   name: string,
-  scene: Pick<IAutoMovieDrawScene, "cut" | "seek" | "seekShot">,
+  scene: Pick<IAutoMovieRenderDrawScene, "cut" | "seek" | "seekShot">,
   layer: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null,
   seconds: number,
 ): Promise<void> {

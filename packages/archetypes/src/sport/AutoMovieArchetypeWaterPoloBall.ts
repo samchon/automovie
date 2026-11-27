@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeWaterPoloBallData from "./internal/AutoMovieArchetypeWaterPoloBallData";
+import { AutoMovieArchetypeWaterPoloBallData } from "./internal/AutoMovieArchetypeWaterPoloBallData";
 
 /** Constructs the water polo ball archetype from its recipe. */
 export namespace AutoMovieArchetypeWaterPoloBall {
@@ -49,7 +49,7 @@ export function create(
     draw,
   });
   const radius: number = d.circumference / (2 * Math.PI);
-  const center = Vector3.create(0, 0, 0);
+  const center = AutoMovieEngineVector3.create(0, 0, 0);
   builder.ball("ball", radius, center, { color: "#edc93b" });
   builder.affordance({
     id: "grip",
@@ -63,7 +63,7 @@ export function create(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, radius, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, radius, 0)),
     extent: null,
   });
   return builder.build(d.mass);

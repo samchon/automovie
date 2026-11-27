@@ -1,4 +1,4 @@
-import { AutoMovieIllinois, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineIllinois, AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadNeckBase,
   IAutoMovieHumanHeadNeckBaseTrial,
@@ -156,7 +156,7 @@ export namespace AutoMovieHumanHeadNeckBase {
       }
     }
     if (selected === null && bracket !== null)
-      selected = AutoMovieIllinois.root(
+      selected = AutoMovieEngineIllinois.root(
         residual,
         bracket[0],
         bracket[1],
@@ -278,8 +278,8 @@ function value(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,
 ): number {
-  const result: ReturnType<typeof AutoMovieViewOutline.value> =
-    AutoMovieViewOutline.value(outline, station);
+  const result: ReturnType<typeof AutoMovieEngineViewOutline.value> =
+    AutoMovieEngineViewOutline.value(outline, station);
   if (typeof result === "string") throw new Error(result);
   return result;
 }

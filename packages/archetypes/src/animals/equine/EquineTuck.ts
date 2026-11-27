@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -85,13 +85,13 @@ export namespace EquineTuck {
         goal.surface === undefined
           ? undefined
           : {
-              point: Vector3.lerp(
+              point: AutoMovieEngineVector3.lerp(
                 goal.surface.point,
                 { ...goal.surface.point, y: 0 },
                 weight,
               ),
-              normal: Vector3.normalize(
-                Vector3.lerp(goal.surface.normal, { x: 0, y: 1, z: 0 }, weight),
+              normal: AutoMovieEngineVector3.normalize(
+                AutoMovieEngineVector3.lerp(goal.surface.normal, { x: 0, y: 1, z: 0 }, weight),
               ),
             };
       // The lift is measured from that plane along its normal, so the hang is reached from the plane's height under the hoof.

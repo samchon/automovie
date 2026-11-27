@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeLureData from "./internal/AutoMovieArchetypeLureData";
+import { AutoMovieArchetypeLureData } from "./internal/AutoMovieArchetypeLureData";
 
 /** Constructs the lure archetype from its recipe. */
 export namespace AutoMovieArchetypeLure {
@@ -51,17 +51,17 @@ export function create(
   const width: number = d.length / 4;
   builder.box(
     "body",
-    Vector3.create(width, width, d.length),
-    Vector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(width, width, d.length),
+    AutoMovieEngineVector3.create(0, 0, 0),
     { color: "#c0c4c8" },
   );
   builder.affordance({
     id: "eye",
     kind: "socket",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, d.length / 2),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, d.length / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });

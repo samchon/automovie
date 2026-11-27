@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanCrowd,
   IAutoMovieMotionHumanEnsemble,
@@ -35,7 +35,7 @@ export function manoeuvreSteered(
       (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
         Math.sqrt(
           walk.FROUDE.normal *
-            AutoMovieGravity.STANDARD *
+            AutoMovieEngineGravity.STANDARD *
             m.body.measure.hipHeight,
         ),
     ),

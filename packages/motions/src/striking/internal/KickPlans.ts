@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanKickGeometry,
   IAutoMovieMotionHumanPosture,
@@ -120,9 +120,9 @@ export namespace KickPlans {
         const previous: IPlan = plans[k - 1]!;
         const moved: IAutoMovieVector3 = units[k - 1]!.displacement;
         plans.push(
-          Vector3.length(moved) < 1e-9
+          AutoMovieEngineVector3.length(moved) < 1e-9
             ? previous
-            : props.next(previous, Vector3.add(previous.goal, moved)),
+            : props.next(previous, AutoMovieEngineVector3.add(previous.goal, moved)),
         );
       }
       return units.map(
@@ -181,31 +181,31 @@ export namespace KickPlans {
 
           // The foot's rotation moves by the same share of the turn that
           // carries one plan's foot onto the next.
-          const turned: IAutoMovieQuaternion = Quaternion.slerp(
+          const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
             { x: 0, y: 0, z: 0, w: 1 },
-            Quaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(
               after.rotation,
-              Quaternion.inverse(before.rotation),
+              AutoMovieEngineQuaternion.inverse(before.rotation),
             ),
             s.weight,
           );
           out = {
-            ankle: Vector3.add(
+            ankle: AutoMovieEngineVector3.add(
               out.ankle,
-              Vector3.scale(
-                Vector3.subtract(after.ankle, before.ankle),
+              AutoMovieEngineVector3.scale(
+                AutoMovieEngineVector3.subtract(after.ankle, before.ankle),
                 s.weight,
               ),
             ),
-            hint: Vector3.add(
+            hint: AutoMovieEngineVector3.add(
               out.hint,
-              Vector3.scale(
-                Vector3.subtract(after.hint, before.hint),
+              AutoMovieEngineVector3.scale(
+                AutoMovieEngineVector3.subtract(after.hint, before.hint),
                 s.weight,
               ),
             ),
-            rotation: Quaternion.normalize(
-              Quaternion.multiply(turned, out.rotation),
+            rotation: AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(turned, out.rotation),
             ),
           };
           before = after;

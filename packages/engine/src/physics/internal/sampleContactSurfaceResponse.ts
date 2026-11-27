@@ -3,7 +3,7 @@ import type {
   IAutoMovieSampleContactSurfaceResponse,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
 
 /*
@@ -38,8 +38,8 @@ export function sampleContactSurfaceResponse(
         throw new Error(
           `Surface response requires an impulse for ${receipt.id}`,
         );
-      const distance: number = Vector3.length(
-        Vector3.subtract(input.point, input.center(event)),
+      const distance: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(input.point, input.center(event)),
       );
       if (distance >= input.radius) continue;
       const radius: number = distance / input.radius;

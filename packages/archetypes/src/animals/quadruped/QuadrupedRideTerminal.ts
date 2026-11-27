@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -82,7 +82,7 @@ export namespace QuadrupedRideTerminal {
         : support(
             orientation === undefined
               ? axis
-              : Quaternion.rotateVector(orientation, axis),
+              : AutoMovieEngineQuaternion.rotateVector(orientation, axis),
             true,
             normal,
           );
@@ -101,9 +101,9 @@ export namespace QuadrupedRideTerminal {
           : shape.radius *
             (normal === undefined
               ? Math.hypot(direction.x, direction.z)
-              : Vector3.length(Vector3.cross(direction, normal)));
+              : AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(direction, normal)));
       const vertical: number =
-        normal === undefined ? direction.y : Vector3.dot(normal, direction);
+        normal === undefined ? direction.y : AutoMovieEngineVector3.dot(normal, direction);
       const clearance: number = Math.max(0, vertical) * shape.height + radial;
       if (!(clearance >= 0))
         throw new RangeError(`The ${limb} sole clearance is not representable`);

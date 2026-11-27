@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGuard, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingStance, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -103,11 +103,11 @@ export function StrikingGuard(
       boxing: style === "boxing",
       drop: drop[side] ?? 0,
     });
-    const bend: IAutoMovieVector3 = Vector3.add(
+    const bend: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       shoulder,
-      Vector3.add(
-        Vector3.scale(up, -0.8 * m.upperArm),
-        Vector3.scale(forward, 0.5 * m.upperArm),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(up, -0.8 * m.upperArm),
+        AutoMovieEngineVector3.scale(forward, 0.5 * m.upperArm),
       ),
     );
     out[side === "left" ? "leftArm" : "rightArm"] = StrikingStance.glove(
@@ -192,25 +192,25 @@ export namespace StrikingGuard {
     const near: number = 2 * at.forearmRadius + 0.25 * at.forearm;
     const outsideEar: number =
       at.boxing || at.leading < 1
-        ? Math.max(0, Vector3.dot(Vector3.subtract(at.ear, at.jaw), at.outward))
+        ? Math.max(0, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(at.ear, at.jaw), at.outward))
         : 0;
     const inFrontOfShoulder: number =
       !at.boxing && at.leading > 0
-        ? Vector3.dot(Vector3.subtract(at.shoulder, at.jaw), at.outward)
+        ? AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(at.shoulder, at.jaw), at.outward)
         : 0;
     const beside: number = at.boxing
       ? outsideEar + at.forearmRadius * (0.5 - at.leading)
       : inFrontOfShoulder * at.leading +
         (outsideEar + at.forearmRadius) * (1 - at.leading);
-    const fistAt: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
+    const fistAt: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         {
           ...at.jaw,
           y: at.boxing ? 0.5 * (at.ear.y + at.jaw.y) : at.ear.y,
         },
-        Vector3.scale(at.outward, beside),
+        AutoMovieEngineVector3.scale(at.outward, beside),
       ),
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         at.forward,
         at.boxing ? near - 0.5 * at.forearmRadius : near,
       ),
@@ -225,7 +225,7 @@ export namespace StrikingGuard {
  */
 function horizontal(v: IAutoMovieVector3): IAutoMovieVector3 {
   const h: IAutoMovieVector3 = { x: v.x, y: 0, z: v.z };
-  return Vector3.length(h) > 1e-9 ? Vector3.normalize(h) : { x: 0, y: 0, z: 1 };
+  return AutoMovieEngineVector3.length(h) > 1e-9 ? AutoMovieEngineVector3.normalize(h) : { x: 0, y: 0, z: 1 };
 }
 
 /*

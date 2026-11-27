@@ -2,11 +2,8 @@ import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWorkoutBodyweight,
 
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
-import * as WorkoutBodyweightData from "./internal/WorkoutBodyweightData";
-import {
-  supine as WorkoutBodyweightDataSupine,
-  floor as WorkoutBodyweightDataFloor,
-} from "./internal/WorkoutBodyweightData";
+import { WorkoutBodyweightData } from "./internal/WorkoutBodyweightData";
+
 
 /*
  * The bodyweight movements of the workout law a gym programme names beside the
@@ -82,7 +79,7 @@ export namespace WorkoutBodyweight {
      * A superman: lying face down, the arms ahead and the legs lifted off the
      * floor together.
      */
-    superman: WorkoutBodyweightDataFloor(
+    superman: WorkoutBodyweightData.floor(
       "lying",
       WorkoutBodyweightData.BACK,
       5,
@@ -167,14 +164,14 @@ export namespace WorkoutBodyweight {
      * A lying leg raise: on the back, both straight legs raised to upright and
      * lowered.
      */
-    lyingLegRaise: WorkoutBodyweightDataFloor(
+    lyingLegRaise: WorkoutBodyweightData.floor(
       "lying",
       WorkoutBodyweightData.BACK,
       6,
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(WorkoutBodyweightDataSupine(body), 1.5, "lower", "down"),
+        WorkoutKind.step(WorkoutBodyweightData.supine(body), 1.5, "lower", "down"),
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -192,7 +189,7 @@ export namespace WorkoutBodyweight {
      * A bicycle crunch: on the back, one knee drawn in as the opposite shoulder
      * turns to it, alternating.
      */
-    bicycleCrunch: WorkoutBodyweightDataFloor(
+    bicycleCrunch: WorkoutBodyweightData.floor(
       "lying",
       WorkoutBodyweightData.BACK,
       8,
@@ -229,7 +226,7 @@ export namespace WorkoutBodyweight {
      * A Russian twist: sitting leaned back with the knees bent, the trunk
      * turned to each side in turn.
      */
-    russianTwist: WorkoutBodyweightDataFloor(
+    russianTwist: WorkoutBodyweightData.floor(
       "seated",
       [{ part: "seat", kind: "seat" }],
       8,
@@ -264,7 +261,7 @@ export namespace WorkoutBodyweight {
      * A dead bug: on the back with the arms up and the hips and knees square,
      * one arm and the opposite leg lowered, alternating.
      */
-    deadBug: WorkoutBodyweightDataFloor(
+    deadBug: WorkoutBodyweightData.floor(
       "lying",
       WorkoutBodyweightData.BACK,
       6,

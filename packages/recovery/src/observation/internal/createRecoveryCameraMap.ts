@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraEstimateCreationOperation,
   IAutoMovieRecoveryCameraMapCreationOperation,
@@ -295,8 +295,8 @@ export function createRecoveryCameraMap(
   result.joint = joint.report;
   if (!joint.report.converged)
     result.refusalReasons.push("joint-not-converged");
-  const back: number[] = AutoMovieMatrix3.transpose(joint.poses[1]!.rotation);
-  const cameraCentre: [number, number, number] = AutoMovieMatrix3.apply(
+  const back: number[] = AutoMovieEngineMatrix3.transpose(joint.poses[1]!.rotation);
+  const cameraCentre: [number, number, number] = AutoMovieEngineMatrix3.apply(
     back,
     joint.poses[1]!.translation.map((value: number): number => -value),
   );

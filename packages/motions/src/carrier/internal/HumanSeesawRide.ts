@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -174,12 +174,12 @@ export function HumanSeesawRide(
         const goal: IAutoMovieVector3 = interval.planted.ankle;
         const carried: IAutoMovieHumanLimbGoal | undefined =
           posture.limbs[`${side}Leg`];
-        const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+        const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           interval.planted.rotation,
           { x: 0, y: 0, z: body.measure.thigh },
         );
         const knee: IAutoMovieVector3 = {
-          ...Vector3.add(goal, forward),
+          ...AutoMovieEngineVector3.add(goal, forward),
           y: Math.max(goal.y + body.measure.shank, posture.root.y),
         };
         limbs[`${side}Leg`] =
@@ -195,16 +195,16 @@ export function HumanSeesawRide(
                 ...carried,
                 // The foot comes down onto the ground and lifts off it on
                 // an arc, never dragging across it.
-                point: Vector3.add(Vector3.lerp(carried.point, goal, share), {
+                point: AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(carried.point, goal, share), {
                   x: 0,
                   y: LIFT * Math.sin(Math.PI * share),
                   z: 0,
                 }),
-                bend: Vector3.lerp(carried.bend, knee, share),
+                bend: AutoMovieEngineVector3.lerp(carried.bend, knee, share),
                 rotation:
                   carried.rotation === undefined
                     ? interval.planted.rotation
-                    : Quaternion.slerp(
+                    : AutoMovieEngineQuaternion.slerp(
                         carried.rotation,
                         interval.planted.rotation,
                         share,

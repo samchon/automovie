@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { ArchetypeCourseLegs } from "./internal/ArchetypeCourseLegs";
@@ -330,7 +330,7 @@ export namespace AutoMovieArchetypeCourse {
     const balance: number =
       Math.atan(
         (state.speed * state.speed * state.curvature) /
-          AutoMovieGravity.STANDARD,
+          AutoMovieEngineGravity.STANDARD,
       ) / AutoMovieArchetypeUnits.DEGREE;
     return state.reverse ? -balance : balance;
   }
@@ -347,10 +347,10 @@ export namespace AutoMovieArchetypeCourse {
   export function banked(state: IState, degrees: number): IAutoMovieTransform {
     return {
       translation: { ...state.placement.translation },
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
           state.placement.rotation,
-          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -degrees),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -degrees),
         ),
       ),
       scale: { ...AutoMovieArchetypeFrame.UNIT },
@@ -381,7 +381,7 @@ export namespace AutoMovieArchetypeCourse {
     const tangent: number = Math.tan(limit * AutoMovieArchetypeUnits.DEGREE);
     for (const bend of planned.bends) {
       const least: number =
-        (bend.speed * bend.speed) / (AutoMovieGravity.STANDARD * tangent);
+        (bend.speed * bend.speed) / (AutoMovieEngineGravity.STANDARD * tangent);
       if (!(bend.radius < least)) continue;
 
       // At the cruising speed the turn is what an author widens; at a mark or a timed sample, the speed is what they lower.
@@ -403,7 +403,7 @@ export namespace AutoMovieArchetypeCourse {
         feasible: {
           kind: "range",
           minimum: 0,
-          maximum: Math.sqrt(AutoMovieGravity.STANDARD * tangent * bend.radius),
+          maximum: Math.sqrt(AutoMovieEngineGravity.STANDARD * tangent * bend.radius),
           unit: "m/s",
         },
         reason: `a ${bend.radius} m bend at ${bend.speed} m/s at ${bend.seconds} s leans the ${archetype} past ${limit} degrees`,

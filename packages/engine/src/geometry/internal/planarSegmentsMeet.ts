@@ -1,6 +1,6 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../PLANAR_EPSILON";
+import { AutoMovieEnginePlanarEpsilon } from "../AutoMovieEnginePlanarEpsilon";
 import { planarCross } from "./planarCross";
 
 /*
@@ -10,7 +10,7 @@ import { planarCross } from "./planarCross";
  * regions with a shared corner; it is a surface pinched to a line, the same
  * shape `buildAutoMovieWall` refuses when two openings meet at a corner. A
  * proper crossing needs each segment's endpoints on strictly opposite sides of
- * the other's line, each side more than `PLANAR_EPSILON` from zero; otherwise
+ * the other's line, each side more than `AutoMovieEnginePlanarEpsilon` from zero; otherwise
  * the segments meet when an endpoint of one is collinear with the other within
  * that absolute tolerance and its projection parameter lies in [0, 1] widened
  * by the same constant. A zero-length segment never reports a touch through its
@@ -50,13 +50,13 @@ export const planarSegmentsMeet = (
       IAutoMoviePlanarPoint,
       IAutoMoviePlanarPoint,
     ]): boolean => {
-      if (Math.abs(planarCross(from, to, point)) > PLANAR_EPSILON) return false;
+      if (Math.abs(planarCross(from, to, point)) > AutoMovieEnginePlanarEpsilon) return false;
       const spanX: number = to.x - from.x;
       const spanY: number = to.y - from.y;
       const along: number =
         ((point.x - from.x) * spanX + (point.y - from.y) * spanY) /
         (spanX * spanX + spanY * spanY);
-      return along >= -PLANAR_EPSILON && along <= 1 + PLANAR_EPSILON;
+      return along >= -AutoMovieEnginePlanarEpsilon && along <= 1 + AutoMovieEnginePlanarEpsilon;
     },
   );
 };
@@ -65,6 +65,6 @@ export const planarSegmentsMeet = (
  * Are two orientation values strictly on opposite sides of zero?
  */
 const straddles = (left: number, right: number): boolean =>
-  Math.abs(left) > PLANAR_EPSILON &&
-  Math.abs(right) > PLANAR_EPSILON &&
+  Math.abs(left) > AutoMovieEnginePlanarEpsilon &&
+  Math.abs(right) > AutoMovieEnginePlanarEpsilon &&
   left * right < 0;

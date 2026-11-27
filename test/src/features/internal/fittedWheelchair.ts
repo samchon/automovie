@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
@@ -26,7 +26,7 @@ export function fittedWheelchair(
     name: "fitted wheelchair",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const seat: number = draw.derive("seatHeight", 16 * 0.0254);
   const breadth: number = draw.derive("seatWidth", 0.4);
   const wheel: number = draw.derive("wheelDiameter", 24 * 0.0254) / 2;

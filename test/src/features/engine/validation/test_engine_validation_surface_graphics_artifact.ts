@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { appendSurfaceGraphicsArtifact } from "@automovie/engine/internal";
+import {
+  appendSurfaceGraphicsArtifact
+} from "../../../../../packages/engine/src/validation/internal/appendSurfaceGraphicsArtifact";
 import type {
   IAutoMovieAffordance,
   IAutoMovieSurfaceGraphic,

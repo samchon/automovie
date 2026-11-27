@@ -60,7 +60,7 @@ export namespace IAutoMovieDetectFreeFall {
     margin?: number | undefined;
 
     /**
-     * World acceleration in m/s^2, default AutoMovieGravity.DOWN; checked by
+     * World acceleration in m/s^2, default AutoMovieEngineGravity.DOWN; checked by
      * trajectory generation only if a trajectory is requested.
      */
     gravity?: IAutoMovieVector3 | undefined;

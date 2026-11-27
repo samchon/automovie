@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createPoloMallet as createPoloMalletImplementation } from "./internal/createPoloMallet";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../core";
-import * as AutoMovieArchetypePoloMalletData from "./internal/AutoMovieArchetypePoloMalletData";
+import { AutoMovieArchetypePoloMalletData } from "./internal/AutoMovieArchetypePoloMalletData";
 
 /** Public operations for Auto Movie Archetype Polo Mallet. */
 export namespace AutoMovieArchetypePoloMallet {

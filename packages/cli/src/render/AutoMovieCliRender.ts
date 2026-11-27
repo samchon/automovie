@@ -42,7 +42,7 @@ export namespace AutoMovieCliRender {
     render: Pick<
       typeof Render,
       | "AutoMovieRenderVideo"
-      | "AUTOMOVIE_MP4_SRGB_COLOUR"
+      | "AutoMovieRenderMp4SrgbColour"
       | "AutoMovieRenderDelivery"
     > & {
       /** Creates the delivery loudness meter. Defaults to `AutoMovieEngineSound.createLoudnessMeter`. */
@@ -50,7 +50,7 @@ export namespace AutoMovieCliRender {
     };
     session(props: IAutoMovieCliCaptureSessionInput): Promise<
       Pick<
-        Render.AutoMovieDrawSession,
+        Render.AutoMovieRenderDrawSession,
         "backend" | "close" | "frame" | "speak" | "subject"
       >
     >;

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -44,7 +44,7 @@ export function walkLevelSupport(
     read.prop.fixed !== true ||
     read.prop.motion !== undefined ||
     read.prop.hasArticulations === true ||
-    Quaternion.rotateVectorY(read.frame(context.start).rotation, {
+    AutoMovieEngineQuaternion.rotateVectorY(read.frame(context.start).rotation, {
       x: 0,
       y: 1,
       z: 0,

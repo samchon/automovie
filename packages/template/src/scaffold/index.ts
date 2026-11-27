@@ -1,3 +1,3 @@
 export * from "./AutoMovieTemplateScaffold";
-export type { IAutoMovieTemplateScaffoldProps } from "./IAutoMovieTemplateScaffoldProps";
-export type { IAutoMovieTemplateWorkspaceRequest } from "./IAutoMovieTemplateWorkspaceRequest";
+export type * from "./IAutoMovieTemplateScaffoldProps";
+export type * from "./IAutoMovieTemplateWorkspaceRequest";

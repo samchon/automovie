@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -10,11 +10,17 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
-  WalkTurn,
-  walkHeading,
-  type walkStation,
-  walkTempo,
-} from "@automovie/motions/internal";
+  WalkTurn
+} from "../../../../../packages/motions/src/actions/internal/WalkTurn";
+import {
+  walkHeading
+} from "../../../../../packages/motions/src/actions/internal/walkHeading";
+import type {
+  walkStation
+} from "../../../../../packages/motions/src/gait/internal/walkStation";
+import {
+  walkTempo
+} from "../../../../../packages/motions/src/actions/internal/walkTempo";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -390,7 +396,7 @@ async function arrivalTurn(): Promise<void> {
     for (const side of ["left", "right"] as const) {
       const goal: IAutoMovieVector3 = posture.limbs[`${side}Leg`]!.point;
       const shown: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
-      const miss: number = Vector3.distance(goal, shown);
+      const miss: number = AutoMovieEngineVector3.distance(goal, shown);
       TestValidator.predicate(
         `${e.name} keeps the ${side} ankle within 2 mm (miss ${miss} m)`,
         miss <= 0.002,
@@ -400,7 +406,7 @@ async function arrivalTurn(): Promise<void> {
   const hips: IAutoMovieResolvedBone = performance
     .bones("w0", performance.duration)
     .get("hips")!;
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     hips.worldRotation,
     { x: 0, y: 0, z: 1 },
   );

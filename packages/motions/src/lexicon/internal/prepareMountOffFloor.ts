@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, hingedArmSwivel, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineHingedArmSwivel, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -50,9 +50,9 @@ export function prepareMountOffFloor(
   ];
   const rest: IAutoMovieHumanLimbGoal = posture(end).limbs[limb]!;
   const contact: IAutoMovieVector3 = rest.contact!;
-  const anchor: IAutoMovieVector3 = Vector3.add(
+  const anchor: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     rest.point,
-    Quaternion.rotateVector(rest.rotation!, contact),
+    AutoMovieEngineQuaternion.rotateVector(rest.rotation!, contact),
   );
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
@@ -75,9 +75,9 @@ export function prepareMountOffFloor(
           limbs: {
             [limb]: {
               ...asked,
-              point: Vector3.subtract(
+              point: AutoMovieEngineVector3.subtract(
                 anchor,
-                Quaternion.rotateVector(asked.rotation!, contact),
+                AutoMovieEngineQuaternion.rotateVector(asked.rotation!, contact),
               ),
             },
           },
@@ -86,7 +86,7 @@ export function prepareMountOffFloor(
         previous === null
           ? undefined
           : {
-              [limb]: { ...previous, tolerance: hingedArmSwivel.RESOLUTION },
+              [limb]: { ...previous, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION },
             },
         resolution,
       );
@@ -127,19 +127,19 @@ export function prepareMountOffFloor(
       const swivel: number = AutoMovieEngineMath.wrapDegrees(to.swivel - from.swivel);
       const toe: JointRead | undefined = blends([toes], a, b)[0]?.[1];
       return (share: number): prepareMountOffFloor.IPlaced => {
-        const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+        const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
           a.rotation,
           b.rotation,
           share,
         );
         return {
           goal: {
-            point: Vector3.subtract(
+            point: AutoMovieEngineVector3.subtract(
               anchor,
-              Quaternion.rotateVector(rotation, contact),
+              AutoMovieEngineQuaternion.rotateVector(rotation, contact),
             ),
             rotation,
-            bend: Vector3.lerp(a.bend, b.bend, share),
+            bend: AutoMovieEngineVector3.lerp(a.bend, b.bend, share),
             planted: true,
             contact,
             seed: { ...from, swivel: from.swivel + share * swivel },

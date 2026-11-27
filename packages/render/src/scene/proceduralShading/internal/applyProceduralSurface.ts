@@ -2,9 +2,9 @@ import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type { IAutoMovieProceduralSurface } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
+import { AutoMovieRenderProceduralNoiseGlsl } from "../../AutoMovieRenderProceduralNoiseGlsl.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
 
 /*
@@ -102,7 +102,7 @@ export const applyProceduralSurface: (
   material.userData.procedural = surface;
   AutoMovieRenderMaterial.addShaderPatch(material, {
     key: `automovie-procedural-${surface.kind}${piece === undefined ? "" : "-piece"}`,
-    apply: (shader: IMaterialShaderSource): void => {
+    apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = shader.vertexShader
         .replace(
@@ -133,7 +133,7 @@ export const applyProceduralSurface: (
           "#include <common>",
           [
             "#include <common>",
-            AUTOMOVIE_PROCEDURAL_NOISE_GLSL,
+            AutoMovieRenderProceduralNoiseGlsl,
             proceduralPatternGlsl(surface.kind),
             "varying vec3 vAutoMovieProceduralPoint;",
             "uniform vec3 uProceduralColor0;",

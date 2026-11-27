@@ -5,18 +5,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
-import { AutoMovieXpbdMath } from "../AutoMovieXpbdMath";
-import { PhysicalRotationVector } from "../PhysicalRotationVector";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdJoint } from "../AutoMovieEngineXpbdJoint";
+import { AutoMovieEngineXpbdMath } from "../AutoMovieEngineXpbdMath";
+import { AutoMovieEnginePhysicalRotationVector } from "../AutoMovieEnginePhysicalRotationVector";
 import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { readXpbdJointCoordinate } from "./readXpbdJointCoordinate";
 import { readXpbdJointDirections } from "./readXpbdJointDirections";
-import type { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
+import type { AutoMovieEngineXpbdArticulation } from "../AutoMovieEngineXpbdArticulation";
 
 /*
  * The joints' position pass over one articulation at once: every joint's anchor
@@ -58,10 +58,10 @@ import type { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
 export namespace solveXpbdJointTree {
   /*
    * Project one tree's joints onto their anchors and admitted rotations.
-   * Parameter top: The tree's root node (`AutoMovieXpbdArticulation.forest`).
+   * Parameter top: The tree's root node (`AutoMovieEngineXpbdArticulation.forest`).
    * Parameter h: The substep, seconds.
    */
-  export function project(top: AutoMovieXpbdArticulation.INode, h: number): void {
+  export function project(top: AutoMovieEngineXpbdArticulation.INode, h: number): void {
     const order: IVisit[] = visit(top);
     if (order.length === 0) return;
     for (let iteration: number = 0; iteration < ITERATIONS; ++iteration) {
@@ -78,17 +78,17 @@ export namespace solveXpbdJointTree {
     /*
      * The joint.
      */
-    joint: AutoMovieXpbdJoint;
+    joint: AutoMovieEngineXpbdJoint;
 
     /*
      * Its parent body.
      */
-    parent: AutoMovieXpbdBody;
+    parent: AutoMovieEngineXpbdBody;
 
     /*
      * Its child body.
      */
-    child: AutoMovieXpbdBody;
+    child: AutoMovieEngineXpbdBody;
   }
 
   /*
@@ -131,11 +131,11 @@ export namespace solveXpbdJointTree {
 /*
  * The tree's joints, parents before children.
  */
-function visit(top: AutoMovieXpbdArticulation.INode): solveXpbdJointTree.IVisit[] {
+function visit(top: AutoMovieEngineXpbdArticulation.INode): solveXpbdJointTree.IVisit[] {
   const out: solveXpbdJointTree.IVisit[] = [];
-  const stack: AutoMovieXpbdArticulation.INode[] = [top];
+  const stack: AutoMovieEngineXpbdArticulation.INode[] = [top];
   while (stack.length !== 0) {
-    const node: AutoMovieXpbdArticulation.INode = stack.pop()!;
+    const node: AutoMovieEngineXpbdArticulation.INode = stack.pop()!;
     for (const next of node.children) {
       out.push({ joint: next.edge!, parent: node.body, child: next.body });
       stack.push(next);
@@ -162,9 +162,9 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
   const cf: IAutoMovieRigidTransform = joint.childFrame();
   const rp: IAutoMovieVector3 = arm(parent, pf.position);
   const rc: IAutoMovieVector3 = arm(child, cf.position);
-  const gap: IAutoMovieVector3 = Vector3.subtract(
-    Vector3.add(parent.center, rp),
-    Vector3.add(child.center, rc),
+  const gap: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.add(parent.center, rp),
+    AutoMovieEngineVector3.add(child.center, rc),
   );
   const parentRows: number[][] = [
     [1, 0, 0, 0, rp.z, -rp.y],
@@ -177,14 +177,14 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
     [0, 0, -1, -rc.y, rc.x, 0],
   ];
   const right: number[] = [-gap.x, -gap.y, -gap.z];
-  const base: IAutoMovieQuaternion = Quaternion.multiply(
+  const base: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     parent.orientation,
     pf.rotation,
   );
-  const relative: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.inverse(base),
-      Quaternion.multiply(child.orientation, cf.rotation),
+  const relative: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(base),
+      AutoMovieEngineQuaternion.multiply(child.orientation, cf.rotation),
     ),
   );
   // A row on the relative turn: n . (dtheta_c - dtheta_p) = value, with n
@@ -193,7 +193,7 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
     local: IAutoMovieVector3,
     value: number,
   ): void => {
-    const n: IAutoMovieVector3 = Quaternion.rotateVector(base, local);
+    const n: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(base, local);
     parentRows.push([0, 0, 0, -n.x, -n.y, -n.z]);
     childRows.push([0, 0, 0, n.x, n.y, n.z]);
     right.push(value);
@@ -202,12 +202,12 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
     joint.joint,
     relative,
   );
-  const e: IAutoMovieVector3 = PhysicalRotationVector.log(
-    Quaternion.multiply(boxed, Quaternion.inverse(relative)),
+  const e: IAutoMovieVector3 = AutoMovieEnginePhysicalRotationVector.log(
+    AutoMovieEngineQuaternion.multiply(boxed, AutoMovieEngineQuaternion.inverse(relative)),
   );
   if (joint.joint.range !== undefined) {
-    const turn: number = Vector3.length(e);
-    if (turn > 0) push(Vector3.scale(e, 1 / turn), turn);
+    const turn: number = AutoMovieEngineVector3.length(e);
+    if (turn > 0) push(AutoMovieEngineVector3.scale(e, 1 / turn), turn);
   } else {
     const basis: IAutoMovieVector3[] = readXpbdJointDirections(
       joint.joint,
@@ -227,18 +227,18 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
           if (q === null || !(q < declared.minimum || q > declared.maximum))
             return;
         }
-        push(dual[i]!, Vector3.dot(dual[i]!, e));
+        push(dual[i]!, AutoMovieEngineVector3.dot(dual[i]!, e));
       });
   }
   if (joint.joint.swingTwist !== undefined) {
-    const turned: IAutoMovieVector3 = PhysicalRotationVector.log(
-      Quaternion.multiply(
+    const turned: IAutoMovieVector3 = AutoMovieEnginePhysicalRotationVector.log(
+      AutoMovieEngineQuaternion.multiply(
         limitPhysicalSwingTwist(joint.joint.swingTwist, boxed),
-        Quaternion.inverse(boxed),
+        AutoMovieEngineQuaternion.inverse(boxed),
       ),
     );
-    const turn: number = Vector3.length(turned);
-    if (turn > 0) push(Vector3.scale(turned, 1 / turn), turn);
+    const turn: number = AutoMovieEngineVector3.length(turned);
+    if (turn > 0) push(AutoMovieEngineVector3.scale(turned, 1 / turn), turn);
   }
   return { parent: parentRows, child: childRows, right };
 }
@@ -272,7 +272,7 @@ function inverse(
  * back-substituted, with its decrement; none when a block is singular.
  */
 function solve(
-  top: AutoMovieXpbdArticulation.INode,
+  top: AutoMovieEngineXpbdArticulation.INode,
   order: readonly solveXpbdJointTree.IVisit[],
   rows: readonly solveXpbdJointTree.IJointRows[],
 ): solveXpbdJointTree.IStep | null {
@@ -280,8 +280,8 @@ function solve(
   // parent node and the block coupling it there; a joint's parent is its
   // parent body when that is dynamic, else none (the fixed base).
   const nodes: INode[] = [];
-  const bodies: Map<AutoMovieXpbdBody, number> = new Map();
-  const bodyNode = (body: AutoMovieXpbdBody, parent: number): number => {
+  const bodies: Map<AutoMovieEngineXpbdBody, number> = new Map();
+  const bodyNode = (body: AutoMovieEngineXpbdBody, parent: number): number => {
     const index: number = nodes.length;
     const block: number[][] = mass(body);
     nodes.push({
@@ -377,7 +377,7 @@ function solve(
       nodes.forEach((node: INode, i: number): void => {
         if (node.body === undefined) return;
         const d: number[] = x[i]!;
-        AutoMovieXpbdMath.displace(
+        AutoMovieEngineXpbdMath.displace(
           node.body,
           { x: d[0]!, y: d[1]!, z: d[2]! },
           { x: d[3]!, y: d[4]!, z: d[5]! },
@@ -413,7 +413,7 @@ interface INode {
   /*
    * The body a body node moves; absent for a joint.
    */
-  body?: AutoMovieXpbdBody;
+  body?: AutoMovieEngineXpbdBody;
 
   /*
    * A body node's own mass block, before elimination; absent for a joint.
@@ -425,7 +425,7 @@ interface INode {
  * A body's mass block on `(dx, dtheta)`: `m E` and its world inertia, the
  * inverse of the substep's frozen inverse inertia.
  */
-function mass(body: AutoMovieXpbdBody): number[][] {
+function mass(body: AutoMovieEngineXpbdBody): number[][] {
   const m: number = body.mass();
   const inverse: number[][] = [
     body.frozen.slice(0, 3),
@@ -469,12 +469,12 @@ function transpose(rows: readonly (readonly number[])[]): number[][] {
  * A world anchor arm: the frame's point from the body's centre of mass.
  */
 function arm(
-  body: AutoMovieXpbdBody,
+  body: AutoMovieEngineXpbdBody,
   position: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Quaternion.rotateVector(
+  return AutoMovieEngineQuaternion.rotateVector(
     body.orientation,
-    Vector3.subtract(position, body.centerOfMass),
+    AutoMovieEngineVector3.subtract(position, body.centerOfMass),
   );
 }
 

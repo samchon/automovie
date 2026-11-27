@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -63,25 +63,25 @@ export namespace HumanTrunkLean {
 
     // A free arm hangs plumb from the shoulder the hinge carries: the arm
     // moves by the shoulder's displacement and keeps its world attitude.
-    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       hip.axis,
       degrees,
     );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...hinged.limbs };
     for (const arm of hanging) {
-      const shift: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.add(
+      const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           hip.point,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             turn,
-            Vector3.subtract(arm.shoulder, hip.point),
+            AutoMovieEngineVector3.subtract(arm.shoulder, hip.point),
           ),
         ),
         arm.shoulder,
       );
       limbs[`${arm.side}Arm`] = {
-        point: Vector3.add(arm.wrist, shift),
-        bend: Vector3.add(arm.elbow, shift),
+        point: AutoMovieEngineVector3.add(arm.wrist, shift),
+        bend: AutoMovieEngineVector3.add(arm.elbow, shift),
         rotation: arm.rotation,
       };
     }
@@ -161,21 +161,21 @@ export namespace HumanTrunkLean {
     let low: number = 0;
     let high: number = range;
     for (const w of wrists) {
-      const s: IAutoMovieVector3 = Vector3.subtract(
+      const s: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         shoulder(body, posture, w.side),
         hip.point,
       );
-      const along: IAutoMovieVector3 = Vector3.scale(
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         hip.axis,
-        Vector3.dot(s, hip.axis),
+        AutoMovieEngineVector3.dot(s, hip.axis),
       );
-      const across: IAutoMovieVector3 = Vector3.subtract(s, along);
-      const d: IAutoMovieVector3 = Vector3.subtract(w.point, hip.point);
-      const a: number = Vector3.dot(d, across);
-      const b: number = Vector3.dot(d, Vector3.cross(hip.axis, across));
+      const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(s, along);
+      const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(w.point, hip.point);
+      const a: number = AutoMovieEngineVector3.dot(d, across);
+      const b: number = AutoMovieEngineVector3.dot(d, AutoMovieEngineVector3.cross(hip.axis, across));
       const k: number =
-        (Vector3.dot(s, s) + Vector3.dot(d, d) - arm * arm) / 2 -
-        Vector3.dot(d, along);
+        (AutoMovieEngineVector3.dot(s, s) + AutoMovieEngineVector3.dot(d, d) - arm * arm) / 2 -
+        AutoMovieEngineVector3.dot(d, along);
       const r: number = Math.hypot(a, b);
 
       // Every pitch reaches when even the farthest turn does.
@@ -189,10 +189,10 @@ export namespace HumanTrunkLean {
         const gap: number = Math.sqrt(
           Math.max(
             0,
-            Vector3.dot(s, s) +
-              Vector3.dot(d, d) -
+            AutoMovieEngineVector3.dot(s, s) +
+              AutoMovieEngineVector3.dot(d, d) -
               2 * (a * Math.cos(nearest) + b * Math.sin(nearest)) -
-              2 * Vector3.dot(d, along),
+              2 * AutoMovieEngineVector3.dot(d, along),
           ),
         );
         throw new AutoMovieMotionHumanRefusal({
@@ -270,13 +270,13 @@ export namespace HumanTrunkLean {
     const left: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
     const right: IAutoMovieVector3 = body.rest.get("rightUpperLeg")!;
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         posture.root,
-        Quaternion.rotateVector(heading, Vector3.lerp(left, right, 0.5)),
+        AutoMovieEngineQuaternion.rotateVector(heading, AutoMovieEngineVector3.lerp(left, right, 0.5)),
       ),
-      axis: Quaternion.rotateVector(
+      axis: AutoMovieEngineQuaternion.rotateVector(
         heading,
-        Vector3.normalize(Vector3.subtract(left, right)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(left, right)),
       ),
     };
   }
@@ -297,10 +297,10 @@ export namespace HumanTrunkLean {
 
     // The root the pelvis would have level, its hips where they are.
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const level: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(
+    const level: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.add(
         posture.root,
-        Quaternion.rotateVector(humanPostureHeading(posture), hips),
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), hips),
       ),
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },

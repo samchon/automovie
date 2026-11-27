@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieMotionBound, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEngineMotionBound, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -31,7 +31,7 @@ import { HumanAuditModel } from "./HumanAuditModel";
  * bounding sphere shows clear of its allowance by more than `T.CHECK`, which no
  * reader uses, and a step the last exact reading of the same course still keeps
  * that clear by conservative advancement (Mirtich 1996): the course's chord
- * travel since that reading (`AutoMovieMotionBound`) is less than its
+ * travel since that reading (`AutoMovieEngineMotionBound`) is less than its
  * distance's excess over the check.
  * Parameter c: The context.
  * Parameter a: The arm.
@@ -64,7 +64,7 @@ export function HumanArmTrajectorySweep(
       // The probe's course relative to the shape, which may move too.
       const frames: number[] = [k];
       const course: IAutoMovieVector3[] = [pa];
-      const turns: IAutoMovieQuaternion[] = [Quaternion.identity()];
+      const turns: IAutoMovieQuaternion[] = [AutoMovieEngineQuaternion.identity()];
       for (const step of near.path) {
         const moved: IOfMoved = HumanArmTrajectoryHalfStep.carry(
           c,
@@ -79,7 +79,7 @@ export function HumanArmTrajectorySweep(
         turns.push(moved.turn);
       }
       const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
-      const bound: AutoMovieMotionBound.IPrepared | undefined =
+      const bound: AutoMovieEngineMotionBound.IPrepared | undefined =
         HumanArmTrajectorySweepBound.chords(c, k, frames, course);
 
       // The last exact reading of this course: its step and its distance.
@@ -91,7 +91,7 @@ export function HumanArmTrajectorySweep(
         // sweep guards the course between frames against passing through a
         // shape, and what a place itself touches is the pairs' reading, at
         // the read waypoints and over their courses through every frame.
-        if (Vector3.distance(course[i]!, course[i + 1]!) < r) continue;
+        if (AutoMovieEngineVector3.distance(course[i]!, course[i + 1]!) < r) continue;
         const lower: number = Math.min(
           c.allowed(a, frames[i]!, probe, shape),
           c.allowed(a, frames[i + 1]!, probe, shape),
@@ -336,7 +336,7 @@ export namespace HumanArmTrajectorySweep {
         return (
           frame.related[link.part]?.[s.part] !== true &&
           ((link.owner === "hand" && tip?.has(shape) === true) ||
-            Vector3.distance(link.centre, s.centre) - link.radius - s.radius <
+            AutoMovieEngineVector3.distance(link.centre, s.centre) - link.radius - s.radius <
               T.REACH + travelled + moving.shapes[shape]!)
         );
       });
@@ -414,7 +414,7 @@ export namespace HumanArmTrajectorySweep {
         // step of that step's, and a hull's distance to a convex shape
         // changes no more than its points move, so a step that clearance
         // still covers is clear and its cast is not read.
-        const bound: AutoMovieMotionBound.IPrepared | undefined =
+        const bound: AutoMovieEngineMotionBound.IPrepared | undefined =
           solid === undefined || frames.length <= 2
             ? undefined
             : HumanArmTrajectorySweepBound.solids(
@@ -545,18 +545,18 @@ function certifiesTip(
     return false;
   const initial: IAutoMovieMotionHumanArmGeometry.IPlaced = placed[start.at]!;
   const final: IAutoMovieMotionHumanArmGeometry.IPlaced = placed[end.at]!;
-  const pivot: IAutoMovieVector3 = Vector3.add(
+  const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     initial.wrist,
-    Quaternion.rotateVector(initial.hand, own.pose.position),
+    AutoMovieEngineQuaternion.rotateVector(initial.hand, own.pose.position),
   );
-  const angle: number = Quaternion.angle(
-    Quaternion.multiply(
+  const angle: number = AutoMovieEngineQuaternion.angle(
+    AutoMovieEngineQuaternion.multiply(
       sweep.first,
-      Quaternion.multiply(initial.hand, own.pose.rotation),
+      AutoMovieEngineQuaternion.multiply(initial.hand, own.pose.rotation),
     ),
-    Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
       sweep.turn,
-      Quaternion.multiply(final.hand, next.pose.rotation),
+      AutoMovieEngineQuaternion.multiply(final.hand, next.pose.rotation),
     ),
   );
   let floor: number = -Infinity;

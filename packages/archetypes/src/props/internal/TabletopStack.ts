@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -31,7 +31,7 @@ export namespace TabletopStack {
     height: number,
     aperture: number,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     builder.affordance({
       id: "grip",
       kind: "handle",

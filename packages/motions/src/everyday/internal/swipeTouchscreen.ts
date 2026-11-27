@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -95,8 +95,8 @@ function planSwipeTouchscreen(
   ).point;
   const entryWrist: IAutoMovieVector3 = bones.get(`${side}Hand`)!.worldPosition;
   if (
-    Vector3.dot(Vector3.subtract(tip, center), normal) <= 0 ||
-    Vector3.dot(Vector3.subtract(entryWrist, center), normal) <= 0
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(tip, center), normal) <= 0 ||
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(entryWrist, center), normal) <= 0
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
@@ -118,9 +118,9 @@ function planSwipeTouchscreen(
   // origin therefore needs that shape's tip offset from the entry wrist.
   const origin: IAutoMovieMotionHumanArmTarget.IOrigin = {
     ...handOrigin,
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       handOrigin.point,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         handOrigin.rotation,
         HumanHand.offset(body, side, "indexTip", "point").point,
       ),
@@ -148,7 +148,7 @@ function planSwipeTouchscreen(
       body,
       entry.posture,
       side,
-      { point: Vector3.lerp(first, last, 0.5), normal },
+      { point: AutoMovieEngineVector3.lerp(first, last, 0.5), normal },
       { surface: "indexTip", shape: "point", forward },
     );
 
@@ -164,21 +164,21 @@ function planSwipeTouchscreen(
   const shoulder: IAutoMovieVector3 = bones.get(
     `${side}UpperArm`,
   )!.worldPosition;
-  const nearStart: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
-  const run: IAutoMovieVector3 = Vector3.subtract(last, first);
-  const length: number = Vector3.length(run);
+  const nearStart: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(wrist, shoulder);
+  const run: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(last, first);
+  const length: number = AutoMovieEngineVector3.length(run);
   HumanBound.above("swipe distance", length, 0, "m");
-  const axis: IAutoMovieVector3 = Vector3.normalize(run);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(run);
   const nearest: number = Math.max(
     0,
-    Math.min(length, -Vector3.dot(nearStart, axis)),
+    Math.min(length, -AutoMovieEngineVector3.dot(nearStart, axis)),
   );
-  const closest: number = Vector3.length(
-    Vector3.add(nearStart, Vector3.scale(axis, nearest)),
+  const closest: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.add(nearStart, AutoMovieEngineVector3.scale(axis, nearest)),
   );
   const farthest: number = Math.max(
-    Vector3.length(nearStart),
-    Vector3.length(Vector3.add(nearStart, run)),
+    AutoMovieEngineVector3.length(nearStart),
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.add(nearStart, run)),
   );
   const { upperArm, forearm } = body.measure;
   if (farthest > upperArm + forearm || closest < Math.abs(upperArm - forearm))
@@ -205,7 +205,7 @@ function planSwipeTouchscreen(
     ): IAutoMovieMotionHumanArmTarget.ITarget => ({
       ...target,
       point: point(progress),
-      bend: Vector3.lerp(elbow, target.bend, weight(elapsed)),
+      bend: AutoMovieEngineVector3.lerp(elbow, target.bend, weight(elapsed)),
     }),
   });
   const entryFingers: IAutoMovieMotionHumanPosture["joints"] =

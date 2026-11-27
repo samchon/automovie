@@ -1,4 +1,6 @@
-import { StrikingLimb } from "@automovie/motions/executable/internal";
+import {
+  StrikingLimb
+} from "../../../../../packages/motions/src/executable/cases/StrikingLimb";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

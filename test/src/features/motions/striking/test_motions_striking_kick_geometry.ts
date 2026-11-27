@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { KickGeometry } from "@automovie/motions/internal";
+import {
+  KickGeometry
+} from "../../../../../packages/motions/src/striking/internal/KickGeometry";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -10,8 +10,8 @@ import type {
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Read the source hinge's swing as a model-space metre displacement. The end is
@@ -49,7 +49,7 @@ export function posedHingeSwing(
     };
   const upperJoint: IAutoMovieJointPose = posed(props.chain.upper);
   const lowerJoint: IAutoMovieJointPose = posed(props.chain.lower);
-  const above: IAutoMovieQuaternion = Quaternion.multiply(
+  const above: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     prepared.upper.worldRotation,
     jointToQuaternion(
       upperJoint,
@@ -57,9 +57,9 @@ export function posedHingeSwing(
       props.restFrames?.[props.chain.upper],
     ),
   );
-  const mid: IAutoMovieVector3 = Vector3.add(
+  const mid: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     prepared.upper.worldPosition,
-    Quaternion.rotateVector(above, prepared.lowerOffset),
+    AutoMovieEngineQuaternion.rotateVector(above, prepared.lowerOffset),
   );
   let prefix: IAutoMovieQuaternion | undefined;
   let composeLower:
@@ -82,16 +82,16 @@ export function posedHingeSwing(
   const end: (flexion: number) => IAutoMovieVector3 = (
     flexion: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       mid,
-      Quaternion.rotateVector(
-        Quaternion.multiply(
-          (prefix ??= Quaternion.multiply(above, prepared.lowerRotation)),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(
+          (prefix ??= AutoMovieEngineQuaternion.multiply(above, prepared.lowerRotation)),
           lowerRotation(flexion),
         ),
         prepared.effectorOffset,
       ),
     );
   const flexion: number = lowerJoint.flexion ?? 0;
-  return Vector3.subtract(end(flexion + 1), end(flexion));
+  return AutoMovieEngineVector3.subtract(end(flexion + 1), end(flexion));
 }

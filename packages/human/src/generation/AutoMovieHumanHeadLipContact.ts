@@ -1,4 +1,4 @@
-import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftSectionNative, AutoMovieEngineLoftViewRead, AutoMovieEngineLoftViewSource, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadLipContact,
@@ -32,7 +32,7 @@ export namespace AutoMovieHumanHeadLipContact {
     height: number,
   ): IAutoMovieHumanHeadLipContact.IContact {
     const admitted: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(parent);
+      AutoMovieEngineLoftViewSource.create(parent);
     if (admitted?.source === null || admitted === null)
       throw new Error(
         "Lip material parent has no admitted original direct field",
@@ -46,7 +46,7 @@ export namespace AutoMovieHumanHeadLipContact {
      */
     function field(y: number, z: number): IField {
       const inputs: IAutoMovieLoftViewRead.IValues | string =
-        AutoMovieLoftViewRead.values(source, y);
+        AutoMovieEngineLoftViewRead.values(source, y);
       if (typeof inputs === "string")
         throw new Error(`Lip parent field: ${inputs}`);
       const plane: IAutoMovieLoftSectionFrame = parent.axis.at(y);
@@ -64,8 +64,8 @@ export namespace AutoMovieHumanHeadLipContact {
         throw new Error(
           "Lip material parent requires its declared world-level X/Z chart",
         );
-      const point: ReturnType<typeof AutoMovieLoftSectionNative.point> =
-        AutoMovieLoftSectionNative.point(inputs);
+      const point: ReturnType<typeof AutoMovieEngineLoftSectionNative.point> =
+        AutoMovieEngineLoftSectionNative.point(inputs);
       const target: number = z - plane.origin[2];
       const lower: number = point(-Math.PI / 2)[1];
       const upper: number = point(Math.PI / 2)[1];
@@ -87,8 +87,8 @@ export namespace AutoMovieHumanHeadLipContact {
             ? Math.PI / 2
             : (low + high) / 2;
       const local: ReturnType<
-        ReturnType<typeof AutoMovieLoftSectionNative.phase>
-      > = AutoMovieLoftSectionNative.phase(inputs)(phase);
+        ReturnType<typeof AutoMovieEngineLoftSectionNative.phase>
+      > = AutoMovieEngineLoftSectionNative.phase(inputs)(phase);
       const first: number = local.t[0] / local.t[1];
       const second: number =
         (local.tt[0] * local.t[1] - local.t[0] * local.tt[1]) / local.t[1] ** 3;

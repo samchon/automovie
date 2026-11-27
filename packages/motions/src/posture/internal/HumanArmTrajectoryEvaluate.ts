@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -228,7 +228,7 @@ export function HumanArmTrajectoryEvaluate(
       // body's travel is never charged to the arm (`HumanArmTrajectoryTravel`).
       const travel = (p: number): number =>
         1000 *
-        Vector3.length(
+        AutoMovieEngineVector3.length(
           V.step(
             c.frames[a]![k]!,
             c.frames[a]![k + 1]!,
@@ -309,17 +309,17 @@ export function HumanArmTrajectoryEvaluate(
           site,
         );
         const contact: IAutoMovieVector3 = P.pad(placed[a]![k]!, site.contact);
-        const off: IAutoMovieVector3 = Vector3.scale(
-          Vector3.subtract(contact, at.point),
+        const off: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(contact, at.point),
           1000,
         );
         const normal: IAutoMovieVector3 | undefined = at.normal;
         const across: number =
-          normal === undefined ? 0 : Vector3.dot(off, normal);
-        const slide: number = Vector3.length(
+          normal === undefined ? 0 : AutoMovieEngineVector3.dot(off, normal);
+        const slide: number = AutoMovieEngineVector3.length(
           normal === undefined
             ? off
-            : Vector3.subtract(off, Vector3.scale(normal, across)),
+            : AutoMovieEngineVector3.subtract(off, AutoMovieEngineVector3.scale(normal, across)),
         );
         // Keep the site's height on its authored side of the touched solid.
         const surface: HumanArmSurfaceLift.IReading | undefined =

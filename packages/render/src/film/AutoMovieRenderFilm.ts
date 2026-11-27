@@ -33,7 +33,7 @@ export namespace AutoMovieRenderFilm {
    * raster is odd; the timeline's id, frame rate or runtime differs from the
    * production's, or its length is not a multiple of `frameStep`; the effect
    * runtimes are not exactly the timeline's current population for this
-   * production, as an `AutoMovieFilmEffectRuntimeError`; an audio asset is
+   * production, as an `AutoMovieEngineFilmEffectRuntimeError`; an audio asset is
    * invalid or a cue's asset is missing or holds another sample count; or a guide
    * pass is unknown or not single. The inputs are not changed.
    *

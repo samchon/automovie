@@ -2,7 +2,7 @@
 export namespace IAutoMovieInterpolateSpline {
   /**
    * Build a C2 interpolant through knots with a sampled overshoot policy: the
-   * spline under tension of `AutoMovieSpline`, at tension 0 a cubic spline and
+   * spline under tension of `AutoMovieEngineSpline`, at tension 0 a cubic spline and
    * with a searched tension whose sixteen-part segment scan stays within a
    * tenth of the largest value step within two segments. This is a sampled
    * policy, not a strict bound on extrema; the fixed maximum tension can be

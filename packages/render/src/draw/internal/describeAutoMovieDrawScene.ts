@@ -6,12 +6,12 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../scene/AUTO_MOVIE_INSPECTION_PALETTE.js";
-import type { IAutoMovieInspectionPath } from "../../scene/IAutoMovieInspectionPath.js";
+import { AutoMovieRenderInspectionPalette } from "../../scene/AutoMovieRenderInspectionPalette.js";
+import type { IAutoMovieRenderInspectionPath } from "../../scene/IAutoMovieRenderInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../../scene/inspection/internal/listAutoMovieInspectionPaths.js";
-import type { IAutoMovieViewerViewpoint } from "../../scene/IAutoMovieViewerViewpoint.js";
+import type { IAutoMovieRenderViewerViewpoint } from "../../scene/IAutoMovieRenderViewerViewpoint.js";
 import { autoMovieViewerNamedViewpoints } from "../../scene/subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
-import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
 
 /*
  * Describe a created subject as a capture plans against it, from the scene as
@@ -30,12 +30,12 @@ import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
  */
 export function describeAutoMovieDrawScene(
   name: string,
-  scene: IAutoMovieDrawScene,
+  scene: IAutoMovieRenderDrawScene,
 ): IAutoMovieCaptureSubject {
   // Boxes per distinct path, in world space.
   scene.scene.updateMatrixWorld(true);
   const boxes: Map<string, THREE.Box3> = new Map();
-  const entries: IAutoMovieInspectionPath[] = listAutoMovieInspectionPaths(
+  const entries: IAutoMovieRenderInspectionPath[] = listAutoMovieInspectionPaths(
     scene.scene,
   );
   for (const entry of entries) {
@@ -54,7 +54,7 @@ export function describeAutoMovieDrawScene(
     "trail",
     "trail/now",
     "edge",
-    ...Object.keys(AUTO_MOVIE_INSPECTION_PALETTE.defect).map(
+    ...Object.keys(AutoMovieRenderInspectionPalette.defect).map(
       (kind: string): string => `defect/${kind}`,
     ),
   ];
@@ -71,7 +71,7 @@ export function describeAutoMovieDrawScene(
     views: [
       ...Object.keys(scene.views ?? {}),
       ...autoMovieViewerNamedViewpoints().map(
-        (viewpoint: IAutoMovieViewerViewpoint): string => viewpoint.id,
+        (viewpoint: IAutoMovieRenderViewerViewpoint): string => viewpoint.id,
       ),
     ],
     drawables: [...boxes].map(

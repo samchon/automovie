@@ -1,4 +1,6 @@
-import { assertAutoMovieMetricRasterBudget } from "@automovie/render/internal";
+import {
+  assertAutoMovieMetricRasterBudget
+} from "../../../../../packages/render/src/scene/internal/assertAutoMovieMetricRasterBudget";
 import { TestValidator } from "@nestia/e2e";
 import { doesNotThrow } from "node:assert/strict";
 

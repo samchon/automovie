@@ -39,9 +39,9 @@ import { AutoMovieHumanF1ToeMiddle } from "./f1/AutoMovieHumanF1ToeMiddle";
 import { AutoMovieHumanF1ToeRing } from "./f1/AutoMovieHumanF1ToeRing";
 import { AutoMovieHumanF1Trunk } from "./f1/AutoMovieHumanF1Trunk";
 import {
-  AutoMovieLoftChain,
-  AutoMovieLoftViewFullSource,
-  AutoMovieNaturalSpline,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftViewFullSource,
+  AutoMovieEngineNaturalSpline,
   AutoMovieEngineConstruction,
 } from "@automovie/engine";
 import type {
@@ -67,7 +67,7 @@ import type {
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
-import * as AutoMovieHumanF1Data from "./internal/AutoMovieHumanF1Data";
+import { AutoMovieHumanF1Data } from "./internal/AutoMovieHumanF1Data";
 
 /**
  * The f1 figure in its reference pose, generated from its authored conic
@@ -481,7 +481,7 @@ export namespace AutoMovieHumanF1 {
       d[2]! * up[0]! - d[0]! * up[2]!,
       d[0]! * up[1]! - d[1]! * up[0]!,
     ];
-    const stationAt: (t: number) => number[] = AutoMovieLoftChain.sampler(
+    const stationAt: (t: number) => number[] = AutoMovieEngineLoftChain.sampler(
       chain,
       station,
     );
@@ -623,7 +623,7 @@ export namespace AutoMovieHumanF1 {
       (_: unknown, k: number): [number, number] => {
         const phase: number = (2 * Math.PI * k) / phases;
         const line = (s: number): number =>
-          off(AutoMovieLoftChain.point(chain, s, phase));
+          off(AutoMovieEngineLoftChain.point(chain, s, phase));
         if (line(from) * line(to) >= 0)
           throw new Error(
             "rootSection: the station line of " +
@@ -634,7 +634,7 @@ export namespace AutoMovieHumanF1 {
               parent.name,
           );
         return charted(
-          AutoMovieLoftChain.point(chain, root(line, from, to), phase),
+          AutoMovieEngineLoftChain.point(chain, root(line, from, to), phase),
         );
       },
     );
@@ -786,7 +786,7 @@ export namespace AutoMovieHumanF1 {
       if (loft.chain === null)
         throw new Error("fanSeams: " + name + " does not loft");
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-      const knotAt: (t: number) => number[] = AutoMovieLoftChain.sampler(
+      const knotAt: (t: number) => number[] = AutoMovieEngineLoftChain.sampler(
         chain,
         digit.knots[0]!,
       );
@@ -816,7 +816,7 @@ export namespace AutoMovieHumanF1 {
         );
         const d: number[] = sub(
           [0, 1, 2].map((c: number): number => (near[c]! + far[c]!) / 2),
-          AutoMovieLoftChain.point(end.chain!, station, phase),
+          AutoMovieEngineLoftChain.point(end.chain!, station, phase),
         );
         const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
         return [
@@ -994,7 +994,7 @@ export namespace AutoMovieHumanF1 {
       const moved = (s: number, t: number): number => {
         const [atS, atT]: ((phase: number) => number[])[] = [s, t].map(
           (x: number): ((phase: number) => number[]) =>
-            AutoMovieLoftChain.sampler(chain, x),
+            AutoMovieEngineLoftChain.sampler(chain, x),
         );
         return Math.max(
           ...Array.from(
@@ -1049,7 +1049,7 @@ export namespace AutoMovieHumanF1 {
           course.at(s),
           course.at(t),
         ];
-        const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+        const at: (phase: number) => number[] = AutoMovieEngineLoftChain.sampler(
           chain,
           s,
         );
@@ -1102,7 +1102,7 @@ export namespace AutoMovieHumanF1 {
       if (loft.chain === null) return stations;
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
       const ring = (s: number): number[][] => {
-        const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+        const at: (phase: number) => number[] = AutoMovieEngineLoftChain.sampler(
           chain,
           s,
         );
@@ -1154,7 +1154,7 @@ export namespace AutoMovieHumanF1 {
         ]);
       if (windows.length === 0) return cut;
       const fine = (s: number): number[][] => {
-        const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+        const at: (phase: number) => number[] = AutoMovieEngineLoftChain.sampler(
           chain,
           s,
         );
@@ -1312,7 +1312,7 @@ export namespace AutoMovieHumanF1 {
           "the primary full fan host source was not declared before its seam",
         );
       const endSource: IAutoMovieLoftViewFullSource.IReader =
-        AutoMovieLoftViewFullSource.create(endPart);
+        AutoMovieEngineLoftViewFullSource.create(endPart);
       const seam = (j: number): IAutoMovieConstructionSplit.ISeam => {
         const [a, b]: [number, number] = fan.seams[j]!;
         const [pa, pb]: number[][] = [
@@ -1851,7 +1851,7 @@ export namespace AutoMovieHumanF1 {
           .filter((y: number): boolean => y > to),
       ];
       const rings: number[][][] = layers.map((s: number): number[][] => {
-        const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+        const at: (phase: number) => number[] = AutoMovieEngineLoftChain.sampler(
           chain,
           s,
         );
@@ -2564,7 +2564,7 @@ export namespace AutoMovieHumanF1 {
   /*
    * Columns round the nose's band. Its rail is a curve on the nose, which the band's end meets exactly only at its columns; between them the
    * band's own interpolation stood 0.03 mm off the nose's rail at 96 columns, and a nostril's cut, which crosses there, could not place its
-   * crossing from one face to the next (`AutoMovieSolidClip.CROSSING`, 0.01 mm).
+   * crossing from one face to the next (`AutoMovieEngineSolidClip.CROSSING`, 0.01 mm).
    */
   const NOSE_COLUMNS: number = 192;
 
@@ -2737,7 +2737,7 @@ export namespace AutoMovieHumanF1 {
     const armpit: IChart = chart(placed.point("armpit"));
 
     // The arm's ring at its rail curve (`armRails`), read from a loft of its first stations alone.
-    const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(
+    const along: (psi: number) => number = AutoMovieEngineNaturalSpline.periodic(
       armRails(side).map(past),
     );
     const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
@@ -2753,7 +2753,7 @@ export namespace AutoMovieHumanF1 {
     if (loft.chain === null)
       throw new Error("the arm's first stations do not loft");
     const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-    const behind: (psi: number) => number = AutoMovieNaturalSpline.periodic(
+    const behind: (psi: number) => number = AutoMovieEngineNaturalSpline.periodic(
       armRails(side).map(
         (mm: number): number =>
           (RAIL_MM.arm - mm) / (RAIL_MM.arm - Math.min(...ARM_RAILS_MM)),
@@ -2764,7 +2764,7 @@ export namespace AutoMovieHumanF1 {
       (_: unknown, j: number): [number, number] => {
         const psi: number = (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS);
         const p: IChart = chart(
-          AutoMovieLoftChain.point(chain, along(psi), psi),
+          AutoMovieEngineLoftChain.point(chain, along(psi), psi),
         );
         // The floor under the crease, met by a smooth maximum: held by a plain one, the loop ran level along the floor and turned up at a
         // corner at each end, and the band stood a box-shaped notch at the back of the armpit. Behind the crease, where the rail comes up to
@@ -2824,8 +2824,8 @@ export namespace AutoMovieHumanF1 {
       t[0]! * up[1]! - t[1]! * up[0]!,
     ];
     const chest: (clock: number) => number =
-      AutoMovieNaturalSpline.periodic(BREAST_CHEST_MM);
-    const railAt: (t: number) => number[] = AutoMovieLoftChain.sampler(
+      AutoMovieEngineNaturalSpline.periodic(BREAST_CHEST_MM);
+    const railAt: (t: number) => number[] = AutoMovieEngineLoftChain.sampler(
       chain,
       rail,
     );
@@ -2874,7 +2874,7 @@ export namespace AutoMovieHumanF1 {
   ): IAutoMovieConstructionPortLoop {
     const family: IAutoMovieHumanConicLoft.IFamily = placed.body.nose;
     const first: number = family.knots[0]!;
-    const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(
+    const along: (psi: number) => number = AutoMovieEngineNaturalSpline.periodic(
       NOSE_RAILS_MM.map((rail: number): number => first + rail),
     );
     const far: number = first + Math.max(...NOSE_RAILS_MM);
@@ -2890,7 +2890,7 @@ export namespace AutoMovieHumanF1 {
       { length: 4 * NOSE_COLUMNS },
       (_: unknown, j: number): IChart => {
         const psi: number = (2 * Math.PI * j) / (4 * NOSE_COLUMNS);
-        return chart(AutoMovieLoftChain.point(chain, along(psi), psi));
+        return chart(AutoMovieEngineLoftChain.point(chain, along(psi), psi));
       },
     );
     const radius: number =

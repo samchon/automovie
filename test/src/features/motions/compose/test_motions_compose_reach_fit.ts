@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -7,10 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanReach,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanReach
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanReach";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -51,9 +55,9 @@ export async function test_motions_compose_reach_fit(): Promise<void> {
   const elbow: IAutoMovieVector3 = bones.get("rightLowerArm")!.worldPosition;
   const wrist: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
   const reach: number =
-    Vector3.distance(shoulder, elbow) + Vector3.distance(elbow, wrist);
+    AutoMovieEngineVector3.distance(shoulder, elbow) + AutoMovieEngineVector3.distance(elbow, wrist);
   const ahead = (distance: number): IAutoMovieVector3 =>
-    Vector3.add(shoulder, { x: 0, y: 0, z: distance });
+    AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: distance });
   const beyond: IAutoMovieVector3 = ahead(reach + body.measure.hand);
 
   // 1. Within.
@@ -72,7 +76,7 @@ export async function test_motions_compose_reach_fit(): Promise<void> {
   // 2. Clamped.
   TestValidator.predicate(
     "a point beyond reach is clamped to the full reach",
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       AutoMovieMotionHumanReach.fit(body, posture, "rightArm", beyond, "clamp")
         .point,
       ahead(reach),

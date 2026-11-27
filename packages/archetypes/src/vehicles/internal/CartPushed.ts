@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -24,7 +24,7 @@ export namespace CartPushed {
     >,
     d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const grip: number = d.gripDiameter! / 2;
     const wheel: number = d.wheelDiameter! / 2;
     const length: number = d.length!;
@@ -144,7 +144,7 @@ export namespace CartPushed {
     >,
     d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const grip: number = d.gripDiameter! / 2;
     const wheel: number = d.wheelDiameter! / 2;
     const length: number = d.length!;

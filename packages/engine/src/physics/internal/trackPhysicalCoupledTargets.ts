@@ -5,11 +5,11 @@ import type {
   IAutoMoviePoses,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalCoupledTargetError } from "../AutoMoviePhysicalCoupledTargetError";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import { AutoMovieEnginePhysicalCoupledTargetError } from "../AutoMovieEnginePhysicalCoupledTargetError";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 import type { IPhysicalContactTargetSeed } from "./IPhysicalContactTargetSeed";
 import type { IPhysicalCoupledTargetGroup } from "./IPhysicalCoupledTargetGroup";
-import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
+import { AutoMovieEnginePhysicalTargetInterval as Interval } from "../AutoMovieEnginePhysicalTargetInterval";
 import { fitPhysicalCoupledTargetGroup } from "./fitPhysicalCoupledTargetGroup";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTargetSeed";
@@ -57,7 +57,7 @@ export function trackPhysicalCoupledTargets(props: {
           candidate.group === label,
       );
   if (group === undefined || !group.bodies.includes(props.body))
-    throw new AutoMoviePhysicalCoupledTargetError({
+    throw new AutoMovieEnginePhysicalCoupledTargetError({
       step,
       group: label,
       members: [props.body.id],

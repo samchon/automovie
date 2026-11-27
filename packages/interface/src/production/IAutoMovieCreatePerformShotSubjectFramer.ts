@@ -20,7 +20,7 @@ export namespace IAutoMovieCreatePerformShotSubjectFramer {
    * part/proxy boxes, using the displayed world frame of driven nodes and
    * formation footprints sampled from their cues. Height and radius are fixed
    * from the opening union and follow updates the base. Below
-   * MIN_MEASURED_SUBJECT_HEIGHT, height takes DEFAULT_SUBJECT_HEIGHT.
+   * AutoMovieEngineMinMeasuredSubjectHeight, height takes AutoMovieEngineDefaultSubjectHeight.
    *
    * Any other subject resolves to one point, from the live resolver when it
    * answers and the staged placements otherwise, and is boxed through

@@ -7,7 +7,7 @@ import { buildSpaceObject as buildSpaceObjectImplementation } from "./internal/b
 export namespace AutoMovieRenderSceneSpace {
   /**
    * Build the structural ground of a space as one `Mesh` per standable surface,
-   * grouped under `SPACE_GROUP_NAME`. Opaque authored surface colors are used
+   * grouped under `AutoMovieRenderSpaceGroupName`. Opaque authored surface colors are used
    * for beauty rendering; uncolored supports write neither color nor depth.
    * The meshes remain ordinary structural geometry for guide passes.
    *

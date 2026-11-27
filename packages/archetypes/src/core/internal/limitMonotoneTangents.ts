@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -28,16 +28,16 @@ export function limitMonotoneTangents(
   const limit: number[] = points.map((): number => 1);
   for (let i: number = 0; i + 1 < points.length; i++) {
     if (held[i]) continue;
-    const c: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(points[i + 1]!, points[i]!),
+    const c: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(points[i + 1]!, points[i]!),
       1 / (times[i + 1]! - times[i]!),
     );
-    const squared: number = Vector3.dot(c, c);
+    const squared: number = AutoMovieEngineVector3.dot(c, c);
     if (!(squared > 0)) continue;
-    const alpha: number = Math.max(0, Vector3.dot(tangents[i]!, c) / squared);
+    const alpha: number = Math.max(0, AutoMovieEngineVector3.dot(tangents[i]!, c) / squared);
     const beta: number = Math.max(
       0,
-      Vector3.dot(tangents[i + 1]!, c) / squared,
+      AutoMovieEngineVector3.dot(tangents[i + 1]!, c) / squared,
     );
     const scale: number = Math.min(
       1,
@@ -48,6 +48,6 @@ export function limitMonotoneTangents(
     limit[i + 1] = Math.min(limit[i + 1]!, scale);
   }
   limit.forEach((scale: number, i: number): void => {
-    if (scale < 1) tangents[i] = Vector3.scale(tangents[i]!, scale);
+    if (scale < 1) tangents[i] = AutoMovieEngineVector3.scale(tangents[i]!, scale);
   });
 }

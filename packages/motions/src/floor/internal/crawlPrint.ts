@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanCrawl,
   IAutoMovieVector3,
@@ -26,7 +26,7 @@ export function crawlPrint(
   ): IAutoMovieVector3 =>
     HumanFrame.point(
       frame,
-      Vector3.add(nominal[limb], {
+      AutoMovieEngineVector3.add(nominal[limb], {
         x: 0,
         y: 0,
         z: stride * (j === 0 ? landed : centred(limb, j)),

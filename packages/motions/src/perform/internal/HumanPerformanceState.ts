@@ -45,7 +45,7 @@ import { validateInitialPropMounts } from "./validateInitialPropMounts";
 /*
  * Everything a performance resolves and its readers share: the people with
  * their placed actions, the props, the laws, the cue tracks and the schedule,
- * built once by the constructor.
+ * built once by the function Object() { [native code] }.
  *
  * `AutoMovieMotionHumanPerformance` is the public surface over it. The state's members are
  * public so the `AutoMovieMotionHumanPerformance*` namespaces, which hold the performance's

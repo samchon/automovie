@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile,
   IAutoMovieRigidTransform,
@@ -36,18 +36,18 @@ export function preparePhysicalHumanArmSwing(
     rotation: IAutoMovieRigidTransform["rotation"];
   }[] = arm.map((bone: string) => ({
     bone,
-    offset: Vector3.subtract(neutral[bone]!.position, pivot),
+    offset: AutoMovieEngineVector3.subtract(neutral[bone]!.position, pivot),
     rotation: neutral[bone]!.rotation,
   }));
 
   return (angle: number): Record<string, IAutoMovieRigidTransform> => {
     const rotation: IAutoMovieRigidTransform["rotation"] =
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, angle);
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, angle);
     const pose: Record<string, IAutoMovieRigidTransform> = { ...neutral };
     for (const source of sources)
       pose[source.bone] = {
-        position: Vector3.add(pivot, Quaternion.rotateVector(rotation, source.offset)),
-        rotation: Quaternion.multiply(rotation, source.rotation),
+        position: AutoMovieEngineVector3.add(pivot, AutoMovieEngineQuaternion.rotateVector(rotation, source.offset)),
+        rotation: AutoMovieEngineQuaternion.multiply(rotation, source.rotation),
       };
     return pose;
   };

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeGamingChip } from "../AutoMovieArchetypeGamingChip";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -42,8 +42,8 @@ export function createGamingChip(
   builder.rod(
     "chip",
     CHIP.diameter / 2,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, CHIP.thickness, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, CHIP.thickness, 0),
     { color: "#2a6db2" },
   );
   TabletopStack.contacts(builder, CHIP.thickness, CHIP.diameter);

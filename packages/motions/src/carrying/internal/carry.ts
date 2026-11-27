@@ -1,6 +1,6 @@
 import {
   AutoMovieEngineMotionSampling,
-  DEFAULT_HUMANOID_ROM,
+  AutoMovieEngineDefaultHumanoidRom,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -175,7 +175,7 @@ export namespace carry {
   /*
    * The one-hand load's hanging arm, clinical `[flexion, abduction, twist]`
    * degrees. The load pulls the arm straight down, so the elbow sits at its
-   * range's full extension (`DEFAULT_HUMANOID_ROM`), and the upper arm is
+   * range's full extension (`AutoMovieEngineDefaultHumanoidRom`), and the upper arm is
    * abducted just enough that the straight arm's wrist clears the thigh: the
    * wrist's line, a forearm's radius in from the wrist's outer side, lies
    * beside the thigh's outer surface (the hip joint's half width plus the
@@ -193,7 +193,7 @@ export namespace carry {
     const m: Pick<IAutoMovieMotionHumanBody["measure"], HangMeasure> =
       body.measure;
     const elbow: IAutoMovieAngleRange | null | undefined =
-      DEFAULT_HUMANOID_ROM[`${side}LowerArm`]?.flexion;
+      AutoMovieEngineDefaultHumanoidRom[`${side}LowerArm`]?.flexion;
     if (elbow === null || elbow === undefined)
       throw new Error("The range-of-motion table gives the elbow no flexion");
     const out: number =

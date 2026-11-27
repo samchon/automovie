@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMatrix3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryEpipolarMatrixFittingOperation,
   IAutoMovieRecoveryImagePointsNormalizationOperation,
@@ -69,9 +69,9 @@ export function fitRecoveryEpipolarMatrix(
           rank.singularValues[at]! *
           rank.leftColumns[at]![row]! *
           rank.rightColumns[at]![column]!;
-  const matrix: number[] = AutoMovieMatrix3.multiply(
-    AutoMovieMatrix3.transpose(b.transform),
-    AutoMovieMatrix3.multiply(rankTwo, a.transform),
+  const matrix: number[] = AutoMovieEngineMatrix3.multiply(
+    AutoMovieEngineMatrix3.transpose(b.transform),
+    AutoMovieEngineMatrix3.multiply(rankTwo, a.transform),
   );
   const norm: number = Math.hypot(...matrix);
   if (!(norm > 0))

@@ -1,4 +1,4 @@
-import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
+import { AutoMovieEngineRec709Xyz } from "../../AutoMovieEngineRec709Xyz";
 
 /*
  * The colour of a black body at `kelvin`, as linear Rec. 709 RGB with luminance
@@ -8,7 +8,7 @@ import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
  *
  * The chromaticity is the cubic approximation of the Planckian locus by Kim et
  * al. (2002), whose coefficients cover 1667 K to 25000 K; the result is mapped
- * from XYZ by AUTOMOVIE_REC709_XYZ. Saturated low temperatures leave the
+ * from XYZ by AutoMovieEngineRec709Xyz. Saturated low temperatures leave the
  * Rec. 709 gamut slightly, so a channel may be a little below zero; it is
  * returned as computed, because clamping it would change the white the balance
  * adapts.
@@ -45,7 +45,7 @@ export function autoMoviePlanckianWhite(
 
   // XYZ at unit luminance, then linear Rec. 709.
   const xyz: [number, number, number] = [x / y, 1, (1 - x - y) / y];
-  const m: readonly number[] = AUTOMOVIE_REC709_XYZ.fromXyz;
+  const m: readonly number[] = AutoMovieEngineRec709Xyz.fromXyz;
   return [
     m[0]! * xyz[0] + m[1]! * xyz[1] + m[2]! * xyz[2],
     m[3]! * xyz[0] + m[4]! * xyz[1] + m[5]! * xyz[2],

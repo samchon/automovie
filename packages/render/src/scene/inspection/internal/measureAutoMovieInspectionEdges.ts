@@ -1,8 +1,8 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
-import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
+import { AutoMovieRenderInspectionKinds } from "../../AutoMovieRenderInspectionKinds.js";
+import type { IAutoMovieRenderInspectionMeasured } from "../../IAutoMovieRenderInspectionMeasured.js";
 
 /*
  * Read a mesh's triangle edges and return them as one mark lying on the mesh as
@@ -30,7 +30,7 @@ export function measureAutoMovieInspectionEdges(props: {
    * The mesh's inspection path.
    */
   path: string;
-}): IAutoMovieInspectionMeasured {
+}): IAutoMovieRenderInspectionMeasured {
   const mesh: THREE.Mesh = props.mesh;
   const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
     mesh.geometry.getAttribute("position");
@@ -67,8 +67,8 @@ export function measureAutoMovieInspectionEdges(props: {
     marks.push({
       path: props.path === "" ? "edge" : `${props.path}/edge`,
       kind: "edge",
-      label: AUTO_MOVIE_INSPECTION_KINDS.edge!.label,
-      color: AUTO_MOVIE_INSPECTION_KINDS.edge!.color,
+      label: AutoMovieRenderInspectionKinds.edge!.label,
+      color: AutoMovieRenderInspectionKinds.edge!.color,
       shape: { type: "segments", points },
       flagged: false,
       anchor: props.path,

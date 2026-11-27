@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -19,9 +19,9 @@ export function lieDownHips(
   prepared: lieDownHips.IPrepared,
 ): IAutoMovieVector3 {
   const { from, body }: lieDownHips.IPrepared = prepared;
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     from.root,
-    Quaternion.rotateVector(humanPostureHeading(from), body.rest.get("hips")!),
+    AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(from), body.rest.get("hips")!),
   );
 }
 

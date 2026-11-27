@@ -1,4 +1,4 @@
-import { AutoMovieComposition, AutoMovieEngineScheduleCut, AutoMovieEngineSchedule } from "@automovie/engine";
+import { AutoMovieEngineComposition, AutoMovieEngineScheduleCut, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
@@ -63,7 +63,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
   });
   const step: IAutoMovieIntent = { subject: "a", capability: "step" };
   const run = (...parts: IAutoMovieIntent[]): IAutoMovieSchedule =>
-    AutoMovieEngineSchedule.resolve(AutoMovieComposition.sequence(...parts), laws);
+    AutoMovieEngineSchedule.resolve(AutoMovieEngineComposition.sequence(...parts), laws);
   const close = (a: number, b: number): boolean => Math.abs(a - b) < 1e-12;
 
   const shared: IAutoMovieSchedule = run(
@@ -145,9 +145,9 @@ export function test_engine_composition_resolve_schedule_cut(): void {
     l: IAutoMovieScheduleLaws = laws,
   ): IAutoMovieSchedule =>
     AutoMovieEngineSchedule.resolve(
-      AutoMovieComposition.parallel(
+      AutoMovieEngineComposition.parallel(
         { ...kick(), anchor: "k" },
-        AutoMovieComposition.sequence(guard(until), step),
+        AutoMovieEngineComposition.sequence(guard(until), step),
       ),
       l,
     );
@@ -277,9 +277,9 @@ export function test_engine_composition_resolve_schedule_cut(): void {
     if (intent.capability === "step") seen.push(intent);
   };
   const restored: IAutoMovieSchedule = AutoMovieEngineSchedule.resolve(
-    AutoMovieComposition.sequence(
+    AutoMovieEngineComposition.sequence(
       anchor,
-      AutoMovieComposition.at("saved-kick", savedStep, -0.5, {
+      AutoMovieEngineComposition.at("saved-kick", savedStep, -0.5, {
         align: "start",
       }),
       savedStep,
@@ -357,11 +357,11 @@ export function test_engine_composition_resolve_schedule_cut(): void {
 
   const synced = (subject: string): IAutoMovieSchedule =>
     AutoMovieEngineSchedule.resolve(
-      AutoMovieComposition.parallel(
+      AutoMovieEngineComposition.parallel(
         { ...kick(), anchor: "k" },
-        AutoMovieComposition.sequence(
+        AutoMovieEngineComposition.sequence(
           { subject: "b", capability: "guard" },
-          AutoMovieComposition.at("k", { subject, capability: "step" }, -0.5),
+          AutoMovieEngineComposition.at("k", { subject, capability: "step" }, -0.5),
           { subject: "b", capability: "stand" },
         ),
       ),

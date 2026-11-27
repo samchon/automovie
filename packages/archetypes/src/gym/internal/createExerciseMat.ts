@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeExerciseMat } from "../AutoMovieArchetypeExerciseMat";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -72,14 +72,14 @@ export function createExerciseMat(
   });
   builder.box(
     "mat",
-    Vector3.create(width, thickness, length),
-    Vector3.create(0, thickness / 2, 0),
+    AutoMovieEngineVector3.create(width, thickness, length),
+    AutoMovieEngineVector3.create(0, thickness / 2, 0),
     { color: kind === "yoga" ? "#6a5acd" : "#2c2f33" },
   );
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thickness, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, thickness, 0)),
     extent: null,
     width,
     depth: length,

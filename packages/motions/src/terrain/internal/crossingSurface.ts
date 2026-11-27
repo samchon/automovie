@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -83,23 +83,23 @@ export namespace crossingSurface {
         "the crossing needs a fixed level and dimensioned surface",
       );
     const world: IAutoMovieRigidTransform = reader.frame(context.start);
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       world.rotation,
       surface.frame.rotation,
     );
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       world.position,
-      Quaternion.rotateVector(world.rotation, surface.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(world.rotation, surface.frame.translation),
     );
     const center: IAutoMovieVector3 = frame.local(at);
     const across: IAutoMovieVector3 = frame.local(
-      Vector3.add(at, Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 })),
+      AutoMovieEngineVector3.add(at, AutoMovieEngineQuaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 })),
     );
     const ahead: IAutoMovieVector3 = frame.local(
-      Vector3.add(at, Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 })),
+      AutoMovieEngineVector3.add(at, AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 })),
     );
     if (
-      Quaternion.rotateVectorY(rotation, { x: 0, y: 1, z: 0 }) < 0.999 ||
+      AutoMovieEngineQuaternion.rotateVectorY(rotation, { x: 0, y: 1, z: 0 }) < 0.999 ||
       Math.abs(across.z - center.z) > 0.03 ||
       Math.abs(ahead.x - center.x) > 0.03
     )

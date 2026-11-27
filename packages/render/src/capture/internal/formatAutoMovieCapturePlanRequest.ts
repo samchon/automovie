@@ -13,7 +13,7 @@ import { parseAutoMovieCapturePlanRequest } from "./parseAutoMovieCapturePlanReq
  * `parseAutoMovieCapturePlanRequest` reads, so a request worked out in one host
  * repeats in another as an address, a command line or props.
  *
- * Keys come in the order of `AUTO_MOVIE_CAPTURE_PLAN_KEYS`, and a key whose
+ * Keys come in the order of `AutoMovieRenderCapturePlanKeys`, and a key whose
  * value is the reader's absent value is left out, so the request that asks for
  * nothing is the empty list. Numbers are written in JavaScript's shortest form
  * that reads back to the same number, lists joined by commas and views by `;`.

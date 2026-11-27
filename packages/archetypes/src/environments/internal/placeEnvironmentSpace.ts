@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieHeightRule,
@@ -100,7 +100,7 @@ function placeHeight(
       return { kind: "constant", value: rule.value + frame.translation.y };
     case "plane": {
       // A yaw rotates the gradient. The transformed local origin supplies its height datum.
-      const slope: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+      const slope: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
         x: rule.slopeX,
         y: 0,
         z: rule.slopeZ,

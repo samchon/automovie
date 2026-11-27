@@ -1,4 +1,4 @@
-import { AutoMovieSemanticMaskVerificationError } from "../AutoMovieSemanticMaskVerificationError";
+import { AutoMovieEngineSemanticMaskVerificationError } from "../AutoMovieEngineSemanticMaskVerificationError";
 
 /*
  * Return the typed reason from a semantic-mask verifier refusal.
@@ -9,7 +9,7 @@ import { AutoMovieSemanticMaskVerificationError } from "../AutoMovieSemanticMask
 export function autoMovieSemanticMaskVerificationFailure(
   error: unknown,
 ): "unsupported" | "invalid" | "digest-mismatch" | null {
-  return error instanceof AutoMovieSemanticMaskVerificationError
+  return error instanceof AutoMovieEngineSemanticMaskVerificationError
     ? error.reason
     : null;
 }

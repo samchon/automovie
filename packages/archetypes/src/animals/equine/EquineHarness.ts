@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -104,7 +104,7 @@ export namespace EquineHarness {
     rig: AutoMovieArchetypeEquine.IRig,
     angle: number,
   ): IAutoMovieVector3 {
-    return Vector3.create(
+    return AutoMovieEngineVector3.create(
       rig.draft.x * Math.cos(angle),
       rig.draft.y,
       rig.trunk / 2 + rig.draft.x * Math.sin(angle),
@@ -130,16 +130,16 @@ export namespace EquineHarness {
   }> {
     const r: number = ESTIMATES.strap;
     const foot: IAutoMovieVector3 = chest(rig, Math.PI / 3);
-    const crest: IAutoMovieVector3 = Vector3.add(
+    const crest: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       rig.crest,
-      Vector3.create(0, r, 0),
+      AutoMovieEngineVector3.create(0, r, 0),
     );
     return {
-      bit: Vector3.create(rig.headRadius + r, rig.mouth.y, rig.mouth.z),
+      bit: AutoMovieEngineVector3.create(rig.headRadius + r, rig.mouth.y, rig.mouth.z),
       foot,
       crest,
-      ring: Vector3.scale(Vector3.add(foot, crest), 0.5),
-      terret: Vector3.create(
+      ring: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(foot, crest), 0.5),
+      terret: AutoMovieEngineVector3.create(
         ESTIMATES.terret.x,
         rig.back + ESTIMATES.terret.rise,
         rig.hitch.z,
@@ -161,7 +161,7 @@ export namespace EquineHarness {
     d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const r: number = e.strap;
     const barrel: number = rig.barrel;
@@ -259,10 +259,10 @@ export namespace EquineHarness {
       "crupper",
       r,
       croup,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         quarters,
-        Vector3.scale(
-          Vector3.normalize(Vector3.subtract(rig.dock, quarters)),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(rig.dock, quarters)),
           barrel + r,
         ),
       ),
@@ -316,10 +316,10 @@ export namespace EquineHarness {
       builder.box(
         `blinker-${side}`,
         v(0.01, e.blinker.height, e.blinker.length),
-        Vector3.add(
-          Vector3.add(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             top,
-            Vector3.scale(Vector3.subtract(ring, top), e.blinker.along),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(ring, top), e.blinker.along),
           ),
           v(sign * r, 0, 0),
         ),
@@ -363,7 +363,7 @@ export namespace EquineHarness {
       { length: count },
       (_: unknown, k: number): IAutoMovieVector3 => {
         const u: number = k / (count - 1);
-        return Vector3.add(Vector3.lerp(from, to, u), {
+        return AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(from, to, u), {
           x: 0,
           y: -4 * sag * u * (1 - u),
           z: 0,

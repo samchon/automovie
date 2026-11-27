@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -109,7 +109,7 @@ export namespace AutoMovieArchetypeRailCarriage {
       material: "steel",
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const inch: number = AutoMovieArchetypeUnits.INCH;
     const foot: number = AutoMovieArchetypeUnits.FOOT;
     const half: number = AutoMovieArchetypeRailCarriage.REFERENCE.width / 2;
@@ -455,7 +455,7 @@ export namespace AutoMovieArchetypeRailCarriage {
         undefined,
       ),
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const depth: number = 11 * AutoMovieArchetypeUnits.FOOT;
     const strip: number = AutoMovieArchetypeUnits.FOOT;
     const length: number = 75 * AutoMovieArchetypeUnits.FOOT;

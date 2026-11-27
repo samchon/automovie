@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanLoftMesh,
@@ -45,7 +45,7 @@ export namespace AutoMovieHumanLoftMesh {
       (_: unknown, k: number): number => (2 * Math.PI * k) / phases,
     );
     for (const station of stations)
-      for (const p of AutoMovieLoftChain.ring(chain, station, around))
+      for (const p of AutoMovieEngineLoftChain.ring(chain, station, around))
         mesh.positions.push(p[0]!, p[1]!, p[2]!);
     for (let i: number = 0; i + 1 < stations.length; ++i)
       for (let k: number = 0; k < phases; ++k) {

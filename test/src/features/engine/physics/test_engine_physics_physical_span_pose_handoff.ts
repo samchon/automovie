@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalSpanPose } from "@automovie/engine";
+import { AutoMovieEnginePhysicalSpanPose } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMovieRigidTransform,
@@ -7,7 +7,7 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * A body is handed from physics to its push response only when its joints hold
- * together (`AutoMoviePhysicalSpanPose.admissible`): every joint's two anchors, its
+ * together (`AutoMovieEnginePhysicalSpanPose.admissible`): every joint's two anchors, its
  * parent frame on the parent's pose and its child frame on the child's, within
  * the handoff's linear error of each other, the envelope an ownership return
  * starts inside (`assertPhysicalReturnPath`).
@@ -46,7 +46,7 @@ export function test_engine_physics_physical_span_pose_handoff(): void {
   const admissible = (
     poses: Record<string, IAutoMovieRigidTransform>,
     limit: number,
-  ): boolean => AutoMoviePhysicalSpanPose.admissible({ joints: [knee], poses, limit });
+  ): boolean => AutoMovieEnginePhysicalSpanPose.admissible({ joints: [knee], poses, limit });
 
   // 1. Meeting anchors.
   TestValidator.predicate(

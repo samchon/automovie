@@ -1,4 +1,4 @@
-import { AutoMovieSolidMesh } from "@automovie/engine";
+import { AutoMovieEngineSolidMesh } from "@automovie/engine";
 import type {
   IAutoMovieSolidMesh,
   IAutoMovieSolidSurface,
@@ -74,8 +74,8 @@ function inspect(
       .map((u: number): Point => [u, 1]),
     [0, 0.5],
   ];
-  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
-  const foreign: number = AutoMovieSolidMesh.owner(mesh, {
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieEngineSolidMesh.create();
+  const foreign: number = AutoMovieEngineSolidMesh.owner(mesh, {
     ...surface,
     name: "foreign-domain-owner",
 
@@ -88,7 +88,7 @@ function inspect(
     },
   });
   const vertices: number[] = chart.map(([u, v]: Point): number =>
-    AutoMovieSolidMesh.vertex(
+    AutoMovieEngineSolidMesh.vertex(
       mesh,
       [scale * u, scale * v, scale * u * u],
       foreign,
@@ -103,7 +103,7 @@ function inspect(
   const addresses: Map<number, Point> = new Map(
     vertices.map((id: number, k: number): [number, Point] => [id, chart[k]!]),
   );
-  AutoMovieSolidMesh.face(mesh, {
+  AutoMovieEngineSolidMesh.face(mesh, {
     surface,
     stations,
     phases,

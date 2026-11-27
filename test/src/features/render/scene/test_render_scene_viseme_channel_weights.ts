@@ -1,4 +1,6 @@
-import { autoMovieVisemeChannelWeights } from "@automovie/render/internal";
+import {
+  autoMovieVisemeChannelWeights
+} from "../../../../../packages/render/src/scene/internal/autoMovieVisemeChannelWeights";
 import { TestValidator } from "@nestia/e2e";
 
 /** Tolerance of the summed channel weights. */

@@ -6,7 +6,9 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanObject } from "@automovie/motions";
-import { HumanPerformanceGrips } from "@automovie/motions/internal";
+import {
+  HumanPerformanceGrips
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceGrips";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

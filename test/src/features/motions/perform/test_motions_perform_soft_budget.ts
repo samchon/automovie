@@ -1,8 +1,10 @@
 import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import {
-  HumanPerformanceSoftBudget,
-  AutoMovieMotionHumanRefusal,
-} from "@automovie/motions/internal";
+  HumanPerformanceSoftBudget
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceSoftBudget";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { softPanel } from "../../internal/softPanel";

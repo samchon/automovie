@@ -2,7 +2,9 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import { ladderAccessSurface } from "@automovie/motions/internal";
+import {
+  ladderAccessSurface
+} from "../../../../../packages/motions/src/climbing/internal/ladderAccessSurface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

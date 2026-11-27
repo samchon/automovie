@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -23,7 +23,7 @@ import { AutoMovieMotionHumanArmJointCarry } from "./AutoMovieMotionHumanArmJoin
  * nine joint angles each joined through them by the shared minimum-jerk course
  * (Flash and Hogan 1985), so no read solves the arm's goal or its clearing
  * course. A knot is accepted to the solver's own angular resolution
- * (`ROM_TOLERANCE`, degrees, the paper's criteria in absolute form), and no
+ * (`AutoMovieEngineRomTolerance`, degrees, the paper's criteria in absolute form), and no
  * stretch is knotted finer than the frame grid the display reads
  * (`AutoMovieMotionHumanArmCourse.STEP`).
  *
@@ -61,7 +61,7 @@ export function AutoMovieMotionHumanArmJointCourse(
         to,
         evaluate: (seconds: number): readonly number[] =>
           angles(body, input(seconds), sides, resolution),
-        tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+        tolerance: { kind: "absolute", absolute: AutoMovieEngineRomTolerance },
         maxKnots:
           Math.ceil((to - from) / AutoMovieMotionHumanArmCourse.STEP) + 1,
       }),

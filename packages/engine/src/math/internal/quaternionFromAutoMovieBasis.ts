@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../Quaternion";
+import { AutoMovieEngineQuaternion } from "../AutoMovieEngineQuaternion";
 import { readBasisQuaternion } from "./readBasisQuaternion";
 
 /*
@@ -42,5 +42,5 @@ function normalizedRecord(
   z: number,
   w: number,
 ): IAutoMovieQuaternion {
-  return Quaternion.normalize({ x, y, z, w });
+  return AutoMovieEngineQuaternion.normalize({ x, y, z, w });
 }

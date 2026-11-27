@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -20,7 +20,7 @@ import { jumpPushArms } from "./jumpPushArms";
 import { jumpPushEnd } from "./jumpPushEnd";
 import { jumpPushPassing } from "./jumpPushPassing";
 import { jumpPushRocker } from "./jumpPushRocker";
-import * as JumpPushData from "./JumpPushData";
+import { JumpPushData } from "./JumpPushData";
 
 /*
  * Build a jump's push-off.
@@ -61,10 +61,10 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
           z: spin.z / spinRate,
         };
   const reachingTurn: IAutoMovieQuaternion = HumanFoot.rotation(heading, 0);
-  const reachingRotation: ReturnType<typeof Quaternion.prepareSlerp> =
-    Quaternion.prepareSlerp(entry.feet[reaching].rotation, reachingTurn);
-  const spinTurn: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined =
-    spinAxis === undefined ? undefined : Quaternion.prepareAxisAngle(spinAxis);
+  const reachingRotation: ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp> =
+    AutoMovieEngineQuaternion.prepareSlerp(entry.feet[reaching].rotation, reachingTurn);
+  const spinTurn: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> | undefined =
+    spinAxis === undefined ? undefined : AutoMovieEngineQuaternion.prepareAxisAngle(spinAxis);
   const reachingPoint: ReturnType<typeof HumanFrame.preparePoint> =
     HumanFrame.preparePoint(heading, tuck);
   // The reaching foot's velocity and spin are one rigid motion, carried for
@@ -73,7 +73,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
   // slower than 1 cm/s is one the foot was turning about, and is passed.
   let reachingCarry: number = P;
   for (const point of ["heel", "ball"] as const) {
-    const arm: IAutoMovieVector3 = Quaternion.rotateVector(
+    const arm: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       entry.feet[reaching].rotation,
       HumanFoot.offset(body, reaching, point),
     );
@@ -92,7 +92,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
     reachingCarry > JumpPushData.CARRY ? AutoMovieEngineMotionSampling.carriedAcceleration(reachingCarry, t) : 0;
   // The take-off foot's pitch rate about its lateral axis, degrees per
   // second, positive lifting the toes.
-  const lateral: IAutoMovieVector3 = Quaternion.rotateVector(support.rotation, {
+  const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(support.rotation, {
     x: 1,
     y: 0,
     z: 0,
@@ -228,7 +228,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
       const b: number = reachBend(t);
       const from: IAutoMovieVector3 = entry.feet[reaching].ankle;
       const into: IAutoMovieVector3 = reachingPoint(root);
-      const path: IAutoMovieVector3 = Vector3.add(
+      const path: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         jumpPath.lerp(from, into, s),
         passing(from, into, s),
       );
@@ -242,8 +242,8 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
         rotation:
           spinTurn === undefined
             ? turned
-            : Quaternion.normalize(
-                Quaternion.multiply(
+            : AutoMovieEngineQuaternion.normalize(
+                AutoMovieEngineQuaternion.multiply(
                   spinTurn((spinRate * k * 180) / Math.PI),
                   turned,
                 ),

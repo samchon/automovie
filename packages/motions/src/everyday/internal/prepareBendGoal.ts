@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
@@ -61,19 +61,19 @@ export function prepareBendGoal(
       const skin: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
         AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(region, bones.get(region.bone)!);
       point = skin.point;
-      normal = Vector3.scale(skin.normal, -1);
+      normal = AutoMovieEngineVector3.scale(skin.normal, -1);
       // The palm meets a carried surface from the shoulder's side. Its
       // in-plane finger direction follows the reach across that surface.
-      const approach: IAutoMovieVector3 = Vector3.subtract(
+      const approach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         point,
         bones.get(shoulder)!.worldPosition,
       );
-      const tangent: IAutoMovieVector3 = Vector3.addScaled(
+      const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         approach,
         normal,
-        -Vector3.dot(approach, normal),
+        -AutoMovieEngineVector3.dot(approach, normal),
       );
-      if (Vector3.dot(tangent, tangent) > 0) forward = tangent;
+      if (AutoMovieEngineVector3.dot(tangent, tangent) > 0) forward = tangent;
     }
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       body,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -109,7 +109,7 @@ export namespace StrikingHeld {
       side,
       tip: { x: 0, y: 0, z: 0 },
       axis,
-      edge: square(axis, Vector3.scale(grip.forward, -1)),
+      edge: square(axis, AutoMovieEngineVector3.scale(grip.forward, -1)),
       rolls: false,
       length: 0,
       span: null,
@@ -159,9 +159,9 @@ export namespace StrikingHeld {
     const rotation: IAutoMovieQuaternion = alignment(tool, axis, edge);
     return {
       rotation,
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         at,
-        Quaternion.rotateVector(rotation, placed(tool, back)),
+        AutoMovieEngineQuaternion.rotateVector(rotation, placed(tool, back)),
       ),
     };
   }
@@ -185,7 +185,7 @@ export namespace StrikingHeld {
     edge: IAutoMovieVector3,
   ): (at: IAutoMovieVector3) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const rotation: IAutoMovieQuaternion = alignment(tool, axis, edge);
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       rotation,
       placed(tool, back),
     );
@@ -193,7 +193,7 @@ export namespace StrikingHeld {
       at: IAutoMovieVector3,
     ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
       rotation: { ...rotation },
-      point: Vector3.subtract(at, offset),
+      point: AutoMovieEngineVector3.subtract(at, offset),
     });
   }
 
@@ -209,9 +209,9 @@ export namespace StrikingHeld {
     frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number = 0,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.point,
-      Quaternion.rotateVector(frame.rotation, placed(tool, back)),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, placed(tool, back)),
     );
   }
 
@@ -234,7 +234,7 @@ export namespace StrikingHeld {
     back: number,
   ): number {
     const off = (behind: number): number =>
-      Vector3.distance(point(tool, fitted, behind), point(tool, asked, behind));
+      AutoMovieEngineVector3.distance(point(tool, fitted, behind), point(tool, asked, behind));
     return Math.max(off(back > 0 ? back : tool.length), off(0));
   }
 
@@ -321,7 +321,7 @@ export namespace StrikingHeld {
     axis: IAutoMovieVector3,
     edge: IAutoMovieVector3,
   ): IAutoMovieQuaternion {
-    const along: IAutoMovieVector3 = Vector3.normalize(axis);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(axis);
     return HumanHand.align(
       { normal: tool.axis, forward: tool.edge },
       { normal: along, forward: square(along, edge) },

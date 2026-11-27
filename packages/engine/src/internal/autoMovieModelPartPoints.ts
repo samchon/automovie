@@ -8,7 +8,7 @@ import {
 import { autoMovieModelPartMatrices } from "./autoMovieModelPartMatrices";
 import { transformAutoMovieDrawingPoint } from "../drawing/internal/transformAutoMovieDrawingPoint";
 import { realizeAutoMovieGeometry } from "../geometry/internal/realizeAutoMovieGeometry";
-import { Matrix4 } from "../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../math/AutoMovieEngineMatrix4";
 
 /*
  * Every vertex of every part of one model, placed in the model's own frame.
@@ -36,7 +36,7 @@ export function autoMovieModelPartPoints(
   for (const part of model.parts) {
     const positions: readonly number[] = realizeAutoMovieGeometry(part.geometry)
       .mesh.positions;
-    const matrix: number[] = matrices.get(part) ?? Matrix4.identity();
+    const matrix: number[] = matrices.get(part) ?? AutoMovieEngineMatrix4.identity();
     const points: IAutoMovieVector3[] = [];
     for (let index: number = 0; index + 2 < positions.length; index += 3) {
       const point: IAutoMovieVector3 = transformAutoMovieDrawingPoint(matrix, {

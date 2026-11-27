@@ -1,6 +1,6 @@
 import {
-  AutoMovieSceneResource,
-  AutoMovieSceneRenderMode,
+  AutoMovieRenderSceneResource,
+  AutoMovieRenderSceneRenderMode,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,14 +43,14 @@ export function test_render_scene_restore_render_mode_state(): void {
   TestValidator.equals(
     "single",
     caught((): void =>
-      AutoMovieSceneRenderMode.restoreState([mark("1"), failing(a), mark("2")]),
+      AutoMovieRenderSceneRenderMode.restoreState([mark("1"), failing(a), mark("2")]),
     ),
     a,
   );
   TestValidator.equals("all ran", ran, ["1", "2"]);
 
   const several = caught((): void =>
-    AutoMovieSceneRenderMode.restoreState([
+    AutoMovieRenderSceneRenderMode.restoreState([
       failing(new AggregateError([a, b], "nested")),
       failing(c),
     ]),
@@ -65,11 +65,11 @@ export function test_render_scene_restore_render_mode_state(): void {
   );
   TestValidator.equals(
     "primary alone",
-    caught((): void => AutoMovieSceneRenderMode.restoreState([], { error: a })),
+    caught((): void => AutoMovieRenderSceneRenderMode.restoreState([], { error: a })),
     a,
   );
   const primaryFirst = caught((): void =>
-    AutoMovieSceneRenderMode.restoreState([failing(b)], { error: a }),
+    AutoMovieRenderSceneRenderMode.restoreState([failing(b)], { error: a }),
   );
   TestValidator.predicate(
     "primary first",
@@ -77,10 +77,10 @@ export function test_render_scene_restore_render_mode_state(): void {
       primaryFirst.errors[0] === a &&
       primaryFirst.errors[1] === b,
   );
-  AutoMovieSceneRenderMode.restoreState([mark("3")]);
+  AutoMovieRenderSceneRenderMode.restoreState([mark("3")]);
 
   const retired = caught((): void =>
-    AutoMovieSceneResource.reportRetirement([failing(a), failing(b)]),
+    AutoMovieRenderSceneResource.reportRetirement([failing(a), failing(b)]),
   );
   TestValidator.predicate(
     "retirement",
@@ -90,7 +90,7 @@ export function test_render_scene_restore_render_mode_state(): void {
   );
   TestValidator.equals(
     "single retirement",
-    caught((): void => AutoMovieSceneResource.reportRetirement([failing(c)])),
+    caught((): void => AutoMovieRenderSceneResource.reportRetirement([failing(c)])),
     c,
   );
 }

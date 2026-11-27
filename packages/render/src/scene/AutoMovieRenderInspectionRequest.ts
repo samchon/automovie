@@ -34,7 +34,7 @@ export namespace AutoMovieRenderInspectionRequest {
    * `parseAutoMovieInspectionRequest` reads, so a request made in one host
    * repeats in another as an address or a command line.
    *
-   * Keys come in the order of `AUTO_MOVIE_INSPECTION_KEYS`, and a key whose value
+   * Keys come in the order of `AutoMovieRenderInspectionKeys`, and a key whose value
    * is the parser's absent value is left out, so the request that asks for
    * nothing is the empty list. Lists are joined by commas, colours written
    * `pattern=rrggbb`, switches are written `1` or `0`, numbers in JavaScript's
@@ -84,7 +84,7 @@ export namespace AutoMovieRenderInspectionRequest {
    *
    * The supplied marks' kinds come first, in the order they first appear, with
    * the label and colour of their first mark. The inspection's own kinds follow
-   * in `AUTO_MOVIE_INSPECTION_KINDS` order: `edge` and the `defect/<kind>` kinds
+   * in `AutoMovieRenderInspectionKinds` order: `edge` and the `defect/<kind>` kinds
    * always, since every mesh has them, except `defect/sliver`, which exists only
    * while the request sets a sliver limit, and `trail` and `trail/now` only while
    * the request names a trail. A supplied kind that has an inspection kind's name
@@ -103,7 +103,7 @@ export namespace AutoMovieRenderInspectionRequest {
    *
    * `read` returns the text of a key, or null or undefined when the key is
    * absent. A key that is present without a value reads as the empty string,
-   * which turns a switch on. `AUTO_MOVIE_INSPECTION_KEYS` lists every key read,
+   * which turns a switch on. `AutoMovieRenderInspectionKeys` lists every key read,
    * and `formatAutoMovieInspectionRequest` writes a request back as these
    * values.
    *

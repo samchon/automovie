@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeHandSaw } from "../AutoMovieArchetypeHandSaw";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
@@ -33,20 +33,20 @@ export function createHandSaw(
   const handle: number = length - d.blade!;
   // A saw's grip runs across its heel, square to the line from the grip to
   // the tooth line's middle (the hang), so the fist thrusts along that line.
-  const centre: IAutoMovieVector3 = Vector3.create(0, handle / 2, 0);
-  const toTeeth: IAutoMovieVector3 = Vector3.subtract(
-    Vector3.create(0, handle + d.blade! / 2, HandToolDraw.BLADE_DEPTH / 2),
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, handle / 2, 0);
+  const toTeeth: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.create(0, handle + d.blade! / 2, HandToolDraw.BLADE_DEPTH / 2),
     centre,
   );
-  const across: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.create(0, -toTeeth.z, toTeeth.y),
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.create(0, -toTeeth.z, toTeeth.y),
   );
   const held: number = HandToolDraw.GRIP;
   builder.rod(
     "handle",
     radius,
-    Vector3.subtract(centre, Vector3.scale(across, held / 2)),
-    Vector3.add(centre, Vector3.scale(across, held / 2)),
+    AutoMovieEngineVector3.subtract(centre, AutoMovieEngineVector3.scale(across, held / 2)),
+    AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(across, held / 2)),
     { color: "#8a5a35" },
   );
   builder.affordance({
@@ -55,8 +55,8 @@ export function createHandSaw(
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.facing(
       centre,
-      Vector3.create(1, 0, 0),
-      Vector3.scale(across, -1),
+      AutoMovieEngineVector3.create(1, 0, 0),
+      AutoMovieEngineVector3.scale(across, -1),
     ),
     extent: null,
     grip: "power",
@@ -66,8 +66,8 @@ export function createHandSaw(
 
   builder.box(
     "blade",
-    Vector3.create(0.001, d.blade!, HandToolDraw.BLADE_DEPTH),
-    Vector3.create(0, handle + d.blade! / 2, 0),
+    AutoMovieEngineVector3.create(0.001, d.blade!, HandToolDraw.BLADE_DEPTH),
+    AutoMovieEngineVector3.create(0, handle + d.blade! / 2, 0),
     { color: "#b9bcc0", density: 11 },
   );
   builder.affordance({
@@ -75,9 +75,9 @@ export function createHandSaw(
     kind: "ledge",
     direction: "normal",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, handle + d.blade! / 2, HandToolDraw.BLADE_DEPTH / 2),
-      Vector3.create(0, 0, 1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, handle + d.blade! / 2, HandToolDraw.BLADE_DEPTH / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     length: d.blade!,

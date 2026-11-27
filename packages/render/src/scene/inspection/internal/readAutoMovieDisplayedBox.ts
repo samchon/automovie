@@ -5,14 +5,14 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieSkinnedMesh } from "../../AutoMovieSkinnedMesh.js";
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IMaterialShaderPatch } from "../../IMaterialShaderPatch.js";
+import { AutoMovieRenderSkinnedMesh } from "../../AutoMovieRenderSkinnedMesh.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "../../IAutoMovieRenderMaterialShaderPatch.js";
 import "../../dualQuaternionSkinning/internal/createDualQuaternionSkinningShaderPatch.js";
 import { readMaterialShaderPatches } from "../../internal/readMaterialShaderPatches.js";
 import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
-import * as ReadAutoMovieDisplayedBoxData from "./ReadAutoMovieDisplayedBoxData";
+import { ReadAutoMovieDisplayedBoxData } from "./ReadAutoMovieDisplayedBoxData";
 
 /*
  * Read the original twelve triangles as one affine closed box. The caller
@@ -39,7 +39,7 @@ export namespace readAutoMovieDisplayedBox {
   export function supportsStockMaterial(mesh: THREE.Mesh): boolean {
     const material: THREE.Material | THREE.Material[] = mesh.material;
     return (
-      AutoMovieThreeKind.isMaterial(material) &&
+      AutoMovieRenderThreeKind.isMaterial(material) &&
       supportsStockSurface(material) &&
       matchesStockShader(mesh, material) &&
       mesh.onBeforeRender === THREE.Object3D.prototype.onBeforeRender
@@ -52,10 +52,10 @@ export namespace readAutoMovieDisplayedBox {
    */
   export function supportsStockSurface(material: THREE.Material): boolean {
     return (
-      (AutoMovieThreeKind.isMeshStandardMaterial(material) ||
-        AutoMovieThreeKind.isMeshBasicMaterial(material) ||
-        AutoMovieThreeKind.isMeshLambertMaterial(material) ||
-        AutoMovieThreeKind.isMeshPhongMaterial(material)) &&
+      (AutoMovieRenderThreeKind.isMeshStandardMaterial(material) ||
+        AutoMovieRenderThreeKind.isMeshBasicMaterial(material) ||
+        AutoMovieRenderThreeKind.isMeshLambertMaterial(material) ||
+        AutoMovieRenderThreeKind.isMeshPhongMaterial(material)) &&
       material.visible &&
       !material.transparent &&
       !material.wireframe &&
@@ -73,7 +73,7 @@ export namespace readAutoMovieDisplayedBox {
    * row.
    */
   export function skinEnvelope(
-    mesh: AutoMovieSkinnedMesh,
+    mesh: AutoMovieRenderSkinnedMesh,
   ): IAutoMovieSubjectBox | null {
     if (!finiteAffine(mesh.matrixWorld)) return null;
     try {
@@ -104,14 +104,14 @@ export namespace readAutoMovieDisplayedBox {
     material: THREE.Material,
   ): boolean {
     if (
-      !AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
+      !AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(mesh) ||
       mesh.method === "linear"
     )
       return (
         material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile
       );
     // The skinned material's own shader patches, each named by its key.
-    const patches: readonly IMaterialShaderPatch[] =
+    const patches: readonly IAutoMovieRenderMaterialShaderPatch[] =
       readMaterialShaderPatches(material);
     return (
       patches.length === 1 &&
@@ -128,8 +128,8 @@ function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   const points = geometry.getAttribute("position");
   const indices: THREE.BufferAttribute | null = geometry.getIndex();
   if (
-    !AutoMovieThreeKind.isBufferAttribute(points) ||
-    !AutoMovieThreeKind.isFloat32Array(points.array) ||
+    !AutoMovieRenderThreeKind.isBufferAttribute(points) ||
+    !AutoMovieRenderThreeKind.isFloat32Array(points.array) ||
     points.itemSize !== 3 ||
     points.normalized ||
     indices?.normalized ||

@@ -1,16 +1,16 @@
 import {
-  AutoMovieNaturalSpline,
-  AutoMoviePeriodicCubic,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEnginePeriodicCubic,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `AutoMovieNaturalSpline` is the natural cubic spline through knots (zero end
+ * `AutoMovieEngineNaturalSpline` is the natural cubic spline through knots (zero end
  * curvature), read as value, first and second derivative and jerk, continued
  * beyond the ends along its end tangents; its `periodic` reader and
- * `AutoMoviePeriodicCubic` are the periodic cubic through equally spaced
+ * `AutoMovieEnginePeriodicCubic` are the periodic cubic through equally spaced
  * phases, the latter also enclosing its range.
  *
  * Fixture: knots (0, 0), (1, 2), (3, 1), (4, 3). Its curvatures solve 6 M1 + 2
@@ -34,7 +34,7 @@ export function test_engine_geometry_natural_spline(): void {
     Math.abs(a - b) <= e;
   const xs: number[] = [0, 1, 3, 4];
   const ys: number[] = [0, 2, 1, 3];
-  const spline = AutoMovieNaturalSpline.create(xs, ys);
+  const spline = AutoMovieEngineNaturalSpline.create(xs, ys);
 
   // 1.
   TestValidator.predicate(
@@ -46,20 +46,20 @@ export function test_engine_geometry_natural_spline(): void {
   TestValidator.predicate(
     "knots",
     xs.every((x: number, i: number): boolean =>
-      near(AutoMovieNaturalSpline.evaluate(spline, x), ys[i]!),
+      near(AutoMovieEngineNaturalSpline.evaluate(spline, x), ys[i]!),
     ),
   );
 
   // 2.
-  const [d1, d2] = AutoMovieNaturalSpline.derivative(spline, 2);
+  const [d1, d2] = AutoMovieEngineNaturalSpline.derivative(spline, 2);
   TestValidator.predicate(
     "x = 2",
-    near(AutoMovieNaturalSpline.evaluate(spline, 2), 1.5) &&
+    near(AutoMovieEngineNaturalSpline.evaluate(spline, 2), 1.5) &&
       near(d1, -1.125) &&
       near(d2, 0) &&
-      near(AutoMovieNaturalSpline.jerk(spline, 2), 3.75),
+      near(AutoMovieEngineNaturalSpline.jerk(spline, 2), 3.75),
   );
-  const read = AutoMovieNaturalSpline.read(spline, 2);
+  const read = AutoMovieEngineNaturalSpline.read(spline, 2);
   TestValidator.predicate(
     "read",
     near(read[0], 1.5) && near(read[1], -1.125) && near(read[2], 0),
@@ -68,15 +68,15 @@ export function test_engine_geometry_natural_spline(): void {
   // 3.
   TestValidator.predicate(
     "before",
-    near(AutoMovieNaturalSpline.evaluate(spline, -1), -2.625),
+    near(AutoMovieEngineNaturalSpline.evaluate(spline, -1), -2.625),
   );
-  const [e1, e2] = AutoMovieNaturalSpline.derivative(spline, 5);
+  const [e1, e2] = AutoMovieEngineNaturalSpline.derivative(spline, 5);
   TestValidator.predicate(
     "after",
-    near(AutoMovieNaturalSpline.evaluate(spline, 5), 5.625) &&
+    near(AutoMovieEngineNaturalSpline.evaluate(spline, 5), 5.625) &&
       near(e1, 2.625) &&
       e2 === 0 &&
-      AutoMovieNaturalSpline.jerk(spline, 5) === 0,
+      AutoMovieEngineNaturalSpline.jerk(spline, 5) === 0,
   );
 
   // 4.
@@ -85,7 +85,7 @@ export function test_engine_geometry_natural_spline(): void {
     { length: m },
     (_: unknown, j: number): number => Math.cos((2 * Math.PI * j) / m),
   );
-  const at = AutoMovieNaturalSpline.periodic(samples);
+  const at = AutoMovieEngineNaturalSpline.periodic(samples);
   TestValidator.predicate(
     "samples",
     samples.every((y: number, j: number): boolean =>
@@ -108,12 +108,12 @@ export function test_engine_geometry_natural_spline(): void {
   TestValidator.predicate(
     "constant",
     probes.every((psi: number): boolean =>
-      near(AutoMovieNaturalSpline.periodic([2, 2, 2])(psi), 2),
+      near(AutoMovieEngineNaturalSpline.periodic([2, 2, 2])(psi), 2),
     ),
   );
 
   // 5.
-  const cubic = AutoMoviePeriodicCubic.create(samples);
+  const cubic = AutoMovieEnginePeriodicCubic.create(samples);
   const [low, high] = cubic.range();
   TestValidator.predicate(
     "range",
@@ -126,7 +126,7 @@ export function test_engine_geometry_natural_spline(): void {
   TestValidator.predicate(
     "two controls",
     throwsError(
-      (): unknown => AutoMoviePeriodicCubic.create([1, 2]).range(),
+      (): unknown => AutoMovieEnginePeriodicCubic.create([1, 2]).range(),
       "periodic cubic range unavailable",
     ),
   );

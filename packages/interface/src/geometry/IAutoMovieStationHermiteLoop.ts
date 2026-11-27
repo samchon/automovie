@@ -1,9 +1,9 @@
 import type { IAutoMoviePlanarHermiteKnot } from "./IAutoMoviePlanarHermiteKnot";
 
 /**
- * One station's reduced closed loop, as `AutoMovieMeshExtract.reduceLoop`
+ * One station's reduced closed loop, as `AutoMovieEngineMeshExtract.reduceLoop`
  * returns it, at its station: the input of
- * `AutoMovieMeshExtract.profileCurve`.
+ * `AutoMovieEngineMeshExtract.profileCurve`.
  *
  * ProfileCurve borrows this record during preparation and copies coordinates
  * into its closure. At least two stations in increasing order are required;

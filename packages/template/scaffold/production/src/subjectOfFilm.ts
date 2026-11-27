@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry } from "@automovie/engine";
 import type {
   IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
@@ -7,7 +7,7 @@ import type {
   IAutoMovieMark,
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
-import { type IAutoMovieDrawScene, type IAutoMovieDrawSubject, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawScene, type IAutoMovieRenderDrawSubject, AutoMovieRenderDraw } from "@automovie/render";
 import type * as THREE from "three";
 
 import type { IFilm } from "./IFilm";
@@ -44,11 +44,11 @@ import { readFilmVerdicts } from "./readFilmVerdicts";
 export function subjectOfFilm(
   name: string,
   film: IFilm,
-): IAutoMovieDrawSubject {
+): IAutoMovieRenderDrawSubject {
   return {
-    create: async (): Promise<IAutoMovieDrawScene> => {
-      const geometry: Awaited<ReturnType<typeof AutoMoviePhysicalGeometry.prepare>> =
-        await AutoMoviePhysicalGeometry.prepare();
+    create: async (): Promise<IAutoMovieRenderDrawScene> => {
+      const geometry: Awaited<ReturnType<typeof AutoMovieEnginePhysicalGeometry.prepare>> =
+        await AutoMovieEnginePhysicalGeometry.prepare();
       const production: IFilmProduction = await film.create();
       // One reader per mount: a capture or delivery run reads the whole
       // performance once, and the viewer never asks.
@@ -56,7 +56,7 @@ export function subjectOfFilm(
         readFilmVerdicts(production);
       const clamp: (seconds: number) => number = (seconds: number): number =>
         clampProductionSeconds(seconds, film.durationSeconds);
-      const subject: IAutoMovieDrawScene = {
+      const subject: IAutoMovieRenderDrawScene = {
         scene: production.scene,
         camera: production.camera,
         durationSeconds: film.durationSeconds,
@@ -113,7 +113,7 @@ export function subjectOfFilm(
               ): void => production.beforeDraw!(renderer, clamp(seconds)),
             }),
         inspectPlaced: (
-          sample: IAutoMovieDrawScene.IPlacedSample,
+          sample: IAutoMovieRenderDrawScene.IPlacedSample,
         ): IAutoMovieInspectionDiagnostics =>
           inspectFilmProduction({
             name,

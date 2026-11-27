@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
@@ -104,7 +104,7 @@ export namespace staggerStep {
       ? (LATERAL.swing * (STEP_TIME.forward + STEP_TIME.backward)) / 2
       : pendulum.bound(
           flat(
-            Vector3.subtract(Vector3.add(centre, pendulum.xi()), from.ankle),
+            AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.add(centre, pendulum.xi()), from.ankle),
           ),
           STEP_TIME,
         );
@@ -118,46 +118,46 @@ export namespace staggerStep {
     // The aim: the landing point where the extrapolated centre of mass will
     // be once the landed foot has taken the weight, over the measured weight
     // shift (`StaggerPendulum.loaded`).
-    const goal: IAutoMovieVector3 = Vector3.add(
+    const goal: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       centre,
       pendulum.loaded(AutoMovieMotionHumanTiming.seconds(TRANSFER)),
     );
     const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", from);
     const heel: IAutoMovieVector3 = HumanFoot.point(body, side, "heel", from);
-    const toes: IAutoMovieVector3 = flat(Vector3.subtract(ball, heel));
+    const toes: IAutoMovieVector3 = flat(AutoMovieEngineVector3.subtract(ball, heel));
     const sole: IAutoMovieVector3 = HumanFoot.point(body, side, "sole", from);
-    const aim: IAutoMovieVector3 = flat(Vector3.subtract(goal, sole));
-    const aimed: number = Vector3.length(aim);
-    const toeLength: number = Vector3.length(toes);
+    const aim: IAutoMovieVector3 = flat(AutoMovieEngineVector3.subtract(goal, sole));
+    const aimed: number = AutoMovieEngineVector3.length(aim);
+    const toeLength: number = AutoMovieEngineVector3.length(toes);
     const share: number =
       aimed > 0 && toeLength > 0
-        ? Vector3.dot(aim, toes) / (aimed * toeLength)
+        ? AutoMovieEngineVector3.dot(aim, toes) / (aimed * toeLength)
         : 0;
-    const lands: IAutoMovieVector3 = Vector3.lerp(
+    const lands: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       sole,
       share >= 0 ? heel : ball,
       Math.abs(share),
     );
-    const wanted: IAutoMovieVector3 = Vector3.add(
+    const wanted: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       from.ankle,
-      flat(Vector3.subtract(goal, lands)),
+      flat(AutoMovieEngineVector3.subtract(goal, lands)),
     );
 
     // The region: the step's length from where the foot stood beside the
     // stance foot.
-    const beside: IAutoMovieVector3 = Vector3.add(
+    const beside: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       pendulum.feet[stance].ankle,
-      flat(Vector3.subtract(entered[side].ankle, entered[stance].ankle)),
+      flat(AutoMovieEngineVector3.subtract(entered[side].ankle, entered[stance].ankle)),
     );
     const reached: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (
       ankle: IAutoMovieVector3,
     ): IAutoMovieVector3 => {
-      const travel: IAutoMovieVector3 = flat(Vector3.subtract(ankle, beside));
+      const travel: IAutoMovieVector3 = flat(AutoMovieEngineVector3.subtract(ankle, beside));
       const longest: number =
         pendulum.bound(travel, STEP_LENGTH) * body.measure.stature;
-      const distance: number = Vector3.length(travel);
+      const distance: number = AutoMovieEngineVector3.length(travel);
       return distance > longest
-        ? Vector3.add(beside, Vector3.scale(travel, longest / distance))
+        ? AutoMovieEngineVector3.add(beside, AutoMovieEngineVector3.scale(travel, longest / distance))
         : ankle;
     };
     const ankle0: IAutoMovieVector3 = reached(wanted);
@@ -169,31 +169,31 @@ export namespace staggerStep {
     const sign: number = side === "left" ? 1 : -1;
     const crossing: boolean =
       sign *
-        Vector3.dot(
-          Vector3.subtract(ankle0, pendulum.feet[stance].ankle),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(ankle0, pendulum.feet[stance].ankle),
           across,
         ) <
       width;
     const crossed: (way: number) => IAutoMovieVector3 = (
       way: number,
     ): IAutoMovieVector3 => {
-      const ahead: number = Vector3.dot(
-        Vector3.subtract(ankle0, pendulum.feet[stance].ankle),
+      const ahead: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(ankle0, pendulum.feet[stance].ankle),
         forward,
       );
       const shift: number =
         way > 0 ? Math.max(0, length - ahead) : Math.min(0, -length - ahead);
-      return reached(Vector3.add(ankle0, Vector3.scale(forward, shift)));
+      return reached(AutoMovieEngineVector3.add(ankle0, AutoMovieEngineVector3.scale(forward, shift)));
     };
     const off: (ankle: IAutoMovieVector3) => number = (
       ankle: IAutoMovieVector3,
-    ): number => Vector3.length(flat(Vector3.subtract(ankle, wanted)));
+    ): number => AutoMovieEngineVector3.length(flat(AutoMovieEngineVector3.subtract(ankle, wanted)));
     const crosses: (ankle: IAutoMovieVector3) => boolean = (
       ankle: IAutoMovieVector3,
     ): boolean =>
       sign *
-        Vector3.dot(
-          Vector3.subtract(ankle, pendulum.feet[stance].ankle),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(ankle, pendulum.feet[stance].ankle),
           across,
         ) <
       width;
@@ -236,7 +236,7 @@ export namespace staggerStep {
       else {
         const toward: (share: number) => IAutoMovieVector3 = (
           share: number,
-        ): IAutoMovieVector3 => Vector3.lerp(beside, sides[0]!, share);
+        ): IAutoMovieVector3 => AutoMovieEngineVector3.lerp(beside, sides[0]!, share);
         if (!landing(beside)) return { done: null, crossing };
         let lo: number = 0;
         let hi: number = 1;

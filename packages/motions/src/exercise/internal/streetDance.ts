@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -244,7 +244,7 @@ export namespace streetDance {
       place: IAutoMovieMotionHumanFoot.IPlacement,
       by: number,
     ): IAutoMovieMotionHumanFoot.IPlacement => ({
-      ankle: Vector3.add(place.ankle, Vector3.scale(back, by)),
+      ankle: AutoMovieEngineVector3.add(place.ankle, AutoMovieEngineVector3.scale(back, by)),
       rotation: place.rotation,
     });
     const ball: (
@@ -381,12 +381,12 @@ export namespace streetDance {
         left: keys.left,
         right: keys.right,
         hips: (t: number): IAutoMovieVector3 => {
-          const mid: IAutoMovieVector3 = Vector3.lerp(
+          const mid: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
             left.placed(t).ankle,
             right.placed(t).ankle,
             0.5,
           );
-          const start: IAutoMovieVector3 = Vector3.lerp(
+          const start: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
             context.entry.feet.left.ankle,
             context.entry.feet.right.ankle,
             0.5,

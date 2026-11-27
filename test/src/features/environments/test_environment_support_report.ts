@@ -7,9 +7,11 @@ import {
   AutoMovieArchetypeTable,
 } from "@automovie/archetypes";
 import {
-  AutoMovieEnvironment,
-  AutoMovieEnvironmentFurnishing,
-} from "@automovie/archetypes/environments";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import {
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
 import {
   AutoMovieEngineBuiltEnvironment,
   AutoMovieEngineBuiltEnvironmentWorkflow,
@@ -73,7 +75,7 @@ export function test_environment_support_report(): void {
   const level: () => IAutoMovieEnvironmentItem =
     (): IAutoMovieEnvironmentItem => ({
       at: { x: -10, y: 0, z: -10 },
-      use: AutoMovieEnvironment.terrain({ size: { width: 20, depth: 20 } }),
+      use: AutoMovieArchetypeEnvironment.terrain({ size: { width: 20, depth: 20 } }),
     });
   const cup: (
     declared: boolean,
@@ -83,7 +85,7 @@ export function test_environment_support_report(): void {
     table: "table-1" | "table-2",
   ): IAutoMovieEnvironmentItem => ({
     at: { anchor: `cafe/${table}/stack` },
-    use: AutoMovieEnvironmentFurnishing.prop({
+    use: AutoMovieArchetypeEnvironmentFurnishing.prop({
       model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }),
       ...(declared
         ? {
@@ -108,13 +110,13 @@ export function test_environment_support_report(): void {
 
   // Scenarios 1 to 5 and 7: a terrain with a pad, a cafe on it, two crates,
   // two cups and a building on level ground beside it.
-  const set: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const set: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "set",
     seed: 5,
     items: {
       land: {
         at: { x: -10, y: 0, z: -10 },
-        use: AutoMovieEnvironment.terrain({
+        use: AutoMovieArchetypeEnvironment.terrain({
           size: { width: 40, depth: 20 },
           pads: {
             plaza: {
@@ -132,7 +134,7 @@ export function test_environment_support_report(): void {
       },
       cafe: {
         at: { anchor: "land/amenities/cafe" },
-        use: AutoMovieEnvironmentFurnishing.cafeKit({
+        use: AutoMovieArchetypeEnvironmentFurnishing.cafeKit({
           room: { width: 10, depth: 8 },
           tables: 2,
         }),
@@ -141,15 +143,15 @@ export function test_environment_support_report(): void {
       cupDeclared: cup(true, "table-2"),
       floatingCrate: {
         at: { x: 14, y: 0.8, z: -6 },
-        use: AutoMovieEnvironmentFurnishing.prop({ model: crate }),
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: crate }),
       },
       sunkCrate: {
         at: { x: 14, y: -0.3, z: 6 },
-        use: AutoMovieEnvironmentFurnishing.prop({ model: crate }),
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: crate }),
       },
       hall: {
         at: { x: 22, y: 0, z: -4 },
-        use: AutoMovieEnvironment.building({
+        use: AutoMovieArchetypeEnvironment.building({
           type: "levels",
           levels: [{ id: "ground", rooms: { hall: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 6 } } } }],
         }),
@@ -173,13 +175,13 @@ export function test_environment_support_report(): void {
     { kind: "wall" },
     1019,
   );
-  const hung: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const hung: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "home",
     seed: 5,
     items: {
       land: level(),
       room: {
-        use: AutoMovieEnvironmentFurnishing.furnishedRoom({
+        use: AutoMovieArchetypeEnvironmentFurnishing.furnishedRoom({
           room: { width: 4, depth: 3.2 },
           pieces: {
             mirror: {
@@ -192,7 +194,7 @@ export function test_environment_support_report(): void {
     },
   });
   const frame: IAutoMovieTransform = hung.anchors["room/mirror"]!;
-  const loose: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const loose: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "home",
     seed: 5,
     items: {
@@ -204,7 +206,7 @@ export function test_environment_support_report(): void {
           z: frame.translation.z,
         },
         rotation: frame.rotation,
-        use: AutoMovieEnvironmentFurnishing.prop({ model: mirror }),
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: mirror }),
       },
     },
   });
@@ -224,13 +226,13 @@ export function test_environment_support_report(): void {
 
   // Scenario 10: a furnished interior with a hung mirror on a floor, and an
   // outdoor set of a wood, a trail, a rock and a bench on level ground.
-  const interior: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const interior: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "interior",
     seed: 5,
     items: {
       floor: level(),
       room: {
-        use: AutoMovieEnvironmentFurnishing.furnishedRoom({
+        use: AutoMovieArchetypeEnvironmentFurnishing.furnishedRoom({
           room: { width: 4, depth: 3.2 },
           pieces: {
             sofa: {
@@ -250,13 +252,13 @@ export function test_environment_support_report(): void {
       },
     },
   });
-  const outdoor: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const outdoor: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "outdoor",
     seed: 5,
     items: {
       land: {
         at: { x: -15, y: 0, z: -10 },
-        use: AutoMovieEnvironment.terrain({
+        use: AutoMovieArchetypeEnvironment.terrain({
           size: { width: 30, depth: 20 },
           paths: {
             trail: {
@@ -283,13 +285,13 @@ export function test_environment_support_report(): void {
       },
       rock: {
         at: { anchor: "land/amenities/rock" },
-        use: AutoMovieEnvironmentFurnishing.prop({
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({
           model: AutoMovieArchetypeRock.create({ kind: "boulder" }, 1023),
         }),
       },
       bench: {
         at: { anchor: "land/amenities/bench" },
-        use: AutoMovieEnvironmentFurnishing.prop({
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({
           model: AutoMovieArchetypeSeat.create({ kind: "bench" }, 1024),
         }),
       },
@@ -425,13 +427,13 @@ export function test_environment_support_report(): void {
     [
       "the report is recomputed from the other outputs, and a rebuild repeats them all",
       (): boolean => {
-        const again: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+        const again: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
           id: "home",
           seed: 5,
           items: {
             land: level(),
             room: {
-              use: AutoMovieEnvironmentFurnishing.furnishedRoom({
+              use: AutoMovieArchetypeEnvironmentFurnishing.furnishedRoom({
                 room: { width: 4, depth: 3.2 },
                 pieces: {
                   mirror: {

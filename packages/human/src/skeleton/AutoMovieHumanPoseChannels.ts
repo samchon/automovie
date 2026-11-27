@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanPoseChannels } from "@automovie/interface";
-import * as AutoMovieHumanPoseChannelsData from "./internal/AutoMovieHumanPoseChannelsData";
+import { AutoMovieHumanPoseChannelsData } from "./internal/AutoMovieHumanPoseChannelsData";
 
 /**
  * Every degree of freedom of `IAutoMovieHumanPose`, top to bottom, with the

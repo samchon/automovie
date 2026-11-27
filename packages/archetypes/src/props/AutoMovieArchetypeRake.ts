@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeRakeData from "./internal/AutoMovieArchetypeRakeData";
+import { AutoMovieArchetypeRakeData } from "./internal/AutoMovieArchetypeRakeData";
 
 /** Constructs the rake archetype from its recipe. */
 export namespace AutoMovieArchetypeRake {
@@ -41,7 +41,7 @@ export function create(
     material: "steel",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const tines: number = 0.08;
   builder.box("head", v(d.width, 0.03, 0.03), v(0, 0.015, 0), {
     color: "#5c6066",

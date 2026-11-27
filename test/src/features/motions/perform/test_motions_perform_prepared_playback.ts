@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { HumanPreparedPlayback } from "@automovie/motions/internal";
+import {
+  HumanPreparedPlayback
+} from "../../../../../packages/motions/src/perform/internal/HumanPreparedPlayback";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

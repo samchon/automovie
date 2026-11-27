@@ -1,5 +1,5 @@
 import { AutoMovieHumanCourseRuns as Runs } from "./AutoMovieHumanCourseRuns";
-import { AutoMovieViewAxisJet as AxisJet } from "@automovie/engine";
+import { AutoMovieEngineViewAxisJet as AxisJet } from "@automovie/engine";
 import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftSectionFrame,

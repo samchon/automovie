@@ -52,7 +52,7 @@ export interface IAutoMovieDrawingScheduleRow {
 
   /**
    * Occurrence ids, ascending, at most the engine's
-   * `AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS`.
+   * `AutoMovieEngineDrawingScheduleMaxMembers`.
    */
   members: string[];
 

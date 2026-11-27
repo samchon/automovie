@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVerdicts } from "../../audit/AutoMovieMotionHumanVerdicts";
@@ -40,12 +40,12 @@ export function HumanCarriedGrip(
   const anchors: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, source, undefined, new Set([anchor, shoulder]));
   const frame: IAutoMovieResolvedBone = anchors.get(anchor)!;
-  const back: IAutoMovieQuaternion = Quaternion.inverse(frame.worldRotation);
-  const point: IAutoMovieVector3 = Vector3.add(
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(frame.worldRotation);
+  const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.worldPosition,
-    Quaternion.rotateVector(frame.worldRotation, grip.point),
+    AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, grip.point),
   );
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.worldRotation,
     grip.normal,
   );
@@ -65,12 +65,12 @@ export function HumanCarriedGrip(
   ): IAutoMovieMotionHumanColliders.IPlaced => ({
     ...part,
     pose: {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         frame.worldPosition,
-        Quaternion.rotateVector(frame.worldRotation, part.pose.position),
+        AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, part.pose.position),
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(frame.worldRotation, part.pose.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(frame.worldRotation, part.pose.rotation),
       ),
     },
   });
@@ -99,7 +99,7 @@ export function HumanCarriedGrip(
   const preferred: IAutoMovieVector3 | undefined =
     grip.forward === undefined
       ? undefined
-      : Quaternion.rotateVector(frame.worldRotation, grip.forward);
+      : AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, grip.forward);
   let tangent: IAutoMovieVector3 | undefined;
   let radius: number = 0;
   function error(forward?: IAutoMovieVector3): number {
@@ -115,13 +115,13 @@ export function HumanCarriedGrip(
       surface,
       wrist,
     );
-    const miss: number = Vector3.distance(met, point);
+    const miss: number = AutoMovieEngineVector3.distance(met, point);
     let violation: number = miss > AutoMovieMotionHumanVerdicts.SKIN ? miss : 0;
     if (tangent === undefined)
-      tangent = Quaternion.rotateVector(goal.rotation!, surface.forward!);
+      tangent = AutoMovieEngineQuaternion.rotateVector(goal.rotation!, surface.forward!);
     for (const [name, bone] of bones) {
       if (name === hand) continue;
-      radius = Math.max(radius, Vector3.distance(met, bone.worldPosition));
+      radius = Math.max(radius, AutoMovieEngineVector3.distance(met, bone.worldPosition));
       for (const distance of distances)
         violation = Math.max(
           violation,
@@ -130,13 +130,13 @@ export function HumanCarriedGrip(
     }
     // A tilted palm can touch at its centre while its edge cuts the skin.
     // The normal chord bounds the displacement of a point at the hand radius.
-    const actual: IAutoMovieVector3 = Quaternion.rotateVector(
+    const actual: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       wrist.worldRotation,
       surface.normal,
     );
     return Math.max(
       violation,
-      radius * Vector3.length(Vector3.add(actual, normal)),
+      radius * AutoMovieEngineVector3.length(AutoMovieEngineVector3.add(actual, normal)),
     );
   }
   let best: number = error(preferred);
@@ -153,18 +153,18 @@ export function HumanCarriedGrip(
     const shoulderPoint: IAutoMovieVector3 =
       anchors.get(shoulder)!.worldPosition;
     if (
-      Vector3.distance(wrist.point, shoulderPoint) >
+      AutoMovieEngineVector3.distance(wrist.point, shoulderPoint) >
       body.measure.upperArm + body.measure.forearm
     ) {
       const circle: ReturnType<typeof HumanCarriedWristCircle> =
         HumanCarriedWristCircle(point, normal, wrist.point, shoulderPoint);
-      const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(normal, circle.degrees),
+      const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(normal, circle.degrees),
         tangent,
       );
       const violation: number = error(forward);
       if (violation < best) {
-        chosen = Quaternion.rotateVector(back, forward);
+        chosen = AutoMovieEngineQuaternion.rotateVector(back, forward);
         best = violation;
         if (best <= AutoMovieMotionHumanVerdicts.SKIN) return chosen;
       }
@@ -176,14 +176,14 @@ export function HumanCarriedGrip(
   );
   for (let step: number = 1; step <= Math.ceil(intervals / 2); ++step)
     for (const sign of [-1, 1]) {
-      const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(normal, (sign * step * 360) / intervals),
+      const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(normal, (sign * step * 360) / intervals),
         tangent,
       );
       const violation: number = error(forward);
       if (violation >= best) continue;
       best = violation;
-      chosen = Quaternion.rotateVector(back, forward);
+      chosen = AutoMovieEngineQuaternion.rotateVector(back, forward);
       if (best <= AutoMovieMotionHumanVerdicts.SKIN) return chosen;
     }
   return chosen;

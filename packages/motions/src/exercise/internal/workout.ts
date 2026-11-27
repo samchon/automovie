@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -294,7 +294,7 @@ export namespace workout {
       if (down >= 1) return placed;
       const carried: IAutoMovieMotionHumanPosture = {
         ...placed,
-        root: Vector3.lerp(
+        root: AutoMovieEngineVector3.lerp(
           s.b === stood && recovery !== null
             ? recovery.posture.root
             : standing.root,

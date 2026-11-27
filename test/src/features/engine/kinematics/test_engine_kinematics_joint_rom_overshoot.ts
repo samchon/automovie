@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, swingTwistRange } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineSwingTwistRange } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
@@ -76,8 +76,8 @@ export function test_engine_kinematics_joint_rom_overshoot(): void {
     twist: { min: -180, max: 180 },
     swingTwist: { twist: { min: -15, max: 15 }, reach: 45 },
   };
-  const rig: ReturnType<typeof swingTwistRange.prepare> =
-    swingTwistRange.prepare(
+  const rig: ReturnType<typeof AutoMovieEngineSwingTwistRange.prepare> =
+    AutoMovieEngineSwingTwistRange.prepare(
       "leftUpperArm",
       { axes, frame: { twist: { sign: -1, neutral: 10 } } },
       range,

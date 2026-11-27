@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import { type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Object3D, PerspectiveCamera, Scene } from "three";
 
@@ -30,12 +30,12 @@ export function test_render_draw_observe_placed_inspection(): void {
   scene.add(subjectRoot);
   const camera: PerspectiveCamera = new PerspectiveCamera(90, 1, 1, 20);
   const placements: number[] = [];
-  const samples: IAutoMovieDrawScene.IPlacedSample[] = [];
+  const samples: IAutoMovieRenderDrawScene.IPlacedSample[] = [];
   const sourceClock: IAutoMovieInspectionDiagnostics.IShotTime = {
     path: "shot:hold",
     seconds: 0.125,
   };
-  const base: IAutoMovieDrawScene = {
+  const base: IAutoMovieRenderDrawScene = {
     scene,
     camera,
     durationSeconds: 1,
@@ -50,10 +50,10 @@ export function test_render_draw_observe_placed_inspection(): void {
     },
     dispose: (): void => {},
   };
-  const subject: IAutoMovieDrawScene = {
+  const subject: IAutoMovieRenderDrawScene = {
     ...base,
     inspectPlaced: (
-      sample: IAutoMovieDrawScene.IPlacedSample,
+      sample: IAutoMovieRenderDrawScene.IPlacedSample,
     ): IAutoMovieInspectionDiagnostics => {
       samples.push(sample);
       if (sample.mode === "viewer" && sample.place !== undefined) {
@@ -76,7 +76,7 @@ export function test_render_draw_observe_placed_inspection(): void {
   };
   const exact: IAutoMovieInspectionDiagnostics =
     AutoMovieRenderDraw.observeAutoMoviePlacedInspection(subject, 0.5, "viewer")!;
-  const sample: IAutoMovieDrawScene.IPlacedSample = samples[0]!;
+  const sample: IAutoMovieRenderDrawScene.IPlacedSample = samples[0]!;
   TestValidator.predicate(
     "actual raster owns the inspection projection",
     () =>

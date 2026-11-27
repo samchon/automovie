@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -128,9 +128,9 @@ export namespace groupDanceConga {
       [lead, other, lead].forEach(
         (side: AutoMovieHumanSide, i: number): void => {
           ground[side] = {
-            ankle: Vector3.add(
+            ankle: AutoMovieEngineVector3.add(
               ground[side].ankle,
-              Vector3.scale(forward, step),
+              AutoMovieEngineVector3.scale(forward, step),
             ),
             rotation: ground[side].rotation,
           };
@@ -145,10 +145,10 @@ export namespace groupDanceConga {
       );
       // The kick: the other foot out to its side and up, unborne.
       const out: IAutoMovieMotionHumanFoot.IPlacement = {
-        ankle: Vector3.add(
-          Vector3.add(
+        ankle: AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             ground[other].ankle,
-            Vector3.scale(left, other === "left" ? kick : -kick),
+            AutoMovieEngineVector3.scale(left, other === "left" ? kick : -kick),
           ),
           { x: 0, y: kick, z: 0 },
         ),
@@ -191,20 +191,20 @@ export namespace groupDanceConga {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = context
         .performer(ahead!)
         .bones(context.start + t, HumanBoneGroups.SHOULDERS);
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         bones.get(side === "left" ? "leftUpperArm" : "rightUpperArm")!
           .worldPosition,
         { x: 0, y: ON, z: 0 },
       );
     };
     if (ahead !== undefined) {
-      const mine: IAutoMovieVector3 = Vector3.add(context.entry.posture.root, {
+      const mine: IAutoMovieVector3 = AutoMovieEngineVector3.add(context.entry.posture.root, {
         x: 0,
         y: body.rest.get("leftUpperArm")!.y - body.rest.get("hips")!.y,
         z: 0,
       });
-      const far: number = Vector3.length(
-        Vector3.subtract(shoulder(0, "left"), mine),
+      const far: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(shoulder(0, "left"), mine),
       );
       if (far > reach + body.measure.shoulderHalfWidth)
         throw new AutoMovieMotionHumanRefusal({
@@ -233,7 +233,7 @@ export namespace groupDanceConga {
         surface: "palm",
         shape: "relaxed",
         point,
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
         bend: { ...point, y: point.y - 0.3 },
       };
     };

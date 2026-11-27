@@ -11,9 +11,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { channelKey } from "../../resolve/internal/channelKey";
-import { LIGHT_CHANNEL_PROPERTIES } from "../../resolve/LIGHT_CHANNEL_PROPERTIES";
+import { AutoMovieEngineLightChannelProperties } from "../../resolve/AutoMovieEngineLightChannelProperties";
 import { formatLightPointer } from "../../resolve/internal/formatLightPointer";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { placeTransformedPoint } from "./placeTransformedPoint";
@@ -90,11 +90,11 @@ export function compilePracticalLightMotion(
   times.sort((a: number, b: number): number => a - b);
 
   // Preserve emitter roll while adapting spot forward. Positive scale can tilt the beam.
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     emitter.frame.rotation,
     EMITTER_FORWARD,
   );
-  const emitterRotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const emitterRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     emitter.frame.rotation,
     AutoMovieEngineKinematics.aimRotation(SPOT_FORWARD, EMITTER_FORWARD),
   );
@@ -117,10 +117,10 @@ export function compilePracticalLightMotion(
         y: forward.y * world.scale.y,
         z: forward.z * world.scale.z,
       };
-      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
           world.rotation,
-          Quaternion.multiply(AutoMovieEngineKinematics.aimRotation(forward, scaled), emitterRotation),
+          AutoMovieEngineQuaternion.multiply(AutoMovieEngineKinematics.aimRotation(forward, scaled), emitterRotation),
         ),
       );
       rotations.push(rotation.x, rotation.y, rotation.z, rotation.w);
@@ -228,7 +228,7 @@ function practicalTrack(
     channel: {
       kind: "pointer",
       pointer: formatLightPointer(light, property),
-      valueType: LIGHT_CHANNEL_PROPERTIES[property].valueType,
+      valueType: AutoMovieEngineLightChannelProperties[property].valueType,
     },
     times: [...times],
     values,

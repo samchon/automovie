@@ -7,7 +7,7 @@ import {
 } from "../../core";
 import { GOAL_BANDS } from "../constants/GOAL_BANDS";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
-import { v } from "./GoalBuildData";
+import { GoalBuildData } from "./GoalBuildData";
 
 /*
  * The recorded profiles, draw and shared post contacts for goal and net
@@ -141,9 +141,9 @@ export namespace GoalBuild {
         kind: "bar",
         symmetry: aperture === undefined ? "round" : "half",
         frame: AutoMovieArchetypeFrame.facing(
-          v(sign * x, height / 2, 0),
-          v(0, 0, 1),
-          v(0, 1, 0),
+          GoalBuildData.v(sign * x, height / 2, 0),
+          GoalBuildData.v(0, 0, 1),
+          GoalBuildData.v(0, 1, 0),
         ),
         extent: null,
         grip: "power",

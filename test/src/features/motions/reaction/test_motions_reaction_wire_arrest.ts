@@ -1,5 +1,7 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { wireArrest } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  wireArrest
+} from "../../../../../packages/motions/src/reaction/internal/wireArrest";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,7 +20,7 @@ import { throwsError } from "../../internal/throwsError";
  *    `g / 4`, is refused.
  */
 export function test_motions_reaction_wire_arrest(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const arrest: wireArrest.IArrest = wireArrest.arrest(
     { drop: 1, stop: 1 },
     4,

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -41,10 +41,10 @@ export function carryCrutchHands(
       ...limbs,
       [arm]: {
         ...goal,
-        point: Vector3.add(goal.point, by),
+        point: AutoMovieEngineVector3.add(goal.point, by),
         ...(goal.bend === undefined
           ? {}
-          : { bend: Vector3.add(goal.bend, by) }),
+          : { bend: AutoMovieEngineVector3.add(goal.bend, by) }),
       },
     };
   }

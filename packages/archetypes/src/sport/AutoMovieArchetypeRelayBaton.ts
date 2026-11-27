@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeRelayBatonData from "./internal/AutoMovieArchetypeRelayBatonData";
+import { AutoMovieArchetypeRelayBatonData } from "./internal/AutoMovieArchetypeRelayBatonData";
 
 /** Constructs the relay baton archetype from its recipe. */
 export namespace AutoMovieArchetypeRelayBaton {
@@ -52,8 +52,8 @@ export function create(
   builder.rod(
     "tube",
     d.diameter / 2,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, d.length, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, d.length, 0),
     { color: "#d4a017" },
   );
   builder.affordance({
@@ -61,9 +61,9 @@ export function create(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, d.length / 2, 0),
-      Vector3.create(0, 0, -1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, d.length / 2, 0),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     grip: "power",
@@ -75,9 +75,9 @@ export function create(
     kind: "surface",
     direction: "along",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, d.length, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, d.length, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });
@@ -86,9 +86,9 @@ export function create(
     kind: "surface",
     direction: "along",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, -1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, -1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });

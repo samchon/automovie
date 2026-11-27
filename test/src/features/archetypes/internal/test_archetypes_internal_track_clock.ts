@@ -1,5 +1,7 @@
 import { AutoMovieArchetypeRefusal } from "@automovie/archetypes";
-import { ArchetypeTrackTime } from "@automovie/archetypes/internal";
+import {
+  ArchetypeTrackTime
+} from "../../../../../packages/archetypes/src/core/internal/ArchetypeTrackTime";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 

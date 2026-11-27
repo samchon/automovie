@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryMapObservation,
   IAutoMovieRecoveryMapPointProjectionOperation,
@@ -58,8 +58,8 @@ export function evaluateRecoveryScenePoint(
     );
     maximumReprojectionPx = Math.max(maximumReprojectionPx, normPx);
     observe?.(normPx);
-    const centre: [number, number, number] = AutoMovieMatrix3.apply(
-      AutoMovieMatrix3.transpose(pose.rotation),
+    const centre: [number, number, number] = AutoMovieEngineMatrix3.apply(
+      AutoMovieEngineMatrix3.transpose(pose.rotation),
       pose.translation.map((value: number): number => -value),
     );
     const ray: number[] = point.map(

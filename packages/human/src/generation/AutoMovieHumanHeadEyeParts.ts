@@ -1,4 +1,4 @@
-import { AutoMovieViewAxis, AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewAxis, AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadEyeOpening,
   IAutoMovieHumanHeadLayout,
@@ -93,7 +93,7 @@ export namespace AutoMovieHumanHeadEyeParts {
         }
         return {
           name: `globe.${side}`,
-          axis: AutoMovieViewAxis.straight(centre, [0, 0, 1], [0, 1, 0]),
+          axis: AutoMovieEngineViewAxis.straight(centre, [0, 0, 1], [0, 1, 0]),
           stations,
           front: { positive: outline(r[2], 1), negative: outline(r[2], -1) },
           side: { positive: outline(r[1], 1), negative: outline(r[1], -1) },
@@ -104,7 +104,7 @@ export namespace AutoMovieHumanHeadEyeParts {
                 (station: number): IAutoMovieViewPart.IKnot => ({
                   site: `globe.${side}.ellipse`,
                   station,
-                  value: AutoMovieViewSection.ELLIPSE,
+                  value: AutoMovieEngineViewSection.ELLIPSE,
                 }),
               ),
             },
@@ -305,7 +305,7 @@ export namespace AutoMovieHumanHeadEyeParts {
                 (station: number): IAutoMovieViewPart.IKnot => ({
                   site: "fissure.cutter",
                   station,
-                  value: AutoMovieViewSection.ELLIPSE,
+                  value: AutoMovieEngineViewSection.ELLIPSE,
                 }),
               ),
             },

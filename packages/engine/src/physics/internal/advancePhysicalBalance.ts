@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
-import type { IAutoMoviePhysicalBalanceTrace } from "../IAutoMoviePhysicalBalanceTrace";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
+import type { IAutoMovieEnginePhysicalBalanceTrace } from "../IAutoMovieEnginePhysicalBalanceTrace";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
-import { AutoMoviePhysicalSupportCollector } from "../AutoMoviePhysicalSupportCollector";
+import { AutoMovieEnginePhysicalSupportCollector } from "../AutoMovieEnginePhysicalSupportCollector";
 import { physicalAuthoredCapture } from "./physicalAuthoredCapture";
 import { physicalBalanceHandoff } from "./physicalBalanceHandoff";
 import { physicalBalancePlan } from "./physicalBalancePlan";
@@ -49,7 +49,7 @@ import { AutoMovieEnginePhysicalSupportSole } from "../AutoMovieEnginePhysicalSu
 export function advancePhysicalBalance(input: {
   /*
    * Active solver, read before this step's integration.
-   */ world: AutoMovieXpbdWorld;
+   */ world: AutoMovieEngineXpbdWorld;
   /*
    * Scene body identity.
    */ body: string;
@@ -60,7 +60,7 @@ export function advancePhysicalBalance(input: {
    * Current world segment wrappers.
    */ segments: ReadonlyMap<
     string,
-    AutoMovieXpbdBody
+    AutoMovieEngineXpbdBody
   >;
   /*
    * Shape identities, including the explicit floor.
@@ -116,7 +116,7 @@ export function advancePhysicalBalance(input: {
    */ command?: AutoMovieEnginePhysicalBalanceTypes.ISenseInput["command"];
   /*
    * Where the phases record their events and readings, if anywhere.
-   */ trace?: IAutoMoviePhysicalBalanceTrace[];
+   */ trace?: IAutoMovieEnginePhysicalBalanceTrace[];
   /*
    * On the substep after a stated disturbance's first push, its later pushes,
    * whose response the body prepares now.
@@ -124,7 +124,7 @@ export function advancePhysicalBalance(input: {
 }): IAutoMovieAdvancePhysicalBalance.IResult {
   const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
     input.supports ??
-    AutoMoviePhysicalSupportCollector.collect({ ...input, pattern: input.policy.pattern });
+    AutoMovieEnginePhysicalSupportCollector.collect({ ...input, pattern: input.policy.pattern });
   const sense: AutoMovieEnginePhysicalBalanceTypes.ISense = physicalBalanceSense({
     profile: input.profile,
     segments: input.segments,
@@ -139,7 +139,7 @@ export function advancePhysicalBalance(input: {
     supports,
     ...(input.command ? { command: input.command } : {}),
   });
-  const trace: { trace?: IAutoMoviePhysicalBalanceTrace[] } = input.trace
+  const trace: { trace?: IAutoMovieEnginePhysicalBalanceTrace[] } = input.trace
     ? { trace: input.trace }
     : {};
   const handoff: IAutoMoviePhysicalRecoveryState = physicalBalanceHandoff({

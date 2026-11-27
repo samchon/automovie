@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanSurfaceContext,
   IAutoMovieLoftChain,
@@ -68,7 +68,7 @@ export namespace AutoMovieHumanBodySurfaceRead {
           ? target.opposite
           : undefined;
     if (tip?.source === undefined) return null;
-    AutoMovieLoftChain.point(target, tip.source.station, 0);
+    AutoMovieEngineLoftChain.point(target, tip.source.station, 0);
     return tip.source.station;
   }
 
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanBodySurfaceRead {
     for (const t of phases) context.coordinates.push(chain, station, t);
     return AutoMovieHumanLoftMesh.vertices(
       context.mesh,
-      AutoMovieLoftChain.ring(target, station, phases),
+      AutoMovieEngineLoftChain.ring(target, station, phases),
     );
   }
 }

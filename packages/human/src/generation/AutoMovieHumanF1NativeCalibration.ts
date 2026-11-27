@@ -16,10 +16,10 @@ import { AutoMovieHumanNativeProjectionCourse as Course } from "./AutoMovieHuman
 import { AutoMovieHumanNativeScaleProfile as Profile } from "./AutoMovieHumanNativeScaleProfile";
 import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
 import "./AutoMovieHumanF1NativeSites";
-import type { AutoMovieHumanF1NativeSites as Sites } from "./AutoMovieHumanF1NativeSites";
+
 import { AutoMovieHumanF1RootRails } from "./AutoMovieHumanF1RootRails";
 import { AutoMovieHumanF1SegmentLengths as Lengths } from "./AutoMovieHumanF1SegmentLengths";
-import * as AutoMovieHumanF1NativeCalibrationData from "./internal/AutoMovieHumanF1NativeCalibrationData";
+import { AutoMovieHumanF1NativeCalibrationData } from "./internal/AutoMovieHumanF1NativeCalibrationData";
 
 /**
  * F1's native calibration: the calipers of her stored families at the
@@ -245,7 +245,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
       kind: "finger" | "toe",
       family: IAutoMovieHumanF1.IDigit["family"],
     ): number => {
-      const site: Sites.IDigitSite = AutoMovieHumanF1NativeCalibrationData.SITES.digits[kind];
+      const site: import("./AutoMovieHumanF1NativeSites").AutoMovieHumanF1NativeSites.IDigitSite = AutoMovieHumanF1NativeCalibrationData.SITES.digits[kind];
       if (site.family !== family.name)
         throw new Error(
           "the " +

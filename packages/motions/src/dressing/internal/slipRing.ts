@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -37,7 +37,7 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { HumanWornItem } from "./HumanWornItem";
 import { slipRingLean } from "./slipRingLean";
 import { slipRingSteady } from "./slipRingSteady";
-import * as SlipRingData from "./SlipRingData";
+import { SlipRingData } from "./SlipRingData";
 
 /*
  * Slip a ring onto a partner's finger. The partner's presented hand is read
@@ -148,14 +148,14 @@ function planSlipRing(
     bones,
     tipRegion,
   ).point;
-  const seat: IAutoMovieVector3 = Vector3.lerp(
+  const seat: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     knuckle.worldPosition,
     joint.worldPosition,
     SlipRingData.SEAT,
   );
   // From the fingertip toward the hand: the way the ring travels.
-  const axis: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(seat, tip),
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(seat, tip),
   );
 
   // The ring's frame on the axis: its `wear` socket's `+Y` along the axis.
@@ -172,8 +172,8 @@ function planSlipRing(
     });
   const lined: IAutoMovieQuaternion = HumanHand.align(
     {
-      normal: Quaternion.rotateVector(wear.frame.rotation, SlipRingData.UP),
-      forward: Quaternion.rotateVector(wear.frame.rotation, {
+      normal: AutoMovieEngineQuaternion.rotateVector(wear.frame.rotation, SlipRingData.UP),
+      forward: AutoMovieEngineQuaternion.rotateVector(wear.frame.rotation, {
         x: 1,
         y: 0,
         z: 0,
@@ -182,7 +182,7 @@ function planSlipRing(
     {
       normal: axis,
       forward:
-        Math.abs(Vector3.dot(axis, SlipRingData.UP)) > 0.9 ? { x: 1, y: 0, z: 0 } : SlipRingData.UP,
+        Math.abs(AutoMovieEngineVector3.dot(axis, SlipRingData.UP)) > 0.9 ? { x: 1, y: 0, z: 0 } : SlipRingData.UP,
     },
   );
   // A band is round, so its roll about the finger is free: the roll
@@ -198,16 +198,16 @@ function planSlipRing(
     ]),
   );
   const holding: IAutoMovieQuaternion = pose.get(`${side}Hand`)!.worldRotation;
-  const fromHeld: IAutoMovieQuaternion = Quaternion.inverse(
+  const fromHeld: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     held.frame.rotation,
   );
   let turn: IAutoMovieQuaternion = lined;
   let nearest: number = -1;
   for (let roll: number = 0; roll < 360; roll += SlipRingData.ROLL) {
-    const candidate: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(Quaternion.fromAxisAngle(axis, roll), lined),
+    const candidate: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.fromAxisAngle(axis, roll), lined),
     );
-    const hand: IAutoMovieQuaternion = Quaternion.multiply(candidate, fromHeld);
+    const hand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(candidate, fromHeld);
     const near: number = Math.abs(
       hand.x * holding.x +
         hand.y * holding.y +
@@ -219,9 +219,9 @@ function planSlipRing(
       turn = candidate;
     }
   }
-  const begin: IAutoMovieVector3 = Vector3.add(
+  const begin: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     tip,
-    Vector3.scale(axis, -SlipRingData.LINE_UP),
+    AutoMovieEngineVector3.scale(axis, -SlipRingData.LINE_UP),
   );
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
@@ -235,18 +235,18 @@ function planSlipRing(
       side,
       held,
       {
-        position: Vector3.subtract(
+        position: AutoMovieEngineVector3.subtract(
           begin,
-          Quaternion.rotateVector(turn, wear.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(turn, wear.frame.translation),
         ),
         rotation: turn,
       },
       bend,
     );
-  const inset: IAutoMovieVector3 = Vector3.subtract(seat, begin);
+  const inset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(seat, begin);
   const ringAt = (progress: number): IAutoMovieMotionHumanArmTarget.ITarget => ({
     ...linedGrip,
-    point: Vector3.add(linedGrip.point, Vector3.scale(inset, progress)),
+    point: AutoMovieEngineVector3.add(linedGrip.point, AutoMovieEngineVector3.scale(inset, progress)),
   });
 
   const under: IAutoMovieMotionHumanArmTarget.ITarget = slipRingSteady({
@@ -284,8 +284,8 @@ function planSlipRing(
     AutoMovieMotionHumanArmTarget.point(entry, origins[arm]);
   const prepare: number = AutoMovieMotionHumanTiming.transport(
     Math.max(
-      Vector3.distance(from(side), linedGrip.point),
-      Vector3.distance(from(steady), under.point),
+      AutoMovieEngineVector3.distance(from(side), linedGrip.point),
+      AutoMovieEngineVector3.distance(from(steady), under.point),
     ),
   );
   // The steadying hand sets the frame the ring hand works in, so it
@@ -300,7 +300,7 @@ function planSlipRing(
   // hand is back.
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 2 * prepare,
-    attack: AutoMovieMotionHumanTiming.transport(Vector3.length(inset)),
+    attack: AutoMovieMotionHumanTiming.transport(AutoMovieEngineVector3.length(inset)),
     hold: AutoMovieMotionHumanTiming.seconds("beat"),
     retract: 2 * prepare,
   });

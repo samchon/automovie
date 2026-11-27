@@ -1,9 +1,9 @@
-import { HUMANOID_JOINT_AXES, Quaternion, swingTwistRange, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
+import { AutoMovieEngineHumanoidJointAxes, AutoMovieEngineQuaternion, AutoMovieEngineSwingTwistRange, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieResolvedJointAngles } from "@automovie/interface";
 
 import "../../body/internal/readHumanBone";
-import * as BlendHumanJointData from "./BlendHumanJointData";
-import { frameOf } from "./BlendHumanJointData";
+import { BlendHumanJointData } from "./BlendHumanJointData";
+
 
 /*
  * A joint's clinical angles part of the way between two readings of them,
@@ -23,11 +23,11 @@ import { frameOf } from "./BlendHumanJointData";
  * The arc between two rotations a joint can take may leave its range. A joint
  * whose range is stated by swing and twist (`IAutoMovieJointConstraint`
  * `swingTwist`: the shoulders and the hips) is blended inside it instead,
- * straight across the range's chart (`swingTwistRange.blend`): the chart reads
+ * straight across the range's chart (`AutoMovieEngineSwingTwistRange.blend`): the chart reads
  * a rotation as its direction's place on the unit disc the region spans about
  * the rest direction and its twist inside its interval, which is continuous and
  * one to one over the range while the region stays short of the rest
- * direction's antipode (the shoulder's reach cap, `DEFAULT_HUMANOID_ROM`). A
+ * direction's antipode (the shoulder's reach cap, `AutoMovieEngineDefaultHumanoidRom`). A
  * straight line between two places of a disc stays in the disc and an interval
  * is convex, so the blend stays in the range, moves continuously with both ends
  * and meets each. Blended on the arc and projected back, a shoulder carried
@@ -151,7 +151,7 @@ function preparedFrame(
   constraint: IAutoMovieJointConstraint | null,
 ): () => BlendHumanJointData.IFrame {
   try {
-    const frame: BlendHumanJointData.IFrame = frameOf(bone, axes, constraint);
+    const frame: BlendHumanJointData.IFrame = BlendHumanJointData.frameOf(bone, axes, constraint);
     return (): BlendHumanJointData.IFrame => frame;
   } catch (error) {
     return (): never => {
@@ -179,7 +179,7 @@ function prepareLookup(
       bone,
     );
     constraints.set(bone, constraint);
-    if (!linear(constraint)) axes.set(bone, HUMANOID_JOINT_AXES[bone]);
+    if (!linear(constraint)) axes.set(bone, AutoMovieEngineHumanoidJointAxes[bone]);
   }
 
   if (axes.size !== 0)
@@ -250,11 +250,11 @@ function blend(
   const a: IAutoMovieQuaternion = rotationOf(from, rig);
   const b: IAutoMovieQuaternion = rotationOf(to, rig);
   // A joint ranged by swing and twist is blended inside its range
-  // (`swingTwistRange.blend`); another ball joint on the shorter arc.
+  // (`AutoMovieEngineSwingTwistRange.blend`); another ball joint on the shorter arc.
   const blended: IAutoMovieQuaternion =
     range === undefined
-      ? Quaternion.normalize(Quaternion.slerp(a, b, s))
-      : swingTwistRange.blend(a, b, s, range.constraint, range.joint);
+      ? AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.slerp(a, b, s))
+      : AutoMovieEngineSwingTwistRange.blend(a, b, s, range.constraint, range.joint);
   return readRotation(blended, rig);
 }
 
@@ -286,11 +286,11 @@ function pair(
   const b: IAutoMovieQuaternion = rotationOf(to, rig);
   const turn: (share: number) => IAutoMovieQuaternion =
     range === undefined
-      ? Quaternion.prepareSlerp(a, b)
-      : swingTwistRange.prepareBlend(a, b, range.constraint, range.joint);
+      ? AutoMovieEngineQuaternion.prepareSlerp(a, b)
+      : AutoMovieEngineSwingTwistRange.prepareBlend(a, b, range.constraint, range.joint);
   return (at: number): readonly [number, number, number] =>
     readRotation(
-      range === undefined ? Quaternion.normalize(turn(at)) : turn(at),
+      range === undefined ? AutoMovieEngineQuaternion.normalize(turn(at)) : turn(at),
       rig,
     );
 }
@@ -303,7 +303,7 @@ function rotationOf(
   of: readonly [number, number, number],
   rig: BlendHumanJointData.IFrame,
 ): IAutoMovieQuaternion {
-  return Quaternion.normalize(
+  return AutoMovieEngineQuaternion.normalize(
     AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis(
       { flexion: of[0], abduction: of[1], twist: of[2] },
       rig.basis,

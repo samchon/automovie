@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMath,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
@@ -70,14 +70,14 @@ export namespace EquineLibertyRows {
     const flat = (
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
     ): IAutoMovieVector3 =>
-      Vector3.subtract(body.chains[limb][4]!, body.chains[limb][3]!);
+      AutoMovieEngineVector3.subtract(body.chains[limb][4]!, body.chains[limb][3]!);
     const floor: number =
       start.anchors.leftFore.y - body.sole("leftFore", flat("leftFore"));
     const middle = (end: End): IAutoMovieVector3 =>
       EquineBodyPose.point(
         start.trunk,
-        Vector3.scale(
-          Vector3.add(
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
             body.chains[`left${end}`][0]!,
             body.chains[`right${end}`][0]!,
           ),
@@ -103,11 +103,11 @@ export namespace EquineLibertyRows {
       const quarters: IAutoMovieModelPart = part(standing, "hindquarters");
       const ends: readonly IAutoMovieVector3[] = bar(quarters);
       const rear: IAutoMovieVector3 =
-        Vector3.dot(ends[0]!, forward) < Vector3.dot(ends[1]!, forward)
+        AutoMovieEngineVector3.dot(ends[0]!, forward) < AutoMovieEngineVector3.dot(ends[1]!, forward)
           ? ends[0]!
           : ends[1]!;
       const pitch: number = solvePitch(
-        Vector3.subtract(rear, shoulders),
+        AutoMovieEngineVector3.subtract(rear, shoulders),
         forward,
         floor + radius(quarters) - shoulders.y,
         true,
@@ -138,7 +138,7 @@ export namespace EquineLibertyRows {
         ),
       );
       const pitch: number = solvePitch(
-        Vector3.subtract(shoulders, hips),
+        AutoMovieEngineVector3.subtract(shoulders, hips),
         forward,
         floor + lying + lengths[1]! + HUMERUS_DROP * lengths[0]! - hips.y,
         false,
@@ -170,7 +170,7 @@ export namespace EquineLibertyRows {
         target[limb] = {
           kind: "placed",
           anchor: {
-            ...Vector3.addScaled(shoulder, forward, ahead),
+            ...AutoMovieEngineVector3.addScaled(shoulder, forward, ahead),
             y: ground,
           },
           fold: 0,
@@ -212,18 +212,18 @@ export namespace EquineLibertyRows {
       Math.max(0, lengths[0]! ** 2 - (shoulder.y - elbow) ** 2),
     );
     const carpus: IAutoMovieVector3 = {
-      ...Vector3.addScaled(shoulder, forward, along * back),
+      ...AutoMovieEngineVector3.addScaled(shoulder, forward, along * back),
       y: height,
     };
     return {
       kind: "placed",
-      anchor: Vector3.addScaled(
+      anchor: AutoMovieEngineVector3.addScaled(
         carpus,
         forward,
         along * (lengths[2]! + lengths[3]!),
       ),
       fold: KNEEL_FOLD,
-      direction: Vector3.scale(forward, along),
+      direction: AutoMovieEngineVector3.scale(forward, along),
     };
   }
 
@@ -245,15 +245,15 @@ export namespace EquineLibertyRows {
     const carry = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       EquineBodyPose.point(
         to,
-        Quaternion.rotateVector(
-          Quaternion.inverse(from.rotation),
-          Vector3.subtract(point, from.translation),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(from.rotation),
+          AutoMovieEngineVector3.subtract(point, from.translation),
         ),
       );
     const root: IAutoMovieVector3 = carry(ends[0]!);
     const tip: IAutoMovieVector3 = carry(ends[1]!);
-    const offset: IAutoMovieVector3 = Vector3.subtract(tip, root);
-    const z: number = Vector3.dot(offset, forward);
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(tip, root);
+    const z: number = AutoMovieEngineVector3.dot(offset, forward);
     const length: number = Math.hypot(z, offset.y);
     const height: number = floor + radius(tail) - root.y;
     if (tip.y - radius(tail) >= floor) return 0;
@@ -302,8 +302,8 @@ export namespace EquineLibertyRows {
       const up: number =
         (lengths[1]! ** 2 - lengths[0]! ** 2 + rise * rise) / (2 * rise);
       const ahead: number = Math.sqrt(Math.max(0, lengths[1]! ** 2 - up * up));
-      return Vector3.add(
-        Vector3.addScaled({ ...hip, y: height }, forward, ahead),
+      return AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.addScaled({ ...hip, y: height }, forward, ahead),
         { x: 0, y: up, z: 0 },
       );
     };
@@ -312,22 +312,22 @@ export namespace EquineLibertyRows {
     const level: number = floor + Math.max(radius(bars[2]!), radius(bars[3]!));
     let height: number = level;
     for (let pass: number = 0; pass < SETTLE; pass++) {
-      const slope: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract({ ...hip, y: height }, stifleAt(height)),
+      const slope: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract({ ...hip, y: height }, stifleAt(height)),
       );
       height = Math.max(level, floor + drop(bars[1]!, slope));
     }
     const hock: IAutoMovieVector3 = { ...hip, y: height };
     const stifle: IAutoMovieVector3 = stifleAt(height);
     const wanted: readonly IAutoMovieVector3[] = [
-      Vector3.subtract(stifle, hip),
-      Vector3.subtract(hock, stifle),
+      AutoMovieEngineVector3.subtract(stifle, hip),
+      AutoMovieEngineVector3.subtract(hock, stifle),
       forward,
       forward,
     ];
 
     // In the trunk's frame each bar's sagittal angle from straight down, positive forward; a turn swings the distal end back.
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(trunk.rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(trunk.rotation);
     const angle = (v: IAutoMovieVector3): number => Math.atan2(v.z, -v.y);
     const chain: readonly IAutoMovieVector3[] = body.chain(limb, start.trunk, {
       kind: "placed",
@@ -337,8 +337,8 @@ export namespace EquineLibertyRows {
     const turns: number[] = [];
     let applied: number = 0;
     for (let k: number = 0; k < 4; k++) {
-      const from: number = angle(Vector3.subtract(chain[k + 1]!, chain[k]!));
-      const to: number = angle(Quaternion.rotateVector(inverse, wanted[k]!));
+      const from: number = angle(AutoMovieEngineVector3.subtract(chain[k + 1]!, chain[k]!));
+      const to: number = angle(AutoMovieEngineQuaternion.rotateVector(inverse, wanted[k]!));
       const turn: number = ((from - to) * 180) / Math.PI - applied;
       turns.push(turn);
       applied += turn;
@@ -379,8 +379,8 @@ export namespace EquineLibertyRows {
           goal.turns,
           AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, Math.min(1, 2 * share))),
         );
-      else if (Vector3.distance(goal.anchor, start.anchors[limb]) > 0) {
-        const flat: IAutoMovieVector3 = Vector3.subtract(
+      else if (AutoMovieEngineVector3.distance(goal.anchor, start.anchors[limb]) > 0) {
+        const flat: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           body.chains[limb][4]!,
           body.chains[limb][3]!,
         );
@@ -393,8 +393,8 @@ export namespace EquineLibertyRows {
             0.05,
           ),
           fold: goal.fold * s,
-          direction: Quaternion.rotateVector(
-            Quaternion.slerp(
+          direction: AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.slerp(
               { x: 0, y: 0, z: 0, w: 1 },
               AutoMovieEngineMath.rotationBetween(flat, goal.direction ?? flat),
               s,
@@ -417,7 +417,7 @@ export namespace EquineLibertyRows {
     height: number,
     up: boolean,
   ): number {
-    const z: number = Vector3.dot(offset, forward);
+    const z: number = AutoMovieEngineVector3.dot(offset, forward);
     const y: number = offset.y;
     const length: number = Math.hypot(z, y);
     const alpha: number = Math.atan2(z, y);
@@ -474,13 +474,13 @@ export namespace EquineLibertyRows {
         part.geometry.shape.type === "cylinder")
         ? part.geometry.shape.height
         : 0;
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform!.rotation,
       { x: 0, y: height / 2, z: 0 },
     );
     return [
-      Vector3.subtract(part.transform!.translation, half),
-      Vector3.add(part.transform!.translation, half),
+      AutoMovieEngineVector3.subtract(part.transform!.translation, half),
+      AutoMovieEngineVector3.add(part.transform!.translation, half),
     ];
   }
 
@@ -489,7 +489,7 @@ export namespace EquineLibertyRows {
    */
   function segments(chain: readonly IAutoMovieVector3[]): readonly number[] {
     return [0, 1, 2, 3].map((k: number): number =>
-      Vector3.distance(chain[k]!, chain[k + 1]!),
+      AutoMovieEngineVector3.distance(chain[k]!, chain[k + 1]!),
     );
   }
 }

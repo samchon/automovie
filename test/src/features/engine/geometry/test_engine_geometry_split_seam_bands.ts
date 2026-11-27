@@ -1,4 +1,4 @@
-import { AutoMovieConstructionSplitSeam } from "@automovie/engine";
+import { AutoMovieEngineConstructionSplitSeam } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieSolidSurface,
@@ -43,7 +43,7 @@ export function test_engine_geometry_split_seam_bands(): void {
     .join(",");
   TestValidator.equals("faces", names, "band.a,band.b,leg.a,leg.b,trunk");
   const trunk: IAutoMovieSolidSurface = ConstructionRead.surface(real, "trunk");
-  const seam = AutoMovieConstructionSplitSeam.create({
+  const seam = AutoMovieEngineConstructionSplitSeam.create({
     host: trunk,
     station: 30,
     into: 1,

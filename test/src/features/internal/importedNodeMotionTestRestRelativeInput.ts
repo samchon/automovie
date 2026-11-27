@@ -1,4 +1,4 @@
-import { Quaternion, type AutoMovieEngineMotionClip } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, type AutoMovieEngineMotionClip } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieQuaternion,
@@ -21,7 +21,7 @@ export function importedNodeMotionTestRestRelativeInput(
   mapping: Parameters<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion>[0]["mapping"],
 ): Parameters<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion>[0] {
   const sourceSkeleton: IAutoMovieSkeleton = skeleton();
-  const restRotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const restRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     30,
   );

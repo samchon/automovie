@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -46,11 +46,11 @@ export namespace coverTravel {
     const gap: number =
       (p.offset ?? OFFSET) + context.body.measure.chestDepth / 2;
     const lane = (along: number): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         face.center,
-        Vector3.add(
-          Vector3.scale(face.axis, along),
-          Vector3.scale(face.normal, gap),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(face.axis, along),
+          AutoMovieEngineVector3.scale(face.normal, gap),
         ),
       );
     // The walk sidles straight from where the body stands to the stop on
@@ -113,15 +113,15 @@ export namespace coverTravel {
     // The lane runs along the room's side of the window wall, a step off it.
     const gap: number = body.measure.chestDepth + body.measure.footLength;
     const lane = (along: number): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         face.center,
-        Vector3.add(
-          Vector3.scale(face.axis, along),
-          Vector3.scale(face.normal, gap),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(face.axis, along),
+          AutoMovieEngineVector3.scale(face.normal, gap),
         ),
       );
-    const here: number = Vector3.dot(
-      Vector3.subtract(context.entry.posture.root, face.center),
+    const here: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(context.entry.posture.root, face.center),
       face.axis,
     );
     const params: IAutoMovieMotionHumanWalkParams = {

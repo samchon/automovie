@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformanceState,
@@ -68,7 +68,7 @@ export namespace HumanPerformanceTether {
       frame(tether.to.prop, seconds),
     );
     const length: number = out(self, tether, seconds);
-    const taut: boolean = Vector3.distance(from, to) >= length - 1e-9;
+    const taut: boolean = AutoMovieEngineVector3.distance(from, to) >= length - 1e-9;
     return {
       from,
       to,
@@ -117,11 +117,11 @@ export namespace HumanPerformanceTether {
         tether.to.point,
         placed,
       );
-      if (Vector3.distance(near, far) <= length) continue;
+      if (AutoMovieEngineVector3.distance(near, far) <= length) continue;
       const moved: IAutoMovieVector3 = humanTetherReach(near, far, length);
       placed = {
         ...placed,
-        position: Vector3.add(placed.position, Vector3.subtract(moved, far)),
+        position: AutoMovieEngineVector3.add(placed.position, AutoMovieEngineVector3.subtract(moved, far)),
       };
     }
     return placed;
@@ -134,7 +134,7 @@ export namespace HumanPerformanceTether {
    * Returns: Metres.
    */
   export function stretch(span: IAutoMovieMotionHumanTether.ISpan): number {
-    return Math.max(0, Vector3.distance(span.from, span.to) - span.length);
+    return Math.max(0, AutoMovieEngineVector3.distance(span.from, span.to) - span.length);
   }
 
   /*
@@ -265,9 +265,9 @@ function point(
       id,
       `the prop ${owner.subject} declares no point named ${id}`,
     );
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, site.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, site.frame.translation),
   );
 }
 

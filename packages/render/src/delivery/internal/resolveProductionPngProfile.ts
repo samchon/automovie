@@ -1,4 +1,4 @@
-import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "@automovie/engine";
+import { AutoMovieEngineProductionSoundEvidenceRasters } from "@automovie/engine";
 import type {
   IAutoMovieProductionPngProfile,
   IAutoMovieResolveProductionPngProfileProps,
@@ -22,7 +22,7 @@ export const resolveProductionPngProfile: (
 ): IAutoMovieProductionPngProfile => {
   const raster: { width: number | undefined; height: number | undefined } =
     props.role === "waveform" || props.role === "spectrogram"
-      ? AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS[props.role]
+      ? AutoMovieEngineProductionSoundEvidenceRasters[props.role]
       : { width: props.width, height: props.height };
   const width: number | undefined = raster.width;
   const height: number | undefined = raster.height;

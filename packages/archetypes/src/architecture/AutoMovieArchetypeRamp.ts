@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeRampData from "./internal/AutoMovieArchetypeRampData";
+import { AutoMovieArchetypeRampData } from "./internal/AutoMovieArchetypeRampData";
 
 /** Constructs the ramp archetype from its recipe. */
 export namespace AutoMovieArchetypeRamp {
@@ -65,8 +65,8 @@ export function create(
   const centre: number = (toe + length) / 2;
   builder.box(
     "incline",
-    Vector3.create(d.width, slab, length - toe),
-    Vector3.create(
+    AutoMovieEngineVector3.create(d.width, slab, length - toe),
+    AutoMovieEngineVector3.create(
       0,
       (centre * d.rise) / length - (normal.y * slab) / 2,
       (centre * run) / length - (normal.z * slab) / 2,
@@ -74,9 +74,9 @@ export function create(
     {
       color: "#b9b4a8",
       rotation: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, 0, 0),
-        Vector3.create(0, normal.y, normal.z),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 0, 0),
+        AutoMovieEngineVector3.create(0, normal.y, normal.z),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ).rotation,
     },
   );
@@ -84,23 +84,23 @@ export function create(
   // What carries the slab between its foot and the landing: a block under its upper half, whose front edge meets the slab's lower face at the middle of the incline.
   builder.box(
     "support",
-    Vector3.create(d.width, d.rise / 2 - slab, run / 2),
-    Vector3.create(0, d.rise / 4 - slab / 2, (run * 3) / 4),
+    AutoMovieEngineVector3.create(d.width, d.rise / 2 - slab, run / 2),
+    AutoMovieEngineVector3.create(0, d.rise / 4 - slab / 2, (run * 3) / 4),
     { color: "#b9b4a8" },
   );
   builder.box(
     "landing",
-    Vector3.create(d.width, d.rise, AutoMovieArchetypeRamp.LANDING),
-    Vector3.create(0, d.rise / 2, run + AutoMovieArchetypeRamp.LANDING / 2),
+    AutoMovieEngineVector3.create(d.width, d.rise, AutoMovieArchetypeRamp.LANDING),
+    AutoMovieEngineVector3.create(0, d.rise / 2, run + AutoMovieArchetypeRamp.LANDING / 2),
     { color: "#b9b4a8" },
   );
   builder.affordance({
     id: "slope",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, middle.y, middle.z),
-      Vector3.create(0, normal.y, normal.z),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, middle.y, middle.z),
+      AutoMovieEngineVector3.create(0, normal.y, normal.z),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     width: d.width,
@@ -110,9 +110,9 @@ export function create(
     id: "top",
     kind: "ledge",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, d.rise, run),
-      Vector3.create(0, 1, 0),
-      Vector3.create(-1, 0, 0),
+      AutoMovieEngineVector3.create(0, d.rise, run),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(-1, 0, 0),
     ),
     extent: null,
     length: d.width,
@@ -121,7 +121,7 @@ export function create(
     id: "landing",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, d.rise, run + AutoMovieArchetypeRamp.LANDING / 2),
+      AutoMovieEngineVector3.create(0, d.rise, run + AutoMovieArchetypeRamp.LANDING / 2),
     ),
     extent: null,
     width: d.width,

@@ -14,9 +14,9 @@ import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinem
 
 import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { resolveAttachment } from "../../kinematics/internal/resolveAttachment";
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
 /*
@@ -36,7 +36,7 @@ import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotio
  *
  * The parent's scale is not applied, which matches the renderer for the
  * unit-scale actors staging places. Pass the same `jointAxes` the renderer
- * poses the parent with (`HUMANOID_JOINT_AXES`), plus the same `restFrames`
+ * poses the parent with (`AutoMovieEngineHumanoidJointAxes`), plus the same `restFrames`
  * when parent clips are authored in clinical space, or the child follows a bone
  * where the renderer does not draw it. A parent with no motion holds its rest
  * pose.
@@ -79,7 +79,7 @@ export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProp
     offset:
       props.offset === undefined
         ? IDENTITY_OFFSET
-        : Transform.of(props.offset.position, props.offset.rotation),
+        : AutoMovieEngineTransform.of(props.offset.position, props.offset.rotation),
   };
   const demand: prepareSkeletonPoseResolution.IBoneDemand | undefined =
     props.poseResolution?.prepareBones(new Set([props.bone]));
@@ -111,11 +111,11 @@ export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProp
       restBone ?? boneAt(AutoMovieEngineMotionSampling.samplePose(parentMotion!, t));
     const parentWorld: IAutoMovieTransform =
       props.parentTransformAt?.(t) ?? props.parentTransform;
-    const worldPos: IAutoMovieVector3 = Vector3.add(
+    const worldPos: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parentWorld.translation,
-      Quaternion.rotateVector(parentWorld.rotation, local.translation),
+      AutoMovieEngineQuaternion.rotateVector(parentWorld.rotation, local.translation),
     );
-    const worldRot: IAutoMovieQuaternion = Quaternion.multiply(
+    const worldRot: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       parentWorld.rotation,
       local.rotation,
     );
@@ -148,4 +148,4 @@ export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProp
 /*
  * Default child frame when the author gives no offset.
  */
-const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
+const IDENTITY_OFFSET: IAutoMovieTransform = AutoMovieEngineTransform.identity();

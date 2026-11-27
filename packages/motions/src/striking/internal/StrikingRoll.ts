@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -137,13 +137,13 @@ export namespace StrikingRoll {
     cone: number,
     posture: HandPosture,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
-    const along: IAutoMovieVector3 = Vector3.normalize(axis);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(axis);
     const from: IAutoMovieVector3 | undefined =
       typeof posture === "function"
         ? undefined
         : shoulder(context, tool.side, posture);
-    const aside: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(
+    const aside: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(
         along,
         Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
       ),
@@ -152,18 +152,18 @@ export namespace StrikingRoll {
       values: readonly number[],
     ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [tilt, around, turn] = values as readonly [number, number, number];
-      const run: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(along, around),
-        Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
+      const run: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(along, around),
+        AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.fromAxisAngle(aside, tilt), along),
       );
       return StrikingHeld.hand(
         tool,
         back,
         at,
         run,
-        Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(run, turn),
-          Vector3.cross(run, aside),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(run, turn),
+          AutoMovieEngineVector3.cross(run, aside),
         ),
       );
     };
@@ -357,16 +357,16 @@ export namespace StrikingRoll {
     posture: IAutoMovieMotionHumanPosture,
     fix: string,
   ): void {
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       frame.point,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         frame.rotation,
         HumanHand.offset(context.body, tool.side, "grip").point,
       ),
     );
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const distance: number = Vector3.distance(
+    const distance: number = AutoMovieEngineVector3.distance(
       wrist,
       shoulder(context, tool.side, posture, resolution),
     );

@@ -9,9 +9,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { roundToThousandths } from "../../math/internal/roundToThousandths";
-import { GRAMMAR_EPSILON } from "../GRAMMAR_EPSILON";
+import { AutoMovieEngineGrammarEpsilon } from "../AutoMovieEngineGrammarEpsilon";
 import { projectToNdc } from "./projectToNdc";
 
 /*
@@ -90,8 +90,8 @@ export function inspectGrammarCut(
           "the small same-size spatial change can read as an accidental jump",
         recovery: `move camera "${incoming.id}" at least ${thresholds.minimumCutAngleDegrees} degrees around "${subjectId}", change shot size, insert a neutral cutaway, or mark jump-cut`,
       });
-    const displacement: number = Vector3.length(
-      Vector3.subtract(arriving.start, outgoing.end),
+    const displacement: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(arriving.start, outgoing.end),
     );
     if (
       displacement > thresholds.reestablishDistance &&
@@ -272,11 +272,11 @@ function actionAxisSide(
   const second: IAutoMovieGrammarSubjectObservation = shot.subjectById.get(
     shot.actionAxis![1],
   )!;
-  const axis: IAutoMovieVector3 = Vector3.subtract(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     second[boundary],
     first[boundary],
   );
-  const camera: IAutoMovieVector3 = Vector3.subtract(
+  const camera: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     shot.camera[boundary].position,
     first[boundary],
   );
@@ -312,7 +312,7 @@ interface IScreenRelation {
 
 /*
  * Target offset from the subject; neutral when either depth is at or below
- * GRAMMAR_EPSILON.
+ * AutoMovieEngineGrammarEpsilon.
  */
 function relativeScreenDirection(
   camera: IAutoMovieGrammarCameraObservation,
@@ -332,7 +332,7 @@ function relativeScreenDirection(
     halfY,
     camera.aspect,
   );
-  if (from.depth <= GRAMMAR_EPSILON || to.depth <= GRAMMAR_EPSILON)
+  if (from.depth <= AutoMovieEngineGrammarEpsilon || to.depth <= AutoMovieEngineGrammarEpsilon)
     return { horizontal: 0, vertical: 0 };
   return {
     horizontal: sign(to.ndcX - from.ndcX),
@@ -361,13 +361,13 @@ function screenMotionDirection(
     endHalfY,
     shot.camera.end.aspect,
   );
-  if (start.depth <= GRAMMAR_EPSILON || end.depth <= GRAMMAR_EPSILON) return 0;
+  if (start.depth <= AutoMovieEngineGrammarEpsilon || end.depth <= AutoMovieEngineGrammarEpsilon) return 0;
   return sign(end.ndcX - start.ndcX);
 }
 
 /*
  * Degrees between camera bearings across a cut; 180 when their length product
- * is at or below GRAMMAR_EPSILON.
+ * is at or below AutoMovieEngineGrammarEpsilon.
  */
 function cameraBearingAngleDegrees(
   previousSubject: IAutoMovieVector3,
@@ -375,28 +375,28 @@ function cameraBearingAngleDegrees(
   previousCamera: IAutoMovieVector3,
   incomingCamera: IAutoMovieVector3,
 ): number {
-  const previous: IAutoMovieVector3 = Vector3.subtract(
+  const previous: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     previousCamera,
     previousSubject,
   );
-  const incoming: IAutoMovieVector3 = Vector3.subtract(
+  const incoming: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     incomingCamera,
     incomingSubject,
   );
-  const lengths: number = Vector3.length(previous) * Vector3.length(incoming);
-  if (lengths <= GRAMMAR_EPSILON) return 180;
+  const lengths: number = AutoMovieEngineVector3.length(previous) * AutoMovieEngineVector3.length(incoming);
+  if (lengths <= AutoMovieEngineGrammarEpsilon) return 180;
   const cosine: number = Math.max(
     -1,
-    Math.min(1, Vector3.dot(previous, incoming) / lengths),
+    Math.min(1, AutoMovieEngineVector3.dot(previous, incoming) / lengths),
   );
   return (Math.acos(cosine) * 180) / Math.PI;
 }
 
 /*
- * The sign of `value`, zero inside the `GRAMMAR_EPSILON` dead band.
+ * The sign of `value`, zero inside the `AutoMovieEngineGrammarEpsilon` dead band.
  */
 function sign(value: number): Sign {
-  return Math.abs(value) <= GRAMMAR_EPSILON ? 0 : value > 0 ? 1 : -1;
+  return Math.abs(value) <= AutoMovieEngineGrammarEpsilon ? 0 : value > 0 ? 1 : -1;
 }
 
 /*

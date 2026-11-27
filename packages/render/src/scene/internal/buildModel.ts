@@ -7,19 +7,19 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
-import type { IAutoMovieTextureResolver } from "../IAutoMovieTextureResolver.js";
+import { AutoMovieRenderSkinnedMesh } from "../AutoMovieRenderSkinnedMesh.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver.js";
 import { applyTransform } from "./applyTransform.js";
 import { buildGeometry } from "./buildGeometry.js";
 import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { defaultMaterial } from "./defaultMaterial.js";
-import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
-import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
-import { AutoMovieRenderReliefWeightShading } from "../reliefWeightShading/index.js";
-import { AutoMovieRenderWearShading } from "../wearShading/index.js";
+import { AutoMovieRenderDualQuaternionSkinning, AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
+import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource.js";
+import { AutoMovieRenderReliefWeightShading, AutoMovieRenderReliefWeightShading } from "../AutoMovieRenderReliefWeightShading.js";
+import { AutoMovieRenderWearShading, AutoMovieRenderWearShading } from "../AutoMovieRenderWearShading.js";
 
 /*
  * Build a renderable `three.js` object from an IAutoMovieModel.
@@ -37,7 +37,7 @@ import { AutoMovieRenderWearShading } from "../wearShading/index.js";
  * the dual quaternion vertex patch, and its mesh casts shadows through its own
  * patched depth and distance materials, so the shadow deforms like the surface;
  * the mesh is flagged so guide passes patch the materials they swap in. Every
- * skinned part is an AutoMovieSkinnedMesh of its skin's method, so
+ * skinned part is an AutoMovieRenderSkinnedMesh of its skin's method, so
  * bounds, culling, raycasts and vertex queries read the blend the shader draws.
  * Parts with the same ordered joint slots share one skeleton and bone texture
  * within this model; each mesh retains its own bind matrix and blend method.
@@ -52,8 +52,8 @@ import { AutoMovieRenderWearShading } from "../wearShading/index.js";
  *
  * `resolveTexture` is how a declared PBR finish gets its pixels, and it is the
  * host's to supply because this package performs no I/O: the caller decodes the
- * model's bindings first (an `AutoMovieTextureCache` primes them in one pass)
- * and hands over an IAutoMovieTextureResolver that answers
+ * model's bindings first (an `AutoMovieRenderTextureCache` primes them in one pass)
+ * and hands over an IAutoMovieRenderTextureResolver that answers
  * synchronously. Omitting it builds every material with its scalar coefficients
  * and no maps, which is exactly what a model declaring no texture renders and
  * what every pre-texture production still renders. The resolver must answer
@@ -78,17 +78,17 @@ import { AutoMovieRenderWearShading } from "../wearShading/index.js";
  */
 export const buildModel: (
   model: IAutoMovieModel,
-  resolveTexture?: IAutoMovieTextureResolver,
-) => IAutoMovieModelObject = (
+  resolveTexture?: IAutoMovieRenderTextureResolver,
+) => IAutoMovieRenderModelObject = (
   model: IAutoMovieModel,
-  resolveTexture?: IAutoMovieTextureResolver,
-): IAutoMovieModelObject => {
+  resolveTexture?: IAutoMovieRenderTextureResolver,
+): IAutoMovieRenderModelObject => {
   return constructAutoMovieOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,
       ) => Resource,
-    ): IAutoMovieModelObject => {
+    ): IAutoMovieRenderModelObject => {
       const group: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
       group.name = model.name ?? model.id;
 
@@ -242,7 +242,7 @@ export const buildModel: (
           THREE.MeshStandardMaterial,
           THREE.Object3DEventMap
         > = skin !== null
-          ? new AutoMovieSkinnedMesh(geo, mat, skin.method ?? "linear")
+          ? new AutoMovieRenderSkinnedMesh(geo, mat, skin.method ?? "linear")
           : new THREE.Mesh(geo, mat);
         mesh.visible = mat.visible;
         mesh.name = part.name ?? part.id;
@@ -271,7 +271,7 @@ export const buildModel: (
           mesh.userData.automovieMorphTargetDrivers = driven;
         if (part.transform !== null) applyTransform(mesh, part.transform);
 
-        if (AutoMovieThreeKind.isSkinnedMesh(mesh) && skin !== null) {
+        if (AutoMovieRenderThreeKind.isSkinnedMesh(mesh) && skin !== null) {
           const palette: string = JSON.stringify(skin.joints);
           let skeleton: THREE.Skeleton | undefined = skeletons.get(palette);
           if (skeleton === undefined) {
@@ -338,7 +338,7 @@ export const buildModel: (
       // Without a skeleton every part is fixed to the root: one rigid assembly
       // for placed collision checks while its parts keep their built placement.
       if (model.skeleton === null)
-        AutoMovieCollisionSource.bindAssembly(group, parts.values());
+        AutoMovieRenderCollisionSource.bindAssembly(group, parts.values());
 
       return {
         object: group,

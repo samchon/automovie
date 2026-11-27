@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingReach,
   IAutoMovieVector3,
@@ -88,9 +88,9 @@ export namespace KneeReach {
       y: 0,
       z: target.z - hip.z,
     };
-    const distance: number = Vector3.length(flat);
+    const distance: number = AutoMovieEngineVector3.length(flat);
     const heading: IAutoMovieVector3 =
-      distance > 1e-6 ? Vector3.scale(flat, 1 / distance) : fallback;
+      distance > 1e-6 ? AutoMovieEngineVector3.scale(flat, 1 / distance) : fallback;
     const want: number = distance - radius * Math.cos(elevation);
     const moved: number = Math.max(-travel, Math.min(travel, want));
     const status: IAutoMovieMotionHumanStrikingReach.ISolution["status"] =
@@ -101,30 +101,30 @@ export namespace KneeReach {
         : want < -travel - 1e-9
           ? "jammed"
           : "reached";
-    const thrust: IAutoMovieVector3 = Vector3.scale(heading, moved);
+    const thrust: IAutoMovieVector3 = AutoMovieEngineVector3.scale(heading, moved);
 
     // The thigh along its elevation, the shank folded back and down in the
     // same vertical plane by the knee's flexion.
-    const along: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(heading, Math.cos(elevation)),
-      Vector3.scale(up, Math.sin(elevation)),
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(heading, Math.cos(elevation)),
+      AutoMovieEngineVector3.scale(up, Math.sin(elevation)),
     );
-    const below: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.scale(heading, Math.sin(elevation)),
-      Vector3.scale(up, Math.cos(elevation)),
+    const below: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.scale(heading, Math.sin(elevation)),
+      AutoMovieEngineVector3.scale(up, Math.cos(elevation)),
     );
     const flexion: number = (KneeForm.FLEXION * Math.PI) / 180;
-    const knee: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(hip, thrust),
-      Vector3.scale(along, thigh),
+    const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(hip, thrust),
+      AutoMovieEngineVector3.scale(along, thigh),
     );
-    const fold: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(along, Math.cos(flexion)),
-      Vector3.scale(below, Math.sin(flexion)),
+    const fold: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(along, Math.cos(flexion)),
+      AutoMovieEngineVector3.scale(below, Math.sin(flexion)),
     );
     return {
       knee,
-      ankle: Vector3.add(knee, Vector3.scale(fold, shank)),
+      ankle: AutoMovieEngineVector3.add(knee, AutoMovieEngineVector3.scale(fold, shank)),
       thrust,
       heading,
       status,
@@ -144,13 +144,13 @@ export namespace KneeReach {
     to: IAutoMovieVector3,
     share: number,
   ): IAutoMovieVector3 {
-    const axis: IAutoMovieVector3 = Vector3.cross(from, to);
-    const sine: number = Vector3.length(axis);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, to);
+    const sine: number = AutoMovieEngineVector3.length(axis);
     if (sine < 1e-9) return to;
     const degrees: number =
-      (Math.atan2(sine, Vector3.dot(from, to)) * 180) / Math.PI;
-    return Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(Vector3.scale(axis, 1 / sine), degrees * share),
+      (Math.atan2(sine, AutoMovieEngineVector3.dot(from, to)) * 180) / Math.PI;
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieEngineVector3.scale(axis, 1 / sine), degrees * share),
       from,
     );
   }
@@ -168,21 +168,21 @@ export namespace KneeReach {
     shank: IAutoMovieVector3,
     heading: IAutoMovieVector3,
   ): IFootResult {
-    const front: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const front: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         heading,
-        Vector3.scale(shank, Vector3.dot(heading, shank)),
+        AutoMovieEngineVector3.scale(shank, AutoMovieEngineVector3.dot(heading, shank)),
       ),
     );
     const angle: number = (KneeForm.PLANTAR * Math.PI) / 180;
     return {
-      toes: Vector3.add(
-        Vector3.scale(front, Math.cos(angle)),
-        Vector3.scale(shank, Math.sin(angle)),
+      toes: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(front, Math.cos(angle)),
+        AutoMovieEngineVector3.scale(shank, Math.sin(angle)),
       ),
-      instep: Vector3.subtract(
-        Vector3.scale(front, Math.sin(angle)),
-        Vector3.scale(shank, Math.cos(angle)),
+      instep: AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.scale(front, Math.sin(angle)),
+        AutoMovieEngineVector3.scale(shank, Math.cos(angle)),
       ),
     };
   }

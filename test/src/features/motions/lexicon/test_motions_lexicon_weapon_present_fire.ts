@@ -1,5 +1,7 @@
-import { Quaternion } from "@automovie/engine";
-import { humanWeaponFireRecoil } from "@automovie/motions/internal";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
+import {
+  humanWeaponFireRecoil
+} from "../../../../../packages/motions/src/lexicon/internal/humanWeaponFireRecoil";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -27,12 +29,12 @@ export function test_motions_lexicon_weapon_present_fire(): void {
     "the muzzle rises",
     vclose(level.about, { x: -1, y: 0, z: 0 }, 1e-12) &&
       vclose(
-        Quaternion.rotateVector(level.turned(1), { x: 0, y: 0, z: 1 }),
+        AutoMovieEngineQuaternion.rotateVector(level.turned(1), { x: 0, y: 0, z: 1 }),
         { x: 0, y: Math.sin(r), z: Math.cos(r) },
         1e-12,
       ) &&
       vclose(
-        Quaternion.rotateVector(level.turned(2), { x: 0, y: 0, z: 1 }),
+        AutoMovieEngineQuaternion.rotateVector(level.turned(2), { x: 0, y: 0, z: 1 }),
         { x: 0, y: Math.sin(r), z: Math.cos(r) },
         1e-12,
       ),

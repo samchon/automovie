@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -269,9 +269,9 @@ export namespace DanceFootwork {
                   ),
                 }),
           },
-          root: Vector3.subtract(
+          root: AutoMovieEngineVector3.subtract(
             hips(t),
-            Quaternion.rotateVector(humanPostureHeading(turned), rest),
+            AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(turned), rest),
           ),
         };
       },
@@ -373,9 +373,9 @@ export namespace DanceFootwork {
       course.duration,
       ground,
     );
-    const hips: IAutoMovieVector3 = Vector3.add(
+    const hips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       entry.posture.root,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading(entry.posture),
         body.rest.get("hips")!,
       ),

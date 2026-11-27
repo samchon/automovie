@@ -3,7 +3,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { BUILT_PLANAR_EPSILON } from "../BUILT_PLANAR_EPSILON";
+import { AutoMovieEngineBuiltPlanarEpsilon } from "../AutoMovieEngineBuiltPlanarEpsilon";
 import { polygonShortestEdge } from "./polygonShortestEdge";
 
 /*
@@ -16,7 +16,7 @@ import { polygonShortestEdge } from "./polygonShortestEdge";
  * would outlaw a round oculus for no geometric reason. Then every coordinate
  * must be finite, each non-finite one reported at `<path>[i].<axis>`, and no
  * two consecutive corners, the closing pair included, may lie within
- * `BUILT_PLANAR_EPSILON` (1e-9 m) of each other. A failed count or a non-finite
+ * `AutoMovieEngineBuiltPlanarEpsilon` (1e-9 m) of each other. A failed count or a non-finite
  * corner stops before the later test, which could not be computed.
  * Parameter outline: Closed ring of corners, in metres.
  * Parameter least: Fewest corners the outline may have.
@@ -42,7 +42,7 @@ export function builtOutlineIsClosed(
     return false;
   }
 
-  if (polygonShortestEdge(outline) <= BUILT_PLANAR_EPSILON) {
+  if (polygonShortestEdge(outline) <= AutoMovieEngineBuiltPlanarEpsilon) {
     collector.push(
       "range",
       path,

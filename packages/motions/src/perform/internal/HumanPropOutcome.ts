@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalProjectile, Vector3 } from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMovieBodyContact,
@@ -28,7 +28,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
  * - `bounce` where it declares a restitution and a friction pair (its
  *   `kineticFriction`, else its static `friction`): Newton's restitution and
  *   Coulomb's impulse limit on its velocity relative to the struck surface,
- *   whose velocity the meeting carries (`AutoMoviePhysicalProjectile.continueFlight`), rolling on at
+ *   whose velocity the meeting carries (`AutoMovieEnginePhysicalProjectile.continueFlight`), rolling on at
  *   its rolling resistance (`contact.rolling`) once a rebound would rise less
  *   than its radius off that surface, and coming to rest where it struck when
  *   it declares no rolling resistance. A spherical launch bounces as a ball of
@@ -220,7 +220,7 @@ export namespace HumanPropOutcome {
                   }),
             };
       const next: IAutoMovieProjectileContinue.Segment = shift(
-        AutoMoviePhysicalProjectile.continueFlight(projectile, meeting.hit, outcome),
+        AutoMovieEnginePhysicalProjectile.continueFlight(projectile, meeting.hit, outcome),
         base,
       );
       if (next.kind === "rest") return out;
@@ -230,13 +230,13 @@ export namespace HumanPropOutcome {
         // so the flight's one sweep meets what stands in its way (a keeper's
         // pad, a stick, a person) as it would a flight. The ground it rolls on
         // is left behind; a meeting at or after `until` is not on the roll.
-        const speed: number = Vector3.length(next.velocity);
+        const speed: number = AutoMovieEngineVector3.length(next.velocity);
         const rolling: IAutoMovieProjectile | undefined =
           speed > 0 && next.from < props.horizon
             ? {
                 origin: next.origin,
                 velocity: next.velocity,
-                gravity: Vector3.scale(
+                gravity: AutoMovieEngineVector3.scale(
                   next.velocity,
                   -next.deceleration / speed,
                 ),
@@ -264,14 +264,14 @@ export namespace HumanPropOutcome {
         // The contact goes on as a flight under the prop's own gravity from
         // the roll's state there, a ball turning as it rolled: its contact
         // point at rest on the ground, `w = n x v / r`.
-        const state: IAutoMovieProjectileState = AutoMoviePhysicalProjectile.continuedAt(
+        const state: IAutoMovieProjectileState = AutoMovieEnginePhysicalProjectile.continuedAt(
           next,
           end,
         );
         if (props.sphereRadius !== undefined)
-          spin = Vector3.scale(
-            Vector3.cross(
-              Vector3.normalize(meeting.hit.normal!),
+          spin = AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.cross(
+              AutoMovieEngineVector3.normalize(meeting.hit.normal!),
               state.velocity,
             ),
             1 / props.sphereRadius,
@@ -288,14 +288,14 @@ export namespace HumanPropOutcome {
 
       // A gravity-return height applies only when acceleration presses inward.
       // Outward or tangent gravity must not attach a departing prop to it.
-      const n: IAutoMovieVector3 = Vector3.normalize(meeting.hit.normal!);
-      const pull: number = Math.max(0, -Vector3.dot(projectile.gravity, n));
+      const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(meeting.hit.normal!);
+      const pull: number = Math.max(0, -AutoMovieEngineVector3.dot(projectile.gravity, n));
       const leaving: IAutoMovieVector3 =
         meeting.surface === undefined
           ? next.projectile.velocity
-          : Vector3.subtract(next.projectile.velocity, meeting.surface);
+          : AutoMovieEngineVector3.subtract(next.projectile.velocity, meeting.surface);
       const rise: number =
-        pull > 0 ? Vector3.dot(leaving, n) ** 2 / (2 * pull) : Infinity;
+        pull > 0 ? AutoMovieEngineVector3.dot(leaving, n) ** 2 / (2 * pull) : Infinity;
       if (outcome.kind === "bounce" && rise < size!) return out;
       if (!(next.from < props.horizon)) return out;
       const met: IAutoMovieMotionHumanPropOutcome.IMeeting | null = props.meet(
@@ -357,7 +357,7 @@ export namespace HumanPropOutcome {
     leg: IAutoMovieMotionHumanPropOutcome.ILeg,
     seconds: number,
   ): IAutoMovieProjectileState {
-    return AutoMoviePhysicalProjectile.continuedAt(leg.segment, seconds);
+    return AutoMovieEnginePhysicalProjectile.continuedAt(leg.segment, seconds);
   }
 
   /*
@@ -379,11 +379,11 @@ export namespace HumanPropOutcome {
       struck,
       sphereRadius,
     );
-    const speed: number = Vector3.length(state.velocity);
+    const speed: number = AutoMovieEngineVector3.length(state.velocity);
     return outcome?.kind === "stick" && speed > 0
-      ? Vector3.add(
+      ? AutoMovieEngineVector3.add(
           state.position,
-          Vector3.scale(state.velocity, outcome.depth / speed),
+          AutoMovieEngineVector3.scale(state.velocity, outcome.depth / speed),
         )
       : state.position;
   }

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -180,13 +180,13 @@ export namespace kneel {
     );
     const keys: kneelKeys.IKey[] = solved.keys;
     const length: number = m.thigh + m.shank;
-    const kneeling: number = Vector3.dot(
-      Vector3.subtract(keys[2]!.root, standing.root),
+    const kneeling: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(keys[2]!.root, standing.root),
       solved.forward,
     );
-    const aside: IAutoMovieVector3 = Vector3.subtract(
+    const aside: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       { ...keys[2]!.root, y: standing.root.y },
-      Vector3.add(standing.root, Vector3.scale(solved.forward, kneeling)),
+      AutoMovieEngineVector3.add(standing.root, AutoMovieEngineVector3.scale(solved.forward, kneeling)),
     );
 
     // Phases: down through the keys, a hold, and back up when rising.
@@ -317,8 +317,8 @@ export namespace kneel {
       (p: IPhase): boolean => p.from === 2 && p.to === 1,
     );
     {
-      const stepped: number = Vector3.dot(
-        Vector3.subtract(keys[1]!.root, standing.root),
+      const stepped: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(keys[1]!.root, standing.root),
         solved.forward,
       );
       // The step key's place from the moment the foot lands; the way down

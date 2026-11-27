@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -35,7 +35,7 @@ export function edgeRescueFaller(
   scene: edgeRescueScene.IScene,
 ): IAutoMovieMotionHumanActionPlan {
   const body: IAutoMovieMotionHumanBody = context.body;
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   // Facing the wall, against the way out.
   const yaw: number = (Math.atan2(-scene.out.x, -scene.out.z) * 180) / Math.PI;
   const hang: IAutoMovieMotionHumanPosture = {
@@ -51,7 +51,7 @@ export function edgeRescueFaller(
     resolveHumanPosture.seeded(body, hang).pose,
   );
   const rightHand: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
-  const hands: IAutoMovieVector3 = Vector3.lerp(
+  const hands: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     bones.get("leftHand")!.worldPosition,
     rightHand,
     0.5,
@@ -60,16 +60,16 @@ export function edgeRescueFaller(
     bones.get("leftToes")!.worldPosition.y,
     bones.get("rightToes")!.worldPosition.y,
   );
-  const clear: IAutoMovieVector3 = Vector3.scale(scene.out, CLEAR);
-  const hung: IAutoMovieVector3 = Vector3.add(
-    Vector3.subtract(scene.lip, hands),
+  const clear: IAutoMovieVector3 = AutoMovieEngineVector3.scale(scene.out, CLEAR);
+  const hung: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.subtract(scene.lip, hands),
     clear,
   );
   const byRight: (grip: IAutoMovieVector3) => IAutoMovieVector3 = (
     grip: IAutoMovieVector3,
-  ): IAutoMovieVector3 => Vector3.add(Vector3.subtract(grip, rightHand), clear);
+  ): IAutoMovieVector3 => AutoMovieEngineVector3.add(AutoMovieEngineVector3.subtract(grip, rightHand), clear);
   const kneelPose: IAutoMovieMotionHumanPosture = {
-    root: Vector3.add({ ...scene.lip }, Vector3.scale(scene.out, -0.6)),
+    root: AutoMovieEngineVector3.add({ ...scene.lip }, AutoMovieEngineVector3.scale(scene.out, -0.6)),
     yaw,
     pitch: lieDown.POSES.kneel.pitch,
     roll: lieDown.POSES.kneel.roll,
@@ -161,13 +161,13 @@ export function edgeRescueFaller(
       byRight(scene.gripAt(scene.kneel)),
     );
     const waypoint: IAutoMovieVector3 = {
-      ...Vector3.lerp(from.root, kneelRoot, 0.5),
+      ...AutoMovieEngineVector3.lerp(from.root, kneelRoot, 0.5),
       y: Math.max(from.root.y, scene.lip.y + OVER),
     };
     const root: IAutoMovieVector3 =
       u < 0.5
-        ? Vector3.lerp(from.root, waypoint, AutoMovieEngineMotionSampling.minimumJerkShare(u * 2))
-        : Vector3.lerp(waypoint, kneelRoot, AutoMovieEngineMotionSampling.minimumJerkShare(u * 2 - 1));
+        ? AutoMovieEngineVector3.lerp(from.root, waypoint, AutoMovieEngineMotionSampling.minimumJerkShare(u * 2))
+        : AutoMovieEngineVector3.lerp(waypoint, kneelRoot, AutoMovieEngineMotionSampling.minimumJerkShare(u * 2 - 1));
     const shaped: IAutoMovieMotionHumanPosture = stuntFallPose.blend(
       from,
       { ...kneelPose, root: kneelRoot },

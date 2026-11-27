@@ -9,12 +9,12 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieEngineSkeletonPose } from "../../kinematics/AutoMovieEngineSkeletonPose";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
@@ -81,10 +81,10 @@ export function prepareChainPlant(
   )
     return null;
 
-  const upperInverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const upperInverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     upper.worldRotation,
   );
-  const lowerInverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const lowerInverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     lower.worldRotation,
   );
 
@@ -122,21 +122,21 @@ export function prepareChainPlant(
       ),
     },
     end: effector.worldPosition,
-    hinge: Quaternion.rotateVector(
+    hinge: AutoMovieEngineQuaternion.rotateVector(
       lower.worldRotation,
       normalizeJointAxes(
-        props.jointAxes?.[chain.lower] ?? DEFAULT_JOINT_AXES,
+        props.jointAxes?.[chain.lower] ?? AutoMovieEngineDefaultJointAxes,
         "prepareChainPlant axes",
       ).flexion,
     ),
-    lowerOffset: Quaternion.rotateVector(
+    lowerOffset: AutoMovieEngineQuaternion.rotateVector(
       upperInverse,
-      Vector3.subtract(lower.worldPosition, upper.worldPosition),
+      AutoMovieEngineVector3.subtract(lower.worldPosition, upper.worldPosition),
     ),
-    lowerRotation: Quaternion.multiply(upperInverse, lower.worldRotation),
-    effectorOffset: Quaternion.rotateVector(
+    lowerRotation: AutoMovieEngineQuaternion.multiply(upperInverse, lower.worldRotation),
+    effectorOffset: AutoMovieEngineQuaternion.rotateVector(
       lowerInverse,
-      Vector3.subtract(effector.worldPosition, lower.worldPosition),
+      AutoMovieEngineVector3.subtract(effector.worldPosition, lower.worldPosition),
     ),
     effectorBaseRotation,
   };

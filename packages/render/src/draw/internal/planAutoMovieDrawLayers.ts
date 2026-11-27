@@ -1,7 +1,7 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 
-import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
 
 /*
  * The layers a draw subject's film picture composites at a second, outgoing
@@ -23,7 +23,7 @@ import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
  */
 export function planAutoMovieDrawLayers(
   name: string,
-  scene: Pick<IAutoMovieDrawScene, "sequence" | "cut" | "seekShot">,
+  scene: Pick<IAutoMovieRenderDrawScene, "sequence" | "cut" | "seekShot">,
   seconds: number,
 ): IAutoMoviePlaybackLayer[] | null {
   if (scene.sequence === undefined || scene.cut === undefined) return null;

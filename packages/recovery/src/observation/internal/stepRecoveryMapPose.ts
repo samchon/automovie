@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieRecoveryMapPose,
@@ -15,13 +15,13 @@ export function stepRecoveryMapPose(
   if (step.length !== 6)
     throw new Error("camera-map: finite six-coordinate update required");
   const angle: number = Math.hypot(step[0]!, step[1]!, step[2]!);
-  const increment: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const increment: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: step[0]!, y: step[1]!, z: step[2]! },
     (angle * 180) / Math.PI,
   );
   const rotation: number[] = new Array<number>(9);
   for (let column: number = 0; column < 3; column++) {
-    const value: IAutoMovieVector3 = Quaternion.rotateVector(increment, {
+    const value: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(increment, {
       x: pose.rotation[column]!,
       y: pose.rotation[3 + column]!,
       z: pose.rotation[6 + column]!,

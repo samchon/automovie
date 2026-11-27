@@ -1,7 +1,7 @@
 import {AutoMovieEngineMotionSampling} from "@automovie/engine";
 
 import { walkLegLow } from "./walkLegLow";
-import * as WalkLegRiseData from "./WalkLegRiseData";
+import { WalkLegRiseData } from "./WalkLegRiseData";
 
 /*
  * The pitch a planted foot's heel rises to so that a room it must keep, which

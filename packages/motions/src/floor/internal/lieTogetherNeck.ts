@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
@@ -89,7 +89,7 @@ export namespace lieTogetherNeck {
     const point: ReturnType<typeof HumanTrunk.preparePoint> =
       HumanTrunk.preparePoint(body, own);
     const miss = (n: INeck): number =>
-      Vector3.distance(point(apply(posture, n, 1), resolution), target);
+      AutoMovieEngineVector3.distance(point(apply(posture, n, 1), resolution), target);
     let best: INeck = NONE;
     let least: number = miss(best);
     const visit = (n: INeck): void => {

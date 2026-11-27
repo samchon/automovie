@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { StrikingBladeOnPath } from "@automovie/motions/internal";
+import {
+  StrikingBladeOnPath
+} from "../../../../../packages/motions/src/striking/internal/StrikingBladeOnPath";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

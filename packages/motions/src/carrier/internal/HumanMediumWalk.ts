@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -22,7 +22,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { poseBones } from "../../posture/internal/poseBones";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
-import * as HumanMediumWalkData from "./HumanMediumWalkData";
+import { HumanMediumWalkData } from "./HumanMediumWalkData";
 
 /*
  * Walk through a medium or into a wind: the walk (`walk`) at the speed the
@@ -84,10 +84,10 @@ export function HumanMediumWalk(
   HumanBound.within("medium.hold", hold, 0, 2, "s");
 
   // The wind's lean: gravity's moment about the ankles balances the wind's.
-  const weight: number = body.profile.mass * AutoMovieGravity.STANDARD;
+  const weight: number = body.profile.mass * AutoMovieEngineGravity.STANDARD;
   const push: IAutoMovieVector3 =
     wind === undefined ? { x: 0, y: 0, z: 0 } : { ...wind, y: 0 };
-  const force: number = Vector3.length(push);
+  const force: number = AutoMovieEngineVector3.length(push);
   const limit: number =
     (weight * body.measure.footLength) / 2 / body.measure.hipHeight;
   if (force > limit)
@@ -102,7 +102,7 @@ export function HumanMediumWalk(
     });
   const lean: number = Math.atan(force / weight);
   const into: IAutoMovieVector3 =
-    force === 0 ? { x: 0, y: 0, z: 0 } : Vector3.scale(push, -1 / force);
+    force === 0 ? { x: 0, y: 0, z: 0 } : AutoMovieEngineVector3.scale(push, -1 / force);
 
   const walked: Plan = plan(pace);
   const windows: Record<
@@ -169,24 +169,24 @@ export function HumanMediumWalk(
       const posture: Posture = walked.posture(time);
       const share: number = time / walked.duration;
       const limbs: Posture["limbs"] = { ...posture.limbs };
-      const facing: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(HumanMediumWalkData.UP, posture.yaw),
+      const facing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(HumanMediumWalkData.UP, posture.yaw),
         { x: 0, y: 0, z: 1 },
       );
-      const left: IAutoMovieVector3 = Vector3.cross(HumanMediumWalkData.UP, facing);
-      const pelvis: IAutoMovieVector3 = Vector3.add(
+      const left: IAutoMovieVector3 = AutoMovieEngineVector3.cross(HumanMediumWalkData.UP, facing);
+      const pelvis: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         posture.root,
         // As the wind leans the body.
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           humanPostureHeading({
             ...posture,
             pitch:
               posture.pitch +
-              (lean / Quaternion.DEG2RAD) * Vector3.dot(into, facing),
+              (lean / AutoMovieEngineQuaternion.DEG2RAD) * AutoMovieEngineVector3.dot(into, facing),
             roll:
               posture.roll -
-              (lean / Quaternion.DEG2RAD) *
-                Vector3.dot(into, Vector3.cross(HumanMediumWalkData.UP, facing)),
+              (lean / AutoMovieEngineQuaternion.DEG2RAD) *
+                AutoMovieEngineVector3.dot(into, AutoMovieEngineVector3.cross(HumanMediumWalkData.UP, facing)),
           }),
           body.rest.get("hips")!,
         ),
@@ -201,9 +201,9 @@ export function HumanMediumWalk(
           y: goal.point.y + rise,
         };
         // The lifted foot turns with its shank, so the ankle keeps its angle.
-        const hip: IAutoMovieVector3 = Vector3.add(
+        const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           pelvis,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             left,
             (side === "left" ? 1 : -1) * body.measure.hipHalfWidth,
           ),
@@ -218,8 +218,8 @@ export function HumanMediumWalk(
           ...(goal.rotation === undefined
             ? {}
             : {
-                rotation: Quaternion.multiply(
-                  Quaternion.fromAxisAngle(left, tilt),
+                rotation: AutoMovieEngineQuaternion.multiply(
+                  AutoMovieEngineQuaternion.fromAxisAngle(left, tilt),
                   goal.rotation,
                 ),
               }),
@@ -257,7 +257,7 @@ export function HumanMediumWalk(
         for (const side of ["left", "right"] as const) {
           const out: number =
             (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth;
-          const across: IAutoMovieVector3 = Vector3.cross(HumanMediumWalkData.UP, facing);
+          const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(HumanMediumWalkData.UP, facing);
           // Held forward of the chest the trunk's wading lean carries
           // forward at the hands' height, clear of it by an upper arm.
           const hips: number = posture.root.y + body.rest.get("hips")!.y;
@@ -265,15 +265,15 @@ export function HumanMediumWalk(
             body.measure.chestDepth / 2 +
             body.measure.upperArm +
             Math.max(0, surface + HumanMediumWalkData.ARMS_ABOVE - hips) *
-              Math.tan(HumanMediumWalkData.WADE_LEAN * Quaternion.DEG2RAD);
-          const hand: IAutoMovieVector3 = Vector3.add(
-            Vector3.add(posture.root, Vector3.scale(facing, ahead)),
-            Vector3.scale(across, 1.5 * out),
+              Math.tan(HumanMediumWalkData.WADE_LEAN * AutoMovieEngineQuaternion.DEG2RAD);
+          const hand: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(posture.root, AutoMovieEngineVector3.scale(facing, ahead)),
+            AutoMovieEngineVector3.scale(across, 1.5 * out),
           );
           limbs[`${side}Arm`] = {
             point: { ...hand, y: surface + HumanMediumWalkData.ARMS_ABOVE },
             bend: {
-              ...Vector3.add(hand, Vector3.scale(across, out)),
+              ...AutoMovieEngineVector3.add(hand, AutoMovieEngineVector3.scale(across, out)),
               y: surface + HumanMediumWalkData.ARMS_ABOVE,
             },
           };
@@ -284,7 +284,7 @@ export function HumanMediumWalk(
       const spine: readonly [number, number, number] = posture.joints.spine ?? [
         0, 0, 0,
       ];
-      const windward: number = lean / Quaternion.DEG2RAD;
+      const windward: number = lean / AutoMovieEngineQuaternion.DEG2RAD;
       const joints: Posture["joints"] = { ...posture.joints };
       if (medium?.kind === "water")
         joints.spine = [spine[0] + HumanMediumWalkData.WADE_LEAN, spine[1], spine[2]];
@@ -295,23 +295,23 @@ export function HumanMediumWalk(
           const arm: readonly [number, number, number] | undefined =
             joints[`${side}UpperArm`];
           if (arm === undefined) continue;
-          const outward: IAutoMovieVector3 = Vector3.scale(
-            Vector3.cross(HumanMediumWalkData.UP, facing),
+          const outward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.cross(HumanMediumWalkData.UP, facing),
             side === "left" ? 1 : -1,
           );
           joints[`${side}UpperArm`] = [
             arm[0],
-            arm[1] + windward * Math.max(0, Vector3.dot(outward, into)),
+            arm[1] + windward * Math.max(0, AutoMovieEngineVector3.dot(outward, into)),
             arm[2],
           ];
         }
       return {
         ...posture,
         joints,
-        pitch: posture.pitch + windward * Vector3.dot(into, facing),
+        pitch: posture.pitch + windward * AutoMovieEngineVector3.dot(into, facing),
         roll:
           posture.roll -
-          windward * Vector3.dot(into, Vector3.cross(HumanMediumWalkData.UP, facing)),
+          windward * AutoMovieEngineVector3.dot(into, AutoMovieEngineVector3.cross(HumanMediumWalkData.UP, facing)),
         limbs,
       };
     },
@@ -374,7 +374,7 @@ function wading(
   );
   const unit: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
   const drag = (level: number): number =>
-    Vector3.length(
+    AutoMovieEngineVector3.length(
       HumanWater.sum(body, bones, unit, { surface: ground + level }).drag,
     );
   const here: number = drag(depth);

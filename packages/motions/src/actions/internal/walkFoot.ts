@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -169,7 +169,7 @@ export namespace walkFoot {
       HumanFoot.prepareHeight(body, side, "heel");
     const toe: ReturnType<typeof HumanFoot.prepareHeight.articulated> =
       HumanFoot.prepareHeight.articulated(body, side, "toe");
-    const delta: IAutoMovieVector3 = Vector3.subtract(
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       props.to.ankle,
       props.from.ankle,
     );

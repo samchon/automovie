@@ -1,4 +1,4 @@
-import { AutoMovieIllinois, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineIllinois, AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieHumanArmBreadth,
   IAutoMovieHumanSectionSite,
@@ -35,7 +35,7 @@ export namespace AutoMovieHumanArmBreadth {
             : { top: pole.station };
     const curve:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
       AutoMovieHumanSiteViewPart.outline(input, quarter),
       ends,
     );
@@ -54,12 +54,12 @@ export namespace AutoMovieHumanArmBreadth {
       ...curve.knots.map(
         (k: (typeof curve.knots)[number]): number => k.station,
       ),
-      ...AutoMovieViewOutline.criticalStations(curve),
+      ...AutoMovieEngineViewOutline.criticalStations(curve),
     ].filter((s: number): boolean => s >= domain[0] && s <= domain[1]);
     let radius: number = -Infinity;
     let station: number = NaN;
     for (const s of stations) {
-      const value: number | string = AutoMovieViewOutline.value(curve, s);
+      const value: number | string = AutoMovieEngineViewOutline.value(curve, s);
       if (typeof value === "string" || !Number.isFinite(value))
         return `Nonfinite deltoid source support at ${s}: ${value}`;
       if (sign * value > radius) {
@@ -130,7 +130,7 @@ export namespace AutoMovieHumanArmBreadth {
         failure ??
         `Bideltoid fixed source family has no positive sign bracket: ${lower}, ${value}`
       );
-    const scale: number | null = AutoMovieIllinois.root(
+    const scale: number | null = AutoMovieEngineIllinois.root(
       residual,
       0,
       upper,

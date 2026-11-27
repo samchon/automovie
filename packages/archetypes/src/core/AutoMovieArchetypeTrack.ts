@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
 import type {
@@ -204,16 +204,16 @@ export namespace AutoMovieArchetypeTrack {
       "y",
     );
     const through: IAutoMovieVector3 = affordance.frame.translation;
-    const offset: IAutoMovieVector3 = Vector3.subtract(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       archetype.properties.centerOfMass,
       through,
     );
-    const square: IAutoMovieVector3 = Vector3.subtract(
+    const square: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       offset,
-      Vector3.scale(axis, Vector3.dot(offset, axis)),
+      AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(offset, axis)),
     );
     const a: number = square.y;
-    const b: number = Vector3.cross(axis, square).y;
+    const b: number = AutoMovieEngineVector3.cross(axis, square).y;
     const arm: number = Math.hypot(a, b);
     if (!(arm > 1e-9))
       throw new AutoMovieArchetypeRefusal({

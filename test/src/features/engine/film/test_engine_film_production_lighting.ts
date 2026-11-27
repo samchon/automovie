@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -49,12 +49,12 @@ const keyed: (q: IAutoMovieQuaternion) => number[] = (
 
 const aboutY: (deg: number) => IAutoMovieQuaternion = (
   deg: number,
-): IAutoMovieQuaternion => Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
+): IAutoMovieQuaternion => AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
 
 const directionOf: (light: IAutoMovieLight) => IAutoMovieVector3 = (
   light: IAutoMovieLight,
 ): IAutoMovieVector3 =>
-  Quaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
+  AutoMovieEngineQuaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
 
 /** The authored directional source turns a quarter turn and fades over the span. */
 const daylight: IAutoMovieLight = {

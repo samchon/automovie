@@ -9,15 +9,29 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  HumanFoot,
-  climbStairs,
-  climbStairsPelvis,
-  climbStairsPlants,
-  climbStairsToes,
-  crutchStairsFlight,
-  humanFootOffset,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  climbStairs
+} from "../../../../../packages/motions/src/terrain/internal/climbStairs";
+import {
+  climbStairsPelvis
+} from "../../../../../packages/motions/src/terrain/stairs/climbStairsPelvis";
+import {
+  climbStairsPlants
+} from "../../../../../packages/motions/src/terrain/stairs/climbStairsPlants";
+import {
+  climbStairsToes
+} from "../../../../../packages/motions/src/terrain/stairs/climbStairsToes";
+import {
+  crutchStairsFlight
+} from "../../../../../packages/motions/src/lexicon/internal/crutchStairsFlight";
+import {
+  humanFootOffset
+} from "../../../../../packages/motions/src/posture/internal/humanFootOffset";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

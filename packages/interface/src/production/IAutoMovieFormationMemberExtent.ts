@@ -17,7 +17,7 @@ export namespace IAutoMovieFormationMemberExtent {
    *
    * Falls back to min 0 and max 1.7 m when the group's runtime model is absent,
    * draws nothing, or measures less than 0.1 m high. These are the shared
-   * DEFAULT_SUBJECT_HEIGHT and MIN_MEASURED_SUBJECT_HEIGHT policies used by
+   * AutoMovieEngineDefaultSubjectHeight and AutoMovieEngineMinMeasuredSubjectHeight policies used by
    * node subjects. The measurement covers portable rest geometry and proxies,
    * not external bytes or renderer-only deformation. The result is caller-owned
    * and no result cache is retained.

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieVector3,
@@ -93,7 +93,7 @@ export function staggerCapture(
 
   // The push's own distance: its extrapolated centre of mass from the
   // nearer entry ankle, and the fewest steps whose distance covers it.
-  const xi: IAutoMovieVector3 = Vector3.add(pendulum.centre, pendulum.xi());
+  const xi: IAutoMovieVector3 = AutoMovieEngineVector3.add(pendulum.centre, pendulum.xi());
   const offset: number = Math.min(
     ...(["left", "right"] as const).map((side: AutoMovieHumanSide): number =>
       Math.hypot(

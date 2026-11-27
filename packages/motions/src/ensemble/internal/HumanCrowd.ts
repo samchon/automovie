@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieEngineMotionCrowd } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineMotionCrowd } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
   IAutoMovieCrowdAgent,
@@ -125,7 +125,7 @@ export namespace HumanCrowd {
     const froude: number =
       request.gait === "walk" ? walk.FROUDE.normal : run.GAITS.run.froude;
     const speed: number =
-      Math.sqrt(froude * AutoMovieGravity.STANDARD * m.body.measure.hipHeight) *
+      Math.sqrt(froude * AutoMovieEngineGravity.STANDARD * m.body.measure.hipHeight) *
       Math.max(
         SLOWEST,
         1 +

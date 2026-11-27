@@ -12,7 +12,7 @@ import {
 import { AutoMovieArchetypeCargoPod } from "@automovie/archetypes/props";
 import { AutoMovieArchetypeRing } from "@automovie/archetypes/gym";
 import * as props from "@automovie/archetypes/props";
-import { AutoMovieEngineKinematics, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
 import { AutoMovieMotionHumanOperate, AutoMovieMotionHumanBody, AutoMovieMotionHumanChain, AutoMovieMotionHumanObject, AutoMovieMotionHumanPerformance } from "@automovie/motions";
@@ -49,9 +49,9 @@ export async function test_installed_sdk(): Promise<void> {
   const params: IAutoMovieHumanParameters = ${JSON.stringify(contactBody.params)};
   const prepared = AutoMovieHumanCanonicalBody.prepare(params, { id: "f-average", mass: ${contactBody.mass} });
   const body = AutoMovieMotionHumanBody.create(prepared.skeleton, prepared.profile);
-  const rotation = Quaternion.multiply(
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 30),
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
+  const rotation = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 30),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
   );
   const centre = { x: -body.measure.shoulderHalfWidth, y: body.measure.shoulderHeight - 0.14, z: 0.48 };
   const Chain = AutoMovieMotionHumanChain.extend({ swipeTouchscreen: AutoMovieMotionHumanOperate.swipeTouchscreen });
@@ -61,12 +61,12 @@ export async function test_installed_sdk(): Promise<void> {
     const shell = phone.shapes().find((shape) => shape.id === "body");
     assert(shell?.kind === "box");
     assert.equal(phone.affordance("screen").kind, "surface");
-    const glassOffset = Quaternion.rotateVector(rotation, { x: 0, y: shell.halfExtents.y, z: shell.halfExtents.z });
+    const glassOffset = AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: shell.halfExtents.y, z: shell.halfExtents.z });
     const film = new AutoMovieMotionHumanPerformance({
       seed: "catalogue/phone-use",
       laws: [AutoMovieMotionHumanOperate.swipeTouchscreen],
       performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
-      props: [AutoMovieMotionHumanObject.prop("phone", phone, { position: Vector3.subtract(centre, glassOffset), rotation, fixed: true })],
+      props: [AutoMovieMotionHumanObject.prop("phone", phone, { position: AutoMovieEngineVector3.subtract(centre, glassOffset), rotation, fixed: true })],
       composition: Chain.subject("a").stand({ hold: 0.6, sway: 0 })
         .swipeTouchscreen({ prop: "phone", screen: "screen", from: -0.25, to: 0.25 }).node,
     });
@@ -82,10 +82,10 @@ export async function test_installed_sdk(): Promise<void> {
         surface,
         bone,
       );
-      const expected = Vector3.add(centre, Vector3.scale(
+      const expected = AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(
         { x: -Math.sqrt(3) / 2, y: -0.5, z: 0 }, fraction * 2 * shell.halfExtents.x * 0.94,
       ));
-      const gap = Vector3.distance(tip, expected);
+      const gap = AutoMovieEngineVector3.distance(tip, expected);
       assert.ok(gap <= 0.009, \`Phone seed \${seed} at \${seconds} s misses glass by \${gap} m\`);
     }
   }

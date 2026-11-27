@@ -6,7 +6,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPropFlight } from "@automovie/motions/internal";
+import {
+  HumanPropFlight
+} from "../../../../../packages/motions/src/perform/internal/HumanPropFlight";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

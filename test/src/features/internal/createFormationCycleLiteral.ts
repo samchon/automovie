@@ -1,11 +1,11 @@
-import type { IAutoMovieFormationCycle } from "@automovie/render";
+import type { IAutoMovieRenderFormationCycle } from "@automovie/render";
 import * as THREE from "three";
 
 /**
  * The smallest formation cycle: one take of one part over two samples, whose
  * matrices are both the identity row triple.
  */
-export function createFormationCycleLiteral(): IAutoMovieFormationCycle {
+export function createFormationCycleLiteral(): IAutoMovieRenderFormationCycle {
   const matrices: Float32Array = new Float32Array([
     1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
   ]);
@@ -16,7 +16,7 @@ export function createFormationCycleLiteral(): IAutoMovieFormationCycle {
     THREE.RGBAFormat,
     THREE.FloatType,
   );
-  const take: IAutoMovieFormationCycle["active"] = {
+  const take: IAutoMovieRenderFormationCycle["active"] = {
     gait: "walk",
     strideMeters: 1,
     periodSeconds: 1,

@@ -1,4 +1,6 @@
-import { footStrikeContacts } from "@automovie/motions/internal";
+import {
+  footStrikeContacts
+} from "../../../../../packages/motions/src/striking/internal/footStrikeContacts";
 import { TestValidator } from "@nestia/e2e";
 
 /**

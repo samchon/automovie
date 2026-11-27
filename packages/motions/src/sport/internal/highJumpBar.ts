@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -44,13 +44,13 @@ export function highJumpBar(
     });
   const frame: IAutoMovieRigidTransform = read.frame(context.start);
   return {
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, found.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, found.frame.translation),
     ),
     // A bar affordance's length runs along its local +X.
-    axis: Quaternion.rotateVector(
-      Quaternion.multiply(frame.rotation, found.frame.rotation),
+    axis: AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(frame.rotation, found.frame.rotation),
       { x: 1, y: 0, z: 0 },
     ),
     length: found.length ?? undefined,
@@ -98,11 +98,11 @@ export namespace highJumpBar {
       z: -approach.heading.x,
     };
     const normal: IAutoMovieVector3 = { x: -bar.axis.z, y: 0, z: bar.axis.x };
-    const toward: number = Vector3.dot(
-      Vector3.subtract(bar.point, approach.ankle),
+    const toward: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(bar.point, approach.ankle),
       normal,
     );
-    const side: number = Vector3.dot(normal, left) * Math.sign(toward);
+    const side: number = AutoMovieEngineVector3.dot(normal, left) * Math.sign(toward);
     const away: AutoMovieHumanSide = side > 0 ? "right" : "left";
     if (approach.foot !== away)
       throw new AutoMovieMotionHumanRefusal({

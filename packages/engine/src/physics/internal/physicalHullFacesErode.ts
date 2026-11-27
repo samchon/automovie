@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The vertices of a convex hull shrunk inward by a depth: every face plane
@@ -33,29 +33,29 @@ export function physicalHullFacesErode(
         const a: IAutoMovieVector3 = faces[i]!.normal;
         const b: IAutoMovieVector3 = faces[j]!.normal;
         const c: IAutoMovieVector3 = faces[k]!.normal;
-        const bc: IAutoMovieVector3 = Vector3.cross(b, c);
-        const determinant: number = Vector3.dot(a, bc);
+        const bc: IAutoMovieVector3 = AutoMovieEngineVector3.cross(b, c);
+        const determinant: number = AutoMovieEngineVector3.dot(a, bc);
         if (Math.abs(determinant) < 1e-12) continue;
         // Cramer's rule for the point on all three moved planes.
-        const point: IAutoMovieVector3 = Vector3.scale(
-          Vector3.add(
-            Vector3.add(
-              Vector3.scale(bc, faces[i]!.offset - depth),
-              Vector3.scale(Vector3.cross(c, a), faces[j]!.offset - depth),
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(bc, faces[i]!.offset - depth),
+              AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(c, a), faces[j]!.offset - depth),
             ),
-            Vector3.scale(Vector3.cross(a, b), faces[k]!.offset - depth),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(a, b), faces[k]!.offset - depth),
           ),
           1 / determinant,
         );
         if (
           faces.every(
             (face: IAutoMoviePhysicalHullFaces.IFace): boolean =>
-              Vector3.dot(face.normal, point) - (face.offset - depth) <=
+              AutoMovieEngineVector3.dot(face.normal, point) - (face.offset - depth) <=
               hull.tolerance,
           ) &&
           !out.some(
             (seen: IAutoMovieVector3): boolean =>
-              Vector3.length(Vector3.subtract(seen, point)) <= hull.tolerance,
+              AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(seen, point)) <= hull.tolerance,
           )
         )
           out.push(point);

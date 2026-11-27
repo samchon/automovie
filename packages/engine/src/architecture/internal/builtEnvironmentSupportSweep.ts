@@ -12,7 +12,7 @@ import {
 
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
-import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
+import { AutoMovieEngineSupportTolerance } from "../AutoMovieEngineSupportTolerance";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
 /*
@@ -51,14 +51,14 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * place.
  * Parameter props.environment: Building record to sweep.
  * Parameter props.groundY: World height a body may rest on directly, in metres.
- * Parameter props.tolerance: Contact slack in metres; `AUTOMOVIE_SUPPORT_TOLERANCE`
+ * Parameter props.tolerance: Contact slack in metres; `AutoMovieEngineSupportTolerance`
  * when omitted.
  * Returns: The counts, the floating bodies and the unresolved bodies.
  */
 export function builtEnvironmentSupportSweep(
   props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
 ): IAutoMovieBuiltSupportSweepReport {
-  const tolerance: number = props.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
+  const tolerance: number = props.tolerance ?? AutoMovieEngineSupportTolerance;
   if (tolerance < 0)
     throw new RangeError(
       `building support tolerance must be finite and non-negative, but was ${String(tolerance)}`,

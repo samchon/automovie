@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderInspectionPath } from "../../IAutoMovieRenderInspectionPath.js";
 import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 
 /*
@@ -20,14 +20,14 @@ import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPa
  */
 export function listAutoMovieInspectionPaths(
   root: THREE.Object3D,
-): IAutoMovieInspectionPath[] {
-  const paths: IAutoMovieInspectionPath[] = [];
+): IAutoMovieRenderInspectionPath[] {
+  const paths: IAutoMovieRenderInspectionPath[] = [];
   root.traverse((object: THREE.Object3D): void => {
     if (
-      AutoMovieThreeKind.isMesh(object) ||
-      AutoMovieThreeKind.isLine(object) ||
-      AutoMovieThreeKind.isPoints(object) ||
-      AutoMovieThreeKind.isSprite(object)
+      AutoMovieRenderThreeKind.isMesh(object) ||
+      AutoMovieRenderThreeKind.isLine(object) ||
+      AutoMovieRenderThreeKind.isPoints(object) ||
+      AutoMovieRenderThreeKind.isSprite(object)
     )
       paths.push({ path: AutoMovieRenderInspectionPath.pathOf({ root, object }), object });
   });

@@ -13,17 +13,17 @@ import type {
   IAutoMovieSceneNode,
 } from "@automovie/interface";
 import {
-  AutoMovieHumanPolygon,
+  AutoMovieRenderHumanPolygon,
   AutoMovieRenderSceneLayout,
-  AutoMovieSceneResource,
+  AutoMovieRenderSceneResource,
   AutoMovieRenderSceneMotion,
   AutoMovieRenderInstanceSet,
-  type IAutoMovieBuiltPropArticulation,
-  type IAutoMovieDrawScene,
-  type IAutoMovieDrawView,
-  type IAutoMovieInstanceSetViewerObject,
-  type IAutoMovieModelObject,
-  type IAutoMovieSceneObject,
+  type IAutoMovieRenderBuiltPropArticulation,
+  type IAutoMovieRenderDrawScene,
+  type IAutoMovieRenderDrawView,
+  type IAutoMovieRenderInstanceSetViewerObject,
+  type IAutoMovieRenderModelObject,
+  type IAutoMovieRenderSceneObject,
 } from "@automovie/render";
 import * as THREE from "three";
 
@@ -37,9 +37,9 @@ import { compileEnvironmentExample } from "./compileEnvironmentExample";
 export function drawEnvironmentExample(
   input: compileEnvironmentExample.IInput,
   views?: Readonly<
-    Record<string, (seconds: number) => IAutoMovieDrawView>
+    Record<string, (seconds: number) => IAutoMovieRenderDrawView>
   >,
-): IAutoMovieDrawScene {
+): IAutoMovieRenderDrawScene {
   const { shot, body }: compileEnvironmentExample.IOutput =
     compileEnvironmentExample(input);
   const modelTable: Map<string, IAutoMovieModel> = new Map(
@@ -47,23 +47,23 @@ export function drawEnvironmentExample(
       (model: IAutoMovieModel): [string, IAutoMovieModel] => [model.id, model],
     ),
   );
-  const modelObjects: Map<string, IAutoMovieModelObject> = new Map();
-  const figures: Map<string, AutoMovieHumanPolygon.IDrawing> = new Map();
-  const prepared: IAutoMovieSceneObject = AutoMovieRenderSceneLayout.buildScene({
+  const modelObjects: Map<string, IAutoMovieRenderModelObject> = new Map();
+  const figures: Map<string, AutoMovieRenderHumanPolygon.IDrawing> = new Map();
+  const prepared: IAutoMovieRenderSceneObject = AutoMovieRenderSceneLayout.buildScene({
     scene: shot.source.scene,
-    getModelObject: (modelId: string): IAutoMovieModelObject | undefined => {
+    getModelObject: (modelId: string): IAutoMovieRenderModelObject | undefined => {
       const node: IAutoMovieSceneNode | undefined =
         shot.source.scene.nodes[modelObjects.size];
       if (node === undefined) return undefined;
       if (modelId === body.skeleton.id) {
-        const drawing: AutoMovieHumanPolygon.IDrawing = AutoMovieHumanPolygon.build(
+        const drawing: AutoMovieRenderHumanPolygon.IDrawing = AutoMovieRenderHumanPolygon.build(
           AutoMovieHumanCanonicalBody.display(body),
         );
         const object: THREE.Group = new THREE.Group();
         object.matrixAutoUpdate = false;
         object.matrix.fromArray([...AutoMovieHumanCanonicalBody.REFLECTION]);
         object.add(drawing.object);
-        const actor: IAutoMovieModelObject = {
+        const actor: IAutoMovieRenderModelObject = {
           object,
           bones: new Map(),
           parts: new Map(),
@@ -74,7 +74,7 @@ export function drawEnvironmentExample(
       }
       const model: IAutoMovieModel | undefined = modelTable.get(modelId);
       if (model === undefined) return undefined;
-      const object: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(model);
+      const object: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(model);
       modelObjects.set(node.id, object);
       return object;
     }
@@ -104,7 +104,7 @@ export function drawEnvironmentExample(
   }
   const props: IAutoMovieEnvironment["runtime"]["props"] =
     input.environment.runtime.props;
-  const articulation: IAutoMovieBuiltPropArticulation = AutoMovieRenderSceneLayout.buildPropArticulation({
+  const articulation: IAutoMovieRenderBuiltPropArticulation = AutoMovieRenderSceneLayout.buildPropArticulation({
     props: props ?? [],
     scene: shot.source.scene,
     modelObjects,
@@ -136,7 +136,7 @@ export function drawEnvironmentExample(
         ),
       );
   }
-  const instances: IAutoMovieInstanceSetViewerObject[] = Object.values(
+  const instances: IAutoMovieRenderInstanceSetViewerObject[] = Object.values(
     AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({
       world,
       models: modelTable,
@@ -145,7 +145,7 @@ export function drawEnvironmentExample(
   ).map(
     (
       instanceSet: IAutoMovieCompiledInstanceSet,
-    ): IAutoMovieInstanceSetViewerObject => {
+    ): IAutoMovieRenderInstanceSetViewerObject => {
       const tiers: readonly IAutoMovieCompiledFormationLod[] =
         instanceSet.prototypes?.flatMap(
           (
@@ -183,7 +183,7 @@ export function drawEnvironmentExample(
       if (shot.source.shot.cameraMotion !== null)
         AutoMovieRenderSceneMotion.applyObjectMotion(shot.source.shot.cameraMotion, seconds, () => camera);
       for (const performance of shot.source.shot.performances) {
-        const figure: AutoMovieHumanPolygon.IDrawing | undefined = figures.get(
+        const figure: AutoMovieRenderHumanPolygon.IDrawing | undefined = figures.get(
           performance.node,
         );
         const motion: IAutoMovieMotion | undefined =
@@ -209,7 +209,7 @@ export function drawEnvironmentExample(
         figure.object.removeFromParent();
         figure.dispose();
       }
-      for (const resource of AutoMovieSceneResource.collectOwnedResources(prepared.scene))
+      for (const resource of AutoMovieRenderSceneResource.collectOwnedResources(prepared.scene))
         resource.dispose();
       prepared.scene.clear();
     },

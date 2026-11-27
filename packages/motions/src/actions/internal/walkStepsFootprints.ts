@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -135,9 +135,9 @@ export function walkStepsFootprints(
     const contact: IAutoMovieVector3 | undefined =
       inherited === undefined
         ? undefined
-        : Vector3.add(
+        : AutoMovieEngineVector3.add(
             inherited.placement.ankle,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               inherited.placement.rotation,
               inherited.contact ?? HumanFoot.offset(body, side, socket),
             ),

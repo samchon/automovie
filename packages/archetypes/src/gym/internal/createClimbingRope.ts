@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeClimbingRope } from "../AutoMovieArchetypeClimbingRope";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
@@ -49,8 +49,8 @@ export function createClimbingRope(
   builder.rod(
     "rope",
     d.diameter / 2,
-    Vector3.create(0, d.anchor - length, 0),
-    Vector3.create(0, d.anchor, 0),
+    AutoMovieEngineVector3.create(0, d.anchor - length, 0),
+    AutoMovieEngineVector3.create(0, d.anchor, 0),
     { color: "#c9a96e" },
   );
   builder.affordance({
@@ -58,9 +58,9 @@ export function createClimbingRope(
     kind: "bar",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, d.anchor - length / 2, 0),
-      Vector3.create(0, 0, 1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, d.anchor - length / 2, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     length,

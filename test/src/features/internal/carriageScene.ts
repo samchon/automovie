@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBowl, AutoMovieArchetypeServingTray, AutoMovieArchetypeBag } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -11,7 +11,12 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
-import { HUMAN_LEXICON, HumanPropFrame } from "@automovie/motions/internal";
+import {
+  HUMAN_LEXICON
+} from "../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON";
+import {
+  HumanPropFrame
+} from "../../../../packages/motions/src/perform/internal/HumanPropFrame";
 
 import { everydayTake } from "./everydayTake";
 
@@ -139,7 +144,7 @@ export namespace carriageScene {
         body,
         "chest",
         (b: IAutoMovieResolvedBone): IAutoMovieRigidTransform => ({
-          position: Vector3.add(b.worldPosition, { x: 0, y: -0.35, z: -0.2 }),
+          position: AutoMovieEngineVector3.add(b.worldPosition, { x: 0, y: -0.35, z: -0.2 }),
           rotation: BEHIND,
         }),
       ),
@@ -320,7 +325,7 @@ export namespace carriageScene {
         body,
         "head",
         (b: IAutoMovieResolvedBone): IAutoMovieRigidTransform => ({
-          position: Vector3.add(b.worldPosition, { x: 0, y: 0.18, z: 0 }),
+          position: AutoMovieEngineVector3.add(b.worldPosition, { x: 0, y: 0.18, z: 0 }),
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         }),
       ),

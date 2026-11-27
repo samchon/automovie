@@ -1,4 +1,6 @@
-import { AutoMovieArchetypeEscalator } from "@automovie/archetypes/architecture";
+import {
+  AutoMovieArchetypeEscalator
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -12,7 +12,7 @@ import type { IAutoMovieLoftSectionSource } from "./IAutoMovieLoftSectionSource"
  * Principal layers and explicit source owners of one lofted chain.
  *
  * View lofts, fitted sections and continuation operators publish this record
- * for AutoMovieLoftChain and AutoMovieLoftJet. A published chain and its nested
+ * for AutoMovieEngineLoftChain and AutoMovieEngineLoftJet. A published chain and its nested
  * arrays/source records must remain unchanged while readers retain it: point
  * and jet caches key preparations by chain identity and physical station.
  * Copies with equal numeric data retain source bindings; changing values
@@ -26,8 +26,8 @@ export interface IAutoMovieLoftChain {
 
   /**
    * Section basis. `spline`: uniform periodic cubic B-spline, see
-   * {@link AutoMovieSplineCurve}; absent: truncated Fourier series, see
-   * {@link AutoMovieHarmonicCurve}.
+   * {@link AutoMovieEngineSplineCurve}; absent: truncated Fourier series, see
+   * {@link AutoMovieEngineHarmonicCurve}.
    */
   basis?: "spline";
 
@@ -37,7 +37,7 @@ export interface IAutoMovieLoftChain {
    */
   order: number;
 
-  /** Phase correspondence rule; see {@link AutoMovieLoftParameter}. */
+  /** Phase correspondence rule; see {@link AutoMovieEngineLoftParameter}. */
   rule: IAutoMovieLoftParameter.Rule;
 
   /**
@@ -205,7 +205,7 @@ export namespace IAutoMovieLoftChain {
 
     /**
      * Section coefficients in mm, in the layout of the chain's basis
-     * ({@link AutoMovieHarmonicCurve} or {@link AutoMovieSplineCurve}).
+     * ({@link AutoMovieEngineHarmonicCurve} or {@link AutoMovieEngineSplineCurve}).
      */
     coefficients: number[];
 
@@ -246,7 +246,7 @@ export namespace IAutoMovieLoftChain {
      * Second physical-station derivative of every coefficient, 1/mm. Without
      * common explicit coefficientSource data, when both layers of an interval
      * carry it, the interval is the quintic Hermite of their values, slopes and
-     * these (`AutoMovieStationHermite`); absent, the cubic Hermite of values
+     * these (`AutoMovieEngineStationHermite`); absent, the cubic Hermite of values
      * and slopes.
      */
     curvatures?: number[];
@@ -260,7 +260,7 @@ export namespace IAutoMovieLoftChain {
      * not renormalised. Shared values and slopes give C1 continuity with the
      * cubic rule; consistent shared frameCurvatures select the quintic rule and
      * give C2 continuity. Without frameSlopes, the rotation Hermite of
-     * `AutoMovieLoftFrame.interpolate`.
+     * `AutoMovieEngineLoftFrame.interpolate`.
      */
     frameSlopes?: IAutoMovieLoftSectionFrame;
 
@@ -274,7 +274,7 @@ export namespace IAutoMovieLoftChain {
 
     /**
      * The view box and shoulders the view-to-section operator
-     * (`AutoMovieViewLoft`) drew this layer from; present exactly on layers it
+     * (`AutoMovieEngineViewLoft`) drew this layer from; present exactly on layers it
      * emitted from a four-quarter section (a touch/split conic chain's layer
      * has none). The section touches the box at the guide phases 0, `pi / 2`,
      * `pi` and `3 pi / 2`: the point there is the outline's value on its chart

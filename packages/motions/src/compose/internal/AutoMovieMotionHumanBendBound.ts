@@ -1,4 +1,4 @@
-import { swivelJointReadings, type AutoMovieEngineKinematicsTypes, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
+import { AutoMovieEngineSwivelJointReadings, type AutoMovieEngineKinematicsTypes, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
 import type {
   IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
@@ -32,7 +32,7 @@ import { AutoMovieMotionHumanBendUnmadeBound } from "./AutoMovieMotionHumanBendU
  * of its matrix on the clinical basis is `a + b cos ψ + c sin ψ` (Rodrigues'
  * formula; Tolani, Goswami and Badler 2000, the swivel parameterisation, with
  * the joint angles sinusoids of the swivel as in Shimizu et al. 2008), fitted
- * exactly from three swivels (`swivelJointReadings`). The decomposition reads
+ * exactly from three swivels (`AutoMovieEngineSwivelJointReadings`). The decomposition reads
  * the middle angle as `atan2(s, cos)`, `asin(s)` on a rotation, of one such
  * entry `s`, and each outer angle as `atan2(y, x)` of two entries, times the
  * basis's handedness for the twist. Each is enclosed over an arc in closed form
@@ -160,14 +160,14 @@ function shoulderOf(
   halves: AutoMovieMotionHumanBendStrain.IHalves,
   upper: (swivel: number) => IAutoMovieQuaternion,
 ): (low: number, high: number) => number {
-  const readings: Record<swivelJointReadings.Axis, swivelJointReadings.IRead> =
-    swivelJointReadings.of(props.basis, upper);
+  const readings: Record<AutoMovieEngineSwivelJointReadings.Axis, AutoMovieEngineSwivelJointReadings.IRead> =
+    AutoMovieEngineSwivelJointReadings.of(props.basis, upper);
   if (!premised(props.basis, upper, readings)) return NONE;
   return (low: number, high: number): number => {
     let sum: number = 0;
     for (let i: number = 0; i < 3; ++i) {
-      const axis: swivelJointReadings.Axis = swivelJointReadings.AXES[i]!;
-      const read: swivelJointReadings.IRead = readings[axis];
+      const axis: AutoMovieEngineSwivelJointReadings.Axis = AutoMovieEngineSwivelJointReadings.AXES[i]!;
+      const read: AutoMovieEngineSwivelJointReadings.IRead = readings[axis];
       const enclosed: AutoMovieMotionHumanBendEnclosure.IInterval | null =
         "sine" in read
           ? AutoMovieMotionHumanBendEnclosure.middle(read.sine, low, high)
@@ -253,15 +253,15 @@ function lifted(
 function premised(
   basis: IAutoMovieJointAxes,
   upper: (swivel: number) => IAutoMovieQuaternion,
-  readings: Record<swivelJointReadings.Axis, swivelJointReadings.IRead>,
+  readings: Record<AutoMovieEngineSwivelJointReadings.Axis, AutoMovieEngineSwivelJointReadings.IRead>,
 ): boolean {
   for (const swivel of [45, 225]) {
     const actual: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
       upper(swivel),
       basis,
     );
-    for (const axis of swivelJointReadings.AXES) {
-      const read: swivelJointReadings.IRead = readings[axis];
+    for (const axis of AutoMovieEngineSwivelJointReadings.AXES) {
+      const read: AutoMovieEngineSwivelJointReadings.IRead = readings[axis];
       let fitted: number;
       if ("sine" in read) {
         const s: number = AutoMovieMotionHumanBendEnclosure.at(

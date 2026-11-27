@@ -1,4 +1,4 @@
-import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -22,7 +22,7 @@ import { furnishRoom } from "./furnishRoom";
  * When the requested stations or their clearances do not fit.
  */
 export function createGymKit(
-  params: AutoMovieEnvironmentFurnishing.IGymKitParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.IGymKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

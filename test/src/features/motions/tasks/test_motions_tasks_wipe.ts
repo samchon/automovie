@@ -1,4 +1,6 @@
-import { wipe } from "@automovie/motions/internal";
+import {
+  wipe
+} from "../../../../../packages/motions/src/tasks/internal/wipe";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

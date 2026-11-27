@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -41,7 +41,7 @@ export function KickRocker(
     moved: IAutoMovieVector3,
     dorsal: number,
   ): KickRocker.IRocked => {
-    const pivot: IAutoMovieVector3 = Vector3.add(mtp, moved);
+    const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(mtp, moved);
     const pitch: number = walkLeg.heelRise(
       body,
       side,
@@ -56,7 +56,7 @@ export function KickRocker(
       foot:
         pitch === sole.pitch
           ? {
-              ankle: Vector3.add(plant.ankle, moved),
+              ankle: AutoMovieEngineVector3.add(plant.ankle, moved),
               rotation: plant.rotation,
             }
           : HumanFoot.pivot(

@@ -7,12 +7,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanArmJointCourse,
-  AutoMovieMotionHumanBend,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanArm
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArm";
+import {
+  AutoMovieMotionHumanArmJointCourse
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArmJointCourse";
+import {
+  AutoMovieMotionHumanBend
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBend";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

@@ -8,11 +8,11 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
-import { PhysicalRotationVector } from "../PhysicalRotationVector";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
+import { AutoMovieEnginePhysicalRotationVector } from "../AutoMovieEnginePhysicalRotationVector";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
@@ -44,14 +44,14 @@ export function assertPhysicalReturnPath(
     Record<string, IAutoMovieRigidTransform>
   > = Object.fromEntries(
     [...bound.segments].map(
-      ([id, segments]: [string, Map<string, AutoMovieXpbdBody>]): [
+      ([id, segments]: [string, Map<string, AutoMovieEngineXpbdBody>]): [
         string,
         Record<string, IAutoMovieRigidTransform>,
       ] => [
         id,
         Object.fromEntries(
           [...segments].map(
-            ([bone, rigid]: [string, AutoMovieXpbdBody]): [
+            ([bone, rigid]: [string, AutoMovieEngineXpbdBody]): [
               string,
               IAutoMovieRigidTransform,
             ] => [
@@ -118,8 +118,8 @@ export function assertPhysicalReturnPath(
         const fade: number = 2 * fraction ** 3 - 3 * fraction ** 2 + 1;
         const parent: IAutoMovieRigidTransform = poses[body.id]![joint.parent]!;
         const child: IAutoMovieRigidTransform = poses[body.id]![joint.child]!;
-        const distance: number = Vector3.length(
-          Vector3.subtract(
+        const distance: number = AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             physicalSupportPoint(parent, joint.parentFrame.position),
             physicalSupportPoint(child, joint.childFrame.position),
           ),
@@ -131,16 +131,16 @@ export function assertPhysicalReturnPath(
           Number.EPSILON *
           Math.max(
             1,
-            Vector3.length(parent.position),
-            Vector3.length(child.position),
+            AutoMovieEngineVector3.length(parent.position),
+            AutoMovieEngineVector3.length(child.position),
           );
 
         // h00 decreases on [0,1]; the remaining maximum of h10 is 4/27 until
         // s=1/3, then h10(s). Their triangle bound never increases and preserves
         // the measured native entry displacement and velocity without a snap.
         const inherited: number = transitions[joint.child]
-          ? Vector3.length(transition.position) * fade +
-            Vector3.length(transition.velocity) *
+          ? AutoMovieEngineVector3.length(transition.position) * fade +
+            AutoMovieEngineVector3.length(transition.velocity) *
               transition.duration *
               (fraction < 1 / 3 ? 4 / 27 : fraction * (1 - fraction) ** 2)
           : body.handoffLimits!.maximumLinearError;
@@ -152,17 +152,17 @@ export function assertPhysicalReturnPath(
             `Physical return violates joint anchor envelope: ${body.id}/${joint.id} at ${seconds}: ${distance} m`,
           );
         const relative: IAutoMovieRigidTransform["rotation"] =
-          Quaternion.multiply(
-            Quaternion.inverse(
-              Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.inverse(
+              AutoMovieEngineQuaternion.multiply(parent.rotation, joint.parentFrame.rotation),
             ),
-            Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+            AutoMovieEngineQuaternion.multiply(child.rotation, joint.childFrame.rotation),
           );
-        const error: number = Vector3.length(
-          PhysicalRotationVector.log(
-            Quaternion.multiply(
+        const error: number = AutoMovieEngineVector3.length(
+          AutoMovieEnginePhysicalRotationVector.log(
+            AutoMovieEngineQuaternion.multiply(
               projectPhysicalJointRotation(joint, relative),
-              Quaternion.inverse(relative),
+              AutoMovieEngineQuaternion.inverse(relative),
             ),
           ),
         );

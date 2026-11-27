@@ -5,11 +5,14 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
-  HumanPerformanceHold,
+  AutoMovieMotionHumanObject,
   AutoMovieMotionHumanRefusal,
-} from "@automovie/motions/internal";
+} from "@automovie/motions";
+import {
+  HumanPerformanceHold
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceHold";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieQuaternion,
@@ -62,22 +62,22 @@ export function prepareHumanGripHand(
       Math.min(to, Math.max(from, seconds)),
     );
     const position: IAutoMovieVector3 = { x: v[0]!, y: v[1]!, z: v[2]! };
-    const xAxis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract({ x: v[3]!, y: v[4]!, z: v[5]! }, position),
+    const xAxis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract({ x: v[3]!, y: v[4]!, z: v[5]! }, position),
     );
-    const toward: IAutoMovieVector3 = Vector3.subtract(
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       { x: v[6]!, y: v[7]!, z: v[8]! },
       position,
     );
-    const zAxis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const zAxis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         toward,
-        Vector3.scale(xAxis, Vector3.dot(toward, xAxis)),
+        AutoMovieEngineVector3.scale(xAxis, AutoMovieEngineVector3.dot(toward, xAxis)),
       ),
     );
     return {
       position,
-      rotation: basis(xAxis, Vector3.cross(zAxis, xAxis), zAxis),
+      rotation: basis(xAxis, AutoMovieEngineVector3.cross(zAxis, xAxis), zAxis),
     };
   };
 
@@ -139,13 +139,13 @@ export function prepareHumanGripHand(
    */
   function coordinates(seconds: number): readonly number[] {
     const frame: IAutoMovieRigidTransform = read(seconds);
-    const x: IAutoMovieVector3 = Vector3.add(
+    const x: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, { x: length, y: 0, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: length, y: 0, z: 0 }),
     );
-    const z: IAutoMovieVector3 = Vector3.add(
+    const z: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: length }),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: length }),
     );
     return [
       frame.position.x,
@@ -173,7 +173,7 @@ function basis(
   const trace: number = x.x + y.y + z.z;
   if (trace > 0) {
     const s: number = 2 * Math.sqrt(1 + trace);
-    return Quaternion.normalize({
+    return AutoMovieEngineQuaternion.normalize({
       w: s / 4,
       x: (y.z - z.y) / s,
       y: (z.x - x.z) / s,
@@ -182,7 +182,7 @@ function basis(
   }
   if (x.x > y.y && x.x > z.z) {
     const s: number = 2 * Math.sqrt(1 + x.x - y.y - z.z);
-    return Quaternion.normalize({
+    return AutoMovieEngineQuaternion.normalize({
       w: (y.z - z.y) / s,
       x: s / 4,
       y: (y.x + x.y) / s,
@@ -191,7 +191,7 @@ function basis(
   }
   if (y.y > z.z) {
     const s: number = 2 * Math.sqrt(1 + y.y - x.x - z.z);
-    return Quaternion.normalize({
+    return AutoMovieEngineQuaternion.normalize({
       w: (z.x - x.z) / s,
       x: (y.x + x.y) / s,
       y: s / 4,
@@ -199,7 +199,7 @@ function basis(
     });
   }
   const s: number = 2 * Math.sqrt(1 + z.z - x.x - y.y);
-  return Quaternion.normalize({
+  return AutoMovieEngineQuaternion.normalize({
     w: (x.y - y.x) / s,
     x: (z.x + x.z) / s,
     y: (z.y + y.z) / s,

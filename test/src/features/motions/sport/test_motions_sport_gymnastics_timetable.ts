@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { AutoMovieMotionManner, gymnastics } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionManner
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+import {
+  gymnastics
+} from "../../../../../packages/motions/src/sport/internal/gymnastics";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

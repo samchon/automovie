@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -13,7 +13,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeNecklaceData from "./internal/AutoMovieArchetypeNecklaceData";
+import { AutoMovieArchetypeNecklaceData } from "./internal/AutoMovieArchetypeNecklaceData";
 
 /** Constructs the necklace archetype from its recipe. */
 export namespace AutoMovieArchetypeNecklace {
@@ -74,7 +74,7 @@ export function create(
   const b: number = d.breadth / 2;
   const a: number = AutoMovieArchetypeNecklace.depth(d.length, b);
   const point = (theta: number): IAutoMovieVector3 =>
-    Vector3.create(b * Math.sin(theta), 0, a * (1 - Math.cos(theta)));
+    AutoMovieEngineVector3.create(b * Math.sin(theta), 0, a * (1 - Math.cos(theta)));
   const thread: number = kind === "chain" ? 0.0015 : 0.004;
   const color: string = kind === "chain" ? "#d4af37" : "#1f4fa3";
   for (let k: number = 0; k < PIECES; ++k)
@@ -92,17 +92,17 @@ export function create(
   builder.rod(
     "pendant",
     disc / 2,
-    Vector3.create(front.x, -0.002, front.z + disc / 2),
-    Vector3.create(front.x, 0.002, front.z + disc / 2),
+    AutoMovieEngineVector3.create(front.x, -0.002, front.z + disc / 2),
+    AutoMovieEngineVector3.create(front.x, 0.002, front.z + disc / 2),
     { color: "#c9a227" },
   );
   builder.affordance({
     id: "wear",
     kind: "socket",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });
@@ -110,9 +110,9 @@ export function create(
     id: "front",
     kind: "socket",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(front.x, 0, front.z + disc / 2),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(front.x, 0, front.z + disc / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });
@@ -120,9 +120,9 @@ export function create(
     id: "opening",
     kind: "aperture",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, thread),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, thread),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     width: 2 * (b - thread),
@@ -136,15 +136,15 @@ export function create(
   ] as const) {
     const p: IAutoMovieVector3 = point(theta);
     // Out of the loop at that point, across its tangent.
-    const tangent: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.create(b * Math.cos(theta), 0, a * Math.sin(theta)),
+    const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.create(b * Math.cos(theta), 0, a * Math.sin(theta)),
     );
     builder.affordance({
       id,
       kind: "handle",
       frame: AutoMovieArchetypeFrame.facing(
         p,
-        Vector3.create(tangent.z, 0, -tangent.x),
+        AutoMovieEngineVector3.create(tangent.z, 0, -tangent.x),
         tangent,
       ),
       extent: null,

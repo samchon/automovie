@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
@@ -13,7 +13,7 @@ export function alignHumanHandSurface(
   rest: Pick<IAutoMovieMotionHumanHand.IFrame, AlignHumanHandSurfaceRest>,
   world: Pick<IAutoMovieMotionHumanHand.IFrame, AlignHumanHandSurfaceWorld>,
 ): IAutoMovieQuaternion {
-  return composed(basis(world), Quaternion.inverse(basis(rest)));
+  return composed(basis(world), AutoMovieEngineQuaternion.inverse(basis(rest)));
 }
 
 /*
@@ -43,7 +43,7 @@ export namespace alignHumanHandSurface {
       normal: { ...rest.normal },
       forward: { ...rest.forward },
     };
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(basis(fixed));
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(basis(fixed));
     return (
       world: Pick<
         IAutoMovieMotionHumanHand.IFrame,
@@ -63,15 +63,15 @@ export namespace alignHumanHandSurface {
 function basis(
   frame: Pick<IAutoMovieMotionHumanHand.IFrame, BasisFrame>,
 ): IAutoMovieQuaternion {
-  const n: IAutoMovieVector3 = Vector3.normalize(frame.normal);
-  const across: IAutoMovieVector3 = Vector3.subtract(
+  const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(frame.normal);
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     frame.forward,
-    Vector3.scale(n, Vector3.dot(frame.forward, n)),
+    AutoMovieEngineVector3.scale(n, AutoMovieEngineVector3.dot(frame.forward, n)),
   );
-  if (Vector3.length(across) < 1e-9)
+  if (AutoMovieEngineVector3.length(across) < 1e-9)
     throw new Error("A forward direction must not be parallel to its normal");
-  const f: IAutoMovieVector3 = Vector3.normalize(across);
-  return AutoMovieEngineMath.quaternionFromBasis(n, f, Vector3.cross(n, f));
+  const f: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(across);
+  return AutoMovieEngineMath.quaternionFromBasis(n, f, AutoMovieEngineVector3.cross(n, f));
 }
 /*
  * Keep normalization outside the same ordered world-times-inverse-rest product.
@@ -80,7 +80,7 @@ function composed(
   world: IAutoMovieQuaternion,
   inverse: IAutoMovieQuaternion,
 ): IAutoMovieQuaternion {
-  return Quaternion.normalize(Quaternion.multiply(world, inverse));
+  return AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(world, inverse));
 }
 
 /*

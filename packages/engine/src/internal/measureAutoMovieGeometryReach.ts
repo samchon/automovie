@@ -11,12 +11,12 @@ import {
 } from "@automovie/interface";
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
-import { HUMANOID_JOINT_AXES } from "../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidJointAxes } from "../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { reachPose } from "../kinematics/internal/reachPose";
 import { resolvePose } from "../kinematics/internal/resolvePose";
-import { Quaternion } from "../math/Quaternion";
-import { Transform } from "../math/Transform";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../math/AutoMovieEngineTransform";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { validatePose } from "../validation/internal/validatePose";
 
 /*
@@ -63,7 +63,7 @@ export function measureAutoMovieGeometryReach(
       ? nodeLocal
       : toModelPoint(
           nodeLocal,
-          Transform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation),
+          AutoMovieEngineTransform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation),
         );
 
   if (localTarget === null)
@@ -142,7 +142,7 @@ const measureArmReach: (
   const rest: IAutoMovieResolvedBone[] = resolvePose(
     { skeleton: skeleton.id, root: null, joints: [] },
     skeleton,
-    HUMANOID_JOINT_AXES,
+    AutoMovieEngineHumanoidJointAxes,
   );
   const upper: (typeof rest)[number] | undefined = rest.find(
     (bone: (typeof rest)[number]): boolean => bone.bone === upperName,
@@ -155,15 +155,15 @@ const measureArmReach: (
   );
   if (upper === undefined || lower === undefined || hand === undefined)
     return null;
-  const upperLength: number = Vector3.length(
-    Vector3.subtract(lower.worldPosition, upper.worldPosition),
+  const upperLength: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(lower.worldPosition, upper.worldPosition),
   );
-  const lowerLength: number = Vector3.length(
-    Vector3.subtract(hand.worldPosition, lower.worldPosition),
+  const lowerLength: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(hand.worldPosition, lower.worldPosition),
   );
   if (upperLength < 1e-6 || lowerLength < 1e-6) return null;
-  const targetDistance: number = Vector3.length(
-    Vector3.subtract(target, upper.worldPosition),
+  const targetDistance: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(target, upper.worldPosition),
   );
   const gap: number = Math.max(0, targetDistance - upperLength - lowerLength);
   const pose: IAutoMoviePose | null = reachPose(skeleton, side, target);
@@ -188,9 +188,9 @@ const toModelPoint: (
     Math.abs(transform.scale.z) < 1e-6
   )
     return null;
-  const unrotated: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(transform.rotation),
-    Vector3.subtract(point, transform.translation),
+  const unrotated: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(transform.rotation),
+    AutoMovieEngineVector3.subtract(point, transform.translation),
   );
   return {
     x: unrotated.x / transform.scale.x,

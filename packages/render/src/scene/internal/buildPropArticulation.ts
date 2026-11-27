@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieBuiltPropArticulation } from "../IAutoMovieBuiltPropArticulation.js";
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
-import type { IBuildPropArticulationProps } from "../IBuildPropArticulationProps.js";
+import type { IAutoMovieRenderBuiltPropArticulation } from "../IAutoMovieRenderBuiltPropArticulation.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderBuildPropArticulationProps } from "../IAutoMovieRenderBuildPropArticulationProps.js";
 import { applyTransform } from "./applyTransform.js";
 
 /*
@@ -55,10 +55,10 @@ import { applyTransform } from "./applyTransform.js";
  * states for every other object it drives.
  */
 export const buildPropArticulation: (
-  props: IBuildPropArticulationProps,
-) => IAutoMovieBuiltPropArticulation = (
-  props: IBuildPropArticulationProps,
-): IAutoMovieBuiltPropArticulation => {
+  props: IAutoMovieRenderBuildPropArticulationProps,
+) => IAutoMovieRenderBuiltPropArticulation = (
+  props: IAutoMovieRenderBuildPropArticulationProps,
+): IAutoMovieRenderBuiltPropArticulation => {
   const registry: Map<string, IAutoMoviePropSpec> = new Map<
     string,
     IAutoMoviePropSpec
@@ -79,7 +79,7 @@ export const buildPropArticulation: (
     const articulation: IAutoMoviePropArticulation = spec.articulation;
     const group: THREE.Object3D<THREE.Object3DEventMap> | undefined =
       props.nodeObjects.get(placement.id);
-    const built: IAutoMovieModelObject | undefined = props.modelObjects.get(
+    const built: IAutoMovieRenderModelObject | undefined = props.modelObjects.get(
       placement.id,
     );
     if (group === undefined || built === undefined)

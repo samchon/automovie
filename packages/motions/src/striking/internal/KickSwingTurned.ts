@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -16,35 +16,35 @@ export function KickSwingTurned(
   to: IAutoMovieVector3,
   share: number,
 ): IAutoMovieVector3 {
-  const a: number = Vector3.length(from);
-  const b: number = Vector3.length(to);
-  if (a < 1e-9 || b < 1e-9) return Vector3.lerp(from, to, share);
-  const u: IAutoMovieVector3 = Vector3.scale(from, 1 / a);
-  const v: IAutoMovieVector3 = Vector3.scale(to, 1 / b);
-  const angle: number = Math.acos(Math.min(1, Math.max(-1, Vector3.dot(u, v))));
+  const a: number = AutoMovieEngineVector3.length(from);
+  const b: number = AutoMovieEngineVector3.length(to);
+  if (a < 1e-9 || b < 1e-9) return AutoMovieEngineVector3.lerp(from, to, share);
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.scale(from, 1 / a);
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.scale(to, 1 / b);
+  const angle: number = Math.acos(Math.min(1, Math.max(-1, AutoMovieEngineVector3.dot(u, v))));
   const sine: number = Math.sin(angle);
   const length: number = a + (b - a) * share;
-  if (angle < 1e-6) return Vector3.scale(Vector3.lerp(u, v, share), length);
+  if (angle < 1e-6) return AutoMovieEngineVector3.scale(AutoMovieEngineVector3.lerp(u, v, share), length);
   if (sine < 1e-6) {
-    const across: IAutoMovieVector3 = Vector3.cross(
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
       u,
       Math.abs(u.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 },
     );
-    return Vector3.scale(
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(
-          Vector3.normalize(across),
-          (angle * share) / Quaternion.DEG2RAD,
+    return AutoMovieEngineVector3.scale(
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(
+          AutoMovieEngineVector3.normalize(across),
+          (angle * share) / AutoMovieEngineQuaternion.DEG2RAD,
         ),
         u,
       ),
       length,
     );
   }
-  return Vector3.scale(
-    Vector3.add(
-      Vector3.scale(u, Math.sin((1 - share) * angle) / sine),
-      Vector3.scale(v, Math.sin(share * angle) / sine),
+  return AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(u, Math.sin((1 - share) * angle) / sine),
+      AutoMovieEngineVector3.scale(v, Math.sin(share * angle) / sine),
     ),
     length,
   );

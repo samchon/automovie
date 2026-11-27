@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
@@ -29,21 +29,21 @@ export function placeHumanArmGeometry(
     wrist: ph,
     hand: wh,
   }: Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> = chain;
-  const tip: IAutoMovieVector3 = Vector3.add(
+  const tip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     ph,
-    Quaternion.rotateVector(wh, at.tip),
+    AutoMovieEngineQuaternion.rotateVector(wh, at.tip),
   );
   const m: IAutoMovieMotionHumanArmGeometry.ISetup["body"]["measure"] =
     setup.body.measure;
   return {
     probes: [
-      [Vector3.lerp(pu, pl, 0.5), m.upperArmRadius],
-      [Vector3.lerp(pu, pl, 0.8), (m.upperArmRadius + m.forearmRadius) / 2],
+      [AutoMovieEngineVector3.lerp(pu, pl, 0.5), m.upperArmRadius],
+      [AutoMovieEngineVector3.lerp(pu, pl, 0.8), (m.upperArmRadius + m.forearmRadius) / 2],
       [pl, m.forearmRadius],
-      [Vector3.lerp(pl, ph, 1 / 3), m.forearmRadius * 0.9],
-      [Vector3.lerp(pl, ph, 2 / 3), m.forearmRadius * 0.8],
+      [AutoMovieEngineVector3.lerp(pl, ph, 1 / 3), m.forearmRadius * 0.9],
+      [AutoMovieEngineVector3.lerp(pl, ph, 2 / 3), m.forearmRadius * 0.8],
       [ph, m.forearmRadius * 0.7],
-      [Vector3.lerp(ph, tip, 0.5), m.forearmRadius * 0.6],
+      [AutoMovieEngineVector3.lerp(ph, tip, 0.5), m.forearmRadius * 0.6],
       [tip, m.forearmRadius * 0.4],
       ...(surface
         ? at.surface.map(
@@ -57,7 +57,7 @@ export function placeHumanArmGeometry(
               const rotation: IAutoMovieQuaternion =
                 owner === "upper" ? wu : owner === "lower" ? wl : wh;
               return [
-                Vector3.add(origin, Quaternion.rotateVector(rotation, s)),
+                AutoMovieEngineVector3.add(origin, AutoMovieEngineQuaternion.rotateVector(rotation, s)),
                 0,
               ];
             },

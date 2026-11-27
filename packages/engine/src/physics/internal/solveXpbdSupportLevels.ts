@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { solveAutoMovieQuadraticProgram } from "../../math/internal/solveAutoMovieQuadraticProgram";
-import { AutoMovieXpbdSupportRows as Rows } from "../AutoMovieXpbdSupportRows";
+import { AutoMovieEngineXpbdSupportRows as Rows } from "../AutoMovieEngineXpbdSupportRows";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 

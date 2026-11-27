@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { StaggerPendulum } from "./StaggerPendulum";
@@ -51,24 +51,24 @@ export function staggerPendulumCourses(
     }
     const ch: number = Math.cosh(w * rest);
     const sh: number = Math.sinh(w * rest);
-    const off: IAutoMovieVector3 = Vector3.subtract(start.s, start.p);
+    const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(start.s, start.p);
     return {
       p: start.p,
-      s: Vector3.add(
-        Vector3.add(start.p, Vector3.scale(off, ch)),
-        Vector3.scale(start.v, sh / w),
+      s: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(start.p, AutoMovieEngineVector3.scale(off, ch)),
+        AutoMovieEngineVector3.scale(start.v, sh / w),
       ),
-      v: Vector3.add(Vector3.scale(off, w * sh), Vector3.scale(start.v, ch)),
+      v: AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(off, w * sh), AutoMovieEngineVector3.scale(start.v, ch)),
     };
   };
   return {
     course: (seconds: number): IAutoMovieVector3 => stateAt(seconds).s,
     pressure: (seconds: number): IAutoMovieVector3 =>
-      StaggerPendulum.flat(Vector3.add(centre, stateAt(seconds).p)),
+      StaggerPendulum.flat(AutoMovieEngineVector3.add(centre, stateAt(seconds).p)),
     extrapolated: (seconds: number): IAutoMovieVector3 => {
       const { s, v }: ReturnType<typeof stateAt> = stateAt(seconds);
       return StaggerPendulum.flat(
-        Vector3.add(centre, Vector3.add(s, Vector3.scale(v, 1 / w))),
+        AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.add(s, AutoMovieEngineVector3.scale(v, 1 / w))),
       );
     },
   };

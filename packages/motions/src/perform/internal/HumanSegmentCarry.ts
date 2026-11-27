@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -176,12 +176,12 @@ export namespace HumanSegmentCarry {
       new Set<AutoMovieHumanoidBone>([frame, hand]),
     );
     const anchor: IAutoMovieResolvedBone = map.get(frame)!;
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       anchor.worldPosition,
-      Quaternion.rotateVector(anchor.worldRotation, goal.point),
+      AutoMovieEngineQuaternion.rotateVector(anchor.worldRotation, goal.point),
     );
     const miss: number =
-      Vector3.distance(map.get(hand)!.worldPosition, centre) * 1000;
+      AutoMovieEngineVector3.distance(map.get(hand)!.worldPosition, centre) * 1000;
     if (miss > HumanArmTrajectoryTerms.TOLERANCE)
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
@@ -245,21 +245,21 @@ export namespace HumanSegmentCarry {
     );
     const anchor: IAutoMovieResolvedBone = map.get(frame)!;
     const hand: IAutoMovieResolvedBone = map.get(`${held.side}Hand`)!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       anchor.worldRotation,
     );
     const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, anchor.worldPosition),
+        AutoMovieEngineVector3.subtract(point, anchor.worldPosition),
       );
     return {
       frame,
       position: local(hand.worldPosition),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(inverse, hand.worldRotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(inverse, hand.worldRotation),
       ),
       elbow: local(map.get(`${held.side}LowerArm`)!.worldPosition),
       reference: HumanLimbFit.reference(

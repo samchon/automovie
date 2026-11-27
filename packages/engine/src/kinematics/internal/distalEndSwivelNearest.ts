@@ -1,13 +1,13 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
-import type { distalTwistSwivelRange } from "../distalTwistSwivelRange";
-import { swivelArcs } from "../swivelArcs";
+import type { AutoMovieEngineDistalTwistSwivelRange } from "../AutoMovieEngineDistalTwistSwivelRange";
+import { AutoMovieEngineSwivelArcs } from "../AutoMovieEngineSwivelArcs";
 
 /*
  * The swivel nearest a desired one at which a chain whose mid segment twists
  * distally (an arm) can take a requested end rotation: outside the arcs its end
  * joint's box refuses (`distalEndSwivelArcs`) and where the twist the rotation
- * leaves the mid segment lies inside its range (`distalTwistSwivelRange`).
+ * leaves the mid segment lies inside its range (`AutoMovieEngineDistalTwistSwivelRange`).
  *
  * The admissible swivels are a union of intervals whose ends are the refused
  * arcs' ends and the twist range's breakpoints, so the admissible swivel
@@ -20,7 +20,7 @@ import { swivelArcs } from "../swivelArcs";
  * the refused arcs nearest the desired one, the candidate the box alone gives.
  * The caller verifies the returned swivel by its own score.
  * Parameter arcs: The swivels the end joint's box refuses, merged
- * (`swivelArcs.union`), or every swivel.
+ * (`AutoMovieEngineSwivelArcs.union`), or every swivel.
  * Parameter range: The twist range's breakpoints and admission; null when that
  * analysis does not apply.
  * Parameter desired: The desired swivel, degrees.
@@ -29,10 +29,10 @@ import { swivelArcs } from "../swivelArcs";
  */
 export function distalEndSwivelNearest(
   arcs: readonly IAutoMovieSwivelArcs.IArc[] | "all",
-  range: distalTwistSwivelRange.IRange | null,
+  range: AutoMovieEngineDistalTwistSwivelRange.IRange | null,
   desired: number,
 ): number | null {
-  const plain: number | null = swivelArcs.nearest(arcs, desired);
+  const plain: number | null = AutoMovieEngineSwivelArcs.nearest(arcs, desired);
   if (plain === null || arcs === "all" || range === null) return plain;
 
   // Strictly inside a refused arc; an arc's own end is the box's bound, kept

@@ -7,8 +7,8 @@ import {
 } from "@automovie/interface";
 
 import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { placeTransformedPoint } from "./placeTransformedPoint";
 import { skeletonRestFrames } from "./skeletonRestFrames";
 
@@ -63,9 +63,9 @@ export function computeModelRestExtent(
       const drawn: IAutoMovieVector3 =
         frame === undefined
           ? placed
-          : Vector3.add(
+          : AutoMovieEngineVector3.add(
               frame.translation,
-              Quaternion.rotateVector(frame.rotation, placed),
+              AutoMovieEngineQuaternion.rotateVector(frame.rotation, placed),
             );
       if (drawn.x < min.x) min.x = drawn.x;
       if (drawn.y < min.y) min.y = drawn.y;

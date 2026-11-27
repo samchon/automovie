@@ -1,7 +1,7 @@
 import {
-  DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -36,7 +36,7 @@ import { readHumanGazeBones } from "./readHumanGazeBones";
  * (15 degrees) on each axis, gives the head and neck the remainder up to `HEAD`
  * (comfortable cervical share, the yaw after Bennett et al. 2002 and the pitch
  * provisional: 60 degrees of yaw, 40 down and 30 up, inside
- * `DEFAULT_HUMANOID_ROM`), and, when the trunk may join, gives the chest and
+ * `AutoMovieEngineDefaultHumanoidRom`), and, when the trunk may join, gives the chest and
  * lumbar spine the yaw beyond that up to `TRUNK` (40 degrees, provisional,
  * inside their combined twist range), 60 % to the chest and 40 % to the spine.
  * What none of these can hold stays on the eyes, clamped to their range, so a
@@ -156,17 +156,17 @@ export namespace HumanGaze {
   ): IAutoMovieMotionHumanGaze.IDirectionResult {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       readHumanGazeBones(body, posture, "direction", undefined, resolution);
-    const eyes: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(
+    const eyes: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(
         bones.get("leftEye")!.worldPosition,
         bones.get("rightEye")!.worldPosition,
       ),
       0.5,
     );
     const hips: IAutoMovieQuaternion = bones.get("hips")!.worldRotation;
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(hips),
-      Vector3.subtract(point, eyes),
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(hips),
+      AutoMovieEngineVector3.subtract(point, eyes),
     );
     return {
       yaw: (Math.atan2(local.x, local.z) * 180) / Math.PI,
@@ -238,16 +238,16 @@ export namespace HumanGaze {
       );
 
     // Read the cervical share in the frame the head has at zero angles.
-    const headFrame: IAutoMovieQuaternion = Quaternion.inverse(
-      Quaternion.multiply(
-        Quaternion.inverse(zeroed.get("hips")!.worldRotation),
+    const headFrame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(zeroed.get("hips")!.worldRotation),
         zeroed.get("head")!.worldRotation,
       ),
     );
     const headPitch: number = (parts.head.pitch * Math.PI) / 180;
     const headYaw: number = (parts.head.yaw * Math.PI) / 180;
     const cosine: number = Math.cos(headPitch);
-    const facing: IAutoMovieVector3 = Quaternion.rotateVector(headFrame, {
+    const facing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(headFrame, {
       x: cosine * Math.sin(headYaw),
       y: -Math.sin(headPitch),
       z: cosine * Math.cos(headYaw),
@@ -280,21 +280,21 @@ export namespace HumanGaze {
     );
 
     // Eyes: each solved exactly in its head's frame, clamped to its range in
-    // the range table (`DEFAULT_HUMANOID_ROM`: its twist is the yaw, its
+    // the range table (`AutoMovieEngineDefaultHumanoidRom`: its twist is the yaw, its
     // flexion the pitch).
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       readHumanGazeBones(body, posture, "eyes", joints, read);
-    const headRotation: IAutoMovieQuaternion = Quaternion.inverse(
+    const headRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       bones.get("head")!.worldRotation,
     );
     for (const eye of ["leftEye", "rightEye"] as const) {
-      const d: IAutoMovieVector3 = Vector3.normalize(
-        Quaternion.rotateVector(
+      const d: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineQuaternion.rotateVector(
           headRotation,
-          Vector3.subtract(point, bones.get(eye)!.worldPosition),
+          AutoMovieEngineVector3.subtract(point, bones.get(eye)!.worldPosition),
         ),
       );
-      const range: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM[eye]!;
+      const range: IAutoMovieJointConstraint = AutoMovieEngineDefaultHumanoidRom[eye]!;
       // A target behind the eye is sought on the side the gaze turns to,
       // so one crossing straight behind does not swing the eye between its
       // limits.

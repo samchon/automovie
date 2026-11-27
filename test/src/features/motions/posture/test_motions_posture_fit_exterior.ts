@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -11,11 +11,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBodyFit,
-  HumanFitExterior,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  HumanBodyFit
+} from "../../../../../packages/motions/src/posture/internal/HumanBodyFit";
+import {
+  HumanFitExterior
+} from "../../../../../packages/motions/src/posture/internal/HumanFitExterior";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -178,7 +184,7 @@ export async function test_motions_posture_fit_exterior(): Promise<void> {
 
   const carrier: IAutoMovieRigidTransform = {
     position: hip,
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
   const placed: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
     body,

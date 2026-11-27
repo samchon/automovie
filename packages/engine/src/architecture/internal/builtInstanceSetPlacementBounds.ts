@@ -9,8 +9,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { builtPointBounds } from "./builtPointBounds";
 import { validateBuiltPopulation } from "./validateBuiltPopulation";
@@ -69,17 +69,17 @@ export function builtInstanceSetPlacementBounds(
               set,
               transform.translation,
             );
-            const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-              Quaternion.multiply(
-                Quaternion.fromAxisAngle(UP, set.facingDeg),
+            const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.fromAxisAngle(UP, set.facingDeg),
                 transform.rotation,
               ),
             );
             return corners.map(
               (corner: IAutoMovieVector3): IAutoMovieVector3 =>
-                Vector3.add(
+                AutoMovieEngineVector3.add(
                   position,
-                  Quaternion.rotateVector(
+                  AutoMovieEngineQuaternion.rotateVector(
                     rotation,
                     scaled(corner, transform.scale),
                   ),
@@ -110,8 +110,8 @@ export function builtInstanceSetPlacementBounds(
         )!;
   const offset: IAutoMovieSubjectBox = prototypeOffsetBounds(set, corners);
   return {
-    min: Vector3.add(placement.min, offset.min),
-    max: Vector3.add(placement.max, offset.max),
+    min: AutoMovieEngineVector3.add(placement.min, offset.min),
+    max: AutoMovieEngineVector3.add(placement.max, offset.max),
   };
 }
 
@@ -231,16 +231,16 @@ const prototypeOffsetBounds: (
   }
   const variationRotation: IAutoMovieQuaternion =
     rotationRange === undefined
-      ? Quaternion.identity()
-      : Quaternion.fromEuler({
+      ? AutoMovieEngineQuaternion.identity()
+      : AutoMovieEngineQuaternion.fromEuler({
           x: rotationRange.x.min,
           y: rotationRange.y.min,
           z: rotationRange.z.min,
           order: "XYZ",
         });
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.fromAxisAngle(UP, set.facingDeg),
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(UP, set.facingDeg),
       variationRotation,
     ),
   );
@@ -248,7 +248,7 @@ const prototypeOffsetBounds: (
     corners.flatMap((corner: IAutoMovieVector3): IAutoMovieVector3[] =>
       scales.map(
         (scale: IAutoMovieVector3): IAutoMovieVector3 =>
-          Quaternion.rotateVector(rotation, scaled(corner, scale)),
+          AutoMovieEngineQuaternion.rotateVector(rotation, scaled(corner, scale)),
       ),
     ),
   )!;

@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeSupport } from "./physicalShapeSupport";
 
 /*
@@ -41,15 +41,15 @@ export function physicalShapePenetration(
     const b: IAutoMovieVector3 = physicalShapeSupport(
       poseB,
       shapeB,
-      Vector3.scale(d, -1),
+      AutoMovieEngineVector3.scale(d, -1),
     );
-    return { p: Vector3.subtract(a, b), a, b };
+    return { p: AutoMovieEngineVector3.subtract(a, b), a, b };
   };
   const simplex: IVertex[] | null = enclose(support);
   if (simplex === null) return null;
   const scale: number = Math.max(
     1,
-    ...simplex.map((v: IVertex): number => Vector3.length(v.p)),
+    ...simplex.map((v: IVertex): number => AutoMovieEngineVector3.length(v.p)),
   );
   const tolerance: number = 1e-10 * scale;
 
@@ -73,11 +73,11 @@ export function physicalShapePenetration(
       (best: IFace, f: IFace): IFace => (f.distance < best.distance ? f : best),
     );
     const v: IVertex = support(nearest.normal);
-    if (Vector3.dot(v.p, nearest.normal) - nearest.distance < tolerance) break;
+    if (AutoMovieEngineVector3.dot(v.p, nearest.normal) - nearest.distance < tolerance) break;
     const index: number = vertices.push(v) - 1;
     const visible: IFace[] = faces.filter(
       (f: IFace): boolean =>
-        Vector3.dot(f.normal, Vector3.subtract(v.p, vertices[f.a]!.p)) > 0,
+        AutoMovieEngineVector3.dot(f.normal, AutoMovieEngineVector3.subtract(v.p, vertices[f.a]!.p)) > 0,
     );
     const edges: [number, number][] = [];
     for (const f of visible)
@@ -101,7 +101,7 @@ export function physicalShapePenetration(
   if (nearest === null) return null;
 
   // The origin's projection on the nearest face, in barycentric weights.
-  const p: IAutoMovieVector3 = Vector3.scale(nearest.normal, nearest.distance);
+  const p: IAutoMovieVector3 = AutoMovieEngineVector3.scale(nearest.normal, nearest.distance);
   const [u, v, w]: [number, number, number] = barycentric(
     p,
     vertices[nearest.a]!.p,
@@ -213,17 +213,17 @@ function face(
   c: number,
 ): IFace | null {
   const pa: IAutoMovieVector3 = vertices[a]!.p;
-  let n: IAutoMovieVector3 = Vector3.cross(
-    Vector3.subtract(vertices[b]!.p, pa),
-    Vector3.subtract(vertices[c]!.p, pa),
+  let n: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+    AutoMovieEngineVector3.subtract(vertices[b]!.p, pa),
+    AutoMovieEngineVector3.subtract(vertices[c]!.p, pa),
   );
-  const length: number = Vector3.length(n);
+  const length: number = AutoMovieEngineVector3.length(n);
   if (!(length > 0)) return null;
   n = { x: n.x / length, y: n.y / length, z: n.z / length };
-  const distance: number = Vector3.dot(n, pa);
+  const distance: number = AutoMovieEngineVector3.dot(n, pa);
   return distance >= 0
     ? { a, b, c, normal: n, distance }
-    : { a, b: c, c: b, normal: Vector3.scale(n, -1), distance: -distance };
+    : { a, b: c, c: b, normal: AutoMovieEngineVector3.scale(n, -1), distance: -distance };
 }
 
 /*
@@ -233,11 +233,11 @@ function face(
 function enclose(support: (d: IAutoMovieVector3) => IVertex): IVertex[] | null {
   let d: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
   let simplex: IVertex[] = [support(d)];
-  d = Vector3.scale(simplex[0]!.p, -1);
+  d = AutoMovieEngineVector3.scale(simplex[0]!.p, -1);
   for (let iteration: number = 0; iteration < 64; iteration++) {
-    if (!(Vector3.length(d) > 0)) return null;
+    if (!(AutoMovieEngineVector3.length(d) > 0)) return null;
     const v: IVertex = support(d);
-    if (!(Vector3.dot(v.p, d) > 0)) return null;
+    if (!(AutoMovieEngineVector3.dot(v.p, d) > 0)) return null;
     simplex = [...simplex, v];
     const next: IStep = step(simplex);
     if (next.enclosed) return simplex;
@@ -281,14 +281,14 @@ function step(simplex: IVertex[]): IStep {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     c: IAutoMovieVector3,
-  ): IAutoMovieVector3 => Vector3.cross(Vector3.cross(a, b), c);
+  ): IAutoMovieVector3 => AutoMovieEngineVector3.cross(AutoMovieEngineVector3.cross(a, b), c);
   const line: (b: IVertex, a: IVertex) => IStep = (
     b: IVertex,
     a: IVertex,
   ): IStep => {
-    const ab: IAutoMovieVector3 = Vector3.subtract(b.p, a.p);
-    const ao: IAutoMovieVector3 = Vector3.scale(a.p, -1);
-    if (!(Vector3.dot(ab, ao) > 0))
+    const ab: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b.p, a.p);
+    const ao: IAutoMovieVector3 = AutoMovieEngineVector3.scale(a.p, -1);
+    if (!(AutoMovieEngineVector3.dot(ab, ao) > 0))
       return { enclosed: false, simplex: [a], direction: ao };
     // The origin on the segment's line leaves no normal toward it: any
     // direction perpendicular to the segment completes the simplex.
@@ -296,7 +296,7 @@ function step(simplex: IVertex[]): IStep {
     return {
       enclosed: false,
       simplex: [b, a],
-      direction: Vector3.length(toward) > 0 ? toward : perpendicular(ab),
+      direction: AutoMovieEngineVector3.length(toward) > 0 ? toward : perpendicular(ab),
     };
   };
   const triangle: (c: IVertex, b: IVertex, a: IVertex) => IStep = (
@@ -304,31 +304,31 @@ function step(simplex: IVertex[]): IStep {
     b: IVertex,
     a: IVertex,
   ): IStep => {
-    const ab: IAutoMovieVector3 = Vector3.subtract(b.p, a.p);
-    const ac: IAutoMovieVector3 = Vector3.subtract(c.p, a.p);
-    const ao: IAutoMovieVector3 = Vector3.scale(a.p, -1);
-    const abc: IAutoMovieVector3 = Vector3.cross(ab, ac);
-    if (Vector3.dot(Vector3.cross(abc, ac), ao) > 0)
-      return Vector3.dot(ac, ao) > 0
+    const ab: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b.p, a.p);
+    const ac: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c.p, a.p);
+    const ao: IAutoMovieVector3 = AutoMovieEngineVector3.scale(a.p, -1);
+    const abc: IAutoMovieVector3 = AutoMovieEngineVector3.cross(ab, ac);
+    if (AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(abc, ac), ao) > 0)
+      return AutoMovieEngineVector3.dot(ac, ao) > 0
         ? { enclosed: false, simplex: [c, a], direction: triple(ac, ao, ac) }
         : line(b, a);
-    if (Vector3.dot(Vector3.cross(ab, abc), ao) > 0) return line(b, a);
-    return Vector3.dot(abc, ao) > 0
+    if (AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(ab, abc), ao) > 0) return line(b, a);
+    return AutoMovieEngineVector3.dot(abc, ao) > 0
       ? { enclosed: false, simplex: [c, b, a], direction: abc }
       : {
           enclosed: false,
           simplex: [b, c, a],
-          direction: Vector3.scale(abc, -1),
+          direction: AutoMovieEngineVector3.scale(abc, -1),
         };
   };
   if (simplex.length === 2) return line(simplex[0]!, simplex[1]!);
   if (simplex.length === 3)
     return triangle(simplex[0]!, simplex[1]!, simplex[2]!);
   const [d, c, b, a]: IVertex[] = simplex;
-  const ao: IAutoMovieVector3 = Vector3.scale(a!.p, -1);
-  const ab: IAutoMovieVector3 = Vector3.subtract(b!.p, a!.p);
-  const ac: IAutoMovieVector3 = Vector3.subtract(c!.p, a!.p);
-  const ad: IAutoMovieVector3 = Vector3.subtract(d!.p, a!.p);
+  const ao: IAutoMovieVector3 = AutoMovieEngineVector3.scale(a!.p, -1);
+  const ab: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b!.p, a!.p);
+  const ac: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c!.p, a!.p);
+  const ad: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(d!.p, a!.p);
   const outward: (
     n: IAutoMovieVector3,
     other: IAutoMovieVector3,
@@ -336,12 +336,12 @@ function step(simplex: IVertex[]): IStep {
     n: IAutoMovieVector3,
     other: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.dot(n, other) > 0 ? Vector3.scale(n, -1) : n;
-  if (Vector3.dot(outward(Vector3.cross(ab, ac), ad), ao) > 0)
+    AutoMovieEngineVector3.dot(n, other) > 0 ? AutoMovieEngineVector3.scale(n, -1) : n;
+  if (AutoMovieEngineVector3.dot(outward(AutoMovieEngineVector3.cross(ab, ac), ad), ao) > 0)
     return triangle(c!, b!, a!);
-  if (Vector3.dot(outward(Vector3.cross(ac, ad), ab), ao) > 0)
+  if (AutoMovieEngineVector3.dot(outward(AutoMovieEngineVector3.cross(ac, ad), ab), ao) > 0)
     return triangle(d!, c!, a!);
-  if (Vector3.dot(outward(Vector3.cross(ad, ab), ac), ao) > 0)
+  if (AutoMovieEngineVector3.dot(outward(AutoMovieEngineVector3.cross(ad, ab), ac), ao) > 0)
     return triangle(b!, d!, a!);
   return { enclosed: true, simplex, direction: { x: 0, y: 0, z: 0 } };
 }
@@ -356,7 +356,7 @@ function perpendicular(v: IAutoMovieVector3): IAutoMovieVector3 {
       : Math.abs(v.y) <= Math.abs(v.z)
         ? { x: 0, y: 1, z: 0 }
         : { x: 0, y: 0, z: 1 };
-  return Vector3.cross(v, seed);
+  return AutoMovieEngineVector3.cross(v, seed);
 }
 
 /*
@@ -370,9 +370,9 @@ function weigh(
   v: number,
   w: number,
 ): IAutoMovieVector3 {
-  return Vector3.add(
-    Vector3.add(Vector3.scale(a, u), Vector3.scale(b, v)),
-    Vector3.scale(c, w),
+  return AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(a, u), AutoMovieEngineVector3.scale(b, v)),
+    AutoMovieEngineVector3.scale(c, w),
   );
 }
 
@@ -386,14 +386,14 @@ function barycentric(
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,
 ): [number, number, number] {
-  const v0: IAutoMovieVector3 = Vector3.subtract(b, a);
-  const v1: IAutoMovieVector3 = Vector3.subtract(c, a);
-  const v2: IAutoMovieVector3 = Vector3.subtract(p, a);
-  const d00: number = Vector3.dot(v0, v0);
-  const d01: number = Vector3.dot(v0, v1);
-  const d11: number = Vector3.dot(v1, v1);
-  const d20: number = Vector3.dot(v2, v0);
-  const d21: number = Vector3.dot(v2, v1);
+  const v0: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
+  const v1: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(c, a);
+  const v2: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(p, a);
+  const d00: number = AutoMovieEngineVector3.dot(v0, v0);
+  const d01: number = AutoMovieEngineVector3.dot(v0, v1);
+  const d11: number = AutoMovieEngineVector3.dot(v1, v1);
+  const d20: number = AutoMovieEngineVector3.dot(v2, v0);
+  const d21: number = AutoMovieEngineVector3.dot(v2, v1);
   const denominator: number = d00 * d11 - d01 * d01;
   if (!(Math.abs(denominator) > 0)) return [1, 0, 0];
   const v: number = (d11 * d20 - d01 * d21) / denominator;

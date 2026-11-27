@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -46,7 +46,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
       targets,
       model.joints.find((joint) => joint.child === "upper-0")!,
       ["upper-0", "lower-0", "support-0"],
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
     );
     return targets;
   };
@@ -96,7 +96,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
           : 1;
       result = Math.max(
         result,
-        Vector3.distance(pose.position, next.position),
+        AutoMovieEngineVector3.distance(pose.position, next.position),
         ...(["x", "y", "z", "w"] as const).map((axis) =>
           Math.abs(pose.rotation[axis] - sign * next.rotation[axis]),
         ),
@@ -115,14 +115,14 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
     model.joints.every((joint: IAutoMoviePhysicalJoint): boolean => {
       const parent = poses[joint.parent]!;
       const child = poses[joint.child]!;
-      const gap: number = Vector3.distance(
-        Vector3.add(
+      const gap: number = AutoMovieEngineVector3.distance(
+        AutoMovieEngineVector3.add(
           parent.position,
-          Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
         ),
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           child.position,
-          Quaternion.rotateVector(child.rotation, joint.childFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(child.rotation, joint.childFrame.position),
         ),
       );
       return (

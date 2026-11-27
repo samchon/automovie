@@ -3,8 +3,8 @@ import {
   type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineFullTurnEpsilon } from "../AutoMovieEngineFullTurnEpsilon";
 
 /*
  * Validate the one degree of freedom a moving member travels on.
@@ -16,7 +16,7 @@ import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
  * Axis components/computed length must be finite, length above 1e-12, and a
  * revolute pivot finite. Rest-relative `min` must be finite and at most zero,
  * `max` finite and at least zero, with `max > min`. Revolute span is capped at
- * `2 * PI + AUTOMOVIE_FULL_TURN_EPSILON` radians for the swept-envelope solver.
+ * `2 * PI + AutoMovieEngineFullTurnEpsilon` radians for the swept-envelope solver.
  * Prismatic values are metres and revolute values radians. Findings use
  * `path`.
  * Parameter motion: Travel to check.
@@ -30,7 +30,7 @@ export function validateBuiltTravelMotion(
   label: string,
   collector: IAutoMovieViolationAppendSink,
 ): void {
-  const length: number = Vector3.length(motion.axis);
+  const length: number = AutoMovieEngineVector3.length(motion.axis);
   if (length <= AXIS_EPSILON)
     collector.push(
       "range",
@@ -61,7 +61,7 @@ export function validateBuiltTravelMotion(
     );
   else if (
     motion.kind === "revolute" &&
-    motion.max - motion.min > 2 * Math.PI + AUTOMOVIE_FULL_TURN_EPSILON
+    motion.max - motion.min > 2 * Math.PI + AutoMovieEngineFullTurnEpsilon
   )
     collector.push(
       "range",

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
@@ -19,12 +19,12 @@ export function HumanLanceCouchClear(
 ): boolean {
   const points: IAutoMovieVector3[] = [
     laid.hand.point,
-    Vector3.lerp(laid.hand.point, laid.elbow, 0.5),
+    AutoMovieEngineVector3.lerp(laid.hand.point, laid.elbow, 0.5),
     laid.elbow,
   ];
   return points.every(
     (p: IAutoMovieVector3): boolean =>
-      apart(horse.shapes, Vector3.add(horse.seat, p)) >= CLEAR,
+      apart(horse.shapes, AutoMovieEngineVector3.add(horse.seat, p)) >= CLEAR,
   );
 }
 
@@ -67,15 +67,15 @@ function apart(
 ): number {
   let least: number = Infinity;
   for (const shape of shapes) {
-    const l: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(shape.transform.rotation),
-      Vector3.subtract(point, shape.transform.position),
+    const l: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(shape.transform.rotation),
+      AutoMovieEngineVector3.subtract(point, shape.transform.position),
     );
     let d: number;
-    if (shape.kind === "sphere") d = Vector3.length(l) - shape.radius;
+    if (shape.kind === "sphere") d = AutoMovieEngineVector3.length(l) - shape.radius;
     else if (shape.kind === "capsule")
       d =
-        Vector3.length({
+        AutoMovieEngineVector3.length({
           x: l.x,
           y: l.y - Math.max(-shape.halfLength, Math.min(shape.halfLength, l.y)),
           z: l.z,
@@ -87,26 +87,26 @@ function apart(
         z: Math.abs(l.z) - shape.halfExtents.z,
       };
       d =
-        Vector3.length({
+        AutoMovieEngineVector3.length({
           x: Math.max(q.x, 0),
           y: Math.max(q.y, 0),
           z: Math.max(q.z, 0),
         }) + Math.min(Math.max(q.x, q.y, q.z), 0);
     } else {
-      const centre: IAutoMovieVector3 = Vector3.scale(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         shape.points.reduce(
           (sum: IAutoMovieVector3, v: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(sum, v),
+            AutoMovieEngineVector3.add(sum, v),
           { x: 0, y: 0, z: 0 },
         ),
         1 / shape.points.length,
       );
       const radius: number = Math.max(
         ...shape.points.map((v: IAutoMovieVector3): number =>
-          Vector3.distance(v, centre),
+          AutoMovieEngineVector3.distance(v, centre),
         ),
       );
-      d = Vector3.distance(l, centre) - radius;
+      d = AutoMovieEngineVector3.distance(l, centre) - radius;
     }
     least = Math.min(least, d);
   }

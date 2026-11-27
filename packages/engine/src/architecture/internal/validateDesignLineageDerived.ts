@@ -11,7 +11,7 @@ import {
 
 import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 
 /*
@@ -102,14 +102,14 @@ export function validateDesignLineageDerived(
         "lineage identity",
         out,
       );
-      if (!SHA256_DIGEST_PATTERN.test(artifact.digest))
+      if (!AutoMovieEngineSha256DigestPattern.test(artifact.digest))
         out.push(
           "type",
           `${path}.digest`,
           `derived artifact digest must be a lowercase "sha256:" hex digest, but was ${String(artifact.digest)}`,
           artifact.digest,
         );
-      if (!SHA256_DIGEST_PATTERN.test(artifact.stamp.configuration))
+      if (!AutoMovieEngineSha256DigestPattern.test(artifact.stamp.configuration))
         out.push(
           "type",
           `${path}.stamp.configuration`,

@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * A convex collider's support point: its world point farthest along a
@@ -28,25 +28,25 @@ export function physicalShapeSupport(
   shape: IAutoMoviePhysicalShape,
   direction: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
   );
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(rotation),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(rotation),
     direction,
   );
-  const length: number = Vector3.length(local);
+  const length: number = AutoMovieEngineVector3.length(local);
   const unit: IAutoMovieVector3 =
     length > 0
       ? { x: local.x / length, y: local.y / length, z: local.z / length }
       : { x: 0, y: 0, z: 0 };
   let point: IAutoMovieVector3;
-  if (shape.kind === "sphere") point = Vector3.scale(unit, shape.radius);
+  if (shape.kind === "sphere") point = AutoMovieEngineVector3.scale(unit, shape.radius);
   else if (shape.kind === "capsule")
     point = {
       x: unit.x * shape.radius,
@@ -63,9 +63,9 @@ export function physicalShapeSupport(
     };
   else if (shape.kind === "hull") {
     point = shape.points[0]!;
-    let best: number = Vector3.dot(point, local);
+    let best: number = AutoMovieEngineVector3.dot(point, local);
     for (const candidate of shape.points) {
-      const dot: number = Vector3.dot(candidate, local);
+      const dot: number = AutoMovieEngineVector3.dot(candidate, local);
       if (dot > best) {
         best = dot;
         point = candidate;
@@ -75,5 +75,5 @@ export function physicalShapeSupport(
     shape satisfies never;
     throw new Error("Unknown physical shape kind");
   }
-  return Vector3.add(centre, Quaternion.rotateVector(rotation, point));
+  return AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, point));
 }

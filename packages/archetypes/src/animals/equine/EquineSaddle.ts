@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -96,7 +96,7 @@ export namespace EquineSaddle {
     rig: AutoMovieArchetypeEquine.IRig,
     trick: boolean,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const back: number = rig.back;
     // The saddle on the back behind the withers, and what the rider holds and stands in.
     const top: number = back + 0.04;
@@ -152,7 +152,7 @@ export namespace EquineSaddle {
     rig: AutoMovieArchetypeEquine.IRig,
     side: "left" | "right",
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const sign: number = side === "left" ? 1 : -1;
     const hand: IAutoMovieVector3 = v(
       sign * 0.08,
@@ -171,7 +171,7 @@ export namespace EquineSaddle {
       frame: AutoMovieArchetypeFrame.facing(
         hand,
         v(0, 1, 0),
-        Vector3.subtract(bit, hand),
+        AutoMovieEngineVector3.subtract(bit, hand),
       ),
       extent: null,
       grip: "power",
@@ -217,7 +217,7 @@ export namespace EquineSaddle {
       id: "seat",
       kind: "seat",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, rig.back, rig.hitch.z + BAREBACK / 2),
+        AutoMovieEngineVector3.create(0, rig.back, rig.hitch.z + BAREBACK / 2),
       ),
       extent: null,
       depth: BAREBACK,
@@ -245,7 +245,7 @@ export namespace EquineSaddle {
     d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const front: number = rig.hitch.z - d.seatSize / 2 - SADDLE_GAP;
     const top: number = rig.back + PILLION.thick;
     builder.box(
@@ -298,7 +298,7 @@ export namespace EquineSaddle {
     d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const top: number = rig.back + 0.04;
     const pommel: number = rig.hitch.z + d.seatSize / 2;
     const hornTop: number = top + 0.03 + TRICK.horn;
@@ -390,7 +390,7 @@ export namespace EquineSaddle {
     nose: IAutoMovieVector3,
     h: number,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
     const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
     builder.affordance({
@@ -400,7 +400,7 @@ export namespace EquineSaddle {
       frame: AutoMovieArchetypeFrame.facing(
         held,
         v(1, 0, 0),
-        Vector3.subtract(halter, held),
+        AutoMovieEngineVector3.subtract(halter, held),
       ),
       extent: null,
       grip: "power",

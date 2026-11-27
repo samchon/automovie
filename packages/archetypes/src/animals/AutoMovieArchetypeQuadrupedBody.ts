@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -301,19 +301,19 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       // Shared neutral construction later places the real terminal cylinder's sole on ground.
       let y: number = 0;
       let z: number = 0;
-      const up: IAutoMovieVector3[] = [Vector3.create(x, 0, 0)];
+      const up: IAutoMovieVector3[] = [AutoMovieEngineVector3.create(x, 0, 0)];
       for (let k: number = 3; k >= 0; k--) {
         const angle: number = angles[k]! * AutoMovieArchetypeUnits.DEGREE;
         y += lengths[k]! * h * Math.cos(angle);
         z -= lengths[k]! * h * Math.sin(angle);
-        up.push(Vector3.create(x, y, z));
+        up.push(AutoMovieEngineVector3.create(x, y, z));
       }
       const top: number = (fore ? 1 : -1) * (trunk / 2) - z;
       return up
         .reverse()
         .map(
           (p: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.create(p.x, p.y, p.z + top),
+            AutoMovieEngineVector3.create(p.x, p.y, p.z + top),
         );
     }
     const joints: Record<Limb, IAutoMovieVector3[]> = {
@@ -324,29 +324,29 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     };
     const shoulder: IAutoMovieVector3 = joints.leftFore[0]!;
     const hip: IAutoMovieVector3 = joints.leftHind[0]!;
-    const buttock: IAutoMovieVector3 = Vector3.create(
+    const buttock: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       hip.y,
       shoulder.z - body.buttock * h,
     );
-    const poll: IAutoMovieVector3 = Vector3.create(
+    const poll: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       back + body.head.poll.rise * h,
       trunk / 2 + body.head.poll.ahead * h,
     );
-    const nose: IAutoMovieVector3 = Vector3.create(
+    const nose: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       poll.y - body.head.nose.drop * h,
       poll.z + body.head.nose.ahead * h,
     );
 
     // The hindquarters' rear end is a ball of the barrel's radius whose rearmost point is the point of buttock.
-    const quarters: IAutoMovieVector3 = Vector3.create(
+    const quarters: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       buttock.y,
       buttock.z + barrel,
     );
-    const neck: IAutoMovieVector3 = Vector3.create(
+    const neck: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       back - body.neck.root * h,
       trunk / 2,
@@ -363,18 +363,18 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       buttock,
       neck,
       neckRadius,
-      crest: Vector3.create(0, neck.y + neckRadius, neck.z),
+      crest: AutoMovieEngineVector3.create(0, neck.y + neckRadius, neck.z),
       poll,
       headRadius: body.head.radius * h,
       nose,
-      mouth: Vector3.create(
+      mouth: AutoMovieEngineVector3.create(
         0,
         nose.y + body.head.mouth * h,
         nose.z - body.head.mouth * h,
       ),
       barrel,
       quarters,
-      dock: Vector3.create(
+      dock: AutoMovieEngineVector3.create(
         0,
         quarters.y + body.tail.dock * barrel,
         quarters.z - body.tail.dock * barrel,
@@ -397,7 +397,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     withers: number,
     rig: IRig,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const h: number = withers;
     const barrel: number = rig.barrel;
     const coat: string = body.colors.coat;
@@ -430,7 +430,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       Math.PI * barrel * barrel * length + (4 / 3) * Math.PI * barrel ** 3;
     const trunkVolume: number = capsule(2 * half);
     const quartersVolume: number = capsule(
-      Vector3.length(Vector3.subtract(quarters, rear)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(quarters, rear)),
     );
     builder.rod("trunk", barrel, rear, parents.trunk.to, {
       color: coat,

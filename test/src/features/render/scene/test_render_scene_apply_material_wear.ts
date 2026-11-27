@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieRenderWearShading,
-  AutoMovieThreeKind,
-  type IMaterialShaderSource,
+  AutoMovieRenderThreeKind,
+  type IAutoMovieRenderMaterialShaderSource,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -88,7 +88,7 @@ export function test_render_scene_apply_material_wear(): void {
       reach: 0.03,
     });
   const data: THREE.TypedArray | null = worn.texture.image.data;
-  if (data === null || !AutoMovieThreeKind.isFloat32Array(data))
+  if (data === null || !AutoMovieRenderThreeKind.isFloat32Array(data))
     throw new Error("Expected a float wear texture");
   const list: THREE.BufferAttribute = worn.geometry.getAttribute(
     "wearList",
@@ -151,7 +151,7 @@ export function test_render_scene_apply_material_wear(): void {
   );
 
   // 4. Splices and key.
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(material);
   TestValidator.predicate(
     "the patch reads the list and bind pose, then mixes colour and roughness in order",
     /#include <begin_vertex>\s*vWearList = wearList;\s*vWearPoint = position;/.test(

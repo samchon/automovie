@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The interval an admitted shape covers along a world direction: the lowest and
@@ -23,20 +23,20 @@ export function physicalShapeSpan(
   shape: IAutoMoviePhysicalShape,
   axis: IAutoMovieVector3,
 ): readonly [number, number] {
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
-  const centre: number = Vector3.dot(
-    Vector3.add(
+  const centre: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.add(
       pose.position,
-      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+      AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
     ),
     axis,
   );
   // The axis in the shape's own frame, so local points project directly.
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(rotation),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(rotation),
     axis,
   );
   if (shape.kind === "sphere")
@@ -56,7 +56,7 @@ export function physicalShapeSpan(
     let lo: number = Infinity;
     let hi: number = -Infinity;
     for (const point of shape.points) {
-      const along: number = Vector3.dot(point, local);
+      const along: number = AutoMovieEngineVector3.dot(point, local);
       lo = Math.min(lo, along);
       hi = Math.max(hi, along);
     }

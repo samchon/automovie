@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -37,7 +37,7 @@ import { lieDownPoses } from "./lieDownPoses";
 import { lieOnSurfaceFits } from "./lieOnSurfaceFits";
 import { lieOnSurfaceSeat } from "./lieOnSurfaceSeat";
 import { lieOnSurfaceSite } from "./lieOnSurfaceSite";
-import * as LieOnSurfaceData from "./LieOnSurfaceData";
+import { LieOnSurfaceData } from "./LieOnSurfaceData";
 
 /*
  * Lie on a raised support. Entered seated on a bed's or a sofa's long edge, the
@@ -122,12 +122,12 @@ function planLieOnSurface(
   lieOnSurfaceFits(body, surface, LieOnSurfaceData.MARGIN);
 
   // The head end lies along the surface's -Z; the body lies onto the side that turns toward it.
-  const head: IAutoMovieVector3 = Quaternion.rotateVector(bed.rotation, {
+  const head: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(bed.rotation, {
     x: 0,
     y: 0,
     z: -1,
   });
-  const out: IAutoMovieVector3 = Quaternion.rotateVector(seat.rotation, {
+  const out: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(seat.rotation, {
     x: 0,
     y: 0,
     z: 1,
@@ -139,28 +139,28 @@ function planLieOnSurface(
     z: -Math.sin((yaw * Math.PI) / 180),
   };
   const side: AutoMovieHumanSide =
-    Vector3.dot(left, head) >= 0 ? "left" : "right";
+    AutoMovieEngineVector3.dot(left, head) >= 0 ? "left" : "right";
   const roll: number = side === "left" ? -90 : 90;
   const offset: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieVector3 = (
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       humanPostureHeading(posture),
       body.rest.get("hips")!,
     );
   const reach: number = body.measure.stature - body.rest.get("hips")!.y;
-  const lyingHips: IAutoMovieVector3 = Vector3.add(
+  const lyingHips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     bed.position,
-    Vector3.scale(head, surface.depth! / 2 - LieOnSurfaceData.MARGIN - reach),
+    AutoMovieEngineVector3.scale(head, surface.depth! / 2 - LieOnSurfaceData.MARGIN - reach),
   );
-  const entryHips: IAutoMovieVector3 = Vector3.add(entry.root, offset(entry));
-  const along: number = Vector3.dot(
-    Vector3.subtract(rise ? entryHips : lyingHips, seat.position),
+  const entryHips: IAutoMovieVector3 = AutoMovieEngineVector3.add(entry.root, offset(entry));
+  const along: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(rise ? entryHips : lyingHips, seat.position),
     head,
   );
   const seatedHips: IAutoMovieVector3 = rise
-    ? Vector3.add(Vector3.add(seat.position, Vector3.scale(head, along)), {
-        ...Vector3.scale(out, -LieOnSurfaceData.BEHIND),
+    ? AutoMovieEngineVector3.add(AutoMovieEngineVector3.add(seat.position, AutoMovieEngineVector3.scale(head, along)), {
+        ...AutoMovieEngineVector3.scale(out, -LieOnSurfaceData.BEHIND),
         y: entryHips.y - bed.position.y,
       })
     : entryHips;
@@ -266,7 +266,7 @@ function planLieOnSurface(
       body,
       new Set<AutoMovieHumanoidBone>(["head"]),
     );
-  const vertical: number = Quaternion.rotateVectorY(
+  const vertical: number = AutoMovieEngineQuaternion.rotateVectorY(
     bed.rotation,
     HumanMaterialContact.NORMAL,
   );
@@ -288,7 +288,7 @@ function planLieOnSurface(
     return {
       root: { x: 0, y: 0, z: 0 },
       ...humanPostureHeading.angles(
-        Quaternion.slerp(
+        AutoMovieEngineQuaternion.slerp(
           humanPostureHeading({
             yaw: a.yaw,
             pitch: a.pose.pitch,
@@ -328,7 +328,7 @@ function planLieOnSurface(
     hips: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture => ({
     ...posture,
-    root: Vector3.subtract(hips, offset(posture)),
+    root: AutoMovieEngineVector3.subtract(hips, offset(posture)),
   });
   const atKey = (index: number, u: number): number => {
     const key: IKey = keys[index + u]!;
@@ -346,7 +346,7 @@ function planLieOnSurface(
   const placed = (index: number, u: number): IAutoMovieMotionHumanPosture =>
     positioned(
       posed(index, u),
-      Vector3.lerp(keys[index]!.hips, keys[index + 1]!.hips, u),
+      AutoMovieEngineVector3.lerp(keys[index]!.hips, keys[index + 1]!.hips, u),
     );
   const risingHeight: readonly (((share: number) => number[]) | undefined)[] =
     progress.map(

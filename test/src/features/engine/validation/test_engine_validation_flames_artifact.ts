@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { appendFlamesArtifact } from "@automovie/engine/internal";
+import {
+  appendFlamesArtifact
+} from "../../../../../packages/engine/src/validation/internal/appendFlamesArtifact";
 import type { IAutoMovieFlameCue } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

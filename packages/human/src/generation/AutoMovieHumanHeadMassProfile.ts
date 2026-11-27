@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewSection } from "@automovie/engine";
 import type { IAutoMovieHumanHeadLayout } from "@automovie/interface";
 
 /** Existing shape laws shared by original mass authoring and its public template readers, without constructing another source. */
@@ -6,7 +6,7 @@ export namespace AutoMovieHumanHeadMassProfile {
   /** Preserve the existing bounded Lame-diagonal to conic-shoulder convention. */
   export function shoulder(n: number): number {
     return Math.max(
-      AutoMovieViewSection.ELLIPSE / 4,
+      AutoMovieEngineViewSection.ELLIPSE / 4,
       Math.min(0.95, 2 ** (1 - 1 / n) - 1),
     );
   }

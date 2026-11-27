@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -32,9 +32,9 @@ export function pelvisReachHeight(
   ankles: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
 ): number {
   const heading: IAutoMovieQuaternion = HumanFrame.turn(yaw);
-  const root: IAutoMovieVector3 = Vector3.subtract(
+  const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     hips,
-    Quaternion.rotateVector(heading, body.rest.get("hips")!),
+    AutoMovieEngineQuaternion.rotateVector(heading, body.rest.get("hips")!),
   );
   const joints: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
     body,

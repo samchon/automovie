@@ -1,4 +1,4 @@
-import { AutoMovieSolidBody, AutoMovieSolidRailSolve } from "@automovie/engine";
+import { AutoMovieEngineSolidBody, AutoMovieEngineSolidRailSolve } from "@automovie/engine";
 import type {
   IAutoMovieSolidAtlas,
   IAutoMovieSolidBody,
@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 type Vec3 = [number, number, number];
 
 /**
- * `AutoMovieSolidRailSolve.atlas` settles a host rail whose root lies between a
+ * `AutoMovieEngineSolidRailSolve.atlas` settles a host rail whose root lies between a
  * face's kept edge chords and the exact curve a neighbouring face ends on: a
  * cycle sampled from an exact curve reads that curve between its vertices.
  *
@@ -64,7 +64,7 @@ export function test_engine_geometry_solid_rail_sagitta(): void {
   );
   const next = (k: number): number =>
     k + 1 < n ? phases[k + 1]! : 2 * Math.PI;
-  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("sagitta", [
+  const body: IAutoMovieSolidBody.IBody = AutoMovieEngineSolidBody.create("sagitta", [
     { surface: sheet, stations: [-20, 20], phases },
     { surface: band, stations: [-20, 0], phases },
   ]);
@@ -89,7 +89,7 @@ export function test_engine_geometry_solid_rail_sagitta(): void {
       to: [g(next(k)), next(k)] satisfies [number, number],
     })),
   });
-  const host: IAutoMovieSolidAtlas = AutoMovieSolidBody.atlas(body).atlas;
+  const host: IAutoMovieSolidAtlas = AutoMovieEngineSolidBody.atlas(body).atlas;
   const h: number = (2 * Math.PI) / n;
   const star: number = Math.PI + h / 2;
   const chord: number = (g(Math.PI) + g(Math.PI + h)) / 2;
@@ -116,7 +116,7 @@ export function test_engine_geometry_solid_rail_sagitta(): void {
       reason: "",
       numbers: {},
     };
-    const out = AutoMovieSolidRailSolve.atlas(
+    const out = AutoMovieEngineSolidRailSolve.atlas(
       host,
       face,
       [u, star],

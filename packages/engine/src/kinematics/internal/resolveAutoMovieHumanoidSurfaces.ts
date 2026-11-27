@@ -11,9 +11,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMovieHumanoidSurfaceRays } from "../AutoMovieHumanoidSurfaceRays";
-import { AutoMovieHumanoidSurfaceRegions } from "../AutoMovieHumanoidSurfaceRegions";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineHumanoidSurfaceRays } from "../AutoMovieEngineHumanoidSurfaceRays";
+import { AutoMovieEngineHumanoidSurfaceRegions } from "../AutoMovieEngineHumanoidSurfaceRegions";
 import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
 import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
@@ -67,7 +67,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * pads, which take a socket's point or a phalanx's line.
    */
   export function rayed(region: AutoMovieHumanoidRegion): boolean {
-    return AutoMovieHumanoidSurfaceRegions.TABLE[region] !== undefined;
+    return AutoMovieEngineHumanoidSurfaceRegions.TABLE[region] !== undefined;
   }
 
   /*
@@ -95,7 +95,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     tangent: IAutoMovieHumanoidSurfaces.ITangent,
   ): IAutoMovieHumanoidSurfaces.IFrame {
     const def: IAutoMovieHumanoidSurfaceRegions.IDefinition | undefined =
-      AutoMovieHumanoidSurfaceRegions.TABLE[region];
+      AutoMovieEngineHumanoidSurfaceRegions.TABLE[region];
     if (def === undefined)
       throw new Error(`The region ${region} is not placed by a ray`);
     // A left region's surface point is its right twin's mirrored, the twin's
@@ -106,26 +106,26 @@ export namespace resolveAutoMovieHumanoidSurfaces {
         offset(skeleton, profile, right, { up: tangent.up, out: -tangent.out }),
       );
     const { local, station, exit, surface } =
-      AutoMovieHumanoidSurfaceRays.tools(skeleton, profile);
+      AutoMovieEngineHumanoidSurfaceRays.tools(skeleton, profile);
     const origin: IAutoMovieVector3 = station(def.station);
-    const d: IAutoMovieVector3 = Vector3.normalize(def.direction);
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(def.direction);
     const reference: IAutoMovieVector3 =
       Math.abs(d.y) > 0.9 ? { x: 0, y: 0, z: 1 } : { x: 0, y: 1, z: 0 };
-    const up: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(reference, Vector3.scale(d, Vector3.dot(reference, d))),
+    const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(reference, AutoMovieEngineVector3.scale(d, AutoMovieEngineVector3.dot(reference, d))),
     );
-    const out: IAutoMovieVector3 = Vector3.cross(up, d);
-    const ray: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(
+    const out: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, d);
+    const ray: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.add(
         exit(def.station.bone, origin, d),
-        Vector3.add(
-          Vector3.scale(up, tangent.up),
-          Vector3.scale(out, tangent.out),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(up, tangent.up),
+          AutoMovieEngineVector3.scale(out, tangent.out),
         ),
       ),
       origin,
     );
-    const toward: IAutoMovieVector3 = Vector3.length(ray) > BOUNDARY ? ray : d;
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.length(ray) > BOUNDARY ? ray : d;
     const hit: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
       def.station.bone,
       origin,
@@ -275,14 +275,14 @@ function resolveAutoMovieHumanoidSurfacesRun(
   neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,
 ): IAutoMovieHumanoidSurfaces.ISurfaces {
   const { at, bounds, local, station, exit, surface } =
-    AutoMovieHumanoidSurfaceRays.tools(skeleton, profile, neutral);
+    AutoMovieEngineHumanoidSurfaceRays.tools(skeleton, profile, neutral);
 
   const regions = {} as Record<
     AutoMovieHumanoidRegion,
     IAutoMovieHumanoidSurfaces.IFrame
   >;
   for (const [name, def] of Object.entries(
-    AutoMovieHumanoidSurfaceRegions.TABLE,
+    AutoMovieEngineHumanoidSurfaceRegions.TABLE,
   ) as [
     AutoMovieHumanoidRegion,
     IAutoMovieHumanoidSurfaceRegions.IDefinition,
@@ -306,13 +306,13 @@ function resolveAutoMovieHumanoidSurfacesRun(
     const side: string = Side.toLowerCase();
     const bone = (name: string): AutoMovieHumanoidBone =>
       `${side}${name}` as AutoMovieHumanoidBone;
-    const fingers: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const fingers: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         at(bone("MiddleProximal")).worldPosition,
         at(bone("Hand")).worldPosition,
       ),
     );
-    const palmOrigin: IAutoMovieVector3 = Vector3.lerp(
+    const palmOrigin: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       at(bone("Hand")).worldPosition,
       at(bone("MiddleProximal")).worldPosition,
       0.5,
@@ -327,16 +327,16 @@ function resolveAutoMovieHumanoidSurfacesRun(
     const knuckle: IAutoMovieVector3 = at(bone("MiddleProximal")).worldPosition;
     sockets[`grip${Side}` as AutoMovieHumanoidSocket] = local(
       bone("Hand"),
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         exit(bone("Hand"), knuckle, down),
-        Vector3.scale(down, GRIP_RADIUS),
+        AutoMovieEngineVector3.scale(down, GRIP_RADIUS),
       ),
       down,
       forward,
     );
     sockets[`fist${Side}` as AutoMovieHumanoidSocket] = local(
       bone("Hand"),
-      Vector3.add(knuckle, Vector3.scale(fingers, KNUCKLE_RADIUS)),
+      AutoMovieEngineVector3.add(knuckle, AutoMovieEngineVector3.scale(fingers, KNUCKLE_RADIUS)),
       fingers,
       down,
     );

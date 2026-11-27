@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, hingedArmSwivel, AutoMovieEngineMotionSampling, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineHingedArmSwivel, AutoMovieEngineMotionSampling, AutoMovieEngineSwingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -54,7 +54,7 @@ export function prepareHumanFreeCurve(
     duration > 0 && duration < Infinity
       ? AutoMovieEngineMotionSampling.samplePoseVelocityTolerance(1e-3, duration)
       : NaN;
-  const radians: number = (ROM_TOLERANCE * Math.PI) / 180;
+  const radians: number = (AutoMovieEngineRomTolerance * Math.PI) / 180;
   const legality: Map<
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose) => number
@@ -64,7 +64,7 @@ export function prepareHumanFreeCurve(
       bone.bone,
       bone.constraint ?? null,
     );
-    const frame: IAutoMovieJointRotationFrame | undefined = swingTwistRange.of(
+    const frame: IAutoMovieJointRotationFrame | undefined = AutoMovieEngineSwingTwistRange.of(
       bone.bone,
       body.skeleton,
     );
@@ -78,7 +78,7 @@ export function prepareHumanFreeCurve(
           constraint.swingTwist === null ||
           frame === undefined
           ? undefined
-          : swingTwistRange.prepare(bone.bone, frame, constraint),
+          : AutoMovieEngineSwingTwistRange.prepare(bone.bone, frame, constraint),
       ),
     );
   }
@@ -86,7 +86,7 @@ export function prepareHumanFreeCurve(
     { body, at, tolerance, radians, legality },
   );
   const prepared: IPrepared | undefined =
-    tolerance > 0 && tolerance < hingedArmSwivel.STEP
+    tolerance > 0 && tolerance < AutoMovieEngineHingedArmSwivel.STEP
       ? prepareKnots(at, cold, observe, correct)
       : undefined;
 

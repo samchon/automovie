@@ -1,10 +1,8 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createGlove as createGloveImplementation } from "./internal/createGlove";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../core";
-import * as AutoMovieArchetypeGloveData from "./internal/AutoMovieArchetypeGloveData";
-import {
-  m as AutoMovieArchetypeGloveDatam,
-} from "./internal/AutoMovieArchetypeGloveData";
+import { AutoMovieArchetypeGloveData } from "./internal/AutoMovieArchetypeGloveData";
+
 
 /** Public operations for Auto Movie Archetype Glove. */
 export namespace AutoMovieArchetypeGlove {
@@ -83,12 +81,12 @@ export namespace AutoMovieArchetypeGlove {
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     fielder: {
-      length: AutoMovieArchetypeGloveDatam(
+      length: AutoMovieArchetypeGloveData.m(
         13 * AutoMovieArchetypeUnits.INCH,
         13 * AutoMovieArchetypeUnits.INCH,
         `${AutoMovieArchetypeGloveData.OBR}, 3.06: a fielder's glove not more than 13 in from a finger's tip to the heel, the limit the model takes`,
       ),
-      width: AutoMovieArchetypeGloveDatam(
+      width: AutoMovieArchetypeGloveData.m(
         7.75 * AutoMovieArchetypeUnits.INCH,
         7.75 * AutoMovieArchetypeUnits.INCH,
         `${AutoMovieArchetypeGloveData.OBR}, 3.06: not more than 7 3/4 in wide, the limit the model takes`,
@@ -102,12 +100,12 @@ export namespace AutoMovieArchetypeGlove {
       ),
     },
     catcher: {
-      length: AutoMovieArchetypeGloveDatam(
+      length: AutoMovieArchetypeGloveData.m(
         15.5 * AutoMovieArchetypeUnits.INCH,
         15.5 * AutoMovieArchetypeUnits.INCH,
         `${AutoMovieArchetypeGloveData.OBR}, 3.04: a catcher's mitt not more than 15 1/2 in from top to bottom, the limit the model takes`,
       ),
-      width: AutoMovieArchetypeGloveDatam(
+      width: AutoMovieArchetypeGloveData.m(
         2 *
           ((38 * AutoMovieArchetypeUnits.INCH) / Math.PI -
             (15.5 * AutoMovieArchetypeUnits.INCH) / 2),

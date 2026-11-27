@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -48,12 +48,12 @@ export function baseballGroundBall(
   return (): IAutoMovieMotionHumanPrimitive[] => {
     // The glove on the floor ahead of the shoulders, open forward and up with the fingers down.
     const front: IAutoMovieVector3 = local(entry, { x: 0, y: 0, z: 1 });
-    const facing: IAutoMovieVector3 = Vector3.normalize({ ...front, y: 1 });
-    const fingers: IAutoMovieVector3 = Vector3.normalize({
+    const facing: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({ ...front, y: 1 });
+    const fingers: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       ...front,
       y: -1,
     });
-    const ahead: IAutoMovieVector3 = Vector3.scale(front, baseball.AHEAD * arm);
+    const ahead: IAutoMovieVector3 = AutoMovieEngineVector3.scale(front, baseball.AHEAD * arm);
     const glovePoint: (
       posture: IAutoMovieMotionHumanPosture,
       up: number,
@@ -63,7 +63,7 @@ export function baseballGroundBall(
       up: number,
       resolution?: baseballGroundBall.IFK,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         {
           ...AutoMovieMotionHumanPlaced.shoulders(body, posture, resolution),
           y: up * arm,
@@ -116,14 +116,14 @@ export function baseballGroundBall(
         ),
       );
       const left: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
-      const mid: IAutoMovieVector3 = Vector3.lerp(
+      const mid: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         left,
         bones.get("rightUpperArm")!.worldPosition,
         0.5,
       );
-      const wrist: IAutoMovieVector3 = Vector3.add(
+      const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         { ...mid, y: 0 },
-        Vector3.add(wristFromPalm, ahead),
+        AutoMovieEngineVector3.add(wristFromPalm, ahead),
       );
       const span: number =
         (baseball.REACH * arm) ** 2 -

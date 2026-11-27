@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
   IAutoMovieVector3,
@@ -25,8 +25,8 @@ export function shankTilt(
 ): number {
   const thigh: number = body.measure.thigh;
   const shank: number = body.measure.shank;
-  const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-  const forward: number = Vector3.dot(reach, facing);
+  const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ankle, hip);
+  const forward: number = AutoMovieEngineVector3.dot(reach, facing);
   const down: number = reach.y;
   const span: number = Math.min(
     thigh + shank,
@@ -49,7 +49,7 @@ export function shankTilt(
   // and turns through it without a jump.
   return (
     Math.atan2(kneeForward - forward, Math.abs(kneeDown - down)) /
-    Quaternion.DEG2RAD
+    AutoMovieEngineQuaternion.DEG2RAD
   );
 }
 

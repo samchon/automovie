@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeUnits, AutoMovieArchetypeLongTool } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -124,7 +124,7 @@ export function test_archetype_props_longtool_bands(): void {
       (4 * handle) / (Math.PI * 800 * (length - edge)),
     );
     const shaft: ReturnType<typeof axe.affordance> = axe.affordance("shaft");
-    const out: { x: number; y: number; z: number } = Quaternion.rotateVector(
+    const out: { x: number; y: number; z: number } = AutoMovieEngineQuaternion.rotateVector(
       face.frame.rotation,
       { x: 0, y: 1, z: 0 },
     );

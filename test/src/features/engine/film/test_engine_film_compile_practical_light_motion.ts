@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieCompilePracticalLightMotion,
@@ -122,7 +122,7 @@ export function test_engine_film_compile_practical_light_motion(): void {
     { x: -1, y: 0, z: 0 },
   ].entries()) {
     const i: number = index === 0 ? 0 : 12;
-    const aim: IAutoMovieVector3 = Quaternion.rotateVector(
+    const aim: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       {
         x: rotation!.values[i]!,
         y: rotation!.values[i + 1]!,

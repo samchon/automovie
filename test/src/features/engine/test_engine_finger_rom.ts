@@ -1,5 +1,5 @@
 import {
-  DEFAULT_HUMANOID_ROM,
+  AutoMovieEngineDefaultHumanoidRom,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -9,7 +9,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { HumanHandShape } from "@automovie/motions/internal";
+import {
+  HumanHandShape
+} from "../../../../packages/motions/src/posture/internal/HumanHandShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -86,7 +88,7 @@ export function test_engine_finger_rom(): void {
           `${side}${digit}${segment}` as AutoMovieHumanoidBone;
         const want = expected[digit === "Thumb" ? `Thumb${segment}` : segment]!;
         const have: IAutoMovieJointConstraint | undefined =
-          DEFAULT_HUMANOID_ROM[bone];
+          AutoMovieEngineDefaultHumanoidRom[bone];
         const same = (
           a: { min: number; max: number } | null | undefined,
           b: { min: number; max: number } | null,

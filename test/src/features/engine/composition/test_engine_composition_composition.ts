@@ -1,4 +1,4 @@
-import { AutoMovieChain, AutoMovieComposition } from "@automovie/engine";
+import { AutoMovieEngineChain, AutoMovieEngineComposition } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
@@ -6,7 +6,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieComposition` builds composition nodes from parts: an intent is
+ * `AutoMovieEngineComposition` builds composition nodes from parts: an intent is
  * wrapped, a node is kept, and a chain contributes its node.
  *
  * Scenarios:
@@ -24,17 +24,17 @@ export function test_engine_composition_composition(): void {
   TestValidator.equals(
     "of wraps an intent, keeps a node and unwraps a chain",
     [
-      AutoMovieComposition.of(act),
-      AutoMovieComposition.of(nested),
-      AutoMovieComposition.of(AutoMovieChain.of(act)),
+      AutoMovieEngineComposition.of(act),
+      AutoMovieEngineComposition.of(nested),
+      AutoMovieEngineComposition.of(AutoMovieEngineChain.of(act)),
     ],
     [wrapped, nested, wrapped],
   );
   TestValidator.equals(
     "sequence and parallel take every part in order",
     [
-      AutoMovieComposition.sequence(act, nested),
-      AutoMovieComposition.parallel(nested, act),
+      AutoMovieEngineComposition.sequence(act, nested),
+      AutoMovieEngineComposition.parallel(nested, act),
     ],
     [
       { type: "sequence", parts: [wrapped, nested] },
@@ -44,8 +44,8 @@ export function test_engine_composition_composition(): void {
   TestValidator.equals(
     "at anchors a part, offset zero by default",
     [
-      AutoMovieComposition.at("k", act),
-      AutoMovieComposition.at("k", act, -0.5, { event: "impact", index: 1 }),
+      AutoMovieEngineComposition.at("k", act),
+      AutoMovieEngineComposition.at("k", act, -0.5, { event: "impact", index: 1 }),
     ],
     [
       { type: "at", anchor: "k", offset: 0, part: wrapped },

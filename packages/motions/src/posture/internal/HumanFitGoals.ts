@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -72,7 +72,7 @@ export namespace HumanFitGoals {
   ): number {
     bounds(target);
     const [u, v]: [IAutoMovieVector3, IAutoMovieVector3] = rays(bones, target);
-    return Math.atan2(Vector3.length(Vector3.cross(u, v)), Vector3.dot(u, v));
+    return Math.atan2(AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(u, v)), AutoMovieEngineVector3.dot(u, v));
   }
 
   /*
@@ -109,20 +109,20 @@ export namespace HumanFitGoals {
     target: IAutoMovieMotionHumanFitGoals.IAngle,
   ): number[] {
     const [u, v]: [IAutoMovieVector3, IAutoMovieVector3] = rays(bones, target);
-    const cross: IAutoMovieVector3 = Vector3.cross(u, v);
-    const length: number = Vector3.length(cross);
+    const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(u, v);
+    const length: number = AutoMovieEngineVector3.length(cross);
     if (!(length > 0))
       throw new Error(
         "An included-angle fit needs a noncollinear starting configuration",
       );
-    const n: IAutoMovieVector3 = Vector3.scale(cross, 1 / length);
-    const gu: IAutoMovieVector3 = Vector3.scale(
-      Vector3.cross(u, n),
-      1 / Vector3.dot(u, u),
+    const n: IAutoMovieVector3 = AutoMovieEngineVector3.scale(cross, 1 / length);
+    const gu: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.cross(u, n),
+      1 / AutoMovieEngineVector3.dot(u, u),
     );
-    const gv: IAutoMovieVector3 = Vector3.scale(
-      Vector3.cross(n, v),
-      1 / Vector3.dot(v, v),
+    const gv: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.cross(n, v),
+      1 / AutoMovieEngineVector3.dot(v, v),
     );
     let atFirst: IAutoMovieVector3[] | undefined;
     let atVertex: IAutoMovieVector3[] | undefined;
@@ -148,8 +148,8 @@ export namespace HumanFitGoals {
           (atLast ??= []),
         );
         return (
-          Vector3.dot(gu, Vector3.subtract(a, b)) +
-          Vector3.dot(gv, Vector3.subtract(c, b))
+          AutoMovieEngineVector3.dot(gu, AutoMovieEngineVector3.subtract(a, b)) +
+          AutoMovieEngineVector3.dot(gv, AutoMovieEngineVector3.subtract(c, b))
         );
       },
     );
@@ -172,12 +172,12 @@ export namespace HumanFitGoals {
           if (axis === "z") return { x: 0, y: 0, z: 1 };
           throw new Error("A centre goal names an unknown world axis");
         }
-        const length: number = Vector3.length(axis);
+        const length: number = AutoMovieEngineVector3.length(axis);
         if (!(length > 0))
           throw new Error(
             "A centre goal needs finite nonzero projection directions",
           );
-        return Vector3.scale(axis, 1 / length);
+        return AutoMovieEngineVector3.scale(axis, 1 / length);
       },
     );
   }
@@ -229,11 +229,11 @@ export namespace HumanFitGoals {
     directions(target).forEach((axis: IAutoMovieVector3, k: number): void =>
       equal(
         `centre:${k}`,
-        (r: HumanBodyFitRows.IReading): number => Vector3.dot(r.centre!, axis),
-        Vector3.dot(target.point, axis),
+        (r: HumanBodyFitRows.IReading): number => AutoMovieEngineVector3.dot(r.centre!, axis),
+        AutoMovieEngineVector3.dot(target.point, axis),
         columns.map(
           (v: IAutoMovieVector3, i: number): number =>
-            Vector3.dot(v, axis) * step.units[i]! * mm,
+            AutoMovieEngineVector3.dot(v, axis) * step.units[i]! * mm,
         ),
         target.price ?? step.price,
       ),
@@ -264,15 +264,15 @@ function landmark(
     const placed: IAutoMovieVector3 =
       point.point === undefined
         ? bone.worldPosition
-        : Vector3.add(
+        : AutoMovieEngineVector3.add(
             bone.worldPosition,
-            Quaternion.rotateVector(bone.worldRotation, point.point),
+            AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, point.point),
           );
     sum.x = sum.x + placed.x;
     sum.y = sum.y + placed.y;
     sum.z = sum.z + placed.z;
   }
-  return Vector3.scale(sum, 1 / points.length);
+  return AutoMovieEngineVector3.scale(sum, 1 / points.length);
 }
 
 /*
@@ -300,7 +300,7 @@ function velocity(
     sum.y = sum.y + speed.y;
     sum.z = sum.z + speed.z;
   }
-  return Vector3.scale(sum, 1 / points.length);
+  return AutoMovieEngineVector3.scale(sum, 1 / points.length);
 }
 
 /*
@@ -311,15 +311,15 @@ function rays(
   target: IAutoMovieMotionHumanFitGoals.IAngle,
 ): [IAutoMovieVector3, IAutoMovieVector3] {
   const vertex: IAutoMovieVector3 = landmark(bones, target.points[1]);
-  const u: IAutoMovieVector3 = Vector3.subtract(
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     landmark(bones, target.points[0]),
     vertex,
   );
-  const v: IAutoMovieVector3 = Vector3.subtract(
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     landmark(bones, target.points[2]),
     vertex,
   );
-  if (!(Vector3.length(u) > 0 && Vector3.length(v) > 0))
+  if (!(AutoMovieEngineVector3.length(u) > 0 && AutoMovieEngineVector3.length(v) > 0))
     throw new Error("An included angle needs two nonzero rays");
   return [u, v];
 }

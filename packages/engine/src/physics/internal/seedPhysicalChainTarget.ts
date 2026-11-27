@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalJointPoint } from "./physicalJointPoint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -24,7 +24,7 @@ export function seedPhysicalChainTarget(
   for (const bone of input.chain)
     if (
       !distinct.length ||
-      Vector3.length(Vector3.subtract(point(bone), point(distinct.at(-1)!))) >
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point(bone), point(distinct.at(-1)!))) >
         input.tolerance
     )
       distinct.push(bone);
@@ -34,35 +34,35 @@ export function seedPhysicalChainTarget(
   );
   const virtual: boolean =
     distinct.length === 2 &&
-    Vector3.length(Vector3.subtract(endpoint, point(distinct[1]!))) >
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(endpoint, point(distinct[1]!))) >
       input.tolerance;
   if (distinct.length < 3 && !virtual) return;
   const first: string = distinct[0]!;
   const middle: string = distinct[1]!;
   const tip: string | undefined = virtual ? undefined : distinct[2]!;
   const tipPoint: IAutoMovieVector3 = tip ? point(tip) : endpoint;
-  const upper: IAutoMovieVector3 = Vector3.subtract(
+  const upper: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     point(middle),
     point(first),
   );
-  const lower: IAutoMovieVector3 = Vector3.subtract(tipPoint, point(middle));
-  if (Vector3.length(Vector3.cross(upper, lower)) > input.tolerance ** 2)
+  const lower: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(tipPoint, point(middle));
+  if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(upper, lower)) > input.tolerance ** 2)
     return;
   const joint: IAutoMoviePhysicalJoint | undefined = input.profile.joints.find(
     (candidate: (typeof input.profile.joints)[number]): boolean =>
       candidate.child === middle,
   );
   if (!joint?.axes.length) return;
-  const frame: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const frame: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     input.targets[joint.parent]!.rotation,
     joint.parentFrame.rotation,
   );
-  const goal: IAutoMovieVector3 = Vector3.subtract(
+  const goal: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     input.goal,
-    Vector3.subtract(endpoint, tipPoint),
+    AutoMovieEngineVector3.subtract(endpoint, tipPoint),
   );
-  const plane: IAutoMovieVector3 = Vector3.cross(
-    Vector3.subtract(goal, point(first)),
+  const plane: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+    AutoMovieEngineVector3.subtract(goal, point(first)),
     upper,
   );
   const axes: {
@@ -78,7 +78,7 @@ export function seedPhysicalChainTarget(
         direction: IAutoMovieVector3;
         score: number;
       } => {
-        const direction: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
+        const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame, {
           x: axis.axis === "x" ? 1 : 0,
           y: axis.axis === "y" ? 1 : 0,
           z: axis.axis === "z" ? 1 : 0,
@@ -87,8 +87,8 @@ export function seedPhysicalChainTarget(
           axis,
           direction,
           score:
-            Vector3.length(plane) > 0
-              ? Math.abs(Vector3.dot(direction, plane))
+            AutoMovieEngineVector3.length(plane) > 0
+              ? Math.abs(AutoMovieEngineVector3.dot(direction, plane))
               : axis.maximum - axis.minimum,
         };
       },
@@ -123,25 +123,25 @@ export function seedPhysicalChainTarget(
       lower: { worldPosition: point(middle), worldRotation: originalLower },
       end: tipPoint,
       target: goal,
-      bendNormal: Vector3.scale(
+      bendNormal: AutoMovieEngineVector3.scale(
         chosen.direction,
         chosen.axis.maximum >= -chosen.axis.minimum ? -1 : 1,
       ),
     });
   if (!solution) return;
-  const upperWorld: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const upperWorld: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     originalUpper,
     solution.upper,
   );
-  const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const delta: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     upperWorld,
-    Quaternion.inverse(originalUpper),
+    AutoMovieEngineQuaternion.inverse(originalUpper),
   );
   fit(first, upperWorld);
   fit(
     middle,
-    Quaternion.multiply(
-      Quaternion.multiply(delta, originalLower),
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(delta, originalLower),
       solution.lower,
     ),
   );
@@ -171,24 +171,24 @@ export function seedPhysicalChainTarget(
     for (let pass: number = 0; pass < 3; pass++)
       for (const axis of targetJoint.axes) {
         const parentFrame: IAutoMovieRigidTransform["rotation"] =
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             input.targets[targetJoint.parent]!.rotation,
             targetJoint.parentFrame.rotation,
           );
         const inverse: IAutoMovieRigidTransform["rotation"] =
-          Quaternion.inverse(parentFrame);
+          AutoMovieEngineQuaternion.inverse(parentFrame);
         const current: IAutoMovieRigidTransform["rotation"] =
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             inverse,
-            Quaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(
               input.targets[bone]!.rotation,
               targetJoint.childFrame.rotation,
             ),
           );
         const desired: IAutoMovieRigidTransform["rotation"] =
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             inverse,
-            Quaternion.multiply(world, targetJoint.childFrame.rotation),
+            AutoMovieEngineQuaternion.multiply(world, targetJoint.childFrame.rotation),
           );
         const angle: number =
           2 * Math.atan2(desired[axis.axis], desired.w) -

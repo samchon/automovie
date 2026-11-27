@@ -3,7 +3,9 @@
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAudit } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAudit
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAudit";
 import { TestValidator } from "@nestia/e2e";
 
 import { auditStanceMotion } from "../../internal/auditStanceMotion";

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -118,9 +118,9 @@ export namespace stickBall {
     const gripOf: (hand: AutoMovieHumanSide) => IAutoMovieVector3 = (
       hand: AutoMovieHumanSide,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         shaft.frame.translation,
-        Vector3.scale(stickBallModel.UP, ((hand === head ? -1 : 1) * gap) / 2),
+        AutoMovieEngineVector3.scale(stickBallModel.UP, ((hand === head ? -1 : 1) * gap) / 2),
       );
 
     // A hand that does not hold the stick at the entry (`entry.holds`) takes
@@ -143,8 +143,8 @@ export namespace stickBall {
       taken = Math.max(
         taken,
         AutoMovieMotionHumanTiming.aimed(
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               stickBallModel.world(initial, gripOf(hand)),
               HumanHand.frame(body, bones, hand, "grip").point,
             ),
@@ -188,8 +188,8 @@ export namespace stickBall {
             "the passing crosse must already carry the ball in its pocket",
           fix: "scoop the ball or mount it to this crosse's pocket before passing",
         });
-      const separation: number = Vector3.length(
-        Vector3.subtract(
+      const separation: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           stickBallModel.world(initial, working.frame.translation),
           ball.frame(context.start).position,
         ),
@@ -205,7 +205,7 @@ export namespace stickBall {
         });
     }
 
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       HumanFrame.turn(cue.yaw),
       stickBallModel.FORWARD,
     );
@@ -216,10 +216,10 @@ export namespace stickBall {
     const delta: IAutoMovieVector3 =
       target === undefined
         ? forward
-        : Vector3.subtract(target, ballShape.centre);
+        : AutoMovieEngineVector3.subtract(target, ballShape.centre);
     const horizontal: IAutoMovieVector3 = { x: delta.x, y: 0, z: delta.z };
-    HumanBound.above("target", Vector3.length(horizontal), 0, "m");
-    const line: IAutoMovieVector3 = Vector3.normalize(horizontal);
+    HumanBound.above("target", AutoMovieEngineVector3.length(horizontal), 0, "m");
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(horizontal);
     const yaw: number = (Math.atan2(line.x, line.z) * 180) / Math.PI;
 
     const side: number = head === "left" ? 1 : -1;
@@ -227,11 +227,11 @@ export namespace stickBall {
     // the loose ball with its open face turned nearly up.
     const pitch: number = scoop ? -80 : ice ? -35 : 0;
     const roll: number = pocketPass ? 148 * side : ice ? 0 : 28 * side;
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       HumanFrame.turn(yaw),
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(stickBallModel.SIDE, pitch),
-        Quaternion.fromAxisAngle(stickBallModel.FORWARD, roll),
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(stickBallModel.SIDE, pitch),
+        AutoMovieEngineQuaternion.fromAxisAngle(stickBallModel.FORWARD, roll),
       ),
     );
     const rim: IAutoMovieAffordance | undefined = ice
@@ -242,13 +242,13 @@ export namespace stickBall {
         ? ballShape.radius
         : HumanBound.above("rim", (rim.width ?? 0) / 2, 0, "m");
     const strokePoint: IAutoMovieVector3 = pocketPass
-      ? Vector3.add(
+      ? AutoMovieEngineVector3.add(
           AutoMovieMotionHumanPlaced.shoulders(body, cue),
-          Vector3.scale(line, 0.4 * arm),
+          AutoMovieEngineVector3.scale(line, 0.4 * arm),
         )
       : scoop
         ? ballFrame.position
-        : Vector3.subtract(ballShape.centre, Vector3.scale(line, radial));
+        : AutoMovieEngineVector3.subtract(ballShape.centre, AutoMovieEngineVector3.scale(line, radial));
     const workingPoint: IAutoMovieVector3 = ice
       ? {
           ...working.frame.translation,
@@ -259,18 +259,18 @@ export namespace stickBall {
         }
       : working.frame.translation;
     const impact: IAutoMovieRigidTransform = {
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         strokePoint,
-        Quaternion.rotateVector(rotation, workingPoint),
+        AutoMovieEngineQuaternion.rotateVector(rotation, workingPoint),
       ),
       rotation,
     };
-    const travel: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(line, arm * (scoop ? 0.16 : 0.32)),
+    const travel: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(line, arm * (scoop ? 0.16 : 0.32)),
       { x: 0, y: arm * (scoop ? 0.48 : pocketPass ? -0.16 : 0), z: 0 },
     );
     const followSpan: number = clock.at("strokeEnd") - seconds;
-    const through: IAutoMovieVector3 = Vector3.scale(travel, 1 / followSpan);
+    const through: IAutoMovieVector3 = AutoMovieEngineVector3.scale(travel, 1 / followSpan);
     const approachPath: (share: number) => IAutoMovieVector3 = throwObjectCurve(
       initial.position,
       stickBallModel.REST,
@@ -281,7 +281,7 @@ export namespace stickBall {
     const followPath: (share: number) => IAutoMovieVector3 = throwObjectCurve(
       impact.position,
       through,
-      Vector3.add(impact.position, travel),
+      AutoMovieEngineVector3.add(impact.position, travel),
       stickBallModel.REST,
       followSpan,
     );
@@ -296,14 +296,14 @@ export namespace stickBall {
     // hand stays where the stroke left it. Translated whole instead, the
     // stick would carry the top hand across the body, through the other arm.
     const pivot: IAutoMovieVector3 = stickBallModel.world(impact, gripOf(rear));
-    const outward: IAutoMovieVector3 = Vector3.subtract(
+    const outward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       stickBallModel.world(impact, workingPoint),
       pivot,
     );
-    const along: IAutoMovieVector3 = Vector3.normalize(travel);
-    const hinge: IAutoMovieVector3 = Vector3.cross(outward, along);
-    const lever: number = Vector3.length(outward);
-    const levered: boolean = Vector3.length(hinge) > 1e-6 * lever && lever > 0;
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(travel);
+    const hinge: IAutoMovieVector3 = AutoMovieEngineVector3.cross(outward, along);
+    const lever: number = AutoMovieEngineVector3.length(outward);
+    const levered: boolean = AutoMovieEngineVector3.length(hinge) > 1e-6 * lever && lever > 0;
     /*
      * The shared rigid frame sampled by both hands.
      */
@@ -315,42 +315,42 @@ export namespace stickBall {
       if (at <= seconds)
         return {
           position: approachPath(approach.linear(at)),
-          rotation: Quaternion.slerp(
+          rotation: AutoMovieEngineQuaternion.slerp(
             initial.rotation,
             impact.rotation,
             approach.progress(at),
           ),
         };
-      const carried: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(posture.root, cue.root),
+      const carried: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(posture.root, cue.root),
         follow.progress(at),
       );
-      const moved: IAutoMovieVector3 = Vector3.subtract(
+      const moved: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         followPath(follow.linear(at)),
         impact.position,
       );
       if (!levered)
         return {
-          position: Vector3.add(Vector3.add(impact.position, moved), carried),
+          position: AutoMovieEngineVector3.add(AutoMovieEngineVector3.add(impact.position, moved), carried),
           rotation: impact.rotation,
         };
       // The working point's advance along the travel is an arc of the lever.
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        Vector3.normalize(hinge),
-        (Vector3.dot(moved, along) / lever) * (180 / Math.PI),
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+        AutoMovieEngineVector3.normalize(hinge),
+        (AutoMovieEngineVector3.dot(moved, along) / lever) * (180 / Math.PI),
       );
       return {
-        position: Vector3.add(
-          Vector3.add(
+        position: AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             pivot,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               turn,
-              Vector3.subtract(impact.position, pivot),
+              AutoMovieEngineVector3.subtract(impact.position, pivot),
             ),
           ),
           carried,
         ),
-        rotation: Quaternion.multiply(turn, impact.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(turn, impact.rotation),
       };
     };
 
@@ -371,10 +371,10 @@ export namespace stickBall {
         cue,
         `${hand}UpperArm`,
       );
-      const reach: number = Vector3.length(
-        Vector3.subtract(stickBallModel.world(impact, grip), shoulder),
+      const reach: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(stickBallModel.world(impact, grip), shoulder),
       );
-      const handOffset: number = Vector3.length(
+      const handOffset: number = AutoMovieEngineVector3.length(
         HumanHand.offset(body, hand, "grip", "fist").point,
       );
       if (reach > arm + handOffset)
@@ -399,11 +399,11 @@ export namespace stickBall {
             const frame: IAutoMovieRigidTransform = tool(posture, at);
             return {
               point: stickBallModel.world(frame, grip),
-              facing: Quaternion.rotateVector(
+              facing: AutoMovieEngineQuaternion.rotateVector(
                 frame.rotation,
-                Vector3.scale(stickBallModel.SIDE, hand === "left" ? -1 : 1),
+                AutoMovieEngineVector3.scale(stickBallModel.SIDE, hand === "left" ? -1 : 1),
               ),
-              forward: Quaternion.rotateVector(
+              forward: AutoMovieEngineQuaternion.rotateVector(
                 frame.rotation,
                 stickBallModel.FORWARD,
               ),
@@ -475,18 +475,18 @@ export namespace stickBall {
       prop: params.ball,
       seconds,
       point: pocketPass ? strokePoint : ballFrame.position,
-      velocity: Vector3.add(
-        Vector3.scale(
+      velocity: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(
           pocketPass
-            ? Vector3.normalize(
+            ? AutoMovieEngineVector3.normalize(
                 target === undefined
                   ? line
-                  : Vector3.subtract(target, strokePoint),
+                  : AutoMovieEngineVector3.subtract(target, strokePoint),
               )
             : line,
           speed,
         ),
-        Vector3.scale(stickBallModel.UP, pocketPass ? 0 : 0.3),
+        AutoMovieEngineVector3.scale(stickBallModel.UP, pocketPass ? 0 : 0.3),
       ),
       ...(rim === undefined
         ? {

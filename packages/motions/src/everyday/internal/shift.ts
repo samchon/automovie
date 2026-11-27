@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -111,7 +111,7 @@ export namespace shift {
     const by: number = travel(body.measure.thigh, context.params.by);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const start: IAutoMovieVector3 = seated.socket(body, entry);
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       humanPostureHeading(entry),
       seated.offset(body),
     );
@@ -292,7 +292,7 @@ export namespace shift {
         y: start.y + (corrected ? (correction?.(seconds)[0] ?? 0) : 0),
         z: start.z + travelZ * s,
       };
-      const root: IAutoMovieVector3 = Vector3.subtract(socket, offset);
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(socket, offset);
       return { ...entry, root, limbs: legged(root, feet) };
     }
 

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -77,21 +77,21 @@ export function CloseStrikeLegs(
       const spun: number = motion.spin(seconds);
       const about: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: ball,
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, spun),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, spun),
       };
       const turnAbout = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           ball,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             about.rotation,
-            Vector3.subtract(point, ball),
+            AutoMovieEngineVector3.subtract(point, ball),
           ),
         );
       const turnFoot = (
         foot: IAutoMovieMotionHumanFoot.IPlacement,
       ): IAutoMovieMotionHumanFoot.IPlacement => ({
         ankle: turnAbout(foot.ankle),
-        rotation: Quaternion.multiply(about.rotation, foot.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(about.rotation, foot.rotation),
       });
       // In a spin the rear foot rises before it travels round the pivot and
       // lands before the turn ends, so it never skates: it goes round on the
@@ -100,16 +100,16 @@ export function CloseStrikeLegs(
         foot: IAutoMovieMotionHumanFoot.IPlacement,
         angle: number,
       ): IAutoMovieMotionHumanFoot.IPlacement => {
-        const by: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        const by: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
           CloseStrikeLegs.round(angle),
         );
         return {
-          ankle: Vector3.add(
+          ankle: AutoMovieEngineVector3.add(
             ball,
-            Quaternion.rotateVector(by, Vector3.subtract(foot.ankle, ball)),
+            AutoMovieEngineQuaternion.rotateVector(by, AutoMovieEngineVector3.subtract(foot.ankle, ball)),
           ),
-          rotation: Quaternion.multiply(by, foot.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(by, foot.rotation),
         };
       };
 
@@ -165,9 +165,9 @@ export function CloseStrikeLegs(
             ...placed[side],
             ankle: { ...placed[side].ankle, y: placed[side].ankle.y + hop },
           };
-      const root: IAutoMovieVector3 = Vector3.add(
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         turnAbout(entry.root),
-        Vector3.scale(motion.shift, share),
+        AutoMovieEngineVector3.scale(motion.shift, share),
       );
       // A low target drops the hips by bending the support knee.
       const drop: number = (motion.drop ?? 0) * share;
@@ -188,9 +188,9 @@ export function CloseStrikeLegs(
           : {
               ...flat,
               ...humanPostureHeading.angles(
-                Quaternion.normalize(
-                  Quaternion.multiply(
-                    Quaternion.fromAxisAngle(motion.tilt.axis, degrees),
+                AutoMovieEngineQuaternion.normalize(
+                  AutoMovieEngineQuaternion.multiply(
+                    AutoMovieEngineQuaternion.fromAxisAngle(motion.tilt.axis, degrees),
                     humanPostureHeading(flat),
                   ),
                 ),
@@ -201,9 +201,9 @@ export function CloseStrikeLegs(
           ? flat
           : {
               ...leaned,
-              root: Vector3.add(
+              root: AutoMovieEngineVector3.add(
                 leaned.root,
-                Vector3.subtract(
+                AutoMovieEngineVector3.subtract(
                   KickCarriage.hip(body, flat, lead),
                   KickCarriage.hip(body, leaned, lead),
                 ),

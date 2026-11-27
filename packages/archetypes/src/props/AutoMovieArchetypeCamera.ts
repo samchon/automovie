@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandheldDevice } from "./internal/HandheldDevice";
@@ -44,22 +44,22 @@ export namespace AutoMovieArchetypeCamera {
     const grip: number = depth / 2;
     builder.box(
       "body",
-      Vector3.create(width - 2 * grip, height, depth),
-      Vector3.create(grip, height / 2, 0),
+      AutoMovieEngineVector3.create(width - 2 * grip, height, depth),
+      AutoMovieEngineVector3.create(grip, height / 2, 0),
       { color: "#2c2f33" },
     );
     builder.rod(
       "grip",
       grip,
-      Vector3.create(-width / 2 + grip, 0, 0),
-      Vector3.create(-width / 2 + grip, height, 0),
+      AutoMovieEngineVector3.create(-width / 2 + grip, 0, 0),
+      AutoMovieEngineVector3.create(-width / 2 + grip, height, 0),
       { color: "#2c2f33" },
     );
     builder.rod(
       "lens",
       height * 0.35,
-      Vector3.create(grip, height / 2, depth / 2),
-      Vector3.create(grip, height / 2, depth / 2 + 0.02),
+      AutoMovieEngineVector3.create(grip, height / 2, depth / 2),
+      AutoMovieEngineVector3.create(grip, height / 2, depth / 2 + 0.02),
       { color: "#55595f" },
     );
     builder.affordance({
@@ -67,9 +67,9 @@ export namespace AutoMovieArchetypeCamera {
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(-width / 2 + grip, height / 2, 0),
-        Vector3.create(-1, 0, 0),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(-width / 2 + grip, height / 2, 0),
+        AutoMovieEngineVector3.create(-1, 0, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "power",
@@ -86,9 +86,9 @@ export namespace AutoMovieArchetypeCamera {
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(width / 2, height / 2, grip / 2),
-        Vector3.create(0, -1, 0),
-        Vector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(width / 2, height / 2, grip / 2),
+        AutoMovieEngineVector3.create(0, -1, 0),
+        AutoMovieEngineVector3.create(0, 0, 1),
       ),
       extent: null,
       grip: "precision",
@@ -100,9 +100,9 @@ export namespace AutoMovieArchetypeCamera {
       kind: "surface",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(grip, height / 2, depth / 2 + 0.02),
-        Vector3.create(0, 0, 1),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(grip, height / 2, depth / 2 + 0.02),
+        AutoMovieEngineVector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
     });
@@ -111,9 +111,9 @@ export namespace AutoMovieArchetypeCamera {
       kind: "surface",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(grip, height / 2, -depth / 2),
-        Vector3.create(0, 0, -1),
-        Vector3.create(-1, 0, 0),
+        AutoMovieEngineVector3.create(grip, height / 2, -depth / 2),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(-1, 0, 0),
       ),
       extent: null,
       width: width * 0.6,
@@ -123,7 +123,7 @@ export namespace AutoMovieArchetypeCamera {
       id: "button",
       kind: "button",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(-width / 2 + grip, height, 0),
+        AutoMovieEngineVector3.create(-width / 2 + grip, height, 0),
       ),
       extent: null,
     });

@@ -1,9 +1,11 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
-import { climbCaseLadder } from "@automovie/motions/executable/internal";
+import {
+  climbCaseLadder
+} from "../../../../../packages/motions/src/executable/cases/internal/climbCaseLadder";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -41,7 +43,7 @@ export function test_motions_executable_climb_case_ladder(): void {
     rungs.every(
       (rung: IAutoMovieAffordance): boolean =>
         vclose(
-          Quaternion.rotateVector(rung.frame.rotation, { x: 0, y: 1, z: 0 }),
+          AutoMovieEngineQuaternion.rotateVector(rung.frame.rotation, { x: 0, y: 1, z: 0 }),
           { x: 0, y: 0, z: -1 },
           1e-12,
         ) &&

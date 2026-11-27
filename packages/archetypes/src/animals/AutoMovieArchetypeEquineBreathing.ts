@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -168,26 +168,26 @@ export namespace AutoMovieArchetypeEquineBreathing {
       if (trunk?.transform === undefined || trunk.transform === null)
         return base;
       const centre: IAutoMovieVector3 = trunk.transform.translation;
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         trunk.transform.rotation,
         { x: 0, y: 1, z: 0 },
       );
       const outward = (frame: IAutoMovieTransform): IAutoMovieTransform => {
-        const from: IAutoMovieVector3 = Vector3.subtract(
+        const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           frame.translation,
           centre,
         );
-        const radial: IAutoMovieVector3 = Vector3.addScaled(
+        const radial: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
           from,
           axis,
-          -Vector3.dot(from, axis),
+          -AutoMovieEngineVector3.dot(from, axis),
         );
-        const length: number = Vector3.length(radial);
+        const length: number = AutoMovieEngineVector3.length(radial);
         return length < 1e-9
           ? AutoMovieArchetypeFrame.copy(frame)
           : {
               ...frame,
-              translation: Vector3.addScaled(
+              translation: AutoMovieEngineVector3.addScaled(
                 frame.translation,
                 radial,
                 growth / length,

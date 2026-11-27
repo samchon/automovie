@@ -6,7 +6,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieRandom,
 } from "@automovie/interface";
-import { HumanBreath } from "@automovie/motions/internal";
+import {
+  HumanBreath
+} from "../../../../../packages/motions/src/perform/expression/HumanBreath";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

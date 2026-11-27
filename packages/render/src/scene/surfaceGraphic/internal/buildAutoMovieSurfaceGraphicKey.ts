@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { clipAutoMovieSurfaceGraphicGeometry } from "./clipAutoMovieSurfaceGraphicGeometry.js";
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraphicQuad.js";
@@ -270,7 +270,7 @@ function mesh(
   owned.push(geometry, material);
   const result: GraphicMesh = new THREE.Mesh(geometry, material);
   result.castShadow = false;
-  result.receiveShadow = AutoMovieThreeKind.isMeshLambertMaterial(material);
+  result.receiveShadow = AutoMovieRenderThreeKind.isMeshLambertMaterial(material);
   return result;
 }
 

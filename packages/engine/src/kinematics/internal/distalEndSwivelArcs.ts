@@ -1,8 +1,8 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { distalEndSwivelReadings } from "../distalEndSwivelReadings";
-import { swivelArcs } from "../swivelArcs";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineDistalEndSwivelReadings } from "../AutoMovieEngineDistalEndSwivelReadings";
+import { AutoMovieEngineSwivelArcs } from "../AutoMovieEngineSwivelArcs";
 
 /*
  * The swivels at which the end joint of a chain whose mid segment twists
@@ -10,11 +10,11 @@ import { swivelArcs } from "../swivelArcs";
  * its range, as arcs in closed form.
  *
  * The end joint's two free angles are read off where the mid segment points in
- * the requested rotation's frame (`distalEndSwivelReadings` states the
+ * the requested rotation's frame (`AutoMovieEngineDistalEndSwivelReadings` states the
  * derivation): the abduction by its sine `-d_flexion`, the flexion by the
  * vector `(d_abduction, d_twist)`, every component a sinusoid of the swivel.
  * Each bound of the joint's box therefore refuses the arc where its sinusoid
- * exceeds the margin (`swivelArcs`), as `boxExcludedSwivels` reads a root
+ * exceeds the margin (`AutoMovieEngineSwivelArcs`), as `boxExcludedSwivels` reads a root
  * joint's box.
  *
  * The arcs say nothing of the mid segment's own twist range: the twist the
@@ -24,10 +24,10 @@ import { swivelArcs } from "../swivelArcs";
  * Parameter props: The end joint, the mid segment's direction by swivel and the
  * margin.
  * Returns: The refused arcs merged over a turn, every swivel, or null when the
- * analysis does not apply (`distalEndSwivelReadings.of`).
+ * analysis does not apply (`AutoMovieEngineDistalEndSwivelReadings.of`).
  */
 export function distalEndSwivelArcs(
-  props: distalEndSwivelReadings.IProps & {
+  props: AutoMovieEngineDistalEndSwivelReadings.IProps & {
     /*
      * How far past a bound, in sine or projected units, a reading must lie to
      * be refused; negative keeps the result strictly inside.
@@ -35,15 +35,15 @@ export function distalEndSwivelArcs(
     margin: number;
   },
 ): IAutoMovieSwivelArcs.IArc[] | "all" | null {
-  const read: distalEndSwivelReadings.IReadings | null =
-    distalEndSwivelReadings.of(props);
+  const read: AutoMovieEngineDistalEndSwivelReadings.IReadings | null =
+    AutoMovieEngineDistalEndSwivelReadings.of(props);
   if (read === null) return null;
-  const { onFlexion, onAbduction, onTwist }: distalEndSwivelReadings.IReadings =
+  const { onFlexion, onAbduction, onTwist }: AutoMovieEngineDistalEndSwivelReadings.IReadings =
     read;
 
   const arcs: IAutoMovieSwivelArcs.IArc[] = [];
   const refuse = (f: IAutoMovieSwivelArcs.ISinusoid): boolean => {
-    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = AutoMovieEngineSwivelArcs.above(
       f,
       props.margin,
     );
@@ -56,20 +56,20 @@ export function distalEndSwivelArcs(
   // a quarter turn either way.
   if (read.abduction !== null) {
     const [lo, hi]: readonly [number, number] = read.abduction;
-    const sine: IAutoMovieSwivelArcs.ISinusoid = swivelArcs.scaled(
+    const sine: IAutoMovieSwivelArcs.ISinusoid = AutoMovieEngineSwivelArcs.scaled(
       onFlexion,
       -1,
     );
     if (
       hi < 90 &&
-      refuse({ ...sine, a: sine.a - Math.sin(hi * Quaternion.DEG2RAD) })
+      refuse({ ...sine, a: sine.a - Math.sin(hi * AutoMovieEngineQuaternion.DEG2RAD) })
     )
       return "all";
     if (
       lo > -90 &&
       refuse(
-        swivelArcs.scaled(
-          { ...sine, a: sine.a - Math.sin(lo * Quaternion.DEG2RAD) },
+        AutoMovieEngineSwivelArcs.scaled(
+          { ...sine, a: sine.a - Math.sin(lo * AutoMovieEngineQuaternion.DEG2RAD) },
           -1,
         ),
       )
@@ -81,11 +81,11 @@ export function distalEndSwivelArcs(
   // where y cos β - x sin β is positive and past the lower where
   // x sin α - y cos α is, for an interval no wider than a half turn.
   if (read.flexion !== null) {
-    const alpha: number = read.flexion[0] * Quaternion.DEG2RAD;
-    const beta: number = read.flexion[1] * Quaternion.DEG2RAD;
+    const alpha: number = read.flexion[0] * AutoMovieEngineQuaternion.DEG2RAD;
+    const beta: number = read.flexion[1] * AutoMovieEngineQuaternion.DEG2RAD;
     if (
       refuse(
-        swivelArcs.combined(
+        AutoMovieEngineSwivelArcs.combined(
           onAbduction,
           Math.cos(beta),
           onTwist,
@@ -96,7 +96,7 @@ export function distalEndSwivelArcs(
       return "all";
     if (
       refuse(
-        swivelArcs.combined(
+        AutoMovieEngineSwivelArcs.combined(
           onTwist,
           Math.sin(alpha),
           onAbduction,
@@ -106,5 +106,5 @@ export function distalEndSwivelArcs(
     )
       return "all";
   }
-  return swivelArcs.union(arcs);
+  return AutoMovieEngineSwivelArcs.union(arcs);
 }

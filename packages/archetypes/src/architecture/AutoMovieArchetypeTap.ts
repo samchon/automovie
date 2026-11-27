@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeTapData from "./internal/AutoMovieArchetypeTapData";
+import { AutoMovieArchetypeTapData } from "./internal/AutoMovieArchetypeTapData";
 
 /** Constructs the tap archetype from its recipe. */
 export namespace AutoMovieArchetypeTap {
@@ -50,7 +50,7 @@ export function create(
     name: "mixer tap",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = d.diameter / 2;
   const spout: number = AutoMovieArchetypeTap.SPOUT;
   const at: number = d.outlet + spout / 2;

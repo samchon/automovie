@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -51,9 +51,9 @@ export function prepareHumanLegSeededFit(
   const hips: IAutoMoviePose = {
     skeleton: body.skeleton.id,
     root: {
-      translation: Vector3.subtract(
+      translation: AutoMovieEngineVector3.subtract(
         hip,
-        Quaternion.rotateVector(pelvis, restHip),
+        AutoMovieEngineQuaternion.rotateVector(pelvis, restHip),
       ),
       rotation: pelvis,
       scale: { x: 1, y: 1, z: 1 },

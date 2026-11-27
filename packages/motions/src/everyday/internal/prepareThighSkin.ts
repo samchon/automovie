@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -48,9 +48,9 @@ export function prepareThighSkin(
     frame.normal,
   );
   return (thigh: IAutoMovieResolvedBone): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       thigh.worldPosition,
-      Quaternion.rotateVector(thigh.worldRotation, skin),
+      AutoMovieEngineQuaternion.rotateVector(thigh.worldRotation, skin),
     );
 }
 
@@ -76,8 +76,8 @@ export namespace prepareThighSkin {
       : (HumanColliders.cast(
           body,
           bones,
-          Vector3.addScaled(point, normal, 2 * ball),
-          Vector3.scale(normal, -1),
+          AutoMovieEngineVector3.addScaled(point, normal, 2 * ball),
+          AutoMovieEngineVector3.scale(normal, -1),
           4 * ball,
         )?.point ?? point);
   }

@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -163,14 +163,14 @@ export namespace StrikingRoom {
     ): number =>
       geometry.segment(
         point,
-        Vector3.add(point, Vector3.scale(props.line, distance)),
+        AutoMovieEngineVector3.add(point, AutoMovieEngineVector3.scale(props.line, distance)),
       ).distance - radius;
     const samples: ISample[] = [];
     for (const ends of axes)
       for (let segment: number = 0; segment < radii.length; segment++)
         for (const share of SHARES)
           samples.push({
-            point: Vector3.lerp(ends[segment]!, ends[segment + 1]!, share),
+            point: AutoMovieEngineVector3.lerp(ends[segment]!, ends[segment + 1]!, share),
             radius: StrikingWeapon.girth(radii[segment]!, share),
           });
     return room(samples, gap, props.limit);
@@ -270,7 +270,7 @@ export namespace StrikingRoom {
         HumanObstacle.blocking(
           context.obstacles(),
           heel,
-          Vector3.subtract(heel, Vector3.scale(line, limit)),
+          AutoMovieEngineVector3.subtract(heel, AutoMovieEngineVector3.scale(line, limit)),
           {
             breadth: context.body.measure.chestBreadth,
             height: context.body.measure.stature,
@@ -311,8 +311,8 @@ export namespace StrikingRoom {
       ...(
         ["leftHand", "rightHand", "leftLowerArm", "rightLowerArm"] as const
       ).map((bone: AutoMovieHumanoidBone): number =>
-        Vector3.dot(
-          Vector3.subtract(feint.aimed, theirs.get(bone)!.worldPosition),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(feint.aimed, theirs.get(bone)!.worldPosition),
           feint.line,
         ),
       ),
@@ -335,13 +335,13 @@ export namespace StrikingRoom {
    * Returns: The share, 0 to the declared.
    */
   export function share(feint: IFeint, guard: number, girth: number): number {
-    const whole: number = Vector3.dot(
-      Vector3.subtract(feint.end, feint.origin),
+    const whole: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(feint.end, feint.origin),
       feint.line,
     );
     if (!(whole > 1e-6)) return feint.declared;
     const clear: number =
-      Vector3.dot(Vector3.subtract(feint.aimed, feint.origin), feint.line) -
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(feint.aimed, feint.origin), feint.line) -
       guard -
       feint.reach -
       girth;

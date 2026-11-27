@@ -15,7 +15,7 @@ import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { HumanCarriedBearing } from "./HumanCarriedBearing";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
-import * as HumanCarriedData from "./HumanCarriedData";
+import { HumanCarriedData } from "./HumanCarriedData";
 
 /*
  * Being carried by another person: on the back, in the arms or over a shoulder.

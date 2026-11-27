@@ -1,6 +1,6 @@
 import type { AutoMovieGuidePass, IAutoMovieSceneEnvironment } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieScenePassRenderer } from "./IAutoMovieScenePassRenderer.js";
+import type { IAutoMovieRenderScenePassRenderer } from "./IAutoMovieRenderScenePassRenderer.js";
 import { renderAutoMovieScenePassImplementation } from "./internal/renderAutoMovieScenePassImplementation.js";
 
 /** Public operations for Auto Movie Render Scene Pass. */
@@ -14,7 +14,7 @@ export namespace AutoMovieRenderScenePass {
    * error. Caller-owned scene and renderer are retained.
    */
   export function render(
-    renderer: IAutoMovieScenePassRenderer,
+    renderer: IAutoMovieRenderScenePassRenderer,
     scene: THREE.Scene,
     camera: THREE.Camera,
     environment: IAutoMovieSceneEnvironment | null | undefined,

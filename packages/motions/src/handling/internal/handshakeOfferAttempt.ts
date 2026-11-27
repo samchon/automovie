@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath, AutoMovieEngineCompositionPose } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieVector3,
@@ -22,7 +22,7 @@ export function handshakeOfferAttempt(
   side: AutoMovieHumanSide,
   pump: number,
 ): handshakeReach.IAttempt {
-  const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
+  const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b.shoulder, a.shoulder);
   const gap: number = Math.hypot(span.x, span.z);
   const missed = (miss: handshakeReach.IMiss): handshakeReach.IAttempt => ({
     kind: "missed",
@@ -54,7 +54,7 @@ export function handshakeOfferAttempt(
   };
   const forearms: number = lower[0] + lower[1];
   const apart = (elbows: [IAutoMovieVector3, IAutoMovieVector3]): number =>
-    Vector3.length(Vector3.subtract(elbows[1], elbows[0]));
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(elbows[1], elbows[0]));
   const far = (
     elbows: [IAutoMovieVector3, IAutoMovieVector3],
   ): handshakeReach.IMiss => ({
@@ -84,8 +84,8 @@ export function handshakeOfferAttempt(
     met: IAutoMovieVector3,
     i: AttemptBottomI,
   ): IAttemptBottomResult => ({
-    distance: Vector3.length(
-      Vector3.subtract(
+    distance: AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         { ...met, y: met.y - pump },
         i === 0 ? a.shoulder : b.shoulder,
       ),

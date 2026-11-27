@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordanceCoupling,
   IAutoMovieVector3,
@@ -36,7 +36,7 @@ export function buildFieldGun(
   >,
   recoil: number,
 ): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const t: typeof FIELD_GUN.TUBE = FIELD_GUN.TUBE;
   const c: typeof FIELD_GUN.CARRIAGE = FIELD_GUN.CARRIAGE;
   const e: typeof FIELD_GUN.ESTIMATES = FIELD_GUN.ESTIMATES;
@@ -105,7 +105,7 @@ export function buildFieldGun(
   const slope: number = Math.atan2(radius + arm, -contact);
   const run: number = Math.hypot(radius + arm, contact);
   const under: IAutoMovieVector3 = v(0, (radius + arm) / 2, contact / 2);
-  const stockCentre: IAutoMovieVector3 = Vector3.add(
+  const stockCentre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     under,
     v(0, (depth / 2) * Math.cos(slope), (-depth / 2) * Math.sin(slope)),
   );
@@ -126,7 +126,7 @@ export function buildFieldGun(
   const vWood: number = vStock + vTrail + vCheeks + vScrew;
   builder.box("stock", v(width, depth, run), stockCentre, {
     color: wood,
-    rotation: Quaternion.fromAxisAngle(v(1, 0, 0), (-slope * 180) / Math.PI),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(v(1, 0, 0), (-slope * 180) / Math.PI),
     share: (wooden * vStock) / vWood / total,
   });
   builder.box(
@@ -228,8 +228,8 @@ export function buildFieldGun(
       builder.rod(
         `spoke-${side}-${n}`,
         spoke,
-        Vector3.subtract(hub, along),
-        Vector3.add(hub, along),
+        AutoMovieEngineVector3.subtract(hub, along),
+        AutoMovieEngineVector3.add(hub, along),
         {
           color: wood,
           share: (c.wheelMass * vSpokes) / (c.spokes / 2) / vWheel / total,
@@ -341,9 +341,9 @@ export function buildFieldGun(
 
   // The friction primer in the vent, its long tube standing out along it; its wire's eye at the tube's top is where the lanyard's hook takes it.
   const s: typeof FIELD_GUN.SERVICE = FIELD_GUN.SERVICE;
-  const eye: IAutoMovieVector3 = Vector3.add(
+  const eye: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     orifice,
-    Vector3.scale(out, s.tube),
+    AutoMovieEngineVector3.scale(out, s.tube),
   );
   builder.affordance({
     id: "primer",

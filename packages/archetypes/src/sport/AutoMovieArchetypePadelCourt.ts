@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -42,16 +42,16 @@ export function create(
   const end: number = LENGTH / 2;
   builder.box(
     "net",
-    Vector3.create(WIDTH, NET, 0.004),
-    Vector3.create(0, NET / 2, 0),
+    AutoMovieEngineVector3.create(WIDTH, NET, 0.004),
+    AutoMovieEngineVector3.create(0, NET / 2, 0),
     { color: "#202020" },
   );
   for (const z of [-1, 1]) {
     const name: string = z < 0 ? "near" : "far";
     builder.box(
       `${name}BackWall`,
-      Vector3.create(WIDTH, WALL, sheet),
-      Vector3.create(0, WALL / 2, z * (end + sheet / 2)),
+      AutoMovieEngineVector3.create(WIDTH, WALL, sheet),
+      AutoMovieEngineVector3.create(0, WALL / 2, z * (end + sheet / 2)),
       { color: "#cfe3ea" },
     );
     for (const x of [-1, 1])
@@ -61,8 +61,8 @@ export function create(
       ] as const)
         builder.box(
           `${name}${x < 0 ? "Left" : "Right"}${part === "high" ? "High" : "Low"}`,
-          Vector3.create(sheet, height, 2),
-          Vector3.create(
+          AutoMovieEngineVector3.create(sheet, height, 2),
+          AutoMovieEngineVector3.create(
             x * (WIDTH / 2 + sheet / 2),
             height / 2,
             z * (end - from - 1),
@@ -73,7 +73,7 @@ export function create(
   builder.affordance({
     id: "net",
     kind: "socket",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, NET, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, NET, 0)),
     extent: null,
   });
   for (const [id, z] of [
@@ -83,7 +83,7 @@ export function create(
     builder.affordance({
       id,
       kind: "socket",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, z)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, z)),
       extent: null,
     });
 

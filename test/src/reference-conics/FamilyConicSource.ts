@@ -1,5 +1,5 @@
 import type { FamilyConicSection as C } from "./FamilyConicSection";
-import { AutoMovieMeshExtract as M } from "@automovie/engine";
+import { AutoMovieEngineMeshExtract as M } from "@automovie/engine";
 import type {
   IAutoMovieLoftSectionFrame,
   IAutoMovieMeshSectionChain,

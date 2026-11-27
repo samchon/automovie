@@ -2,7 +2,7 @@ import type { IAutoMovieComposition } from "./IAutoMovieComposition";
 
 /**
  * Fluent view of a composition whose combinators return another instance of the
- * same class. AutoMovieChain stores node by reference and never freezes the
+ * same class. AutoMovieEngineChain stores node by reference and never freezes the
  * tree, so callers must keep shared nodes stable while reusing a chain.
  * Production subclasses preserve their vocabulary through the this result;
  * subclasses with additional constructor arguments customize derive in the

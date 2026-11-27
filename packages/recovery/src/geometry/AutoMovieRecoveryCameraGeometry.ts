@@ -16,13 +16,11 @@ import { refineRecoveryCameraPose as refineRecoveryCameraPoseImplementation } fr
 
 import { type IAutoMovieRecoveryCameraResidualsScoreOperation, type IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, type IAutoMovieRecoveryEpipolarMatrixFittingOperation, type IAutoMovieRecoveryHomographyErrorsMeasurementOperation, type IAutoMovieRecoveryHomographyFittingOperation, type IAutoMovieRecoveryEpipolarModelRefinementOperation, type IAutoMovieRecoveryCameraPoseSelectionOperation, type IAutoMovieRecoveryEpipolarMatrixCalibrateOperation, type IAutoMovieRecoveryEpipolarConsensusFittingOperation, type IAutoMovieRecoveryHomographyConsensusFittingOperation, type IAutoMovieRecoveryResectionConsensusFittingOperation, type IAutoMovieRecoveryResectionDesign, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryResectionDesignTrace, type IAutoMovieRecoveryResectionRefinementOperation, type IAutoMovieRecoveryCameraPoseRefinementOperation, type IAutoMovieRecoveryImagePointsNormalizationOperation, type IAutoMovieRecoveryCameraPointTriangulationOperation } from "@automovie/interface";
 
-import {
-  fitRecoveryEpipolarMatrix as fitRecoveryEpipolarMatrixInternal,
-  fitRecoveryHomography as fitRecoveryHomographyInternal,
-  measureRecoveryEpipolarErrors as measureRecoveryEpipolarErrorsInternal,
-  measureRecoveryHomographyErrors as measureRecoveryHomographyErrorsInternal,
-  scoreRecoveryCameraResiduals as scoreRecoveryCameraResidualsInternal,
-} from "./internal";
+import { fitRecoveryEpipolarMatrix as fitRecoveryEpipolarMatrixInternal } from "./internal/fitRecoveryEpipolarMatrix";
+import { fitRecoveryHomography as fitRecoveryHomographyInternal } from "./internal/fitRecoveryHomography";
+import { measureRecoveryEpipolarErrors as measureRecoveryEpipolarErrorsInternal } from "./internal/measureRecoveryEpipolarErrors";
+import { measureRecoveryHomographyErrors as measureRecoveryHomographyErrorsInternal } from "./internal/measureRecoveryHomographyErrors";
+import { scoreRecoveryCameraResiduals as scoreRecoveryCameraResidualsInternal } from "./internal/scoreRecoveryCameraResiduals";
 
 /** Public camera-model fitting and residual measurement operations. */
 export namespace AutoMovieRecoveryCameraGeometry {

@@ -1,4 +1,4 @@
-import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieChannelLimit,
   IAutoMovieClip,
@@ -42,7 +42,7 @@ const CAP: IAutoMovieChannelLimit = {
 const at: (result: IAutoMovieResolveOutput, id: string) => IAutoMovieVector3 = (
   result: IAutoMovieResolveOutput,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(result.world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(result.world.get(id)!);
 
 /**
  * `resolveFrame` resolves one frame of a scene: it samples the clip, applies

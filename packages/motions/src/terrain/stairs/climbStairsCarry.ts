@@ -1,10 +1,10 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieMotionHumanChannel, IAutoMovieBodyMeasure, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSupportCarry, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import * as ClimbStairsCarryData from "./internal/ClimbStairsCarryData";
+import { ClimbStairsCarryData } from "./internal/ClimbStairsCarryData";
 
 /*
  * A flight climbed onto a moving prop, carried footprint by footprint: the
@@ -133,8 +133,8 @@ export function climbStairsCarry(
       ...(rotation === undefined
         ? {}
         : {
-            rotation: Quaternion.normalize(
-              Quaternion.multiply(carry.turn, rotation),
+            rotation: AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(carry.turn, rotation),
             ),
           }),
     };
@@ -178,11 +178,11 @@ export function climbStairsCarry(
       const anchor: IAutoMovieVector3 = moved.point(made.root);
       const body: IAutoMovieMotionHumanSupportCarry.ICarry = {
         point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             anchor,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               turned.turn,
-              Vector3.subtract(p, made.root),
+              AutoMovieEngineVector3.subtract(p, made.root),
             ),
           ),
         turn: turned.turn,

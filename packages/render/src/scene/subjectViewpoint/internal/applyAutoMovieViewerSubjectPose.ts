@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
+import type { IAutoMovieRenderViewerSubjectPose } from "../../IAutoMovieRenderViewerSubjectPose.js";
 
 /*
  * Apply an admitted inspection pose to a borrowed perspective camera and update
@@ -10,7 +10,7 @@ import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectP
  */
 export function applyAutoMovieViewerSubjectPose(
   camera: THREE.PerspectiveCamera,
-  pose: IAutoMovieViewerSubjectPose,
+  pose: IAutoMovieRenderViewerSubjectPose,
 ): void {
   camera.position.set(pose.position.x, pose.position.y, pose.position.z);
   camera.fov = pose.lens.fovDeg;

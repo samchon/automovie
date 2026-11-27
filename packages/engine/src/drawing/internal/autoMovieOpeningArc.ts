@@ -3,7 +3,7 @@ import {
   IAutoMoviePlanarPoint,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "../AUTOMOVIE_OPENING_BULGE_EPSILON";
+import { AutoMovieEngineOpeningBulgeEpsilon } from "../AutoMovieEngineOpeningBulgeEpsilon";
 
 /*
  * The circular arc one opening-profile edge bulges along, or `null` when the
@@ -14,7 +14,7 @@ import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "../AUTOMOVIE_OPENING_BULGE_EPSI
  * places its sagitta by. The centre therefore sits on the chord's right for a
  * positive bulge, at a signed distance that runs to infinity as the bulge goes
  * to zero, and the sweep runs clockwise, which is what puts the arc on the
- * left. A bulge within AUTOMOVIE_OPENING_BULGE_EPSILON of zero, or an
+ * left. A bulge within AutoMovieEngineOpeningBulgeEpsilon of zero, or an
  * edge with coincident ends, is straight.
  * Parameter from: Edge start, in profile-frame metres.
  * Parameter to: Edge end, in profile-frame metres.
@@ -26,11 +26,11 @@ export const autoMovieOpeningArc = (
   to: IAutoMoviePlanarPoint,
   bulge: number,
 ): IAutoMovieOpeningArc | null => {
-  if (Math.abs(bulge) <= AUTOMOVIE_OPENING_BULGE_EPSILON) return null;
+  if (Math.abs(bulge) <= AutoMovieEngineOpeningBulgeEpsilon) return null;
   const dx: number = to.x - from.x;
   const dy: number = to.y - from.y;
   const chord: number = Math.hypot(dx, dy);
-  if (chord <= AUTOMOVIE_OPENING_BULGE_EPSILON) return null;
+  if (chord <= AutoMovieEngineOpeningBulgeEpsilon) return null;
   const offset: number = (chord * (1 - bulge * bulge)) / (4 * bulge);
   const center: IAutoMoviePlanarPoint = {
     x: (from.x + to.x) / 2 + (offset * dy) / chord,

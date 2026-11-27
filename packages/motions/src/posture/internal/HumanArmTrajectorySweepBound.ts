@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieMotionBound, Vector3 } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEngineMotionBound, AutoMovieEngineVector3 } from "@automovie/engine";
 
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -12,12 +12,12 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * "Impulse-based Dynamic Simulation of Rigid Body Systems", PhD thesis, UC
  * Berkeley, ch. 3) leaves a step unread while what the sweep reads there can
  * have moved less than the clearance a step already read showed, and these
- * bounds give that movement in closed form (`AutoMovieMotionBound`).
+ * bounds give that movement in closed form (`AutoMovieEngineMotionBound`).
  */
 export namespace HumanArmTrajectorySweepBound {
   /*
    * The bound on a probe's course over an interval, prepared once
-   * (`AutoMovieMotionBound.prepare`): its chord lengths per frame step over the
+   * (`AutoMovieEngineMotionBound.prepare`): its chord lengths per frame step over the
    * steps' seconds from the interval's first waypoint, the chords being the
    * course `HumanArmTrajectorySweep.of` reads. None where the course has no
    * step.
@@ -33,24 +33,24 @@ export namespace HumanArmTrajectorySweepBound {
     k: number,
     frames: readonly number[],
     course: readonly IAutoMovieVector3[],
-  ): AutoMovieMotionBound.IPrepared | undefined {
+  ): AutoMovieEngineMotionBound.IPrepared | undefined {
     const along: number[] = frames.map((g: number): number =>
       Math.abs(c.times[g]! - c.times[k]!),
     );
     const speeds: number[] = [];
     for (let i: number = 0; i + 1 < along.length; ++i)
       speeds.push(
-        Vector3.distance(course[i]!, course[i + 1]!) /
+        AutoMovieEngineVector3.distance(course[i]!, course[i + 1]!) /
           (along[i + 1]! - along[i]!),
       );
     return speeds.length === 0
       ? undefined
-      : AutoMovieMotionBound.prepare(along, speeds);
+      : AutoMovieEngineMotionBound.prepare(along, speeds);
   }
 
   /*
    * The bound on a part's casts over an interval, prepared once
-   * (`AutoMovieMotionBound.prepare`): per frame step, the farthest any point of
+   * (`AutoMovieEngineMotionBound.prepare`): per frame step, the farthest any point of
    * its solids moves between the step's two frames, carried into the shape's
    * frame at the interval's first waypoint as the casts carry them
    * (`HumanArmTrajectoryLinks.cast`), over the steps' seconds from that
@@ -71,7 +71,7 @@ export namespace HumanArmTrajectorySweepBound {
     part: number,
     steps: readonly HumanArmTrajectoryLinks.IStep[],
     shape: number,
-  ): AutoMovieMotionBound.IPrepared | undefined {
+  ): AutoMovieEngineMotionBound.IPrepared | undefined {
     // The part's solids' points at a frame, carried, in solid and point order.
     const carried = (
       step: HumanArmTrajectoryLinks.IStep,
@@ -96,13 +96,13 @@ export namespace HumanArmTrajectorySweepBound {
       const after: IAutoMovieVector3[] = carried(steps[i + 1]!);
       let most: number = 0;
       for (let m: number = 0; m < after.length; ++m)
-        most = Math.max(most, Vector3.distance(before[m]!, after[m]!));
+        most = Math.max(most, AutoMovieEngineVector3.distance(before[m]!, after[m]!));
       speeds.push(most / h);
       before = after;
     }
     return speeds.length === 0
       ? undefined
-      : AutoMovieMotionBound.prepare(along, speeds);
+      : AutoMovieEngineMotionBound.prepare(along, speeds);
   }
 }
 

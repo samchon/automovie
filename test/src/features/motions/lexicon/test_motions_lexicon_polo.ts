@@ -1,4 +1,6 @@
-import { humanPoloTimetable } from "@automovie/motions/internal";
+import {
+  humanPoloTimetable
+} from "../../../../../packages/motions/src/lexicon/internal/humanPoloTimetable";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../Quaternion";
-import { Vector3 } from "../Vector3";
+import { AutoMovieEngineQuaternion } from "../AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../AutoMovieEngineVector3";
 
 /*
  * Quaternion swing and twist decomposition operations.
@@ -36,10 +36,10 @@ export function swingTwist(
   const twist: IAutoMovieQuaternion | null = swingTwistComponent(rotation, axis);
   // A half turn about a perpendicular axis projects to nothing: no twist is defined.
   if (twist === null)
-    return { swing: { ...rotation }, twist: Quaternion.identity() };
+    return { swing: { ...rotation }, twist: AutoMovieEngineQuaternion.identity() };
   return {
-    swing: Quaternion.normalize(
-      Quaternion.multiply(rotation, Quaternion.inverse(twist)),
+    swing: AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(rotation, AutoMovieEngineQuaternion.inverse(twist)),
     ),
     twist,
   };
@@ -62,7 +62,7 @@ export function swingTwistComponent(
   rotation: IAutoMovieQuaternion,
   axis: IAutoMovieVector3,
 ): IAutoMovieQuaternion | null {
-  const unit: IAutoMovieVector3 = Vector3.normalize(axis);
+  const unit: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(axis);
   const along: number =
     rotation.x * unit.x + rotation.y * unit.y + rotation.z * unit.z;
   const length: number = Math.hypot(along, rotation.w);

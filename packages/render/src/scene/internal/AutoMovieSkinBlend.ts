@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 
 /*
- * The per-vertex arithmetic of AutoMovieSkinnedMesh's CPU skin, over a
+ * The per-vertex arithmetic of AutoMovieRenderSkinnedMesh's CPU skin, over a
  * joint table of AutoMovieSkinBlend.STRIDE numbers per joint: `K_j` (16,
  * column-major), its rotation quaternion (4) and its dual part (4).
  */
@@ -164,7 +164,7 @@ export namespace AutoMovieSkinBlend {
     attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
     size: number,
   ): THREE.TypedArray | null {
-    return AutoMovieThreeKind.isBufferAttribute(attribute) &&
+    return AutoMovieRenderThreeKind.isBufferAttribute(attribute) &&
       !attribute.normalized &&
       attribute.itemSize === size
       ? attribute.array
@@ -177,7 +177,7 @@ export namespace AutoMovieSkinBlend {
   export function versionOf(
     attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
   ): number {
-    return AutoMovieThreeKind.isInterleavedBufferAttribute(attribute)
+    return AutoMovieRenderThreeKind.isInterleavedBufferAttribute(attribute)
       ? attribute.data.version
       : attribute.version;
   }

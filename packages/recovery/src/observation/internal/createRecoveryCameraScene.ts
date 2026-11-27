@@ -13,7 +13,7 @@ import type {
   IAutoMovieRecoverySceneWork,
 } from "@automovie/interface";
 
-import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError";
+import { AutoMovieRecoveryFeasibleCapacityError } from "../AutoMovieRecoveryFeasibleCapacityError";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
 import { collectRecoverySceneSupport } from "./collectRecoverySceneSupport";
 import { completeRecoverySceneCheckpoint } from "./completeRecoverySceneCheckpoint";
@@ -258,7 +258,7 @@ export function createRecoveryCameraScene(
     if (
       !numerical(error) &&
       !budgetError(error) &&
-      !(error instanceof RecoveryFeasibleCapacityError)
+      !(error instanceof AutoMovieRecoveryFeasibleCapacityError)
     )
       throw error;
     result.stopReason = budgetError(error)
@@ -431,7 +431,7 @@ export function createRecoveryCameraScene(
         if (
           !numerical(error) &&
           !budgetError(error) &&
-          !(error instanceof RecoveryFeasibleCapacityError)
+          !(error instanceof AutoMovieRecoveryFeasibleCapacityError)
         )
           throw error;
         attempt.reasons.push(

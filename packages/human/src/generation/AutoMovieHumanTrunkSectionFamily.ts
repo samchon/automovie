@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkSectionFamily,
   IAutoMovieHumanTrunkViews,
@@ -74,7 +74,7 @@ export namespace AutoMovieHumanTrunkSectionFamily {
       range:
         priorRange ??
         ((): IAutoMovieViewSection.IRange | null => {
-          if (reach === undefined) reach = AutoMovieViewSection.range(box);
+          if (reach === undefined) reach = AutoMovieEngineViewSection.range(box);
           return reach;
         }),
       resolve(): IAutoMovieHumanTrunkSectionFamily.IFullness {
@@ -88,7 +88,7 @@ export namespace AutoMovieHumanTrunkSectionFamily {
           resolved = { fullness: site.fullness, diagnostics: [] };
         else {
           const solved: IAutoMovieViewSection.ISolved =
-            AutoMovieViewSection.solve(
+            AutoMovieEngineViewSection.solve(
               `view.trunk ${site.site}`,
               box,
               site.fullness.girth,
@@ -116,7 +116,7 @@ export namespace AutoMovieHumanTrunkSectionFamily {
         return resolved;
       },
       section(shoulder: number): IAutoMovieViewSection.ISection {
-        return AutoMovieViewSection.bare(box, [
+        return AutoMovieEngineViewSection.bare(box, [
           shoulder,
           shoulder,
           shoulder,

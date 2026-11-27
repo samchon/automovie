@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
@@ -95,7 +95,7 @@ export function galleryCases(): IMotionCaptureCase[] {
           body: b,
           pose: (): IAutoMoviePose => ({
             ...galleryCaseZero(b, {}),
-            root: Transform.of(
+            root: AutoMovieEngineTransform.of(
               { x: (i - 1) * 0.8, y: 0, z: 0 },
               { x: 0, y: 0, z: 0, w: 1 },
             ),

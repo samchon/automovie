@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { adjacentAutoMovieFloat64 as outward } from "../../math/internal/adjacentAutoMovieFloat64";
 import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectionIntervals";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
@@ -54,8 +54,8 @@ export function boundAutoMovieTriangleAttachmentContact(
     throw new Error(
       "Attachment contact needs complete fan and support triangles.",
     );
-  const u: IAutoMovieVector3 = Vector3.subtract(support[1]!, support[0]!);
-  const v: IAutoMovieVector3 = Vector3.subtract(support[2]!, support[0]!);
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(support[1]!, support[0]!);
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(support[2]!, support[0]!);
   const scale: number = Math.max(
     Math.abs(u.x),
     Math.abs(u.y),
@@ -69,7 +69,7 @@ export function boundAutoMovieTriangleAttachmentContact(
     throw new Error("Attachment support differences must remain finite.");
   if (scale === 0)
     return { proved: false, cap: 0, cornerGap: 0, rootDeficit: 0 };
-  const direction: IAutoMovieVector3 = Vector3.cross(
+  const direction: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
     { x: u.x / scale, y: u.y / scale, z: u.z / scale },
     { x: v.x / scale, y: v.y / scale, z: v.z / scale },
   );

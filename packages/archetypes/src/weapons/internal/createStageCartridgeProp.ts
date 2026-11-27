@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageCartridgeProp } from "../AutoMovieArchetypeStageCartridgeProp";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StageTokenConstruction } from "./StageTokenConstruction";
@@ -25,7 +25,7 @@ export function createStageCartridgeProp(
   AutoMovieArchetypeStageCartridgeProp.Dimension
 > {
   return StageTokenConstruction("cartridge", params, seed, (builder, d) => {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const r: number = d.diameter! / 2;
     builder.rod("paper", r, v(0, 0, 0), v(0, d.length!, 0), {
       color: "#d8cfb8",

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -47,18 +47,18 @@ export function pushSledHandles(
         reason: `${sled} has no handle named ${id}`,
         fix: "name the prop's handles as `left` and `right`",
       });
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       frame.rotation,
       found.frame.rotation,
     );
     return {
       frame: {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, found.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, found.frame.translation),
         ),
-        normal: Quaternion.rotateVector(turn, { x: 0, y: -1, z: 0 }),
-        forward: Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
+        normal: AutoMovieEngineQuaternion.rotateVector(turn, { x: 0, y: -1, z: 0 }),
+        forward: AutoMovieEngineQuaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
       },
       symmetry: found.symmetry,
       length: found.length ?? 0,

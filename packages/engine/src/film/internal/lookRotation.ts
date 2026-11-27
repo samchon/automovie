@@ -1,7 +1,7 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The rotation that points a camera's −Z down `direction` while keeping its
@@ -22,16 +22,16 @@ import { Vector3 } from "../../math/Vector3";
 export function lookRotation(
   direction: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const z: IAutoMovieVector3 = Vector3.scale(Vector3.normalize(direction), -1);
-  if (z.x === 0 && z.y === 0 && z.z === 0) return Quaternion.identity();
-  let x: IAutoMovieVector3 = Vector3.cross(UP, z);
-  if (Vector3.length(x) < 1e-6) x = Vector3.cross(BACK, z);
-  x = Vector3.normalize(x);
-  const y: IAutoMovieVector3 = Vector3.cross(z, x);
+  const z: IAutoMovieVector3 = AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(direction), -1);
+  if (z.x === 0 && z.y === 0 && z.z === 0) return AutoMovieEngineQuaternion.identity();
+  let x: IAutoMovieVector3 = AutoMovieEngineVector3.cross(UP, z);
+  if (AutoMovieEngineVector3.length(x) < 1e-6) x = AutoMovieEngineVector3.cross(BACK, z);
+  x = AutoMovieEngineVector3.normalize(x);
+  const y: IAutoMovieVector3 = AutoMovieEngineVector3.cross(z, x);
   const trace: number = x.x + y.y + z.z;
   if (trace > 0) {
     const s: number = Math.sqrt(trace + 1) * 2;
-    return Quaternion.normalize({
+    return AutoMovieEngineQuaternion.normalize({
       w: s / 4,
       x: (y.z - z.y) / s,
       y: (z.x - x.z) / s,
@@ -40,7 +40,7 @@ export function lookRotation(
   }
   if (y.y > z.z) {
     const s: number = Math.sqrt(1 + y.y - x.x - z.z) * 2;
-    return Quaternion.normalize({
+    return AutoMovieEngineQuaternion.normalize({
       w: (z.x - x.z) / s,
       x: (y.x + x.y) / s,
       y: s / 4,
@@ -48,7 +48,7 @@ export function lookRotation(
     });
   }
   const s: number = Math.sqrt(1 + z.z - x.x - y.y) * 2;
-  return Quaternion.normalize({
+  return AutoMovieEngineQuaternion.normalize({
     w: (x.y - y.x) / s,
     x: (z.x + x.z) / s,
     y: (z.y + y.z) / s,

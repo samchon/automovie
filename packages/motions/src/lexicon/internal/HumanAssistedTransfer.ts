@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanLimb, AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanAssistedTransfer, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanMutual, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieMotionTarget, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { support } from "../../actions/internal/support";
@@ -260,7 +260,7 @@ function gripReader(
       requested,
     );
     const hand: IAutoMovieResolvedBone = bones.get(own.bone)!;
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       hand.worldRotation,
       own.point,
     );
@@ -271,8 +271,8 @@ function gripReader(
             other,
             partner.bones(context.start + at, targetBone).get(other.bone)!,
           );
-    const point: IAutoMovieVector3 = Vector3.lerp(
-      Vector3.add(hand.worldPosition, offset),
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
+      AutoMovieEngineVector3.add(hand.worldPosition, offset),
       target,
       held,
     );
@@ -281,7 +281,7 @@ function gripReader(
       source,
       side,
     );
-    let wrist: IAutoMovieVector3 = Vector3.subtract(point, offset);
+    let wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, offset);
     let fitted: IAutoMovieMotionHumanPosture = source;
     let pose: IAutoMoviePose | undefined;
     for (let iteration: number = 0; iteration < 5; iteration++) {
@@ -296,12 +296,12 @@ function gripReader(
         undefined,
         requested,
       ).get(own.bone)!;
-      const delta: IAutoMovieVector3 = Vector3.subtract(
+      const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         point,
         AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(own, actual),
       );
-      if (Vector3.length(delta) <= 0.001) break;
-      wrist = Vector3.add(wrist, delta);
+      if (AutoMovieEngineVector3.length(delta) <= 0.001) break;
+      wrist = AutoMovieEngineVector3.add(wrist, delta);
     }
     if (pose === undefined) return fitted;
     const jointSet: ReadonlySet<string> = new Set([

@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalSimulation } from "@automovie/engine";
+import { AutoMovieEnginePhysicalSimulation } from "@automovie/engine";
 import type { IAutoMoviePerformanceMode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -17,12 +17,12 @@ import { throwsError } from "../../internal/predicates";
  */
 export function test_engine_physics_performance_mode(): void {
   const scene: IAutoMoviePerformanceMode = { kind: "simulated" };
-  const resolved = AutoMoviePhysicalSimulation.resolvePerformanceMode(scene);
+  const resolved = AutoMovieEnginePhysicalSimulation.resolvePerformanceMode(scene);
   TestValidator.equals("scene", resolved, scene);
   TestValidator.predicate("copy", resolved !== scene);
   TestValidator.equals(
     "body wins",
-    AutoMoviePhysicalSimulation.resolvePerformanceMode(scene, { kind: "kinematic" }),
+    AutoMovieEnginePhysicalSimulation.resolvePerformanceMode(scene, { kind: "kinematic" }),
     { kind: "kinematic" },
   );
   const exaggerated = (
@@ -38,23 +38,23 @@ export function test_engine_physics_performance_mode(): void {
   });
   TestValidator.equals(
     "valid",
-    AutoMoviePhysicalSimulation.resolvePerformanceMode(exaggerated(2, 0, "comic")),
+    AutoMovieEnginePhysicalSimulation.resolvePerformanceMode(exaggerated(2, 0, "comic")),
     exaggerated(2, 0, "comic"),
   );
   TestValidator.predicate(
     "impulse",
     throwsError(() =>
-      AutoMoviePhysicalSimulation.resolvePerformanceMode(exaggerated(0, 1, "comic")),
+      AutoMovieEnginePhysicalSimulation.resolvePerformanceMode(exaggerated(0, 1, "comic")),
     ),
   );
   TestValidator.predicate(
     "gravity",
     throwsError(() =>
-      AutoMoviePhysicalSimulation.resolvePerformanceMode(exaggerated(1, -1, "comic")),
+      AutoMovieEnginePhysicalSimulation.resolvePerformanceMode(exaggerated(1, -1, "comic")),
     ),
   );
   TestValidator.predicate(
     "reason",
-    throwsError(() => AutoMoviePhysicalSimulation.resolvePerformanceMode(exaggerated(1, 1, "  "))),
+    throwsError(() => AutoMovieEnginePhysicalSimulation.resolvePerformanceMode(exaggerated(1, 1, "  "))),
   );
 }

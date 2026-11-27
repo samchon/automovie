@@ -74,7 +74,7 @@ export namespace IAutoMovieMeasurePhysicalMotionConstraint {
    *
    * Kind chooses required witnesses; limits use metres for goal/distance and
    * radians for bend, where straight is zero. The inclusive window uses film
-   * seconds. AutoMovieMotionAudit invokes optional enabled before measuring and
+   * seconds. AutoMovieEngineMotionAudit invokes optional enabled before measuring and
    * target only for enabled goal samples; callbacks are synchronous, borrowed
    * for the run and must not mutate poses. Admission requires a nonblank label,
    * finite ordered window and at least one finite bound; disabled samples are
@@ -153,7 +153,7 @@ export namespace IAutoMovieMeasurePhysicalMotionConstraint {
    *
    * Samples counts all sampled instants including both endpoints; findings
    * retains every measured bound violation, with units selected by its kind.
-   * AutoMovieMotionAudit.run allocates the result and finding records; callers
+   * AutoMovieEngineMotionAudit.run allocates the result and finding records; callers
    * may edit them after the promise resolves. Invalid policies, missing frames,
    * nonfinite measurements or callback failures reject instead of returning a
    * partial passing result; no findings certifies only sampled instants.

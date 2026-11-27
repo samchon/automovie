@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeArmour } from "@automovie/archetypes";
-import { Quaternion, Vector3, AutoMoviePhysicalHullFaces, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalHullFaces, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
   IAutoMoviePhysicalHullFaces,
@@ -47,9 +47,9 @@ export namespace armourActual {
           z: positions[index + 2]! * part.transform.scale.z,
         };
         output.push(
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             part.transform.translation,
-            Quaternion.rotateVector(part.transform.rotation, local),
+            AutoMovieEngineQuaternion.rotateVector(part.transform.rotation, local),
           ),
         );
       }
@@ -124,7 +124,7 @@ export namespace armourActual {
     const gauges: number[] = [];
     for (const shape of piece.shapes()) {
       if (!shape.id.startsWith(prefix) || shape.kind !== "hull") continue;
-      const faces: IAutoMoviePhysicalHullFaces.IFace[] = AutoMoviePhysicalHullFaces.build(
+      const faces: IAutoMoviePhysicalHullFaces.IFace[] = AutoMovieEnginePhysicalHullFaces.build(
         shape.points,
       ).faces.filter(
         (face: IAutoMoviePhysicalHullFaces.IFace): boolean =>

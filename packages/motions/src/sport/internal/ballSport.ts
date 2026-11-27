@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -332,14 +332,14 @@ export namespace ballSport {
                   z: Math.cos(below),
                 });
                 return {
-                  point: Vector3.add(
-                    Vector3.add(
+                  point: AutoMovieEngineVector3.add(
+                    AutoMovieEngineVector3.add(
                       AutoMovieMotionHumanPlaced.shoulders(
                         body,
                         posture,
                         resolution,
                       ),
-                      Vector3.scale(along, REACH * arm),
+                      AutoMovieEngineVector3.scale(along, REACH * arm),
                     ),
                     local(posture, {
                       x: (side === "left" ? 1 : -1) * pad,
@@ -374,7 +374,7 @@ export namespace ballSport {
               span,
               together: stretching(),
               place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
-                point: Vector3.lerp(
+                point: AutoMovieEngineVector3.lerp(
                   AutoMovieMotionHumanPlaced.grid(body, posture, side, {
                     height: "crown",
                     lateral: "inside",
@@ -412,9 +412,9 @@ export namespace ballSport {
         ): IAutoMovieMotionHumanPosture =>
           AutoMovieMotionHumanLean.pivot(body, entry, { pitch, roll: 0 });
         // Behind the head as the arched trunk carries it, at the head's middle.
-        const drawn: IAutoMovieVector3 = Vector3.add(
+        const drawn: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           AutoMovieMotionHumanPlaced.joint(body, tilted(-ARCH), "head"),
-          Vector3.add(Vector3.scale(heading, -BEHIND * arm), {
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(heading, -BEHIND * arm), {
             x: 0,
             y: m.headRadius,
             z: 0,
@@ -422,23 +422,23 @@ export namespace ballSport {
         );
         // The release lies where the line rising at RELEASE from there meets the arms' reach about the flexed shoulders.
         const rise: number = (RELEASE * Math.PI) / 180;
-        const line: IAutoMovieVector3 = Vector3.add(
-          Vector3.scale(heading, Math.cos(rise)),
+        const line: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(heading, Math.cos(rise)),
           { x: 0, y: Math.sin(rise), z: 0 },
         );
-        const from: IAutoMovieVector3 = Vector3.subtract(
+        const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           drawn,
           AutoMovieMotionHumanPlaced.shoulders(body, tilted(FLEX)),
         );
-        const b: number = Vector3.dot(from, line);
+        const b: number = AutoMovieEngineVector3.dot(from, line);
         const travel: number =
           -b +
           Math.sqrt(
-            Math.max(0, b * b - Vector3.dot(from, from) + (REACH * arm) ** 2),
+            Math.max(0, b * b - AutoMovieEngineVector3.dot(from, from) + (REACH * arm) ** 2),
           );
-        const released: IAutoMovieVector3 = Vector3.add(
+        const released: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           drawn,
-          Vector3.scale(line, travel),
+          AutoMovieEngineVector3.scale(line, travel),
         );
 
         thrown = throwInRelease(p, clock, released, RELEASE);
@@ -459,8 +459,8 @@ export namespace ballSport {
               span,
               together: stretching(),
               place: (_posture: IAutoMovieMotionHumanPosture, s: number) => ({
-                point: Vector3.add(
-                  Vector3.lerp(drawn, released, stroke(s)),
+                point: AutoMovieEngineVector3.add(
+                  AutoMovieEngineVector3.lerp(drawn, released, stroke(s)),
                   beside,
                 ),
                 facing: local(entry, {

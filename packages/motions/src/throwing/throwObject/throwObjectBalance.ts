@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -93,8 +93,8 @@ export function throwObjectBalance(
             palm: { x: 0, y: -1, z: 0 },
           }),
           // The elbow halfway out, a little below and behind the line.
-          bend: Vector3.add(
-            Vector3.lerp(shoulder, point, 0.5),
+          bend: AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.lerp(shoulder, point, 0.5),
             HumanFrame.point(
               { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
               { x: 0, y: -0.15 * arm, z: -0.15 * arm },

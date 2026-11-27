@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -123,15 +123,15 @@ export const ropeSkip = {
           const goal: IAutoMovieHumanLimbGoal = stance.limbs[`${side}Leg`]!;
           limbs[`${side}Leg`] = airborne
             ? {
-                point: Vector3.add(goal.point, offset),
-                bend: Vector3.add(goal.bend, offset),
+                point: AutoMovieEngineVector3.add(goal.point, offset),
+                bend: AutoMovieEngineVector3.add(goal.bend, offset),
                 rotation: goal.rotation!,
               }
             : goal;
         }
         return {
           ...stance,
-          root: Vector3.add(stance.root, offset),
+          root: AutoMovieEngineVector3.add(stance.root, offset),
           joints,
           limbs,
         };

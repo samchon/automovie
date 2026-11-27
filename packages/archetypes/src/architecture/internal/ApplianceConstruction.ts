@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -393,7 +393,7 @@ export namespace ApplianceConstruction {
       height - E.panel / 2,
       body,
     );
-    builder.rod("dial", 0.03, dial, Vector3.add(dial, v(0, 0, 0.03)), {
+    builder.rod("dial", 0.03, dial, AutoMovieEngineVector3.add(dial, v(0, 0, 0.03)), {
       color: METAL,
     });
     builder.affordance({
@@ -447,7 +447,7 @@ const METAL: string = "#b9bcc0";
 /*
  * The shorthand every construction below uses.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * A rectangle's corners in a stack-top's plane, centred.

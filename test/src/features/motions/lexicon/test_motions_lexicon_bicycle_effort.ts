@@ -1,8 +1,10 @@
 import type { IAutoMovieMotionEvent } from "@automovie/interface";
 import {
-  HumanRide,
-  humanBicycleEffortTimeline,
-} from "@automovie/motions/internal";
+  HumanRide
+} from "../../../../../packages/motions/src/lexicon/internal/HumanRide";
+import {
+  humanBicycleEffortTimeline
+} from "../../../../../packages/motions/src/lexicon/internal/humanBicycleEffortTimeline";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

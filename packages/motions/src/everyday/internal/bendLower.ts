@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieBodyMeasure,
@@ -53,7 +53,7 @@ export namespace bendLower {
    * crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa,
    * Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of
    * 26 adults), within the range table's loaded maximum
-   * (`ANKLE_DORSIFLEXION.loaded`).
+   * (`AutoMovieEngineAnkleDorsiflexion.loaded`).
    */
   export const ANKLE: number = 28;
 
@@ -304,7 +304,7 @@ export namespace bendLower {
       y: hips.y - drop,
       z: hips.z - back - share * backAtDepth,
     });
-    const level: IAutoMovieVector3 = Vector3.subtract(
+    const level: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       goal,
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -380,9 +380,9 @@ export namespace bendLower {
       ...tipped,
       joints: { ...joints, ...toes },
       limbs,
-      root: Vector3.subtract(
+      root: AutoMovieEngineVector3.subtract(
         goal,
-        Quaternion.rotateVector(humanPostureHeading(tipped), hips),
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(tipped), hips),
       ),
     };
     if (strategy === "stoop" && share > 0) {
@@ -410,15 +410,15 @@ export namespace bendLower {
         ...(["left", "right"] as const).map(
           (side: AutoMovieHumanSide): number => {
             const ankle: IAutoMovieVector3 = limbs[`${side}Leg`]!.point;
-            const from: IAutoMovieVector3 = Vector3.subtract(
+            const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
               standing[side],
               ankle,
             );
-            const current: IAutoMovieVector3 = Vector3.subtract(
+            const current: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
               lowered[side],
               ankle,
             );
-            const initial: number = Vector3.dot(from, from);
+            const initial: number = AutoMovieEngineVector3.dot(from, from);
             const height: number =
               initial +
               (deepest - initial) * share -

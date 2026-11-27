@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeDeckData from "./internal/AutoMovieArchetypeDeckData";
+import { AutoMovieArchetypeDeckData } from "./internal/AutoMovieArchetypeDeckData";
 
 /** Constructs the deck archetype from its recipe. */
 export namespace AutoMovieArchetypeDeck {
@@ -104,7 +104,7 @@ export function create(
     name: "deck",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.box(
     "plate",
     v(beam, ESTIMATES.plate, length),

@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { validateBuiltSpaceShell } from "./validateBuiltSpaceShell";
@@ -97,7 +97,7 @@ export function validateBuiltSpaces(
               planeIndex: number,
             ): void => {
               const planePath: string = `${cellPath}.planes[${planeIndex}]`;
-              const length: number = Vector3.length(plane.normal);
+              const length: number = AutoMovieEngineVector3.length(plane.normal);
               if (length <= PLANE_NORMAL_EPSILON)
                 collector.push(
                   "range",

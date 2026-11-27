@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -136,15 +136,15 @@ export namespace HumanHeldUse {
     // The closed hand as the entry holds it, in the hand's frame: each
     // phalanx's joint centre and each digit's tip, with the digit's radius;
     // and the body it must stay out of, all of it but that arm and hand.
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      hand?.worldRotation ?? Quaternion.identity(),
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+      hand?.worldRotation ?? AutoMovieEngineQuaternion.identity(),
     );
     const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, hand?.worldPosition ?? point),
+        AutoMovieEngineVector3.subtract(point, hand?.worldPosition ?? point),
       );
     const digits: IKeyDigitsItem[] = [];
     for (const digit of DIGITS) {
@@ -168,9 +168,9 @@ export namespace HumanHeldUse {
       if (distal !== undefined)
         digits.push({
           point: local(
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               distal.worldPosition,
-              Quaternion.rotateVector(distal.worldRotation, chain.tip),
+              AutoMovieEngineQuaternion.rotateVector(distal.worldRotation, chain.tip),
             ),
           ),
           radius: chain.radius,
@@ -189,9 +189,9 @@ export namespace HumanHeldUse {
     ): number => {
       let least: number = Infinity;
       for (const digit of digits) {
-        const point: IAutoMovieVector3 = Vector3.add(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           wrist.point,
-          Quaternion.rotateVector(wrist.rotation, digit.point),
+          AutoMovieEngineQuaternion.rotateVector(wrist.rotation, digit.point),
         );
         least = Math.min(
           least,
@@ -207,7 +207,7 @@ export namespace HumanHeldUse {
       side,
       wrist: {
         point: hand?.worldPosition ?? { x: 0, y: 0, z: 0 },
-        rotation: hand?.worldRotation ?? Quaternion.identity(),
+        rotation: hand?.worldRotation ?? AutoMovieEngineQuaternion.identity(),
       },
       use: { tip: point, line: grasp.line, at: { region } },
       clear,
@@ -261,15 +261,15 @@ export namespace HumanHeldUse {
       wrist: IAutoMovieMotionHumanHand.IWrist,
     ): HumanGrasp.IFrame =>
       prepared.frame({
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           wrist.point,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             wrist.rotation,
-            Vector3.add(socket, held.frame.position),
+            AutoMovieEngineVector3.add(socket, held.frame.position),
           ),
         ),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(wrist.rotation, held.frame.rotation),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(wrist.rotation, held.frame.rotation),
         ),
       });
 

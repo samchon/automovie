@@ -1,4 +1,4 @@
-import { AutoMovieSceneRenderMode, AutoMovieSceneResource, AutoMovieSceneShadow } from "@automovie/render";
+import { AutoMovieRenderSceneRenderMode, AutoMovieRenderSceneResource, AutoMovieRenderSceneShadow } from "@automovie/render";
 import * as THREE from "three";
 
 import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
@@ -84,8 +84,8 @@ export function mountViewer(
         const handled: unknown = onFrame(seconds);
         if (!running) return;
         if (handled !== true) {
-          AutoMovieSceneRenderMode.guardRetirement(scene);
-          AutoMovieSceneShadow.guardRetirement(scene, renderer);
+          AutoMovieRenderSceneRenderMode.guardRetirement(scene);
+          AutoMovieRenderSceneShadow.guardRetirement(scene, renderer);
           renderer.render(scene, camera);
         }
         // Explicit handled redraws are admitted by the enclosing freshness
@@ -166,7 +166,7 @@ export function mountViewer(
       });
     }
 
-    const stop: () => void = AutoMovieSceneRenderMode.restoreOnce((): void => {
+    const stop: () => void = AutoMovieRenderSceneRenderMode.restoreOnce((): void => {
       releaseMountedViewer(renderer, scene, (): void => {
         running = false;
         if (scheduled !== undefined) cancelAnimationFrame(scheduled);
@@ -185,7 +185,7 @@ export function mountViewer(
         );
         if (running) scheduled = requestAnimationFrame(loop);
       } catch (error) {
-        AutoMovieSceneRenderMode.restoreState([stop], { error });
+        AutoMovieRenderSceneRenderMode.restoreState([stop], { error });
       }
     }
     scheduled = requestAnimationFrame(loop);
@@ -203,7 +203,7 @@ export function mountViewer(
       stop,
     };
   } catch (error) {
-    AutoMovieSceneRenderMode.restoreState(
+    AutoMovieRenderSceneRenderMode.restoreState(
       [
         (): void => {
           running = false;
@@ -213,7 +213,7 @@ export function mountViewer(
           frameControl?.dispose();
         },
         (): void => {
-          AutoMovieSceneResource.releaseRenderer(renderer);
+          AutoMovieRenderSceneResource.releaseRenderer(renderer);
         },
       ],
       { error },

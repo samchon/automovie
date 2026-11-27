@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -28,25 +28,25 @@ export function diveFootRoll(
   return (side: AutoMovieHumanSide): dive.FootRoll => {
     const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
     const local: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
-    const ball: IAutoMovieVector3 = Vector3.add(
+    const ball: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       foot.ankle,
-      Quaternion.rotateVector(foot.rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(foot.rotation, local),
     );
     const heading: number =
-      HumanFoot.heading(foot.rotation) * Quaternion.DEG2RAD;
+      HumanFoot.heading(foot.rotation) * AutoMovieEngineQuaternion.DEG2RAD;
     const along: IAutoMovieVector3 = {
       x: Math.sin(heading),
       y: 0,
       z: Math.cos(heading),
     };
-    const axis: IAutoMovieVector3 = Vector3.cross(up, along);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, along);
     return (degrees: number): IAutoMovieMotionHumanFoot.IPlacement => {
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.fromAxisAngle(axis, degrees),
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees),
         foot.rotation,
       );
       return {
-        ankle: Vector3.subtract(ball, Quaternion.rotateVector(rotation, local)),
+        ankle: AutoMovieEngineVector3.subtract(ball, AutoMovieEngineQuaternion.rotateVector(rotation, local)),
         rotation,
       };
     };

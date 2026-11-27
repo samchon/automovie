@@ -1,4 +1,4 @@
-import { AutoMovieSplineCurve as Spline, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineSplineCurve as Spline, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,

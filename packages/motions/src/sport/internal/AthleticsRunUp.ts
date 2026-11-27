@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -54,7 +54,7 @@ export function AthleticsRunUp(
     y: 0,
     z: entry.velocity.linear.z,
   };
-  const speed: number = Vector3.length(flat);
+  const speed: number = AutoMovieEngineVector3.length(flat);
   if (!(speed >= minimum) || speed < 1e-9)
     throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
@@ -78,7 +78,7 @@ export function AthleticsRunUp(
   return {
     foot: side,
     speed,
-    heading: Vector3.scale(flat, 1 / speed),
+    heading: AutoMovieEngineVector3.scale(flat, 1 / speed),
     ankle: { ...entry.feet[side].ankle },
     stance: end - from.share * from.plan.duration,
     toeOff: AthleticsRunUp.hips(context.body, from.plan.posture(end)),
@@ -87,7 +87,7 @@ export function AthleticsRunUp(
 
 /*
  * The run-up a field event is entered from: a `run` cut at the footfall of the
- * take-off foot (`HumanChain.until`), its speed and heading read from the
+ * take-off foot (`AutoMovieMotionHumanChain.until`), its speed and heading read from the
  * displayed entry. Jumps, vaults and throws that start from an approach read it
  * here, so one rule decides what an admissible approach is.
  */
@@ -139,9 +139,9 @@ export namespace AthleticsRunUp {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       posture.root,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading(posture),
         body.rest.get("hips")!,
       ),

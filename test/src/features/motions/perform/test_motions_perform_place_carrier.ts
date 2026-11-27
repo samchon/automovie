@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { HumanPerformancePlaceCarrier } from "@automovie/motions/internal";
+import {
+  HumanPerformancePlaceCarrier
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformancePlaceCarrier";
 import { TestValidator } from "@nestia/e2e";
 
 /** One call the carrier passed to the carrying plan. */

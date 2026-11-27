@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -88,7 +88,7 @@ export function prepareSurfboardPosture(
     // Keep the shoulders in reach while the palms bear. Centre between the
     // new foot targets before rising over both soles.
     const balance: number = fade(phases.palms, firstFoot);
-    const supportCentre: IAutoMovieVector3 = Vector3.lerp(
+    const supportCentre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       prone,
       stanceMid,
       balance,
@@ -100,21 +100,21 @@ export function prepareSurfboardPosture(
         TUCK_RISE * tuck +
         STAND_RISE * standUp) *
         leg;
-    const hip: IAutoMovieVector3 = Vector3.lerp(
+    const hip: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       entryHip,
       world({ ...supportCentre, y: supportCentre.y + bodyHeight }),
       mount,
     );
-    const root: IAutoMovieVector3 = Vector3.subtract(
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       hip,
-      Quaternion.rotateVector(bodyRotation, hips),
+      AutoMovieEngineQuaternion.rotateVector(bodyRotation, hips),
     );
-    const carry: IAutoMovieQuaternion = Quaternion.multiply(
+    const carry: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       bodyRotation,
       inverseProne,
     );
     const fromProne = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(root, Quaternion.rotateVector(carry, point));
+      AutoMovieEngineVector3.add(root, AutoMovieEngineQuaternion.rotateVector(carry, point));
     const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of entryJoints) {
       const from: readonly [number, number, number] = start.joints[bone] ?? [
@@ -151,7 +151,7 @@ export function prepareSurfboardPosture(
       if (raise === 0) continue;
       const heading: number =
         180 + stanceSide * (side === lead ? LEAD_FOOT_TURN : TRAIL_FOOT_TURN);
-      const settledRotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const settledRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         frame.rotation,
         HumanFoot.rotation(heading, 0),
       );
@@ -162,13 +162,13 @@ export function prepareSurfboardPosture(
           rotation: ankle.worldRotation,
         }),
       );
-      const reach: IAutoMovieVector3 = Vector3.lerp(free, world(site), raise);
+      const reach: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(free, world(site), raise);
       goals[side] = HumanSurfaceBoard.ankle(
         body,
         side,
         reach,
-        Quaternion.slerp(
-          Quaternion.multiply(carry, ankle.worldRotation),
+        AutoMovieEngineQuaternion.slerp(
+          AutoMovieEngineQuaternion.multiply(carry, ankle.worldRotation),
           settledRotation,
           raise,
         ),
@@ -192,7 +192,7 @@ export function prepareSurfboardPosture(
       if (goal !== undefined)
         rest.limbs[limb] = {
           ...goal,
-          bend: Vector3.lerp(
+          bend: AutoMovieEngineVector3.lerp(
             fromProne(proneBones.get(`${side}LowerLeg`)!.worldPosition),
             legs[limb]!.bend,
             swing[side],
@@ -226,11 +226,11 @@ export function prepareSurfboardPosture(
           PADDLE_STROKE * leg * paddle * Math.sin(phase) +
           RECOVER_FORWARD * lift * leg,
       });
-      const palmNormal: IAutoMovieVector3 = Quaternion.rotateVector(
+      const palmNormal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         frame.rotation,
         { x: 0, y: -1, z: 0 },
       );
-      const palmForward: IAutoMovieVector3 = Quaternion.rotateVector(
+      const palmForward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         frame.rotation,
         { x: 0, y: 0, z: -1 },
       );
@@ -248,17 +248,17 @@ export function prepareSurfboardPosture(
         (phases.mount + phases.palms) / 2,
       );
       rest.limbs[arm] = {
-        point: Vector3.lerp(
+        point: AutoMovieEngineVector3.lerp(
           fromProne(proneWrist.worldPosition),
           wrist.point,
           paddleStart,
         ),
-        rotation: Quaternion.slerp(
-          Quaternion.multiply(carry, proneWrist.worldRotation),
+        rotation: AutoMovieEngineQuaternion.slerp(
+          AutoMovieEngineQuaternion.multiply(carry, proneWrist.worldRotation),
           wrist.rotation,
           paddleStart,
         ),
-        bend: Vector3.lerp(
+        bend: AutoMovieEngineVector3.lerp(
           fromProne(proneBones.get(`${side}LowerArm`)!.worldPosition),
           world({
             ...palm,

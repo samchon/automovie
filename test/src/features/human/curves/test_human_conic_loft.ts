@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -22,7 +22,7 @@ import type {
  * 8. A rolled chart (`IFamily.roll`): the flat section's long end on a straight course stands at the natural cubic's angle through the roll's knots, from `u` toward `v`.
  * 9. The rolled chart's jet agrees with central differences of its frames, and the twin of a rolled family is still the reflection of the original.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicLoft.create`, `mirror` and `part` and reads the engine's chain with `AutoMovieLoftChain.point`.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicLoft.create`, `mirror` and `part` and reads the engine's chain with `AutoMovieEngineLoftChain.point`.
  * @evidence contracts/development/testing.md#independent-expectations A circle's radius, a reflection in a plane, the cubic fixed by four end conditions, a natural cubic's closed form and central differences owe nothing to this code.
  * @evidence contracts/development/testing.md#distinguishing-cases A centred circle, an off-centre section with unequal shoulders on a slanted course, a closed end and an open one.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_loft`, with no reference body or figure.
@@ -84,7 +84,7 @@ export function test_human_conic_loft(): void {
   if (tube !== null)
     for (const s of [0, 31, 100])
       for (const phi of phases) {
-        const p: number[] = AutoMovieLoftChain.point(tube, s, phi);
+        const p: number[] = AutoMovieEngineLoftChain.point(tube, s, phi);
         if (
           !(
             Math.abs(Math.hypot(p[0]!, p[2]!) - 20) <= 1e-6 &&
@@ -130,8 +130,8 @@ export function test_human_conic_loft(): void {
   if (one !== null && two !== null)
     for (const s of [0, 44, 100])
       for (const phi of phases) {
-        const p: number[] = AutoMovieLoftChain.point(one, s, phi);
-        const q: number[] = AutoMovieLoftChain.point(two, s, -phi);
+        const p: number[] = AutoMovieEngineLoftChain.point(one, s, phi);
+        const q: number[] = AutoMovieEngineLoftChain.point(two, s, -phi);
         const apart: number = Math.hypot(
           p[0]! - q[0]!,
           p[1]! - q[1]!,
@@ -165,7 +165,7 @@ export function test_human_conic_loft(): void {
       .map((layer: { y: number }): number => layer.y)
       .filter((y: number): boolean => y > 80)) {
       const expected: number = 20 * Math.sqrt(1 - ((s - 80) / 12) ** 3);
-      const p: number[] = AutoMovieLoftChain.point(closed, s, 0.7);
+      const p: number[] = AutoMovieEngineLoftChain.point(closed, s, 0.7);
       if (!(Math.abs(Math.hypot(p[0]!, p[2]!) - expected) <= 0.02))
         failures.push(
           `capped at station ${s}: radius ${Math.hypot(p[0]!, p[2]!)}, expected ${expected}`,
@@ -231,7 +231,7 @@ export function test_human_conic_loft(): void {
     if (chain !== null)
       for (const s of [0, 50, 100]) {
         const points: number[][] = ring.map((phi: number): number[] =>
-          AutoMovieLoftChain.point(chain, s, phi),
+          AutoMovieEngineLoftChain.point(chain, s, phi),
         );
         points.forEach((b: number[], k: number): void => {
           const a: number[] = points[(k + points.length - 1) % points.length]!;
@@ -311,8 +311,8 @@ export function test_human_conic_loft(): void {
   if (three !== null && four !== null)
     for (const s of [0, 44, 100])
       for (const phi of phases) {
-        const p: number[] = AutoMovieLoftChain.point(three, s, phi);
-        const q: number[] = AutoMovieLoftChain.point(four, s, -phi);
+        const p: number[] = AutoMovieEngineLoftChain.point(three, s, phi);
+        const q: number[] = AutoMovieEngineLoftChain.point(four, s, -phi);
         const apart: number = Math.hypot(
           p[0]! - q[0]!,
           p[1]! - q[1]!,
@@ -377,8 +377,8 @@ export function test_human_conic_loft(): void {
   if (five !== null && six !== null)
     for (const s of [0, 44, 100])
       for (const phi of phases) {
-        const p: number[] = AutoMovieLoftChain.point(five, s, phi);
-        const q: number[] = AutoMovieLoftChain.point(six, s, -phi);
+        const p: number[] = AutoMovieEngineLoftChain.point(five, s, phi);
+        const q: number[] = AutoMovieEngineLoftChain.point(six, s, -phi);
         const apart: number = Math.hypot(
           p[0]! - q[0]!,
           p[1]! - q[1]!,
@@ -419,7 +419,7 @@ export function test_human_conic_loft(): void {
   );
   if (ends !== null)
     for (const s of [0, 20, 50, 77, 100]) {
-      const p: number[] = AutoMovieLoftChain.point(ends, s, 0);
+      const p: number[] = AutoMovieEngineLoftChain.point(ends, s, 0);
       const expected: number[] = [
         40 * Math.cos(angle(s)),
         s,
@@ -482,8 +482,8 @@ export function test_human_conic_loft(): void {
   if (seven !== null && eight !== null)
     for (const s of [0, 44, 100])
       for (const phi of phases) {
-        const p: number[] = AutoMovieLoftChain.point(seven, s, phi);
-        const q: number[] = AutoMovieLoftChain.point(eight, s, -phi);
+        const p: number[] = AutoMovieEngineLoftChain.point(seven, s, phi);
+        const q: number[] = AutoMovieEngineLoftChain.point(eight, s, -phi);
         const apart: number = Math.hypot(
           p[0]! - q[0]!,
           p[1]! - q[1]!,

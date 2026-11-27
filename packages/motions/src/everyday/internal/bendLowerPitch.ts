@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -43,7 +43,7 @@ export function bendLowerPitch(
   lean: number,
   reach: number = bendLower.REACH *
     (body.measure.upperArm + body.measure.forearm) +
-    Vector3.length(HumanHand.offset(body, side, "palm").point),
+    AutoMovieEngineVector3.length(HumanHand.offset(body, side, "palm").point),
   wristAt?: bendLower.WristAt,
   lateral: number = 0,
 ): number {
@@ -83,7 +83,7 @@ export function bendLowerPitch(
         lowest,
         shoulder.y - Math.sqrt(reach * reach - across * across),
       );
-    return Vector3.distance(point, shoulder) - reach;
+    return AutoMovieEngineVector3.distance(point, shoulder) - reach;
   };
   if (gap(0) <= 0) return 0;
   let hi: number = SCAN;

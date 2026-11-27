@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanManipulateFacing,
@@ -32,13 +32,13 @@ export function manipulateFacing(
     );
   const first: IAutoMovieMotionHumanManipulateFacing.ISite =
     mine === undefined ? presses[0]! : mine;
-  const toward: IAutoMovieVector3 = Vector3.subtract(first.site, hold.root);
-  const along: IAutoMovieVector3 = Vector3.subtract(
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(first.site, hold.root);
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     toward,
-    Vector3.scale(first.normal, Vector3.dot(toward, first.normal)),
+    AutoMovieEngineVector3.scale(first.normal, AutoMovieEngineVector3.dot(toward, first.normal)),
   );
   return HumanHand.rotation(side, {
-    fingers: Vector3.length(along) > 0 ? along : { x: 0, y: 0, z: 1 },
-    palm: Vector3.scale(first.normal, -1),
+    fingers: AutoMovieEngineVector3.length(along) > 0 ? along : { x: 0, y: 0, z: 1 },
+    palm: AutoMovieEngineVector3.scale(first.normal, -1),
   });
 }

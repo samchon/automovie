@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieShadowTextureHost } from "../IAutoMovieShadowTextureHost.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderShadowTextureHost } from "../IAutoMovieRenderShadowTextureHost.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { matchesAutoMovieShadowTextureProfile } from "./matchesAutoMovieShadowTextureProfile.js";
 import { planAutoMovieShadowTextureTarget } from "./planAutoMovieShadowTextureTarget.js";
@@ -27,12 +27,12 @@ import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource
  */
 export const readAutoMovieShadowTextureTargets: (
   scope: string,
-  renderer: IAutoMovieShadowTextureHost,
+  renderer: IAutoMovieRenderShadowTextureHost,
   lights: ReadonlyMap<string, THREE.Light>,
   effectiveShadows?: IAutoMovieSceneEnvironment["shadows"],
 ) => IAutoMovieRenderTextureTarget[] = (
   scope: string,
-  renderer: IAutoMovieShadowTextureHost,
+  renderer: IAutoMovieRenderShadowTextureHost,
   lights: ReadonlyMap<string, THREE.Light>,
   effectiveShadows?: IAutoMovieSceneEnvironment["shadows"],
 ): IAutoMovieRenderTextureTarget[] => {
@@ -78,9 +78,9 @@ export const readAutoMovieShadowTextureTargets: (
     // A recorded source is a point, directional or spot light, the lights
     // that own a shadow.
     if (
-      !AutoMovieThreeKind.isDirectionalLight(light) &&
-      !AutoMovieThreeKind.isSpotLight(light) &&
-      !AutoMovieThreeKind.isPointLight(light)
+      !AutoMovieRenderThreeKind.isDirectionalLight(light) &&
+      !AutoMovieRenderThreeKind.isSpotLight(light) &&
+      !AutoMovieRenderThreeKind.isPointLight(light)
     )
       continue;
     const shadow:

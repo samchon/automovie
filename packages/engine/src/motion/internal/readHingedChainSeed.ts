@@ -6,9 +6,9 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
 /*
@@ -17,7 +17,7 @@ import { prepareHingedChainAt } from "./prepareHingedChainAt";
  *
  * The branch is the one whose hinge articulation is nearest the given mid
  * joint's; the swivel is the root's turn about the root-to-target line past the
- * aim of that branch (`hingedArmSwivel.read`); the twist is the mid joint's
+ * aim of that branch (`AutoMovieEngineHingedArmSwivel.read`); the twist is the mid joint's
  * own, where it has one. The request's target is the effector's place in the
  * posed chain.
  * Parameter props: The fit request, its target where the posed effector lies.
@@ -47,8 +47,8 @@ export function readHingedChainSeed(
   let nearest: number = Infinity;
   at.branches.forEach(
     (stop: IAutoMovieHingedArmSwivel.IStop, index: number): void => {
-      const apart: number = Quaternion.angle(
-        hingedArmSwivel.pose(at.chain, stop.theta)(0).lower,
+      const apart: number = AutoMovieEngineQuaternion.angle(
+        AutoMovieEngineHingedArmSwivel.pose(at.chain, stop.theta)(0).lower,
         mid,
       );
       if (apart < nearest) {
@@ -58,7 +58,7 @@ export function readHingedChainSeed(
     },
   );
   return {
-    swivel: hingedArmSwivel.read(at.chain, root, at.branches[branch]!.theta),
+    swivel: AutoMovieEngineHingedArmSwivel.read(at.chain, root, at.branches[branch]!.theta),
     branch,
     // The mid joint's distal twist, which a fit continued from the seed
     // keeps the basin of (`IAutoMovieSwivelSeed.twist`).

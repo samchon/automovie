@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformanceState,
@@ -53,7 +53,7 @@ export function HumanPerformanceSite(
   if (placed !== undefined)
     return {
       position: placed.point,
-      rotation: Quaternion.normalize(placed.rotation ?? world.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(placed.rotation ?? world.rotation),
     };
   const external: IAutoMovieMotionHumanProp.IPosed | undefined =
     prop.poseAt?.(seconds);
@@ -84,10 +84,10 @@ export function HumanPerformanceSite(
     w: 1,
   };
   return {
-    position: Vector3.add(
+    position: AutoMovieEngineVector3.add(
       world.position,
-      Quaternion.rotateVector(world.rotation, translation),
+      AutoMovieEngineQuaternion.rotateVector(world.rotation, translation),
     ),
-    rotation: Quaternion.normalize(Quaternion.multiply(world.rotation, turn)),
+    rotation: AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(world.rotation, turn)),
   };
 }

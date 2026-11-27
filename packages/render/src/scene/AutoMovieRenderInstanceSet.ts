@@ -1,5 +1,5 @@
-import { type IAutoMovieInstanceSetViewerObject } from "./IAutoMovieInstanceSetViewerObject.js";
-import { type IBuildInstancedInstanceSetProps } from "./IBuildInstancedInstanceSetProps.js";
+import { type IAutoMovieRenderInstanceSetViewerObject } from "./IAutoMovieRenderInstanceSetViewerObject.js";
+import { type IAutoMovieRenderBuildInstancedInstanceSetProps } from "./IAutoMovieRenderBuildInstancedInstanceSetProps.js";
 import { buildInstancedInstanceSet as buildInstancedInstanceSetImplementation } from "./internal/buildInstancedInstanceSet.js";
 import { type IAutoMovieInstanceSlot, type IAutoMovieCompiledInstanceSet } from "@automovie/interface";
 import { regenerateInstanceSlot as regenerateInstanceSlotImplementation } from "./internal/regenerateInstanceSlot.js";
@@ -28,7 +28,7 @@ export namespace AutoMovieRenderInstanceSet {
    * supported meshes before mounting; this source connection establishes neither
    * an observed instanced frame nor compiled-shot capture integration.
    */
-  export function buildInstancedInstanceSet(input: IBuildInstancedInstanceSetProps): IAutoMovieInstanceSetViewerObject {
+  export function buildInstancedInstanceSet(input: IAutoMovieRenderBuildInstancedInstanceSetProps): IAutoMovieRenderInstanceSetViewerObject {
     return buildInstancedInstanceSetImplementation(input);
   }
 

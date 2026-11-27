@@ -4,7 +4,7 @@ import * as THREE from "three";
 import type { IAutoMovieRenderModeHandle } from "../../IAutoMovieRenderModeHandle.js";
 import { applyRenderMode } from "../../internal/applyRenderMode.js";
 import { overrideAutoMovieRenderModeMaterials } from "../../internal/overrideAutoMovieRenderModeMaterials.js";
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
+import { AutoMovieRenderInspectionPalette } from "../../AutoMovieRenderInspectionPalette.js";
 
 /*
  * Colour every surface of a scene by an inspection shade, and return the call
@@ -44,7 +44,7 @@ export function applyAutoMovieInspectionShadeImplementation(
           "beauty",
           (): THREE.Material =>
             new THREE.MeshLambertMaterial({
-              color: AUTO_MOVIE_INSPECTION_PALETTE.clay,
+              color: AutoMovieRenderInspectionPalette.clay,
               side: THREE.DoubleSide,
               fog: false,
             }),
@@ -57,10 +57,10 @@ export function applyAutoMovieInspectionShadeImplementation(
               new THREE.ShaderMaterial({
                 uniforms: {
                   frontColor: {
-                    value: new THREE.Color(AUTO_MOVIE_INSPECTION_PALETTE.front),
+                    value: new THREE.Color(AutoMovieRenderInspectionPalette.front),
                   },
                   backColor: {
-                    value: new THREE.Color(AUTO_MOVIE_INSPECTION_PALETTE.back),
+                    value: new THREE.Color(AutoMovieRenderInspectionPalette.back),
                   },
                 },
                 vertexShader: VERTEX,

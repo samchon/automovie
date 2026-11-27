@@ -1,4 +1,4 @@
-import { AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieEngineViewLoft } from "@automovie/engine";
 import type {
   IAutoMovieConstructionView,
   IAutoMovieHumanEar,
@@ -59,7 +59,7 @@ export namespace AutoMovieHumanHeadComposer {
     let mass: IAutoMovieViewLoft.IResult | undefined;
     function loft(): IAutoMovieViewLoft.IResult {
       if (mass === undefined)
-        mass = AutoMovieViewLoft.create(canonical.closed().tape.part);
+        mass = AutoMovieEngineViewLoft.create(canonical.closed().tape.part);
       return mass;
     }
     return {

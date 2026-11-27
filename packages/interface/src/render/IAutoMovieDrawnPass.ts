@@ -5,7 +5,7 @@ import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
 import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth.js";
 
 /**
- * One decoded pass of a sampled subject frame. AutoMovieDrawSession.frame emits
+ * One decoded pass of a sampled subject frame. AutoMovieRenderDrawSession.frame emits
  * records in requested pass order, using the same second, raster and film
  * camera for each; picture storage belongs to the caller.
  */

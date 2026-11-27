@@ -6,7 +6,7 @@ import type {
   IAutoMovieCaptureRecord,
   IAutoMovieProductionCheck,
 } from "@automovie/interface";
-import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { AutoMovieCliProduction } from "automovie";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -295,7 +295,7 @@ export async function test_cli_production_check_records(): Promise<void> {
             coverage: [{ ...checked.coverage, status: "checked" }],
           },
         }),
-        folder: await AutoMovieCaptureFolder.open({
+        folder: await AutoMovieRenderCaptureFolder.open({
           storage: fs,
           root: path.join(root, "captures"),
           round: plan.request.round,

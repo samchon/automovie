@@ -1,6 +1,6 @@
 import type { IAutoMovieViewOutline } from "@automovie/interface";
 
-import { AutoMovieViewParameter } from "../../AutoMovieViewParameter";
+import { AutoMovieEngineViewParameter } from "../../AutoMovieEngineViewParameter";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 import { rootsAutoMovieViewSinPolynomial } from "./rootsAutoMovieViewSinPolynomial";
 
@@ -48,8 +48,8 @@ export function supportAutoMovieViewOutline(
       .filter((s: number): boolean => s > domain[0] && s < domain[1]),
     domain[1],
   ];
-  const start: number = AutoMovieViewParameter.at(outline.parameter, domain[0]);
-  const end: number = AutoMovieViewParameter.at(outline.parameter, domain[1]);
+  const start: number = AutoMovieEngineViewParameter.at(outline.parameter, domain[0]);
+  const end: number = AutoMovieEngineViewParameter.at(outline.parameter, domain[1]);
   for (let i: number = 0; i + 1 < xs.length; i++) {
     const x0: number = xs[i]!;
     const h: number = xs[i + 1]! - x0;
@@ -93,7 +93,7 @@ export function supportAutoMovieViewOutline(
     if (typeof roots === "string")
       return `affine source support interval ${i}: ${roots}`;
     for (const t of roots) {
-      const station: number = AutoMovieViewParameter.station(p, x0 + h * t);
+      const station: number = AutoMovieEngineViewParameter.station(p, x0 + h * t);
       if (station > domain[0] && station < domain[1]) result.push(station);
     }
   }

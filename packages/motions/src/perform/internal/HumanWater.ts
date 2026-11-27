@@ -1,7 +1,7 @@
 import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionTrajectory,
   AutoMovieEngineMotionHydrodynamics,
 } from "@automovie/engine";
@@ -94,8 +94,8 @@ export namespace HumanWater {
             surface: water.surface,
             density: water.density,
           });
-        buoyancy = Vector3.add(buoyancy, force.buoyancy);
-        drag = Vector3.add(drag, force.drag);
+        buoyancy = AutoMovieEngineVector3.add(buoyancy, force.buoyancy);
+        drag = AutoMovieEngineVector3.add(drag, force.drag);
         submerged += force.submerged;
         volume += v;
       },
@@ -110,14 +110,14 @@ export namespace HumanWater {
         const foot: IAutoMovieResolvedBone | undefined = bones.get(side);
         if (foot === undefined || foot.worldPosition.y > water.surface)
           continue;
-        const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+        const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           foot.worldRotation,
           { x: 0, y: 1, z: 0 },
         );
-        const across: number = Vector3.dot(velocity, normal);
-        drag = Vector3.add(
+        const across: number = AutoMovieEngineVector3.dot(velocity, normal);
+        drag = AutoMovieEngineVector3.add(
           drag,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             normal,
             -0.5 *
               (water.density ?? FRESH) *
@@ -144,7 +144,7 @@ export namespace HumanWater {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     water: IAutoMovieMotionHumanWater,
   ): number | null {
-    const weight: number = body.profile.mass * AutoMovieGravity.STANDARD;
+    const weight: number = body.profile.mass * AutoMovieEngineGravity.STANDARD;
     const lift = (dy: number): number =>
       sum(body, shifted(bones, dy), { x: 0, y: 0, z: 0 }, water).buoyancy.y;
     // Bracket: a stature below the highest bone sinking under the surface,
@@ -200,11 +200,11 @@ export namespace HumanWater {
         const drag: IAutoMovieVector3 = sum(
           body,
           bones,
-          Vector3.scale(direction, x[0]!),
+          AutoMovieEngineVector3.scale(direction, x[0]!),
           water,
         ).drag;
         return {
-          dx: [Vector3.dot(drag, direction) / body.profile.mass, x[0]!],
+          dx: [AutoMovieEngineVector3.dot(drag, direction) / body.profile.mass, x[0]!],
         };
       },
       x0: [v0, 0],
@@ -265,7 +265,7 @@ export namespace HumanWater {
               surface: water.surface,
               density: water.density,
             });
-          return -Vector3.dot(force.drag, direction);
+          return -AutoMovieEngineVector3.dot(force.drag, direction);
         }),
       );
     }
@@ -280,8 +280,8 @@ export namespace HumanWater {
           (_position: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
             index === 0 || index === intervals
               ? { x: 0, y: 0, z: 0 }
-              : Vector3.scale(
-                  Vector3.subtract(
+              : AutoMovieEngineVector3.scale(
+                  AutoMovieEngineVector3.subtract(
                     centres[index + 1]![i]!,
                     centres[index - 1]![i]!,
                   ),
@@ -299,7 +299,7 @@ export namespace HumanWater {
         x: readonly number[],
       ): IAutoMovieIntegrateMotionTrajectory.IRate => {
         const speed: number = x[1]!;
-        const travel: IAutoMovieVector3 = Vector3.scale(direction, speed);
+        const travel: IAutoMovieVector3 = AutoMovieEngineVector3.scale(direction, speed);
         const position: number = Math.min(1, Math.max(0, phase)) * intervals;
         const index: number = Math.min(intervals - 1, Math.floor(position));
         const share: number = position - index;
@@ -308,17 +308,17 @@ export namespace HumanWater {
           const a: number = coefficients[index]![i]!;
           const b: number = coefficients[index + 1]![i]!;
           const coefficient: number = a + (b - a) * share;
-          const relative: IAutoMovieVector3 = Vector3.add(
+          const relative: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             travel,
-            Vector3.add(
-              Vector3.scale(local[index]![i]!, 1 - share),
-              Vector3.scale(local[index + 1]![i]!, share),
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(local[index]![i]!, 1 - share),
+              AutoMovieEngineVector3.scale(local[index + 1]![i]!, share),
             ),
           );
           drag -=
             coefficient *
-            Vector3.length(relative) *
-            Vector3.dot(relative, direction);
+            AutoMovieEngineVector3.length(relative) *
+            AutoMovieEngineVector3.dot(relative, direction);
         }
         return { dx: [speed, drag / body.profile.mass] };
       },
@@ -332,9 +332,9 @@ export namespace HumanWater {
     bone: IAutoMovieResolvedBone,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       bone.worldPosition,
-      Quaternion.rotateVector(bone.worldRotation, point),
+      AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, point),
     );
   }
 

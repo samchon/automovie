@@ -17,21 +17,21 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionPortBand } from "../../AutoMovieConstructionPortBand";
-import { AutoMovieConstructionPortCurve } from "../../AutoMovieConstructionPortCurve";
-import { AutoMovieConstructionPortField as PortField } from "../../AutoMovieConstructionPortField";
-import { AutoMovieConstructionSplitBand } from "../../AutoMovieConstructionSplitBand";
-import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
-import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
-import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
-import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
-import { AutoMovieSolidRibbon } from "../../AutoMovieSolidRibbon";
-import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
+import { AutoMovieEngineConstructionPortBand } from "../../AutoMovieEngineConstructionPortBand";
+import { AutoMovieEngineConstructionPortCurve } from "../../AutoMovieEngineConstructionPortCurve";
+import { AutoMovieEngineConstructionPortField as PortField } from "../../AutoMovieEngineConstructionPortField";
+import { AutoMovieEngineConstructionSplitBand } from "../../AutoMovieEngineConstructionSplitBand";
+import { AutoMovieEngineConstructionState } from "../../AutoMovieEngineConstructionState";
+import { AutoMovieEngineConstructionViews } from "../../AutoMovieEngineConstructionViews";
+import { AutoMovieEngineLoftAdmissionError } from "../../AutoMovieEngineLoftAdmissionError";
+import { AutoMovieEngineSolidMesh } from "../../AutoMovieEngineSolidMesh";
+import { AutoMovieEngineSolidRibbon } from "../../AutoMovieEngineSolidRibbon";
+import { AutoMovieEngineSolidVector } from "../../AutoMovieEngineSolidVector";
 
 /*
  * Realize a port (`IAutoMovieConstructionPort`): the host's port curve cut out
  * of its face as a hole, a band from that curve to the part's rail
- * (`AutoMovieConstructionSplitBand.strip`, the split's own strip with the
+ * (`AutoMovieEngineConstructionSplitBand.strip`, the split's own strip with the
  * monotone ribbon scale), all sharing their boundary vertices.
  *
  * Steps: walk the host and admit its face; take the checkpoint; walk the part
@@ -51,20 +51,20 @@ import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
  * port's name; a foreign error restores it and propagates unchanged.
  *
  * One owner per seam, read between the columns as well as at them: the port
- * curve (`AutoMovieConstructionPortCurve.curve`, the loop's ellipse with its
+ * curve (`AutoMovieEngineConstructionPortCurve.curve`, the loop's ellipse with its
  * shares joined by the periodic cubic) is the host's seam, and the rail field
  * (one station, or the periodic cubic through `rails`) the part's. The host's
  * hole keeps the outside of that curve and maps a point inside it to the band
  * at its radial foot's clock; the band's face is the exact band
- * (`AutoMovieConstructionPortBand`), whose start edge is the host on that curve
+ * (`AutoMovieEngineConstructionPortBand`), whose start edge is the host on that curve
  * and whose end edge is the part on its rail, each with the side's own cross
  * 2-jet; the band's start and end cycles and the part's rail cycle map across
  * by the same curve and correspondence (`IAutoMovieSolidCycle.IExact`). No
  * second interpolation of either seam exists. The column strip still admits the
  * columns, finds their ribbon factors and publishes its chain as the band's
  * column record. A profiled band is the exact band carried in by its profiles'
- * displacement (`AutoMovieConstructionSplitBand.profiled`,
- * `AutoMovieConstructionPortBand.carried`), laid along the exact band's own
+ * displacement (`AutoMovieEngineConstructionSplitBand.profiled`,
+ * `AutoMovieEngineConstructionPortBand.carried`), laid along the exact band's own
  * normal, so it keeps the same seams and readers; its published chain is the
  * profiled column strip.
  */
@@ -84,14 +84,14 @@ export function AutoMovieConstructionPortRealize(
       `the host face ${node.hostFace} was not realized`,
     );
   const snapshot: IAutoMovieConstructionState.ISnapshot =
-    AutoMovieConstructionState.snap(body, state);
+    AutoMovieEngineConstructionState.snap(body, state);
 
   /*
    * Keep the diagnostic while discarding every post-checkpoint effect.
    */
   const fail: (detail: string) => void = (detail: string): void => {
     report(node.name, "port", detail);
-    AutoMovieConstructionState.restore(body, state, snapshot);
+    AutoMovieEngineConstructionState.restore(body, state, snapshot);
   };
   try {
     walk(node.part);
@@ -112,7 +112,7 @@ export function AutoMovieConstructionPortRealize(
       );
     const part: IAutoMovieSolidSurface = body.faces[index]!.surface;
     const into: 1 | -1 = node.partEnd === "bottom" ? 1 : -1;
-    const S: number = AutoMovieConstructionViews.SCALE;
+    const S: number = AutoMovieEngineConstructionViews.SCALE;
     const end: number =
       chain.layers[node.partEnd === "bottom" ? 0 : chain.layers.length - 1]!.y;
     const rail: number = end + into * node.rail * S;
@@ -155,9 +155,9 @@ export function AutoMovieConstructionPortRealize(
     const turn: number = 2 * Math.PI;
     const clock: (k: number) => number = (k: number): number => (turn * k) / n;
     // The port curve, the one owner of the host's seam: its columns are its samples, the host's hole reads it between them, and the
-    // exact band's start edge is the host on it (`AutoMovieConstructionPortCurve.curve`).
+    // exact band's start edge is the host on it (`AutoMovieEngineConstructionPortCurve.curve`).
     const portCurve: IAutoMovieConstructionPortCurve.ICurve | string =
-      AutoMovieConstructionPortCurve.curve(node.loop, n, host.period);
+      AutoMovieEngineConstructionPortCurve.curve(node.loop, n, host.period);
     if (typeof portCurve === "string") return fail(portCurve);
     const { addresses: chart, inward }: IAutoMovieConstructionPortCurve.ICurve =
       portCurve;
@@ -174,15 +174,15 @@ export function AutoMovieConstructionPortRealize(
     ): IAutoMovieBlendCrossJet | string => {
       const j: IAutoMovieSolidSurface.IJet = jets[k]!;
       const [du, dv]: [number, number] = inward[k]!;
-      const speed: number = AutoMovieSolidVector.norm(
-        AutoMovieSolidVector.combine([
+      const speed: number = AutoMovieEngineSolidVector.norm(
+        AutoMovieEngineSolidVector.combine([
           [du, j.u],
           [dv, j.v],
         ]),
       );
       if (!(speed > 0))
         return `column ${k}: the host's chart direction into the port has no speed`;
-      return AutoMovieSolidRibbon.of(
+      return AutoMovieEngineSolidRibbon.of(
         host,
         chart[k]![0],
         chart[k]![1],
@@ -191,9 +191,9 @@ export function AutoMovieConstructionPortRealize(
         L / speed,
       );
     };
-    const outward: Vec3 | null = AutoMovieSolidVector.unit(
-      AutoMovieSolidVector.scale(
-        AutoMovieSolidVector.cross(jets[0]!.u, jets[0]!.v),
+    const outward: Vec3 | null = AutoMovieEngineSolidVector.unit(
+      AutoMovieEngineSolidVector.scale(
+        AutoMovieEngineSolidVector.cross(jets[0]!.u, jets[0]!.v),
         host.orientation,
       ),
     );
@@ -202,7 +202,7 @@ export function AutoMovieConstructionPortRealize(
         "the host's tangent plane at the port's clock origin is degenerate",
       );
     const band: IAutoMovieConstructionSplitBand.IStrip | string =
-      AutoMovieConstructionSplitBand.strip(
+      AutoMovieEngineConstructionSplitBand.strip(
         node.band,
         loop,
         near,
@@ -219,10 +219,10 @@ export function AutoMovieConstructionPortRealize(
       );
     if (typeof band === "string") return fail(`band ${node.band}: ${band}`);
 
-    // The band's face: the exact band on both seams (`AutoMovieConstructionPortBand`), the column strip's own values joined round the
+    // The band's face: the exact band on both seams (`AutoMovieEngineConstructionPortBand`), the column strip's own values joined round the
     // loop.
     const exact: IAutoMovieConstructionBandEdge | string =
-      AutoMovieConstructionPortBand.create({
+      AutoMovieEngineConstructionPortBand.create({
         name: node.band,
         host,
         curve: portCurve,
@@ -242,7 +242,7 @@ export function AutoMovieConstructionPortRealize(
       | null =
       (node.profiles ?? []).length === 0
         ? null
-        : AutoMovieConstructionSplitBand.profiled(
+        : AutoMovieEngineConstructionSplitBand.profiled(
             band,
             (node.profiles ?? []).map(
               (
@@ -263,7 +263,7 @@ export function AutoMovieConstructionPortRealize(
     const surface: IAutoMovieSolidSurface =
       shaped === null
         ? exact.surface
-        : AutoMovieConstructionPortBand.carried(
+        : AutoMovieEngineConstructionPortBand.carried(
             exact.surface,
             shaped.surface,
             band.surface,
@@ -273,13 +273,13 @@ export function AutoMovieConstructionPortRealize(
 
     // Shared vertices: the port curve on the host, the rail on the part.
     const mesh: IAutoMovieSolidMesh.IMesh = body.mesh;
-    const hostOwner: number = AutoMovieSolidMesh.owner(mesh, host);
+    const hostOwner: number = AutoMovieEngineSolidMesh.owner(mesh, host);
     const hole: number[] = chart.map((c: [number, number], k: number): number =>
-      AutoMovieSolidMesh.vertex(mesh, loop[k]!, hostOwner, c[0], c[1]),
+      AutoMovieEngineSolidMesh.vertex(mesh, loop[k]!, hostOwner, c[0], c[1]),
     );
-    const partOwner: number = AutoMovieSolidMesh.owner(mesh, part);
+    const partOwner: number = AutoMovieEngineSolidMesh.owner(mesh, part);
     const ring: number[] = band.childPhases.map((psi: number): number =>
-      AutoMovieSolidMesh.vertex(
+      AutoMovieEngineSolidMesh.vertex(
         mesh,
         part.jet(railAt(psi), psi).p,
         partOwner,
@@ -389,7 +389,7 @@ export function AutoMovieConstructionPortRealize(
         railAt(band.childPhases[k]!),
         band.childPhases[k]!,
       ]),
-      // A curved rail is the exact curve the band ends on between its columns (each column ends on it, `AutoMovieConstructionSplitBand.strip`,
+      // A curved rail is the exact curve the band ends on between its columns (each column ends on it, `AutoMovieEngineConstructionSplitBand.strip`,
       // and the band's chain runs between them), so the part keeps the stations past that curve, not past the chords through the columns:
       // on f1's arm under its armpit band those chords stood up to 0.032 mm past the band's end mid-column, a strip of the arm that belonged
       // to neither face, and the slit cutter's host rail crossed the seam through it. A straight rail's chords are the rail itself.
@@ -421,8 +421,8 @@ export function AutoMovieConstructionPortRealize(
     state.chainList.push(published);
     state.chainSurfaces.push(surface);
   } catch (error: unknown) {
-    AutoMovieConstructionState.restore(body, state, snapshot);
-    if (!(error instanceof AutoMovieLoftAdmissionError)) throw error;
+    AutoMovieEngineConstructionState.restore(body, state, snapshot);
+    if (!(error instanceof AutoMovieEngineLoftAdmissionError)) throw error;
     report(node.name, "port", error.message);
   }
 }

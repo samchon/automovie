@@ -1,9 +1,9 @@
 import { nclose } from "../../internal/nclose";
 import {
-  AutoMovieConstructionPortCurve as PortCurve,
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieSolidVector as Vector,
-  AutoMovieViewAxis,
+  AutoMovieEngineConstructionPortCurve as PortCurve,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineSolidVector as Vector,
+  AutoMovieEngineViewAxis,
 } from "@automovie/engine";
 import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
 import type {
@@ -72,13 +72,13 @@ export function test_human_native_root_trial_direction(): void {
     }
   };
 
-  const parentAxis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.horizontal();
+  const parentAxis: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.horizontal();
   const originalParent: IAutoMovieViewPart = circle("trial-parent", [
     [0, 1 / 4, 1 / 4, 0], [5, 3 / 2, 1 / 4, 0],
   ], parentAxis);
   const child: IAutoMovieViewPart = circle("trial-child", [
     [0, 1, 0, 0], [2, 1, 0, 0],
-  ], AutoMovieViewAxis.straight([1 / 2, 0, 0], [1, 0, 0], [0, 0, 1]));
+  ], AutoMovieEngineViewAxis.straight([1 / 2, 0, 0], [1, 0, 0], [0, 0, 1]));
   const loop: IAutoMovieConstructionPortLoop = {
     centre: { station: 0.001, phase: 0 },
     semi: { stationMetres: 0.001, phaseRadians: 1 / 4 },

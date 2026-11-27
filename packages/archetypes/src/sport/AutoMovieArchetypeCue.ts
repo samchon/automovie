@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeCueData from "./internal/AutoMovieArchetypeCueData";
+import { AutoMovieArchetypeCueData } from "./internal/AutoMovieArchetypeCueData";
 
 /** Canonical producer and authoring contract for Cue. */
 export namespace AutoMovieArchetypeCue {
@@ -64,7 +64,7 @@ export namespace AutoMovieArchetypeCue {
       name: `pool cue, ${buttModel.name} butt, ${shaft.name} shaft`,
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const butt: number = d.butt / 2;
     const half: number = d.length / 2;
     const back: number = -half;

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -21,7 +21,7 @@ import { nclose } from "../../internal/nclose";
  * and hand continue along +x. Under that geometry the humanoid abduction axis
  * swings the +x arm through the vertical plane, so rig `+90` lifts the **left**
  * hand overhead while rig `−90` drops it, and the mirror holds on the right.
- * The whole point of {@link HUMANOID_REST_FRAME} (left `sign +1 neutral 90`,
+ * The whole point of {@link AutoMovieEngineHumanoidRestFrame} (left `sign +1 neutral 90`,
  * right `sign −1 neutral 90`) is to erase that per-side sign: in **clinical**
  * space a single `abduction 180` raises _either_ arm overhead, `0` lets it
  * hang.
@@ -103,8 +103,8 @@ export function test_engine_kinematics_resolve_pose_arm_raise_rest_frame(): void
     AutoMovieEngineKinematics.resolvePose(
       p,
       skeleton,
-      HUMANOID_JOINT_AXES,
-      frames ? HUMANOID_REST_FRAME : undefined,
+      AutoMovieEngineHumanoidJointAxes,
+      frames ? AutoMovieEngineHumanoidRestFrame : undefined,
     ).find((r: IAutoMovieResolvedBone): boolean => r.bone === b)!.worldPosition
       .y;
 

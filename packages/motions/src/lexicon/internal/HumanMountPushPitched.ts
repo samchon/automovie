@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieQuaternion,
@@ -21,16 +21,16 @@ export function HumanMountPushPitched(
   pivot: IAutoMovieVector3,
   turn: HumanMountPush.IPitch,
 ): IAutoMovieHumanLimbGoal {
-  const down: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const down: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     turn.axis,
     turn.degrees,
   );
   return {
     ...goal,
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       pivot,
-      Quaternion.rotateVector(down, Vector3.subtract(goal.point, pivot)),
+      AutoMovieEngineQuaternion.rotateVector(down, AutoMovieEngineVector3.subtract(goal.point, pivot)),
     ),
-    rotation: Quaternion.multiply(down, rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(down, rotation),
   };
 }

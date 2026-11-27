@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
@@ -113,7 +113,7 @@ export namespace regrasp {
     const limb: AutoMovieHumanLimb = `${side}Arm`;
     const still: IAutoMovieHumanLimbGoal = {
       ...(hold.limbs[limb] ?? {
-        bend: Vector3.add(hand.position, { x: 0, y: -1, z: 0 }),
+        bend: AutoMovieEngineVector3.add(hand.position, { x: 0, y: -1, z: 0 }),
       }),
       point: hand.position,
       rotation: hand.rotation,
@@ -164,14 +164,14 @@ export namespace regrasp {
     const contact: IAutoMovieVector3 | undefined =
       axis === null
         ? undefined
-        : Quaternion.rotateVector(
-            Quaternion.inverse(hand.rotation),
-            Vector3.subtract(axis.pivot, hand.position),
+        : AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.inverse(hand.rotation),
+            AutoMovieEngineVector3.subtract(axis.pivot, hand.position),
           );
     const orbit: IAutoMovieVector3 | undefined =
-      axis === null ? undefined : Vector3.subtract(hand.position, axis.pivot);
-    const turning: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined =
-      axis === null ? undefined : Quaternion.prepareAxisAngle(axis.direction);
+      axis === null ? undefined : AutoMovieEngineVector3.subtract(hand.position, axis.pivot);
+    const turning: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> | undefined =
+      axis === null ? undefined : AutoMovieEngineQuaternion.prepareAxisAngle(axis.direction);
     return {
       duration,
       events: [{ name: "done", share: 1 }],
@@ -191,12 +191,12 @@ export namespace regrasp {
               // The object turns about its axis, so that axis point is the
               // contact the fit must keep when the wrist gives up rotation.
               contact: contact!,
-              point: Vector3.add(
+              point: AutoMovieEngineVector3.add(
                 axis.pivot,
-                Quaternion.rotateVector(turn, orbit!),
+                AutoMovieEngineQuaternion.rotateVector(turn, orbit!),
               ),
-              rotation: Quaternion.normalize(
-                Quaternion.multiply(turn, hand.rotation),
+              rotation: AutoMovieEngineQuaternion.normalize(
+                AutoMovieEngineQuaternion.multiply(turn, hand.rotation),
               ),
             },
           },
@@ -222,7 +222,7 @@ export namespace regrasp {
     hand: IAutoMovieRigidTransform,
   ): NonNullable<IAutoMovieMotionHumanContactWindow["inHand"]> {
     const { hand: side, kind } = context.params;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.rotation);
     const socket: IAutoMovieVector3 = HumanHand.offset(
       context.body,
       side,
@@ -233,14 +233,14 @@ export namespace regrasp {
     // Express both fits in that frame so the displacement rotates about the
     // same origin as the hold reader.
     const start: IAutoMovieRigidTransform = {
-      position: Vector3.subtract(
-        Quaternion.rotateVector(
+      position: AutoMovieEngineVector3.subtract(
+        AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(frame.position, hand.position),
+          AutoMovieEngineVector3.subtract(frame.position, hand.position),
         ),
         socket,
       ),
-      rotation: Quaternion.multiply(inverse, frame.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(inverse, frame.rotation),
     };
     let end: IAutoMovieRigidTransform;
     if (kind === "regrip") {
@@ -249,16 +249,16 @@ export namespace regrasp {
         side,
         HumanGrasp.at(prop, need(context.params.to, "to"), frame),
       );
-      const back: IAutoMovieQuaternion = Quaternion.inverse(wrist.rotation);
+      const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(wrist.rotation);
       end = {
-        position: Vector3.subtract(
-          Quaternion.rotateVector(
+        position: AutoMovieEngineVector3.subtract(
+          AutoMovieEngineQuaternion.rotateVector(
             back,
-            Vector3.subtract(frame.position, wrist.point),
+            AutoMovieEngineVector3.subtract(frame.position, wrist.point),
           ),
           socket,
         ),
-        rotation: Quaternion.multiply(back, frame.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(back, frame.rotation),
       };
     } else {
       // A roll from the forefinger's pad to the little finger's, turning
@@ -280,37 +280,37 @@ export namespace regrasp {
         "littlePad",
         "relaxed",
       ).point;
-      const across: IAutoMovieVector3 = Vector3.subtract(to, from);
+      const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
       const palm: IAutoMovieVector3 =
         context.body.surfaces.sockets[
           side === "left" ? "palmLeft" : "palmRight"
         ].normal;
-      const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const roll: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         palm,
-        (Vector3.length(across) / radius) * (180 / Math.PI),
+        (AutoMovieEngineVector3.length(across) / radius) * (180 / Math.PI),
       );
       end = {
-        position: Vector3.add(start.position, across),
-        rotation: Quaternion.multiply(roll, start.rotation),
+        position: AutoMovieEngineVector3.add(start.position, across),
+        rotation: AutoMovieEngineQuaternion.multiply(roll, start.rotation),
       };
     }
-    const arc: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(end.rotation, Quaternion.inverse(start.rotation)),
+    const arc: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(end.rotation, AutoMovieEngineQuaternion.inverse(start.rotation)),
     );
-    const turning: ReturnType<typeof Quaternion.prepareSlerp> =
-      Quaternion.prepareSlerp(Quaternion.identity(), arc);
+    const turning: ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp> =
+      AutoMovieEngineQuaternion.prepareSlerp(AutoMovieEngineQuaternion.identity(), arc);
     return (share: number): IAutoMovieRigidTransform => {
       const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
       const rotation: IAutoMovieQuaternion = turning(s);
-      const position: IAutoMovieVector3 = Vector3.lerp(
+      const position: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         start.position,
         end.position,
         s,
       );
       return {
-        position: Vector3.subtract(
+        position: AutoMovieEngineVector3.subtract(
           position,
-          Quaternion.rotateVector(rotation, start.position),
+          AutoMovieEngineQuaternion.rotateVector(rotation, start.position),
         ),
         rotation,
       };
@@ -402,11 +402,11 @@ const line: (
   id: string,
 ): IAxis => {
   const affordance: IAutoMovieAffordance = site(prop, id);
-  const oriented: IAutoMovieQuaternion = Quaternion.multiply(
+  const oriented: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     frame.rotation,
     affordance.frame.rotation,
   );
-  const direction: IAutoMovieVector3 = Quaternion.rotateVector(oriented, {
+  const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(oriented, {
     x: 1,
     y: 0,
     z: 0,
@@ -414,13 +414,13 @@ const line: (
   let low: number = 0;
   let high: number = 0;
   if (prop.shapes !== undefined && prop.shapes.length !== 0) {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       affordance.frame.rotation,
     );
     const relative: IAutoMovieRigidTransform = {
-      position: Quaternion.rotateVector(
+      position: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.scale(affordance.frame.translation, -1),
+        AutoMovieEngineVector3.scale(affordance.frame.translation, -1),
       ),
       rotation: inverse,
     };
@@ -432,12 +432,12 @@ const line: (
     }
   }
   return {
-    pivot: Vector3.add(
-      Vector3.add(
+    pivot: AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, affordance.frame.translation),
       ),
-      Vector3.scale(direction, (low + high) / 2),
+      AutoMovieEngineVector3.scale(direction, (low + high) / 2),
     ),
     direction,
   };

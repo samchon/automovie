@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -207,14 +207,14 @@ export namespace HumanArmTrajectoryClear {
         c.frames[arm]![read]!;
       const end: IAutoMovieVector3 = later ? sweep.to : sweep.start;
       const normal: IAutoMovieVector3 = S.normal(start, sweep.shape, end);
-      const g: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(later ? sweep.turn : sweep.first),
+      const g: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(later ? sweep.turn : sweep.first),
         normal,
       );
       rows.push({
         coef: jac
           .probe(sweep.probe)
-          .map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+          .map((v: IAutoMovieVector3): number => AutoMovieEngineVector3.dot(v, g)),
         gain: deepest + M.TOLERANCE,
       });
     }
@@ -229,7 +229,7 @@ export namespace HumanArmTrajectoryClear {
       rows.push({
         coef: jac
           .probe(pair.probe)
-          .map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+          .map((v: IAutoMovieVector3): number => AutoMovieEngineVector3.dot(v, g)),
         gain: pair.short + M.TOLERANCE,
       });
     }
@@ -240,11 +240,11 @@ export namespace HumanArmTrajectoryClear {
         pair.shape.pose,
         pair.shape.shape,
         p,
-        Vector3.normalize(Vector3.subtract(p, pair.shape.centre)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(p, pair.shape.centre)),
       );
       rows.push({
         coef: J.carried(at, all, arm, waypoint, pair.owner, p).map(
-          (v: IAutoMovieVector3): number => -Vector3.dot(v, g),
+          (v: IAutoMovieVector3): number => -AutoMovieEngineVector3.dot(v, g),
         ),
         gain: pair.short + M.TOLERANCE,
       });

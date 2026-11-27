@@ -1,5 +1,5 @@
 import {
-  type IMaterialShaderSource,
+  type IAutoMovieRenderMaterialShaderSource,
   AutoMovieRenderMaterial,
 } from "@automovie/render";
 import * as THREE from "three";
@@ -10,10 +10,10 @@ import * as THREE from "three";
  */
 export function compileMaterialShaderSource(
   material: THREE.Material | readonly THREE.Material[],
-  base: Pick<IMaterialShaderSource, "vertexShader" | "fragmentShader"> = THREE
+  base: Pick<IAutoMovieRenderMaterialShaderSource, "vertexShader" | "fragmentShader"> = THREE
     .ShaderLib.physical,
-): IMaterialShaderSource {
-  const shader: IMaterialShaderSource = {
+): IAutoMovieRenderMaterialShaderSource {
+  const shader: IAutoMovieRenderMaterialShaderSource = {
     vertexShader: base.vertexShader,
     fragmentShader: base.fragmentShader,
     uniforms: {},

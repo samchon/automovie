@@ -12,11 +12,11 @@ import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import {
-  AutoMovieLoftChain,
-  AutoMovieLoftRelief,
-  AutoMovieNaturalSpline,
-  AutoMovieViewAxis,
-  AutoMovieViewChain as Q,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftRelief,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineViewAxis,
+  AutoMovieEngineViewChain as Q,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicSection as S,
@@ -433,7 +433,7 @@ export namespace FamilyConicBody {
 
   /** `BREAST_CLIP_MM` round the clock, by the periodic cubic. */
   const BREAST_CLIP: (psi: number) => number =
-    AutoMovieNaturalSpline.periodic(BREAST_CLIP_MM);
+    AutoMovieEngineNaturalSpline.periodic(BREAST_CLIP_MM);
 
   /**
    * The breast's last fitted section and the station its cap starts at, mm along its course; the top is 30 mm along it and the loop
@@ -910,7 +910,7 @@ export namespace FamilyConicBody {
     .map(Number);
 
   /** Where the nose's band lands on it at a phase, mm from its first station (`AutoMovieHumanF1.NOSE_RAILS_MM`). */
-  const NOSE_RAIL: (phi: number) => number = AutoMovieNaturalSpline.periodic(
+  const NOSE_RAIL: (phi: number) => number = AutoMovieEngineNaturalSpline.periodic(
     AutoMovieHumanF1.NOSE_RAILS_MM,
   );
 
@@ -1174,7 +1174,7 @@ export namespace FamilyConicBody {
    * a scratch probe), and the twin's host rail, 0.25 mm off the cut, found no band there ("no rail at t 2.618"). The band leaves the arm at
    * a shallow angle, so the crossing moves along the band several times as far as the wall moves in. Drawn in 2.5 mm at the floor on both
    * sides, or 1 mm on the arm side at every height or fading to the apex, the slit's sections pinched and every candidate was refused on the
-   * construction's path. The rail's own refusal there was then read (`AutoMovieSolidRail.explain`): the twin's host rail, not its seam
+   * construction's path. The rail's own refusal there was then read (`AutoMovieEngineSolidRail.explain`): the twin's host rail, not its seam
    * distance, failed, its host normal-section solve alternating across one seam of an asymmetric trunk. So it is 0.
    */
   const AXILLA_ARM_SIDE_MM: number = 0;
@@ -1666,13 +1666,13 @@ export namespace FamilyConicBody {
     const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10, KNUCKLE.half];
     const arm: { shift: number; up: R.V; plane: number; turned: number } = ((): { shift: number; up: R.V; plane: number; turned: number } => {
       const formerCentres: R.V[] = [joint("upperarm_r"), ...armCentres.slice(2, 5)];
-      const former: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(formerCentres, [30, 10]) as IAutoMovieViewAxis.IRun[];
-      const next: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(armCentres, armHalves) as IAutoMovieViewAxis.IRun[];
+      const former: IAutoMovieViewAxis.IRun[] = AutoMovieEngineViewAxis.runs(formerCentres, [30, 10]) as IAutoMovieViewAxis.IRun[];
+      const next: IAutoMovieViewAxis.IRun[] = AutoMovieEngineViewAxis.runs(armCentres, armHalves) as IAutoMovieViewAxis.IRun[];
       const shift: number = round(next[2]!.start - next[2]!.from - (former[1]!.start - former[1]!.from));
       const at: number = (former[1]!.start + former[1]!.end) / 2;
-      const old: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(formerCentres, [30, 10], [1, 0, 0]) as IAutoMovieViewAxis.IAxis).at(at);
+      const old: IAutoMovieLoftSectionFrame = (AutoMovieEngineViewAxis.jointed(formerCentres, [30, 10], [1, 0, 0]) as IAutoMovieViewAxis.IAxis).at(at);
       const roll = (up: R.V): number => {
-        const now: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(armCentres, armHalves, up) as IAutoMovieViewAxis.IAxis).at(at + shift);
+        const now: IAutoMovieLoftSectionFrame = (AutoMovieEngineViewAxis.jointed(armCentres, armHalves, up) as IAutoMovieViewAxis.IAxis).at(at + shift);
         return Math.atan2(old.u[0] * now.v[0] + old.u[1] * now.v[1] + old.u[2] * now.v[2], old.u[0] * now.u[0] + old.u[1] * now.u[1] + old.u[2] * now.u[2]);
       };
       // The first segment runs along +Z, so turning `up` about it by an angle turns every later chart by the same angle about its tangent.
@@ -1692,11 +1692,11 @@ export namespace FamilyConicBody {
     const isbCentres: R.V[] = [toward(joint("upperarm_r"), [[joint("lowerarm_r"), joint("upperarm_r")]], ISB_PROXIMAL_MM), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
     const isbHalves: number[] = [30, 10, KNUCKLE.half];
     const isb: { delta: number; up: R.V } = ((): { delta: number; up: R.V } => {
-      const now: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(armCentres, armHalves) as IAutoMovieViewAxis.IRun[];
-      const next: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(isbCentres, isbHalves) as IAutoMovieViewAxis.IRun[];
+      const now: IAutoMovieViewAxis.IRun[] = AutoMovieEngineViewAxis.runs(armCentres, armHalves) as IAutoMovieViewAxis.IRun[];
+      const next: IAutoMovieViewAxis.IRun[] = AutoMovieEngineViewAxis.runs(isbCentres, isbHalves) as IAutoMovieViewAxis.IRun[];
       const delta: number = round(next[1]!.start - next[1]!.from - (now[2]!.start - now[2]!.from));
       const at: number = (now[2]!.start + now[2]!.end) / 2;
-      const old: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(armCentres, armHalves, arm.up) as IAutoMovieViewAxis.IAxis).at(at);
+      const old: IAutoMovieLoftSectionFrame = (AutoMovieEngineViewAxis.jointed(armCentres, armHalves, arm.up) as IAutoMovieViewAxis.IAxis).at(at);
       const d: R.V = [isbCentres[1]![0] - isbCentres[0]![0], isbCentres[1]![1] - isbCentres[0]![1], isbCentres[1]![2] - isbCentres[0]![2]];
       const l: number = Math.hypot(d[0], d[1], d[2]);
       const t: R.V = [d[0] / l, d[1] / l, d[2] / l];
@@ -1705,7 +1705,7 @@ export namespace FamilyConicBody {
       const e2: R.V = [t[1] * e1[2] - t[2] * e1[1], t[2] * e1[0] - t[0] * e1[2], t[0] * e1[1] - t[1] * e1[0]];
       const roll = (theta: number): number => {
         const up: R.V = [Math.cos(theta) * e1[0] + Math.sin(theta) * e2[0], Math.cos(theta) * e1[1] + Math.sin(theta) * e2[1], Math.cos(theta) * e1[2] + Math.sin(theta) * e2[2]];
-        const frame: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(isbCentres, isbHalves, up) as IAutoMovieViewAxis.IAxis).at(at + delta);
+        const frame: IAutoMovieLoftSectionFrame = (AutoMovieEngineViewAxis.jointed(isbCentres, isbHalves, up) as IAutoMovieViewAxis.IAxis).at(at + delta);
         return Math.atan2(old.u[0] * frame.v[0] + old.u[1] * frame.v[1] + old.u[2] * frame.v[2], old.u[0] * frame.u[0] + old.u[1] * frame.u[1] + old.u[2] * frame.u[2]);
       };
       let best: number = 0;
@@ -1724,13 +1724,13 @@ export namespace FamilyConicBody {
     // The hand's and the leg's section planes at their courses' stations for the third metacarpal's head and the ball of the foot
     // (`AutoMovieHumanCourseRuns.joints`: the middle of each turn), where the fingers and the toes part from them.
     const sectionAt = (centres: R.V[], halves: number[], up: R.V, index: number): FamilyConicDivide.IEnd => {
-      const frame: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis).at(AutoMovieHumanCourseRuns.joints(centres, halves)[index]!);
+      const frame: IAutoMovieLoftSectionFrame = (AutoMovieEngineViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis).at(AutoMovieHumanCourseRuns.joints(centres, halves)[index]!);
       return { point: [frame.origin[0], frame.origin[1], frame.origin[2]], normal: [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]] };
     };
     const legCentres: R.V[] = [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)];
     // The arm's section plane where its face ends before the wrist.
     const planeAt = (centres: R.V[], halves: number[], up: R.V, station: number): FamilyConicDivide.IEnd => {
-      const frame: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis).at(station);
+      const frame: IAutoMovieLoftSectionFrame = (AutoMovieEngineViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis).at(station);
       return { point: [frame.origin[0], frame.origin[1], frame.origin[2]], normal: [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]] };
     };
     divides.push(...FamilyConicDivide.build(source, armscye, 808, { hand: sectionAt(armCentres, handHalves, arm.up, 4), foot: sectionAt(legCentres, [40, 62, TOE_TURN.half], [1, 0, 0], 3), wrist: planeAt(armCentres, [SHOULDER_HALF_MM, 30, 10, 16], arm.up, AutoMovieHumanF1.ARM_TO_MM) }));
@@ -2016,7 +2016,7 @@ export namespace FamilyConicBody {
           continue;
         }
         const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-        const rings: R.V[][] = stations.map((s: number): R.V[] => Array.from({ length: 128 }, (_: unknown, j: number): R.V => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 128) as R.V));
+        const rings: R.V[][] = stations.map((s: number): R.V[] => Array.from({ length: 128 }, (_: unknown, j: number): R.V => AutoMovieEngineLoftChain.point(chain, s, (2 * Math.PI * j) / 128) as R.V));
         const positions: number[] = rings.flatMap((ring: R.V[]): number[] => ring.flatMap((p: R.V): number[] => [p[0] / 1000, p[1] / 1000, p[2] / 1000]));
         const [kept, closed]: number[][] = [[], []];
         let [free, all]: [number, number] = [0, 0];
@@ -2095,7 +2095,7 @@ export namespace FamilyConicBody {
       // end's host ring stands within a child's rail of the children's outline only where the valleys are within the rails (half the
       // gap at which a pair first stands apart), so the heads' plane is read here against both.
       const valleys = (label: string, centres: R.V[], halves: number[], up: R.V, index: number, digits: readonly string[]): void => {
-        const course: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis;
+        const course: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis;
         const station: number = AutoMovieHumanCourseRuns.joints(centres, halves)[index]!;
         lines.push("", `${label}: the heads' plane stands at station ${station.toFixed(2)} mm of its parent's course; valleys left / right of each pair's line, mm`);
         for (const d of [-8, -4, 0, 4, 8, 12, 16, 20]) {
@@ -2382,7 +2382,7 @@ export namespace FamilyConicBody {
           // no cranial face, and the plate ends where the pieces do.
           const read: C.P[] | null = section === null ? null : part.plate === undefined ? section.points : section.kind === "excursion" ? X.plate(section.points, part.plate.thickness, part.plate.into, typeof part.plate.deepest === "number" ? part.plate.deepest : part.plate.deepest(s), part.plate.rim ?? 0) : null;
           if (read === null || part.roll === undefined) return read;
-          const angle: number = AutoMovieNaturalSpline.evaluate(AutoMovieNaturalSpline.create(part.roll.knots, part.roll.values), s);
+          const angle: number = AutoMovieEngineNaturalSpline.evaluate(AutoMovieEngineNaturalSpline.create(part.roll.knots, part.roll.values), s);
           const [c, n]: [number, number] = [Math.cos(angle), Math.sin(angle)];
           return read.map((p: C.P): C.P => [c * p[0] + n * p[1], c * p[1] - n * p[0]]);
         }
@@ -2528,14 +2528,14 @@ export namespace FamilyConicBody {
           const from: number = Math.min(...points.map((p) => p.s)), to: number = Math.max(...points.map((p) => p.s));
           const count: number = Math.max(2, Math.round((to - from) / GAP_MM) + 1);
           const knots: number[] = Array.from({ length: count }, (_: unknown, k: number): number => from + ((to - from) * k) / (count - 1));
-          const cardinals = knots.map((_: number, m: number) => AutoMovieNaturalSpline.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
-          const rows: number[][] = points.map((p) => cardinals.map((spline): number => AutoMovieNaturalSpline.evaluate(spline, p.s)));
+          const cardinals = knots.map((_: number, m: number) => AutoMovieEngineNaturalSpline.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+          const rows: number[][] = points.map((p) => cardinals.map((spline): number => AutoMovieEngineNaturalSpline.evaluate(spline, p.s)));
           const gram: number[][] = knots.map((_: number, m: number): number[] => knots.map((__: number, n: number): number => rows.reduce((sum: number, r: number[]): number => sum + r[m]! * r[n]!, 0)));
           const right: number[] = knots.map((_: number, m: number): number => rows.reduce((sum: number, r: number[], i: number): number => sum + r[m]! * points[i]!.most, 0));
           const values: number[] | null = F.solve(gram, right);
           if (values === null) continue;
-          const spline = AutoMovieNaturalSpline.create(knots, values);
-          smoothed.set(side, { from, to, at: (s: number): number => AutoMovieNaturalSpline.evaluate(spline, s) });
+          const spline = AutoMovieEngineNaturalSpline.create(knots, values);
+          smoothed.set(side, { from, to, at: (s: number): number => AutoMovieEngineNaturalSpline.evaluate(spline, s) });
         }
         closureCap = (side: number, s: number): number | undefined => {
           const fitted = smoothed.get(side);
@@ -3468,8 +3468,8 @@ export namespace FamilyConicBody {
               const r: number = Q.radius(section, phi);
               const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
               for (const relief of earlier) {
-                const height: number = AutoMovieLoftRelief.height(relief, row.s, phi)[0];
-                const along: C.P = inChart(AutoMovieLoftRelief.direction(relief, phi)[0]);
+                const height: number = AutoMovieEngineLoftRelief.height(relief, row.s, phi)[0];
+                const along: C.P = inChart(AutoMovieEngineLoftRelief.direction(relief, phi)[0]);
                 p[0] += height * along[0];
                 p[1] += height * along[1];
               }
@@ -3564,9 +3564,9 @@ export namespace FamilyConicBody {
           // girth (`AutoMovieHumanConicLoft.part`), so a point at the same phase on each is not the same point of the skin.
           for (const s of at) {
             let most: number = 0;
-            const ring: number[][] = Array.from({ length: 2048 }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(theirs, s - shift, (2 * Math.PI * j) / 2048));
+            const ring: number[][] = Array.from({ length: 2048 }, (_: unknown, j: number): number[] => AutoMovieEngineLoftChain.point(theirs, s - shift, (2 * Math.PI * j) / 2048));
             for (let j: number = 0; j < 128; ++j) {
-              const p: number[] = AutoMovieLoftChain.point(mine, s, (2 * Math.PI * j) / 128);
+              const p: number[] = AutoMovieEngineLoftChain.point(mine, s, (2 * Math.PI * j) / 128);
               most = Math.max(most, Math.min(...ring.map((q: number[]): number => Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!))));
             }
             const key: number = Math.floor(s / 20) * 20;
@@ -3606,7 +3606,7 @@ export namespace FamilyConicBody {
         // The regenerated section as a dense chart polyline; every observed skin vertex is measured to it.
         const frame: IAutoMovieLoftSectionFrame = stage.at(row.s);
         const ring: C.P[] = Array.from({ length: 512 }, (_: unknown, j: number): C.P => {
-          const p: R.V = AutoMovieLoftChain.point(chain, row.s, (2 * Math.PI * j) / 512) as R.V;
+          const p: R.V = AutoMovieEngineLoftChain.point(chain, row.s, (2 * Math.PI * j) / 512) as R.V;
           const d: R.V = [p[0] - frame.origin[0], p[1] - frame.origin[1], p[2] - frame.origin[2]];
           return [d[0] * frame.u[0] + d[1] * frame.u[1] + d[2] * frame.u[2], d[0] * frame.v[0] + d[1] * frame.v[1] + d[2] * frame.v[2]];
         });
@@ -3641,7 +3641,7 @@ export namespace FamilyConicBody {
       receipt.push({ part: part.name, domainMm: domain, sections: rows.length, skipped, trail, engine });
 
       // Display grid: every observed station by 128 phases, mirrored when the part has a twin.
-      const rings: R.V[][] = stations.map((s: number): R.V[] => Array.from({ length: 128 }, (_: unknown, j: number): R.V => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 128) as R.V));
+      const rings: R.V[][] = stations.map((s: number): R.V[] => Array.from({ length: 128 }, (_: unknown, j: number): R.V => AutoMovieEngineLoftChain.point(chain, s, (2 * Math.PI * j) / 128) as R.V));
       for (const sign of part.mirrored ? [1, -1] : [1]) {
         const positions: number[] = [];
         const indices: number[] = [];
@@ -3690,7 +3690,7 @@ export namespace FamilyConicBody {
             const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
             const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
             if (face.observe !== undefined && s < face.observe) continue;
-            bases.push({ s, phi, p: AutoMovieLoftChain.point(capped.chain, s, phi) as R.V, heldout: i % 2 === 1 });
+            bases.push({ s, phi, p: AutoMovieEngineLoftChain.point(capped.chain, s, phi) as R.V, heldout: i % 2 === 1 });
           }
 
         // The reference triangles a ray can meet: the part's own skin within the reach of the points' box.
@@ -3774,7 +3774,7 @@ export namespace FamilyConicBody {
             const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
             if (face.observe !== undefined && s < face.observe) return "".padStart(15);
             const hit: H.IObserved | undefined = observed.find((o: H.IObserved): boolean => Math.abs(o.s - s) < 1e-9 && Math.abs(o.phi - phi) < 1e-9);
-            const p: R.V = AutoMovieLoftChain.point(capped.chain!, s, phi) as R.V;
+            const p: R.V = AutoMovieEngineLoftChain.point(capped.chain!, s, phi) as R.V;
             return (hit === undefined ? "." : hit.target.toFixed(1)).padStart(6) + ("@" + p[0].toFixed(0) + "," + p[1].toFixed(0)).padStart(9);
           };
           for (let i: number = 2; i < along; i += 4) process.stdout.write((window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along).toFixed(1).padStart(7) + Array.from({ length: 11 }, (_: unknown, k: number): string => cell(i, Math.round((about * (k + 0.5)) / 11))).join("") + "\n");

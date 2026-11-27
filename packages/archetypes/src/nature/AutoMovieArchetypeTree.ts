@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -13,7 +13,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeTreeData from "./internal/AutoMovieArchetypeTreeData";
+import { AutoMovieArchetypeTreeData } from "./internal/AutoMovieArchetypeTreeData";
 
 /** Constructs the tree archetype from its recipe. */
 export namespace AutoMovieArchetypeTree {
@@ -79,7 +79,7 @@ export function create(
     name: kind === "whiteOak" ? "white oak" : "Douglas-fir",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
   // The green mass from the diameter in centimetres, and the trunk's share: its stem wood and bark.
   const dbh: number = d.dbh / AutoMovieArchetypeUnits.CENTIMETRE;
@@ -118,7 +118,7 @@ export function create(
         `branch${k}`,
         rb,
         v(0, h, 0),
-        Vector3.add(v(0, h, 0), Vector3.scale(dir, r + b.branchLength)),
+        AutoMovieEngineVector3.add(v(0, h, 0), AutoMovieEngineVector3.scale(dir, r + b.branchLength)),
         { color: "#6b4a2b", share },
       );
       // The bar along the branch from the trunk face out, its load at the frame half its length out.
@@ -126,7 +126,7 @@ export function create(
         id: `branch${k}`,
         kind: "bar",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.add(v(0, h, 0), Vector3.scale(dir, r + b.branchLength / 2)),
+          AutoMovieEngineVector3.add(v(0, h, 0), AutoMovieEngineVector3.scale(dir, r + b.branchLength / 2)),
           v(0, 1, 0),
           dir,
         ),
@@ -144,9 +144,9 @@ export function create(
         id: `seat${k}`,
         kind: "seat",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             v(0, h + rb, 0),
-            Vector3.scale(dir, r + AutoMovieArchetypeTree.SEAT_OUT),
+            AutoMovieEngineVector3.scale(dir, r + AutoMovieArchetypeTree.SEAT_OUT),
           ),
           v(0, 1, 0),
           side,

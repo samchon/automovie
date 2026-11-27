@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
-import * as BoatModelsData from "./internal/BoatModelsData";
+import { BoatModelsData } from "./internal/BoatModelsData";
 
 /*
  * The read boats by kind, each whole, and the options a canoe is built in and

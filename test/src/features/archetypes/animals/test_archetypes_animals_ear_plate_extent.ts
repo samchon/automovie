@@ -4,7 +4,7 @@ import {
   type AutoMovieArchetypeQuadrupedBody,
   AutoMovieArchetypeQuadrupedEars as Ears,
 } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -57,7 +57,7 @@ export function test_archetypes_animals_ear_plate_extent(): void {
         geometry.shape.height === 1 / 4 &&
         geometry.shape.depth === 1 / 32,
     );
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(part.transform.rotation, { x: 0, y: 1, z: 0 });
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(part.transform.rotation, { x: 0, y: 1, z: 0 });
     TestValidator.predicate(
       `${id} preserves its finite diagonal after normalizing`,
       nclose(axis.x, sign * Math.SQRT1_2, ROTATION_ROUNDOFF) &&

@@ -4,9 +4,11 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 import {
-  danceGrooveEnvelope,
-  prepareDanceFootCourse,
-} from "@automovie/motions/internal";
+  danceGrooveEnvelope
+} from "../../../../../packages/motions/src/exercise/internal/danceGrooveEnvelope";
+import {
+  prepareDanceFootCourse
+} from "../../../../../packages/motions/src/exercise/internal/prepareDanceFootCourse";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

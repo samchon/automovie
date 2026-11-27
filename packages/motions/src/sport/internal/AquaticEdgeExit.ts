@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -102,12 +102,12 @@ export namespace AquaticEdgeExit {
 
     // The hips' path: at the wall below the deck, over the edge just above
     // the deck, above the knee on the deck.
-    const pressed: IAutoMovieVector3 = Vector3.add(on(-0.05, 0), {
+    const pressed: IAutoMovieVector3 = AutoMovieEngineVector3.add(on(-0.05, 0), {
       x: 0,
       y: 0.05,
       z: 0,
     });
-    const kneeling: IAutoMovieVector3 = Vector3.add(on(0.3, 0), {
+    const kneeling: IAutoMovieVector3 = AutoMovieEngineVector3.add(on(0.3, 0), {
       x: 0,
       y: 0.45,
       z: 0,
@@ -116,7 +116,7 @@ export namespace AquaticEdgeExit {
       hipsAt(posture).get("hips")!.worldPosition;
     const kneelPlaced: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
       kneel,
-      Vector3.add(kneel.root, Vector3.subtract(kneeling, hipsOf(kneel))),
+      AutoMovieEngineVector3.add(kneel.root, AutoMovieEngineVector3.subtract(kneeling, hipsOf(kneel))),
     );
     const rise: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
       kneelPlaced,
@@ -165,9 +165,9 @@ export namespace AquaticEdgeExit {
           ["palm", "thumbPad", "indexPad", "littlePad"] as const
         ).map(
           (site): IAutoMovieVector3 =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               goal.point,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 goal.rotation!,
                 HumanHand.offset(body, side, site, "flat").point,
               ),
@@ -216,16 +216,16 @@ export namespace AquaticEdgeExit {
             : { ...shaped, limbs: { ...shaped.limbs, ...arms(u) } };
         const target: IAutoMovieVector3 =
           u < PRESS
-            ? Vector3.lerp(
+            ? AutoMovieEngineVector3.lerp(
                 hips0,
                 pressed,
                 Math.max(0, (u - PLACE) / (PRESS - PLACE)),
               )
-            : Vector3.lerp(pressed, kneeling, (u - PRESS) / (KNEE - PRESS));
+            : AutoMovieEngineVector3.lerp(pressed, kneeling, (u - PRESS) / (KNEE - PRESS));
         const hips: IAutoMovieVector3 = hipsOf(shaped);
         const posture: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
           shaped,
-          Vector3.add(shaped.root, Vector3.subtract(target, hips)),
+          AutoMovieEngineVector3.add(shaped.root, AutoMovieEngineVector3.subtract(target, hips)),
         );
         return { ...posture, limbs: { ...posture.limbs, ...arms(u) } };
       },
@@ -271,17 +271,17 @@ export namespace AquaticEdgeExit {
     );
     const rotation: IAutoMovieQuaternion = HumanHand.align(frame, {
       normal: { x: 0, y: -1, z: 0 },
-      forward: Vector3.scale(out, -1),
+      forward: AutoMovieEngineVector3.scale(out, -1),
     });
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       point,
-      Quaternion.rotateVector(rotation, frame.point),
+      AutoMovieEngineQuaternion.rotateVector(rotation, frame.point),
     );
 
     // The elbow bends back toward the water, behind the pressing hand.
-    const bend: IAutoMovieVector3 = Vector3.add(
+    const bend: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       wrist,
-      Vector3.add(Vector3.scale(out, 0.25), { x: 0, y: 0.05, z: 0 }),
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(out, 0.25), { x: 0, y: 0.05, z: 0 }),
     );
     return (reach: number): IAutoMovieHumanLimbGoal => {
       const lift: number = LIFT * (1 - reach);

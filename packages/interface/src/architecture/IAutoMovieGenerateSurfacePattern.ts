@@ -29,7 +29,7 @@ export namespace IAutoMovieGenerateSurfacePattern {
    * A malformed declaration throws an `Error` naming the field: blank or
    * duplicate ids, non-finite or non-positive sizes, a non-convex region or
    * exclusion, overlapping zones or exclusions, ambiguous surviving occurrence
-   * ids, a zone spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells,
+   * ids, a zone spanning more than `AutoMovieEngineMaxPatternCells` lattice cells,
    * non-safe-integer derived lattice bounds, or a generated module reaching
    * beyond its cell's declared reach. Quality defects are not thrown; they are
    * returned as `findings` (sliver, unsupported-piece, module-overlap,

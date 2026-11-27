@@ -7,12 +7,12 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { ease } from "../../motion/internal/ease";
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
-import { FRAMING_AIM_FRACTION } from "../FRAMING_AIM_FRACTION";
-import { FRAMING_HEIGHT_FRACTION } from "../FRAMING_HEIGHT_FRACTION";
+import { AutoMovieEngineFramingAimFraction } from "../AutoMovieEngineFramingAimFraction";
+import { AutoMovieEngineFramingHeightFraction } from "../AutoMovieEngineFramingHeightFraction";
 import { lookRotation } from "./lookRotation";
 
 /*
@@ -20,10 +20,10 @@ import { lookRotation } from "./lookRotation";
  * rotation, the deterministic shot grammar.
  *
  * Framing fixes the distance and the aim. The frame must show the framing's
- * FRAMING_HEIGHT_FRACTION multiple of the subject's height vertically
+ * AutoMovieEngineFramingHeightFraction multiple of the subject's height vertically
  * and of its width (twice `radius`) horizontally, each by the pinhole fit `d =
  * (visible / 2) / tan(half-angle)`, and the camera stands at whichever distance
- * is larger. It aims at FRAMING_AIM_FRACTION of the height above the
+ * is larger. It aims at AutoMovieEngineFramingAimFraction of the height above the
  * subject's base. The camera approaches along its staged bearing, the direction
  * from the aim point to the staged camera, so the side staging chose is kept
  * and only the distance is solved; a camera staged on the aim point uses +Z.
@@ -163,13 +163,13 @@ export function compileCameraMove(
 
     if (
       !Object.prototype.hasOwnProperty.call(
-        FRAMING_AIM_FRACTION,
+        AutoMovieEngineFramingAimFraction,
         action.framing,
       )
     )
       throw new Error(`unknown camera framing "${String(action.framing)}"`);
     const aimOffset: number =
-      subject.height * FRAMING_AIM_FRACTION[action.framing];
+      subject.height * AutoMovieEngineFramingAimFraction[action.framing];
     function aimOf(base: IAutoMovieVector3): IAutoMovieVector3 {
       return {
         x: base.x,
@@ -188,7 +188,7 @@ export function compileCameraMove(
       push(
         Math.min(t0 + WHIP_SECONDS, t1),
         origin.pos,
-        lookRotation(Vector3.subtract(aim0, origin.pos)),
+        lookRotation(AutoMovieEngineVector3.subtract(aim0, origin.pos)),
       );
       holdUntil(t1, i);
       return;
@@ -196,7 +196,7 @@ export function compileCameraMove(
 
     // A figure binds on height and a mass on width; `radius` is absent or zero
     // for a single body, which leaves the vertical fit alone.
-    const fraction: number = FRAMING_HEIGHT_FRACTION[action.framing];
+    const fraction: number = AutoMovieEngineFramingHeightFraction[action.framing];
     const width: number = (subject.radius ?? 0) * 2;
     const distance: number = Math.max(
       (subject.height * fraction) / 2 / halfY,
@@ -209,8 +209,8 @@ export function compileCameraMove(
     // keeps the reached distance unless its framing differs from the previous
     // entry's, an authored re-frame that steps to its own framed distance.
     const toReached: IAutoMovieVector3 | null =
-      reached === null ? null : Vector3.subtract(reached.pos, aim0);
-    const reach: number = toReached === null ? 0 : Vector3.length(toReached);
+      reached === null ? null : AutoMovieEngineVector3.subtract(reached.pos, aim0);
+    const reach: number = toReached === null ? 0 : AutoMovieEngineVector3.length(toReached);
     const continues: boolean = reach >= SAME_INSTANT;
     const holds: boolean =
       action.move === "static" ||
@@ -229,16 +229,16 @@ export function compileCameraMove(
 
     const toCamera: IAutoMovieVector3 = continues
       ? toReached!
-      : Vector3.subtract(camera.transform.translation, aim0);
+      : AutoMovieEngineVector3.subtract(camera.transform.translation, aim0);
     const bearing: IAutoMovieVector3 =
-      Vector3.length(toCamera) < 1e-9
+      AutoMovieEngineVector3.length(toCamera) < 1e-9
         ? { x: 0, y: 0, z: 1 }
-        : Vector3.normalize(toCamera);
-    const side: IAutoMovieVector3 = Vector3.cross(bearing, UP);
+        : AutoMovieEngineVector3.normalize(toCamera);
+    const side: IAutoMovieVector3 = AutoMovieEngineVector3.cross(bearing, UP);
     const screenLeft: IAutoMovieVector3 =
-      Vector3.length(side) < 1e-9
+      AutoMovieEngineVector3.length(side) < 1e-9
         ? { x: -1, y: 0, z: 0 }
-        : Vector3.normalize(side);
+        : AutoMovieEngineVector3.normalize(side);
 
     /*
      * Fit position to the current base and orient toward the selected aim base.
@@ -249,12 +249,12 @@ export function compileCameraMove(
       aimBase: IAutoMovieVector3 = base,
     ): IKey {
       const aim: IAutoMovieVector3 = aimOf(base);
-      const pos: IAutoMovieVector3 = Vector3.add(
+      const pos: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         aim,
-        Vector3.scale(bearing, d),
+        AutoMovieEngineVector3.scale(bearing, d),
       );
       const target: IAutoMovieVector3 = aimBase === base ? aim : aimOf(aimBase);
-      return { t: 0, pos, rot: lookRotation(Vector3.subtract(target, pos)) };
+      return { t: 0, pos, rot: lookRotation(AutoMovieEngineVector3.subtract(target, pos)) };
     }
 
     /*
@@ -298,16 +298,16 @@ export function compileCameraMove(
       }
       case "orbit": {
         for (const t of frameKeyTimes(t0, t1, rate)) {
-          const swing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          const swing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
             UP,
             ORBIT_DEGREES * eased(t),
           );
-          const u: IAutoMovieVector3 = Quaternion.rotateVector(swing, bearing);
-          const pos: IAutoMovieVector3 = Vector3.add(
+          const u: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(swing, bearing);
+          const pos: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             aim0,
-            Vector3.scale(u, distanceAt(t)),
+            AutoMovieEngineVector3.scale(u, distanceAt(t)),
           );
-          key(t, pos, lookRotation(Vector3.subtract(aim0, pos)));
+          key(t, pos, lookRotation(AutoMovieEngineVector3.subtract(aim0, pos)));
         }
         break;
       }
@@ -317,11 +317,11 @@ export function compileCameraMove(
         for (const t of frameKeyTimes(t0, t1, rate)) {
           const base: IAutoMovieVector3 = subject.at?.(t) ?? subject.base;
           const aim: IAutoMovieVector3 = aimOf(base);
-          const pos: IAutoMovieVector3 = Vector3.add(
+          const pos: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             framedAt(base, distanceAt(t)).pos,
-            Vector3.scale(screenLeft, distance * TRUCK_DISTANCE * eased(t)),
+            AutoMovieEngineVector3.scale(screenLeft, distance * TRUCK_DISTANCE * eased(t)),
           );
-          key(t, pos, lookRotation(Vector3.subtract(aim, pos)));
+          key(t, pos, lookRotation(AutoMovieEngineVector3.subtract(aim, pos)));
         }
         break;
       }
@@ -478,7 +478,7 @@ function samePose(
     key.rot.z * rot.z +
     key.rot.w * rot.w;
   return (
-    Vector3.length(Vector3.subtract(key.pos, pos)) < 1e-9 &&
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(key.pos, pos)) < 1e-9 &&
     Math.abs(dot) > 1 - 1e-12
   );
 }

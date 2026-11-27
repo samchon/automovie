@@ -21,14 +21,7 @@ import "./AutoMovieHumanHandFingers";
 import "./AutoMovieHumanHandMap";
 import "./AutoMovieHumanHandPalm";
 import "./AutoMovieHumanHandSolve";
-import {
-  handPoint,
-  digitsOf,
-  palmOf,
-  fingerOf,
-  events,
-  solve,
-} from "./internal/AutoMovieHumanHandSkinTargetsData";
+import { AutoMovieHumanHandSkinTargetsData } from "./internal/AutoMovieHumanHandSkinTargetsData";
 /**
  * What the solve's knuckle section, read on the chains, must measure for the
  * meshed skin to measure the hand's breadth and circumference: the hand is
@@ -72,7 +65,7 @@ export namespace AutoMovieHumanHandSkinTargets {
       girth: circumference,
     };
     for (let round: number = 0; round < SKIN_ROUNDS; round++) {
-      const { measures, law, joints } = solve(
+      const { measures, law, joints } = AutoMovieHumanHandSkinTargetsData.solve(
         hand,
         given,
         circumference,
@@ -82,26 +75,26 @@ export namespace AutoMovieHumanHandSkinTargets {
         calibration.diagnostics,
       );
       const map = (q: readonly [number, number, number]): Vec3 =>
-        handPoint(q, measures, law.wrist);
-      const fingers: IAutoMovieHumanHandFinger[] = digitsOf(
+        AutoMovieHumanHandSkinTargetsData.handPoint(q, measures, law.wrist);
+      const fingers: IAutoMovieHumanHandFinger[] = AutoMovieHumanHandSkinTargetsData.digitsOf(
         hand,
         measures,
         law,
         joints,
       );
       const chains: IAutoMovieLoftChain[] = [
-        palmOf(hand, map, "left", 1),
+        AutoMovieHumanHandSkinTargetsData.palmOf(hand, map, "left", 1),
         ...hand.digits
           .slice(1)
           .map(
             (d: IAutoMovieHumanHandDigit, i: number): IAutoMovieLoftChain =>
-              fingerOf(d, i + 1, fingers[i + 1]!, "left", 1),
+              AutoMovieHumanHandSkinTargetsData.fingerOf(d, i + 1, fingers[i + 1]!, "left", 1),
           ),
       ];
       const mesh = AutoMovieHumanBodySurface.generate({
         ...calibration,
         chains,
-        events: events().filter(
+        events: AutoMovieHumanHandSkinTargetsData.events().filter(
           (e: IAutoMovieHumanBranchEvent): boolean =>
             e.parent === "hand.left.1",
         ),

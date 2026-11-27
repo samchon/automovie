@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -243,38 +243,38 @@ export namespace placeOverHeadPath {
     const nape: IAutoMovieVector3 = region("nape").point;
     const throat: IAutoMovieVector3 = region("throat").point;
     const chest: ReturnType<typeof StrikingBody.region> = region("sternum");
-    const neck: IAutoMovieVector3 = Vector3.lerp(nape, throat, 0.5);
-    const up: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(crown, neck),
+    const neck: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(nape, throat, 0.5);
+    const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(crown, neck),
     );
-    const across: IAutoMovieVector3 = Vector3.subtract(throat, nape);
-    const forward: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(across, Vector3.scale(up, Vector3.dot(across, up))),
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(throat, nape);
+    const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(across, AutoMovieEngineVector3.scale(up, AutoMovieEngineVector3.dot(across, up))),
     );
     const level: IAutoMovieQuaternion = HumanHand.align(
       { normal: NORMAL, forward: FORWARD },
       { normal: up, forward },
     );
     // The front's fall about the nape's side-to-side axis.
-    const side: IAutoMovieVector3 = Quaternion.rotateVector(level, {
+    const side: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(level, {
       x: 1,
       y: 0,
       z: 0,
     });
     const tilted = (degrees: number): IAutoMovieQuaternion =>
-      Quaternion.normalize(
-        Quaternion.multiply(Quaternion.fromAxisAngle(side, degrees), level),
+      AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.fromAxisAngle(side, degrees), level),
       );
     const atFall = (degrees: number): IAutoMovieRigidTransform =>
       aligned(tilted(degrees), props.wear, nape);
     const gap = (degrees: number): number => {
       const frame: IAutoMovieRigidTransform = atFall(degrees);
-      const front: IAutoMovieVector3 = Vector3.add(
+      const front: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, props.front),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, props.front),
       );
       return (
-        Vector3.dot(Vector3.subtract(front, chest.point), chest.normal) -
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(front, chest.point), chest.normal) -
         REST -
         props.clearance
       );
@@ -313,7 +313,7 @@ export namespace placeOverHeadPath {
       frame: aligned(
         level,
         props.centre,
-        Vector3.add(crown, Vector3.scale(up, CLEAR)),
+        AutoMovieEngineVector3.add(crown, AutoMovieEngineVector3.scale(up, CLEAR)),
       ),
       pivot: props.centre,
     };
@@ -333,9 +333,9 @@ export namespace placeOverHeadPath {
         // Use half the opening's spare radial clearance to pass behind the
         // head. Check the complete passage before letting the assistant go.
         const spare: number = props.halfBreadth - props.body.measure.headRadius;
-        const behind: IAutoMovieVector3 = Vector3.subtract(
+        const behind: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           neck,
-          Vector3.scale(forward, spare / 2),
+          AutoMovieEngineVector3.scale(forward, spare / 2),
         );
         neckKey = {
           frame: aligned(level, props.centre, behind),
@@ -376,7 +376,7 @@ export namespace placeOverHeadPath {
       .map((key: IKey, i: number): number => {
         const final: boolean = i + 2 === keys.length;
         if (final && !released) return Math.max(1e-6, turnLength);
-        const travel: number = Vector3.distance(
+        const travel: number = AutoMovieEngineVector3.distance(
           pivotOf(key.frame, key.pivot),
           pivotOf(keys[i + 1]!.frame, key.pivot),
         );
@@ -429,9 +429,9 @@ export namespace placeOverHeadPath {
    */
   function clear(a: IKey, b: IKey, sweep: ISweep): boolean {
     const travel: number =
-      Vector3.distance(pivotOf(a.frame, a.pivot), pivotOf(b.frame, a.pivot)) +
+      AutoMovieEngineVector3.distance(pivotOf(a.frame, a.pivot), pivotOf(b.frame, a.pivot)) +
       sweep.radius(a.pivot) *
-        Quaternion.angle(a.frame.rotation, b.frame.rotation);
+        AutoMovieEngineQuaternion.angle(a.frame.rotation, b.frame.rotation);
     return clearsSweep(
       (share: number): number => sweep.gap(between(a, b, share)),
       travel,
@@ -460,9 +460,9 @@ export namespace placeOverHeadPath {
    */
   function between(a: IKey, b: IKey, share: number): IAutoMovieRigidTransform {
     return aligned(
-      Quaternion.slerp(a.frame.rotation, b.frame.rotation, share),
+      AutoMovieEngineQuaternion.slerp(a.frame.rotation, b.frame.rotation, share),
       a.pivot,
-      Vector3.lerp(pivotOf(a.frame, a.pivot), pivotOf(b.frame, a.pivot), share),
+      AutoMovieEngineVector3.lerp(pivotOf(a.frame, a.pivot), pivotOf(b.frame, a.pivot), share),
     );
   }
 }
@@ -508,7 +508,7 @@ function aligned(
   world: IAutoMovieVector3,
 ): IAutoMovieRigidTransform {
   return {
-    position: Vector3.subtract(world, Quaternion.rotateVector(rotation, local)),
+    position: AutoMovieEngineVector3.subtract(world, AutoMovieEngineQuaternion.rotateVector(rotation, local)),
     rotation,
   };
 }
@@ -520,8 +520,8 @@ function pivotOf(
   frame: IAutoMovieRigidTransform,
   local: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, local),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, local),
   );
 }

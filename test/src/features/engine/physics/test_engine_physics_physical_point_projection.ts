@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPointBound as Bound,
   IAutoMoviePhysicalSegment,
@@ -64,7 +64,7 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
         "123": {
           root: {
             position: { x: 0, y: height, z: 0 },
-            rotation: Quaternion.identity(),
+            rotation: AutoMovieEngineQuaternion.identity(),
           },
         },
       },
@@ -98,12 +98,12 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
     Math.abs(angle - Math.PI / 4 - Math.asin(0.01 / Math.SQRT2)) <
       PROJECTED_ANGLE,
   );
-  const axis: V = Vector3.normalize({ x: 1, y: 2, z: -1 });
+  const axis: V = AutoMovieEngineVector3.normalize({ x: 1, y: 2, z: -1 });
   const pose: IAutoMovieRigidTransform = {
     position: { x: 0.4, y: 1.7, z: -0.2 },
-    rotation: Quaternion.multiply(
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 31),
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 67),
+    rotation: AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 31),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 67),
     ),
   };
   const shapes: IAutoMoviePhysicalShape[] = [
@@ -115,7 +115,7 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
       halfLength: 0.3,
       transform: {
         position: { x: 0.2, y: -0.1, z: 0.05 },
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 23),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 23),
       },
     },
     {
@@ -125,14 +125,14 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
       halfExtents: { x: 0.1, y: 0.3, z: 0.2 },
       transform: {
         position: { x: -0.2, y: 0.1, z: 0.05 },
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 41),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 41),
       },
     },
   ];
   for (const shape of shapes)
     for (const sign of [-1, 1]) {
       receiver.segments[0]!.shapes = [shape];
-      const direction: V = Vector3.scale(axis, sign);
+      const direction: V = AutoMovieEngineVector3.scale(axis, sign);
       const bound: Bound = { ...base, axis: direction };
       const before: string = JSON.stringify({
         profile,
@@ -141,19 +141,19 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
         bound,
         pose,
       });
-      const center: V = Vector3.add(
+      const center: V = AutoMovieEngineVector3.add(
         pose.position,
-        Quaternion.rotateVector(pose.rotation, shape.transform.position),
+        AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
       );
       const rotation: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(pose.rotation, shape.transform.rotation);
+        AutoMovieEngineQuaternion.multiply(pose.rotation, shape.transform.rotation);
       const vertices: V[] =
         shape.kind === "capsule"
           ? [-1, 1].map(
               (end: number): V =>
-                Vector3.add(
+                AutoMovieEngineVector3.add(
                   center,
-                  Quaternion.rotateVector(rotation, {
+                  AutoMovieEngineQuaternion.rotateVector(rotation, {
                     x: 0,
                     y: end * shape.halfLength,
                     z: 0,
@@ -164,9 +164,9 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
               [-1, 1].flatMap((y: number): V[] =>
                 [-1, 1].map(
                   (z: number): V =>
-                    Vector3.add(
+                    AutoMovieEngineVector3.add(
                       center,
-                      Quaternion.rotateVector(rotation, {
+                      AutoMovieEngineQuaternion.rotateVector(rotation, {
                         x: x * (shape.kind === "box" ? shape.halfExtents.x : 0),
                         y: y * (shape.kind === "box" ? shape.halfExtents.y : 0),
                         z: z * (shape.kind === "box" ? shape.halfExtents.z : 0),
@@ -177,10 +177,10 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
             );
       const support: number =
         Math.max(
-          ...vertices.map((point: V): number => Vector3.dot(point, direction)),
+          ...vertices.map((point: V): number => AutoMovieEngineVector3.dot(point, direction)),
         ) + (shape.kind === "capsule" ? shape.radius : 0);
       const expected: number =
-        Vector3.dot(poses.source!.position, direction) - support;
+        AutoMovieEngineVector3.dot(poses.source!.position, direction) - support;
       assert.ok(
         Math.abs(
           AutoMovieEnginePhysics.physicalPointProjection(

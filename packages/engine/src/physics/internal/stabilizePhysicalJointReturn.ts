@@ -4,9 +4,9 @@ import type {
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { PhysicalRotationVector as Rotation } from "../PhysicalRotationVector";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalRotationVector as Rotation } from "../AutoMovieEnginePhysicalRotationVector";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
 /*
@@ -26,9 +26,9 @@ export function stabilizePhysicalJointReturn(
   joint: IAutoMoviePhysicalJoint | undefined,
 ): stabilizePhysicalJointReturn.IResult {
   if (joint === undefined) return { result: drifted, angle: 0 };
-  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-    Quaternion.inverse(joint.parentFrame.rotation),
-    Quaternion.multiply(drifted.pose.rotation, joint.childFrame.rotation),
+  const rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(joint.parentFrame.rotation),
+    AutoMovieEngineQuaternion.multiply(drifted.pose.rotation, joint.childFrame.rotation),
   );
   const admitted: IAutoMovieRigidTransform["rotation"] =
     projectPhysicalJointRotation(joint, rotation);
@@ -37,17 +37,17 @@ export function stabilizePhysicalJointReturn(
       ...drifted,
       pose: {
         position: drifted.pose.position,
-        rotation: Quaternion.multiply(
+        rotation: AutoMovieEngineQuaternion.multiply(
           joint.parentFrame.rotation,
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             admitted,
-            Quaternion.inverse(joint.childFrame.rotation),
+            AutoMovieEngineQuaternion.inverse(joint.childFrame.rotation),
           ),
         ),
       },
     },
-    angle: Vector3.length(
-      Rotation.log(Quaternion.multiply(admitted, Quaternion.inverse(rotation))),
+    angle: AutoMovieEngineVector3.length(
+      Rotation.log(AutoMovieEngineQuaternion.multiply(admitted, AutoMovieEngineQuaternion.inverse(rotation))),
     ),
   };
 }

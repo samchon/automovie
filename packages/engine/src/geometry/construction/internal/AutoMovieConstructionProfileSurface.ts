@@ -8,8 +8,8 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionProfileTopology } from "../../AutoMovieConstructionProfileTopology";
-import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
+import { AutoMovieEngineConstructionProfileTopology } from "../../AutoMovieEngineConstructionProfileTopology";
+import { AutoMovieEngineLoftAdmissionError } from "../../AutoMovieEngineLoftAdmissionError";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 
 /*
@@ -36,7 +36,7 @@ export function AutoMovieConstructionProfileSurface(
       : [...originalDomain];
   const period: number | undefined =
     originalDomain === undefined
-      ? AutoMovieConstructionProfileTopology.period(loop, piece, curve)
+      ? AutoMovieEngineConstructionProfileTopology.period(loop, piece, curve)
       : curve.period === undefined
         ? undefined
         : curve.period / (piece.clock[1] - piece.clock[0]);
@@ -163,5 +163,5 @@ function scale(
  * unchanged.
  */
 function fail(message: string): never {
-  throw new AutoMovieLoftAdmissionError(message);
+  throw new AutoMovieEngineLoftAdmissionError(message);
 }

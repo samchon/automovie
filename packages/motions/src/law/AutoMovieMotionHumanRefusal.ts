@@ -180,7 +180,7 @@ export class AutoMovieMotionHumanRefusal extends Error {
   }
 }
 
-/** Companion types of {@link HumanRefusal}. */
+/** Companion types of {@link AutoMovieMotionHumanRefusal}. */
 export namespace AutoMovieMotionHumanRefusal {
   /**
    * The classes of refusal as data, from which {@link Kind} is derived: what a

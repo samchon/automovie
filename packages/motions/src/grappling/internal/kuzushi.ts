@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
@@ -100,8 +100,8 @@ export namespace kuzushi {
     // knees or swaying keeps its root where no tip is added.
     const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
       context.entry.feet;
-    const pivot: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(feet.left.ankle, feet.right.ankle),
+    const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(feet.left.ankle, feet.right.ankle),
       0.5,
     );
     return {

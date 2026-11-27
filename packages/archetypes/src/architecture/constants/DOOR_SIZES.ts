@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeDoor } from "../AutoMovieArchetypeDoor";
-import * as DoorSizesData from "./internal/DoorSizesData";
+import { DoorSizesData } from "./internal/DoorSizesData";
 
 /*
  * The door sizes read, metres, each a standard's or a maker's closed list: the

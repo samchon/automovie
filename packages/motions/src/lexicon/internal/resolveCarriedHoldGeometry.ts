@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
@@ -52,26 +52,26 @@ export function resolveCarriedHoldGeometry(
     wanted.add(borne.surfaces.regions[right.region].bone);
   const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     HumanTrunk.resolve(borne, keyed, undefined, undefined, wanted);
-  const back: IAutoMovieQuaternion = Quaternion.inverse(
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     humanPostureHeading(keyed),
   );
   const inverse: IAutoMovieQuaternion | undefined =
-    frame === undefined ? undefined : Quaternion.inverse(frame.rotation);
+    frame === undefined ? undefined : AutoMovieEngineQuaternion.inverse(frame.rotation);
   // Compose the borne key into this bearer's anchor once. The torso and
   // fitted leg joints keep this transform throughout the hold.
-  const turn: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(coupling.key.rotation, back),
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(coupling.key.rotation, back),
   );
   const ownTurn: IAutoMovieQuaternion =
     inverse === undefined
       ? turn
-      : Quaternion.normalize(Quaternion.multiply(inverse, turn));
+      : AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(inverse, turn));
   const origin: IAutoMovieVector3 =
     frame === undefined || inverse === undefined
       ? coupling.key.position
-      : Quaternion.rotateVector(
+      : AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(coupling.key.position, frame.position),
+          AutoMovieEngineVector3.subtract(coupling.key.position, frame.position),
         );
   const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
     HumanColliders.placed(borne, mine).map(
@@ -80,12 +80,12 @@ export function resolveCarriedHoldGeometry(
       ): IAutoMovieMotionHumanColliders.IPlaced => ({
         ...segment,
         pose: {
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             origin,
-            Quaternion.rotateVector(ownTurn, segment.pose.position),
+            AutoMovieEngineQuaternion.rotateVector(ownTurn, segment.pose.position),
           ),
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(ownTurn, segment.pose.rotation),
+          rotation: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(ownTurn, segment.pose.rotation),
           ),
         },
       }),
@@ -104,36 +104,36 @@ export function resolveCarriedHoldGeometry(
       );
     const point: IAutoMovieVector3 =
       contact.at ??
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         coupling.key.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           coupling.key.rotation,
-          Quaternion.rotateVector(back, placed.point),
+          AutoMovieEngineQuaternion.rotateVector(back, placed.point),
         ),
       );
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       coupling.key.rotation,
-      Quaternion.rotateVector(back, placed.normal),
+      AutoMovieEngineQuaternion.rotateVector(back, placed.normal),
     );
     const fingers: IAutoMovieVector3 | undefined = row.holds[index]?.fingers;
     return {
       point:
         frame === undefined || inverse === undefined
           ? point
-          : Quaternion.rotateVector(
+          : AutoMovieEngineQuaternion.rotateVector(
               inverse,
-              Vector3.subtract(point, frame.position),
+              AutoMovieEngineVector3.subtract(point, frame.position),
             ),
       normal:
         inverse === undefined
           ? normal
-          : Quaternion.rotateVector(inverse, normal),
+          : AutoMovieEngineQuaternion.rotateVector(inverse, normal),
       ...(fingers === undefined
         ? {}
         : {
-            forward: Quaternion.rotateVector(
+            forward: AutoMovieEngineQuaternion.rotateVector(
               ownTurn,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 mine.get(surface.bone)!.worldRotation,
                 fingers,
               ),

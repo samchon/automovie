@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 
 /*
  * One world box per drawn part of one placed element, in the model's part
@@ -41,7 +41,7 @@ export function builtPlacedPartBoxes(
     if (box !== null) boxes.push(box);
   }
   if (boxes.length !== 0) return boxes;
-  const origin: IAutoMovieVector3 = Matrix4.position(world);
+  const origin: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(world);
   return [{ min: { ...origin }, max: { ...origin } }];
 }
 
@@ -61,9 +61,9 @@ const placedPartBox: (
   const m: number[] =
     part.transform === null
       ? world
-      : Matrix4.multiply(
+      : AutoMovieEngineMatrix4.multiply(
           world,
-          Matrix4.compose(
+          AutoMovieEngineMatrix4.compose(
             part.transform.translation,
             part.transform.rotation,
             part.transform.scale,

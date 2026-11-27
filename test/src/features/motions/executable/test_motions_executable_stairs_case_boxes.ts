@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanClimbStairsFlight } from "@automovie/interface";
-import { type IMotionCaptureCase, stairsCaseBoxes } from "@automovie/motions/executable/internal";
+import type {
+  IMotionCaptureCase
+} from "../../../../../packages/motions/src/executable/internal/IMotionCaptureCase";
+import {
+  stairsCaseBoxes
+} from "../../../../../packages/motions/src/executable/cases/internal/stairsCaseBoxes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeCyclingHelmet } from "../AutoMovieArchetypeCyclingHelmet";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
@@ -39,7 +39,7 @@ export function createCyclingHelmet(
       params,
       seed,
     );
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const thin: number = WornPropDraw.THIN;
 
   // An elliptical rim and three rings rising to the crown.

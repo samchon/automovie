@@ -1,4 +1,4 @@
-import { Transform, AutoMovieEnginePopulationFormation, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineTransform, AutoMovieEnginePopulationFormation, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieFormationDesign,
   IAutoMovieFormationSlotPlacement,
@@ -174,7 +174,7 @@ export function test_engine_space_formation_stage_marks(): void {
             id: design.id,
             count: design.count,
             heroes: [
-              { slot: 3, actor: "leader", transform: Transform.identity() },
+              { slot: 3, actor: "leader", transform: AutoMovieEngineTransform.identity() },
             ],
           },
         ],

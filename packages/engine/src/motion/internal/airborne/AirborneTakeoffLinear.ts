@@ -1,11 +1,11 @@
 import { AutoMovieEngineKinematics } from "../../../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieVector3Tuple, IAutoMovieQuaternion, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieSolidVector } from "../../../geometry/AutoMovieSolidVector";
+import { AutoMovieEngineSolidVector } from "../../../geometry/AutoMovieEngineSolidVector";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import type { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
-import { AutoMoviePhysicalInertiaTensor } from "../../../physics/AutoMoviePhysicalInertiaTensor";
+import { AutoMovieEnginePhysicalInertiaTensor } from "../../../physics/AutoMovieEnginePhysicalInertiaTensor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffQuadrature } from "../AirborneTakeoffQuadrature";
 import { AutoMovieEngineMotionTrajectory } from "../../AutoMovieEngineMotionTrajectory";
@@ -79,10 +79,10 @@ export function AirborneTakeoffLinear(
       AirborneShapeHistory.factor(instant);
     if (factor !== undefined) {
       if (intoBasis === undefined) {
-        const back: IAutoMovieQuaternion = Quaternion.inverse(into);
+        const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(into);
         intoBasis = [0, 1, 2].map(
           (axis: number): IAutoMovieVector3 =>
-            Quaternion.rotateVector(back, {
+            AutoMovieEngineQuaternion.rotateVector(back, {
               x: axis === 0 ? 1 : 0,
               y: axis === 1 ? 1 : 0,
               z: axis === 2 ? 1 : 0,
@@ -91,7 +91,7 @@ export function AirborneTakeoffLinear(
       }
       const columns: IAutoMovieVector3[] = intoBasis.map(
         (basis: IAutoMovieVector3): IAutoMovieVector3 =>
-          Quaternion.rotateVector(into, factor.solve(basis)),
+          AutoMovieEngineQuaternion.rotateVector(into, factor.solve(basis)),
       );
       return {
         inverse: [
@@ -99,18 +99,18 @@ export function AirborneTakeoffLinear(
           [columns[0]!.y, columns[1]!.y, columns[2]!.y],
           [columns[0]!.z, columns[1]!.z, columns[2]!.z],
         ],
-        lag: Quaternion.rotateVector(into, factor.solve(instant.relative)),
+        lag: AutoMovieEngineQuaternion.rotateVector(into, factor.solve(instant.relative)),
       };
     }
     const { inertia, relative }: typeof instant = instant;
     const { x, y, z }: IAutoMovieVector3 = inertia.moments;
-    const inverse: number[][] = AutoMoviePhysicalInertiaTensor.compute(
+    const inverse: number[][] = AutoMovieEnginePhysicalInertiaTensor.compute(
       [
         {
           mass: 0,
           centerOfMass: origin,
           inertia: { x: 1 / x, y: 1 / y, z: 1 / z },
-          inertiaRotation: Quaternion.multiply(into, inertia.rotation),
+          inertiaRotation: AutoMovieEngineQuaternion.multiply(into, inertia.rotation),
         },
       ],
       origin,
@@ -119,7 +119,7 @@ export function AirborneTakeoffLinear(
       inverse,
       lag: AutoMovieEngineKinematics.applyAutoMovieMomentumTensor(
         inverse,
-        Quaternion.rotateVector(into, relative),
+        AutoMovieEngineQuaternion.rotateVector(into, relative),
       ),
     };
   };
@@ -240,7 +240,7 @@ export namespace AirborneTakeoffLinear {
    * States row orientation, the right-hand side, input ownership and the
    * nullable result. Admits finite entries, then delegates the unchanged
    * Cramer solve and determinant-to-column-norm rejection to
-   * AutoMovieSolidVector.solve3; this is not a conditioning or error
+   * AutoMovieEngineSolidVector.solve3; this is not a conditioning or error
    * certificate. Check finiteness, copy three columns and the right-hand
    * side, then delegate. Preserves the shooting solver's prior finite and
    * singular behavior without a clamp, damping term or alternate numeric
@@ -257,7 +257,7 @@ export namespace AirborneTakeoffLinear {
     const column: (c: number) => AutoMovieVector3Tuple = (
       c: number,
     ): AutoMovieVector3Tuple => [a[0]![c]!, a[1]![c]!, a[2]![c]!];
-    return AutoMovieSolidVector.solve3(column(0), column(1), column(2), [
+    return AutoMovieEngineSolidVector.solve3(column(0), column(1), column(2), [
       b[0]!,
       b[1]!,
       b[2]!,

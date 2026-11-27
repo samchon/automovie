@@ -5,8 +5,8 @@ import type {
   IAutoMovieTessellateParametricAtlas64,
 } from "@automovie/interface";
 
-import { AutoMovieCanonicalBoundary64 as Q } from "../../AutoMovieCanonicalBoundary64";
-import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
+import { AutoMovieEngineCanonicalBoundary64 as Q } from "../../AutoMovieEngineCanonicalBoundary64";
+import { AutoMovieEngineCurveMath64 as M } from "../../AutoMovieEngineCurveMath64";
 
 /*
  * Sample finite parametric charts with declared boundary incidence. Fields and

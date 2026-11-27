@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeBarData from "./internal/AutoMovieArchetypeBarData";
+import { AutoMovieArchetypeBarData } from "./internal/AutoMovieArchetypeBarData";
 
 /** Creates a deterministic bar fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeBar {
@@ -82,8 +82,8 @@ export namespace AutoMovieArchetypeBar {
     builder.rod(
       "bar",
       radius,
-      Vector3.create(-d.length! / 2, y, 0),
-      Vector3.create(d.length! / 2, y, 0),
+      AutoMovieEngineVector3.create(-d.length! / 2, y, 0),
+      AutoMovieEngineVector3.create(d.length! / 2, y, 0),
       { color: "#8a8d91" },
     );
     for (const side of [1, -1] as const) {
@@ -91,10 +91,10 @@ export namespace AutoMovieArchetypeBar {
       builder.rod(
         side === 1 ? "support-left" : "support-right",
         kind === "grab" ? radius : 0.025,
-        Vector3.create(x, y, 0),
+        AutoMovieEngineVector3.create(x, y, 0),
         kind === "grab"
-          ? Vector3.create(x, y, -AutoMovieArchetypeBar.GAP - radius)
-          : Vector3.create(x, 0, 0),
+          ? AutoMovieEngineVector3.create(x, y, -AutoMovieArchetypeBar.GAP - radius)
+          : AutoMovieEngineVector3.create(x, 0, 0),
         { color: "#55595f" },
       );
     }
@@ -102,7 +102,7 @@ export namespace AutoMovieArchetypeBar {
       id: "bar",
       kind: "bar",
       symmetry: "round",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, y, 0)),
       extent: null,
       grip: "power",
       aperture: d.diameter!,

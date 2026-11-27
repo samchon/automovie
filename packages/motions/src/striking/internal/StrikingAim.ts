@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingAim,
   IAutoMovieSuperposeMinimumJerk,
@@ -83,13 +83,13 @@ export namespace StrikingAim {
   ): IAutoMovieVector3 {
     const now: IAutoMovieVector3 = aim(seconds);
     const before: IAutoMovieVector3 = aim(seconds - step);
-    const velocity: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(now, before),
+    const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(now, before),
       1 / step,
     );
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       now,
-      Vector3.scale(velocity, Math.max(0, impact - seconds)),
+      AutoMovieEngineVector3.scale(velocity, Math.max(0, impact - seconds)),
     );
   }
 
@@ -113,7 +113,7 @@ export namespace StrikingAim {
     // the knots of the corrections the tracker superposes.
     const predictions: readonly IAutoMovieVector3[] = times.map(
       (t: number): IAutoMovieVector3 =>
-        Vector3.add(predict(aim, t, timing.impact, timing.step), offset),
+        AutoMovieEngineVector3.add(predict(aim, t, timing.impact, timing.step), offset),
     );
     const prediction = (k: number): IAutoMovieVector3 => predictions[k]!;
     const planned: IAutoMovieVector3 = prediction(0);
@@ -136,7 +136,7 @@ export namespace StrikingAim {
         const start: number = times[k]! + timing.latency;
         if (start > seconds) break;
         emit(
-          Vector3.subtract(prediction(k), prediction(k - 1)),
+          AutoMovieEngineVector3.subtract(prediction(k), prediction(k - 1)),
           start,
           timing.impact - start,
         );
@@ -172,7 +172,7 @@ export namespace StrikingAim {
           (
             g: IAutoMovieVector3,
             displacement: IAutoMovieVector3,
-          ): IAutoMovieVector3 => Vector3.add(g, displacement),
+          ): IAutoMovieVector3 => AutoMovieEngineVector3.add(g, displacement),
           planned,
         );
       },

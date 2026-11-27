@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeFireExtinguisher } from "../AutoMovieArchetypeFireExtinguisher";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -28,7 +28,7 @@ export function createFireExtinguisher(
   AutoMovieArchetypeFireExtinguisher.Affordance,
   AutoMovieArchetypeFireExtinguisher.Dimension
 > {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = SIZE.diameter / 2;
   const body: number = SIZE.height - 0.08;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeFireExtinguisher.Dimension> =

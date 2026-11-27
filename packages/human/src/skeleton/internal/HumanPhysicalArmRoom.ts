@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
@@ -115,15 +115,15 @@ function openArm(
     poses[root]!,
     joint.childFrame.position,
   );
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(
       poses[joint.parent]!.rotation,
       joint.parentFrame.rotation,
     ),
     { x: 0, y: 0, z: 0, [channel.axis]: 1 },
   );
   const turn = (degrees: number): Record<string, IAutoMovieRigidTransform> => {
-    const by: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axis, degrees);
+    const by: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees);
     return Object.fromEntries(
       limbs.map(
         (
@@ -133,14 +133,14 @@ function openArm(
           return [
             segment.bone,
             {
-              position: Vector3.add(
+              position: AutoMovieEngineVector3.add(
                 pivot,
-                Quaternion.rotateVector(
+                AutoMovieEngineQuaternion.rotateVector(
                   by,
-                  Vector3.subtract(from.position, pivot),
+                  AutoMovieEngineVector3.subtract(from.position, pivot),
                 ),
               ),
-              rotation: Quaternion.multiply(by, from.rotation),
+              rotation: AutoMovieEngineQuaternion.multiply(by, from.rotation),
             },
           ];
         },

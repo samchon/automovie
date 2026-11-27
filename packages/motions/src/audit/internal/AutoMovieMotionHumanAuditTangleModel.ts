@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -93,26 +93,26 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         for (const shape of p.shapes)
           for (const corner of HumanColliderCorners(shape))
             probes.push(
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 shape.transform.position,
-                Quaternion.rotateVector(shape.transform.rotation, corner),
+                AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, corner),
               ),
             );
         const surface: number = probes.length;
-        const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+        const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
           p.pose.rotation,
         );
         const joint: IAutoMovieVector3 = body.rest.get(p.bone)!;
         for (const child of children.get(p.bone) ?? [])
           for (const share of [0.25, 0.5, 0.75])
             probes.push(
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 inverse,
-                Vector3.subtract(
-                  Vector3.add(
+                AutoMovieEngineVector3.subtract(
+                  AutoMovieEngineVector3.add(
                     joint,
-                    Vector3.scale(
-                      Vector3.subtract(body.rest.get(child)!, joint),
+                    AutoMovieEngineVector3.scale(
+                      AutoMovieEngineVector3.subtract(body.rest.get(child)!, joint),
                       share,
                     ),
                   ),
@@ -122,28 +122,28 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
             );
         let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
         for (const probe of probes)
-          centre = Vector3.add(centre, Vector3.scale(probe, 1 / probes.length));
+          centre = AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(probe, 1 / probes.length));
         let radius: number = 0;
         for (const probe of probes)
           radius = Math.max(
             radius,
-            Vector3.length(Vector3.subtract(probe, centre)),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(probe, centre)),
           );
 
         // The farthest a probe, or a shape's bounding sphere as the depth
         // reader places it, lies from the segment's origin.
         let extent: number = 0;
         for (const probe of probes)
-          extent = Math.max(extent, Vector3.length(probe));
+          extent = Math.max(extent, AutoMovieEngineVector3.length(probe));
         for (const shape of p.shapes) {
           const ball: IAutoMovieMotionHumanColliders.IBall =
             HumanColliders.bound(shape);
           extent = Math.max(
             extent,
-            Vector3.length(
-              Vector3.add(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.add(
                 shape.transform.position,
-                Quaternion.rotateVector(shape.transform.rotation, ball.centre),
+                AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, ball.centre),
               ),
             ) + ball.radius,
           );
@@ -267,9 +267,9 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     p: IAutoMovieMotionHumanColliders.IPlaced,
     part: IAutoMovieMotionHumanAuditTangleModel.IPart,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       p.pose.position,
-      Quaternion.rotateVector(p.pose.rotation, part.centre),
+      AutoMovieEngineQuaternion.rotateVector(p.pose.rotation, part.centre),
     );
   }
 

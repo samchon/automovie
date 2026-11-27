@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -92,7 +92,7 @@ export function crutchSitDown(
   const hA: IAutoMovieMotionHumanHeld.IHeld = held(injured);
   const hB: IAutoMovieMotionHumanHeld.IHeld = held(sound);
   const reachOf = (side: AutoMovieHumanSide): number =>
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       crutchSitPath.socket(body, context.entry.pose, side),
       kit.goal(side, side === injured ? hA : hB, kit.start(side)).point,
     );
@@ -107,10 +107,10 @@ export function crutchSitDown(
   // The seated hand's grip place beside the injured thigh, and the tip on
   // the floor ahead of it from which the crutch's length reaches it.
   const cA: crutchSitPath.ICrutch = crutch[injured];
-  const seatedAt: IAutoMovieVector3 = Vector3.add(
-    Vector3.add(
+  const seatedAt: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(
       seat.at,
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         crutchSitKit.lateral(seat.yaw, injured),
         m.hipHalfWidth + m.thighRadius + BESIDE,
       ),
@@ -123,9 +123,9 @@ export function crutchSitDown(
   );
   const tilt: number =
     (Math.acos(Math.min(1, seatedAt.y / cA.length)) * 180) / Math.PI;
-  const tip: IAutoMovieVector3 = Vector3.add(
+  const tip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     { x: seatedAt.x, y: 0, z: seatedAt.z },
-    Vector3.scale(f, cA.length * Math.sin((tilt * Math.PI) / 180)),
+    AutoMovieEngineVector3.scale(f, cA.length * Math.sin((tilt * Math.PI) / 180)),
   );
   const gatheredA: IAutoMovieRigidTransform = crutchSitKit.gathered(
     kit,
@@ -137,18 +137,18 @@ export function crutchSitDown(
     entry,
     sound,
   );
-  const tipA: IAutoMovieVector3 = Vector3.add(
+  const tipA: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     gatheredA.position,
-    Quaternion.rotateVector(gatheredA.rotation, cA.tip),
+    AutoMovieEngineQuaternion.rotateVector(gatheredA.rotation, cA.tip),
   );
-  const gripA: IAutoMovieVector3 = Vector3.add(
+  const gripA: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     gatheredA.position,
-    Quaternion.rotateVector(gatheredA.rotation, cA.grip),
+    AutoMovieEngineQuaternion.rotateVector(gatheredA.rotation, cA.grip),
   );
   const gather: number = AutoMovieMotionHumanTiming.transport(
     Math.max(
-      Vector3.distance(kit.start(injured).position, gatheredA.position),
-      Vector3.distance(kit.start(sound).position, gatheredB.position),
+      AutoMovieEngineVector3.distance(kit.start(injured).position, gatheredA.position),
+      AutoMovieEngineVector3.distance(kit.start(sound).position, gatheredB.position),
     ),
   );
 
@@ -165,10 +165,10 @@ export function crutchSitDown(
             body,
             sound,
             "palm",
-            Vector3.add(
-              Vector3.add(
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.add(
                 seat.at,
-                Vector3.scale(
+                AutoMovieEngineVector3.scale(
                   crutchSitKit.lateral(seat.yaw, sound),
                   m.hipHalfWidth + m.thighRadius + BESIDE,
                 ),
@@ -249,8 +249,8 @@ export function crutchSitDown(
             under,
             crutchSitPath.slid(
               cA,
-              Vector3.lerp(tipA, tip, k),
-              Vector3.lerp(gripA, seatedAt, k),
+              AutoMovieEngineVector3.lerp(tipA, tip, k),
+              AutoMovieEngineVector3.lerp(gripA, seatedAt, k),
               f,
             ),
           );

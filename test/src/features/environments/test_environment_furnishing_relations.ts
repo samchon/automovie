@@ -6,10 +6,12 @@ import {
   AutoMovieArchetypeTable,
 } from "@automovie/archetypes";
 import {
-  AutoMovieEnvironment,
-  AutoMovieEnvironmentFurnishing,
-} from "@automovie/archetypes/environments";
-import { AutoMovieEngineFilm, Quaternion, Transform } from "@automovie/engine";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import {
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
+import { AutoMovieEngineFilm, AutoMovieEngineQuaternion, AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   AutoMovieFurnishingWall,
   IAutoMovieEnvironment,
@@ -86,12 +88,12 @@ export function test_environment_furnishing_relations(): void {
       Record<string, { x: number; z: number; width: number; depth: number }>
     >,
   ): IAutoMovieEnvironment =>
-    AutoMovieEnvironment.create({
+    AutoMovieArchetypeEnvironment.create({
       id: "home",
       seed: 7,
       items: {
         room: {
-          use: AutoMovieEnvironmentFurnishing.furnishedRoom({
+          use: AutoMovieArchetypeEnvironmentFurnishing.furnishedRoom({
             room,
             pieces,
             ...(keepClear !== undefined ? { keepClear } : {}),
@@ -117,7 +119,7 @@ export function test_environment_furnishing_relations(): void {
     for (const x of [rest.min.x, rest.max.x])
       for (const y of [rest.min.y, rest.max.y])
         for (const z of [rest.min.z, rest.max.z]) {
-          const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+          const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             frame.rotation,
             { x, y, z },
           );
@@ -155,7 +157,7 @@ export function test_environment_furnishing_relations(): void {
     environment: IAutoMovieEnvironment,
     role: string,
   ): IAutoMovieVector3 =>
-    Quaternion.rotateVector(environment.anchors[`room/${role}`]!.rotation, {
+    AutoMovieEngineQuaternion.rotateVector(environment.anchors[`room/${role}`]!.rotation, {
       x: 0,
       y: 0,
       z: 1,
@@ -264,13 +266,13 @@ export function test_environment_furnishing_relations(): void {
     hungPieces,
   );
   const contribution: IAutoMovieEnvironmentContribution =
-    AutoMovieEnvironmentFurnishing.furnishedRoom({
+    AutoMovieArchetypeEnvironmentFurnishing.furnishedRoom({
       room: { width: 4.0, depth: 3.2 },
       pieces: hungPieces,
     })({
       id: "home/room",
       seed: undefined,
-      frame: Transform.identity(),
+      frame: AutoMovieEngineTransform.identity(),
       anchor: (id: string): IAutoMovieTransform => {
         throw new Error(`no anchor ${id}`);
       },

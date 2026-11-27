@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -271,7 +271,7 @@ export namespace AutoMovieMotionHumanArmObservation {
       resolution,
     );
     return {
-      error: Vector3.subtract(now.point, then.point),
+      error: AutoMovieEngineVector3.subtract(now.point, then.point),
       contact: now.contact,
       base: {
         pose,
@@ -342,10 +342,10 @@ export namespace AutoMovieMotionHumanArmObservation {
       point:
         world.contact === undefined
           ? world.point
-          : Vector3.add(
+          : AutoMovieEngineVector3.add(
               world.point,
-              Quaternion.rotateVector(
-                world.rotation ?? Quaternion.identity(),
+              AutoMovieEngineQuaternion.rotateVector(
+                world.rotation ?? AutoMovieEngineQuaternion.identity(),
                 world.contact,
               ),
             ),
@@ -395,7 +395,7 @@ function arcSamples(
   const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
   const reach: number = Math.max(
     ...probes.map((bone: AutoMovieHumanoidBone): number =>
-      Vector3.length(Vector3.subtract(body.rest.get(bone)!, shoulder)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(body.rest.get(bone)!, shoulder)),
     ),
   );
   const tolerance: number = HumanArmTrajectoryModel.TOLERANCE / 1000;
@@ -456,7 +456,7 @@ function arcs(
       rate === undefined ? time : AutoMovieEngineMotionSampling.minimumJerkShare(time),
     );
     next.forEach((p: IAutoMovieVector3, j: number): void => {
-      const distance: number = Vector3.length(Vector3.subtract(p, last[j]!));
+      const distance: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p, last[j]!));
       length[j]! += distance;
       if (rate !== undefined && j < 2)
         rate.peak = Math.max(rate.peak, distance * samples);

@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeHull } from "./physicalShapeHull";
 
 /*
@@ -21,16 +21,16 @@ export function physicalShapeSurfaceAnchor(
   shape: IAutoMoviePhysicalShape,
   normal: IAutoMovieVector3,
 ): IAutoMoviePhysicalShapeSurfaceAnchor.IResult {
-  const world: IAutoMovieVector3 = Quaternion.rotateVector(
+  const world: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     pose.rotation,
-    Vector3.normalize(normal),
+    AutoMovieEngineVector3.normalize(normal),
   );
-  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
-  const direction: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(rotation),
+  const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(rotation),
     world,
   );
   const sign: (value: number) => number = (value: number): number =>
@@ -43,7 +43,7 @@ export function physicalShapeSurfaceAnchor(
       z: sign(direction.z) * shape.halfExtents.z,
     };
   else if (shape.kind === "sphere" || shape.kind === "capsule")
-    point = Vector3.add(Vector3.scale(direction, shape.radius), {
+    point = AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(direction, shape.radius), {
       x: 0,
       y: shape.kind === "capsule" ? sign(direction.y) * shape.halfLength : 0,
       z: 0,
@@ -54,25 +54,25 @@ export function physicalShapeSurfaceAnchor(
     const hull: IAutoMoviePhysicalHullFaces.IHull = physicalShapeHull(shape);
     let reach: number = -Infinity;
     for (const vertex of hull.vertices)
-      reach = Math.max(reach, Vector3.dot(vertex, direction));
+      reach = Math.max(reach, AutoMovieEngineVector3.dot(vertex, direction));
     const support: IAutoMovieVector3[] = hull.vertices.filter(
       (vertex: IAutoMovieVector3): boolean =>
-        Vector3.dot(vertex, direction) >= reach - hull.tolerance,
+        AutoMovieEngineVector3.dot(vertex, direction) >= reach - hull.tolerance,
     );
     point = { x: 0, y: 0, z: 0 };
     for (const vertex of support)
-      point = Vector3.add(point, Vector3.scale(vertex, 1 / support.length));
+      point = AutoMovieEngineVector3.add(point, AutoMovieEngineVector3.scale(vertex, 1 / support.length));
   } else {
     shape satisfies never;
     throw new Error("Unknown physical shape kind");
   }
   return {
-    point: Vector3.add(
-      Vector3.add(
+    point: AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         pose.position,
-        Quaternion.rotateVector(pose.rotation, shape.transform.position),
+        AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
       ),
-      Quaternion.rotateVector(rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(rotation, point),
     ),
     normal: world,
   };

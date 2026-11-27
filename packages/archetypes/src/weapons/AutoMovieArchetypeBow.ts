@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -16,7 +16,7 @@ import { bowLimbs } from "./internal/bowLimbs";
 import { AutoMovieArchetypeStageHandBowProp } from "./AutoMovieArchetypeStageHandBowProp";
 import { AutoMovieArchetypeStageStockBowProp } from "./AutoMovieArchetypeStageStockBowProp";
 import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
-import * as AutoMovieArchetypeBowData from "./internal/AutoMovieArchetypeBowData";
+import { AutoMovieArchetypeBowData } from "./internal/AutoMovieArchetypeBowData";
 
 /** Constructs the bow archetype from its recipe. */
 export namespace AutoMovieArchetypeBow {
@@ -264,15 +264,15 @@ export function create(
     longbow: {
       s1: {
         mass: 0.905,
-        draw: 108 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 108 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       s2: {
         mass: 0.868,
-        draw: 101 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 101 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       s3: {
         mass: 0.785,
-        draw: 141 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 141 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
     },
     recurve: {
@@ -328,34 +328,34 @@ export function create(
   > = {
     horseBow: {
       lb15: {
-        draw: 15 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 15 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb20: {
-        draw: 20 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 20 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb25: {
-        draw: 25 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 25 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb30: {
-        draw: 30 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 30 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb35: {
-        draw: 35 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 35 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb40: {
-        draw: 40 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 40 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb45: {
-        draw: 45 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 45 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb50: {
-        draw: 50 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 50 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb55: {
-        draw: 55 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 55 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
       lb60: {
-        draw: 60 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+        draw: 60 * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD,
       },
     },
   };

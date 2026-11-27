@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -124,16 +124,16 @@ export namespace StrikingLimb {
       if (!punch) return world;
       const chest: IAutoMovieResolvedBone = (bones.get("upperChest") ??
         bones.get("chest"))!;
-      return Quaternion.rotateVector(
-        Quaternion.inverse(chest.worldRotation),
-        Vector3.subtract(world, chest.worldPosition),
+      return AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(chest.worldRotation),
+        AutoMovieEngineVector3.subtract(world, chest.worldPosition),
       );
     };
     let best: End = candidates[0]!;
     let far: number = -1;
     for (const bone of candidates) {
-      const moved: number = Vector3.length(
-        Vector3.subtract(seen(mid, bone), seen(start, bone)),
+      const moved: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(seen(mid, bone), seen(start, bone)),
       );
       if (moved > far) {
         far = moved;
@@ -261,14 +261,14 @@ export namespace StrikingLimb {
     }
     const hand: IAutoMovieResolvedBone = bones.get(`${s}Hand`)!;
     const elbow: IAutoMovieVector3 = bones.get(`${s}LowerArm`)!.worldPosition;
-    const reach: IAutoMovieVector3 = Vector3.subtract(
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.sockets[s === "left" ? "fistLeft" : "fistRight"],
         hand,
       ).point,
       hand.worldPosition,
     );
-    const span: number = Vector3.length(reach);
+    const span: number = AutoMovieEngineVector3.length(reach);
     const [upper, [r]]: [
       readonly [number, number],
       readonly [number, number],
@@ -286,9 +286,9 @@ export namespace StrikingLimb {
       {
         name: "fist",
         a: hand.worldPosition,
-        b: Vector3.add(
+        b: AutoMovieEngineVector3.add(
           hand.worldPosition,
-          Vector3.scale(reach, Math.max(0, span - r) / Math.max(1e-9, span)),
+          AutoMovieEngineVector3.scale(reach, Math.max(0, span - r) / Math.max(1e-9, span)),
         ),
         radius: r,
         tail: r,
@@ -310,14 +310,14 @@ export namespace StrikingLimb {
    * Returns: Metres, negative inside.
    */
   export function surface(point: IAutoMovieVector3, capsule: ICapsule): number {
-    const axis: IAutoMovieVector3 = Vector3.subtract(capsule.b, capsule.a);
-    const length: number = Vector3.length(axis);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(capsule.b, capsule.a);
+    const length: number = AutoMovieEngineVector3.length(axis);
     const at = (u: number): number =>
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           point,
           length > 1e-12
-            ? Vector3.add(capsule.a, Vector3.scale(axis, u / length))
+            ? AutoMovieEngineVector3.add(capsule.a, AutoMovieEngineVector3.scale(axis, u / length))
             : capsule.a,
         ),
       ) -
@@ -326,9 +326,9 @@ export namespace StrikingLimb {
     if (!(length > 1e-12)) return at(0);
     const k: number = (capsule.tail - capsule.radius) / length;
     if (!(Math.abs(k) < 1)) return Math.min(at(0), at(length));
-    const from: IAutoMovieVector3 = Vector3.subtract(point, capsule.a);
-    const s: number = Vector3.dot(from, axis) / length;
-    const h: number = Math.sqrt(Math.max(0, Vector3.dot(from, from) - s * s));
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, capsule.a);
+    const s: number = AutoMovieEngineVector3.dot(from, axis) / length;
+    const h: number = Math.sqrt(Math.max(0, AutoMovieEngineVector3.dot(from, from) - s * s));
     return at(
       Math.min(length, Math.max(0, s + (k * h) / Math.sqrt(1 - k * k))),
     );

@@ -1,8 +1,8 @@
 import {
-  AutoMoviePhysicalProjectile,
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEnginePhysicalProjectile,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionPropLaunch,
@@ -61,17 +61,17 @@ export function launchPropProjectile(
   const centre: IAutoMovieVector3 =
     sphere === undefined
       ? origin
-      : Vector3.add(origin, Quaternion.rotateVector(rotation, sphere.centre));
+      : AutoMovieEngineVector3.add(origin, AutoMovieEngineQuaternion.rotateVector(rotation, sphere.centre));
   const projectile: IAutoMovieProjectile = {
     origin: centre,
     velocity:
       aim === undefined
         ? launch.velocity
-        : Vector3.subtract(
-            Vector3.scale(Vector3.subtract(aim.point, centre), 1 / aim.seconds),
-            Vector3.scale(AutoMovieGravity.DOWN, aim.seconds / 2),
+        : AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(aim.point, centre), 1 / aim.seconds),
+            AutoMovieEngineVector3.scale(AutoMovieEngineGravity.DOWN, aim.seconds / 2),
           ),
-    gravity: AutoMovieGravity.DOWN,
+    gravity: AutoMovieEngineGravity.DOWN,
     ...(drag === undefined ? {} : { drag }),
     attitude:
       launch.attitude === undefined
@@ -82,5 +82,5 @@ export function launchPropProjectile(
   };
   return drag === undefined
     ? projectile
-    : { ...projectile, flight: AutoMoviePhysicalProjectile.dragFlight(projectile) };
+    : { ...projectile, flight: AutoMovieEnginePhysicalProjectile.dragFlight(projectile) };
 }

@@ -7,7 +7,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { createAutoMovieBoneMotion } from "./createAutoMovieBoneMotion";
 import { poseAutoMovieSweep } from "./poseAutoMovieSweep";
 
@@ -128,7 +128,7 @@ export const poseAutoMovieSurfaceNetwork: (
                   ...(c.direction === undefined
                     ? {}
                     : {
-                        direction: Quaternion.rotateVector(
+                        direction: AutoMovieEngineQuaternion.rotateVector(
                           m.rotation,
                           c.direction,
                         ),
@@ -136,7 +136,7 @@ export const poseAutoMovieSurfaceNetwork: (
                   ...(c.normal === undefined
                     ? {}
                     : {
-                        normal: Quaternion.rotateVector(m.rotation, c.normal),
+                        normal: AutoMovieEngineQuaternion.rotateVector(m.rotation, c.normal),
                       }),
                 },
               ];

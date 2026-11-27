@@ -4,9 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../math/internal/convexHull2D";
-import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
+import { AutoMovieEnginePhysicalBalance } from "./AutoMovieEnginePhysicalBalance";
 import { AutoMovieEnginePhysicalStanceBalance } from "./AutoMovieEnginePhysicalStanceBalance";
 import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
 
@@ -97,7 +97,7 @@ export namespace AutoMovieEnginePhysicalStanceSupport {
         const share: number = Math.max(0, Math.min(1, feet[i]!.bearing ?? 1));
         if (share >= 1 || full.length === 0) return list;
         return list.map((point: IAutoMovieVector3): IAutoMovieVector3 => {
-          const near: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+          const near: IAutoMovieVector3 = AutoMovieEnginePhysicalBalance.nearest(
             full,
             point,
           );
@@ -136,16 +136,16 @@ export namespace AutoMovieEnginePhysicalStanceSupport {
         if (d > span) [a, b, span] = [p, q, d];
       }
     if (!(span > 2 * margin)) {
-      const middle: IAutoMovieVector3 = Vector3.scale(Vector3.add(a, b), 0.5);
+      const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(a, b), 0.5);
       return [middle];
     }
-    const unit: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(b, a),
+    const unit: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(b, a),
       1 / span,
     );
     return [
-      Vector3.add(a, Vector3.scale(unit, margin)),
-      Vector3.subtract(b, Vector3.scale(unit, margin)),
+      AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(unit, margin)),
+      AutoMovieEngineVector3.subtract(b, AutoMovieEngineVector3.scale(unit, margin)),
     ];
   }
 
@@ -160,9 +160,9 @@ export namespace AutoMovieEnginePhysicalStanceSupport {
   ): IAutoMovieVector3[] {
     if (polygon.length < 3 || !(margin > 0))
       return polygon.map((p) => ({ ...p }));
-    const mean: IAutoMovieVector3 = Vector3.scale(
+    const mean: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       polygon.reduce(
-        (sum: IAutoMovieVector3, p: IAutoMovieVector3) => Vector3.add(sum, p),
+        (sum: IAutoMovieVector3, p: IAutoMovieVector3) => AutoMovieEngineVector3.add(sum, p),
         { x: 0, y: 0, z: 0 },
       ),
       1 / polygon.length,
@@ -182,9 +182,9 @@ export namespace AutoMovieEnginePhysicalStanceSupport {
           z: direction.x / length,
         };
         if ((mean.x - a.x) * normal.x + (mean.z - a.z) * normal.z < 0)
-          normal = Vector3.scale(normal, -1);
+          normal = AutoMovieEngineVector3.scale(normal, -1);
         return {
-          point: Vector3.add(a, Vector3.scale(normal, margin)),
+          point: AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(normal, margin)),
           direction,
         };
       });
@@ -213,9 +213,9 @@ export namespace AutoMovieEnginePhysicalStanceSupport {
     const hull: IAutoMovieVector3[] = convexHull2D(out);
     const inside: boolean = hull.every(
       (point: IAutoMovieVector3) =>
-        Vector3.length(
-          Vector3.subtract(
-            AutoMoviePhysicalBalance.nearest(polygon, point),
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEnginePhysicalBalance.nearest(polygon, point),
             point,
           ),
         ) < 1e-9,

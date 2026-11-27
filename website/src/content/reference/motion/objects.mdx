@@ -8,21 +8,21 @@ An object says where a person meets it through its affordances: a seat, a handle
 
 ## Objects in a performance
 
-`HumanObject` gives the actions what they read of an object, placed where the scene puts it. `HumanObject.seat` makes a seat, and `HumanObject.prop` a prop a hand can take:
+`AutoMovieMotionHumanObject` gives the actions what they read of an object, placed where the scene puts it. `AutoMovieMotionHumanObject.seat` makes a seat, and `AutoMovieMotionHumanObject.prop` a prop a hand can take:
 
 ```ts
 import { createDrinkware, createSeat } from "@automovie/archetypes";
-import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanObject, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 const chair = createSeat({ kind: "dining" }, "scene-3/chair-1");
 const glass = createDrinkware({ kind: "glass" });
 
-new HumanPerformance({
+new AutoMovieMotionHumanPerformance({
   seed,
   performers,
-  props: [HumanObject.prop("glass", glass, { at: { x: 0.2, y: 0.74, z: 0.4 }, yaw: 0 })],
-  composition: HumanChain.subject("a")
-    .sit({ seat: HumanObject.seat(chair, { at: { x: 0, y: 0, z: -0.5 }, yaw: 0 }) })
+  props: [AutoMovieMotionHumanObject.prop("glass", glass, { at: { x: 0.2, y: 0.74, z: 0.4 }, yaw: 0 })],
+  composition: AutoMovieMotionHumanChain.subject("a")
+    .sit({ seat: AutoMovieMotionHumanObject.seat(chair, { at: { x: 0, y: 0, z: -0.5 }, yaw: 0 }) })
     .pickUp({ prop: "glass", handle: "body" }).node,
 });
 ```
@@ -41,7 +41,7 @@ Any other use of a holding hand is refused, naming the free hand.
 
 ### Seats
 
-A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang. `HumanObject.seat` reads those rests from the object, such as a stool's bar, a bicycle's pedals or a horse's stirrups, together with whether the seat is sat astride and the side it is mounted from.
+A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang. `AutoMovieMotionHumanObject.seat` reads those rests from the object, such as a stool's bar, a bicycle's pedals or a horse's stirrups, together with whether the seat is sat astride and the side it is mounted from.
 
 ## Archetypes
 

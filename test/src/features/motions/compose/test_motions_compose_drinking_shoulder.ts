@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanDrinkingArm,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { measureDrinkingShoulder } from "@automovie/motions/internal";
+import {
+  measureDrinkingShoulder
+} from "../../../../../packages/motions/src/compose/internal/measureDrinkingShoulder";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

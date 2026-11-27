@@ -1,4 +1,6 @@
-import { ownArchetypeRecordKeys } from "@automovie/archetypes/internal";
+import {
+  ownArchetypeRecordKeys
+} from "../../../../../packages/archetypes/src/core/internal/ownArchetypeRecordKeys";
 import { TestValidator } from "@nestia/e2e";
 
 /**

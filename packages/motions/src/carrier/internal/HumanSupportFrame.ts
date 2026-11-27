@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
 import type {
@@ -184,7 +184,7 @@ export namespace HumanSupportFrame {
     const current: IAutoMovieMotionHumanContactWindow.Support =
       HumanSupportFrame(context);
     if (current.kind === "prop" && current.subject === prop) return;
-    const moving: number = Vector3.length(
+    const moving: number = AutoMovieEngineVector3.length(
       at(context, context.start, { kind: "prop", subject: prop }).velocity,
     );
     if (moving > speed)
@@ -249,20 +249,20 @@ export namespace HumanSupportFrame {
         : [frame(seconds - h).position, frame(seconds + h).position];
     const velocity: IAutoMovieVector3 =
       support.kind === "person"
-        ? Vector3.scale(Vector3.subtract(now.position, after), 1 / h)
-        : Vector3.scale(Vector3.subtract(after, before), 1 / (2 * h));
+        ? AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(now.position, after), 1 / h)
+        : AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(after, before), 1 / (2 * h));
     const acceleration: IAutoMovieVector3 =
       support.kind === "person"
-        ? Vector3.scale(
-            Vector3.add(
-              Vector3.subtract(now.position, Vector3.scale(after, 2)),
+        ? AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.subtract(now.position, AutoMovieEngineVector3.scale(after, 2)),
               before,
             ),
             1 / (h * h),
           )
-        : Vector3.scale(
-            Vector3.add(
-              Vector3.subtract(after, Vector3.scale(now.position, 2)),
+        : AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.subtract(after, AutoMovieEngineVector3.scale(now.position, 2)),
               before,
             ),
             1 / (h * h),
@@ -270,7 +270,7 @@ export namespace HumanSupportFrame {
     return {
       support,
       position: now.position,
-      rotation: Quaternion.normalize(now.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(now.rotation),
       velocity,
       acceleration,
     };

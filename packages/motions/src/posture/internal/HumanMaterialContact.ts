@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsGjkTypes, Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
 
 import type {
   AutoMovieHumanoidBone,
@@ -84,7 +84,7 @@ export namespace HumanMaterialContact {
       AutoMovieEnginePhysics.physicalShapeFaceContactPrepare(
         {
           position: { x: 0, y: 0, z: 0 },
-          rotation: Quaternion.identity(),
+          rotation: AutoMovieEngineQuaternion.identity(),
         },
         outline,
       );
@@ -143,9 +143,9 @@ export namespace HumanMaterialContact {
     face: IFace,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       face.frame.position,
-      Quaternion.rotateVector(face.frame.rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(face.frame.rotation, point),
     );
   }
 
@@ -156,9 +156,9 @@ export namespace HumanMaterialContact {
     face: IFace,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(face.frame.rotation),
-      Vector3.subtract(point, face.frame.position),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(face.frame.rotation),
+      AutoMovieEngineVector3.subtract(point, face.frame.position),
     );
   }
 
@@ -275,12 +275,12 @@ export namespace HumanMaterialContact {
     );
     const placed: ReturnType<typeof HumanColliderPlacement.preparePlaced> =
       HumanColliderPlacement.preparePlaced(body, names);
-    const down: IAutoMovieVector3 = Vector3.scale(NORMAL, -1);
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.scale(NORMAL, -1);
     return (posture, height) => {
       let best: IAutoMovieMotionHumanContactWindow.IMaterial | undefined;
       for (const segment of placed(bones(resolveHumanPosture(body, posture)))) {
-        const direction: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.inverse(segment.pose.rotation),
+        const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(segment.pose.rotation),
           down,
         );
         for (const shape of segment.shapes) {
@@ -437,7 +437,7 @@ export namespace HumanMaterialContact {
     const second: ReturnType<typeof HumanColliderPlacement.preparePlaced> =
       HumanColliderPlacement.preparePlaced(partner, new Set([other]));
     return (a, b, ownNormal, otherNormal, tolerance) => {
-      if (Vector3.dot(ownNormal, otherNormal) >= 0) return undefined;
+      if (AutoMovieEngineVector3.dot(ownNormal, otherNormal) >= 0) return undefined;
       const ownBone: IAutoMovieResolvedBone | undefined = a.get(own);
       const otherBone: IAutoMovieResolvedBone | undefined = b.get(other);
       if (ownBone === undefined || otherBone === undefined) return undefined;
@@ -480,8 +480,8 @@ export namespace HumanMaterialContact {
               const held: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeNearest> =
                 AutoMovieEnginePhysics.physicalShapeNearest(x.pose, sx, onOwn, onOwn);
               if (
-                Vector3.dot(receiving.normal, otherNormal) < 0 ||
-                Vector3.dot(held.normal, ownNormal) < 0
+                AutoMovieEngineVector3.dot(receiving.normal, otherNormal) < 0 ||
+                AutoMovieEngineVector3.dot(held.normal, ownNormal) < 0
               )
                 continue;
               const contact = (
@@ -491,14 +491,14 @@ export namespace HumanMaterialContact {
                 receiving: IAutoMovieResolvedBone,
               ): IAutoMovieMotionHumanContactWindow.IMaterial => {
                 const inverse: IAutoMovieRigidTransform["rotation"] =
-                  Quaternion.inverse(receiving.worldRotation);
+                  AutoMovieEngineQuaternion.inverse(receiving.worldRotation);
                 return {
                   bone: supported,
-                  point: Quaternion.rotateVector(
+                  point: AutoMovieEngineQuaternion.rotateVector(
                     inverse,
-                    Vector3.subtract(point, receiving.worldPosition),
+                    AutoMovieEngineVector3.subtract(point, receiving.worldPosition),
                   ),
-                  normal: Quaternion.rotateVector(inverse, normal),
+                  normal: AutoMovieEngineQuaternion.rotateVector(inverse, normal),
                   clearance: gap,
                 };
               };

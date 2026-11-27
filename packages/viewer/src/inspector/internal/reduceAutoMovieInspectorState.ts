@@ -1,8 +1,8 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import { AutoMovieRenderCapture } from "@automovie/render";
 
-import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
-import type { IAutoMovieInspectorState } from "../IAutoMovieInspectorState.js";
+import type { IAutoMovieViewerInspectorAction } from "../IAutoMovieViewerInspectorAction.js";
+import type { IAutoMovieViewerInspectorState } from "../IAutoMovieViewerInspectorState.js";
 import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 
 /*
@@ -10,7 +10,7 @@ import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.j
  *
  * The request is written as named text values by
  * `formatAutoMovieCapturePlanRequest`, the action changes the text of the key
- * or keys the `IAutoMovieInspectorAction` table names, and the values are read
+ * or keys the `IAutoMovieViewerInspectorAction` table names, and the values are read
  * back by `parseAutoMovieCapturePlanRequest`. The result has the request read
  * and no error. When the reader refuses, the result keeps the previous request
  * beside the reader's message, which names the key, so a mistyped address or a
@@ -21,9 +21,9 @@ import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.j
  * that leaves the text unchanged returns an equal request.
  */
 export function reduceAutoMovieInspectorState(
-  state: IAutoMovieInspectorState,
-  action: IAutoMovieInspectorAction,
-): IAutoMovieInspectorState {
+  state: IAutoMovieViewerInspectorState,
+  action: IAutoMovieViewerInspectorAction,
+): IAutoMovieViewerInspectorState {
   if (action.type === "restore")
     return { request: action.request, error: action.error };
   if (action.type === "text")
@@ -95,7 +95,7 @@ export function reduceAutoMovieInspectorState(
 /*
  * The key each toggle edits.
  */
-const LISTS: Record<IAutoMovieInspectorAction.IToggle["type"], string> = {
+const LISTS: Record<IAutoMovieViewerInspectorAction.IToggle["type"], string> = {
   select: "parts",
   hide: "hide",
   label: "label",
@@ -107,9 +107,9 @@ const LISTS: Record<IAutoMovieInspectorAction.IToggle["type"], string> = {
  * refusal.
  */
 function read(
-  state: IAutoMovieInspectorState,
+  state: IAutoMovieViewerInspectorState,
   reading: () => IAutoMovieCapturePlanRequest,
-): IAutoMovieInspectorState {
+): IAutoMovieViewerInspectorState {
   try {
     return { request: reading(), error: null };
   } catch (error) {

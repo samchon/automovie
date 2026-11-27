@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
@@ -180,7 +180,7 @@ export function restGoals(
           HumanColliders.cast(
             body,
             support,
-            Vector3.addScaled(point, palm, -m.stature),
+            AutoMovieEngineVector3.addScaled(point, palm, -m.stature),
             palm,
             2 * m.stature,
           );
@@ -192,7 +192,7 @@ export function restGoals(
           "palm",
           shape,
         )(palm);
-        contact = Vector3.addScaled(
+        contact = AutoMovieEngineVector3.addScaled(
           hit?.point ?? point,
           palm,
           -Math.max(0, depth),
@@ -227,7 +227,7 @@ export function restGoals(
           "flat",
           pocket.point,
           dir(POCKET.x, POCKET.y, POCKET.z),
-          Vector3.scale(pocket.normal, -1),
+          AutoMovieEngineVector3.scale(pocket.normal, -1),
         );
         break;
       }
@@ -239,9 +239,9 @@ export function restGoals(
           place,
           "palm",
           "flat",
-          Vector3.add(hip.point, { x: 0, y: up, z: 0 }),
+          AutoMovieEngineVector3.add(hip.point, { x: 0, y: up, z: 0 }),
           dir(AKIMBO.x, AKIMBO.y, AKIMBO.z),
-          Vector3.scale(hip.normal, -1),
+          AutoMovieEngineVector3.scale(hip.normal, -1),
         );
         break;
       }
@@ -263,7 +263,7 @@ export function restGoals(
       case "behindHead": {
         const head: HumanTrunk.ISurface = region(side);
         const fingers: IAutoMovieVector3 = dir(-sign, NAPE, 0);
-        const palm: IAutoMovieVector3 = Vector3.scale(head.normal, -1);
+        const palm: IAutoMovieVector3 = AutoMovieEngineVector3.scale(head.normal, -1);
         const inward: IAutoMovieVector3 = dir(-sign, 0, 0);
         const width: number = handReach(
           body,
@@ -273,7 +273,7 @@ export function restGoals(
           "palm",
           "flat",
         )(inward);
-        const beside: IAutoMovieVector3 = Vector3.addScaled(
+        const beside: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
           head.point,
           inward,
           -width,
@@ -313,10 +313,10 @@ export function restGoals(
         const under: IAutoMovieVector3 =
           throat === undefined
             ? chin.point
-            : Vector3.addScaled(
+            : AutoMovieEngineVector3.addScaled(
                 chin.point,
                 back,
-                Vector3.distance(throat.point, chin.point) - rear,
+                AutoMovieEngineVector3.distance(throat.point, chin.point) - rear,
               );
         out[side] = lay(
           side,
@@ -324,7 +324,7 @@ export function restGoals(
           "fist",
           "fist",
           places.left === "chinRest" && places.right === "chinRest"
-            ? Vector3.addScaled(under, palm, -reach(palm))
+            ? AutoMovieEngineVector3.addScaled(under, palm, -reach(palm))
             : under,
           fingers,
           palm,

@@ -1,2 +1,2 @@
-export { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
+export { AutoMovieRenderSpaceGroupName } from "./AutoMovieRenderSpaceGroupName.js";
 export { AutoMovieRenderSceneSpace } from "./AutoMovieRenderSceneSpace.js";

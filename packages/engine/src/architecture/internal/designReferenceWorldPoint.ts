@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { designFrameScale } from "./designFrameScale";
 
 /*
@@ -46,15 +46,15 @@ export function designReferenceWorldPoint(
   };
   const transform: IAutoMovieDesignSourceFrame["transform"] = frame.transform;
   if (transform === null) return mapped;
-  const rotated: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.normalize(transform.rotation),
+  const rotated: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.normalize(transform.rotation),
     {
       x: mapped.x * transform.scale.x,
       y: mapped.y * transform.scale.y,
       z: mapped.z * transform.scale.z,
     },
   );
-  return Vector3.add(rotated, transform.translation);
+  return AutoMovieEngineVector3.add(rotated, transform.translation);
 }
 
 /*

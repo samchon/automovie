@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyRoots,
   IAutoMovieHumanLoftApertureConstruction,
@@ -32,7 +32,7 @@ export namespace AutoMovieHumanBodyRoots {
     u: number,
     winding: number = 0,
   ): IAutoMovieHumanBodyRoots.PointResult {
-    const [s, t, ds, dt] = AutoMovieSplineCurve.evaluate(
+    const [s, t, ds, dt] = AutoMovieEngineSplineCurve.evaluate(
       root,
       root.length / 2,
       u,
@@ -430,7 +430,7 @@ function normal(chain: IAutoMovieLoftChain, s: number, t: number): V {
   const p: V = at(chain, s, t);
   const y0: number = chain.layers[0]!.y;
   const y1: number = chain.layers[chain.layers.length - 1]!.y;
-  const c: V = AutoMovieLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
+  const c: V = AutoMovieEngineLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
   const sign: number =
     (p[0] - c[0]) * n[0] + (p[1] - c[1]) * n[1] + (p[2] - c[2]) * n[2] < 0
       ? -1

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -102,9 +102,9 @@ export function prepareSupportSeed(
       const current: IAutoMovieVector3 =
         target.point === undefined
           ? frame.worldPosition
-          : Vector3.add(
+          : AutoMovieEngineVector3.add(
               frame.worldPosition,
-              Quaternion.rotateVector(frame.worldRotation, target.point),
+              AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, target.point),
             );
       const axes: NonNullable<
         IAutoMovieMotionHumanBodyFitTypes.ITarget["axes"]
@@ -144,7 +144,7 @@ export function prepareSupportSeed(
   const nextKnee: SeedPoint =
     knee === undefined
       ? undefined
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           bones.get(knee.target.bone)!.worldPosition,
           correction[effectors.indexOf(knee)]!,
         );
@@ -159,9 +159,9 @@ export function prepareSupportSeed(
     const end: IAutoMovieResolvedBone = bones.get(effector.end!)!;
     const middle: IAutoMovieResolvedBone = bones.get(effector.middle!)!;
     limbs[effector.limb] = {
-      point: Vector3.add(end.worldPosition, correction[index]!),
+      point: AutoMovieEngineVector3.add(end.worldPosition, correction[index]!),
       rotation: end.worldRotation,
-      bend: Vector3.add(middle.worldPosition, move),
+      bend: AutoMovieEngineVector3.add(middle.worldPosition, move),
       planted: true,
     };
   }
@@ -169,7 +169,7 @@ export function prepareSupportSeed(
     const shin: IAutoMovieVector3 = bones.get(`${near}LowerLeg`)!.worldPosition;
     const ankle: IAutoMovieResolvedBone = bones.get(`${near}Foot`)!;
     limbs[`${near}Leg`] = {
-      point: Vector3.add(nextKnee, Vector3.subtract(ankle.worldPosition, shin)),
+      point: AutoMovieEngineVector3.add(nextKnee, AutoMovieEngineVector3.subtract(ankle.worldPosition, shin)),
       bend: nextKnee,
       rotation: ankle.worldRotation,
       planted: true,
@@ -177,7 +177,7 @@ export function prepareSupportSeed(
   }
   const shifted: IAutoMovieMotionHumanPosture = {
     ...from,
-    root: Vector3.add(from.root, move),
+    root: AutoMovieEngineVector3.add(from.root, move),
     limbs,
   };
   const fitted: IAutoMoviePose = resolveHumanPosture.seeded(
@@ -286,13 +286,13 @@ function kneePlacement(
   corrections: readonly IAutoMovieVector3[],
 ): SeedPoint {
   const hip: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
-  const radius: number = Vector3.distance(
+  const radius: number = AutoMovieEngineVector3.distance(
     hip,
     bones.get(`${side}LowerLeg`)!.worldPosition,
   );
   if (radius <= 0) return undefined;
-  const toward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(hip, knee),
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(hip, knee),
   );
   const caps: ICap[] = [];
   for (const [index, effector] of effectors.entries()) {
@@ -301,18 +301,18 @@ function kneePlacement(
     const from: IAutoMovieVector3 = bones.get(effector.start)!.worldPosition;
     const mid: IAutoMovieVector3 = bones.get(effector.middle!)!.worldPosition;
     const end: IAutoMovieVector3 = bones.get(effector.end!)!.worldPosition;
-    const fixed: IAutoMovieVector3 = Vector3.add(end, corrections[index]!);
-    const delta: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(knee, Vector3.subtract(from, hip)),
+    const fixed: IAutoMovieVector3 = AutoMovieEngineVector3.add(end, corrections[index]!);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.add(knee, AutoMovieEngineVector3.subtract(from, hip)),
       fixed,
     );
-    const distance: number = Vector3.length(delta);
+    const distance: number = AutoMovieEngineVector3.length(delta);
     const reach: number =
-      Vector3.distance(from, mid) + Vector3.distance(mid, end);
+      AutoMovieEngineVector3.distance(from, mid) + AutoMovieEngineVector3.distance(mid, end);
     if (distance + radius <= reach) continue;
     if (distance === 0 || Math.abs(distance - radius) > reach) return undefined;
     caps.push({
-      normal: Vector3.scale(delta, 1 / distance),
+      normal: AutoMovieEngineVector3.scale(delta, 1 / distance),
       limit:
         (reach * reach - distance * distance - radius * radius) /
         (2 * distance * radius),
@@ -321,12 +321,12 @@ function kneePlacement(
   let best: SeedPoint;
   let score: number = -Infinity;
   function candidate(point: IAutoMovieVector3): void {
-    const fit: number = Vector3.dot(point, toward);
+    const fit: number = AutoMovieEngineVector3.dot(point, toward);
     if (
       fit > score &&
       caps.every(
         (cap: ICap): boolean =>
-          Vector3.dot(cap.normal, point) <= cap.limit + SPHERE_ROUNDOFF,
+          AutoMovieEngineVector3.dot(cap.normal, point) <= cap.limit + SPHERE_ROUNDOFF,
       )
     ) {
       best = point;
@@ -336,39 +336,39 @@ function kneePlacement(
   candidate(toward);
   if (best === undefined)
     for (const [i, a] of caps.entries()) {
-      const pole: IAutoMovieVector3 = Vector3.addScaled(
+      const pole: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         toward,
         a.normal,
-        -Vector3.dot(toward, a.normal),
+        -AutoMovieEngineVector3.dot(toward, a.normal),
       );
-      if (Vector3.length(pole) > SPHERE_ROUNDOFF)
+      if (AutoMovieEngineVector3.length(pole) > SPHERE_ROUNDOFF)
         candidate(
-          Vector3.addScaled(
-            Vector3.scale(a.normal, a.limit),
-            Vector3.normalize(pole),
+          AutoMovieEngineVector3.addScaled(
+            AutoMovieEngineVector3.scale(a.normal, a.limit),
+            AutoMovieEngineVector3.normalize(pole),
             Math.sqrt(Math.max(0, 1 - a.limit * a.limit)),
           ),
         );
       for (let j: number = i + 1; j < caps.length; ++j) {
         const b: ICap = caps[j]!;
-        const dot: number = Vector3.dot(a.normal, b.normal);
+        const dot: number = AutoMovieEngineVector3.dot(a.normal, b.normal);
         const determinant: number = 1 - dot * dot;
         if (determinant <= SPHERE_ROUNDOFF) continue;
-        const line: IAutoMovieVector3 = Vector3.add(
-          Vector3.scale(a.normal, (a.limit - dot * b.limit) / determinant),
-          Vector3.scale(b.normal, (b.limit - dot * a.limit) / determinant),
+        const line: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(a.normal, (a.limit - dot * b.limit) / determinant),
+          AutoMovieEngineVector3.scale(b.normal, (b.limit - dot * a.limit) / determinant),
         );
-        const lengthSq: number = Vector3.dot(line, line);
+        const lengthSq: number = AutoMovieEngineVector3.dot(line, line);
         if (lengthSq > 1 + SPHERE_ROUNDOFF) continue;
-        const across: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.cross(a.normal, b.normal),
+        const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.cross(a.normal, b.normal),
         );
         const acrossRadius: number = Math.sqrt(Math.max(0, 1 - lengthSq));
-        candidate(Vector3.addScaled(line, across, acrossRadius));
-        candidate(Vector3.addScaled(line, across, -acrossRadius));
+        candidate(AutoMovieEngineVector3.addScaled(line, across, acrossRadius));
+        candidate(AutoMovieEngineVector3.addScaled(line, across, -acrossRadius));
       }
     }
   return best === undefined
     ? undefined
-    : Vector3.subtract(Vector3.addScaled(knee, best, radius), hip);
+    : AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.addScaled(knee, best, radius), hip);
 }

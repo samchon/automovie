@@ -1,8 +1,8 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import type {
-  AutoMovieDrawSubjects,
-  IAutoMovieDrawScene,
-  IAutoMovieDrawSubject,
+  AutoMovieRenderDrawSubjects,
+  IAutoMovieRenderDrawScene,
+  IAutoMovieRenderDrawSubject,
 } from "@automovie/render";
 import * as THREE from "three";
 
@@ -18,14 +18,14 @@ import { AutoMovieHumanCaptureSubjects } from "../capture/AutoMovieHumanCaptureS
  * pnpm capture --views "front@ortho;right@ortho;three-quarter" --marks curve/*
  * ```
  */
-export const subjects: AutoMovieDrawSubjects = (): Readonly<
-  Record<string, IAutoMovieDrawSubject>
+export const subjects: AutoMovieRenderDrawSubjects = (): Readonly<
+  Record<string, IAutoMovieRenderDrawSubject>
 > =>
   Object.fromEntries(
     AutoMovieHumanCaptureSubjects.list().map(
-      (name: string): [string, IAutoMovieDrawSubject] => [
+      (name: string): [string, IAutoMovieRenderDrawSubject] => [
         name,
-        { create: async (): Promise<IAutoMovieDrawScene> => build(name) },
+        { create: async (): Promise<IAutoMovieRenderDrawScene> => build(name) },
       ],
     ),
   );
@@ -38,7 +38,7 @@ const RASTER: number = 960;
 /*
  * Build one subject's scene.
  */
-function build(name: string): IAutoMovieDrawScene {
+function build(name: string): IAutoMovieRenderDrawScene {
   const figure: AutoMovieHumanCaptureFigure.IOutput =
     AutoMovieHumanCaptureFigure.build({ name: name });
   const scene: THREE.Scene = new THREE.Scene();

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeLoadData from "./internal/AutoMovieArchetypeLoadData";
+import { AutoMovieArchetypeLoadData } from "./internal/AutoMovieArchetypeLoadData";
 
 /** Constructs the load archetype from its recipe. */
 export namespace AutoMovieArchetypeLoad {
@@ -85,8 +85,8 @@ export function create(
   });
   builder.box(
     kind,
-    Vector3.create(length, height, depth),
-    Vector3.create(0, height / 2, 0),
+    AutoMovieEngineVector3.create(length, height, depth),
+    AutoMovieEngineVector3.create(0, height / 2, 0),
     { color: kind === "crate" ? "#8a8f96" : "#c9bfa5" },
   );
 
@@ -101,9 +101,9 @@ export function create(
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create((sign * length) / 2, hold, 0),
-        Vector3.create(sign, 0, 0),
-        Vector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create((sign * length) / 2, hold, 0),
+        AutoMovieEngineVector3.create(sign, 0, 0),
+        AutoMovieEngineVector3.create(0, 0, 1),
       ),
       extent: null,
       grip: "two-hand",
@@ -112,12 +112,12 @@ export function create(
   builder.affordance({
     id: "top",
     kind: "stack-top",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: [
-      Vector3.create(-length / 2, 0, -depth / 2),
-      Vector3.create(length / 2, 0, -depth / 2),
-      Vector3.create(length / 2, 0, depth / 2),
-      Vector3.create(-length / 2, 0, depth / 2),
+      AutoMovieEngineVector3.create(-length / 2, 0, -depth / 2),
+      AutoMovieEngineVector3.create(length / 2, 0, -depth / 2),
+      AutoMovieEngineVector3.create(length / 2, 0, depth / 2),
+      AutoMovieEngineVector3.create(-length / 2, 0, depth / 2),
     ],
   });
   return builder.build(d.mass + load);

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -102,13 +102,13 @@ export function wardrobeFoot(
     own,
     wardrobeHands.frame(wear),
   );
-  const up: IAutoMovieVector3 = Quaternion.rotateVector(seated.rotation, {
+  const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(seated.rotation, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const depth: number = Vector3.dot(
-    Vector3.subtract(
+  const depth: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(
       wardrobeHands.middle(opening).position,
       wear.frame.translation,
     ),
@@ -122,11 +122,11 @@ export function wardrobeFoot(
     );
   const aligned: IAutoMovieRigidTransform = wardrobeHands.displaced(
     seated,
-    Vector3.scale(up, -depth),
+    AutoMovieEngineVector3.scale(up, -depth),
   );
   const outside: IAutoMovieRigidTransform = wardrobeHands.displaced(
     aligned,
-    Vector3.scale(up, -AIR),
+    AutoMovieEngineVector3.scale(up, -AIR),
   );
   const resting: IAutoMovieRigidTransform = wardrobeHands.grip(
     body,
@@ -149,8 +149,8 @@ export function wardrobeFoot(
     : seated;
   if (
     remove &&
-    (Vector3.distance(worn.position, seated.position) > wardrobeHands.MISS ||
-      Quaternion.angle(worn.rotation, seated.rotation) > Math.PI / 12)
+    (AutoMovieEngineVector3.distance(worn.position, seated.position) > wardrobeHands.MISS ||
+      AutoMovieEngineQuaternion.angle(worn.rotation, seated.rotation) > Math.PI / 12)
   )
     throw wardrobeHands.refusal(
       "opening",
@@ -269,8 +269,8 @@ export function wardrobeFoot(
       );
       const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(fraction);
       return {
-        position: Vector3.scale(full.position, u),
-        rotation: Quaternion.slerp(
+        position: AutoMovieEngineVector3.scale(full.position, u),
+        rotation: AutoMovieEngineQuaternion.slerp(
           { x: 0, y: 0, z: 0, w: 1 },
           full.rotation,
           u,
@@ -374,13 +374,13 @@ function footFrame(
   const ankle: IAutoMovieVector3 = bones.get(
     side === "left" ? "leftFoot" : "rightFoot",
   )!.worldPosition;
-  const forward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(ball!.point, heel!.point),
+  const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(ball!.point, heel!.point),
   );
-  const across: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(Vector3.subtract(ankle, heel!.point), forward),
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(AutoMovieEngineVector3.subtract(ankle, heel!.point), forward),
   );
-  const up: IAutoMovieVector3 = Vector3.cross(forward, across);
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.cross(forward, across);
   return {
     position: heel!.point,
     rotation: AutoMovieEngineMath.quaternionFromBasis(across, up, forward),
@@ -400,12 +400,12 @@ function gripFrame(
     prop,
     wardrobeHands.frame(hold),
   );
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(world.rotation, {
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(world.rotation, {
     x: 1,
     y: 0,
     z: 0,
   });
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(world.rotation, {
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(world.rotation, {
     x: 0,
     y: -1,
     z: 0,

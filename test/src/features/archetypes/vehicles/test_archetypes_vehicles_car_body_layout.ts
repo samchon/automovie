@@ -1,4 +1,6 @@
-import { CarBody } from "@automovie/archetypes/internal";
+import {
+  CarBody
+} from "../../../../../packages/archetypes/src/vehicles/internal/CarBody";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

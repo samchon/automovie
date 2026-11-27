@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -43,20 +43,20 @@ export function courtRacketWrist(
   );
   const entryHand: IAutoMovieResolvedBone = bones.get(hand)!;
   const entryChest: IAutoMovieResolvedBone = bones.get("chest")!;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     entryChest.worldRotation,
   );
-  const inChest: IAutoMovieVector3 = Quaternion.rotateVector(
+  const inChest: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     inverse,
-    Vector3.subtract(entryHand.worldPosition, entryChest.worldPosition),
+    AutoMovieEngineVector3.subtract(entryHand.worldPosition, entryChest.worldPosition),
   );
-  const wristRotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const wristRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     inverse,
     entryHand.worldRotation,
   );
   const chest: ReadonlySet<"chest"> = new Set(["chest"]);
   const impact: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-    StrikingHeld.hand(tool, 0, Vector3.create(0, 0, 0), axis, face);
+    StrikingHeld.hand(tool, 0, AutoMovieEngineVector3.create(0, 0, 0), axis, face);
   const fit: ReturnType<typeof StrikingHeld.prepareGoal> =
     StrikingHeld.prepareGoal(context, tool, 0);
   const grip: IAutoMovieVector3 = HumanHand.offset(
@@ -65,7 +65,7 @@ export function courtRacketWrist(
     "grip",
   ).point;
   return {
-    faceOffset: Vector3.scale(fit(impact, bend).point, -1),
+    faceOffset: AutoMovieEngineVector3.scale(fit(impact, bend).point, -1),
     goal: (
       posture: IAutoMovieMotionHumanPosture,
       wrist: IAutoMovieVector3,
@@ -82,24 +82,24 @@ export function courtRacketWrist(
           undefined,
           chest,
         ).get("chest")!;
-        from = Quaternion.multiply(current.worldRotation, wristRotation);
-        point = Vector3.lerp(
+        from = AutoMovieEngineQuaternion.multiply(current.worldRotation, wristRotation);
+        point = AutoMovieEngineVector3.lerp(
           wrist,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             current.worldPosition,
-            Quaternion.rotateVector(current.worldRotation, inChest),
+            AutoMovieEngineQuaternion.rotateVector(current.worldRotation, inChest),
           ),
           recovery,
         );
       }
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
         from,
         impact.rotation,
         alignment,
       );
       return fit(
         {
-          point: Vector3.add(point, Quaternion.rotateVector(rotation, grip)),
+          point: AutoMovieEngineVector3.add(point, AutoMovieEngineQuaternion.rotateVector(rotation, grip)),
           rotation,
         },
         bend,

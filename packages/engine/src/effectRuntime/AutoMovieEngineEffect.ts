@@ -97,7 +97,7 @@ export namespace AutoMovieEngineEffect {
    * seconds of the interval, holds the cue's intensity constant, and takes its
    * seed from the film seed protocol of {@link materializeCompiledEffects}.
    *
-   * Every refusal throws {@link AutoMovieFilmEffectRuntimeError}: a malformed
+   * Every refusal throws {@link AutoMovieEngineFilmEffectRuntimeError}: a malformed
    * identity, rate, world id, shot interval or cue, or a repeated cue id, is
    * `film-effect-input-invalid`; a cue on an unknown zone is
    * `film-effect-zone-missing`; a zone whose recipe is unknown is
@@ -163,7 +163,7 @@ export namespace AutoMovieEngineEffect {
    * exactly once, so an absent or repeated occurrence answers `null` rather than
    * choosing one occurrence. A negative, non-finite or unrepresentable time also
    * answers `null`, while an inconsistent clock throws
-   * `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`. The
+   * `AutoMovieEngineFilmEffectRuntimeError` with `film-effect-input-invalid`. The
    * answer depends only on the compiled timeline, never on whether a render has
    * prepared any other runtime.
    */
@@ -184,7 +184,7 @@ export namespace AutoMovieEngineEffect {
    * diagnostics own that refusal. Intervals come out in segment order, then in
    * the shot's effect order. A cue with a negative or non-finite start, an end
    * not after its start, or an unrepresentable bound throws
-   * `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`, as does
+   * `AutoMovieEngineFilmEffectRuntimeError` with `film-effect-input-invalid`, as does
    * an inconsistent clock.
    */
   export function projectProductionShotEffectFilmIntervals(props: IAutoMovieProjectProductionShotEffectFilmIntervals.IProps): IAutoMovieShotEffectFilmInterval[] {
@@ -198,7 +198,7 @@ export namespace AutoMovieEngineEffect {
    * exact boundary second on that runtime's rate, with `cameraDistance` in metres
    * passed to the engine sampler (zero when omitted). Every call re-validates
    * each persisted runtime and compares it with `identity`; all refusals throw
-   * `AutoMovieFilmEffectRuntimeError`: `film-effect-input-invalid` for a
+   * `AutoMovieEngineFilmEffectRuntimeError`: `film-effect-input-invalid` for a
    * malformed identity, a frame that is not a nonnegative safe integer or a
    * negative or non-finite distance, `film-effect-runtime-invalid` for a runtime
    * that is not what the materializer writes, and `film-effect-runtime-stale` for

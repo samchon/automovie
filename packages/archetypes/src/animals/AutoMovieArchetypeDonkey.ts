@@ -9,7 +9,7 @@ import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineE
 import { EquineSegments } from "./equine/EquineSegments";
 import { HORSE_BANDS } from "./equine/HORSE_BANDS";
 import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
-import * as AutoMovieArchetypeDonkeyData from "./internal/AutoMovieArchetypeDonkeyData";
+import { AutoMovieArchetypeDonkeyData } from "./internal/AutoMovieArchetypeDonkeyData";
 
 /**
  * Constructs the donkey archetype from its recipe.

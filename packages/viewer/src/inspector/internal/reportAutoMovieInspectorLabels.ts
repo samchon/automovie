@@ -2,7 +2,7 @@ import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive.js";
-import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
+import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene.js";
 import { placeAutoMovieInspectorLabels } from "./placeAutoMovieInspectorLabels.js";
 
 /*
@@ -19,7 +19,7 @@ export function reportAutoMovieInspectorLabels(props: {
   /*
    * Where the mount reports.
    */
-  report: IAutoMovieInspectorScene.IReport;
+  report: IAutoMovieViewerInspectorScene.IReport;
 
   /*
    * The camera the picture was drawn through.

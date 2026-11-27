@@ -3,7 +3,7 @@ import type {
   IAutoMovieModel,
 } from "@automovie/interface";
 
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
 import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
 import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps.js";
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
@@ -45,13 +45,13 @@ export const createFormationRepresentations: (
         throw new Error(
           `Formation "${input.formation.id}" LOD "${lod.tier}" references missing runtime model "${lod.runtimeModel}".`,
         );
-      const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieFormationCycle | null> =
+      const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieRenderFormationCycle | null> =
         flattenInstancedModel(
           model,
           `Formation "${input.formation.id}" LOD "${lod.tier}"`,
           {},
         );
-      const cycle: IAutoMovieFormationCycle | null = representation.cycle;
+      const cycle: IAutoMovieRenderFormationCycle | null = representation.cycle;
       const tier: IFormationTierRepresentation = {
         ...representation,
         shadows: null,

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSledData from "./internal/AutoMovieArchetypeSledData";
+import { AutoMovieArchetypeSledData } from "./internal/AutoMovieArchetypeSledData";
 
 /** Constructs the sled archetype from its recipe. */
 export namespace AutoMovieArchetypeSled {
@@ -63,7 +63,7 @@ export function create(
     name: `push sled ${model.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const base: number = AutoMovieArchetypeSled.BASE;
   const pole: number = AutoMovieArchetypeSled.POLE;
   builder.box("base", v(width, base, length), v(0, base / 2, length / 2), {

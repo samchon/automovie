@@ -17,7 +17,7 @@ import { applyLightState } from "./applyLightState.js";
  * Lights are resolved by id and never by position. `buildScene` adds them as
  * top-level children and the segmentation mask palette is keyed by top-level
  * child index, so an index-addressed light would silently re-target whenever
- * staging inserts one; IAutoMovieSceneObject.lights is the id index
+ * staging inserts one; IAutoMovieRenderSceneObject.lights is the id index
  * built for exactly this call.
  *
  * Every staged light is written, not only the ones a clip addresses, which is

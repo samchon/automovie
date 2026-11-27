@@ -1,6 +1,6 @@
 import {
-  AutoMovieNaturalSpline,
-  AutoMovieViewParameter,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineViewParameter,
 } from "@automovie/engine";
 import type {
   AutoMovieScalarJet2,
@@ -67,15 +67,15 @@ export namespace AutoMovieHumanArmAxis {
       const components: AutoMovieVector3Tuple[] = planes.map(read);
       const splines: IAutoMovieNaturalCubicSpline[] = [0, 1, 2].map(
         (k: number): IAutoMovieNaturalCubicSpline =>
-          AutoMovieNaturalSpline.create(
+          AutoMovieEngineNaturalSpline.create(
             stations,
             components.map((p: AutoMovieVector3Tuple): number => p[k]!),
           ),
       );
       return (s: number): AutoMovieVector3Jet2 => [
-        AutoMovieNaturalSpline.read(splines[0]!, s),
-        AutoMovieNaturalSpline.read(splines[1]!, s),
-        AutoMovieNaturalSpline.read(splines[2]!, s),
+        AutoMovieEngineNaturalSpline.read(splines[0]!, s),
+        AutoMovieEngineNaturalSpline.read(splines[1]!, s),
+        AutoMovieEngineNaturalSpline.read(splines[2]!, s),
       ];
     };
     const origin: (s: number) => AutoMovieVector3Jet2 = vector(
@@ -118,7 +118,7 @@ export namespace AutoMovieHumanArmAxis {
         const inverse: [number, number] | null =
           parameter === undefined
             ? [1, 0]
-            : AutoMovieViewParameter.inverseJet(parameter, s);
+            : AutoMovieEngineViewParameter.inverseJet(parameter, s);
         if (inverse === null) return null;
 
         /*

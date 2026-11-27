@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -124,8 +124,8 @@ export function operateHand(
     // the knob's centred roll acts before its actual elbow is selected.
     const upright: boolean =
       mechanism.kind !== "button" && Math.abs(now.normal.y) < props.upright;
-    const spin: ReturnType<typeof Quaternion.fromAxisAngle> =
-      Quaternion.fromAxisAngle(
+    const spin: ReturnType<typeof AutoMovieEngineQuaternion.fromAxisAngle> =
+      AutoMovieEngineQuaternion.fromAxisAngle(
         now.normal,
         mechanism.kind !== "knob"
           ? 0
@@ -134,23 +134,23 @@ export function operateHand(
       );
     return {
       place: upright
-        ? { point: now.point, normal: Quaternion.rotateVector(spin, up) }
+        ? { point: now.point, normal: AutoMovieEngineQuaternion.rotateVector(spin, up) }
         : now,
       forward:
         mechanism.kind === "button"
           ? up
           : upright
-            ? Quaternion.rotateVector(
+            ? AutoMovieEngineQuaternion.rotateVector(
                 spin,
-                Vector3.scale(
-                  Vector3.normalize(Vector3.cross(up, now.normal)),
+                AutoMovieEngineVector3.scale(
+                  AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(up, now.normal)),
                   side === "left" ? 1 : -1,
                 ),
               )
             : mechanism.kind === "knob"
-              ? Quaternion.rotateVector(spin, ahead)
-              : Quaternion.rotateVector(
-                  Quaternion.fromAxisAngle(up, side === "left" ? -90 : 90),
+              ? AutoMovieEngineQuaternion.rotateVector(spin, ahead)
+              : AutoMovieEngineQuaternion.rotateVector(
+                  AutoMovieEngineQuaternion.fromAxisAngle(up, side === "left" ? -90 : 90),
                   ahead,
                 ),
     };

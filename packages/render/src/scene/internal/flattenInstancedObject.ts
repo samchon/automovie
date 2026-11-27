@@ -1,5 +1,5 @@
 import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
 import { flattenRigidParts } from "./flattenRigidParts.js";
 import { instancedModelParts } from "./instancedModelParts.js";
 
@@ -11,10 +11,10 @@ import { instancedModelParts } from "./instancedModelParts.js";
  * lifetime; flattening neither clones nor disposes those materials.
  */
 export const flattenInstancedObject: (
-  built: IAutoMovieModelObject,
+  built: IAutoMovieRenderModelObject,
   owner?: string,
 ) => IAutoMovieInstancedModelRepresentation<null> = (
-  built: IAutoMovieModelObject,
+  built: IAutoMovieRenderModelObject,
   owner: string = "Loaded instanced runtime model",
 ): IAutoMovieInstancedModelRepresentation<null> => {
   built.object.updateMatrixWorld(true);

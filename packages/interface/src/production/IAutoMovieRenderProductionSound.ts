@@ -40,7 +40,7 @@ export namespace IAutoMovieRenderProductionSound {
     assets?: ReadonlyMap<string, Float32Array<ArrayBufferLike>> | undefined;
     /**
      * Optional loudness targets of the production; absent, the mix uses
-     * engine's `AUTOMOVIE_EBU_R128_LOUDNESS`. The mix levels dialogue to them
+     * engine's `AutoMovieEngineEbuR128Loudness`. The mix levels dialogue to them
      * and carries them to the master stage. Non-finite values or a negative
      * tolerance throw.
      */

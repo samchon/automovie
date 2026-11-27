@@ -1,8 +1,8 @@
 import {
-  AutoMovieIllinois,
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
-  AutoMovieSolidVector as V,
+  AutoMovieEngineIllinois,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
+  AutoMovieEngineSolidVector as V,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -104,7 +104,7 @@ export namespace AutoMovieHumanLegProximal {
       return V.dot(V.sub(point(phi), reference.origin), reference.u);
     }
     const start: number = direction[2] > 0 ? 0 : Math.PI;
-    const phase: number | null = AutoMovieIllinois.root(
+    const phase: number | null = AutoMovieEngineIllinois.root(
       residual,
       start,
       start + Math.PI,
@@ -191,7 +191,7 @@ export namespace AutoMovieHumanLegProximal {
     };
     const original:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
       outward === 1 ? child.side.positive : child.side.negative,
       { bottom: child.stations[0]!, top: child.stations.at(-1)! },
     );
@@ -205,7 +205,7 @@ export namespace AutoMovieHumanLegProximal {
       throw new Error(
         "Proximal authoring cannot discard an existing named input before the thigh",
       );
-    const change: [number, number] | null = AutoMovieViewParameter.jet(
+    const change: [number, number] | null = AutoMovieEngineViewParameter.jet(
       original.parameter,
       station,
     );
@@ -235,7 +235,7 @@ export namespace AutoMovieHumanLegProximal {
       (value: IAutoMovieViewPart.IKnot): boolean => value.station >= thigh,
     )) {
       const reading: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(original, knot.station);
+        AutoMovieEngineViewOutline.at(original, knot.station);
       if (typeof reading === "string") throw new Error(reading);
       knots.push({
         ...knot,

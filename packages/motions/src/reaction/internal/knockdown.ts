@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -296,8 +296,8 @@ export namespace knockdown {
                 projection,
               );
               const landed: boolean = seconds >= SEATED;
-              const world: IAutoMovieVector3 = Vector3.add(
-                Vector3.subtract(
+              const world: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+                AutoMovieEngineVector3.subtract(
                   flat(entry.yaw, standing.ankle),
                   flat(
                     entry.yaw + turn * sit(seconds),

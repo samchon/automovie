@@ -3,12 +3,20 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  gesture,
-  gestureAdmit,
-  gestureJoints,
-  gestureStrokeTables,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  gesture
+} from "../../../../../packages/motions/src/everyday/internal/gesture";
+import {
+  gestureAdmit
+} from "../../../../../packages/motions/src/everyday/internal/gestureAdmit";
+import {
+  gestureJoints
+} from "../../../../../packages/motions/src/everyday/internal/gestureJoints";
+import {
+  gestureStrokeTables
+} from "../../../../../packages/motions/src/everyday/internal/gestureStrokeTables";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

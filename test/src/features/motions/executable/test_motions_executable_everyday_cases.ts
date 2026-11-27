@@ -1,13 +1,23 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
 import {
-  everydayCaseKit,
-  everydayGestureSwings,
-  everydayPostureCaseObstacle,
-  everydayTypeCaseBoard,
-  everydayVerdicts,
-} from "@automovie/motions/executable/internal";
-import { typeText } from "@automovie/motions/internal";
+  everydayCaseKit
+} from "../../../../../packages/motions/src/executable/cases/internal/everydayCaseKit";
+import {
+  everydayGestureSwings
+} from "../../../../../packages/motions/src/executable/cases/internal/everydayGestureSwings";
+import {
+  everydayPostureCaseObstacle
+} from "../../../../../packages/motions/src/executable/cases/internal/everydayPostureCaseObstacle";
+import {
+  everydayTypeCaseBoard
+} from "../../../../../packages/motions/src/executable/cases/internal/everydayTypeCaseBoard";
+import {
+  everydayVerdicts
+} from "../../../../../packages/motions/src/executable/cases/internal/everydayVerdicts";
+import {
+  typeText
+} from "../../../../../packages/motions/src/everyday/internal/typeText";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,9 +28,9 @@ const world = (
   prop: IAutoMovieMotionHumanProp,
   id: string,
 ): IAutoMovieVector3 =>
-  Vector3.add(
+  AutoMovieEngineVector3.add(
     prop.frame.position,
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       prop.frame.rotation,
       prop.affordances!.find((c: IAutoMovieAffordance): boolean => c.id === id)!
         .frame.translation,
@@ -87,7 +97,7 @@ export function test_motions_executable_everyday_cases(): void {
     vclose(world(kerb, "edge"), { x: 0, y: 0.2, z: 0.5 }, 1e-12) &&
       vclose(world(kerb, "top"), { x: 0, y: 0.2, z: 0.65 }, 1e-12) &&
       vclose(
-        Quaternion.rotateVector(board.frame.rotation, { x: 0, y: 0, z: 1 }),
+        AutoMovieEngineQuaternion.rotateVector(board.frame.rotation, { x: 0, y: 0, z: 1 }),
         { x: 0, y: 0, z: -1 },
         1e-12,
       ) &&

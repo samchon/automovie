@@ -186,14 +186,14 @@ const addSdkConsumer = (directory, { parity = true } = {}) => {
   );
   fs.writeFileSync(
     path.join(directory, "src", "composition", "films", "starter.ts"),
-    `import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+    `import { AutoMovieArchetypeEnvironment, AutoMovieArchetypeEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieArchetypeBookcase, AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
 import {
-  type IAutoMovieSceneObject,
+  type IAutoMovieRenderSceneObject,
   AutoMovieRenderSceneLayout,
-  AutoMovieSceneResource,
+  AutoMovieRenderSceneResource,
 } from "@automovie/render";
 
 import type { IFilm } from "../../IFilm";
@@ -212,16 +212,16 @@ export function starter(): IFilm {
     width: 640,
     height: 360,
     create: async (): Promise<IFilmProduction> => {
-      const room: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+      const room: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
         id: "installed-room",
         items: {
-          hall: { use: AutoMovieEnvironment.building({ type: "levels", levels: [{
+          hall: { use: AutoMovieArchetypeEnvironment.building({ type: "levels", levels: [{
             id: "ground",
             rooms: { studio: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } } },
             openings: [{ id: "entry", kind: "passage", between: { from: "studio", to: null }, edge: { from: { x: 0, z: 0 }, to: { x: 6, z: 0 } }, width: 1.2, height: 2.1 }],
           }] }) },
-          bench: { use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
-          bookcase: { use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeBookcase.create() }), at: { x: 4.6, y: 0, z: 2.85 } },
+          bench: { use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
+          bookcase: { use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: AutoMovieArchetypeBookcase.create() }), at: { x: 4.6, y: 0, z: 2.85 } },
         },
       });
       const id: string = "starter";
@@ -255,7 +255,7 @@ export function starter(): IFilm {
       if (!compiled.source.scene.space?.walkable.includes("installed-room/hall/ground/entry/threshold"))
         throw new Error("The named entry did not reach the compiled room");
       const models: Map<string, IAutoMovieModel> = new Map(room.runtime.models.map((model: IAutoMovieModel) => [model.id, model]));
-      const drawing: IAutoMovieSceneObject = AutoMovieRenderSceneLayout.buildScene({
+      const drawing: IAutoMovieRenderSceneObject = AutoMovieRenderSceneLayout.buildScene({
         scene: compiled.source.scene,
         getModelObject: (id: string) => {
           const model: IAutoMovieModel | undefined = models.get(id);
@@ -267,7 +267,7 @@ export function starter(): IFilm {
         camera: drawing.cameras[0]!,
         seek: (): void => drawing.scene.updateMatrixWorld(true),
         dispose: (): void => {
-          for (const resource of AutoMovieSceneResource.collectOwnedResources(drawing.scene)) resource.dispose();
+          for (const resource of AutoMovieRenderSceneResource.collectOwnedResources(drawing.scene)) resource.dispose();
           drawing.scene.clear();
         },
       };

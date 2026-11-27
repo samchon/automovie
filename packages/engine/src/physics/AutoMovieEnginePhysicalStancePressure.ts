@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
+import { AutoMovieEnginePhysicalBalance } from "./AutoMovieEnginePhysicalBalance";
 import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
 /**
@@ -14,7 +14,7 @@ import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 export namespace AutoMovieEnginePhysicalStancePressure {
   /**
    * IHMC's weighted whole-body objective over the contact wrench
-   * (`AutoMovieXpbdWorld.IObjective`), the centre of pressure command's foot
+   * (`AutoMovieEngineXpbdWorld.IObjective`), the centre of pressure command's foot
    * named by its endpoint bone, all the stance's when absent.
    */
   export interface IObjective {
@@ -68,7 +68,7 @@ export namespace AutoMovieEnginePhysicalStancePressure {
    * for their linear momentum rate, aimed through the pivot (develop
    * `LinearMomentumRateControlModule.computeDesiredLinearMomentumRateOfChange`
    * l.603-628), as weighted objectives over the contact wrench rather than a
-   * moment (`AutoMovieXpbdWorld.IObjective`); the trunk's orientation stays the
+   * moment (`AutoMovieEngineXpbdWorld.IObjective`); the trunk's orientation stays the
    * root task's spin row, its own task.
    *
    * @param input The centre of mass, whether a limb swings, the planted
@@ -135,7 +135,7 @@ export namespace AutoMovieEnginePhysicalStancePressure {
     for (const [index, sole] of soles.entries()) {
       const outward: number =
         (index === 0 ? 1 : -1) * (point.x - sole.origin.x);
-      const nearest: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+      const nearest: IAutoMovieVector3 = AutoMovieEnginePhysicalBalance.nearest(
         sole.entry.outline,
         point,
       );

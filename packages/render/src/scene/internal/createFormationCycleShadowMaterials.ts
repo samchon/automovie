@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
 import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
@@ -20,7 +20,7 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * the tier's program cache.
  */
 export const createFormationCycleShadowMaterials: (
-  cycle: IAutoMovieFormationCycle,
+  cycle: IAutoMovieRenderFormationCycle,
   palette: readonly THREE.Material[],
 ) => {
   depth: THREE.MeshDepthMaterial;
@@ -31,7 +31,7 @@ export const createFormationCycleShadowMaterials: (
   ) => void;
   dispose: () => void;
 } = (
-  cycle: IAutoMovieFormationCycle,
+  cycle: IAutoMovieRenderFormationCycle,
   palette: readonly THREE.Material[],
 ): {
   depth: THREE.MeshDepthMaterial;

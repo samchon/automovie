@@ -1,4 +1,4 @@
-import { AutoMovieSolidBody, AutoMovieSolidClip } from "@automovie/engine";
+import { AutoMovieEngineSolidBody, AutoMovieEngineSolidClip } from "@automovie/engine";
 import type {
   IAutoMovieSolidBody,
   IAutoMovieSolidClip,
@@ -26,7 +26,7 @@ function sheet(name: string, orientation: 1 | -1): IAutoMovieSolidSurface {
 
 /** Make opposite faces whose optional shared rectangle has a seam at u=8. */
 function body(shared: boolean): IAutoMovieSolidBody.IBody {
-  const result: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+  const result: IAutoMovieSolidBody.IBody = AutoMovieEngineSolidBody.create(
     "flat seam",
     [sheet("front", 1), sheet("back", -1)].map(
       (surface: IAutoMovieSolidSurface): IAutoMovieSolidBody.IFaceInput => ({
@@ -80,8 +80,8 @@ function body(shared: boolean): IAutoMovieSolidBody.IBody {
  *    snap exactly to the seam's u=8, despite exceeding the unscaled slack.
  */
 export function test_engine_geometry_solid_clip_crossing(): void {
-  type Join = Parameters<typeof AutoMovieSolidClip.rail>[1];
-  type Columns = Parameters<typeof AutoMovieSolidClip.rail>[2];
+  type Join = Parameters<typeof AutoMovieEngineSolidClip.rail>[1];
+  type Columns = Parameters<typeof AutoMovieEngineSolidClip.rail>[2];
   type Sample = NonNullable<ReturnType<Join["rail"]>>;
   const quarter: number = Math.PI / 4;
   for (const [name, shared, ends, accepted] of [
@@ -138,7 +138,7 @@ export function test_engine_geometry_solid_clip_crossing(): void {
       ],
     };
     const rail: IAutoMovieSolidClip.IRailPoint[] | string =
-      AutoMovieSolidClip.rail(body(shared), join, columns, [0, 1], 2);
+      AutoMovieEngineSolidClip.rail(body(shared), join, columns, [0, 1], 2);
     if (!accepted) {
       TestValidator.predicate(
         name,
@@ -197,7 +197,7 @@ function verifySnap(): void {
   ];
   TestValidator.equals(
     "trim crosses both faces",
-    AutoMovieSolidClip.trim(solid, rail, 2, "island"),
+    AutoMovieEngineSolidClip.trim(solid, rail, 2, "island"),
     null,
   );
   for (const point of [first, last])

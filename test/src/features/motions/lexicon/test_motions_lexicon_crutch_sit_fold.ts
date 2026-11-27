@@ -2,7 +2,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { crutchSitPath } from "@automovie/motions/internal";
+import {
+  crutchSitPath
+} from "../../../../../packages/motions/src/lexicon/internal/crutchSitPath";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

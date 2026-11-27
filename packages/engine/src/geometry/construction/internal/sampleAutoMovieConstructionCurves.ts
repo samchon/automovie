@@ -6,7 +6,7 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
+import { AutoMovieEngineConstructionViews } from "../../AutoMovieEngineConstructionViews";
 
 /*
  * Sample the construction lines of every lofted chain of a realization as
@@ -17,7 +17,7 @@ import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
  * millimetres and phase in radians to a point in millimetres, through `point`
  * when the surface has one and `jet(...).p` otherwise. The chain's owned
  * station range is the surface's `domain`, or its first to last layer when the
- * surface names none. Points are divided by `AutoMovieConstructionViews.SCALE`,
+ * surface names none. Points are divided by `AutoMovieEngineConstructionViews.SCALE`,
  * so they come out in metres in the construction tree's frame.
  *
  * A `section` is the closed ring at one principal layer station inside the
@@ -364,6 +364,6 @@ function sampleRing(
         ? surface.point(station, phase)
         : surface.jet(station, phase).p;
     for (let axis: number = 0; axis < 3; ++axis)
-      ring[3 * k + axis] = point[axis]! / AutoMovieConstructionViews.SCALE;
+      ring[3 * k + axis] = point[axis]! / AutoMovieEngineConstructionViews.SCALE;
   }
 }

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHandShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "./HumanColliders";
@@ -215,10 +215,10 @@ export namespace HumanHandShape {
     ): IAutoMovieVector3 =>
       bones.get(`${side}${name}${segment}` as AutoMovieHumanoidBone)!
         .worldPosition;
-    return Vector3.normalize(
-      Quaternion.rotateVector(
-        Quaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
-        Vector3.subtract(at("Distal"), at("Proximal")),
+    return AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
+        AutoMovieEngineVector3.subtract(at("Distal"), at("Proximal")),
       ),
     );
   }
@@ -239,22 +239,22 @@ export namespace HumanHandShape {
     digit: IAutoMovieVector3,
     toward: AimToward,
   ): IAutoMovieQuaternion {
-    const from: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(rotation, digit),
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(rotation, digit),
     );
     const to: IAutoMovieVector3 = { x: 0, y: toward === "up" ? 1 : -1, z: 0 };
-    const axis: IAutoMovieVector3 = Vector3.cross(from, to);
-    const cos: number = Math.max(-1, Math.min(1, Vector3.dot(from, to)));
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, to);
+    const cos: number = Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(from, to)));
     const arc: IAutoMovieQuaternion =
-      Vector3.length(axis) > 1e-9
-        ? Quaternion.fromAxisAngle(
+      AutoMovieEngineVector3.length(axis) > 1e-9
+        ? AutoMovieEngineQuaternion.fromAxisAngle(
             axis,
-            (Math.atan2(Vector3.length(axis), cos) * 180) / Math.PI,
+            (Math.atan2(AutoMovieEngineVector3.length(axis), cos) * 180) / Math.PI,
           )
         : cos > 0
-          ? Quaternion.identity()
-          : Quaternion.fromAxisAngle(
-              Vector3.cross(
+          ? AutoMovieEngineQuaternion.identity()
+          : AutoMovieEngineQuaternion.fromAxisAngle(
+              AutoMovieEngineVector3.cross(
                 from,
                 Math.abs(from.x) < 0.9
                   ? { x: 1, y: 0, z: 0 }
@@ -262,7 +262,7 @@ export namespace HumanHandShape {
               ),
               180,
             );
-    return Quaternion.normalize(Quaternion.multiply(arc, rotation));
+    return AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(arc, rotation));
   }
 
   /*
@@ -317,15 +317,15 @@ export namespace HumanHandShape {
       ? padOf(body, bones, region.bone, placed)
       : placed.point;
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       hand.worldRotation,
     );
     return {
-      point: Quaternion.rotateVector(
+      point: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, hand.worldPosition),
+        AutoMovieEngineVector3.subtract(point, hand.worldPosition),
       ),
-      normal: Quaternion.rotateVector(inverse, placed.normal),
+      normal: AutoMovieEngineQuaternion.rotateVector(inverse, placed.normal),
       forward:
         body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket].normal,
     };
@@ -356,8 +356,8 @@ function padOf(
     new Map([[bone, bones.get(bone)!]]),
   )) {
     if (collider.bone !== bone) continue;
-    const outward: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(collider.pose.rotation),
+    const outward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(collider.pose.rotation),
       placed.normal,
     );
     for (const shape of collider.shapes) {
@@ -366,7 +366,7 @@ function padOf(
         shape,
         outward,
       ).point;
-      const along: number = Vector3.dot(anchor, placed.normal);
+      const along: number = AutoMovieEngineVector3.dot(anchor, placed.normal);
       if (along > reach) {
         reach = along;
         best = anchor;
@@ -380,7 +380,7 @@ function padOf(
  * The flat hand's thumb carpometacarpal flexion, degrees: the retroposition
  * that lays the rest thumb in the palm's plane (measured on the rig: the thumb
  * tip 22-26 mm palmar of the knuckles' plane at 0, 3 mm at this angle), inside
- * the joint's admitted -25 (`DEFAULT_HUMANOID_ROM`).
+ * the joint's admitted -25 (`AutoMovieEngineDefaultHumanoidRom`).
  */
 const FLAT_THUMB: number = -25;
 

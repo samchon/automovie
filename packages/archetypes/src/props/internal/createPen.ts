@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypePen } from "../AutoMovieArchetypePen";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StationeryDraw } from "./StationeryDraw";
@@ -32,8 +32,8 @@ export function createPen(
   builder.rod(
     "barrel",
     thick / 2,
-    Vector3.create(0, thick / 2, 0),
-    Vector3.create(0, thick / 2, length),
+    AutoMovieEngineVector3.create(0, thick / 2, 0),
+    AutoMovieEngineVector3.create(0, thick / 2, length),
     { color: "#2a4d8f" },
   );
   builder.affordance({
@@ -41,9 +41,9 @@ export function createPen(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, thick / 2, length - 0.03),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, thick / 2, length - 0.03),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "precision",
@@ -54,8 +54,8 @@ export function createPen(
     kind: "surface",
     direction: "along",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, thick / 2, length),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, thick / 2, length),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
   });

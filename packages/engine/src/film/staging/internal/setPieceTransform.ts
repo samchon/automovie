@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { setPieceScale } from "./setPieceScale";
 
 /*
@@ -26,7 +26,7 @@ export function setPieceTransform(
   return {
     translation: piece.position,
     rotation:
-      piece.rotation ?? Quaternion.fromAxisAngle(UP, piece.facingDeg ?? 0),
+      piece.rotation ?? AutoMovieEngineQuaternion.fromAxisAngle(UP, piece.facingDeg ?? 0),
     scale: setPieceScale(piece.scale),
   };
 }

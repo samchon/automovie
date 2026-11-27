@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeQuadrupedBody,
   AutoMovieArchetypeHorseRide,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePrimitiveShape,
@@ -56,9 +56,9 @@ export namespace archetypeHorseRide {
         : 0;
     return AutoMovieArchetypeFrame.point(
       sample.placement,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         part.transform!.translation,
-        Quaternion.rotateVector(part.transform!.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(part.transform!.rotation, {
           x: 0,
           y: half,
           z: 0,

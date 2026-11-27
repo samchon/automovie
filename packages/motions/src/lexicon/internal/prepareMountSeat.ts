@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 
 import type {
   IAutoMoviePhysicalShape,
@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { mountCastObstruction } from "./mountCastObstruction";
-import * as PrepareMountSeatData from "./PrepareMountSeatData";
+import { PrepareMountSeatData } from "./PrepareMountSeatData";
 
 /*
  * A centred astride position supported on the actual seat deck. The pelvis
@@ -49,7 +49,7 @@ export function prepareMountSeat(
   for (const { part: body, bounds } of bodies) {
     const raised: IAutoMovieRigidTransform = {
       ...body.pose,
-      position: Vector3.add(body.pose.position, { x: 0, y: rise, z: 0 }),
+      position: AutoMovieEngineVector3.add(body.pose.position, { x: 0, y: rise, z: 0 }),
     };
     const solid: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
       raised,
@@ -213,7 +213,7 @@ function bearsPatch(
   const patch: IAutoMovieVector3[] = [];
   for (const body of pelvis)
     for (const witness of AutoMovieEnginePhysics.physicalShapeContactManifold(
-      { ...body.pose, position: Vector3.add(body.pose.position, point) },
+      { ...body.pose, position: AutoMovieEngineVector3.add(body.pose.position, point) },
       body.shape,
       deck.pose,
       deck.shape,
@@ -222,7 +222,7 @@ function bearsPatch(
     ))
       if (
         Math.abs(witness.pointA.y - height) <= tolerance &&
-        Vector3.distance(witness.pointA, witness.pointB) <= tolerance
+        AutoMovieEngineVector3.distance(witness.pointA, witness.pointB) <= tolerance
       )
         patch.push(witness.pointA);
   const polygon: IAutoMoviePlanarPoint[] = AutoMovieEngineMath.convexHull2D(patch).map(
@@ -240,13 +240,13 @@ function boxFaces(
   part: prepareMountSeat.ISolid,
 ): readonly IAutoMovieVector3[] | undefined {
   if (part.shape.kind !== "box") return undefined;
-  const turn: IAutoMovieQuaternion = Quaternion.multiply(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     part.pose.rotation,
     part.shape.transform.rotation,
   );
   return PrepareMountSeatData.BOX_AXES.map(
     (axis: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(turn, axis),
+      AutoMovieEngineQuaternion.rotateVector(turn, axis),
   );
 }
 

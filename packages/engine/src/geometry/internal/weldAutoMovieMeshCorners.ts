@@ -3,7 +3,7 @@ import type {
   IAutoMovieResolvedPhysicalVertices,
 } from "@automovie/interface";
 
-import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
+import { AutoMovieEngineMeshWeldGrid } from "../../constants/AutoMovieEngineMeshWeldGrid";
 import { resolveAutoMovieMeshPhysicalVertices } from "../../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
@@ -13,7 +13,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * `measureAutoMovieMeshPieces` share.
  *
  * Without physical source correspondence, a corner is identified by its
- * position rounded on the `MESH_WELD_GRID` lattice, so face-local corners at
+ * position rounded on the `AutoMovieEngineMeshWeldGrid` lattice, so face-local corners at
  * one point join. A mesh that declares physical sources is identified by those
  * sources instead, so two sources stay distinct where they touch. Either way, a
  * triangle whose corners round onto fewer than three lattice cells is
@@ -41,7 +41,7 @@ export const weldAutoMovieMeshCorners: (
   const key: (at: number) => string = (at: number): string =>
     [0, 1, 2]
       .map((axis: number): number =>
-        Math.round(mesh.positions[at * 3 + axis]! * MESH_WELD_GRID),
+        Math.round(mesh.positions[at * 3 + axis]! * AutoMovieEngineMeshWeldGrid),
       )
       .join(",");
   const corners: number[] = [];

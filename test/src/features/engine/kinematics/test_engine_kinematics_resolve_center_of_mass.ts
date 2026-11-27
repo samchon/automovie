@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -65,7 +65,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
     );
     const expected: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const segment of person.profile.segments) {
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         segment.neutral.rotation,
         segment.centerOfMass,
       );

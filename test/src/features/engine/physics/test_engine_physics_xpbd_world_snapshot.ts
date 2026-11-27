@@ -1,14 +1,14 @@
 import {
-  type AutoMovieXpbdBody,
-  AutoMovieXpbdWorld,
-  Quaternion,
+  type AutoMovieEngineXpbdBody,
+  AutoMovieEngineXpbdWorld,
+  AutoMovieEngineQuaternion,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
  * A restored world snapshot is the world it was taken from, bit for bit, and
- * steps as it does (`AutoMovieXpbdWorld.takeSnapshot`, `.restoreSnapshot`,
+ * steps as it does (`AutoMovieEngineXpbdWorld.takeSnapshot`, `.restoreSnapshot`,
  * `.step`): what a resumed bake rests on.
  *
  * One dynamic body with off-axis mass properties, a tilted pose, linear and
@@ -23,17 +23,17 @@ import { TestValidator } from "@nestia/e2e";
  * 2. One step of each leaves the same snapshot bytes.
  */
 export function test_engine_physics_xpbd_world_snapshot(): void {
-  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+  const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({
     x: 0,
     y: -9.81,
     z: 0,
   });
   world.timestep = 1 / 3840;
-  const body: AutoMovieXpbdBody = world.createBody(
+  const body: AutoMovieEngineXpbdBody = world.createBody(
     true,
     {
       position: { x: 0.1, y: 1, z: -0.2 },
-      rotation: Quaternion.fromAxisAngle({ x: 0.6, y: 0, z: 0.8 }, 30),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0.6, y: 0, z: 0.8 }, 30),
     },
     0.5,
   );
@@ -41,7 +41,7 @@ export function test_engine_physics_xpbd_world_snapshot(): void {
     2,
     { x: 0.01, y: -0.02, z: 0.03 },
     { x: 0.1, y: 0.2, z: 0.3 },
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 20),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 20),
   );
   body.setLinvel({ x: 1, y: -0, z: -0.5 });
   body.setAngvel({ x: 3, y: 1, z: -2 });
@@ -49,10 +49,10 @@ export function test_engine_physics_xpbd_world_snapshot(): void {
   body.addTorque({ x: 0, y: 0.1, z: -0.2 });
 
   const snapshot: Uint8Array = world.takeSnapshot();
-  const restored: AutoMovieXpbdWorld =
-    AutoMovieXpbdWorld.restoreSnapshot(snapshot);
-  const values = (from: AutoMovieXpbdWorld): number[] =>
-    from.bodies.flatMap((each: AutoMovieXpbdBody): number[] =>
+  const restored: AutoMovieEngineXpbdWorld =
+    AutoMovieEngineXpbdWorld.restoreSnapshot(snapshot);
+  const values = (from: AutoMovieEngineXpbdWorld): number[] =>
+    from.bodies.flatMap((each: AutoMovieEngineXpbdBody): number[] =>
       [
         each.translation(),
         each.rotation(),

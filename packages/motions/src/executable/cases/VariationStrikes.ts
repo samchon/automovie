@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -79,7 +79,7 @@ export namespace VariationStrikes {
     }
     const offsets = (run: IStruck[]): IAutoMovieVector3[] =>
       run.map(
-        (s: IStruck): IAutoMovieVector3 => Vector3.subtract(s.point, s.centre),
+        (s: IStruck): IAutoMovieVector3 => AutoMovieEngineVector3.subtract(s.point, s.centre),
       );
     const wide: number = VariationSeries.dispersion(offsets(novice));
     const narrow: number = VariationSeries.dispersion(offsets(expert));
@@ -227,7 +227,7 @@ function strikes(
   ).point;
   const rest = (region: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
     const frame = struck.surfaces.regions[region];
-    return Vector3.add(struck.rest.get(frame.bone)!, frame.point);
+    return AutoMovieEngineVector3.add(struck.rest.get(frame.bone)!, frame.point);
   };
   const out: IStruck[] = [];
   for (let i: number = 0; i < VariationSeries.REPEATS; i++) {
@@ -258,7 +258,7 @@ function strikes(
         "abdomen",
         tangent,
       );
-    const still: IAutoMovieVector3 = Vector3.add(
+    const still: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       struck.rest.get(frame.bone)!,
       frame.point,
     );
@@ -267,7 +267,7 @@ function strikes(
     for (const region of Object.keys(
       struck.surfaces.regions,
     ) as AutoMovieHumanoidRegion[]) {
-      const d: number = Vector3.length(Vector3.subtract(rest(region), still));
+      const d: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(rest(region), still));
       if (d < least) {
         least = d;
         nearest = region;
@@ -321,7 +321,7 @@ function defended(
       throw new Error("A punch records its aim and has a contact");
     return {
       carried: punch.plan.aimed,
-      audit: Vector3.subtract(record.planned, record.offset),
+      audit: AutoMovieEngineVector3.subtract(record.planned, record.offset),
       point: StrikingBody.region(
         struck,
         standing.bones("b", punch.start + punch.plan.contact),
@@ -340,10 +340,10 @@ function defended(
   );
   const carried: IAutoMovieHumanoidSurfaces.ITangent | undefined =
     moved.carried;
-  const apart: number = Vector3.length(
-    Vector3.subtract(
-      Vector3.subtract(moved.audit, plain.audit),
-      Vector3.subtract(moved.point, plain.point),
+  const apart: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.subtract(moved.audit, plain.audit),
+      AutoMovieEngineVector3.subtract(moved.point, plain.point),
     ),
   );
   const covered: IAutoMovieMotionHumanPerformance = VariationSeries.perform(

@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -90,7 +90,7 @@ export function touchBalance(
         },
         {
           root: HumanBalance.TOLERANCE,
-          angle: ROM_TOLERANCE,
+          angle: AutoMovieEngineRomTolerance,
           step: AutoMovieMotionHumanArmCourse.STEP,
         },
       );

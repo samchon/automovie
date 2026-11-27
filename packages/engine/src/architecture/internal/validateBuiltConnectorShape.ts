@@ -7,7 +7,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { builtConnectorGeometry } from "./builtConnectorGeometry";
 
 /*
@@ -46,8 +46,8 @@ export function validateBuiltConnectorShape(
   if (connector.route.length >= 2)
     for (let index: number = 0; index + 1 < connector.route.length; ++index)
       if (
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             connector.route[index + 1]!,
             connector.route[index]!,
           ),

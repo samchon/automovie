@@ -1,5 +1,5 @@
 import type { IAutoMovieCompiledFormation, IAutoMovieFormationSlot } from "@automovie/interface";
-import type { IAutoMovieFormationViewerObject } from "./IAutoMovieFormationViewerObject.js";
+import type { IAutoMovieRenderFormationViewerObject } from "./IAutoMovieRenderFormationViewerObject.js";
 import type { IBuildInstancedFormationProps } from "./internal/IBuildInstancedFormationProps.js";
 import { buildInstancedFormation as buildInstancedFormationImplementation } from "./internal/buildInstancedFormation.js";
 import { regenerateFormationSlot as regenerateFormationSlotImplementation } from "./internal/regenerateFormationSlot.js";
@@ -9,7 +9,7 @@ export namespace AutoMovieRenderFormation {
   /** Build one compact formation as chunked instance batches. */
   export function buildInstancedFormation(
     input: IBuildInstancedFormationProps,
-  ): IAutoMovieFormationViewerObject {
+  ): IAutoMovieRenderFormationViewerObject {
     return buildInstancedFormationImplementation(input);
   }
 

@@ -4,11 +4,14 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
-  HumanPerformanceSite,
+  AutoMovieMotionHumanObject,
   AutoMovieMotionHumanRefusal,
-} from "@automovie/motions/internal";
+} from "@automovie/motions";
+import {
+  HumanPerformanceSite
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceSite";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { drivenDoorState } from "../../internal/fixtures/drivenDoorState";

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeCleaningData from "./internal/AutoMovieArchetypeCleaningData";
+import { AutoMovieArchetypeCleaningData } from "./internal/AutoMovieArchetypeCleaningData";
 
 /** Constructs the cleaning archetype from its recipe. */
 export namespace AutoMovieArchetypeCleaning {
@@ -61,8 +61,8 @@ export function create(
   });
   builder.box(
     kind,
-    Vector3.create(d.width, d.thickness, d.length),
-    Vector3.create(0, d.thickness / 2, 0),
+    AutoMovieEngineVector3.create(d.width, d.thickness, d.length),
+    AutoMovieEngineVector3.create(0, d.thickness / 2, 0),
     { color: kind === "cloth" ? "#4f86c6" : "#f2d24b" },
   );
   builder.affordance({
@@ -70,7 +70,7 @@ export function create(
     kind: "handle",
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, d.thickness / 2, 0),
+      AutoMovieEngineVector3.create(0, d.thickness / 2, 0),
     ),
     extent: null,
     grip: kind === "cloth" ? "precision" : "power",
@@ -81,9 +81,9 @@ export function create(
     kind: "surface",
     direction: "normal",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, -1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, -1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     width: d.width,

@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type { IAutoMovieMotionHumanJuggle } from "@automovie/interface";
 
 /*
@@ -15,7 +15,7 @@ import type { IAutoMovieMotionHumanJuggle } from "@automovie/interface";
  * metres.
  */
 export function juggleTiming(props: juggleTiming.IProps): juggleTiming.ITiming {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const k: number = props.ratio;
   const n: number = props.balls;
   const flight: number = Math.sqrt((8 * props.height) / g);

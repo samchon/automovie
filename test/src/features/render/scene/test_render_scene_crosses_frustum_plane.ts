@@ -1,4 +1,6 @@
-import { crossesAutoMovieFrustumPlane } from "@automovie/render/internal";
+import {
+  crossesAutoMovieFrustumPlane
+} from "../../../../../packages/render/src/scene/inspection/internal/crossesAutoMovieFrustumPlane";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

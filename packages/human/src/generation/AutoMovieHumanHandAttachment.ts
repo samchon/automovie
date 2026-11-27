@@ -1,4 +1,4 @@
-import { AutoMovieIllinois, AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineIllinois, AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanArmWalk,
@@ -235,11 +235,11 @@ function chord(
       "The hand attachment is outside the actual radial supports",
     );
   function horizontal(phase: number): number {
-    return AutoMovieViewSection.radius(shape, phase)[0] * Math.cos(phase);
+    return AutoMovieEngineViewSection.radius(shape, phase)[0] * Math.cos(phase);
   }
   const result: number[] = [];
   for (const from of [0, Math.PI]) {
-    const phase: number | null = AutoMovieIllinois.root(
+    const phase: number | null = AutoMovieEngineIllinois.root(
       (angle: number): number => horizontal(angle) - across,
       from,
       from + Math.PI,
@@ -248,7 +248,7 @@ function chord(
     );
     if (phase === null || Math.abs(horizontal(phase) - across) > 1e-7)
       throw new Error("The actual hand-parent depth chord failed its residual");
-    result.push(AutoMovieViewSection.radius(shape, phase)[0] * Math.sin(phase));
+    result.push(AutoMovieEngineViewSection.radius(shape, phase)[0] * Math.sin(phase));
   }
   return [Math.min(...result), Math.max(...result)];
 }

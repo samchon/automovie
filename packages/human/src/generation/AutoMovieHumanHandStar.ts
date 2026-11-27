@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanArmPrior,
@@ -28,7 +28,7 @@ export namespace AutoMovieHumanHandStar {
       splines: Array.from(
         { length: count },
         (_: unknown, k: number): IAutoMovieNaturalCubicSpline =>
-          AutoMovieNaturalSpline.create(
+          AutoMovieEngineNaturalSpline.create(
             field.stations,
             field.series.map((row: readonly number[]): number => row[k]!),
           ),
@@ -48,7 +48,7 @@ export namespace AutoMovieHumanHandStar {
     );
     const v: number[] = field.splines.map(
       (s: IAutoMovieNaturalCubicSpline): number =>
-        AutoMovieNaturalSpline.evaluate(s, held),
+        AutoMovieEngineNaturalSpline.evaluate(s, held),
     );
     let r: number = v[4]!;
     for (let k: number = 1; 4 + 2 * k < v.length; k++)

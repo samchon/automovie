@@ -1,4 +1,6 @@
-import { StrikingLegGoals } from "@automovie/motions/internal";
+import {
+  StrikingLegGoals
+} from "../../../../../packages/motions/src/striking/internal/StrikingLegGoals";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

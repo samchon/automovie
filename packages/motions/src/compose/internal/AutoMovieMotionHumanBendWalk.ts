@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBend,
   IAutoMovieSwivelNear,
@@ -82,15 +82,15 @@ function walked(
 ): AutoMovieMotionHumanBendWalk.ISolved | null {
   let near: IAutoMovieSwivelNear = {
     ...seed,
-    tolerance: hingedArmSwivel.RESOLUTION,
+    tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
   };
-  for (let step: number = 0; step * hingedArmSwivel.STEP <= 360; ++step) {
+  for (let step: number = 0; step * AutoMovieEngineHingedArmSwivel.STEP <= 360; ++step) {
     const found: ReturnType<ISearch> = search(near);
     if (typeof found === "string") return null;
     const moved: number = Math.abs(found.seed.swivel - near.swivel);
-    if (moved < hingedArmSwivel.STEP - hingedArmSwivel.RESOLUTION)
+    if (moved < AutoMovieEngineHingedArmSwivel.STEP - AutoMovieEngineHingedArmSwivel.RESOLUTION)
       return found.candidate.overshoot === 0 ? found : null;
-    near = { ...found.seed, tolerance: hingedArmSwivel.RESOLUTION };
+    near = { ...found.seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
   }
   return null;
 }

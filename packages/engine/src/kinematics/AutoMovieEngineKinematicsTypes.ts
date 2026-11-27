@@ -7,7 +7,7 @@ import type {
   IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { hingedArmSwivel } from "./hingedArmSwivel";
+import type { AutoMovieEngineHingedArmSwivel } from "./AutoMovieEngineHingedArmSwivel";
 
 /** Independent, type-only contracts for AutoMovieEngineKinematics operations. */
 export namespace AutoMovieEngineKinematicsTypes {
@@ -73,7 +73,7 @@ export namespace AutoMovieEngineKinematicsTypes {
       upper: IAutoMovieQuaternion,
       lower: IAutoMovieQuaternion,
       swivel: number,
-      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     ) => {
       overshoot: number;
       deviation: number;
@@ -93,7 +93,7 @@ export namespace AutoMovieEngineKinematicsTypes {
      */
     bound?: (
       upper: (swivel: number) => IAutoMovieQuaternion,
-      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     ) => (low: number, high: number) => number;
 
     /**
@@ -103,7 +103,7 @@ export namespace AutoMovieEngineKinematicsTypes {
      * and returns a legal result that `met` accepts; otherwise the sweep
      * decides.
      */
-    pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
+    pole?: (posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>) => number | null;
 
     /**
      * Given a branch's poser, every swivel on it, degrees, at which a requested
@@ -114,7 +114,7 @@ export namespace AutoMovieEngineKinematicsTypes {
      * the sweep decide as without it.
      */
     closed?: (
-      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     ) => readonly number[] | null;
 
     /**
@@ -125,7 +125,7 @@ export namespace AutoMovieEngineKinematicsTypes {
      * vanished. A continued fit centres its search there (`hingedSwivelNear`).
      */
     nearest?: (
-      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
       swivel: number,
     ) => number | null;
 
@@ -142,7 +142,7 @@ export namespace AutoMovieEngineKinematicsTypes {
      * a cold fit skips the pole start, whose result `met` would refuse, and the
      * sweep decides at once; omitted, nothing is certified.
      */
-    unmet?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => boolean;
+    unmet?: (posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>) => boolean;
 
     /**
      * Given a branch's root rotation by swivel, degrees, the swivels at which
@@ -165,7 +165,7 @@ export namespace AutoMovieEngineKinematicsTypes {
      * them there. Never called for a degenerate chain.
      */
     chosen?: (
-      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
       swivel: number,
     ) => void;
 
@@ -206,7 +206,7 @@ export namespace AutoMovieEngineKinematicsTypes {
      * Exact source/target geometry of this same unchanged chain, point and
      * hinge range.
      */
-    prepared?: hingedArmSwivel.IPreparedTarget;
+    prepared?: AutoMovieEngineHingedArmSwivel.IPreparedTarget;
   }
 
   /** The minimum object of {@link IAutoMovieEngineKinematicsHingedArmArticulationProps}. */

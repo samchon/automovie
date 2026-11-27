@@ -1,9 +1,9 @@
 import {
-  AutoMovieSolidFoot,
-  AutoMovieSolidIntersection,
-  AutoMovieSolidRail,
-  AutoMovieSolidTraceLaw,
-  AutoMovieSolidTraceSolve,
+  AutoMovieEngineSolidFoot,
+  AutoMovieEngineSolidIntersection,
+  AutoMovieEngineSolidRail,
+  AutoMovieEngineSolidTraceLaw,
+  AutoMovieEngineSolidTraceSolve,
 } from "@automovie/engine";
 import type {
   IAutoMovieSolidAtlas,
@@ -94,7 +94,7 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
     },
   };
   const result: IAutoMovieSolidIntersection.IResult =
-    AutoMovieSolidIntersection.trace({
+    AutoMovieEngineSolidIntersection.trace({
       part: { ...part, period: 2 * Math.PI },
       host,
       seed: { phi: 0, s: 0, y: 0.3, theta: 0, face: 1 },
@@ -145,7 +145,7 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
       },
     };
     const contact: IAutoMovieSolidIntersection.IResult =
-      AutoMovieSolidIntersection.trace({
+      AutoMovieEngineSolidIntersection.trace({
         part: shifted,
         host,
         seed: { phi: 0, s: 0, y: centre - 0.7, theta: 0, face: 1 },
@@ -171,7 +171,7 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
       const rail: IAutoMovieSolidRail.IRail | null =
         point === null
           ? null
-          : AutoMovieSolidRail.at(shifted, host, point, "outside", 0.1, 0.25);
+          : AutoMovieEngineSolidRail.at(shifted, host, point, "outside", 0.1, 0.25);
       if (rail === null) {
         failures.push(`No owned rail for centre ${centre}, phase ${phi}.`);
         continue;
@@ -202,7 +202,7 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
     }
   }
   const arc: IAutoMovieSolidIntersection.IResult =
-    AutoMovieSolidIntersection.trace({
+    AutoMovieEngineSolidIntersection.trace({
       part,
       host,
       seed: { phi: 0, s: 0, y: 0.3, theta: 0, face: 1 },
@@ -283,7 +283,7 @@ function boundedTrials(failures: string[]): void {
       };
     },
   };
-  const law: IAutoMovieSolidTraceLaw.ILaw | null = AutoMovieSolidTraceLaw.of({
+  const law: IAutoMovieSolidTraceLaw.ILaw | null = AutoMovieEngineSolidTraceLaw.of({
     kind: "phase",
   });
   if (law === null) throw new Error("Unexpected phase-law failure.");
@@ -294,9 +294,9 @@ function boundedTrials(failures: string[]): void {
     height: number,
     guess: number,
   ): IAutoMovieSolidIntersection.IPoint | null =>
-    AutoMovieSolidTraceSolve.solve(
+    AutoMovieEngineSolidTraceSolve.solve(
       part,
-      AutoMovieSolidIntersection.atlas(trialPlane(height)),
+      AutoMovieEngineSolidIntersection.atlas(trialPlane(height)),
       law,
       0,
       [guess, 0, guess, 0],
@@ -315,7 +315,7 @@ function boundedTrials(failures: string[]): void {
     failures.push(
       "An infeasible polish displaced the accepted owned boundary point.",
     );
-  const foot: IAutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
+  const foot: IAutoMovieSolidFoot.IFoot | null = AutoMovieEngineSolidFoot.of(
     part,
     [0.5, 0.25, 0],
     [0.1, 0],
@@ -323,8 +323,8 @@ function boundedTrials(failures: string[]): void {
   );
   if (foot === null || !nclose(foot.u, 0.5, 1e-7))
     failures.push("A feasible interior foot was lost.");
-  AutoMovieSolidFoot.of(part, [2, 4, 0], [0.5, 0], 1e-9);
-  AutoMovieSolidFoot.of(part, [0.5, 0.25, 0], [-0.1, 0], 1e-9);
+  AutoMovieEngineSolidFoot.of(part, [2, 4, 0], [0.5, 0], 1e-9);
+  AutoMovieEngineSolidFoot.of(part, [0.5, 0.25, 0], [-0.1, 0], 1e-9);
   if (outside !== 0)
     failures.push(
       `${outside} outside callbacks were evaluated before admission.`,
@@ -337,7 +337,7 @@ function boundedTrials(failures: string[]): void {
   };
   let caught: unknown;
   try {
-    AutoMovieSolidFoot.of(broken, [0, 0, 0], [0.5, 0], 1e-8);
+    AutoMovieEngineSolidFoot.of(broken, [0, 0, 0], [0.5, 0], 1e-8);
   } catch (error: unknown) {
     caught = error;
   }

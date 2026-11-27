@@ -1,6 +1,6 @@
 import {
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanSectionSite,
@@ -62,7 +62,7 @@ export namespace AutoMovieHumanSiteRegionControls {
     const constraints: IAutoMovieHumanSiteConstraints.IOwner =
       AutoMovieHumanSiteConstraints.create();
     const edgeScale: number =
-      (Math.PI - AutoMovieViewParameter.at(parameter, support.station)) /
+      (Math.PI - AutoMovieEngineViewParameter.at(parameter, support.station)) /
       Math.PI;
     const fullnessScale: number =
       (pole.top - support.station) / (pole.top - pole.bottom);
@@ -231,7 +231,7 @@ export namespace AutoMovieHumanSiteRegionControls {
         normalization: number,
       ): NonNullable<IAutoMovieViewPart.IKnot["jet"]> => {
         const reading: IAutoMovieViewOutline.IReading | string =
-          AutoMovieViewOutline.at(outline, station);
+          AutoMovieEngineViewOutline.at(outline, station);
         if (typeof reading === "string")
           throw new Error(`Shared distal parameter jet: ${reading}`);
         return {

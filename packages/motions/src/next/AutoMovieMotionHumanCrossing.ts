@@ -133,7 +133,7 @@ export namespace AutoMovieMotionHumanCrossing {
    * palms are laid on the top at its near edge, then the body tucks over the
    * hands alone in the floor laws' squat (`getUp.POSES`). The flight is
    * ballistic in the root from the push-off under standard gravity
-   * (`AutoMovieGravity.STANDARD`), on the least-speed arc from the tucked root
+   * (`AutoMovieEngineGravity.STANDARD`), on the least-speed arc from the tucked root
    * to the landing's (the push that reaches it with the least effort), the
    * joints blended from the tuck to the landing on minimum-jerk shares; the
    * flight is declared without turns, so the flight pass gives the whole body's

@@ -151,7 +151,7 @@ export namespace AutoMovieEngineConstruction {
    * the other's.
    *
    * The band is a split's band with one stretch, the host's whole end ring, and
-   * no seam (`AutoMovieConstructionSplitBand.fan`): its start ribbon is the
+   * no seam (`AutoMovieEngineConstructionSplitBand.fan`): its start ribbon is the
    * host's own 2-jet along its station line out of its end, its end ribbon the
    * part's own 2-jet at the rail toward its kept side, both scaled by the
    * strip's one factor, so the band is G2 to both. The ring's vertices are the
@@ -323,7 +323,7 @@ export namespace AutoMovieEngineConstruction {
   /**
    * Realize a port (`IAutoMovieConstructionPort`): the host's port curve cut
    * out of its face as a hole, a band from that curve to the part's rail
-   * (`AutoMovieConstructionSplitBand.strip`, the split's own strip with the
+   * (`AutoMovieEngineConstructionSplitBand.strip`, the split's own strip with the
    * monotone ribbon scale), all sharing their boundary vertices.
    *
    * Steps: walk the host and admit its face; take the checkpoint; walk the part
@@ -343,12 +343,12 @@ export namespace AutoMovieEngineConstruction {
    * the port's name; a foreign error restores it and propagates unchanged.
    *
    * One owner per seam, read between the columns as well as at them: the port
-   * curve (`AutoMovieConstructionPortCurve.curve`, the loop's ellipse with its
+   * curve (`AutoMovieEngineConstructionPortCurve.curve`, the loop's ellipse with its
    * shares joined by the periodic cubic) is the host's seam, and the rail field
    * (one station, or the periodic cubic through `rails`) the part's. The host's
    * hole keeps the outside of that curve and maps a point inside it to the band
    * at its radial foot's clock; the band's face is the exact band
-   * (`AutoMovieConstructionPortBand`), whose start edge is the host on that
+   * (`AutoMovieEngineConstructionPortBand`), whose start edge is the host on that
    * curve and whose end edge is the part on its rail, each with the side's own
    * cross 2-jet; the band's start and end cycles and the part's rail cycle map
    * across by the same curve and correspondence
@@ -356,8 +356,8 @@ export namespace AutoMovieEngineConstruction {
    * exists. The column strip still admits the columns, finds their ribbon
    * factors and publishes its chain as the band's column record. A profiled
    * band is the exact band carried in by its profiles' displacement
-   * (`AutoMovieConstructionSplitBand.profiled`,
-   * `AutoMovieConstructionPortBand.carried`), laid along the exact band's own
+   * (`AutoMovieEngineConstructionSplitBand.profiled`,
+   * `AutoMovieEngineConstructionPortBand.carried`), laid along the exact band's own
    * normal, so it keeps the same seams and readers; its published chain is the
    * profiled column strip.
    */
@@ -456,12 +456,12 @@ export namespace AutoMovieEngineConstruction {
   /**
    * Realize a split (`IAutoMovieConstructionSplit`): the host's open end
    * divided by the seam chord into both children's loops, each spanned to its
-   * child's rail by a band (`AutoMovieConstructionSplitBand`), all sharing
+   * child's rail by a band (`AutoMovieEngineConstructionSplitBand`), all sharing
    * their boundary vertices.
    *
    * Steps: walk the host and admit its end (realized, no pole there, not
    * already cut); take the checkpoint; build the curved seam once when a
-   * profile is declared (`AutoMovieConstructionSplitSeam`, refused with the
+   * profile is declared (`AutoMovieEngineConstructionSplitSeam`, refused with the
    * split's diagnostic before either child is lofted); walk both children and
    * admit each face and rail (realized after the checkpoint, the rail inside
    * its domain, the rail's side not already cut); build both bands; then add to
@@ -1185,7 +1185,7 @@ export namespace AutoMovieEngineConstruction {
    * `point` when the surface has one and `jet(...).p` otherwise. The chain's
    * owned station range is the surface's `domain`, or its first to last layer
    * when the surface names none. Points are divided by
-   * `AutoMovieConstructionViews.SCALE`, so they come out in metres in the
+   * `AutoMovieEngineConstructionViews.SCALE`, so they come out in metres in the
    * construction tree's frame.
    *
    * A `section` is the closed ring at one principal layer station inside the

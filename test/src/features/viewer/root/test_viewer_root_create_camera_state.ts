@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind } from "@automovie/render";
+import { AutoMovieRenderThreeKind } from "@automovie/render";
 import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -28,7 +28,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
     new THREE.PerspectiveCamera(42, 1.6, 0.1, 120),
     new THREE.OrthographicCamera(-3, 3, 2, -2, 0, 120),
   ]) {
-    if (AutoMovieThreeKind.isPerspectiveCamera(camera)) {
+    if (AutoMovieRenderThreeKind.isPerspectiveCamera(camera)) {
       camera.filmGauge = 50;
       camera.filmOffset = 3;
       camera.focus = 15;
@@ -39,7 +39,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
     camera.layers.set(3);
     camera.zoom = 1.4;
     camera.setViewOffset(1600, 1000, 150, 70, 900, 700);
-    if (AutoMovieThreeKind.isPerspectiveCamera(camera)) camera.aspect = 1.4;
+    if (AutoMovieRenderThreeKind.isPerspectiveCamera(camera)) camera.aspect = 1.4;
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld(true);
     const crop: IViewerCropWindow = {
@@ -60,7 +60,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
       layers: 1 << 3,
       projection: camera.projectionMatrix.toArray(),
       view: crop,
-      lens: AutoMovieThreeKind.isPerspectiveCamera(camera)
+      lens: AutoMovieRenderThreeKind.isPerspectiveCamera(camera)
         ? {
             kind: "perspective",
             fov: 42,

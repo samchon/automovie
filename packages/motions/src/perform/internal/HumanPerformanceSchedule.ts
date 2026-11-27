@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, AutoMovieEngineScheduleCut, AutoMovieScheduleError, Vector3, AutoMovieEngineMath, AutoMovieEngineSchedule } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineScheduleCut, AutoMovieEngineScheduleError, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineSchedule } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieIntent, IAutoMovieIntentTiming, IAutoMovieMotionEvent, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanResponse, IAutoMovieMotionHumanSegment, IAutoMovieMotionMeeting, IAutoMovieSchedule, IAutoMovieScheduleAlignment, IAutoMovieScheduleContext, IAutoMovieScheduleCue, IAutoMovieScheduleEntry, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -117,7 +117,7 @@ export namespace HumanPerformanceSchedule {
         },
       });
     } catch (error) {
-      throw error instanceof AutoMovieScheduleError
+      throw error instanceof AutoMovieEngineScheduleError
         ? HumanScheduleRefusal(
             error,
             (subject: string, capability: string): number =>
@@ -268,10 +268,10 @@ export namespace HumanPerformanceSchedule {
 
   /*
    * The drawn latency a synced action waits after its instant
-   * (`HumanChainCore.ISync.latency`), 0 for an action synced without one: the
+   * (`AutoMovieMotionHumanChainCore.ISync.latency`), 0 for an action synced without one: the
    * performer's own draw (`HumanResponse.latency`), keyed by the performer, the
    * action's id, its occurrence and `latency`, and warned when the cue track
-   * holds the instant's preparatory word (`HumanCue.orders`).
+   * holds the instant's preparatory word (`AutoMovieMotionHumanCue.orders`).
    */
   export function latency(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -363,8 +363,8 @@ export namespace HumanPerformanceSchedule {
           ).get(frame.bone)!,
         ).point;
       return (
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             effector,
             segment.context.aim(until.proximity.target, seconds).point,
           ),

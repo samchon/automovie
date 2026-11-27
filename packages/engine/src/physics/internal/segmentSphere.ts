@@ -1,6 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * First intersection of the segment `a→b` with a sphere, as the parameter `s ∈
@@ -22,12 +22,12 @@ export function segmentSphere(
       `segment sphere radius must be > 0, but was ${radius}`,
     );
 
-  const d: IAutoMovieVector3 = Vector3.subtract(b, a);
-  const m: IAutoMovieVector3 = Vector3.subtract(a, c);
-  const A: number = Vector3.dot(d, d);
-  const C: number = Vector3.dot(m, m) - radius * radius;
+  const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
+  const m: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(a, c);
+  const A: number = AutoMovieEngineVector3.dot(d, d);
+  const C: number = AutoMovieEngineVector3.dot(m, m) - radius * radius;
   if (A === 0) return C <= 0 ? 0 : null; // a == b: point test
-  const B: number = 2 * Vector3.dot(m, d);
+  const B: number = 2 * AutoMovieEngineVector3.dot(m, d);
   const disc: number = B * B - 4 * A * C;
   if (disc < 0) return null;
   const root: number = Math.sqrt(disc);

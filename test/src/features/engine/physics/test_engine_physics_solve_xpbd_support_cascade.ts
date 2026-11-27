@@ -1,14 +1,14 @@
 import {
-  type AutoMovieXpbdBody,
-  type AutoMovieXpbdWorld,
-  AutoMovieXpbdArticulation,
-  AutoMovieXpbdSupportRows,
+  type AutoMovieEngineXpbdBody,
+  type AutoMovieEngineXpbdWorld,
+  AutoMovieEngineXpbdArticulation,
+  AutoMovieEngineXpbdSupportRows,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
  * The support cascade solves IHMC's weighted whole-body objective
- * (`AutoMovieXpbdWorld.IObjective`) as IHMC builds it:
+ * (`AutoMovieEngineXpbdWorld.IObjective`) as IHMC builds it:
  *
  * 1. Rows: a normal row's unit impulse at (0.1, 0, 0.2) gives the force (0, 1, 0),
  *    no yaw moment about a centre of mass above the origin, and the moment
@@ -28,9 +28,9 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_physics_solve_xpbd_support_cascade(): void {
   const failures: string[] = [];
   const near = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
-  const counted = {} as AutoMovieXpbdBody;
-  const other = {} as AutoMovieXpbdBody;
-  const objective: AutoMovieXpbdWorld.IObjective = {
+  const counted = {} as AutoMovieEngineXpbdBody;
+  const other = {} as AutoMovieEngineXpbdBody;
+  const objective: AutoMovieEngineXpbdWorld.IObjective = {
     force: { x: 0.5, y: 0.02, z: 0.5 },
     yaw: { center: { x: 0, y: 1, z: 0 }, weight: 0.1 },
     pressure: {
@@ -43,12 +43,12 @@ export function test_engine_physics_solve_xpbd_support_cascade(): void {
     x: number;
     y: number;
     z: number;
-  }): Pick<AutoMovieXpbdArticulation.IRow, "direction"> => ({
+  }): Pick<AutoMovieEngineXpbdArticulation.IRow, "direction"> => ({
     direction,
   });
 
   // 1. The rows.
-  const normal: number[] = AutoMovieXpbdArticulation.objectiveRow(
+  const normal: number[] = AutoMovieEngineXpbdArticulation.objectiveRow(
     row({ x: 0, y: 1, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     counted,
@@ -61,7 +61,7 @@ export function test_engine_physics_solve_xpbd_support_cascade(): void {
     )
   )
     failures.push(`normal row ${JSON.stringify(normal)}`);
-  const tangent: number[] = AutoMovieXpbdArticulation.objectiveRow(
+  const tangent: number[] = AutoMovieEngineXpbdArticulation.objectiveRow(
     row({ x: 1, y: 0, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     counted,
@@ -74,7 +74,7 @@ export function test_engine_physics_solve_xpbd_support_cascade(): void {
     )
   )
     failures.push(`tangential row ${JSON.stringify(tangent)}`);
-  const elsewhere: number[] = AutoMovieXpbdArticulation.objectiveRow(
+  const elsewhere: number[] = AutoMovieEngineXpbdArticulation.objectiveRow(
     row({ x: 0, y: 1, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     other,
@@ -98,26 +98,26 @@ export function test_engine_physics_solve_xpbd_support_cascade(): void {
     cop: { x: number; z: number },
     expected: readonly number[],
   ): void => {
-    const plain: AutoMovieXpbdWorld.IObjective = {
+    const plain: AutoMovieEngineXpbdWorld.IObjective = {
       force: { x: 0.5, y: 0.02, z: 0.5 },
       pressure: { point: { x: cop.x, y: 0, z: cop.z }, weight: 15 },
     };
-    const rows: AutoMovieXpbdSupportRows.IRow[] = feet.map(
-      (foot: { x: number; z: number }): AutoMovieXpbdSupportRows.IRow => ({
+    const rows: AutoMovieEngineXpbdSupportRows.IRow[] = feet.map(
+      (foot: { x: number; z: number }): AutoMovieEngineXpbdSupportRows.IRow => ({
         state: 0,
         point: { x: foot.x, y: 0, z: foot.z },
         direction: { x: 0, y: 1, z: 0 },
         velocity: 0,
       }),
     );
-    const x: number[] | null = AutoMovieXpbdSupportRows.cascade({
+    const x: number[] | null = AutoMovieEngineXpbdSupportRows.cascade({
       k: feet.map((_, i: number): number[] =>
         feet.map((__, k: number): number => (i === k ? 1 : 0)),
       ),
       u: feet.map((): number => 0),
       columns: rows.map(
-        (entry: AutoMovieXpbdSupportRows.IRow, i: number): number[] =>
-          AutoMovieXpbdArticulation.objectiveRow(
+        (entry: AutoMovieEngineXpbdSupportRows.IRow, i: number): number[] =>
+          AutoMovieEngineXpbdArticulation.objectiveRow(
             entry,
             { x: feet[i]!.x, y: 0, z: feet[i]!.z },
             counted,

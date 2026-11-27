@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -47,20 +47,20 @@ export namespace seatedHandsThighs {
   ): IAutoMovieVector3 {
     const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
     const thigh: IAutoMovieResolvedBone = bones.get(bone)!;
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         bones.get(`${side}LowerLeg`)!.worldPosition,
         thigh.worldPosition,
       ),
     );
-    const arm: IAutoMovieVector3 = Vector3.subtract(point, thigh.worldPosition);
-    const radial: IAutoMovieVector3 = Vector3.addScaled(
+    const arm: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, thigh.worldPosition);
+    const radial: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       arm,
       axis,
-      -Vector3.dot(arm, axis),
+      -AutoMovieEngineVector3.dot(arm, axis),
     );
-    if (Vector3.length(radial) === 0) return point;
-    const normal: IAutoMovieVector3 = Vector3.normalize(radial);
+    if (AutoMovieEngineVector3.length(radial) === 0) return point;
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(radial);
     const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       new Map([[bone, thigh]]);
     let surface: number = -Infinity;
@@ -77,11 +77,11 @@ export namespace seatedHandsThighs {
       side,
       rotation,
       "wrist",
-    )(Vector3.scale(normal, -1));
-    return Vector3.addScaled(
+    )(AutoMovieEngineVector3.scale(normal, -1));
+    return AutoMovieEngineVector3.addScaled(
       point,
       normal,
-      Math.max(0, surface + depth - Vector3.dot(point, normal)),
+      Math.max(0, surface + depth - AutoMovieEngineVector3.dot(point, normal)),
     );
   }
 
@@ -102,11 +102,11 @@ export namespace seatedHandsThighs {
           `thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
         ];
       const thigh: IAutoMovieResolvedBone = bones.get(frame.bone)!;
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         thigh.worldPosition,
-        Quaternion.rotateVector(thigh.worldRotation, frame.point),
+        AutoMovieEngineQuaternion.rotateVector(thigh.worldRotation, frame.point),
       );
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+      const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         thigh.worldRotation,
         frame.normal,
       );
@@ -117,18 +117,18 @@ export namespace seatedHandsThighs {
       // thigh the fingers asked the forearm for a twist beyond its range,
       // which the fit met at the range's end with the forearm folded into
       // the trunk.
-      const along: IAutoMovieVector3 = Vector3.subtract(
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         bones.get(`${side}LowerLeg`)!.worldPosition,
         thigh.worldPosition,
       );
-      const reach: IAutoMovieVector3 = Vector3.subtract(
+      const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         point,
         bones.get(`${side}UpperArm`)!.worldPosition,
       );
-      const laidReach: IAutoMovieVector3 = Vector3.addScaled(
+      const laidReach: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         reach,
         normal,
-        -Vector3.dot(reach, normal),
+        -AutoMovieEngineVector3.dot(reach, normal),
       );
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
         fingers: heading(
@@ -136,9 +136,9 @@ export namespace seatedHandsThighs {
           along,
           laidReach,
           normal,
-          Vector3.subtract(thigh.worldPosition, posture.root),
+          AutoMovieEngineVector3.subtract(thigh.worldPosition, posture.root),
         ),
-        palm: Vector3.scale(normal, -1),
+        palm: AutoMovieEngineVector3.scale(normal, -1),
       });
       limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, {
         surface: "palm",
@@ -180,7 +180,7 @@ export namespace seatedHandsThighs {
     normal: IAutoMovieVector3,
     prepared?: PalmRests[AutoMovieHumanSide],
   ): IAutoMovieVector3 {
-    const inward: IAutoMovieVector3 = Vector3.scale(normal, -1);
+    const inward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(normal, -1);
     const skin: IAutoMovieVector3 =
       prepared === undefined
         ? prepareThighSkin.cast(body, new Map([[bone, thigh]]), point, normal)
@@ -195,7 +195,7 @@ export namespace seatedHandsThighs {
             "palm",
           )(inward)
         : prepared.reach(
-            Quaternion.rotateVector(Quaternion.inverse(rotation), inward),
+            AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(rotation), inward),
           );
     // The thigh curves away under the palm's sides, which the reach along
     // the normal at its middle does not see: the flat hand is lifted by the
@@ -203,7 +203,7 @@ export namespace seatedHandsThighs {
     // little finger clear the curve too.
     const half: number = (PALM_BREADTH * body.measure.hand) / 2;
     const sagitta: number = (half * half) / (2 * body.measure.thighRadius);
-    return Vector3.addScaled(skin, normal, depth + sagitta);
+    return AutoMovieEngineVector3.addScaled(skin, normal, depth + sagitta);
   }
 }
 
@@ -218,7 +218,7 @@ const PALM_BREADTH: number = 0.45;
  * direction (along the thigh) where it lies within the wrist's deviation of the
  * arm's line laid into the surface, else that line turned by the deviation
  * toward it. The deviation is the side of the rig's wrist deviation range
- * (`DEFAULT_HUMANOID_ROM`, the hand's abduction) the turn goes to: for a palm
+ * (`AutoMovieEngineDefaultHumanoidRom`, the hand's abduction) the turn goes to: for a palm
  * laid down, fingers turned away from the body's midline turn toward the little
  * finger, ulnar deviation, the wider side of the range, and fingers turned
  * toward the midline radially, the narrower (the table's -30 and 20 degrees;
@@ -232,28 +232,28 @@ function heading(
   normal: IAutoMovieVector3,
   lateral: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const laid: IAutoMovieVector3 = Vector3.addScaled(
+  const laid: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     along,
     normal,
-    -Vector3.dot(along, normal),
+    -AutoMovieEngineVector3.dot(along, normal),
   );
-  if (Vector3.length(reach) <= 1e-9 || Vector3.length(laid) <= 1e-9)
+  if (AutoMovieEngineVector3.length(reach) <= 1e-9 || AutoMovieEngineVector3.length(laid) <= 1e-9)
     return along;
   const range: IAutoMovieAngleRange =
-    DEFAULT_HUMANOID_ROM[`${side}Hand`]!.abduction!;
-  const n: IAutoMovieVector3 = Vector3.normalize(normal);
-  const r: IAutoMovieVector3 = Vector3.normalize(reach);
-  const a: IAutoMovieVector3 = Vector3.normalize(laid);
-  const ulnar: boolean = Vector3.dot(Vector3.subtract(a, r), lateral) > 0;
+    AutoMovieEngineDefaultHumanoidRom[`${side}Hand`]!.abduction!;
+  const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(normal);
+  const r: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(reach);
+  const a: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(laid);
+  const ulnar: boolean = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(a, r), lateral) > 0;
   const deviation: number = ulnar
     ? Math.max(Math.abs(range.min), Math.abs(range.max))
     : Math.min(Math.abs(range.min), Math.abs(range.max));
   const turn: number =
-    (Math.atan2(Vector3.dot(Vector3.cross(r, a), n), Vector3.dot(r, a)) * 180) /
+    (Math.atan2(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(r, a), n), AutoMovieEngineVector3.dot(r, a)) * 180) /
     Math.PI;
   if (Math.abs(turn) <= deviation) return along;
-  return Quaternion.rotateVector(
-    Quaternion.fromAxisAngle(n, Math.sign(turn) * deviation),
+  return AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.fromAxisAngle(n, Math.sign(turn) * deviation),
     r,
   );
 }

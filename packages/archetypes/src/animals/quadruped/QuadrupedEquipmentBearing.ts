@@ -1,4 +1,4 @@
-import { PRIMITIVE_RADIAL_SEGMENTS, Vector3 } from "@automovie/engine";
+import { AutoMovieEnginePrimitiveRadialSegments, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
@@ -33,15 +33,15 @@ export namespace QuadrupedEquipmentBearing {
     beam: IAutoMovieVector3,
     color: string,
   ): void {
-    const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
-    const length: number = Vector3.length(axis);
-    const direction: IAutoMovieVector3 = Vector3.scale(axis, 1 / length);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(rig.poll, rig.neck);
+    const length: number = AutoMovieEngineVector3.length(axis);
+    const direction: IAutoMovieVector3 = AutoMovieEngineVector3.scale(axis, 1 / length);
     const normal: IAutoMovieVector3 = {
       x: 0,
       y: direction.z,
       z: -direction.y,
     };
-    const offset: IAutoMovieVector3 = Vector3.scale(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       normal,
       rig.neckRadius + yoke.radius,
     );
@@ -49,7 +49,7 @@ export namespace QuadrupedEquipmentBearing {
     const high: number = Math.min(length, yoke.neckAt + yoke.radius);
     const from: IAutoMovieVector3 = point(low);
     const to: IAutoMovieVector3 = point(high);
-    const middle: IAutoMovieVector3 = Vector3.scale(Vector3.add(from, to), 0.5);
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5);
     plan.rod("yoke-bearing", yoke.radius, from, to, color, yoke.clearance);
     join(
       plan,
@@ -65,8 +65,8 @@ export namespace QuadrupedEquipmentBearing {
      * An axis station and the shared tangency normal define each endpoint.
      */
     function point(station: number): IAutoMovieVector3 {
-      return Vector3.add(
-        Vector3.add(rig.neck, Vector3.scale(direction, station)),
+      return AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(rig.neck, AutoMovieEngineVector3.scale(direction, station)),
         offset,
       );
     }
@@ -95,15 +95,15 @@ export namespace QuadrupedEquipmentBearing {
       y: rig.back - rig.barrel,
       z: 0,
     };
-    const outward: IAutoMovieVector3 = Vector3.subtract(rail, centre);
+    const outward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(rail, centre);
     const normal: IAutoMovieVector3 = packNormal(
       plan,
       outward,
       rig.barrel + pack.railRadius,
     );
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       centre,
-      Vector3.scale(normal, rig.barrel + pack.railRadius),
+      AutoMovieEngineVector3.scale(normal, rig.barrel + pack.railRadius),
     );
     plan.rod(
       `pack-${side}-bearing`,
@@ -142,16 +142,16 @@ export namespace QuadrupedEquipmentBearing {
     let best: number = -Infinity;
     for (
       let station: number = 0;
-      station <= PRIMITIVE_RADIAL_SEGMENTS / 4;
+      station <= AutoMovieEnginePrimitiveRadialSegments / 4;
       station++
     ) {
-      const angle: number = (2 * Math.PI * station) / PRIMITIVE_RADIAL_SEGMENTS;
+      const angle: number = (2 * Math.PI * station) / AutoMovieEnginePrimitiveRadialSegments;
       const normal: IAutoMovieVector3 = {
         x: Math.sign(frame.x) * Math.cos(angle),
         y: Math.sin(angle),
         z: 0,
       };
-      const projection: number = Vector3.dot(normal, frame);
+      const projection: number = AutoMovieEngineVector3.dot(normal, frame);
       if (projection >= separation && projection > best) {
         selected = normal;
         best = projection;
@@ -179,7 +179,7 @@ export namespace QuadrupedEquipmentBearing {
     color: string,
     clearance: number,
   ): void {
-    if (Vector3.length(Vector3.subtract(to, from)) > 0)
+    if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(to, from)) > 0)
       plan.rod(id, radius, from, to, color, clearance);
   }
 }

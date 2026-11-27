@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -144,7 +144,7 @@ export namespace KickChain {
 
   /*
    * How far short of a weightless ankle's dorsiflexion
-   * (`ANKLE_DORSIFLEXION.unloaded`) the push foot is asked to stay, degrees:
+   * (`AutoMovieEngineAnkleDorsiflexion.unloaded`) the push foot is asked to stay, degrees:
    * the fitted foot turns a little from the asked one (provisional, as
    * `unloadedFoot`'s margin).
    */
@@ -156,14 +156,14 @@ export namespace KickChain {
    * Returns: The foot's world rotation from its rest.
    */
   export function sole(line: IAutoMovieVector3): IAutoMovieQuaternion {
-    return StrikingBody.foot({ x: 0, y: 1, z: 0 }, Vector3.scale(line, -1));
+    return StrikingBody.foot({ x: 0, y: 1, z: 0 }, AutoMovieEngineVector3.scale(line, -1));
   }
 
   /*
    * A kicking foot off the floor on its shank: the asked foot as far as an
    * ankle bearing no weight dorsiflexes, its toes turned forward, away from the
    * knee, by what the asked foot would pull them past
-   * (`ANKLE_DORSIFLEXION.unloaded` less `DORSAL_MARGIN`). The ankle's
+   * (`AutoMovieEngineAnkleDorsiflexion.unloaded` less `DORSAL_MARGIN`). The ankle's
    * dorsiflexion is how far the toes stand nearer the knee than square to the
    * shank. A push at a target below the hip points the shank down, and an
    * upright sole (`sole`) on it, the ankle's give added in the chamber
@@ -180,24 +180,24 @@ export namespace KickChain {
     knee: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
   ): IAutoMovieQuaternion {
-    const up: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(knee, ankle),
+    const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(knee, ankle),
     );
-    const toes: IAutoMovieVector3 = Quaternion.rotateVector(flat, {
+    const toes: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(flat, {
       x: 0,
       y: 0,
       z: 1,
     });
     const bent: number =
       90 -
-      Math.acos(Math.min(1, Math.max(-1, Vector3.dot(toes, up)))) /
-        Quaternion.DEG2RAD;
-    const excess: number = bent - (ANKLE_DORSIFLEXION.unloaded - DORSAL_MARGIN);
-    const axis: IAutoMovieVector3 = Vector3.cross(up, toes);
-    if (excess <= 0 || Vector3.length(axis) < 1e-9) return flat;
-    return Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(Vector3.normalize(axis), excess),
+      Math.acos(Math.min(1, Math.max(-1, AutoMovieEngineVector3.dot(toes, up)))) /
+        AutoMovieEngineQuaternion.DEG2RAD;
+    const excess: number = bent - (AutoMovieEngineAnkleDorsiflexion.unloaded - DORSAL_MARGIN);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, toes);
+    if (excess <= 0 || AutoMovieEngineVector3.length(axis) < 1e-9) return flat;
+    return AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieEngineVector3.normalize(axis), excess),
         flat,
       ),
     );
@@ -230,9 +230,9 @@ export namespace KickChain {
     // target, the capsule met the trunk a radius early: measured on the
     // staged push kick, the knee still folded 51.1 degrees at impact.
     const point: IAutoMovieVector3 = round
-      ? Vector3.subtract(
+      ? AutoMovieEngineVector3.subtract(
           props.planned,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             props.direction,
             StrikingWeapon.girth(
               StrikingWeapon.legRadii(props.body)[1],
@@ -240,9 +240,9 @@ export namespace KickChain {
             ),
           ),
         )
-      : Vector3.subtract(
-          Vector3.subtract(props.planned, ball(props)),
-          Vector3.scale(
+      : AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.subtract(props.planned, ball(props)),
+          AutoMovieEngineVector3.scale(
             props.direction,
             StrikingWeapon.legRadii(props.body)[2][0],
           ),
@@ -337,7 +337,7 @@ export namespace KickChain {
     ): IAutoMovieQuaternion =>
       round
         ? StrikingBody.foot(
-            Vector3.normalize(Vector3.subtract(ankle, knee)),
+            AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(ankle, knee)),
             props.direction,
           )
         : unloaded(flat!, knee, ankle);
@@ -377,15 +377,15 @@ export namespace KickChain {
       const within: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 => {
-        const from: IAutoMovieVector3 = Vector3.subtract(point, hip);
-        const distance: number = Vector3.length(from);
+        const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, hip);
+        const distance: number = AutoMovieEngineVector3.length(from);
         return distance <= longest
           ? point
-          : Vector3.add(hip, Vector3.scale(from, longest / distance));
+          : AutoMovieEngineVector3.add(hip, AutoMovieEngineVector3.scale(from, longest / distance));
       };
       for (let i: number = 1; i < REFITS && last.residual > 1e-6; i++) {
         goal = within(
-          Vector3.add(goal, Vector3.subtract(props.planned, last.reached)),
+          AutoMovieEngineVector3.add(goal, AutoMovieEngineVector3.subtract(props.planned, last.reached)),
         );
         hint = last.knee;
         asked = pointed(last.knee, last.ankle);
@@ -415,8 +415,8 @@ export namespace KickChain {
   ): IAutoMovieVector3 {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     return props.technique === "round"
-      ? Vector3.add(props.direction, Vector3.scale(up, KickForm.BEND_RISE))
-      : Vector3.add(up, props.line);
+      ? AutoMovieEngineVector3.add(props.direction, AutoMovieEngineVector3.scale(up, KickForm.BEND_RISE))
+      : AutoMovieEngineVector3.add(up, props.line);
   }
 
   /*

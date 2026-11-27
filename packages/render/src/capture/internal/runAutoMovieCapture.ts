@@ -37,7 +37,7 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
  * round, `compareAutoMovieCaptureRounds` follows at `match` and diffs those
  * findings against the earlier record's. The record comes last.
  *
- * Files are touched in the order `AutoMovieCaptureFolder` states: the host
+ * Files are touched in the order `AutoMovieRenderCaptureFolder` states: the host
  * opens the folder for the plan's round and compared round, which checks both
  * before anything is deleted; every still and sheet is claimed in a `running`
  * record before the first is written, the comparison's files are claimed before
@@ -47,7 +47,7 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
  *
  * ```ts
  * const plan = planAutoMovieCapture({ request, subject, cuts: [] });
- * const folder = await AutoMovieCaptureFolder.open({
+ * const folder = await AutoMovieRenderCaptureFolder.open({
  *   storage: fs,
  *   root: "media/capture",
  *   round: request.round,

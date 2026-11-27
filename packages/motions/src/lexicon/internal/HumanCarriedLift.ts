@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -116,8 +116,8 @@ export namespace HumanCarriedLift {
     ): IAutoMovieVector3 => {
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         centers!(posture);
-      return Vector3.scale(
-        Vector3.add(
+      return AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
           StrikingBody.region(body, bones, "upperBack").point,
           StrikingBody.region(body, bones, "kneeRight").point,
         ),
@@ -164,7 +164,7 @@ export namespace HumanCarriedLift {
         ];
       }
       const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
         a.rotation,
         b.rotation,
         w,
@@ -185,9 +185,9 @@ export namespace HumanCarriedLift {
         ...blended,
         rotation: {
           about: blended.root,
-          turn: Quaternion.multiply(
+          turn: AutoMovieEngineQuaternion.multiply(
             rotation,
-            Quaternion.inverse(humanPostureHeading(blended)),
+            AutoMovieEngineQuaternion.inverse(humanPostureHeading(blended)),
           ),
         },
       };
@@ -196,21 +196,21 @@ export namespace HumanCarriedLift {
       // blend about the hips alone would sweep the folded limbs away from the
       // waiting hands before the two whole-body postures meet.
       const aCenter: IAutoMovieVector3 = center(from);
-      const target: IAutoMovieVector3 = Vector3.addScaled(
+      const target: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         aCenter,
-        Vector3.subtract(center(to), aCenter),
+        AutoMovieEngineVector3.subtract(center(to), aCenter),
         w,
       );
-      const correction: IAutoMovieVector3 = Vector3.subtract(
+      const correction: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         target,
         center(out),
       );
       return {
         ...out,
-        root: Vector3.add(out.root, correction),
+        root: AutoMovieEngineVector3.add(out.root, correction),
         rotation: {
           ...out.rotation!,
-          about: Vector3.add(out.rotation!.about, correction),
+          about: AutoMovieEngineVector3.add(out.rotation!.about, correction),
         },
       };
     };
@@ -262,15 +262,15 @@ export namespace HumanCarriedLift {
           ? {}
           : {
               rotation: {
-                about: Vector3.add(
+                about: AutoMovieEngineVector3.add(
                   root,
-                  Quaternion.rotateVector(
+                  AutoMovieEngineQuaternion.rotateVector(
                     HumanFrame.turn(degrees),
-                    Vector3.subtract(stood.rotation.about, stood.root),
+                    AutoMovieEngineVector3.subtract(stood.rotation.about, stood.root),
                   ),
                 ),
-                turn: Quaternion.multiply(
-                  Quaternion.multiply(
+                turn: AutoMovieEngineQuaternion.multiply(
+                  AutoMovieEngineQuaternion.multiply(
                     HumanFrame.turn(degrees),
                     stood.rotation.turn,
                   ),
@@ -571,18 +571,18 @@ function confirm(
         const material:
           | IAutoMovieMotionHumanContactWindow.IMaterial
           | undefined = fitted?.first;
-        const distance: number = Vector3.distance(outward.point, normal.point);
+        const distance: number = AutoMovieEngineVector3.distance(outward.point, normal.point);
         if (
           material !== undefined &&
           Math.abs(material.clearance) <= 2 * HumanFoot.BEARING
         )
           return material;
-        const reach: number = Vector3.distance(
+        const reach: number = AutoMovieEngineVector3.distance(
           outward.point,
           other.get(shoulder)!.worldPosition,
         );
         failures.push(
-          `${palm} to ${region} at ${seconds.toFixed(3)} s: skin centers ${(distance * 1000).toFixed(1)} mm, shoulder range ${(reach * 1000).toFixed(1)} mm, normal alignment ${Vector3.dot(outward.normal, normal.normal).toFixed(2)}${material === undefined ? "" : `, clearance ${(material.clearance * 1000).toFixed(1)} mm`}`,
+          `${palm} to ${region} at ${seconds.toFixed(3)} s: skin centers ${(distance * 1000).toFixed(1)} mm, shoulder range ${(reach * 1000).toFixed(1)} mm, normal alignment ${AutoMovieEngineVector3.dot(outward.normal, normal.normal).toFixed(2)}${material === undefined ? "" : `, clearance ${(material.clearance * 1000).toFixed(1)} mm`}`,
         );
         return undefined;
       };

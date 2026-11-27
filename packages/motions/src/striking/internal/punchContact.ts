@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieBodyMeasure, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStrikingAim, IAutoMovieMotionHumanStrikingReach, IAutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
@@ -256,8 +256,8 @@ export namespace punchContact {
       entry.yaw,
     );
     const { turn, bones }: punchLaunch.ILaunch = launch;
-    const outward: IAutoMovieVector3 = Vector3.scale(
-      Vector3.cross(up, line),
+    const outward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.cross(up, line),
       side === "left" ? 1 : -1,
     );
 
@@ -269,8 +269,8 @@ export namespace punchContact {
 
     // The striking surface's travel, the hand's rotation and the surface's
     // offset at contact by technique.
-    const straight: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(first, lowered),
+    const straight: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(first, lowered),
     );
     const surface: punchSurface.ISurface = punchSurface(
       body,
@@ -289,7 +289,7 @@ export namespace punchContact {
       ...(p.accuracy === undefined ? {} : { accuracy: p.accuracy }),
       direction,
       radius: StrikingQuality.fist(m.hand),
-      distance: Vector3.distance(first, lowered),
+      distance: AutoMovieEngineVector3.distance(first, lowered),
       seconds: delivery,
     });
     const tracker: IAutoMovieMotionHumanStrikingAim.ITracker =
@@ -339,8 +339,8 @@ export namespace punchContact {
     const longest: number = StrikingReach.reach(m.upperArm, m.forearm, band[0]);
     const bend: IAutoMovieVector3 =
       p.technique === "hook" || p.technique === "backfist"
-        ? Vector3.add(outward, Vector3.scale(up, 0.1))
-        : Vector3.add(Vector3.scale(up, -1), Vector3.scale(outward, 0.3));
+        ? AutoMovieEngineVector3.add(outward, AutoMovieEngineVector3.scale(up, 0.1))
+        : AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(up, -1), AutoMovieEngineVector3.scale(outward, 0.3));
     // The room behind the heels and in front of the arms along the line,
     // read once at the launch for every reach a delivered punch solves.
     const room: readonly [number, number] =
@@ -364,11 +364,11 @@ export namespace punchContact {
       goal: IAutoMovieVector3,
       decided?: number,
     ): punchReach.IReach => {
-      const wristAt: IAutoMovieVector3 = Vector3.subtract(goal, socket);
-      const relative: IAutoMovieVector3 = Vector3.subtract(wristAt, lowered);
-      const along: number = Vector3.dot(relative, line);
+      const wristAt: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goal, socket);
+      const relative: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(wristAt, lowered);
+      const along: number = AutoMovieEngineVector3.dot(relative, line);
       const across: number = Math.sqrt(
-        Math.max(0, Vector3.dot(relative, relative) - along * along),
+        Math.max(0, AutoMovieEngineVector3.dot(relative, relative) - along * along),
       );
       const needed: number = Math.sqrt(
         Math.max(0, comfortable * comfortable - across * across),
@@ -394,9 +394,9 @@ export namespace punchContact {
             : decided > 0
               ? Math.max(0, advance)
               : Math.min(0, advance);
-      const shoulder: IAutoMovieVector3 = Vector3.add(
+      const shoulder: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         lowered,
-        Vector3.scale(line, carried * advance),
+        AutoMovieEngineVector3.scale(line, carried * advance),
       );
       const solved: IAutoMovieMotionHumanStrikingReach.ISolution =
         StrikingReach.chain({
@@ -424,14 +424,14 @@ export namespace punchContact {
     let goal: IAutoMovieVector3 = tracker.planned;
     let before: punchReach.IReach = launched;
     for (const unit of tracker.units(Infinity)) {
-      goal = Vector3.add(goal, unit.displacement);
+      goal = AutoMovieEngineVector3.add(goal, unit.displacement);
       const now: punchReach.IReach = reach(goal, launched.advance);
       records.push({
         start: unit.start,
         duration: unit.duration,
         advance: now.advance - before.advance,
-        end: Vector3.subtract(now.solved.end, before.solved.end),
-        hint: Vector3.subtract(now.hint, before.hint),
+        end: AutoMovieEngineVector3.subtract(now.solved.end, before.solved.end),
+        hint: AutoMovieEngineVector3.subtract(now.hint, before.hint),
         reach: now,
         moved: !punchReach.same(now, before),
       });

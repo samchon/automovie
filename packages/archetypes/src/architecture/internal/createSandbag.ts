@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeSandbag } from "../AutoMovieArchetypeSandbag";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { ObstacleDraw } from "./ObstacleDraw";
@@ -23,7 +23,7 @@ export function createSandbag(
 ): AutoMovieArchetype<AutoMovieArchetypeSandbag.Affordance, AutoMovieArchetypeSandbag.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<AutoMovieArchetypeSandbag.Affordance> =
     ObstacleDraw.begin("sandbag", "sandbag", "composite", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const length: number = d.length!;
   const height: number = d.height!;
   const width: number = d.width!;

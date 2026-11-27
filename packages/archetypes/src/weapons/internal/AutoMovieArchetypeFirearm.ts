@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -151,7 +151,7 @@ export namespace AutoMovieArchetypeFirearm {
       pan: Affordance;
     }>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof FLINTLOCK = FLINTLOCK;
     const steel: { color: string } = { color: "#2c2f33" };
     const x: number = hole.x - e.side;
@@ -172,11 +172,11 @@ export namespace AutoMovieArchetypeFirearm {
     builder.box(
       "frizzen",
       v(e.pan, e.height, e.steel),
-      Vector3.add(frizzen, v(0, e.height / 2, 0)),
+      AutoMovieEngineVector3.add(frizzen, v(0, e.height / 2, 0)),
       steel,
     );
     // The cock at rest lies forward and up from its pivot, its jaw down on the frizzen's face; the thumb piece tops the jaw.
-    const jaw: IAutoMovieVector3 = Vector3.add(frizzen, v(0, e.height, 0));
+    const jaw: IAutoMovieVector3 = AutoMovieEngineVector3.add(frizzen, v(0, e.height, 0));
     builder.rod("cock", e.jaw, cock, jaw, steel);
     builder.ball("spur", e.jaw, jaw, steel);
     builder.affordance({
@@ -208,7 +208,7 @@ export namespace AutoMovieArchetypeFirearm {
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
         jaw,
-        Vector3.normalize(Vector3.subtract(jaw, cock)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(jaw, cock)),
         v(1, 0, 0),
       ),
       extent: null,

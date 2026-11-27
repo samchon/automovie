@@ -1,6 +1,5 @@
-import * as motions from "@automovie/motions";
-import { AutoMovieMotionHumanActions } from "@automovie/motions";
-import * as internal from "@automovie/motions/internal";
+import { AutoMovieMotionHumanActions, AutoMovieMotionHumanGrammar } from "@automovie/motions";
+import { MotionInventory } from "./MotionInventory";
 
 import type { IMotionReference } from "../structures/IMotionReference";
 
@@ -13,11 +12,6 @@ import type { IMotionReference } from "../structures/IMotionReference";
  * the pages with no change here.
  */
 export namespace MotionReference {
-  /** The package's exports by name, for the tables only some releases have. */
-  const EXPORTS: Readonly<Record<string, unknown>> = {
-    ...(motions as Readonly<Record<string, unknown>>),
-    ...(internal as Readonly<Record<string, unknown>>),
-  };
 
   /**
    * Everything the reference lists.
@@ -25,28 +19,18 @@ export namespace MotionReference {
    * @returns The reference.
    */
   export function read(): IMotionReference {
-    const lexicon: unknown = EXPORTS["HUMAN_LEXICON"];
+    const lexicon: unknown = MotionInventory.lexicon();
     const families: Record<string, { name: string }[]> =
       typeof lexicon === "object" && lexicon !== null
         ? (lexicon as Record<string, { name: string }[]>)
         : {};
-    const grammar: unknown = EXPORTS["HUMAN_GRAMMAR"];
+    const grammar: unknown = AutoMovieMotionHumanGrammar;
 
     // A row is the same law object its namespace exports, such as
     // `HumanStrike.jab`, so the first namespace holding it names it.
-    const namespaces: Map<unknown, string> = new Map();
-    for (const [key, value] of Object.entries(EXPORTS))
-      if (
-        /^Human[A-Z]/.test(key) &&
-        typeof value === "object" &&
-        value !== null
-      )
-        for (const law of Object.values(value))
-          if (!namespaces.has(law)) namespaces.set(law, key);
-
     const row = (name: string, law?: unknown): IMotionReference.IRow => ({
       name,
-      namespace: law === undefined ? null : (namespaces.get(law) ?? null),
+      namespace: law === undefined ? null : MotionInventory.namespace(law),
     });
     return {
       actions: Object.keys(AutoMovieMotionHumanActions).map(

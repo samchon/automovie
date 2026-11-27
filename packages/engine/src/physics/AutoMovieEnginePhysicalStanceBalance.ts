@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
 import type { AutoMovieEnginePhysicalStanceDemand } from "./AutoMovieEnginePhysicalStanceDemand";
 
 /**
@@ -339,9 +339,9 @@ export namespace AutoMovieEnginePhysicalStanceBalance {
     intended: IAutoMovieQuaternion,
     limit: number,
   ): IAutoMovieQuaternion {
-    let turn: IAutoMovieQuaternion = Quaternion.multiply(
+    let turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       intended,
-      Quaternion.inverse(actual),
+      AutoMovieEngineQuaternion.inverse(actual),
     );
     if (turn.w < 0) turn = { x: -turn.x, y: -turn.y, z: -turn.z, w: -turn.w };
     const sine: number = Math.hypot(turn.x, turn.y, turn.z);
@@ -349,7 +349,7 @@ export namespace AutoMovieEnginePhysicalStanceBalance {
     if (angle <= limit || !(sine > 0)) return intended;
     const half: number = limit / 2;
     const scale: number = Math.sin(half) / sine;
-    return Quaternion.multiply(
+    return AutoMovieEngineQuaternion.multiply(
       {
         x: turn.x * scale,
         y: turn.y * scale,

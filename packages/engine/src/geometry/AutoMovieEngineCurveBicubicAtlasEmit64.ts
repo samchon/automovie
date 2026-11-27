@@ -9,11 +9,11 @@ import type {
   IAutoMovieCanonicalBoundaryPhase64,
 } from "@automovie/interface";
 
-import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
-import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
+import { AutoMovieEngineBernsteinAlgebra64 as B } from "./AutoMovieEngineBernsteinAlgebra64";
+import { AutoMovieEngineBernsteinGrid64 as G } from "./AutoMovieEngineBernsteinGrid64";
 import { AutoMovieBicubicAtlasVertex64 } from "./curve/internal/AutoMovieBicubicAtlasVertex64";
-import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
-import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
+import { AutoMovieEngineCanonicalBoundary64 as Q } from "./AutoMovieEngineCanonicalBoundary64";
+import { AutoMovieEngineCurveMath64 as V } from "./AutoMovieEngineCurveMath64";
 import { triangulateAutoMovieParameterCell64 } from "./curve/internal/triangulateAutoMovieParameterCell64";
 import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 

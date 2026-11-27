@@ -1,4 +1,4 @@
-import { AutoMovieIllinois } from "@automovie/engine";
+import { AutoMovieEngineIllinois } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanArmConstruction,
@@ -194,7 +194,7 @@ export namespace AutoMovieHumanArmInterim {
       throw new Error(
         "Palm ellipse proxy requires positive finite breadth and girth",
       );
-    const depth: number | null = AutoMovieIllinois.root(
+    const depth: number | null = AutoMovieEngineIllinois.root(
       (d: number): number => perimeter(d) - girth,
       1e-6,
       girth,

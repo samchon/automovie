@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -73,7 +73,7 @@ export namespace highFiveContact {
           },
           shoulder,
         );
-        shifts.push(Vector3.subtract(virtual.shoulder, shoulder));
+        shifts.push(AutoMovieEngineVector3.subtract(virtual.shoulder, shoulder));
         return { ...virtual, shoulder };
       },
     );
@@ -115,7 +115,7 @@ export namespace highFiveContact {
         ),
       };
     } catch (error: unknown) {
-      const span: IAutoMovieVector3 = Vector3.subtract(
+      const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         arms[1]!.shoulder,
         arms[0]!.shoulder,
       );
@@ -173,7 +173,7 @@ export namespace highFiveContact {
     const direction: number = first ? -1 : 1;
     return kind === "low"
       ? { x: 0, y: direction, z: 0 }
-      : Vector3.scale(forward, direction);
+      : AutoMovieEngineVector3.scale(forward, direction);
   }
 
   /*
@@ -208,7 +208,7 @@ export namespace highFiveContact {
     const limit: number =
       role.body.measure.upperArm + role.body.measure.forearm;
     return {
-      shoulder: Vector3.add(shoulder, Vector3.subtract(placement.point, wrist)),
+      shoulder: AutoMovieEngineVector3.add(shoulder, AutoMovieEngineVector3.subtract(placement.point, wrist)),
       reach: operate.REACH * limit,
       limit,
     };
@@ -255,7 +255,7 @@ function translated(
 ): IAutoMovieResolveMutualGoal.ISide {
   return shift === undefined
     ? arm
-    : { ...arm, shoulder: Vector3.add(arm.shoulder, shift) };
+    : { ...arm, shoulder: AutoMovieEngineVector3.add(arm.shoulder, shift) };
 }
 
 /*
@@ -269,11 +269,11 @@ function approachAxis(
 ): IAutoMovieVector3 {
   const origin = (role: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
     bare ? role.bones.get(`${side}UpperArm`)!.worldPosition : role.posture.root;
-  const delta: IAutoMovieVector3 = Vector3.subtract(
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     origin(roles[1]!),
     origin(roles[0]!),
   );
-  if (bare && Vector3.length(delta) > 0) return Vector3.normalize(delta);
+  if (bare && AutoMovieEngineVector3.length(delta) > 0) return AutoMovieEngineVector3.normalize(delta);
   const span: number = Math.hypot(delta.x, delta.z);
   if (span > 0) return { x: delta.x / span, y: 0, z: delta.z / span };
   const yaw: number = (roles[0]!.posture.yaw * Math.PI) / 180;

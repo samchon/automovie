@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
@@ -21,15 +21,15 @@ export function AutoMovieMotionHumanBendSide(
   return (
     candidate: AutoMovieMotionHumanBendSearch.ICandidate,
   ): AutoMovieMotionHumanBendSearch.IScore => {
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(wrist, shoulder),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(wrist, shoulder),
     );
     const a: IAutoMovieVector3 = across(shoulder, axis, candidate.elbow);
     const b: IAutoMovieVector3 = across(shoulder, axis, bend);
     return ranked(
-      Vector3.length(a) < 1e-9 || Vector3.length(b) < 1e-9
+      AutoMovieEngineVector3.length(a) < 1e-9 || AutoMovieEngineVector3.length(b) < 1e-9
         ? 0
-        : 1 - Vector3.dot(Vector3.normalize(a), Vector3.normalize(b)),
+        : 1 - AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(a), AutoMovieEngineVector3.normalize(b)),
       candidate,
     );
   };
@@ -49,19 +49,19 @@ export namespace AutoMovieMotionHumanBendSide {
     wrist: IAutoMovieVector3,
     bend: IAutoMovieVector3,
   ): IRank {
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(wrist, shoulder),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(wrist, shoulder),
     );
     const hint: IAutoMovieVector3 = across(shoulder, axis, bend);
     const unit: IAutoMovieVector3 | undefined =
-      Vector3.length(hint) < 1e-9 ? undefined : Vector3.normalize(hint);
+      AutoMovieEngineVector3.length(hint) < 1e-9 ? undefined : AutoMovieEngineVector3.normalize(hint);
     return (
       candidate: AutoMovieMotionHumanBendSearch.ICandidate,
     ): AutoMovieMotionHumanBendSearch.IScore => {
       const a: IAutoMovieVector3 = across(shoulder, axis, candidate.elbow);
-      if (unit === undefined || Vector3.length(a) < 1e-9)
+      if (unit === undefined || AutoMovieEngineVector3.length(a) < 1e-9)
         return ranked(0, candidate);
-      return ranked(1 - Vector3.dot(Vector3.normalize(a), unit), candidate);
+      return ranked(1 - AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(a), unit), candidate);
     };
   }
 }
@@ -81,8 +81,8 @@ function across(
   axis: IAutoMovieVector3,
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const v: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
-  return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, shoulder);
+  return AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(v, axis)));
 }
 
 /*

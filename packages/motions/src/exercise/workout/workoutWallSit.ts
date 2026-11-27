@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanWorkout, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -7,7 +7,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import * as WorkoutWallSitData from "./internal/WorkoutWallSitData";
+import { WorkoutWallSitData } from "./internal/WorkoutWallSitData";
 
 /*
  * Fit the held wall sit to its named fixed face and verify the floor friction
@@ -35,13 +35,13 @@ export function workoutWallSit(
     reader.prop.mounted !== undefined
   )
     throw refusal(on.affordance, "a wall sit needs a fixed finite wall face");
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     face.frame.rotation,
     HumanMaterialContact.NORMAL,
   );
   if (
     Math.abs(normal.y) > 1e-6 ||
-    Vector3.dot(normal, HumanFrame.forward(source.yaw)) < 0.99
+    AutoMovieEngineVector3.dot(normal, HumanFrame.forward(source.yaw)) < 0.99
   )
     throw refusal(
       on.affordance,
@@ -53,13 +53,13 @@ export function workoutWallSit(
     measure(source, face);
   if (approach === undefined)
     throw refusal(on.affordance, "the sitter's back misses the finite wall");
-  const delta: IAutoMovieVector3 = Vector3.scale(normal, -approach.clearance);
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.scale(normal, -approach.clearance);
   const fit = (
     posture: IAutoMovieMotionHumanPosture,
     blend: number,
   ): IAutoMovieMotionHumanPosture => ({
     ...posture,
-    root: Vector3.add(posture.root, Vector3.scale(delta, blend)),
+    root: AutoMovieEngineVector3.add(posture.root, AutoMovieEngineVector3.scale(delta, blend)),
   });
   const held: IAutoMovieMotionHumanPosture = fit(source, 1);
   const original: ReturnType<typeof poseBones> = poseBones(
@@ -73,7 +73,7 @@ export function workoutWallSit(
   for (const bone of ["leftFoot", "rightFoot"] as const) {
     const a: IAutoMovieResolvedBone = original.get(bone)!;
     const b: IAutoMovieResolvedBone = shown.get(bone)!;
-    if (Vector3.distance(a.worldPosition, b.worldPosition) > HumanFoot.BEARING)
+    if (AutoMovieEngineVector3.distance(a.worldPosition, b.worldPosition) > HumanFoot.BEARING)
       throw refusal(
         on.affordance,
         "the sitter cannot reach the wall with both feet planted",
@@ -182,18 +182,18 @@ function pressureRange(
   center: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ): readonly [number, number] | undefined {
-  const along: IAutoMovieVector3 = Vector3.cross(
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
     HumanMaterialContact.NORMAL,
     normal,
   );
   const ring: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D([...floor]);
   const projected: IAutoMovieVector3[] = ring.map(
     (point: IAutoMovieVector3): IAutoMovieVector3 => {
-      const delta: IAutoMovieVector3 = Vector3.subtract(point, center);
+      const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, center);
       return {
-        x: Vector3.dot(delta, normal),
+        x: AutoMovieEngineVector3.dot(delta, normal),
         y: 0,
-        z: Vector3.dot(delta, along),
+        z: AutoMovieEngineVector3.dot(delta, along),
       };
     },
   );

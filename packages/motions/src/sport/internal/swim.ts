@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -247,12 +247,12 @@ export namespace swim {
         })
       : undefined;
     const hipOffset: IAutoMovieVector3 | undefined = prone
-      ? Quaternion.rotateVector(proneHeading!, hipsRest!)
+      ? AutoMovieEngineQuaternion.rotateVector(proneHeading!, hipsRest!)
       : undefined;
-    const turn: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined =
+    const turn: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> | undefined =
       prone
-        ? Quaternion.prepareAxisAngle(
-            Quaternion.rotateVector(proneHeading!, { x: 0, y: 1, z: 0 }),
+        ? AutoMovieEngineQuaternion.prepareAxisAngle(
+            AutoMovieEngineQuaternion.rotateVector(proneHeading!, { x: 0, y: 1, z: 0 }),
           )
         : undefined;
     // The body's roll about its long axis, a whole-body rotation about the
@@ -300,7 +300,7 @@ export namespace swim {
             pitch: 90,
             joints: turned(entry.joints, 1),
           };
-          const hips: IAutoMovieVector3 = Vector3.add(breath.root, hipOffset!);
+          const hips: IAutoMovieVector3 = AutoMovieEngineVector3.add(breath.root, hipOffset!);
           const rise: number =
             HumanTrunk.region(body, rolled(breath, -ROLL, hips), "mouth").point
               .y - hips.y;
@@ -325,14 +325,14 @@ export namespace swim {
           ...posture,
           pitch: 90,
         };
-        const hips: IAutoMovieVector3 = Vector3.add(
+        const hips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           { x: entry.root.x, y: water - depth, z: entry.root.z },
-          Vector3.scale(forward!, (1.0 * s) / modifiers.tempo),
+          AutoMovieEngineVector3.scale(forward!, (1.0 * s) / modifiers.tempo),
         );
         return rolled(
           {
             ...pitched,
-            root: Vector3.subtract(hips, hipOffset!),
+            root: AutoMovieEngineVector3.subtract(hips, hipOffset!),
           },
           roll(s),
           hips,

@@ -4,7 +4,7 @@ import type {
   IAutoMoviePreparePhysicalGeometry,
 } from "@automovie/interface";
 import {
-  type IAutoMovieDrawScene,
+  type IAutoMovieRenderDrawScene,
 
   AutoMovieRenderInspectionCamera,
   AutoMovieRenderInspection,
@@ -55,7 +55,7 @@ export function inspectFilmProduction(props: {
    * or delivery sample.
    */
   verdicts?: () => FilmVerdictPacket;
-  sample: IAutoMovieDrawScene.IPlacedSample;
+  sample: IAutoMovieRenderDrawScene.IPlacedSample;
 }): IAutoMovieInspectionDiagnostics {
   const { name, production, geometry, sample } = props;
   const layersAt = (
@@ -165,7 +165,7 @@ const SETTLED: AutoMovieRenderInspection.IPlacedSceneCollisionLimits =
  * scene spends swept cells.
  */
 const COLLISION_LIMITS: Record<
-  IAutoMovieDrawScene.IPlacedSample["mode"],
+  IAutoMovieRenderDrawScene.IPlacedSample["mode"],
   AutoMovieRenderInspection.IPlacedSceneCollisionLimits
 > = {
   viewer: {
@@ -188,7 +188,7 @@ const COLLISION_LIMITS: Record<
  * a frame into about a billion steps.
  */
 const MOTION_LIMITS: Record<
-  IAutoMovieDrawScene.IPlacedSample["mode"],
+  IAutoMovieRenderDrawScene.IPlacedSample["mode"],
   AutoMovieRenderInspection.IPlacedSceneCollisionMotionLimits
 > = {
   viewer: {

@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
@@ -28,13 +28,13 @@ export function everydayPostureCaseObstacle(
       {
         id: "edge",
         kind: "ledge",
-        frame: Transform.of({ x: 0, y: box.height, z: box.depth }, identity),
+        frame: AutoMovieEngineTransform.of({ x: 0, y: box.height, z: box.depth }, identity),
         extent: null,
       },
       {
         id: "top",
         kind: "surface",
-        frame: Transform.of(
+        frame: AutoMovieEngineTransform.of(
           { x: 0, y: box.height, z: box.depth / 2 },
           identity,
         ),

@@ -1,4 +1,4 @@
-import { FRAMING_AIM_FRACTION, FRAMING_HEIGHT_FRACTION, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFramingAimFraction, AutoMovieEngineFramingHeightFraction, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -10,7 +10,7 @@ import { namedFacts, nclose } from "../../internal/predicates";
 
 /** One figure's height, and the point a `wide` frame aims at on it. */
 const HEIGHT: number = 1.7;
-const AIM: number = HEIGHT * FRAMING_AIM_FRACTION.wide;
+const AIM: number = HEIGHT * AutoMovieEngineFramingAimFraction.wide;
 
 /**
  * A 90 degree vertical field of view, so `tan(fovY / 2) = 1` and every distance
@@ -71,7 +71,7 @@ const crowd: (radius: number) => IAutoMovieFramedSubject = (
 });
 
 /** What the frame must show, as a multiple of the subject's own size. */
-const SHOWN: number = FRAMING_HEIGHT_FRACTION.wide;
+const SHOWN: number = AutoMovieEngineFramingHeightFraction.wide;
 
 /** The vertical fit alone: the whole solve before a subject could be wide. */
 const VERTICAL: number = (HEIGHT * SHOWN) / 2;

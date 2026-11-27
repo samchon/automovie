@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { swingTwistRefusedArcs } from "./swingTwistRefusedArcs";
-import { swivelArcs } from "../swivelArcs";
+import { AutoMovieEngineSwivelArcs } from "../AutoMovieEngineSwivelArcs";
 
 /*
  * The swivels a joint's swing-twist range provably refuses: for a joint whose
@@ -33,13 +33,13 @@ import { swivelArcs } from "../swivelArcs";
  * swivel (Rodrigues' formula); every swing past the region's greatest radius on
  * any great circle is refused, where `cos` of that radius less the sinusoid is
  * positive. Each sinusoid is fitted exactly from the rotation at 0, 90 and 180
- * degrees, and each refuses the arc where it exceeds `MARGIN` (`swivelArcs`).
+ * degrees, and each refuses the arc where it exceeds `MARGIN` (`AutoMovieEngineSwivelArcs`).
  *
  * Every refusal is certain. The twist's product above `MARGIN` puts both sines
  * above it, so the half twist lies past its interval by more than `MARGIN`
  * radians, the twist by twice that; the swing's cosine short of the greatest
  * radius's by more than `MARGIN` puts the swing past it by more than `MARGIN`
- * radians. `MARGIN` is the joints' tolerance (`ROM_TOLERANCE`) in radians, far
+ * radians. `MARGIN` is the joints' tolerance (`AutoMovieEngineRomTolerance`) in radians, far
  * beyond the rounding of the fit and the arcs' ends. The range reads the
  * rotation the caller's angles compose in its own frame (`scanJointRom`), which
  * is the swivel's rotation only when the caller decomposes it on that same
@@ -86,5 +86,5 @@ export function swingTwistExcludedSwivels(props: {
   const merged: IAutoMovieSwivelArcs.IArc[] | "all" =
     swingTwistRefusedArcs(props);
   return (low: number, high: number): boolean =>
-    swivelArcs.covers(merged, low, high);
+    AutoMovieEngineSwivelArcs.covers(merged, low, high);
 }

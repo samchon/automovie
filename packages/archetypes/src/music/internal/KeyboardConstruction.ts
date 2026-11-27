@@ -6,7 +6,7 @@ import {
 } from "../../core";
 import { PianoPedalConstruction } from "./PianoPedalConstruction";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
-import { v } from "./KeyboardConstructionData";
+import { KeyboardConstructionData } from "./KeyboardConstructionData";
 
 /*
  * How createInstrument builds an upright piano with its case, keyboard
@@ -91,7 +91,7 @@ export namespace KeyboardConstruction {
     const left: number = (-whites * white) / 2;
     const bed: number = top - E.white;
     const rise: number = d.blackRise!;
-    builder.box("case", v(width, height, back), v(0, height / 2, back / 2), {
+    builder.box("case", KeyboardConstructionData.v(width, height, back), KeyboardConstructionData.v(0, height / 2, back / 2), {
       color: "#1d1b1a",
     });
     PianoPedalConstruction(builder, back);
@@ -101,14 +101,14 @@ export namespace KeyboardConstruction {
     ] as const)
       builder.box(
         id,
-        v(E.cheek, top + rise, length),
-        v((sign * (width - E.cheek)) / 2, (top + rise) / 2, back + length / 2),
+        KeyboardConstructionData.v(E.cheek, top + rise, length),
+        KeyboardConstructionData.v((sign * (width - E.cheek)) / 2, (top + rise) / 2, back + length / 2),
         { color: "#1d1b1a" },
       );
     builder.box(
       "key-bed",
-      v(width - 2 * E.cheek, 0.04, length),
-      v(0, bed - 0.02, back + length / 2),
+      KeyboardConstructionData.v(width - 2 * E.cheek, 0.04, length),
+      KeyboardConstructionData.v(0, bed - 0.02, back + length / 2),
       { color: "#1d1b1a" },
     );
 
@@ -121,15 +121,15 @@ export namespace KeyboardConstruction {
         const run: number = d.blackLength!;
         builder.box(
           `${id}-part`,
-          v(E.blackWidth, E.white + rise, run),
-          v(x, bed + (E.white + rise) / 2, back + run / 2),
+          KeyboardConstructionData.v(E.blackWidth, E.white + rise, run),
+          KeyboardConstructionData.v(x, bed + (E.white + rise) / 2, back + run / 2),
           { color: "#121212" },
         );
         builder.affordance({
           id,
           kind: "button",
           frame: AutoMovieArchetypeFrame.upright(
-            v(x, top + rise, back + run / 2),
+            KeyboardConstructionData.v(x, top + rise, back + run / 2),
           ),
           extent: null,
           travel: d.dip!,
@@ -141,14 +141,14 @@ export namespace KeyboardConstruction {
       below++;
       builder.box(
         `${id}-part`,
-        v(white - E.gap, E.white, length),
-        v(x, bed + E.white / 2, back + length / 2),
+        KeyboardConstructionData.v(white - E.gap, E.white, length),
+        KeyboardConstructionData.v(x, bed + E.white / 2, back + length / 2),
         { color: "#f3f1ea" },
       );
       builder.affordance({
         id,
         kind: "button",
-        frame: AutoMovieArchetypeFrame.upright(v(x, top, back + length / 2)),
+        frame: AutoMovieArchetypeFrame.upright(KeyboardConstructionData.v(x, top, back + length / 2)),
         extent: null,
         travel: d.dip!,
         parts: [`${id}-part`],
@@ -158,17 +158,17 @@ export namespace KeyboardConstruction {
     // The fallboard stands open against the case over the keys' back ends; its travel lays it forward over them.
     builder.box(
       "fallboard",
-      v(whites * white, length, E.fallboard),
-      v(0, top + rise + E.fallboard + length / 2, back + E.fallboard / 2),
+      KeyboardConstructionData.v(whites * white, length, E.fallboard),
+      KeyboardConstructionData.v(0, top + rise + E.fallboard + length / 2, back + E.fallboard / 2),
       { color: "#1d1b1a" },
     );
     builder.affordance({
       id: "lid",
       kind: "hinge",
       frame: AutoMovieArchetypeFrame.facing(
-        v(0, top + rise + E.fallboard, back),
-        v(1, 0, 0),
-        v(0, 1, 0),
+        KeyboardConstructionData.v(0, top + rise + E.fallboard, back),
+        KeyboardConstructionData.v(1, 0, 0),
+        KeyboardConstructionData.v(0, 1, 0),
       ),
       extent: null,
       travel: FALL,
@@ -177,7 +177,7 @@ export namespace KeyboardConstruction {
     builder.affordance({
       id: "keybed",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(v(0, top, back + length / 2)),
+      frame: AutoMovieArchetypeFrame.upright(KeyboardConstructionData.v(0, top, back + length / 2)),
       extent: null,
       width: whites * white,
       depth: length,

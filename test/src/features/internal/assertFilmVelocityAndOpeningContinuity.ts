@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineVector3, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieActorContext,
   type IAutoMovieBeatEndActorState,
@@ -91,7 +91,7 @@ export function assertFilmVelocityAndOpeningContinuity(
         // narrowing from the previous fact stops at this closure.
         (): boolean =>
           velocitySecond.success &&
-          Vector3.length(
+          AutoMovieEngineVector3.length(
             AutoMovieEngineMotionSampling.sampleMotion(velocitySecond.source.motions[0]!, 1).pose.root
               ?.translation ?? { x: 0, y: 0, z: 0 },
           ) >=

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -29,7 +29,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { release } from "../../throwing/internal/release";
 import { HumanArcheryCue } from "./HumanArcheryCue";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
-import * as HumanArcheryData from "./HumanArcheryData";
+import { HumanArcheryData } from "./HumanArcheryData";
 
 /*
  * Archery under its own names. Shared grasp and placement laws take the same
@@ -278,15 +278,15 @@ function toAnchor(
     }).affordances.find((a: IAutoMovieAffordance): boolean => a.id === point);
     return posed === undefined
       ? undefined
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, posed.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, posed.frame.translation),
         );
   };
   const start: IAutoMovieVector3 | undefined = at(0);
   const along: IAutoMovieVector3 | undefined = at(mechanism.travel);
   if (start === undefined || along === undefined) return context;
-  const run: number = Vector3.distance(start, along);
+  const run: number = AutoMovieEngineVector3.distance(start, along);
   if (!(run > Number.EPSILON)) return context;
   const chin: IAutoMovieVector3 = context.aim(
     { kind: "self", region: "chin" },
@@ -297,15 +297,15 @@ function toAnchor(
   // grip) short of the chin, so the hand meets the jaw rather than entering
   // it.
   const side: AutoMovieHumanSide = context.params.hand ?? "right";
-  const thumb: number = Vector3.distance(
+  const thumb: number = AutoMovieEngineVector3.distance(
     HumanHand.offset(context.body, side, "thumbTip", "relaxed", DRAW_CURL)
       .point,
     HumanHand.offset(context.body, side, "grip").point,
   );
   const toChin: number =
-    Vector3.dot(
-      Vector3.subtract(chin, start),
-      Vector3.scale(Vector3.subtract(along, start), 1 / run),
+    AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(chin, start),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(along, start), 1 / run),
     ) - thumb;
   if (!(toChin > 0) || toChin >= run) return context;
   return {
@@ -395,17 +395,17 @@ function onBowArm(
       goal.rotation === undefined
     )
       return entered;
-    const socket: IAutoMovieVector3 = Vector3.add(
+    const socket: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       goal.point,
-      Quaternion.rotateVector(goal.rotation, grip),
+      AutoMovieEngineQuaternion.rotateVector(goal.rotation, grip),
     );
     return {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         socket,
-        Quaternion.rotateVector(goal.rotation, held.frame.position),
+        AutoMovieEngineQuaternion.rotateVector(goal.rotation, held.frame.position),
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(goal.rotation, held.frame.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(goal.rotation, held.frame.rotation),
       ),
     };
   };
@@ -429,12 +429,12 @@ function onBowArm(
       if (contact === undefined) return context.aim(target, seconds);
       const shown: IAutoMovieRigidTransform = frame(seconds);
       return {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           shown.position,
-          Quaternion.rotateVector(shown.rotation, contact.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(shown.rotation, contact.frame.translation),
         ),
-        normal: Quaternion.rotateVector(
-          Quaternion.multiply(shown.rotation, contact.frame.rotation),
+        normal: AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.multiply(shown.rotation, contact.frame.rotation),
           { x: 0, y: 1, z: 0 },
         ),
       };

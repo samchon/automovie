@@ -8,7 +8,7 @@ import type {
  *
  * A net repeats numbers in two ways the body's symmetry gives. A net of a median part whose window stands about the median plane is its
  * own mirror image: its column `b` equals its column `columns - 1 - b`, the map the engine's uniform cubic gives a window reflected
- * about its middle (`AutoMovieLoftRelief.height`: control `i` of `n` stands at parameter `i - 1` of `[0, n - 3]`, and the reflection
+ * about its middle (`AutoMovieEngineLoftRelief.height`: control `i` of `n` stands at parameter `i - 1` of `[0, n - 3]`, and the reflection
  * `x -> n - 3 - x` sends it to `n - 1 - i`). And a net fitted on one side of such a part has a twin on the other, the same heights with
  * their columns in the other order. A module stores the half and names the twin; `list` returns the full nets.
  *

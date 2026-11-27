@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageBayonet } from "../AutoMovieArchetypeStageBayonet";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import {
@@ -53,7 +53,7 @@ export function createStageBayonet(
   const e: Readonly<AutoMovieArchetypeStageBayonet.IEstimates> = ESTIMATES;
   const bore: number = shape.shape.radius + e.gap;
   const outer: number = bore + e.wall;
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStageBayonet.Dimension> =
     new AutoMovieArchetypeDrawSession(
       "stageBayonet",

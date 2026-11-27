@@ -622,7 +622,7 @@ export namespace AutoMovieEngineArchitecture {
    * Axis components/computed length must be finite, length above 1e-12, and a
    * revolute pivot finite. Rest-relative `min` must be finite and at most zero,
    * `max` finite and at least zero, with `max > min`. Revolute span is capped at
-   * `2 * PI + AUTOMOVIE_FULL_TURN_EPSILON` radians for the swept-envelope solver.
+   * `2 * PI + AutoMovieEngineFullTurnEpsilon` radians for the swept-envelope solver.
    * Prismatic values are metres and revolute values radians. Findings use
    * `path`.
    *

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
@@ -14,21 +14,21 @@ export function HumanWeaponPresentOnChest(
   then: IAutoMovieResolvedBone,
   now: IAutoMovieResolvedBone,
 ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
-  const back: IAutoMovieQuaternion = Quaternion.inverse(then.worldRotation);
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(then.worldRotation);
   return {
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       now.worldPosition,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         now.worldRotation,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           back,
-          Vector3.subtract(hand.point, then.worldPosition),
+          AutoMovieEngineVector3.subtract(hand.point, then.worldPosition),
         ),
       ),
     ),
-    rotation: Quaternion.multiply(
+    rotation: AutoMovieEngineQuaternion.multiply(
       now.worldRotation,
-      Quaternion.multiply(back, hand.rotation),
+      AutoMovieEngineQuaternion.multiply(back, hand.rotation),
     ),
   };
 }

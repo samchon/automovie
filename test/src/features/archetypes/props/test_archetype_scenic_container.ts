@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeScenicContainer } from "@automovie/archetypes";
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -140,9 +140,9 @@ export function test_archetype_scenic_container(): void {
       Math.max(
         ...corners.map((point: IAutoMovieVector3): number => Math.abs(point.z)),
       );
-    const up: IAutoMovieVector3 = Quaternion.rotateVector(
+    const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       placement.frame.rotation,
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
     );
     const solid: IAutoMoviePhysicalShape | undefined = shapes.find(
       (shape: IAutoMoviePhysicalShape): boolean => shape.id === scenario.part,
@@ -164,9 +164,9 @@ export function test_archetype_scenic_container(): void {
         footprintDepth > 0 &&
         corners.length === 4 &&
         corners.every((corner: IAutoMovieVector3): boolean => {
-          const point: IAutoMovieVector3 = Vector3.add(
+          const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             placement.frame.translation,
-            Quaternion.rotateVector(placement.frame.rotation, corner),
+            AutoMovieEngineQuaternion.rotateVector(placement.frame.rotation, corner),
           );
           return (
             near(point.y, top) &&

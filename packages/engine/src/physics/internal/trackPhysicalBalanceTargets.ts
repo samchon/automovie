@@ -13,11 +13,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
-import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
-import { AutoMoviePhysicalSupportFit } from "../AutoMoviePhysicalSupportFit";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
+import { AutoMovieEnginePhysicalTargetInterval as Interval } from "../AutoMovieEnginePhysicalTargetInterval";
+import { AutoMovieEnginePhysicalSupportFit } from "../AutoMovieEnginePhysicalSupportFit";
 import { physicalBalanceReference } from "./physicalBalanceReference";
 import { AutoMovieEnginePhysicalRecoverySupportGoals } from "../AutoMovieEnginePhysicalRecoverySupportGoals";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
@@ -93,7 +93,7 @@ export function trackPhysicalBalanceTargets(input: {
       for (const [bone, pose] of Object.entries(targets))
         targets[bone] = {
           ...pose,
-          position: Vector3.add(pose.position, input.state.rootOffset),
+          position: AutoMovieEngineVector3.add(pose.position, input.state.rootOffset),
         };
     const endpoints: Record<string, IAutoMovieVector3> =
       AutoMovieEnginePhysicalRecoverySupportGoals.compute(
@@ -104,7 +104,7 @@ export function trackPhysicalBalanceTargets(input: {
         input.step / input.settings.rate,
         input.path,
       );
-    const base: AutoMovieXpbdBody = bound.segments
+    const base: AutoMovieEngineXpbdBody = bound.segments
       .get(body.id)!
       .get(input.root.bone)!;
     const root: { bone: string; pose: IAutoMovieRigidTransform } = {
@@ -177,7 +177,7 @@ export function trackPhysicalBalanceTargets(input: {
         })
       : undefined;
     const result: IAutoMoviePlanPhysicalSupportTargets.IResult =
-      AutoMoviePhysicalSupportFit.choose({
+      AutoMovieEnginePhysicalSupportFit.choose({
         candidates: [
           ...(lifting && warm ? [] : [fit()]),
           ...(warm ? [fit(warm)] : []),
@@ -269,10 +269,10 @@ export function trackPhysicalBalanceTargets(input: {
           : 1;
       if (!(share < 1) || !result.targets[chain[0]!.parent]) continue;
       const actual: Record<string, IAutoMovieRigidTransform> = {};
-      const segments: ReadonlyMap<string, AutoMovieXpbdBody> =
+      const segments: ReadonlyMap<string, AutoMovieEngineXpbdBody> =
         bound.segments.get(body.id)!;
       for (const bone of [chain[0]!.parent, ...chain.map((j) => j.child)]) {
-        const rigid: AutoMovieXpbdBody = segments.get(bone)!;
+        const rigid: AutoMovieEngineXpbdBody = segments.get(bone)!;
         actual[bone] = {
           position: rigid.translation(),
           rotation: rigid.rotation(),

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { createAutoMovieClosedSphereGeometry } from "../../internal/createAutoMovieClosedSphereGeometry.js";
-import type { AutoMovieHumanCartoon } from "../../AutoMovieHumanCartoon.js";
+import type { AutoMovieRenderHumanCartoon } from "../../AutoMovieRenderHumanCartoon.js";
 import { mountHumanCartoonFace } from "./mountHumanCartoonFace.js";
 
 /*
@@ -39,8 +39,8 @@ export function buildHumanCartoonFace(
      */
     frontAt: (y: number, z: number) => number | undefined;
   },
-  expression?: AutoMovieHumanCartoon.IExpression,
-  pose?: AutoMovieHumanCartoon.IHeadPose,
+  expression?: AutoMovieRenderHumanCartoon.IExpression,
+  pose?: AutoMovieRenderHumanCartoon.IHeadPose,
 ): {
   /*
    * Add once to the polygon head's already posed group.
@@ -285,7 +285,7 @@ export function buildHumanCartoonFace(
       extent.z * 0.135,
     );
     const gaze:
-      | NonNullable<AutoMovieHumanCartoon.IHeadPose["eyes"]>["left"]
+      | NonNullable<AutoMovieRenderHumanCartoon.IHeadPose["eyes"]>["left"]
       | undefined = side === 0 ? pose?.eyes?.left : pose?.eyes?.right;
     const pupil: THREE.Mesh = mesh(
       "pupil." + name,

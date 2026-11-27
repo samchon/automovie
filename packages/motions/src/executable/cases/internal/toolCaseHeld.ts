@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -43,7 +43,7 @@ export function toolCaseHeld(
     subject: "tool",
     frame: {
       position: at,
-      rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
     },
     points: {},
     shapes: [
@@ -52,7 +52,7 @@ export function toolCaseHeld(
         material: "wood",
         transform: {
           position: { x: 0, y: 0.15, z: 0 },
-          rotation: Quaternion.identity(),
+          rotation: AutoMovieEngineQuaternion.identity(),
         },
         kind: "capsule",
         radius: 0.015,

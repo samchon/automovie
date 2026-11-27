@@ -3,7 +3,7 @@ import type {
   IAutoMovieRegionRing,
 } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../../PLANAR_EPSILON";
+import { AutoMovieEnginePlanarEpsilon } from "../../AutoMovieEnginePlanarEpsilon";
 import { planarCross } from "../../internal/planarCross";
 import { planarSegmentsMeet } from "../../internal/planarSegmentsMeet";
 import { pointInPlanarRing } from "../../internal/pointInPlanarRing";
@@ -214,7 +214,7 @@ function isEar(
   const previous: IAutoMovieProfilePoint = points[ring[previousAt]!]!;
   const corner: IAutoMovieProfilePoint = points[ring[at]!]!;
   const next: IAutoMovieProfilePoint = points[ring[nextAt]!]!;
-  if (planarCross(previous, corner, next) <= PLANAR_EPSILON) return false;
+  if (planarCross(previous, corner, next) <= AutoMovieEnginePlanarEpsilon) return false;
   return ring.every((vertex: number): boolean => {
     if (
       vertex === ring[previousAt] ||
@@ -238,8 +238,8 @@ function insideOrOnTriangle(
   point: IAutoMovieProfilePoint,
 ): boolean {
   return (
-    planarCross(a, b, point) >= -PLANAR_EPSILON &&
-    planarCross(b, c, point) >= -PLANAR_EPSILON &&
-    planarCross(c, a, point) >= -PLANAR_EPSILON
+    planarCross(a, b, point) >= -AutoMovieEnginePlanarEpsilon &&
+    planarCross(b, c, point) >= -AutoMovieEnginePlanarEpsilon &&
+    planarCross(c, a, point) >= -AutoMovieEnginePlanarEpsilon
   );
 }

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 
 /*
  * Collects actual mesh projections in deterministic traversal order without
@@ -23,4 +23,4 @@ const isMeshLike: (
   object: THREE.Object3D,
 ) => object is AutoMovieRenderModeMesh = (
   object: THREE.Object3D,
-): object is AutoMovieRenderModeMesh => AutoMovieThreeKind.isMesh(object);
+): object is AutoMovieRenderModeMesh => AutoMovieRenderThreeKind.isMesh(object);

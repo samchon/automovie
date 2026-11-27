@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { projectPhysicalJointVelocity } from "./projectPhysicalJointVelocity";
 
 /*
@@ -27,9 +27,9 @@ import { projectPhysicalJointVelocity } from "./projectPhysicalJointVelocity";
 export function physicalJointMotorCommand(
   input: IAutoMoviePhysicalJointMotorCommand.IInput,
 ): IAutoMoviePhysicalJointMotorCommand.IOutput {
-  const delta: IAutoMovieQuaternion = Quaternion.multiply(
+  const delta: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     input.target,
-    Quaternion.inverse(input.current),
+    AutoMovieEngineQuaternion.inverse(input.current),
   );
   const norm: number = Math.hypot(delta.x, delta.y, delta.z);
   const sign: number = delta.w < 0 ? -1 : 1;

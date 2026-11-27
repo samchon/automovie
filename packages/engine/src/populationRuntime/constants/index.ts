@@ -1,2 +1,0 @@
-export * from "../AUTOMOVIE_FORMATION_CHUNK_SIZE";
-export * from "../AUTOMOVIE_INSTANCE_CHUNK_SIZE";

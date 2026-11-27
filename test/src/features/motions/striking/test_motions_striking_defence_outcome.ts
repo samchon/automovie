@@ -3,7 +3,12 @@ import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieRandom,
 } from "@automovie/interface";
-import { DefenceOutcome, StrikingSkill } from "@automovie/motions/internal";
+import {
+  DefenceOutcome
+} from "../../../../../packages/motions/src/striking/internal/DefenceOutcome";
+import {
+  StrikingSkill
+} from "../../../../../packages/motions/src/striking/internal/StrikingSkill";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

@@ -1,5 +1,5 @@
 import type * as THREE from "three";
-import type { IMaterialShaderSource } from "./IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "./IAutoMovieRenderMaterialShaderSource.js";
 import { applyDetailNormal as applyDetailNormalImplementation } from "./detailNormalShading/internal/applyDetailNormal.js";
 import { detailNormalVertex as detailNormalVertexImplementation } from "./detailNormalShading/internal/detailNormalVertex.js";
 import { detailNormalFragment as detailNormalFragmentImplementation } from "./detailNormalShading/internal/detailNormalFragment.js";
@@ -29,7 +29,7 @@ export namespace AutoMovieRenderDetailNormalShading {
     /** Edits source and uniforms using the captured texture transform and scale. */
     apply: (
       /** The source and uniform cells this patch mutates in place. */
-      shader: Pick<IMaterialShaderSource, "vertexShader" | "fragmentShader" | "uniforms">,
+      shader: Pick<IAutoMovieRenderMaterialShaderSource, "vertexShader" | "fragmentShader" | "uniforms">,
     ) => void;
   };
 

@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { KickPlans } from "@automovie/motions/internal";
+import {
+  KickPlans
+} from "../../../../../packages/motions/src/striking/internal/KickPlans";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

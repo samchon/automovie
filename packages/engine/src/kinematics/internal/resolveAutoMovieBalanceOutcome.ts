@@ -1,9 +1,9 @@
 import type { IAutoMovieResolveBalanceOutcome, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { pointInHull } from "../../math/internal/pointInHull";
-import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
+import { AutoMovieEngineGravity } from "../../physics/AutoMovieEngineGravity";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 
@@ -69,14 +69,14 @@ export function resolveAutoMovieBalanceOutcome(
     );
   if (props.support.length === 0)
     throw new Error("The balance outcome needs a support point");
-  const gravity: number = props.gravity ?? AutoMovieGravity.STANDARD;
+  const gravity: number = props.gravity ?? AutoMovieEngineGravity.STANDARD;
   const w0: number = resolveAutoMovieCenterOfMass.frequency(length, gravity);
-  const velocity: IAutoMovieVector3 = Vector3.add(
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     props.velocity,
-    Vector3.scale(props.impulse, 1 / mass),
+    AutoMovieEngineVector3.scale(props.impulse, 1 / mass),
   );
-  const angular: IAutoMovieVector3 = Vector3.cross(
-    Vector3.subtract(props.at ?? props.centre, props.centre),
+  const angular: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+    AutoMovieEngineVector3.subtract(props.at ?? props.centre, props.centre),
     props.impulse,
   );
   const extrapolated: IAutoMovieVector3 =
@@ -95,9 +95,9 @@ export function resolveAutoMovieBalanceOutcome(
     z: v.z,
   });
   const push: IAutoMovieVector3 = flat(props.impulse);
-  const pushed: number = Vector3.length(push);
+  const pushed: number = AutoMovieEngineVector3.length(push);
   const direction: IAutoMovieVector3 =
-    pushed > 0 ? Vector3.scale(push, 1 / pushed) : { x: 0, y: 0, z: 0 };
+    pushed > 0 ? AutoMovieEngineVector3.scale(push, 1 / pushed) : { x: 0, y: 0, z: 0 };
   const centre: IAutoMovieVector3 = flat(props.centre);
 
   // The capture point beyond the base's edge diverges with the centre of
@@ -118,8 +118,8 @@ export function resolveAutoMovieBalanceOutcome(
     length,
     gravity,
   );
-  const lead: number = Vector3.dot(
-    flat(Vector3.subtract(before, props.centre)),
+  const lead: number = AutoMovieEngineVector3.dot(
+    flat(AutoMovieEngineVector3.subtract(before, props.centre)),
     direction,
   );
   const edge: number = exit(hull, centre, direction);
@@ -151,20 +151,20 @@ export function resolveAutoMovieBalanceOutcome(
   // Steps along the capture point's lead from the centre, from the base's
   // edge that way.
   const away: IAutoMovieVector3 = flat(
-    Vector3.subtract(extrapolated, props.centre),
+    AutoMovieEngineVector3.subtract(extrapolated, props.centre),
   );
-  const distance: number = Vector3.length(away);
+  const distance: number = AutoMovieEngineVector3.length(away);
   const along: IAutoMovieVector3 =
-    distance > 0 ? Vector3.scale(away, 1 / distance) : direction;
+    distance > 0 ? AutoMovieEngineVector3.scale(away, 1 / distance) : direction;
   const rim: number = exit(hull, centre, along);
   let left: number = Math.max(0, distance - rim) * Math.exp(w0 * first);
   if (left >= capturable) return { ...base, outcome: "fall", steps: [] };
   const steps: IAutoMovieVector3[] = [];
-  let from: IAutoMovieVector3 = Vector3.add(centre, Vector3.scale(along, rim));
+  let from: IAutoMovieVector3 = AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(along, rim));
   for (;;) {
     if (left <= caught) {
       steps.push(
-        Vector3.add(from, Vector3.scale(along, Math.min(left, reach))),
+        AutoMovieEngineVector3.add(from, AutoMovieEngineVector3.scale(along, Math.min(left, reach))),
       );
       return { ...base, outcome: "step", steps };
     }
@@ -177,8 +177,8 @@ export function resolveAutoMovieBalanceOutcome(
     // the fixed point's own outcome, a fall.
     const next: number = (left - caught) * a;
     if (!(next < left)) return { ...base, outcome: "fall", steps: [] };
-    steps.push(Vector3.add(from, Vector3.scale(along, reach)));
-    from = Vector3.add(from, Vector3.scale(along, caught));
+    steps.push(AutoMovieEngineVector3.add(from, AutoMovieEngineVector3.scale(along, reach)));
+    from = AutoMovieEngineVector3.add(from, AutoMovieEngineVector3.scale(along, caught));
     left = next;
   }
 }

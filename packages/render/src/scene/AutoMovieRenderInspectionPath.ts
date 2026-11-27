@@ -1,5 +1,5 @@
 import type * as THREE from "three";
-import { type IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
+import { type IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath.js";
 import { listAutoMovieInspectionPaths as listAutoMovieInspectionPathsImplementation } from "./inspection/internal/listAutoMovieInspectionPaths.js";
 
 import { matchAutoMovieInspectionPath as matchAutoMovieInspectionPathImplementation } from "./inspection/internal/matchAutoMovieInspectionPath.js";
@@ -90,7 +90,7 @@ export namespace AutoMovieRenderInspectionPath {
    *   console.log(path);
    * ```
    */
-  export function list(root: THREE.Object3D): IAutoMovieInspectionPath[] {
+  export function list(root: THREE.Object3D): IAutoMovieRenderInspectionPath[] {
     return listAutoMovieInspectionPathsImplementation(root);
   }
 }

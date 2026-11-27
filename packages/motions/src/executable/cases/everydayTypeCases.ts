@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -102,7 +102,7 @@ export function everydayTypeCases(
         y: keyboard.at.y - typeText.TRAVEL,
         z: keyboard.at.z + k.at.z,
       };
-      const miss: number = Vector3.length(Vector3.subtract(tip, target));
+      const miss: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip, target));
       if (miss > worst.miss) worst = { miss, letter };
       dips.push(keyboard.at.y - tip.y);
     });

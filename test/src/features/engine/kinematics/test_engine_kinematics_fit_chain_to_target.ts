@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, AutoMovieEngineMotionKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineMotionKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -66,8 +66,8 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
       AutoMovieEngineKinematics.resolvePose(
         pose,
         body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
+        AutoMovieEngineHumanoidJointAxes,
+        AutoMovieEngineHumanoidRestFrame,
       ).map(
         (
           b: IAutoMovieResolvedBone,
@@ -91,8 +91,8 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
       },
       effectorRotation: rotation,
       topology: body.topology,
-      jointAxes: HUMANOID_JOINT_AXES,
-      restFrames: HUMANOID_REST_FRAME,
+      jointAxes: AutoMovieEngineHumanoidJointAxes,
+      restFrames: AutoMovieEngineHumanoidRestFrame,
     });
   const mirror = (pose: IAutoMoviePose): IAutoMoviePose => ({
     ...pose,
@@ -116,7 +116,7 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
 
   const shoulder: IAutoMovieVector3 =
     frames(rest).get("rightUpperArm")!.worldPosition;
-  const reach: IAutoMovieVector3 = Vector3.add(shoulder, {
+  const reach: IAutoMovieVector3 = AutoMovieEngineVector3.add(shoulder, {
     x: -0.1,
     y: -0.15,
     z: 0.35,
@@ -132,28 +132,28 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
   const before: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     frames(entry);
   const hand: IAutoMovieQuaternion = before.get("rightHand")!.worldRotation;
-  const axis: IAutoMovieVector3 = Vector3.normalize(
-    Quaternion.rotateVector(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineQuaternion.rotateVector(
       before.get("rightLowerArm")!.worldRotation,
-      HUMANOID_JOINT_AXES.rightLowerArm!.twist,
+      AutoMovieEngineHumanoidJointAxes.rightLowerArm!.twist,
     ),
   );
-  const across: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(axis, { x: 0, y: 1, z: 0 }),
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(axis, { x: 0, y: 1, z: 0 }),
   );
   const demands: readonly (readonly [IAutoMovieVector3, number])[] = [
     [axis, -12],
     [across, 12],
-    [Vector3.normalize(Vector3.add(axis, across)), 12],
+    [AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.add(axis, across)), 12],
   ];
 
   TestValidator.predicate(
     "the wrist takes each demand, the twist its share, the fit mirrored",
     demands.every(
       ([direction, degrees]: readonly [IAutoMovieVector3, number]): boolean => {
-        const demand: IAutoMovieQuaternion = Quaternion.normalize(
-          Quaternion.multiply(
-            Quaternion.fromAxisAngle(direction, degrees),
+        const demand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.fromAxisAngle(direction, degrees),
             hand,
           ),
         );
@@ -175,7 +175,7 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
             (j: IAutoMovieJointPose): boolean => j.bone === bone,
           )?.[key] ?? 0;
         return (
-          (Quaternion.angle(
+          (AutoMovieEngineQuaternion.angle(
             frames(solved).get("rightHand")!.worldRotation,
             demand,
           ) *
@@ -213,9 +213,9 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
   // 4. A wrist whose rest frame moves its twist's clinical zero off the rig's
   // still takes the demand: the zero's sine enters the twist equation.
   const offset = {
-    ...HUMANOID_REST_FRAME,
+    ...AutoMovieEngineHumanoidRestFrame,
     rightHand: {
-      ...HUMANOID_REST_FRAME.rightHand,
+      ...AutoMovieEngineHumanoidRestFrame.rightHand,
       twist: { sign: 1, neutral: 15 } satisfies IAutoMovieAxisFrame,
     },
   };
@@ -223,7 +223,7 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(
-      AutoMovieEngineKinematics.resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, offset).map(
+      AutoMovieEngineKinematics.resolvePose(pose, body.skeleton, AutoMovieEngineHumanoidJointAxes, offset).map(
         (
           b: IAutoMovieResolvedBone,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],
@@ -244,7 +244,7 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
       },
       effectorRotation: rotation,
       topology: body.topology,
-      jointAxes: HUMANOID_JOINT_AXES,
+      jointAxes: AutoMovieEngineHumanoidJointAxes,
       restFrames: offset,
     });
   const seated: IAutoMoviePose = fitOffset({
@@ -253,12 +253,12 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
   });
   const held: IAutoMovieQuaternion =
     located(seated).get("rightHand")!.worldRotation;
-  const asked: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(Quaternion.fromAxisAngle(axis, -12), held),
+  const asked: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.fromAxisAngle(axis, -12), held),
   );
   TestValidator.predicate(
     "an offset wrist zero still takes the demand",
-    (Quaternion.angle(
+    (AutoMovieEngineQuaternion.angle(
       located(fitOffset(seated, asked)).get("rightHand")!.worldRotation,
       asked,
     ) *

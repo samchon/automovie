@@ -1,4 +1,6 @@
-import { normalizeRenderTier } from "@automovie/render/internal";
+import {
+  normalizeRenderTier
+} from "../../../../../packages/render/src/film/internal/normalizeRenderTier";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanPerformance,
@@ -72,7 +72,7 @@ export function checkDrivingScrew(): void {
         "top",
         at,
       );
-      assert(Vector3.distance(tip, work) <= TIP, take.label + " " + event.name);
+      assert(AutoMovieEngineVector3.distance(tip, work) <= TIP, take.label + " " + event.name);
     }
     performance.bones("w5", screw.end);
   }

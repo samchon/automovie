@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieMotionHumanBody,
@@ -59,7 +59,7 @@ export function writtenHumanSeeds(
     if (seed !== null)
       out[limb] = {
         ...seed,
-        tolerance: hingedArmSwivel.RESOLUTION,
+        tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
         prescribed: true,
       };
   }

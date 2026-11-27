@@ -22,7 +22,7 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { prepareHumanSampledCourse } from "./prepareHumanSampledCourse";
 import { resolveHumanPosture } from "./resolveHumanPosture";
-import * as HumanArmSwingData from "./HumanArmSwingData";
+import { HumanArmSwingData } from "./HumanArmSwingData";
 
 /*
  * A posture whose arms, written by joint angles with no hand goal (a gait's

@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -260,11 +260,11 @@ export namespace closeStrike {
         entry.yaw,
       );
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-      const left: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(up, line),
+      const left: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(up, line),
       );
       const spin: number = spinning ? (rear === "left" ? 360 : -360) : 0;
-      const outward: IAutoMovieVector3 = Vector3.scale(
+      const outward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         left,
         side === "left" ? 1 : -1,
       );
@@ -272,12 +272,12 @@ export namespace closeStrike {
         p.technique === "risingElbow"
           ? up
           : p.technique === "descendingElbow"
-            ? Vector3.scale(up, -1)
+            ? AutoMovieEngineVector3.scale(up, -1)
             : p.technique === "headbutt"
               ? line
               : spinning
-                ? Vector3.scale(left, Math.sign(spin))
-                : Vector3.scale(outward, -1);
+                ? AutoMovieEngineVector3.scale(left, Math.sign(spin))
+                : AutoMovieEngineVector3.scale(outward, -1);
       // A headbutt squares the body to the line, as the head drives along
       // it; the other strikes turn the striking shoulder forward.
       const turn: number = closeStrike.turn(
@@ -429,7 +429,7 @@ export namespace closeStrike {
                     seconds / shown,
                   )
                 : drive(seconds);
-            const back: IAutoMovieVector3 = Vector3.scale(
+            const back: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
               travel,
               -APPROACH * (1 - Math.min(1, seconds / shown)),
             );
@@ -439,14 +439,14 @@ export namespace closeStrike {
               limbs: {
                 ...posture.limbs,
                 [limb]: {
-                  point: Vector3.lerp(
+                  point: AutoMovieEngineVector3.lerp(
                     from.point,
-                    Vector3.add(arm.point, back),
+                    AutoMovieEngineVector3.add(arm.point, back),
                     w,
                   ),
-                  bend: Vector3.lerp(
+                  bend: AutoMovieEngineVector3.lerp(
                     guardElbow,
-                    Vector3.add(arm.bend, back),
+                    AutoMovieEngineVector3.add(arm.bend, back),
                     w,
                   ),
                   elbow: "placed",
@@ -469,7 +469,7 @@ export namespace closeStrike {
                   rotation:
                     from.rotation === undefined
                       ? arm.rotation
-                      : Quaternion.slerp(from.rotation, arm.rotation, w),
+                      : AutoMovieEngineQuaternion.slerp(from.rotation, arm.rotation, w),
                 },
               },
             };
@@ -513,13 +513,13 @@ export namespace closeStrike {
                 APPROACH *
                 (1 -
                   Math.min(1, Math.max(0, seconds - delay) / (shown - delay)));
-              const back: IAutoMovieVector3 = Vector3.scale(travel, -behind);
+              const back: IAutoMovieVector3 = AutoMovieEngineVector3.scale(travel, -behind);
               return {
                 surface: arm.surface,
                 shape: "fist",
-                point: Vector3.add(arm.point, back),
+                point: AutoMovieEngineVector3.add(arm.point, back),
                 rotation: arm.rotation,
-                bend: Vector3.add(arm.bend, back),
+                bend: AutoMovieEngineVector3.add(arm.bend, back),
               };
             },
           }),

@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieViewChain as Q, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewChain as Q, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -580,13 +580,13 @@ export namespace FamilyConicConvert {
 
   /** A region's course, as the Human package's family reads it (`AutoMovieHumanConicLoft.IFamily`), and its sections' stations on it. */
   export interface ICourse {
-    /** The course's first end, joints and last end, mm (`AutoMovieViewAxis.jointed`). */
+    /** The course's first end, joints and last end, mm (`AutoMovieEngineViewAxis.jointed`). */
     centres: AutoMovieVector3Tuple[];
 
-    /** Each joint's half turn arclength, mm (`AutoMovieViewAxis.jointed`). */
+    /** Each joint's half turn arclength, mm (`AutoMovieEngineViewAxis.jointed`). */
     halves: number[];
 
-    /** The chart's first axis at the first segment (`AutoMovieViewAxis.jointed`). */
+    /** The chart's first axis at the first segment (`AutoMovieEngineViewAxis.jointed`). */
     up: AutoMovieVector3Tuple;
 
     /** A section's station on this course, from its own `s`. */
@@ -1846,7 +1846,7 @@ export namespace FamilyConicConvert {
       : `${file} (${outside} line station(s) outside their run's extremes left out of the windows)`;
   }
 
-  /** A point of an engine section at a phase from the course, by its ray (`AutoMovieViewChain.radius`'s reading through the chain's samples). */
+  /** A point of an engine section at a phase from the course, by its ray (`AutoMovieEngineViewChain.radius`'s reading through the chain's samples). */
   function ringPoint(section: ReturnType<typeof S.chain>, phi: number): C.P {
     const r: number = Q.radius(section, phi);
     return [r * Math.cos(phi), r * Math.sin(phi)];
@@ -2051,7 +2051,7 @@ export namespace FamilyConicConvert {
         const closures: readonly (readonly [number, number])[] = closureAt(s);
         const ring: N.Point[] = [];
         for (let j: number = 0; j < about; ++j) {
-          const p = AutoMovieLoftChain.point(
+          const p = AutoMovieEngineLoftChain.point(
             chain,
             s,
             (2 * Math.PI * j) / about,

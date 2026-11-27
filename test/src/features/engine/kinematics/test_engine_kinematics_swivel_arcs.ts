@@ -1,9 +1,9 @@
-import { swivelArcs } from "@automovie/engine";
+import { AutoMovieEngineSwivelArcs } from "@automovie/engine";
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `swivelArcs` reads sinusoids a + b cos s + c sin s of a swivel s (degrees):
+ * `AutoMovieEngineSwivelArcs` reads sinusoids a + b cos s + c sin s of a swivel s (degrees):
  * the exact fit from three values, the arc above a margin, the least swivel and
  * value, the roots, and unions of arcs over one turn with their coverage,
  * nearest outside swivel, complement and holding arc.
@@ -37,24 +37,24 @@ export function test_engine_kinematics_swivel_arcs(): void {
   const sin: IAutoMovieSwivelArcs.ISinusoid = { a: 0, b: 0, c: 1 };
 
   // 1.
-  TestValidator.equals("fitted", swivelArcs.fitted(3, 1, -1), {
+  TestValidator.equals("fitted", AutoMovieEngineSwivelArcs.fitted(3, 1, -1), {
     a: 1,
     b: 2,
     c: 0,
   });
-  TestValidator.equals("scaled", swivelArcs.scaled({ a: 1, b: 2, c: 3 }, 2), {
+  TestValidator.equals("scaled", AutoMovieEngineSwivelArcs.scaled({ a: 1, b: 2, c: 3 }, 2), {
     a: 2,
     b: 4,
     c: 6,
   });
   TestValidator.equals(
     "combined",
-    swivelArcs.combined({ a: 1, b: 0, c: 0 }, 1, { a: 0, b: 1, c: 1 }, 2),
+    AutoMovieEngineSwivelArcs.combined({ a: 1, b: 0, c: 0 }, 1, { a: 0, b: 1, c: 1 }, 2),
     { a: 1, b: 2, c: 2 },
   );
 
   // 2.
-  const above = swivelArcs.above(cos, 0.5);
+  const above = AutoMovieEngineSwivelArcs.above(cos, 0.5);
   TestValidator.predicate(
     "above",
     above !== null &&
@@ -64,28 +64,28 @@ export function test_engine_kinematics_swivel_arcs(): void {
   );
   TestValidator.equals(
     "all and none",
-    [swivelArcs.above(cos, -2), swivelArcs.above(cos, 1)],
+    [AutoMovieEngineSwivelArcs.above(cos, -2), AutoMovieEngineSwivelArcs.above(cos, 1)],
     ["all", null],
   );
 
   // 3.
   TestValidator.equals(
     "least",
-    [swivelArcs.least(sin), swivelArcs.least({ a: 4, b: 0, c: 0 })],
+    [AutoMovieEngineSwivelArcs.least(sin), AutoMovieEngineSwivelArcs.least({ a: 4, b: 0, c: 0 })],
     [-90, null],
   );
   TestValidator.predicate(
     "lowest ends",
-    near(swivelArcs.lowest(cos, -30, 30), Math.cos(Math.PI / 6)),
+    near(AutoMovieEngineSwivelArcs.lowest(cos, -30, 30), Math.cos(Math.PI / 6)),
   );
   TestValidator.equals(
     "lowest trough",
-    [swivelArcs.lowest(cos, 90, 270), swivelArcs.lowest(cos, 0, 400)],
+    [AutoMovieEngineSwivelArcs.lowest(cos, 90, 270), AutoMovieEngineSwivelArcs.lowest(cos, 0, 400)],
     [-1, -1],
   );
 
   // 4.
-  const roots: number[] = swivelArcs.roots(cos);
+  const roots: number[] = AutoMovieEngineSwivelArcs.roots(cos);
   TestValidator.predicate(
     "roots",
     roots.length === 2 && near(roots[0]!, 270) && near(roots[1]!, 90),
@@ -93,15 +93,15 @@ export function test_engine_kinematics_swivel_arcs(): void {
   TestValidator.equals(
     "tangent and none",
     [
-      swivelArcs.roots({ a: 1, b: 1, c: 0 }),
-      swivelArcs.roots({ a: 2, b: 1, c: 0 }),
-      swivelArcs.roots({ a: 0, b: 0, c: 0 }),
+      AutoMovieEngineSwivelArcs.roots({ a: 1, b: 1, c: 0 }),
+      AutoMovieEngineSwivelArcs.roots({ a: 2, b: 1, c: 0 }),
+      AutoMovieEngineSwivelArcs.roots({ a: 0, b: 0, c: 0 }),
     ],
     [[180], [], []],
   );
 
   // 5.
-  const M = swivelArcs.union([
+  const M = AutoMovieEngineSwivelArcs.union([
     { from: 350, to: 370 },
     { from: 5, to: 20 },
   ]);
@@ -113,7 +113,7 @@ export function test_engine_kinematics_swivel_arcs(): void {
   ]);
   TestValidator.equals(
     "touching arcs merge",
-    swivelArcs.union([
+    AutoMovieEngineSwivelArcs.union([
       { from: 0, to: 10 },
       { from: 10, to: 20 },
     ]),
@@ -125,7 +125,7 @@ export function test_engine_kinematics_swivel_arcs(): void {
   );
   TestValidator.equals(
     "every swivel",
-    swivelArcs.union([
+    AutoMovieEngineSwivelArcs.union([
       { from: 0, to: 200 },
       { from: 190, to: 370 },
     ]),
@@ -134,7 +134,7 @@ export function test_engine_kinematics_swivel_arcs(): void {
   const lifted: number = 2 ** 62 - 3 * 512;
   TestValidator.equals(
     "an exact closed turn remains covered after a large lift",
-    swivelArcs.union([{ from: lifted, to: lifted + 512 }]),
+    AutoMovieEngineSwivelArcs.union([{ from: lifted, to: lifted + 512 }]),
     "all",
   );
 
@@ -142,10 +142,10 @@ export function test_engine_kinematics_swivel_arcs(): void {
   TestValidator.equals(
     "covers",
     [
-      swivelArcs.covers(M, 355, 365),
-      swivelArcs.covers(M, 715, 718),
-      swivelArcs.covers(M, 25, 30),
-      swivelArcs.covers("all", 0, 1),
+      AutoMovieEngineSwivelArcs.covers(M, 355, 365),
+      AutoMovieEngineSwivelArcs.covers(M, 715, 718),
+      AutoMovieEngineSwivelArcs.covers(M, 25, 30),
+      AutoMovieEngineSwivelArcs.covers("all", 0, 1),
     ],
     [true, true, false, true],
   );
@@ -154,25 +154,25 @@ export function test_engine_kinematics_swivel_arcs(): void {
   TestValidator.equals(
     "nearest",
     [
-      swivelArcs.nearest(M, 0),
-      swivelArcs.nearest(M, 15),
-      swivelArcs.nearest(M, 100),
-      swivelArcs.nearest("all", 5),
+      AutoMovieEngineSwivelArcs.nearest(M, 0),
+      AutoMovieEngineSwivelArcs.nearest(M, 15),
+      AutoMovieEngineSwivelArcs.nearest(M, 100),
+      AutoMovieEngineSwivelArcs.nearest("all", 5),
     ],
     [-10, 20, 100, null],
   );
 
   // 8.
-  TestValidator.equals("complement", swivelArcs.complement(M), [
+  TestValidator.equals("complement", AutoMovieEngineSwivelArcs.complement(M), [
     { from: 20, to: 350 },
   ]);
-  TestValidator.equals("complement empty", swivelArcs.complement([]), [
+  TestValidator.equals("complement empty", AutoMovieEngineSwivelArcs.complement([]), [
     { from: 0, to: 360 },
   ]);
-  TestValidator.equals("complement all", swivelArcs.complement("all"), []);
+  TestValidator.equals("complement all", AutoMovieEngineSwivelArcs.complement("all"), []);
   TestValidator.equals(
     "complement across",
-    swivelArcs.complement([{ from: 100, to: 200 }]),
+    AutoMovieEngineSwivelArcs.complement([{ from: 100, to: 200 }]),
     [{ from: 200, to: 460 }],
   );
 
@@ -180,8 +180,8 @@ export function test_engine_kinematics_swivel_arcs(): void {
   TestValidator.equals(
     "holding",
     [
-      swivelArcs.holding([{ from: 10, to: 20 }], 375),
-      swivelArcs.holding([{ from: 10, to: 20 }], 25),
+      AutoMovieEngineSwivelArcs.holding([{ from: 10, to: 20 }], 375),
+      AutoMovieEngineSwivelArcs.holding([{ from: 10, to: 20 }], 25),
     ],
     [{ from: 370, to: 380 }, null],
   );

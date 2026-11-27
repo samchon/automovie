@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
   AutoMovieEngineMath,
 } from "@automovie/engine";
@@ -172,26 +172,26 @@ export namespace KickSwing {
     // are fixed, and the knee's hinge turn from the chamber to the contact:
     // the rotation that carries the chambered foot onto the contact foot.
     const hip: IAutoMovieVector3 = KickCarriage.hip(body, props.base, side);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       humanPostureHeading(props.base),
     );
     const local = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(inverse, v);
-    const knee: IAutoMovieVector3 = local(Vector3.subtract(key.knee, hip));
+      AutoMovieEngineQuaternion.rotateVector(inverse, v);
+    const knee: IAutoMovieVector3 = local(AutoMovieEngineVector3.subtract(key.knee, hip));
     const shank: IAutoMovieVector3 = local(
-      Vector3.subtract(key.ankle, key.knee),
+      AutoMovieEngineVector3.subtract(key.ankle, key.knee),
     );
-    const folded: IAutoMovieQuaternion = Quaternion.multiply(
+    const folded: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       inverse,
       key.rotation,
     );
     const hinge: IHinge = turn(
-      Quaternion.multiply(contact.rotation, Quaternion.inverse(key.rotation)),
+      AutoMovieEngineQuaternion.multiply(contact.rotation, AutoMovieEngineQuaternion.inverse(key.rotation)),
       local,
     );
     const lengths: readonly [number, number] = [
-      Vector3.length(knee),
-      Vector3.length(shank),
+      AutoMovieEngineVector3.length(knee),
+      AutoMovieEngineVector3.length(shank),
     ];
 
     // The opening's unit: from before the chamber key to past the contact,
@@ -216,8 +216,8 @@ export namespace KickSwing {
     // A thrust's two ends in the contact pelvis's frame: the fitted contact
     // leg and the chamber drawn from it. A feint holds the chamber.
     const reached: KickThrust.ILeg = {
-      thigh: local(Vector3.subtract(contact.knee, hip)),
-      shank: local(Vector3.subtract(contact.ankle, contact.knee)),
+      thigh: local(AutoMovieEngineVector3.subtract(contact.knee, hip)),
+      shank: local(AutoMovieEngineVector3.subtract(contact.ankle, contact.knee)),
     };
     const thrust: ((share: number) => KickThrust.ILeg) | undefined =
       props.path === "thrust"
@@ -234,7 +234,7 @@ export namespace KickSwing {
           )
         : undefined;
     const held: boolean = props.flexion.contact >= props.flexion.chamber;
-    const struck: IAutoMovieQuaternion = Quaternion.multiply(
+    const struck: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       inverse,
       contact.rotation,
     );
@@ -256,7 +256,7 @@ export namespace KickSwing {
       const heading: IAutoMovieQuaternion = humanPostureHeading(base);
       const currentHip: IAutoMovieVector3 =
         atHip ?? KickCarriage.hip(body, base, side);
-      const opened: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const opened: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         hinge.axis,
         angle(clock),
       );
@@ -269,23 +269,23 @@ export namespace KickSwing {
       // or from the contact by the thrust's own turn (`KickThrust.footed`).
       const carried: KickThrust.ILeg =
         thrust === undefined
-          ? { thigh: knee, shank: Quaternion.rotateVector(opened, shank) }
+          ? { thigh: knee, shank: AutoMovieEngineQuaternion.rotateVector(opened, shank) }
           : thrust(held ? 0 : extended(clock));
       const chambered: KickThrust.ILeg = {
-        thigh: Quaternion.rotateVector(heading, carried.thigh),
-        shank: Quaternion.rotateVector(heading, carried.shank),
+        thigh: AutoMovieEngineQuaternion.rotateVector(heading, carried.thigh),
+        shank: AutoMovieEngineQuaternion.rotateVector(heading, carried.shank),
       };
       const foot: IAutoMovieQuaternion =
         thrust === undefined
-          ? Quaternion.multiply(opened, folded)
-          : Quaternion.multiply(
+          ? AutoMovieEngineQuaternion.multiply(opened, folded)
+          : AutoMovieEngineQuaternion.multiply(
               KickThrust.footed(reached.shank, carried.shank),
               struck,
             );
 
       // Between the plant and the chamber each segment turns on its share;
       // the planted leg is the one the current hip holds on the plant.
-      const forward: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+      const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(heading, {
         x: 0,
         y: 0,
         z: 1,
@@ -329,7 +329,7 @@ export namespace KickSwing {
           : KickThrust.planted(
               currentHip,
               { ...on.foot.ankle, y: on.foot.ankle.y + over },
-              Vector3.add(plant.knee, moved!),
+              AutoMovieEngineVector3.add(plant.knee, moved!),
               lengths,
               forward,
             );
@@ -344,21 +344,21 @@ export namespace KickSwing {
       const riding: IAutoMovieQuaternion =
         floor === undefined
           ? plant.rotation
-          : Quaternion.normalize(
-              Quaternion.multiply(
+          : AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(
                 AutoMovieEngineMath.rotationBetween(
-                  Vector3.normalize(floor.shank),
-                  Vector3.normalize(posed.shank),
+                  AutoMovieEngineVector3.normalize(floor.shank),
+                  AutoMovieEngineVector3.normalize(posed.shank),
                 ),
                 on!.foot.rotation,
               ),
             );
-      const hint: IAutoMovieVector3 = Vector3.add(currentHip, posed.thigh);
-      const ankle: IAutoMovieVector3 = Vector3.add(hint, posed.shank);
-      const turned: IAutoMovieQuaternion = Quaternion.slerp(
-        Quaternion.slerp(
+      const hint: IAutoMovieVector3 = AutoMovieEngineVector3.add(currentHip, posed.thigh);
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.add(hint, posed.shank);
+      const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
+        AutoMovieEngineQuaternion.slerp(
           riding,
-          Quaternion.normalize(Quaternion.multiply(heading, foot)),
+          AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(heading, foot)),
           up,
         ),
         riding,
@@ -411,19 +411,19 @@ export namespace KickSwing {
       Math.min(1, share / KickForm.KNEE_LEAD),
     );
     const thigh: IAutoMovieVector3 = KickSwingTurned(from.thigh, to.thigh, hip);
-    const stood: IAutoMovieVector3 = Vector3.normalize(from.thigh);
+    const stood: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(from.thigh);
     const folded: IAutoMovieVector3 = KickSwingTurned(
       from.shank,
-      Quaternion.rotateVector(
-        Quaternion.inverse(AutoMovieEngineMath.rotationBetween(stood, Vector3.normalize(to.thigh))),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(AutoMovieEngineMath.rotationBetween(stood, AutoMovieEngineVector3.normalize(to.thigh))),
         to.shank,
       ),
       knee,
     );
     return {
       thigh,
-      shank: Quaternion.rotateVector(
-        AutoMovieEngineMath.rotationBetween(stood, Vector3.normalize(thigh)),
+      shank: AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineMath.rotationBetween(stood, AutoMovieEngineVector3.normalize(thigh)),
         folded,
       ),
     };
@@ -455,13 +455,13 @@ export namespace KickSwing {
     rotation: IAutoMovieQuaternion,
     local: (v: IAutoMovieVector3) => IAutoMovieVector3,
   ): IHinge {
-    const q: IAutoMovieQuaternion = Quaternion.normalize(rotation);
+    const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(rotation);
     const sign: number = q.w < 0 ? -1 : 1;
     const sine: number = Math.hypot(q.x, q.y, q.z);
     if (sine < 1e-9) return { axis: { x: 1, y: 0, z: 0 }, degrees: 0 };
     return {
-      axis: local(Vector3.scale({ x: q.x, y: q.y, z: q.z }, sign / sine)),
-      degrees: (2 * Math.atan2(sine, sign * q.w)) / Quaternion.DEG2RAD,
+      axis: local(AutoMovieEngineVector3.scale({ x: q.x, y: q.y, z: q.z }, sign / sine)),
+      degrees: (2 * Math.atan2(sine, sign * q.w)) / AutoMovieEngineQuaternion.DEG2RAD,
     };
   }
 

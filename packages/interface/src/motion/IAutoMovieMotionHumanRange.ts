@@ -6,7 +6,7 @@
  * A law states `"light"` neck flexion and the joint's own range supplies the
  * degrees, so one word fits a neck and a knee: a level is a share of the
  * distance from the joint's rest (0 degrees) to the limit of the named motion
- * in `DEFAULT_HUMANOID_ROM`. The limit a motion reads:
+ * in `AutoMovieEngineDefaultHumanoidRom`. The limit a motion reads:
  *
  * | Motion      | Limit           |
  * | ----------- | --------------- |

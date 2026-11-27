@@ -3,7 +3,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftViewFullSource } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,
@@ -591,13 +591,13 @@ namespace FamilyConicFace {
 
   /**
    * `--mesh=trunk`: the figure's own head as it stands, in place of the reference: the stored trunk family's skin (its wall with its nets,
-   * `AutoMovieLoftViewFullSource`) at every millimetre of `--loft=<from,to>` (default 620 to 905, the head below the crown's cap) and every half
+   * `AutoMovieEngineLoftViewFullSource`) at every millimetre of `--loft=<from,to>` (default 620 to 905, the head below the crown's cap) and every half
    * degree, as a tube of triangles facing outward. Every mode then reads what the reference's modes read, so a round has its value before.
    */
   function lofted(): IMesh {
     const member: IAutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: IAutoMovieHumanF1.IMember): boolean => m.family.name === "trunk");
     if (member === undefined) throw new Error("f1 has no trunk family");
-    const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(H.source(member.family));
+    const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieEngineLoftViewFullSource.create(H.source(member.family));
     const [from, to]: number[] = numbers("loft", "620,905");
     const rows: number = Math.floor(Math.min(to!, reader.domain[1]) - from!) + 1;
     const cols: number = 720;

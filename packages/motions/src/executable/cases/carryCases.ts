@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -89,7 +89,7 @@ export function carryCases(
       // The trunk's lean against the start.
       const chest = (t: number): IAutoMovieVector3 => {
         const bones = performance.bones("a", t);
-        return Vector3.subtract(
+        return AutoMovieEngineVector3.subtract(
           bones.get("upperChest")?.worldPosition ??
             bones.get("chest")!.worldPosition,
           bones.get("hips")!.worldPosition,
@@ -106,14 +106,14 @@ export function carryCases(
       const SAMPLES: number = 48;
       let mean: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (let i: number = 0; i < SAMPLES; i++)
-        mean = Vector3.add(
+        mean = AutoMovieEngineVector3.add(
           mean,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             chest(stride[0] + ((i + 0.5) / SAMPLES) * (stride[1] - stride[0])),
             1 / SAMPLES,
           ),
         );
-      const shift: IAutoMovieVector3 = Vector3.subtract(mean, chest(0));
+      const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(mean, chest(0));
       const lean: number =
         how === "oneHand" || how === "hip"
           ? (loaded === "left" ? -1 : 1) * shift.x
@@ -156,8 +156,8 @@ export function carryCases(
           t <= segment.end + 1e-9;
           t += 1 / 24
         ) {
-          const d: number = Vector3.length(
-            Vector3.subtract(surface("left", t), surface("right", t)),
+          const d: number = AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(surface("left", t), surface("right", t)),
           );
           low = Math.min(low, d);
           high = Math.max(high, d);
@@ -165,8 +165,8 @@ export function carryCases(
           for (const side of ["left", "right"] as const)
             off = Math.max(
               off,
-              Vector3.length(
-                Vector3.subtract(
+              AutoMovieEngineVector3.length(
+                AutoMovieEngineVector3.subtract(
                   surface(side, t),
                   carryPlace(who.body, posture, how, side, loaded)!.point,
                 ),

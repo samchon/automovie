@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -52,7 +52,7 @@ export function StageShaftConstruction(
     name: `padded ${kind} stage prop`,
     material: "foam",
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const shaftRadius: number = Math.min(0.02, 0.03 * height);
   const shaftTop: number = shaftRatio * height;
   builder.rod("shaft", shaftRadius, v(0, 0, 0), v(0, shaftTop, 0), {

@@ -81,7 +81,7 @@ export namespace AutoMovieMotionHumanGaze {
    * at most `EYES` (15 degrees) on each axis, gives the head and neck the
    * remainder up to `HEAD` (comfortable cervical share, the yaw after Bennett
    * et al. 2002 and the pitch provisional: 60 degrees of yaw, 40 down and 30
-   * up, inside `DEFAULT_HUMANOID_ROM`), and, when the trunk may join, gives the
+   * up, inside `AutoMovieEngineDefaultHumanoidRom`), and, when the trunk may join, gives the
    * chest and lumbar spine the yaw beyond that up to `TRUNK` (40 degrees,
    * provisional, inside their combined twist range), 60 % to the chest and 40 %
    * to the spine. What none of these can hold stays on the eyes, clamped to

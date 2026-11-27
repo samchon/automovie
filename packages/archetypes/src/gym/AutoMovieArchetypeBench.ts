@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeBenchData from "./internal/AutoMovieArchetypeBenchData";
+import { AutoMovieArchetypeBenchData } from "./internal/AutoMovieArchetypeBenchData";
 
 /** Constructs the bench archetype from its recipe. */
 export namespace AutoMovieArchetypeBench {
@@ -66,8 +66,8 @@ export function create(
   });
   builder.box(
     "pad",
-    Vector3.create(width, AutoMovieArchetypeBench.PAD, length),
-    Vector3.create(0, height - AutoMovieArchetypeBench.PAD / 2, 0),
+    AutoMovieEngineVector3.create(width, AutoMovieArchetypeBench.PAD, length),
+    AutoMovieEngineVector3.create(0, height - AutoMovieArchetypeBench.PAD / 2, 0),
     { color: "#2c2f33" },
   );
   for (const x of [1, -1] as const)
@@ -75,12 +75,12 @@ export function create(
       builder.rod(
         `leg-${x === 1 ? "left" : "right"}-${z === 1 ? "front" : "back"}`,
         AutoMovieArchetypeBench.LEG,
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           x * (width / 2 - AutoMovieArchetypeBench.LEG),
           0,
           z * (length / 2 - AutoMovieArchetypeBench.INSET),
         ),
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           x * (width / 2 - AutoMovieArchetypeBench.LEG),
           height - AutoMovieArchetypeBench.PAD,
           z * (length / 2 - AutoMovieArchetypeBench.INSET),
@@ -90,7 +90,7 @@ export function create(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: null,
     width,
     depth: length,
@@ -99,7 +99,7 @@ export function create(
     id: "seat",
     kind: "seat",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, height, length / 2 - AutoMovieArchetypeBench.SEAT / 2),
+      AutoMovieEngineVector3.create(0, height, length / 2 - AutoMovieArchetypeBench.SEAT / 2),
     ),
     extent: null,
     depth: AutoMovieArchetypeBench.SEAT,
@@ -109,7 +109,7 @@ export function create(
     id: "edge",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(width / 2, height, 0),
+      AutoMovieEngineVector3.create(width / 2, height, 0),
     ),
     extent: null,
     depth: length,

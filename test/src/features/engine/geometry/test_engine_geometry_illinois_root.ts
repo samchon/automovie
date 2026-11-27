@@ -1,8 +1,8 @@
-import { AutoMovieIllinois } from "@automovie/engine";
+import { AutoMovieEngineIllinois } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieIllinois.root(f, a, b, tolerance, iterations)` finds a root inside
+ * `AutoMovieEngineIllinois.root(f, a, b, tolerance, iterations)` finds a root inside
  * a sign-changing bracket by regula falsi with the Illinois halving (Dowell and
  * Jarratt 1971).
  *
@@ -26,13 +26,13 @@ export function test_engine_geometry_illinois_root(): void {
     TestValidator.predicate(
       `[${a}, ${b}]`,
       Math.abs(
-        AutoMovieIllinois.root(square, a, b, 1e-14, 100)! - Math.SQRT2,
+        AutoMovieEngineIllinois.root(square, a, b, 1e-14, 100)! - Math.SQRT2,
       ) <= 1e-12,
     );
 
   // 2.
   const steep = (x: number): number => Math.exp(x) - 2;
-  const root: number | null = AutoMovieIllinois.root(steep, 0, 5, 1e-12, 20);
+  const root: number | null = AutoMovieEngineIllinois.root(steep, 0, 5, 1e-12, 20);
   TestValidator.predicate(
     "stagnation",
     root !== null &&
@@ -44,16 +44,16 @@ export function test_engine_geometry_illinois_root(): void {
   TestValidator.equals(
     "ends",
     [
-      AutoMovieIllinois.root((x: number): number => x - 1, 1, 3, 1e-12, 10),
-      AutoMovieIllinois.root((x: number): number => x - 3, 1, 3, 1e-12, 10),
-      AutoMovieIllinois.root(
+      AutoMovieEngineIllinois.root((x: number): number => x - 1, 1, 3, 1e-12, 10),
+      AutoMovieEngineIllinois.root((x: number): number => x - 3, 1, 3, 1e-12, 10),
+      AutoMovieEngineIllinois.root(
         (x: number): number => x * x + 1,
         -1,
         1,
         1e-12,
         10,
       ),
-      AutoMovieIllinois.root(square, 0, 2, 1e-12, 0),
+      AutoMovieEngineIllinois.root(square, 0, 2, 1e-12, 0),
     ],
     [1, 3, null, 0],
   );

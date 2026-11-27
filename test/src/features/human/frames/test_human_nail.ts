@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanNail } from "@automovie/human";
 import type { IAutoMovieHumanNail, IAutoMovieViewLoft } from "@automovie/interface";
 
@@ -84,7 +84,7 @@ export function test_human_nail(): void {
     const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
     const station: number = 9 - nail.plate.centres[0]![0];
     // The crown stands at phase 0 of the plate's chart; each edge is found by bisection of the phase on its side.
-    const on = (phase: number): number[] => AutoMovieLoftChain.point(chain, station, phase);
+    const on = (phase: number): number[] => AutoMovieEngineLoftChain.point(chain, station, phase);
     near("crown under the skin", on(0)[1]!, high - fold, 1e-3);
   }
 

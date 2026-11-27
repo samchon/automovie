@@ -1,13 +1,13 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../../geometry/PLANAR_EPSILON";
+import { AutoMovieEnginePlanarEpsilon } from "../../geometry/AutoMovieEnginePlanarEpsilon";
 
 /*
  * Which side of the directed line `from -> to` a point falls on: `1` left, `-1`
  * right, `0` on the line.
  *
  * The sign is the 2D cross product `(to - from) x (point - from)` with x right
- * and y up. It counts as zero when its magnitude is at most `PLANAR_EPSILON`
+ * and y up. It counts as zero when its magnitude is at most `AutoMovieEnginePlanarEpsilon`
  * (1e-12) times the larger of 1 and the Manhattan lengths of `to - from` and
  * `point - from`, so the tolerance grows with the size of the figure and never
  * falls below the absolute floor. A degenerate line, `from` equal to `to`, puts
@@ -29,6 +29,6 @@ export function planarSide(
     Math.abs(to.x - from.x) + Math.abs(to.y - from.y),
     Math.abs(point.x - from.x) + Math.abs(point.y - from.y),
   );
-  if (Math.abs(cross) <= PLANAR_EPSILON * scale) return 0;
+  if (Math.abs(cross) <= AutoMovieEnginePlanarEpsilon * scale) return 0;
   return cross > 0 ? 1 : -1;
 }

@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, admitLapSupport } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  admitLapSupport
+} from "../../../../../packages/motions/src/touch/internal/admitLapSupport";
 import { strict as assert } from "node:assert";
 
 /** With a 0.4 m thigh, lap support admits knee drops up to 0.2 m. */

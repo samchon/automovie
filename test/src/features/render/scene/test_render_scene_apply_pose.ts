@@ -5,7 +5,7 @@ import type {
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { type IAutoMovieModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
+import { type IAutoMovieRenderModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Bone, Group, type Object3D, Vector3 } from "three";
 
@@ -68,7 +68,7 @@ export function test_render_scene_apply_pose(): void {
   const hip: Bone = new Bone();
   object.add(hip);
   staged.add(object);
-  const target: IAutoMovieModelObject = {
+  const target: IAutoMovieRenderModelObject = {
     object,
     bones: new Map<AutoMovieHumanoidBone, Object3D>([["hips", hip]]),
     parts: new Map<string, Object3D>(),

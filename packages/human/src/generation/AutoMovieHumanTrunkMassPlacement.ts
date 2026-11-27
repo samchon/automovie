@@ -1,8 +1,8 @@
 import {
-  AutoMovieIllinois,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
+  AutoMovieEngineIllinois,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -58,22 +58,22 @@ export namespace AutoMovieHumanTrunkMassPlacement {
       )
     )
       return "mass placement needs the actual level world-X/Z trunk source";
-    const prepared: ReturnType<typeof AutoMovieLoftViewSource.create> =
-      AutoMovieLoftViewSource.create(part);
+    const prepared: ReturnType<typeof AutoMovieEngineLoftViewSource.create> =
+      AutoMovieEngineLoftViewSource.create(part);
     if (prepared === null || prepared.source === null)
       return `mass wall source failed: ${JSON.stringify(prepared?.diagnostics ?? "girth source unavailable")}`;
-    const values: ReturnType<typeof AutoMovieLoftViewRead.values> =
-      AutoMovieLoftViewRead.values(prepared.source, y);
+    const values: ReturnType<typeof AutoMovieEngineLoftViewRead.values> =
+      AutoMovieEngineLoftViewRead.values(prepared.source, y);
     if (typeof values === "string") return values;
     const across: number = target[2] - frame.origin[2];
     if (across < -values.extents[3]! || across > values.extents[1]!)
       return `mass apex across ${across} mm is outside its actual source wall`;
-    const point: ReturnType<typeof AutoMovieLoftSectionNative.point> =
-      AutoMovieLoftSectionNative.point(values);
+    const point: ReturnType<typeof AutoMovieEngineLoftSectionNative.point> =
+      AutoMovieEngineLoftSectionNative.point(values);
     function z(phi: number): number {
       return point(phi)[1];
     }
-    const phase: number | null = AutoMovieIllinois.root(
+    const phase: number | null = AutoMovieEngineIllinois.root(
       (phi: number): number => z(phi) - across,
       facing === 1 ? -Math.PI / 2 : Math.PI / 2,
       facing === 1 ? Math.PI / 2 : (3 * Math.PI) / 2,

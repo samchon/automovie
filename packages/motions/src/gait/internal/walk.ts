@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
@@ -86,9 +86,9 @@ export namespace walk {
   export const FROUDE: Readonly<
     Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>
   > = {
-    slow: 0.82 ** 2 / (AutoMovieGravity.STANDARD * walkRoot.REFERENCE_HIP),
+    slow: 0.82 ** 2 / (AutoMovieEngineGravity.STANDARD * walkRoot.REFERENCE_HIP),
     normal: 0.25,
-    fast: 1.72 ** 2 / (AutoMovieGravity.STANDARD * walkRoot.REFERENCE_HIP),
+    fast: 1.72 ** 2 / (AutoMovieEngineGravity.STANDARD * walkRoot.REFERENCE_HIP),
   };
 
   /*
@@ -232,7 +232,7 @@ export namespace walk {
       on.prop,
       Math.sqrt(
         FROUDE[context.params.pace ?? "normal"] *
-          AutoMovieGravity.STANDARD *
+          AutoMovieEngineGravity.STANDARD *
           context.body.measure.hipHeight,
       ),
     );

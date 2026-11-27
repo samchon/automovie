@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
@@ -196,9 +196,9 @@ function reaches(
     const joint = profile.joints.find(
       (candidate): boolean => candidate.child === bone,
     )!;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       pose(bone).position,
-      Quaternion.rotateVector(pose(bone).rotation, joint.childFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(pose(bone).rotation, joint.childFrame.position),
     );
   };
   // A segment's own reach: the farthest corner of its colliders' bounds
@@ -213,7 +213,7 @@ function reaches(
       for (const x of [box.min.x, box.max.x])
         for (const y of [box.min.y, box.max.y])
           for (const z of [box.min.z, box.max.z])
-            out = Math.max(out, Vector3.distance(from, { x, y, z }));
+            out = Math.max(out, AutoMovieEngineVector3.distance(from, { x, y, z }));
     }
     return out;
   };
@@ -230,7 +230,7 @@ function reaches(
       if (below > 0)
         out = Math.max(
           out,
-          Vector3.distance(anchor(bone), anchor(joint.child)) + below,
+          AutoMovieEngineVector3.distance(anchor(bone), anchor(joint.child)) + below,
         );
     }
     memo.set(bone, out);

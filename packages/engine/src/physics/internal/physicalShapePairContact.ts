@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 import { physicalShapePairDistanceWires } from "./physicalShapePairDistanceWires";
 import { physicalShapePenetration } from "./physicalShapePenetration";
@@ -47,25 +47,25 @@ export function physicalShapePairContact(
     [poseA, shapeA, poseB, shapeB, true],
     [poseB, shapeB, poseA, shapeA, false],
   ] as const) {
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       pose.position,
-      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+      AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       pose.rotation,
       shape.transform.rotation,
     );
     const frame: AutoMovieEnginePhysicsPairDistanceTypes.IWires =
       physicalShapePairDistanceWires(shape);
     for (const [a, b] of frame.segments) {
-      const from: IAutoMovieVector3 = Vector3.add(
+      const from: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         centre,
-        Quaternion.rotateVector(rotation, a),
+        AutoMovieEngineQuaternion.rotateVector(rotation, a),
       );
       const to: IAutoMovieVector3 =
         a === b
           ? from
-          : Vector3.add(centre, Quaternion.rotateVector(rotation, b));
+          : AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, b));
       const near: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
         otherPose,
         other,
@@ -76,15 +76,15 @@ export function physicalShapePairContact(
       if (best !== null && distance >= best.distance) continue;
 
       // The other shape's outward normal points at this wire's shape.
-      const own: IAutoMovieVector3 = Vector3.subtract(
+      const own: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         near.at,
-        Vector3.scale(near.normal, frame.radius),
+        AutoMovieEngineVector3.scale(near.normal, frame.radius),
       );
       core = near.distance;
       best = first
         ? {
             distance,
-            normal: Vector3.scale(near.normal, -1),
+            normal: AutoMovieEngineVector3.scale(near.normal, -1),
             pointA: own,
             pointB: near.point,
           }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -65,12 +65,12 @@ export function createPrecisionSportStroke<P extends Stroke>(
         (): IAutoMovieRigidTransform => incoming,
         "ball",
       );
-      const toward: IAutoMovieVector3 = Vector3.subtract(
+      const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         context.aim(params.target, seconds).point,
         ball.centre,
       );
       const horizontal: IAutoMovieVector3 = { ...toward, y: 0 };
-      if (!(Vector3.length(horizontal) > 0))
+      if (!(AutoMovieEngineVector3.length(horizontal) > 0))
         throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "target",
@@ -78,7 +78,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           reason: "the shot needs a horizontal direction away from the ball",
           fix: "give a target with a distinct horizontal position",
         });
-      const direction: IAutoMovieVector3 = Vector3.normalize(horizontal);
+      const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(horizontal);
 
       // The implement as the hand holds it, or the bare palm, read as the
       // address reads it (`precisionStrokeTool`).
@@ -97,11 +97,11 @@ export function createPrecisionSportStroke<P extends Stroke>(
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
       const sign: number = side === "right" ? 1 : -1;
       // A swinging miss passes one ball's diameter under the ball.
-      const contact: IAutoMovieVector3 = Vector3.subtract(
+      const contact: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         ball.centre,
-        Vector3.add(
-          Vector3.scale(direction, ball.radius),
-          Vector3.scale(up, params.miss === true ? 2 * ball.radius : 0),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(direction, ball.radius),
+          AutoMovieEngineVector3.scale(up, params.miss === true ? 2 * ball.radius : 0),
         ),
       );
       // The swing as the address judged it (`PrecisionStrokeForms.swing`):
@@ -144,7 +144,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           : context.aim(params.bridge, seconds).point;
       const bridgeRotation: IAutoMovieQuaternion = HumanHand.rotation(guide, {
         fingers: direction,
-        palm: Vector3.scale(up, -1),
+        palm: AutoMovieEngineVector3.scale(up, -1),
       });
       const bridgeBones: ReturnType<typeof poseBones> | undefined =
         bridge === undefined
@@ -214,13 +214,13 @@ export function createPrecisionSportStroke<P extends Stroke>(
             ...current.limbs,
             [`${guide}Arm`]: {
               ...goal,
-              point: Vector3.lerp(hand.worldPosition, goal.point, influence),
-              rotation: Quaternion.slerp(
+              point: AutoMovieEngineVector3.lerp(hand.worldPosition, goal.point, influence),
+              rotation: AutoMovieEngineQuaternion.slerp(
                 hand.worldRotation,
                 goal.rotation ?? hand.worldRotation,
                 influence,
               ),
-              bend: Vector3.lerp(
+              bend: AutoMovieEngineVector3.lerp(
                 freedBones.get(`${guide}LowerArm`)!.worldPosition,
                 goal.bend,
                 influence,
@@ -289,8 +289,8 @@ export function createPrecisionSportStroke<P extends Stroke>(
           AutoMovieMotionHumanArmTarget.goal(body, guide, {
             surface: "palm",
             shape: "relaxed",
-            point: Vector3.lerp(bridgeEntry, bridge, influence),
-            rotation: Quaternion.slerp(
+            point: AutoMovieEngineVector3.lerp(bridgeEntry, bridge, influence),
+            rotation: AutoMovieEngineQuaternion.slerp(
               bridgeBones.get(`${guide}Hand`)!.worldRotation,
               bridgeRotation,
               influence,
@@ -326,7 +326,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
         rotation: posed.get(`${side}Hand`)!.worldRotation,
       };
       const actual: IAutoMovieVector3 = StrikingHeld.point(tool, achieved);
-      const error: number = Vector3.length(Vector3.subtract(actual, contact));
+      const error: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(actual, contact));
       const tolerance: number = Math.min(0.012, 0.2 * ball.radius);
       if (error > tolerance)
         throw new AutoMovieMotionHumanRefusal({
@@ -342,8 +342,8 @@ export function createPrecisionSportStroke<P extends Stroke>(
           reason: `${params.tool ?? `the ${side} hand`}'s working point misses the ball surface by ${error.toFixed(3)} m`,
           fix: "position the performer or choose a grip that reaches the ball at impact",
         });
-      const facing: number = Vector3.dot(
-        Quaternion.rotateVector(achieved.rotation, face),
+      const facing: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineQuaternion.rotateVector(achieved.rotation, face),
         direction,
       );
       if (facing < 0.95)
@@ -358,8 +358,8 @@ export function createPrecisionSportStroke<P extends Stroke>(
         });
 
       if (bridge !== undefined) {
-        const miss: number = Vector3.length(
-          Vector3.subtract(
+        const miss: number = AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             HumanHand.frame(body, posed, guide, "palm").point,
             bridge,
           ),
@@ -393,15 +393,15 @@ export function createPrecisionSportStroke<P extends Stroke>(
                   seconds: impact,
                   point: incoming.position,
                   rotation: incoming.rotation,
-                  velocity: Vector3.add(
-                    Vector3.scale(direction, speed * Math.cos(loft)),
-                    Vector3.scale(up, speed * Math.sin(loft)),
+                  velocity: AutoMovieEngineVector3.add(
+                    AutoMovieEngineVector3.scale(direction, speed * Math.cos(loft)),
+                    AutoMovieEngineVector3.scale(up, speed * Math.sin(loft)),
                   ),
                   sphere: {
                     radius: ball.radius,
-                    centre: Quaternion.rotateVector(
-                      Quaternion.inverse(incoming.rotation),
-                      Vector3.subtract(ball.centre, incoming.position),
+                    centre: AutoMovieEngineQuaternion.rotateVector(
+                      AutoMovieEngineQuaternion.inverse(incoming.rotation),
+                      AutoMovieEngineVector3.subtract(ball.centre, incoming.position),
                     ),
                   },
                 },

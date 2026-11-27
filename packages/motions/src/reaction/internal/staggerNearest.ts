@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -40,11 +40,11 @@ export namespace staggerNearest {
     );
     const edges: readonly IEdge[] = fixed.map(
       (a: IAutoMovieVector3, i: number): IEdge => {
-        const ab: IAutoMovieVector3 = Vector3.subtract(
+        const ab: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           fixed[(i + 1) % fixed.length]!,
           a,
         );
-        return { a, ab, span: Vector3.dot(ab, ab) };
+        return { a, ab, span: AutoMovieEngineVector3.dot(ab, ab) };
       },
     );
     return (point: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -87,18 +87,18 @@ function project(
     const a: IAutoMovieVector3 = edge === undefined ? outline[i]! : edge.a;
     const ab: IAutoMovieVector3 =
       edge === undefined
-        ? Vector3.subtract(outline[(i + 1) % outline.length]!, a)
+        ? AutoMovieEngineVector3.subtract(outline[(i + 1) % outline.length]!, a)
         : edge.ab;
-    const span: number = edge === undefined ? Vector3.dot(ab, ab) : edge.span;
+    const span: number = edge === undefined ? AutoMovieEngineVector3.dot(ab, ab) : edge.span;
     const u: number =
       span > 0
         ? Math.min(
             1,
-            Math.max(0, Vector3.dot(Vector3.subtract(point, a), ab) / span),
+            Math.max(0, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, a), ab) / span),
           )
         : 0;
-    const q: IAutoMovieVector3 = Vector3.add(a, Vector3.scale(ab, u));
-    const d: number = Vector3.distance(point, q);
+    const q: IAutoMovieVector3 = AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(ab, u));
+    const d: number = AutoMovieEngineVector3.distance(point, q);
     if (d < gap) {
       gap = d;
       best = q;

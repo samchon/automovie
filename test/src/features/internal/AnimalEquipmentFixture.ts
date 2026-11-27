@@ -1,6 +1,8 @@
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedEquipment, type AutoMovieArchetypeQuadrupedLead, type AutoMovieArchetypeOx } from "@automovie/archetypes";
-import { buildOxBody } from "@automovie/archetypes/executable/internal";
-import { Quaternion } from "@automovie/engine";
+import {
+  buildOxBody
+} from "../../../../packages/archetypes/src/animals/ox/buildOxBody";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieCylinderShape,
@@ -71,14 +73,14 @@ export namespace AnimalEquipmentFixture {
     const left: IAutoMovieModelPart = part(animal, `${name}-upright--1`);
     const right: IAutoMovieModelPart = part(animal, `${name}-upright-1`);
     const contact: IAutoMovieAffordance = animal.affordance(id);
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       contact.frame.rotation,
       { x: 0, y: 1, z: 0 },
     );
     const at: IAutoMovieVector3 = base.transform!.translation;
     const bearing: IAutoMovieVector3 = contact.frame.translation;
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(base.transform!.rotation),
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(base.transform!.rotation),
       { x: bearing.x - at.x, y: bearing.y - at.y, z: bearing.z - at.z },
     );
     if (
@@ -158,7 +160,7 @@ export namespace AnimalEquipmentFixture {
       contact.kind !== "rein" ||
       !same(contact.frame.translation, lead.transform!.translation) ||
       !same(
-        Quaternion.rotateVector(contact.frame.rotation, { x: 0, y: 1, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(contact.frame.rotation, { x: 0, y: 1, z: 0 }),
         { x: 0, y: 1, z: 0 },
       ) ||
       !nclose(cylinder(lead).height, authored.leadLength, 1e-9) ||
@@ -221,7 +223,7 @@ export namespace AnimalEquipmentFixture {
     part: IAutoMovieModelPart,
     sign: 1 | -1,
   ): IAutoMovieVector3 {
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform!.rotation,
       { x: 0, y: (sign * cylinder(part).height) / 2, z: 0 },
     );

@@ -1,4 +1,4 @@
-import { AutoMovieLoftViewFullSource } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -82,7 +82,7 @@ export function test_human_f1_armscye_surface(): void {
     every(300),
   );
   const reader: IAutoMovieLoftViewFullSource.IReader =
-    AutoMovieLoftViewFullSource.create(part);
+    AutoMovieEngineLoftViewFullSource.create(part);
   const near = (
     label: string,
     value: number,

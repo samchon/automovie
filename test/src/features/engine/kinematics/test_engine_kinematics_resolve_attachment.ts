@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, AutoMovieEngineSkeletonPose } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import {
   IAutoMovieAttachment,
   IAutoMoviePose,
@@ -98,7 +98,7 @@ export function test_engine_kinematics_resolve_attachment(): void {
 
   // 3. yaw the whole rig via the pose root: child inherits the bone's world
   //    rotation and the offset is carried into that frame
-  const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const yaw: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );
@@ -156,20 +156,20 @@ export function test_engine_kinematics_resolve_attachment(): void {
     raised,
     skeleton,
     { parentBone: "leftHand", offset: idOffset },
-    HUMANOID_JOINT_AXES,
-    HUMANOID_REST_FRAME,
+    AutoMovieEngineHumanoidJointAxes,
+    AutoMovieEngineHumanoidRestFrame,
   );
   const raw: IAutoMovieTransform = AutoMovieEngineSkeletonPose.resolveAttachment(
     raised,
     skeleton,
     { parentBone: "leftHand", offset: idOffset },
-    HUMANOID_JOINT_AXES,
+    AutoMovieEngineHumanoidJointAxes,
   );
   const visibleHand: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(
     raised,
     skeleton,
-    HUMANOID_JOINT_AXES,
-    HUMANOID_REST_FRAME,
+    AutoMovieEngineHumanoidJointAxes,
+    AutoMovieEngineHumanoidRestFrame,
   ).find((r: IAutoMovieResolvedBone): boolean => r.bone === "leftHand")!;
   TestValidator.predicate(
     "rest-framed attachment matches the numerical framed hand",

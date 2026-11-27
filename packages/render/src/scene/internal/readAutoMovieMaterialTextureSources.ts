@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 import type { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 
 /*
@@ -89,16 +89,16 @@ export function readAutoMovieMaterialTextureSources(
   let area: boolean = false;
   let pbr: boolean = false;
   props.scene.traverse((object: THREE.Object3D): void => {
-    if (AutoMovieThreeKind.isRectAreaLight(object)) area = true;
-    if (!AutoMovieThreeKind.isDrawn(object)) return;
+    if (AutoMovieRenderThreeKind.isRectAreaLight(object)) area = true;
+    if (!AutoMovieRenderThreeKind.isDrawn(object)) return;
     for (const material of [object.material].flat()) {
-      if (AutoMovieThreeKind.isMeshStandardMaterial(material)) pbr = true;
+      if (AutoMovieRenderThreeKind.isMeshStandardMaterial(material)) pbr = true;
       observe("subsurface-lut", material.userData.autoMovieSubsurfaceTexture);
       if (
-        (AutoMovieThreeKind.isMeshStandardMaterial(material) ||
-          AutoMovieThreeKind.isMeshPhongMaterial(material) ||
-          AutoMovieThreeKind.isMeshLambertMaterial(material) ||
-          AutoMovieThreeKind.isMeshToonMaterial(material)) &&
+        (AutoMovieRenderThreeKind.isMeshStandardMaterial(material) ||
+          AutoMovieRenderThreeKind.isMeshPhongMaterial(material) ||
+          AutoMovieRenderThreeKind.isMeshLambertMaterial(material) ||
+          AutoMovieRenderThreeKind.isMeshToonMaterial(material)) &&
         material.normalMap === material.userData.autoMovieOverlayFlatNormal
       )
         observe(

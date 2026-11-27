@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import type { AutoMovieArchetype } from "../core";
 import { ClubBuild } from "../weapons/internal/ClubBuild";
@@ -42,8 +42,8 @@ export namespace AutoMovieArchetypeBaseballBat {
       builder.rod(
         id,
         radius,
-        Vector3.create(0, from, 0),
-        Vector3.create(0, to, 0),
+        AutoMovieEngineVector3.create(0, from, 0),
+        AutoMovieEngineVector3.create(0, to, 0),
         {
           color: wood,
         },

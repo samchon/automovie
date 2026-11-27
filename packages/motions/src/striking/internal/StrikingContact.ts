@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingContact,
   IAutoMovieVector3,
@@ -38,14 +38,14 @@ export namespace StrikingContact {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const ab: IAutoMovieVector3 = Vector3.subtract(b, a);
-    const len2: number = Vector3.dot(ab, ab);
+    const ab: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
+    const len2: number = AutoMovieEngineVector3.dot(ab, ab);
     if (len2 < 1e-18) return a;
     const t: number = Math.min(
       1,
-      Math.max(0, Vector3.dot(Vector3.subtract(p, a), ab) / len2),
+      Math.max(0, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(p, a), ab) / len2),
     );
-    return Vector3.add(a, Vector3.scale(ab, t));
+    return AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(ab, t));
   }
 
   /*

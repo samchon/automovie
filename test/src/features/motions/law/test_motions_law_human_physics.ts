@@ -1,6 +1,8 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanPhysics } from "@automovie/motions/internal";
+import {
+  HumanPhysics
+} from "../../../../../packages/motions/src/law/internal/HumanPhysics";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

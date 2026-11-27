@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPrehension,
@@ -21,7 +21,7 @@ export function putDownTravel(
   route?: putDownTravel.IRoute,
 ): putDownTravel.ITravel {
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-    Vector3.length(Vector3.subtract(a, b));
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, b));
   const transport = (
     from: IAutoMovieRigidTransform,
     to: IAutoMovieRigidTransform,
@@ -42,7 +42,7 @@ export function putDownTravel(
     const frame: (offset: IAutoMovieVector3) => IAutoMovieRigidTransform = (
       offset: IAutoMovieVector3,
     ): IAutoMovieRigidTransform => ({
-      position: Vector3.add(rest.position, offset),
+      position: AutoMovieEngineVector3.add(rest.position, offset),
       rotation: rest.rotation,
     });
     const openings: readonly IAutoMovieRigidTransform[] = [

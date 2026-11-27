@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -246,10 +246,10 @@ export namespace stretch {
 
     // The hips carried over the standing foot, for the one-leg poses.
     const over = (standing: AutoMovieHumanSide): IAutoMovieVector3 =>
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         leftward,
-        Vector3.dot(
-          Vector3.subtract(stance[standing].ankle, entry.root),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(stance[standing].ankle, entry.root),
           leftward,
         ),
       );
@@ -273,9 +273,9 @@ export namespace stretch {
           seconds: number,
         ): IAutoMovieMotionHumanPosture => ({
           ...posture,
-          root: Vector3.add(
+          root: AutoMovieEngineVector3.add(
             posture.root,
-            Vector3.scale(offset, envelope(seconds)),
+            AutoMovieEngineVector3.scale(offset, envelope(seconds)),
           ),
         }),
       };
@@ -337,7 +337,7 @@ export namespace stretch {
       },
     ];
     const hip: IAutoMovieVector3 = HumanFrame.point(
-      { origin: Vector3.add(entry.root, over(other)), yaw: entry.yaw },
+      { origin: AutoMovieEngineVector3.add(entry.root, over(other)), yaw: entry.yaw },
       body.rest.get(`${side}UpperLeg`)!,
     );
 
@@ -408,7 +408,7 @@ export namespace stretch {
           hip,
           shoulder: AutoMovieMotionHumanPlaced.joint(
             body,
-            { ...entry, root: Vector3.add(entry.root, over(other)) },
+            { ...entry, root: AutoMovieEngineVector3.add(entry.root, over(other)) },
             `${side}UpperArm`,
           ),
           forward,
@@ -441,18 +441,18 @@ export namespace stretch {
         break;
       }
       case "tree": {
-        const calf: IAutoMovieVector3 = Vector3.add(stance[other].ankle, {
+        const calf: IAutoMovieVector3 = AutoMovieEngineVector3.add(stance[other].ankle, {
           x: 0,
           y: 0.6 * m.shank,
           z: 0,
         });
         const placement: IAutoMovieMotionHumanFoot.IPlacement = {
-          ankle: Vector3.add(
+          ankle: AutoMovieEngineVector3.add(
             calf,
-            Vector3.scale(leftward, sign * (m.shankRadius + m.ankleHeight)),
+            AutoMovieEngineVector3.scale(leftward, sign * (m.shankRadius + m.ankleHeight)),
           ),
-          rotation: Quaternion.multiply(
-            Quaternion.fromAxisAngle(forward, sign * 90),
+          rotation: AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.fromAxisAngle(forward, sign * 90),
             HumanFoot.rotation(entry.yaw - sign * 45, 0),
           ),
         };
@@ -471,7 +471,7 @@ export namespace stretch {
               rest: rest(s),
               weight,
               place: (posture: IAutoMovieMotionHumanPosture) => ({
-                point: Vector3.add(
+                point: AutoMovieEngineVector3.add(
                   AutoMovieMotionHumanPlaced.grid(body, posture, s, {
                     height: "chest",
                     lateral: "centre",

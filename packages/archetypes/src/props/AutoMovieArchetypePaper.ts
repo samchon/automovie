@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -76,8 +76,8 @@ export namespace AutoMovieArchetypePaper {
 
     builder.box(
       folded ? "map" : "sheet",
-      Vector3.create(width, baseThickness, length),
-      Vector3.create(0, baseThickness / 2, 0),
+      AutoMovieEngineVector3.create(width, baseThickness, length),
+      AutoMovieEngineVector3.create(0, baseThickness / 2, 0),
       { color: "#f4f2ec" },
     );
     if (folded) {
@@ -85,17 +85,17 @@ export namespace AutoMovieArchetypePaper {
       const panelHeight: number = baseThickness * 1.5;
       builder.box(
         "panel",
-        Vector3.create(width, baseThickness, length),
-        Vector3.create(0, panelHeight, 0),
+        AutoMovieEngineVector3.create(width, baseThickness, length),
+        AutoMovieEngineVector3.create(0, panelHeight, 0),
         { color: "#e4e2cd" },
       );
       builder.affordance({
         id: "fold",
         kind: "hinge",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(width / 2, baseThickness, 0),
-          Vector3.create(0, 0, -1),
-          Vector3.create(-1, 0, 0),
+          AutoMovieEngineVector3.create(width / 2, baseThickness, 0),
+          AutoMovieEngineVector3.create(0, 0, -1),
+          AutoMovieEngineVector3.create(-1, 0, 0),
         ),
         extent: null,
         travel: 180,
@@ -106,9 +106,9 @@ export namespace AutoMovieArchetypePaper {
         kind: "handle",
         symmetry: "none",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(0, baseThickness / 2, length / 2),
-          Vector3.create(0, 1, 0),
-          Vector3.create(1, 0, 0),
+          AutoMovieEngineVector3.create(0, baseThickness / 2, length / 2),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(1, 0, 0),
         ),
         extent: null,
         grip: "precision",
@@ -120,9 +120,9 @@ export namespace AutoMovieArchetypePaper {
         kind: "handle",
         symmetry: "none",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(-width / 2, panelHeight, 0),
-          Vector3.create(0, 1, 0),
-          Vector3.create(0, 0, 1),
+          AutoMovieEngineVector3.create(-width / 2, panelHeight, 0),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(0, 0, 1),
         ),
         extent: null,
         grip: "precision",

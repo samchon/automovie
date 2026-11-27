@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieCombinePhysicalMassProperties,
@@ -53,28 +53,28 @@ export function prepareRigidFlightMass(
     }
     const carrier: IAutoMovieResolvedBone | undefined = frames.get(bone);
     if (carrier === undefined) return undefined;
-    const back: IAutoMovieQuaternion = Quaternion.inverse(
+    const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       carrier.worldRotation,
     );
     const parts: IAutoMovieCombinePhysicalMassProperties.IPart[] = [];
     for (const member of members) {
       const child: IAutoMovieResolvedBone | undefined = frames.get(member.bone);
       if (child === undefined) return undefined;
-      const offset: IAutoMovieVector3 = Vector3.subtract(
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         child.worldPosition,
         carrier.worldPosition,
       );
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         offset,
-        Quaternion.rotateVector(child.worldRotation, member.point),
+        AutoMovieEngineQuaternion.rotateVector(child.worldRotation, member.point),
       );
       parts.push({
         mass: member.mass,
-        centerOfMass: Quaternion.rotateVector(back, point),
+        centerOfMass: AutoMovieEngineQuaternion.rotateVector(back, point),
         inertia: member.inertia,
-        inertiaRotation: Quaternion.multiply(
+        inertiaRotation: AutoMovieEngineQuaternion.multiply(
           back,
-          Quaternion.multiply(child.worldRotation, member.axes),
+          AutoMovieEngineQuaternion.multiply(child.worldRotation, member.axes),
         ),
       });
     }

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeHalter } from "../AutoMovieArchetypeHalter";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -48,14 +48,14 @@ export function createHalter(
     for (const sign of [1, -1]) {
       builder.box(
         `${name}-${sign > 0 ? "ventral" : "dorsal"}`,
-        Vector3.create(side, STRAP.width, STRAP.thickness),
-        Vector3.create(0, y, sign * a),
+        AutoMovieEngineVector3.create(side, STRAP.width, STRAP.thickness),
+        AutoMovieEngineVector3.create(0, y, sign * a),
         { color: "#5a3a22" },
       );
       builder.box(
         `${name}-${sign > 0 ? "left" : "right"}`,
-        Vector3.create(STRAP.thickness, STRAP.width, 2 * a),
-        Vector3.create(sign * a, y, 0),
+        AutoMovieEngineVector3.create(STRAP.thickness, STRAP.width, 2 * a),
+        AutoMovieEngineVector3.create(sign * a, y, 0),
         { color: "#5a3a22" },
       );
     }
@@ -66,19 +66,19 @@ export function createHalter(
   for (const sign of [1, -1])
     builder.box(
       `cheek-${sign > 0 ? "left" : "right"}`,
-      Vector3.create(STRAP.thickness, nose, STRAP.width),
-      Vector3.create(sign * a, nose / 2, 0),
+      AutoMovieEngineVector3.create(STRAP.thickness, nose, STRAP.width),
+      AutoMovieEngineVector3.create(sign * a, nose / 2, 0),
       { color: "#5a3a22" },
     );
-  const top: IAutoMovieVector3 = Vector3.create(0, 0, -a - STRAP.thickness / 2);
+  const top: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, -a - STRAP.thickness / 2);
   builder.affordance({
     id: "grip",
     kind: "handle",
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.facing(
       top,
-      Vector3.create(0, 0, -1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     grip: "power",
@@ -87,7 +87,7 @@ export function createHalter(
   builder.affordance({
     id: "seat",
     kind: "socket",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
   });
   return builder.build(MASS);

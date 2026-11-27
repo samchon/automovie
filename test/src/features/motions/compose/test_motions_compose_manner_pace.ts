@@ -6,10 +6,14 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionManner,
-  HumanSkill,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  AutoMovieMotionManner
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+import {
+  HumanSkill
+} from "../../../../../packages/motions/src/skill/internal/HumanSkill";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

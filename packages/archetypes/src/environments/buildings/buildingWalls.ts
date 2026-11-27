@@ -1,8 +1,8 @@
 import { AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
-import type { IAutoMovieEnvironmentBuildingPoint } from "../IAutoMovieEnvironmentBuildingPoint";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
+import type { IAutoMovieArchetypeEnvironmentBuildingPoint } from "../IAutoMovieArchetypeEnvironmentBuildingPoint";
 import type { buildingPlans } from "./buildingPlans";
 
 /*
@@ -118,7 +118,7 @@ export namespace buildingWalls {
     /*
      * Opening in the original metre plan.
      */
-    readonly opening: AutoMovieEnvironment.IBuildingOpening;
+    readonly opening: AutoMovieArchetypeEnvironment.IBuildingOpening;
 
     /*
      * Whether a half-turn carries wall +Z into the requested opening direction.
@@ -148,7 +148,7 @@ function pointKey(point: IAutoMovieProfilePoint): string {
  */
 function matches(
   point: IAutoMovieProfilePoint,
-  pair: IAutoMovieEnvironmentBuildingPoint,
+  pair: IAutoMovieArchetypeEnvironmentBuildingPoint,
 ): boolean {
   return point.x === pair.x && point.y === pair.z;
 }

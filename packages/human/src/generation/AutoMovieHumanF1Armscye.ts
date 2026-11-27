@@ -1,6 +1,6 @@
 import { AutoMovieHumanJoinLoop } from "./AutoMovieHumanJoinLoop";
 import { AutoMovieHumanLandmarkSurface } from "./AutoMovieHumanLandmarkSurface";
-import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource as Full } from "@automovie/engine";
 import type {
   IAutoMovieConstructionChartPoint,
   IAutoMovieConstructionPortLoop,

@@ -1,12 +1,16 @@
 import {
-  AutoMovieEnvironment,
-  AutoMovieEnvironmentFurnishing,
-} from "@automovie/archetypes/environments";
-import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes/props";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import {
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
+import {
+  AutoMovieArchetypeDrinkware
+} from "@automovie/archetypes";
 import {
   AutoMovieEngineSequence,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -38,7 +42,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   const enterAt: number = 7.5;
   const swing: NonNullable<
     Extract<
-      AutoMovieEnvironment.IBuildingOpening,
+      AutoMovieArchetypeEnvironment.IBuildingOpening,
       { kind: "door" }
     >["swing"]
   > = {
@@ -56,13 +60,13 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   };
   const entryWidth: number = 1.2;
   const grade: number = 1.3;
-  const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
+  const environment: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "hill",
     seed: 1037,
     items: {
       terrain: {
         at: { x: -10, y: 0, z: -10 },
-        use: AutoMovieEnvironment.terrain({
+        use: AutoMovieArchetypeEnvironment.terrain({
           size: { width: 30, depth: 24 },
           relief: { kind: "plane", slope: { risePerX: 0.1, risePerZ: 0 } },
           pads: {
@@ -88,7 +92,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       },
       station: {
         at: { x: 0, y: grade, z: 0 },
-        use: AutoMovieEnvironment.building({
+        use: AutoMovieArchetypeEnvironment.building({
           type: "levels",
           wallThickness,
           levels: [
@@ -142,7 +146,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
         at: { anchor: "station/ground/cafe" },
         use: (ctx: IAutoMovieEnvironmentModule.IContext) => {
           const entry = ctx.anchor("station/ground/inside").translation;
-          return AutoMovieEnvironmentFurnishing.cafeKit({
+          return AutoMovieArchetypeEnvironmentFurnishing.cafeKit({
             room: cafeRoom,
             tables: 1,
             keepClear: {
@@ -161,7 +165,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       },
       cup: {
         at: { anchor: "cafe/table-1/stack" },
-        use: AutoMovieEnvironmentFurnishing.prop({
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({
           model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }),
         }),
       },
@@ -181,7 +185,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
     chair.model,
     {
       position: placement.position,
-      rotation: placement.rotation ?? Quaternion.identity(),
+      rotation: placement.rotation ?? AutoMovieEngineQuaternion.identity(),
     },
     "seat",
   );
@@ -225,15 +229,15 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
     (affordance) => affordance.id === "pull",
   )!;
   const rotation: IAutoMovieQuaternion = leaf.rotation!;
-  const position = Vector3.add(
+  const position = AutoMovieEngineVector3.add(
     leaf.position,
-    Quaternion.rotateVector(rotation, {
+    AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: pull.frame.translation.x - 0.31,
       y: 0,
       z: 0.38,
     }),
   );
-  const forward = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: -1 });
+  const forward = AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: -1 });
   const opener: IAutoMovieStageActor = {
     node: "opener",
     position: { ...position, y: grade },

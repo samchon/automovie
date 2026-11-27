@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -34,7 +34,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { prepareSkateboardPhrase } from "./prepareSkateboardPhrase";
 import { prepareSurfboardPhrase } from "./prepareSurfboardPhrase";
-import * as HumanSurfaceBoardData from "./HumanSurfaceBoardData";
+import { HumanSurfaceBoardData } from "./HumanSurfaceBoardData";
 
 /*
  * Carry a two-foot stance on the actual board's film-clock trajectory. Either
@@ -109,7 +109,7 @@ export function HumanSurfaceBoard(
       const rotation: IAutoMovieQuaternion | undefined =
         affordance === undefined
           ? undefined
-          : Quaternion.multiply(
+          : AutoMovieEngineQuaternion.multiply(
               support.frame(context.start).rotation,
               affordance.frame.rotation,
             );
@@ -122,7 +122,7 @@ export function HumanSurfaceBoard(
             radius: (affordance?.aperture ?? 0) / 2,
             ...(rotation === undefined
               ? {}
-              : { axis: Quaternion.rotateVector(rotation, HumanSurfaceBoardData.HANDLE) }),
+              : { axis: AutoMovieEngineQuaternion.rotateVector(rotation, HumanSurfaceBoardData.HANDLE) }),
           },
         },
       ];
@@ -356,11 +356,11 @@ export namespace HumanSurfaceBoard {
     const centre: IAutoMovieVector3 = surface.frame.translation;
     const width: number = surface.width ?? NaN;
     const length: number = surface.depth ?? NaN;
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       surface.frame.rotation,
       UP,
     );
-    if (!(width > 0 && length > 0) || Vector3.distance(normal, UP) > 1e-6)
+    if (!(width > 0 && length > 0) || AutoMovieEngineVector3.distance(normal, UP) > 1e-6)
       return refuseBoard(
         on,
         "the scene prop needs a bounded horizontal deck in its own frame",
@@ -412,9 +412,9 @@ export namespace HumanSurfaceBoard {
     frame: IAutoMovieRigidTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, point),
     );
   }
 
@@ -425,9 +425,9 @@ export namespace HumanSurfaceBoard {
     frame: IAutoMovieRigidTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(point, frame.position),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
+      AutoMovieEngineVector3.subtract(point, frame.position),
     );
   }
 
@@ -443,7 +443,7 @@ export namespace HumanSurfaceBoard {
   ): Omit<IAutoMovieHumanLimbGoal, "bend"> {
     const contact: IAutoMovieVector3 = HumanFoot.offset(body, side, "sole");
     return {
-      point: Vector3.subtract(sole, Quaternion.rotateVector(rotation, contact)),
+      point: AutoMovieEngineVector3.subtract(sole, AutoMovieEngineQuaternion.rotateVector(rotation, contact)),
       rotation,
       contact,
       planted,
@@ -454,12 +454,12 @@ export namespace HumanSurfaceBoard {
    * A yaw in degrees measured from positive Z.
    */
   export function heading(rotation: IAutoMovieQuaternion): number {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
     });
-    return Math.atan2(forward.x, forward.z) / Quaternion.DEG2RAD;
+    return Math.atan2(forward.x, forward.z) / AutoMovieEngineQuaternion.DEG2RAD;
   }
 
   /*

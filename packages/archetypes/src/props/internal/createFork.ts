@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeFork } from "../AutoMovieArchetypeFork";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { HandToolDraw } from "./HandToolDraw";
@@ -39,8 +39,8 @@ export function createFork(
   const tines: Readonly<HandToolDraw.ITines> = HandToolDraw.TINES;
   builder.box(
     "tines",
-    Vector3.create(tines.width, tines.length, 0.002),
-    Vector3.create(0, handle + tines.length / 2, 0),
+    AutoMovieEngineVector3.create(tines.width, tines.length, 0.002),
+    AutoMovieEngineVector3.create(0, handle + tines.length / 2, 0),
     { color: "#b9bcc0", surface: "steel" },
   );
   builder.affordance({
@@ -48,9 +48,9 @@ export function createFork(
     kind: "surface",
     direction: "along",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, length, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, length, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });

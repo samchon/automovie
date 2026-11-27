@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -153,8 +153,8 @@ export function pickUpPostureLeaned(
       0.5 * context.body.measure.thigh,
       Math.max(
         0,
-        Vector3.dot(
-          Vector3.subtract(
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(
             pickUpPostureShoulder(context, free, leant),
             initial.get(`${free}UpperArm`)!.worldPosition,
           ),
@@ -170,17 +170,17 @@ export function pickUpPostureLeaned(
         ...leant.limbs,
         [freeArm]: {
           ...goal,
-          point: Vector3.lerp(
+          point: AutoMovieEngineVector3.lerp(
             wrist.worldPosition,
-            Vector3.addScaled(goal.point, ahead, slide),
+            AutoMovieEngineVector3.addScaled(goal.point, ahead, slide),
             share,
           ),
-          rotation: Quaternion.slerp(
+          rotation: AutoMovieEngineQuaternion.slerp(
             wrist.worldRotation,
             goal.rotation ?? wrist.worldRotation,
             share,
           ),
-          bend: Vector3.lerp(elbow.worldPosition, goal.bend, share),
+          bend: AutoMovieEngineVector3.lerp(elbow.worldPosition, goal.bend, share),
           reference: {
             upper: entry.joints[`${free}UpperArm`] ?? ZERO,
             lower: entry.joints[`${free}LowerArm`] ?? ZERO,
@@ -190,8 +190,8 @@ export function pickUpPostureLeaned(
     };
   };
   const far: (pitch: number) => number = (pitch: number): number =>
-    Vector3.length(
-      Vector3.subtract(
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         grip,
         pickUpPostureShoulder(context, side, leanBody(entry, pitch)),
       ),
@@ -206,7 +206,7 @@ export function pickUpPostureLeaned(
       context.body.measure.hand) *
     (Math.cos(off) ** 2 * pickUpPosture.SEATED_REACH[0] +
       Math.sin(off) ** 2 * pickUpPosture.SEATED_REACH[1]);
-  const away: number = Vector3.length(Vector3.subtract(grip, from));
+  const away: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(grip, from));
   if (away > extent)
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",

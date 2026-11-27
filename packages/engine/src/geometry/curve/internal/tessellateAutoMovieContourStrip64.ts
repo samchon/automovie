@@ -3,8 +3,8 @@ import type {
   IAutoMovieObservation,
 } from "@automovie/interface";
 
-import { AutoMovieContourLoftCurves64 } from "../../AutoMovieContourLoftCurves64";
-import { AutoMovieCurveMath64 } from "../../AutoMovieCurveMath64";
+import { AutoMovieEngineContourLoftCurves64 } from "../../AutoMovieEngineContourLoftCurves64";
+import { AutoMovieEngineCurveMath64 } from "../../AutoMovieEngineCurveMath64";
 
 /*
  * Finds a fixed-seam periodic tiling and reports sheet qualification separately
@@ -37,10 +37,10 @@ export function tessellateAutoMovieContourStrip64(
     peakQueue: number = 0;
   const diagnostics: Set<string> = new Set();
   for (const ring of [rawA, rawB])
-    if (!AutoMovieContourLoftCurves64.hasArea(ring))
+    if (!AutoMovieEngineContourLoftCurves64.hasArea(ring))
       throw new Error("A contour strip needs two area-spanning boundaries");
   const a: AutoMovieVector3Tuple[] =
-    AutoMovieContourLoftCurves64.exterior(rawA);
+    AutoMovieEngineContourLoftCurves64.exterior(rawA);
   let offset: number = 0;
   let best: number = Infinity;
   rawB.forEach((p: AutoMovieVector3Tuple, i: number): void => {
@@ -66,8 +66,8 @@ export function tessellateAutoMovieContourStrip64(
     q: AutoMovieVector3Tuple,
     r: AutoMovieVector3Tuple,
   ): number => {
-    const u: AutoMovieVector3Tuple = AutoMovieCurveMath64.sub(q, p);
-    const v: AutoMovieVector3Tuple = AutoMovieCurveMath64.sub(r, p);
+    const u: AutoMovieVector3Tuple = AutoMovieEngineCurveMath64.sub(q, p);
+    const v: AutoMovieVector3Tuple = AutoMovieEngineCurveMath64.sub(r, p);
     const value: number =
       Math.hypot(
         u[1] * v[2] - u[2] * v[1],

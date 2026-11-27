@@ -1,7 +1,7 @@
 import {
-  AutoMovieLoftChain,
-  AutoMovieLoftRelief,
-  AutoMovieViewChain,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftRelief,
+  AutoMovieEngineViewChain,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicRelief,
@@ -492,7 +492,7 @@ namespace FamilyConicLowerTrunk {
   /**
    * The relieved skin at a station's plane. A net moves its wall point along its own axis, which leaves the plane by the axis's tilt, so
    * for each phase the relieved point is followed along the stations (rings `GRID_MM` apart through the engine's own evaluator,
-   * `AutoMovieLoftChain.sampler`, nets included) and its crossing of the plane is read on the cubic through the four rings round it.
+   * `AutoMovieEngineLoftChain.sampler`, nets included) and its crossing of the plane is read on the cubic through the four rings round it.
    */
   function target(): ITarget {
     const family: Family = stored();
@@ -528,7 +528,7 @@ namespace FamilyConicLowerTrunk {
       );
     const rings: number[][][] = grid.map((s: number): number[][] => {
       const read: (t: number) => [number, number, number] =
-        AutoMovieLoftChain.sampler(chain, s);
+        AutoMovieEngineLoftChain.sampler(chain, s);
       return Array.from({ length: PHASES }, (_: unknown, j: number): number[] =>
         read((2 * Math.PI * j) / PHASES),
       );
@@ -869,7 +869,7 @@ namespace FamilyConicLowerTrunk {
         fold += section.folds;
         drop += section.dropped;
         const read: (t: number) => [number, number, number] =
-          AutoMovieLoftChain.sampler(bare, s);
+          AutoMovieEngineLoftChain.sampler(bare, s);
         const frame: IAutoMovieLoftSectionFrame = t.axis.at(s);
         const ring: P2[] = Array.from(
           { length: RING },
@@ -927,7 +927,7 @@ namespace FamilyConicLowerTrunk {
             rows: r.rows,
             columns: r.columns,
             rowMm: round3((r.stations.end - r.stations.start) / (r.rows - 3)),
-            columnRad: round3(AutoMovieLoftRelief.width(r) / (r.columns - 3)),
+            columnRad: round3(AutoMovieEngineLoftRelief.width(r) / (r.columns - 3)),
           })),
       },
       netsOverWallByBand: bands,
@@ -1153,8 +1153,8 @@ namespace FamilyConicLowerTrunk {
                 worst = Math.max(
                   worst,
                   Math.abs(
-                    AutoMovieViewChain.radius(a, (2 * Math.PI * j) / 360) -
-                      AutoMovieViewChain.radius(b, (2 * Math.PI * j) / 360),
+                    AutoMovieEngineViewChain.radius(a, (2 * Math.PI * j) / 360) -
+                      AutoMovieEngineViewChain.radius(b, (2 * Math.PI * j) / 360),
                   ),
                 );
             }
@@ -1271,7 +1271,7 @@ namespace FamilyConicLowerTrunk {
     const chain: Chain = loft.chain;
     const ringAt = (s: number): { ring: P2[]; read: (t: number) => P2 } => {
       const read: (t: number) => [number, number, number] =
-        AutoMovieLoftChain.sampler(chain, s);
+        AutoMovieEngineLoftChain.sampler(chain, s);
       const frame: IAutoMovieLoftSectionFrame = t.axis.at(s);
       const chart = (p: readonly number[]): P2 => {
         const d: number[] = [
@@ -1367,7 +1367,7 @@ namespace FamilyConicLowerTrunk {
     const carried = (s: number, phase: number): number =>
       carriedNets.reduce(
         (sum: number, r: IAutoMovieLoftRelief): number =>
-          sum + AutoMovieLoftRelief.height(r, s, phase)[0],
+          sum + AutoMovieEngineLoftRelief.height(r, s, phase)[0],
         0,
       );
     const nets: IRow["nets"] = [];
@@ -1391,7 +1391,7 @@ namespace FamilyConicLowerTrunk {
         stored().reliefs ?? []
       ).find((r: IAutoMovieLoftRelief): boolean => r.name === window.net);
       if (relief === undefined) throw new Error("no stored net " + window.net);
-      const width: number = AutoMovieLoftRelief.width(relief);
+      const width: number = AutoMovieEngineLoftRelief.width(relief);
       // The stored grid's spacing kept on the window clipped to the stretch.
       const rowMm: number =
         (relief.stations.end - relief.stations.start) / (relief.rows - 3);
@@ -1472,7 +1472,7 @@ namespace FamilyConicLowerTrunk {
         (row: number[], i: number): number[] =>
           row.map(
             (x: number, j: number): number =>
-              AutoMovieLoftRelief.height(
+              AutoMovieEngineLoftRelief.height(
                 net,
                 sampleStations[i]!,
                 samplePhases[j]!,
@@ -1740,7 +1740,7 @@ namespace FamilyConicLowerTrunk {
     const rings: number[][][] = stations(GRID_MM, FROM).map(
       (s: number): number[][] => {
         const read: (t: number) => [number, number, number] =
-          AutoMovieLoftChain.sampler(chain, s);
+          AutoMovieEngineLoftChain.sampler(chain, s);
         return Array.from(
           { length: DISPLAY_PHASES },
           (_: unknown, j: number): number[] =>
@@ -1886,7 +1886,7 @@ namespace FamilyConicLowerTrunk {
       const residual: Map<number, number[]> = new Map();
       for (const s of stations(DENSE_MM)) {
         const read: (phase: number) => [number, number, number] =
-          AutoMovieLoftChain.sampler(chain, s);
+          AutoMovieEngineLoftChain.sampler(chain, s);
         const frame: IAutoMovieLoftSectionFrame = t.axis.at(s);
         const ring: P2[] = Array.from(
           { length: RING },
@@ -2038,7 +2038,7 @@ namespace FamilyConicLowerTrunk {
       for (const p of row.points) {
         const phi: number = Math.atan2(p[1], p[0]);
         const gap: number =
-          AutoMovieViewChain.radius(wall, phi) - Math.hypot(p[0], p[1]);
+          AutoMovieEngineViewChain.radius(wall, phi) - Math.hypot(p[0], p[1]);
         const k: number = Math.floor(degrees(phi) / 10) % 36;
         bins[k]!.gapMax = Math.max(bins[k]!.gapMax, gap);
         bins[k]!.gapMean += gap;

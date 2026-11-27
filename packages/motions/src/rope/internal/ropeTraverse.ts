@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -41,8 +41,8 @@ export function ropeTraverse(
       p.line,
       "the rope is beyond the standing reach",
     );
-  const here: number = Vector3.dot(
-    Vector3.subtract(context.entry.posture.root, line.low),
+  const here: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(context.entry.posture.root, line.low),
     line.axis,
   );
   const end: number = here + p.along;
@@ -57,9 +57,9 @@ export function ropeTraverse(
   const at = (key: string, s: number): IAutoMovieMotionTarget => {
     staged.set(
       key,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         line.low,
-        Vector3.scale(line.axis, Math.max(0, Math.min(line.length, s))),
+        AutoMovieEngineVector3.scale(line.axis, Math.max(0, Math.min(line.length, s))),
       ),
     );
     return { kind: "prop", subject: p.rope, point: key };

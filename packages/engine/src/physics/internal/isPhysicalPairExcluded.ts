@@ -3,7 +3,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 
 /*

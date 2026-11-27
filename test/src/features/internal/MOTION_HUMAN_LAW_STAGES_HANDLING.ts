@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeWearable, AutoMovieArchetypeBall, AutoMovieArchetypeTool, AutoMovieArchetypeVessel } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -12,7 +12,9 @@ import {
   AutoMovieMotionHumanChain,
   AutoMovieMotionHumanObject,
 } from "@automovie/motions";
-import { HumanFoot } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../packages/motions/src/posture/internal/HumanFoot";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -24,13 +26,13 @@ const grip = (id: string, y: number, toward: number): IAutoMovieAffordance => ({
   kind: "handle",
   frame: {
     translation: { x: 0, y, z: 0 },
-    rotation: Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, toward > 0 ? 180 : 0),
-        Quaternion.normalize(
-          Quaternion.multiply(
-            Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-            Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+    rotation: AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, toward > 0 ? 180 : 0),
+        AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
           ),
         ),
       ),
@@ -45,7 +47,7 @@ const grip = (id: string, y: number, toward: number): IAutoMovieAffordance => ({
 /** An upright 70 by 190 mm bottle standing at a point. */
 const bottle = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
   subject: "bottle",
-  frame: { position: at, rotation: Quaternion.identity() },
+  frame: { position: at, rotation: AutoMovieEngineQuaternion.identity() },
   points: {},
   shapes: [
     {
@@ -53,7 +55,7 @@ const bottle = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
       material: "glass",
       transform: {
         position: { x: 0, y: 0.095, z: 0 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       kind: "capsule",
       radius: 0.035,
@@ -358,7 +360,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
             y: bench,
             z: 0.3,
           },
-          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
         },
       ),
     ];

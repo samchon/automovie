@@ -5,7 +5,7 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeRock } from "../../nature/AutoMovieArchetypeRock";
 import type { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
-import * as ProjectileBandsData from "./internal/ProjectileBandsData";
+import { ProjectileBandsData } from "./internal/ProjectileBandsData";
 
 /*
  * The band of each free dimension of createProjectile an object leaves,

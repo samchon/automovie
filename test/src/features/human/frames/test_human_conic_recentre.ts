@@ -1,7 +1,7 @@
 import {
-  AutoMovieViewAxis,
-  AutoMovieViewChain,
-  AutoMovieViewJointedCourse,
+  AutoMovieEngineViewAxis,
+  AutoMovieEngineViewChain,
+  AutoMovieEngineViewJointedCourse,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -76,13 +76,13 @@ export function test_human_conic_recentre(): void {
       ...[0, 1, 2, 3].map((): number[] => knots.map((): number => rho)),
     ],
   };
-  const base: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight([1, 2, 3], [1, 0, 0], [0, 0, 1]);
+  const base: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.straight([1, 2, 3], [1, 0, 0], [0, 0, 1]);
   const line: IAutoMovieHumanConicRecentre.ILine = { u: knots.map((s: number): number => centre(s)[0]), v: knots.map((s: number): number => centre(s)[1]) };
   const moved: number[][] = Recentre.shift(family, line);
   const axis: IAutoMovieViewAxis.IAxis = Recentre.axis(base, knots, line);
   const world = (course: IAutoMovieViewAxis.IAxis, values: readonly (readonly number[])[], s: number, t: number): number[] => {
     const frame = course.at(s);
-    const r: number = AutoMovieViewChain.radius(S.chain(H.reader({ knots, values: values as number[][] })(s), layout), t);
+    const r: number = AutoMovieEngineViewChain.radius(S.chain(H.reader({ knots, values: values as number[][] })(s), layout), t);
     return [0, 1, 2].map((k: number): number => frame.origin[k]! + r * (Math.cos(t) * frame.u[k]! + Math.sin(t) * frame.v[k]!));
   };
   const agree = (what: string, s: number, t: number): number => {
@@ -95,7 +95,7 @@ export function test_human_conic_recentre(): void {
   for (const s of [0, 5, 12.5, 20, 30])
     for (let j: number = 0; j < 16; ++j) {
       const mapped: number = agree(`skin point at station ${s}, phase ${j}/16`, s, (2 * Math.PI * j) / 16 + 0.05);
-      const r: number = AutoMovieViewChain.radius(S.chain(H.reader({ knots, values: moved })(s), layout), mapped);
+      const r: number = AutoMovieEngineViewChain.radius(S.chain(H.reader({ knots, values: moved })(s), layout), mapped);
       near(`centred ellipse radius at station ${s}, phase ${j}/16`, [r], [(a * b) / Math.hypot(b * Math.cos(mapped), a * Math.sin(mapped))], 1e-9);
     }
 
@@ -146,8 +146,8 @@ export function test_human_conic_recentre(): void {
   near("least half length", [least], [(15 / 16) * (Math.PI / 2) * reach], 1e-12);
   for (const [factor, speed] of [[1, 0], [1.25, 0.2]] as const) {
     const corner: [number, number, number][] = [[0, 0, 0], [100, 0, 0], [100, 100, 0]];
-    const course: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(corner, [least * factor], [0, 0, 1]);
-    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(corner, [least * factor]);
+    const course: IAutoMovieViewAxis.IAxis | string = AutoMovieEngineViewAxis.jointed(corner, [least * factor], [0, 0, 1]);
+    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieEngineViewJointedCourse.prepare(corner, [least * factor]);
     if (typeof course === "string" || typeof prepared === "string") {
       failures.push("the made right-angle course was refused");
       continue;

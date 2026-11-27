@@ -1,4 +1,4 @@
-import { AutoMovieFrameGrid } from "@automovie/render";
+import { AutoMovieRenderFrameGrid } from "@automovie/render";
 import {
   type ChangeEvent,
   type JSX,
@@ -8,8 +8,8 @@ import {
   useSyncExternalStore,
 } from "react";
 
-import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
-import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
+import type { AutoMovieViewerInspectorPlayhead } from "../AutoMovieViewerInspectorPlayhead.js";
+import type { IAutoMovieViewerInspectorAction } from "../IAutoMovieViewerInspectorAction.js";
 import { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 
 /*
@@ -21,7 +21,7 @@ export function AutoMovieInspectorTimeReadout(props: {
   /*
    * The playhead shown and sought.
    */
-  playhead: AutoMovieInspectorPlayhead;
+  playhead: AutoMovieViewerInspectorPlayhead;
 
   /*
    * The subject's frames per second, so the slider steps from frame to frame of its grid, as a capture's seconds do; null before a subject is ready, when the slider steps freely.
@@ -31,9 +31,9 @@ export function AutoMovieInspectorTimeReadout(props: {
   /*
    * Where the sought second goes.
    */
-  dispatch: (action: IAutoMovieInspectorAction) => void;
+  dispatch: (action: IAutoMovieViewerInspectorAction) => void;
 }): JSX.Element {
-  const snapshot: AutoMovieInspectorPlayhead.ISnapshot = useSyncExternalStore(
+  const snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot = useSyncExternalStore(
     props.playhead.subscribe,
     props.playhead.getSnapshot,
   );
@@ -42,7 +42,7 @@ export function AutoMovieInspectorTimeReadout(props: {
   const was: RefObject<boolean> = useRef<boolean>(snapshot.playing);
   const { dispatch } = props;
   useEffect((): void => {
-    const stop: IAutoMovieInspectorAction.ITime | null =
+    const stop: IAutoMovieViewerInspectorAction.ITime | null =
       AutoMovieViewerInspector.stopTime(was.current, snapshot);
     if (stop !== null) dispatch(stop);
     was.current = snapshot.playing;
@@ -50,16 +50,16 @@ export function AutoMovieInspectorTimeReadout(props: {
 
   // Integer slider positions keep the end reachable even between regular frames.
   const { fps }: typeof props = props;
-  const { durationSeconds, seconds }: AutoMovieInspectorPlayhead.ISnapshot =
+  const { durationSeconds, seconds }: AutoMovieViewerInspectorPlayhead.ISnapshot =
     snapshot;
   const last: number =
     fps === null
       ? durationSeconds
-      : AutoMovieFrameGrid.last(durationSeconds, fps);
+      : AutoMovieRenderFrameGrid.last(durationSeconds, fps);
   const position: number =
     fps === null
       ? seconds
-      : AutoMovieFrameGrid.nearest(seconds, durationSeconds, fps, last);
+      : AutoMovieRenderFrameGrid.nearest(seconds, durationSeconds, fps, last);
 
   return (
     <>
@@ -81,7 +81,7 @@ export function AutoMovieInspectorTimeReadout(props: {
           props.playhead.seek(
             fps === null
               ? value
-              : AutoMovieFrameGrid.time(value, durationSeconds, fps),
+              : AutoMovieRenderFrameGrid.time(value, durationSeconds, fps),
           );
           props.dispatch({
             type: "time",

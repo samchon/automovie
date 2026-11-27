@@ -57,7 +57,7 @@ export namespace IAutoMovieConstructionSplitCompose {
     /**
      * Each seam's valley as the seam's knots `[along, depth]`, mm, in the
      * seam's own plane coordinates from its first fork on the host's ring
-     * (`AutoMovieConstructionSplitSeam.create`): at each place along the chord
+     * (`AutoMovieEngineConstructionSplitSeam.create`): at each place along the chord
      * the deeper of the two children's cuts by the seam plane.
      */
     valleys: [number, number][][];

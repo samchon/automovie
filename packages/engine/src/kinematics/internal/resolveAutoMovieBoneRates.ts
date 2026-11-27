@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineSkeletonRootParent } from "../AutoMovieEngineSkeletonRootParent";
 
 /*
  * Propagate declared instantaneous local rotation rates through native FK.
@@ -58,20 +58,20 @@ export function resolveAutoMovieBoneRates(
 
     // A fixed offset moves with the parent only. The child's own rotation
     // affects its attached mass points later, not its joint origin here.
-    const offset: IAutoMovieVector3 = Vector3.subtract(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       bone.worldPosition,
       parentPosition,
     );
-    const linear: IAutoMovieVector3 = Vector3.add(
+    const linear: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parentRate.linear,
-      Vector3.cross(parentRate.angular, offset),
+      AutoMovieEngineVector3.cross(parentRate.angular, offset),
     );
 
     // Right-trivialized local rates live in the moving child frame, so the
     // complete child world rotation carries them into the common frame.
-    const angular: IAutoMovieVector3 = Vector3.add(
+    const angular: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parentRate.angular,
-      Quaternion.rotateVector(bone.worldRotation, local),
+      AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, local),
     );
 
     const rate: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate = { linear, angular };
@@ -82,7 +82,7 @@ export function resolveAutoMovieBoneRates(
   };
 
   for (const definition of topology.childrenByParent.get(
-    SKELETON_ROOT_PARENT,
+    AutoMovieEngineSkeletonRootParent,
   ) ?? [])
     if (!walk(definition, root.position, root)) return undefined;
 

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -53,7 +53,7 @@ export function ArmourLimb(
     : ArmourCell.minimumDistance(lattice.values(), centre);
   for (let index: number = 0; index < count; index++) {
     const canonical: number = profile.fitted ? 0 : index % (count / 2);
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       (-360 * (index - canonical)) / count,
     );

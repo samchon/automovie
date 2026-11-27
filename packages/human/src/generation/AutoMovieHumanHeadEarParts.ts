@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewOutline, AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanEar,
   IAutoMovieHumanHeadDome,
@@ -328,7 +328,7 @@ export namespace AutoMovieHumanHeadEarParts {
         );
       const source:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create({
         knots: course.map(
           (
             point: [number, number, number],
@@ -343,9 +343,9 @@ export namespace AutoMovieHumanHeadEarParts {
       if ("detail" in source)
         throw new Error(`Helix height source: ${source.detail}`);
       return Math.max(
-        ...[...stations, ...AutoMovieViewOutline.criticalStations(source)].map(
+        ...[...stations, ...AutoMovieEngineViewOutline.criticalStations(source)].map(
           (station: number): number => {
-            const value: number | string = AutoMovieViewOutline.value(
+            const value: number | string = AutoMovieEngineViewOutline.value(
               source,
               station,
             );
@@ -411,7 +411,7 @@ export namespace AutoMovieHumanHeadEarParts {
           extents: e,
           height: h,
           profile,
-          shoulder: AutoMovieViewSection.ELLIPSE,
+          shoulder: AutoMovieEngineViewSection.ELLIPSE,
         },
         host,
         seed,

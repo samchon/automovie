@@ -1,4 +1,4 @@
-import { AffordanceArticulation } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPropReader,
@@ -39,7 +39,7 @@ export namespace writeAdmission {
     if (
       prop.point !== undefined ||
       (prop.articulate !== undefined &&
-        (site.rides !== undefined || AffordanceArticulation.KINDS.has(site.kind)))
+        (site.rides !== undefined || AutoMovieEngineAffordanceArticulation.KINDS.has(site.kind)))
     )
       throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",

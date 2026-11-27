@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -59,7 +59,7 @@ export function touchPresented(
   });
   // The fingers point toward the touching hand's side: world +X is the
   // body's left at yaw 0.
-  const across: IAutoMovieVector3 = Quaternion.rotateVector(
+  const across: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     HumanFrame.turn(entry.yaw),
     { x: side === "left" ? 1 : -1, y: 0, z: 0 },
   );

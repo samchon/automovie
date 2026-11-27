@@ -14,7 +14,7 @@ export namespace IAutoMovieMotionAudit {
    * description.
    *
    * The union requires either a physical profile or geometry-only description
-   * and excludes supplying both. AutoMovieMotionAudit reads the selected
+   * and excludes supplying both. AutoMovieEngineMotionAudit reads the selected
    * description through motionAuditGeometry; frame body identity comes from the
    * inherited policy id. admitPhysicalMotionAudit validates the selected
    * representation before sampling; neither branch makes the audited poses a
@@ -56,7 +56,7 @@ export namespace IAutoMovieMotionAudit {
    *
    * Speed limits are m/s, angular limits radians and geometric tolerances
    * metres; support windows use inclusive film seconds and world bone-origin
-   * points. AutoMovieMotionAudit reads these limits independently of the
+   * points. AutoMovieEngineMotionAudit reads these limits independently of the
    * observed frame; absent speed entries are unbounded and absent constraints
    * add no extra checks. Admission requires finite nonnegative tolerances and
    * valid body-local references. Compression allowance is opt-in; inter-body
@@ -118,7 +118,7 @@ export namespace IAutoMovieMotionAudit {
    * bound.
    *
    * Kind selects actual and limit units: m/s for speed, radians for angle or
-   * joint, metres for all other kinds. AutoMovieMotionAudit allocates findings
+   * joint, metres for all other kinds. AutoMovieEngineMotionAudit allocates findings
    * in sample traversal order and labels the responsible segment, joint,
    * constraint or inter-body pair. Every violation is retained; the record
    * contains a measured value and the failed bound rather than a corrected pose
@@ -161,7 +161,7 @@ export namespace IAutoMovieMotionAudit {
    *
    * Start and end are finite film seconds with end >= start; rate is positive
    * finite samples/s and floor is finite world Y in metres.
-   * AutoMovieMotionAudit retains the preceding frame for speed differences
+   * AutoMovieEngineMotionAudit retains the preceding frame for speed differences
    * during the run. sample and allowed are synchronous callbacks whose
    * exceptions reject the promise. Admission validates policies and sampled
    * frame completeness; callers keep returned frames stable through the next

@@ -9,8 +9,8 @@ import {
 } from "@automovie/interface";
 
 import { appendMeshTopology } from "./appendMeshTopology";
-import { AUTOMOVIE_ARKIT_CHANNELS } from "../AUTOMOVIE_ARKIT_CHANNELS";
-import { AUTOMOVIE_EXPRESSION_PRESETS } from "../AUTOMOVIE_EXPRESSION_PRESETS";
+import { AutoMovieEngineArkitChannels } from "../AutoMovieEngineArkitChannels";
+import { AutoMovieEngineExpressionPresets } from "../AutoMovieEngineExpressionPresets";
 
 /*
  * Admit tuple/cardinality buffers, dense finite numeric elements, vertex
@@ -358,7 +358,7 @@ const validateMeshTargets: (
 ): void => {
   const names: Set<string> = new Set<string>();
   const expressionNames: Set<string> = new Set<string>(
-    [...AUTOMOVIE_EXPRESSION_PRESETS, ...AUTOMOVIE_ARKIT_CHANNELS].map(
+    [...AutoMovieEngineExpressionPresets, ...AutoMovieEngineArkitChannels].map(
       (name: string): string => name.toLowerCase(),
     ),
   );

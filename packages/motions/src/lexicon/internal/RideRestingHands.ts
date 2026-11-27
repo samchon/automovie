@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -41,17 +41,17 @@ export function RideRestingHands(
       ]),
     ),
   );
-  const back: IAutoMovieQuaternion = Quaternion.inverse(
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     humanPostureHeading(seated),
   );
   const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Quaternion.rotateVector(back, Vector3.subtract(point, seated.root));
+    AutoMovieEngineQuaternion.rotateVector(back, AutoMovieEngineVector3.subtract(point, seated.root));
   const rests: RideRestingHands.Rests = {};
   for (const side of sides) {
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
     rests[side] = {
       offset: local(hand.worldPosition),
-      turn: Quaternion.multiply(back, hand.worldRotation),
+      turn: AutoMovieEngineQuaternion.multiply(back, hand.worldRotation),
       elbow: local(bones.get(`${side}LowerArm`)!.worldPosition),
     };
   }
@@ -112,14 +112,14 @@ export namespace RideRestingHands {
   ): IAutoMovieHumanLimbGoal {
     const heading: IAutoMovieQuaternion = humanPostureHeading(posture);
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         posture.root,
-        Quaternion.rotateVector(heading, rest.offset),
+        AutoMovieEngineQuaternion.rotateVector(heading, rest.offset),
       ),
-      rotation: Quaternion.multiply(heading, rest.turn),
-      bend: Vector3.add(
+      rotation: AutoMovieEngineQuaternion.multiply(heading, rest.turn),
+      bend: AutoMovieEngineVector3.add(
         posture.root,
-        Quaternion.rotateVector(heading, rest.elbow),
+        AutoMovieEngineQuaternion.rotateVector(heading, rest.elbow),
       ),
     };
   }

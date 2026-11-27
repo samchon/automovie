@@ -1,4 +1,6 @@
-import { assertAutoMovieInspectorRaster } from "@automovie/viewer/internal";
+import {
+  assertAutoMovieInspectorRaster
+} from "../../../../../packages/viewer/src/inspector/internal/assertAutoMovieInspectorRaster";
 import { TestValidator } from "@nestia/e2e";
 
 /**

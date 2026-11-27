@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -224,7 +224,7 @@ export namespace useTool {
     const left: IAutoMovieVector3 = axes({ x: 1, y: 0, z: 0 });
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-    const inward: IAutoMovieVector3 = Vector3.scale(
+    const inward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       left,
       side === "left" ? -1 : 1,
     );
@@ -236,11 +236,11 @@ export namespace useTool {
       subject,
     );
     const face: IPlanFace = AutoMovieMotionHumanHeld.point(held, "face");
-    const reach: IAutoMovieVector3 = Vector3.subtract(
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       face.point,
       AutoMovieMotionHumanHeld.point(held, "grip").point,
     );
-    const length: number = Vector3.length(reach);
+    const length: number = AutoMovieEngineVector3.length(reach);
 
     // A face no farther from the grip than the closed hand's own half
     // thickness, bounded by the wrist's radius, lies inside the fist and
@@ -253,7 +253,7 @@ export namespace useTool {
         reason: `${subject}'s face lies ${(length * 1000).toFixed(1)} mm from its grip, inside the hand that holds it (${(m.forearmRadius * 1000).toFixed(0)} mm)`,
         fix: "hold a tool whose working face stands off its grip, as createTool's do",
       });
-    const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / length);
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.scale(reach, 1 / length);
     const work: HumanToolWork.IWork = HumanToolWork(context, {
       kind,
       on: context.params.on,
@@ -267,7 +267,7 @@ export namespace useTool {
       "grip",
       "relaxed",
     ).point;
-    const contact: IAutoMovieVector3 = Vector3.add(gripOffset, face.point);
+    const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(gripOffset, face.point);
 
     // The working pose: the hand turned the least that lays the tool's line
     // on the work's, with a hammer's face and a saw's teeth turned down. A
@@ -275,7 +275,7 @@ export namespace useTool {
     // names no side to turn down, so the palm keys the turn instead.
     const keyed: boolean =
       (kind === "hammer" || kind === "saw") &&
-      Math.abs(Vector3.dot(face.direction, line)) < 0.95;
+      Math.abs(AutoMovieEngineVector3.dot(face.direction, line)) < 0.95;
     const align: ReturnType<typeof HumanHand.prepareAlignment> =
       HumanHand.prepareAlignment({
         normal: line,
@@ -290,9 +290,9 @@ export namespace useTool {
       });
       return {
         axis,
-        grip: Vector3.subtract(
+        grip: AutoMovieEngineVector3.subtract(
           on,
-          Quaternion.rotateVector(rotation, face.point),
+          AutoMovieEngineQuaternion.rotateVector(rotation, face.point),
         ),
         rotation,
       };
@@ -344,8 +344,8 @@ export namespace useTool {
     // own width where the tool declares one, else the timing law's rule for
     // a target of no measured width (`AutoMovieMotionHumanTiming`).
     const travel: number = AutoMovieMotionHumanTiming(
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           pose.grip,
           AutoMovieMotionHumanArm.point(context.entry.posture, origin),
         ),
@@ -511,9 +511,9 @@ export namespace useTool {
                     seconds <= ready || seconds >= recover
                       ? edge
                       : cycle(((seconds - ready) / strokePeriod + 0.5) % 1);
-                  return Vector3.add(
+                  return AutoMovieEngineVector3.add(
                     at.grip,
-                    Quaternion.rotateVector(at.rotation, face.point),
+                    AutoMovieEngineQuaternion.rotateVector(at.rotation, face.point),
                   );
                 },
               },

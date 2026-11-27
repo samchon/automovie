@@ -1,8 +1,8 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematicsChains,
 } from "@automovie/engine";
 import type {
@@ -124,9 +124,9 @@ export namespace HumanGrip {
     );
     return {
       bones: list,
-      tip: Vector3.add(
+      tip: AutoMovieEngineVector3.add(
         distal.transform.position,
-        Quaternion.rotateVector(distal.transform.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(distal.transform.rotation, {
           x: 0,
           y: distal.halfLength,
           z: 0,
@@ -172,9 +172,9 @@ export namespace HumanGrip {
       undefined,
       new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
-    const carry: IAutoMovieQuaternion = Quaternion.multiply(
+    const carry: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       rest.worldRotation,
-      Quaternion.inverse(hand.rotation),
+      AutoMovieEngineQuaternion.inverse(hand.rotation),
     );
     const moved: IAutoMovieCurlChainUntilContact.ICollider[] = colliders.map(
       (
@@ -182,15 +182,15 @@ export namespace HumanGrip {
       ): IAutoMovieCurlChainUntilContact.ICollider => ({
         shape: c.shape,
         frame: {
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             rest.worldPosition,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               carry,
-              Vector3.subtract(c.frame.position, hand.point),
+              AutoMovieEngineVector3.subtract(c.frame.position, hand.point),
             ),
           ),
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(carry, c.frame.rotation),
+          rotation: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(carry, c.frame.rotation),
           ),
         },
       }),
@@ -222,8 +222,8 @@ export namespace HumanGrip {
           ): IAutoMovieCurlChainUntilContact.IChain => chain(body, side, d),
         ),
         colliders: moved,
-        jointAxes: HUMANOID_JOINT_AXES,
-        restFrames: HUMANOID_REST_FRAME,
+        jointAxes: AutoMovieEngineHumanoidJointAxes,
+        restFrames: AutoMovieEngineHumanoidRestFrame,
         topology: body.topology,
         resolution: body.poseResolution,
       });
@@ -317,9 +317,9 @@ export namespace HumanGrip {
       const prepared: IAutoMovieCurlChainUntilContact.IChain =
         digit === "Thumb" ? thumb : index;
       const distal: IAutoMovieResolvedBone = resolved.get(prepared.bones[2]!)!;
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         distal.worldPosition,
-        Quaternion.rotateVector(distal.worldRotation, prepared.tip),
+        AutoMovieEngineQuaternion.rotateVector(distal.worldRotation, prepared.tip),
       );
     };
     return (joints: IAutoMovieMotionHumanPosture["joints"]): number => {
@@ -327,7 +327,7 @@ export namespace HumanGrip {
       const staged: ReturnType<typeof readTips> = readTips(joints);
       const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         staged({ skeleton, root: null }, resolution());
-      return Vector3.distance(tip(resolved, "Thumb"), tip(resolved, "Index"));
+      return AutoMovieEngineVector3.distance(tip(resolved, "Thumb"), tip(resolved, "Index"));
     };
   }
 }

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeSword } from "../AutoMovieArchetypeSword";
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieArchetype,
@@ -85,7 +85,7 @@ export function createSword(
     name: AutoMovieArchetypeSword.NAMES[kind],
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const shape: AutoMovieArchetypeSword.IShape = AutoMovieArchetypeSword.SHAPES[kind];
   const n: number = AutoMovieArchetypeSword.SEGMENTS;
 
@@ -101,10 +101,10 @@ export function createSword(
   for (let k: number = 0; k < n; k++) {
     const from: IAutoMovieVector3 = along(k / n);
     const to: IAutoMovieVector3 = along((k + 1) / n);
-    const span: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
     const middle: number = taper((k + 0.5) / n);
-    weights.push(Vector3.length(span) * middle * middle);
-    centres.push(Vector3.scale(Vector3.add(from, to), 0.5));
+    weights.push(AutoMovieEngineVector3.length(span) * middle * middle);
+    centres.push(AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5));
   }
 
   // The hilt under the guard: guard, grip, pommel.
@@ -130,7 +130,7 @@ export function createSword(
   const heavy: number = (blade - d.balance) / (blade - low);
 
   for (let k: number = 0; k < n; k++) {
-    const span: IAutoMovieVector3 = Vector3.subtract(
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       along((k + 1) / n),
       along(k / n),
     );
@@ -139,7 +139,7 @@ export function createSword(
       `blade-${k + 1}`,
       v(
         AutoMovieArchetypeSword.THICKNESS * middle,
-        Vector3.length(span),
+        AutoMovieEngineVector3.length(span),
         d.bladeWidth * middle,
       ),
       centres[k]!,
@@ -206,7 +206,7 @@ export function createSword(
   // The edges at the middle of the blade, each facing the way it cuts; the flat that takes a parry; the point.
   const middle: IAutoMovieVector3 = along(0.5);
   const half: number = (d.bladeWidth * taper(0.5)) / 2;
-  const chord: IAutoMovieVector3 = Vector3.subtract(along(1), along(0));
+  const chord: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(along(1), along(0));
   for (const [id, sign] of [
     ["edge", 1],
     ["falseEdge", -1],

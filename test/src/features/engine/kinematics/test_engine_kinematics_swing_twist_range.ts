@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, swingTwistRange } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineSwingTwistRange } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointRotationFrame,
@@ -104,10 +104,10 @@ export function test_engine_kinematics_swing_twist_range(): void {
   }
 
   scenario("immutable prepared numerical readings", (): void => {
-    const prepared: IAutoMovieJointRotationFrame = swingTwistRange.prepare(
+    const prepared: IAutoMovieJointRotationFrame = AutoMovieEngineSwingTwistRange.prepare(
       "leftUpperArm",
       joint,
-      DEFAULT_HUMANOID_ROM.leftUpperArm!,
+      AutoMovieEngineDefaultHumanoidRom.leftUpperArm!,
     );
     if (
       !(
@@ -117,15 +117,15 @@ export function test_engine_kinematics_swing_twist_range(): void {
       )
     )
       findings.push("prepared wrapper does not own exactly its borrowed frame");
-    const a: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
+    const a: IAutoMovieSwingTwistRange.IReading = AutoMovieEngineSwingTwistRange.read(
       rotation(0, 30),
       prepared,
     );
-    const b: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
+    const b: IAutoMovieSwingTwistRange.IReading = AutoMovieEngineSwingTwistRange.read(
       rotation(20, -15),
       prepared,
     );
-    const restored: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
+    const restored: IAutoMovieSwingTwistRange.IReading = AutoMovieEngineSwingTwistRange.read(
       rotation(0, 30),
       prepared,
     );
@@ -146,7 +146,7 @@ export function test_engine_kinematics_swing_twist_range(): void {
     const sign: IAutoMovieQuaternion = rotation(0, 30);
     physical(
       "opposite quaternion sign",
-      swingTwistRange.read(
+      AutoMovieEngineSwingTwistRange.read(
         {
           x: -sign.x,
           y: -sign.y,
@@ -174,7 +174,7 @@ export function test_engine_kinematics_swing_twist_range(): void {
     };
     physical(
       "raw before axes edit",
-      swingTwistRange.read(rotation(0, 30), raw),
+      AutoMovieEngineSwingTwistRange.read(rotation(0, 30), raw),
       0,
       30,
     );
@@ -182,22 +182,22 @@ export function test_engine_kinematics_swing_twist_range(): void {
     if (
       !throwsError(
         (): IAutoMovieSwingTwistRange.IReading =>
-          swingTwistRange.read(rotation(0, 30), raw),
+          AutoMovieEngineSwingTwistRange.read(rotation(0, 30), raw),
         "flexion",
       )
     )
       findings.push("a warmed ordinary frame skipped current axis admission");
     raw.axes.flexion.x = 1;
-    physical("raw recovery", swingTwistRange.read(rotation(0, 30), raw), 0, 30);
+    physical("raw recovery", AutoMovieEngineSwingTwistRange.read(rotation(0, 30), raw), 0, 30);
 
-    const prepared: IAutoMovieJointRotationFrame = swingTwistRange.prepare(
+    const prepared: IAutoMovieJointRotationFrame = AutoMovieEngineSwingTwistRange.prepare(
       "leftUpperArm",
       joint,
-      DEFAULT_HUMANOID_ROM.leftUpperArm!,
+      AutoMovieEngineDefaultHumanoidRom.leftUpperArm!,
     );
     physical(
       "source wrapper warmed",
-      swingTwistRange.read(rotation(0, 30), prepared),
+      AutoMovieEngineSwingTwistRange.read(rotation(0, 30), prepared),
       0,
       30,
     );
@@ -217,7 +217,7 @@ export function test_engine_kinematics_swing_twist_range(): void {
       if (
         !throwsError(
           (): IAutoMovieSwingTwistRange.IReading =>
-            swingTwistRange.read(rotation(0, 30), frame),
+            AutoMovieEngineSwingTwistRange.read(rotation(0, 30), frame),
           "flexion",
         )
       )
@@ -226,7 +226,7 @@ export function test_engine_kinematics_swing_twist_range(): void {
         );
     physical(
       "original wrapper remains valid",
-      swingTwistRange.read(rotation(0, 30), prepared),
+      AutoMovieEngineSwingTwistRange.read(rotation(0, 30), prepared),
       0,
       30,
     );

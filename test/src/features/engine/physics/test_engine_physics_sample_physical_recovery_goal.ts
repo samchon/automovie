@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieSamplePhysicalRecoveryGoal } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -20,10 +20,10 @@ const DIFFERENCE: number = 1e-4;
  * 1. At several clocks inside the swing the acceleration matches the central
  *    difference of the sampled velocity, horizontally and vertically.
  * 2. The horizontal acceleration's peak, at progress 1/2 - sqrt(3)/6, is
- *    `AutoMoviePhysicalBalance.MINIMUM_JERK` d / T^2.
+ *    `AutoMovieEnginePhysicalBalance.MINIMUM_JERK` d / T^2.
  * 3. The clearance h 16 (p (1 - p))^2 starts and ends at rest, decelerates at -16
  *    h / T^2 at mid-swing, and its acceleration peaks at
- *    `AutoMoviePhysicalBalance.CLEARANCE` h / T^2 at lift-off.
+ *    `AutoMovieEnginePhysicalBalance.CLEARANCE` h / T^2 at lift-off.
  * 4. Before and after the swing the acceleration is zero.
  */
 export function test_engine_physics_sample_physical_recovery_goal(): void {
@@ -68,7 +68,7 @@ export function test_engine_physics_sample_physical_recovery_goal(): void {
   }
   const peak: number = (0.5 - Math.sqrt(3) / 6) * T;
   const expected: number =
-    (AutoMoviePhysicalBalance.MINIMUM_JERK * Math.hypot(dx, dz)) / (T * T);
+    (AutoMovieEnginePhysicalBalance.MINIMUM_JERK * Math.hypot(dx, dz)) / (T * T);
   const a = sample(peak).acceleration;
   const actual: number = Math.hypot(a.x, a.z);
   if (
@@ -88,7 +88,7 @@ export function test_engine_physics_sample_physical_recovery_goal(): void {
   )
     failures.push(`mid-swing vertical acceleration ${middle}, not -16 h / T^2`);
   const start: number = sample(1e-9).acceleration.y;
-  const peakUp: number = (AutoMoviePhysicalBalance.CLEARANCE * 0.05) / (T * T);
+  const peakUp: number = (AutoMovieEnginePhysicalBalance.CLEARANCE * 0.05) / (T * T);
   if (!(Math.abs(start - peakUp) <= PhysicalTolerance.CONVERGED * peakUp))
     failures.push(
       `lift-off vertical acceleration ${start}, not CLEARANCE h / T^2`,

@@ -1,4 +1,4 @@
-import { AutoMovieEngineMath, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -137,28 +137,28 @@ function plan(
     side,
     "grip",
   ).point;
-  const socket: IAutoMovieVector3 = Vector3.add(
+  const socket: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     hand.worldPosition,
-    Quaternion.rotateVector(hand.worldRotation, grip),
+    AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, grip),
   );
   const frame: IAutoMovieRigidTransform = context
     .prop(p.prop)
     .frame(context.entry.seconds);
-  const outlet: IAutoMovieVector3 = Vector3.add(
+  const outlet: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, nozzle.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, nozzle.frame.translation),
   );
-  const discharge: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(frame.rotation, nozzle.frame.rotation),
+  const discharge: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, nozzle.frame.rotation),
     { x: 0, y: 1, z: 0 },
   );
   const fire: IAutoMovieVector3 = context.aim(p.target, context.start).point;
   const aim: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
     discharge,
-    Vector3.subtract(fire, outlet),
+    AutoMovieEngineVector3.subtract(fire, outlet),
   );
-  const aimed: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(aim, hand.worldRotation),
+  const aimed: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(aim, hand.worldRotation),
   );
   const clock: IAutoMovieMotionClock = sweep.clock;
   const ready: number = clock.at("strokeStart");
@@ -166,9 +166,9 @@ function plan(
   const turn: (seconds: number) => IAutoMovieQuaternion = (
     seconds: number,
   ): IAutoMovieQuaternion =>
-    Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, sweep.yaw(seconds)),
+    AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, sweep.yaw(seconds)),
         aimed,
       ),
     );
@@ -238,9 +238,9 @@ function plan(
             _posture: IAutoMovieMotionHumanPosture,
             seconds: number,
           ): IAutoMovieHumanLimbGoal => ({
-            point: Vector3.subtract(
+            point: AutoMovieEngineVector3.subtract(
               socket,
-              Quaternion.rotateVector(turn(seconds), grip),
+              AutoMovieEngineQuaternion.rotateVector(turn(seconds), grip),
             ),
             rotation: turn(seconds),
             contact: grip,

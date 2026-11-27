@@ -1,5 +1,7 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import { markMotionCaptureCase } from "@automovie/motions/internal";
+import {
+  markMotionCaptureCase
+} from "../../../../../packages/motions/src/capture/internal/markMotionCaptureCase";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,7 +1,7 @@
 import {
-  AutoMovieViewAxisJet,
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
+  AutoMovieEngineViewAxisJet,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
 } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
@@ -152,7 +152,7 @@ export namespace AutoMovieHumanNativeControlLaw {
                 ? a.first.origin[k]! + h1 * d + h * d1
                 : a.second.origin[k]! + h2 * d + 2 * h1 * d1 + h * d2;
           }) as [number, number, number];
-        return AutoMovieViewAxisJet.parameter(
+        return AutoMovieEngineViewAxisJet.parameter(
           {
             value: { origin: origin(0), u: b.value.u, v: b.value.v },
             first: { origin: origin(1), u: b.first.u, v: b.first.v },
@@ -220,9 +220,9 @@ export namespace AutoMovieHumanNativeControlLaw {
         "protected source interval/junction must be finite and ordered",
       );
     const old: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-      AutoMovieViewOutline.create(original, originalEnds);
+      AutoMovieEngineViewOutline.create(original, originalEnds);
     const next: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-      AutoMovieViewOutline.create(changed, changedEnds);
+      AutoMovieEngineViewOutline.create(changed, changedEnds);
     if ("contract" in old) throw new Error(old.detail);
     if ("contract" in next) throw new Error(next.detail);
     const sameParameter: boolean =
@@ -249,11 +249,11 @@ export namespace AutoMovieHumanNativeControlLaw {
       throw new Error("protected interval leaves an original source domain");
     if (original === changed && sameParameter) return original;
     const span: number =
-      AutoMovieViewParameter.at(
+      AutoMovieEngineViewParameter.at(
         next.parameter,
         Math.max(next.domain[1], held[1]),
       ) -
-      AutoMovieViewParameter.at(
+      AutoMovieEngineViewParameter.at(
         next.parameter,
         Math.min(next.domain[0], held[0]),
       );
@@ -266,11 +266,11 @@ export namespace AutoMovieHumanNativeControlLaw {
     if (request.type === "junction") {
       const station: number = request.station;
       const bound: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(old, station);
+        AutoMovieEngineViewOutline.at(old, station);
       const free: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(next, station);
+        AutoMovieEngineViewOutline.at(next, station);
       const transfer: [number, number] | null =
-        AutoMovieViewParameter.transferJet(
+        AutoMovieEngineViewParameter.transferJet(
           old.parameter,
           next.parameter,
           station,
@@ -333,9 +333,9 @@ export namespace AutoMovieHumanNativeControlLaw {
         const keep: boolean = station >= held[0] && station <= held[1];
         const owner: IAutoMovieViewOutline.IOutline = keep ? old : next;
         const read: IAutoMovieViewOutline.IReading | string =
-          AutoMovieViewOutline.at(owner, station);
+          AutoMovieEngineViewOutline.at(owner, station);
         const transfer: [number, number] | null =
-          AutoMovieViewParameter.transferJet(
+          AutoMovieEngineViewParameter.transferJet(
             owner.parameter,
             next.parameter,
             station,

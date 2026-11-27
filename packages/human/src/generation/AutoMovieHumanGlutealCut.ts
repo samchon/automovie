@@ -1,4 +1,4 @@
-import { AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieSolidVector, AutoMovieViewOutline, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineIllinois, AutoMovieEngineLoftSectionNative, AutoMovieEngineLoftViewRead, AutoMovieEngineLoftViewSource, AutoMovieEngineSolidVector, AutoMovieEngineViewOutline, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanGlutealCut,
@@ -51,7 +51,7 @@ export namespace AutoMovieHumanGlutealCut {
       return `${part.name}: level cut needs a finite height and at least four integer phases.`;
     try {
       const prepared: IAutoMovieLoftViewSource.IResult | null =
-        AutoMovieLoftViewSource.create(part);
+        AutoMovieEngineLoftViewSource.create(part);
       if (prepared === null || prepared.source === null)
         return `${part.name}: level cut needs its admitted direct-fullness original: ${JSON.stringify(prepared?.diagnostics ?? [])}`;
       const source: IAutoMovieLoftViewSource.ISource = prepared.source;
@@ -62,7 +62,7 @@ export namespace AutoMovieHumanGlutealCut {
         let station: Station | string | undefined = cache.get(s);
         if (station === undefined) {
           const values: IAutoMovieLoftViewRead.IValues | string =
-            AutoMovieLoftViewRead.values(source, s);
+            AutoMovieEngineLoftViewRead.values(source, s);
           station =
             typeof values === "string"
               ? values
@@ -72,7 +72,7 @@ export namespace AutoMovieHumanGlutealCut {
                     (value: number): boolean => value === 0,
                   )
                     ? null
-                    : AutoMovieLoftSectionNative.point(values),
+                    : AutoMovieEngineLoftSectionNative.point(values),
                 };
           cache.set(s, station);
         }
@@ -81,11 +81,11 @@ export namespace AutoMovieHumanGlutealCut {
           return { point: [...station.frame.origin], collapsed: true };
         const local: [number, number] = station.point(phi);
         return {
-          point: AutoMovieSolidVector.add(
+          point: AutoMovieEngineSolidVector.add(
             station.frame.origin,
-            AutoMovieSolidVector.add(
-              AutoMovieSolidVector.scale(station.frame.u, local[0]),
-              AutoMovieSolidVector.scale(station.frame.v, local[1]),
+            AutoMovieEngineSolidVector.add(
+              AutoMovieEngineSolidVector.scale(station.frame.u, local[0]),
+              AutoMovieEngineSolidVector.scale(station.frame.v, local[1]),
             ),
           ),
           collapsed: false,
@@ -111,7 +111,7 @@ export namespace AutoMovieHumanGlutealCut {
             Math.abs(residual) > TOLERANCE &&
             prior.residual * residual < 0
           ) {
-            const root: number | null = AutoMovieIllinois.root(
+            const root: number | null = AutoMovieEngineIllinois.root(
               (q: number): number => {
                 const read: Reading | string = at(q, phi);
                 if (typeof read === "string") throw new Error(read);
@@ -142,8 +142,8 @@ export namespace AutoMovieHumanGlutealCut {
         if (typeof jet === "string")
           return `${part.name}: level cut transversality is unavailable: ${jet}`;
         if (
-          AutoMovieSolidVector.norm(
-            AutoMovieSolidVector.sub(jet.p, read.point),
+          AutoMovieEngineSolidVector.norm(
+            AutoMovieEngineSolidVector.sub(jet.p, read.point),
           ) > TOLERANCE
         )
           return `${part.name}: original value and physical jet do not share the cut point.`;
@@ -196,7 +196,7 @@ function stations(
         ...outline.knots.map(
           (knot: IAutoMovieViewPart.IKnot): number => knot.station,
         ),
-        ...AutoMovieViewOutline.criticalStations(outline),
+        ...AutoMovieEngineViewOutline.criticalStations(outline),
       ],
     ),
     ...source.caps.flatMap(
@@ -239,7 +239,7 @@ interface Station {
   /*
    * Null is the actual collapsed axis point, not a regular section.
    */
-  point: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
+  point: ReturnType<typeof AutoMovieEngineLoftSectionNative.point> | null;
 }
 
 /*

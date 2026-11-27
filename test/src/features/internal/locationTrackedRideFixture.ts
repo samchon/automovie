@@ -1,4 +1,9 @@
-import { AutoMovieEnvironmentRide, AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import {
+  AutoMovieArchetypeEnvironmentRide
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentRide";
+import {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentRecipe,
@@ -13,7 +18,7 @@ export function locationTrackedRideFixture(
   course: IAutoMovieTrackCourse.IPrepared;
   carrier: string;
 } {
-  const course: IAutoMovieTrackCourse.IPrepared = AutoMovieEnvironmentRide.trackedCourse({
+  const course: IAutoMovieTrackCourse.IPrepared = AutoMovieArchetypeEnvironmentRide.trackedCourse({
     points: [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 5 },
@@ -29,15 +34,15 @@ export function locationTrackedRideFixture(
   return {
     carrier: "park/coaster/carrier",
     course,
-    environment: AutoMovieEnvironment.create({
+    environment: AutoMovieArchetypeEnvironment.create({
       id: "park",
       items: {
         ...additions,
         coaster: {
           at: { x: 4, y: 0, z: -7 },
-          use: AutoMovieEnvironmentRide.trackedRide({
+          use: AutoMovieArchetypeEnvironmentRide.trackedRide({
             course,
-            car: AutoMovieEnvironmentRide.coasterCar(),
+            car: AutoMovieArchetypeEnvironmentRide.coasterCar(),
             boarding: "boarding",
             schedule: [
               { seconds: 0, distance: 0 },

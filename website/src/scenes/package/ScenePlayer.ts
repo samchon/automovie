@@ -1,8 +1,8 @@
 import {
-  AutoMovieFrameGrid,
-  AutoMovieHumanPolygon,
+  AutoMovieRenderFrameGrid,
+  AutoMovieRenderHumanPolygon,
   AutoMovieRenderSceneLayout,
-  type IAutoMovieModelObject,
+  type IAutoMovieRenderModelObject,
 } from "@automovie/render";
 import * as THREE from "three";
 
@@ -24,7 +24,7 @@ interface IPropDrawing {
   group: THREE.Group;
 
   /** The model's articulated parts by part id. */
-  parts: IAutoMovieModelObject["parts"];
+  parts: IAutoMovieRenderModelObject["parts"];
 
   /** Each light's setter for a film second. */
   lights: ((seconds: number) => void)[];
@@ -117,7 +117,7 @@ export namespace ScenePlayer {
       (track.duration !== undefined &&
         (track.duration !== take.duration ||
           track.frames !==
-            AutoMovieFrameGrid.last(take.duration, track.fps) + 1)) ||
+            AutoMovieRenderFrameGrid.last(take.duration, track.fps) + 1)) ||
       entriesPerFrame === 0 ||
       track.orders.length !== take.figures.length + take.props.length ||
       track.orders.some((order: string[]): boolean => order.length === 0) ||
@@ -145,9 +145,9 @@ export namespace ScenePlayer {
     const reflect: THREE.Matrix4 = new THREE.Matrix4().fromArray(
       take.reflection,
     );
-    const figures: AutoMovieHumanPolygon.IDrawing[] = take.figures.map(
-      (figure: ITake.IFigure, i: number): AutoMovieHumanPolygon.IDrawing => {
-        const drawing: AutoMovieHumanPolygon.IDrawing = AutoMovieHumanPolygon.build({
+    const figures: AutoMovieRenderHumanPolygon.IDrawing[] = take.figures.map(
+      (figure: ITake.IFigure, i: number): AutoMovieRenderHumanPolygon.IDrawing => {
+        const drawing: AutoMovieRenderHumanPolygon.IDrawing = AutoMovieRenderHumanPolygon.build({
           bones: figure.bones,
           posed: first[i]!,
         });
@@ -170,11 +170,11 @@ export namespace ScenePlayer {
           (o: IPlaygroundComposition.IObject): boolean => o.subject === subject,
         );
         const group: THREE.Group = new THREE.Group();
-        let parts: IAutoMovieModelObject["parts"] = new Map();
+        let parts: IAutoMovieRenderModelObject["parts"] = new Map();
         const lights: ((seconds: number) => void)[] = [];
         if (placed !== undefined) {
           const archetype: SceneArchetype.Model = SceneArchetype.model(placed);
-          const model: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(archetype);
+          const model: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(archetype);
           group.add(model.object);
           parts = model.parts;
           for (const light of record.practicalLights ?? [])
@@ -202,7 +202,7 @@ export namespace ScenePlayer {
         seconds,
       );
       figures.forEach(
-        (drawing: AutoMovieHumanPolygon.IDrawing, i: number): void =>
+        (drawing: AutoMovieRenderHumanPolygon.IDrawing, i: number): void =>
           drawing.setPose({ posed: sampled[i]! }),
       );
       props.forEach(

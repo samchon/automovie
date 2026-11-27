@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
   IAutoMovieVector3,
@@ -31,18 +31,18 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   }: kneelPlace.IInput = input;
   if (at === undefined)
     return {
-      ...Vector3.add(
+      ...AutoMovieEngineVector3.add(
         hip,
-        Vector3.scale(
+        AutoMovieEngineVector3.scale(
           forward,
-          Vector3.dot(Vector3.subtract(front, hip), forward) - behind,
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(front, hip), forward) - behind,
         ),
       ),
       y: height,
     };
   const placed: IAutoMovieVector3 = { x: at.x, y: height, z: at.z };
   const leg: number = body.measure.thigh + body.measure.shank;
-  const along: number = Vector3.dot(Vector3.subtract(front, placed), forward);
+  const along: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(front, placed), forward);
   if (along < behind)
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
@@ -52,7 +52,7 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
       reason: `kneeling there leaves the hip ${along.toFixed(3)} m behind the front ankle, short of the reverse lunge's ${behind.toFixed(3)} m, so the front knee folds ahead of its foot by up to a thigh into whatever stands in front`,
       fix: "name a knee point at least the reverse lunge's distance behind the other foot, or leave at out",
     });
-  const reach: number = Vector3.distance(Vector3.add(placed, across), front);
+  const reach: number = AutoMovieEngineVector3.distance(AutoMovieEngineVector3.add(placed, across), front);
   if (reach > leg)
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",

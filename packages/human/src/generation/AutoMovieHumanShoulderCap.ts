@@ -6,7 +6,7 @@ import type {
 
 import "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
-import * as AutoMovieHumanShoulderCapData from "./internal/AutoMovieHumanShoulderCapData";
+import { AutoMovieHumanShoulderCapData } from "./internal/AutoMovieHumanShoulderCapData";
 
 /**
  * The shoulder's cap: the corner of the frontal outline between the

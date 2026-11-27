@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeCrutchData from "./internal/AutoMovieArchetypeCrutchData";
+import { AutoMovieArchetypeCrutchData } from "./internal/AutoMovieArchetypeCrutchData";
 
 /** Constructs the crutch archetype from its recipe. */
 export namespace AutoMovieArchetypeCrutch {
@@ -45,7 +45,7 @@ export function create(
     material: "composite",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const base: IAutoMovieVector3 = v(0, 0, 0);
   const heel: IAutoMovieVector3 = v(0, SHAPE.baseHeight, 0);
   const junction: IAutoMovieVector3 = v(0, height, 0);

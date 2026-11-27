@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
   IAutoMovieMotionHumanPerformer,
@@ -109,9 +109,9 @@ export function observe(
       },
     ).point,
     parcel,
-    parcelInHand: Quaternion.rotateVector(
-      Quaternion.inverse(hand.worldRotation),
-      Vector3.subtract(parcel, hand.worldPosition),
+    parcelInHand: AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+      AutoMovieEngineVector3.subtract(parcel, hand.worldPosition),
     ),
     feet,
     grip:

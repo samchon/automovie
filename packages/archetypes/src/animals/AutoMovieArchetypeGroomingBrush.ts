@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeGroomingBrushData from "./internal/AutoMovieArchetypeGroomingBrushData";
+import { AutoMovieArchetypeGroomingBrushData } from "./internal/AutoMovieArchetypeGroomingBrushData";
 
 /**
  * Constructs the grooming brush archetype from its recipe.
@@ -63,14 +63,14 @@ export function create(
   });
   builder.box(
     "bristles",
-    Vector3.create(width, bristle, length),
-    Vector3.create(0, bristle / 2, 0),
+    AutoMovieEngineVector3.create(width, bristle, length),
+    AutoMovieEngineVector3.create(0, bristle / 2, 0),
     { color: "#c9b48a" },
   );
   builder.box(
     "back",
-    Vector3.create(width, BACK, length),
-    Vector3.create(0, bristle + BACK / 2, 0),
+    AutoMovieEngineVector3.create(width, BACK, length),
+    AutoMovieEngineVector3.create(0, bristle + BACK / 2, 0),
     { color: "#7a4a2a" },
   );
   builder.affordance({
@@ -78,9 +78,9 @@ export function create(
     kind: "handle",
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, bristle + BACK, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, bristle + BACK, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     grip: "power",
@@ -91,9 +91,9 @@ export function create(
     kind: "surface",
     direction: "normal",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, -1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, -1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
   });

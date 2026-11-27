@@ -1,9 +1,9 @@
 import {
-  AutoMovieViewAxis,
-  AutoMovieViewLoft as L,
-  AutoMovieViewOutline as O,
-  AutoMovieViewChain as Q,
-  AutoMovieNaturalSpline as S,
+  AutoMovieEngineViewAxis,
+  AutoMovieEngineViewLoft as L,
+  AutoMovieEngineViewOutline as O,
+  AutoMovieEngineViewChain as Q,
+  AutoMovieEngineNaturalSpline as S,
 } from "@automovie/engine";
 import type {
   IAutoMovieNaturalCubicSpline,
@@ -197,7 +197,7 @@ export namespace PartConicFields {
     ];
     const part: IAutoMovieViewPart = {
       name: coefficients.name,
-      axis: AutoMovieViewAxis.straight(
+      axis: AutoMovieEngineViewAxis.straight(
         coefficients.origin,
         coefficients.u,
         coefficients.v,

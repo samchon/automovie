@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -69,7 +69,7 @@ export function create(
     height,
     pitcher ? radius * 0.32 : 0,
   );
-  const origin: IAutoMovieVector3 = Vector3.create(0, 0, 0);
+  const origin: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, 0);
   const color: string = pitcher ? "#7ca396" : "#ece2c9";
   builder.convex(
     "floor",
@@ -123,16 +123,16 @@ export function create(
     builder.rod(
       `handle-${mount.id}`,
       bar,
-      Vector3.create(0, mount.height, -rear + wall / 2),
-      Vector3.create(0, mount.height, -reach),
+      AutoMovieEngineVector3.create(0, mount.height, -rear + wall / 2),
+      AutoMovieEngineVector3.create(0, mount.height, -reach),
       { color },
     );
   }
   builder.rod(
     "handle",
     bar,
-    Vector3.create(0, low, -reach),
-    Vector3.create(0, high, -reach),
+    AutoMovieEngineVector3.create(0, low, -reach),
+    AutoMovieEngineVector3.create(0, high, -reach),
     { color, round: true },
   );
   builder.affordance({
@@ -140,9 +140,9 @@ export function create(
     kind: "handle",
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, center, -reach),
-      Vector3.create(0, 0, -1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, center, -reach),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     grip: "hook",
@@ -153,7 +153,7 @@ export function create(
     id: "mouth",
     kind: "socket",
     direction: "along",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: null,
   });
   builder.affordance({
@@ -259,8 +259,8 @@ function section(
     const extension: number =
       i === 0 ? spout : i === 1 || i === SIDES - 1 ? spout * 0.45 : 0;
     const reach: number = radius + extension;
-    inner.push(Vector3.create(x * (reach - wall), y, z * (reach - wall)));
-    outer.push(Vector3.create(x * reach, y, z * reach));
+    inner.push(AutoMovieEngineVector3.create(x * (reach - wall), y, z * (reach - wall)));
+    outer.push(AutoMovieEngineVector3.create(x * reach, y, z * reach));
   }
   return { inner, outer };
 }

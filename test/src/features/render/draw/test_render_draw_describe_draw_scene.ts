@@ -1,4 +1,4 @@
-import { type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import assert from "node:assert/strict";
 import * as THREE from "three";
 
@@ -18,7 +18,7 @@ import * as THREE from "three";
 export function test_render_draw_describe_draw_scene(): void {
   const reads: number[] = [];
   let seeks: number = 0;
-  const scene: IAutoMovieDrawScene = {
+  const scene: IAutoMovieRenderDrawScene = {
     scene: new THREE.Scene(),
     camera: new THREE.PerspectiveCamera(),
     durationSeconds: 3,
@@ -55,7 +55,7 @@ export function test_render_draw_describe_draw_scene(): void {
   assert.deepEqual(reads, [0]);
   assert.deepEqual(scene.marks!(0), []);
   assert.equal(scene.marks!(2)[0]?.kind, "joint");
-  const initial: IAutoMovieDrawScene = {
+  const initial: IAutoMovieRenderDrawScene = {
     ...scene,
     marks: () => [
       {

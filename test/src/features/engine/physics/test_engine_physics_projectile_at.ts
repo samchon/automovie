@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
   IAutoMovieVector3,
@@ -33,7 +33,7 @@ const ROUNDING: number = 1e-9;
 export function test_engine_physics_projectile_at(): void {
   // 1. The closed form.
   const g: IAutoMovieVector3 = { x: 0, y: -10, z: 0 };
-  const arc = AutoMovieAir.projectileAt(
+  const arc = AutoMovieEngineAir.projectileAt(
     {
       origin: { x: 0, y: 10, z: 0 },
       velocity: { x: 5, y: 0, z: 0 },
@@ -41,7 +41,7 @@ export function test_engine_physics_projectile_at(): void {
     },
     1,
   );
-  const apex = AutoMovieAir.projectileAt(
+  const apex = AutoMovieEngineAir.projectileAt(
     {
       origin: { x: 0, y: 0, z: 0 },
       velocity: { x: 0, y: 10, z: 0 },
@@ -49,7 +49,7 @@ export function test_engine_physics_projectile_at(): void {
     },
     1,
   );
-  const start = AutoMovieAir.projectileAt(
+  const start = AutoMovieEngineAir.projectileAt(
     {
       origin: { x: 1, y: 2, z: 3 },
       velocity: { x: 4, y: 5, z: 6 },
@@ -73,17 +73,17 @@ export function test_engine_physics_projectile_at(): void {
   const zero: IAutoMovieProjectile = {
     origin,
     velocity,
-    gravity: AutoMovieGravity.DOWN,
+    gravity: AutoMovieEngineGravity.DOWN,
     drag: { coefficient: 0, area: 0.01, mass: 1 },
   };
   let matched: boolean = true;
   for (let k: number = 0; k <= 20; k++) {
     const t: number = k / 10;
     matched &&= vclose(
-      AutoMovieAir.projectileAt(zero, t).position,
-      Vector3.add(
-        Vector3.add(origin, Vector3.scale(velocity, t)),
-        Vector3.scale(AutoMovieGravity.DOWN, 0.5 * t * t),
+      AutoMovieEngineAir.projectileAt(zero, t).position,
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(origin, AutoMovieEngineVector3.scale(velocity, t)),
+        AutoMovieEngineVector3.scale(AutoMovieEngineGravity.DOWN, 0.5 * t * t),
       ),
       ROUNDING,
     );
@@ -94,7 +94,7 @@ export function test_engine_physics_projectile_at(): void {
   const shot = (drag: boolean): IAutoMovieProjectile => ({
     origin,
     velocity: { x: 0, y: 439 * Math.sin(angle), z: 439 * Math.cos(angle) },
-    gravity: AutoMovieGravity.DOWN,
+    gravity: AutoMovieEngineGravity.DOWN,
     ...(drag
       ? {
           drag: {
@@ -109,19 +109,19 @@ export function test_engine_physics_projectile_at(): void {
   let previous: number = Infinity;
   let slowing: boolean = true;
   for (let k: number = 0; k <= 50; k++) {
-    const speed: number = Vector3.length(
-      AutoMovieAir.projectileAt(dragged, k / 50).velocity,
+    const speed: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineAir.projectileAt(dragged, k / 50).velocity,
     );
     slowing &&= speed < previous;
     previous = speed;
   }
   const range = (p: IAutoMovieProjectile): number => {
     let t: number = 0.01;
-    while (AutoMovieAir.projectileAt(p, t).position.y > 1 && t < 60) t += 0.01;
-    return AutoMovieAir.projectileAt(p, t).position.z;
+    while (AutoMovieEngineAir.projectileAt(p, t).position.y > 1 && t < 60) t += 0.01;
+    return AutoMovieEngineAir.projectileAt(p, t).position.z;
   };
-  const a: IAutoMovieVector3 = AutoMovieAir.projectileAt(dragged, 1.37).position;
-  const b: IAutoMovieVector3 = AutoMovieAir.projectileAt(shot(true), 1.37).position;
+  const a: IAutoMovieVector3 = AutoMovieEngineAir.projectileAt(dragged, 1.37).position;
+  const b: IAutoMovieVector3 = AutoMovieEngineAir.projectileAt(shot(true), 1.37).position;
   TestValidator.predicate(
     "drag slows and shortens, the same every read",
     slowing &&
@@ -135,7 +135,7 @@ export function test_engine_physics_projectile_at(): void {
   const launch = {
     origin: { x: 0, y: 1.5, z: 0 },
     velocity: { x: 0, y: 3, z: 9 },
-    gravity: AutoMovieGravity.DOWN,
+    gravity: AutoMovieEngineGravity.DOWN,
   };
   const spun: IAutoMovieProjectile = {
     ...launch,
@@ -152,8 +152,8 @@ export function test_engine_physics_projectile_at(): void {
         -1,
         Math.min(
           1,
-          Vector3.dot(
-            Quaternion.rotateVector(AutoMovieAir.projectileAt(spun, t).rotation!, up),
+          AutoMovieEngineVector3.dot(
+            AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineAir.projectileAt(spun, t).rotation!, up),
             up,
           ),
         ),
@@ -162,21 +162,21 @@ export function test_engine_physics_projectile_at(): void {
   let sameCentre: boolean = true;
   for (let k: number = 0; k < 10; k++)
     sameCentre &&=
-      Vector3.length(
-        Vector3.subtract(
-          AutoMovieAir.projectileAt(spun, k / 10).position,
-          AutoMovieAir.projectileAt(nosed, k / 10).position,
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineAir.projectileAt(spun, k / 10).position,
+          AutoMovieEngineAir.projectileAt(nosed, k / 10).position,
         ),
       ) === 0;
-  const state = AutoMovieAir.projectileAt(nosed, 0.4);
+  const state = AutoMovieEngineAir.projectileAt(nosed, 0.4);
   TestValidator.predicate(
     "the attitude",
     turned(1) <= ROUNDING &&
       Math.abs(turned(0.125) - Math.PI / 2) <= ROUNDING &&
       sameCentre &&
-      Vector3.dot(
-        Quaternion.rotateVector(state.rotation!, { x: 0, y: 0, z: 1 }),
-        Vector3.normalize(state.velocity),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineQuaternion.rotateVector(state.rotation!, { x: 0, y: 0, z: 1 }),
+        AutoMovieEngineVector3.normalize(state.velocity),
       ) >=
         1 - ROUNDING,
   );

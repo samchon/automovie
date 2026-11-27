@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeStageBladeCarrier } from "../AutoMovieArchetypeStageBladeCarrier";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -37,7 +37,7 @@ export function createStageBladeCarrier(
     AutoMovieArchetypeStageBladeCarrier.KINDS,
   );
   return StageCarrierConstruction(kind, params, seed, (builder, d) => {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const length: number = d.length!;
     const throat: number = AutoMovieArchetypeHolster.THROAT;
     const thick: number = d.thickness! + AutoMovieArchetypeHolster.THROAT_LIP;

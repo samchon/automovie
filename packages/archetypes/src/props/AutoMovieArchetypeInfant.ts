@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeInfantData from "./internal/AutoMovieArchetypeInfantData";
+import { AutoMovieArchetypeInfantData } from "./internal/AutoMovieArchetypeInfantData";
 
 /** Constructs the infant archetype from its recipe. */
 export namespace AutoMovieArchetypeInfant {
@@ -47,7 +47,7 @@ export function create(
     material: "fabric",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = d.head / 2;
   const body: number = d.length - d.head;
   const half: number = 0.06;

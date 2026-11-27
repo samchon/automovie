@@ -7,7 +7,7 @@ import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js"
 /*
  * The CPU pose of one skinned mesh: posed positions under a complete dependency
  * key, the exact extent, and the joint-only safe sphere. Owned by
- * AutoMovieSkinnedMesh, which documents the operator order, the key and
+ * AutoMovieRenderSkinnedMesh, which documents the operator order, the key and
  * the sphere's derivation; this class holds the state and the passes.
  */
 export class AutoMovieSkinPose {

@@ -1,6 +1,17 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPlacedAction, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSkill, IAutoMovieMotionTarget, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanSkill, poseBones, resolveHumanPosture, stand } from "@automovie/motions/internal";
+import {
+  HumanSkill
+} from "../../../../packages/motions/src/skill/internal/HumanSkill";
+import {
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  stand
+} from "../../../../packages/motions/src/actions/internal/stand";
 
 /**
  * A typed synthetic action context for a unit test of one law's plan: a trained
@@ -67,11 +78,11 @@ export function motionActionContext<P extends object>(
         continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       const frame: IAutoMovieRigidTransform = {
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           hand.worldPosition,
-          Quaternion.rotateVector(hand.worldRotation, offset.position),
+          AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, offset.position),
         ),
-        rotation: Quaternion.multiply(hand.worldRotation, offset.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(hand.worldRotation, offset.rotation),
       };
       return { ...prop, frame };
     }
@@ -83,11 +94,11 @@ export function motionActionContext<P extends object>(
       return {
         ...prop,
         frame: {
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             bone.worldPosition,
-            Quaternion.rotateVector(bone.worldRotation, worn.offset.position),
+            AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, worn.offset.position),
           ),
-          rotation: Quaternion.multiply(
+          rotation: AutoMovieEngineQuaternion.multiply(
             bone.worldRotation,
             worn.offset.rotation,
           ),
@@ -176,11 +187,11 @@ export function motionActionContext<P extends object>(
         prop.points[target.point];
       if (local === undefined) return refuse(`point ${target.point}`);
       return {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, local.point),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, local.point),
         ),
-        normal: Quaternion.rotateVector(frame.rotation, local.normal),
+        normal: AutoMovieEngineQuaternion.rotateVector(frame.rotation, local.normal),
       };
     },
     action: (anchor: string): IAutoMovieMotionHumanPlacedAction =>

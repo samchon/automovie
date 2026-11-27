@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -41,20 +41,20 @@ export namespace walkReachHeld {
       pitch: trunk.pitch,
       roll: trunk.roll,
     });
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       rotation,
-      Quaternion.inverse(upright),
+      AutoMovieEngineQuaternion.inverse(upright),
     );
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       root,
-      Quaternion.rotateVector(upright, body.rest.get("hips")!),
+      AutoMovieEngineQuaternion.rotateVector(upright, body.rest.get("hips")!),
     );
     const at: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
       side: AutoMovieHumanSide,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         centre,
-        Quaternion.rotateVector(turn, Vector3.subtract(joints[side], centre)),
+        AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(joints[side], centre)),
       );
     return { rotation, hips: { left: at("left"), right: at("right") } };
   }

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSkateboardData from "./internal/AutoMovieArchetypeSkateboardData";
+import { AutoMovieArchetypeSkateboardData } from "./internal/AutoMovieArchetypeSkateboardData";
 
 /** Constructs the skateboard archetype from its recipe. */
 export namespace AutoMovieArchetypeSkateboard {
@@ -66,7 +66,7 @@ export function create(
     name: `skateboard ${model.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
   const width: number = d.width;
   const length: number = d.length;

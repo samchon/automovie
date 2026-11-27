@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -25,7 +25,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { humanRideGripTiming } from "./humanRideGripTiming";
-import * as HumanHoldHandlesData from "./HumanHoldHandlesData";
+import { HumanHoldHandlesData } from "./HumanHoldHandlesData";
 
 /*
  * Keep both of a walker's hands on a moving implement's two handles, as a
@@ -222,20 +222,20 @@ function planHumanHoldHandles(
           const effector: IAutoMovieVector3 =
             contact === undefined
               ? HumanHand.frame(context.body, bones, side, "palm").point
-              : Vector3.add(
+              : AutoMovieEngineVector3.add(
                   actual.worldPosition,
-                  Quaternion.rotateVector(actual.worldRotation, contact),
+                  AutoMovieEngineQuaternion.rotateVector(actual.worldRotation, contact),
                 );
           const grip: HumanRideHands.IMaterialGrip = grips[side]!;
           // A wrapped round handle puts the palm on its surface anywhere round its axis; a rein's palm contact sits on its skin along the outward normal.
           const distance: number =
             contact === undefined
               ? Math.abs(
-                  Vector3.distance(effector, grip.point) - (grip.radius ?? 0),
+                  AutoMovieEngineVector3.distance(effector, grip.point) - (grip.radius ?? 0),
                 )
-              : Vector3.distance(
+              : AutoMovieEngineVector3.distance(
                   effector,
-                  Vector3.addScaled(grip.point, grip.normal, grip.radius ?? 0),
+                  AutoMovieEngineVector3.addScaled(grip.point, grip.normal, grip.radius ?? 0),
                 );
           if (!(distance <= HumanHoldHandlesData.REACH))
             throw new AutoMovieMotionHumanRefusal({

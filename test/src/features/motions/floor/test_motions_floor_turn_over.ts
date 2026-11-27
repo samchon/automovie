@@ -6,13 +6,23 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanBody } from "@automovie/motions";
 import {
-  HumanColliders,
-  lieDown,
-  poseBones,
-  resolveHumanPosture,
-  turnOver,
-  turnOverToward,
-} from "@automovie/motions/internal";
+  HumanColliders
+} from "../../../../../packages/motions/src/posture/internal/HumanColliders";
+import {
+  lieDown
+} from "../../../../../packages/motions/src/floor/internal/lieDown";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  turnOver
+} from "../../../../../packages/motions/src/floor/internal/turnOver";
+import {
+  turnOverToward
+} from "../../../../../packages/motions/src/floor/internal/turnOverToward";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

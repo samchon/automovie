@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeFoodData from "./internal/AutoMovieArchetypeFoodData";
+import { AutoMovieArchetypeFoodData } from "./internal/AutoMovieArchetypeFoodData";
 
 /** Constructs the food archetype from its recipe. */
 export namespace AutoMovieArchetypeFood {
@@ -85,7 +85,7 @@ export function create(
     name: NAMES[kind],
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
   if (kind === "bread") {
     // Two halves meeting at the middle: the -X one held, the +X one drawn away on the tear.

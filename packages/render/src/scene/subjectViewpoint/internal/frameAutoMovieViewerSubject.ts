@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
-import type { IAutoMovieViewerSubjectLens } from "../../IAutoMovieViewerSubjectLens.js";
-import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
-import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "../../IAutoMovieRenderViewerSubjectBounds.js";
+import type { IAutoMovieRenderViewerSubjectLens } from "../../IAutoMovieRenderViewerSubjectLens.js";
+import type { IAutoMovieRenderViewerSubjectPose } from "../../IAutoMovieRenderViewerSubjectPose.js";
+import type { IAutoMovieRenderViewerViewpoint } from "../../IAutoMovieRenderViewerViewpoint.js";
 
 /*
  * Frame a finite ordered world-space box using its half-diagonal sphere,
@@ -13,10 +13,10 @@ import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.
  * arithmetic range remain caller premises.
  */
 export function frameAutoMovieViewerSubject(
-  bounds: IAutoMovieViewerSubjectBounds,
-  viewpoint: IAutoMovieViewerViewpoint,
-  lens: IAutoMovieViewerSubjectLens,
-): IAutoMovieViewerSubjectPose {
+  bounds: IAutoMovieRenderViewerSubjectBounds,
+  viewpoint: IAutoMovieRenderViewerViewpoint,
+  lens: IAutoMovieRenderViewerSubjectLens,
+): IAutoMovieRenderViewerSubjectPose {
   if (lens.fovDeg <= 0 || lens.fovDeg >= 180)
     throw new RangeError(
       `inspection lens field of view must be within (0, 180) degrees, not ${lens.fovDeg}`,

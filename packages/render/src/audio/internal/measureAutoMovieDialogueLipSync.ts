@@ -1,4 +1,4 @@
-import { AUTOMOVIE_LIP_SYNC, AutoMovieEngineSound } from "@automovie/engine";
+import { AutoMovieEngineLipSync, AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDialogueLipSync,
   IAutoMovieDialogueMouthTrack,
@@ -57,7 +57,7 @@ export function measureAutoMovieDialogueLipSync(props: {
   drawn: readonly (readonly IAutoMovieDrawnMouth[] | undefined)[];
 }): IAutoMovieDialogueLipSync[] {
   const fps: number = props.track.fps;
-  const reach: number = Math.ceil(AUTOMOVIE_LIP_SYNC.windowSeconds * fps);
+  const reach: number = Math.ceil(AutoMovieEngineLipSync.windowSeconds * fps);
   const read: (
     frame: number,
     actor: string,

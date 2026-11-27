@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -6,7 +6,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { struckSurface } from "@automovie/motions/internal";
+import {
+  struckSurface
+} from "../../../../../packages/motions/src/tasks/internal/struckSurface";
 import { TestValidator } from "@nestia/e2e";
 
 /** A struck surface contact turned by a rotation in its prop's frame. */
@@ -58,7 +60,7 @@ export function test_motions_tasks_struck_surface(): void {
   });
   const tilted: IAutoMovieAffordance = surface(
     "head",
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 10),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 10),
   );
   TestValidator.predicate(
     "the level fixed head",

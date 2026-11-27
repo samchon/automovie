@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -11,10 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanStrike } from "@automovie/motions";
-import {
-  AutoMovieMotionHumanAuditTangle,
-  HumanColliders,
-} from "@automovie/motions/internal";
+import { AutoMovieMotionHumanAuditTangle } from "../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditTangle";
+import { HumanColliders } from "../../packages/motions/src/posture/internal/HumanColliders";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -90,7 +88,7 @@ export function checkTourists(): void {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         performance.bones("ivy", at);
       assert(
-        Vector3.distance(
+        AutoMovieEngineVector3.distance(
           AutoMovieMotionHumanStrike.StrikingBody.region(
             body,
             bones,

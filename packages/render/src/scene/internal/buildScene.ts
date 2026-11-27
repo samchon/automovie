@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
-import type { IAutoMovieSceneObject } from "../IAutoMovieSceneObject.js";
-import type { IAutoMovieSceneSoftProps } from "../IAutoMovieSceneSoftProps.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderSceneObject } from "../IAutoMovieRenderSceneObject.js";
+import type { IAutoMovieRenderSceneSoftProps } from "../IAutoMovieRenderSceneSoftProps.js";
 import { applyAutoMovieShadowParticipation } from "../internal/applyAutoMovieShadowParticipation.js";
 import { applySceneEnvironment } from "../internal/applySceneEnvironment.js";
 import { applySceneFog } from "../internal/applySceneFog.js";
@@ -24,7 +24,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * Build a `three.js` scene from an IAutoMovieScene.
  *
  * `getModelObject` resolves a node's `model` id to a built
- * IAutoMovieModelObject. If the same model id appears in multiple nodes
+ * IAutoMovieRenderModelObject. If the same model id appears in multiple nodes
  * it should return a distinct object each call (a `three.js` object can live in
  * one place only). Each node is wrapped in a group placed at its world
  * transform, so node placement and a pose's own root transform compose
@@ -42,7 +42,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * second one exactly as it always broke the first.
  *
  * A scene carrying a `space` also gets its structural ground (#1173): the
- * standable surfaces become real meshes under one `SPACE_GROUP_NAME` group (see
+ * standable surfaces become real meshes under one `AutoMovieRenderSpaceGroupName` group (see
  * AutoMovieRenderSceneSpace.buildObject), so guide passes describe a
  * world instead of actors floating in a void. Their ordinary material writes
  * no beauty colour or depth, because a semantic support declaration is not
@@ -61,15 +61,15 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  */
 export const buildScene: (
   scene: IAutoMovieScene,
-  getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
+  getModelObject: (modelId: string) => IAutoMovieRenderModelObject | undefined,
   environmentTexture?: THREE.Texture,
   softFrame?: readonly IAutoMovieRenderSoftPropFrame[],
-) => IAutoMovieSceneObject = (
+) => IAutoMovieRenderSceneObject = (
   scene: IAutoMovieScene,
-  getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
+  getModelObject: (modelId: string) => IAutoMovieRenderModelObject | undefined,
   environmentTexture?: THREE.Texture,
   softFrame?: readonly IAutoMovieRenderSoftPropFrame[],
-): IAutoMovieSceneObject => {
+): IAutoMovieRenderSceneObject => {
   const shadowProfile: ReturnType<typeof AutoMovieEngineRenderShadow.resolveAutoMovieShadowProfile> =
     AutoMovieEngineRenderShadow.resolveAutoMovieShadowProfile({
       lights: scene.lights,
@@ -82,7 +82,7 @@ export const buildScene: (
   const root: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 
   for (const node of scene.nodes) {
-    const built: IAutoMovieModelObject | undefined = getModelObject(node.model);
+    const built: IAutoMovieRenderModelObject | undefined = getModelObject(node.model);
     // Caller data that cannot resolve is an error, not a skip (#1051): both
     // mask passes read a designed node off its top-level child INDEX, so a
     // silently dropped node would shift every later node one place over and a
@@ -128,7 +128,7 @@ export const buildScene: (
 
   const cameras: THREE.PerspectiveCamera[] = scene.cameras.map(buildCamera);
   if (softFrame === undefined) return { scene: root, cameras, lights };
-  const softProps: IAutoMovieSceneSoftProps = buildSceneSoftProps(root);
+  const softProps: IAutoMovieRenderSceneSoftProps = buildSceneSoftProps(root);
   try {
     softProps.update(softFrame);
   } catch (error) {

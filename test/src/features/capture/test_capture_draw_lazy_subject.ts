@@ -1,4 +1,4 @@
-import { type IAutoMovieDrawFunction, type IAutoMovieDrawGlobal, type IAutoMovieDrawScene, AutoMovieRenderInspectionRequest, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawFunction, type IAutoMovieRenderDrawGlobal, type IAutoMovieRenderDrawScene, AutoMovieRenderInspectionRequest, AutoMovieRenderDraw } from "@automovie/render";
 import assert from "node:assert/strict";
 import { setImmediate } from "node:timers/promises";
 
@@ -14,7 +14,7 @@ import { setImmediate } from "node:timers/promises";
 export async function test_capture_draw_lazy_subject(): Promise<void> {
   let offers: number = 0;
   let hideUnused: (() => void) | undefined;
-  const unused: IAutoMovieDrawGlobal = {
+  const unused: IAutoMovieRenderDrawGlobal = {
     addEventListener: (_type: "pagehide", listener: () => void): void => {
       hideUnused = listener;
     },
@@ -22,7 +22,7 @@ export async function test_capture_draw_lazy_subject(): Promise<void> {
   AutoMovieRenderDraw.installAutoMovieDraw(() => {
     offers++;
     return {
-      starter: { create: () => new Promise<IAutoMovieDrawScene>(() => {}) },
+      starter: { create: () => new Promise<IAutoMovieRenderDrawScene>(() => {}) },
     };
   }, unused);
   assert.equal(offers, 0);
@@ -32,7 +32,7 @@ export async function test_capture_draw_lazy_subject(): Promise<void> {
   const failure: Error = new Error("scene preparation failed");
   let preparations: number = 0;
   let hideFailed: (() => void) | undefined;
-  const target: IAutoMovieDrawGlobal = {
+  const target: IAutoMovieRenderDrawGlobal = {
     addEventListener: (_type: "pagehide", listener: () => void): void => {
       hideFailed = listener;
     },
@@ -40,7 +40,7 @@ export async function test_capture_draw_lazy_subject(): Promise<void> {
   AutoMovieRenderDraw.installAutoMovieDraw(
     () => ({
       starter: {
-        create: async (): Promise<IAutoMovieDrawScene> => {
+        create: async (): Promise<IAutoMovieRenderDrawScene> => {
           preparations++;
           throw failure;
         },
@@ -48,10 +48,10 @@ export async function test_capture_draw_lazy_subject(): Promise<void> {
     }),
     target,
   );
-  const draw: IAutoMovieDrawFunction = target.__automovieDraw!;
-  const described: ReturnType<IAutoMovieDrawFunction["describe"]> =
+  const draw: IAutoMovieRenderDrawFunction = target.__automovieDraw!;
+  const described: ReturnType<IAutoMovieRenderDrawFunction["describe"]> =
     draw.describe();
-  const drawn: ReturnType<IAutoMovieDrawFunction["draw"]> = draw.draw({
+  const drawn: ReturnType<IAutoMovieRenderDrawFunction["draw"]> = draw.draw({
     seconds: 0,
     view: "film",
     request: AutoMovieRenderInspectionRequest.parseRequest((): undefined => undefined),

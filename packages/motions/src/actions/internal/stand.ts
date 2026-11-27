@@ -25,7 +25,7 @@ import { standRelaxed } from "./standRelaxed";
 import { standRoot } from "./standRoot";
 import { standUpright } from "./standUpright";
 import { standingLegs } from "./standingLegs";
-import * as StandData from "./StandData";
+import { StandData } from "./StandData";
 
 /*
  * Quiet standing: both feet planted where they are (or under the hips when
@@ -176,7 +176,7 @@ export namespace stand {
    * abduction is found once per body by bisection between none and the
    * shoulder's range, the depth falling as the arm swings out, until the
    * bracket is no wider than the resolution to which a solver resolves a
-   * joint's angle (`ROM_TOLERANCE`, the engine's range owner, as the limb fits
+   * joint's angle (`AutoMovieEngineRomTolerance`, the engine's range owner, as the limb fits
    * resolve theirs), and kept: a wider build hangs its arms wider.
    * Parameter body: The body.
    * Returns: Angles for both arms and hands.

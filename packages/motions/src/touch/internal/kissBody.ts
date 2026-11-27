@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -52,7 +52,7 @@ export function kissBody(
     {
       ...posture,
       yaw: posture.yaw + (solved.bearing ?? 0) * share,
-      root: Vector3.add(posture.root, {
+      root: AutoMovieEngineVector3.add(posture.root, {
         x: feet.x + lateral * Math.cos(yaw) + forward * Math.sin(yaw),
         y: feet.y,
         z: feet.z - lateral * Math.sin(yaw) + forward * Math.cos(yaw),

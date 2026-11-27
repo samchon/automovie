@@ -1,9 +1,9 @@
 import type { IAutoMovieInspectionLabel } from "@automovie/interface";
-import type { IAutoMovieInspectionHandle } from "@automovie/render";
+import type { IAutoMovieRenderInspectionHandle } from "@automovie/render";
 import type * as THREE from "three";
 
-import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
-import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
+import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene.js";
+import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost.js";
 
 /*
  * Place a paused picture's labels and convert them to CSS pixels of the canvas.
@@ -20,7 +20,7 @@ export function placeAutoMovieInspectorLabels(props: {
   /*
    * The inspection applied to the picture.
    */
-  inspection: IAutoMovieInspectionHandle;
+  inspection: IAutoMovieRenderInspectionHandle;
 
   /*
    * The camera the picture was drawn through.
@@ -35,18 +35,18 @@ export function placeAutoMovieInspectorLabels(props: {
   /*
    * The canvas as laid out.
    */
-  shown: IAutoMovieInspectorSceneHost.ISize;
-}): IAutoMovieInspectorScene.ILabels {
+  shown: IAutoMovieViewerInspectorSceneHost.ISize;
+}): IAutoMovieViewerInspectorScene.ILabels {
   const { width, height } = props.raster;
   const { shown } = props;
   const scale: number = Math.max(1, Math.ceil(height / shown.height));
-  const placed: ReturnType<IAutoMovieInspectionHandle["labels"]> =
+  const placed: ReturnType<IAutoMovieRenderInspectionHandle["labels"]> =
     props.inspection.labels(props.camera, width, height, scale);
   return {
     labels: placed.labels.map(
       (
         label: IAutoMovieInspectionLabel,
-      ): IAutoMovieInspectorScene.ILabels["labels"][number] => ({
+      ): IAutoMovieViewerInspectorScene.ILabels["labels"][number] => ({
         path: label.path,
         text: label.text,
         left: (label.x * shown.width) / width,

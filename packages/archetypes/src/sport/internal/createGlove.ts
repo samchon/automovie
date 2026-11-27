@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeGlove } from "../AutoMovieArchetypeGlove";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -57,17 +57,17 @@ export function createGlove(
   const thick: number = AutoMovieArchetypeGlove.THICKNESS[kind];
   builder.box(
     "glove",
-    Vector3.create(d.width, thick, d.length),
-    Vector3.create(0, thick / 2, 0),
+    AutoMovieEngineVector3.create(d.width, thick, d.length),
+    AutoMovieEngineVector3.create(0, thick / 2, 0),
     { color: "#8b4513" },
   );
   builder.affordance({
     id: "hand",
     kind: "socket",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, thick / 2, -d.length / 2),
-      Vector3.create(0, 0, -1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, thick / 2, -d.length / 2),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });
@@ -75,7 +75,7 @@ export function createGlove(
     id: "pocket",
     kind: "surface",
     direction: "normal",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, thick, 0)),
     extent: null,
     width: d.width / 2,
     depth: d.length / 3,

@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineKinematics,
   AutoMovieEngineValidation,
-  Quaternion,
+  AutoMovieEngineQuaternion,
 } from "@automovie/engine";
 import {
   AutoMovieExpressionPreset,
@@ -255,7 +255,7 @@ function look(
   const resolved: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(sample.pose, RIG).find(
     (b: IAutoMovieResolvedBone): boolean => b.bone === bone,
   )!;
-  return Quaternion.rotateVector(resolved.worldRotation, { x: 0, y: 0, z: 1 });
+  return AutoMovieEngineQuaternion.rotateVector(resolved.worldRotation, { x: 0, y: 0, z: 1 });
 }
 
 /** Degrees the gaze turns toward +X from +Z. */

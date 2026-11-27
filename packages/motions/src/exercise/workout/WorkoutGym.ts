@@ -1,8 +1,8 @@
 import {
-  DEFAULT_HUMANOID_ROM,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
   AutoMovieEngineMotionSampling,
   AutoMovieEngineMath,
   AutoMovieEngineKinematicsJointRotation,
@@ -18,11 +18,7 @@ import type {
 import "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
-import {
-  key as WorkoutGymDataKey,
-  squat as WorkoutGymDataSquat,
-  pair as WorkoutGymDataPair,
-} from "./internal/WorkoutGymData";
+import { WorkoutGymData } from "./internal/WorkoutGymData";
 
 /*
  * The gym's standing movements of the workout law: free-weight exercises a
@@ -59,14 +55,14 @@ export namespace WorkoutGym {
     const snatch: boolean = kind === "snatch";
     const arms = (["left", "right"] as const).map((side) => {
       const bone = `${side}UpperArm` as const;
-      const axes = HUMANOID_JOINT_AXES[bone]!;
-      const frame = HUMANOID_REST_FRAME[bone];
+      const axes = AutoMovieEngineHumanoidJointAxes[bone]!;
+      const frame = AutoMovieEngineHumanoidRestFrame[bone];
       const direction = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
       const compose = AutoMovieEngineKinematicsJointRotation.prepareJointToQuaternionOnBasis(axes, frame);
       const domain: IAutoMovieJointRotationDomain = body.chains[`${side}Arm`]
         ?.upperDomain ?? {
         bone,
-        constraint: DEFAULT_HUMANOID_ROM[bone] ?? null,
+        constraint: AutoMovieEngineDefaultHumanoidRom[bone] ?? null,
       };
       return { bone, axes, frame, direction, compose, domain };
     });
@@ -89,7 +85,7 @@ export namespace WorkoutGym {
         // Swing the arm around the bar's lateral axis. Canonical abduction
         // alone makes the outboard direction reverse past shoulder height.
         const aimed = AutoMovieEngineMath.rotationBetween(
-          Quaternion.rotateVector(turn, direction),
+          AutoMovieEngineQuaternion.rotateVector(turn, direction),
           {
             x:
               direction.x *
@@ -103,7 +99,7 @@ export namespace WorkoutGym {
         );
         // Retain the keyed arm's axial rotation so the elbow does not flip at turnover.
         const angles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
-          Quaternion.multiply(aimed, turn),
+          AutoMovieEngineQuaternion.multiply(aimed, turn),
           axes,
           frame,
           domain,
@@ -127,16 +123,16 @@ export namespace WorkoutGym {
      * A bent-over row: the trunk held at 60 degrees, the elbows drawn back past
      * it.
      */
-    bentOverRow: WorkoutGymDataPair(
+    bentOverRow: WorkoutGymData.pair(
       5,
       [
-        WorkoutGymDataSquat(60, 20, 8, { shoulder: 60, raise: 0, elbow: 3 }),
+        WorkoutGymData.squat(60, 20, 8, { shoulder: 60, raise: 0, elbow: 3 }),
         1.2,
         "lower",
         "hang",
       ],
       [
-        WorkoutGymDataSquat(60, 20, 8, { shoulder: 15, raise: 10, elbow: 110 }),
+        WorkoutGymData.squat(60, 20, 8, { shoulder: 15, raise: 10, elbow: 110 }),
         0.9,
         "row",
         "top",
@@ -146,26 +142,26 @@ export namespace WorkoutGym {
     /*
      * A curl: the elbows bent from straight to full, the upper arms still.
      */
-    curl: WorkoutGymDataPair(
+    curl: WorkoutGymData.pair(
       5,
-      [WorkoutGymDataKey({}, { raise: 5, elbow: 5, twist: 0 }), 1.2, "lower", "down"],
-      [WorkoutGymDataKey({}, { raise: 5, elbow: 140 }), 0.9, "curl", "top"],
+      [WorkoutGymData.key({}, { raise: 5, elbow: 5, twist: 0 }), 1.2, "lower", "down"],
+      [WorkoutGymData.key({}, { raise: 5, elbow: 140 }), 0.9, "curl", "top"],
     ),
 
     /*
      * An overhead triceps extension: the upper arms beside the head, the elbows
      * straightened.
      */
-    tricepsExtension: WorkoutGymDataPair(
+    tricepsExtension: WorkoutGymData.pair(
       5,
       [
-        WorkoutGymDataKey({}, { shoulder: 172, raise: 0, elbow: 135 }),
+        WorkoutGymData.key({}, { shoulder: 172, raise: 0, elbow: 135 }),
         1.2,
         "lower",
         "bottom",
       ],
       [
-        WorkoutGymDataKey({}, { shoulder: 172, raise: 0, elbow: 5 }),
+        WorkoutGymData.key({}, { shoulder: 172, raise: 0, elbow: 5 }),
         0.9,
         "extend",
         "lockout",
@@ -175,29 +171,29 @@ export namespace WorkoutGym {
     /*
      * A lateral raise: the arms lifted out to the shoulders' height.
      */
-    lateralRaise: WorkoutGymDataPair(
+    lateralRaise: WorkoutGymData.pair(
       5,
-      [WorkoutGymDataKey({}, { raise: 8, elbow: 10 }), 1.2, "lower", "down"],
-      [WorkoutGymDataKey({}, { raise: 88, elbow: 10 }), 0.9, "raise", "top"],
+      [WorkoutGymData.key({}, { raise: 8, elbow: 10 }), 1.2, "lower", "down"],
+      [WorkoutGymData.key({}, { raise: 88, elbow: 10 }), 0.9, "raise", "top"],
     ),
 
     /*
      * A front raise: the arms lifted forward to the shoulders' height.
      */
-    frontRaise: WorkoutGymDataPair(
+    frontRaise: WorkoutGymData.pair(
       5,
-      [WorkoutGymDataKey({}, { raise: 3, elbow: 5 }), 1.2, "lower", "down"],
-      [WorkoutGymDataKey({}, { shoulder: 88, raise: 3, elbow: 5 }), 0.9, "raise", "top"],
+      [WorkoutGymData.key({}, { raise: 3, elbow: 5 }), 1.2, "lower", "down"],
+      [WorkoutGymData.key({}, { shoulder: 88, raise: 3, elbow: 5 }), 0.9, "raise", "top"],
     ),
 
     /*
      * A shrug: the shoulder girdles lifted 20 degrees toward the ears and
      * lowered, the arms hanging (provisional).
      */
-    shrug: WorkoutGymDataPair(
+    shrug: WorkoutGymData.pair(
       8,
-      [WorkoutGymDataKey({}, { elbow: 5 }), 0.8, "lower", "down"],
-      [WorkoutGymDataKey({}, { elbow: 5, shrug: 20 }), 0.6, "shrug", "top"],
+      [WorkoutGymData.key({}, { elbow: 5 }), 0.8, "lower", "down"],
+      [WorkoutGymData.key({}, { elbow: 5, shrug: 20 }), 0.6, "shrug", "top"],
     ),
 
     /*
@@ -213,7 +209,7 @@ export namespace WorkoutGym {
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutStance.rest(body, 0.8),
         WorkoutKind.step(
-          WorkoutGymDataKey({}, { ankle: -30, toes: 30 })(body),
+          WorkoutGymData.key({}, { ankle: -30, toes: 30 })(body),
           0.6,
           "raise",
           "top",
@@ -228,11 +224,11 @@ export namespace WorkoutGym {
      * A front squat: the hands at the shoulders with the elbows high, the trunk
      * more upright than a back squat's.
      */
-    frontSquat: WorkoutGymDataPair(
+    frontSquat: WorkoutGymData.pair(
       5,
-      [WorkoutGymDataKey({}, { shoulder: 85, raise: 5, elbow: 145 }), 1.2, "rise", "top"],
+      [WorkoutGymData.key({}, { shoulder: 85, raise: 5, elbow: 145 }), 1.2, "rise", "top"],
       [
-        WorkoutGymDataSquat(20, 120, 35, { shoulder: 85, raise: 5, elbow: 145 }),
+        WorkoutGymData.squat(20, 120, 35, { shoulder: 85, raise: 5, elbow: 145 }),
         1.8,
         "lower",
         "bottom",
@@ -242,11 +238,11 @@ export namespace WorkoutGym {
     /*
      * A goblet squat: both hands before the chest.
      */
-    gobletSquat: WorkoutGymDataPair(
+    gobletSquat: WorkoutGymData.pair(
       5,
-      [WorkoutGymDataKey({}, { shoulder: 35, raise: 5, elbow: 135 }), 1.2, "rise", "top"],
+      [WorkoutGymData.key({}, { shoulder: 35, raise: 5, elbow: 135 }), 1.2, "rise", "top"],
       [
-        WorkoutGymDataSquat(25, 120, 33, { shoulder: 35, raise: 5, elbow: 135 }),
+        WorkoutGymData.squat(25, 120, 33, { shoulder: 35, raise: 5, elbow: 135 }),
         1.8,
         "lower",
         "bottom",
@@ -294,7 +290,7 @@ export namespace WorkoutGym {
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.pose(WorkoutGymDataSquat(0, 90, 0, { elbow: 10 })(body), 0, 30),
+        WorkoutKind.pose(WorkoutGymData.squat(0, 90, 0, { elbow: 10 })(body), 0, 30),
       ],
     ),
 
@@ -304,11 +300,11 @@ export namespace WorkoutGym {
      */
     romanianDeadlift: {
       midfoot: true,
-      ...WorkoutGymDataPair(
+      ...WorkoutGymData.pair(
         5,
-        [WorkoutGymDataKey({}, { elbow: 3 }), 1.2, "rise", "top"],
+        [WorkoutGymData.key({}, { elbow: 3 }), 1.2, "rise", "top"],
         [
-          WorkoutGymDataSquat(60, 15, 5, { shoulder: 60, raise: 0, elbow: 3 }),
+          WorkoutGymData.squat(60, 15, 5, { shoulder: 60, raise: 0, elbow: 3 }),
           1.8,
           "lower",
           "bottom",
@@ -319,11 +315,11 @@ export namespace WorkoutGym {
     /*
      * A good morning: the same hinge with the hands behind the head.
      */
-    goodMorning: WorkoutGymDataPair(
+    goodMorning: WorkoutGymData.pair(
       5,
-      [WorkoutGymDataKey({}, { shoulder: 20, raise: 80, elbow: 140 }), 1.2, "rise", "top"],
+      [WorkoutGymData.key({}, { shoulder: 20, raise: 80, elbow: 140 }), 1.2, "rise", "top"],
       [
-        WorkoutGymDataSquat(65, 15, 5, { shoulder: 20, raise: 80, elbow: 140 }),
+        WorkoutGymData.squat(65, 15, 5, { shoulder: 20, raise: 80, elbow: 140 }),
         1.8,
         "lower",
         "bottom",
@@ -357,33 +353,33 @@ export namespace WorkoutGym {
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         ...clean(body),
         WorkoutKind.step(
-          WorkoutGymDataSquat(5, 32, 13, { shoulder: 85, raise: 5, elbow: 145 })(body),
+          WorkoutGymData.squat(5, 32, 13, { shoulder: 85, raise: 5, elbow: 145 })(body),
           0.3,
           "dip",
           "jerkDip",
         ),
         WorkoutKind.step(
-          WorkoutGymDataKey({}, { shoulder: 135, raise: 12, elbow: 65 })(body),
+          WorkoutGymData.key({}, { shoulder: 135, raise: 12, elbow: 65 })(body),
           0.18,
           "drive",
           "jerkDrive",
         ),
         WorkoutKind.step(
-          WorkoutGymDataSquat(10, 100, 28, { shoulder: 167, raise: 15, elbow: 3 })(body),
+          WorkoutGymData.squat(10, 100, 28, { shoulder: 167, raise: 15, elbow: 3 })(body),
           0.28,
           "receive",
           "jerkCatch",
           0.15,
         ),
         WorkoutKind.step(
-          WorkoutGymDataKey({}, { shoulder: 170, raise: 15, elbow: 3 })(body),
+          WorkoutGymData.key({}, { shoulder: 170, raise: 15, elbow: 3 })(body),
           0.85,
           "standOverhead",
           "jerkOverhead",
           0.5,
         ),
         WorkoutKind.step(
-          WorkoutGymDataKey({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
+          WorkoutGymData.key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
           0.6,
           "lowerToRack",
           "resetRack",
@@ -404,14 +400,14 @@ export namespace WorkoutGym {
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          WorkoutGymDataSquat(60, 85, 28, { shoulder: 60, raise: 30, elbow: 3 })(body),
+          WorkoutGymData.squat(60, 85, 28, { shoulder: 60, raise: 30, elbow: 3 })(body),
           1,
           "set",
           "start",
           0.3,
         ),
         WorkoutKind.step(
-          WorkoutGymDataKey(
+          WorkoutGymData.key(
             { pitch: -5 },
             { hip: -5, ankle: -15, raise: 30, elbow: 3 },
           )(body),
@@ -420,14 +416,14 @@ export namespace WorkoutGym {
           "extension",
         ),
         WorkoutKind.step(
-          WorkoutGymDataSquat(15, 115, 32, { shoulder: 165, raise: 30, elbow: 3 })(body),
+          WorkoutGymData.squat(15, 115, 32, { shoulder: 165, raise: 30, elbow: 3 })(body),
           0.35,
           "turnOver",
           "catch",
           0.3,
         ),
         WorkoutKind.step(
-          WorkoutGymDataKey({}, { shoulder: 172, raise: 30, elbow: 3 })(body),
+          WorkoutGymData.key({}, { shoulder: 172, raise: 30, elbow: 3 })(body),
           1,
           "recover",
           "overhead",
@@ -445,27 +441,27 @@ export namespace WorkoutGym {
   ): IAutoMovieMotionHumanWorkoutKind.IStep[] {
     return [
       WorkoutKind.step(
-        WorkoutGymDataSquat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
+        WorkoutGymData.squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
         1,
         "set",
         "start",
         0.3,
       ),
       WorkoutKind.step(
-        WorkoutGymDataKey({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
+        WorkoutGymData.key({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
         0.45,
         "pull",
         "extension",
       ),
       WorkoutKind.step(
-        WorkoutGymDataSquat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
+        WorkoutGymData.squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
         0.3,
         "turnOver",
         "catch",
         0.2,
       ),
       WorkoutKind.step(
-        WorkoutGymDataKey({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
+        WorkoutGymData.key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
         0.8,
         "recover",
         "rack",

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -15,7 +15,7 @@ import type {
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
-import * as SprintStartBlocksData from "./SprintStartBlocksData";
+import { SprintStartBlocksData } from "./SprintStartBlocksData";
 
 /*
  * Fit the set's two foot placements to a starting block's plates.
@@ -47,18 +47,18 @@ export function sprintStartBlocks(
   const ahead: IAutoMovieVector3 = HumanFrame.forward(
     context.entry.posture.yaw,
   );
-  const across: IAutoMovieVector3 = Vector3.cross({ x: 0, y: 1, z: 0 }, ahead);
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross({ x: 0, y: 1, z: 0 }, ahead);
   const plate = (id: OfPlateId): IPlate => {
     const affordance = read.prop.affordances?.find(
       (item): boolean => item.id === id,
     );
     if (affordance?.kind !== "pedal")
       return refuse(`the block needs a pedal affordance named ${id}`);
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       placed.rotation,
       affordance.frame.rotation,
     );
-    const up: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 1,
       z: 0,
@@ -66,34 +66,34 @@ export function sprintStartBlocks(
 
     // The sole presses a face that leans back toward the runner: its
     // normal points up and forward, with little component across.
-    const forward: number = Vector3.dot(up, ahead);
+    const forward: number = AutoMovieEngineVector3.dot(up, ahead);
     if (
       !(
         up.y > 0 &&
         forward > 0 &&
-        Math.abs(Vector3.dot(up, across)) < forward * SprintStartBlocksData.ACROSS
+        Math.abs(AutoMovieEngineVector3.dot(up, across)) < forward * SprintStartBlocksData.ACROSS
       )
     )
       return refuse(`the ${id} plate must face forward and upward in the lane`);
     // The face's lower edge: half its depth down the face from its
     // centre, along the frame's Z turned to point down the slope.
-    const slope: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const slope: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
     });
     const down: IAutoMovieVector3 =
-      slope.y < 0 ? slope : Vector3.scale(slope, -1);
+      slope.y < 0 ? slope : AutoMovieEngineVector3.scale(slope, -1);
     return {
-      point: Vector3.add(
-        Vector3.add(
+      point: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
           placed.position,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             placed.rotation,
             affordance.frame.translation,
           ),
         ),
-        Vector3.scale(down, (affordance.depth ?? 0) / 2),
+        AutoMovieEngineVector3.scale(down, (affordance.depth ?? 0) / 2),
       ),
       yaw: (Math.atan2(up.x, up.z) * 180) / Math.PI,
       pitch: (-Math.atan2(Math.hypot(up.x, up.z), up.y) * 180) / Math.PI,
@@ -106,12 +106,12 @@ export function sprintStartBlocks(
 
   // The front plate sits ahead of the rear one and to one side of the
   // rail; that side is the front foot's.
-  const between: IAutoMovieVector3 = Vector3.subtract(
+  const between: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     plates.front.point,
     plates.rear.point,
   );
-  const lateral: number = Vector3.dot(between, across);
-  if (!(Vector3.dot(between, ahead) > 0 && Math.abs(lateral) > 1e-6))
+  const lateral: number = AutoMovieEngineVector3.dot(between, across);
+  if (!(AutoMovieEngineVector3.dot(between, ahead) > 0 && Math.abs(lateral) > 1e-6))
     return refuse(
       "the front plate must sit ahead of the rear plate on the other side of the rail",
     );

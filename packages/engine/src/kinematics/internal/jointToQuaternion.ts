@@ -6,7 +6,7 @@ import {
   type IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../DEFAULT_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../AutoMovieEngineDefaultJointAxes";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
@@ -45,7 +45,7 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  * Throws on a non-finite angle, an invalid axis basis (see
  * normalizeJointAxes), or an invalid frame sign or neutral.
  * Parameter joint: Clinical angles in degrees; `null` axes are at rest.
- * Parameter axes: Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
+ * Parameter axes: Clinical axis basis; defaults to `AutoMovieEngineDefaultJointAxes`.
  * Parameter frame: Rest frame mapping clinical angles to rest-relative ones;
  * omitted, the angles are already rest-relative.
  */
@@ -55,7 +55,7 @@ export const jointToQuaternion: (
   frame?: IAutoMovieRestFrame | undefined,
 ) => IAutoMovieQuaternion = (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
+  axes: IAutoMovieJointAxes = AutoMovieEngineDefaultJointAxes,
   frame?: IAutoMovieRestFrame,
 ): IAutoMovieQuaternion =>
   jointToQuaternionOnBasis.run(

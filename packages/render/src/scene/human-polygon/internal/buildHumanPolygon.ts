@@ -6,7 +6,7 @@ import type {
 import * as THREE from "three";
 
 import { reportAutoMovieResourceRetirement } from "../../internal/reportAutoMovieResourceRetirement.js";
-import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
 import { applyHumanPolygonPose } from "./applyHumanPolygonPose.js";
 import { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 import { buildHumanPolygonParts } from "./buildHumanPolygonParts.js";
@@ -55,9 +55,9 @@ export function buildHumanPolygon(
      * Source pose, actor frame and authored polygon cues for optional
      * time-based drawing.
      */
-    presentation?: AutoMovieHumanPolygon.IPresentation;
+    presentation?: AutoMovieRenderHumanPolygon.IPresentation;
   } = {},
-): AutoMovieHumanPolygon.IDrawing {
+): AutoMovieRenderHumanPolygon.IDrawing {
   createHumanPolygonPalette.validate(options.partColors);
   const bones: Map<string, IAutoMovieHumanBindBone> = new Map();
   const placements: Map<string, IAutoMovieHumanBonePlacement> = new Map();
@@ -289,7 +289,7 @@ export function buildHumanPolygon(
     dispose({ error });
     throw error;
   }
-  const drawing: AutoMovieHumanPolygon.IDrawing = {
+  const drawing: AutoMovieRenderHumanPolygon.IDrawing = {
     object,
     surface,
     sections,

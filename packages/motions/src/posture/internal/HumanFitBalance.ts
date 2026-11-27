@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFitBalanceBase } from "./HumanFitBalanceBase";
@@ -47,9 +47,9 @@ export function HumanFitBalance(
               const world: IAutoMovieVector3 = points[c.i]!;
               return {
                 bone: owners[c.i]!,
-                local: Quaternion.rotateVector(
-                  Quaternion.inverse(b.worldRotation),
-                  Vector3.subtract(world, b.worldPosition),
+                local: AutoMovieEngineQuaternion.rotateVector(
+                  AutoMovieEngineQuaternion.inverse(b.worldRotation),
+                  AutoMovieEngineVector3.subtract(world, b.worldPosition),
                 ),
                 world,
               };
@@ -178,9 +178,9 @@ export namespace HumanFitBalance {
       r: IRider,
     ): IAutoMovieVector3 => {
       const b: IAutoMovieResolvedBone = bones.get(r.bone)!;
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         b.worldPosition,
-        Quaternion.rotateVector(b.worldRotation, r.local),
+        AutoMovieEngineQuaternion.rotateVector(b.worldRotation, r.local),
       );
     };
     const p: IAutoMovieVector3 = placed(reading.riders[through.p]!);
@@ -342,9 +342,9 @@ export namespace HumanFitBalance {
               points[i] = null;
               continue;
             }
-            at = Vector3.add(
+            at = AutoMovieEngineVector3.add(
               b.worldPosition,
-              Quaternion.rotateVector(b.worldRotation, s.point),
+              AutoMovieEngineQuaternion.rotateVector(b.worldRotation, s.point),
             );
             points[i] = at;
           }

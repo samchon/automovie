@@ -7,7 +7,7 @@ import {
   type IAutoMovieViolationAppendItemsSink,
 } from "@automovie/interface";
 
-import { POSITIONAL_TARGET_SHAPE } from "../../perform/POSITIONAL_TARGET_SHAPE";
+import { AutoMovieEnginePositionalTargetShape } from "../../perform/AutoMovieEnginePositionalTargetShape";
 import { positionalTargetFault } from "../../perform/internal/positionalTargetFault";
 import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
 
@@ -57,7 +57,7 @@ export function resolvePerformShotTarget(
       context.out.push(
         "type",
         path,
-        `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but its group names formation ${named
+        `${subject} must resolve to a point (${AutoMovieEnginePositionalTargetShape}), but its group names formation ${named
           .map((formation: string): string => `"${formation}"`)
           .join(
             ", ",
@@ -78,7 +78,7 @@ export function resolvePerformShotTarget(
     context.out.push(
       "type",
       path,
-      `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but ${positionalTargetFault(target)}`,
+      `${subject} must resolve to a point (${AutoMovieEnginePositionalTargetShape}), but ${positionalTargetFault(target)}`,
       target,
     );
     return null;
@@ -90,7 +90,7 @@ export function resolvePerformShotTarget(
     context.out.push(
       "type",
       path,
-      `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but ${positionalTargetFault(target)}`,
+      `${subject} must resolve to a point (${AutoMovieEnginePositionalTargetShape}), but ${positionalTargetFault(target)}`,
       target,
     );
     return null;

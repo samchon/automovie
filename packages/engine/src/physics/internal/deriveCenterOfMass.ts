@@ -5,9 +5,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
 import { primitiveCentroid } from "./primitiveCentroid";
 import { primitiveVolume } from "./primitiveVolume";
@@ -49,18 +49,18 @@ export function deriveCenterOfMass(
         throw new Error(
           `Center of mass references missing bone ${part.attachedBone}`,
         );
-      centroid = Vector3.add(
+      centroid = AutoMovieEngineVector3.add(
         bone.position,
-        Quaternion.rotateVector(bone.rotation, centroid),
+        AutoMovieEngineQuaternion.rotateVector(bone.rotation, centroid),
       );
     }
-    weighted = Vector3.add(weighted, Vector3.scale(centroid, volume));
+    weighted = AutoMovieEngineVector3.add(weighted, AutoMovieEngineVector3.scale(centroid, volume));
     total += volume;
   }
-  return total > 0 ? Vector3.scale(weighted, 1 / total) : null;
+  return total > 0 ? AutoMovieEngineVector3.scale(weighted, 1 / total) : null;
 }
 
-const IDENTITY: IAutoMovieTransform = Transform.identity();
+const IDENTITY: IAutoMovieTransform = AutoMovieEngineTransform.identity();
 
 /*
  * How much a transform's scale multiplies a solid's volume.
@@ -79,9 +79,9 @@ const applyTransform: (
   t: IAutoMovieTransform,
   p: IAutoMovieVector3,
 ): IAutoMovieVector3 =>
-  Vector3.add(
+  AutoMovieEngineVector3.add(
     t.translation,
-    Quaternion.rotateVector(t.rotation, {
+    AutoMovieEngineQuaternion.rotateVector(t.rotation, {
       x: p.x * t.scale.x,
       y: p.y * t.scale.y,
       z: p.z * t.scale.z,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -76,7 +76,7 @@ export namespace HumanCarriedCouplingRigid {
         ? HumanTrunk.resolve(borne, keyed)
         : keyBones(keyed);
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
-    const restT: IAutoMovieVector3 = Vector3.add(
+    const restT: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       HumanCarriedCouplingPose.region(bearer, theirs, row.theirs),
       { x: 0, y: (row.rise ?? 0) * arm, z: 0 },
     );
@@ -93,7 +93,7 @@ export namespace HumanCarriedCouplingRigid {
           row.holds[index] ?? null;
         const region0: AutoMovieHumanoidRegion | null = held[index] ?? null;
         if (hold === null || region0 === null) return;
-        const target: IAutoMovieVector3 = Vector3.add(
+        const target: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           HumanCarriedCouplingPose.region(bearer, theirs, hold.region),
           {
             x: (side === "left" ? 1 : -1) * hold.offset.out * arm,
@@ -102,12 +102,12 @@ export namespace HumanCarriedCouplingRigid {
           },
         );
         from.push(
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             HumanCarriedCouplingPose.region(borne, mine, region0),
             restB,
           ),
         );
-        to.push(Vector3.subtract(target, restT));
+        to.push(AutoMovieEngineVector3.subtract(target, restT));
       },
     );
 
@@ -118,7 +118,7 @@ export namespace HumanCarriedCouplingRigid {
         { x: arm, y: 0, z: 0 },
         { x: 0, y: 0, z: arm },
       ]) {
-        const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+        const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           heading,
           axis,
         );
@@ -131,8 +131,8 @@ export namespace HumanCarriedCouplingRigid {
       directions: readonly IAutoMovieVector3[],
     ): number[] =>
       directions.flatMap((d: IAutoMovieVector3): number[] => {
-        const a: IAutoMovieVector3 = Vector3.add(origin, d);
-        const b: IAutoMovieVector3 = Vector3.subtract(origin, d);
+        const a: IAutoMovieVector3 = AutoMovieEngineVector3.add(origin, d);
+        const b: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(origin, d);
         return [a.x, a.y, a.z, b.x, b.y, b.z];
       });
     const registered: IAutoMovieQuaternion = AutoMovieEngineMath.fitRigidMeshTransform({
@@ -148,10 +148,10 @@ export namespace HumanCarriedCouplingRigid {
     const turn: IAutoMovieQuaternion =
       swivel === 0
         ? registered
-        : Quaternion.normalize(
-            Quaternion.multiply(
-              Quaternion.fromAxisAngle(
-                Quaternion.rotateVector(
+        : AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.fromAxisAngle(
+                AutoMovieEngineQuaternion.rotateVector(
                   theirs.get(support.bone)!.worldRotation,
                   support.normal,
                 ),
@@ -165,9 +165,9 @@ export namespace HumanCarriedCouplingRigid {
       legs,
       turn,
       place: (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           restT,
-          Quaternion.rotateVector(turn, Vector3.subtract(point, restB)),
+          AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(point, restB)),
         ),
     };
     return { fit, bones: mine };

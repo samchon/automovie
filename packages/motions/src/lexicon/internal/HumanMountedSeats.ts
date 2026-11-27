@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -231,7 +231,7 @@ export namespace HumanMountedSeats {
       ...head,
       y: head.y + (context.contact(headId).aperture ?? 0) / 2 + m.thighRadius,
     };
-    const along: number = Vector3.distance(over, hips.right);
+    const along: number = AutoMovieEngineVector3.distance(over, hips.right);
     if (!(along >= 0.5 * m.thigh && along <= m.thigh))
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
@@ -246,10 +246,10 @@ export namespace HumanMountedSeats {
         reason: `the fixed head ${headId} lies ${along.toFixed(3)} m along the right thigh, and it hooks under the thigh between its middle and the knee`,
         fix: "sit on a side saddle whose fixed head lies under the thigh, or a body whose thigh reaches it",
       });
-    const knee: IAutoMovieVector3 = Vector3.add(
+    const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hips.right,
-      Vector3.scale(
-        Vector3.normalize(Vector3.subtract(over, hips.right)),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(over, hips.right)),
         m.thigh,
       ),
     );
@@ -265,7 +265,7 @@ export namespace HumanMountedSeats {
       0,
     );
     const [near, far]: readonly [number, number] = HumanMount.span(body);
-    const reach: number = Vector3.distance(placed.ankle, hips.left);
+    const reach: number = AutoMovieEngineVector3.distance(placed.ankle, hips.left);
     if (!(reach >= near && reach <= far))
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
@@ -278,7 +278,7 @@ export namespace HumanMountedSeats {
     // The shank hangs from the knee, turned out about the carrier's fore-and-aft axis only as far as clears the carrier.
     const ankleAt = (degrees: number): IAutoMovieVector3 => {
       const r: number = (degrees * Math.PI) / 180;
-      return Vector3.add(knee, {
+      return AutoMovieEngineVector3.add(knee, {
         x: m.shank * Math.sin(r),
         y: -m.shank * Math.cos(r),
         z: 0,
@@ -305,11 +305,11 @@ export namespace HumanMountedSeats {
       else low = middle;
     }
     const ankle: IAutoMovieVector3 = ankleAt(high);
-    const bend: IAutoMovieVector3 = Vector3.add(
+    const bend: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       knee,
-      Vector3.scale(
-        Vector3.normalize(
-          Vector3.subtract(knee, Vector3.lerp(hips.right, ankle, 0.5)),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(knee, AutoMovieEngineVector3.lerp(hips.right, ankle, 0.5)),
         ),
         0.1,
       ),
@@ -379,9 +379,9 @@ export namespace HumanMountedSeats {
       turn,
       entry.joints.hips,
     );
-    const middle: IAutoMovieVector3 = Vector3.lerp(rest.left, rest.right, 0.5);
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(rest.left, rest.right, 0.5);
     const ahead: number = (handles.left.z + handles.right.z) / 2;
-    const root: IAutoMovieVector3 = Vector3.subtract(
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       { x: 0, y: kneeY + m.thigh, z: ahead - m.thigh },
       middle,
     );
@@ -435,9 +435,9 @@ export namespace HumanMountedSeats {
       legs[`${side}Leg`] = {
         point: placed.ankle,
         rotation: placed.rotation,
-        bend: Vector3.add(
+        bend: AutoMovieEngineVector3.add(
           knee,
-          Vector3.scale(HumanFrame.forward(facing), m.thigh),
+          AutoMovieEngineVector3.scale(HumanFrame.forward(facing), m.thigh),
         ),
 
         // The toes may reach past the pad, where the guideline lets the foot leave the back, so they bear nothing.
@@ -450,9 +450,9 @@ export namespace HumanMountedSeats {
       ...attitude,
       pitch: BENCH.pitch + BENCH.spine,
     });
-    const shoulder: IAutoMovieVector3 = Vector3.add(
-      Vector3.lerp(hips.left, hips.right, 0.5),
-      Quaternion.rotateVector(lean, {
+    const shoulder: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.lerp(hips.left, hips.right, 0.5),
+      AutoMovieEngineQuaternion.rotateVector(lean, {
         x: 0,
         y: m.shoulderHeight - m.hipHeight,
         z: 0,
@@ -460,7 +460,7 @@ export namespace HumanMountedSeats {
     );
     const arm: number = m.upperArm + m.forearm + m.hand / 2;
     for (const side of ["left", "right"] as const) {
-      const gap: number = Vector3.distance(shoulder, handles[side]);
+      const gap: number = AutoMovieEngineVector3.distance(shoulder, handles[side]);
       if (gap > arm)
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",

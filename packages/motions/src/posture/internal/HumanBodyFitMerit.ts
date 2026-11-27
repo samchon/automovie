@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -143,8 +143,8 @@ export function HumanBodyFitMerit(
           ? []
           : HumanFitGoals.directions(props.centre).map(
               (axis: IAutoMovieVector3): number =>
-                Vector3.dot(
-                  (centreDelta ??= Vector3.subtract(
+                AutoMovieEngineVector3.dot(
+                  (centreDelta ??= AutoMovieEngineVector3.subtract(
                     r.centre!,
                     props.centre!.point,
                   )),

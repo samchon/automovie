@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryFeasibleReportCapacity } from "@automovie/interface";
 
-import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError";
+import { AutoMovieRecoveryFeasibleCapacityError } from "../AutoMovieRecoveryFeasibleCapacityError";
 
 /*
  * Partition one reporting scope before growth or joint scratch is formed.
@@ -14,7 +14,7 @@ export function prepareRecoveryFeasibleReportCapacity(
   if (sceneEntries <= 0 || fitEntries <= 0 || persistedReports < 0)
     throw new Error("camera-feasible: safe fixed reporting scope required");
   if (reservedEntries >= sceneEntries)
-    throw new RecoveryFeasibleCapacityError("resident");
+    throw new AutoMovieRecoveryFeasibleCapacityError("resident");
   return {
     sceneEntries: sceneEntries - reservedEntries,
     fitEntries: Math.min(fitEntries - 512, sceneEntries - reservedEntries),

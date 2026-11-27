@@ -1,4 +1,4 @@
-import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -34,7 +34,7 @@ import { furnishRoom } from "./furnishRoom";
  * `keepClear` area, naming the role.
  */
 export function createLivingRoomKit(
-  params: AutoMovieEnvironmentFurnishing.ILivingRoomKitParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.ILivingRoomKitParams,
   defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (

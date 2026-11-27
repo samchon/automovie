@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Prepare a squared chord lower bound on the local wrist rotation error for
@@ -104,8 +104,8 @@ function arc(
   range: IAutoMovieAngleRange,
   sign: number,
 ): ((x: number, y: number) => number) | undefined {
-  const a: number = sign * range.min * Quaternion.DEG2RAD;
-  const b: number = sign * range.max * Quaternion.DEG2RAD;
+  const a: number = sign * range.min * AutoMovieEngineQuaternion.DEG2RAD;
+  const b: number = sign * range.max * AutoMovieEngineQuaternion.DEG2RAD;
   const low: number = Math.min(a, b);
   const high: number = Math.max(a, b);
   if (!(low >= -2 * Math.PI && high <= 2 * Math.PI && high - low < Math.PI))

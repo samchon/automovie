@@ -1052,7 +1052,7 @@ export namespace AutoMovieEngineGeometry {
    * changed. Vertices weld by position: each coordinate is multiplied by
    * `options.weld`, the number of lattice cells per unit of length, and rounded
    * to the nearest whole cell, and vertices in the same cell on all three axes
-   * are one corner. The default is `MESH_WELD_GRID`, a nanometre grid when the
+   * are one corner. The default is `AutoMovieEngineMeshWeldGrid`, a nanometre grid when the
    * unit is the metre. Welding by cell is not welding by distance: two points
    * closer than a cell that fall on either side of a rounding boundary stay
    * apart.
@@ -1085,7 +1085,7 @@ export namespace AutoMovieEngineGeometry {
    *
    * @param mesh Position and index buffers to measure.
    * @param options `weld` is the lattice's cells per unit of length, default
-   *   `MESH_WELD_GRID`. `sliver` is the aspect limit above which a triangle is a
+   *   `AutoMovieEngineMeshWeldGrid`. `sliver` is the aspect limit above which a triangle is a
    *   sliver; absent, no sliver is reported.
    * @returns The defects, empty for a closed, consistently wound mesh without
    *   degenerate triangles.
@@ -1205,7 +1205,7 @@ export namespace AutoMovieEngineGeometry {
    * topology weld grid.
    *
    * Two corners repeat when their positions round to the same cell of the
-   * engine's shared nanometre grid, `MESH_WELD_GRID`, even if they are different
+   * engine's shared nanometre grid, `AutoMovieEngineMeshWeldGrid`, even if they are different
    * index entries, so a seam pole or a collapsed fan counts. The portrait Float32
    * gate uses these ordinals to tell an existing seam or pole from a face newly
    * collapsed by single precision, the physical partition matcher requires a
@@ -1329,7 +1329,7 @@ export namespace AutoMovieEngineGeometry {
    * instead of assuming them.
    *
    * Without physical source correspondence, vertices weld by position on the
-   * `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A
+   * `AutoMovieEngineMeshWeldGrid` lattice, so face-local corners can still form one shell. A
    * mesh that declares physical sources instead keeps their incidence across
    * contact: two different sources stay distinct even where they touch. A
    * triangle whose corners collapse onto fewer than three grid cells is counted
@@ -1359,7 +1359,7 @@ export namespace AutoMovieEngineGeometry {
    * Euler characteristic, manifoldness, orientability, stored winding and genus.
    *
    * Corners are welded exactly as `inspectAutoMovieMeshTopology` welds them,
-   * through the shared `weldAutoMovieMeshCorners`: on the `MESH_WELD_GRID`
+   * through the shared `weldAutoMovieMeshCorners`: on the `AutoMovieEngineMeshWeldGrid`
    * lattice, or by declared physical sources. Degenerate triangles are skipped as
    * that report skips them. The remaining triangles split into pieces connected
    * through shared edges, so a cube whose faces carry their own corners is one
@@ -1928,7 +1928,7 @@ export namespace AutoMovieEngineGeometry {
    * zero for collinear points.
    *
    * It is the free-form region kernel's raw orientation measure; callers compare
-   * it against the absolute `PLANAR_EPSILON`. The architecture graph's
+   * it against the absolute `AutoMovieEnginePlanarEpsilon`. The architecture graph's
    * `planarSide` asks the same question with a tolerance that grows with the
    * figure, which is why the two are not merged.
    *
@@ -1948,7 +1948,7 @@ export namespace AutoMovieEngineGeometry {
    * regions with a shared corner; it is a surface pinched to a line, the same
    * shape `buildAutoMovieWall` refuses when two openings meet at a corner. A
    * proper crossing needs each segment's endpoints on strictly opposite sides of
-   * the other's line, each side more than `PLANAR_EPSILON` from zero; otherwise
+   * the other's line, each side more than `AutoMovieEnginePlanarEpsilon` from zero; otherwise
    * the segments meet when an endpoint of one is collinear with the other within
    * that absolute tolerance and its projection parameter lies in [0, 1] widened
    * by the same constant. A zero-length segment never reports a touch through its

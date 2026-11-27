@@ -22,7 +22,7 @@ Place each piece by the relation that states the intent, from those the archetyp
 - a named anchor in the item's `at`, such as table `stack` or a terrain amenity
 - a terrain pad or the start or end frame of a terrain path
 
-Define furnished rooms with `AutoMovieEnvironmentFurnishing.furnishedRoom`.
+Define furnished rooms with `AutoMovieArchetypeEnvironmentFurnishing.furnishedRoom`.
 
 Type a coordinate only when no relation states the intent. A relation keeps its meaning when a reseeded model changes size, and a coordinate does not.
 

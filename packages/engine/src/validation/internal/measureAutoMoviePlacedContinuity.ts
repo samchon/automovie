@@ -1,7 +1,7 @@
 import type { IAutoMoviePlacedContinuity } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { validateTransformScalars } from "./validateTransformScalars";
 
@@ -123,11 +123,11 @@ function measureStep(
   if (collector.items.length !== 0)
     return { status: "checked", violations: collector.items };
 
-  const distance: number = Vector3.distance(
+  const distance: number = AutoMovieEngineVector3.distance(
     before.transform.translation,
     after.transform.translation,
   );
-  const angle: number = Quaternion.angle(
+  const angle: number = AutoMovieEngineQuaternion.angle(
     before.transform.rotation,
     after.transform.rotation,
   );

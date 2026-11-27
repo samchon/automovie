@@ -1,4 +1,6 @@
-import { assertSingleGuidePass } from "@automovie/render/internal";
+import {
+  assertSingleGuidePass
+} from "../../../../../packages/render/src/film/internal/assertSingleGuidePass";
 import { TestValidator } from "@nestia/e2e";
 
 /**

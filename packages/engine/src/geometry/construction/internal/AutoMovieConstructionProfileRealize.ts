@@ -7,9 +7,9 @@ import type {
   IAutoMovieSolidBody,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionProfile } from "../../AutoMovieConstructionProfile";
-import { AutoMovieConstructionProfileBody } from "../../AutoMovieConstructionProfileBody";
-import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
+import { AutoMovieEngineConstructionProfile } from "../../AutoMovieEngineConstructionProfile";
+import { AutoMovieEngineConstructionProfileBody } from "../../AutoMovieEngineConstructionProfileBody";
+import { AutoMovieEngineConstructionState } from "../../AutoMovieEngineConstructionState";
 
 /*
  * Resolve one pure profile leaf to its actual invocation-owned original family.
@@ -29,7 +29,7 @@ export function AutoMovieConstructionProfileRealize(
   tolerance: number,
 ): void {
   const snapshot: IAutoMovieConstructionState.ISnapshot =
-    AutoMovieConstructionState.snap(body, state);
+    AutoMovieEngineConstructionState.snap(body, state);
   try {
     const source: IAutoMovieConstructionProfileSource | undefined =
       context?.get(node.name);
@@ -39,15 +39,15 @@ export function AutoMovieConstructionProfileRealize(
         "The invocation has no matching complete original profile declaration.",
       );
     const prepared: IAutoMoviePreparedConstructionProfile.IPrepared =
-      AutoMovieConstructionProfile.create(source);
+      AutoMovieEngineConstructionProfile.create(source);
     const ends: IAutoMovieConstructionProfileBody.IEnd[] =
-      AutoMovieConstructionProfileBody.append(body, prepared, tolerance);
+      AutoMovieEngineConstructionProfileBody.append(body, prepared, tolerance);
     for (let index: number = snapshot.faces; index < body.faces.length; index++)
       state.faces.set(body.faces[index]!.surface.name, index);
     (state.profiles ??= []).push(prepared);
     (state.profileEnds ??= []).push(...ends);
   } catch (error: unknown) {
-    AutoMovieConstructionState.restore(body, state, snapshot);
+    AutoMovieEngineConstructionState.restore(body, state, snapshot);
     state.diagnostics.push({
       node: node.name,
       contract: "profile source",

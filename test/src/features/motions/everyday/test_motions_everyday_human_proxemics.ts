@@ -1,4 +1,9 @@
-import { HumanProxemics, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanProxemics
+} from "../../../../../packages/motions/src/everyday/internal/HumanProxemics";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

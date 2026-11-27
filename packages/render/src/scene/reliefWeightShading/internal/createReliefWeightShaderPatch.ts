@@ -1,4 +1,4 @@
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { reliefWeightFragment } from "./reliefWeightFragment.js";
 import { reliefWeightVertex } from "./reliefWeightVertex.js";
 
@@ -18,7 +18,7 @@ export const createReliefWeightShaderPatch: () => {
    */
   apply: (
     shader: Pick<
-      IMaterialShaderSource,
+      IAutoMovieRenderMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ) => void;
@@ -33,7 +33,7 @@ export const createReliefWeightShaderPatch: () => {
    */
   apply: (
     shader: Pick<
-      IMaterialShaderSource,
+      IAutoMovieRenderMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ) => void;
@@ -41,7 +41,7 @@ export const createReliefWeightShaderPatch: () => {
   key: "automovie-relief-weights",
   apply: (
     shader: Pick<
-      IMaterialShaderSource,
+      IAutoMovieRenderMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ): void => {

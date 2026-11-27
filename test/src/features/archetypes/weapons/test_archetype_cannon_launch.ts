@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeCannon } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,11 +39,11 @@ export function test_archetype_cannon_launch(): void {
     const muzzle: IAutoMovieVector3 = gun
       .articulate({ elevation })
       .affordance("muzzle").frame.translation;
-    if (!(Vector3.length(Vector3.subtract(shot.origin, muzzle)) <= 1e-9))
+    if (!(AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(shot.origin, muzzle)) <= 1e-9))
       findings.push(`at ${elevation} degrees the launch is off the muzzle`);
     if (
       !(
-        Math.abs(Vector3.length(shot.direction) - 1) <= 1e-9 &&
+        Math.abs(AutoMovieEngineVector3.length(shot.direction) - 1) <= 1e-9 &&
         Math.abs(shot.direction.y - Math.sin((elevation * Math.PI) / 180)) <=
           1e-9
       )
@@ -82,11 +82,11 @@ export function test_archetype_cannon_launch(): void {
   launch.origin.x += 1;
   if (
     !(
-      Vector3.length(
-        Vector3.subtract(gun.affordance("muzzle").frame.translation, original),
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(gun.affordance("muzzle").frame.translation, original),
       ) <= 1e-12 &&
-      Vector3.length(
-        Vector3.subtract(AutoMovieArchetypeCannon.launch(gun).origin, original),
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(AutoMovieArchetypeCannon.launch(gun).origin, original),
       ) <= 1e-12
     )
   )

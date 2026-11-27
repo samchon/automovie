@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,7 +25,7 @@ const OVERRIDE: IAutoMovieJointConstraint = {
  *    shoulder's 180 degree swing cap whose maximal flexion corner stays inside
  *    it, and the hip's 120 degree cone, which pure flexion 120 reaches and the
  *    corner of maximal flexion and abduction (120, 45) exceeds. The values are
- *    the table's own (see DEFAULT_HUMANOID_ROM), whose hip abduction of 45
+ *    the table's own (see AutoMovieEngineDefaultHumanoidRom), whose hip abduction of 45
  *    rising to 60 with the hip flexed 90 is the AAOS 1965 norm tabulated by
  *    Cejudo, Sainz de Baranda, Santonja and Ayala (2016, SporTK 5(1):35-46,
  *    Table 1).
@@ -37,11 +37,11 @@ export function test_engine_rom_get_constraint(): void {
   );
   TestValidator.predicate(
     "the table entry",
-    AutoMovieEngineKinematics.getConstraint("leftUpperArm", null) === DEFAULT_HUMANOID_ROM.leftUpperArm,
+    AutoMovieEngineKinematics.getConstraint("leftUpperArm", null) === AutoMovieEngineDefaultHumanoidRom.leftUpperArm,
   );
   TestValidator.predicate(
     "no entry",
-    DEFAULT_HUMANOID_ROM.hips !== undefined ||
+    AutoMovieEngineDefaultHumanoidRom.hips !== undefined ||
       AutoMovieEngineKinematics.getConstraint("hips", null) === null,
   );
   const elbow: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint("leftLowerArm", null)!;

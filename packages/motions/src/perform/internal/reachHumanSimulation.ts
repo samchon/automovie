@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
@@ -46,7 +46,7 @@ export function reachHumanSimulation(
     (
       sum: number,
       impulse: IAutoMoviePhysicalSimulationInput.IInput["impulses"][number],
-    ): number => sum + Vector3.length(impulse.impulse),
+    ): number => sum + AutoMovieEngineVector3.length(impulse.impulse),
     0,
   );
   let speed: number = 0;
@@ -81,8 +81,8 @@ export function reachHumanSimulation(
         if (step > 0)
           speed = Math.max(
             speed,
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 segments[root]!.position,
                 samples[step - 1]![root]!.position,
               ),

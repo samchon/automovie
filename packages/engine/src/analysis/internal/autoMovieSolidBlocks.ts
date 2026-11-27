@@ -1,6 +1,6 @@
 import type { IAutoMovieSolidBlockQuery } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Whether a ray from `origin` along a unit `direction` is stopped by one convex
@@ -27,10 +27,10 @@ export function autoMovieSolidBlocks(
   let enter: number = 0;
   let exit: number = props.maxDistance;
   for (const plane of props.planes) {
-    const denominator: number = Vector3.dot(plane.normal, props.direction);
+    const denominator: number = AutoMovieEngineVector3.dot(plane.normal, props.direction);
     const distance: number =
-      plane.offset - Vector3.dot(plane.normal, props.origin);
-    if (Math.abs(denominator) <= PLANE_EPSILON * Vector3.length(plane.normal)) {
+      plane.offset - AutoMovieEngineVector3.dot(plane.normal, props.origin);
+    if (Math.abs(denominator) <= PLANE_EPSILON * AutoMovieEngineVector3.length(plane.normal)) {
       // Parallel to this face: either forever inside it, or forever outside.
       if (distance < 0) return false;
       continue;

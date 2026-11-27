@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -157,7 +157,7 @@ export namespace EquineStanceRows {
         goal: (share: number): EquineBodyPose.IGoal => ({
           trunk: EquineStanceSupport.moved(
             start.trunk,
-            EquineStanceSupport.along(start.trunk, Vector3.scale(shift, share)),
+            EquineStanceSupport.along(start.trunk, AutoMovieEngineVector3.scale(shift, share)),
           ),
           limbs: EquineStanceSupport.placed(start.anchors),
         }),
@@ -262,7 +262,7 @@ export namespace EquineStanceRows {
         trunk: loaded,
         anchors: {
           ...before.anchors,
-          [limb]: Vector3.add(before.anchors[limb], offset),
+          [limb]: AutoMovieEngineVector3.add(before.anchors[limb], offset),
         },
       });
     }
@@ -325,8 +325,8 @@ export namespace EquineStanceRows {
             limbs: EquineStanceSupport.placed(before.anchors),
           };
         const swing: number = AutoMovieEngineMotionSampling.minimumJerkShare((local - LOAD) / (1 - LOAD));
-        const anchor: IAutoMovieVector3 = Vector3.add(
-          Vector3.lerp(
+        const anchor: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.lerp(
             before.anchors[limb],
             states[k + 1]!.anchors[limb],
             swing,
@@ -358,8 +358,8 @@ export namespace EquineStanceRows {
       start.trunk,
     );
     const joint = (end: End): IAutoMovieVector3 =>
-      Vector3.scale(
-        Vector3.add(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
           body.chains[`left${end}`][0]!,
           body.chains[`right${end}`][0]!,
         ),

@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionEvent,
@@ -14,7 +14,7 @@ import { jump } from "../../actions/internal/jump";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
-import * as GymnasticsTakeoffData from "./GymnasticsTakeoffData";
+import { GymnasticsTakeoffData } from "./GymnasticsTakeoffData";
 
 /*
  * Plan a take-off at the velocity a law asks for.
@@ -57,10 +57,10 @@ export function GymnasticsTakeoff(
         reason: `a take-off rises, and the launch asked climbs at ${velocity.y.toFixed(2)} m/s`,
         fix: "aim the flight higher",
       });
-    return (velocity.y * velocity.y) / (2 * AutoMovieGravity.STANDARD);
+    return (velocity.y * velocity.y) / (2 * AutoMovieEngineGravity.STANDARD);
   };
   let apex: number = apexOf(first);
-  const guess: number = (2 * first.y) / AutoMovieGravity.STANDARD;
+  const guess: number = (2 * first.y) / AutoMovieEngineGravity.STANDARD;
   let to: IAutoMovieVector3 = {
     x: root.x + first.x * guess,
     y: 0,

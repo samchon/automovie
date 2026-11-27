@@ -3,7 +3,12 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, crossAnkleEntry } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  crossAnkleEntry
+} from "../../../../../packages/motions/src/everyday/internal/crossAnkleEntry";
 import { strict as assert } from "node:assert";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

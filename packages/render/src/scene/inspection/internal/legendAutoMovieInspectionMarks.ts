@@ -4,7 +4,7 @@ import type {
   IAutoMovieMark,
 } from "@automovie/interface";
 
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
+import { AutoMovieRenderInspectionPalette } from "../../AutoMovieRenderInspectionPalette.js";
 
 /*
  * List what the colours of a picture's marks mean: each drawn kind once, with
@@ -48,7 +48,7 @@ export function legendAutoMovieInspectionMarks(
     if (count.flagged !== 0)
       legend.push({
         label: `${entry.label} (flagged)`,
-        color: AUTO_MOVIE_INSPECTION_PALETTE.flagged,
+        color: AutoMovieRenderInspectionPalette.flagged,
         count: count.flagged,
       });
   }

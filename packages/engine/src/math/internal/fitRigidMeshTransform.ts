@@ -1,6 +1,6 @@
 import type { IAutoMovieFitRigidMeshTransform } from "@automovie/interface";
 
-import { Quaternion } from "../Quaternion";
+import { AutoMovieEngineQuaternion } from "../AutoMovieEngineQuaternion";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
 /*
@@ -141,7 +141,7 @@ export function fitRigidMeshTransform(
   for (let i: number = 1; i < 4; i++)
     if (n[4 * i + i] > n[4 * largest + largest]) largest = i;
   return {
-    rotation: Quaternion.normalize({
+    rotation: AutoMovieEngineQuaternion.normalize({
       w: vectors[largest],
       x: vectors[4 + largest],
       y: vectors[8 + largest],

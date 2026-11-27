@@ -17,7 +17,7 @@ import {
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "../AUTO_MOVIE_MAX_TEXTURE_EDGE";
+import { AutoMovieEngineMaxTextureEdge } from "../AutoMovieEngineMaxTextureEdge";
 import { materialTextureSlots } from "./materialTextureSlots";
 
 /*
@@ -368,11 +368,11 @@ const checkAsset: (props: {
         `asset "${props.asset}" reports a ${axis} of ${value}; an image must measure a positive whole number of pixels`,
         value,
       );
-    else if (value > AUTO_MOVIE_MAX_TEXTURE_EDGE)
+    else if (value > AutoMovieEngineMaxTextureEdge)
       props.out.push(
         "range",
         `${props.path}.${axis}`,
-        `asset "${props.asset}" is ${value} pixels wide on its ${axis}, past the ${AUTO_MOVIE_MAX_TEXTURE_EDGE} portable limit; downscale it in a recorded processing step`,
+        `asset "${props.asset}" is ${value} pixels wide on its ${axis}, past the ${AutoMovieEngineMaxTextureEdge} portable limit; downscale it in a recorded processing step`,
         value,
       );
   }

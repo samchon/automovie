@@ -1,4 +1,6 @@
-import type { AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import type {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
 
 /**
  * The lift schedule its rider's act fits (`environmentLiftActor`): the cab
@@ -6,7 +8,7 @@ import type { AutoMovieEnvironment } from "@automovie/archetypes/environments";
  * the about-turn taking its step turns a footfall at a time, and opens at the
  * upper stop for the rider to step out.
  */
-export const environmentLiftSchedule: readonly AutoMovieEnvironment.ILiftKey[] =
+export const environmentLiftSchedule: readonly AutoMovieArchetypeEnvironment.ILiftKey[] =
   [
     { seconds: 0, stop: "ground", doors: "closed" },
     { seconds: 1, stop: "ground", doors: "open" },

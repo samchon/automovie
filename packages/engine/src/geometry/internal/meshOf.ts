@@ -1,6 +1,6 @@
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Wrap a procedural builder's positions and indices as a rigid mesh whose
@@ -77,7 +77,7 @@ const normalsOf = (
     }
   }
   for (let index: number = 0; index < normals.length; index += 3) {
-    const normal: IAutoMovieVector3 = Vector3.normalize({
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: normals[index]!,
       y: normals[index + 1]!,
       z: normals[index + 2]!,

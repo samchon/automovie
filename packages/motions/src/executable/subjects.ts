@@ -1,8 +1,8 @@
 import type { IAutoMovieMark, IAutoMoviePose } from "@automovie/interface";
 import {
-  type AutoMovieDrawSubjects,
-  type IAutoMovieDrawScene,
-  type IAutoMovieDrawSubject,
+  type AutoMovieRenderDrawSubjects,
+  type IAutoMovieRenderDrawScene,
+  type IAutoMovieRenderDrawSubject,
 } from "@automovie/render";
 import * as THREE from "three";
 
@@ -34,14 +34,14 @@ import { MotionCaptureFigure } from "./internal/MotionCaptureFigure";
  * Returns: The case's subject under its name.
  * When the page was given no case data.
  */
-export const subjects: AutoMovieDrawSubjects<IMotionCaptureProps | null> = (
+export const subjects: AutoMovieRenderDrawSubjects<IMotionCaptureProps | null> = (
   props: IMotionCaptureProps | null,
-): Readonly<Record<string, IAutoMovieDrawSubject>> => {
+): Readonly<Record<string, IAutoMovieRenderDrawSubject>> => {
   if (props === null)
     throw new Error("The motion case page was given no case data");
   return {
     [props.name]: {
-      create: async (): Promise<IAutoMovieDrawScene> => build(props),
+      create: async (): Promise<IAutoMovieRenderDrawScene> => build(props),
     },
   };
 };
@@ -66,7 +66,7 @@ const GRID_CELL: number = 0.25;
 /*
  * Build the case's scene.
  */
-function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
+function build(data: IMotionCaptureProps): IAutoMovieRenderDrawScene {
   const scene: THREE.Scene = new THREE.Scene();
   scene.background = new THREE.Color(0xe9e6df);
   scene.add(new THREE.AmbientLight(0xffffff, 0.55));

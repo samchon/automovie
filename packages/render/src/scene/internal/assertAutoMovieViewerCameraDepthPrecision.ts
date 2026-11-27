@@ -1,4 +1,4 @@
-import type { IAutoMovieViewerCameraDepthPrecisionReport } from "../IAutoMovieViewerCameraDepthPrecisionReport.js";
+import type { IAutoMovieRenderViewerCameraDepthPrecisionReport } from "../IAutoMovieRenderViewerCameraDepthPrecisionReport.js";
 import { evaluateAutoMovieViewerCameraDepthPrecision } from "./evaluateAutoMovieViewerCameraDepthPrecision.js";
 
 /*
@@ -11,10 +11,10 @@ import { evaluateAutoMovieViewerCameraDepthPrecision } from "./evaluateAutoMovie
  */
 export const assertAutoMovieViewerCameraDepthPrecision: (
   props: Parameters<typeof evaluateAutoMovieViewerCameraDepthPrecision>[0],
-) => IAutoMovieViewerCameraDepthPrecisionReport = (
+) => IAutoMovieRenderViewerCameraDepthPrecisionReport = (
   props: Parameters<typeof evaluateAutoMovieViewerCameraDepthPrecision>[0],
-): IAutoMovieViewerCameraDepthPrecisionReport => {
-  const report: IAutoMovieViewerCameraDepthPrecisionReport =
+): IAutoMovieRenderViewerCameraDepthPrecisionReport => {
+  const report: IAutoMovieRenderViewerCameraDepthPrecisionReport =
     evaluateAutoMovieViewerCameraDepthPrecision(props);
   if (report.passed === false)
     throw new Error(

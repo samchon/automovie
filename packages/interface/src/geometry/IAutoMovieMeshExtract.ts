@@ -71,7 +71,7 @@ export namespace IAutoMovieMeshExtract {
    * The loop variant for top silhouettes and section loops: the dense closed
    * loop is parameterised by cumulative chord length, every point starts as a
    * knot with its periodic central-difference tangent, and knots are removed as
-   * in `AutoMovieMeshExtract.reduce`, the deviation being the Euclidean
+   * in `AutoMovieEngineMeshExtract.reduce`, the deviation being the Euclidean
    * distance of a dense point from its span and both tangent components
    * refitted. Never removed: the extremes along both axes (their axis component
    * of tangent held at zero, so the curve's extreme is the sample's), the

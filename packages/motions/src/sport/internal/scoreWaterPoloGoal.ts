@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -38,27 +38,27 @@ export function scoreWaterPoloGoal(
   )
     throw invalidGoal(goal);
   const frame: IAutoMovieRigidTransform = film.prop(goal.subject, 0);
-  const position: IAutoMovieVector3 = Vector3.add(
+  const position: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, mouth.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, mouth.frame.translation),
   );
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     frame.rotation,
     mouth.frame.rotation,
   );
 
   // The scoring plane must stand vertical with the waterline as its sill,
   // so a level mouth frame is required within rounding of a unit vector.
-  const up: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 1,
     z: 0,
   });
   if (Math.abs(up.x) > LEVEL || Math.abs(up.z) > LEVEL || up.y < 1 - LEVEL)
     throw invalidGoal(goal);
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(rotation);
   const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Quaternion.rotateVector(inverse, Vector3.subtract(point, position));
+    AutoMovieEngineQuaternion.rotateVector(inverse, AutoMovieEngineVector3.subtract(point, position));
   const cues: IAutoMovieMotionHumanWaterPolo.ICue[] = [];
   for (const flight of film.flights(ball)) {
     // A spherical launch's projectile is the ball's physical centre, so the
@@ -67,7 +67,7 @@ export function scoreWaterPoloGoal(
       flight.published.sphere;
     if (sphere === undefined || flight.projectile.drag !== undefined) continue;
     const origin: IAutoMovieVector3 = local(flight.projectile.origin);
-    const velocity: IAutoMovieVector3 = Quaternion.rotateVector(
+    const velocity: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
       flight.projectile.velocity,
     );
@@ -81,7 +81,7 @@ export function scoreWaterPoloGoal(
       seconds >= (flight.capturedAt ?? Infinity)
     )
       continue;
-    const center: IAutoMovieVector3 = AutoMovieAir.projectileAt(
+    const center: IAutoMovieVector3 = AutoMovieEngineAir.projectileAt(
       flight.projectile,
       travel,
     ).position;

@@ -1,6 +1,6 @@
 import {
-  AutoMoviePhysicalBalance,
-  Quaternion,
+  AutoMovieEnginePhysicalBalance,
+  AutoMovieEngineQuaternion,
   AutoMovieEnginePhysicalStanceBalance,
   AutoMovieEnginePhysicalStanceSwing,
 } from "@automovie/engine";
@@ -171,7 +171,7 @@ export function test_engine_physics_physical_stance_swing(): void {
   const identity = { x: 0, y: 0, z: 0, w: 1 };
   const angleOf = (q: { x: number; y: number; z: number; w: number }) =>
     2 * Math.atan2(Math.hypot(q.x, q.y, q.z), Math.abs(q.w));
-  const small = Quaternion.fromAxisAngle(
+  const small = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     ((TORSO_ERROR / 2) * 180) / Math.PI,
   );
@@ -180,7 +180,7 @@ export function test_engine_physics_physical_stance_swing(): void {
     !(Math.abs(angleOf(kept) - TORSO_ERROR / 2) < PhysicalTolerance.ACCUMULATED)
   )
     failures.push(`a small error became ${angleOf(kept)}`);
-  const large = Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 60);
+  const large = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 60);
   const cut = AutoMovieEnginePhysicalStanceBalance.saturate(identity, large, TORSO_ERROR);
   if (
     !(Math.abs(angleOf(cut) - TORSO_ERROR) < PhysicalTolerance.ACCUMULATED) ||
@@ -229,17 +229,17 @@ export function test_engine_physics_physical_stance_swing(): void {
     AutoMovieEnginePhysicalStanceSwing.swingBound({ effective: 2, length: 0.8, torque: 160 }),
     160 / (2 * 0.8),
   );
-  near("shortest swing", AutoMoviePhysicalBalance.duration(0.01, 0, 100), 0.3);
+  near("shortest swing", AutoMovieEnginePhysicalBalance.duration(0.01, 0, 100), 0.3);
   near(
     "distance-bound swing",
-    AutoMoviePhysicalBalance.duration(0.5, 0, 10),
-    Math.sqrt((AutoMoviePhysicalBalance.MINIMUM_JERK * 0.5) / 10),
+    AutoMovieEnginePhysicalBalance.duration(0.5, 0, 10),
+    Math.sqrt((AutoMovieEnginePhysicalBalance.MINIMUM_JERK * 0.5) / 10),
   );
   near(
     "lowered clearance",
     AutoMovieEnginePhysicalStanceSwing.clearance(0.3, 8, 1, 9.81, 0.1),
     (AutoMovieEnginePhysicalStanceSwing.LIFT_SHARE * 8 * 9.81 * 0.09) /
-      AutoMoviePhysicalBalance.CLEARANCE,
+      AutoMovieEnginePhysicalBalance.CLEARANCE,
   );
   near(
     "kept clearance",

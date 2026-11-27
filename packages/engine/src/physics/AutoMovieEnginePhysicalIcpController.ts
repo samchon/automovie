@@ -12,7 +12,7 @@
 // l.38-41, l.61-64, l.118-129 and l.145-148, ICPControlGains.java l.10-13,
 // IntegratorGains.java (ihmc-robotics-toolkit) l.7-9 and
 // WalkingControllerParameters.java l.616-619.
-import { AutoMoviePhysicalAngularMomentumIntegrator as Integrator } from "./AutoMoviePhysicalAngularMomentumIntegrator";
+import { AutoMovieEnginePhysicalAngularMomentumIntegrator as Integrator } from "./AutoMovieEnginePhysicalAngularMomentumIntegrator";
 import { physicalIcpControllerQp as Qp } from "./internal/physicalIcpControllerQp";
 import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";

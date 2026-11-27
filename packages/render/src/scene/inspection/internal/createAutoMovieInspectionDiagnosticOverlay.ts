@@ -6,10 +6,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieInspectionDiagnosticOverlay } from "../../IAutoMovieInspectionDiagnosticOverlay.js";
-import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOverlay.js";
-import type { IRenderAutoMovieInspectionDiagnosticsProps } from "../../IRenderAutoMovieInspectionDiagnosticsProps.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderInspectionDiagnosticOverlay } from "../../IAutoMovieRenderInspectionDiagnosticOverlay.js";
+import type { IAutoMovieRenderInspectionOverlay } from "../../IAutoMovieRenderInspectionOverlay.js";
+import type { IAutoMovieRenderInspectionDiagnosticsProps } from "../../IAutoMovieRenderInspectionDiagnosticsProps.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
 
 /*
@@ -25,11 +25,11 @@ import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.j
  * only for the caller's render, including when it throws.
  * Returns: The overlay; dispose it when the pictures end.
  */
-export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspectionDiagnosticOverlay {
+export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieRenderInspectionDiagnosticOverlay {
   let kept: IKept | undefined;
   return {
     render: (
-      props: IRenderAutoMovieInspectionDiagnosticsProps,
+      props: IAutoMovieRenderInspectionDiagnosticsProps,
     ): IAutoMovieInspectionLegendEntry[] => {
       const witnesses: { point: IAutoMovieVector3; color: number }[] = select(
         props.diagnostics,
@@ -53,13 +53,13 @@ export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspecti
             color: witness.color,
           }),
         );
-        const overlay: IAutoMovieInspectionOverlay =
+        const overlay: IAutoMovieRenderInspectionOverlay =
           buildAutoMovieInspectionMarks([{ anchor: null, marks }], {
             stroke: props.stroke,
             xray: true,
           });
         for (const child of overlay.object.children)
-          if (AutoMovieThreeKind.isMesh(child))
+          if (AutoMovieRenderThreeKind.isMesh(child))
             for (const material of [child.material].flat())
               material.opacity = 0.78;
         kept = { overlay, marks, signature, width: 0, height: 0 };
@@ -137,7 +137,7 @@ const EDGES: readonly (readonly [
  * The cubes built for one sequence of colours and stroke.
  */
 interface IKept {
-  overlay: IAutoMovieInspectionOverlay;
+  overlay: IAutoMovieRenderInspectionOverlay;
   marks: { mark: IAutoMovieMark; color: number }[];
   signature: string;
   width: number;

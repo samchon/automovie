@@ -141,7 +141,7 @@ export namespace AutoMovieMotionHumanMutual {
     ): IAutoMovieMotionHumanMutual.IAct => {
       if (anchor === undefined)
         throw new Error(
-          "a pass joins a catch to its throw by the anchor; give HumanChain.mutual an anchor",
+          "a pass joins a catch to its throw by the anchor; give AutoMovieMotionHumanChain.mutual an anchor",
         );
       return role === "thrower"
         ? {

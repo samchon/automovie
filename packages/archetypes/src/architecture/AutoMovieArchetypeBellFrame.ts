@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeBellFrameData from "./internal/AutoMovieArchetypeBellFrameData";
+import { AutoMovieArchetypeBellFrameData } from "./internal/AutoMovieArchetypeBellFrameData";
 
 /** Creates a deterministic bell frame fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeBellFrame {
@@ -58,15 +58,15 @@ export namespace AutoMovieArchetypeBellFrame {
 
     builder.box(
       "plinth",
-      Vector3.create(d.width, plinthHeight, d.depth + stepDepth),
-      Vector3.create(0, plinthHeight / 2, stepDepth / 2),
+      AutoMovieEngineVector3.create(d.width, plinthHeight, d.depth + stepDepth),
+      AutoMovieEngineVector3.create(0, plinthHeight / 2, stepDepth / 2),
       { color: "#8a8170" },
     );
     builder.affordance({
       id: "step",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, plinthHeight, halfDepth + stepDepth / 2),
+        AutoMovieEngineVector3.create(0, plinthHeight, halfDepth + stepDepth / 2),
       ),
       extent: null,
       width: d.width,
@@ -78,8 +78,8 @@ export namespace AutoMovieArchetypeBellFrame {
       for (const end of [-1, 1])
         builder.box(
           `post-${side}-${end}`,
-          Vector3.create(post, postHeight, post),
-          Vector3.create(
+          AutoMovieEngineVector3.create(post, postHeight, post),
+          AutoMovieEngineVector3.create(
             side * (halfWidth - post / 2),
             plinthHeight + postHeight / 2,
             end * (halfDepth - post / 2),
@@ -88,15 +88,15 @@ export namespace AutoMovieArchetypeBellFrame {
         );
       builder.box(
         `side-beam-${side}`,
-        Vector3.create(post, post, d.depth - 2 * post),
-        Vector3.create(side * (halfWidth - post / 2), eave - post / 2, 0),
+        AutoMovieEngineVector3.create(post, post, d.depth - 2 * post),
+        AutoMovieEngineVector3.create(side * (halfWidth - post / 2), eave - post / 2, 0),
         { color: wood },
       );
     }
     builder.box(
       "crossbeam",
-      Vector3.create(d.width - 2 * post, post, post),
-      Vector3.create(0, eave - post / 2, 0),
+      AutoMovieEngineVector3.create(d.width - 2 * post, post, post),
+      AutoMovieEngineVector3.create(0, eave - post / 2, 0),
       { color: wood },
     );
 
@@ -104,9 +104,9 @@ export namespace AutoMovieArchetypeBellFrame {
     const canopy: IAutoMovieVector3[] = [];
     for (const z of [-halfDepth - post, halfDepth + post])
       canopy.push(
-        Vector3.create(-halfWidth - post, eave, z),
-        Vector3.create(halfWidth + post, eave, z),
-        Vector3.create(0, d.height, z),
+        AutoMovieEngineVector3.create(-halfWidth - post, eave, z),
+        AutoMovieEngineVector3.create(halfWidth + post, eave, z),
+        AutoMovieEngineVector3.create(0, d.height, z),
       );
     builder.convex("canopy", canopy, undefined, { color: "#4a4338" });
 
@@ -119,7 +119,7 @@ export namespace AutoMovieArchetypeBellFrame {
     const ring = (y: number, r: number): IAutoMovieVector3[] =>
       Array.from({ length: 12 }, (_: unknown, i: number): IAutoMovieVector3 => {
         const angle: number = (2 * Math.PI * i) / 12;
-        return Vector3.create(r * Math.cos(angle), y, r * Math.sin(angle));
+        return AutoMovieEngineVector3.create(r * Math.cos(angle), y, r * Math.sin(angle));
       });
     const waistRing: IAutoMovieVector3[] = ring(waist, radius * 0.62);
     builder.convex(
@@ -141,14 +141,14 @@ export namespace AutoMovieArchetypeBellFrame {
     builder.rod(
       "bell-lip",
       radius * 1.03,
-      Vector3.create(0, mouth - radius * 0.09, 0),
-      Vector3.create(0, mouth, 0),
+      AutoMovieEngineVector3.create(0, mouth - radius * 0.09, 0),
+      AutoMovieEngineVector3.create(0, mouth, 0),
       { color: lip },
     );
     builder.ball(
       "clapper",
       radius * 0.12,
-      Vector3.create(0, mouth - radius * 0.13, 0),
+      AutoMovieEngineVector3.create(0, mouth - radius * 0.13, 0),
       {
         color: lip,
       },

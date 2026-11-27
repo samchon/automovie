@@ -1,11 +1,11 @@
 import {
-  AutoMovieConstructionAdmission,
-  AutoMovieConstructionSplitBand,
-  AutoMovieConstructionSplitSeam,
-  AutoMovieConstructionViews,
-  AutoMovieSolidChain,
-  AutoMovieSolidVector as V,
-  AutoMovieViewLoft,
+  AutoMovieEngineConstructionAdmission,
+  AutoMovieEngineConstructionSplitBand,
+  AutoMovieEngineConstructionSplitSeam,
+  AutoMovieEngineConstructionViews,
+  AutoMovieEngineSolidChain,
+  AutoMovieEngineSolidVector as V,
+  AutoMovieEngineViewLoft,
 } from "@automovie/engine";
 import {
   AutoMovieHumanF1 as H,
@@ -166,11 +166,11 @@ namespace FamilyConicHipSupport {
     );
     if (normal === null)
       return { unavailable: "Actual host end plane degenerate" };
-    const scale: number = AutoMovieConstructionViews.SCALE;
+    const scale: number = AutoMovieEngineConstructionViews.SCALE;
     const curve: IAutoMovieConstructionSplitSeam.ISeam | string | undefined =
       split.profile === undefined
         ? undefined
-        : AutoMovieConstructionSplitSeam.create({
+        : AutoMovieEngineConstructionSplitSeam.create({
             host: host.surface,
             station: layer.y,
             into: hostInto,
@@ -222,7 +222,7 @@ namespace FamilyConicHipSupport {
               unavailable: "Actual child rail leaves its open owned domain",
             };
           const band: IAutoMovieConstructionSplitBand.IBand | string =
-            AutoMovieConstructionSplitBand.create({
+            AutoMovieEngineConstructionSplitBand.create({
               name: child.band,
               host: { surface: host.surface, station: layer.y, into: hostInto },
               arc:
@@ -295,7 +295,7 @@ namespace FamilyConicHipSupport {
     const declared: IAutoMovieHumanF1.IConstruction = H.constructionFrom(assembly);
     const failures: { owner: string; detail: string }[] = [];
     try {
-      AutoMovieConstructionAdmission.admit(declared.root);
+      AutoMovieEngineConstructionAdmission.admit(declared.root);
     } catch (error: unknown) {
       failures.push({
         owner: "tree admission",
@@ -306,7 +306,7 @@ namespace FamilyConicHipSupport {
     const rows: unknown[] = [];
     for (const [name, part] of declared.sources) {
       try {
-        const raw: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+        const raw: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(part);
         if (raw.chain === null) {
           failures.push({
             owner: name,
@@ -314,11 +314,11 @@ namespace FamilyConicHipSupport {
           });
           continue;
         }
-        const chain: IAutoMovieLoftChain = AutoMovieSolidChain.framed(
+        const chain: IAutoMovieLoftChain = AutoMovieEngineSolidChain.framed(
           raw.chain,
         );
         const surface: IAutoMovieSolidSurface | null =
-          AutoMovieSolidChain.surface(chain);
+          AutoMovieEngineSolidChain.surface(chain);
         if (surface === null) {
           failures.push({
             owner: name,

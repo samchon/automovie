@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageFittedCarrier } from "../AutoMovieArchetypeStageFittedCarrier";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import {
@@ -40,7 +40,7 @@ export function createStageFittedCarrier(
   )
     throw invalidEnvelope(display.id);
   const { tip, guardTop, radius }: IEnvelope = envelope(display);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const inner: number = 2 * (radius + GAP);
   const outer: number = inner + 2 * WALL;
   const mouthY: number = WALL + tip - guardTop;

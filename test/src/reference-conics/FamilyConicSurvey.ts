@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief, AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief, AutoMovieEngineViewChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -22,7 +22,7 @@ import path from "node:path";
  * Usage, from `test/` after `pnpm conic:build`: `node .shots/esbuild/FamilyConicSurvey.cjs`. It writes `survey.txt` and `survey.json`
  * under `test/.shots/family-conic-count/<time>/`.
  *
- * What the engine's relief evaluation fixes (`AutoMovieLoftRelief.height`), which every net reading here rests on:
+ * What the engine's relief evaluation fixes (`AutoMovieEngineLoftRelief.height`), which every net reading here rests on:
  *
  * - A net of `n` controls across a window is a uniform cubic B-spline over the parameter range `[0, n - 3]`; control `i` shapes the
  *   spans `i - 3 .. i`, so its Greville abscissa, the mean of its three inner knots, is the parameter `i - 1`. Control 1 stands on the
@@ -149,7 +149,7 @@ namespace FamilyConicSurvey {
         ((a - 1) * (relief.stations.end - relief.stations.start)) /
           (relief.rows - 3),
       relief.phases.start +
-        ((b - 1) * AutoMovieLoftRelief.width(relief)) / (relief.columns - 3),
+        ((b - 1) * AutoMovieEngineLoftRelief.width(relief)) / (relief.columns - 3),
     ];
   }
 
@@ -181,7 +181,7 @@ namespace FamilyConicSurvey {
    */
   function reflective(relief: IAutoMovieLoftRelief): boolean {
     const middle: number =
-      relief.phases.start + AutoMovieLoftRelief.width(relief) / 2;
+      relief.phases.start + AutoMovieEngineLoftRelief.width(relief) / 2;
     return (
       Math.abs(Math.sin(middle)) < 1e-4 &&
       Math.abs(relief.axis[2]) < 1e-9 &&
@@ -271,12 +271,12 @@ namespace FamilyConicSurvey {
     ns: number,
     nt: number,
   ): number[][] {
-    const span: number = AutoMovieLoftRelief.width(relief);
+    const span: number = AutoMovieEngineLoftRelief.width(relief);
     return Array.from({ length: ns }, (_: unknown, i: number): number[] =>
       Array.from(
         { length: nt },
         (__: unknown, j: number): number =>
-          AutoMovieLoftRelief.height(
+          AutoMovieEngineLoftRelief.height(
             relief,
             relief.stations.start +
               ((relief.stations.end - relief.stations.start) * i) / (ns - 1),
@@ -298,7 +298,7 @@ namespace FamilyConicSurvey {
     columns: number,
     F: number[][],
   ): { greville: IAutoMovieLoftRelief; fitted: IAutoMovieLoftRelief } {
-    const span: number = AutoMovieLoftRelief.width(relief);
+    const span: number = AutoMovieEngineLoftRelief.width(relief);
     const free = (count: number): number[] =>
       Array.from(
         { length: Math.max(0, count - 6) },
@@ -308,7 +308,7 @@ namespace FamilyConicSurvey {
     const sampled: number[] = new Array<number>(rows * columns).fill(0);
     for (const a of fr)
       for (const b of fc)
-        sampled[a * columns + b] = AutoMovieLoftRelief.height(
+        sampled[a * columns + b] = AutoMovieEngineLoftRelief.height(
           relief,
           relief.stations.start +
             ((a - 1) * (relief.stations.end - relief.stations.start)) / (rows - 3),
@@ -389,7 +389,7 @@ namespace FamilyConicSurvey {
       const section: IAutoMovieViewChain.ISection =
         AutoMovieHumanConicSection.chain(read(s), family.layout);
       for (let j: number = 0; j < WALL.phases; ++j)
-        out[i * WALL.phases + j] = AutoMovieViewChain.radius(
+        out[i * WALL.phases + j] = AutoMovieEngineViewChain.radius(
           section,
           (2 * Math.PI * j) / WALL.phases,
         );
@@ -1155,7 +1155,7 @@ namespace FamilyConicSurvey {
         PER_SPAN * (relief.columns - 3) + 1,
       ];
       const F: number[][] = surface(relief, ns, nt);
-      const span: number = AutoMovieLoftRelief.width(relief);
+      const span: number = AutoMovieEngineLoftRelief.width(relief);
       const read: (s: number) => number[] =
         AutoMovieHumanConicLoft.reader(family);
       const [ds, dt]: [number, number] = [
@@ -1174,7 +1174,7 @@ namespace FamilyConicSurvey {
           return Array.from(
             { length: nt },
             (__: unknown, j: number): number => {
-              const r: number = AutoMovieViewChain.radius(
+              const r: number = AutoMovieEngineViewChain.radius(
                 section,
                 relief.phases.start + j * dt,
               );
@@ -1625,7 +1625,7 @@ namespace FamilyConicSurvey {
           ),
           family.layout,
         );
-      const r: number = AutoMovieViewChain.radius(section, tPeak);
+      const r: number = AutoMovieEngineViewChain.radius(section, tPeak);
       const alongMm: number =
         foot.length === 0
           ? 0
@@ -1640,18 +1640,18 @@ namespace FamilyConicSurvey {
           : ((Math.max(...foot.map((p): number => p[1])) -
               Math.min(...foot.map((p): number => p[1])) +
               1) *
-              AutoMovieLoftRelief.width(relief) *
+              AutoMovieEngineLoftRelief.width(relief) *
               (Number.isFinite(r) ? r : NaN)) /
             (relief.columns - 3);
       const share: number =
         foot.length / Math.max(1, (relief.rows - 6) * (relief.columns - 6));
       // The cast at the window's middle against the chart's outward radial direction there.
       const middle: number =
-        relief.phases.start + AutoMovieLoftRelief.width(relief) / 2;
+        relief.phases.start + AutoMovieEngineLoftRelief.width(relief) / 2;
       const frame = AutoMovieHumanConicLoft.axis(family).at(
         Math.min(family.knots.at(-1)!, Math.max(family.knots[0]!, sPeak)),
       );
-      const e: number[] = AutoMovieLoftRelief.direction(relief, middle)[0];
+      const e: number[] = AutoMovieEngineLoftRelief.direction(relief, middle)[0];
       const outward: number = [0, 1, 2].reduce(
         (sum: number, k: number): number =>
           sum +

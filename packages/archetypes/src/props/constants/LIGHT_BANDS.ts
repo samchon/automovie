@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeLight } from "../AutoMovieArchetypeLight";
-import * as LightBandsData from "./internal/LightBandsData";
+import { LightBandsData } from "./internal/LightBandsData";
 
 /*
  * The band of each free dimension of `createLight`, by kind, with the sources

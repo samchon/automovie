@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSaloonDoorData from "./internal/AutoMovieArchetypeSaloonDoorData";
+import { AutoMovieArchetypeSaloonDoorData } from "./internal/AutoMovieArchetypeSaloonDoorData";
 
 /** Constructs the saloon door archetype from its recipe. */
 export namespace AutoMovieArchetypeSaloonDoor {
@@ -68,7 +68,7 @@ export function create(
     name: `saloon doors for a ${opening.name} opening`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const half: number = d.opening / 2;
   const middle: number = d.gap + d.height / 2;
   for (const [hinge, push, part, sign] of [

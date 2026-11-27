@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieRigidTransform,
@@ -211,7 +211,7 @@ export namespace supportTransferFixture {
   ): IAutoMovieMotionHumanPropReader {
     const frame = (time: number): IAutoMovieRigidTransform => ({
       position: { x: travel(time), y, z },
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw(time)),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw(time)),
     });
     return {
       frame,
@@ -228,7 +228,7 @@ export namespace supportTransferFixture {
             extent: null,
             frame: {
               translation: { x: offsetX, y: 0, z: 0 },
-              rotation: Quaternion.identity(),
+              rotation: AutoMovieEngineQuaternion.identity(),
               scale: { x: 1, y: 1, z: 1 },
             },
           },

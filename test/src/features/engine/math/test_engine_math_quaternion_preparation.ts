@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -28,7 +28,7 @@ const ROTATION_ROUNDING: number = 32 * Number.EPSILON;
 export function test_engine_math_quaternion_preparation(): void {
   const axis: IAutoMovieVector3 = { x: 0, y: 0, z: 2 };
   const aboutZ: (angle: number) => IAutoMovieQuaternion =
-    Quaternion.prepareAxisAngle(axis);
+    AutoMovieEngineQuaternion.prepareAxisAngle(axis);
   axis.x = 2;
   axis.z = 0;
   TestValidator.predicate(
@@ -49,7 +49,7 @@ export function test_engine_math_quaternion_preparation(): void {
     w: -0.5,
   };
   const along: (progress: number) => IAutoMovieQuaternion =
-    Quaternion.prepareSlerp(source, destination);
+    AutoMovieEngineQuaternion.prepareSlerp(source, destination);
   source.x = 1;
   source.w = 0;
   destination.z = 0;

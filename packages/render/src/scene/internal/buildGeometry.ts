@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieGeometryPhysicalVertices } from "../AutoMovieGeometryPhysicalVertices.js";
+import { AutoMovieRenderGeometryPhysicalVertices } from "../AutoMovieRenderGeometryPhysicalVertices.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 
 /*
@@ -132,8 +132,8 @@ export const buildGeometry: (
           );
       }
       if (mesh.normals === null) geo.computeVertexNormals();
-      AutoMovieGeometryPhysicalVertices.writeOwned(geo, mesh.physicalVertices);
-      AutoMovieGeometryPhysicalVertices.read(geo);
+      AutoMovieRenderGeometryPhysicalVertices.writeOwned(geo, mesh.physicalVertices);
+      AutoMovieRenderGeometryPhysicalVertices.read(geo);
       return geo;
     },
   );

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand } from "../core";
@@ -6,11 +6,8 @@ import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
 import { buildTennisRacketHead } from "./internal/buildTennisRacketHead";
-import * as AutoMovieArchetypeRacketData from "./internal/AutoMovieArchetypeRacketData";
-import {
-  m as AutoMovieArchetypeRacketDatam,
-  kg as AutoMovieArchetypeRacketDataKg,
-} from "./internal/AutoMovieArchetypeRacketData";
+import { AutoMovieArchetypeRacketData } from "./internal/AutoMovieArchetypeRacketData";
+
 
 /** Canonical producer and authoring contract for Racket. */
 export namespace AutoMovieArchetypeRacket {
@@ -107,7 +104,7 @@ export namespace AutoMovieArchetypeRacket {
       name: AutoMovieArchetypeRacket.NAMES[kind],
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const thick: number = AutoMovieArchetypeRacket.THICKNESS[kind];
     const base: number = d.length - d.headLength;
     builder.rod(
@@ -257,72 +254,72 @@ export namespace AutoMovieArchetypeRacket {
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     tennis: {
-      length: AutoMovieArchetypeRacketDatam(0.685, 0.737, `${AutoMovieArchetypeRacketData.BABOLAT}, to ${AutoMovieArchetypeRacketData.ITF}: at most 73.7 cm long`),
-      headWidth: AutoMovieArchetypeRacketDatam(
+      length: AutoMovieArchetypeRacketData.m(0.685, 0.737, `${AutoMovieArchetypeRacketData.BABOLAT}, to ${AutoMovieArchetypeRacketData.ITF}: at most 73.7 cm long`),
+      headWidth: AutoMovieArchetypeRacketData.m(
         0.247,
         0.292,
         `${AutoMovieArchetypeRacketData.ITF}: the hitting surface at most 29.2 cm wide; the narrower end is the ${AutoMovieArchetypeRacketData.BABOLAT} head read as an ellipse of the rule's proportions`,
       ),
-      headLength: AutoMovieArchetypeRacketDatam(
+      headLength: AutoMovieArchetypeRacketData.m(
         0.333,
         0.394,
         `${AutoMovieArchetypeRacketData.ITF}: the hitting surface at most 39.4 cm long; the shorter end is the ${AutoMovieArchetypeRacketData.BABOLAT} head read as an ellipse of the rule's proportions`,
       ),
-      handleLength: AutoMovieArchetypeRacketDatam(0.17, 0.2, AutoMovieArchetypeRacketData.UNREAD, true),
-      gripDiameter: AutoMovieArchetypeRacketDatam(
+      handleLength: AutoMovieArchetypeRacketData.m(0.17, 0.2, AutoMovieArchetypeRacketData.UNREAD, true),
+      gripDiameter: AutoMovieArchetypeRacketData.m(
         (4 * AutoMovieArchetypeUnits.INCH) / Math.PI,
         (4.5 * AutoMovieArchetypeUnits.INCH) / Math.PI,
         "grip sizes 4 to 4 1/2 in round, Babolat Pure Drive Lite (https://tennisracquets.com/products/babolat-pure-drive-lite-tennis-racquet), as a diameter",
       ),
-      mass: AutoMovieArchetypeRacketDataKg(0.293, 0.307, AutoMovieArchetypeRacketData.BABOLAT),
+      mass: AutoMovieArchetypeRacketData.kg(0.293, 0.307, AutoMovieArchetypeRacketData.BABOLAT),
     },
     badminton: {
-      length: AutoMovieArchetypeRacketDatam(
+      length: AutoMovieArchetypeRacketData.m(
         0.673,
         0.677,
         "Yonex Astrox 10DG, 675 mm +/- 2 (https://www.badmintonbay.com/yonex-astrox-10dg-navy-turquoise-4ug5-badminton-racket.html), inside the BWF Law 4.1's 680 mm",
       ),
-      headWidth: AutoMovieArchetypeRacketDatam(
+      headWidth: AutoMovieArchetypeRacketData.m(
         0.23,
         0.23,
         `${AutoMovieArchetypeRacketData.BWF}: the frame at most 230 mm wide, the limit the model takes`,
       ),
-      headLength: AutoMovieArchetypeRacketDatam(
+      headLength: AutoMovieArchetypeRacketData.m(
         0.28,
         0.28,
         `${AutoMovieArchetypeRacketData.BWF}: the strung area at most 280 mm long, the limit the model takes`,
       ),
-      handleLength: AutoMovieArchetypeRacketDatam(0.19, 0.21, AutoMovieArchetypeRacketData.UNREAD, true),
-      gripDiameter: AutoMovieArchetypeRacketDatam(
+      handleLength: AutoMovieArchetypeRacketData.m(0.19, 0.21, AutoMovieArchetypeRacketData.UNREAD, true),
+      gripDiameter: AutoMovieArchetypeRacketData.m(
         0.08 / Math.PI,
         0.084 / Math.PI,
         "a Yonex G5 grip, 80 to 84 mm round (https://www.badmintonbay.com/yonex-astrox-10dg-navy-turquoise-4ug5-badminton-racket.html), as a diameter",
       ),
-      mass: AutoMovieArchetypeRacketDataKg(
+      mass: AutoMovieArchetypeRacketData.kg(
         0.08,
         0.0899,
         "Yonex weight grades 4U, 80 to 84.9 g, and 3U, 85 to 89.9 g (https://centralsports.co.uk/products/yonex-astrox-100-tour-kurenai)",
       ),
     },
     squash: {
-      length: AutoMovieArchetypeRacketDatam(0.67, 0.686, AutoMovieArchetypeRacketData.WSF, true),
-      headWidth: AutoMovieArchetypeRacketDatam(0.19, 0.215, AutoMovieArchetypeRacketData.WSF, true),
-      headLength: AutoMovieArchetypeRacketDatam(0.25, 0.28, AutoMovieArchetypeRacketData.UNREAD, true),
-      handleLength: AutoMovieArchetypeRacketDatam(0.18, 0.2, AutoMovieArchetypeRacketData.UNREAD, true),
-      gripDiameter: AutoMovieArchetypeRacketDatam(0.03, 0.034, AutoMovieArchetypeRacketData.UNREAD, true),
-      mass: AutoMovieArchetypeRacketDataKg(0.11, 0.255, AutoMovieArchetypeRacketData.WSF, true),
+      length: AutoMovieArchetypeRacketData.m(0.67, 0.686, AutoMovieArchetypeRacketData.WSF, true),
+      headWidth: AutoMovieArchetypeRacketData.m(0.19, 0.215, AutoMovieArchetypeRacketData.WSF, true),
+      headLength: AutoMovieArchetypeRacketData.m(0.25, 0.28, AutoMovieArchetypeRacketData.UNREAD, true),
+      handleLength: AutoMovieArchetypeRacketData.m(0.18, 0.2, AutoMovieArchetypeRacketData.UNREAD, true),
+      gripDiameter: AutoMovieArchetypeRacketData.m(0.03, 0.034, AutoMovieArchetypeRacketData.UNREAD, true),
+      mass: AutoMovieArchetypeRacketData.kg(0.11, 0.255, AutoMovieArchetypeRacketData.WSF, true),
     },
     tableTennis: {
-      length: AutoMovieArchetypeRacketDatam(
+      length: AutoMovieArchetypeRacketData.m(
         0.257,
         0.257,
         `${AutoMovieArchetypeRacketData.BUTTERFLY}: the blade's 157 mm and the handle's 100 mm`,
       ),
-      headWidth: AutoMovieArchetypeRacketDatam(0.15, 0.15, AutoMovieArchetypeRacketData.BUTTERFLY),
-      headLength: AutoMovieArchetypeRacketDatam(0.157, 0.157, AutoMovieArchetypeRacketData.BUTTERFLY),
-      handleLength: AutoMovieArchetypeRacketDatam(0.1, 0.1, AutoMovieArchetypeRacketData.BUTTERFLY),
-      gripDiameter: AutoMovieArchetypeRacketDatam(0.022, 0.024, AutoMovieArchetypeRacketData.BUTTERFLY),
-      mass: AutoMovieArchetypeRacketDataKg(
+      headWidth: AutoMovieArchetypeRacketData.m(0.15, 0.15, AutoMovieArchetypeRacketData.BUTTERFLY),
+      headLength: AutoMovieArchetypeRacketData.m(0.157, 0.157, AutoMovieArchetypeRacketData.BUTTERFLY),
+      handleLength: AutoMovieArchetypeRacketData.m(0.1, 0.1, AutoMovieArchetypeRacketData.BUTTERFLY),
+      gripDiameter: AutoMovieArchetypeRacketData.m(0.022, 0.024, AutoMovieArchetypeRacketData.BUTTERFLY),
+      mass: AutoMovieArchetypeRacketData.kg(
         0.15,
         0.2,
         `${AutoMovieArchetypeRacketData.BUTTERFLY} for the blade alone; the two rubbers' mass ${AutoMovieArchetypeRacketData.UNREAD}`,
@@ -330,27 +327,27 @@ export namespace AutoMovieArchetypeRacket {
       ),
     },
     padel: {
-      length: AutoMovieArchetypeRacketDatam(0.455, 0.455, `${AutoMovieArchetypeRacketData.FIP}: maximum racket length 455 mm`),
-      headWidth: AutoMovieArchetypeRacketDatam(
+      length: AutoMovieArchetypeRacketData.m(0.455, 0.455, `${AutoMovieArchetypeRacketData.FIP}: maximum racket length 455 mm`),
+      headWidth: AutoMovieArchetypeRacketData.m(
         0.205,
         0.23,
         `${AutoMovieArchetypeRacketData.FIP}: provisional head width within the overall limit`,
         true,
       ),
-      headLength: AutoMovieArchetypeRacketDatam(
+      headLength: AutoMovieArchetypeRacketData.m(
         0.255,
         0.28,
         "provisional head length for the round paddle profile",
         true,
       ),
-      handleLength: AutoMovieArchetypeRacketDatam(
+      handleLength: AutoMovieArchetypeRacketData.m(
         0.12,
         0.145,
         `${AutoMovieArchetypeRacketData.FIP}: provisional handle length within the limit`,
         true,
       ),
-      gripDiameter: AutoMovieArchetypeRacketDatam(0.03, 0.034, "provisional adult grip diameter", true),
-      mass: AutoMovieArchetypeRacketDataKg(0.36, 0.36, AutoMovieArchetypeRacketData.HEAD),
+      gripDiameter: AutoMovieArchetypeRacketData.m(0.03, 0.034, "provisional adult grip diameter", true),
+      mass: AutoMovieArchetypeRacketData.kg(0.36, 0.36, AutoMovieArchetypeRacketData.HEAD),
     },
   };
 }

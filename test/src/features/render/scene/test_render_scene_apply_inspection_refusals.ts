@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionRequest } from "@automovie/interface";
-import { type IAutoMovieInspectionHandle, type IAutoMovieSectionRenderer, AutoMovieRenderInspection } from "@automovie/render";
+import { type IAutoMovieRenderInspectionHandle, type IAutoMovieRenderSectionRenderer, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -93,8 +93,8 @@ export function test_render_scene_apply_inspection_refusals(): void {
   clipped.clippingPlanes = prior;
   clipped.clipIntersection = true;
   const solid: THREE.Scene = InspectionScene.scene(slab);
-  const renderer: IAutoMovieSectionRenderer = { localClippingEnabled: false };
-  const cut: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+  const renderer: IAutoMovieRenderSectionRenderer = { localClippingEnabled: false };
+  const cut: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: solid,
     request: InspectionScene.ask({
       section: { point: { x: 0, y: 0, z: 0 }, normal: { x: 1, y: 0, z: 0 } },

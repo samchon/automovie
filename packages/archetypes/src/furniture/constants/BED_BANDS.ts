@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeBed } from "../AutoMovieArchetypeBed";
-import * as BedBandsData from "./internal/BedBandsData";
+import { BedBandsData } from "./internal/BedBandsData";
 
 /*
  * The band of each free dimension of createBed, by kind.

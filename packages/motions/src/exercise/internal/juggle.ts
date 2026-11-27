@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -120,7 +120,7 @@ export namespace juggle {
     radius: number,
   ): IAutoMovieVector3 {
     const side: AutoMovieHumanSide = index % 2 === 0 ? "right" : "left";
-    return Vector3.add(point(body, { ...root, y: 0 }, yaw, side, 0), {
+    return AutoMovieEngineVector3.add(point(body, { ...root, y: 0 }, yaw, side, 0), {
       x: 0,
       y: radius * (1 + 2 * Math.floor(index / 2)),
       z: 0,
@@ -160,7 +160,7 @@ export namespace juggle {
             ? "juggle three or five balls"
             : "juggle two balls",
       });
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const height: number = p.height ?? 0.6;
     HumanBound.above("height", height, 0, "m");
     const timing: juggleTiming.ITiming = juggleTiming({
@@ -232,12 +232,12 @@ export namespace juggle {
       const air: number =
         p.pattern === "shower" && from === "left" ? flight / 3 : flight;
       const caught: number = t + air;
-      const point0: IAutoMovieVector3 = Vector3.add(throwAt(from), {
+      const point0: IAutoMovieVector3 = AutoMovieEngineVector3.add(throwAt(from), {
         x: 0,
         y: radius,
         z: 0,
       });
-      const point1: IAutoMovieVector3 = Vector3.add(catchAt(to), {
+      const point1: IAutoMovieVector3 = AutoMovieEngineVector3.add(catchAt(to), {
         x: 0,
         y: radius,
         z: 0,
@@ -246,9 +246,9 @@ export namespace juggle {
       launches.push({
         prop: which,
         seconds: t,
-        point: Vector3.subtract(point0, { x: 0, y: radius, z: 0 }),
-        velocity: Vector3.scale(
-          Vector3.add(Vector3.subtract(point1, point0), {
+        point: AutoMovieEngineVector3.subtract(point0, { x: 0, y: radius, z: 0 }),
+        velocity: AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.subtract(point1, point0), {
             x: 0,
             y: 0.5 * g * air * air,
             z: 0,
@@ -325,7 +325,7 @@ export namespace juggle {
         before.kind === "catch" && after.kind === "throw"
           ? SCOOP * Math.sin(Math.PI * u)
           : 0;
-      return { ...Vector3.lerp(a, b, u), y: a.y + (b.y - a.y) * u - dip };
+      return { ...AutoMovieEngineVector3.lerp(a, b, u), y: a.y + (b.y - a.y) * u - dip };
     };
     const palm: (
       side: AutoMovieHumanSide,
@@ -344,9 +344,9 @@ export namespace juggle {
           fingers: HumanFrame.forward(yaw),
           palm: { x: 0, y: 1, z: 0 },
         }),
-        bend: Vector3.add(
+        bend: AutoMovieEngineVector3.add(
           at,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             HumanFrame.point(
               { origin: { x: 0, y: 0, z: 0 }, yaw },
               { x: side === "left" ? 1 : -1, y: -1, z: -1 },

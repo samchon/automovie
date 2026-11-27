@@ -28,7 +28,7 @@ export namespace IAutoMovieSolidMesh {
 
     /**
      * The edge incidence of the triangles read so far, kept with a mesh made by
-     * AutoMovieSolidMesh.create; a mesh without one is read whole on demand.
+     * AutoMovieEngineSolidMesh.create; a mesh without one is read whole on demand.
      */
     ledger?: IAutoMovieSolidMesh.ILedger;
   }
@@ -81,7 +81,7 @@ export namespace IAutoMovieSolidMesh {
     chart: [number, number][];
 
     /**
-     * Each point's face on an atlas host (`AutoMovieSolidRail.IRail.hostFace`);
+     * Each point's face on an atlas host (`AutoMovieEngineSolidRail.IRail.hostFace`);
      * absent, every point on the one face.
      */
     faces?: number[];

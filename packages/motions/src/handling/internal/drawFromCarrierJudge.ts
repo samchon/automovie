@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -58,10 +58,10 @@ export function drawFromCarrierJudge(
       ),
     );
     const off: number = Math.max(
-      Vector3.distance(hands.get(bone)!.worldPosition, transport.wrist(t)),
+      AutoMovieEngineVector3.distance(hands.get(bone)!.worldPosition, transport.wrist(t)),
       pulled === null || retreat === null
         ? 0
-        : Vector3.distance(
+        : AutoMovieEngineVector3.distance(
             hands.get(`${pulled.side}Hand`)!.worldPosition,
             retreat.wrist(t),
           ),

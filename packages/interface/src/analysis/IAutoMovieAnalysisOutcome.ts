@@ -28,7 +28,7 @@ export type IAutoMovieAnalysisOutcome =
 
       /**
        * Spatial field, possibly empty and at most the engine's
-       * `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` (4096); every key must name a measured
+       * `AutoMovieEngineAnalysisMaxSamples` (4096); every key must name a measured
        * metric.
        */
       samples: IAutoMovieAnalysisSample[];

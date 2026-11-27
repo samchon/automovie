@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -80,21 +80,21 @@ export namespace HumanLungeHands {
       y: WHIP.height * hip,
       z: posture.root.z + (forward.z * WHIP.forward + out.z * WHIP.out) * hip,
     };
-    const level: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(UP, sign * WHIP.turn),
+    const level: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle(UP, sign * WHIP.turn),
       forward,
     );
     const down: number = (WHIP.down * Math.PI) / 180;
-    const axis: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(level, Math.cos(down)),
-      Vector3.scale(UP, -Math.sin(down)),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(level, Math.cos(down)),
+      AutoMovieEngineVector3.scale(UP, -Math.sin(down)),
     );
-    const inward: IAutoMovieVector3 = Vector3.scale(out, -1);
+    const inward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(out, -1);
     return {
       point,
       axis,
-      normal: Vector3.normalize(
-        Vector3.addScaled(inward, axis, -Vector3.dot(inward, axis)),
+      normal: AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.addScaled(inward, axis, -AutoMovieEngineVector3.dot(inward, axis)),
       ),
     };
   }
@@ -142,19 +142,19 @@ export namespace HumanLungeHands {
       read(),
       requested,
     ).get(wrist)!;
-    const effector: IAutoMovieVector3 = Vector3.add(
+    const effector: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       actual.worldPosition,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         actual.worldRotation,
         HumanHand.offset(body, side, "palm").point,
       ),
     );
-    const skin: IAutoMovieVector3 = Vector3.addScaled(
+    const skin: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       grip.point,
       grip.normal,
       grip.radius ?? 0,
     );
-    const distance: number = Vector3.distance(effector, skin);
+    const distance: number = AutoMovieEngineVector3.distance(effector, skin);
     if (!(distance <= CONTACT))
       throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",

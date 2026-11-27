@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -87,16 +87,16 @@ export namespace StrikingStrain {
     shoulder: IAutoMovieVector3,
     arm: IArm,
   ): number {
-    const elbow: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.subtract(
+    const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.subtract(
         frame.point,
-        Quaternion.rotateVector(frame.rotation, arm.grip),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, arm.grip),
       ),
-      Vector3.scale(
-        Quaternion.rotateVector(frame.rotation, arm.fingers),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, arm.fingers),
         arm.forearm,
       ),
     );
-    return Math.abs(Vector3.distance(elbow, shoulder) - arm.upperArm);
+    return Math.abs(AutoMovieEngineVector3.distance(elbow, shoulder) - arm.upperArm);
   }
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -136,7 +136,7 @@ export function FootStrikeLeg(
         s,
       ),
     },
-    attitude: Quaternion.slerp(a.attitude, b.attitude, s),
+    attitude: AutoMovieEngineQuaternion.slerp(a.attitude, b.attitude, s),
     ankle: [
       a.ankle[0] + (b.ankle[0] - a.ankle[0]) * s,
       a.ankle[1] + (b.ankle[1] - a.ankle[1]) * s,
@@ -172,19 +172,19 @@ export function FootStrikeLeg(
           AutoMovieEngineMotionSampling.minimumJerkShare((raw - lead) / (1 - lead)),
           s,
         );
-        bend = Vector3.lerp(startBend, knee, s);
+        bend = AutoMovieEngineVector3.lerp(startBend, knee, s);
         key = between(rest, cocked, s);
         floorward = raw < lead;
       } else if (seconds <= shown) {
         const s: number = AutoMovieEngineMotionSampling.minimumJerkShare((seconds - chamber) / extend);
-        point = Vector3.lerp(folded, through, s);
+        point = AutoMovieEngineVector3.lerp(folded, through, s);
         bend = knee;
         key = between(cocked, struck, Math.min(1, s / AutoMovieEngineMotionSampling.minimumJerkShare(meet)));
       } else {
         const raw: number = (seconds - shown) / recoil;
         const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(raw);
         point = raised(ankle, start, AutoMovieEngineMotionSampling.minimumJerkShare(raw / (1 - lead)), s);
-        bend = Vector3.lerp(knee, startBend, s);
+        bend = AutoMovieEngineVector3.lerp(knee, startBend, s);
         key = between(struck, rest, s);
         floorward = raw > 1 - lead;
       }

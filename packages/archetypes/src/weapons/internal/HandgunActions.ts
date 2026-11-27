@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -139,7 +139,7 @@ export namespace HandgunActions {
    * Parameter d: The handgun's dimensions.
    */
   export function revolver(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const steel: { color: string } = { color: "#2c2f33" };
     const top: number = d.height!;
@@ -257,7 +257,7 @@ export namespace HandgunActions {
    * Parameter d: The handgun's dimensions.
    */
   export function flintlock(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const bore: number = d.height! - e.bore;
     const muzzle: number = d.length! - e.bore;
@@ -304,8 +304,8 @@ export namespace HandgunActions {
     const t: typeof ESTIMATES.trigger = ESTIMATES.trigger;
     builder.box(
       "trigger",
-      Vector3.create(t.width, t.height, t.depth),
-      Vector3.create(0, grip - t.drop, d.triggerReach! - t.depth / 2),
+      AutoMovieEngineVector3.create(t.width, t.height, t.depth),
+      AutoMovieEngineVector3.create(0, grip - t.drop, d.triggerReach! - t.depth / 2),
       { color: "#55595f" },
     );
   }
@@ -329,7 +329,7 @@ export namespace HandgunActions {
     muzzle: number,
     mouth: "socket" | "surface",
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const grip: number = bore - ESTIMATES.bore;
     builder.affordance({
       id: "grip",

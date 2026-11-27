@@ -1,6 +1,11 @@
 import { AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanSustainedForce, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanForceDrawn, HumanForceExchange } from "@automovie/motions/internal";
+import {
+  HumanForceDrawn
+} from "../../../../../packages/motions/src/grappling/internal/HumanForceDrawn";
+import {
+  HumanForceExchange
+} from "../../../../../packages/motions/src/grappling/internal/HumanForceExchange";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -162,18 +162,18 @@ export namespace HumanTravelLeaf {
           return {
             point:
               moved?.point ??
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 frame.position,
-                Quaternion.rotateVector(frame.rotation, rest.point),
+                AutoMovieEngineQuaternion.rotateVector(frame.rotation, rest.point),
               ),
             normal:
               moved?.normal ??
-              Quaternion.rotateVector(frame.rotation, rest.normal),
+              AutoMovieEngineQuaternion.rotateVector(frame.rotation, rest.normal),
             ...(turn === undefined
               ? {}
               : {
-                  axis: Quaternion.rotateVector(
-                    Quaternion.multiply(frame.rotation, turn),
+                  axis: AutoMovieEngineQuaternion.rotateVector(
+                    AutoMovieEngineQuaternion.multiply(frame.rotation, turn),
                     { x: 1, y: 0, z: 0 },
                   ),
                 }),
@@ -202,13 +202,13 @@ export namespace HumanTravelLeaf {
         const taken: Parameters<typeof HumanMountRider.hold>[3] = handle(
           context.start + TAKE,
         );
-        const facing: IAutoMovieVector3 = Quaternion.rotateVector(
+        const facing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           humanPostureHeading(start),
           { x: 0, y: 0, z: 1 },
         );
         const across: OpenDoorAcross =
           taken.axis !== undefined &&
-          Vector3.dot(Vector3.cross(taken.axis, taken.normal), facing) < 0
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(taken.axis, taken.normal), facing) < 0
             ? -1
             : 1;
         const grip: (
@@ -241,14 +241,14 @@ export namespace HumanTravelLeaf {
           `${side}UpperArm`,
         )!.worldPosition;
         const arm: number =
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               bones.get(`${side}LowerArm`)!.worldPosition,
               shoulder,
             ),
           ) +
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               bones.get(`${side}Hand`)!.worldPosition,
               bones.get(`${side}LowerArm`)!.worldPosition,
             ),
@@ -274,7 +274,7 @@ export namespace HumanTravelLeaf {
         // body lowered over the reach as a pick up lowers it.
         const taking: IAutoMovieVector3 = wristAt(TAKE, start);
         const lowered: pickUpPosture.IStance | null =
-          Vector3.length(Vector3.subtract(taking, shoulder)) <= REACH * arm
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(taking, shoulder)) <= REACH * arm
             ? null
             : // Lowered until the wrist the hold asks is within the bend's near
               // full extension of the arm (`bendLower.REACH`), the reach the

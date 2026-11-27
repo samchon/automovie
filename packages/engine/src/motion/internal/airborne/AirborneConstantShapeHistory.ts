@@ -7,7 +7,7 @@ import { resolveAutoMovieBoneRates } from "../../../kinematics/internal/resolveA
 
 import { resolveAutoMovieMomentumRates } from "../../../kinematics/internal/resolveAutoMovieMomentumRates";
 import { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
-import { AutoMoviePhysicalInertiaTensor } from "../../../physics/AutoMoviePhysicalInertiaTensor";
+import { AutoMovieEnginePhysicalInertiaTensor } from "../../../physics/AutoMovieEnginePhysicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngineMotionAirborneRotation";
@@ -67,7 +67,7 @@ export function AirborneConstantShapeHistory(
   if (statistics !== undefined) statistics.uniqueNumericNodes++;
   const matrix: number[][] =
     "segments" in model
-      ? AutoMoviePhysicalInertiaTensor.compute(posed.parts, posed.centre)
+      ? AutoMovieEnginePhysicalInertiaTensor.compute(posed.parts, posed.centre)
       : AutoMovieEngineKinematics.prepareAutoMovieMassModelInertia(model, posed);
   let scale: number = Number.NEGATIVE_INFINITY;
   for (const row of matrix)

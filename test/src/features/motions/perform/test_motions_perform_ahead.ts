@@ -4,7 +4,9 @@ import type {
   IAutoMovieMotionHumanPerformanceState,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanObject } from "@automovie/motions";
-import { HumanPerformanceAhead } from "@automovie/motions/internal";
+import {
+  HumanPerformanceAhead
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceAhead";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

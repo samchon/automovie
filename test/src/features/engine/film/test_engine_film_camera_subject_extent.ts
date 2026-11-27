@@ -1,4 +1,4 @@
-import { FRAMING_AIM_FRACTION, FRAMING_HEIGHT_FRACTION, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFramingAimFraction, AutoMovieEngineFramingHeightFraction, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -168,8 +168,8 @@ export function test_engine_film_camera_subject_extent(): void {
   const band: (height: number) => { low: number; high: number } = (
     height: number,
   ): { low: number; high: number } => {
-    const visible: number = height * FRAMING_HEIGHT_FRACTION.full;
-    const aim: number = height * FRAMING_AIM_FRACTION.full;
+    const visible: number = height * AutoMovieEngineFramingHeightFraction.full;
+    const aim: number = height * AutoMovieEngineFramingAimFraction.full;
     return { low: aim - visible / 2, high: aim + visible / 2 };
   };
   const fromJoints: ReturnType<typeof band> = band(jointSpan);

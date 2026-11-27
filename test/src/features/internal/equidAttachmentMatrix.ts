@@ -1,5 +1,5 @@
 import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeRide, AutoMovieArchetypeQuadruped, type AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -171,14 +171,14 @@ export function equidAttachmentMatrix(
         contact.id as AutoMovieArchetypeEquine.Affordance,
         seconds,
       );
-      const expected: IAutoMovieTransform["translation"] = Vector3.add(
+      const expected: IAutoMovieTransform["translation"] = AutoMovieEngineVector3.add(
         sample.placement.translation,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           sample.placement.rotation,
           contact.frame.translation,
         ),
       );
-      const rotation: IAutoMovieTransform["rotation"] = Quaternion.multiply(
+      const rotation: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
         sample.placement.rotation,
         contact.frame.rotation,
       );

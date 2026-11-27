@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanStrikingReach } from "@automovie/interface";
-import { StrikingReach } from "@automovie/motions/internal";
+import {
+  StrikingReach
+} from "../../../../../packages/motions/src/striking/internal/StrikingReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

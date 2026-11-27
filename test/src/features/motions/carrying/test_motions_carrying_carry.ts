@@ -1,6 +1,17 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanTrunk, carry, carryPlace, loadedWalkPace } from "@automovie/motions/internal";
+import {
+  HumanTrunk
+} from "../../../../../packages/motions/src/everyday/internal/HumanTrunk";
+import {
+  carry
+} from "../../../../../packages/motions/src/carrying/internal/carry";
+import {
+  carryPlace
+} from "../../../../../packages/motions/src/carrying/internal/carryPlace";
+import {
+  loadedWalkPace
+} from "../../../../../packages/motions/src/carrying/internal/loadedWalkPace";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -172,7 +183,7 @@ namespace part_carry_tilt {
         (Math.asin(0.01 / 0.57) * 180) / Math.PI,
         ROUNDING,
       ) &&
-        hung.lower[0] === DEFAULT_HUMANOID_ROM.rightLowerArm!.flexion!.min &&
+        hung.lower[0] === AutoMovieEngineDefaultHumanoidRom.rightLowerArm!.flexion!.min &&
         carry.hang({ measure: { ...measure, shoulderHalfWidth: 0.3 } }, "left")
           .upper[1] === 0,
     );

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeRoundaboutData from "./internal/AutoMovieArchetypeRoundaboutData";
+import { AutoMovieArchetypeRoundaboutData } from "./internal/AutoMovieArchetypeRoundaboutData";
 
 /** Constructs the roundabout archetype from its recipe. */
 export namespace AutoMovieArchetypeRoundabout {
@@ -50,14 +50,14 @@ export function create(
   builder.rod(
     "spindle",
     0.06,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, height - 0.03, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, height - 0.03, 0),
     { color: "#555555" },
   );
   builder.affordance({
     id: "ground",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
     width: 2 * radius + 2,
     depth: 2 * radius + 2,
@@ -134,14 +134,14 @@ export function create(
     builder.rod(
       "platform",
       radius,
-      Vector3.create(0, height - 0.03, 0),
-      Vector3.create(0, height, 0),
+      AutoMovieEngineVector3.create(0, height - 0.03, 0),
+      AutoMovieEngineVector3.create(0, height, 0),
       { color: "#3a86ff" },
     );
     builder.affordance({
       id: "platform",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
       extent: null,
       width: 2 * radius,
       depth: 2 * radius,
@@ -150,7 +150,7 @@ export function create(
     for (const [k, id] of ids.entries()) {
       const angle: number = (k * Math.PI) / 2;
       const out: number = radius - INBOARD;
-      const at = Vector3.create(
+      const at = AutoMovieEngineVector3.create(
         out * Math.sin(angle),
         height + BAR,
         out * Math.cos(angle),
@@ -165,8 +165,8 @@ export function create(
         grip: "power",
         frame: AutoMovieArchetypeFrame.facing(
           at,
-          Vector3.create(Math.sin(angle), 0, Math.cos(angle)),
-          Vector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(Math.sin(angle), 0, Math.cos(angle)),
+          AutoMovieEngineVector3.create(0, 1, 0),
         ),
         extent: null,
         length: 0.2,

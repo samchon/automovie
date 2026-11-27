@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
+import { AutoMovieRenderThreeKind, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -39,16 +39,16 @@ export function test_render_scene_apply_inspection_color(): void {
   const hex: (mesh: THREE.Mesh) => number = (mesh: THREE.Mesh): number => {
     const material: THREE.Material = singleMaterial(mesh.material);
     if (
-      !AutoMovieThreeKind.isMeshBasicMaterial(material) &&
-      !AutoMovieThreeKind.isMeshLambertMaterial(material) &&
-      !AutoMovieThreeKind.isMeshStandardMaterial(material)
+      !AutoMovieRenderThreeKind.isMeshBasicMaterial(material) &&
+      !AutoMovieRenderThreeKind.isMeshLambertMaterial(material) &&
+      !AutoMovieRenderThreeKind.isMeshStandardMaterial(material)
     )
       throw new Error("Expected a coloured material");
     return material.color.getHex();
   };
 
   // 1. Beauty.
-  const beauty: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+  const beauty: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       marks: ["joint", "contact"],
@@ -86,7 +86,7 @@ export function test_render_scene_apply_inspection_color(): void {
   beauty.restore();
 
   // 2. Clay.
-  const clay: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+  const clay: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       shade: "clay",
@@ -101,7 +101,7 @@ export function test_render_scene_apply_inspection_color(): void {
   clay.restore();
 
   // 3. A later entry wins.
-  const later: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+  const later: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       color: [

@@ -1,4 +1,4 @@
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * The spherical distance, degrees, from a unit direction to a rectangle of
@@ -30,7 +30,7 @@ export function sphericalBoxMiss(
   middle: readonly [number, number],
   outer: readonly [number, number] | null,
 ): number {
-  const D: number = Quaternion.DEG2RAD;
+  const D: number = AutoMovieEngineQuaternion.DEG2RAD;
   const clamp = (value: number): number => Math.max(-1, Math.min(1, value));
   const [lowest, highest]: readonly [number, number] = middle;
   const abduction: number = Math.asin(clamp(-x)) / D;

@@ -1,9 +1,11 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { humanAidWalkGrip } from "@automovie/motions/internal";
+import {
+  humanAidWalkGrip
+} from "../../../../../packages/motions/src/lexicon/internal/humanAidWalkGrip";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -32,7 +34,7 @@ const ROUNDING: number = 1e-12;
 export function test_motions_lexicon_aid_walk_grip(): void {
   const world: IAutoMovieRigidTransform = {
     position: { x: 1, y: 0, z: 2 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
   const grip: IAutoMovieAffordance = {
     id: "leftGrip",

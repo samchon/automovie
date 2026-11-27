@@ -1,6 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
-/*
- * The shorthand the construction uses.
- */
-export const v: typeof Vector3.create = Vector3.create;
+export namespace KeyboardConstructionData {
+  /*
+   * The shorthand the construction uses.
+   */
+  export const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
+}

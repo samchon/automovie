@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematicsChains,
 } from "@automovie/engine";
 import type {
@@ -38,14 +38,14 @@ export function test_engine_kinematics_two_bone_chain_articulation(): void {
   const chain = { upper: bone(0), lower: bone(-1), end: { x: 0, y: -2, z: 0 } };
   const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
   const end = (a: IAutoMovieTwoBoneArticulation): IAutoMovieVector3 => {
-    const mid: IAutoMovieVector3 = Quaternion.rotateVector(a.upper, down);
-    return Vector3.add(
+    const mid: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(a.upper, down);
+    return AutoMovieEngineVector3.add(
       mid,
-      Quaternion.rotateVector(Quaternion.multiply(a.upper, a.lower), down),
+      AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.multiply(a.upper, a.lower), down),
     );
   };
   const close = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
-    Vector3.distance(a, b) <= 1e-12;
+    AutoMovieEngineVector3.distance(a, b) <= 1e-12;
   const solve = (
     target: IAutoMovieVector3,
     bendNormal?: IAutoMovieVector3,
@@ -67,7 +67,7 @@ export function test_engine_kinematics_two_bone_chain_articulation(): void {
   TestValidator.predicate("lands", close(end(solve(target)), target));
   TestValidator.predicate(
     "bends down",
-    close(Quaternion.rotateVector(solve(target).upper, down), {
+    close(AutoMovieEngineQuaternion.rotateVector(solve(target).upper, down), {
       x: 0,
       y: -1,
       z: 0,

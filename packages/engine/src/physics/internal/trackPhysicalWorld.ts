@@ -13,19 +13,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
-import { AutoMoviePhysicalSupportCollector } from "../AutoMoviePhysicalSupportCollector";
+import { AutoMovieEnginePhysicalSupportCollector } from "../AutoMovieEnginePhysicalSupportCollector";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalGravityTorques } from "./physicalGravityTorques";
 import { AutoMovieEnginePhysicalIcpController } from "../AutoMovieEnginePhysicalIcpController";
 import { physicalRecoveryLifted } from "./physicalRecoveryLifted";
 import { physicalRecoveryRequested } from "./physicalRecoveryRequested";
-import { AutoMoviePhysicalSpanPose } from "../AutoMoviePhysicalSpanPose";
+import { AutoMovieEnginePhysicalSpanPose } from "../AutoMovieEnginePhysicalSpanPose";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
 import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
@@ -35,18 +35,18 @@ import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 
 
-import { AutoMoviePhysicalRootTracking } from "../AutoMoviePhysicalRootTracking";
+import { AutoMovieEnginePhysicalRootTracking } from "../AutoMovieEnginePhysicalRootTracking";
 
-import { AutoMoviePhysicalSupportTracking } from "../AutoMoviePhysicalSupportTracking";
-import { AutoMoviePhysicalWorldBalanceTracking } from "../AutoMoviePhysicalWorldBalanceTracking";
-import { AutoMoviePhysicalWorldJointTracking } from "../AutoMoviePhysicalWorldJointTracking";
+import { AutoMovieEnginePhysicalSupportTracking } from "../AutoMovieEnginePhysicalSupportTracking";
+import { AutoMovieEnginePhysicalWorldBalanceTracking } from "../AutoMovieEnginePhysicalWorldBalanceTracking";
+import { AutoMovieEnginePhysicalWorldJointTracking } from "../AutoMovieEnginePhysicalWorldJointTracking";
 
 /*
  * Apply bounded PD forces and equal-opposite joint torques before the fixed
  * step.
  */
 export function trackPhysicalWorld(
-  world: AutoMovieXpbdWorld,
+  world: AutoMovieEngineXpbdWorld,
   input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
   step: number,
@@ -72,13 +72,13 @@ export function trackPhysicalWorld(
 
     // A biped's prepared disturbance response plays between its branch
     // points: the body is authored from it, every segment kinematic
-    // (`preparePhysicalDisturbanceSpan`, `AutoMoviePhysicalSpanPose`).
+    // (`preparePhysicalDisturbanceSpan`, `AutoMovieEnginePhysicalSpanPose`).
     const played: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanSample | undefined =
       body.mode.kind === "kinematic"
         ? undefined
-        : AutoMoviePhysicalSpanPose.play(bound, body, recovery[body.id], seconds);
+        : AutoMovieEnginePhysicalSpanPose.play(bound, body, recovery[body.id], seconds);
     const target: IAutoMoviePhysicalSimulationInput.ITarget = played
-      ? { ...sampled, dynamicSegments: AutoMoviePhysicalSpanPose.KINEMATIC }
+      ? { ...sampled, dynamicSegments: AutoMovieEnginePhysicalSpanPose.KINEMATIC }
       : sampled;
     // Fully dynamic withdrawal has no authored pose authority. Retain native
     // contacts, passive constraints and force cleanup without rebuilding goals.
@@ -105,7 +105,7 @@ export function trackPhysicalWorld(
       input.rate,
     );
     if (!played)
-      AutoMoviePhysicalSpanPose.hand(
+      AutoMovieEnginePhysicalSpanPose.hand(
         bound,
         body,
         recovery[body.id],
@@ -118,7 +118,7 @@ export function trackPhysicalWorld(
       target.dynamicSegments !== undefined ||
       hasPhysicalHandoff(bound.handoffs.get(body.id));
     const goals: typeof authoredGoals = played
-      ? AutoMoviePhysicalSpanPose.pose({ body, goals: authoredGoals, sample: played })
+      ? AutoMovieEnginePhysicalSpanPose.pose({ body, goals: authoredGoals, sample: played })
       : { ...authoredGoals };
     // The root's intent, an owned copy of its authored goal: the trackers
     // write into it.
@@ -159,7 +159,7 @@ export function trackPhysicalWorld(
     const rootDynamic: boolean = dynamic.has(root.bone);
     if (scene) scene = readPhysicalScene(bound, scene, body.id);
     for (const segment of body.profile.segments) {
-      const rigid: AutoMovieXpbdBody = bound.bodies.get(
+      const rigid: AutoMovieEngineXpbdBody = bound.bodies.get(
         `${body.id}/${segment.bone}`,
       )!;
       rigid.resetForces();
@@ -184,7 +184,7 @@ export function trackPhysicalWorld(
       pattern: IAutoMovieFootfallPattern,
     ): IAutoMovieCollectPhysicalSupports.ISupport[] =>
       (actuation || body.balance) && rootDynamic
-        ? AutoMoviePhysicalSupportCollector.collect({
+        ? AutoMovieEnginePhysicalSupportCollector.collect({
             world,
             body: body.id,
             profile: body.profile,
@@ -210,7 +210,7 @@ export function trackPhysicalWorld(
       : balanceSupports;
 
     const assessment: IAutoMovieAdvancePhysicalBalance.IResult | undefined =
-      AutoMoviePhysicalWorldBalanceTracking.track({
+      AutoMovieEnginePhysicalWorldBalanceTracking.track({
         world,
         input,
         bound,
@@ -243,9 +243,9 @@ export function trackPhysicalWorld(
         endpointGoals[limb.bone] = copyPhysicalTarget(
           endpointGoals[limb.bone]!,
         );
-        endpointGoals[limb.bone]!.pose.position = Vector3.add(
+        endpointGoals[limb.bone]!.pose.position = AutoMovieEngineVector3.add(
           endpointGoals[limb.bone]!.pose.position,
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             point,
             physicalSupportPoint(
               endpointGoals[limb.bone]!.pose,
@@ -256,14 +256,14 @@ export function trackPhysicalWorld(
       }
     }
     if (assessment?.state.rootOffset)
-      rootIntent.pose.position = Vector3.add(
+      rootIntent.pose.position = AutoMovieEngineVector3.add(
         rootIntent.pose.position,
         assessment.state.rootOffset,
       );
     if (assessment?.state.rootOffset)
       for (const [bone, goal] of Object.entries(goals)) {
         goals[bone] = copyPhysicalTarget(goal);
-        goals[bone]!.pose.position = Vector3.add(
+        goals[bone]!.pose.position = AutoMovieEngineVector3.add(
           goal.pose.position,
           assessment.state.rootOffset,
         );
@@ -299,13 +299,13 @@ export function trackPhysicalWorld(
             body.profile,
             bound.gravityOrder.get(body.id)!,
             bound.segments.get(body.id)!,
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               input.gravity,
               body.mode.kind === "exaggerated" ? body.mode.gravity : 1,
             ),
           )
         : { joints: new Map(), root: { x: 0, y: 0, z: 0 } };
-    AutoMoviePhysicalSupportTracking.track({
+    AutoMovieEnginePhysicalSupportTracking.track({
       body,
       target: effort,
       goals: endpointGoals,
@@ -322,10 +322,10 @@ export function trackPhysicalWorld(
       floor: input.floor,
       tolerance: input.contactTolerance!,
     });
-    const base: AutoMovieXpbdBody = bound.bodies.get(
+    const base: AutoMovieEngineXpbdBody = bound.bodies.get(
       `${body.id}/${root.bone}`,
     )!;
-    const rooted: AutoMoviePhysicalRootTracking.IResult = AutoMoviePhysicalRootTracking.track({
+    const rooted: AutoMovieEnginePhysicalRootTracking.IResult = AutoMovieEnginePhysicalRootTracking.track({
       world,
       goals,
       settings: input,
@@ -369,15 +369,15 @@ export function trackPhysicalWorld(
         (impulse: (typeof input.impulses)[number]): boolean =>
           impulse.body === body.id && impulse.step === step,
       ),
-      center: Vector3.add(
+      center: AutoMovieEngineVector3.add(
         body.profile.segments.reduce(
           (
             sum: IAutoMovieVector3,
             segment: (typeof body.profile.segments)[number],
           ): IAutoMovieVector3 =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               sum,
-              Vector3.scale(
+              AutoMovieEngineVector3.scale(
                 physicalSupportPoint(
                   authoredGoals[segment.bone]!.pose,
                   segment.centerOfMass,
@@ -432,7 +432,7 @@ export function trackPhysicalWorld(
         assessment?.state,
         { contacts, recovery },
       );
-    AutoMoviePhysicalWorldJointTracking.track({
+    AutoMovieEnginePhysicalWorldJointTracking.track({
       world,
       input,
       bound,
@@ -472,7 +472,7 @@ function plantedPoses(
     for (const carrier of limb.contacts ?? [limb.bone])
       if (out[carrier])
         out[carrier] = {
-          position: Vector3.add(out[carrier]!.position, offset),
+          position: AutoMovieEngineVector3.add(out[carrier]!.position, offset),
           rotation: out[carrier]!.rotation,
         };
   }

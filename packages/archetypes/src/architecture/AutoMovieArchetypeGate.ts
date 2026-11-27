@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeGateData from "./internal/AutoMovieArchetypeGateData";
+import { AutoMovieArchetypeGateData } from "./internal/AutoMovieArchetypeGateData";
 
 /** Constructs the gate archetype from its recipe. */
 export namespace AutoMovieArchetypeGate {
@@ -77,7 +77,7 @@ export function create(
     name: `${kind === "turnstile" ? "turnstile" : "speed gate"} ${model.name} mm`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const lane: number = d.passage!;
   const width: number = d.width!;
   const height: number = d.height!;

@@ -5,12 +5,20 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import {
-  PULSE_HOLD,
-  compressions,
-  kneelBeside,
-  pressWound,
-  pulse,
-} from "@automovie/motions/internal";
+  PULSE_HOLD
+} from "../../../../../packages/motions/src/touch/care/PULSE_HOLD";
+import {
+  compressions
+} from "../../../../../packages/motions/src/touch/care/compressions";
+import {
+  kneelBeside
+} from "../../../../../packages/motions/src/touch/care/kneelBeside";
+import {
+  pressWound
+} from "../../../../../packages/motions/src/touch/care/pressWound";
+import {
+  pulse
+} from "../../../../../packages/motions/src/touch/care/pulse";
 import { TestValidator } from "@nestia/e2e";
 
 /**

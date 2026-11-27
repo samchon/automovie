@@ -2,7 +2,12 @@ import type {
   IAutoMovieMotionHumanManoeuvre,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, manoeuvreCrossings } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  manoeuvreCrossings
+} from "../../../../../packages/motions/src/ensemble/internal/manoeuvreCrossings";
 import { TestValidator } from "@nestia/e2e";
 
 /**

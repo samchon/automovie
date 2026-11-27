@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeMarks } from "@automovie/archetypes";
 import type { IAutoMovieMark } from "@automovie/interface";
-import { type IAutoMovieInspectionHandle, type IAutoMovieModelObject, AutoMovieRenderSceneLayout, AutoMovieRenderInspection, AutoMovieRenderInspectionRequest } from "@automovie/render";
+import { type IAutoMovieRenderInspectionHandle, type IAutoMovieRenderModelObject, AutoMovieRenderSceneLayout, AutoMovieRenderInspection, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import {
   AutoMovieViewer,
 } from "@automovie/viewer";
@@ -132,7 +132,7 @@ export namespace GalleryStage {
 
     let gridCell: number = 0.25;
     let content: IContent | null = null;
-    let inspection: IAutoMovieInspectionHandle | null = null;
+    let inspection: IAutoMovieRenderInspectionHandle | null = null;
     const tags: Map<string, HTMLElement> = new Map();
     const projected: THREE.Vector3 = new THREE.Vector3();
 
@@ -352,7 +352,7 @@ export namespace GalleryStage {
     view: Omit<IGalleryView, "grid">;
   } {
     const built: GalleryArchetype.IBuilt = GalleryArchetype.build(request);
-    const model: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(built.archetype);
+    const model: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(built.archetype);
     model.object.name = "subject";
     const box: THREE.Box3 = new THREE.Box3().setFromObject(model.object);
     // An arrow a fifth of the model's diagonal, never longer than the

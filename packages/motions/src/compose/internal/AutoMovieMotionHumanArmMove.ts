@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -63,8 +63,8 @@ export namespace AutoMovieMotionHumanArmMove {
                 s,
                 props.curvature ?? 0,
               ),
-              rotation: Quaternion.slerp(
-                Quaternion.multiply(
+              rotation: AutoMovieEngineQuaternion.slerp(
+                AutoMovieEngineQuaternion.multiply(
                   HumanFrame.turn(posture.yaw),
                   props.origin.rotation,
                 ),
@@ -150,7 +150,7 @@ export namespace AutoMovieMotionHumanArmMove {
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
-      origin: { point: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
+      origin: { point: { x: 0, y: 0, z: 0 }, rotation: AutoMovieEngineQuaternion.identity() },
       target,
       weight: (): number => 1,
     });
@@ -202,13 +202,13 @@ export namespace AutoMovieMotionHumanArmMove {
     share: number,
     curvature: number,
   ): IAutoMovieVector3 => {
-    const straight: IAutoMovieVector3 = Vector3.lerp(from, to, share);
-    const path: IAutoMovieVector3 = Vector3.subtract(to, from);
-    const length: number = Vector3.length(path);
+    const straight: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(from, to, share);
+    const path: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
+    const length: number = AutoMovieEngineVector3.length(path);
     if (curvature === 0 || length < 1e-9) return straight;
-    const along: IAutoMovieVector3 = Vector3.scale(path, 1 / length);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(path, 1 / length);
     const across = (axis: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(axis, Vector3.scale(along, Vector3.dot(axis, along)));
+      AutoMovieEngineVector3.subtract(axis, AutoMovieEngineVector3.scale(along, AutoMovieEngineVector3.dot(axis, along)));
     const outward: IAutoMovieVector3 = across(
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -216,11 +216,11 @@ export namespace AutoMovieMotionHumanArmMove {
       ),
     );
     const direction: IAutoMovieVector3 =
-      Vector3.length(outward) > 0.1 ? outward : across({ x: 0, y: 1, z: 0 });
-    return Vector3.add(
+      AutoMovieEngineVector3.length(outward) > 0.1 ? outward : across({ x: 0, y: 1, z: 0 });
+    return AutoMovieEngineVector3.add(
       straight,
-      Vector3.scale(
-        Vector3.normalize(direction),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(direction),
         curvature * length * Math.sin(Math.PI * share),
       ),
     );

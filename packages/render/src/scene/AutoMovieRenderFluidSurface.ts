@@ -4,8 +4,8 @@ import type {
   IAutoMovieFluidSurface,
 } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieFluidSprayObject } from "./IAutoMovieFluidSprayObject.js";
-import type { IAutoMovieFluidSurfaceObject } from "./IAutoMovieFluidSurfaceObject.js";
+import type { IAutoMovieRenderFluidSprayObject } from "./IAutoMovieRenderFluidSprayObject.js";
+import type { IAutoMovieRenderFluidSurfaceObject } from "./IAutoMovieRenderFluidSurfaceObject.js";
 import {
   buildFluidSprayObject as buildFluidSprayObjectImplementation,
 } from "./internal/buildFluidSprayObject.js";
@@ -23,7 +23,7 @@ export namespace AutoMovieRenderFluidSurface {
   export function buildSprayObject(props: {
     sample: IAutoMovieFluidSpraySample;
     material?: THREE.PointsMaterial;
-  }): IAutoMovieFluidSprayObject {
+  }): IAutoMovieRenderFluidSprayObject {
     return buildFluidSprayObjectImplementation(props);
   }
 
@@ -48,7 +48,7 @@ export namespace AutoMovieRenderFluidSurface {
      * it.
      */
     mode?: AutoMovieWaterFeatureMode;
-  }): IAutoMovieFluidSurfaceObject {
+  }): IAutoMovieRenderFluidSurfaceObject {
     return buildFluidSurfaceObjectImplementation(props);
   }
 }

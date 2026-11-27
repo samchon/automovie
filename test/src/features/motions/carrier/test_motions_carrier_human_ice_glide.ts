@@ -1,4 +1,9 @@
-import { HumanIceGlide, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanIceGlide
+} from "../../../../../packages/motions/src/carrier/internal/HumanIceGlide";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /** A leg of 0.45 m thigh and 0.42 m shank. */

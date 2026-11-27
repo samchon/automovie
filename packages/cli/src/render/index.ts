@@ -1,2 +1,2 @@
 export * from "./AutoMovieCliRender";
-export type { AutoMovieCliRenderTypes } from "./AutoMovieCliRenderTypes";
+export type * from "./AutoMovieCliRenderTypes";

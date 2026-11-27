@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
@@ -172,8 +172,8 @@ export namespace ExerciseKey {
     const placed: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       resolved ?? StrikingBody.trunk(body, posture);
     let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const bone of bones) sum = Vector3.add(sum, at(body, placed, bone));
-    return Vector3.scale(sum, 1 / bones.length);
+    for (const bone of bones) sum = AutoMovieEngineVector3.add(sum, at(body, placed, bone));
+    return AutoMovieEngineVector3.scale(sum, 1 / bones.length);
   }
 
   /*

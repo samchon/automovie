@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMath,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
@@ -101,7 +101,7 @@ export namespace AutoMovieArchetypeQuadrupedRest {
       AutoMovieArchetypeQuadrupedBody.Bone,
       IAutoMovieTransform
     > = prepared.read().frames;
-    const neutralTail: IAutoMovieVector3 = Quaternion.rotateVector(
+    const neutralTail: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       neutral.get("tail")!.rotation,
       { x: 0, y: 1, z: 0 },
     );
@@ -126,7 +126,7 @@ export namespace AutoMovieArchetypeQuadrupedRest {
     const cells: AutoMovieArchetype["convexCells"] = animal.convexCells;
     for (const part of animal.parts) QuadrupedRestFloor(part, cells);
     const trunk: IAutoMovieModelPart = bar("trunk");
-    const restTurn: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle(
+    const restTurn: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       pitch,
     );
@@ -160,7 +160,7 @@ export namespace AutoMovieArchetypeQuadrupedRest {
       1,
       Math.abs(floorY),
       ...[...neutral.values()].map((frame: IAutoMovieTransform): number =>
-        Vector3.length(frame.translation),
+        AutoMovieEngineVector3.length(frame.translation),
       ),
     );
 
@@ -217,7 +217,7 @@ export namespace AutoMovieArchetypeQuadrupedRest {
       const body: number = progress(u, windows.body);
       const root: IAutoMovieTransform = {
         translation: { x: 0, y: lowRoot + (highRoot - lowRoot) * body, z: 0 },
-        rotation: Quaternion.fromAxisAngle(
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 1, y: 0, z: 0 },
           pitch * (1 - body),
         ),
@@ -240,7 +240,7 @@ export namespace AutoMovieArchetypeQuadrupedRest {
         const current: number = progress(u, windows[end]);
         const points: readonly IAutoMovieVector3[] = source.limbs[limb];
         const angle: (index: 2 | 3) => number = (index: 2 | 3): number => {
-          const vector: IAutoMovieVector3 = Vector3.subtract(
+          const vector: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             points[index + 1]!,
             points[index]!,
           );
@@ -282,8 +282,8 @@ export namespace AutoMovieArchetypeQuadrupedRest {
           ),
         );
       }
-      const tail: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.slerp(tailTurn, Quaternion.identity(), body),
+      const tail: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.slerp(tailTurn, AutoMovieEngineQuaternion.identity(), body),
         neutralTail,
       );
       const axial: ReadonlyMap<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
@@ -305,20 +305,20 @@ export namespace AutoMovieArchetypeQuadrupedRest {
         const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
           AutoMovieArchetypeQuadrupedBody.BONES[limb];
         const frame: IAutoMovieTransform = currentFrames.get(chain[3]!)!;
-        const neutralEnd: IAutoMovieVector3 = Vector3.subtract(
+        const neutralEnd: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           source.limbs[limb][4]!,
           source.limbs[limb][3]!,
         );
-        const actual: IAutoMovieVector3 = Vector3.add(
+        const actual: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           frame.translation,
-          Quaternion.rotateVector(frame.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
             x: 0,
-            y: Vector3.length(neutralEnd),
+            y: AutoMovieEngineVector3.length(neutralEnd),
             z: 0,
           }),
         );
-        const error: number = Vector3.length(
-          Vector3.subtract(actual, feet.get(limb)!),
+        const error: number = AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(actual, feet.get(limb)!),
         );
         if (error > roundoff)
           throw new RangeError(

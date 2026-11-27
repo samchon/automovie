@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanGrasp,
@@ -34,9 +34,9 @@ export function pickUpAlong<
       )?.length ?? 0;
   return {
     ...target,
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       target.point,
-      Vector3.scale(target.axis, (along - 0.5) * length),
+      AutoMovieEngineVector3.scale(target.axis, (along - 0.5) * length),
     ),
   };
 }

@@ -1,6 +1,8 @@
 import type { IAutoMovieIntent, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain } from "@automovie/motions";
-import { HumanTabletop } from "@automovie/motions/internal";
+import {
+  HumanTabletop
+} from "../../../../../packages/motions/src/lexicon/internal/HumanTabletop";
 import { TestValidator } from "@nestia/e2e";
 
 import { compositionIntents } from "../../internal/compositionIntents";

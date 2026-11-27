@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBand,
@@ -9,7 +9,7 @@ import {
 } from "../../core";
 import { FixtureDraw } from "./FixtureDraw";
 import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
-import * as ServiceCabinetData from "./ServiceCabinetData";
+import { ServiceCabinetData } from "./ServiceCabinetData";
 
 /*
  * The shared measured rectangular cabinet and its two exterior contact frames.
@@ -169,8 +169,8 @@ export namespace ServiceCabinet {
     const depth: number = d.depth!;
     builder.box(
       "cabinet",
-      Vector3.create(width, height, depth),
-      Vector3.create(0, height / 2, 0),
+      AutoMovieEngineVector3.create(width, height, depth),
+      AutoMovieEngineVector3.create(0, height / 2, 0),
       {
         color,
         density: 0.4,
@@ -199,7 +199,7 @@ export namespace ServiceCabinet {
     },
   ): void {
     const { builder, width, height, depth }: typeof cabinet = cabinet;
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     builder.affordance({
       id: "front",
       kind: "surface",

@@ -5,10 +5,14 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
-  HumanPerformanceLayers,
-  AutoMovieMotionHumanRefusal,
-  HumanSegment,
-} from "@automovie/motions/internal";
+  HumanPerformanceLayers
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceLayers";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSegment
+} from "../../../../../packages/motions/src/perform/internal/HumanSegment";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

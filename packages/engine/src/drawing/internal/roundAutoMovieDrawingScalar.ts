@@ -1,8 +1,8 @@
-import { AUTOMOVIE_DRAWING_DECIMALS } from "../AUTOMOVIE_DRAWING_DECIMALS";
+import { AutoMovieEngineDrawingDecimals } from "../AutoMovieEngineDrawingDecimals";
 
 /*
  * Round one drawing scalar onto the fixed output grid of
- * AUTOMOVIE_DRAWING_DECIMALS decimal places.
+ * AutoMovieEngineDrawingDecimals decimal places.
  *
  * Halves round towards positive infinity, as `Math.round` does, and negative
  * zero is normalized to zero: `-0` and `0` stringify differently in a digest's
@@ -17,6 +17,6 @@ export const roundAutoMovieDrawingScalar = (value: number): number => {
 };
 
 /*
- * `10 ^ AUTOMOVIE_DRAWING_DECIMALS`, the grid's steps per metre.
+ * `10 ^ AutoMovieEngineDrawingDecimals`, the grid's steps per metre.
  */
-const FACTOR: number = 10 ** AUTOMOVIE_DRAWING_DECIMALS;
+const FACTOR: number = 10 ** AutoMovieEngineDrawingDecimals;

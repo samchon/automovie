@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
@@ -25,9 +25,9 @@ export function HumanSupportPatch(
   if (contact.material !== undefined && support !== undefined)
     return (contact.material.patch ?? [contact.material.point]).map(
       (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           support.position,
-          Quaternion.rotateVector(support.rotation, point),
+          AutoMovieEngineQuaternion.rotateVector(support.rotation, point),
         ),
     );
   return [HumanSupportPatch.point(body, bones, contact)];

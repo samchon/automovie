@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -162,20 +162,20 @@ export namespace dress {
         resolution,
       );
       const crown: ReturnType<typeof HumanTrunk.region> = trunk.region("crown");
-      const radial: IAutoMovieVector3 = Vector3.add(
-        Vector3.scale(outward, HAT.out),
-        Vector3.scale(forward, HAT.ahead),
+      const radial: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(outward, HAT.out),
+        AutoMovieEngineVector3.scale(forward, HAT.ahead),
       );
       // The head's own surface along that direction at the brim's level.
       const level: IAutoMovieVector3 = {
         ...crown.point,
         y: crown.point.y - HAT.down * r,
       };
-      const direction: IAutoMovieVector3 = Vector3.normalize(radial);
+      const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(radial);
       return {
         ...trunk.surface(
-          Vector3.add(level, Vector3.scale(direction, 4 * r)),
-          Vector3.scale(direction, -1),
+          AutoMovieEngineVector3.add(level, AutoMovieEngineVector3.scale(direction, 4 * r)),
+          AutoMovieEngineVector3.scale(direction, -1),
         ),
         surface: "palm",
         forward,
@@ -195,7 +195,7 @@ export namespace dress {
       point: at.point,
       normal: forward,
       surface: "indexTip",
-      forward: Vector3.scale(at.normal, -1),
+      forward: AutoMovieEngineVector3.scale(at.normal, -1),
     };
   }
 
@@ -242,7 +242,7 @@ export namespace dress {
     );
     const wearable: IAutoMovieMotionHumanProp = context.prop(subject).prop;
     // The item's frame in the hand's, for the hand that carries it.
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       held.frame.rotation,
     );
     const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
@@ -331,16 +331,16 @@ export namespace dress {
     // free-space rule, not an aimed one (`AutoMovieMotionHumanTiming`).
     const up: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
-    ): IAutoMovieVector3 => Vector3.add(point, Vector3.scale(forward, lead));
+    ): IAutoMovieVector3 => AutoMovieEngineVector3.add(point, AutoMovieEngineVector3.scale(forward, lead));
     const far: number = Math.max(
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           up(carried(context.entry.posture, turn).grip),
           AutoMovieMotionHumanArm.point(context.entry.posture, holding),
         ),
       ),
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           up(place(body, context.entry.posture, item, other).point),
           AutoMovieMotionHumanArm.point(context.entry.posture, steadying),
         ),
@@ -392,9 +392,9 @@ export namespace dress {
             turn,
             resolution,
           );
-          const grip: IAutoMovieVector3 = Vector3.add(
+          const grip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             on,
-            Vector3.scale(forward, travel(seconds)),
+            AutoMovieEngineVector3.scale(forward, travel(seconds)),
           );
           return { grip, rotation };
         };
@@ -472,9 +472,9 @@ export namespace dress {
             resolution,
           );
           return {
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               at.point,
-              Vector3.scale(forward, travel(seconds)),
+              AutoMovieEngineVector3.scale(forward, travel(seconds)),
             ),
             rotation: prepared.frame(posture, at.normal, at.forward).rotation,
           };

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,10 +11,8 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeJavelinData from "./internal/AutoMovieArchetypeJavelinData";
-import {
-  m as AutoMovieArchetypeJavelinDatam,
-} from "./internal/AutoMovieArchetypeJavelinData";
+import { AutoMovieArchetypeJavelinData } from "./internal/AutoMovieArchetypeJavelinData";
+
 
 /** Canonical producer and authoring contract for Javelin. */
 export namespace AutoMovieArchetypeJavelin {
@@ -84,13 +82,13 @@ export namespace AutoMovieArchetypeJavelin {
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      length: AutoMovieArchetypeJavelinDatam(2.6, 2.7, "the men's 2.60 to 2.70 m long"),
-      diameter: AutoMovieArchetypeJavelinDatam(
+      length: AutoMovieArchetypeJavelinData.m(2.6, 2.7, "the men's 2.60 to 2.70 m long"),
+      diameter: AutoMovieArchetypeJavelinData.m(
         0.025,
         0.03,
         "the men's shaft 25 to 30 mm across at its thickest",
       ),
-      balance: AutoMovieArchetypeJavelinDatam(
+      balance: AutoMovieArchetypeJavelinData.m(
         0.9,
         1.06,
         "the men's centre of gravity 0.90 to 1.06 m from the point",
@@ -103,13 +101,13 @@ export namespace AutoMovieArchetypeJavelin {
       ),
     },
     women: {
-      length: AutoMovieArchetypeJavelinDatam(2.2, 2.3, "the women's 2.20 to 2.30 m long"),
-      diameter: AutoMovieArchetypeJavelinDatam(
+      length: AutoMovieArchetypeJavelinData.m(2.2, 2.3, "the women's 2.20 to 2.30 m long"),
+      diameter: AutoMovieArchetypeJavelinData.m(
         0.02,
         0.025,
         "the women's shaft 20 to 25 mm across at its thickest",
       ),
-      balance: AutoMovieArchetypeJavelinDatam(
+      balance: AutoMovieArchetypeJavelinData.m(
         0.8,
         0.92,
         "the women's centre of gravity 0.80 to 0.92 m from the point",
@@ -174,22 +172,22 @@ export namespace AutoMovieArchetypeJavelin {
     builder.rod(
       "shaft",
       d.diameter / 2,
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, d.balance, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, d.balance, 0),
       { color: "#c9ccd1", share: 1 - aft },
     );
     builder.rod(
       "tail",
       d.diameter / 2,
-      Vector3.create(0, d.balance, 0),
-      Vector3.create(0, d.length, 0),
+      AutoMovieEngineVector3.create(0, d.balance, 0),
+      AutoMovieEngineVector3.create(0, d.length, 0),
       { color: "#c9ccd1", share: aft },
     );
     builder.rod(
       "cord",
       cord / 2,
-      Vector3.create(0, d.balance - width / 2, 0),
-      Vector3.create(0, d.balance + width / 2, 0),
+      AutoMovieEngineVector3.create(0, d.balance - width / 2, 0),
+      AutoMovieEngineVector3.create(0, d.balance + width / 2, 0),
       { color: "#2c2f33", share: 0 },
     );
     builder.affordance({
@@ -197,9 +195,9 @@ export namespace AutoMovieArchetypeJavelin {
       kind: "handle",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, d.balance, 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, d.balance, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "power",
@@ -211,9 +209,9 @@ export namespace AutoMovieArchetypeJavelin {
       kind: "surface",
       direction: "along",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, 0, 0),
-        Vector3.create(0, -1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 0, 0),
+        AutoMovieEngineVector3.create(0, -1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
     });

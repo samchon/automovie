@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -28,7 +28,7 @@ import { writeWith } from "../../handling/internal/writeWith";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { conductFigure } from "./conductFigure";
 import { conductTip } from "./conductTip";
-import * as ConductData from "./ConductData";
+import { ConductData } from "./ConductData";
 
 /*
  * Beat time with a held baton. Register as `conduct`.
@@ -88,17 +88,17 @@ function plan(
   const frame: IAutoMovieRigidTransform = context
     .prop(p.baton)
     .frame(context.entry.seconds);
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       frame.rotation,
-      Quaternion.inverse(held.frame.rotation),
+      AutoMovieEngineQuaternion.inverse(held.frame.rotation),
     ),
   );
-  const contact: IAutoMovieVector3 = Vector3.add(
+  const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     HumanHand.offset(context.body, side, "grip").point,
     AutoMovieMotionHumanHeld.point(held, "tip").point,
   );
-  const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+  const lever: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, contact);
 
   // The figure's centre a forearm ahead of the chest, on the baton's side.
   const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -166,7 +166,7 @@ function plan(
         ...rest,
       );
       const goal: IAutoMovieHumanLimbGoal = {
-        point: Vector3.subtract(tip(seconds), lever),
+        point: AutoMovieEngineVector3.subtract(tip(seconds), lever),
         rotation,
         contact,
         bend,

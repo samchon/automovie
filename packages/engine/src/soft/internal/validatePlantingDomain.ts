@@ -9,10 +9,10 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { PLANTING_MAX_BRANCHES } from "../PLANTING_MAX_BRANCHES";
-import { PLANTING_MAX_CHILDREN } from "../PLANTING_MAX_CHILDREN";
-import { PLANTING_MAX_LEAVES } from "../PLANTING_MAX_LEAVES";
-import { PLANTING_MAX_LEVELS } from "../PLANTING_MAX_LEVELS";
+import { AutoMovieEnginePlantingMaxBranches } from "../AutoMovieEnginePlantingMaxBranches";
+import { AutoMovieEnginePlantingMaxChildren } from "../AutoMovieEnginePlantingMaxChildren";
+import { AutoMovieEnginePlantingMaxLeaves } from "../AutoMovieEnginePlantingMaxLeaves";
+import { AutoMovieEnginePlantingMaxLevels } from "../AutoMovieEnginePlantingMaxLevels";
 import { plantingBudget } from "./plantingBudget";
 import { validateSoftIdentity as identity } from "./validateSoftIdentity";
 import { validateSoftInteger as integer } from "./validateSoftInteger";
@@ -61,7 +61,7 @@ export function validatePlantingDomain(
     "branching levels",
     structure.levels,
     1,
-    PLANTING_MAX_LEVELS,
+    AutoMovieEnginePlantingMaxLevels,
   );
   direction(out, `${root}.structure.axis`, "trunk axis", structure.axis);
   numeric(
@@ -134,13 +134,13 @@ export function validatePlantingDomain(
       "a branching law must declare at least one child, or the recursion has nothing to do",
       structure.children.length,
     );
-  if (structure.children.length > PLANTING_MAX_CHILDREN)
+  if (structure.children.length > AutoMovieEnginePlantingMaxChildren)
     out.push(
       "range",
       `${root}.structure.children`,
-      `a branch may bear at most ${PLANTING_MAX_CHILDREN} children, but declared ${structure.children.length}`,
+      `a branch may bear at most ${AutoMovieEnginePlantingMaxChildren} children, but declared ${structure.children.length}`,
       structure.children.length,
-      structure.children.length - PLANTING_MAX_CHILDREN,
+      structure.children.length - AutoMovieEnginePlantingMaxChildren,
     );
   const childIds: Set<string> = new Set<string>();
   structure.children.forEach(
@@ -220,7 +220,7 @@ export function validatePlantingDomain(
       "foliage minimum level",
       domain.foliage.minLevel,
       0,
-      PLANTING_MAX_LEVELS,
+      AutoMovieEnginePlantingMaxLevels,
     );
     for (const axis of ["x", "y", "z"] as const)
       numeric(
@@ -258,7 +258,7 @@ export function validatePlantingDomain(
     "branch cap",
     domain.budget.maxBranches,
     1,
-    PLANTING_MAX_BRANCHES,
+    AutoMovieEnginePlantingMaxBranches,
   );
   integer(
     out,
@@ -266,13 +266,13 @@ export function validatePlantingDomain(
     "leaf cap",
     domain.budget.maxLeaves,
     0,
-    PLANTING_MAX_LEAVES,
+    AutoMovieEnginePlantingMaxLeaves,
   );
   // Guarded by the level range above: the worst case is counted by walking the
   // levels, so an out-of-range depth is refused before anything walks it.
   if (
     structure.levels >= 1 &&
-    structure.levels <= PLANTING_MAX_LEVELS &&
+    structure.levels <= AutoMovieEnginePlantingMaxLevels &&
     Math.floor(structure.levels) === structure.levels
   ) {
     const budget: IAutoMoviePlantingBudget = plantingBudget({ domain });

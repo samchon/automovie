@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypePayStation } from "../AutoMovieArchetypePayStation";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
 import { ServiceCabinet } from "./ServiceCabinet";
@@ -30,7 +30,7 @@ export function createPayStation(
     height,
     depth,
   }: ServiceCabinet.ICabinet<AutoMovieArchetypePayStation.Affordance> = cabinet;
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.box(
     "spacer",
     v(width, HEAD.spacer, depth),

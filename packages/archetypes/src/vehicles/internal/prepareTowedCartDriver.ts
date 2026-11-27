@@ -1,4 +1,4 @@
-import { RigidCarrierSample, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineRigidCarrierSample, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionPlayback,
   IAutoMovieRigidTransform,
@@ -24,9 +24,9 @@ export function prepareTowedCartDriver(
     AutoMovieArchetypeCart.Affordance,
     AutoMovieArchetypeCart.Dimension
   >,
-): RigidCarrierSample.IBinding {
-  const playback: IAutoMovieMotionPlayback<RigidCarrierSample.IRead> = {
-    sample: (seconds: number): RigidCarrierSample.IRead => {
+): AutoMovieEngineRigidCarrierSample.IBinding {
+  const playback: IAutoMovieMotionPlayback<AutoMovieEngineRigidCarrierSample.IRead> = {
+    sample: (seconds: number): AutoMovieEngineRigidCarrierSample.IRead => {
       const current: AutoMovieArchetypeRide.ITowedSample<AutoMovieArchetypeCart.Affordance> =
         ride.geometry(seconds);
       const frame: IAutoMovieRigidTransform = {
@@ -58,26 +58,26 @@ export function prepareTowedCartDriver(
               fix: "supply the cart's lines when authoring the tow",
             });
           const [to, from] = segment;
-          const span: IAutoMovieVector3 = Vector3.subtract(to, from);
-          const along: IAutoMovieVector3 = Vector3.normalize(span);
+          const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
+          const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(span);
           const share: number = Math.min(
             1,
             Math.max(
               0,
-              Vector3.dot(Vector3.subtract(nominal.translation, from), span) /
-                Vector3.dot(span, span),
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(nominal.translation, from), span) /
+                AutoMovieEngineVector3.dot(span, span),
             ),
           );
           return AutoMovieArchetypeFrame.facing(
-            Vector3.lerp(from, to, share),
-            Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
+            AutoMovieEngineVector3.lerp(from, to, share),
+            AutoMovieEngineVector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
             along,
           );
         },
       };
     },
   };
-  return RigidCarrierSample.bind(
+  return AutoMovieEngineRigidCarrierSample.bind(
     cart,
     (seconds: number): IAutoMovieRigidTransform =>
       playback.sample(seconds).frame,

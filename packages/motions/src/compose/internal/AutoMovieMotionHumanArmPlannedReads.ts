@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieHumanLimbGoal,
@@ -488,6 +488,6 @@ function continuing(
     IAutoMovieSwivelSeed | null | undefined,
   ][])
     if (seed !== null && seed !== undefined)
-      out[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+      out[limb] = { ...seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
   return out;
 }

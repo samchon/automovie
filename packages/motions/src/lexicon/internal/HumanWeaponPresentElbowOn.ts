@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -12,20 +12,20 @@ export function HumanWeaponPresentElbowOn(
   fore: number,
   toward: IAutoMovieVector3,
 ): IAutoMovieVector3 | undefined {
-  const span: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
-  const d: number = Vector3.length(span);
+  const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(wrist, shoulder);
+  const d: number = AutoMovieEngineVector3.length(span);
   if (!(d > 1e-9) || d >= upper + fore || d <= Math.abs(upper - fore))
     return undefined;
-  const axis: IAutoMovieVector3 = Vector3.scale(span, 1 / d);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(span, 1 / d);
   const along: number = (d * d + upper * upper - fore * fore) / (2 * d);
   const radius: number = Math.sqrt(Math.max(0, upper * upper - along * along));
-  const square: IAutoMovieVector3 = Vector3.subtract(
+  const square: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     toward,
-    Vector3.scale(axis, Vector3.dot(toward, axis)),
+    AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(toward, axis)),
   );
-  if (!(Vector3.length(square) > 1e-9)) return undefined;
-  return Vector3.add(
-    Vector3.add(shoulder, Vector3.scale(axis, along)),
-    Vector3.scale(Vector3.normalize(square), radius),
+  if (!(AutoMovieEngineVector3.length(square) > 1e-9)) return undefined;
+  return AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(shoulder, AutoMovieEngineVector3.scale(axis, along)),
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(square), radius),
   );
 }

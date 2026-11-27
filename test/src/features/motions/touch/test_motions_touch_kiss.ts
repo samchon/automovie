@@ -6,13 +6,23 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanRefusal,
-  kiss,
-  kissClock,
-  kissPitch,
-  kissProjection,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  kiss
+} from "../../../../../packages/motions/src/touch/internal/kiss";
+import {
+  kissClock
+} from "../../../../../packages/motions/src/touch/internal/kissClock";
+import {
+  kissPitch
+} from "../../../../../packages/motions/src/touch/internal/kissPitch";
+import {
+  kissProjection
+} from "../../../../../packages/motions/src/touch/internal/kissProjection";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 

@@ -14,7 +14,7 @@ import {
   type IAutoMovieWearableSoftResult,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
 
 /*
@@ -243,7 +243,7 @@ const resolveLocalPoint: (
   offset: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
   assertQuaternion(rotation, "moving subject rotation");
-  const rotated: IAutoMovieVector3 = Quaternion.rotateVector(rotation, offset);
+  const rotated: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, offset);
   return {
     x: position.x + rotated.x,
     y: position.y + rotated.y,

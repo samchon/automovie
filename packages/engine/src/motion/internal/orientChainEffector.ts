@@ -10,11 +10,11 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
@@ -106,15 +106,15 @@ export function orientChainEffector(
           lower,
           map.get(props.chain.effector)!,
         )
-      : (effectorBone?.rest.rotation ?? Quaternion.identity()));
+      : (effectorBone?.rest.rotation ?? AutoMovieEngineQuaternion.identity()));
   const restInverse: IAutoMovieQuaternion =
     (prepared === undefined ? undefined : rig?.effectorRestInverse()) ??
-    Quaternion.inverse(rest);
-  const local: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(rest);
+  const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       restInverse,
-      Quaternion.multiply(
-        Quaternion.inverse(lower.worldRotation),
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(lower.worldRotation),
         props.effectorRotation,
       ),
     ),
@@ -122,7 +122,7 @@ export function orientChainEffector(
   const basis: IAutoMovieJointAxes =
     rig?.basis(props.chain.effector, "jointToQuaternion axes") ??
     normalizeJointAxes(
-      axes[props.chain.effector] ?? DEFAULT_JOINT_AXES,
+      axes[props.chain.effector] ?? AutoMovieEngineDefaultJointAxes,
       "jointToQuaternion axes",
     );
   const project: (rotation: IAutoMovieQuaternion) => IAutoMovieJointPose =
@@ -156,14 +156,14 @@ export function orientChainEffector(
       effector.bone,
       props.restFrames?.[effector.bone],
     )(effector);
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(lower.worldRotation, prepared.effectorBaseRotation),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(lower.worldRotation, prepared.effectorBaseRotation),
       articulation,
     );
     capture(rotation, () =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         lower.worldPosition,
-        Quaternion.rotateVector(lower.worldRotation, prepared.effectorOffset),
+        AutoMovieEngineQuaternion.rotateVector(lower.worldRotation, prepared.effectorOffset),
       ),
     );
   }

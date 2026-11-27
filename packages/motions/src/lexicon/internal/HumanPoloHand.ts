@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -22,8 +22,8 @@ export function HumanPoloHand(
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,
 ): HumanPoloHand.IHand {
   const asked: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-  const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(
+  const fingers: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(
       HumanHand.rotation(side, {
         fingers: asked,
         palm: { x: 0, y: -1, z: 0 },
@@ -31,22 +31,22 @@ export function HumanPoloHand(
     ),
     asked,
   );
-  const shaft: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(
+  const shaft: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(
       tool.axis,
-      Vector3.scale(fingers, Vector3.dot(tool.axis, fingers)),
+      AutoMovieEngineVector3.scale(fingers, AutoMovieEngineVector3.dot(tool.axis, fingers)),
     ),
   );
-  const point: IAutoMovieVector3 = Vector3.add(
+  const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     HumanHand.offset(body, side, "grip").point,
     tool.tip,
   );
   return {
     fingers,
     shaft,
-    along: Vector3.dot(point, fingers),
-    out: Vector3.dot(point, shaft),
-    across: Vector3.dot(point, Vector3.cross(fingers, shaft)),
+    along: AutoMovieEngineVector3.dot(point, fingers),
+    out: AutoMovieEngineVector3.dot(point, shaft),
+    across: AutoMovieEngineVector3.dot(point, AutoMovieEngineVector3.cross(fingers, shaft)),
   };
 }
 
@@ -151,28 +151,28 @@ export namespace HumanPoloHand {
     arm: number,
     deviation: number,
   ): IStation {
-    const r: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(plane.u, Math.cos(arm)),
-      Vector3.scale(plane.w, Math.sin(arm)),
+    const r: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(plane.u, Math.cos(arm)),
+      AutoMovieEngineVector3.scale(plane.w, Math.sin(arm)),
     );
-    const a: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(plane.u, -Math.sin(arm)),
-      Vector3.scale(plane.w, Math.cos(arm)),
+    const a: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(plane.u, -Math.sin(arm)),
+      AutoMovieEngineVector3.scale(plane.w, Math.cos(arm)),
     );
-    const toward: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.scale(r, Math.cos(deviation)),
-      Vector3.scale(a, Math.sin(deviation)),
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.scale(r, Math.cos(deviation)),
+      AutoMovieEngineVector3.scale(a, Math.sin(deviation)),
     );
-    const shaft: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(
-        Vector3.scale(r, Math.sin(deviation)),
-        Vector3.scale(a, Math.cos(deviation)),
+    const shaft: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(r, Math.sin(deviation)),
+        AutoMovieEngineVector3.scale(a, Math.cos(deviation)),
       ),
       -1,
     );
-    const joint: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(shoulder, Vector3.scale(plane.normal, hand.across)),
-      Vector3.scale(r, wrist),
+    const joint: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(shoulder, AutoMovieEngineVector3.scale(plane.normal, hand.across)),
+      AutoMovieEngineVector3.scale(r, wrist),
     );
     return {
       wrist: joint,
@@ -180,14 +180,14 @@ export namespace HumanPoloHand {
         { normal: hand.fingers, forward: hand.shaft },
         { normal: toward, forward: shaft },
       ),
-      head: Vector3.add(
+      head: AutoMovieEngineVector3.add(
         joint,
-        Vector3.add(
-          Vector3.add(
-            Vector3.scale(toward, hand.along),
-            Vector3.scale(shaft, hand.out),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(toward, hand.along),
+            AutoMovieEngineVector3.scale(shaft, hand.out),
           ),
-          Vector3.scale(plane.normal, -hand.across),
+          AutoMovieEngineVector3.scale(plane.normal, -hand.across),
         ),
       ),
     };

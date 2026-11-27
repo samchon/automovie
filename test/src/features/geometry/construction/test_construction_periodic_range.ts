@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanPeriodicRailRange } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -51,7 +51,7 @@ export function test_construction_periodic_range(): void {
     const before: number[] = [...controls];
     try {
       const read: (phase: number) => number =
-        AutoMovieNaturalSpline.periodic(controls);
+        AutoMovieEngineNaturalSpline.periodic(controls);
       for (const [phase, expected] of probes) {
         const actual: number = read(phase);
         if (!nclose(actual, expected, tolerance))

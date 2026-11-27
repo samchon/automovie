@@ -1,7 +1,7 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 
-import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
 import { planAutoMovieDrawLayers } from "./planAutoMovieDrawLayers.js";
 
 /*
@@ -28,7 +28,7 @@ import { planAutoMovieDrawLayers } from "./planAutoMovieDrawLayers.js";
  */
 export function planAutoMovieDrawPicture(
   name: string,
-  scene: Pick<IAutoMovieDrawScene, "sequence" | "cut" | "seekShot">,
+  scene: Pick<IAutoMovieRenderDrawScene, "sequence" | "cut" | "seekShot">,
   seconds: number,
 ): {
   /*

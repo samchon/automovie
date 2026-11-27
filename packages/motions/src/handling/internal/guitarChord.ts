@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -148,31 +148,31 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
    * Rigidly carry a named affordance point by the staged instrument.
    */
   const world = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, point));
+    AutoMovieEngineVector3.add(frame.position, AutoMovieEngineQuaternion.rotateVector(frame.rotation, point));
   const indexStop: IAutoMovieVector3 = world(index.stop);
   const middleStop: IAutoMovieVector3 = world(middle.stop);
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.rotation,
     index.normal,
   );
-  const lift: IAutoMovieVector3 = Vector3.scale(
+  const lift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     normal,
     context.body.measure.hand / 8,
   );
   const down: boolean = direction === "down";
   const first: IAutoMovieVector3 = world((down ? index : middle).pluck);
   const second: IAutoMovieVector3 = world((down ? middle : index).pluck);
-  const pass: IAutoMovieVector3 = Vector3.subtract(second, first);
+  const pass: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(second, first);
 
   // A symmetric extension makes one minimum-jerk stroke cross at both time thirds.
   const firstShare: number = AutoMovieEngineMotionSampling.minimumJerkShare(1 / 3);
   const extension: number = firstShare / (1 - 2 * firstShare);
-  const overrun: IAutoMovieVector3 = Vector3.scale(pass, extension);
+  const overrun: IAutoMovieVector3 = AutoMovieEngineVector3.scale(pass, extension);
   if (
     !(
-      0 < Vector3.length(overrun) &&
-      Vector3.length(overrun) <
-        Math.min(Vector3.length(index.sweep), Vector3.length(middle.sweep))
+      0 < AutoMovieEngineVector3.length(overrun) &&
+      AutoMovieEngineVector3.length(overrun) <
+        Math.min(AutoMovieEngineVector3.length(index.sweep), AutoMovieEngineVector3.length(middle.sweep))
     )
   )
     throw new AutoMovieMotionHumanRefusal({
@@ -183,19 +183,19 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         "the two crossings need room to clear before the neighbouring strings",
       fix: "use the adjacent, separately spaced guitar strings",
     });
-  const before: IAutoMovieVector3 = Vector3.subtract(first, overrun);
-  const after: IAutoMovieVector3 = Vector3.add(second, overrun);
-  const beforeLift: IAutoMovieVector3 = Vector3.add(before, lift);
-  const afterLift: IAutoMovieVector3 = Vector3.add(after, lift);
-  const leftCentre: IAutoMovieVector3 = Vector3.lerp(
+  const before: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(first, overrun);
+  const after: IAutoMovieVector3 = AutoMovieEngineVector3.add(second, overrun);
+  const beforeLift: IAutoMovieVector3 = AutoMovieEngineVector3.add(before, lift);
+  const afterLift: IAutoMovieVector3 = AutoMovieEngineVector3.add(after, lift);
+  const leftCentre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     indexStop,
     middleStop,
     0.5,
   );
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(context.body, context.entry.pose);
-  const voicing: IAutoMovieVector3 = Vector3.subtract(middleStop, indexStop);
-  if (!(Vector3.length(Vector3.cross(normal, voicing)) > 1e-9))
+  const voicing: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(middleStop, indexStop);
+  if (!(AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(normal, voicing)) > 1e-9))
     throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "frettingSpan",
@@ -203,7 +203,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       reason: "the fretting stops must be distinct in the guitar plane",
       fix: "use rigid fret and string bars at separate stops",
     });
-  const span: number = Vector3.length(voicing);
+  const span: number = AutoMovieEngineVector3.length(voicing);
   const maximumSpan: number = guitarFrettingSpan(context.body, bones);
   if (!(span <= maximumSpan + 1e-6))
     throw new AutoMovieMotionHumanRefusal({
@@ -220,7 +220,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     bones,
     "left",
     normal,
-    [Vector3.add(leftCentre, lift), leftCentre],
+    [AutoMovieEngineVector3.add(leftCentre, lift), leftCentre],
     voicing,
   );
   const right: IArm = arm(context, bones, "right", normal, [
@@ -251,13 +251,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const held: IAutoMovieMotionHumanPosture = base.posture(seconds);
       if (seconds <= 0) return held;
       const weight: number = ease(seconds, 0, prep);
-      const liftLeft: IAutoMovieVector3 = Vector3.scale(
+      const liftLeft: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         lift,
         1 - ease(seconds, prep, stopAt) + ease(seconds, releaseAt, duration),
       );
-      const rightTip: IAutoMovieVector3 = Vector3.add(
-        Vector3.lerp(before, after, ease(seconds, sweepStartAt, sweepEndAt)),
-        Vector3.scale(
+      const rightTip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.lerp(before, after, ease(seconds, sweepStartAt, sweepEndAt)),
+        AutoMovieEngineVector3.scale(
           lift,
           1 -
             ease(seconds, stopAt, sweepStartAt) +
@@ -282,7 +282,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         joints,
         limbs: {
           ...held.limbs,
-          leftArm: wrist(left, Vector3.add(leftCentre, liftLeft), weight),
+          leftArm: wrist(left, AutoMovieEngineVector3.add(leftCentre, liftLeft), weight),
           rightArm: wrist(right, rightTip, weight),
         },
         digits: {
@@ -291,11 +291,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             ? {}
             : {
                 leftIndex: {
-                  point: Vector3.add(indexStop, liftLeft),
+                  point: AutoMovieEngineVector3.add(indexStop, liftLeft),
                   surface: "tip",
                 },
                 leftMiddle: {
-                  point: Vector3.add(middleStop, liftLeft),
+                  point: AutoMovieEngineVector3.add(middleStop, liftLeft),
                   surface: "tip",
                 },
                 rightIndex: { point: rightTip, surface: "tip" },
@@ -322,11 +322,11 @@ function arm(
   const shoulder: IAutoMovieVector3 = bones.get(
     `${side}UpperArm`,
   )!.worldPosition;
-  const centre: IAutoMovieVector3 = Vector3.lerp(path[0]!, path.at(-1)!, 0.5);
-  const toward: IAutoMovieVector3 = Vector3.subtract(centre, shoulder);
-  const planar: IAutoMovieVector3 = Vector3.subtract(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(path[0]!, path.at(-1)!, 0.5);
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(centre, shoulder);
+  const planar: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     toward,
-    Vector3.scale(normal, Vector3.dot(toward, normal)),
+    AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(toward, normal)),
   );
   const index: IAutoMovieVector3 = HumanHand.offset(
     context.body,
@@ -337,16 +337,16 @@ function arm(
     voicing === undefined
       ? index
       : HumanHand.offset(context.body, side, "middleTip").point;
-  const palm: IAutoMovieVector3 = Vector3.scale(normal, -1);
+  const palm: IAutoMovieVector3 = AutoMovieEngineVector3.scale(normal, -1);
 
   // Turn the left hand's relaxed digit pair toward the fret span before fitting each digit.
   const rotation: IAutoMovieQuaternion =
     voicing === undefined
       ? HumanHand.rotation(side, {
           fingers:
-            Vector3.length(planar) > 1e-6
+            AutoMovieEngineVector3.length(planar) > 1e-6
               ? planar
-              : Vector3.cross(
+              : AutoMovieEngineVector3.cross(
                   normal,
                   Math.abs(normal.x) < 0.9
                     ? { x: 1, y: 0, z: 0 }
@@ -357,35 +357,35 @@ function arm(
       : HumanHand.align(
           {
             normal: { x: 0, y: -1, z: 0 },
-            forward: Vector3.subtract(middle, index),
+            forward: AutoMovieEngineVector3.subtract(middle, index),
           },
           { normal: palm, forward: voicing },
         );
-  const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+  const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     rotation,
-    Vector3.lerp(index, middle, 0.5),
+    AutoMovieEngineVector3.lerp(index, middle, 0.5),
   );
   const upper: number = context.body.measure.upperArm;
   const lower: number = context.body.measure.forearm;
   const minimum: number = Math.abs(upper - lower);
   const maximum: number = upper + lower;
-  let previous: IAutoMovieVector3 = Vector3.subtract(
+  let previous: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     entry.worldPosition,
     shoulder,
   );
   for (const waypoint of path) {
-    const next: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.subtract(waypoint, offset),
+    const next: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.subtract(waypoint, offset),
       shoulder,
     );
-    const delta: IAutoMovieVector3 = Vector3.subtract(next, previous);
-    const sq: number = Vector3.dot(delta, delta);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(next, previous);
+    const sq: number = AutoMovieEngineVector3.dot(delta, delta);
     const closest: number =
       sq === 0
         ? 0
-        : Math.max(0, Math.min(1, -Vector3.dot(previous, delta) / sq));
-    const near: number = Vector3.length(Vector3.lerp(previous, next, closest));
-    const far: number = Vector3.length(next);
+        : Math.max(0, Math.min(1, -AutoMovieEngineVector3.dot(previous, delta) / sq));
+    const near: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.lerp(previous, next, closest));
+    const far: number = AutoMovieEngineVector3.length(next);
     if (!(minimum - 1e-6 <= near && far <= maximum + 1e-6))
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
@@ -438,12 +438,12 @@ function wrist(
   weight: number,
 ): NonNullable<IAutoMovieMotionHumanPosture["limbs"]["leftArm"]> {
   return {
-    point: Vector3.lerp(
+    point: AutoMovieEngineVector3.lerp(
       arm.entry.worldPosition,
-      Vector3.subtract(target, arm.offset),
+      AutoMovieEngineVector3.subtract(target, arm.offset),
       weight,
     ),
-    rotation: Quaternion.slerp(arm.entry.worldRotation, arm.rotation, weight),
+    rotation: AutoMovieEngineQuaternion.slerp(arm.entry.worldRotation, arm.rotation, weight),
     bend: arm.bend,
   };
 }

@@ -3,8 +3,8 @@ import type {
   IAutoMovieTessellation,
 } from "@automovie/interface";
 
-import { PRIMITIVE_RADIAL_SEGMENTS } from "../PRIMITIVE_RADIAL_SEGMENTS";
-import { PRIMITIVE_SPHERE_RINGS } from "../PRIMITIVE_SPHERE_RINGS";
+import { AutoMovieEnginePrimitiveRadialSegments } from "../AutoMovieEnginePrimitiveRadialSegments";
+import { AutoMovieEnginePrimitiveSphereRings } from "../AutoMovieEnginePrimitiveSphereRings";
 
 /*
  * Tessellate a AutoMoviePrimitiveShape into a triangle mesh.
@@ -38,23 +38,23 @@ export const tessellate: (
     case "sphere":
       return sphere(
         shape.radius,
-        PRIMITIVE_RADIAL_SEGMENTS,
-        PRIMITIVE_SPHERE_RINGS,
+        AutoMovieEnginePrimitiveRadialSegments,
+        AutoMovieEnginePrimitiveSphereRings,
       );
     case "cylinder":
       return cylinder(
         shape.radius,
         shape.radius,
         shape.height,
-        PRIMITIVE_RADIAL_SEGMENTS,
+        AutoMovieEnginePrimitiveRadialSegments,
       );
     case "cone":
-      return cylinder(shape.radius, 0, shape.height, PRIMITIVE_RADIAL_SEGMENTS);
+      return cylinder(shape.radius, 0, shape.height, AutoMovieEnginePrimitiveRadialSegments);
     case "capsule":
       return sphere(
         shape.radius,
-        PRIMITIVE_RADIAL_SEGMENTS,
-        PRIMITIVE_SPHERE_RINGS,
+        AutoMovieEnginePrimitiveRadialSegments,
+        AutoMovieEnginePrimitiveSphereRings,
         shape.height,
       );
   }

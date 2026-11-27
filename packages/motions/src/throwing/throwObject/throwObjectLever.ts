@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -41,9 +41,9 @@ export function throwObjectLever(
         : { x: 0, y: 0, z: 0 };
 
   // The working point where the hand's grip at the release holds it.
-  const point: IAutoMovieVector3 = Vector3.add(
+  const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     props.release,
-    Quaternion.rotateVector(props.held, tip),
+    AutoMovieEngineQuaternion.rotateVector(props.held, tip),
   );
   const velocity: IAutoMovieVector3 | undefined = throwObjectLaunch.aimed(
     point,
@@ -55,26 +55,26 @@ export function throwObjectLever(
   // The least turn about the shoulder that carries the velocity's part
   // square to the lever, w = (r x v) / |r|^2; its part along the lever is
   // the velocity every point of the lever shares.
-  const lever: IAutoMovieVector3 = Vector3.subtract(point, props.shoulder);
-  const turn: IAutoMovieVector3 = Vector3.scale(
-    Vector3.cross(lever, velocity),
-    1 / Vector3.dot(lever, lever),
+  const lever: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, props.shoulder);
+  const turn: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.cross(lever, velocity),
+    1 / AutoMovieEngineVector3.dot(lever, lever),
   );
-  const shared: IAutoMovieVector3 = Vector3.subtract(
+  const shared: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     velocity,
-    Vector3.cross(turn, lever),
+    AutoMovieEngineVector3.cross(turn, lever),
   );
-  const omega: number = Vector3.length(turn);
-  const axis: IAutoMovieVector3 = Vector3.normalize(turn);
+  const omega: number = AutoMovieEngineVector3.length(turn);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(turn);
 
   // An unturned hand translates, so it carries the launch velocity itself;
   // an implement's hand moves as the lever does at the grip.
   const hand: IAutoMovieVector3 =
     props.implement === undefined
       ? velocity
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           shared,
-          Vector3.cross(turn, Vector3.subtract(props.release, props.shoulder)),
+          AutoMovieEngineVector3.cross(turn, AutoMovieEngineVector3.subtract(props.release, props.shoulder)),
         );
   return {
     point,
@@ -86,8 +86,8 @@ export function throwObjectLever(
       props.implement === undefined
         ? (): IAutoMovieQuaternion => props.held
         : (carried: number): IAutoMovieQuaternion =>
-            Quaternion.multiply(
-              Quaternion.fromAxisAngle(axis, (omega * carried * 180) / Math.PI),
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.fromAxisAngle(axis, (omega * carried * 180) / Math.PI),
               props.held,
             ),
   };
@@ -187,13 +187,13 @@ export namespace throwObjectLever {
       1,
       Math.round((lever.omega * seconds) / Math.PI),
     );
-    const frame: IAutoMovieQuaternion = Quaternion.multiply(
+    const frame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       lever.rotation(0),
       AutoMovieMotionHumanHeld(context, side, prop).frame.rotation,
     );
     return {
       kind: "spin",
-      axis: Quaternion.rotateVector(Quaternion.inverse(frame), lever.axis),
+      axis: AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(frame), lever.axis),
       rate: (halves * 180) / seconds,
     };
   }

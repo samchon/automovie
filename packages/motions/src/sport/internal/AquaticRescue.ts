@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
@@ -32,9 +32,9 @@ export namespace AquaticRescue {
     const victim: IAutoMovieMotionHumanPerformerReader = partnerOf(context);
     const from: IAutoMovieVector3 = victim.root(start).position;
     const tow: ITow = plan(from, edgeOf(context));
-    const behind: IAutoMovieVector3 = Vector3.subtract(
+    const behind: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       from,
-      Vector3.scale(tow.toward, AquaticRescueBounds.BEHIND),
+      AutoMovieEngineVector3.scale(tow.toward, AquaticRescueBounds.BEHIND),
     );
     // The crawl stops `STANDOFF` short of the hold, clear of the victim's
     // flailing body, and the rescuer glides in onto its side as it takes
@@ -45,7 +45,7 @@ export namespace AquaticRescue {
     );
     const standoff: IAutoMovieVector3 =
       gap > AquaticRescueBounds.STANDOFF
-        ? Vector3.add(behind, {
+        ? AutoMovieEngineVector3.add(behind, {
             x:
               ((entry.posture.root.x - behind.x) / gap) *
               AquaticRescueBounds.STANDOFF,
@@ -134,26 +134,26 @@ export namespace AquaticRescue {
         t < arrive ? swimAt(t) : turn((t - arrive) / AquaticRescueBounds.GRIP);
       const where: IAutoMovieVector3 =
         t < arrive
-          ? Vector3.lerp(
+          ? AutoMovieEngineVector3.lerp(
               { ...entry.posture.root, y: 0 },
               { ...standoff, y: 0 },
               t / arrive,
             )
           : t < hold
-            ? Vector3.lerp(
+            ? AutoMovieEngineVector3.lerp(
                 { ...standoff, y: 0 },
                 { ...behind, y: 0 },
                 AutoMovieEngineMotionSampling.minimumJerkShare((t - arrive) / AquaticRescueBounds.GRIP),
               )
-            : Vector3.add(
+            : AutoMovieEngineVector3.add(
                 { ...behind, y: 0 },
-                Vector3.scale(tow.toward, along(tow, t - hold)),
+                AutoMovieEngineVector3.scale(tow.toward, along(tow, t - hold)),
               );
       const hips: IAutoMovieVector3 =
         t < arrive ? crawlHips : t >= hold ? sideHips : hipsOf(shaped);
       const placed: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
         shaped,
-        Vector3.add(shaped.root, {
+        AutoMovieEngineVector3.add(shaped.root, {
           x: where.x - hips.x,
           y: water - 0.15 - hips.y,
           z: where.z - hips.z,
@@ -239,17 +239,17 @@ export namespace AquaticRescue {
         "left",
         "palm",
       );
-      const across: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(placed.normal, tow.toward),
+      const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(placed.normal, tow.toward),
       );
       const rotation: IAutoMovieQuaternion = HumanHand.align(palm, {
-        normal: Vector3.scale(placed.normal, -1),
+        normal: AutoMovieEngineVector3.scale(placed.normal, -1),
         forward: across,
       });
       return {
-        wrist: Vector3.subtract(
+        wrist: AutoMovieEngineVector3.subtract(
           chest,
-          Quaternion.rotateVector(rotation, palm.point),
+          AutoMovieEngineQuaternion.rotateVector(rotation, palm.point),
         ),
         rotation,
         contact: palm.point,
@@ -257,8 +257,8 @@ export namespace AquaticRescue {
           victim.body,
           victim.bones(start + hold, HumanColliders.bones(victim.body)),
         ),
-        bend: Vector3.add(
-          Vector3.subtract(chest, Vector3.scale(tow.toward, 0.25)),
+        bend: AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.subtract(chest, AutoMovieEngineVector3.scale(tow.toward, 0.25)),
           {
             x: 0,
             y: 0.1,
@@ -270,20 +270,20 @@ export namespace AquaticRescue {
     const w: IHoldWorld = holdWorld();
     // The hold in the rescuer's chest frame `own`.
     const inFrame = (own: IAutoMovieResolvedBone): IAutoMovieHumanLimbGoal => {
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
         own.worldRotation,
       );
       const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(point, own.worldPosition),
+          AutoMovieEngineVector3.subtract(point, own.worldPosition),
         );
       return {
         on: "chest",
         point: local(w.wrist),
-        rotation: Quaternion.multiply(inverse, w.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(inverse, w.rotation),
         contact: w.contact,
         // The victim's body, as it was where the hold was taken, rides the
         // rescuer's chest with the hand: the arm keeps clear of it on its way
@@ -297,7 +297,7 @@ export namespace AquaticRescue {
               ...segment,
               pose: {
                 position: local(segment.pose.position),
-                rotation: Quaternion.multiply(inverse, segment.pose.rotation),
+                rotation: AutoMovieEngineQuaternion.multiply(inverse, segment.pose.rotation),
               },
             }),
           ),
@@ -367,9 +367,9 @@ export namespace AquaticRescue {
         const shaped: IAutoMovieMotionHumanPosture = lie(
           t / AquaticRescueBounds.GRIP,
         );
-        const where: IAutoMovieVector3 = Vector3.add(
+        const where: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           { ...tow.from, y: 0 },
-          Vector3.scale(tow.toward, along(tow, t)),
+          AutoMovieEngineVector3.scale(tow.toward, along(tow, t)),
         );
         const lift: number =
           water +
@@ -393,12 +393,12 @@ export namespace AquaticRescue {
       y: 0,
       z: edge.z - from.z,
     };
-    const distance: number = Vector3.length(flat);
+    const distance: number = AutoMovieEngineVector3.length(flat);
     const length: number = Math.max(0, distance - AquaticRescueBounds.SHORT);
     return {
       from,
       toward:
-        distance > 0 ? Vector3.scale(flat, 1 / distance) : { x: 0, y: 0, z: 1 },
+        distance > 0 ? AutoMovieEngineVector3.scale(flat, 1 / distance) : { x: 0, y: 0, z: 1 },
       length,
       seconds: Math.max(
         AquaticRescueBounds.GRIP,

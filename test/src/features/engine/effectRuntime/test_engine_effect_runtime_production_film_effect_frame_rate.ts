@@ -1,4 +1,4 @@
-import { AutoMovieFilmEffectRuntimeError, AutoMovieEngineEffect } from "@automovie/engine";
+import { AutoMovieEngineFilmEffectRuntimeError, AutoMovieEngineEffect } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -30,7 +30,7 @@ export function test_engine_effect_runtime_production_film_effect_frame_rate(): 
       "film-effect-runtime-invalid",
     );
   } catch (error) {
-    code = error instanceof AutoMovieFilmEffectRuntimeError ? error.code : null;
+    code = error instanceof AutoMovieEngineFilmEffectRuntimeError ? error.code : null;
   }
   TestValidator.equals(
     "the caller's code",

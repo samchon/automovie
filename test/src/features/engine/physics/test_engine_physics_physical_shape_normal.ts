@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -35,7 +35,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
   };
   const turned: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
   };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const findings: string[] = [];
@@ -47,7 +47,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
   ): void => {
     const angle: number =
       (Math.acos(
-        Math.max(-1, Math.min(1, Vector3.dot(got, Vector3.normalize(want)))),
+        Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(got, AutoMovieEngineVector3.normalize(want)))),
       ) *
         180) /
       Math.PI;
@@ -63,13 +63,13 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
     radius: 0.1,
     transform: still,
   };
-  const radial: IAutoMovieVector3 = Vector3.normalize({ x: 1, y: -2, z: 0.5 });
+  const radial: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({ x: 1, y: -2, z: 0.5 });
   near(
     "sphere",
     AutoMovieEnginePhysics.physicalShapeNormal(
       turned,
       sphere,
-      Vector3.add(turned.position, Vector3.scale(radial, 0.1)),
+      AutoMovieEngineVector3.add(turned.position, AutoMovieEngineVector3.scale(radial, 0.1)),
       up,
     ),
     radial,
@@ -84,7 +84,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
     transform: still,
   };
   // The capsule's axis is the pose's +Y; its side faces the pose's +X.
-  const side: IAutoMovieVector3 = Quaternion.rotateVector(turned.rotation, {
+  const side: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turned.rotation, {
     x: 1,
     y: 0,
     z: 0,
@@ -94,22 +94,22 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
     AutoMovieEnginePhysics.physicalShapeNormal(
       turned,
       capsule,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         turned.position,
-        Vector3.add(Vector3.scale(side, 0.05), { x: 0, y: 0.1, z: 0 }),
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(side, 0.05), { x: 0, y: 0.1, z: 0 }),
       ),
       up,
     ),
     side,
     NORMAL,
   );
-  const cap: IAutoMovieVector3 = Vector3.normalize({ x: 0.6, y: 0.8, z: 0 });
+  const cap: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({ x: 0.6, y: 0.8, z: 0 });
   near(
     "capsule cap",
     AutoMovieEnginePhysics.physicalShapeNormal(
       still,
       capsule,
-      Vector3.add({ x: 0, y: 0.2, z: 0 }, Vector3.scale(cap, 0.05)),
+      AutoMovieEngineVector3.add({ x: 0, y: 0.2, z: 0 }, AutoMovieEngineVector3.scale(cap, 0.05)),
       up,
     ),
     cap,

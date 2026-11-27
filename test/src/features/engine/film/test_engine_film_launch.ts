@@ -1,7 +1,7 @@
 import {
-  AutoMovieAir,
+  AutoMovieEngineAir,
   AutoMovieEngineFilm,
-  AutoMovieGravity,
+  AutoMovieEngineGravity,
 } from "@automovie/engine";
 import {
   type AutoMovieInteractionEventKind,
@@ -232,8 +232,8 @@ export function test_engine_film_launch(): void {
     (): boolean =>
       knock.x > 0 && Math.abs(knock.z) < 1e-9 && nclose(knock.z, 0, 1e-9),
   );
-  const vHit: IAutoMovieVector3 = AutoMovieAir.projectileAt(
-    { origin, velocity: hit.velocity, gravity: AutoMovieGravity.DOWN },
+  const vHit: IAutoMovieVector3 = AutoMovieEngineAir.projectileAt(
+    { origin, velocity: hit.velocity, gravity: AutoMovieEngineGravity.DOWN },
     hit.hitTime,
   ).velocity;
   const vLen: number = Math.hypot(vHit.x, vHit.y, vHit.z);

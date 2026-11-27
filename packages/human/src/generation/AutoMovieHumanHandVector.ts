@@ -1,4 +1,4 @@
-import { AutoMovieEnginePlanarHull, Vector3 } from "@automovie/engine";
+import { AutoMovieEnginePlanarHull, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHandVector,
@@ -53,7 +53,7 @@ export namespace AutoMovieHumanHandVector {
 
   /** Unit vector; zero stays zero. */
   export function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
-    return Vector3.normalizeTuple(a);
+    return AutoMovieEngineVector3.normalizeTuple(a);
   }
 
   /** The part of a vector across a unit heading, as a unit vector. */

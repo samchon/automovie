@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanEffectorPointLimit,
@@ -77,7 +77,7 @@ export function AutoMovieMotionHumanSharedCarry(
     first.performer.subject === second.performer.subject ||
     firstPoint === undefined ||
     secondPoint === undefined ||
-    !(Vector3.length(Vector3.subtract(firstPoint, secondPoint)) > 0)
+    !(AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(firstPoint, secondPoint)) > 0)
   )
     throw new RangeError(
       "Shared carry needs distinct performers and distinct authored grip points.",
@@ -87,10 +87,10 @@ export function AutoMovieMotionHumanSharedCarry(
   const start: IAutoMovieRigidTransform = path(from);
   if (
     !(
-      Vector3.length(Vector3.subtract(prop.frame.position, start.position)) <=
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(prop.frame.position, start.position)) <=
       1e-9
     ) ||
-    !(Quaternion.angle(prop.frame.rotation, start.rotation) <= 1e-9)
+    !(AutoMovieEngineQuaternion.angle(prop.frame.rotation, start.rotation) <= 1e-9)
   )
     throw new RangeError(
       `Shared carry must start at the authored frame of ${prop.subject}.`,
@@ -147,7 +147,7 @@ function prepareCarrier(
   );
   const rest: IAutoMovieMotionHumanArmAngles.IAngles =
     AutoMovieMotionHumanArmAngles.angles(initial, side);
-  const elbow: IAutoMovieVector3 = Vector3.subtract(
+  const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     bones.get(`${side}LowerArm`)!.worldPosition,
     initialRoot.root,
   );
@@ -162,9 +162,9 @@ function prepareCarrier(
   // The socket and two off-socket probes bound both translation and hand turn.
   const probes: readonly IAutoMovieVector3[] = [
     { x: 0, y: 0, z: 0 },
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       contact,
-      Vector3.scale(socket.forward, Vector3.length(contact)),
+      AutoMovieEngineVector3.scale(socket.forward, AutoMovieEngineVector3.length(contact)),
     ),
   ];
   const limits: IAutoMovieHumanEffectorPointLimit[] = probes.map(
@@ -178,17 +178,17 @@ function prepareCarrier(
     seconds: number,
   ): IAutoMovieHumanLimbGoal => {
     const frame: IAutoMovieRigidTransform = motion(filmSecond(seconds));
-    const hand: IAutoMovieQuaternion = Quaternion.multiply(
+    const hand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       frame.rotation,
       rotation,
     );
-    const site: IAutoMovieVector3 = Vector3.add(
+    const site: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, point),
     );
     return {
-      bend: Vector3.add(base.root, elbow),
-      point: Vector3.subtract(site, Quaternion.rotateVector(hand, contact)),
+      bend: AutoMovieEngineVector3.add(base.root, elbow),
+      point: AutoMovieEngineVector3.subtract(site, AutoMovieEngineQuaternion.rotateVector(hand, contact)),
       rotation: hand,
       contact,
       limits,
@@ -199,15 +199,15 @@ function prepareCarrier(
   const entry: IAutoMovieHumanLimbGoal = goal(initialRoot, 0);
   const wrist: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
   for (const probe of [contact, ...probes]) {
-    const observed: IAutoMovieVector3 = Vector3.add(
+    const observed: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       wrist.worldPosition,
-      Quaternion.rotateVector(wrist.worldRotation, probe),
+      AutoMovieEngineQuaternion.rotateVector(wrist.worldRotation, probe),
     );
-    const expected: IAutoMovieVector3 = Vector3.add(
+    const expected: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       entry.point,
-      Quaternion.rotateVector(entry.rotation!, probe),
+      AutoMovieEngineQuaternion.rotateVector(entry.rotation!, probe),
     );
-    if (!(Vector3.length(Vector3.subtract(observed, expected)) <= tolerance))
+    if (!(AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(observed, expected)) <= tolerance))
       throw new RangeError(
         `${carrier.performer.subject} must already grip ${carrier.site} at the shared carry's start.`,
       );

@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanLoftMesh,
   IAutoMovieHumanSurfaceBoundary,
@@ -10,10 +10,7 @@ import type {
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import "./AutoMovieHumanBodySurfaceRead";
-import {
-  endHeight,
-  capHeight,
-} from "./internal/AutoMovieHumanBodySurfacePolesData";
+import { AutoMovieHumanBodySurfacePolesData } from "./internal/AutoMovieHumanBodySurfacePolesData";
 
 /**
  * A chain's closed ends: the pole caps and domes, their base rings, and the
@@ -44,15 +41,15 @@ export namespace AutoMovieHumanBodySurfacePoles {
     end: "top" | "bottom",
     ring: number[],
   ): void {
-    const tip: number | null = capHeight(target, end);
-    const y: number = tip ?? endHeight(target, end);
+    const tip: number | null = AutoMovieHumanBodySurfacePolesData.capHeight(target, end);
+    const y: number = tip ?? AutoMovieHumanBodySurfacePolesData.endHeight(target, end);
     const calibrated: IAutoMovieHumanSurfacePole | undefined =
       context.poles.get(target.name + ":" + end);
     const point: [number, number, number] =
       (target.pole?.end === end ? target.pole.point : undefined) ??
       (target.opposite?.end === end ? target.opposite.point : undefined) ??
       calibrated?.point ??
-      AutoMovieLoftChain.axis(target, y);
+      AutoMovieEngineLoftChain.axis(target, y);
 
     AutoMovieHumanLoftMesh.group(
       context.mesh,
@@ -198,7 +195,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
     target: IAutoMovieLoftChain,
     end: "top" | "bottom",
   ): number | null {
-    if (capHeight(target, end) !== null) return null;
+    if (AutoMovieHumanBodySurfacePolesData.capHeight(target, end) !== null) return null;
     const calibrated: IAutoMovieHumanSurfacePole | undefined =
       context.poles.get(target.name + ":" + end);
     if (calibrated?.critical !== true) return null;
@@ -208,7 +205,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
       (_: unknown, i: number): number => (2 * Math.PI * i) / 32,
     );
     function measure(y: number): [number, [number, number, number]] {
-      const ring: [number, number, number][] = AutoMovieLoftChain.ring(
+      const ring: [number, number, number][] = AutoMovieEngineLoftChain.ring(
         target,
         y,
         probes,

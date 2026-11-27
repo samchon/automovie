@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidSocket, IAutoMovieAffordance, IAutoMovieHumanLimbGoal, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBicycleEffort, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
@@ -12,7 +12,7 @@ import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { humanBicycleEffortTimeline } from "./humanBicycleEffortTimeline";
-import * as HumanBicycleEffortData from "./HumanBicycleEffortData";
+import { HumanBicycleEffortData } from "./HumanBicycleEffortData";
 
 /*
  * Rise from the saddle while both feet follow their pedals and both hands
@@ -136,13 +136,13 @@ function planHumanBicycleEffort(
     });
     const saddleRotation: IAutoMovieQuaternion =
       saddle.rotation ??
-      Quaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
         bicycle.frame(context.start).rotation,
-        seatGeometry?.frame.rotation ?? Quaternion.identity(),
+        seatGeometry?.frame.rotation ?? AutoMovieEngineQuaternion.identity(),
       );
-    const expectedSeat: IAutoMovieVector3 = Vector3.add(
+    const expectedSeat: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       saddle.point,
-      Quaternion.rotateVector(saddleRotation, saddleOffset),
+      AutoMovieEngineQuaternion.rotateVector(saddleRotation, saddleOffset),
     );
     const sockets: typeof body.surfaces.sockets = body.surfaces.sockets;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
@@ -163,7 +163,7 @@ function planHumanBicycleEffort(
       const socket: (typeof sockets)[AutoMovieHumanoidSocket] = sockets[name];
       const displayed: IAutoMovieVector3 =
         AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(socket, bones.get(socket.bone)!);
-      const gap: number = Vector3.distance(displayed, expected);
+      const gap: number = AutoMovieEngineVector3.distance(displayed, expected);
       if (gap <= HumanBicycleEffortData.FIT) return;
       throw new AutoMovieMotionHumanRefusal({
         kind: "base",
@@ -205,9 +205,9 @@ function planHumanBicycleEffort(
     );
     const out: IAutoMovieMotionHumanPosture = {
       ...seated,
-      root: Vector3.add(
+      root: AutoMovieEngineVector3.add(
         seated.root,
-        Quaternion.rotateVector(frame.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
           x: 0,
           y: height,
           z: HumanBicycleEffortData.FORWARD * height,
@@ -223,7 +223,7 @@ function planHumanBicycleEffort(
       heading,
       out.joints.hips,
     );
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(heading, {
       x: 0,
       y: 0,
       z: body.measure.thigh,
@@ -233,7 +233,7 @@ function planHumanBicycleEffort(
       out.limbs[`${side}Leg`] = HumanMountRider.ankled(
         body,
         side,
-        { ...goal, bend: Vector3.add(hips[side], forward) },
+        { ...goal, bend: AutoMovieEngineVector3.add(hips[side], forward) },
         hips[side],
         heading,
       );
@@ -262,7 +262,7 @@ function planHumanBicycleEffort(
           const joint: IAutoMovieResolvedBone = bones.get(bone)!;
           if (
             goal !== undefined &&
-            Vector3.length(Vector3.subtract(joint.worldPosition, goal.point)) <=
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(joint.worldPosition, goal.point)) <=
               HumanBicycleEffortData.FIT
           )
             continue;

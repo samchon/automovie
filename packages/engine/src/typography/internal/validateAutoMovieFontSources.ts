@@ -5,7 +5,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 
 /*
  * Admit a shot's font sources from what the records state, appending findings
@@ -79,7 +79,7 @@ export const validateAutoMovieFontSources: (
           "embedded font data must be nonempty padded standard base64 without a data: prefix",
           source.data.slice(0, 32),
         );
-      if (!SHA256_DIGEST_PATTERN.test(source.digest))
+      if (!AutoMovieEngineSha256DigestPattern.test(source.digest))
         collector.push(
           "type",
           `${at}.digest`,

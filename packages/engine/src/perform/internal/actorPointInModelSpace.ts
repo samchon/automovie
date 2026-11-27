@@ -3,8 +3,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Undo an actor's rigid world frame to express a world metre point in its model
@@ -14,8 +14,8 @@ export function actorPointInModelSpace(
   world: IAutoMovieVector3,
   frame: IAutoMovieActorWorldFrame,
 ): IAutoMovieVector3 {
-  return Quaternion.rotateVector(
-    Quaternion.inverse(frame.rotation),
-    Vector3.subtract(world, frame.position),
+  return AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(frame.rotation),
+    AutoMovieEngineVector3.subtract(world, frame.position),
   );
 }

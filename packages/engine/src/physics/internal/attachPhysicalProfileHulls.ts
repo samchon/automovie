@@ -4,7 +4,7 @@ import type {
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
+import { AutoMovieEnginePhysicalHullFaces } from "../AutoMovieEnginePhysicalHullFaces";
 
 /*
  * A profile whose hull shapes each carry their hull, built once here so that
@@ -23,7 +23,7 @@ export function attachPhysicalProfileHulls(
         shapes: segment.shapes.map(
           (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape =>
             shape.kind === "hull" && shape.hull === undefined
-              ? { ...shape, hull: AutoMoviePhysicalHullFaces.build(shape.points) }
+              ? { ...shape, hull: AutoMovieEnginePhysicalHullFaces.build(shape.points) }
               : shape,
         ),
       }),

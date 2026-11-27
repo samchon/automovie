@@ -9,10 +9,10 @@ import {
 } from "./f1/AutoMovieHumanF1NativeRootLevel";
 import { AutoMovieHumanF1NativeRootResolve } from "./f1/AutoMovieHumanF1NativeRootResolve";
 import {
-  AutoMovieConstructionPortCurve as PortCurve,
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieNaturalSpline as Natural,
-  AutoMovieSolidVector,
+  AutoMovieEngineConstructionPortCurve as PortCurve,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineNaturalSpline as Natural,
+  AutoMovieEngineSolidVector,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -94,7 +94,7 @@ export namespace AutoMovieHumanF1NativeRootLaw {
     const reader: IAutoMovieLoftViewFullSource.IReader = Full.create(parent);
     const anchor: AutoMovieVector3Tuple = original.parent[0]!,
       at: [number, number] = original.charts[0]!;
-    const delta: AutoMovieVector3Tuple = AutoMovieSolidVector.sub(
+    const delta: AutoMovieVector3Tuple = AutoMovieEngineSolidVector.sub(
       reader.point(at[0], at[1]),
       anchor,
     );

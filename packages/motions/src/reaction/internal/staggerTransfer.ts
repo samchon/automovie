@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -26,7 +26,7 @@ export function staggerTransfer(
   w: number,
   u: number,
 ): IStaggerTransferResult {
-  const d: IAutoMovieVector3 = Vector3.subtract(to, from.p);
+  const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from.p);
   const T: number = Math.max(span, 1e-12);
 
   // The quintic's share and its derivatives in seconds at a time.
@@ -49,17 +49,17 @@ export function staggerTransfer(
     t: number,
   ): IStaggerTransferParticularResult => {
     const s: number[] = shares(t);
-    const p: IAutoMovieVector3 = Vector3.add(from.p, Vector3.scale(d, s[0]!));
+    const p: IAutoMovieVector3 = AutoMovieEngineVector3.add(from.p, AutoMovieEngineVector3.scale(d, s[0]!));
     return {
       p,
-      x: Vector3.add(p, Vector3.scale(d, s[2]! / w2 + s[4]! / w4)),
-      dx: Vector3.scale(d, s[1]! + s[3]! / w2 + s[5]! / w4),
+      x: AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(d, s[2]! / w2 + s[4]! / w4)),
+      dx: AutoMovieEngineVector3.scale(d, s[1]! + s[3]! / w2 + s[5]! / w4),
     };
   };
   const start: ReturnType<typeof particular> = particular(0);
-  const A: IAutoMovieVector3 = Vector3.subtract(from.s, start.x);
-  const B: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(from.v, start.dx),
+  const A: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(from.s, start.x);
+  const B: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(from.v, start.dx),
     1 / w,
   );
   const t: number = Math.min(T, Math.max(0, u));
@@ -68,13 +68,13 @@ export function staggerTransfer(
   const sh: number = Math.sinh(w * t);
   return {
     p: at.p,
-    s: Vector3.add(
+    s: AutoMovieEngineVector3.add(
       at.x,
-      Vector3.add(Vector3.scale(A, ch), Vector3.scale(B, sh)),
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(A, ch), AutoMovieEngineVector3.scale(B, sh)),
     ),
-    v: Vector3.add(
+    v: AutoMovieEngineVector3.add(
       at.dx,
-      Vector3.scale(Vector3.add(Vector3.scale(A, sh), Vector3.scale(B, ch)), w),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(A, sh), AutoMovieEngineVector3.scale(B, ch)), w),
     ),
   };
 }

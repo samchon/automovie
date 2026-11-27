@@ -1,5 +1,5 @@
 import {
-  Quaternion,
+  AutoMovieEngineQuaternion,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -240,9 +240,9 @@ export namespace HumanClasp {
               placeHumanHandSurface(
                 palm,
                 meet,
-                Quaternion.normalize(
-                  Quaternion.multiply(
-                    Quaternion.fromAxisAngle(hand.palm, angle),
+                AutoMovieEngineQuaternion.normalize(
+                  AutoMovieEngineQuaternion.multiply(
+                    AutoMovieEngineQuaternion.fromAxisAngle(hand.palm, angle),
                     facing,
                   ),
                 ),

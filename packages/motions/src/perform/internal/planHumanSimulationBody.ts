@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   IAutoMoviePerformanceMode,
   IAutoMoviePhysicalContactBinding,
@@ -168,7 +168,7 @@ export function planHumanSimulationBody(
     handoffSeconds: planHumanSimulationBody.HANDOFF,
     handoffLimits: {
       maximumLinearError: planHumanSimulationBody.CONTACT_TOLERANCE,
-      maximumJointViolation: (ROM_TOLERANCE * Math.PI) / 180,
+      maximumJointViolation: (AutoMovieEngineRomTolerance * Math.PI) / 180,
     },
     rootStiffness: 0,
     rootDamping: 0,

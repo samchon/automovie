@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieComposition,
@@ -446,18 +446,18 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
     const bones = take.bones("a", Math.min(seconds, take.duration));
     const feature = bones.get(pair.feature)!.worldPosition;
     return pair.relativeToHips === true
-      ? Vector3.subtract(feature, bones.get("hips")!.worldPosition)
+      ? AutoMovieEngineVector3.subtract(feature, bones.get("hips")!.worldPosition)
       : feature;
   };
   const largest: number = Math.max(
     ...grid.map((seconds: number): number =>
-      Vector3.distance(read(a, seconds), read(b, seconds)),
+      AutoMovieEngineVector3.distance(read(a, seconds), read(b, seconds)),
     ),
   );
   const phaseDifference: number = Math.max(
     ...Array.from({ length: 65 }, (_, index: number): number => {
       const seconds: number = (index / 64) * a.duration;
-      return Vector3.distance(
+      return AutoMovieEngineVector3.distance(
         read(a, seconds),
         read(b, phaseSecond(marks, seconds, 0)),
       );
@@ -556,11 +556,11 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
             return {
               ...pose,
               root: {
-                translation: Vector3.add(
+                translation: AutoMovieEngineVector3.add(
                   pose.root?.translation ?? origin,
                   offset,
                 ),
-                rotation: pose.root?.rotation ?? Quaternion.identity(),
+                rotation: pose.root?.rotation ?? AutoMovieEngineQuaternion.identity(),
                 scale: pose.root?.scale ?? { x: 1, y: 1, z: 1 },
               },
             };
@@ -741,7 +741,7 @@ function outcome(
   if (pair.name !== "diversity-squat-pace") return undefined;
   const mismatch: number = Math.max(
     ...Array.from({ length: 17 }, (_, index): number =>
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         read(a, (index / 16) * a.duration),
         read(b, (index / 16) * b.duration),
       ),

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -9,7 +9,7 @@ import { nclose, qclose, qunit } from "../../internal/predicates";
 import { makeRng, randomUnitQuaternion } from "../../internal/random";
 
 /**
- * `Quaternion` composes, inverts, interpolates and applies rotations; each case
+ * `AutoMovieEngineQuaternion` composes, inverts, interpolates and applies rotations; each case
  * is a hand-computed rotation of a unit axis.
  *
  * Scenarios:
@@ -49,29 +49,29 @@ export function test_engine_math_quaternion(): void {
   // 1.
   TestValidator.equals(
     "ij",
-    Quaternion.multiply(q(1, 0, 0, 0), q(0, 1, 0, 0)),
+    AutoMovieEngineQuaternion.multiply(q(1, 0, 0, 0), q(0, 1, 0, 0)),
     q(0, 0, 1, 0),
   );
   TestValidator.equals(
     "ji",
-    Quaternion.multiply(q(0, 1, 0, 0), q(1, 0, 0, 0)),
+    AutoMovieEngineQuaternion.multiply(q(0, 1, 0, 0), q(1, 0, 0, 0)),
     q(0, 0, -1, 0),
   );
   TestValidator.equals(
     "ii",
-    Quaternion.multiply(q(1, 0, 0, 0), q(1, 0, 0, 0)),
+    AutoMovieEngineQuaternion.multiply(q(1, 0, 0, 0), q(1, 0, 0, 0)),
     q(0, 0, 0, -1),
   );
 
   // 2.
-  const quarter: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const quarter: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 0, z: 1 },
     90,
   );
   TestValidator.predicate("axis angle", same(quarter, q(0, 0, h, h)));
 
   // 3.
-  const turned: IAutoMovieVector3 = Quaternion.rotateVector(quarter, {
+  const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(quarter, {
     x: 1,
     y: 0,
     z: 0,
@@ -84,12 +84,12 @@ export function test_engine_math_quaternion(): void {
   );
   TestValidator.predicate(
     "rotate y",
-    nclose(Quaternion.rotateVectorY(quarter, { x: 1, y: 0, z: 0 }), 1, 1e-12),
+    nclose(AutoMovieEngineQuaternion.rotateVectorY(quarter, { x: 1, y: 0, z: 0 }), 1, 1e-12),
   );
   const halfTurn: IAutoMovieQuaternion = q(0, 0, 1, 0);
   const large: number = 2 ** 1023;
   const axial: number = Number.MIN_VALUE;
-  const rotatedLarge: IAutoMovieVector3 = Quaternion.rotateVector(halfTurn, {
+  const rotatedLarge: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(halfTurn, {
     x: large,
     y: 0,
     z: axial,
@@ -100,32 +100,32 @@ export function test_engine_math_quaternion(): void {
     nclose(rotatedLarge.x, -large, 0) &&
       nclose(rotatedLarge.y, 0, 0) &&
       nclose(rotatedLarge.z, axial, 0) &&
-      nclose(Quaternion.rotateVectorY(halfTurn, side), -large, 0) &&
-      nclose(Quaternion.rotateVector(halfTurn, side).y, -large, 0),
+      nclose(AutoMovieEngineQuaternion.rotateVectorY(halfTurn, side), -large, 0) &&
+      nclose(AutoMovieEngineQuaternion.rotateVector(halfTurn, side).y, -large, 0),
   );
   const diagonal: IAutoMovieVector3 = {
     x: Number.MAX_VALUE,
     y: Number.MAX_VALUE,
     z: 0,
   };
-  const eighthTurn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const eighthTurn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 0, z: 1 },
     45,
   );
   TestValidator.predicate(
     "a 45-degree turn of the diagonal still overflows its Y projection",
-    Quaternion.rotateVector(eighthTurn, diagonal).y === Infinity &&
-      Quaternion.rotateVectorY(eighthTurn, diagonal) === Infinity,
+    AutoMovieEngineQuaternion.rotateVector(eighthTurn, diagonal).y === Infinity &&
+      AutoMovieEngineQuaternion.rotateVectorY(eighthTurn, diagonal) === Infinity,
   );
 
   // 4.
   TestValidator.predicate(
     "inverse",
-    same(Quaternion.multiply(Quaternion.inverse(quarter), quarter), identity),
+    same(AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(quarter), quarter), identity),
   );
 
   // 5.
-  const half: IAutoMovieQuaternion = Quaternion.slerp(identity, quarter, 0.5);
+  const half: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(identity, quarter, 0.5);
   TestValidator.predicate(
     "slerp",
     same(half, q(0, 0, Math.sin(Math.PI / 8), Math.cos(Math.PI / 8))),
@@ -134,16 +134,16 @@ export function test_engine_math_quaternion(): void {
   // 6.
   TestValidator.predicate(
     "angle",
-    nclose(Quaternion.angle(identity, quarter), Math.PI / 2, 1e-12),
+    nclose(AutoMovieEngineQuaternion.angle(identity, quarter), Math.PI / 2, 1e-12),
   );
   TestValidator.predicate(
     "angle reversed",
-    nclose(Quaternion.angle(quarter, identity), Math.PI / 2, 1e-12),
+    nclose(AutoMovieEngineQuaternion.angle(quarter, identity), Math.PI / 2, 1e-12),
   );
   TestValidator.predicate(
     "angle after normalize",
     nclose(
-      Quaternion.angleAfterNormalize(identity, quarter),
+      AutoMovieEngineQuaternion.angleAfterNormalize(identity, quarter),
       Math.PI / 2,
       1e-12,
     ),
@@ -152,35 +152,35 @@ export function test_engine_math_quaternion(): void {
   // 7.
   TestValidator.predicate(
     "normalize",
-    same(Quaternion.normalize(q(0, 0, 0, 2)), identity),
+    same(AutoMovieEngineQuaternion.normalize(q(0, 0, 0, 2)), identity),
   );
   // 8. Identity and composition.
-  const y90: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const y90: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );
   TestValidator.predicate(
     "zero axis",
-    qclose(Quaternion.fromAxisAngle({ x: 0, y: 0, z: 0 }, 90), identity),
+    qclose(AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 0 }, 90), identity),
   );
   TestValidator.predicate(
     "identity left",
-    qclose(Quaternion.multiply(identity, y90), y90),
+    qclose(AutoMovieEngineQuaternion.multiply(identity, y90), y90),
   );
   TestValidator.predicate(
     "identity right",
-    qclose(Quaternion.multiply(y90, identity), y90),
+    qclose(AutoMovieEngineQuaternion.multiply(y90, identity), y90),
   );
   TestValidator.predicate(
     "Y90 twice is Y180",
-    qclose(Quaternion.multiply(y90, y90), q(0, 1, 0, 0)),
+    qclose(AutoMovieEngineQuaternion.multiply(y90, y90), q(0, 1, 0, 0)),
   );
   TestValidator.predicate(
     "product is unit",
     qunit(
-      Quaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
         y90,
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 37),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 37),
       ),
     ),
   );
@@ -190,27 +190,27 @@ export function test_engine_math_quaternion(): void {
   TestValidator.predicate(
     "associative on i, j, k",
     qclose(
-      Quaternion.multiply(Quaternion.multiply(qi, qj), qk),
-      Quaternion.multiply(qi, Quaternion.multiply(qj, qk)),
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.multiply(qi, qj), qk),
+      AutoMovieEngineQuaternion.multiply(qi, AutoMovieEngineQuaternion.multiply(qj, qk)),
     ),
   );
 
   // 9. Inverse.
   TestValidator.predicate(
     "inverse of Y90",
-    qclose(Quaternion.inverse(y90), q(0, -h, 0, h)),
+    qclose(AutoMovieEngineQuaternion.inverse(y90), q(0, -h, 0, h)),
   );
   TestValidator.predicate(
     "inverse of Y90 is Y-90",
     qclose(
-      Quaternion.inverse(y90),
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -90),
+      AutoMovieEngineQuaternion.inverse(y90),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -90),
     ),
   );
   TestValidator.predicate(
     "inverse of a non-unit",
     qclose(
-      Quaternion.inverse(q(1, 2, 3, 4)),
+      AutoMovieEngineQuaternion.inverse(q(1, 2, 3, 4)),
       q(
         -1 / Math.sqrt(30),
         -2 / Math.sqrt(30),
@@ -222,11 +222,11 @@ export function test_engine_math_quaternion(): void {
   for (const exponent of [-600, -500, 500, 600])
     TestValidator.predicate(
       `inverse 2^${exponent}`,
-      qclose(Quaternion.inverse(q(2 ** exponent, 0, 0, 0)), q(-1, 0, 0, 0)),
+      qclose(AutoMovieEngineQuaternion.inverse(q(2 ** exponent, 0, 0, 0)), q(-1, 0, 0, 0)),
     );
   TestValidator.equals(
     "inverse of zero",
-    Quaternion.inverse(q(0, 0, 0, 0)),
+    AutoMovieEngineQuaternion.inverse(q(0, 0, 0, 0)),
     identity,
   );
 
@@ -234,7 +234,7 @@ export function test_engine_math_quaternion(): void {
   TestValidator.predicate(
     "normalize non-unit",
     qclose(
-      Quaternion.normalize(q(1, 2, 3, 4)),
+      AutoMovieEngineQuaternion.normalize(q(1, 2, 3, 4)),
       q(
         1 / Math.sqrt(30),
         2 / Math.sqrt(30),
@@ -245,53 +245,53 @@ export function test_engine_math_quaternion(): void {
   );
   TestValidator.equals(
     "normalize zero",
-    Quaternion.normalize(q(0, 0, 0, 0)),
+    AutoMovieEngineQuaternion.normalize(q(0, 0, 0, 0)),
     identity,
   );
   for (const component of [1e-300, 1e300, Number.MIN_VALUE])
     TestValidator.predicate(
       `normalize ${component}`,
       qclose(
-        Quaternion.normalize(q(component, component, component, component)),
+        AutoMovieEngineQuaternion.normalize(q(component, component, component, component)),
         q(0.5, 0.5, 0.5, 0.5),
       ),
     );
   for (const exponent of [-600, -500, 500, 600])
     TestValidator.predicate(
       `normalize 2^${exponent}`,
-      qclose(Quaternion.normalize(q(2 ** exponent, 0, 0, 0)), q(1, 0, 0, 0)),
+      qclose(AutoMovieEngineQuaternion.normalize(q(2 ** exponent, 0, 0, 0)), q(1, 0, 0, 0)),
     );
 
   // 11. Slerp on the short arc.
   const yaw = (degrees: number): IAutoMovieQuaternion =>
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees);
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees);
   TestValidator.predicate(
     "slerp at 0",
-    qclose(Quaternion.slerp(identity, y90, 0), identity),
+    qclose(AutoMovieEngineQuaternion.slerp(identity, y90, 0), identity),
   );
   TestValidator.predicate(
     "slerp at 1",
-    qclose(Quaternion.slerp(identity, y90, 1), y90),
+    qclose(AutoMovieEngineQuaternion.slerp(identity, y90, 1), y90),
   );
   TestValidator.predicate(
     "slerp midpoint Y45",
-    qclose(Quaternion.slerp(identity, y90, 0.5), yaw(45)),
+    qclose(AutoMovieEngineQuaternion.slerp(identity, y90, 0.5), yaw(45)),
   );
   TestValidator.predicate(
     "opposite hemisphere end",
-    qclose(Quaternion.slerp(identity, yaw(200), 1), yaw(200)),
+    qclose(AutoMovieEngineQuaternion.slerp(identity, yaw(200), 1), yaw(200)),
   );
   TestValidator.predicate(
     "opposite hemisphere takes the short arc",
-    qclose(Quaternion.slerp(identity, yaw(200), 0.5), yaw(-80), 1e-3),
+    qclose(AutoMovieEngineQuaternion.slerp(identity, yaw(200), 0.5), yaw(-80), 1e-3),
   );
   TestValidator.predicate(
     "opposite midpoint unit",
-    qunit(Quaternion.slerp(identity, yaw(200), 0.5)),
+    qunit(AutoMovieEngineQuaternion.slerp(identity, yaw(200), 0.5)),
   );
   TestValidator.predicate(
     "near-parallel midpoint",
-    qclose(Quaternion.slerp(identity, yaw(0.4), 0.5), yaw(0.2), 1e-3),
+    qclose(AutoMovieEngineQuaternion.slerp(identity, yaw(0.4), 0.5), yaw(0.2), 1e-3),
   );
 
   // 12. Prepared slerp from the identity to Z120, either sign of the end.
@@ -303,7 +303,7 @@ export function test_engine_math_quaternion(): void {
   });
   const end: IAutoMovieQuaternion = turnZ(120);
   for (const sign of [1, -1]) {
-    const read = Quaternion.prepareSlerp(
+    const read = AutoMovieEngineQuaternion.prepareSlerp(
       identity,
       q(end.x * sign, end.y * sign, end.z * sign, end.w * sign),
     );
@@ -323,7 +323,7 @@ export function test_engine_math_quaternion(): void {
       issued.push(actual);
     }
   }
-  const chord = Quaternion.prepareSlerp(identity, turnZ(1));
+  const chord = AutoMovieEngineQuaternion.prepareSlerp(identity, turnZ(1));
   for (const share of [0.25, 0.75, 1.5, 0, 1]) {
     const z: number = share * Math.sin(Math.PI / 360);
     const w: number = 1 - share + share * Math.cos(Math.PI / 360);
@@ -333,7 +333,7 @@ export function test_engine_math_quaternion(): void {
       qclose(chord(share), q(0, 0, z / length, w / length), 1e-12),
     );
   }
-  const poisoned = Quaternion.prepareSlerp(identity, end);
+  const poisoned = AutoMovieEngineQuaternion.prepareSlerp(identity, end);
   const previous: IAutoMovieQuaternion = poisoned(0.25);
   previous.z = 123;
   TestValidator.predicate(
@@ -349,30 +349,30 @@ export function test_engine_math_quaternion(): void {
     const share: number = rng();
     TestValidator.predicate(
       `multiply stays unit #${i}`,
-      qunit(Quaternion.multiply(a, b)),
+      qunit(AutoMovieEngineQuaternion.multiply(a, b)),
     );
     TestValidator.predicate(
       `slerp stays unit #${i}`,
-      qunit(Quaternion.slerp(a, b, share)),
+      qunit(AutoMovieEngineQuaternion.slerp(a, b, share)),
     );
     TestValidator.predicate(
       `slerp at 0 is a #${i}`,
-      qclose(Quaternion.slerp(a, b, 0), a),
+      qclose(AutoMovieEngineQuaternion.slerp(a, b, 0), a),
     );
     TestValidator.predicate(
       `slerp at 1 is b #${i}`,
-      qclose(Quaternion.slerp(a, b, 1), b),
+      qclose(AutoMovieEngineQuaternion.slerp(a, b, 1), b),
     );
-    const unit: IAutoMovieQuaternion = Quaternion.normalize(a);
+    const unit: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(a);
     TestValidator.predicate(
       `normalize is idempotent #${i}`,
-      qclose(Quaternion.normalize(unit), unit),
+      qclose(AutoMovieEngineQuaternion.normalize(unit), unit),
     );
     TestValidator.predicate(
       `multiply is associative #${i}`,
       qclose(
-        Quaternion.multiply(Quaternion.multiply(a, b), c),
-        Quaternion.multiply(a, Quaternion.multiply(b, c)),
+        AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.multiply(a, b), c),
+        AutoMovieEngineQuaternion.multiply(a, AutoMovieEngineQuaternion.multiply(b, c)),
       ),
     );
   }

@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 
 /*
@@ -19,8 +19,8 @@ export function resolvePreparedChainEffector(
   lower?: IAutoMovieChainBone,
 ): IAutoMovieVector3 {
   const frame: IAutoMovieChainBone = lower ?? resolvePreparedChainLower(props);
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     frame.worldPosition,
-    Quaternion.rotateVector(frame.worldRotation, props.prepared.effectorOffset),
+    AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, props.prepared.effectorOffset),
   );
 }

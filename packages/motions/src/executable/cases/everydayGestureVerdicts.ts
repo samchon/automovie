@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -61,7 +61,7 @@ export function everydayGestureVerdicts(
     t: number,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 =>
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       performance.bones("a", t).get(bone)!.worldRotation,
       { x: 0, y: 0, z: 1 },
     );
@@ -85,7 +85,7 @@ export function everydayGestureVerdicts(
       Math.acos(
         Math.max(
           -1,
-          Math.min(1, Vector3.dot(Vector3.normalize(v), Vector3.normalize(d))),
+          Math.min(1, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(v), AutoMovieEngineVector3.normalize(d))),
         ),
       ),
     );
@@ -197,8 +197,8 @@ export function everydayGestureVerdicts(
     case "rubHands": {
       const gaps: number[] = times.map((t: number): number =>
         Math.abs(
-          Vector3.dot(
-            Vector3.subtract(palm(t, "left").point, palm(t, "right").point),
+          AutoMovieEngineVector3.dot(
+            AutoMovieEngineVector3.subtract(palm(t, "left").point, palm(t, "right").point),
             palm(t, "right").normal,
           ),
         ),
@@ -331,8 +331,8 @@ export function everydayGestureVerdicts(
       return [
         verdict(
           "fingertip at the temple",
-          Vector3.length(Vector3.subtract(tip, at)) <= 0.015 + 0.012,
-          `${(Vector3.length(Vector3.subtract(tip, at)) * 1000).toFixed(1)} mm`,
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip, at)) <= 0.015 + 0.012,
+          `${(AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip, at)) * 1000).toFixed(1)} mm`,
         ),
       ];
     }

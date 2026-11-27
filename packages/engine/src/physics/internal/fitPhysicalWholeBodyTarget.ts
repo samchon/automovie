@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { rerootPhysicalProfile } from "./rerootPhysicalProfile";
 import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
 
@@ -82,12 +82,12 @@ export function fitPhysicalWholeBodyTarget(
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         },
         childFrame: {
-          position: Quaternion.rotateVector(
-            Quaternion.inverse(held.rotation),
-            Vector3.subtract(input.support.point, held.position),
+          position: AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.inverse(held.rotation),
+            AutoMovieEngineVector3.subtract(input.support.point, held.position),
           ),
-          rotation: Quaternion.multiply(
-            Quaternion.inverse(held.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.inverse(held.rotation),
             frame,
           ),
         },
@@ -122,18 +122,18 @@ export function fitPhysicalWholeBodyTarget(
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): number[] => {
     const pose: IAutoMovieRigidTransform = poses[input.goal.bone]!;
-    const error: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(
+    const error: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.add(
         pose.position,
-        Quaternion.rotateVector(pose.rotation, input.goal.localPoint),
+        AutoMovieEngineQuaternion.rotateVector(pose.rotation, input.goal.localPoint),
       ),
       input.goal.point,
     );
     const approach: typeof input.goal.approach = input.goal.approach;
     const turned: IAutoMovieVector3 = approach
-      ? Vector3.scale(
-          Vector3.subtract(
-            Quaternion.rotateVector(pose.rotation, approach.localDirection),
+      ? AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineQuaternion.rotateVector(pose.rotation, approach.localDirection),
             approach.direction,
           ),
           approach.weight,
@@ -172,7 +172,7 @@ export function fitPhysicalWholeBodyTarget(
 function along(
   direction: IAutoMovieVector3,
 ): IAutoMovieRigidTransform["rotation"] {
-  const d: IAutoMovieVector3 = Vector3.normalize(direction);
+  const d: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(direction);
   if (d.x < -1 + 1e-12) return { x: 0, y: 0, z: 1, w: 0 };
   const half: number = Math.sqrt((1 + d.x) / 2);
   const s: number = 1 / (2 * half);

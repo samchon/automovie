@@ -2,11 +2,14 @@ import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import {
+  AutoMovieMotionHumanChain,
   AutoMovieMotionHumanRefusal,
-  composeHumanSlowDanceSway,
-} from "@automovie/motions/internal";
+} from "@automovie/motions";
+
+import {
+  composeHumanSlowDanceSway
+} from "../../../../../packages/motions/src/touch/internal/composeHumanSlowDanceSway";
 import { TestValidator } from "@nestia/e2e";
 
 /**

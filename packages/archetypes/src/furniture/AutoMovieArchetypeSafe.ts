@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeSafeData from "./internal/AutoMovieArchetypeSafeData";
+import { AutoMovieArchetypeSafeData } from "./internal/AutoMovieArchetypeSafeData";
 
 /** Constructs the safe archetype from its recipe. */
 export namespace AutoMovieArchetypeSafe {
@@ -67,7 +67,7 @@ export function create(
     name: "gun safe",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const steel: string = "#2f3236";
   const door: number = d.door;
   const back: number = d.depth - door;

@@ -1,4 +1,4 @@
-import { AutoMovieViewChain, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineViewChain, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieHumanConicSection,
   IAutoMovieHumanF1,
@@ -143,7 +143,7 @@ function hullPoints(
         AutoMovieHumanConicSection.resolve(read(knot), family.layout);
       const own: number[][] = [
         [...frame.origin],
-        ...(AutoMovieViewChain.of(chain.input).fault !== null
+        ...(AutoMovieEngineViewChain.of(chain.input).fault !== null
           ? []
           : chain.input.points.map((p: readonly number[]): number[] =>
               [0, 1, 2].map(

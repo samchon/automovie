@@ -1,5 +1,7 @@
 import { AutoMovieArchetypeRefusal } from "@automovie/archetypes";
-import { ArchetypeDraw } from "@automovie/archetypes/internal";
+import {
+  ArchetypeDraw
+} from "../../../../../packages/archetypes/src/core/internal/ArchetypeDraw";
 import { TestValidator } from "@nestia/e2e";
 
 /** Admission preserves a selected variant's alternatives and explains a refusal. */

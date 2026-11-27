@@ -9,7 +9,9 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
-import { HumanPerformanceTether } from "@automovie/motions/internal";
+import {
+  HumanPerformanceTether
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceTether";
 
 import { motionActionContext } from "../motionActionContext";
 import { syntheticHumanPlan } from "../synthetic/syntheticHumanPlan";

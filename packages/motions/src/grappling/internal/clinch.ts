@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineKinematics,
   AutoMovieEnginePhysics,
-  Vector3,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -150,16 +150,16 @@ export namespace clinch {
       bones.get(frame.bone)!,
     );
     if (across === 0) return placed;
-    const left: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const left: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         bones.get("leftUpperArm")!.worldPosition,
         bones.get("rightUpperArm")!.worldPosition,
       ),
     );
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         placed.point,
-        Vector3.scale(left, across * body.measure.shoulderHalfWidth),
+        AutoMovieEngineVector3.scale(left, across * body.measure.shoulderHalfWidth),
       ),
       normal: placed.normal,
     };
@@ -286,7 +286,7 @@ export namespace clinch {
                 at.point,
               );
               if (
-                Vector3.dot(witness.normal, at.normal) > 0 &&
+                AutoMovieEngineVector3.dot(witness.normal, at.normal) > 0 &&
                 (closest === undefined || witness.distance < closest.distance)
               )
                 closest = witness;
@@ -339,7 +339,7 @@ export namespace clinch {
       const gap: IAutoMovieVector3 =
         theirs === undefined
           ? { x: 0, y: 0, z: 0 }
-          : Vector3.subtract(
+          : AutoMovieEngineVector3.subtract(
               {
                 ...point(partner.body, theirs, under.on),
                 y: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(

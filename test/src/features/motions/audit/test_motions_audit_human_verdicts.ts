@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
@@ -8,7 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanVerdicts } from "@automovie/motions";
-import { poseBones } from "@automovie/motions/internal";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -64,7 +66,7 @@ export async function test_motions_audit_human_verdicts(): Promise<void> {
             name,
             {
               ...bone,
-              worldPosition: Vector3.add(bone.worldPosition, shift(seconds)),
+              worldPosition: AutoMovieEngineVector3.add(bone.worldPosition, shift(seconds)),
             },
           ],
         ),

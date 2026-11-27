@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalProjectile } from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
   IAutoMovieVector3,
@@ -11,7 +11,7 @@ import { throwsError } from "../../internal/predicates";
 const SURFACE: number = 1e-3;
 
 /**
- * `AutoMoviePhysicalProjectile.sphereHit` samples a flight over `[0, tMax]` in `steps` segments
+ * `AutoMovieEnginePhysicalProjectile.sphereHit` samples a flight over `[0, tMax]` in `steps` segments
  * and returns the first sample segment's entry into a sphere: the surface
  * crossing, before the centre's.
  *
@@ -29,7 +29,7 @@ export function test_engine_physics_projectile_sphere_hit(): void {
     velocity: { x: 10, y: 5, z: 0 },
     gravity: { x: 0, y: -10, z: 0 },
   };
-  const hit = AutoMoviePhysicalProjectile.sphereHit(
+  const hit = AutoMovieEnginePhysicalProjectile.sphereHit(
     arc,
     { center: { x: 10, y: 0, z: 0 }, radius: 1 },
     2,
@@ -43,7 +43,7 @@ export function test_engine_physics_projectile_sphere_hit(): void {
   );
   TestValidator.equals(
     "nothing on the path",
-    AutoMoviePhysicalProjectile.sphereHit(arc, { center: { x: 0, y: 50, z: 0 }, radius: 1 }, 2),
+    AutoMovieEnginePhysicalProjectile.sphereHit(arc, { center: { x: 0, y: 50, z: 0 }, radius: 1 }, 2),
     null,
   );
   const line: IAutoMovieProjectile = {
@@ -55,10 +55,10 @@ export function test_engine_physics_projectile_sphere_hit(): void {
   TestValidator.equals(
     "refusals",
     [
-      throwsError(() => AutoMoviePhysicalProjectile.sphereHit(line, sphere, 0, 10)),
-      throwsError(() => AutoMoviePhysicalProjectile.sphereHit(line, sphere, 1, 0)),
+      throwsError(() => AutoMovieEnginePhysicalProjectile.sphereHit(line, sphere, 0, 10)),
+      throwsError(() => AutoMovieEnginePhysicalProjectile.sphereHit(line, sphere, 1, 0)),
       throwsError(() =>
-        AutoMoviePhysicalProjectile.sphereHit(line, { ...sphere, radius: -1 }, 1, 10),
+        AutoMovieEnginePhysicalProjectile.sphereHit(line, { ...sphere, radius: -1 }, 1, 10),
       ),
     ],
     [true, true, true],

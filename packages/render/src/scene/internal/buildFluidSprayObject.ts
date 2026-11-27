@@ -1,7 +1,7 @@
 import type { IAutoMovieFluidSpraySample } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieFluidSprayObject } from "../IAutoMovieFluidSprayObject.js";
+import type { IAutoMovieRenderFluidSprayObject } from "../IAutoMovieRenderFluidSprayObject.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /*
@@ -18,13 +18,13 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 export const buildFluidSprayObject: (props: {
   sample: IAutoMovieFluidSpraySample;
   material?: THREE.PointsMaterial;
-}) => IAutoMovieFluidSprayObject = (props: {
+}) => IAutoMovieRenderFluidSprayObject = (props: {
   sample: IAutoMovieFluidSpraySample;
   /*
    * Borrowed spray material; a normal-blending default is owned when absent.
    */
   material?: THREE.PointsMaterial;
-}): IAutoMovieFluidSprayObject => {
+}): IAutoMovieRenderFluidSprayObject => {
   const geometry: THREE.BufferGeometry<
     THREE.NormalBufferAttributes,
     THREE.BufferGeometryEventMap

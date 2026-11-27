@@ -1,5 +1,7 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import { readsAutoMovieInspectorPlacedScene } from "@automovie/viewer/internal";
+import {
+  readsAutoMovieInspectorPlacedScene
+} from "../../../../../packages/viewer/src/inspector/internal/readsAutoMovieInspectorPlacedScene";
 import { TestValidator } from "@nestia/e2e";
 
 /**

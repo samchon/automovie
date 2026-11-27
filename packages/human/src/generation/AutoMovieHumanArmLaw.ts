@@ -24,21 +24,8 @@ import { AutoMovieHumanArmGirth } from "./AutoMovieHumanArmGirth";
 import { AutoMovieHumanArmGuides } from "./AutoMovieHumanArmGuides";
 import { AutoMovieHumanArmPieces } from "./AutoMovieHumanArmPieces";
 import { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
-import * as AutoMovieHumanArmLawData from "./internal/AutoMovieHumanArmLawData";
-import {
-  across,
-  cross,
-  dot,
-  hull,
-  mean,
-  norm,
-  scale,
-  smooth,
-  smoother,
-  sub,
-  unit,
-  handPoint,
-} from "./internal/AutoMovieHumanArmLawData";
+import { AutoMovieHumanArmLawData } from "./internal/AutoMovieHumanArmLawData";
+
 
 /**
  * The arm's law of one side: its bones, walk and tube from the arm's pieces,
@@ -87,7 +74,7 @@ export namespace AutoMovieHumanArmLaw {
       inputs.lower,
       inputs.acromionProjection,
     );
-    const shift: AutoMovieVector3Tuple = sub(elbow, placed.elbow);
+    const shift: AutoMovieVector3Tuple = AutoMovieHumanArmLawData.sub(elbow, placed.elbow);
 
     return [centre[0] + shift[0], centre[1] + shift[1], centre[2] + shift[2]];
   }
@@ -189,7 +176,7 @@ export namespace AutoMovieHumanArmLaw {
       point: AutoMovieVector3Tuple,
       normal: AutoMovieVector3Tuple,
       theta: number,
-    ): number => dot(sub(tube.surface(s, theta), point), normal);
+    ): number => AutoMovieHumanArmLawData.dot(AutoMovieHumanArmLawData.sub(tube.surface(s, theta), point), normal);
     const cut = (
       point: AutoMovieVector3Tuple,
       normal: AutoMovieVector3Tuple,
@@ -240,7 +227,7 @@ export namespace AutoMovieHumanArmLaw {
       let hi: number = end;
       for (let i: number = 0; i < BISECTIONS; i++) {
         const mid: number = (lo + hi) / 2;
-        if (dot(sub(axis.at(mid), point), normal) > 0) lo = mid;
+        if (AutoMovieHumanArmLawData.dot(AutoMovieHumanArmLawData.sub(axis.at(mid), point), normal) > 0) lo = mid;
         else hi = mid;
       }
       return (lo + hi) / 2;
@@ -251,9 +238,9 @@ export namespace AutoMovieHumanArmLaw {
     // whatever the hand's scales.
     const handPrior: IAutoMovieHumanArmPrior.IHandPrior =
       AutoMovieHumanArmPrior.PRIOR.hand;
-    const origin: AutoMovieVector3Tuple = sub(
+    const origin: AutoMovieVector3Tuple = AutoMovieHumanArmLawData.sub(
       wrist,
-      handPoint(shape.creaseCentre, hand, [0, 0, 0]),
+      AutoMovieHumanArmLawData.handPoint(shape.creaseCentre, hand, [0, 0, 0]),
     );
     const square: AutoMovieVector3Tuple = [
       -handPrior.along[0],
@@ -261,7 +248,7 @@ export namespace AutoMovieHumanArmLaw {
       -handPrior.along[2],
     ];
     const map = (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
-      handPoint(q, hand, origin);
+      AutoMovieHumanArmLawData.handPoint(q, hand, origin);
     const creaseAt: number = handPrior.crease;
 
     // A heel station's plane is crossed by the walk once, kept for every phase.
@@ -326,12 +313,12 @@ export namespace AutoMovieHumanArmLaw {
     // The strip's parameter runs as its mean chord, so its layers are spaced
     // in millimetres like the tube's: w is 1 at the arm's own section, 0 at
     // the ring.
-    const chord: number = mean(
+    const chord: number = AutoMovieHumanArmLawData.mean(
       starts.map(
         (
           c: IAutoMovieHumanLimbRootStrip.IJet,
           m: number,
-        ): AutoMovieVector3Tuple => [norm(sub(ends[m]!.point, c.point)), 0, 0],
+        ): AutoMovieVector3Tuple => [AutoMovieHumanArmLawData.norm(AutoMovieHumanArmLawData.sub(ends[m]!.point, c.point)), 0, 0],
       ),
       0,
     );
@@ -342,10 +329,10 @@ export namespace AutoMovieHumanArmLaw {
     // square plane by the quintic smoothstep, with no step in their slope or
     // curvature at either end.
     const level: AutoMovieVector3Tuple = [0, 1, 0];
-    const squareOwn: AutoMovieVector3Tuple = scale(axis.heading(ownWalk), -1);
+    const squareOwn: AutoMovieVector3Tuple = AutoMovieHumanArmLawData.scale(axis.heading(ownWalk), -1);
     function stripNormal(w: number): AutoMovieVector3Tuple {
-      const x: number = smoother(w);
-      return unit([
+      const x: number = AutoMovieHumanArmLawData.smoother(w);
+      return AutoMovieHumanArmLawData.unit([
         level[0] + x * (squareOwn[0] - level[0]),
         level[1] + x * (squareOwn[1] - level[1]),
         level[2] + x * (squareOwn[2] - level[2]),
@@ -370,9 +357,9 @@ export namespace AutoMovieHumanArmLaw {
       if (q <= join) return square;
       if (q > qOwn) return stripNormal(wOf(q));
       const s: number = walkOf(q);
-      const bone: AutoMovieVector3Tuple = scale(axis.heading(s), -1);
-      const w: number = smooth((q - join) / (WRIST_TURN * inputs.scale));
-      return unit([
+      const bone: AutoMovieVector3Tuple = AutoMovieHumanArmLawData.scale(axis.heading(s), -1);
+      const w: number = AutoMovieHumanArmLawData.smooth((q - join) / (WRIST_TURN * inputs.scale));
+      return AutoMovieHumanArmLawData.unit([
         square[0] + w * (bone[0] - square[0]),
         square[1] + w * (bone[1] - square[1]),
         square[2] + w * (bone[2] - square[2]),
@@ -382,7 +369,7 @@ export namespace AutoMovieHumanArmLaw {
       if (q <= join) return map([-q, 0, 0]);
       if (q > qOwn) {
         const r: AutoMovieVector3Tuple[] = stripRing(q);
-        return [mean(r, 0), mean(r, 1), mean(r, 2)];
+        return [AutoMovieHumanArmLawData.mean(r, 0), AutoMovieHumanArmLawData.mean(r, 1), AutoMovieHumanArmLawData.mean(r, 2)];
       }
       return axis.at(walkOf(q));
     }
@@ -431,18 +418,18 @@ export namespace AutoMovieHumanArmLaw {
       at: AutoMovieVector3Tuple,
       n: AutoMovieVector3Tuple,
     ): number => {
-      const u: AutoMovieVector3Tuple = across([1, 0, 0], n);
-      const v: AutoMovieVector3Tuple = cross(n, u);
+      const u: AutoMovieVector3Tuple = AutoMovieHumanArmLawData.across([1, 0, 0], n);
+      const v: AutoMovieVector3Tuple = AutoMovieHumanArmLawData.cross(n, u);
       const walk: number = crossing(at, n);
-      return hull(
+      return AutoMovieHumanArmLawData.hull(
         Array.from(
           { length: GIRTH_PHASES },
           (_: unknown, i: number): [number, number] => {
-            const p: AutoMovieVector3Tuple = sub(
+            const p: AutoMovieVector3Tuple = AutoMovieHumanArmLawData.sub(
               cut(at, n, (AutoMovieHumanArmLawData.TWO_PI * i) / GIRTH_PHASES, walk),
               at,
             );
-            return [dot(p, u), dot(p, v)];
+            return [AutoMovieHumanArmLawData.dot(p, u), AutoMovieHumanArmLawData.dot(p, v)];
           },
         ),
       );
@@ -451,7 +438,7 @@ export namespace AutoMovieHumanArmLaw {
     return {
       wrist: origin,
       elbow: bones.elbow,
-      crease: [mean(creaseRing, 0), mean(creaseRing, 1), mean(creaseRing, 2)],
+      crease: [AutoMovieHumanArmLawData.mean(creaseRing, 0), AutoMovieHumanArmLawData.mean(creaseRing, 1), AutoMovieHumanArmLawData.mean(creaseRing, 2)],
       layers,
       normal,
       anchor,
@@ -529,6 +516,6 @@ export namespace AutoMovieHumanArmLaw {
    * Returns: The unit direction.
    */
   function direction(v: readonly number[]): AutoMovieVector3Tuple {
-    return unit([v[0]!, v[1]!, v[2]!]);
+    return AutoMovieHumanArmLawData.unit([v[0]!, v[1]!, v[2]!]);
   }
 }

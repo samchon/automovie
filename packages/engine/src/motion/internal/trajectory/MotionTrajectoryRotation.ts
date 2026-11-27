@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 
 /*
@@ -97,7 +97,7 @@ export namespace MotionTrajectoryRotation {
     if (angle === 0) return q;
     const half: number = angle / 2;
     const sine: number = Math.sin(half);
-    return Quaternion.multiply(q, {
+    return AutoMovieEngineQuaternion.multiply(q, {
       x: (v.x / angle) * sine,
       y: (v.y / angle) * sine,
       z: (v.z / angle) * sine,

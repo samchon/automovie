@@ -6,9 +6,9 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieInstanceAddress } from "../../populationRuntime/internal/autoMovieInstanceAddress";
-import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
+import { AutoMovieEngineSubjectMemberSampleLimit } from "../../constants/AutoMovieEngineSubjectMemberSampleLimit";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
@@ -22,7 +22,7 @@ import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
  * space `space` names, if any. Its members are drawn from the slot range rather
  * than a list, because a compact set stores a count and not its members: the
  * page is the slots from `memberOffset`, clamped to the count, up to
- * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` of them, addressed by
+ * `AutoMovieEngineSubjectMemberSampleLimit` of them, addressed by
  * autoMovieInstanceAddress and sorted in render-id order.
  * Parameter set: Compiled set to describe.
  * Parameter models: Runtime models by id, compiled and environment-owned.
@@ -47,7 +47,7 @@ export const describeAutoMovieInstanceSetSubject = (
     {
       length: Math.min(
         set.count - offset,
-        AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
+        AutoMovieEngineSubjectMemberSampleLimit,
       ),
     },
     (_: unknown, index: number): string =>
@@ -66,9 +66,9 @@ export const describeAutoMovieInstanceSetSubject = (
     owner: space,
     model,
     space,
-    transform: Transform.of(
+    transform: AutoMovieEngineTransform.of(
       structuredClone(set.anchor),
-      Quaternion.fromAxisAngle(UP, set.facingDeg),
+      AutoMovieEngineQuaternion.fromAxisAngle(UP, set.facingDeg),
     ),
     bounds: {
       declared: null,

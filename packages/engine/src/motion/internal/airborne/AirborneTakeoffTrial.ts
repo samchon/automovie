@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 import { AirborneTakeoffJacobian } from "./AirborneTakeoffJacobian";
@@ -35,7 +35,7 @@ export function AirborneTakeoffTrial(
       : undefined;
   const directions: IAutoMovieVector3[] = [0, 1, 2].map(
     (i: number): IAutoMovieVector3 =>
-      Quaternion.rotateVector(frame, {
+      AutoMovieEngineQuaternion.rotateVector(frame, {
         x: i === 0 ? 1 : 0,
         y: i === 1 ? 1 : 0,
         z: i === 2 ? 1 : 0,
@@ -83,7 +83,7 @@ export function AirborneTakeoffTrial(
           t0: props.t0,
           t1: props.t1,
           q0: props.q0,
-          momentum: Quaternion.rotateVector(frame, {
+          momentum: AutoMovieEngineQuaternion.rotateVector(frame, {
             x: local[0]!,
             y: local[1]!,
             z: local[2]!,
@@ -101,7 +101,7 @@ export function AirborneTakeoffTrial(
           {
             ...flight,
             orientation: (seconds: number): IAutoMovieQuaternion =>
-              Quaternion.multiply(flight.orientation(seconds), axes),
+              AutoMovieEngineQuaternion.multiply(flight.orientation(seconds), axes),
           },
           frame,
         );

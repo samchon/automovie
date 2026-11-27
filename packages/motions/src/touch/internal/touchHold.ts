@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -416,7 +416,7 @@ function rubbed(
         part.bone === `${side}Hand`,
     );
   if (hand === undefined) return "up";
-  const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(place.normal);
   const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
     body,
     posture,
@@ -448,7 +448,7 @@ function rubbed(
           body,
           side,
           effector,
-          Vector3.add(place.point, Vector3.scale(way, share * travel)),
+          AutoMovieEngineVector3.add(place.point, AutoMovieEngineVector3.scale(way, share * travel)),
           normal,
           along,
           hang,

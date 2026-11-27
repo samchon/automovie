@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -90,7 +90,7 @@ export function bendFloorThumb(
             highest,
             AutoMovieEnginePhysics.physicalShapeSpan(part.pose, collider, palm.normal)[1],
           );
-    return highest - Vector3.dot(palm.point, palm.normal);
+    return highest - AutoMovieEngineVector3.dot(palm.point, palm.normal);
   };
   if (penetration(base[2]) <= 0) return 0;
   const lower: number = penetration(range.min);
@@ -104,6 +104,6 @@ export function bendFloorThumb(
           (offset: number): boolean => penetration(base[2] + sign * offset) > 0,
           0,
           Math.abs(limit),
-          ROM_TOLERANCE,
+          AutoMovieEngineRomTolerance,
         );
 }

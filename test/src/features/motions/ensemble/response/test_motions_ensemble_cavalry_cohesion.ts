@@ -4,7 +4,12 @@ import type {
   IAutoMovieMotionHumanEnsemblePreset,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
-import { HumanResponse, HumanSkill } from "@automovie/motions/internal";
+import {
+  HumanResponse
+} from "../../../../../../packages/motions/src/skill/internal/HumanResponse";
+import {
+  HumanSkill
+} from "../../../../../../packages/motions/src/skill/internal/HumanSkill";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";

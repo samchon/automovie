@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeClimbingHoldData from "./internal/AutoMovieArchetypeClimbingHoldData";
+import { AutoMovieArchetypeClimbingHoldData } from "./internal/AutoMovieArchetypeClimbingHoldData";
 
 /** Creates a deterministic climbing hold fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeClimbingHold {
@@ -57,8 +57,8 @@ export namespace AutoMovieArchetypeClimbingHold {
     });
     builder.box(
       "ledge",
-      Vector3.create(width, rise, depth),
-      Vector3.create(0, rise / 2, depth / 2),
+      AutoMovieEngineVector3.create(width, rise, depth),
+      AutoMovieEngineVector3.create(0, rise / 2, depth / 2),
       { color: "#1a8a86" },
     );
     builder.affordance({
@@ -66,9 +66,9 @@ export namespace AutoMovieArchetypeClimbingHold {
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, rise, depth),
-        Vector3.create(0, 0, 1),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, rise, depth),
+        AutoMovieEngineVector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       length: width,
@@ -78,7 +78,7 @@ export namespace AutoMovieArchetypeClimbingHold {
       id: "toe",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, rise, depth / 2),
+        AutoMovieEngineVector3.create(0, rise, depth / 2),
       ),
       extent: null,
       width,

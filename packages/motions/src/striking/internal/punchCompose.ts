@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
@@ -93,7 +93,7 @@ export function punchCompose(
       gone,
       back(clock),
     );
-    const wrist: IAutoMovieVector3 = Vector3.add(end, {
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.add(end, {
       x: 0,
       y: -drop.depth * sag(t),
       z: 0,
@@ -169,7 +169,7 @@ export namespace punchCompose {
     gone: number,
     back: number,
   ): IAutoMovieVector3 {
-    return Vector3.lerp(Vector3.lerp(start, hint, gone), guard, back);
+    return AutoMovieEngineVector3.lerp(AutoMovieEngineVector3.lerp(start, hint, gone), guard, back);
   }
 
   /*

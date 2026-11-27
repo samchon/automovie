@@ -5,7 +5,7 @@
  * section, and the construction reads more than the fit does: a composed end takes each child's whole root section in its end plane,
  * crosses neighbouring sections for the forks and reads the seam as the valley of the two walls' union
  * (`IAutoMovieConstructionSplit.ICompose`), and a join on a declared loop reads the part's face through the loop with its 2-jet
- * (`AutoMovieSolidSharedCurve`). So the buried arc of a root section is not free wall. It is the part itself where the host or a
+ * (`AutoMovieEngineSolidSharedCurve`). So the buried arc of a root section is not free wall. It is the part itself where the host or a
  * neighbour covers it, and this module builds it as that: the part's own tube continued (`continued`).
  *
  * What others do with the buried part of a limb, read for this choice (`packages/human/docs/techniques/joints-one-shot.md`, The

@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -122,13 +122,13 @@ export namespace HumanHandover {
       input.meet ??
       AutoMovieEngineCompositionPose.mutualGoal(HumanHandoverMeeting.goal(input, EXCHANGE))
         .point;
-    const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart);
+    const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(meet, atStart);
     const offered: IAutoMovieRigidTransform = {
-      position: Vector3.add(input.frame.position, shift),
+      position: AutoMovieEngineVector3.add(input.frame.position, shift),
       rotation: input.frame.rotation,
     };
     const giverAt: IAutoMovieMotionHumanHand.IWrist = {
-      point: Vector3.add(giverFrom.point, shift),
+      point: AutoMovieEngineVector3.add(giverFrom.point, shift),
       rotation: giverFrom.rotation,
     };
     // The receiver takes the grip from the azimuth about its axis its arm can
@@ -184,9 +184,9 @@ export namespace HumanHandover {
 
     // When: the giver's offer, the receiver's reach ending no earlier, the
     // shared hold by mass, then the release.
-    const offer: number = HumanPrehension.carry(Vector3.length(shift));
+    const offer: number = HumanPrehension.carry(AutoMovieEngineVector3.length(shift));
     const reach: number = HumanPrehension.nominal(
-      Vector3.length(Vector3.subtract(receiverAt.point, receiverFrom.point)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(receiverAt.point, receiverFrom.point)),
       target.width,
     );
     const reachStart: number = Math.max(0, offer - reach);

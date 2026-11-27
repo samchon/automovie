@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -282,7 +282,7 @@ export namespace HumanColliders {
     direction: IAutoMovieVector3,
     reach: number,
   ): IAutoMovieMotionHumanColliders.IHit | undefined {
-    const along: IAutoMovieVector3 = Vector3.normalize(direction);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(direction);
     const atPoint: (
       point: IAutoMovieVector3,
     ) => IAutoMovieMotionHumanColliders.IDistance = (
@@ -292,7 +292,7 @@ export namespace HumanColliders {
     };
     let travelled: number = 0;
     for (let i: number = 0; i < CAST_STEPS; i++) {
-      const point: IAutoMovieVector3 = Vector3.addScaled(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         from,
         along,
         travelled,
@@ -302,11 +302,11 @@ export namespace HumanColliders {
         const slope: (axis: IAutoMovieVector3) => number = (
           axis: IAutoMovieVector3,
         ): number =>
-          atPoint(Vector3.add(point, axis)).distance -
-          atPoint(Vector3.subtract(point, axis)).distance;
+          atPoint(AutoMovieEngineVector3.add(point, axis)).distance -
+          atPoint(AutoMovieEngineVector3.subtract(point, axis)).distance;
         return {
           point,
-          normal: Vector3.normalize({
+          normal: AutoMovieEngineVector3.normalize({
             x: slope(CAST_X),
             y: slope(CAST_Y),
             z: slope(CAST_Z),

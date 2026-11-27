@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -27,7 +27,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { humanRideGripTiming } from "./humanRideGripTiming";
-import * as HumanTendHorseData from "./HumanTendHorseData";
+import { HumanTendHorseData } from "./HumanTendHorseData";
 
 /*
  * A handler's hand on a horse's actual moving contact while the handler stands:
@@ -230,14 +230,14 @@ function planHumanTendHorse(
       const surface: IAutoMovieVector3 =
         along === 0
           ? read.point
-          : Vector3.addScaled(read.point, read.axis!, along);
+          : AutoMovieEngineVector3.addScaled(read.point, read.axis!, along);
       const grip: HumanRideHands.IMaterialGrip = {
         ...read,
         reinPalm: palm,
         point:
           held === undefined
             ? surface
-            : Vector3.addScaled(surface, read.normal, held.depth),
+            : AutoMovieEngineVector3.addScaled(surface, read.normal, held.depth),
       };
       const hand: ReturnType<typeof HumanMountRider.hold> =
         HumanMountRider.hold(
@@ -290,14 +290,14 @@ function planHumanTendHorse(
           reader(),
           requested,
         ).get(wrist)!;
-        const effector: IAutoMovieVector3 = Vector3.add(
+        const effector: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           actual.worldPosition,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             actual.worldRotation,
             hand.arm.contact ?? palm.point,
           ),
         );
-        const skin: IAutoMovieVector3 = Vector3.addScaled(
+        const skin: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
           grip.point,
           grip.normal,
           grip.radius ?? 0,
@@ -306,15 +306,15 @@ function planHumanTendHorse(
         // With a tool, the displayed working face must lie on the contact's surface; otherwise the palm must lie on its skin.
         const distance: number =
           held === undefined
-            ? Vector3.distance(effector, skin)
+            ? AutoMovieEngineVector3.distance(effector, skin)
             : Math.abs(
-                Vector3.dot(
-                  Vector3.subtract(
-                    Vector3.add(
+                AutoMovieEngineVector3.dot(
+                  AutoMovieEngineVector3.subtract(
+                    AutoMovieEngineVector3.add(
                       actual.worldPosition,
-                      Quaternion.rotateVector(actual.worldRotation, held.face),
+                      AutoMovieEngineQuaternion.rotateVector(actual.worldRotation, held.face),
                     ),
-                    Vector3.addScaled(surface, read.normal, read.radius ?? 0),
+                    AutoMovieEngineVector3.addScaled(surface, read.normal, read.radius ?? 0),
                   ),
                   read.normal,
                 ),
@@ -385,17 +385,17 @@ function heldTool(
     new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
   ).get(`${side}Hand`)!;
   const frame: IAutoMovieRigidTransform = reader.frame(context.start);
-  const world: IAutoMovieVector3 = Vector3.add(
+  const world: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, face.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, face.frame.translation),
   );
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(hand.worldRotation),
-    Vector3.subtract(world, hand.worldPosition),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+    AutoMovieEngineVector3.subtract(world, hand.worldPosition),
   );
   return {
     face: local,
-    depth: Vector3.dot(Vector3.subtract(local, palm.point), palm.normal),
+    depth: AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(local, palm.point), palm.normal),
   };
 }
 

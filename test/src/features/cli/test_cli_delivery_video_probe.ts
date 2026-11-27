@@ -1,5 +1,5 @@
 import {
-  AUTOMOVIE_MP4_SRGB_COLOUR,
+  AutoMovieRenderMp4SrgbColour,
   AutoMovieRenderDelivery,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -76,7 +76,7 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
   ): Promise<Probed> =>
     AutoMovieCliDelivery.readProbe(
       await write("probe.mp4", bytes),
-      AUTOMOVIE_MP4_SRGB_COLOUR,
+      AutoMovieRenderMp4SrgbColour,
     );
   const profile: ReturnType<typeof AutoMovieRenderDelivery.resolveVideoProfile> =
     AutoMovieRenderDelivery.resolveVideoProfile({

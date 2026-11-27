@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -28,7 +28,7 @@ export function QuadrupedRestLimb(
   const lengths: number[] = source
     .slice(1)
     .map((point: IAutoMovieVector3, index: number): number =>
-      Vector3.length(Vector3.subtract(point, source[index]!)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, source[index]!)),
     );
   if (lengths.some((length: number): boolean => !(length > 0)))
     throw new RangeError(
@@ -38,7 +38,7 @@ export function QuadrupedRestLimb(
   const roundoff: number =
     64 *
     Number.EPSILON *
-    Math.max(...lengths, Vector3.length(root), Vector3.length(foot), 1);
+    Math.max(...lengths, AutoMovieEngineVector3.length(root), AutoMovieEngineVector3.length(foot), 1);
   if (
     (bend !== -1 && bend !== 1) ||
     Math.abs(root.x - foot.x) > roundoff ||

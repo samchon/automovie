@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -18,7 +18,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { spacecraftGlideClock } from "./spacecraftGlideClock";
-import * as SpacecraftGlideData from "./SpacecraftGlideData";
+import { SpacecraftGlideData } from "./SpacecraftGlideData";
 
 /*
  * An opt-in law for one coast inside a stationary spacecraft. NASA-STD-3001
@@ -66,16 +66,16 @@ function plan(
   const frame: IAutoMovieRigidTransform = craft.frame(context.start);
   const departure: IAutoMovieAffordance = rail(craft, p.departure, "departure");
   const arrival: IAutoMovieAffordance = rail(craft, p.arrival, "arrival");
-  const start: IAutoMovieVector3 = Vector3.add(
+  const start: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, departure.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, departure.frame.translation),
   );
-  const delta: IAutoMovieVector3 = Quaternion.rotateVector(
+  const delta: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.rotation,
-    Vector3.subtract(arrival.frame.translation, departure.frame.translation),
+    AutoMovieEngineVector3.subtract(arrival.frame.translation, departure.frame.translation),
   );
-  const distance: number = Vector3.length(delta);
-  const direction: IAutoMovieVector3 = Vector3.normalize(delta);
+  const distance: number = AutoMovieEngineVector3.length(delta);
+  const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(delta);
   const inward: IAutoMovieVector3 = axis(frame, departure, {
     x: 0,
     y: 1,
@@ -95,9 +95,9 @@ function plan(
   if (
     !(distance > SpacecraftGlideData.ALIGNMENT) ||
     Math.abs(direction.y) > SpacecraftGlideData.ALIGNMENT ||
-    Math.abs(Vector3.dot(direction, along)) < 1 - SpacecraftGlideData.ALIGNMENT ||
-    Vector3.dot(inward, arrivalInward) < 1 - SpacecraftGlideData.ALIGNMENT ||
-    Math.abs(Vector3.dot(arrivalAlong, along)) < 1 - SpacecraftGlideData.ALIGNMENT
+    Math.abs(AutoMovieEngineVector3.dot(direction, along)) < 1 - SpacecraftGlideData.ALIGNMENT ||
+    AutoMovieEngineVector3.dot(inward, arrivalInward) < 1 - SpacecraftGlideData.ALIGNMENT ||
+    Math.abs(AutoMovieEngineVector3.dot(arrivalAlong, along)) < 1 - SpacecraftGlideData.ALIGNMENT
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
@@ -113,8 +113,8 @@ function plan(
     entry.rotation !== undefined ||
     Math.abs(entry.pitch) > SpacecraftGlideData.ALIGNMENT ||
     Math.abs(entry.roll) > SpacecraftGlideData.ALIGNMENT ||
-    Vector3.length(context.entry.velocity.linear) > SpacecraftGlideData.ALIGNMENT ||
-    Vector3.length(context.entry.velocity.angular) > SpacecraftGlideData.ALIGNMENT
+    AutoMovieEngineVector3.length(context.entry.velocity.linear) > SpacecraftGlideData.ALIGNMENT ||
+    AutoMovieEngineVector3.length(context.entry.velocity.angular) > SpacecraftGlideData.ALIGNMENT
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "base",
@@ -131,10 +131,10 @@ function plan(
     "grip",
   );
   const turn: IAutoMovieQuaternion = HumanHand.align(surface, {
-    normal: Vector3.scale(inward, -1),
+    normal: AutoMovieEngineVector3.scale(inward, -1),
     forward: along,
   });
-  const gripOffset: IAutoMovieVector3 = Quaternion.rotateVector(
+  const gripOffset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     turn,
     surface.point,
   );
@@ -142,18 +142,18 @@ function plan(
     context.body,
     context.entry.pose,
   ).get(`${p.hand}UpperArm`)!.worldPosition;
-  const departureWrist: IAutoMovieVector3 = Vector3.subtract(
-    Vector3.subtract(start, gripOffset),
+  const departureWrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.subtract(start, gripOffset),
     shoulder,
   );
-  const rampShift: IAutoMovieVector3 = Vector3.scale(
+  const rampShift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     direction,
     course.rampDistance,
   );
   const reach: number = Math.max(
-    Vector3.length(departureWrist),
-    Vector3.length(Vector3.subtract(departureWrist, rampShift)),
-    Vector3.length(Vector3.add(departureWrist, rampShift)),
+    AutoMovieEngineVector3.length(departureWrist),
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(departureWrist, rampShift)),
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.add(departureWrist, rampShift)),
   );
   const armLength: number =
     context.body.measure.upperArm + context.body.measure.forearm;
@@ -171,15 +171,15 @@ function plan(
   // At mid-coast the unshifted wrist has its departure offset from the
   // shoulder again. Intersect the inward line at that offset with the arm's
   // full-extension sphere to find the greatest inward clearance.
-  const inwardOffset: number = Vector3.dot(departureWrist, inward);
-  const perpendicular: IAutoMovieVector3 = Vector3.subtract(
+  const inwardOffset: number = AutoMovieEngineVector3.dot(departureWrist, inward);
+  const perpendicular: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     departureWrist,
-    Vector3.scale(inward, inwardOffset),
+    AutoMovieEngineVector3.scale(inward, inwardOffset),
   );
   const clearanceLimit: number = Math.max(
     0,
     Math.sqrt(
-      Math.max(0, armLength ** 2 - Vector3.dot(perpendicular, perpendicular)),
+      Math.max(0, armLength ** 2 - AutoMovieEngineVector3.dot(perpendicular, perpendicular)),
     ) - inwardOffset,
   );
   const clearance: number = p.handClearance;
@@ -202,8 +202,8 @@ function plan(
 
   const origin: IAutoMovieVector3 =
     context.entry.pose.root?.translation ?? entry.root;
-  const bendOffset: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(inward, -context.body.measure.shoulderHalfWidth),
+  const bendOffset: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(inward, -context.body.measure.shoulderHalfWidth),
     { x: 0, y: -context.body.measure.forearm, z: 0 },
   );
   const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
@@ -251,15 +251,15 @@ function plan(
     base: { kind: "hanging" },
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       const { time, coastShare, travel, open } = course.sample(seconds);
-      const root: IAutoMovieVector3 = Vector3.add(
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         origin,
-        Vector3.scale(direction, travel),
+        AutoMovieEngineVector3.scale(direction, travel),
       );
 
       // The hand leaves and approaches the rail at zero world velocity.
-      const grip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(start, Vector3.scale(delta, AutoMovieEngineMotionSampling.minimumJerkShare(coastShare))),
-        Vector3.scale(inward, clearance * open),
+      const grip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(start, AutoMovieEngineVector3.scale(delta, AutoMovieEngineMotionSampling.minimumJerkShare(coastShare))),
+        AutoMovieEngineVector3.scale(inward, clearance * open),
       );
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...initialJoints,
@@ -276,10 +276,10 @@ function plan(
         joints,
         limbs: {
           [`${p.hand}Arm`]: {
-            point: Vector3.subtract(grip, gripOffset),
+            point: AutoMovieEngineVector3.subtract(grip, gripOffset),
             rotation: turn,
             contact: surface.point,
-            bend: Vector3.add(grip, bendOffset),
+            bend: AutoMovieEngineVector3.add(grip, bendOffset),
             planted: time <= p.ramp || time >= catchAt,
           },
         },
@@ -321,9 +321,9 @@ function axis(
   rail: IAutoMovieAffordance,
   local: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Quaternion.rotateVector(
+  return AutoMovieEngineQuaternion.rotateVector(
     spacecraft.rotation,
-    Quaternion.rotateVector(rail.frame.rotation, local),
+    AutoMovieEngineQuaternion.rotateVector(rail.frame.rotation, local),
   );
 }
 

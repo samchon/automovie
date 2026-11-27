@@ -16,6 +16,6 @@ Import the engine functions from the package root and the authored types from `@
 | --- | --- |
 | `AutoMovieEngineValidation.validateModel` | Check a model and read its field-level violations |
 | `AutoMovieEngineFilm.stageScene`, `performShot`, `cutSequence` | Place a scene, perform a shot and assemble a sequence |
-| `AutoMoviePhysicalSimulation`, `AutoMoviePhysicalPlayback` | Compute a simulation once and replay its saved result |
+| `AutoMovieEnginePhysicalSimulation`, `AutoMovieEnginePhysicalPlayback` | Compute a simulation once and replay its saved result |
 
 Run physical simulation in a build process or worker for an interactive application. See the [engine API](https://samchon.github.io/automovie/api/) and [rendering package](https://github.com/samchon/automovie/tree/master/packages/render).

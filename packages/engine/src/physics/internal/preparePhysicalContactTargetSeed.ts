@@ -4,7 +4,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 import type { IPhysicalContactTargetSeed } from "./IPhysicalContactTargetSeed";
 import { projectPhysicalTargets } from "./projectPhysicalTargets";
 

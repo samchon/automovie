@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -66,9 +66,9 @@ export function archetypeSpanAnchor(
         "a span anchor requires an existing rigid part and a finite model-space point",
       fix: "build the actual carrier first and supply its model-space attachment point",
     });
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(frame.rotation),
-    Vector3.subtract(point, frame.translation),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(frame.rotation),
+    AutoMovieEngineVector3.subtract(point, frame.translation),
   );
   return { type: "part", part: id, at: local };
 }

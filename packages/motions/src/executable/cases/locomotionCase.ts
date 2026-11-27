@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -155,8 +155,8 @@ export function locomotionCase(
             const r = limb.rotation;
             // Heading, pitch and roll of a rotation, degrees.
             const parts = (o: typeof q): ILocomotionCasePartsResult => {
-              const fw = Quaternion.rotateVector(o, { x: 0, y: 0, z: 1 });
-              const up = Quaternion.rotateVector(o, { x: 0, y: 1, z: 0 });
+              const fw = AutoMovieEngineQuaternion.rotateVector(o, { x: 0, y: 0, z: 1 });
+              const up = AutoMovieEngineQuaternion.rotateVector(o, { x: 0, y: 1, z: 0 });
               const h: number = Math.atan2(fw.x, fw.z);
               return {
                 h: (h * 180) / Math.PI,
@@ -196,12 +196,12 @@ export function locomotionCase(
             if (angle > turn[phase].value) {
               // Read both rotations as heading, pitch and roll, and the shank's lean.
               const read = (o: typeof q) => {
-                const fw = Quaternion.rotateVector(o, {
+                const fw = AutoMovieEngineQuaternion.rotateVector(o, {
                   x: 0,
                   y: 0,
                   z: 1,
                 });
-                const up = Quaternion.rotateVector(o, {
+                const up = AutoMovieEngineQuaternion.rotateVector(o, {
                   x: 0,
                   y: 1,
                   z: 0,
@@ -254,7 +254,7 @@ export function locomotionCase(
       .bones(subject, segment.end)
       .get("hips")!.worldPosition;
     misses.push(Math.hypot(hips.x - goals[i]!.x, hips.z - goals[i]!.z));
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+    const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       performance.bones(subject, segment.end).get("hips")!.worldRotation,
       { x: 0, y: 0, z: 1 },
     );
@@ -274,7 +274,7 @@ export function locomotionCase(
     const speed: number =
       span > 0 ? Math.hypot(b.x - a.x, b.z - a.z) / span : 0;
     const froude: number = Math.sqrt(
-      fr * AutoMovieGravity.STANDARD * body.measure.hipHeight,
+      fr * AutoMovieEngineGravity.STANDARD * body.measure.hipHeight,
     );
     speeds.push(`${names[i]} ${speed.toFixed(2)}/${froude.toFixed(2)} m/s`);
     if (Math.abs(speed / froude - 1) > 0.1) speedOk = false;

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -123,8 +123,8 @@ export namespace humanAssistedTransferSeat {
       { position: frame.position, rotation: frame.rotation },
       ref.point,
     );
-    const vertical: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(frame.rotation, candidate.frame.rotation),
+    const vertical: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(frame.rotation, candidate.frame.rotation),
       { x: 0, y: 1, z: 0 },
     );
     if (
@@ -159,7 +159,7 @@ export namespace humanAssistedTransferSeat {
       candidate.depth / 2,
       context.body.measure.stature * 0.1,
     );
-    const spacing: number = Vector3.distance(floor[0]!, floor[1]!) / 2;
+    const spacing: number = AutoMovieEngineVector3.distance(floor[0]!, floor[1]!) / 2;
     const feet: IAutoMovieMotionHumanSupport.IContact[] = (
       ["left", "right"] as const
     ).map(
@@ -197,7 +197,7 @@ export namespace humanAssistedTransferSeat {
     if (
       context.entry.base.kind !== "seated" ||
       context.entry.base.seat === undefined ||
-      Vector3.distance(context.entry.base.seat.at, from.seat.at) > 0.01
+      AutoMovieEngineVector3.distance(context.entry.base.seat.at, from.seat.at) > 0.01
     )
       return refuse(
         "from",

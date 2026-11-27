@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanFlightTurns,
   IAutoMovieQuaternion,
@@ -35,7 +35,7 @@ export function HumanPerformanceStagedFlightRotation(
   const somersault: number = somersaultTurns * 360;
   const twistTurns: number = request.twist;
   const twist: number = twistTurns * 360;
-  const supplied: IAutoMovieQuaternion = request.frame ?? Quaternion.identity();
+  const supplied: IAutoMovieQuaternion = request.frame ?? AutoMovieEngineQuaternion.identity();
   const start: number = props.start;
   const frame: IAutoMovieQuaternion = {
     x: supplied.x,
@@ -57,9 +57,9 @@ export function HumanPerformanceStagedFlightRotation(
     });
   // The whole flight's turn must close onto the landing's orientation: a
   // rotation of angle zero, whose quaternion's scalar part is plus or minus one.
-  const closing: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, somersault),
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, twist),
+  const closing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, somersault),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, twist),
   );
   if (!props.turnedLanding && Math.abs(closing.w) < 1 - CLOSED)
     throw new AutoMovieMotionHumanRefusal({
@@ -70,8 +70,8 @@ export function HumanPerformanceStagedFlightRotation(
         "the staged flight must close onto the law's existing landing orientation; nonclosing fractional turns need a compatible landing outcome",
       fix: "author complete revolutions until a compatible fractional landing outcome is available; physical mode does not repair that landing limitation",
     });
-  const axes: IAutoMovieQuaternion = Quaternion.normalize(frame);
-  const back: IAutoMovieQuaternion = Quaternion.inverse(axes);
+  const axes: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(frame);
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(axes);
   const orientation: Parameters<
     typeof HumanPerformanceFlightRotation
   >[0]["orientation"] = (
@@ -79,14 +79,14 @@ export function HumanPerformanceStagedFlightRotation(
     root: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion => {
     const u: number = (seconds - from) / (to - from);
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, somersault * u),
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, twist * u),
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, somersault * u),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, twist * u),
     );
-    return Quaternion.normalize(
-      Quaternion.multiply(
+    return AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
         root,
-        Quaternion.multiply(Quaternion.multiply(axes, turn), back),
+        AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.multiply(axes, turn), back),
       ),
     );
   };

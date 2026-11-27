@@ -6,8 +6,14 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanObject } from "@automovie/motions";
-import { AutoMovieMotionHumanRefusal, aquatic } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+
+import {
+  aquatic
+} from "../../../../../packages/motions/src/sport/internal/aquatic";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

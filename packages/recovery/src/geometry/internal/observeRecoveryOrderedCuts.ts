@@ -11,7 +11,7 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 
-import { RecoveryScalarIndex } from "../../geometry/RecoveryScalarIndex";
+import { AutoMovieRecoveryScalarIndex } from "../../geometry/AutoMovieRecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "./bindRecoverySavedSectionCuts";
 import { prepareCutExact } from "../../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "./planeFrame";
@@ -75,7 +75,7 @@ export function observeRecoveryOrderedCuts(
       p[0] * frame.n[0] + p[1] * frame.n[1] + p[2] * frame.n[2],
   );
   const index: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
-    RecoveryScalarIndex.create(input.triangles, heights);
+    AutoMovieRecoveryScalarIndex.create(input.triangles, heights);
   const cut: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = prepareCutExact(
     prepared.mesh,
     heights,

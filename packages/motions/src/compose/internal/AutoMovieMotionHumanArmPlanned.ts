@@ -20,7 +20,7 @@ import { AutoMovieMotionHumanArmPlannedProblem } from "./AutoMovieMotionHumanArm
 import { AutoMovieMotionHumanArmPlannedReads } from "./AutoMovieMotionHumanArmPlannedReads";
 import { AutoMovieMotionHumanArmPlannedSolve } from "./AutoMovieMotionHumanArmPlannedSolve";
 import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
-import * as AutoMovieMotionHumanArmPlannedData from "./AutoMovieMotionHumanArmPlannedData";
+import { AutoMovieMotionHumanArmPlannedData } from "./AutoMovieMotionHumanArmPlannedData";
 
 /*
  * An arm's whole action planned as one trajectory (`HumanArmTrajectory`): its

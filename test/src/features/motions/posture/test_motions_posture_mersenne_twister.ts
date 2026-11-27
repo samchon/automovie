@@ -1,4 +1,6 @@
-import { HumanMersenneTwister } from "@automovie/motions/internal";
+import {
+  HumanMersenneTwister
+} from "../../../../../packages/motions/src/posture/internal/HumanMersenneTwister";
 import { TestValidator } from "@nestia/e2e";
 
 /**

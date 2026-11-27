@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import type { ChangeEvent, JSX } from "react";
 
-import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
+import type { IAutoMovieViewerInspectorAction } from "../../IAutoMovieViewerInspectorAction.js";
 
 /*
  * Shade and surface: how surfaces are coloured and whether they are drawn.
@@ -74,7 +74,7 @@ export namespace AutoMovieInspectorShadePanel {
     /*
      * Where edits go.
      */
-    dispatch: (action: IAutoMovieInspectorAction) => void;
+    dispatch: (action: IAutoMovieViewerInspectorAction) => void;
   }
 }
 

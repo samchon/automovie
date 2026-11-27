@@ -8,8 +8,8 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineAnalysis } from "../../analysis/AutoMovieEngineAnalysis";
-import { Vector3 } from "../../math/Vector3";
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 
 /*
  * Derive a closed room-path receipt from explicit space bindings and an
@@ -18,7 +18,7 @@ import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 export function deriveAutoMovieInteriorAcousticResponse(
   props: IAutoMovieDeriveInteriorAcousticResponse.IProps,
 ): IAutoMovieProductionAcousticResponse {
-  if (SHA256_DIGEST_PATTERN.test(props.inputRevision) === false)
+  if (AutoMovieEngineSha256DigestPattern.test(props.inputRevision) === false)
     throw new Error(
       "acoustic response input revision must be a SHA-256 digest",
     );
@@ -105,8 +105,8 @@ export function deriveAutoMovieInteriorAcousticResponse(
       };
     const source: IAutoMovieAcousticSource = props.request.sources[0]!;
     const receiver: IAutoMovieAcousticReceiver = props.request.receivers[0]!;
-    const distance: number = Vector3.length(
-      Vector3.subtract(receiver.position, source.position),
+    const distance: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(receiver.position, source.position),
     );
     const direct: number =
       source.directivity / (4 * Math.PI * distance * distance);

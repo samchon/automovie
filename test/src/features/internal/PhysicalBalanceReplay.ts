@@ -1,4 +1,4 @@
-import { AutoMovieXpbdBody, AutoMovieXpbdWorld, AutoMovieEnginePhysicalIcpController, AutoMoviePhysicalRootTracking, AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
+import { AutoMovieEngineXpbdBody, AutoMovieEngineXpbdWorld, AutoMovieEnginePhysicalIcpController, AutoMovieEnginePhysicalRootTracking, AutoMovieEnginePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import type {
   IAutoMovieCollectPhysicalSupports,
   IAutoMoviePhysicalProfile,
@@ -21,7 +21,7 @@ import { repositoryRoot } from "./repositoryRoot";
 /**
  * The balance controller's recorded calls and their golden outputs, replayed
  * without a simulation: each fixture holds one disturbance case's key frames,
- * the complete inputs of `AutoMoviePhysicalBalance.advance` and `AutoMoviePhysicalRootTracking` at
+ * the complete inputs of `AutoMovieEnginePhysicalBalance.advance` and `AutoMovieEnginePhysicalRootTracking` at
  * that substep and what they returned and wrote, recorded once from the
  * simulation; a replay rebuilds the bodies the controller reads and compares
  * its outputs to the recording bit for bit.
@@ -82,7 +82,7 @@ export namespace PhysicalBalanceReplay {
 
   /** A recorded `advance` call's input, its segments unpacked. */
   export type IAdvanceInput = Pick<
-    Parameters<typeof AutoMoviePhysicalBalance.advance>[0],
+    Parameters<typeof AutoMovieEnginePhysicalBalance.advance>[0],
     | "targets"
     | "velocities"
     | "unavailable"
@@ -103,7 +103,7 @@ export namespace PhysicalBalanceReplay {
 
   /** A recorded `root` call's input, its segments and goals unpacked. */
   export type IRootInput = Pick<
-    AutoMoviePhysicalRootTracking.IInput,
+    AutoMovieEnginePhysicalRootTracking.IInput,
     | "rootDynamic"
     | "rootIntent"
     | "target"
@@ -151,7 +151,7 @@ export namespace PhysicalBalanceReplay {
       stance?: string[] | undefined;
       objective?: {
         force: IAutoMovieVector3;
-        yaw?: AutoMovieXpbdWorld.IObjective["yaw"];
+        yaw?: AutoMovieEngineXpbdWorld.IObjective["yaw"];
         pressure?: {
           point: IAutoMovieVector3;
           weight: number;
@@ -164,7 +164,7 @@ export namespace PhysicalBalanceReplay {
     integral: IRootInput["integral"];
 
     /** The support wrenches written by the call, in recording order. */
-    supportWrenches: AutoMoviePhysicalRootTracking.IInput["bound"]["supportWrenches"];
+    supportWrenches: AutoMovieEnginePhysicalRootTracking.IInput["bound"]["supportWrenches"];
 
     /** The accumulated actuation by bone, when recording was enabled. */
     actuation: [string, IAutoMovieVector3][] | undefined;
@@ -214,7 +214,7 @@ export namespace PhysicalBalanceReplay {
     /** The push's impulse, N s. */
     impulse: number;
     /** The simulation's gravity, floor, rate and substeps. */
-    settings: AutoMoviePhysicalRootTracking.IInput["settings"];
+    settings: AutoMovieEnginePhysicalRootTracking.IInput["settings"];
     /** The simulated body without its profile, which its digest names. */
     body: Omit<IAutoMoviePhysicalSimulationInput.IBody, "profile"> & {
       profileDigest: string;
@@ -439,8 +439,8 @@ export namespace PhysicalBalanceReplay {
    * and velocities written as recorded, bit for bit. The recording keeps no
    * mass, which the controller does not read.
    */
-  export function body(state: ISegment, handle: number): AutoMovieXpbdBody {
-    const result: AutoMovieXpbdBody = new AutoMovieXpbdBody(
+  export function body(state: ISegment, handle: number): AutoMovieEngineXpbdBody {
+    const result: AutoMovieEngineXpbdBody = new AutoMovieEngineXpbdBody(
       handle,
       state.dynamic,
       state.center,
@@ -459,7 +459,7 @@ export namespace PhysicalBalanceReplay {
   /** The recorded segments as bodies, by bone. */
   export function segments(
     recorded: Record<string, ISegment>,
-  ): Map<string, AutoMovieXpbdBody> {
+  ): Map<string, AutoMovieEngineXpbdBody> {
     return new Map(
       Object.entries(recorded).map(
         ([bone, state]: [string, ISegment], handle: number) => [
@@ -491,9 +491,9 @@ export namespace PhysicalBalanceReplay {
     };
     const actuation: Map<string, IAutoMovieVector3> | undefined =
       input.actuation ? new Map(clone(input.actuation)) : undefined;
-    const output = AutoMoviePhysicalBalance.advance({
+    const output = AutoMovieEnginePhysicalBalance.advance({
       // The controller reads no solver state but the recorded segments.
-      world: new AutoMovieXpbdWorld(fixture.settings.gravity),
+      world: new AutoMovieEngineXpbdWorld(fixture.settings.gravity),
       body: fixture.body.id,
       profile: built,
       segments: segments(input.segments),
@@ -536,7 +536,7 @@ export namespace PhysicalBalanceReplay {
   } {
     const input: IAdvanceInput = record.input;
     return {
-      sense: AutoMoviePhysicalBalance.sense({
+      sense: AutoMovieEnginePhysicalBalance.sense({
         profile: built,
         segments: segments(input.segments),
         policy: clone(fixture.body.balance)!,
@@ -564,9 +564,9 @@ export namespace PhysicalBalanceReplay {
     built: IAutoMoviePhysicalProfile,
   ): IRootReplay {
     const input: IRootInput = record.input;
-    const bodies: Map<string, AutoMovieXpbdBody> = segments(input.segments);
-    const names: Map<AutoMovieXpbdBody, string> = new Map(
-      [...bodies].map(([bone, body]: [string, AutoMovieXpbdBody]) => [
+    const bodies: Map<string, AutoMovieEngineXpbdBody> = segments(input.segments);
+    const names: Map<AutoMovieEngineXpbdBody, string> = new Map(
+      [...bodies].map(([bone, body]: [string, AutoMovieEngineXpbdBody]) => [
         body,
         bone,
       ]),
@@ -575,10 +575,10 @@ export namespace PhysicalBalanceReplay {
       (segment): boolean =>
         !built.joints.some((joint): boolean => joint.child === segment.bone),
     )!;
-    const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(
+    const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld(
       fixture.settings.gravity,
     );
-    const bound: AutoMoviePhysicalRootTracking.IInput["bound"] = {
+    const bound: AutoMovieEnginePhysicalRootTracking.IInput["bound"] = {
       segments: new Map([[fixture.body.id, bodies]]),
       order: new Map([[fixture.body.id, [rootSegment]]]),
       supportWrenches: [],
@@ -586,8 +586,8 @@ export namespace PhysicalBalanceReplay {
     const integral = clone(input.integral);
     const actuation: Map<string, IAutoMovieVector3> | undefined =
       input.actuation ? new Map(clone(input.actuation)) : undefined;
-    const base: AutoMovieXpbdBody = bodies.get(input.base)!;
-    AutoMoviePhysicalRootTracking.track({
+    const base: AutoMovieEngineXpbdBody = bodies.get(input.base)!;
+    AutoMovieEnginePhysicalRootTracking.track({
       settings: clone(fixture.settings),
       body: { ...clone(fixture.body), profile: built },
       bound,
@@ -624,14 +624,14 @@ export namespace PhysicalBalanceReplay {
       world,
       goals: clone(input.goals),
     });
-    const task: AutoMovieXpbdWorld.IRootTask | undefined =
+    const task: AutoMovieEngineXpbdWorld.IRootTask | undefined =
       world.rootTasks.get(base);
     const named = (
-      list: Iterable<AutoMovieXpbdBody> | undefined,
+      list: Iterable<AutoMovieEngineXpbdBody> | undefined,
     ): string[] | undefined =>
       list
         ? [...list].map(
-            (body: AutoMovieXpbdBody): string => names.get(body) ?? "?",
+            (body: AutoMovieEngineXpbdBody): string => names.get(body) ?? "?",
           )
         : undefined;
     return {
@@ -643,7 +643,7 @@ export namespace PhysicalBalanceReplay {
             ...(task.spin ? { spin: clone(task.spin) } : {}),
             ...(task.bounds
               ? {
-                  bounds: task.bounds.map((b: AutoMovieXpbdWorld.IBound) => ({
+                  bounds: task.bounds.map((b: AutoMovieEngineXpbdWorld.IBound) => ({
                     bodies: named(b.bodies),
                     force: b.force,
                   })),

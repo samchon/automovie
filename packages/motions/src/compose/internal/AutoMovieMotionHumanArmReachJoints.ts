@@ -1,5 +1,5 @@
 import {
-  ROM_TOLERANCE,
+  AutoMovieEngineRomTolerance,
   AutoMovieEngineMath,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
@@ -253,7 +253,7 @@ export namespace AutoMovieMotionHumanArmReachJoints {
   /*
    * The joint axis farthest past the rig's range, named on the arm's own side
    * (a left arm is solved as its mirror image's right); null when every one is
-   * within the range tolerance (`ROM_TOLERANCE`).
+   * within the range tolerance (`AutoMovieEngineRomTolerance`).
    * Parameter side: The arm.
    * Parameter displacements: The joints' displacements by their clamps.
    * Returns: The farthest, or null.
@@ -265,7 +265,7 @@ export namespace AutoMovieMotionHumanArmReachJoints {
     let worst: IPast | null = null;
     for (const d of displacements)
       if (
-        d.degrees > ROM_TOLERANCE &&
+        d.degrees > AutoMovieEngineRomTolerance &&
         (worst === null || d.degrees > worst.degrees)
       )
         worst = {

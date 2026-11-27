@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypePony, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -135,8 +135,8 @@ export function test_archetype_equine_tack(): void {
     );
   const sideways: IAutoMovieAffordance | undefined = contact(aside, "seat");
   if (sideways !== undefined) {
-    const facing: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(sideways.frame.rotation, { x: 0, y: 0, z: 1 }),
+    const facing: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(sideways.frame.rotation, { x: 0, y: 0, z: 1 }),
     );
     if (!(facing.x > 0.99) || sideways.astride === true)
       findings.push(
@@ -206,8 +206,8 @@ export function test_archetype_equine_tack(): void {
     (shape: IAutoMoviePhysicalShape): boolean => shape.id === "saddle-pommel",
   );
   const identity: IAutoMovieRigidTransform = {
-    position: Vector3.create(0, 0, 0),
-    rotation: Quaternion.identity(),
+    position: AutoMovieEngineVector3.create(0, 0, 0),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   for (const id of ["leftHandhold", "rightHandhold"] as const) {
     const point: IAutoMovieVector3 = trick.affordance(id).frame.translation;
@@ -230,7 +230,7 @@ function astrideMaterial(
   findings: string[],
 ): void {
   const zero: IAutoMovieRigidTransform = {
-    position: Vector3.create(0, 0, 0),
+    position: AutoMovieEngineVector3.create(0, 0, 0),
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const shapes: ReadonlyMap<string, IAutoMoviePhysicalShape> = new Map(
@@ -342,11 +342,11 @@ function stirrupMaterial(
     return;
   }
   const zero: IAutoMovieRigidTransform = {
-    position: Vector3.create(0, 0, 0),
+    position: AutoMovieEngineVector3.create(0, 0, 0),
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const top: IAutoMovieVector3 = tread.frame.translation;
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     tread.frame.rotation,
     { x: 0, y: 1, z: 0 },
   );
@@ -365,7 +365,7 @@ function stirrupMaterial(
       tree.transform.position.y + tree.halfExtents.y,
       roundoff,
     ) ||
-    !nclose(Vector3.distance(normal, { x: 0, y: 1, z: 0 }), 0, roundoff) ||
+    !nclose(AutoMovieEngineVector3.distance(normal, { x: 0, y: 1, z: 0 }), 0, roundoff) ||
     !nclose(plate.halfExtents.x * 2, tread.width, roundoff) ||
     !nclose(plate.halfExtents.z * 2, tread.depth, roundoff) ||
     !nclose(
@@ -401,7 +401,7 @@ function stirrupMaterial(
       findings.push(`side saddle: ${shape.id} is missing its leather solid`);
       continue;
     }
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       shape.transform.rotation,
       { x: 0, y: shape.halfLength, z: 0 },
     );
@@ -409,8 +409,8 @@ function stirrupMaterial(
       AutoMovieEnginePhysics.physicalShapeSegmentDistance(
         zero,
         trunk,
-        Vector3.subtract(shape.transform.position, half),
-        Vector3.add(shape.transform.position, half),
+        AutoMovieEngineVector3.subtract(shape.transform.position, half),
+        AutoMovieEngineVector3.add(shape.transform.position, half),
         [shape.radius, shape.radius],
       ) < -roundoff
     )

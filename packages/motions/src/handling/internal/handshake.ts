@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -227,14 +227,14 @@ export namespace handshake {
     // partner along the line that halves the two forearms' angle, then both
     // hands turned in their palms' planes together (`HumanClasp.choose`),
     // from both standing postures, so both partners agree on the clasp.
-    const across: IAutoMovieVector3 = Vector3.normalize({
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: theirs.x - mine.x,
       y: 0,
       z: theirs.z - mine.z,
     });
     const left: IAutoMovieVector3 = { x: across.z, y: 0, z: -across.x };
     const palm: IAutoMovieVector3 =
-      side === "right" ? left : Vector3.scale(left, -1);
+      side === "right" ? left : AutoMovieEngineVector3.scale(left, -1);
     const hands: [HumanClasp.IHand, HumanClasp.IHand] = [
       {
         subject: context.subject,
@@ -247,8 +247,8 @@ export namespace handshake {
         subject: context.params.partner,
         body: partner,
         posture: HumanGrasp.standing(partner, otherBones),
-        palm: Vector3.scale(palm, -1),
-        fingers: Vector3.scale(meeting.fingers, -1),
+        palm: AutoMovieEngineVector3.scale(palm, -1),
+        fingers: AutoMovieEngineVector3.scale(meeting.fingers, -1),
       },
     ];
     const choice: HumanClasp.IChoice = HumanClasp.choose(
@@ -282,7 +282,7 @@ export namespace handshake {
       HumanPrehension.transport(
         clasp.point,
         rest.worldPosition,
-        Vector3.scale(palm, -1),
+        AutoMovieEngineVector3.scale(palm, -1),
         0,
         { from: turn, to: rest.worldRotation },
         back,

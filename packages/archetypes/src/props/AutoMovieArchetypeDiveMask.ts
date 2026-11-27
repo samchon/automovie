@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeDiveMaskData from "./internal/AutoMovieArchetypeDiveMaskData";
+import { AutoMovieArchetypeDiveMaskData } from "./internal/AutoMovieArchetypeDiveMaskData";
 
 /** Constructs the dive mask archetype from its recipe. */
 export namespace AutoMovieArchetypeDiveMask {
@@ -45,7 +45,7 @@ export function create(
     material: "rubber",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.box("lens", v(d.width, d.height, 0.03), v(0, 0, 0), {
     color: "#9fd3e8",
   });

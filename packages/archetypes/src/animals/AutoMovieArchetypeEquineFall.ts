@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -112,7 +112,7 @@ export namespace AutoMovieArchetypeEquineFall {
       cue.from,
     );
     const heading: IAutoMovieQuaternion = yaw(start.placement.rotation);
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(heading, {
       x: 0,
       y: 0,
       z: 1,
@@ -144,7 +144,7 @@ export namespace AutoMovieArchetypeEquineFall {
       seconds: number,
     ): IAutoMovieTransform => ({
       ...frame,
-      translation: Vector3.addScaled(
+      translation: AutoMovieEngineVector3.addScaled(
         frame.translation,
         forward,
         travel(seconds),
@@ -269,12 +269,12 @@ export namespace AutoMovieArchetypeEquineFall {
    * direction on the floor.
    */
   function yaw(rotation: IAutoMovieQuaternion): IAutoMovieQuaternion {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
     });
-    return Quaternion.fromAxisAngle(
+    return AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
     );

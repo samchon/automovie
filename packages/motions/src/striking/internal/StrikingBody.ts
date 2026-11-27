@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingBody, IAutoMovieMotionHumanStrikingContact, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -174,7 +174,7 @@ export namespace StrikingBody {
     socket: AutoMovieHumanoidSocket,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
+    return AutoMovieEngineQuaternion.rotateVector(
       rotation,
       body.surfaces.sockets[socket].point,
     );
@@ -198,7 +198,7 @@ export namespace StrikingBody {
     knuckles: IAutoMovieVector3,
     palm: IAutoMovieVector3,
   ): IAutoMovieQuaternion {
-    const fingers: IAutoMovieVector3 = Vector3.subtract(
+    const fingers: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       body.rest.get(`${side}MiddleProximal`)!,
       body.rest.get(`${side}Hand`)!,
     );

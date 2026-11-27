@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieTransform,
@@ -92,9 +92,9 @@ export function test_engine_math_rigid_transform_velocity(): void {
     y: 0,
     z: -Math.sin(angle),
   };
-  const pointRate: IAutoMovieVector3 = Vector3.add(
+  const pointRate: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     rotation.linear,
-    Vector3.cross(rotation.angular, lever),
+    AutoMovieEngineVector3.cross(rotation.angular, lever),
   );
   const analytic: IAutoMovieVector3 = {
     x: 0.3 - 2 * Math.sin(angle),

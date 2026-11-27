@@ -1,8 +1,8 @@
 import {
-  AutoMovieIllinois,
-  AutoMovieLoftViewRead,
-  AutoMovieViewAxis,
-  AutoMovieViewSection,
+  AutoMovieEngineIllinois,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineViewAxis,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -31,7 +31,7 @@ export namespace AutoMovieHumanHandParentRead {
     const roots: number[] = [];
     function residual(station: number): number {
       const frame: Frame = parent.part.axis.at(station);
-      return V.dot(V.sub(point, frame.origin), AutoMovieViewAxis.normal(frame));
+      return V.dot(V.sub(point, frame.origin), AutoMovieEngineViewAxis.normal(frame));
     }
     for (let index: number = 1; index < parent.stations.length; index++) {
       const before: IAutoMovieHumanHandParent.IOutput["stations"][number] =
@@ -43,7 +43,7 @@ export namespace AutoMovieHumanHandParentRead {
       if (a === 0) roots.push(before.station);
       if (b === 0) roots.push(after.station);
       if (a * b < 0) {
-        const root: number | null = AutoMovieIllinois.root(
+        const root: number | null = AutoMovieEngineIllinois.root(
           residual,
           before.station,
           after.station,
@@ -65,7 +65,7 @@ export namespace AutoMovieHumanHandParentRead {
       const squared: number = V.dot(delta, delta);
       if (squared >= distance) continue;
       const values: IAutoMovieLoftViewRead.IValues | string =
-        AutoMovieLoftViewRead.values(parent.source, station);
+        AutoMovieEngineLoftViewRead.values(parent.source, station);
       if (typeof values === "string") throw new Error(values);
       let zero: boolean = false;
       if (!values.extents.every((extent: number): boolean => extent > 0)) {
@@ -96,10 +96,10 @@ export namespace AutoMovieHumanHandParentRead {
         frame,
         local,
         values,
-        jets: AutoMovieLoftViewRead.jets(parent.source, station),
+        jets: AutoMovieEngineLoftViewRead.jets(parent.source, station),
         axisJet: parent.part.axis.jet?.(station) ?? null,
         margin:
-          (zero ? 0 : AutoMovieViewSection.radius(section(values), phase)[0]) -
+          (zero ? 0 : AutoMovieEngineViewSection.radius(section(values), phase)[0]) -
           Math.hypot(...local),
       };
       distance = squared;
@@ -111,11 +111,11 @@ export namespace AutoMovieHumanHandParentRead {
   export function section(
     values: IAutoMovieLoftViewRead.IValues,
   ): IAutoMovieViewSection.ISection {
-    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    const section: IAutoMovieViewSection.ISection = AutoMovieEngineViewSection.bare(
       { extents: values.extents as Quarters },
       values.shoulders as Quarters,
     );
-    const fault: string | null = AutoMovieViewSection.fault(section);
+    const fault: string | null = AutoMovieEngineViewSection.fault(section);
     if (fault !== null) throw new Error(fault);
     return section;
   }

@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  type RigidCarrierSample,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  type AutoMovieEngineRigidCarrierSample,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -117,7 +117,7 @@ export function HumanRideHands(
     held: HumanRideHands.IHandle,
     film: number,
     frame: IAutoMovieRigidTransform,
-    sample?: RigidCarrierSample.IRead,
+    sample?: AutoMovieEngineRigidCarrierSample.IRead,
   ): HumanRideHands.IMaterialGrip => {
     const { id, rest, affordance } = held;
     const placed: IAutoMovieTransform | undefined = sample?.point(id);
@@ -127,7 +127,7 @@ export function HumanRideHands(
         : {
             point: placed.translation,
             rotation: placed.rotation,
-            normal: Quaternion.rotateVector(placed.rotation, {
+            normal: AutoMovieEngineQuaternion.rotateVector(placed.rotation, {
               x: 0,
               y: 1,
               z: 0,
@@ -137,7 +137,7 @@ export function HumanRideHands(
       part?.rotation ??
       (affordance === undefined
         ? undefined
-        : Quaternion.multiply(frame.rotation, affordance.frame.rotation));
+        : AutoMovieEngineQuaternion.multiply(frame.rotation, affordance.frame.rotation));
     const material: boolean =
       fixedSeat &&
       part?.rotation !== undefined &&
@@ -151,12 +151,12 @@ export function HumanRideHands(
       ...(held.cross === undefined ? {} : { cross: held.cross }),
       point:
         part?.point ??
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, rest.point),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, rest.point),
         ),
       normal:
-        part?.normal ?? Quaternion.rotateVector(frame.rotation, rest.normal),
+        part?.normal ?? AutoMovieEngineQuaternion.rotateVector(frame.rotation, rest.normal),
 
       // The grip's own radius, half the width across it the object states.
       ...(affordance?.aperture === undefined
@@ -165,7 +165,7 @@ export function HumanRideHands(
       ...(handle === undefined
         ? {}
         : {
-            axis: Quaternion.rotateVector(handle, { x: 1, y: 0, z: 0 }),
+            axis: AutoMovieEngineQuaternion.rotateVector(handle, { x: 1, y: 0, z: 0 }),
           }),
     };
   };
@@ -177,19 +177,19 @@ export function HumanRideHands(
     frame: IAutoMovieRigidTransform,
     heldAt?: number,
   ): WristPoints => {
-    const back: IAutoMovieQuaternion = Quaternion.multiply(
+    const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       origin.rotation,
-      Quaternion.inverse(frame.rotation),
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
     );
     const points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
     for (const side of holding) {
       const grip: HumanRideHands.IMaterialGrip | undefined = grips[side];
       if (grip === undefined) continue;
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         origin.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           back,
-          Vector3.subtract(grip.point, frame.position),
+          AutoMovieEngineVector3.subtract(grip.point, frame.position),
         ),
       );
       points[side] =
@@ -197,11 +197,11 @@ export function HumanRideHands(
           ? HumanMountRider.wrist(context.body, seated, {
               ...grip,
               point,
-              normal: Quaternion.rotateVector(back, grip.normal),
+              normal: AutoMovieEngineQuaternion.rotateVector(back, grip.normal),
               axis:
                 grip.axis === undefined
                   ? undefined
-                  : Quaternion.rotateVector(back, grip.axis),
+                  : AutoMovieEngineQuaternion.rotateVector(back, grip.axis),
             }).point
           : point;
     }
@@ -223,14 +223,14 @@ export function HumanRideHands(
                 | undefined = support.prop.point!(seat.id, heldAt);
               if (current?.rotation === undefined) return undefined;
               return {
-                position: Vector3.add(
+                position: AutoMovieEngineVector3.add(
                   origin.position,
-                  Quaternion.rotateVector(
+                  AutoMovieEngineQuaternion.rotateVector(
                     back,
-                    Vector3.subtract(current.point, frame.position),
+                    AutoMovieEngineVector3.subtract(current.point, frame.position),
                   ),
                 ),
-                rotation: Quaternion.multiply(back, current.rotation),
+                rotation: AutoMovieEngineQuaternion.multiply(back, current.rotation),
               };
             },
       );
@@ -255,7 +255,7 @@ export function HumanRideHands(
   const gripsAt = (
     film: number,
     frame: IAutoMovieRigidTransform,
-    sample?: RigidCarrierSample.IRead,
+    sample?: AutoMovieEngineRigidCarrierSample.IRead,
   ): Grips => {
     const grips: Grips = {};
     for (const side of holding) {
@@ -321,11 +321,11 @@ export function HumanRideHands(
       heldAt,
     );
     const seatFrame: IAutoMovieRigidTransform = {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         origin.position,
-        Quaternion.rotateVector(origin.rotation, seat.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(origin.rotation, seat.frame.translation),
       ),
-      rotation: Quaternion.multiply(origin.rotation, seat.frame.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(origin.rotation, seat.frame.rotation),
     };
     working = fixedSeatGripPosture(
       context.body,
@@ -347,8 +347,8 @@ export function HumanRideHands(
         right: points.right,
       };
       const shifted: number = reach({
-        left: Vector3.subtract(wrists.left, design.shift),
-        right: Vector3.subtract(wrists.right, design.shift),
+        left: AutoMovieEngineVector3.subtract(wrists.left, design.shift),
+        right: AutoMovieEngineVector3.subtract(wrists.right, design.shift),
       });
       alternatives = fixedSeatWorkingPostures(
         context.body,
@@ -356,7 +356,7 @@ export function HumanRideHands(
           const base: IAutoMovieMotionHumanPosture = bow(degree);
           return {
             ...base,
-            root: Vector3.add(base.root, design.shift),
+            root: AutoMovieEngineVector3.add(base.root, design.shift),
             joints: { ...base.joints, ...design.joints(degree, 1, wrists) },
           };
         },
@@ -376,16 +376,16 @@ export function HumanRideHands(
     const points: WristPoints = wristPoints(grips, frame, heldAt);
     if (points.left === undefined || points.right === undefined)
       return bow(reach(points) * taken);
-    const shift: IAutoMovieVector3 = Vector3.scale(working.shift, taken);
+    const shift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(working.shift, taken);
     const degrees: number =
       reach({
-        left: Vector3.subtract(points.left, shift),
-        right: Vector3.subtract(points.right, shift),
+        left: AutoMovieEngineVector3.subtract(points.left, shift),
+        right: AutoMovieEngineVector3.subtract(points.right, shift),
       }) * taken;
     const at: IAutoMovieMotionHumanPosture = bow(degrees);
     return {
       ...at,
-      root: Vector3.add(at.root, shift),
+      root: AutoMovieEngineVector3.add(at.root, shift),
       joints: { ...at.joints, ...working.joints(degrees, taken, points) },
     };
   }

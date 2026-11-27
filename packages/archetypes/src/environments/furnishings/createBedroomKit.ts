@@ -1,4 +1,4 @@
-import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -36,7 +36,7 @@ import { furnishRoom } from "./furnishRoom";
  * clearance or `keepClear` area, naming the role and clearance.
  */
 export function createBedroomKit(
-  params: AutoMovieEnvironmentFurnishing.IBedroomKitParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.IBedroomKitParams,
   defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (

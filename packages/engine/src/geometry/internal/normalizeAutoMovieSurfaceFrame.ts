@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Admit a surface request and construct its right-handed orthonormal basis in
@@ -32,23 +32,23 @@ export function normalizeAutoMovieSurfaceFrame(
   frame: IAutoMovieSurfaceFrame,
 ): IAutoMovieSweepFrame {
   if (
-    !Vector3.isFinite(frame.origin) ||
-    !Vector3.isFinite(frame.forward) ||
-    !Vector3.isFinite(frame.normal)
+    !AutoMovieEngineVector3.isFinite(frame.origin) ||
+    !AutoMovieEngineVector3.isFinite(frame.forward) ||
+    !AutoMovieEngineVector3.isFinite(frame.normal)
   )
     throw new Error("Surface frame requires finite origin and directions.");
 
-  const normal: IAutoMovieVector3 = Vector3.normalize(frame.normal);
-  const candidate: IAutoMovieVector3 = Vector3.normalize(frame.forward);
-  const side: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(normal, candidate),
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(frame.normal);
+  const candidate: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(frame.forward);
+  const side: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(normal, candidate),
   );
-  if (Vector3.length(normal) === 0 || Vector3.length(side) === 0)
+  if (AutoMovieEngineVector3.length(normal) === 0 || AutoMovieEngineVector3.length(side) === 0)
     throw new Error("Surface frame requires nonzero independent directions.");
 
   return {
     origin: { ...frame.origin },
-    x: Vector3.normalize(Vector3.cross(side, normal)),
+    x: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(side, normal)),
     y: side,
     normal,
   };

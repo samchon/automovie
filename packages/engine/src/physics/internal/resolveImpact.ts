@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Resolve a collision between bodies `a` and `b` across unit contact `normal`
@@ -27,20 +27,20 @@ export function resolveImpact(
   assertImpactBody("a", a);
   assertImpactBody("b", b);
 
-  const normalLengthSq: number = Vector3.dot(normal, normal);
+  const normalLengthSq: number = AutoMovieEngineVector3.dot(normal, normal);
   if (normalLengthSq === 0)
     throw new RangeError("impact normal must be non-zero");
 
-  const n: IAutoMovieVector3 = Vector3.normalize(normal);
-  const vRel: IAutoMovieVector3 = Vector3.subtract(b.velocity, a.velocity); // b relative to a
-  const vRelN: number = Vector3.dot(vRel, n);
+  const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(normal);
+  const vRel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b.velocity, a.velocity); // b relative to a
+  const vRelN: number = AutoMovieEngineVector3.dot(vRel, n);
   const closing: number = -vRelN; // > 0 when approaching
 
   if (closing <= 0)
     return {
       normal: n,
       speed: 0,
-      impulse: Vector3.create(0, 0, 0),
+      impulse: AutoMovieEngineVector3.create(0, 0, 0),
       velocityA: a.velocity,
       velocityB: b.velocity,
       kind: "deflect",
@@ -60,14 +60,14 @@ export function resolveImpact(
 
   const invSum: number = 1 / a.mass + 1 / b.mass;
   const jn: number = (transfer * (1 + eEff) * closing) / invSum;
-  const impulse: IAutoMovieVector3 = Vector3.scale(n, jn);
+  const impulse: IAutoMovieVector3 = AutoMovieEngineVector3.scale(n, jn);
 
   return {
     normal: n,
     speed: closing,
     impulse,
-    velocityA: Vector3.subtract(a.velocity, Vector3.scale(n, jn / a.mass)),
-    velocityB: Vector3.add(b.velocity, Vector3.scale(n, jn / b.mass)),
+    velocityA: AutoMovieEngineVector3.subtract(a.velocity, AutoMovieEngineVector3.scale(n, jn / a.mass)),
+    velocityB: AutoMovieEngineVector3.add(b.velocity, AutoMovieEngineVector3.scale(n, jn / b.mass)),
     kind,
   };
 }

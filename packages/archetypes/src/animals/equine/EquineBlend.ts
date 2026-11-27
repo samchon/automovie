@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -34,15 +34,15 @@ export function EquineBlend<Id extends string, D extends string>(
   toPlacement: IAutoMovieTransform,
   share: number,
 ): AutoMovieArchetype<Id, D> {
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     toPlacement.rotation,
   );
   const local = (frame: IAutoMovieTransform): IAutoMovieTransform => ({
     ...frame,
-    rotation: Quaternion.multiply(inverse, frame.rotation),
-    translation: Quaternion.rotateVector(
+    rotation: AutoMovieEngineQuaternion.multiply(inverse, frame.rotation),
+    translation: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(frame.translation, toPlacement.translation),
+      AutoMovieEngineVector3.subtract(frame.translation, toPlacement.translation),
     ),
   });
   const mix = (
@@ -51,8 +51,8 @@ export function EquineBlend<Id extends string, D extends string>(
   ): IAutoMovieTransform =>
     local({
       ...b,
-      rotation: Quaternion.slerp(a.rotation, b.rotation, share),
-      translation: Vector3.lerp(a.translation, b.translation, share),
+      rotation: AutoMovieEngineQuaternion.slerp(a.rotation, b.rotation, share),
+      translation: AutoMovieEngineVector3.lerp(a.translation, b.translation, share),
     });
   const source: ReadonlyMap<string, IAutoMovieModelPart> = new Map(
     from.parts.map(
@@ -103,7 +103,7 @@ export function EquineBlend<Id extends string, D extends string>(
         ),
       ),
   );
-  const lift: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
+  const lift: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(inverse, {
     x: 0,
     y: Math.max(0, -lowest),
     z: 0,
@@ -116,7 +116,7 @@ export function EquineBlend<Id extends string, D extends string>(
             ...part,
             transform: {
               ...part.transform,
-              translation: Vector3.add(part.transform.translation, lift),
+              translation: AutoMovieEngineVector3.add(part.transform.translation, lift),
             },
           },
   );
@@ -143,7 +143,7 @@ export function EquineBlend<Id extends string, D extends string>(
             contact.id,
             {
               ...frame,
-              translation: Vector3.add(frame.translation, lift),
+              translation: AutoMovieEngineVector3.add(frame.translation, lift),
             },
           ];
         },

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -146,26 +146,26 @@ export namespace AutoMovieArchetypeEquineFoal {
       trunk.geometry.shape.type === "capsule"
         ? trunk.geometry.shape.radius
         : 0;
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       trunk.transform!.rotation,
       { x: 0, y: 1, z: 0 },
     );
-    const rear: IAutoMovieVector3 = Vector3.addScaled(
+    const rear: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       trunk.transform!.translation,
       axis,
       -height / 2,
     );
-    const centre: IAutoMovieVector3 = Vector3.addScaled(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       rear,
       axis,
       UDDER * height,
     );
-    const down: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled({ x: 0, y: -1, z: 0 }, axis, axis.y),
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled({ x: 0, y: -1, z: 0 }, axis, axis.y),
     );
     return AutoMovieArchetypeFrame.point(
       mare.placement,
-      Vector3.addScaled(centre, down, radius + HANG),
+      AutoMovieEngineVector3.addScaled(centre, down, radius + HANG),
     );
   }
 
@@ -329,13 +329,13 @@ export namespace AutoMovieArchetypeEquineFoal {
     const mare: AutoMovieArchetypeRide.ISample<Id, Dimension> = lying.at(
       lying.duration,
     );
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       mare.placement.rotation,
     );
     const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, mare.placement.translation),
+        AutoMovieEngineVector3.subtract(point, mare.placement.translation),
       );
     const teat: IAutoMovieVector3 = local(udder(mare));
     const from: IAutoMovieVector3 = local(stood.placement.translation);
@@ -347,7 +347,7 @@ export namespace AutoMovieArchetypeEquineFoal {
       y: 0,
       z: Math.cos(turn),
     };
-    const centre: IAutoMovieVector3 = Vector3.addScaled(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       teat,
       facing,
       -NURSE.out,
@@ -364,7 +364,7 @@ export namespace AutoMovieArchetypeEquineFoal {
       throw new RangeError(
         "The foal stands too near the udder to walk round to the flank",
       );
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+    const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       stood.placement.rotation,
       { x: 0, y: 0, z: 1 },
     );

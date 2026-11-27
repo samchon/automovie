@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -39,7 +39,7 @@ export namespace precisionThrow {
         z: radius * Math.sin(angle),
       },
     );
-    return Vector3.lerp(
+    return AutoMovieEngineVector3.lerp(
       rest,
       offset,
       AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(progress * 5, 1)),

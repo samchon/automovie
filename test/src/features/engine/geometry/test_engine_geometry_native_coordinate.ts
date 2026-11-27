@@ -1,4 +1,4 @@
-import { AutoMovieNativeCoordinate } from "@automovie/engine";
+import { AutoMovieEngineNativeCoordinate } from "@automovie/engine";
 import type {
   IAutoMovieLoftViewRead,
   IAutoMovieNativeCoordinate,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `AutoMovieNativeCoordinate.locate(values, component, half, target)` finds the
+ * `AutoMovieEngineNativeCoordinate.locate(values, component, half, target)` finds the
  * point of a section whose coordinate `component` is `target`, on the half of
  * the other coordinate's sign `half`.
  *
@@ -61,7 +61,7 @@ export function test_engine_geometry_native_coordinate(): void {
           const label: string = `${scale}/${component}/${half}/${share}`;
           const target: number = share * (component === 0 ? a : b);
           const result: IAutoMovieNativeCoordinate.IResult =
-            AutoMovieNativeCoordinate.locate(values, component, half, target);
+            AutoMovieEngineNativeCoordinate.locate(values, component, half, target);
           const other: number =
             half * (component === 0 ? b : a) * Math.sqrt(1 - share * share);
           const expected: number[] =
@@ -95,7 +95,7 @@ export function test_engine_geometry_native_coordinate(): void {
     // 2.
     for (const target of [b * (1 + 1e-6), -b * (1 + 1e-6), NaN, Infinity])
       refused(`${scale} target ${target}`, (): unknown =>
-        AutoMovieNativeCoordinate.locate(values, 1, 1, target),
+        AutoMovieEngineNativeCoordinate.locate(values, 1, 1, target),
       );
   }
   const values: IAutoMovieLoftViewRead.IValues = {
@@ -103,7 +103,7 @@ export function test_engine_geometry_native_coordinate(): void {
     shoulders: [0.4, 0.4, 0.4, 0.4],
   };
   refused("collapsed", (): unknown =>
-    AutoMovieNativeCoordinate.locate(
+    AutoMovieEngineNativeCoordinate.locate(
       { ...values, extents: [0, 0, 0, 0] },
       1,
       1,
@@ -121,7 +121,7 @@ export function test_engine_geometry_native_coordinate(): void {
   });
   let caught: unknown = null;
   try {
-    AutoMovieNativeCoordinate.locate({ ...values, extents }, 1, 1, 0);
+    AutoMovieEngineNativeCoordinate.locate({ ...values, extents }, 1, 1, 0);
   } catch (error: unknown) {
     caught = error;
   }

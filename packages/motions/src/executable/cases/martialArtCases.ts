@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -118,8 +118,8 @@ export function martialArtCases(
         case "chokuZuki": {
           const fist = { surface: "fist", shape: "fist" } as const;
           const reach = (t: number, side: AutoMovieHumanSide): number =>
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 AutoMovieMotionHumanTouchEffector.point(
                   body,
                   performance.bones("a", t),
@@ -208,7 +208,7 @@ export function martialArtCases(
               );
               fastest = Math.max(
                 fastest,
-                Vector3.length(Vector3.subtract(b, a)) * 24,
+                AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(b, a)) * 24,
               );
             }
           verdicts.push({

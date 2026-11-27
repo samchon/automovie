@@ -1,5 +1,7 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { catchObjectApproach } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  catchObjectApproach
+} from "../../../../../packages/motions/src/throwing/internal/catchObjectApproach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -20,7 +22,7 @@ import { throwsError } from "../../internal/throwsError";
  *    within reach, or not closing, is refused.
  */
 export function test_motions_throwing_catch_object(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const flight: number = catchObjectApproach.tossFlight("toss", 3, 0.5);
   TestValidator.predicate(
     "a self-toss",

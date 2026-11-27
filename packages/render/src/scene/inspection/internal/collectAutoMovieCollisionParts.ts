@@ -1,8 +1,8 @@
 import type { IAutoMovieSceneCollision as Collision } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import { AutoMovieCollisionSource } from "../../AutoMovieCollisionSource.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderCollisionSource } from "../../AutoMovieRenderCollisionSource.js";
 import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 import { readAutoMovieCollisionCord } from "./readAutoMovieCollisionCord.js";
 import { readAutoMovieCollisionInstances } from "./readAutoMovieCollisionInstances.js";
@@ -54,7 +54,7 @@ export function collectAutoMovieCollisionParts(
     // A built rigid model whose parts still hold their built placement owns
     // its internal pairs; nesting alone never does.
     const members: ReadonlySet<THREE.Object3D> | undefined =
-      AutoMovieCollisionSource.assembly(object);
+      AutoMovieRenderCollisionSource.assembly(object);
     const assembly:
       | { group: Collision.IGroup; parts: ReadonlySet<THREE.Object3D> }
       | undefined =
@@ -67,7 +67,7 @@ export function collectAutoMovieCollisionParts(
             },
             parts: members,
           };
-    if (AutoMovieThreeKind.isMesh(object))
+    if (AutoMovieRenderThreeKind.isMesh(object))
       meshes.push({
         mesh: object,
         ...(assembly?.parts.has(object) ? { group: assembly.group } : {}),
@@ -110,11 +110,11 @@ export function collectAutoMovieCollisionParts(
       throw new Error(
         `Drawn mesh "${identity}" repeats a path its source already supplied`,
       );
-    const cord: AutoMovieCollisionSource.ICord | undefined =
-      AutoMovieCollisionSource.cord(mesh);
+    const cord: AutoMovieRenderCollisionSource.ICord | undefined =
+      AutoMovieRenderCollisionSource.cord(mesh);
     if (cord !== undefined)
       readAutoMovieCollisionCord(mesh, identity, cord, budget, add);
-    else if (AutoMovieThreeKind.isInstancedMesh(mesh))
+    else if (AutoMovieRenderThreeKind.isInstancedMesh(mesh))
       readAutoMovieCollisionInstances(mesh, identity, budget, add);
     else
       readAutoMovieCollisionMesh(

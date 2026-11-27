@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../Vector3";
+import { AutoMovieEngineVector3 } from "../AutoMovieEngineVector3";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
 /*
@@ -26,24 +26,24 @@ export function cofactorAutoMovieJacobian(
 ): IAutoMovieJacobianCofactor {
   if (jacobian.length !== 9)
     throw new Error("Mesh Jacobian needs nine row-major entries.");
-  const a: IAutoMovieVector3 = Vector3.create(
+  const a: IAutoMovieVector3 = AutoMovieEngineVector3.create(
     jacobian[0],
     jacobian[3],
     jacobian[6],
   );
-  const b: IAutoMovieVector3 = Vector3.create(
+  const b: IAutoMovieVector3 = AutoMovieEngineVector3.create(
     jacobian[1],
     jacobian[4],
     jacobian[7],
   );
-  const c: IAutoMovieVector3 = Vector3.create(
+  const c: IAutoMovieVector3 = AutoMovieEngineVector3.create(
     jacobian[2],
     jacobian[5],
     jacobian[8],
   );
-  const bc: IAutoMovieVector3 = Vector3.cross(b, c);
-  const ca: IAutoMovieVector3 = Vector3.cross(c, a);
-  const ab: IAutoMovieVector3 = Vector3.cross(a, b);
+  const bc: IAutoMovieVector3 = AutoMovieEngineVector3.cross(b, c);
+  const ca: IAutoMovieVector3 = AutoMovieEngineVector3.cross(c, a);
+  const ab: IAutoMovieVector3 = AutoMovieEngineVector3.cross(a, b);
   const determinant: number = representable(
     representable(representable(a.x * bc.x) + representable(a.y * bc.y)) +
       representable(a.z * bc.z),

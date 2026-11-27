@@ -36,7 +36,7 @@ export namespace IAutoMovieMotionHumanDrinkingArm {
 
     /**
      * The forearm's clinical twist, degrees, pronation positive
-     * (`HUMANOID_REST_FRAME`); what `room` is measured from, read by the
+     * (`AutoMovieEngineHumanoidRestFrame`); what `room` is measured from, read by the
      * refusal.
      */
     twist: number;

@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieLoftJet } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineLoftJet } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
@@ -59,9 +59,9 @@ export namespace AutoMovieHumanBodySurfaceNormals {
         continue;
 
       // A chain with jets has its exact normal, oriented with the mesh's.
-      if (AutoMovieLoftJet.carries(target)) {
-        const n: [number, number, number] | null = AutoMovieLoftJet.normal(
-          AutoMovieLoftJet.at(target, s, t),
+      if (AutoMovieEngineLoftJet.carries(target)) {
+        const n: [number, number, number] | null = AutoMovieEngineLoftJet.normal(
+          AutoMovieEngineLoftJet.at(target, s, t),
         );
         if (n === null) continue;
         const c: number =
@@ -259,11 +259,11 @@ export namespace AutoMovieHumanBodySurfaceNormals {
       y: number,
     ): IAutoMovieHumanBodySurfaceNormals.IStationSample {
       return {
-        at: AutoMovieLoftChain.sampler(target, y),
+        at: AutoMovieEngineLoftChain.sampler(target, y),
       };
     }
     return {
-      here: AutoMovieLoftChain.phaseSampler(target, s),
+      here: AutoMovieEngineLoftChain.phaseSampler(target, s),
       lo: sample(Math.max(bottom, s - STEP)),
       hi: sample(Math.min(top, s + STEP)),
     };

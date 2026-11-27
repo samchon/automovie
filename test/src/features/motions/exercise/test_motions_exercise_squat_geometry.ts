@@ -1,17 +1,21 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExercise,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
-  FamilyCaseKit,
-  everydayVerdicts,
-} from "@automovie/motions/executable/internal";
+  FamilyCaseKit
+} from "../../../../../packages/motions/src/executable/cases/FamilyCaseKit";
 import {
-  AutoMovieMotionHumanTrunk,
-  HumanFoot,
-} from "@automovie/motions/internal";
+  everydayVerdicts
+} from "../../../../../packages/motions/src/executable/cases/internal/everydayVerdicts";
+import {
+  AutoMovieMotionHumanTrunk
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTrunk";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 const ACTOR = "a";
@@ -25,7 +29,7 @@ export function test_motions_exercise_squat_geometry(): void {
     const bottom: number = FamilyCaseKit.event(take, "bottom1");
     const bones = take.bones(ACTOR, bottom);
     for (const side of ["left", "right"] as const) {
-      const thigh = Vector3.subtract(
+      const thigh = AutoMovieEngineVector3.subtract(
         bones.get(`${side}UpperLeg`)!.worldPosition,
         bones.get(`${side}LowerLeg`)!.worldPosition,
       );
@@ -50,7 +54,7 @@ export function test_motions_exercise_squat_geometry(): void {
   for (const share of [0, 0.25, 0.5, 0.8, 1])
     TestValidator.predicate(
       `cadences preserve the pose at phase ${share}`,
-      () => Vector3.distance(hips(slow, share), hips(brisk, share)) <= 1e-9,
+      () => AutoMovieEngineVector3.distance(hips(slow, share), hips(brisk, share)) <= 1e-9,
     );
   soles(body, brisk, "brisk reduced-depth squat");
 

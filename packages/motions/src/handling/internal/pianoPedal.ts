@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -23,7 +23,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { pianoPedalStroke } from "./pianoPedalStroke";
 import { readPianoPedal } from "./readPianoPedal";
-import * as PianoPedalData from "./PianoPedalData";
+import { PianoPedalData } from "./PianoPedalData";
 
 /*
  * Stage the right forefoot on an upright piano's damper pedal, depress and
@@ -101,7 +101,7 @@ function plan(
     );
   const heelOffset: IAutoMovieVector3 = HumanFoot.offset(body, "right", "heel");
   const ballOffset: IAutoMovieVector3 = HumanFoot.offset(body, "right", "ball");
-  const span: IAutoMovieVector3 = Vector3.subtract(ballOffset, heelOffset);
+  const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ballOffset, heelOffset);
   const radius: number = Math.hypot(span.y, span.z);
   const lift: number = pedal.point.y - floor;
   if (!(0 < lift && lift < radius) || span.z <= 0)
@@ -111,7 +111,7 @@ function plan(
       "align the pedal above the heel and within the forefoot's rocking range",
     );
 
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(pedal.rotation, {
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(pedal.rotation, {
     x: 0,
     y: 0,
     z: -1,
@@ -125,33 +125,33 @@ function plan(
   );
   // Put the ball near the player-facing edge so the rear portion of the
   // tilted sole clears the plate. A press moves the ball inward as it drops.
-  const rim: IAutoMovieVector3 = Vector3.subtract(
+  const rim: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     pedal.point,
-    Vector3.scale(
+    AutoMovieEngineVector3.scale(
       forward,
       pedal.depth / 2 - Math.min(HumanFoot.BEARING, pedal.depth / 4),
     ),
   );
-  const heel: IAutoMovieVector3 = Vector3.subtract(
+  const heel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     rim,
-    Quaternion.rotateVector(restRotation, span),
+    AutoMovieEngineQuaternion.rotateVector(restRotation, span),
   );
-  const heelToPivot: IAutoMovieVector3 = Vector3.subtract(pedal.pivot, heel);
+  const heelToPivot: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(pedal.pivot, heel);
 
   /*
    * Intersect the ball's arc around the fixed heel with the rotated plate.
    */
   const placed = (degrees: number): IAutoMovieMotionHumanFoot.IPlacement => {
-    const angle: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const angle: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       pedal.axis,
       degrees,
     );
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(angle, {
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(angle, {
       x: 0,
       y: 1,
       z: 0,
     });
-    const height: number = Vector3.dot(heelToPivot, normal);
+    const height: number = AutoMovieEngineVector3.dot(heelToPivot, normal);
     if (!(Math.abs(height) < radius))
       refuse(
         "prop",
@@ -187,7 +187,7 @@ function plan(
    */
   const move = (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
     const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(progress);
-    const ankle: IAutoMovieVector3 = Vector3.lerp(
+    const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       foot.worldPosition,
       staged.ankle,
       blend,
@@ -197,7 +197,7 @@ function plan(
         ...ankle,
         y: ankle.y + PianoPedalData.SWING_CLEARANCE * 4 * blend * (1 - blend),
       },
-      rotation: Quaternion.slerp(foot.worldRotation, staged.rotation, blend),
+      rotation: AutoMovieEngineQuaternion.slerp(foot.worldRotation, staged.rotation, blend),
     };
   };
 
@@ -237,19 +237,19 @@ function plan(
       resolved,
       "right",
     );
-    const untilted: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(pedal.axis, -degrees),
-      Vector3.subtract(actual[1]!.point, pedal.pivot),
+    const untilted: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle(pedal.axis, -degrees),
+      AutoMovieEngineVector3.subtract(actual[1]!.point, pedal.pivot),
     );
-    const onPlate: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(pedal.rotation),
-      Vector3.subtract(untilted, Vector3.subtract(pedal.point, pedal.pivot)),
+    const onPlate: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(pedal.rotation),
+      AutoMovieEngineVector3.subtract(untilted, AutoMovieEngineVector3.subtract(pedal.point, pedal.pivot)),
     );
     if (
       Math.abs(onPlate.x) > pedal.width / 2 ||
       Math.abs(onPlate.z) > pedal.depth / 2 ||
       Math.abs(onPlate.y) > HumanFoot.BEARING ||
-      Vector3.length(Vector3.subtract(actual[0]!.point, heel)) >
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(actual[0]!.point, heel)) >
         HumanFoot.BEARING
     )
       refuse(
@@ -269,7 +269,7 @@ function plan(
       );
     const actual: IAutoMovieVector3 = resolved.get("rightFoot")!.worldPosition;
     if (
-      Vector3.length(Vector3.subtract(actual, target.ankle)) >
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(actual, target.ankle)) >
         HumanFoot.BEARING ||
       HumanFoot.sockets(body, resolved, "right").some(
         (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>

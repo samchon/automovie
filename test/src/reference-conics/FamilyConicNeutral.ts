@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieViewJointedCourse, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewJointedCourse, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanF1,
@@ -114,7 +114,7 @@ namespace FamilyConicNeutral {
       ];
       const segments: string[] = P.runs(stored.name);
       const admitted: IAutoMovieViewJointedCourse.ICourse | string =
-        AutoMovieViewJointedCourse.prepare(posed.centres, posed.halves);
+        AutoMovieEngineViewJointedCourse.prepare(posed.centres, posed.halves);
       lines.push(
         stored.name +
           ": engine " +
@@ -525,7 +525,7 @@ namespace FamilyConicNeutral {
     const ring: [number, number][] = Array.from(
       { length: 360 },
       (_: unknown, j: number): [number, number] => {
-        const q: number[] = AutoMovieLoftChain.point(
+        const q: number[] = AutoMovieEngineLoftChain.point(
           against.chain,
           best!.station,
           (2 * Math.PI * j) / 360,
@@ -582,7 +582,7 @@ namespace FamilyConicNeutral {
     ): [number, number[] | string][] =>
       stations.map((s: number): [number, number[] | string] => {
         try {
-          return [s, AutoMovieLoftChain.point(chain, s, phase)];
+          return [s, AutoMovieEngineLoftChain.point(chain, s, phase)];
         } catch (error) {
           return [
             s,
@@ -693,7 +693,7 @@ namespace FamilyConicNeutral {
       const end: number[][] = Array.from(
         { length: 360 },
         (_: unknown, j: number): number[] =>
-          AutoMovieLoftChain.point(
+          AutoMovieEngineLoftChain.point(
             trunk.chain,
             trunk.family.knots[0]!,
             (2 * Math.PI * j) / 360,
@@ -702,7 +702,7 @@ namespace FamilyConicNeutral {
       const gaps: number[] = Array.from(
         { length: 72 },
         (_: unknown, j: number): number => {
-          const p: number[] = AutoMovieLoftChain.point(
+          const p: number[] = AutoMovieEngineLoftChain.point(
             leg.chain,
             at,
             (2 * Math.PI * j) / 72,
@@ -723,7 +723,7 @@ namespace FamilyConicNeutral {
       const heights: number[] = Array.from(
         { length: 72 },
         (_: unknown, j: number): number =>
-          AutoMovieLoftChain.point(leg.chain, at, (2 * Math.PI * j) / 72)[1]!,
+          AutoMovieEngineLoftChain.point(leg.chain, at, (2 * Math.PI * j) / 72)[1]!,
       );
       lines.push(
         "  " +
@@ -772,7 +772,7 @@ namespace FamilyConicNeutral {
           const sides: number[] = Array.from(
             { length: 72 },
             (_: unknown, j: number): number =>
-              AutoMovieLoftChain.point(
+              AutoMovieEngineLoftChain.point(
                 arm.chain,
                 s,
                 (2 * Math.PI * j) / 72,
@@ -781,7 +781,7 @@ namespace FamilyConicNeutral {
           const heights: number[] = Array.from(
             { length: 72 },
             (_: unknown, j: number): number =>
-              AutoMovieLoftChain.point(
+              AutoMovieEngineLoftChain.point(
                 arm.chain,
                 s,
                 (2 * Math.PI * j) / 72,

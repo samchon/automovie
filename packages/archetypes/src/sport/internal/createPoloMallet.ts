@@ -1,5 +1,5 @@
 import { AutoMovieArchetypePoloMallet } from "../AutoMovieArchetypePoloMallet";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
@@ -44,7 +44,7 @@ export function createPoloMallet(
     name: "poloMallet",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = d.headDiameter / 2;
   const hold: number = AutoMovieArchetypePoloMallet.GRIP_LENGTH;
   builder.rod(

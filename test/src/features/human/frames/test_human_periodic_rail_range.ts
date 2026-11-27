@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanPeriodicRailRange } from "@automovie/human";
 
 import { nclose } from "../../internal/predicates";
@@ -19,7 +19,7 @@ import { nclose } from "../../internal/predicates";
 export function test_human_periodic_rail_range(): void {
   const failures: string[] = [];
   const controls: readonly number[] = [1, 1, 2, 2];
-  const read = AutoMovieNaturalSpline.periodic(controls);
+  const read = AutoMovieEngineNaturalSpline.periodic(controls);
   const bounds = AutoMovieHumanPeriodicRailRange.of(controls);
   for (const [phase, expected] of [
     [Math.PI / 4, 13 / 16],

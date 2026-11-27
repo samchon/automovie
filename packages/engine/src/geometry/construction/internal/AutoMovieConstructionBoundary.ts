@@ -4,11 +4,11 @@ import type {
   IAutoMovieLoftSectionSource,
 } from "@automovie/interface";
 
-import { AutoMovieLoftFrameSource } from "../../AutoMovieLoftFrameSource";
-import { AutoMovieLoftSection } from "../../AutoMovieLoftSection";
-import { AutoMovieLoftSectionConnect } from "../../AutoMovieLoftSectionConnect";
-import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
-import { AutoMovieLoftSectionSource } from "../../AutoMovieLoftSectionSource";
+import { AutoMovieEngineLoftFrameSource } from "../../AutoMovieEngineLoftFrameSource";
+import { AutoMovieEngineLoftSection } from "../../AutoMovieEngineLoftSection";
+import { AutoMovieEngineLoftSectionConnect } from "../../AutoMovieEngineLoftSectionConnect";
+import { AutoMovieEngineLoftSectionNative } from "../../AutoMovieEngineLoftSectionNative";
+import { AutoMovieEngineLoftSectionSource } from "../../AutoMovieEngineLoftSectionSource";
 
 /*
  * Admit already matching native ends without rewriting either chain.
@@ -49,9 +49,9 @@ export function AutoMovieConstructionBoundary(
   const a: IAutoMovieLoftChain.ILayer = end(host, hostEnd);
   const b: IAutoMovieLoftChain.ILayer = end(part, partEnd);
   const first: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
-    AutoMovieLoftSectionConnect.capture(host, a.y, sign);
+    AutoMovieEngineLoftSectionConnect.capture(host, a.y, sign);
   const last: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
-    AutoMovieLoftSectionConnect.capture(part, b.y);
+    AutoMovieEngineLoftSectionConnect.capture(part, b.y);
   if (typeof first === "string") return first;
   if (typeof last === "string") return last;
   if (first.kind !== "native" || last.kind !== "native")
@@ -137,9 +137,9 @@ function rows(chain: IAutoMovieLoftChain): string | null {
       if (row === undefined || row.length !== 2 * chain.order)
         return `The native chain ${chain.name} has incompatible density rows.`;
     }
-    AutoMovieLoftSectionSource.validate(chain, index, index);
+    AutoMovieEngineLoftSectionSource.validate(chain, index, index);
   }
-  if (!AutoMovieLoftSection.regular(chain))
+  if (!AutoMovieEngineLoftSection.regular(chain))
     return `The native chain ${chain.name} has unavailable physical2 or an incomplete adjoining law.`;
   return null;
 }
@@ -159,7 +159,7 @@ function end(
  * snapshot.
  */
 function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
-  AutoMovieLoftFrameSource.validate(layer);
+  AutoMovieEngineLoftFrameSource.validate(layer);
   if (
     layer.frame === undefined ||
     layer.frameSlopes === undefined ||
@@ -245,7 +245,7 @@ function regular(
     return "Different section orders require a boundary plane without normal turning.";
 
   // The existing native owner admits the full positive curve; this is not a phase-sample equality proof.
-  AutoMovieLoftSectionNative.jet(field.inputs)(0);
+  AutoMovieEngineLoftSectionNative.jet(field.inputs)(0);
   return null;
 }
 

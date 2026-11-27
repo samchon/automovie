@@ -4,7 +4,7 @@ import type {
   IAutoMoviePhysicalFrame,
 } from "@automovie/interface";
 import {
-  type IObserveAutoMoviePlacedSceneCheck,
+  type IAutoMovieRenderObservePlacedSceneCheck,
   AutoMovieRenderInspection,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -121,7 +121,7 @@ export function test_render_scene_observe_placed_scene(): void {
     },
     maxDistance: 0.25,
   } as const;
-  const checks: readonly IObserveAutoMoviePlacedSceneCheck[] = [
+  const checks: readonly IAutoMovieRenderObservePlacedSceneCheck[] = [
     {
       key: "rook:left-sole",
       required: true,

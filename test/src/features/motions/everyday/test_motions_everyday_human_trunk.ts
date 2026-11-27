@@ -5,9 +5,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanTrunk,
-  addHumanTrunkInclination,
-} from "@automovie/motions/internal";
+  HumanTrunk
+} from "../../../../../packages/motions/src/everyday/internal/HumanTrunk";
+import {
+  addHumanTrunkInclination
+} from "../../../../../packages/motions/src/everyday/internal/addHumanTrunkInclination";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

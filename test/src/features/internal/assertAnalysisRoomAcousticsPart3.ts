@@ -1,4 +1,4 @@
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "@automovie/engine";
+import { AutoMovieEngineAnalysisMaxSamples } from "@automovie/engine";
 import type {
   IAutoMovieAcousticRequest,
   IAutoMovieAnalysisRun,
@@ -164,7 +164,7 @@ export function assertAnalysisRoomAcousticsPart3(
             (): IAutoMovieAnalysisRun =>
               study({
                 receivers: Array.from(
-                  { length: AUTOMOVIE_ANALYSIS_MAX_SAMPLES + 1 },
+                  { length: AutoMovieEngineAnalysisMaxSamples + 1 },
                   (
                     _: unknown,
                     index: number,

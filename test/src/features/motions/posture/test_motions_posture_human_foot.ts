@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -7,10 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanFoot,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -100,7 +104,7 @@ export async function test_motions_posture_human_foot(): Promise<void> {
     vclose(HumanFoot.point(body, "left", "ball", rocked), at, ROUNDING) &&
       vclose(
         about.ankle,
-        Vector3.subtract(at, Quaternion.rotateVector(about.rotation, local)),
+        AutoMovieEngineVector3.subtract(at, AutoMovieEngineQuaternion.rotateVector(about.rotation, local)),
         ROUNDING,
       ),
   );
@@ -152,7 +156,7 @@ export async function test_motions_posture_human_foot(): Promise<void> {
     "the contact stays, the toes take back the pitch",
     nclose(off.toes, 20, 1e-7) &&
       vclose(
-        Vector3.add(off.ankle, Quaternion.rotateVector(reached, ball)),
+        AutoMovieEngineVector3.add(off.ankle, AutoMovieEngineQuaternion.rotateVector(reached, ball)),
         at,
         ROUNDING,
       ) &&

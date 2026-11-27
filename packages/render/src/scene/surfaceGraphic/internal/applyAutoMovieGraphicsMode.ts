@@ -1,10 +1,10 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import type { IAutoMovieRenderModeHandle } from "../../IAutoMovieRenderModeHandle.js";
 import { overrideAutoMovieRenderModeMaterials } from "../../internal/overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "../../internal/restoreAutoMovieRenderModeOnce.js";
-import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "../../AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
+import { AutoMovieRenderSurfaceGraphicKey } from "../../AutoMovieRenderSurfaceGraphicKey.js";
 
 /*
  * The `graphics` pass: surface graphics alone, drawn exactly as the beauty pass
@@ -30,7 +30,7 @@ export function applyAutoMovieGraphicsMode(
 ): IAutoMovieRenderModeHandle {
   const graphics: Set<THREE.Object3D> = new Set();
   scene.traverse((object: THREE.Object3D): void => {
-    if (object.userData[AUTOMOVIE_SURFACE_GRAPHIC_KEY] === true)
+    if (object.userData[AutoMovieRenderSurfaceGraphicKey] === true)
       object.traverse((descendant: THREE.Object3D): void => {
         graphics.add(descendant);
       });
@@ -44,7 +44,7 @@ export function applyAutoMovieGraphicsMode(
       (
         original: THREE.Material | THREE.Material[],
       ): THREE.Material | THREE.Material[] =>
-        AutoMovieThreeKind.isMaterial(original)
+        AutoMovieRenderThreeKind.isMaterial(original)
           ? holdOut(original)
           : original.map(holdOut),
       (mesh: THREE.Mesh): boolean => graphics.has(mesh),

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
@@ -85,9 +85,9 @@ export namespace vault {
       height: top.y,
       support: { kind: "prop", subject: prop },
       within: (point: IAutoMovieVector3): void => {
-        const local: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.inverse(rotation),
-          Vector3.subtract(point, top),
+        const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(rotation),
+          AutoMovieEngineVector3.subtract(point, top),
         );
         const width: number = declared.width ?? Infinity;
         const depth: number = declared.depth ?? Infinity;

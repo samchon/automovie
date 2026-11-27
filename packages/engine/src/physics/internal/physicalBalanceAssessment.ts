@@ -5,7 +5,7 @@ import type {
 
 /*
  * One capture-point assessment's shared state
- * (`AutoMoviePhysicalBalance.assess`): the readings it was asked about, the
+ * (`AutoMovieEnginePhysicalBalance.assess`): the readings it was asked about, the
  * capture point and its rate, the support's centroid and the capture point's
  * direction from it, and the swing's timing; with the support outline, timing
  * and convergence rules its steps share.

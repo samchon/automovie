@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
@@ -19,15 +19,15 @@ export function climbStairsRailLine(
   model: IAutoMovieRigidTransform,
   bar: Pick<IAutoMovieAffordance, "frame" | "aperture"> & { length: number },
 ): climbStairsRailLine.ILine | null {
-  const turn: IAutoMovieQuaternion = Quaternion.multiply(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     model.rotation,
     bar.frame.rotation,
   );
-  const center: IAutoMovieVector3 = Vector3.add(
+  const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     model.position,
-    Quaternion.rotateVector(model.rotation, bar.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(model.rotation, bar.frame.translation),
   );
-  const along: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+  const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
     x: 1,
     y: 0,
     z: 0,
@@ -38,14 +38,14 @@ export function climbStairsRailLine(
   return {
     center,
     along,
-    normal: Quaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
+    normal: AutoMovieEngineQuaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
     end,
     point: (root: IAutoMovieVector3): IAutoMovieVector3 => {
       const z: number =
         ((root.x - center.x) * along.x + (root.z - center.z) * along.z) / level;
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         center,
-        Vector3.scale(along, Math.max(-end, Math.min(end, z))),
+        AutoMovieEngineVector3.scale(along, Math.max(-end, Math.min(end, z))),
       );
     },
   };

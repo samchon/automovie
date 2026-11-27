@@ -3,9 +3,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { prepareChainPlant } from "./prepareChainPlant";
 
 /*
@@ -15,7 +15,7 @@ import { prepareChainPlant } from "./prepareChainPlant";
  *
  * On one bend branch the root's bone-local rotation is a first harmonic of the
  * half swivel, `upper(s) = cos(s/2) C + sin(s/2) S`
- * (`hingedArmSwivel.IHarmonic`), and the mid rotation is fixed, so the rotation
+ * (`AutoMovieEngineHingedArmSwivel.IHarmonic`), and the mid rotation is fixed, so the rotation
  * the mid segment's far end must still supply, `P(s) = (Lr lower)^-1
  * upper(s)^-1 W^-1 R base^-1`, is `cos(s/2) X + sin(s/2) Y` with `X` and `Y`
  * its values at swivels 0 and 180 degrees (conjugation is linear). The
@@ -45,32 +45,32 @@ export function hingedTwistStart(
     NonNullable<ReturnType<typeof prepareChainPlant>>,
     "upper" | "lowerRotation" | "effectorOffset" | "effectorBaseRotation"
   >,
-  posed: ReturnType<typeof hingedArmSwivel.pose>,
+  posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
   wanted: IAutoMovieQuaternion,
 ): number | null {
-  const length: number = Vector3.length(prepared.effectorOffset);
+  const length: number = AutoMovieEngineVector3.length(prepared.effectorOffset);
   if (!(length > 1e-12)) return null;
-  const axis: IAutoMovieVector3 = Vector3.scale(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     prepared.effectorOffset,
     1 / length,
   );
-  const zero: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = posed(0);
+  const zero: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> = posed(0);
 
   // P(s) = out upper(s)^-1 into, read at the two swivels that span it.
-  const into: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.multiply(
-      Quaternion.inverse(prepared.upper.worldRotation),
-      Quaternion.normalize(wanted),
+  const into: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(prepared.upper.worldRotation),
+      AutoMovieEngineQuaternion.normalize(wanted),
     ),
-    Quaternion.inverse(prepared.effectorBaseRotation),
+    AutoMovieEngineQuaternion.inverse(prepared.effectorBaseRotation),
   );
-  const out: IAutoMovieQuaternion = Quaternion.inverse(
-    Quaternion.multiply(prepared.lowerRotation, zero.lower),
+  const out: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+    AutoMovieEngineQuaternion.multiply(prepared.lowerRotation, zero.lower),
   );
   const remaining = (upper: IAutoMovieQuaternion): IAutoMovieQuaternion =>
-    Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
       out,
-      Quaternion.multiply(Quaternion.inverse(upper), into),
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(upper), into),
     );
   const x: IAutoMovieQuaternion = remaining(zero.upper);
   const y: IAutoMovieQuaternion = remaining(posed(180).upper);

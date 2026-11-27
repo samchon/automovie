@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { ADA_RANGES } from "./constants/ADA_RANGES";
-import * as AutoMovieArchetypeElevatorData from "./internal/AutoMovieArchetypeElevatorData";
+import { AutoMovieArchetypeElevatorData } from "./internal/AutoMovieArchetypeElevatorData";
 
 /**
  * A passenger lift car, with its construction and companion types.
@@ -96,7 +96,7 @@ export function create(
     draw,
   });
   const E: typeof ESTIMATES = ESTIMATES;
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const width: number = d.width;
   const back: number = -d.depth;
   const returns: number = back + d.returnDepth;

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -108,7 +108,7 @@ export namespace touchReach {
       "relaxed",
     ).point;
     const free: number = AutoMovieMotionHumanTiming.transport(
-      Vector3.distance(point, from),
+      AutoMovieEngineVector3.distance(point, from),
     );
     return entry === undefined
       ? free

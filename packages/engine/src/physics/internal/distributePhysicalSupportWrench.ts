@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { solveAutoMovieQuadraticProgram } from "../../math/internal/solveAutoMovieQuadraticProgram";
 
 /*
@@ -38,16 +38,16 @@ export function distributePhysicalSupportWrench(
     };
   const levers: IAutoMovieVector3[] = input.points.map(
     (point: (typeof input.points)[number]): IAutoMovieVector3 =>
-      Vector3.subtract(point.point, input.origin),
+      AutoMovieEngineVector3.subtract(point.point, input.origin),
   );
   const length: number = Math.max(
     Number.EPSILON,
-    ...levers.map(Vector3.length),
+    ...levers.map(AutoMovieEngineVector3.length),
   );
   const scale: number = Math.max(
     1,
-    Vector3.length(input.force),
-    Vector3.length(input.torque) / length,
+    AutoMovieEngineVector3.length(input.force),
+    AutoMovieEngineVector3.length(input.torque) / length,
   );
   const size: number = input.points.length * 3;
   const rows: IAutoMovieQuadraticRow[] = [];
@@ -60,8 +60,8 @@ export function distributePhysicalSupportWrench(
       design[axis]![3 * index + axis] = 1;
       const direction: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       direction[name] = 1;
-      const moment: IAutoMovieVector3 = Vector3.scale(
-        Vector3.cross(levers[index]!, direction),
+      const moment: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.cross(levers[index]!, direction),
         1 / length,
       );
       for (const [row, coordinate] of axes.entries())
@@ -131,10 +131,10 @@ export function distributePhysicalSupportWrench(
       .filter((index: number): boolean => index >= 0),
   );
   supports.forEach((members: number[], group: number): void => {
-    const centroid: IAutoMovieVector3 = Vector3.scale(
+    const centroid: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       members.reduce(
         (sum: IAutoMovieVector3, index: number): IAutoMovieVector3 =>
-          Vector3.add(sum, input.points[index]!.point),
+          AutoMovieEngineVector3.add(sum, input.points[index]!.point),
         { x: 0, y: 0, z: 0 },
       ),
       1 / members.length,
@@ -148,8 +148,8 @@ export function distributePhysicalSupportWrench(
           direction[name] = 1;
           indices.push(3 * index + axis);
           weights.push(
-            Vector3.cross(
-              Vector3.subtract(input.points[index]!.point, centroid),
+            AutoMovieEngineVector3.cross(
+              AutoMovieEngineVector3.subtract(input.points[index]!.point, centroid),
               direction,
             )[coordinate] / length,
           );
@@ -221,12 +221,12 @@ export function distributePhysicalSupportWrench(
   );
   if (normal > input.maximumForce)
     for (const contact of forces)
-      contact.force = Vector3.scale(contact.force, input.maximumForce / normal);
+      contact.force = AutoMovieEngineVector3.scale(contact.force, input.maximumForce / normal);
   const force: IAutoMovieVector3 = forces.reduce(
     (
       sum: IAutoMovieVector3,
       point: (typeof forces)[number],
-    ): IAutoMovieVector3 => Vector3.add(sum, point.force),
+    ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, point.force),
     { ...zero },
   );
   const torque: IAutoMovieVector3 = forces.reduce(
@@ -234,9 +234,9 @@ export function distributePhysicalSupportWrench(
       sum: IAutoMovieVector3,
       point: (typeof forces)[number],
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         sum,
-        Vector3.cross(Vector3.subtract(point.point, input.origin), point.force),
+        AutoMovieEngineVector3.cross(AutoMovieEngineVector3.subtract(point.point, input.origin), point.force),
       ),
     { ...zero },
   );
@@ -245,8 +245,8 @@ export function distributePhysicalSupportWrench(
     force,
     torque,
     residual: {
-      force: Vector3.subtract(input.force, force),
-      torque: Vector3.subtract(input.torque, torque),
+      force: AutoMovieEngineVector3.subtract(input.force, force),
+      torque: AutoMovieEngineVector3.subtract(input.torque, torque),
     },
   };
 }

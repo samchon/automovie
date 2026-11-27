@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmClearance,
@@ -144,7 +144,7 @@ export namespace AutoMovieMotionHumanArmFollow {
       if (
         read !== undefined &&
         still(previous) &&
-        Vector3.length(read.error) === 0
+        AutoMovieEngineVector3.length(read.error) === 0
       ) {
         corrections.push(zero);
         return;
@@ -175,7 +175,7 @@ export namespace AutoMovieMotionHumanArmFollow {
         p: IAutoMovieMotionHumanArmGeometry.IPlaced,
         offset: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
-        Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, offset));
+        AutoMovieEngineVector3.add(p.wrist, AutoMovieEngineQuaternion.rotateVector(p.hand, offset));
       const travel = (a: readonly number[], b: readonly number[]): number => {
         const p: IAutoMovieMotionHumanArmGeometry.IPlaced = placed(a);
         const q: IAutoMovieMotionHumanArmGeometry.IPlaced = placed(b);
@@ -187,7 +187,7 @@ export namespace AutoMovieMotionHumanArmFollow {
         ])
           most = Math.max(
             most,
-            Vector3.length(Vector3.subtract(p.probes[i]![0], q.probes[i]![0])),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p.probes[i]![0], q.probes[i]![0])),
           );
         return most;
       };
@@ -197,7 +197,7 @@ export namespace AutoMovieMotionHumanArmFollow {
       let step: number[];
       if (read === undefined) step = previous.map((v: number): number => -v);
       else {
-        const made: IAutoMovieVector3 = Vector3.subtract(
+        const made: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           contact(placed(current), read.contact),
           contact(placed(here), read.contact),
         );
@@ -206,12 +206,12 @@ export namespace AutoMovieMotionHumanArmFollow {
           frame,
           current,
           read.contact,
-          Vector3.subtract(Vector3.scale(read.error, share(t)), made),
+          AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.scale(read.error, share(t)), made),
         );
         tracked = Math.max(
           tracked,
-          Vector3.length(
-            Vector3.subtract(Vector3.scale(read.error, share(t)), made),
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.scale(read.error, share(t)), made),
           ),
         );
       }

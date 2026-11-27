@@ -4,7 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanObject } from "@automovie/motions";
-import { HumanPropDynamics } from "@automovie/motions/internal";
+import {
+  HumanPropDynamics
+} from "../../../../../packages/motions/src/perform/internal/HumanPropDynamics";
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";

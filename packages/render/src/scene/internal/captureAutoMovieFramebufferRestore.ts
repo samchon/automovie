@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import type { IAutoMovieFramebufferContext } from "../IAutoMovieFramebufferContext.js";
-import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRenderer.js";
+import type { IAutoMovieRenderFramebufferContext } from "../IAutoMovieRenderFramebufferContext.js";
+import type { IAutoMovieRenderFramebufferRenderer } from "../IAutoMovieRenderFramebufferRenderer.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /*
@@ -14,8 +14,8 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * operation.
  */
 export const captureAutoMovieFramebufferRestore: (
-  renderer: IAutoMovieFramebufferRenderer,
-) => () => void = (renderer: IAutoMovieFramebufferRenderer): (() => void) => {
+  renderer: IAutoMovieRenderFramebufferRenderer,
+) => () => void = (renderer: IAutoMovieRenderFramebufferRenderer): (() => void) => {
   const target: THREE.WebGLRenderTarget<
       THREE.Texture<unknown, THREE.TextureEventMap>
     > | null = renderer.getRenderTarget(),
@@ -27,7 +27,7 @@ export const captureAutoMovieFramebufferRestore: (
   const effectiveViewport: THREE.Vector4 = renderer.getCurrentViewport(
     new THREE.Vector4(),
   );
-  const gl: IAutoMovieFramebufferContext = renderer.getContext();
+  const gl: IAutoMovieRenderFramebufferContext = renderer.getContext();
   const effectiveScissor: THREE.Vector4 = new THREE.Vector4().fromArray(
     gl.getParameter(gl.SCISSOR_BOX),
   );

@@ -1,6 +1,6 @@
 import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
 
-import { AutoMovieSolidVector } from "../../geometry/AutoMovieSolidVector";
+import { AutoMovieEngineSolidVector } from "../../geometry/AutoMovieEngineSolidVector";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 
 /*
@@ -224,7 +224,7 @@ export function descendDigitTasks(
           ),
       );
       const local: number[] = free.map((_v: number, a: number): number => a);
-      const z: number[] | null = AutoMovieSolidVector.solve(
+      const z: number[] | null = AutoMovieEngineSolidVector.solve(
         damped(gram(M, local), mu),
         times(M, local, b).map((v: number): number => -v),
       );

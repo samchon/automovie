@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, AutoMovieEngineKinematics, AutoMovieEngineMotionPlanting, AutoMovieEnginePhysics, AutoMovieEngineSkeletonPose } from "@automovie/engine";
+import { AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineKinematics, AutoMovieEngineMotionPlanting, AutoMovieEnginePhysics, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalProfile, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 
 import { stand } from "../actions/internal/stand";
@@ -53,8 +53,8 @@ export namespace AutoMovieMotionHumanBody {
     const poseResolution: IAutoMovieMotionHumanBody["poseResolution"] =
       AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution(
         skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
+        AutoMovieEngineHumanoidJointAxes,
+        AutoMovieEngineHumanoidRestFrame,
         topology,
       );
     const chains: Partial<
@@ -80,7 +80,7 @@ export namespace AutoMovieMotionHumanBody {
 
             // The tables every limb fit of this body passes
             // (`prepareHumanLimbFit`), which the record's fit readers are for.
-            restFrames: HUMANOID_REST_FRAME,
+            restFrames: AutoMovieEngineHumanoidRestFrame,
           });
         if (constants !== null) chains[`${side}${limb}`] = constants;
       }

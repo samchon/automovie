@@ -1,6 +1,6 @@
 import { IAutoMovieQuaternion } from "@automovie/interface";
 
-import { QUATERNION_NLERP_DOT_THRESHOLD } from "../QUATERNION_NLERP_DOT_THRESHOLD";
+import { AutoMovieEngineQuaternionNlerpDotThreshold } from "../AutoMovieEngineQuaternionNlerpDotThreshold";
 
 /*
  * Interior ratios where a component of Quaternion.slerp is stationary.
@@ -31,7 +31,7 @@ export function quaternionInterpolationCriticalRatios(
   function keep(ratio: number): void {
     if (ratio > 0 && ratio < 1) ratios.add(ratio);
   }
-  if (dot > QUATERNION_NLERP_DOT_THRESHOLD) {
+  if (dot > AutoMovieEngineQuaternionNlerpDotThreshold) {
     const difference: number[] = right.map(
       (component: number, index: number): number => component - left[index]!,
     );

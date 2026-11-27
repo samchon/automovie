@@ -5,7 +5,7 @@ import { FamilyConicNativePremises } from "./FamilyConicNativePremises";
 import {
   FamilyConicNativeRootObservations as Observation,
 } from "./FamilyConicNativeRootObservations";
-import { AutoMovieConstructionAdmission, AutoMovieSolidChain, AutoMovieViewLoft, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineConstructionAdmission, AutoMovieEngineSolidChain, AutoMovieEngineViewLoft, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as Loft,
   AutoMovieHumanF1 as Figure,
@@ -579,15 +579,15 @@ namespace FamilyConicNativeRound {
     const baselineStarted: number = performance.now();
     for (const [name, part] of originalConstruction.sources) {
       try {
-        const raw: ReturnType<typeof AutoMovieViewLoft.create> =
-          AutoMovieViewLoft.create(part);
+        const raw: ReturnType<typeof AutoMovieEngineViewLoft.create> =
+          AutoMovieEngineViewLoft.create(part);
         if (raw.chain === null)
           throw new Error(JSON.stringify(raw.diagnostics));
-        const chain: IAutoMovieLoftChain = AutoMovieSolidChain.framed(
+        const chain: IAutoMovieLoftChain = AutoMovieEngineSolidChain.framed(
             raw.chain,
           ),
           surface: IAutoMovieSolidSurface | null =
-            AutoMovieSolidChain.surface(chain);
+            AutoMovieEngineSolidChain.surface(chain);
         if (surface === null)
           throw new Error(
             "independent ordinary original full source unavailable",
@@ -623,7 +623,7 @@ namespace FamilyConicNativeRound {
           declared = Figure.constructionFrom(assembly),
           constructed: number = performance.now();
         try {
-          AutoMovieConstructionAdmission.admit(declared.root);
+          AutoMovieEngineConstructionAdmission.admit(declared.root);
         } catch (error: unknown) {
           failures.push({
             owner: "tree admission",
@@ -634,11 +634,11 @@ namespace FamilyConicNativeRound {
           sourceRows: unknown[] = [];
         for (const [name, part] of declared.sources) {
           try {
-            const raw = AutoMovieViewLoft.create(part);
+            const raw = AutoMovieEngineViewLoft.create(part);
             if (raw.chain === null)
               throw new Error(JSON.stringify(raw.diagnostics));
-            const chain = AutoMovieSolidChain.framed(raw.chain),
-              surface = AutoMovieSolidChain.surface(chain);
+            const chain = AutoMovieEngineSolidChain.framed(raw.chain),
+              surface = AutoMovieEngineSolidChain.surface(chain);
             if (surface === null)
               throw new Error("actual relieved source2 unavailable");
             const source = { part, chain, surface };

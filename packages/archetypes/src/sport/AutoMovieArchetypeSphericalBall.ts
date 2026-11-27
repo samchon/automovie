@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -76,7 +76,7 @@ export namespace AutoMovieArchetypeSphericalBall {
       BallBuild.draw(kind, params, seed, "composite");
     const diameter: number = d.diameter!;
 
-    builder.ball("ball", diameter / 2, Vector3.create(0, diameter / 2, 0), {
+    builder.ball("ball", diameter / 2, AutoMovieEngineVector3.create(0, diameter / 2, 0), {
       color: BallBuild.COLORS[kind],
     });
     BallBuild.contacts(builder, diameter, diameter);

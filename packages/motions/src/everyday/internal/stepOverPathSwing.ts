@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -173,7 +173,7 @@ export function stepOverPathSwing(
   };
   const trailRadius: number = Math.max(
     ...HumanFoot.SOCKETS.map((socket): number =>
-      Vector3.length(HumanFoot.offset(body, trail, socket)),
+      AutoMovieEngineVector3.length(HumanFoot.offset(body, trail, socket)),
     ),
   );
   const departure: number = heeled(trail, feet[trail], -stepOver.PUSH).ankle.y;

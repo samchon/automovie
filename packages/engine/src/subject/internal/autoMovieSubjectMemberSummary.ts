@@ -1,11 +1,11 @@
 import { IAutoMovieSubjectMemberSummary } from "@automovie/interface";
 
-import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
+import { AutoMovieEngineSubjectMemberSampleLimit } from "../../constants/AutoMovieEngineSubjectMemberSampleLimit";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 
 /*
  * One page of a subject id list: the total, and at most
- * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` ids in render-id order starting at
+ * `AutoMovieEngineSubjectMemberSampleLimit` ids in render-id order starting at
  * `offset`.
  *
  * The offset is clamped to the total, so a page past the end is empty with
@@ -23,7 +23,7 @@ export const autoMovieSubjectMemberSummary = (
   const start: number = Math.min(offset, sorted.length);
   const items: string[] = sorted.slice(
     start,
-    start + AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
+    start + AutoMovieEngineSubjectMemberSampleLimit,
   );
   return {
     total: sorted.length,

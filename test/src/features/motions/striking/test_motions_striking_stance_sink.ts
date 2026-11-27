@@ -2,7 +2,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { StrikingStance } from "@automovie/motions/internal";
+import {
+  StrikingStance
+} from "../../../../../packages/motions/src/striking/internal/StrikingStance";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

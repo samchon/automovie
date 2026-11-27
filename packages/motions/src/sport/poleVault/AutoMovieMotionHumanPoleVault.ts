@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -172,7 +172,7 @@ export namespace AutoMovieMotionHumanPoleVault {
     ).point;
     // Held, with its end: the reads above refuse otherwise.
     const pole: walkPoleFrame.IPole = found!;
-    const length: number = Vector3.length(end);
+    const length: number = AutoMovieEngineVector3.length(end);
     if (
       !held.affordances.some(
         (a: IAutoMovieAffordance): boolean => a.kind === "hinge",
@@ -200,7 +200,7 @@ export namespace AutoMovieMotionHumanPoleVault {
       y: 0,
       z: context.entry.velocity.linear.z,
     };
-    const speed: number = Vector3.length(run);
+    const speed: number = AutoMovieEngineVector3.length(run);
     if (speed < RUN)
       throw new AutoMovieMotionHumanRefusal({
         kind: "base",
@@ -210,7 +210,7 @@ export namespace AutoMovieMotionHumanPoleVault {
         reason: `a pole vault is entered at a run, and the body moves at ${speed.toFixed(2)} m/s`,
         fix: "run into the vault",
       });
-    const ahead: IAutoMovieVector3 = Vector3.scale(run, 1 / speed);
+    const ahead: IAutoMovieVector3 = AutoMovieEngineVector3.scale(run, 1 / speed);
     const rise: number = (poleVaultTakeoffAngle(speed) * Math.PI) / 180;
     const climbCosine: number = Math.cos(rise);
     const takeoffVelocity: IAutoMovieVector3 = {
@@ -254,17 +254,17 @@ export namespace AutoMovieMotionHumanPoleVault {
     // The top hand's grip at the plant, along the straight arm ahead, and
     // the end on the floor ahead of it along the run.
     const raised: number = (stance.arm * Math.PI) / 180;
-    const plantGrip: IAutoMovieVector3 = Vector3.add(
+    const plantGrip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       shoulder,
-      Vector3.add(Vector3.scale(ahead, reach * Math.cos(raised)), {
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(ahead, reach * Math.cos(raised)), {
         x: 0,
         y: reach * Math.sin(raised),
         z: 0,
       }),
     );
-    const planted: IAutoMovieVector3 = Vector3.add(
+    const planted: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       { ...plantGrip, y: 0 },
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         ahead,
         Math.sqrt(Math.max(0, length * length - high * high)),
       ),
@@ -283,19 +283,19 @@ export namespace AutoMovieMotionHumanPoleVault {
       side,
       "grip",
     ).point;
-    const tipFrom: IAutoMovieVector3 = Vector3.add(
+    const tipFrom: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       gripFrom,
-      Quaternion.rotateVector(hand0.worldRotation, end),
+      AutoMovieEngineQuaternion.rotateVector(hand0.worldRotation, end),
     );
-    const slide: IAutoMovieVector3 = Vector3.subtract(planted, tipFrom);
-    const pathFrom: IAutoMovieVector3 = Vector3.subtract(gripFrom, root0);
-    const pathTo: IAutoMovieVector3 = Vector3.subtract(plantGrip, rootT);
+    const slide: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(planted, tipFrom);
+    const pathFrom: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(gripFrom, root0);
+    const pathTo: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(plantGrip, rootT);
     // The plant's correction of the top wrist's height
     // (`preparePoleVaultPlant`), from the wrist the plant's line places.
     const wristPlant: IAutoMovieVector3 = walkPoleFrame.place(
       pole,
       plantGrip,
-      Vector3.normalize(Vector3.subtract(planted, plantGrip)),
+      AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(planted, plantGrip)),
       (hand: AutoMovieHumanSide): IAutoMovieVector3 => shoulders[hand]!,
     )[0]!.wrist;
     let raise: number = 0;
@@ -315,9 +315,9 @@ export namespace AutoMovieMotionHumanPoleVault {
         projection,
       );
       const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / off);
-      const shift: IAutoMovieVector3 = Vector3.subtract(base.root, rootT);
-      const grip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(base.root, Vector3.lerp(pathFrom, pathTo, u)),
+      const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(base.root, rootT);
+      const grip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(base.root, AutoMovieEngineVector3.lerp(pathFrom, pathTo, u)),
         { x: 0, y: raise * u, z: 0 },
       );
       const tip: IAutoMovieVector3 =
@@ -327,9 +327,9 @@ export namespace AutoMovieMotionHumanPoleVault {
         walkPoleFrame.place(
           pole,
           grip,
-          Vector3.normalize(Vector3.subtract(tip, grip)),
+          AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(tip, grip)),
           (hand: AutoMovieHumanSide): IAutoMovieVector3 =>
-            Vector3.add(shoulders[hand]!, shift),
+            AutoMovieEngineVector3.add(shoulders[hand]!, shift),
         ),
         (hand: AutoMovieHumanSide): IAutoMovieVector3 =>
           AutoMovieMotionHumanBend.hang(body, base, hand),

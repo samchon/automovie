@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -45,14 +45,14 @@ export function physicalPointProjection(
             (shape: IAutoMoviePhysicalShape): boolean =>
               shape.id === bound.reference.shape,
           )!,
-          Quaternion.rotateVector(
-            Quaternion.inverse(reference.rotation),
+          AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.inverse(reference.rotation),
             bound.axis,
           ),
         ).point
       : physicalSupportPoint(reference, bound.reference.localPoint);
-  return Vector3.dot(
-    Vector3.subtract(
+  return AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(
       physicalSupportPoint(poses[bound.source.bone]!, bound.source.localPoint),
       point,
     ),

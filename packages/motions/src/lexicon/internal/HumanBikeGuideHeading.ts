@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -8,7 +8,7 @@ import type {
  * A rotation's heading about the world up axis, degrees, +Z at 0 and +X at 90.
  */
 export function HumanBikeGuideHeading(rotation: IAutoMovieQuaternion): number {
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 0,
     z: 1,

@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
+import { AutoMovieEngineSoftBodyNeighbours } from "../AutoMovieEngineSoftBodyNeighbours";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
 /*
@@ -27,7 +27,7 @@ export function softBodyHeldLoads(
   props: IAutoMovieSoftBodyHeldLoads.IProps,
 ): ReadonlyMap<number, IAutoMovieVector3> {
   const { columns, rows, position, inverseMass }: typeof props = props;
-  const slots: number = SOFT_BODY_NEIGHBOURS.length;
+  const slots: number = AutoMovieEngineSoftBodyNeighbours.length;
   const scale: number = 1 / (props.dt * props.dt);
   const out: Map<number, IAutoMovieVector3> = new Map();
   const add = (particle: number, x: number, y: number, z: number): void => {

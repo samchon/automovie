@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeHighChairData from "./internal/AutoMovieArchetypeHighChairData";
+import { AutoMovieArchetypeHighChairData } from "./internal/AutoMovieArchetypeHighChairData";
 
 /** Constructs the high chair archetype from its recipe. */
 export namespace AutoMovieArchetypeHighChair {
@@ -53,7 +53,7 @@ export function create(
     name: "high chair",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
   const seat: number = d.seatHeight;
   const half: { x: number; z: number } = {

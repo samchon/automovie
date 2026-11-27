@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionKinematics,
 } from "@automovie/engine";
 import type {
@@ -61,7 +61,7 @@ import { AutoMovieMotionHumanArmReachJoints } from "./AutoMovieMotionHumanArmRea
  * swivel nearest the desired one) and at no turn, and keeps that fit's bend
  * branch. The angles at the solution are checked against the rig's own ranges
  * (`clampJointToSkeleton`, which also reads coupled limits) within the range
- * tolerance (`ROM_TOLERANCE`): met, the attitude turned by psi is taken;
+ * tolerance (`AutoMovieEngineRomTolerance`): met, the attitude turned by psi is taken;
  * otherwise the attitude is refused naming the joint, its axis and how far past
  * its range it goes, never clamped in silence. The choice is made once where
  * the law plans, never per read.
@@ -136,7 +136,7 @@ export namespace AutoMovieMotionHumanArmReach {
    * Returns: The attitude whose arm keeps every joint nearest the middle of its
    * range.
    * When a joint at that arm lies past its range by more
-   * than the range tolerance (`ROM_TOLERANCE`).
+   * than the range tolerance (`AutoMovieEngineRomTolerance`).
    */
   export function attitude(request: IRequest): IResult {
     const found: IResolved = resolve(request);
@@ -148,7 +148,7 @@ export namespace AutoMovieMotionHumanArmReach {
       feasible: {
         kind: "range",
         minimum: 0,
-        maximum: ROM_TOLERANCE,
+        maximum: AutoMovieEngineRomTolerance,
         unit: "degrees",
       },
       reason: `the ${request.side} arm nearest the middle of its joints' ranges with the asked hand attitude turned about its free axis (Tolani, Goswami and Badler 2000, section 3.3) takes the ${found.past.bone}'s ${found.past.axis} ${found.past.degrees.toFixed(1)} degrees past its range (turned ${found.result.turn.toFixed(1)} degrees)`,
@@ -173,11 +173,11 @@ export namespace AutoMovieMotionHumanArmReach {
    */
   function resolve(request: IRequest): IResolved {
     const limb: AutoMovieHumanLimb = `${request.side}Arm`;
-    const axis: IAutoMovieVector3 = Vector3.normalize(request.axis);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(request.axis);
     function turned(turn: number): IAutoMovieQuaternion {
-      return Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle(axis, turn),
+      return AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle(axis, turn),
           request.requested,
         ),
       );

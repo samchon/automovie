@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, AutoMovieEnginePhysics, AutoMovieEngineCompositionContact } from "@automovie/engine";
+import { AutoMovieEnginePhysicalPlayback as Playback, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEnginePhysics, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDistributePhysicalSupportWrench,
@@ -10,8 +10,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  type IAutoMovieInspectionHandle,
-  AutoMovieDrawPlacement,
+  type IAutoMovieRenderInspectionHandle,
+  AutoMovieRenderDrawPlacement,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -281,14 +281,14 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
   );
   ball.name = "ball";
   scene.add(ball);
-  let active: IAutoMovieInspectionHandle | null = null;
+  let active: IAutoMovieRenderInspectionHandle | null = null;
   try {
     const counts: number[][] = [];
     // A falling frame supplies no marks; the contact frame supplies both producers' marks.
     const falling: IAutoMovieMark[] = [];
     const contact: IAutoMovieMark[] = [...impact, ...strained];
     for (const marks of [falling, contact, falling, contact]) {
-      active = await AutoMovieDrawPlacement.replaceInspection({
+      active = await AutoMovieRenderDrawPlacement.replaceInspection({
         previous: active,
         scene,
         request: InspectionScene.ask({ marks: ["contact", "support/*"] }),

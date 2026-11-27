@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IDENTITY_FORMATION_SLOT_STATE } from "../../../constants/IDENTITY_FORMATION_SLOT_STATE";
+import { IAutoMovieEngineIdentityFormationSlotState } from "../../../constants/IAutoMovieEngineIdentityFormationSlotState";
 import { formationSlotPosition } from "./formationSlotPosition";
 
 /*
@@ -75,7 +75,7 @@ export function compileFormationStageMarks(
       const origin: IAutoMovieVector3 =
         previous?.rest ?? formationSlotPosition(local, mark.slot);
       const before: IAutoMovieFormationSlotState =
-        previous?.target ?? IDENTITY_FORMATION_SLOT_STATE;
+        previous?.target ?? IAutoMovieEngineIdentityFormationSlotState;
       const to: IAutoMovieFormationSlotState = {
         present: true,
         offset: { x: mark.lateral - origin.x, y: 0, z: mark.depth - origin.z },

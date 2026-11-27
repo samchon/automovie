@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeChopsticks } from "../AutoMovieArchetypeChopsticks";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -25,7 +25,7 @@ import {
 export function createChopsticks(
   params: AutoMovieArchetypeChopsticks.IParams = {},
 ): AutoMovieArchetype<AutoMovieArchetypeChopsticks.Affordance, AutoMovieArchetypeChopsticks.Dimension> {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = SIZE.diameter / 2;
   const fulcrum: number = SIZE.length / 3;
   const rise: number =

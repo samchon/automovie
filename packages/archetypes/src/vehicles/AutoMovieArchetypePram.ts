@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypePramData from "./internal/AutoMovieArchetypePramData";
+import { AutoMovieArchetypePramData } from "./internal/AutoMovieArchetypePramData";
 
 /** Constructs the pram archetype from its recipe. */
 export namespace AutoMovieArchetypePram {
@@ -51,7 +51,7 @@ export function create(
     name: "pram",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const wheel: number = AutoMovieArchetypePram.WHEEL.rear;
   const hx: number = d.width / 2;
   const hz: number = (d.length - AutoMovieArchetypePram.REACH) / 2;

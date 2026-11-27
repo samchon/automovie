@@ -4,9 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { PhysicalRotationVector } from "../PhysicalRotationVector";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalRotationVector } from "../AutoMovieEnginePhysicalRotationVector";
 
 /*
  * A joint rotation brought inside its clinical swing-twist limit (Baerlocher
@@ -46,19 +46,19 @@ export function limitPhysicalSwingTwist(
           w: q.w / norm,
         }
       : { x: 0, y: 0, z: 0, w: 1 };
-  const swing: IAutoMovieQuaternion = Quaternion.multiply(
+  const swing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     q,
-    Quaternion.inverse(twist),
+    AutoMovieEngineQuaternion.inverse(twist),
   );
   const angle: number = 2 * Math.atan2(projection, q.w);
   const limitedAngle: number = Math.max(
     limit.twist.minimum,
     Math.min(limit.twist.maximum, angle),
   );
-  const vector: IAutoMovieVector3 = PhysicalRotationVector.log(swing);
-  const v: IAutoMovieVector3 = Vector3.cross(a, limit.swingAxis);
-  const su: number = Vector3.dot(vector, limit.swingAxis);
-  const sv: number = Vector3.dot(vector, v);
+  const vector: IAutoMovieVector3 = AutoMovieEnginePhysicalRotationVector.log(swing);
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.cross(a, limit.swingAxis);
+  const su: number = AutoMovieEngineVector3.dot(vector, limit.swingAxis);
+  const sv: number = AutoMovieEngineVector3.dot(vector, v);
   const bu: number = su >= 0 ? limit.swingU.maximum : -limit.swingU.minimum;
   const bv: number = sv >= 0 ? limit.swingV.maximum : -limit.swingV.minimum;
   const measure: number =
@@ -66,14 +66,14 @@ export function limitPhysicalSwingTwist(
     (bv > 0 ? (sv / bv) ** 2 : sv === 0 ? 0 : Infinity);
   if (measure <= 1 && limitedAngle === angle) return rotation;
   const shrink: number = measure > 1 ? 1 / Math.sqrt(measure) : 1;
-  const limitedSwing: IAutoMovieQuaternion = PhysicalRotationVector.exp(
-    Vector3.add(
-      Vector3.scale(limit.swingAxis, su * shrink),
-      Vector3.scale(v, sv * shrink),
+  const limitedSwing: IAutoMovieQuaternion = AutoMovieEnginePhysicalRotationVector.exp(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(limit.swingAxis, su * shrink),
+      AutoMovieEngineVector3.scale(v, sv * shrink),
     ),
   );
-  const limitedTwist: IAutoMovieQuaternion = PhysicalRotationVector.exp(
-    Vector3.scale(a, limitedAngle),
+  const limitedTwist: IAutoMovieQuaternion = AutoMovieEnginePhysicalRotationVector.exp(
+    AutoMovieEngineVector3.scale(a, limitedAngle),
   );
-  return Quaternion.multiply(limitedSwing, limitedTwist);
+  return AutoMovieEngineQuaternion.multiply(limitedSwing, limitedTwist);
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
@@ -29,10 +29,10 @@ export function HumanLanceCouchCarriage(
   grip: IAutoMovieVector3,
   along: IAutoMovieVector3,
 ): HumanLanceCouchCarriage.ICarriage {
-  const d: IAutoMovieVector3 = Vector3.normalize(along);
-  const shaft: IAutoMovieVector3 = Vector3.normalize(tool.axis);
+  const d: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(along);
+  const shaft: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(tool.axis);
   const alpha: number = Math.acos(
-    Math.max(-1, Math.min(1, Vector3.dot(arm.line, shaft))),
+    Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(arm.line, shaft))),
   );
   // The forearm from the elbow to the grip socket, the hand's half included.
   const fore: number = arm.fore;
@@ -40,23 +40,23 @@ export function HumanLanceCouchCarriage(
   // An orthonormal pair square to the shaft.
   const seed: IAutoMovieVector3 =
     Math.abs(d.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 };
-  const p: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(seed, Vector3.scale(d, Vector3.dot(seed, d))),
+  const p: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(seed, AutoMovieEngineVector3.scale(d, AutoMovieEngineVector3.dot(seed, d))),
   );
-  const q: IAutoMovieVector3 = Vector3.cross(d, p);
+  const q: IAutoMovieVector3 = AutoMovieEngineVector3.cross(d, p);
   // The forearm at the grasp's angle to the shaft about it, by an angle phi: the elbow one upper arm from the shoulder solves A cos(phi) + B sin(phi) = C.
-  const w: IAutoMovieVector3 = Vector3.subtract(
-    Vector3.subtract(grip, shoulder),
-    Vector3.scale(d, fore * Math.cos(alpha)),
+  const w: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.subtract(grip, shoulder),
+    AutoMovieEngineVector3.scale(d, fore * Math.cos(alpha)),
   );
   const s: number = fore * Math.sin(alpha);
   const forearm = (phi: number): IAutoMovieVector3 =>
-    Vector3.add(
-      Vector3.scale(d, Math.cos(alpha)),
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(p, Math.cos(phi)),
-          Vector3.scale(q, Math.sin(phi)),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(d, Math.cos(alpha)),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(p, Math.cos(phi)),
+          AutoMovieEngineVector3.scale(q, Math.sin(phi)),
         ),
         Math.sin(alpha),
       ),
@@ -64,22 +64,22 @@ export function HumanLanceCouchCarriage(
   let f: IAutoMovieVector3;
   if (s < 1e-6) f = d;
   else {
-    const A: number = Vector3.dot(w, p);
-    const B: number = Vector3.dot(w, q);
-    const C: number = (Vector3.dot(w, w) + s * s - upper * upper) / (2 * s);
+    const A: number = AutoMovieEngineVector3.dot(w, p);
+    const B: number = AutoMovieEngineVector3.dot(w, q);
+    const C: number = (AutoMovieEngineVector3.dot(w, w) + s * s - upper * upper) / (2 * s);
     const R: number = Math.hypot(A, B);
     if (R < 1e-9 || Math.abs(C) > R)
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "target",
-        value: Vector3.distance(grip, shoulder),
+        value: AutoMovieEngineVector3.distance(grip, shoulder),
         feasible: {
           kind: "range",
           minimum: 0,
           maximum: upper + fore,
           unit: "m",
         },
-        reason: `no elbow one upper arm from the shoulder lays the forearm at the grasp's ${((alpha * 180) / Math.PI).toFixed(0)} degrees to the lance with the grip ${Vector3.distance(grip, shoulder).toFixed(2)} m from the shoulder`,
+        reason: `no elbow one upper arm from the shoulder lays the forearm at the grasp's ${((alpha * 180) / Math.PI).toFixed(0)} degrees to the lance with the grip ${AutoMovieEngineVector3.distance(grip, shoulder).toFixed(2)} m from the shoulder`,
         fix: "hold the lance nearer the shoulder or along another line",
       });
     const base: number = Math.atan2(B, A);
@@ -89,31 +89,31 @@ export function HumanLanceCouchCarriage(
     // The lower elbow: the arm hangs from the shoulder rather than raising it.
     f = one.y >= two.y ? one : two;
   }
-  const elbow: IAutoMovieVector3 = Vector3.subtract(
+  const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     grip,
-    Vector3.scale(f, fore),
+    AutoMovieEngineVector3.scale(f, fore),
   );
   // The hand's line onto the forearm, then turned about it until the shaft runs along `d`.
   const onto: IAutoMovieQuaternion = between(arm.line, f);
-  const turned: IAutoMovieVector3 = Quaternion.rotateVector(onto, shaft);
-  const a: IAutoMovieVector3 = Vector3.subtract(
+  const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(onto, shaft);
+  const a: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     turned,
-    Vector3.scale(f, Vector3.dot(turned, f)),
+    AutoMovieEngineVector3.scale(f, AutoMovieEngineVector3.dot(turned, f)),
   );
-  const b: IAutoMovieVector3 = Vector3.subtract(
+  const b: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     d,
-    Vector3.scale(f, Vector3.dot(d, f)),
+    AutoMovieEngineVector3.scale(f, AutoMovieEngineVector3.dot(d, f)),
   );
   const roll: number =
-    Vector3.length(a) < 1e-9 || Vector3.length(b) < 1e-9
+    AutoMovieEngineVector3.length(a) < 1e-9 || AutoMovieEngineVector3.length(b) < 1e-9
       ? 0
-      : Math.atan2(Vector3.dot(f, Vector3.cross(a, b)), Vector3.dot(a, b));
+      : Math.atan2(AutoMovieEngineVector3.dot(f, AutoMovieEngineVector3.cross(a, b)), AutoMovieEngineVector3.dot(a, b));
   return {
     hand: {
       point: grip,
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle(f, (roll * 180) / Math.PI),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle(f, (roll * 180) / Math.PI),
           onto,
         ),
       ),
@@ -172,21 +172,21 @@ function between(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const u: IAutoMovieVector3 = Vector3.normalize(from);
-  const v: IAutoMovieVector3 = Vector3.normalize(to);
-  const dot: number = Math.max(-1, Math.min(1, Vector3.dot(u, v)));
-  const axis: IAutoMovieVector3 = Vector3.cross(u, v);
-  if (Vector3.length(axis) < 1e-9) {
-    if (dot > 0) return Quaternion.identity();
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(from);
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(to);
+  const dot: number = Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(u, v)));
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(u, v);
+  if (AutoMovieEngineVector3.length(axis) < 1e-9) {
+    if (dot > 0) return AutoMovieEngineQuaternion.identity();
     const side: IAutoMovieVector3 =
       Math.abs(u.x) < 0.9 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
-    return Quaternion.fromAxisAngle(
-      Vector3.normalize(Vector3.cross(u, side)),
+    return AutoMovieEngineQuaternion.fromAxisAngle(
+      AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(u, side)),
       180,
     );
   }
-  return Quaternion.fromAxisAngle(
-    Vector3.normalize(axis),
+  return AutoMovieEngineQuaternion.fromAxisAngle(
+    AutoMovieEngineVector3.normalize(axis),
     (Math.acos(dot) * 180) / Math.PI,
   );
 }

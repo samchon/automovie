@@ -1,6 +1,6 @@
 import {
   AutoMovieViewerInspector,
-  type IAutoMovieInspectorPathNode,
+  type IAutoMovieViewerInspectorPathNode,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,14 +24,14 @@ export function test_viewer_inspector_build_path_tree(): void {
     path: string,
     pattern: string | null,
     drawn: boolean,
-    children?: IAutoMovieInspectorPathNode[],
-  ) => IAutoMovieInspectorPathNode = (
+    children?: IAutoMovieViewerInspectorPathNode[],
+  ) => IAutoMovieViewerInspectorPathNode = (
     name: string,
     path: string,
     pattern: string | null,
     drawn: boolean,
-    children: IAutoMovieInspectorPathNode[] = [],
-  ): IAutoMovieInspectorPathNode => ({ name, path, pattern, drawn, children });
+    children: IAutoMovieViewerInspectorPathNode[] = [],
+  ): IAutoMovieViewerInspectorPathNode => ({ name, path, pattern, drawn, children });
   TestValidator.equals(
     "the tree",
     AutoMovieViewerInspector.buildPathTree([

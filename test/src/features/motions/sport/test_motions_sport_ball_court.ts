@@ -1,5 +1,16 @@
 import type { IAutoMovieMotionClock, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropReader, IAutoMovieMotionManner, IAutoMoviePhysicalShape, IAutoMovieRigidTransform } from "@automovie/interface";
-import { AutoMovieMotionManner, ballCourtClock, ballCourtHand, ballCourtSphere } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionManner
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+import {
+  ballCourtClock
+} from "../../../../../packages/motions/src/sport/internal/ballCourtClock";
+import {
+  ballCourtHand
+} from "../../../../../packages/motions/src/sport/internal/ballCourtHand";
+import {
+  ballCourtSphere
+} from "../../../../../packages/motions/src/sport/internal/ballCourtSphere";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

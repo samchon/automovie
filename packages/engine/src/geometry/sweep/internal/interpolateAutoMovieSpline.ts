@@ -1,10 +1,10 @@
 import type { IAutoMovieInterpolateSpline } from "@automovie/interface";
 
-import { AutoMovieSpline } from "../../AutoMovieSpline";
+import { AutoMovieEngineSpline } from "../../AutoMovieEngineSpline";
 
 /*
  * Build a C2 interpolant through knots with a sampled overshoot policy: the
- * spline under tension of `AutoMovieSpline`, at tension 0 a cubic spline and
+ * spline under tension of `AutoMovieEngineSpline`, at tension 0 a cubic spline and
  * with a searched tension whose sixteen-part segment scan stays within a tenth
  * of the largest value step within two segments. This is a sampled policy, not
  * a strict bound on extrema; the fixed maximum tension can be returned without
@@ -46,7 +46,7 @@ export const interpolateAutoMovieSpline: (
   if (props.period !== undefined && (xs[0]! < 0 || !(xs[n - 1]! < period)))
     throw new Error("periodic knots must lie in [0, period)");
   const m: Float64Array = new Float64Array(n);
-  const tension: number = AutoMovieSpline.fit(
+  const tension: number = AutoMovieEngineSpline.fit(
     xs,
     ys,
     n,
@@ -55,5 +55,5 @@ export const interpolateAutoMovieSpline: (
     new Float64Array(7 * n + 17),
   );
   return (x: number): number =>
-    AutoMovieSpline.evaluate(xs, ys, m, n, period, tension, x);
+    AutoMovieEngineSpline.evaluate(xs, ys, m, n, period, tension, x);
 };

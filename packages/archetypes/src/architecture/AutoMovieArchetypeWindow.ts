@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -15,7 +15,7 @@ import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
 import "./constants/ADA_RANGES";
-import * as AutoMovieArchetypeWindowData from "./internal/AutoMovieArchetypeWindowData";
+import { AutoMovieArchetypeWindowData } from "./internal/AutoMovieArchetypeWindowData";
 
 /** Constructs the window archetype from its recipe. */
 export namespace AutoMovieArchetypeWindow {
@@ -150,34 +150,34 @@ export function create(
   });
   builder.box(
     "wall",
-    Vector3.create(width + 0.2, sill, wall),
-    Vector3.create(0, sill / 2, 0),
+    AutoMovieEngineVector3.create(width + 0.2, sill, wall),
+    AutoMovieEngineVector3.create(0, sill / 2, 0),
     { color: "#d8d2c4" },
   );
   for (const side of [1, -1] as const)
     builder.box(
       side === 1 ? "jamb-left" : "jamb-right",
-      Vector3.create(0.1, height + 0.1, wall),
-      Vector3.create(side * (width / 2 + 0.05), sill + (height + 0.1) / 2, 0),
+      AutoMovieEngineVector3.create(0.1, height + 0.1, wall),
+      AutoMovieEngineVector3.create(side * (width / 2 + 0.05), sill + (height + 0.1) / 2, 0),
       { color: "#d8d2c4" },
     );
   builder.box(
     "head",
-    Vector3.create(width, 0.1, wall),
-    Vector3.create(0, sill + height + 0.05, 0),
+    AutoMovieEngineVector3.create(width, 0.1, wall),
+    AutoMovieEngineVector3.create(0, sill + height + 0.05, 0),
     { color: "#d8d2c4" },
   );
   for (const side of [-1, 1] as const) {
     builder.box(
       side < 0 ? "sash-left" : "sash-right",
-      Vector3.create(SASH.rail, height, SASH.depth),
-      Vector3.create((side * (width - SASH.rail)) / 2, sill + height / 2, 0),
+      AutoMovieEngineVector3.create(SASH.rail, height, SASH.depth),
+      AutoMovieEngineVector3.create((side * (width - SASH.rail)) / 2, sill + height / 2, 0),
       { color: "#d8d2c4" },
     );
     builder.box(
       side < 0 ? "sash-bottom" : "sash-top",
-      Vector3.create(width - 2 * SASH.rail, SASH.rail, SASH.depth),
-      Vector3.create(
+      AutoMovieEngineVector3.create(width - 2 * SASH.rail, SASH.rail, SASH.depth),
+      AutoMovieEngineVector3.create(
         0,
         sill + height / 2 + (side * (height - SASH.rail)) / 2,
         0,
@@ -187,16 +187,16 @@ export function create(
   }
   builder.box(
     "pane",
-    Vector3.create(width - 2 * SASH.rail, height - 2 * SASH.rail, SASH.pane),
-    Vector3.create(0, sill + height / 2, 0),
+    AutoMovieEngineVector3.create(width - 2 * SASH.rail, height - 2 * SASH.rail, SASH.pane),
+    AutoMovieEngineVector3.create(0, sill + height / 2, 0),
     { color: "#a9c8d8" },
   );
 
   // Where a hand finds the handle: on a hung sash's bottom rail, or at the drawn height on the stile that leaves the frame, a casement's `-X` and a sliding sash's `+X`. The insets from the sash's edges are picture only.
   const grasp: IAutoMovieVector3 =
     kind === "hung"
-      ? Vector3.create(0, sill + 0.04, 0.035)
-      : Vector3.create(
+      ? AutoMovieEngineVector3.create(0, sill + 0.04, 0.035)
+      : AutoMovieEngineVector3.create(
           (kind === "casement" ? -1 : 1) * (width / 2 - 0.07),
           d.handleHeight!,
           0.035,
@@ -204,8 +204,8 @@ export function create(
   builder.rod(
     "handle",
     0.008,
-    Vector3.create(grasp.x - 0.05, grasp.y, grasp.z),
-    Vector3.create(grasp.x + 0.05, grasp.y, grasp.z),
+    AutoMovieEngineVector3.create(grasp.x - 0.05, grasp.y, grasp.z),
+    AutoMovieEngineVector3.create(grasp.x + 0.05, grasp.y, grasp.z),
     { color: "#55595f" },
   );
 
@@ -224,9 +224,9 @@ export function create(
       ? {
           kind: "hinge",
           frame: AutoMovieArchetypeFrame.facing(
-            Vector3.create(width / 2, sill + height / 2, 0),
-            Vector3.create(0, -1, 0),
-            Vector3.create(-1, 0, 0),
+            AutoMovieEngineVector3.create(width / 2, sill + height / 2, 0),
+            AutoMovieEngineVector3.create(0, -1, 0),
+            AutoMovieEngineVector3.create(-1, 0, 0),
           ),
           travel: d.swing!,
         }
@@ -234,10 +234,10 @@ export function create(
           kind: "slider",
           frame: AutoMovieArchetypeFrame.facing(
             grasp,
-            Vector3.create(0, 0, 1),
+            AutoMovieEngineVector3.create(0, 0, 1),
             kind === "hung"
-              ? Vector3.create(0, 1, 0)
-              : Vector3.create(-1, 0, 0),
+              ? AutoMovieEngineVector3.create(0, 1, 0)
+              : AutoMovieEngineVector3.create(-1, 0, 0),
           ),
           travel: d.travel!,
         }),
@@ -248,8 +248,8 @@ export function create(
     symmetry: "none",
     frame: AutoMovieArchetypeFrame.facing(
       grasp,
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     grip: "precision",
@@ -261,9 +261,9 @@ export function create(
     id: "sill",
     kind: "ledge",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, sill, wall / 2),
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, sill, wall / 2),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     length: width,
@@ -272,9 +272,9 @@ export function create(
     id: "aperture",
     kind: "aperture",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, sill, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(-1, 0, 0),
+      AutoMovieEngineVector3.create(0, sill, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(-1, 0, 0),
     ),
     extent: null,
     width,
@@ -304,7 +304,7 @@ export function create(
     25 *
     AutoMovieArchetypeUnits.FOOT *
     AutoMovieArchetypeUnits.POUND *
-    AutoMovieGravity.STANDARD;
+    AutoMovieEngineGravity.STANDARD;
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["casement", "hung", "sliding"];

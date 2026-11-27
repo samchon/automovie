@@ -1,5 +1,5 @@
 import { type AutoMovieArchetypeEquine, AutoMovieArchetypeEquineHobble, AutoMovieArchetypeFrame, AutoMovieArchetypeRide, AutoMovieArchetypeDog, AutoMovieArchetypeHobble, AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -16,7 +16,7 @@ import { vclose } from "../../internal/vclose";
 /** Keep the world and the model frame coincident in the local bore tests. */
 const IDENTITY: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
-  rotation: Quaternion.identity(),
+  rotation: AutoMovieEngineQuaternion.identity(),
 };
 
 /**
@@ -99,7 +99,7 @@ export function test_archetypes_animals_annular_fittings(): void {
       archetype: horse,
       placement: {
         ...state.placement,
-        rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 18 * seconds),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 18 * seconds),
       },
     }),
   );

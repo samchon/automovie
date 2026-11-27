@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief } from "@automovie/engine";
 import type { IAutoMovieLoftRelief } from "@automovie/interface";
 
 /**
@@ -6,7 +6,7 @@ import type { IAutoMovieLoftRelief } from "@automovie/interface";
  * net's surface onto the coarser spline space, and the difference of the two surfaces. A bounded re-representation of stored numbers:
  * nothing here reads a reference or fits a skin.
  *
- * The engine's net is a uniform cubic B-spline over its window (`AutoMovieLoftRelief.height`): control `i` of `n` stands at parameter
+ * The engine's net is a uniform cubic B-spline over its window (`AutoMovieEngineLoftRelief.height`): control `i` of `n` stands at parameter
  * `i - 1` of `[0, n - 3]`, its Greville abscissa, so a grid of other counts on the same window has its controls at their own Greville
  * abscissae by construction. The three outer rings of a projected net are held at exactly zero, so the height and its first two
  * derivatives still vanish at the window's edge and the window still contains its height. The surfaces are read by the engine's own
@@ -93,12 +93,12 @@ export namespace FamilyConicProject {
     ns: number,
     nt: number,
   ): number[][] {
-    const span: number = AutoMovieLoftRelief.width(relief);
+    const span: number = AutoMovieEngineLoftRelief.width(relief);
     return Array.from({ length: ns }, (_: unknown, i: number): number[] =>
       Array.from(
         { length: nt },
         (__: unknown, j: number): number =>
-          AutoMovieLoftRelief.height(
+          AutoMovieEngineLoftRelief.height(
             relief,
             relief.stations.start +
               ((relief.stations.end - relief.stations.start) * i) / (ns - 1),
@@ -298,7 +298,7 @@ export namespace FamilyConicProject {
           columns +
           " columns has no middle column",
       );
-    const span: number = AutoMovieLoftRelief.width({
+    const span: number = AutoMovieEngineLoftRelief.width({
       ...window,
       rows,
       columns,
@@ -421,7 +421,7 @@ export namespace FamilyConicProject {
     );
     const [ds, dt]: [number, number] = [
       (relief.stations.end - relief.stations.start) / (ns - 1),
-      AutoMovieLoftRelief.width(relief) / (nt - 1),
+      AutoMovieEngineLoftRelief.width(relief) / (nt - 1),
     ];
     const flat: number[] = D.flat()
       .map(Math.abs)

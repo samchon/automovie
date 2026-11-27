@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
-import * as HolsterBandsData from "./internal/HolsterBandsData";
+import { HolsterBandsData } from "./internal/HolsterBandsData";
 
 /*
  * The band of each free dimension of `createHolster` a ride or a blade leaves,

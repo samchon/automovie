@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeTransitionRackData from "./internal/AutoMovieArchetypeTransitionRackData";
+import { AutoMovieArchetypeTransitionRackData } from "./internal/AutoMovieArchetypeTransitionRackData";
 
 /** Constructs the transition rack archetype from its recipe. */
 export namespace AutoMovieArchetypeTransitionRack {
@@ -50,7 +50,7 @@ export function create(
     material: "steel",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const radius: number = AutoMovieArchetypeTransitionRack.BAR / 2;
   const axis: number = d.height - radius;
   builder.rod(

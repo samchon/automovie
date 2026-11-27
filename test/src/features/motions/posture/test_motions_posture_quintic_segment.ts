@@ -1,4 +1,6 @@
-import { HumanQuinticSegment } from "@automovie/motions/internal";
+import {
+  HumanQuinticSegment
+} from "../../../../../packages/motions/src/posture/internal/HumanQuinticSegment";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

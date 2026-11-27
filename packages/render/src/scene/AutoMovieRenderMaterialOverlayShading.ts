@@ -1,7 +1,7 @@
 import type * as THREE from "three";
-import { type IMaterialOverlayShading } from "./IMaterialOverlayShading.js";
+import { type IAutoMovieRenderMaterialOverlayShading } from "./IAutoMovieRenderMaterialOverlayShading.js";
 import { applyMaterialOverlays as applyMaterialOverlaysImplementation } from "./materialOverlayShading/internal/applyMaterialOverlays.js";
-import { type IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
+import { type IAutoMovieRenderMaterialOverlayShape } from "./IAutoMovieRenderMaterialOverlayShape.js";
 import { materialOverlayVertex as materialOverlayVertexImplementation } from "./materialOverlayShading/internal/materialOverlayVertex.js";
 import { materialOverlayFragment as materialOverlayFragmentImplementation } from "./materialOverlayShading/internal/materialOverlayFragment.js";
 
@@ -20,17 +20,17 @@ export namespace AutoMovieRenderMaterialOverlayShading {
    * tangent frame. These formulas do not establish measured tissue response or
    * observed appearance.
    */
-  export function apply(material: THREE.MeshPhysicalMaterial, overlays: readonly IMaterialOverlayShading[]): void {
+  export function apply(material: THREE.MeshPhysicalMaterial, overlays: readonly IAutoMovieRenderMaterialOverlayShading[]): void {
     applyMaterialOverlaysImplementation(material, overlays);
   }
 
   /** The vertex shader passing each overlay image's transformed UV. */
-  export function vertex(vertexShader: string, shapes: readonly IMaterialOverlayShape[]): string {
+  export function vertex(vertexShader: string, shapes: readonly IAutoMovieRenderMaterialOverlayShape[]): string {
     return materialOverlayVertexImplementation(vertexShader, shapes);
   }
 
   /** The fragment shader compositing each overlay's colour, roughness and slopes. */
-  export function fragment(fragmentShader: string, shapes: readonly IMaterialOverlayShape[]): string {
+  export function fragment(fragmentShader: string, shapes: readonly IAutoMovieRenderMaterialOverlayShape[]): string {
     return materialOverlayFragmentImplementation(fragmentShader, shapes);
   }
 }

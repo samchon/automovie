@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanCrutchStairs,
   IAutoMovieRigidTransform,
@@ -177,14 +177,14 @@ export namespace crutchStairsFlight {
     start: IAutoMovieRigidTransform,
     seconds: number,
   ): IAutoMovieRigidTransform {
-    const forward: IAutoMovieVector3 = Vector3.normalize({
-      ...Quaternion.rotateVector(start.rotation, { x: 0, y: 0, z: 1 }),
+    const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
+      ...AutoMovieEngineQuaternion.rotateVector(start.rotation, { x: 0, y: 0, z: 1 }),
       y: 0,
     });
     const place = (offset: IAutoMovieVector3): IAutoMovieRigidTransform => ({
-      position: Vector3.add(
-        Vector3.add(start.position, Vector3.scale(forward, offset.z)),
-        Vector3.scale(UP, offset.y),
+      position: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(start.position, AutoMovieEngineVector3.scale(forward, offset.z)),
+        AutoMovieEngineVector3.scale(UP, offset.y),
       ),
       rotation: start.rotation,
     });

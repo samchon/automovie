@@ -7,12 +7,12 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { builtEnvironmentBuildingOfSpace } from "./builtEnvironmentBuildingOfSpace";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
-import { AUTOMOVIE_ENVELOPE_FACADE_LIMIT } from "../AUTOMOVIE_ENVELOPE_FACADE_LIMIT";
+import { AutoMovieEngineEnvelopeFacadeLimit } from "../AutoMovieEngineEnvelopeFacadeLimit";
 import { ObservationGeometry } from "./ObservationGeometry";
 import { outlineCentroid } from "./outlineCentroid";
 
@@ -51,26 +51,26 @@ export function builtEnvironmentEnvelopeFaces(
     );
     if (space === undefined) continue;
     const place = (point: IAutoMoviePlanarPoint): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         face.origin,
-        Quaternion.rotateVector(face.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(face.rotation, {
           x: point.x,
           y: point.y,
           z: 0,
         }),
       );
     const centroid: IAutoMovieVector3 = place(outlineCentroid(face.outline));
-    const authored: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(face.rotation, { x: 0, y: 0, z: 1 }),
+    const authored: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(face.rotation, { x: 0, y: 0, z: 1 }),
     );
     const normal: IAutoMovieVector3 = builtSpaceContainsPoint(
       space,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         centroid,
-        Vector3.scale(authored, ObservationGeometry.ProbeMeters),
+        AutoMovieEngineVector3.scale(authored, ObservationGeometry.ProbeMeters),
       ),
     )
-      ? Vector3.scale(authored, -1)
+      ? AutoMovieEngineVector3.scale(authored, -1)
       : authored;
     let building: string | undefined = owners.get(space.id);
     if (building === undefined) {
@@ -83,9 +83,9 @@ export function builtEnvironmentEnvelopeFaces(
       space: space.id,
       kind: boundary.kind,
       aspect:
-        normal.y > AUTOMOVIE_ENVELOPE_FACADE_LIMIT
+        normal.y > AutoMovieEngineEnvelopeFacadeLimit
           ? "roof"
-          : normal.y < -AUTOMOVIE_ENVELOPE_FACADE_LIMIT
+          : normal.y < -AutoMovieEngineEnvelopeFacadeLimit
             ? "underside"
             : "facade",
       normal,

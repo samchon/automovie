@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, AutoMovieEngineMotionSampling, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineMotionSampling, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -309,7 +309,7 @@ export namespace walkReach {
   export const SIDES: readonly ["left", "right"] = ["left", "right"];
   /*
    * The largest extension, degrees, of a leg's thigh, swinging or planted: the
-   * hip's extension in the range table (`DEFAULT_HUMANOID_ROM`, 30° on either
+   * hip's extension in the range table (`AutoMovieEngineDefaultHumanoidRom`, 30° on either
    * hip, the lesser taken), kept inside by the margin a foot keeps inside its
    * ankle's range (`walkLeg.ANKLE`); the ankle trails further by the knee's
    * bend.
@@ -319,7 +319,7 @@ export namespace walkReach {
       ...(["leftUpperLeg", "rightUpperLeg"] as const).map(
         (bone: EXTENSIONBone): number => {
           const flexion: IAutoMovieAngleRange | null | undefined =
-            DEFAULT_HUMANOID_ROM[bone]?.flexion;
+            AutoMovieEngineDefaultHumanoidRom[bone]?.flexion;
           if (flexion === null || flexion === undefined)
             throw new Error(
               `The range-of-motion table gives ${bone} no flexion`,
@@ -331,11 +331,11 @@ export namespace walkReach {
 
   /*
    * The largest heading, degrees, a foot may keep from the pelvis: the hip's
-   * own internal and external rotation (`DEFAULT_HUMANOID_ROM`, 45° either way,
+   * own internal and external rotation (`AutoMovieEngineDefaultHumanoidRom`, 45° either way,
    * `walkHipTwist`); a turn that asks more is taken by spinning on the ball of
    * the foot (a spin turn, Hase and Stein 1999).
    */
-  export const TWIST: number = walkHipTwist(DEFAULT_HUMANOID_ROM);
+  export const TWIST: number = walkHipTwist(AutoMovieEngineDefaultHumanoidRom);
 
   /*
    * The requested toe rotation after consuming the available hip twist.

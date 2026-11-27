@@ -49,7 +49,7 @@ import { readHumanHandFrame } from "./readHumanHandFrame";
  * world forward as closely as a direction across the normal allows;
  * HumanHand.rotation does the same for the anatomical pair of where the
  * fingers point and where the palm faces (rest: left fingers +X, right fingers
- * -X, both palms -Y, `HUMANOID_REST_FRAME`).
+ * -X, both palms -Y, `AutoMovieEngineHumanoidRestFrame`).
  *
  * Shapes are the only finger angles a law writes, since a hand's pre-shape is a
  * posture of the fingers themselves, not a goal any effector reaches (Jeannerod
@@ -65,7 +65,7 @@ import { readHumanHandFrame } from "./readHumanHandFrame";
  *   thumb folded over them;
  * - `fist`: proximal phalanges 85, the middle 95 and the distal 90 degrees, the
  *   distal at the end of its range (80 to 90 in every located norm,
- *   `DEFAULT_HUMANOID_ROM`), and the thumb's proximal 40 and distal 50 degrees
+ *   `AutoMovieEngineDefaultHumanoidRom`), and the thumb's proximal 40 and distal 50 degrees
  *   across the curled fingers;
  * - `bridge`: a sprinter's set hand, every finger straight and the thumb at its
  *   neutral, standing palmar of the knuckles' plane and spread from the

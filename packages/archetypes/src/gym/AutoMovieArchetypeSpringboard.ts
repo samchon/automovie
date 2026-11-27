@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSpringboardData from "./internal/AutoMovieArchetypeSpringboardData";
+import { AutoMovieArchetypeSpringboardData } from "./internal/AutoMovieArchetypeSpringboardData";
 
 /** Constructs the springboard archetype from its recipe. */
 export namespace AutoMovieArchetypeSpringboard {
@@ -54,14 +54,14 @@ export function create(
   });
   builder.box(
     "board",
-    Vector3.create(d.width, d.height, d.length),
-    Vector3.create(0, d.height / 2, 0),
+    AutoMovieEngineVector3.create(d.width, d.height, d.length),
+    AutoMovieEngineVector3.create(0, d.height / 2, 0),
     { color: "#c9b48a" },
   );
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, d.height, 0)),
     extent: null,
     width: d.width,
     depth: d.length,

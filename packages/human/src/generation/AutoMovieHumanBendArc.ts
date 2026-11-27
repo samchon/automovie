@@ -1,4 +1,4 @@
-import { AutoMovieConstructionViews } from "@automovie/engine";
+import { AutoMovieEngineConstructionViews } from "@automovie/engine";
 
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 
@@ -26,7 +26,7 @@ export namespace AutoMovieHumanBendArc {
   ): number {
     const points: [number, number, number][] = [before, joint, after].map(
       (point: readonly number[]): [number, number, number] =>
-        AutoMovieConstructionViews.point(
+        AutoMovieEngineConstructionViews.point(
           AutoMovieHumanConstructionView.point(point),
         ),
     );

@@ -1,4 +1,6 @@
-import { StrikingBladeCoursed } from "@automovie/motions/internal";
+import {
+  StrikingBladeCoursed
+} from "../../../../../packages/motions/src/striking/internal/StrikingBladeCoursed";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

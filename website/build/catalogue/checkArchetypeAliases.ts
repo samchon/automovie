@@ -1,6 +1,6 @@
 import { AutoMovieArchetype, AutoMovieArchetypeBicycle, AutoMovieArchetypeBoat, AutoMovieArchetypeCamera, AutoMovieArchetypeCar, AutoMovieArchetypeCarriage, AutoMovieArchetypeChariot, AutoMovieArchetypeDinghy, AutoMovieArchetypeFrame, AutoMovieArchetypeHorseCart, AutoMovieArchetypeKayak, AutoMovieArchetypeLimber, AutoMovieArchetypeMotorcycle, AutoMovieArchetypePhone, AutoMovieArchetypeRemote, AutoMovieArchetypeRickshaw, AutoMovieArchetypeShoppingTrolley, AutoMovieArchetypeTablet, AutoMovieArchetypeWagon, AutoMovieArchetypeWheelbarrow, AutoMovieArchetypeDiscus, AutoMovieArchetypeHammerThrow, AutoMovieArchetypeJavelin, AutoMovieArchetypeOvalBall, AutoMovieArchetypePuck, AutoMovieArchetypeShot, AutoMovieArchetypeShuttlecock, AutoMovieArchetypeSphericalBall, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import * as archetypes from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -943,8 +943,8 @@ function terminalSole(
   assert(part.transform && part.geometry.type === "primitive");
   const shape = part.geometry.shape;
   assert(shape.type === "capsule" || shape.type === "cylinder");
-  const axis = Quaternion.rotateVector(
-    Quaternion.multiply(frame.rotation, part.transform.rotation),
+  const axis = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, part.transform.rotation),
     { x: 0, y: 1, z: 0 },
   );
   return (

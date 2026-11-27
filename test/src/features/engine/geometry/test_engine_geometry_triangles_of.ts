@@ -1,4 +1,6 @@
-import { trianglesOf } from "@automovie/engine/internal";
+import {
+  trianglesOf
+} from "../../../../../packages/engine/src/geometry/planar-region/internal/trianglesOf";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

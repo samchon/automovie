@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanChainCore,
   IAutoMovieMotionHumanEnsemble,
@@ -348,9 +348,9 @@ function travelSpeeds(
   return members.map((m: IAutoMovieMotionHumanEnsemble.IMember): number => {
     const l: number = m.body.measure.hipHeight;
     if (manoeuvre.gait === "walk")
-      return Math.sqrt(walk.FROUDE.normal * AutoMovieGravity.STANDARD * l);
+      return Math.sqrt(walk.FROUDE.normal * AutoMovieEngineGravity.STANDARD * l);
     if (manoeuvre.gait === "run")
-      return Math.sqrt(run.GAITS.run.froude * AutoMovieGravity.STANDARD * l);
+      return Math.sqrt(run.GAITS.run.froude * AutoMovieEngineGravity.STANDARD * l);
     const drill: ITravelSpeedsDrill =
       manoeuvre.gait === "double" ? HumanGait.DOUBLE : HumanGait.MARCH;
     return (drill.step * drill.cadence) / 60;

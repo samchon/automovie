@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieFramebufferContext } from "../IAutoMovieFramebufferContext.js";
-import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRenderer.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderFramebufferContext } from "../IAutoMovieRenderFramebufferContext.js";
+import type { IAutoMovieRenderFramebufferRenderer } from "../IAutoMovieRenderFramebufferRenderer.js";
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
@@ -20,13 +20,13 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * after CPU needsUpdate assignments.
  */
 export const readAutoMovieCubeShadowDepth: (
-  renderer: IAutoMovieFramebufferRenderer,
+  renderer: IAutoMovieRenderFramebufferRenderer,
   target: THREE.RenderTarget,
 ) => WebGLTexture | null = (
-  renderer: IAutoMovieFramebufferRenderer,
+  renderer: IAutoMovieRenderFramebufferRenderer,
   target: THREE.RenderTarget,
 ): WebGLTexture | null => {
-  if (!AutoMovieThreeKind.isWebGLRenderTarget(target))
+  if (!AutoMovieRenderThreeKind.isWebGLRenderTarget(target))
     throw new Error(
       "A retained cube shadow target must be a native WebGL render target.",
     );
@@ -35,7 +35,7 @@ export const readAutoMovieCubeShadowDepth: (
       "An uninitialized cube depth cannot be queried as a retained native shadow draw product.",
     );
   const restore: () => void = captureAutoMovieFramebufferRestore(renderer);
-  const gl: IAutoMovieFramebufferContext = renderer.getContext();
+  const gl: IAutoMovieRenderFramebufferContext = renderer.getContext();
   let handle: WebGLTexture | null = null;
   let failure: { error: unknown } | undefined;
   try {

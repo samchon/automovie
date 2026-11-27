@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { ObservationGeometry } from "./ObservationGeometry";
 
 /*
@@ -38,23 +38,23 @@ export function builtConvexCellVertices(
         const a: IPlane = planes[i]!;
         const b: IPlane = planes[j]!;
         const c: IPlane = planes[k]!;
-        const bc: IAutoMovieVector3 = Vector3.cross(b.normal, c.normal);
-        const determinant: number = Vector3.dot(a.normal, bc);
+        const bc: IAutoMovieVector3 = AutoMovieEngineVector3.cross(b.normal, c.normal);
+        const determinant: number = AutoMovieEngineVector3.dot(a.normal, bc);
         if (Math.abs(determinant) <= ObservationGeometry.Epsilon) continue;
-        const point: IAutoMovieVector3 = Vector3.scale(
-          Vector3.add(
-            Vector3.add(
-              Vector3.scale(bc, a.offset),
-              Vector3.scale(Vector3.cross(c.normal, a.normal), b.offset),
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(bc, a.offset),
+              AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(c.normal, a.normal), b.offset),
             ),
-            Vector3.scale(Vector3.cross(a.normal, b.normal), c.offset),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(a.normal, b.normal), c.offset),
           ),
           1 / determinant,
         );
         if (
           planes.some(
             (plane: IPlane): boolean =>
-              Vector3.dot(plane.normal, point) >
+              AutoMovieEngineVector3.dot(plane.normal, point) >
               plane.offset + ObservationGeometry.Epsilon,
           )
         )
@@ -62,7 +62,7 @@ export function builtConvexCellVertices(
         if (
           vertices.some(
             (known: IAutoMovieVector3): boolean =>
-              Vector3.length(Vector3.subtract(known, point)) <=
+              AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(known, point)) <=
               ObservationGeometry.Epsilon,
           )
         )
@@ -91,10 +91,10 @@ interface IPlane {
  * Read a plane as a unit normal and its matching offset, or null if degenerate.
  */
 function unitPlane(plane: IPlane): IPlane | null {
-  const length: number = Vector3.length(plane.normal);
+  const length: number = AutoMovieEngineVector3.length(plane.normal);
   if (length <= ObservationGeometry.Epsilon) return null;
   return {
-    normal: Vector3.scale(plane.normal, 1 / length),
+    normal: AutoMovieEngineVector3.scale(plane.normal, 1 / length),
     offset: plane.offset / length,
   };
 }

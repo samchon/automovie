@@ -1,4 +1,6 @@
-import { AutoMovieArchetypePassageSearch as search } from "@automovie/archetypes/internal";
+import {
+  AutoMovieArchetypePassageSearch as search
+} from "../../../../../packages/archetypes/src/core/internal/AutoMovieArchetypePassageSearch";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

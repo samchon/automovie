@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -126,8 +126,8 @@ export namespace environmentRecoveryCue {
         Math.hypot(relative.x, relative.z) *
         (1 - coefficient / required),
       direction:
-        Vector3.length(motion) > SLIDE
-          ? Vector3.normalize(motion)
+        AutoMovieEngineVector3.length(motion) > SLIDE
+          ? AutoMovieEngineVector3.normalize(motion)
           : HumanFrame.forward(yaw),
     };
   }

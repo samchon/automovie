@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -273,8 +273,8 @@ export namespace operate {
         side,
         mechanism.kind === "button" ? "indexTip" : "grip",
       );
-    const distance: number = Vector3.length(
-      Vector3.subtract(
+    const distance: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         place.point,
         AutoMovieMotionHumanArm.point(context.entry.posture, origin),
       ),

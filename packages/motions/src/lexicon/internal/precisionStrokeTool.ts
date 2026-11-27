@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -61,10 +61,10 @@ export function precisionStrokeTool(
       ? read
       : {
           ...read,
-          axis: Vector3.normalize(
-            Vector3.subtract(
+          axis: AutoMovieEngineVector3.normalize(
+            AutoMovieEngineVector3.subtract(
               read.axis,
-              Vector3.scale(face, Vector3.dot(read.axis, face)),
+              AutoMovieEngineVector3.scale(face, AutoMovieEngineVector3.dot(read.axis, face)),
             ),
           ),
           edge: face,
@@ -125,8 +125,8 @@ function palm(
     undefined,
     new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
   );
-  return Quaternion.rotateVector(
-    Quaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
+  return AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
     HumanHand.frame(body, bones, side, "palm").normal,
   );
 }

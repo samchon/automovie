@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -55,15 +55,15 @@ export function drawFromCarrierOver(
     undefined,
     new Set<AutoMovieHumanoidBone>([frame]),
   ).get(frame)!;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(at.worldRotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(at.worldRotation);
   const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Quaternion.rotateVector(inverse, Vector3.subtract(p, at.worldPosition));
+    AutoMovieEngineQuaternion.rotateVector(inverse, AutoMovieEngineVector3.subtract(p, at.worldPosition));
   const turn: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
     q: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion =>
-    Quaternion.normalize(Quaternion.multiply(inverse, q));
+    AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(inverse, q));
   const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
     context,
     duration,
@@ -135,7 +135,7 @@ export function drawFromCarrierOver(
         from: 0,
         to: 1,
         travel: (seconds: number): number =>
-          Vector3.length(line) *
+          AutoMovieEngineVector3.length(line) *
           AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s,
       },
     ],

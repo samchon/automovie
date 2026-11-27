@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
-import * as ApplianceBandsData from "./internal/ApplianceBandsData";
+import { ApplianceBandsData } from "./internal/ApplianceBandsData";
 
 /*
  * The band of each free dimension of createAppliance, by kind.

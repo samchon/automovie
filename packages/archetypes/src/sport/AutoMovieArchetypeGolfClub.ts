@@ -1,11 +1,8 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createGolfClub as createGolfClubImplementation } from "./internal/createGolfClub";
 import { AutoMovieArchetypeUnits, AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
-import * as AutoMovieArchetypeGolfClubData from "./internal/AutoMovieArchetypeGolfClubData";
-import {
-  m as AutoMovieArchetypeGolfClubDatam,
-  kg as AutoMovieArchetypeGolfClubDataKg,
-} from "./internal/AutoMovieArchetypeGolfClubData";
+import { AutoMovieArchetypeGolfClubData } from "./internal/AutoMovieArchetypeGolfClubData";
+
 
 /** Public operations for Auto Movie Archetype Golf Club. */
 export namespace AutoMovieArchetypeGolfClub {
@@ -104,25 +101,25 @@ export namespace AutoMovieArchetypeGolfClub {
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     driver: {
-      length: AutoMovieArchetypeGolfClubDatam(
+      length: AutoMovieArchetypeGolfClubData.m(
         45.5 * AutoMovieArchetypeUnits.INCH,
         46 * AutoMovieArchetypeUnits.INCH,
         "PING G440 MAX driver, standard 45 1/2 and 46 in by shaft (https://ping.com/clubs/drivers/g440-max), inside the R&A rule 2.1c's 48 in",
       ),
-      headWidth: AutoMovieArchetypeGolfClubDatam(
+      headWidth: AutoMovieArchetypeGolfClubData.m(
         0.11,
         5 * AutoMovieArchetypeUnits.INCH,
         `${AutoMovieArchetypeGolfClubData.RANDA}, 2.4b(i): a wood's head at most 5 in from heel to toe; the narrower end ${AutoMovieArchetypeGolfClubData.UNREAD}`,
         true,
       ),
-      headDepth: AutoMovieArchetypeGolfClubDatam(
+      headDepth: AutoMovieArchetypeGolfClubData.m(
         0.1,
         0.12,
         `${AutoMovieArchetypeGolfClubData.RANDA}, 2.4b(i): less than the heel to toe; the band ${AutoMovieArchetypeGolfClubData.UNREAD}`,
         true,
       ),
       gripDiameter: AutoMovieArchetypeGolfClubData.GRIP,
-      mass: AutoMovieArchetypeGolfClubDataKg(
+      mass: AutoMovieArchetypeGolfClubData.kg(
         0.29,
         0.33,
         `PING G440 head of 203 g (https://ping.com/clubs/drivers/g440-k) with a 50 g class shaft; the grip's mass ${AutoMovieArchetypeGolfClubData.UNREAD}`,
@@ -130,31 +127,31 @@ export namespace AutoMovieArchetypeGolfClub {
       ),
     },
     iron: {
-      length: AutoMovieArchetypeGolfClubDatam(
+      length: AutoMovieArchetypeGolfClubData.m(
         37 * AutoMovieArchetypeUnits.INCH,
         37 * AutoMovieArchetypeUnits.INCH,
         "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)",
       ),
-      headWidth: AutoMovieArchetypeGolfClubDatam(0.075, 0.085, AutoMovieArchetypeGolfClubData.UNREAD, true),
-      headDepth: AutoMovieArchetypeGolfClubDatam(0.02, 0.03, AutoMovieArchetypeGolfClubData.UNREAD, true),
+      headWidth: AutoMovieArchetypeGolfClubData.m(0.075, 0.085, AutoMovieArchetypeGolfClubData.UNREAD, true),
+      headDepth: AutoMovieArchetypeGolfClubData.m(0.02, 0.03, AutoMovieArchetypeGolfClubData.UNREAD, true),
       gripDiameter: AutoMovieArchetypeGolfClubData.GRIP,
-      mass: AutoMovieArchetypeGolfClubDataKg(0.4, 0.45, AutoMovieArchetypeGolfClubData.UNREAD, true),
+      mass: AutoMovieArchetypeGolfClubData.kg(0.4, 0.45, AutoMovieArchetypeGolfClubData.UNREAD, true),
     },
     putter: {
-      length: AutoMovieArchetypeGolfClubDatam(
+      length: AutoMovieArchetypeGolfClubData.m(
         33 * AutoMovieArchetypeUnits.INCH,
         35 * AutoMovieArchetypeUnits.INCH,
         "PING putters, the G Le4 Anser 2D's 33 in and the 2024 Anser D's 35 in standard lengths (https://ping.com/en-us/golf-clubs/womens/g-le4-anser-2d-putter, https://ping.com/en-us/golf-clubs/putters/2024-2023-anser-d-putter)",
       ),
-      headWidth: AutoMovieArchetypeGolfClubDatam(
+      headWidth: AutoMovieArchetypeGolfClubData.m(
         0.1,
         0.12,
         `${AutoMovieArchetypeGolfClubData.RANDA}, 2.4b(iii): a putter's head at most 7 in from heel to toe; the band ${AutoMovieArchetypeGolfClubData.UNREAD}`,
         true,
       ),
-      headDepth: AutoMovieArchetypeGolfClubDatam(0.025, 0.08, AutoMovieArchetypeGolfClubData.UNREAD, true),
+      headDepth: AutoMovieArchetypeGolfClubData.m(0.025, 0.08, AutoMovieArchetypeGolfClubData.UNREAD, true),
       gripDiameter: AutoMovieArchetypeGolfClubData.GRIP,
-      mass: AutoMovieArchetypeGolfClubDataKg(
+      mass: AutoMovieArchetypeGolfClubData.kg(
         0.5,
         0.52,
         "PING Anser heads of 350 to 365 g (https://ping.com/en-us/golf-clubs/putters/2024-2023-anser-d-putter) with a shaft and a grip whose mass no source read gives",

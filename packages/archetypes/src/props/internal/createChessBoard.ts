@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeChessBoard } from "../AutoMovieArchetypeChessBoard";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -21,7 +21,7 @@ import {
 export function createChessBoard(
   params: AutoMovieArchetypeChessBoard.IParams = {},
 ): AutoMovieArchetype<AutoMovieArchetypeChessBoard.Affordance, AutoMovieArchetypeChessBoard.Dimension> {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const side: number = 8 * BOARD.square + 2 * BOARD.border;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeChessBoard.Dimension> =
     new AutoMovieArchetypeDrawSession(

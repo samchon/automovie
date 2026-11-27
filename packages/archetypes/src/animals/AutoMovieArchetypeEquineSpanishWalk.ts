@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -67,7 +67,7 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
           to === from
             ? 0
             : Math.max(0, Math.min(1, (now - from) / (to - from)));
-        const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 1, y: 0, z: 0 },
           -RAISE * Math.sin(Math.PI * progress),
         );
@@ -80,11 +80,11 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
         const forearm: IAutoMovieModelPart = part(base, bones[1]!);
         const cannon: IAutoMovieModelPart = part(base, bones[2]!);
         const carpus: IAutoMovieVector3 = start(cannon);
-        const straighten: IAutoMovieQuaternion = Quaternion.slerp(
+        const straighten: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
           { x: 0, y: 0, z: 0, w: 1 },
           AutoMovieEngineMath.rotationBetween(
-            Vector3.subtract(end(cannon), carpus),
-            Vector3.subtract(end(forearm), start(forearm)),
+            AutoMovieEngineVector3.subtract(end(cannon), carpus),
+            AutoMovieEngineVector3.subtract(end(forearm), start(forearm)),
           ),
           Math.sin(Math.PI * progress),
         );
@@ -97,9 +97,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
             transform: AutoMovieArchetypeFrame.move(
               {
                 rotation: straighten,
-                translation: Vector3.subtract(
+                translation: AutoMovieEngineVector3.subtract(
                   carpus,
-                  Quaternion.rotateVector(straighten, carpus),
+                  AutoMovieEngineQuaternion.rotateVector(straighten, carpus),
                 ),
               },
               parts[index]!.transform!,
@@ -116,9 +116,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
             transform: AutoMovieArchetypeFrame.move(
               {
                 rotation: turn,
-                translation: Vector3.subtract(
+                translation: AutoMovieEngineVector3.subtract(
                   shoulder,
-                  Quaternion.rotateVector(turn, shoulder),
+                  AutoMovieEngineQuaternion.rotateVector(turn, shoulder),
                 ),
               },
               frame,
@@ -193,7 +193,7 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
         part.geometry.shape.type === "capsule")
         ? part.geometry.shape.height
         : 0;
-    return Quaternion.rotateVector(part.transform!.rotation, {
+    return AutoMovieEngineQuaternion.rotateVector(part.transform!.rotation, {
       x: 0,
       y: height / 2,
       z: 0,
@@ -204,14 +204,14 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
    * A bar's start, model space.
    */
   function start(part: IAutoMovieModelPart): IAutoMovieVector3 {
-    return Vector3.subtract(part.transform!.translation, half(part));
+    return AutoMovieEngineVector3.subtract(part.transform!.translation, half(part));
   }
 
   /*
    * A bar's end, model space.
    */
   function end(part: IAutoMovieModelPart): IAutoMovieVector3 {
-    return Vector3.add(part.transform!.translation, half(part));
+    return AutoMovieEngineVector3.add(part.transform!.translation, half(part));
   }
 
   /*
@@ -230,8 +230,8 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
       placement,
       end(part),
     );
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(bottom, top),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(bottom, top),
     );
     const radius: number =
       part.geometry.type === "primitive" &&

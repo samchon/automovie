@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import type {
-  AutoMovieDrawSubjects,
-  IAutoMovieDrawScene,
-  IAutoMovieDrawSubject,
+  AutoMovieRenderDrawSubjects,
+  IAutoMovieRenderDrawScene,
+  IAutoMovieRenderDrawSubject,
 } from "@automovie/render";
 import {
   Mesh,
@@ -21,11 +21,11 @@ import { replayMotionTake } from "../../src/executable/motionTake/replayMotionTa
 import { createMotionTakeSource } from "./source";
 
 /** Draw the tracked ball and catching hand from uninterrupted or reopened owner state. */
-export const subjects: AutoMovieDrawSubjects = (
+export const subjects: AutoMovieRenderDrawSubjects = (
   props: unknown,
-): Record<string, IAutoMovieDrawSubject> => ({
+): Record<string, IAutoMovieRenderDrawSubject> => ({
   stage: {
-    create: async (): Promise<IAutoMovieDrawScene> => {
+    create: async (): Promise<IAutoMovieRenderDrawScene> => {
       const source: ReturnType<typeof createMotionTakeSource> =
         createMotionTakeSource();
       const take: IAutoMovieMotionTake | null =

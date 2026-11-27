@@ -1,4 +1,4 @@
-import { DEFAULT_SUBJECT_HEIGHT, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineDefaultSubjectHeight, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationMotion,
@@ -123,7 +123,7 @@ const seesCentroid: (
     from: UNIT.centroid,
     to: {
       x: UNIT.centroid.x,
-      y: UNIT.centroid.y + DEFAULT_SUBJECT_HEIGHT,
+      y: UNIT.centroid.y + AutoMovieEngineDefaultSubjectHeight,
       z: UNIT.centroid.z,
     },
     near: 0.1,
@@ -211,7 +211,7 @@ export function test_engine_film_camera_formation_subject_extent(): void {
   TestValidator.equals(
     "an unsupplied member model takes the documented stand-in height",
     fallback,
-    { min: 0, max: DEFAULT_SUBJECT_HEIGHT },
+    { min: 0, max: AutoMovieEngineDefaultSubjectHeight },
   );
 
   TestValidator.equals(

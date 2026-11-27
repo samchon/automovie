@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -56,13 +56,13 @@ export function prepareSitWorkingFeet(
   let intervals: AutoMovieFootShift[] = [[-Infinity, Infinity]];
   for (const side of sides) {
     const [shortest, longest] = sitPlace.band(body, side);
-    const away: IAutoMovieVector3 = Vector3.subtract(initial[side], hips[side]);
-    const ahead: number = Vector3.dot(away, forward);
-    const lateral: IAutoMovieVector3 = Vector3.subtract(
+    const away: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(initial[side], hips[side]);
+    const ahead: number = AutoMovieEngineVector3.dot(away, forward);
+    const lateral: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       away,
-      Vector3.scale(forward, ahead),
+      AutoMovieEngineVector3.scale(forward, ahead),
     );
-    const outside: number = Vector3.dot(lateral, lateral);
+    const outside: number = AutoMovieEngineVector3.dot(lateral, lateral);
     const farSquared: number = longest * longest - outside;
     if (farSquared < 0) return undefined;
 
@@ -106,10 +106,10 @@ export function prepareSitWorkingFeet(
       shift = nearest;
   }
   if (shift === undefined) return undefined;
-  const displacement: IAutoMovieVector3 = Vector3.scale(forward, shift);
+  const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.scale(forward, shift);
   const feet: Feet = {
-    left: Vector3.add(initial.left, displacement),
-    right: Vector3.add(initial.right, displacement),
+    left: AutoMovieEngineVector3.add(initial.left, displacement),
+    right: AutoMovieEngineVector3.add(initial.right, displacement),
   };
   const yaw: number = entry.posture.yaw;
   const legs: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
@@ -128,13 +128,13 @@ export function prepareSitWorkingFeet(
   };
   const gait = walk.walking(walk.FROUDE.slow);
   const speed: number = Math.sqrt(
-    gait.froude * AutoMovieGravity.STANDARD * hipHeight,
+    gait.froude * AutoMovieEngineGravity.STANDARD * hipHeight,
   );
   const step: number =
     Math.max(Math.abs(shift), gait.step(gait.froude) * hipHeight) / speed;
   const duration: number = sides.length * step;
   const earliest: AutoMovieHumanSide =
-    Vector3.dot(Vector3.subtract(initial.right, initial.left), displacement) > 0
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(initial.right, initial.left), displacement) > 0
       ? "right"
       : "left";
   const order: readonly AutoMovieHumanSide[] =

@@ -11,7 +11,7 @@ import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
  * instead of assuming them.
  *
  * Without physical source correspondence, vertices weld by position on the
- * `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A
+ * `AutoMovieEngineMeshWeldGrid` lattice, so face-local corners can still form one shell. A
  * mesh that declares physical sources instead keeps their incidence across
  * contact: two different sources stay distinct even where they touch. A
  * triangle whose corners collapse onto fewer than three grid cells is counted

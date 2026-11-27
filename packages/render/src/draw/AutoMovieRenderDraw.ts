@@ -2,8 +2,8 @@ import { bindAutoMovieDrawSceneSoftProps as bindAutoMovieDrawSceneSoftPropsImple
 import { decodeAutoMovieDrawPixels as decodeAutoMovieDrawPixelsImplementation } from "./internal/decodeAutoMovieDrawPixels.js";
 import { describeAutoMovieDrawScene as describeAutoMovieDrawSceneImplementation } from "./internal/describeAutoMovieDrawScene.js";
 import { encodeAutoMovieDrawPixels as encodeAutoMovieDrawPixelsImplementation } from "./internal/encodeAutoMovieDrawPixels.js";
-import { type AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
-import { type IAutoMovieDrawGlobal } from "./IAutoMovieDrawGlobal.js";
+import { type AutoMovieRenderDrawSubjects } from "./AutoMovieRenderDrawSubjects.js";
+import { type IAutoMovieRenderDrawGlobal } from "./IAutoMovieRenderDrawGlobal.js";
 import { installAutoMovieDraw as installAutoMovieDrawImplementation } from "./internal/installAutoMovieDraw.js";
 import { isAutoMoviePlainBeautyRequest as isAutoMoviePlainBeautyRequestImplementation } from "./internal/isAutoMoviePlainBeautyRequest.js";
 import { observeAutoMoviePlacedInspection as observeAutoMoviePlacedInspectionImplementation } from "./internal/observeAutoMoviePlacedInspection.js";
@@ -13,7 +13,7 @@ import { stampAutoMovieDrawLegend as stampAutoMovieDrawLegendImplementation } fr
 
 import { type AutoMovieGuidePass, type IAutoMovieCaptureCell, type IAutoMovieCaptureLayout, type IAutoMovieCaptureSubject, type IAutoMovieCaptureTime, type IAutoMovieDrawCall, type IAutoMoviePlaybackLayer, type IAutoMovieRenderSoftPropFrame, type IAutoMovieRasterImage, type IAutoMovieDrawResult, type IAutoMovieInspectionRequest, type IAutoMovieInspectionDiagnostics, type IAutoMovieRasterLabel, type IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 
-import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene.js";
 import { planAutoMovieDrawCall } from "./internal/planAutoMovieDrawCall.js";
 import { planAutoMovieDrawLayers } from "./internal/planAutoMovieDrawLayers.js";
 import { planAutoMovieDrawPicture } from "./internal/planAutoMovieDrawPicture.js";
@@ -73,7 +73,7 @@ export namespace AutoMovieRenderDraw {
    */
   export function planLayers(
     name: string,
-    scene: Pick<IAutoMovieDrawScene, "sequence" | "cut" | "seekShot">,
+    scene: Pick<IAutoMovieRenderDrawScene, "sequence" | "cut" | "seekShot">,
     seconds: number,
   ): IAutoMoviePlaybackLayer[] | null {
     return planAutoMovieDrawLayers(name, scene, seconds);
@@ -106,7 +106,7 @@ export namespace AutoMovieRenderDraw {
    */
   export function planPicture(
     name: string,
-    scene: Pick<IAutoMovieDrawScene, "sequence" | "cut" | "seekShot">,
+    scene: Pick<IAutoMovieRenderDrawScene, "sequence" | "cut" | "seekShot">,
     seconds: number,
   ): IPlanPicture {
     return planAutoMovieDrawPicture(name, scene, seconds);
@@ -119,7 +119,7 @@ export namespace AutoMovieRenderDraw {
    * placement, as every reader of a draw subject does: after `seekShot`, the
    * placed shot at its own shot-local time.
    */
-  export function bindAutoMovieDrawSceneSoftProps(subject: IAutoMovieDrawScene, read: (seconds: number) => readonly IAutoMovieRenderSoftPropFrame[]): IAutoMovieDrawScene {
+  export function bindAutoMovieDrawSceneSoftProps(subject: IAutoMovieRenderDrawScene, read: (seconds: number) => readonly IAutoMovieRenderSoftPropFrame[]): IAutoMovieRenderDrawScene {
     return bindAutoMovieDrawSceneSoftPropsImplementation(subject, read);
   }
 
@@ -150,7 +150,7 @@ export namespace AutoMovieRenderDraw {
    * later kind admits its capture without seeking through the film or inventing a
    * marker at zero; its geometry still comes from `marks` at the drawn second.
    */
-  export function describeAutoMovieDrawScene(name: string, scene: IAutoMovieDrawScene): IAutoMovieCaptureSubject {
+  export function describeAutoMovieDrawScene(name: string, scene: IAutoMovieRenderDrawScene): IAutoMovieCaptureSubject {
     return describeAutoMovieDrawSceneImplementation(name, scene);
   }
 
@@ -194,17 +194,17 @@ export namespace AutoMovieRenderDraw {
    *    drawn raster, the call's raster or for the `beauty` shade twice each side,
    *    and cleared to alpha 0 for a transparent picture or 1 otherwise;
    * 2. For a fitted view, places and inspects each framing second through
-   *    `AutoMovieDrawPlacement`, as the shot that second's picture shows, and
+   *    `AutoMovieRenderDrawPlacement`, as the shot that second's picture shows, and
    *    frames the union of what the inspection leaves drawn, or its focus,
    *    measured once per view and selection;
-   * 3. Plans the second through `AutoMovieDrawFilm`: the shot it shows,
+   * 3. Plans the second through `AutoMovieRenderDrawFilm`: the shot it shows,
    *    `playbackShownLayer` of the layers `AutoMovieRenderDraw.planLayers` gives, and,
    *    for the film picture, a delivered or plain `beauty` picture or `graphics`
    *    plate, a transition's layers. Every layer of positive weight but the shown
    *    one is placed on its own entry's clock, drawn and held, and a sampled
    *    film's shutter and lens samples of the shown layer are accumulated, each
    *    on that layer's own clock;
-   * 4. Places the second itself through `AutoMovieDrawPlacement.inspect`, which
+   * 4. Places the second itself through `AutoMovieRenderDrawPlacement.inspect`, which
    *    restores the previous inspection and places the shown layer on its own
    *    entry's clock, at each of the request's trail times and then at the call's
    *    second, by `seekShot` when it is a transition's outgoing shot, so marks,
@@ -251,7 +251,7 @@ export namespace AutoMovieRenderDraw {
    * AutoMovieRenderDraw.installAutoMovieDraw(subjects);
    * ```
    */
-  export function installAutoMovieDraw<Props = unknown>(subjects: AutoMovieDrawSubjects<Props | null>, target?: IAutoMovieDrawGlobal<Props | null>): void {
+  export function installAutoMovieDraw<Props = unknown>(subjects: AutoMovieRenderDrawSubjects<Props | null>, target?: IAutoMovieRenderDrawGlobal<Props | null>): void {
     installAutoMovieDrawImplementation<Props>(subjects, target);
   }
 
@@ -293,7 +293,7 @@ export namespace AutoMovieRenderDraw {
    *   undefined when diagnostics are absent.
    * @throws {Error} If the producer returns another sample's time or frame.
    */
-  export function observeAutoMoviePlacedInspection(subject: IAutoMovieDrawScene, seconds: number, mode: IAutoMovieDrawScene.IPlacedSample["mode"], auditRaster?: IAutoMovieDrawScene.IPlacedSample["auditRaster"], byShot?: boolean): IAutoMovieInspectionDiagnostics | undefined {
+  export function observeAutoMoviePlacedInspection(subject: IAutoMovieRenderDrawScene, seconds: number, mode: IAutoMovieRenderDrawScene.IPlacedSample["mode"], auditRaster?: IAutoMovieRenderDrawScene.IPlacedSample["auditRaster"], byShot?: boolean): IAutoMovieInspectionDiagnostics | undefined {
     return observeAutoMoviePlacedInspectionImplementation(subject, seconds, mode, auditRaster, byShot);
   }
 
@@ -329,7 +329,7 @@ export namespace AutoMovieRenderDraw {
    *   trail's.
    * @returns The subject's placement promise.
    */
-  export function placeAutoMovieDrawLayer(name: string, scene: Pick<IAutoMovieDrawScene, "cut" | "seek" | "seekShot">, layer: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null, seconds: number): Promise<void> {
+  export function placeAutoMovieDrawLayer(name: string, scene: Pick<IAutoMovieRenderDrawScene, "cut" | "seek" | "seekShot">, layer: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null, seconds: number): Promise<void> {
     return placeAutoMovieDrawLayerImplementation(name, scene, layer, seconds);
   }
 

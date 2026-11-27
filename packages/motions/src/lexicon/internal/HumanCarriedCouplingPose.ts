@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
@@ -139,9 +139,9 @@ export namespace HumanCarriedCouplingPose {
       ...keyPose,
       joints: { ...keyPose.joints, ...fingers },
     };
-    const keyTurn: IAutoMovieQuaternion = Quaternion.multiply(
+    const keyTurn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       coupling.key.rotation,
-      Quaternion.inverse(humanPostureHeading(keyed)),
+      AutoMovieEngineQuaternion.inverse(humanPostureHeading(keyed)),
     );
     return (bearers: Bearers): IAutoMovieMotionHumanPosture =>
       placedPosture(coupling, bearers, keyed, keyTurn, grips);
@@ -299,12 +299,12 @@ export namespace HumanCarriedCouplingPose {
 
     // The borne root frame: the anchor's displayed frame composed with the
     // key frame.
-    const root: IAutoMovieVector3 = Vector3.add(
+    const root: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       anchored.worldPosition,
-      Quaternion.rotateVector(anchored.worldRotation, coupling.key.position),
+      AutoMovieEngineQuaternion.rotateVector(anchored.worldRotation, coupling.key.position),
     );
-    const turn: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(anchored.worldRotation, keyTurn),
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(anchored.worldRotation, keyTurn),
     );
     const placed: IAutoMovieMotionHumanPosture = {
       ...keyed,
@@ -313,7 +313,7 @@ export namespace HumanCarriedCouplingPose {
     };
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     if (grips.length !== 0) {
-      const back: IAutoMovieQuaternion = Quaternion.inverse(turn);
+      const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(turn);
       for (const { contact, side, palm } of grips) {
         const bearer: IAutoMovieMotionHumanCarriedCouplingPose.IBearer = of(
           contact.on.role,
@@ -324,11 +324,11 @@ export namespace HumanCarriedCouplingPose {
         const at: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
           AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(surface, bone);
         const goal: IAutoMovieHumanLimbGoal = palm(placed, {
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             root,
-            Quaternion.rotateVector(back, Vector3.subtract(at.point, root)),
+            AutoMovieEngineQuaternion.rotateVector(back, AutoMovieEngineVector3.subtract(at.point, root)),
           ),
-          normal: Quaternion.rotateVector(back, at.normal),
+          normal: AutoMovieEngineQuaternion.rotateVector(back, at.normal),
         });
         limbs[`${side}Arm`] = goal;
       }

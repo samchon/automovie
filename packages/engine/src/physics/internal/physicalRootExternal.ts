@@ -4,13 +4,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMoviePhysicalTracking as Tracking } from "../AutoMoviePhysicalTracking";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalTracking as Tracking } from "../AutoMovieEnginePhysicalTracking";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
 
 /*
  * The root's demand under an external wrench: the servo toward the root's goal
- * (`AutoMoviePhysicalTracking.force`), with the body's weight compensated and
+ * (`AutoMovieEnginePhysicalTracking.force`), with the body's weight compensated and
  * the total held within the strength's share of the maximum root force; and the
  * trunk servo's moment with the gravity compensation moment, each axis held
  * within the strength's share of the maximum root torque.
@@ -23,7 +23,7 @@ import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 export function physicalRootExternal(input: {
   settings: Pick<IAutoMoviePhysicalSimulationInput.IInput, "gravity" | "floor">;
   body: IAutoMoviePhysicalSimulationInput.IBody;
-  base: AutoMovieXpbdBody;
+  base: AutoMovieEngineXpbdBody;
   rootGoal: IAutoMovieVector3;
   rootIntent: IAutoMovieSamplePhysicalTarget.IResult;
   strength: number;
@@ -33,8 +33,8 @@ export function physicalRootExternal(input: {
 }): { force: IAutoMovieVector3; torque: IAutoMovieVector3 } {
   const { body, base, strength } = input;
   let force: IAutoMovieVector3 = Tracking.force(
-    Vector3.subtract(input.rootGoal, base.translation()),
-    Vector3.subtract(
+    AutoMovieEngineVector3.subtract(input.rootGoal, base.translation()),
+    AutoMovieEngineVector3.subtract(
       base.velocityAtPoint(base.translation()),
       input.rootIntent.velocity,
     ),
@@ -45,27 +45,27 @@ export function physicalRootExternal(input: {
     input.dt,
   );
   if (body.compensateGravity) {
-    force = Vector3.subtract(
+    force = AutoMovieEngineVector3.subtract(
       force,
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         input.settings.gravity,
         body.profile.mass *
           strength *
           (body.mode.kind === "exaggerated" ? body.mode.gravity : 1),
       ),
     );
-    const magnitude: number = Vector3.length(force);
+    const magnitude: number = AutoMovieEngineVector3.length(force);
     if (magnitude > body.maximumRootForce * strength)
-      force = Vector3.scale(
+      force = AutoMovieEngineVector3.scale(
         force,
         (body.maximumRootForce * strength) / magnitude,
       );
   }
   if (!body.rootTorque || !(strength > 0))
     return { force, torque: { x: 0, y: 0, z: 0 } };
-  const torque: IAutoMovieVector3 = Vector3.add(
+  const torque: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     input.orientation,
-    Vector3.scale(input.gravity, strength),
+    AutoMovieEngineVector3.scale(input.gravity, strength),
   );
   const limit: number = body.rootTorque.maximumTorque * strength;
   return {

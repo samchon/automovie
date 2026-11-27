@@ -1,5 +1,5 @@
-import type { IAutoMovieFramebufferContext } from "../IAutoMovieFramebufferContext.js";
-import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRenderer.js";
+import type { IAutoMovieRenderFramebufferContext } from "../IAutoMovieRenderFramebufferContext.js";
+import type { IAutoMovieRenderFramebufferRenderer } from "../IAutoMovieRenderFramebufferRenderer.js";
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
@@ -12,14 +12,14 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * caller's separate target, face and mip are restored independently.
  */
 export const retireAutoMovieCubeShadowDepth: (
-  renderer: IAutoMovieFramebufferRenderer,
+  renderer: IAutoMovieRenderFramebufferRenderer,
   handle: WebGLTexture,
 ) => void = (
-  renderer: IAutoMovieFramebufferRenderer,
+  renderer: IAutoMovieRenderFramebufferRenderer,
   handle: WebGLTexture,
 ): void => {
   const restore: () => void = captureAutoMovieFramebufferRestore(renderer);
-  const gl: IAutoMovieFramebufferContext = renderer.getContext();
+  const gl: IAutoMovieRenderFramebufferContext = renderer.getContext();
   restoreAutoMovieRenderModeState([
     (): void => {
       if (gl.isTexture(handle)) gl.deleteTexture(handle);

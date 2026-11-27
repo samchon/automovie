@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
@@ -36,7 +36,7 @@ export function staggerRecovery(
 
   // The push, read where its source is as the plan begins, the causal read
   // a reaction makes (`ReactionSource`), and the recovery it asks for.
-  const push: IAutoMovieVector3 = Vector3.normalize({
+  const push: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     ...AutoMovieMotionHumanTarget.away(
       ReactionSource.at(
         context,

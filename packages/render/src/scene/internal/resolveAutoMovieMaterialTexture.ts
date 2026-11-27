@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieTextureResolver } from "../IAutoMovieTextureResolver.js";
+import { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver.js";
 
 /*
  * Resolve one material texture binding to a configured `three.js` texture.
@@ -20,11 +20,11 @@ import { IAutoMovieTextureResolver } from "../IAutoMovieTextureResolver.js";
 export const resolveAutoMovieMaterialTexture: (
   binding: AutoMovieTextureBinding | null | undefined,
   legacyColorSpace: "srgb" | "linear",
-  resolver: IAutoMovieTextureResolver | undefined,
+  resolver: IAutoMovieRenderTextureResolver | undefined,
 ) => THREE.Texture | null = (
   binding: AutoMovieTextureBinding | null | undefined,
   legacyColorSpace: "srgb" | "linear",
-  resolver: IAutoMovieTextureResolver | undefined,
+  resolver: IAutoMovieRenderTextureResolver | undefined,
 ): THREE.Texture | null => {
   if (binding === null || binding === undefined || resolver === undefined)
     return null;

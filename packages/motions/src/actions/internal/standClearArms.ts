@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -68,7 +68,7 @@ export function standClearArms(
       throw new Error("The shoulder has no abduction range to hang the arm in");
     let lo: number = from;
     let hi: number = range.max;
-    while (hi - lo > ROM_TOLERANCE) {
+    while (hi - lo > AutoMovieEngineRomTolerance) {
       const mid: number = (lo + hi) / 2;
       if (sinks(side, mid)) lo = mid;
       else hi = mid;

@@ -11,7 +11,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
+import { AutoMovieEngineSoftBodyNeighbours } from "../AutoMovieEngineSoftBodyNeighbours";
 import { applySoftBodyFriction } from "./applySoftBodyFriction";
 import { gatherSoftBodyCorrections } from "./gatherSoftBodyCorrections";
 import { projectSoftBodyContacts } from "./projectSoftBodyContacts";
@@ -84,7 +84,7 @@ export const simulateSoftBodyCore: (
   const inverseMass: Float64Array<ArrayBuffer> = new Float64Array(count);
   const valence: Int32Array<ArrayBuffer> = new Int32Array(count);
   const restLength: Float64Array<ArrayBuffer> = new Float64Array(
-    count * SOFT_BODY_NEIGHBOURS.length,
+    count * AutoMovieEngineSoftBodyNeighbours.length,
   );
 
   for (let particle: number = 0; particle < count; ++particle)
@@ -94,7 +94,7 @@ export const simulateSoftBodyCore: (
   for (let row: number = 0; row < rows; ++row)
     for (let column: number = 0; column < columns; ++column) {
       const particle: number = row * columns + column;
-      for (let at: number = 0; at < SOFT_BODY_NEIGHBOURS.length; ++at) {
+      for (let at: number = 0; at < AutoMovieEngineSoftBodyNeighbours.length; ++at) {
         const other: number = softBodyNeighbourOf(
           columns,
           rows,
@@ -103,10 +103,10 @@ export const simulateSoftBodyCore: (
           at,
         );
         if (other < 0) {
-          restLength[particle * SOFT_BODY_NEIGHBOURS.length + at] = -1;
+          restLength[particle * AutoMovieEngineSoftBodyNeighbours.length + at] = -1;
           continue;
         }
-        restLength[particle * SOFT_BODY_NEIGHBOURS.length + at] =
+        restLength[particle * AutoMovieEngineSoftBodyNeighbours.length + at] =
           softBodyParticleDistance(domain.rest, particle, other);
         ++valence[particle];
       }
@@ -124,7 +124,7 @@ export const simulateSoftBodyCore: (
   const lambda: Float64Array<ArrayBuffer> | null =
     compliance === null
       ? null
-      : new Float64Array(count * SOFT_BODY_NEIGHBOURS.length);
+      : new Float64Array(count * AutoMovieEngineSoftBodyNeighbours.length);
   const contact: IAutoMovieSoftContact | null = domain.contact ?? null;
   const friction: number = contact?.friction ?? 0;
   const cord: boolean =
@@ -308,7 +308,7 @@ export const simulateSoftBodyCore: (
       // is not stretch.
       for (let at: number = 0; at < 4; ++at) {
         const rest: number =
-          restLength[particle * SOFT_BODY_NEIGHBOURS.length + at];
+          restLength[particle * AutoMovieEngineSoftBodyNeighbours.length + at];
         if (rest < 0) continue;
         const other: number = softBodyNeighbourOf(
           columns,

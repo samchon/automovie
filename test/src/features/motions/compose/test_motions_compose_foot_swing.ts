@@ -1,12 +1,14 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanFootSwing,
-  HumanFoot,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanFootSwing
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanFootSwing";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -73,7 +75,7 @@ export async function test_motions_compose_foot_swing(): Promise<void> {
   // 3. A turning foot's sole.
   const tipped: IAutoMovieMotionHumanFoot.IPlacement = {
     ...to,
-    rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -30),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -30),
   };
   const low0: number = HumanFoot.lowest(body, "left", from);
   const low1: number = HumanFoot.lowest(body, "left", tipped);
@@ -91,6 +93,6 @@ export async function test_motions_compose_foot_swing(): Promise<void> {
             ROUNDING
         );
       },
-    ) && nclose(Vector3.distance(at(tipped, 1).ankle, to.ankle), 0, ROUNDING),
+    ) && nclose(AutoMovieEngineVector3.distance(at(tipped, 1).ankle, to.ankle), 0, ROUNDING),
   );
 }

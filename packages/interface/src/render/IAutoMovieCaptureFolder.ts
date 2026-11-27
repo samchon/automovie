@@ -17,7 +17,7 @@ import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
  * coexist with a completed capture.
  *
  * This structural port intentionally admits host implementations other than the
- * concrete AutoMovieCaptureFolder class. It removes that class's private-field
+ * concrete AutoMovieRenderCaptureFolder class. It removes that class's private-field
  * admission restriction; it introduces no brand and cannot statically enforce
  * sequencing or filesystem ownership. The render class implements the checks;
  * other hosts must honor the same obligations.

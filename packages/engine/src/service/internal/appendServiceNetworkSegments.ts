@@ -6,7 +6,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { SERVICE_EPSILON } from "../SERVICE_EPSILON";
+import { AutoMovieEngineServiceEpsilon } from "../AutoMovieEngineServiceEpsilon";
 import { appendServiceCrossings } from "./appendServiceCrossings";
 import { routeDistanceSquared } from "./routeDistanceSquared";
 
@@ -92,7 +92,7 @@ export function appendServiceNetworkSegments(
         if (
           port !== undefined &&
           port.section !== null &&
-          Math.abs(port.section - segment.section) > SERVICE_EPSILON
+          Math.abs(port.section - segment.section) > AutoMovieEngineServiceEpsilon
         )
           out.push(
             "range",
@@ -129,7 +129,7 @@ export function appendServiceNetworkSegments(
         if (
           finitePoint &&
           previous !== undefined &&
-          distance(previous, point) <= SERVICE_EPSILON
+          distance(previous, point) <= AutoMovieEngineServiceEpsilon
         )
           out.push(
             "range",
@@ -177,7 +177,7 @@ export function appendServiceNetworkSegments(
           (candidate: IAutoMovieServicePenetration): boolean =>
             candidate.id === id,
         )!;
-        if (segment.radius > sleeve.radius + SERVICE_EPSILON)
+        if (segment.radius > sleeve.radius + AutoMovieEngineServiceEpsilon)
           out.push(
             "range",
             `${path}.radius`,

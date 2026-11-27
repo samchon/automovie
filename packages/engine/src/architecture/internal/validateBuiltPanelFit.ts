@@ -10,8 +10,8 @@ import {
 } from "@automovie/interface";
 
 import { transformAutoMovieDrawingPoint } from "../../drawing/internal/transformAutoMovieDrawingPoint";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { polygonInside } from "./polygonInside";
 
@@ -63,7 +63,7 @@ export function validateBuiltPanelFit(
       );
       if (operation === undefined || hull === undefined || face === undefined)
         return;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(face.rotation);
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(face.rotation);
       operation.panels.forEach(
         (panel: IAutoMovieMovablePanel, panelIndex: number): void => {
           const world: number[] = matrices.get(panel.element)!;
@@ -75,9 +75,9 @@ export function validateBuiltPanelFit(
           ];
           const planar: IAutoMoviePlanarPoint[] = corners.map(
             (corner: IAutoMovieVector3): IAutoMoviePlanarPoint => {
-              const local: IAutoMovieVector3 = Quaternion.rotateVector(
+              const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
                 inverse,
-                Vector3.subtract(
+                AutoMovieEngineVector3.subtract(
                   transformAutoMovieDrawingPoint(world, corner),
                   face.origin,
                 ),

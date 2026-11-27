@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -47,7 +47,7 @@ export function poseArchetypeSpanGrips(
       const contact: IAutoMovieAffordance = contacts.get(end.affordance)!;
       const previous: IAutoMovieVector3 | undefined = axes.get(end.affordance);
       if (previous !== undefined) {
-        const cross: IAutoMovieVector3 = Vector3.cross(previous, axis);
+        const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(previous, axis);
         if (Math.hypot(cross.x, cross.y, cross.z) > 64 * Number.EPSILON)
           refuse(
             end.affordance,
@@ -58,12 +58,12 @@ export function poseArchetypeSpanGrips(
       if (contact.kind === "rein") {
         const point: IAutoMovieVector3 = contact.frame.translation;
         const held: number = contact.length ?? NaN;
-        const before: number = Vector3.dot(
-          Vector3.subtract(point, current.from),
+        const before: number = AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(point, current.from),
           axis,
         );
-        const after: number = Vector3.dot(
-          Vector3.subtract(current.to, point),
+        const after: number = AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(current.to, point),
           axis,
         );
         const roundoff: number =
@@ -116,13 +116,13 @@ export function poseArchetypeSpanGrips(
         "x",
       );
       const next: IAutoMovieVector3 =
-        Vector3.dot(old, line) < 0 ? Vector3.scale(line, -1) : line;
+        AutoMovieEngineVector3.dot(old, line) < 0 ? AutoMovieEngineVector3.scale(line, -1) : line;
       return {
         ...contact,
         frame: {
           translation: { ...contact.frame.translation },
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(AutoMovieEngineMath.rotationBetween(old, next), q),
+          rotation: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(AutoMovieEngineMath.rotationBetween(old, next), q),
           ),
           scale: { ...contact.frame.scale },
         },

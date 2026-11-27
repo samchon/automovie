@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeTennisNet } from "../AutoMovieArchetypeTennisNet";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import {
@@ -53,7 +53,7 @@ type Drawn = Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
 /*
  * Local points in metres.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * How far a tennis post may stand above the net cord, metres: ITF Rule 1, 2.5

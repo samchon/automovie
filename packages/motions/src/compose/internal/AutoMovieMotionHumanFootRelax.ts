@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -13,7 +13,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import * as AutoMovieMotionHumanFootRelaxData from "./AutoMovieMotionHumanFootRelaxData";
+import { AutoMovieMotionHumanFootRelaxData } from "./AutoMovieMotionHumanFootRelaxData";
 
 /*
  * The placement a foot bearing a share of the weight can hold.
@@ -60,7 +60,7 @@ export function AutoMovieMotionHumanFootRelax(
   // the passive dorsal range; a pointed foot is left as it is.
   if (!grounded) {
     const most: number =
-      ANKLE_DORSIFLEXION.unloaded - walkLeg.ANKLE - lean(hip, placement.ankle);
+      AutoMovieEngineAnkleDorsiflexion.unloaded - walkLeg.ANKLE - lean(hip, placement.ankle);
     return direction.pitch <= most
       ? placement
       : {
@@ -107,9 +107,9 @@ export function AutoMovieMotionHumanFootRelax(
       edge ?? pivot,
       edge === undefined
         ? forefoot
-        : Vector3.add(
+        : AutoMovieEngineVector3.add(
             placement.ankle,
-            Quaternion.rotateVector(placement.rotation, edge),
+            AutoMovieEngineQuaternion.rotateVector(placement.rotation, edge),
           ),
       direction.heading,
       pitch,
@@ -123,7 +123,7 @@ export function AutoMovieMotionHumanFootRelax(
 /*
  * A foot kept within the ankle's dorsal range for its contact state. A foot
  * bearing any of the body's weight dorsiflexes as far as the loaded limit, one
- * bearing nothing only to the passive one (`ANKLE_DORSIFLEXION`; the binary
+ * bearing nothing only to the passive one (`AutoMovieEngineAnkleDorsiflexion`; the binary
  * limit of `walkLeg.dorsal`, as the range audit reads it). A law that carries a
  * foot at a placement of its own (held flat, or turned as it was set down)
  * would ask the ankle past that limit whenever the shank leans over it, so the
@@ -165,7 +165,7 @@ export namespace AutoMovieMotionHumanFootRelax {
 /*
  * How far a foot must roll past the roll asked of it so the ankle stays within
  * its range: the shank's lean across the foot from the vertical, the hip over
- * the ankle, less the ankle's own roll range (`DEFAULT_HUMANOID_ROM`'s foot
+ * the ankle, less the ankle's own roll range (`AutoMovieEngineDefaultHumanoidRom`'s foot
  * abduction), signed as `HumanFoot.roll`.
  * Parameter hip: The hip joint, world metres.
  * Parameter ankle: The ankle joint, world metres.

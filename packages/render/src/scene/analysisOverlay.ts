@@ -1,2 +1,2 @@
 export { AutoMovieRenderAnalysisOverlay } from "./AutoMovieRenderAnalysisOverlay.js";
-export type { IAutoMovieAnalysisOverlayObject } from "./IAutoMovieAnalysisOverlayObject.js";
+export type { IAutoMovieRenderAnalysisOverlayObject } from "./IAutoMovieRenderAnalysisOverlayObject.js";

@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanDanceFootKey,
@@ -84,7 +84,7 @@ export namespace tapDanceFlights {
         const u: number = (t - f.from) / (f.to - f.from);
         const span: number = f.to - f.from;
         return (
-          4 * ((AutoMovieGravity.STANDARD * span * span) / 8) * u * (1 - u)
+          4 * ((AutoMovieEngineGravity.STANDARD * span * span) / 8) * u * (1 - u)
         );
       }
     return 0;

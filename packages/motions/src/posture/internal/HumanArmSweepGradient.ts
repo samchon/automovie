@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMoviePhysicalShapeNearest,
@@ -28,37 +28,37 @@ export function HumanArmSweepGradient(
   const solid = shape.shape;
   if (solid.kind !== "hull" || nearest.distance >= 0 || u <= 0 || u >= 1)
     return nearest.normal;
-  const slopeError: number = ROUNDING * Vector3.length(span);
-  if (Math.abs(Vector3.dot(nearest.normal, span)) <= slopeError)
+  const slopeError: number = ROUNDING * AutoMovieEngineVector3.length(span);
+  if (Math.abs(AutoMovieEngineVector3.dot(nearest.normal, span)) <= slopeError)
     return nearest.normal;
-  const centre = Vector3.add(
+  const centre = AutoMovieEngineVector3.add(
     shape.pose.position,
-    Quaternion.rotateVector(shape.pose.rotation, solid.transform.position),
+    AutoMovieEngineQuaternion.rotateVector(shape.pose.rotation, solid.transform.position),
   );
-  const rotation = Quaternion.multiply(
+  const rotation = AutoMovieEngineQuaternion.multiply(
     shape.pose.rotation,
     solid.transform.rotation,
   );
-  const inverse = Quaternion.inverse(rotation);
-  const point = Quaternion.rotateVector(
+  const inverse = AutoMovieEngineQuaternion.inverse(rotation);
+  const point = AutoMovieEngineQuaternion.rotateVector(
     inverse,
-    Vector3.subtract(nearest.at, centre),
+    AutoMovieEngineVector3.subtract(nearest.at, centre),
   );
-  const direction = Quaternion.rotateVector(inverse, span);
+  const direction = AutoMovieEngineQuaternion.rotateVector(inverse, span);
   const error: number =
     ROUNDING *
-    (Vector3.length(nearest.at) +
-      Vector3.length(centre) +
-      Vector3.length(point) +
+    (AutoMovieEngineVector3.length(nearest.at) +
+      AutoMovieEngineVector3.length(centre) +
+      AutoMovieEngineVector3.length(point) +
       Math.abs(nearest.distance));
   let negative: IAutoMovieVector3 | undefined;
   let positive: IAutoMovieVector3 | undefined;
   let low: number = 0;
   let high: number = 0;
   for (const face of AutoMovieEnginePhysics.physicalShapeHull(solid).faces) {
-    const distance: number = Vector3.dot(face.normal, point) - face.offset;
+    const distance: number = AutoMovieEngineVector3.dot(face.normal, point) - face.offset;
     if (Math.abs(distance - nearest.distance) > error) continue;
-    const slope: number = Vector3.dot(face.normal, direction);
+    const slope: number = AutoMovieEngineVector3.dot(face.normal, direction);
     if (slope < -slopeError && negative === undefined) {
       negative = face.normal;
       low = slope;
@@ -68,9 +68,9 @@ export function HumanArmSweepGradient(
     } else return nearest.normal;
   }
   if (negative === undefined || positive === undefined) return nearest.normal;
-  return Quaternion.rotateVector(
+  return AutoMovieEngineQuaternion.rotateVector(
     rotation,
-    Vector3.lerp(negative, positive, -low / (high - low)),
+    AutoMovieEngineVector3.lerp(negative, positive, -low / (high - low)),
   );
 }
 
@@ -92,15 +92,15 @@ export namespace HumanArmSweepGradient {
     shape: Placement,
     sweep: Witness,
   ): [IAutoMovieVector3, IAutoMovieVector3] {
-    const span: IAutoMovieVector3 = Vector3.subtract(sweep.to, sweep.start);
-    const squared: number = Vector3.dot(span, span);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(sweep.to, sweep.start);
+    const squared: number = AutoMovieEngineVector3.dot(span, span);
     const u: number =
       squared > 0
         ? Math.min(
             1,
             Math.max(
               0,
-              Vector3.dot(Vector3.subtract(sweep.near.at, sweep.start), span) /
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(sweep.near.at, sweep.start), span) /
                 squared,
             ),
           )
@@ -112,13 +112,13 @@ export namespace HumanArmSweepGradient {
       u,
     );
     return [
-      Quaternion.rotateVector(
-        Quaternion.inverse(sweep.first),
-        Vector3.scale(g, 1 - u),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(sweep.first),
+        AutoMovieEngineVector3.scale(g, 1 - u),
       ),
-      Quaternion.rotateVector(
-        Quaternion.inverse(sweep.turn),
-        Vector3.scale(g, u),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(sweep.turn),
+        AutoMovieEngineVector3.scale(g, u),
       ),
     ];
   }

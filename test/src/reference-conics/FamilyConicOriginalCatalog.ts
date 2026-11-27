@@ -1,5 +1,5 @@
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftFrame, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineLoftFrame, AutoMovieEngineViewOutline } from "@automovie/engine";
 import { AutoMovieHumanConicSection as Section } from "@automovie/human";
 import type {
   IAutoMovieHumanConicLoft,
@@ -166,7 +166,7 @@ export namespace FamilyConicOriginalCatalog {
         ...outline.knots.map(
           (knot: IAutoMovieViewPart.IKnot): number => knot.station,
         ),
-        ...AutoMovieViewOutline.criticalStations(outline),
+        ...AutoMovieEngineViewOutline.criticalStations(outline),
         ...Array.from(
           { length: 17 },
           (_: unknown, i: number): number => a + ((b - a) * i) / 16,
@@ -347,7 +347,7 @@ export namespace FamilyConicOriginalCatalog {
         try {
           const source:
             | IAutoMovieViewOutline.IOutline
-            | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+            | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
             definition,
             radial ? ends : {},
           );
@@ -355,7 +355,7 @@ export namespace FamilyConicOriginalCatalog {
           prepared.set(path, source);
           for (const s of stations(source)) {
             const value: IAutoMovieViewOutline.IReading | string =
-              AutoMovieViewOutline.at(source, s);
+              AutoMovieEngineViewOutline.at(source, s);
             if (typeof value === "string") {
               row.cause ??= value;
               result.unavailable.push({ id: row.id + "@" + s, cause: value });
@@ -443,7 +443,7 @@ export namespace FamilyConicOriginalCatalog {
           prepared.get(path);
         if (source === undefined)
           throw new Error("Original scalar unavailable: " + path);
-        const result: number | string = AutoMovieViewOutline.value(source, s);
+        const result: number | string = AutoMovieEngineViewOutline.value(source, s);
         if (typeof result === "string") throw new Error(result);
         return result;
       };
@@ -465,7 +465,7 @@ export namespace FamilyConicOriginalCatalog {
               part.fullness.kind === "top" && part.fullness.touch !== undefined
                 ? value("fullness.touch[" + q + "]", s)
                 : 0;
-            return AutoMovieLoftFrame.place(
+            return AutoMovieEngineLoftFrame.place(
               part.axis.at(s),
               q % 2 === 0 ? extent : touch,
               q % 2 === 0 ? touch : extent,
@@ -481,7 +481,7 @@ export namespace FamilyConicOriginalCatalog {
             entry.id + "/guide/" + path,
             at,
             (s: number): readonly number[] =>
-              AutoMovieLoftFrame.place(
+              AutoMovieEngineLoftFrame.place(
                 part.axis.at(s),
                 value(path + ".u", s),
                 value(path + ".v", s),

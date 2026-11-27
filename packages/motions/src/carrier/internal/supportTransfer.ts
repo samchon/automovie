@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -153,22 +153,22 @@ export function supportTransfer(
     anchors[side] = sole;
 
     // Translate the entry's stance to the landing station, keeping its width.
-    const mean: IAutoMovieVector3 = Vector3.lerp(
+    const mean: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       feet.left.ankle,
       feet.right.ankle,
       0.5,
     );
-    const d: IAutoMovieVector3 = Vector3.subtract(feet[side].ankle, mean);
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(feet[side].ankle, mean);
     const goal: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
       body,
       side,
       "sole",
-      Vector3.add(at, { ...d, y: 0 }),
+      AutoMovieEngineVector3.add(at, { ...d, y: 0 }),
       HumanFoot.heading(feet[side].rotation),
       0,
     );
-    const distance: number = Vector3.length(
-      Vector3.subtract(goal.ankle, feet[side].ankle),
+    const distance: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(goal.ankle, feet[side].ankle),
     );
     if (distance > 0.45 * body.measure.hipHeight)
       refuse(
@@ -191,15 +191,15 @@ export function supportTransfer(
       );
     targets[side] = goal;
   }
-  const stanceShift: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(feet[trail].ankle, feet[lead].ankle),
+  const stanceShift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(feet[trail].ankle, feet[lead].ankle),
     0.3,
   );
   stanceShift.y = 0;
-  const displacement: IAutoMovieVector3 = Vector3.scale(
-    Vector3.add(
-      Vector3.subtract(targets.left!.ankle, feet.left.ankle),
-      Vector3.subtract(targets.right!.ankle, feet.right.ankle),
+  const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.subtract(targets.left!.ankle, feet.left.ankle),
+      AutoMovieEngineVector3.subtract(targets.right!.ankle, feet.right.ankle),
     ),
     0.5,
   );
@@ -212,9 +212,9 @@ export function supportTransfer(
       progress(share, 0, leadOff) -
       2 * progress(share, leadOff, trailOff) +
       progress(share, trailOff, trailOn);
-    const stagedRoot: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(entry.posture.root, Vector3.scale(displacement, moved)),
-      Vector3.scale(stanceShift, lateral),
+    const stagedRoot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(entry.posture.root, AutoMovieEngineVector3.scale(displacement, moved)),
+      AutoMovieEngineVector3.scale(stanceShift, lateral),
     );
     const time: number = start + share * duration;
     const sourceCarry: IAutoMovieMotionHumanSupportCarry.ICarry =
@@ -248,7 +248,7 @@ export function supportTransfer(
       const on: number = side === lead ? leadOn : trailOn;
       const s: number = progress(share, off, on);
       const target: IAutoMovieMotionHumanFoot.IPlacement = targets[side]!;
-      const ankle: IAutoMovieVector3 = Vector3.lerp(
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         sourceCarry.point(feet[side].ankle),
         deckCarry.point(target.ankle),
         s,
@@ -265,9 +265,9 @@ export function supportTransfer(
             z: body.rest.get(`${side}LowerLeg`)!.z + 1,
           },
         ),
-        rotation: Quaternion.slerp(
-          Quaternion.multiply(sourceCarry.turn, feet[side].rotation),
-          Quaternion.multiply(deckCarry.turn, target.rotation),
+        rotation: AutoMovieEngineQuaternion.slerp(
+          AutoMovieEngineQuaternion.multiply(sourceCarry.turn, feet[side].rotation),
+          AutoMovieEngineQuaternion.multiply(deckCarry.turn, target.rotation),
           s,
         ),
         ...(planted
@@ -450,7 +450,7 @@ function surface(
       "Declare an unarticulated surface with positive width and depth",
     );
   const propFrame: IAutoMovieRigidTransform = reader.frame(start);
-  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     propFrame.rotation,
     found.frame.rotation,
   );
@@ -458,9 +458,9 @@ function surface(
     axis,
     frame: (seconds: number): IAutoMovieRigidTransform => reader.frame(seconds),
     propFrame,
-    origin: Vector3.add(
+    origin: AutoMovieEngineVector3.add(
       propFrame.position,
-      Quaternion.rotateVector(propFrame.rotation, found.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(propFrame.rotation, found.frame.translation),
     ),
     rotation,
     x: found.width / 2,
@@ -472,7 +472,7 @@ function surface(
  * Place a surface-local metre point in the dock's world frame.
  */
 function point(s: Surface, local: IAutoMovieVector3): IAutoMovieVector3 {
-  return Vector3.add(s.origin, Quaternion.rotateVector(s.rotation, local));
+  return AutoMovieEngineVector3.add(s.origin, AutoMovieEngineQuaternion.rotateVector(s.rotation, local));
 }
 
 /*
@@ -481,7 +481,7 @@ function point(s: Surface, local: IAutoMovieVector3): IAutoMovieVector3 {
 function projection(s: Surface, direction: IAutoMovieVector3): number[] {
   return [-s.x, s.x].flatMap((x: number): number[] =>
     [-s.z, s.z].map((z: number): number =>
-      Vector3.dot(point(s, { x, y: 0, z }), direction),
+      AutoMovieEngineVector3.dot(point(s, { x, y: 0, z }), direction),
     ),
   );
 }
@@ -489,9 +489,9 @@ function projection(s: Surface, direction: IAutoMovieVector3): number[] {
  * Check a sole point's horizontal membership in the rectangle.
  */
 function contains(s: Surface, position: IAutoMovieVector3): boolean {
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(s.rotation),
-    Vector3.subtract(position, s.origin),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(s.rotation),
+    AutoMovieEngineVector3.subtract(position, s.origin),
   );
   return Math.abs(local.x) <= s.x + 1e-6 && Math.abs(local.z) <= s.z + 1e-6;
 }

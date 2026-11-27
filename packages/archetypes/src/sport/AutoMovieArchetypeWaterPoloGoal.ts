@@ -8,8 +8,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeWaterPoloGoalData from "./internal/AutoMovieArchetypeWaterPoloGoalData";
-import { v } from "./internal/AutoMovieArchetypeWaterPoloGoalData";
+import { AutoMovieArchetypeWaterPoloGoalData } from "./internal/AutoMovieArchetypeWaterPoloGoalData";
+
 
 /** Constructs the water polo goal archetype from its recipe. */
 export namespace AutoMovieArchetypeWaterPoloGoal {
@@ -56,42 +56,42 @@ export function create(
   ] as const) {
     builder.box(
       `post-${side}`,
-      v(d.bar, d.height, d.bar),
-      v(sign * post, d.height / 2, -d.bar / 2),
+      AutoMovieArchetypeWaterPoloGoalData.v(d.bar, d.height, d.bar),
+      AutoMovieArchetypeWaterPoloGoalData.v(sign * post, d.height / 2, -d.bar / 2),
       { color: FRAME },
     );
     builder.box(
       `float-${side}`,
-      v(0.14, 0.13, d.depth + d.bar),
-      v(sign * (post + 0.08), -0.03, -d.depth / 2),
+      AutoMovieArchetypeWaterPoloGoalData.v(0.14, 0.13, d.depth + d.bar),
+      AutoMovieArchetypeWaterPoloGoalData.v(sign * (post + 0.08), -0.03, -d.depth / 2),
       { color: FRAME },
     );
     builder.rod(
       `top-stay-${side}`,
       0.017,
-      v(sign * post, top, -d.bar),
-      v(sign * post, 0.66, -d.depth),
+      AutoMovieArchetypeWaterPoloGoalData.v(sign * post, top, -d.bar),
+      AutoMovieArchetypeWaterPoloGoalData.v(sign * post, 0.66, -d.depth),
       { color: FRAME },
     );
     builder.rod(
       `rear-stay-${side}`,
       0.017,
-      v(sign * post, 0.03, -d.depth),
-      v(sign * post, 0.66, -d.depth),
+      AutoMovieArchetypeWaterPoloGoalData.v(sign * post, 0.03, -d.depth),
+      AutoMovieArchetypeWaterPoloGoalData.v(sign * post, 0.66, -d.depth),
       { color: FRAME },
     );
   }
   builder.box(
     "crossbar",
-    v(d.width + 2 * d.bar, d.bar, d.bar),
-    v(0, top, -d.bar / 2),
+    AutoMovieArchetypeWaterPoloGoalData.v(d.width + 2 * d.bar, d.bar, d.bar),
+    AutoMovieArchetypeWaterPoloGoalData.v(0, top, -d.bar / 2),
     { color: FRAME },
   );
   net(builder, d, half);
   builder.affordance({
     id: "mouth",
     kind: "aperture",
-    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieArchetypeWaterPoloGoalData.v(0, 0, 0)),
     extent: null,
     width: d.width,
     height: d.height,
@@ -164,15 +164,15 @@ function net(
     builder.rod(
       `net-top-${i}`,
       twine,
-      v(x, d.height, -d.bar),
-      v(x, rear, -d.depth),
+      AutoMovieArchetypeWaterPoloGoalData.v(x, d.height, -d.bar),
+      AutoMovieArchetypeWaterPoloGoalData.v(x, rear, -d.depth),
       { color: NET },
     );
     builder.rod(
       `net-back-${i}`,
       twine,
-      v(x, 0, -d.depth),
-      v(x, rear, -d.depth),
+      AutoMovieArchetypeWaterPoloGoalData.v(x, 0, -d.depth),
+      AutoMovieArchetypeWaterPoloGoalData.v(x, rear, -d.depth),
       { color: NET },
     );
   }
@@ -181,8 +181,8 @@ function net(
     builder.rod(
       `net-cross-${i}`,
       twine,
-      v(-half, rear * u, -d.depth),
-      v(half, rear * u, -d.depth),
+      AutoMovieArchetypeWaterPoloGoalData.v(-half, rear * u, -d.depth),
+      AutoMovieArchetypeWaterPoloGoalData.v(half, rear * u, -d.depth),
       { color: NET },
     );
     for (const [side, sign] of [
@@ -192,8 +192,8 @@ function net(
       builder.rod(
         `net-${side}-${i}`,
         twine,
-        v(sign * half, d.height * u, -d.bar),
-        v(sign * half, rear * u, -d.depth),
+        AutoMovieArchetypeWaterPoloGoalData.v(sign * half, d.height * u, -d.bar),
+        AutoMovieArchetypeWaterPoloGoalData.v(sign * half, rear * u, -d.depth),
         { color: NET },
       );
   }

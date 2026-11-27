@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Place an admitted bone-local surface frame in the bone's world frame.
@@ -26,7 +26,7 @@ export namespace AutoMovieHumanoidSurfacePlacement {
     const placed: ReturnType<typeof AutoMovieHumanoidSurfacePlacement.run> =
       AutoMovieHumanoidSurfacePlacement.pointNormal(frame, bone);
     if (frame.forward !== undefined)
-      placed.forward = Quaternion.rotateVector(
+      placed.forward = AutoMovieEngineQuaternion.rotateVector(
         bone.worldRotation,
         frame.forward,
       );
@@ -42,7 +42,7 @@ export namespace AutoMovieHumanoidSurfacePlacement {
    */
   export function point(frame: IFrame, bone: IBone): IAutoMovieVector3 {
     const origin: IAutoMovieVector3 = bone.worldPosition;
-    const placed: IAutoMovieVector3 = Quaternion.rotateVector(
+    const placed: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bone.worldRotation,
       frame.point,
     );
@@ -59,7 +59,7 @@ export namespace AutoMovieHumanoidSurfacePlacement {
     frame: Pick<IFrame, "normal">,
     bone: Pick<IBone, "worldRotation">,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(bone.worldRotation, frame.normal);
+    return AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, frame.normal);
   }
 
   /*

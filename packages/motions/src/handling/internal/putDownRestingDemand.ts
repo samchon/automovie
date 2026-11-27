@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionLaw,
@@ -56,7 +56,7 @@ export function putDownRestingDemand(
   });
   if (read.held === undefined) return undefined;
   const inGrip: IAutoMovieRigidTransform = read.held.frame;
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(inGrip.rotation, {
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(inGrip.rotation, {
     x: 0,
     y: 1,
     z: 0,
@@ -70,8 +70,8 @@ export function putDownRestingDemand(
     ...read,
     tip: inGrip.position,
     axis,
-    edge: Vector3.normalize(
-      Vector3.subtract(across, Vector3.scale(axis, Vector3.dot(across, axis))),
+    edge: AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(across, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(across, axis))),
     ),
     rolls: true,
     length: ahead.body.measure.hand,
@@ -80,7 +80,7 @@ export function putDownRestingDemand(
   const frame: IAutoMovieRigidTransform = HumanPropFrame.parent(
     {
       position: params.to,
-      rotation: Quaternion.normalize(params.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(params.rotation),
     },
     inGrip,
   );

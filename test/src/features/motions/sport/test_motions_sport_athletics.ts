@@ -1,5 +1,13 @@
 import type { IAutoMovieMotionClock, IAutoMovieMotionHumanFoot } from "@automovie/interface";
-import { AthleticsSwing, AutoMovieMotionManner, athleticsClock } from "@automovie/motions/internal";
+import {
+  AthleticsSwing
+} from "../../../../../packages/motions/src/sport/internal/AthleticsSwing";
+import {
+  AutoMovieMotionManner
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+import {
+  athleticsClock
+} from "../../../../../packages/motions/src/sport/internal/athleticsClock";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

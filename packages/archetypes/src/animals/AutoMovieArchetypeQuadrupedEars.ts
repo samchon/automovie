@@ -1,4 +1,4 @@
-import { AutoMovieEngineMath, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -104,8 +104,8 @@ export namespace AutoMovieArchetypeQuadrupedEars {
             y: direction.y / norm,
             z: direction.z / norm,
           }
-        : Vector3.normalize(direction);
-    if (!(Vector3.length(left) > 0))
+        : AutoMovieEngineVector3.normalize(direction);
+    if (!(AutoMovieEngineVector3.length(left) > 0))
       throw new RangeError("Ear plates require a nonzero authored direction");
     const solid: ReturnType<typeof ArchetypeMassPrimitive> =
       ArchetypeMassPrimitive({
@@ -143,9 +143,9 @@ export namespace AutoMovieArchetypeQuadrupedEars {
           },
           rootRadius,
         );
-      const centre: IAutoMovieVector3 = Vector3.add(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         root,
-        Vector3.scale(direction, length / 2),
+        AutoMovieEngineVector3.scale(direction, length / 2),
       );
       plans.push({
         id,

@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieClinicalAxis,
   AutoMovieHumanoidBone,
@@ -96,7 +96,7 @@ export function readHumanSimulatedPose(
     const joint: IAutoMovieJointPose | undefined =
       replaced.get(bone) ?? joints.get(bone);
     return joint === undefined
-      ? Quaternion.identity()
+      ? AutoMovieEngineQuaternion.identity()
       : codec.rotation(bone, [
           joint.flexion ?? rest(bone, "flexion"),
           joint.abduction ?? rest(bone, "abduction"),
@@ -121,18 +121,18 @@ export function readHumanSimulatedPose(
     if (solved !== undefined && bone.parent === null) {
       // The root bone keeps its articulation; the root transform carries
       // the solver's placement: world = rootRotation * rest * articulation.
-      const local: IAutoMovieQuaternion = Quaternion.multiply(
+      const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         bone.rest.rotation,
         articulation(bone.bone),
       );
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         solved.rotation,
-        Quaternion.inverse(local),
+        AutoMovieEngineQuaternion.inverse(local),
       );
       root = {
-        translation: Vector3.subtract(
+        translation: AutoMovieEngineVector3.subtract(
           solved.position,
-          Quaternion.rotateVector(rotation, bone.rest.translation),
+          AutoMovieEngineQuaternion.rotateVector(rotation, bone.rest.translation),
         ),
         rotation,
         scale: kinematic.root?.scale ?? { x: 1, y: 1, z: 1 },
@@ -148,9 +148,9 @@ export function readHumanSimulatedPose(
       replaced.set(bone.bone, mobile(bone.bone, joint, frame));
       world.set(
         bone.bone,
-        Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           parent,
-          Quaternion.multiply(bone.rest.rotation, articulation(bone.bone)),
+          AutoMovieEngineQuaternion.multiply(bone.rest.rotation, articulation(bone.bone)),
         ),
       );
     } else if (
@@ -163,12 +163,12 @@ export function readHumanSimulatedPose(
       // A fewer-axis joint in its sequential chart, read in reduced
       // coordinates: the solved joint rotation admitted to the joint's own
       // set, its locked angles at rest, and laid on the displayed parent.
-      const shown: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.multiply(
+      const shown: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           world.get(joint.parent as AutoMovieHumanoidBone)!,
           joint.parentFrame.rotation,
         ),
-        Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           AutoMovieEnginePhysics.projectPhysicalJointRotation(
             joint,
             AutoMovieEnginePhysics.physicalJointRelativeRotation(
@@ -179,23 +179,23 @@ export function readHumanSimulatedPose(
               joint,
             ),
           ),
-          Quaternion.inverse(joint.childFrame.rotation),
+          AutoMovieEngineQuaternion.inverse(joint.childFrame.rotation),
         ),
       );
       const [flexion, abduction, twist]: [number, number, number] =
         codec.angles(
           bone.bone,
-          Quaternion.multiply(
-            Quaternion.inverse(bone.rest.rotation),
-            Quaternion.multiply(Quaternion.inverse(parent), shown),
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.inverse(bone.rest.rotation),
+            AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(parent), shown),
           ),
         );
       replaced.set(bone.bone, { bone: bone.bone, flexion, abduction, twist });
       world.set(bone.bone, shown);
     } else if (solved !== undefined) {
-      const relative: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.inverse(bone.rest.rotation),
-        Quaternion.multiply(Quaternion.inverse(parent), solved.rotation),
+      const relative: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(bone.rest.rotation),
+        AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(parent), solved.rotation),
       );
       const [flexion, abduction, twist]: [number, number, number] =
         codec.angles(bone.bone, relative);
@@ -204,9 +204,9 @@ export function readHumanSimulatedPose(
     } else
       world.set(
         bone.bone,
-        Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           parent,
-          Quaternion.multiply(bone.rest.rotation, articulation(bone.bone)),
+          AutoMovieEngineQuaternion.multiply(bone.rest.rotation, articulation(bone.bone)),
         ),
       );
     for (const child of body.topology.childrenByParent.get(bone.bone) ?? [])
@@ -214,7 +214,7 @@ export function readHumanSimulatedPose(
   };
   for (const bone of body.skeleton.bones)
     if (bone.parent === null)
-      walk(bone, kinematic.root?.rotation ?? Quaternion.identity());
+      walk(bone, kinematic.root?.rotation ?? AutoMovieEngineQuaternion.identity());
 
   // Unowned joints keep their records; replaced bones absent from the
   // kinematic pose follow it in rig order.
@@ -240,7 +240,7 @@ function rest(
   bone: AutoMovieHumanoidBone,
   axis: AutoMovieClinicalAxis,
 ): number {
-  return HUMANOID_REST_FRAME[bone]?.[axis]?.neutral ?? 0;
+  return AutoMovieEngineHumanoidRestFrame[bone]?.[axis]?.neutral ?? 0;
 }
 
 /*
@@ -255,14 +255,14 @@ function mobile(
   joint: IAutoMoviePhysicalJoint,
   frame: IAutoMoviePhysicalFrame["bodies"][string],
 ): IAutoMovieJointPose {
-  const q: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(
-      Quaternion.multiply(
+  const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(
+      AutoMovieEngineQuaternion.multiply(
         frame[joint.parent]!.rotation,
         joint.parentFrame.rotation,
       ),
     ),
-    Quaternion.multiply(frame[bone]!.rotation, joint.childFrame.rotation),
+    AutoMovieEngineQuaternion.multiply(frame[bone]!.rotation, joint.childFrame.rotation),
   );
   const sign: number = q.w < 0 ? -1 : 1;
   const record: IAutoMovieJointPose = {

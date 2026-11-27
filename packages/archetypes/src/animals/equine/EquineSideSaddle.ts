@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -75,7 +75,7 @@ export namespace EquineSideSaddle {
     d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const top: number = rig.back + 0.04;
     const centre: number = rig.hitch.z;
     const front: number = centre + d.seatSize / 2;
@@ -129,13 +129,13 @@ export namespace EquineSideSaddle {
       id: "leapingHead",
       kind: "bar",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.lerp(from, to, 0.5),
+        AutoMovieEngineVector3.lerp(from, to, 0.5),
         v(0, -1, 0),
-        Vector3.subtract(to, from),
+        AutoMovieEngineVector3.subtract(to, from),
       ),
       extent: null,
       aperture: 0.04,
-      length: Vector3.distance(from, to),
+      length: AutoMovieEngineVector3.distance(from, to),
     });
 
     // One stirrup, on the near side only.

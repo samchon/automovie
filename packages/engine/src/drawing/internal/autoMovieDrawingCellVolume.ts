@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
@@ -36,8 +36,8 @@ export const autoMovieDrawingCellVolume = (
   const unique: Map<string, IUnitPlane> = new Map();
   for (const plane of planes) {
     const unit: IUnitPlane = {
-      normal: Vector3.normalize(plane.normal),
-      offset: plane.offset / Vector3.length(plane.normal),
+      normal: AutoMovieEngineVector3.normalize(plane.normal),
+      offset: plane.offset / AutoMovieEngineVector3.length(plane.normal),
     };
     unique.set(
       [unit.normal.x, unit.normal.y, unit.normal.z, unit.offset]
@@ -61,7 +61,7 @@ export const autoMovieDrawingCellVolume = (
         if (
           scaled.some(
             (plane: IUnitPlane): boolean =>
-              Vector3.dot(plane.normal, corner) - plane.offset >
+              AutoMovieEngineVector3.dot(plane.normal, corner) - plane.offset >
               ON_PLANE_TOLERANCE,
           )
         )
@@ -72,11 +72,11 @@ export const autoMovieDrawingCellVolume = (
         vertices.push(corner);
       }
   if (vertices.length < 4) return null;
-  const center: IAutoMovieVector3 = Vector3.scale(
+  const center: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     vertices.reduce(
       (sum: IAutoMovieVector3, vertex: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(sum, vertex),
-      Vector3.create(),
+        AutoMovieEngineVector3.add(sum, vertex),
+      AutoMovieEngineVector3.create(),
     ),
     1 / vertices.length,
   );
@@ -84,7 +84,7 @@ export const autoMovieDrawingCellVolume = (
   // The vector area of a closed surface is zero. An unbounded cell has faces
   // where it was cut and none where it runs off, so its vector area cannot
   // cancel, which catches the open cells a vertex count cannot.
-  let closure: IAutoMovieVector3 = Vector3.create();
+  let closure: IAutoMovieVector3 = AutoMovieEngineVector3.create();
   let facing: number = 0;
   for (const plane of scaled) {
     const basis: { right: IAutoMovieVector3; up: IAutoMovieVector3 } =
@@ -92,14 +92,14 @@ export const autoMovieDrawingCellVolume = (
     const flattened: IAutoMovieVector3[] = vertices
       .filter(
         (vertex: IAutoMovieVector3): boolean =>
-          Math.abs(Vector3.dot(plane.normal, vertex) - plane.offset) <=
+          Math.abs(AutoMovieEngineVector3.dot(plane.normal, vertex) - plane.offset) <=
           ON_PLANE_TOLERANCE,
       )
       .map(
         (vertex: IAutoMovieVector3): IAutoMovieVector3 => ({
-          x: Vector3.dot(vertex, basis.right),
+          x: AutoMovieEngineVector3.dot(vertex, basis.right),
           y: 0,
-          z: Vector3.dot(vertex, basis.up),
+          z: AutoMovieEngineVector3.dot(vertex, basis.up),
         }),
       );
     // A redundant plane touching the solid at one vertex or along one edge
@@ -115,13 +115,13 @@ export const autoMovieDrawingCellVolume = (
     }
     const area: number = Math.abs(doubled) / 2;
     const height: number = Math.abs(
-      Vector3.dot(plane.normal, center) - plane.offset,
+      AutoMovieEngineVector3.dot(plane.normal, center) - plane.offset,
     );
     volume += (area * height) / 3;
-    closure = Vector3.add(closure, Vector3.scale(plane.normal, area));
+    closure = AutoMovieEngineVector3.add(closure, AutoMovieEngineVector3.scale(plane.normal, area));
     facing += area;
   }
-  if (Vector3.length(closure) > facing * ON_PLANE_TOLERANCE) return null;
+  if (AutoMovieEngineVector3.length(closure) > facing * ON_PLANE_TOLERANCE) return null;
   return volume;
 };
 
@@ -143,12 +143,12 @@ const faceBasis = (
 ): { right: IAutoMovieVector3; up: IAutoMovieVector3 } => {
   const seed: IAutoMovieVector3 =
     Math.abs(normal.x) < 0.9
-      ? Vector3.create(1, 0, 0)
-      : Vector3.create(0, 1, 0);
-  const right: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(seed, normal),
+      ? AutoMovieEngineVector3.create(1, 0, 0)
+      : AutoMovieEngineVector3.create(0, 1, 0);
+  const right: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(seed, normal),
   );
-  return { right, up: Vector3.cross(normal, right) };
+  return { right, up: AutoMovieEngineVector3.cross(normal, right) };
 };
 
 /*
@@ -159,18 +159,18 @@ const intersectPlanes = (
   second: IUnitPlane,
   third: IUnitPlane,
 ): IAutoMovieVector3 | null => {
-  const cross23: IAutoMovieVector3 = Vector3.cross(second.normal, third.normal);
-  const determinant: number = Vector3.dot(first.normal, cross23);
+  const cross23: IAutoMovieVector3 = AutoMovieEngineVector3.cross(second.normal, third.normal);
+  const determinant: number = AutoMovieEngineVector3.dot(first.normal, cross23);
   if (Math.abs(determinant) <= SINGULAR_DETERMINANT) return null;
-  const cross31: IAutoMovieVector3 = Vector3.cross(third.normal, first.normal);
-  const cross12: IAutoMovieVector3 = Vector3.cross(first.normal, second.normal);
-  return Vector3.scale(
-    Vector3.add(
-      Vector3.add(
-        Vector3.scale(cross23, first.offset),
-        Vector3.scale(cross31, second.offset),
+  const cross31: IAutoMovieVector3 = AutoMovieEngineVector3.cross(third.normal, first.normal);
+  const cross12: IAutoMovieVector3 = AutoMovieEngineVector3.cross(first.normal, second.normal);
+  return AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(cross23, first.offset),
+        AutoMovieEngineVector3.scale(cross31, second.offset),
       ),
-      Vector3.scale(cross12, third.offset),
+      AutoMovieEngineVector3.scale(cross12, third.offset),
     ),
     1 / determinant,
   );

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -8,9 +8,9 @@ export function HumanMountPushSquare(
   v: IAutoMovieVector3,
   axis: IAutoMovieVector3,
 ): IAutoMovieVector3 | null {
-  const across: IAutoMovieVector3 = Vector3.subtract(
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     v,
-    Vector3.scale(axis, Vector3.dot(axis, v)),
+    AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(axis, v)),
   );
-  return Vector3.length(across) < 1e-9 ? null : Vector3.normalize(across);
+  return AutoMovieEngineVector3.length(across) < 1e-9 ? null : AutoMovieEngineVector3.normalize(across);
 }

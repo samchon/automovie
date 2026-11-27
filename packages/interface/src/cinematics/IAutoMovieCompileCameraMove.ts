@@ -9,10 +9,10 @@ export namespace IAutoMovieCompileCameraMove {
    * compilation into a fresh translation/rotation clip.
    *
    * Framing fixes the distance and the aim. The frame must show the framing's
-   * {@link FRAMING_HEIGHT_FRACTION} multiple of the subject's height vertically
+   * {@link AutoMovieEngineFramingHeightFraction} multiple of the subject's height vertically
    * and of its width (twice `radius`) horizontally, each by the pinhole fit `d
    * = (visible / 2) / tan(half-angle)`, and the camera stands at whichever
-   * distance is larger. It aims at {@link FRAMING_AIM_FRACTION} of the height
+   * distance is larger. It aims at {@link AutoMovieEngineFramingAimFraction} of the height
    * above the subject's base. The camera approaches along its staged bearing,
    * the direction from the aim point to the staged camera, so the side staging
    * chose is kept and only the distance is solved; a camera staged on the aim

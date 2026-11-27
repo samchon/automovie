@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageGrenadeProp } from "../AutoMovieArchetypeStageGrenadeProp";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
 import { StageTokenConstruction } from "./StageTokenConstruction";
@@ -30,7 +30,7 @@ export function createStageGrenadeProp(
     params,
     seed,
     (builder, d, model) => {
-      const v: typeof Vector3.create = Vector3.create;
+      const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
       const top: number = d.length!;
       builder.rod(
         "fuze",

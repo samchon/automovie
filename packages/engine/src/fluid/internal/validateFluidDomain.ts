@@ -8,14 +8,14 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { validateRange } from "../../validation/internal/validateRange";
-import { FLUID_MAX_CELLS } from "../FLUID_MAX_CELLS";
-import { FLUID_MAX_FLOWS } from "../FLUID_MAX_FLOWS";
-import { FLUID_MAX_SPRAYS } from "../FLUID_MAX_SPRAYS";
-import { FLUID_MAX_SPRAY_PARTICLES } from "../FLUID_MAX_SPRAY_PARTICLES";
-import { FLUID_MAX_STEPS } from "../FLUID_MAX_STEPS";
+import { AutoMovieEngineFluidMaxCells } from "../AutoMovieEngineFluidMaxCells";
+import { AutoMovieEngineFluidMaxFlows } from "../AutoMovieEngineFluidMaxFlows";
+import { AutoMovieEngineFluidMaxSprays } from "../AutoMovieEngineFluidMaxSprays";
+import { AutoMovieEngineFluidMaxSprayParticles } from "../AutoMovieEngineFluidMaxSprayParticles";
+import { AutoMovieEngineFluidMaxSteps } from "../AutoMovieEngineFluidMaxSteps";
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
 /*
@@ -79,13 +79,13 @@ export function validateFluidDomain(
   // the grids too large to count would let the only ones nobody can afford
   // past the one budget written to refuse them. A non-finite product means
   // `columns` or `rows` is itself unusable and has already been named.
-  if (cells > FLUID_MAX_CELLS)
+  if (cells > AutoMovieEngineFluidMaxCells)
     out.push(
       "range",
       `${root}.grid`,
-      `fluid lattice must hold at most ${FLUID_MAX_CELLS} cells, but declared ${cells}`,
+      `fluid lattice must hold at most ${AutoMovieEngineFluidMaxCells} cells, but declared ${cells}`,
       cells,
-      cells - FLUID_MAX_CELLS,
+      cells - AutoMovieEngineFluidMaxCells,
     );
 
   const solver: IAutoMovieFluidDomain["solver"] = domain.solver;
@@ -124,7 +124,7 @@ export function validateFluidDomain(
     "max steps",
     solver.maxSteps,
     1,
-    FLUID_MAX_STEPS,
+    AutoMovieEngineFluidMaxSteps,
   );
 
   // Bad authored operands are reported at their fields. Infinity exceeds this
@@ -202,7 +202,7 @@ export function validateFluidDomain(
     `${root}.sources`,
     "sources",
     domain.sources.length,
-    FLUID_MAX_FLOWS,
+    AutoMovieEngineFluidMaxFlows,
   );
   const sourceIds: Set<string> = new Set<string>();
   domain.sources.forEach(
@@ -222,7 +222,7 @@ export function validateFluidDomain(
     },
   );
 
-  count(out, `${root}.drains`, "drains", domain.drains.length, FLUID_MAX_FLOWS);
+  count(out, `${root}.drains`, "drains", domain.drains.length, AutoMovieEngineFluidMaxFlows);
   const drainIds: Set<string> = new Set<string>();
   domain.drains.forEach((drain: IAutoMovieFluidDrain, index: number): void => {
     const path: string = `${root}.drains[${index}]`;
@@ -252,7 +252,7 @@ export function validateFluidDomain(
     `${root}.sprays`,
     "spray emitters",
     domain.sprays.length,
-    FLUID_MAX_SPRAYS,
+    AutoMovieEngineFluidMaxSprays,
   );
   const sprayIds: Set<string> = new Set<string>();
   domain.sprays.forEach((spray: IAutoMovieFluidSpray, index: number): void => {
@@ -290,7 +290,7 @@ export function validateFluidDomain(
       "spray particle cap",
       spray.maxParticles,
       1,
-      FLUID_MAX_SPRAY_PARTICLES,
+      AutoMovieEngineFluidMaxSprayParticles,
     );
     const seed: number = Math.trunc(spray.seed);
     if (!(seed === spray.seed && Math.abs(seed) <= Number.MAX_SAFE_INTEGER))
@@ -304,7 +304,7 @@ export function validateFluidDomain(
     // Match the sampler's norm helper, including its hypot fallback for failed
     // squares. An unrepresentable norm can still be Infinity and pass this gate.
     const axis: IAutoMovieFluidSpray["direction"] = spray.direction;
-    if (Vector3.length(axis) === 0)
+    if (AutoMovieEngineVector3.length(axis) === 0)
       out.push(
         "type",
         `${path}.direction`,

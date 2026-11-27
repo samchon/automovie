@@ -2,7 +2,12 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEnsemble,
 } from "@automovie/interface";
-import { HumanEnsemble, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanEnsemble
+} from "../../../../../packages/motions/src/ensemble/internal/HumanEnsemble";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

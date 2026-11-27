@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -46,19 +46,19 @@ export function prepareRisePalmRoll(
         "palm",
         "flat",
       );
-      const along: IAutoMovieVector3 = Vector3.subtract(
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         bones.get(`${side}Hand`)!.worldPosition,
         bones.get(`${side}LowerArm`)!.worldPosition,
       );
-      const tangent: IAutoMovieVector3 = Vector3.addScaled(
+      const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         along,
         palm.normal,
-        -Vector3.dot(along, palm.normal),
+        -AutoMovieEngineVector3.dot(along, palm.normal),
       );
       const angle: number =
         (Math.atan2(
-          Vector3.dot(Vector3.cross(palm.forward, tangent), palm.normal),
-          Vector3.dot(palm.forward, tangent),
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(palm.forward, tangent), palm.normal),
+          AutoMovieEngineVector3.dot(palm.forward, tangent),
         ) *
           180) /
         Math.PI;
@@ -78,19 +78,19 @@ export function prepareRisePalmRoll(
     for (const { side, angle, palm } of rolls) {
       const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Arm`];
       if (goal?.rotation === undefined) continue;
-      const turned: IAutoMovieQuaternion = Quaternion.multiply(
+      const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         goal.rotation,
-        Quaternion.prepareAxisAngle(palm.normal)(angle * share),
+        AutoMovieEngineQuaternion.prepareAxisAngle(palm.normal)(angle * share),
       );
-      const site: IAutoMovieVector3 = Vector3.add(
+      const site: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         goal.point,
-        Quaternion.rotateVector(goal.rotation, palm.point),
+        AutoMovieEngineQuaternion.rotateVector(goal.rotation, palm.point),
       );
       limbs[`${side}Arm`] = {
         ...goal,
-        point: Vector3.subtract(
+        point: AutoMovieEngineVector3.subtract(
           site,
-          Quaternion.rotateVector(turned, palm.point),
+          AutoMovieEngineQuaternion.rotateVector(turned, palm.point),
         ),
         rotation: turned,
       };

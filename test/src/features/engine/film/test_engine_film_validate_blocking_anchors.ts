@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { validateBlockingAnchors } from "@automovie/engine/internal";
+import {
+  validateBlockingAnchors
+} from "../../../../../packages/engine/src/film/internal/validateBlockingAnchors";
 import { TestValidator } from "@nestia/e2e";
 
 /**

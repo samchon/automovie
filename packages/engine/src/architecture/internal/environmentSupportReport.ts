@@ -19,12 +19,12 @@ import {
 import { computeModelRestExtent } from "../../film/internal/computeModelRestExtent";
 import { propSupportGap } from "../../film/internal/propSupportGap";
 import { setPieceMatrix } from "../../film/staging/internal/setPieceMatrix";
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 import { transformedBoxBounds } from "../../math/internal/transformedBoxBounds";
 import { AutoMovieEngineSpace } from "../../space/index";
 import { builtEnvironmentSupportSweep } from "./builtEnvironmentSupportSweep";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
-import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
+import { AutoMovieEngineSupportTolerance } from "../AutoMovieEngineSupportTolerance";
 
 /*
  * Report the support of every staged set piece of a composed environment,
@@ -54,7 +54,7 @@ import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 export function environmentSupportReport(
   props: IAutoMovieEnvironmentSupportReport.IProps,
 ): IAutoMovieSetPieceSupport[] {
-  const tolerance: number = props.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
+  const tolerance: number = props.tolerance ?? AutoMovieEngineSupportTolerance;
   if (tolerance < 0)
     throw new RangeError(
       `environment support tolerance must be finite and non-negative, but was ${String(tolerance)}`,
@@ -110,7 +110,7 @@ export function environmentSupportReport(
     for (const x of [rest.min.x, rest.max.x])
       for (const y of [rest.min.y, rest.max.y])
         for (const z of [rest.min.z, rest.max.z])
-          corners.push(Matrix4.transformPoint(matrix, { x, y, z }));
+          corners.push(AutoMovieEngineMatrix4.transformPoint(matrix, { x, y, z }));
     measured.set(piece.node, {
       node: piece.node,
       box: transformedBoxBounds(rest, matrix),

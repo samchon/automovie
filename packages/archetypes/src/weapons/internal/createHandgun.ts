@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeHandgun } from "../AutoMovieArchetypeHandgun";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -91,7 +91,7 @@ export function createHandgun(
     else HandgunActions.flintlock(builder, d);
     return builder.build(d.mass! + loaded);
   }
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const slide: number = 0.028;
   const top: number = d.height!;
   const under: number = top - slide;

@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { bracketedCrossing } from "../../math/internal/bracketedCrossing";
 
 /*
@@ -61,8 +61,8 @@ export function resolveAutoMovieMutualGoal(
       throw new Error(
         `A mutual goal needs 0 < reach <= limit, but had reach ${side.reach} and limit ${side.limit}`,
       );
-  const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
-  const apart: number = Vector3.length(span);
+  const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b.shoulder, a.shoulder);
+  const apart: number = AutoMovieEngineVector3.length(span);
   if (!(apart > 1e-9))
     throw new Error("A mutual goal needs two shoulders at different places");
   const gap: number = Math.hypot(span.x, span.z);
@@ -75,8 +75,8 @@ export function resolveAutoMovieMutualGoal(
   ): IAutoMovieResolveMutualGoal.IGoal => ({
     point,
     distance: [
-      Vector3.length(Vector3.subtract(point, a.shoulder)),
-      Vector3.length(Vector3.subtract(point, b.shoulder)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, a.shoulder)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, b.shoulder)),
     ],
   });
 
@@ -92,7 +92,7 @@ export function resolveAutoMovieMutualGoal(
       const widest: number = most * (a.reach + b.reach);
       throw refuse(Math.sqrt(Math.max(0, widest * widest - span.y * span.y)));
     }
-    const axis: IAutoMovieVector3 = Vector3.scale(span, 1 / apart);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(span, 1 / apart);
     const reach: number = factor * a.reach;
     const along: number =
       (reach * reach - factor * factor * b.reach * b.reach + apart * apart) /
@@ -100,16 +100,16 @@ export function resolveAutoMovieMutualGoal(
     const off: number = Math.sqrt(Math.max(0, reach * reach - along * along));
     // Downward across the line between the shoulders; one shoulder straight
     // above the other leaves no such direction and no offset to place.
-    const down: IAutoMovieVector3 = Vector3.subtract(
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       { x: 0, y: -1, z: 0 },
-      Vector3.scale(axis, -axis.y),
+      AutoMovieEngineVector3.scale(axis, -axis.y),
     );
-    const length: number = Vector3.length(down);
+    const length: number = AutoMovieEngineVector3.length(down);
     return done(
-      Vector3.add(
-        Vector3.add(a.shoulder, Vector3.scale(axis, along)),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(a.shoulder, AutoMovieEngineVector3.scale(axis, along)),
         length > 1e-9
-          ? Vector3.scale(down, off / length)
+          ? AutoMovieEngineVector3.scale(down, off / length)
           : { x: 0, y: 0, z: 0 },
       ),
     );

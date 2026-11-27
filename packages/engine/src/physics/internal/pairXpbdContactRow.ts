@@ -1,8 +1,8 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import { AutoMovieXpbdMath } from "../AutoMovieXpbdMath";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import { AutoMovieEngineXpbdMath } from "../AutoMovieEngineXpbdMath";
 import type { IAutoMovieXpbdContactRow } from "./IAutoMovieXpbdContactRow";
 import type { IAutoMovieXpbdPointImpulse } from "./IAutoMovieXpbdPointImpulse";
 import type { IAutoMovieXpbdPointResponse } from "./IAutoMovieXpbdPointResponse";
@@ -24,8 +24,8 @@ import type { IAutoMovieXpbdResponder } from "./IAutoMovieXpbdResponder";
  */
 export function pairXpbdContactRow(
   trees: IAutoMovieXpbdResponder | undefined,
-  first: AutoMovieXpbdBody,
-  second: AutoMovieXpbdBody,
+  first: AutoMovieEngineXpbdBody,
+  second: AutoMovieEngineXpbdBody,
   direction: IAutoMovieVector3,
   armA: IAutoMovieVector3,
   armB: IAutoMovieVector3,
@@ -38,14 +38,14 @@ export function pairXpbdContactRow(
   if (jointed[0])
     impulses.push({
       body: first,
-      point: Vector3.add(first.center, armA),
+      point: AutoMovieEngineVector3.add(first.center, armA),
       direction,
     });
   if (jointed[1])
     impulses.push({
       body: second,
-      point: Vector3.add(second.center, armB),
-      direction: Vector3.scale(direction, -1),
+      point: AutoMovieEngineVector3.add(second.center, armB),
+      direction: AutoMovieEngineVector3.scale(direction, -1),
     });
   const response: IAutoMovieXpbdPointResponse | null =
     impulses.length === 0 ? null : trees!.respond(impulses);
@@ -57,15 +57,15 @@ export function pairXpbdContactRow(
   return {
     weight:
       (response?.weight ?? 0) +
-      (rigidFirst ? AutoMovieXpbdMath.weight(first, direction, armA) : 0) +
-      (rigidSecond ? AutoMovieXpbdMath.weight(second, direction, armB) : 0),
+      (rigidFirst ? AutoMovieEngineXpbdMath.weight(first, direction, armA) : 0) +
+      (rigidSecond ? AutoMovieEngineXpbdMath.weight(second, direction, armB) : 0),
     limit: (scale: number): boolean => response?.limit(scale) === true,
     apply: (scale: number): void => {
       response?.apply(scale);
-      const p: IAutoMovieVector3 = Vector3.scale(direction, scale);
-      if (rigidFirst) AutoMovieXpbdMath.apply(first, null, p, armA, armA);
+      const p: IAutoMovieVector3 = AutoMovieEngineVector3.scale(direction, scale);
+      if (rigidFirst) AutoMovieEngineXpbdMath.apply(first, null, p, armA, armA);
       if (rigidSecond)
-        AutoMovieXpbdMath.apply(second, null, Vector3.scale(p, -1), armB, armB);
+        AutoMovieEngineXpbdMath.apply(second, null, AutoMovieEngineVector3.scale(p, -1), armB, armB);
     },
   };
 }

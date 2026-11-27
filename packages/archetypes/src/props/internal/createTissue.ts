@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeTissue } from "../AutoMovieArchetypeTissue";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { GroomingPropDraw } from "./GroomingPropDraw";
@@ -32,15 +32,15 @@ export function createTissue(
 
   builder.box(
     "sheet",
-    Vector3.create(width, thick, length),
-    Vector3.create(0, thick / 2, 0),
+    AutoMovieEngineVector3.create(width, thick, length),
+    AutoMovieEngineVector3.create(0, thick / 2, 0),
     { color: "#f6f4f0" },
   );
   builder.affordance({
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick / 2, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, thick / 2, 0)),
     extent: null,
     grip: "precision",
     aperture: thick,
@@ -49,7 +49,7 @@ export function createTissue(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, thick, 0)),
     extent: null,
     width,
     depth: length,

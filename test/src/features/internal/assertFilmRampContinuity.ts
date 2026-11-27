@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineSpace } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
@@ -144,9 +144,9 @@ export function assertFilmRampContinuity(
   const slopeSecondFoot: IAutoMovieVector3 | null =
     slopeSecondNode === null || slopeSecondMotion === null
       ? null
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           slopeSecondNode.transform.translation,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             slopeSecondNode.transform.rotation,
             AutoMovieEngineKinematics.resolvePose(AutoMovieEngineMotionSampling.sampleMotion(slopeSecondMotion, 0).pose, rig).find(
               (bone: ReturnType<typeof AutoMovieEngineKinematics.resolvePose>[number]): boolean =>

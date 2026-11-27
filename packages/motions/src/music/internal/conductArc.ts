@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -20,6 +20,6 @@ export function conductArc(
   lift: number,
 ): IAutoMovieVector3 {
   const s: number = Math.min(1, Math.max(0, u));
-  const line: IAutoMovieVector3 = Vector3.lerp(from, to, s);
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(from, to, s);
   return { ...line, y: line.y + lift * Math.sin(Math.PI * s) };
 }

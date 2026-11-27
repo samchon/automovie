@@ -1,4 +1,4 @@
-import { AutoMoviePeriodicCubic } from "@automovie/engine";
+import { AutoMovieEnginePeriodicCubic } from "@automovie/engine";
 
 /** Read a conservative range for periodic Human rail controls. */
 export namespace AutoMovieHumanPeriodicRailRange {
@@ -18,6 +18,6 @@ export namespace AutoMovieHumanPeriodicRailRange {
   ): readonly [number, number] {
     if (values.length < 3 || !values.every(Number.isFinite))
       throw new Error("periodic rail needs at least three finite controls");
-    return AutoMoviePeriodicCubic.create(values).range();
+    return AutoMovieEnginePeriodicCubic.create(values).range();
   }
 }

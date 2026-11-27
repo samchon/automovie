@@ -19,9 +19,9 @@ import { indexSkeletonTopology } from "../../kinematics/internal/indexSkeletonTo
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { reachableBoneNames } from "../../kinematics/internal/reachableBoneNames";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { groundFunction } from "../../space/internal/groundFunction";
-import { HUMANOID_LEG_CHAINS } from "../HUMANOID_LEG_CHAINS";
+import { AutoMovieEngineHumanoidLegChains } from "../AutoMovieEngineHumanoidLegChains";
 import { contactMask } from "./contactMask";
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
@@ -60,7 +60,7 @@ export function preserveRetargetContacts(
   // an arm (or a hand contact declared against bones it does not have) is
   // skipped rather than half-solved.
   const windows: IAutoMovieContactWindow[] = [
-    ...HUMANOID_LEG_CHAINS.map(
+    ...AutoMovieEngineHumanoidLegChains.map(
       (chain: IAutoMoviePlantChain): IAutoMovieContactWindow => ({
         chain,
         window: null,
@@ -135,7 +135,7 @@ export function preserveRetargetContacts(
       if (inContact === false) return;
       pins[index]!.set(
         chain.effector,
-        Vector3.scale(
+        AutoMovieEngineVector3.scale(
           sourceResolved[index]!.get(chain.effector)!.worldPosition,
           props.rootScale,
         ),
@@ -363,7 +363,7 @@ function resolveEffectors(
 const drift: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
-): number => Vector3.length(Vector3.subtract(a, b));
+): number => AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, b));
 
 /*
  * Six-decimal rounding so a warning message stays readable and stable.

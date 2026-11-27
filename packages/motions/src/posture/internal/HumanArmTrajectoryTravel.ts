@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
@@ -37,13 +37,13 @@ export namespace HumanArmTrajectoryTravel {
       frame: IAutoMovieMotionHumanArmGeometry.IFrame,
       x: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.inverse(frame.parent.rotation),
-        Vector3.subtract(x, frame.parent.position),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(frame.parent.rotation),
+        AutoMovieEngineVector3.subtract(x, frame.parent.position),
       );
-    return Quaternion.rotateVector(
+    return AutoMovieEngineQuaternion.rotateVector(
       to.parent.rotation,
-      Vector3.subtract(local(to, q), local(from, p)),
+      AutoMovieEngineVector3.subtract(local(to, q), local(from, p)),
     );
   }
 
@@ -60,9 +60,9 @@ export namespace HumanArmTrajectoryTravel {
     from: IAutoMovieMotionHumanArmGeometry.IFrame,
     to: IAutoMovieMotionHumanArmGeometry.IFrame,
   ): IAutoMovieQuaternion {
-    return Quaternion.multiply(
+    return AutoMovieEngineQuaternion.multiply(
       from.parent.rotation,
-      Quaternion.inverse(to.parent.rotation),
+      AutoMovieEngineQuaternion.inverse(to.parent.rotation),
     );
   }
 }

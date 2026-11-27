@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -32,8 +32,8 @@ export function HumanMountFlight(
         ? props.left().goal.point
         : props.floor[side]
       : props.starts[side].ankle;
-    return Vector3.length(
-      Vector3.subtract(ankle, hipsAt(props.flight[side][0])[side]),
+    return AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(ankle, hipsAt(props.flight[side][0])[side]),
     );
   };
   const departed: Record<AutoMovieHumanSide, number> = {
@@ -43,7 +43,7 @@ export function HumanMountFlight(
   return (side: AutoMovieHumanSide, t: number): HumanMountFlight.IFlown => {
     const [leaves, arrives]: readonly [number, number] = props.flight[side];
     const share: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - leaves) / (arrives - leaves));
-    const facing: IAutoMovieVector3 = Quaternion.rotateVector(
+    const facing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       HumanFrame.turn(props.frameAt(t).yaw),
       { x: 0, y: 0, z: 1 },
     );
@@ -68,8 +68,8 @@ export function HumanMountFlight(
     // snap between the poses on its reach. A leg that left the floor
     // straighter than that, as an extended push leaves it, bends to it
     // over the swing rather than at once.
-    const fromHip: IAutoMovieVector3 = Vector3.subtract(course.ankle, hip);
-    const span: number = Vector3.length(fromHip);
+    const fromHip: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(course.ankle, hip);
+    const span: number = AutoMovieEngineVector3.length(fromHip);
     const short: number = HumanMount.SWING_REACH * (m.thigh + m.shank);
     const away: number = departed[side];
     const reach: number = short + Math.max(0, away - short) * (1 - share);
@@ -78,7 +78,7 @@ export function HumanMountFlight(
         ? course
         : {
             ...course,
-            ankle: Vector3.add(hip, Vector3.scale(fromHip, reach / span)),
+            ankle: AutoMovieEngineVector3.add(hip, AutoMovieEngineVector3.scale(fromHip, reach / span)),
           };
     // The knee bends toward its pole, turning from where an unturned hip
     // points it to the rest's own pole as the foot swings.
@@ -92,7 +92,7 @@ export function HumanMountFlight(
           hip,
           foot.ankle,
           facing,
-          Vector3.subtract(places[side].foot.bend, hipsAt(arrives)[side]),
+          AutoMovieEngineVector3.subtract(places[side].foot.bend, hipsAt(arrives)[side]),
           share,
         ),
       },
@@ -104,7 +104,7 @@ export function HumanMountFlight(
       side === push && props.onFloor[side] && leg.rotation !== undefined
         ? {
             ...leg,
-            rotation: Quaternion.slerp(
+            rotation: AutoMovieEngineQuaternion.slerp(
               props.left().goal.rotation ?? leg.rotation,
               leg.rotation,
               share,

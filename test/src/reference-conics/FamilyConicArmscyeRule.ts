@@ -3,7 +3,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftChain, AutoMovieMeshExtract as M, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineMeshExtract as M, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanBendArc,
   AutoMovieHumanConicLoft as H,
@@ -124,7 +124,7 @@ namespace FamilyConicArmscyeRule {
     const positions: number[] = [];
     const indices: number[] = [];
     for (const s of stations) {
-      const read = AutoMovieLoftChain.sampler(chain, s);
+      const read = AutoMovieEngineLoftChain.sampler(chain, s);
       for (let j: number = 0; j < K; ++j) positions.push(...read((2 * Math.PI * j) / K));
     }
     for (let i: number = 0; i + 1 < stations.length; ++i)
@@ -195,7 +195,7 @@ namespace FamilyConicArmscyeRule {
     const s0: number = arm.knots[0]!;
     const loft: IAutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
-    const read = AutoMovieLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
+    const read = AutoMovieEngineLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
     const points: V[] = Array.from({ length: 128 }, (_: unknown, j: number): V => read((2 * Math.PI * j) / 128) as V);
     const axis = H.axis(arm);
     const [a, b] = [axis.at(s0 + ARM_RAIL_MM - 1).origin as V, axis.at(s0 + ARM_RAIL_MM + 1).origin as V];
@@ -411,7 +411,7 @@ namespace FamilyConicArmscyeRule {
       const loft: IAutoMovieViewLoft.IResult = H.create(AutoMovieHumanF1.BODY.trunk, [fold.stations.start, (fold.stations.start + fold.stations.end) / 2, fold.stations.end]);
       if (loft.chain !== null)
         for (let s: number = fold.stations.start; s <= fold.stations.end; s += 2) {
-          const read = AutoMovieLoftChain.sampler(loft.chain, s);
+          const read = AutoMovieEngineLoftChain.sampler(loft.chain, s);
           for (let t: number = fold.phases.start; t <= fold.phases.end; t += 0.05) foldEdge.push(read(t) as V);
         }
     }
@@ -1266,7 +1266,7 @@ namespace FamilyConicArmscyeRule {
     const slit: V[] = [];
     if (cutterLoft.chain !== null)
       for (let i: number = 0; i <= 20; ++i) {
-        const read = AutoMovieLoftChain.sampler(cutterLoft.chain, at(i));
+        const read = AutoMovieEngineLoftChain.sampler(cutterLoft.chain, at(i));
         for (let j: number = 0; j < 36; ++j) slit.push(read((2 * Math.PI * j) / 36) as V);
       }
     return slit;
@@ -1722,7 +1722,7 @@ namespace FamilyConicArmscyeRule {
     const rings = stations.map((s: number) => {
       const frame: IAutoMovieLoftSectionFrame = axis.at(s);
       const origin: V = [...frame.origin] as V;
-      const read = AutoMovieLoftChain.sampler(chain, s);
+      const read = AutoMovieEngineLoftChain.sampler(chain, s);
       return { origin, normal: cross(frame.v as V, frame.u as V), u: frame.u as V, v: frame.v as V, loop: Array.from({ length: 72 }, (_: unknown, j: number): C.P => {
         const p: V = read((2 * Math.PI * j) / 72) as V;
         return [dot(sub(p, origin), frame.u as V), dot(sub(p, origin), frame.v as V)];
@@ -2191,7 +2191,7 @@ namespace FamilyConicArmscyeRule {
     // 3. The bands: each loop to today's arm family's ring at the ordinary margin, paired by the share of their lengths from their tops.
     const loft: IAutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
-    const railRead = AutoMovieLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
+    const railRead = AutoMovieEngineLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
     const rail: V[] = resample(Array.from({ length: RAYS }, (_: unknown, j: number): V => railRead((2 * Math.PI * j) / RAYS) as V), RAYS, n);
     const trunkNormal = normalsOf(trunkWall);
     const armNormal = normalsOf(armWall);

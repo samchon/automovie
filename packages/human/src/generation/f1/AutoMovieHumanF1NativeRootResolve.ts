@@ -1,8 +1,8 @@
 import {
-  AutoMoviePeriodicCubic,
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieConstructionPortCurve as PortCurve,
-  AutoMovieSolidVector as Vector,
+  AutoMovieEnginePeriodicCubic,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineConstructionPortCurve as PortCurve,
+  AutoMovieEngineSolidVector as Vector,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -42,7 +42,7 @@ export namespace AutoMovieHumanF1NativeRootResolve {
     });
     const rails: number[] = [...original.input.rails];
     const periodic: IAutoMoviePeriodicCubic.IPrepared | undefined =
-      rails.length === 1 ? undefined : AutoMoviePeriodicCubic.create(rails);
+      rails.length === 1 ? undefined : AutoMovieEnginePeriodicCubic.create(rails);
     const range: readonly [number, number] =
       periodic === undefined ? [rails[0]!, rails[0]!] : periodic.range();
     if (range[0] < child.domain[0] || range[1] > child.domain[1])

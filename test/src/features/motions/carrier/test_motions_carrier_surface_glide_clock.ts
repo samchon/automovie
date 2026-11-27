@@ -1,4 +1,6 @@
-import { HumanSurfaceGlide } from "@automovie/motions/internal";
+import {
+  HumanSurfaceGlide
+} from "../../../../../packages/motions/src/carrier/internal/HumanSurfaceGlide";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -7,7 +7,7 @@ import type { IAutoMovieProceduralSurface } from "@automovie/interface";
  * frame `uProceduralAlong`, `uProceduralAcross` and `uProceduralNormal`.
  *
  * Each body is the engine's `autoMovieProceduralPattern` for that kind written
- * in GLSL over `AUTOMOVIE_PROCEDURAL_NOISE_GLSL`, with the same constants and
+ * in GLSL over `AutoMovieRenderProceduralNoiseGlsl`, with the same constants and
  * the same operation order, so the value differs from the CPU reference only by
  * 32-bit float rounding. Only the material's own kind is compiled.
  */

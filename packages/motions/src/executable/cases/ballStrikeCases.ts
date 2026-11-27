@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanKickBall,
   IAutoMovieMotionHumanPerformance,
@@ -67,7 +67,7 @@ export function ballStrikeCases(
         ...everydayVerdicts.standard(performance, "a", who.body),
         everydayVerdicts.within(
           "instep on the ball at contact",
-          Math.abs(Vector3.length(Vector3.subtract(instep, centre)) - radius),
+          Math.abs(AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(instep, centre)) - radius),
           0.015,
           "mm",
         ),

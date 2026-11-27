@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -48,7 +48,7 @@ export namespace AutoMovieMotionHumanArmTarget {
         frame,
         HumanHand.frame(body, bones, side, surface, "relaxed").point,
       ),
-      rotation: Quaternion.multiply(
+      rotation: AutoMovieEngineQuaternion.multiply(
         HumanFrame.turn(-frame.yaw),
         bones.get(`${side}Hand`)!.worldRotation,
       ),
@@ -122,7 +122,7 @@ export namespace AutoMovieMotionHumanArmTarget {
     bend: IAutoMovieVector3,
     contact: IAutoMovieVector3,
   ): IAutoMovieHumanLimbGoal {
-    return assembled(wrist, bend, contact, !(Vector3.length(contact) < 1e-9));
+    return assembled(wrist, bend, contact, !(AutoMovieEngineVector3.length(contact) < 1e-9));
   }
 
   /*
@@ -151,7 +151,7 @@ export namespace AutoMovieMotionHumanArmTarget {
       target.rotation,
     );
     const bend: IAutoMovieVector3 = { ...target.bend };
-    const hasContact: boolean = !(Vector3.length(contact) < 1e-9);
+    const hasContact: boolean = !(AutoMovieEngineVector3.length(contact) < 1e-9);
     return (point: IAutoMovieVector3): IAutoMovieHumanLimbGoal => {
       const wrist: IAutoMovieMotionHumanHand.IWrist = place(point);
       return assembled(
@@ -180,7 +180,7 @@ export namespace AutoMovieMotionHumanArmTarget {
     const contact: IAutoMovieVector3 = {
       ...HumanHand.offset(body, side, surface, shape).point,
     };
-    const hasContact: boolean = !(Vector3.length(contact) < 1e-9);
+    const hasContact: boolean = !(AutoMovieEngineVector3.length(contact) < 1e-9);
     return (
       target: Pick<
         IAutoMovieMotionHumanArmTarget.ITarget,

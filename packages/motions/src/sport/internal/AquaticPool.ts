@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -197,7 +197,7 @@ export namespace AquaticPool {
       distance - 1.65,
       outboundOpening.root.y,
     );
-    const outShift: IAutoMovieVector3 = Vector3.subtract(
+    const outShift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       outboundStart,
       outboundOpening.root,
     );
@@ -205,7 +205,7 @@ export namespace AquaticPool {
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
       const shaped: IAutoMovieMotionHumanPosture = inbound.posture(seconds);
-      const root: IAutoMovieVector3 = Vector3.lerp(
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         inboundStart,
         inboundEnd,
         seconds / inbound.duration,
@@ -219,7 +219,7 @@ export namespace AquaticPool {
         seconds === 0 ? outboundOpening : outbound.posture(seconds);
       return AquaticPosture.translate(
         shaped,
-        Vector3.add(shaped.root, outShift),
+        AutoMovieEngineVector3.add(shaped.root, outShift),
       );
     };
     const entering: ReturnType<typeof AquaticPosture.blend> =
@@ -396,7 +396,7 @@ export namespace AquaticPool {
     const legacy: boolean = named.kind === "ledge";
     const width: number = named.width ?? named.length ?? Infinity;
     const depth: number = named.depth ?? Infinity;
-    const edgeToFace: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const edgeToFace: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       90,
     );
@@ -407,47 +407,47 @@ export namespace AquaticPool {
         (() => {
           const root: IAutoMovieRigidTransform = reader.frame(time);
           return {
-            position: Vector3.add(
+            position: AutoMovieEngineVector3.add(
               root.position,
-              Quaternion.rotateVector(root.rotation, named.frame.translation),
+              AutoMovieEngineQuaternion.rotateVector(root.rotation, named.frame.translation),
             ),
-            rotation: Quaternion.multiply(root.rotation, named.frame.rotation),
+            rotation: AutoMovieEngineQuaternion.multiply(root.rotation, named.frame.rotation),
           };
         })();
       return {
         origin: frame.position,
         rotation: legacy
-          ? Quaternion.multiply(frame.rotation, edgeToFace)
+          ? AutoMovieEngineQuaternion.multiply(frame.rotation, edgeToFace)
           : frame.rotation,
         width,
         depth,
       };
     };
     const opening: AquaticWallContact.Face = face(0);
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(opening.rotation, {
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(opening.rotation, {
       x: 1,
       y: 0,
       z: 0,
     });
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       opening.rotation,
       HumanMaterialContact.NORMAL,
     );
-    const delta: IAutoMovieVector3 = Vector3.subtract(
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       opening.origin,
       context.entry.posture.root,
     );
-    const offset: number = Math.abs(Vector3.dot(delta, along));
+    const offset: number = Math.abs(AutoMovieEngineVector3.dot(delta, along));
 
     // The authored turn keeps both contacts at one lane depth, which requires
     // the wall plane to face the swimmer. Allow rotation roundoff.
     if (
       !(offset < width / 2) ||
       !(Math.abs(along.y) <= 1e-8) ||
-      !(Vector3.dot(normal, forward) <= -1 + 1e-8)
+      !(AutoMovieEngineVector3.dot(normal, forward) <= -1 + 1e-8)
     )
       throw refuse();
-    return { distance: Vector3.dot(delta, forward), point: named.id, face };
+    return { distance: AutoMovieEngineVector3.dot(delta, forward), point: named.id, face };
   }
 }
 
@@ -467,6 +467,6 @@ type RaceKind = "crawlStartTurn" | "breaststrokeStartTurn";
 function wallRotation(forward: IAutoMovieVector3): IAutoMovieQuaternion {
   return HumanHand.align(
     { normal: HumanMaterialContact.NORMAL, forward: { x: 0, y: 0, z: -1 } },
-    { normal: Vector3.scale(forward, -1), forward: { x: 0, y: 1, z: 0 } },
+    { normal: AutoMovieEngineVector3.scale(forward, -1), forward: { x: 0, y: 1, z: 0 } },
   );
 }

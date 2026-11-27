@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -123,7 +123,7 @@ export namespace relayPass {
     // The pass must fall inside the takeover zone (World Athletics
     // TR24.19): the runner's root at `at`, projected on the zone's line.
     if (p.zone !== undefined) {
-      const line: IAutoMovieVector3 = Vector3.subtract(p.zone.to, p.zone.from);
+      const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(p.zone.to, p.zone.from);
       const length: number = Math.hypot(line.x, line.z);
       const root: IAutoMovieVector3 = base.posture(at).root;
       const along: number =
@@ -168,9 +168,9 @@ export namespace relayPass {
         position: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
       };
-      end = Vector3.add(
+      end = AutoMovieEngineVector3.add(
         worn.position,
-        Quaternion.rotateVector(worn.rotation, point.point),
+        AutoMovieEngineQuaternion.rotateVector(worn.rotation, point.point),
       );
     }
 
@@ -191,7 +191,7 @@ export namespace relayPass {
 
     // The run's own arm over each blend, solved at knots AutoKnots places
     // over the blend (Vitenti et al. 2024, arXiv:2412.13423) to the arm
-    // solver's angular resolution (`ROM_TOLERANCE`) and read from their
+    // solver's angular resolution (`AutoMovieEngineRomTolerance`) and read from their
     // course (`prepareHumanSampledCourse`), so a read resolves no posture.
     const runArm = (t: number): number[] => {
       const angles: IAutoMovieMotionHumanArmAngles.IAngles =
@@ -209,7 +209,7 @@ export namespace relayPass {
         from,
         to,
         sample: runArm,
-        tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+        tolerance: { kind: "absolute", absolute: AutoMovieEngineRomTolerance },
         step: AutoMovieMotionHumanArmCourse.STEP,
       });
     const into: (t: number) => number[] = blend(Math.max(0, at - REACH), at);
@@ -233,7 +233,7 @@ export namespace relayPass {
         x: number,
         y: number,
         z: number,
-      ): IAutoMovieVector3 => Vector3.normalize(frame.direction({ x, y, z }));
+      ): IAutoMovieVector3 => AutoMovieEngineVector3.normalize(frame.direction({ x, y, z }));
       const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
         body,
         posture,
@@ -251,7 +251,7 @@ export namespace relayPass {
           side,
           surface: "wrist",
           shape: "flat",
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             shoulder,
             frame.direction({
               x: 0,
@@ -260,7 +260,7 @@ export namespace relayPass {
             }),
           ),
           rotation,
-          bend: Vector3.add(
+          bend: AutoMovieEngineVector3.add(
             shoulder,
             frame.direction({
               x: sign * 0.3 * body.measure.upperArm,
@@ -291,9 +291,9 @@ export namespace relayPass {
         point:
           end === undefined
             ? palm
-            : Vector3.subtract(palm, Quaternion.rotateVector(rotation, end)),
+            : AutoMovieEngineVector3.subtract(palm, AutoMovieEngineQuaternion.rotateVector(rotation, end)),
         rotation,
-        bend: Vector3.add(
+        bend: AutoMovieEngineVector3.add(
           shoulder,
           frame.direction({
             x: sign * 0.3 * body.measure.upperArm,

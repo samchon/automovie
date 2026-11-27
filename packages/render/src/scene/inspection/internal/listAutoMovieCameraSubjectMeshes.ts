@@ -1,6 +1,6 @@
 import { Camera, Material, Mesh, Object3D } from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
@@ -11,7 +11,7 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
  * Admits two vertex paths. A rigid `Mesh` keeps the stock pre-render callbacks,
  * has no position morphs and no material that moves vertices on the GPU, so its
  * buffer positions times its world matrix are what the delivery draws. An
- * `AutoMovieSkinnedMesh` with a stock surface whose shader matches its skinning
+ * `AutoMovieRenderSkinnedMesh` with a stock surface whose shader matches its skinning
  * method reads posed positions from the skin's own CPU evaluation, which agrees
  * with the GPU blend within the mesh's stated float32 tolerance.
  * Parameter target: Resolved displayed root of the required subject.
@@ -28,11 +28,11 @@ export function listAutoMovieCameraSubjectMeshes(
   let supported: boolean = true;
   target.traverseVisible((object: Object3D): void => {
     if (!supported || !object.layers.test(camera.layers)) return;
-    if (!AutoMovieThreeKind.isMesh(object)) {
+    if (!AutoMovieRenderThreeKind.isMesh(object)) {
       if (
-        AutoMovieThreeKind.isLine(object) ||
-        AutoMovieThreeKind.isPoints(object) ||
-        AutoMovieThreeKind.isSprite(object)
+        AutoMovieRenderThreeKind.isLine(object) ||
+        AutoMovieRenderThreeKind.isPoints(object) ||
+        AutoMovieRenderThreeKind.isSprite(object)
       )
         supported = false;
       return;
@@ -46,7 +46,7 @@ export function listAutoMovieCameraSubjectMeshes(
     }
 
     // The owned skin's CPU pose matches only its own admitted shader route.
-    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(object)) {
+    if (AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(object)) {
       if (readAutoMovieDisplayedBox.supportsStockMaterial(object))
         meshes.push(object);
       else supported = false;
@@ -73,7 +73,7 @@ function keepsVertices(input: Material | Material[]): boolean {
   const materials: Material[] = [input].flat();
   return materials.every(
     (material: Material): boolean =>
-      !AutoMovieThreeKind.isShaderMaterial(material) &&
+      !AutoMovieRenderThreeKind.isShaderMaterial(material) &&
       material.onBeforeCompile === Material.prototype.onBeforeCompile &&
       material.onBeforeRender === Material.prototype.onBeforeRender &&
       !hasMaterialDisplacement(material),

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -44,9 +44,9 @@ export function slipRingSteady(
   const lowerArm: AutoMovieHumanoidBone = `${hand}LowerArm`;
   const wrist: IAutoMovieVector3 = bones.get(handBone)!.worldPosition;
   const elbow: IAutoMovieVector3 = bones.get(lowerArm)!.worldPosition;
-  const forearm: number = Vector3.distance(wrist, elbow);
-  const along: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(wrist, elbow),
+  const forearm: number = AutoMovieEngineVector3.distance(wrist, elbow);
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(wrist, elbow),
   );
   const palm: ReturnType<typeof HumanHand.offset> = HumanHand.offset(
     body,
@@ -54,20 +54,20 @@ export function slipRingSteady(
     "palm",
     "flat",
   );
-  const fingers: number = Vector3.distance(
+  const fingers: number = AutoMovieEngineVector3.distance(
     palm.point,
     HumanHand.offset(body, steady, "indexTip", "flat").point,
   );
   const skin: number = AutoMovieMotionHumanAuditSkin.BUILT;
-  const approach: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
+  const approach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(wrist, shoulder);
   // Point the hand along the available reach. A wristward hand on a forearm
   // presented toward the dresser makes the wrist fold back on its own arm.
-  const wristward: boolean = Vector3.dot(approach, along) >= 0;
+  const wristward: boolean = AutoMovieEngineVector3.dot(approach, along) >= 0;
   let distance: number;
   if (wristward)
     distance = Math.min(forearm, Math.max(forearm / 3, fingers + skin));
   else {
-    const heel: number = Vector3.dot(palm.point, palm.forward);
+    const heel: number = AutoMovieEngineVector3.dot(palm.point, palm.forward);
     const minimum: number = heel + skin;
     const maximum: number = forearm - fingers - skin;
     if (minimum > maximum)
@@ -87,13 +87,13 @@ export function slipRingSteady(
       });
     distance = minimum;
   }
-  const grasped: IAutoMovieVector3 = Vector3.lerp(
+  const grasped: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     wrist,
     elbow,
     distance / forearm,
   );
-  const outward: IAutoMovieVector3 = Vector3.normalize(
-    across(Vector3.subtract(shoulder, grasped), along),
+  const outward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    across(AutoMovieEngineVector3.subtract(shoulder, grasped), along),
   );
   // The palm lies on the partner's forearm collider itself, not one
   // radius off the axis shared by the whole limb. The support ray finds the
@@ -105,8 +105,8 @@ export function slipRingSteady(
       new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>([
         [lowerArm, bones.get(lowerArm)!],
       ]),
-      Vector3.add(grasped, Vector3.scale(outward, forearm)),
-      Vector3.scale(outward, -1),
+      AutoMovieEngineVector3.add(grasped, AutoMovieEngineVector3.scale(outward, forearm)),
+      AutoMovieEngineVector3.scale(outward, -1),
       2 * forearm,
     );
   if (hit === undefined)
@@ -119,7 +119,7 @@ export function slipRingSteady(
     });
   const forward: IAutoMovieVector3 = wristward
     ? along
-    : Vector3.subtract(hit.point, shoulder);
+    : AutoMovieEngineVector3.subtract(hit.point, shoulder);
   return AutoMovieMotionHumanArmTarget.prepareTarget(
     body,
     steady,
@@ -128,8 +128,8 @@ export function slipRingSteady(
   )({
     point: hit.point,
     rotation: HumanHand.align(palm, {
-      normal: Vector3.scale(hit.normal, -1),
-      forward: Vector3.normalize(across(forward, hit.normal)),
+      normal: AutoMovieEngineVector3.scale(hit.normal, -1),
+      forward: AutoMovieEngineVector3.normalize(across(forward, hit.normal)),
     }),
     bend,
   });
@@ -194,8 +194,8 @@ function across(
   vector: IAutoMovieVector3,
   axis: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.subtract(
+  return AutoMovieEngineVector3.subtract(
     vector,
-    Vector3.scale(axis, Vector3.dot(vector, axis)),
+    AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(vector, axis)),
   );
 }

@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -141,7 +141,7 @@ export namespace courseLimbSwivels {
       for (const [limb, seed] of seeds)
         out[limb] = {
           ...seed,
-          tolerance: hingedArmSwivel.RESOLUTION,
+          tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
           ...(prescribed ? { prescribed: true } : {}),
         };
       return out;
@@ -168,7 +168,7 @@ export namespace courseLimbSwivels {
           !limbs.includes(limb) &&
           posture.limbs[limb] !== undefined
         )
-          continued[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+          continued[limb] = { ...seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
       // A limb whose goal begins after the knot before (a hand laid on the
       // floor mid-turn, a fist taking its grip), the plan writing it no goal
       // there, has no fit there to continue: its fit starts from the swivel
@@ -201,7 +201,7 @@ export namespace courseLimbSwivels {
             continued[limb] = {
               swivel: seed.swivel,
               branch: seed.branch,
-              tolerance: hingedArmSwivel.RESOLUTION,
+              tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
             };
         }
       }

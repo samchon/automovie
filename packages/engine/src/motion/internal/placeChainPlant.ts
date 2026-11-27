@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * A chain's articulation-free frames under a pose, from the rig's constants
@@ -27,21 +27,21 @@ export function placeChainPlant(
     worldRotation: IAutoMovieQuaternion;
   },
 ): IAutoMoviePreparedChainPlant {
-  const upperRotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const upperRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     parent.worldRotation,
     constants.upperRotation,
   );
-  const upperPosition: IAutoMovieVector3 = Vector3.add(
+  const upperPosition: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     parent.worldPosition,
-    Quaternion.rotateVector(parent.worldRotation, constants.upperTranslation),
+    AutoMovieEngineQuaternion.rotateVector(parent.worldRotation, constants.upperTranslation),
   );
-  const lowerRotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const lowerRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     upperRotation,
     constants.lowerRotation,
   );
-  const lowerPosition: IAutoMovieVector3 = Vector3.add(
+  const lowerPosition: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     upperPosition,
-    Quaternion.rotateVector(upperRotation, constants.lowerOffset),
+    AutoMovieEngineQuaternion.rotateVector(upperRotation, constants.lowerOffset),
   );
   return {
     chain: constants.chain,
@@ -59,11 +59,11 @@ export function placeChainPlant(
     },
     upperDomain: constants.upperDomain,
     lowerDomain: constants.lowerDomain,
-    end: Vector3.add(
+    end: AutoMovieEngineVector3.add(
       lowerPosition,
-      Quaternion.rotateVector(lowerRotation, constants.effectorOffset),
+      AutoMovieEngineQuaternion.rotateVector(lowerRotation, constants.effectorOffset),
     ),
-    hinge: Quaternion.rotateVector(lowerRotation, constants.hinge),
+    hinge: AutoMovieEngineQuaternion.rotateVector(lowerRotation, constants.hinge),
     lowerOffset: constants.lowerOffset,
     lowerRotation: constants.lowerRotation,
     effectorOffset: constants.effectorOffset,

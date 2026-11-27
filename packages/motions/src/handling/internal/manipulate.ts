@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -125,15 +125,15 @@ export namespace manipulate {
                   c.site,
                 );
                 placed = {
-                  point: Vector3.add(
+                  point: AutoMovieEngineVector3.add(
                     frame.position,
-                    Quaternion.rotateVector(
+                    AutoMovieEngineQuaternion.rotateVector(
                       frame.rotation,
                       affordance.frame.translation,
                     ),
                   ),
-                  normal: Quaternion.rotateVector(
-                    Quaternion.multiply(
+                  normal: AutoMovieEngineQuaternion.rotateVector(
+                    AutoMovieEngineQuaternion.multiply(
                       frame.rotation,
                       affordance.frame.rotation,
                     ),
@@ -359,7 +359,7 @@ const typed: (
     context,
     context.params.prop,
   );
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     board.yaw,
   );
@@ -378,7 +378,7 @@ const typed: (
       return {
         site: letter,
         ...(entry === undefined ? {} : { hand: entry[0], digit: entry[1] }),
-        point: Vector3.add(board.at, Quaternion.rotateVector(turn, key.at)),
+        point: AutoMovieEngineVector3.add(board.at, AutoMovieEngineQuaternion.rotateVector(turn, key.at)),
         normal: { x: 0, y: 1, z: 0 },
         depth: typeText.TRAVEL,
       };

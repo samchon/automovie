@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -113,11 +113,11 @@ function plan(
   const frame: IAutoMovieRigidTransform = reader.frame(context.start);
   const mouth: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, opening);
   const support: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, rim);
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-    Quaternion.multiply(frame.rotation, opening.frame.rotation),
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, opening.frame.rotation),
   );
   const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Quaternion.rotateVector(inverse, Vector3.subtract(point, mouth.point));
+    AutoMovieEngineQuaternion.rotateVector(inverse, AutoMovieEngineVector3.subtract(point, mouth.point));
   let start: IAutoMovieVector3;
   let end: IAutoMovieVector3;
   try {
@@ -140,7 +140,7 @@ function plan(
   if (
     !(front.z > clearance && back.z < -clearance) ||
     ![clearance, -clearance].every((z: number): boolean => {
-      const point: IAutoMovieVector3 = Vector3.lerp(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         front,
         back,
         (front.z - z) / (front.z - back.z),
@@ -159,12 +159,12 @@ function plan(
     );
 
   const face: IAutoMovieMotionHumanOperateDrive.IPlace = working.place(0);
-  const advance: IAutoMovieVector3 = Vector3.subtract(end, start);
-  const offset: IAutoMovieVector3 = Vector3.subtract(local(face.point), start);
+  const advance: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(end, start);
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(local(face.point), start);
   if (
-    !(Vector3.length(offset) <= p.radius + 1e-9) ||
-    !(Vector3.dot(offset, advance) < 0) ||
-    !(Vector3.dot(Quaternion.rotateVector(inverse, face.normal), advance) < 0)
+    !(AutoMovieEngineVector3.length(offset) <= p.radius + 1e-9) ||
+    !(AutoMovieEngineVector3.dot(offset, advance) < 0) ||
+    !(AutoMovieEngineVector3.dot(AutoMovieEngineQuaternion.rotateVector(inverse, face.normal), advance) < 0)
   )
     throw garmentRefusal(
       p.garment,
@@ -179,11 +179,11 @@ function plan(
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(context.body, context.entry.pose);
   const motion: number = Math.max(
-    Vector3.length(
-      Vector3.subtract(face.point, bones.get(`${side}Hand`)!.worldPosition),
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(face.point, bones.get(`${side}Hand`)!.worldPosition),
     ),
-    Vector3.length(
-      Vector3.subtract(support.point, bones.get(`${other}Hand`)!.worldPosition),
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(support.point, bones.get(`${other}Hand`)!.worldPosition),
     ),
   );
   const transport: number =
@@ -284,7 +284,7 @@ function fingers(
     `${digit}Tip`,
     "relaxed",
   ).point;
-  const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, offset);
+  const lever: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, offset);
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
     body,
     context.entry.posture,
@@ -298,7 +298,7 @@ function fingers(
     body,
     side,
     digit,
-    Vector3.subtract(first.point, lever),
+    AutoMovieEngineVector3.subtract(first.point, lever),
     rotation,
     first.point,
     first.normal,
@@ -322,7 +322,7 @@ function fingers(
         _posture: IAutoMovieMotionHumanPosture,
         seconds: number,
       ): IAutoMovieHumanLimbGoal => ({
-        point: Vector3.subtract(target(seconds).point, lever),
+        point: AutoMovieEngineVector3.subtract(target(seconds).point, lever),
         rotation,
         contact: offset,
         bend,
@@ -396,12 +396,12 @@ function place(
   affordance: IAutoMovieAffordance,
 ): IAutoMovieMotionHumanOperateDrive.IPlace {
   return {
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, affordance.frame.translation),
     ),
-    normal: Quaternion.rotateVector(
-      Quaternion.multiply(frame.rotation, affordance.frame.rotation),
+    normal: AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(frame.rotation, affordance.frame.rotation),
       { x: 0, y: 1, z: 0 },
     ),
   };

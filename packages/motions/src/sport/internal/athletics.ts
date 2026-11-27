@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -207,17 +207,17 @@ export namespace athletics {
       end: clock.at("end"),
     };
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
-    const standingHips: IAutoMovieVector3 = Vector3.add(
+    const standingHips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       entry.root,
-      Quaternion.rotateVector(humanPostureHeading(entry), hipsRest),
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(entry), hipsRest),
     );
-    const hipsAt: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+    const hipsAt: ReturnType<typeof AutoMovieEngineVector3.prepareLerp> = AutoMovieEngineVector3.prepareLerp(
       standingHips,
       target.hips,
     );
     const ahead: IAutoMovieVector3 = HumanFrame.forward(entry.yaw);
     const push: IAutoMovieVector3 = {
-      ...Vector3.scale(ahead, 0.12 * body.measure.stature),
+      ...AutoMovieEngineVector3.scale(ahead, 0.12 * body.measure.stature),
       y: 0.04 * body.measure.stature,
     };
     const flexions: Record<PlanFlexionsEntry, number> = {
@@ -283,8 +283,8 @@ export namespace athletics {
           : AutoMovieMotionHumanLeg.prepareArc(
               block,
               {
-                ankle: Vector3.add(block.ankle, {
-                  ...Vector3.scale(ahead, 0.24 * body.measure.stature),
+                ankle: AutoMovieEngineVector3.add(block.ankle, {
+                  ...AutoMovieEngineVector3.scale(ahead, 0.24 * body.measure.stature),
                   y: 0.11 * body.measure.stature,
                 }),
                 rotation: stance.rotation,

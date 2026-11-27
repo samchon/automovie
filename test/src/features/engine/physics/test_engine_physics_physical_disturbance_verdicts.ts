@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalFrame,
@@ -67,8 +67,8 @@ export function test_engine_physics_physical_disturbance_verdicts(): void {
               },
               rotation:
                 segment.bone === root && tilt !== 0
-                  ? Quaternion.multiply(
-                      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, tilt),
+                  ? AutoMovieEngineQuaternion.multiply(
+                      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, tilt),
                       pose.rotation,
                     )
                   : pose.rotation,

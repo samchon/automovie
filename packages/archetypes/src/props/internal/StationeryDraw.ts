@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBand,
@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-import * as StationeryDrawData from "./StationeryDrawData";
+import { StationeryDrawData } from "./StationeryDrawData";
 
 /*
  * The seeded recipes originally published as `createStationery`.
@@ -274,9 +274,9 @@ export namespace StationeryDraw {
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, thick / 2, length / 2 - gripInset),
-        Vector3.create(0, 1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, thick / 2, length / 2 - gripInset),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       grip: "precision",
@@ -287,7 +287,7 @@ export namespace StationeryDraw {
       id: "face",
       kind: "surface",
       direction: "normal",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, thick, 0)),
       extent: null,
       width,
       depth: length,

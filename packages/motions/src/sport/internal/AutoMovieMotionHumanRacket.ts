@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -199,7 +199,7 @@ export namespace AutoMovieMotionHumanRacket {
           other,
           // A hand's length ahead of the racket hand along the heading, on the racket's throat.
           (posture: IAutoMovieMotionHumanPosture) =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               AutoMovieMotionHumanPlaced.grid(body, posture, side, {
                 height: "waist",
                 lateral: "centre",
@@ -234,9 +234,9 @@ export namespace AutoMovieMotionHumanRacket {
               // Hanging below the shoulders: their midpoint dropped by `HANG` of the arm, which leaves the lower hand's wrist inside the arm's reach through the waggle.
               const shoulder: IAutoMovieVector3 =
                 AutoMovieMotionHumanPlaced.shoulders(body, posture);
-              return Vector3.add(
+              return AutoMovieEngineVector3.add(
                 { x: shoulder.x, y: shoulder.y - arm * HANG, z: shoulder.z },
-                Vector3.add(
+                AutoMovieEngineVector3.add(
                   local(posture, { x: 0, y: 0, z: waggle(s) }),
                   local(posture, {
                     x: (hand === "left" ? 0.5 : -0.5) * m.hand * 0.3,

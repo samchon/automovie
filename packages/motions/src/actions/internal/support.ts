@@ -25,7 +25,7 @@ import { supportCourse } from "./supportCourse";
 import { supportKey } from "./supportKey";
 import { supportPlan } from "./supportPlan";
 import { supportStep } from "./supportStep";
-import * as SupportData from "./SupportData";
+import { SupportData } from "./SupportData";
 
 /*
  * Moving the body's weight across a sequence of supports: each stance's

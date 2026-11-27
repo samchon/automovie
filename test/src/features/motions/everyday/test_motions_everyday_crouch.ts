@@ -1,9 +1,13 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import {
-  AutoMovieMotionHumanRefusal,
-  crouch,
-  crouchAngles,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  crouch
+} from "../../../../../packages/motions/src/everyday/internal/crouch";
+import {
+  crouchAngles
+} from "../../../../../packages/motions/src/everyday/internal/crouchAngles";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -23,10 +27,10 @@ import { TestValidator } from "@nestia/e2e";
  *    is refused on `depth`, its knee kept under the range plus 28.
  */
 export async function test_motions_everyday_crouch(): Promise<void> {
-  const hip: number = DEFAULT_HUMANOID_ROM.leftUpperLeg!.flexion!.max;
+  const hip: number = AutoMovieEngineDefaultHumanoidRom.leftUpperLeg!.flexion!.max;
   const ankle: number = Math.min(
     crouch.ANKLE,
-    DEFAULT_HUMANOID_ROM.leftFoot!.flexion!.max,
+    AutoMovieEngineDefaultHumanoidRom.leftFoot!.flexion!.max,
   );
   const partial: crouchAngles.IAngles = crouchAngles(
     crouch.KNEE.partial,

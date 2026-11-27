@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -51,7 +51,7 @@ export function staggerDorsal(
         (q: IAutoMovieVector3): IAutoMovieVector3 => ({ x: q.x, y: 0, z: q.z }),
       ),
     );
-    return Vector3.distance(staggerNearest(outline, p), p);
+    return AutoMovieEngineVector3.distance(staggerNearest(outline, p), p);
   };
   const left: number = away("left");
   const right: number = away("right");

@@ -5,8 +5,14 @@ import type {
   IAutoMovieMotionHumanSheath,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanChain } from "@automovie/motions";
-import { AutoMovieMotionHumanRefusal, HumanSheath } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+
+import {
+  HumanSheath
+} from "../../../../../packages/motions/src/handling/internal/HumanSheath";
 import { TestValidator } from "@nestia/e2e";
 
 import { compositionIntents } from "../../internal/compositionIntents";

@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanGuitarChord } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, guitarChordTimes } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  guitarChordTimes
+} from "../../../../../packages/motions/src/handling/internal/guitarChordTimes";
 import { TestValidator } from "@nestia/e2e";
 
 /**

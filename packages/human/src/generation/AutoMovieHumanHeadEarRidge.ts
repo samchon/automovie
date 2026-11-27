@@ -1,9 +1,9 @@
 import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -231,7 +231,7 @@ export namespace AutoMovieHumanHeadEarRidge {
                   value:
                     typeof shared === "object"
                       ? shared.inputs.shoulders[quarter]!
-                      : AutoMovieViewSection.ELLIPSE,
+                      : AutoMovieEngineViewSection.ELLIPSE,
                   ...(jet === undefined ? {} : { jet }),
                 };
               },
@@ -270,23 +270,23 @@ export namespace AutoMovieHumanHeadEarRidge {
     if (knot === undefined)
       throw new Error(`Ear ridge ${owner.name} has no original port ${site}`);
     const admitted: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(owner);
+      AutoMovieEngineLoftViewSource.create(owner);
     if (admitted === null || admitted.source === null)
       throw new Error(
         `Ear ridge ${owner.name} has no admitted original port field`,
       );
     const inputs: IAutoMovieLoftViewRead.IValues | string =
-      AutoMovieLoftViewRead.values(admitted.source, knot.station);
+      AutoMovieEngineLoftViewRead.values(admitted.source, knot.station);
     if (typeof inputs === "string")
       throw new Error(`Ear port ${site}: ${inputs}`);
     const jets: IAutoMovieLoftViewRead.IJets | string =
-      AutoMovieLoftViewRead.jets(admitted.source, knot.station);
+      AutoMovieEngineLoftViewRead.jets(admitted.source, knot.station);
     const coordinate: IAutoMovieViewOutline.IReading[] = owner.coordinates.map(
       (
         outline: IAutoMovieViewOutline.IOutline,
       ): IAutoMovieViewOutline.IReading => {
         const reading: IAutoMovieViewOutline.IReading | string =
-          AutoMovieViewOutline.at(outline, knot.station);
+          AutoMovieEngineViewOutline.at(outline, knot.station);
         if (typeof reading === "string" || reading.stationJet === null)
           throw new Error(
             `Ear port ${site} has no finite original coordinate2`,
@@ -313,7 +313,7 @@ export namespace AutoMovieHumanHeadEarRidge {
             reading.stationJet![1],
         ) as [number, number, number],
       ],
-      phase: AutoMovieLoftSectionNative.phase(inputs),
+      phase: AutoMovieEngineLoftSectionNative.phase(inputs),
     };
   }
 

@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import type { IAutoMovieAngleRange } from "@automovie/interface";
 
 /*
@@ -7,7 +7,7 @@ import type { IAutoMovieAngleRange } from "@automovie/interface";
  * Returns: Degrees, the lesser way of the stiffer hip.
  * When the table gives a hip no twist interval.
  */
-export function walkHipTwist(rom: typeof DEFAULT_HUMANOID_ROM): number {
+export function walkHipTwist(rom: typeof AutoMovieEngineDefaultHumanoidRom): number {
   return Math.min(
     ...(["leftUpperLeg", "rightUpperLeg"] as const).map(
       (bone: WalkHipTwistBone): number => {

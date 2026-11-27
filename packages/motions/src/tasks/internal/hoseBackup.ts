@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -99,9 +99,9 @@ export function hoseBackup(
         { ...grip, frame: { ...grip.frame, translation: local } },
         state[joint.id] ?? 0,
       );
-      attitude = Quaternion.multiply(
-        Quaternion.fromAxisAngle(
-          Quaternion.rotateVector(joint.frame.rotation, { x: 0, y: 1, z: 0 }),
+      attitude = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(
+          AutoMovieEngineQuaternion.rotateVector(joint.frame.rotation, { x: 0, y: 1, z: 0 }),
           state[joint.id] ?? 0,
         ),
         attitude,
@@ -109,12 +109,12 @@ export function hoseBackup(
       rides = joint.rides;
     }
     return {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, local),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, local),
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(frame.rotation, attitude),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(frame.rotation, attitude),
       ),
     };
   };
@@ -128,12 +128,12 @@ export function hoseBackup(
   // The grip as the stream opens: each hand wraps the line (its `+X`) as a
   // power grip takes any handle, from the grip's `-Y` and then rolled.
   const set: IAutoMovieRigidTransform = solve(ready);
-  const approach: IAutoMovieVector3 = Quaternion.rotateVector(set.rotation, {
+  const approach: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(set.rotation, {
     x: 0,
     y: -1,
     z: 0,
   });
-  const line: IAutoMovieVector3 = Quaternion.rotateVector(set.rotation, {
+  const line: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(set.rotation, {
     x: 1,
     y: 0,
     z: 0,
@@ -148,26 +148,26 @@ export function hoseBackup(
   // The hand whose shoulder lies farther from the grip reaches across the
   // body, so it takes the line ahead, where the trunk leaves it room.
   const far: AutoMovieHumanSide =
-    Vector3.distance(bones.get("leftUpperArm")!.worldPosition, set.position) >
-    Vector3.distance(bones.get("rightUpperArm")!.worldPosition, set.position)
+    AutoMovieEngineVector3.distance(bones.get("leftUpperArm")!.worldPosition, set.position) >
+    AutoMovieEngineVector3.distance(bones.get("rightUpperArm")!.worldPosition, set.position)
       ? "left"
       : "right";
   const arms: IAutoMovieMotionHumanPrimitive[] = SIDES.map(
     (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => {
       // The two hands share the grip's length, each at the middle of its half.
-      const along: IAutoMovieVector3 = Vector3.scale(
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         line,
         ((side === far ? 1 : -1) * (grip.length ?? 0)) / 4,
       );
       // Rolled about the line until the wrist lies nearest its shoulder.
       const wrist: IAutoMovieMotionHumanHand.IWrist = HumanGraspRoll(
         HumanGrasp.hand(context.body, side, {
-          point: Vector3.add(set.position, along),
+          point: AutoMovieEngineVector3.add(set.position, along),
           approach,
           axis: line,
           width: grip.aperture ?? 0,
         }),
-        Vector3.add(set.position, along),
+        AutoMovieEngineVector3.add(set.position, along),
         line,
         bones.get(`${side}UpperArm`)!.worldPosition,
       );
@@ -181,12 +181,12 @@ export function hoseBackup(
         context,
         side,
         [
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             wrist.point,
-            Quaternion.rotateVector(wrist.rotation, socket),
+            AutoMovieEngineQuaternion.rotateVector(wrist.rotation, socket),
           ),
         ],
-        Quaternion.rotateVector(wrist.rotation, socket),
+        AutoMovieEngineQuaternion.rotateVector(wrist.rotation, socket),
       );
       return AutoMovieMotionHumanArm.carried({
         body: context.body,
@@ -202,9 +202,9 @@ export function hoseBackup(
           _posture: IAutoMovieMotionHumanPosture,
           seconds: number,
         ): IAutoMovieHumanLimbGoal => ({
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             wrist.point,
-            Vector3.subtract(at(seconds), set.position),
+            AutoMovieEngineVector3.subtract(at(seconds), set.position),
           ),
           rotation: wrist.rotation,
           contact: socket,

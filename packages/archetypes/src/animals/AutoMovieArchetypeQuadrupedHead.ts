@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import type { AutoMovieArchetypeBuilder } from "../core";
 import { ArchetypeMassArithmetic } from "../core/internal/ArchetypeMassArithmetic";
@@ -59,7 +59,7 @@ export namespace AutoMovieArchetypeQuadrupedHead {
         ArchetypeMassPrimitive({
           type: "capsule",
           radius: head.headRadius,
-          height: Vector3.length(Vector3.subtract(head.nose, head.poll)),
+          height: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(head.nose, head.poll)),
         });
       if (solid === null)
         throw new RangeError(

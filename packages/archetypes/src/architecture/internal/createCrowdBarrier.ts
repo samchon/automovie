@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeCrowdBarrier } from "../AutoMovieArchetypeCrowdBarrier";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { ObstacleDraw } from "./ObstacleDraw";
@@ -25,7 +25,7 @@ export function createCrowdBarrier(
 > {
   const { builder, d }: ObstacleDraw.IObstacle<AutoMovieArchetypeCrowdBarrier.Affordance> =
     ObstacleDraw.begin("crowdBarrier", "crowd barrier", "steel", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const length: number = d.length!;
   const height: number = d.height!;
   const r: number = d.tube! / 2;

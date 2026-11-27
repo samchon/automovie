@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
@@ -33,23 +33,23 @@ export namespace HumanPostureRaw {
     root: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture {
     const out: IAutoMovieMotionHumanPosture = structuredClone(source);
-    const delta: IAutoMovieVector3 = Vector3.subtract(root, source.root);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(root, source.root);
     out.root = { ...root };
     const shifted: Set<object> = new Set();
     for (const goal of Object.values(out.limbs)) {
       if (goal === undefined || goal.on !== undefined || shifted.has(goal))
         continue;
       shifted.add(goal);
-      goal.point = Vector3.add(goal.point, delta);
-      goal.bend = Vector3.add(goal.bend, delta);
+      goal.point = AutoMovieEngineVector3.add(goal.point, delta);
+      goal.bend = AutoMovieEngineVector3.add(goal.bend, delta);
     }
     for (const goal of Object.values(out.digits ?? {}))
       if (goal !== undefined && goal.on === undefined && !shifted.has(goal)) {
         shifted.add(goal);
-        goal.point = Vector3.add(goal.point, delta);
+        goal.point = AutoMovieEngineVector3.add(goal.point, delta);
       }
     if (out.rotation !== undefined)
-      out.rotation.about = Vector3.add(out.rotation.about, delta);
+      out.rotation.about = AutoMovieEngineVector3.add(out.rotation.about, delta);
     return out;
   }
 

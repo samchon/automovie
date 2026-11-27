@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeStageMatchlock } from "../AutoMovieArchetypeStageMatchlock";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -26,7 +26,7 @@ export function createStageMatchlock(
   AutoMovieArchetypeStageMatchlock.Affordance,
   AutoMovieArchetypeStageMatchlock.Dimension
 > {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const builder: AutoMovieArchetypeBuilder<
     AutoMovieArchetypeStageMatchlock.Affordance,
     AutoMovieArchetypeStageMatchlock.Dimension

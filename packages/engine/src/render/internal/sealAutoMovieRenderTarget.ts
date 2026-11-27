@@ -6,7 +6,7 @@ import {
   type IAutoMovieSealRenderTarget,
 } from "@automovie/interface";
 
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter";
@@ -91,14 +91,14 @@ export function sealAutoMovieRenderTarget(
         `render target asset "${asset.path}" is declared more than once`,
       );
     paths.add(asset.path);
-    if (SHA256_DIGEST_PATTERN.test(asset.digest) === false)
+    if (AutoMovieEngineSha256DigestPattern.test(asset.digest) === false)
       throw new Error(
         `render target asset "${asset.path}" must carry one exact lowercase SHA-256 digest, but carried "${asset.digest}"`,
       );
   }
   if (
     props.textureDigest !== undefined &&
-    SHA256_DIGEST_PATTERN.test(props.textureDigest) === false
+    AutoMovieEngineSha256DigestPattern.test(props.textureDigest) === false
   )
     throw new Error(
       "render target textureDigest must carry one exact lowercase SHA-256 digest",

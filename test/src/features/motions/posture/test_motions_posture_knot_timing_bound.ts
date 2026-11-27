@@ -1,8 +1,12 @@
 import {
-  HumanKnotTiming,
-  HumanKnotTimingExcess,
-  HumanQuinticSegment,
-} from "@automovie/motions/internal";
+  HumanKnotTiming
+} from "../../../../../packages/motions/src/posture/internal/HumanKnotTiming";
+import {
+  HumanKnotTimingExcess
+} from "../../../../../packages/motions/src/posture/internal/HumanKnotTimingExcess";
+import {
+  HumanQuinticSegment
+} from "../../../../../packages/motions/src/posture/internal/HumanQuinticSegment";
 import { TestValidator } from "@nestia/e2e";
 
 /** The grid's chord error, metres: toppra's `maxErrThreshold`. */

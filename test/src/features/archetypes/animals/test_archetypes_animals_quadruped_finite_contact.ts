@@ -1,6 +1,6 @@
 import {
   type AutoMovieEnginePhysicsFaceContactTypes,
-  Quaternion,
+  AutoMovieEngineQuaternion,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import {
@@ -22,7 +22,7 @@ import { nclose } from "../../internal/nclose";
 /** The test fixtures are in one metre-scale world frame. */
 const IDENTITY: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
-  rotation: Quaternion.identity(),
+  rotation: AutoMovieEngineQuaternion.identity(),
 };
 
 /**
@@ -99,7 +99,7 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
     kind: "box",
     transform: {
       position: { x: 0, y: 0.3, z: 0 },
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 45),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 45),
     },
     halfExtents: { x: 1, y: 0.05, z: 0.25 },
   };

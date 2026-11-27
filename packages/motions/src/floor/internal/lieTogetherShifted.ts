@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
@@ -21,11 +21,11 @@ export function lieTogetherShifted(
           ? goal
           : {
               ...goal,
-              point: Vector3.add(goal.point, by),
-              bend: Vector3.add(goal.bend, by),
+              point: AutoMovieEngineVector3.add(goal.point, by),
+              bend: AutoMovieEngineVector3.add(goal.bend, by),
             };
   }
-  return { ...posture, root: Vector3.add(posture.root, by), limbs };
+  return { ...posture, root: AutoMovieEngineVector3.add(posture.root, by), limbs };
 }
 
 /*

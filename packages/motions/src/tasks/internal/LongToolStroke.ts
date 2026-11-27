@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanLongTool,
   IAutoMovieVector3,
@@ -46,7 +46,7 @@ export function LongToolStroke(
           { name: "pull", share: keys[2]!.share },
         ],
         contact: grip(keys[2]!, props.length),
-        pose: keyed(keys, props.length, Vector3.scale(UP, -1)),
+        pose: keyed(keys, props.length, AutoMovieEngineVector3.scale(UP, -1)),
       };
     }
   }
@@ -254,44 +254,44 @@ function swing(
   const side: boolean = props.stroke === "side";
   // The hands meet the work in front of the hips (a chop or a swing) or
   // of the chest (a side chop); the line runs from there to the work.
-  const hand: IAutoMovieVector3 = Vector3.add(
+  const hand: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     hips,
-    Vector3.add(Vector3.scale(f, side ? 0.4 : 0.35), {
+    AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(f, side ? 0.4 : 0.35), {
       x: 0,
       y: side ? 0.35 : 0.05,
       z: 0,
     }),
   );
-  const toward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(at, hand),
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(at, hand),
   );
-  const contact: IAutoMovieVector3 = Vector3.subtract(
+  const contact: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     at,
-    Vector3.scale(toward, length),
+    AutoMovieEngineVector3.scale(toward, length),
   );
   // The top: the hands by the lead shoulder, the tool raised up and back
   // over it (a chop or a swing) or drawn back level beside it (a side chop).
-  const top: IAutoMovieVector3 = Vector3.add(lead, {
+  const top: IAutoMovieVector3 = AutoMovieEngineVector3.add(lead, {
     x: 0,
     y: side ? -0.1 : 0.15,
     z: 0,
   });
-  const raised: IAutoMovieVector3 = Vector3.normalize(
+  const raised: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
     side
-      ? Vector3.add(
-          Vector3.add(Vector3.scale(lw, 0.9), Vector3.scale(f, -0.4)),
-          Vector3.scale(UP, 0.15),
+      ? AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(lw, 0.9), AutoMovieEngineVector3.scale(f, -0.4)),
+          AutoMovieEngineVector3.scale(UP, 0.15),
         )
-      : Vector3.add(
-          Vector3.add(Vector3.scale(UP, 0.9), Vector3.scale(f, -0.35)),
-          Vector3.scale(lw, 0.2),
+      : AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(UP, 0.9), AutoMovieEngineVector3.scale(f, -0.35)),
+          AutoMovieEngineVector3.scale(lw, 0.2),
         ),
   );
   const turn: number = Math.acos(
-    Math.max(-1, Math.min(1, Vector3.dot(raised, toward))),
+    Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(raised, toward))),
   );
-  const normal: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(raised, toward),
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(raised, toward),
   );
   const slides: readonly [number, number] =
     props.stroke === "swing" ? [0.55, 0.12] : side ? [0.4, 0.15] : [0.6, 0.1];
@@ -302,14 +302,14 @@ function swing(
       s < DOWN
         ? AutoMovieEngineMotionSampling.minimumJerkShare(s / DOWN)
         : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((s - DOWN) / (1 - DOWN));
-    const line: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(normal, (turn * down * 180) / Math.PI),
+    const line: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle(normal, (turn * down * 180) / Math.PI),
       raised,
     );
     return {
-      grip: Vector3.lerp(top, contact, down),
+      grip: AutoMovieEngineVector3.lerp(top, contact, down),
       line,
-      facing: Vector3.normalize(Vector3.cross(normal, line)),
+      facing: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(normal, line)),
       slide: length * (slides[0] + (slides[1] - slides[0]) * down),
       reach: down,
     };
@@ -326,19 +326,19 @@ function swing(
  */
 function dig(props: LongToolStroke.IProps): IKey[] {
   const { at, forward: f, leadward: lw, hips } = props;
-  const steep: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.add(Vector3.scale(UP, -0.85), Vector3.scale(f, 0.45)),
+  const steep: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(UP, -0.85), AutoMovieEngineVector3.scale(f, 0.45)),
   );
-  const levered: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.add(Vector3.scale(UP, -0.45), Vector3.scale(f, 0.85)),
+  const levered: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(UP, -0.45), AutoMovieEngineVector3.scale(f, 0.85)),
   );
-  const flat: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.add(Vector3.scale(f, 0.95), Vector3.scale(UP, -0.15)),
+  const flat: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(f, 0.95), AutoMovieEngineVector3.scale(UP, -0.15)),
   );
   const away: IAutoMovieVector3 =
     props.to === undefined
       ? lw
-      : Vector3.normalize({
+      : AutoMovieEngineVector3.normalize({
           x: props.to.x - hips.x,
           y: 0,
           z: props.to.z - hips.z,
@@ -346,7 +346,7 @@ function dig(props: LongToolStroke.IProps): IKey[] {
   const slide: number = props.length * 0.55;
   const poised: IKey = {
     share: 0,
-    face: Vector3.add(at, Vector3.scale(UP, 0.08)),
+    face: AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(UP, 0.08)),
     line: steep,
     slide,
     reach: 0.8,
@@ -356,23 +356,23 @@ function dig(props: LongToolStroke.IProps): IKey[] {
     { share: 0.15, face: at, line: steep, slide, reach: 1 },
     {
       share: 0.25,
-      face: Vector3.add(at, Vector3.scale(UP, -DEPTH)),
+      face: AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(UP, -DEPTH)),
       line: steep,
       slide,
       reach: 1,
     },
     {
       share: 0.4,
-      face: Vector3.add(at, Vector3.scale(UP, -0.8 * DEPTH)),
+      face: AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(UP, -0.8 * DEPTH)),
       line: levered,
       slide,
       reach: 1,
     },
     {
       share: 0.6,
-      face: Vector3.add(
+      face: AutoMovieEngineVector3.add(
         hips,
-        Vector3.add(Vector3.scale(f, 0.55), Vector3.scale(UP, -0.15)),
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(f, 0.55), AutoMovieEngineVector3.scale(UP, -0.15)),
       ),
       line: flat,
       slide,
@@ -380,12 +380,12 @@ function dig(props: LongToolStroke.IProps): IKey[] {
     },
     {
       share: 0.75,
-      face: Vector3.add(
+      face: AutoMovieEngineVector3.add(
         hips,
-        Vector3.add(Vector3.scale(away, 0.7), Vector3.scale(UP, 0.05)),
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(away, 0.7), AutoMovieEngineVector3.scale(UP, 0.05)),
       ),
-      line: Vector3.normalize(
-        Vector3.add(Vector3.scale(away, 0.9), Vector3.scale(UP, 0.1)),
+      line: AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(away, 0.9), AutoMovieEngineVector3.scale(UP, 0.1)),
       ),
       slide,
       reach: 0,
@@ -400,14 +400,14 @@ function dig(props: LongToolStroke.IProps): IKey[] {
  */
 function rake(props: LongToolStroke.IProps): IKey[] {
   const { at, forward: f } = props;
-  const line: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.add(Vector3.scale(f, 0.85), Vector3.scale(UP, -0.53)),
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(f, 0.85), AutoMovieEngineVector3.scale(UP, -0.53)),
   );
-  const far: IAutoMovieVector3 = Vector3.add(at, Vector3.scale(f, PULL));
-  const near: IAutoMovieVector3 = Vector3.add(at, Vector3.scale(f, -PULL));
+  const far: IAutoMovieVector3 = AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(f, PULL));
+  const near: IAutoMovieVector3 = AutoMovieEngineVector3.add(at, AutoMovieEngineVector3.scale(f, -PULL));
   const slide: number = props.length * 0.5;
   const up = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(p, Vector3.scale(UP, LIFT));
+    AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(UP, LIFT));
   return [
     { share: 0, face: up(far), line, slide, reach: 1 },
     { share: 0.1, face: far, line, slide, reach: 1 },
@@ -421,7 +421,7 @@ function rake(props: LongToolStroke.IProps): IKey[] {
  * The trailing grip of a key.
  */
 function grip(key: IKey, length: number): IAutoMovieVector3 {
-  return Vector3.subtract(key.face, Vector3.scale(key.line, length));
+  return AutoMovieEngineVector3.subtract(key.face, AutoMovieEngineVector3.scale(key.line, length));
 }
 
 /*
@@ -445,15 +445,15 @@ function keyed(
       b.share > a.share
         ? AutoMovieEngineMotionSampling.minimumJerkShare((s - a.share) / (b.share - a.share))
         : 0;
-    const line: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.lerp(a.line, b.line, u),
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.lerp(a.line, b.line, u),
     );
-    const face: IAutoMovieVector3 = Vector3.lerp(a.face, b.face, u);
-    const facing: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(ref, Vector3.scale(line, Vector3.dot(ref, line))),
+    const face: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(a.face, b.face, u);
+    const facing: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(ref, AutoMovieEngineVector3.scale(line, AutoMovieEngineVector3.dot(ref, line))),
     );
     return {
-      grip: Vector3.subtract(face, Vector3.scale(line, length)),
+      grip: AutoMovieEngineVector3.subtract(face, AutoMovieEngineVector3.scale(line, length)),
       line,
       facing,
       slide: a.slide + (b.slide - a.slide) * u,

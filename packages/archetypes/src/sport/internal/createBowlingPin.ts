@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -46,7 +46,7 @@ export function createBowlingPin(
         (_: unknown, index: number): IAutoMovieVector3 => {
           const angle: number = (index * Math.PI) / 6;
           const radius: number = (diameter * inch) / 2;
-          return Vector3.create(
+          return AutoMovieEngineVector3.create(
             radius * Math.cos(angle),
             height * inch,
             radius * Math.sin(angle),
@@ -66,13 +66,13 @@ export function createBowlingPin(
   builder.affordance({
     id: "base",
     kind: "socket",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
   });
   builder.affordance({
     id: "belly",
     kind: "socket",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 4.5 * inch, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 4.5 * inch, 0)),
     extent: null,
   });
   return builder.build(mass);

@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanArmClearance } from "@automovie/interface";
-import * as HumanArmClearingData from "./HumanArmClearingData";
+import { HumanArmClearingData } from "./HumanArmClearingData";
 
 /*
  * An arm turned until its room is within its allowance.

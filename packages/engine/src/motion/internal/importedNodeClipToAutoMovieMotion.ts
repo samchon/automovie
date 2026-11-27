@@ -14,13 +14,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidJointAxes } from "../../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { decomposeJointRotation } from "../../kinematics/internal/decomposeJointRotation";
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClip } from "../../resolve/internal/sampleClip";
-import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
+import { AutoMovieEngineHumanoidRestFrame } from "../../rom/AutoMovieEngineHumanoidRestFrame";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 
@@ -199,8 +199,8 @@ export function importedNodeClipToAutoMovieMotion(
               );
               const rest: IAutoMovieQuaternion = sourceBones.get(entry.bone)!
                 .rest.rotation;
-              const relative: IAutoMovieQuaternion = Quaternion.multiply(
-                Quaternion.inverse(rest),
+              const relative: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.inverse(rest),
                 quaternion,
               );
               const angles: IAutoMovieResolvedJointAngles =
@@ -208,9 +208,9 @@ export function importedNodeClipToAutoMovieMotion(
                   relative,
                   sourceBones.get(entry.bone)!.axes ??
                     props.sourceJointAxes?.[entry.bone] ??
-                    HUMANOID_JOINT_AXES[entry.bone],
+                    AutoMovieEngineHumanoidJointAxes[entry.bone],
                   props.sourceRestFrames?.[entry.bone] ??
-                    HUMANOID_REST_FRAME[entry.bone],
+                    AutoMovieEngineHumanoidRestFrame[entry.bone],
                   {
                     bone: entry.bone,
                     constraint: getConstraint(
@@ -239,7 +239,7 @@ const rootTransform: (
   value: readonly number[],
   rest: IAutoMovieVector3,
 ): IAutoMovieTransform =>
-  Transform.of(
+  AutoMovieEngineTransform.of(
     {
       x: value[0]! - rest.x,
       y: value[1]! - rest.y,

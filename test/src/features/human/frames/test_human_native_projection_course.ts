@@ -1,8 +1,8 @@
 import { nclose } from "../../internal/nclose";
 import {
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieViewAxis,
-  AutoMovieViewAxisJet,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineViewAxis,
+  AutoMovieEngineViewAxisJet,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -67,14 +67,14 @@ export function test_human_native_projection_course(): void {
 
   // Each original is an authored analytic input, not a replacement foreign method.
   const straight: (speed: number) => IAutoMovieViewAxis.IAxis = (speed: number): IAutoMovieViewAxis.IAxis => {
-    const base: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+    const base: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.straight(
       [0, 0, 0], [1, 0, 0], [0, 0, 1],
     );
     if (speed === 1) return base;
     return {
       at: (s: number): IAutoMovieLoftSectionFrame => base.at(speed * s),
-      jet: (s: number, parameter?: IAutoMovieConstructionOutlineParameter): IAutoMovieViewAxisJet.IJet | null => AutoMovieViewAxisJet.parameter(
-        AutoMovieViewAxisJet.fixed(base.at(speed * s), [0, speed, 0], [0, 0, 0]),
+      jet: (s: number, parameter?: IAutoMovieConstructionOutlineParameter): IAutoMovieViewAxisJet.IJet | null => AutoMovieEngineViewAxisJet.parameter(
+        AutoMovieEngineViewAxisJet.fixed(base.at(speed * s), [0, speed, 0], [0, 0, 0]),
         parameter, s,
       ),
     };
@@ -235,8 +235,8 @@ export function test_human_native_projection_course(): void {
   refuses("unavailable original axis2", (): unknown => project({ at: (s: number): IAutoMovieLoftSectionFrame => base.at(s) }, 2, 8, 9.6));
   const curved: IAutoMovieViewAxis.IAxis = {
     at: (s: number): IAutoMovieLoftSectionFrame => base.at(s + s * s / 16),
-    jet: (s: number, p?: IAutoMovieConstructionOutlineParameter): IAutoMovieViewAxisJet.IJet | null => AutoMovieViewAxisJet.parameter(
-      AutoMovieViewAxisJet.fixed(base.at(s + s * s / 16), [0, 1 + s / 8, 0], [0, 1 / 8, 0]), p, s,
+    jet: (s: number, p?: IAutoMovieConstructionOutlineParameter): IAutoMovieViewAxisJet.IJet | null => AutoMovieEngineViewAxisJet.parameter(
+      AutoMovieEngineViewAxisJet.fixed(base.at(s + s * s / 16), [0, 1 + s / 8, 0], [0, 1 / 8, 0]), p, s,
     ),
   };
   refuses("curved original outside scope", (): unknown => project(curved, 2, 8, 9.6));

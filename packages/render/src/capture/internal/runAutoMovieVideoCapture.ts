@@ -10,7 +10,7 @@ import type {
 
 import { AutoMovieRenderPicture } from "../../picture/AutoMovieRenderPicture.js";
 import { formatAutoMovieInspectionRequest } from "../../scene/inspection/internal/formatAutoMovieInspectionRequest.js";
-import { AutoMovieCaptureFolder } from "../AutoMovieCaptureFolder.js";
+import { AutoMovieRenderCaptureFolder } from "../AutoMovieRenderCaptureFolder.js";
 import { planAutoMovieCapture } from "./planAutoMovieCapture.js";
 import { planAutoMovieVideoFrames } from "./planAutoMovieVideoFrames.js";
 import { planAutoMovieVideoSceneCuts } from "./planAutoMovieVideoSceneCuts.js";
@@ -90,7 +90,7 @@ export async function runAutoMovieVideoCapture(
   plan([]);
 
   // 2. Detect the cuts.
-  const folder: AutoMovieCaptureFolder = await AutoMovieCaptureFolder.open({
+  const folder: AutoMovieRenderCaptureFolder = await AutoMovieRenderCaptureFolder.open({
     storage: props.storage,
     root: props.root,
     round: request.round,

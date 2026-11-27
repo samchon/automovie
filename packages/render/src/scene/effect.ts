@@ -1,3 +1,3 @@
-export type { IAutoMovieEffectViewerStats } from "./IAutoMovieEffectViewerStats.js";
-export type { IAutoMovieEffectViewerObject } from "./IAutoMovieEffectViewerObject.js";
+export type { IAutoMovieRenderEffectViewerStats } from "./IAutoMovieRenderEffectViewerStats.js";
+export type { IAutoMovieRenderEffectViewerObject } from "./IAutoMovieRenderEffectViewerObject.js";
 export { AutoMovieRenderEffect } from "./AutoMovieRenderEffect.js";

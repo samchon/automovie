@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -38,9 +38,9 @@ export function prepareSurfaceSwimTransfer(
   const hips: IAutoMovieVector3 =
     previous === undefined || displayed === null
       ? inherited.root
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           displayed.translation,
-          Quaternion.rotateVector(displayed.rotation, rest),
+          AutoMovieEngineQuaternion.rotateVector(displayed.rotation, rest),
         );
   const entry: IAutoMovieMotionHumanPosture = {
     ...inherited,
@@ -58,16 +58,16 @@ export function prepareSurfaceSwimTransfer(
   };
   const begin = displayed?.rotation ?? turnHumanPosture(start).rotation;
   const yaw: number = start.yaw;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     humanPostureHeading({ yaw, pitch: 0, roll: 0 }),
   );
   const mouth = HumanTrunk.preparePoint(body, "mouth");
   const level: number = mouth(start).y;
   const reversing: boolean = PITCH[mode] * PITCH[params.kind] < 0;
-  const turn = Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+  const turn = AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
   // Opposite horizontal headings turn on the surface and roll into the next stroke.
   const along: IAutoMovieQuaternion = reversing
-    ? Quaternion.multiply(turn(180), begin)
+    ? AutoMovieEngineQuaternion.multiply(turn(180), begin)
     : begin;
 
   return {
@@ -90,27 +90,27 @@ export function prepareSurfaceSwimTransfer(
         const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(seconds / settle);
         const blended = mixHumanPosture(start, target, share);
         const pointed = turnHumanPosture(target);
-        const facing: IAutoMovieQuaternion = Quaternion.slerp(
+        const facing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
           along,
           pointed.rotation,
           share,
         );
         const aimed: IAutoMovieQuaternion = reversing
-          ? Quaternion.multiply(turn(-180 * (1 - share)), facing)
+          ? AutoMovieEngineQuaternion.multiply(turn(-180 * (1 - share)), facing)
           : facing;
-        const hinge: IAutoMovieVector3 = Vector3.lerp(
+        const hinge: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
           hips,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             pointed.position,
-            Quaternion.rotateVector(pointed.rotation, rest),
+            AutoMovieEngineQuaternion.rotateVector(pointed.rotation, rest),
           ),
           share,
         );
-        const root: IAutoMovieVector3 = Vector3.subtract(
+        const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           hinge,
-          Quaternion.rotateVector(aimed, rest),
+          AutoMovieEngineQuaternion.rotateVector(aimed, rest),
         );
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+        const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           aimed,
           inverse,
         );

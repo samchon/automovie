@@ -1,14 +1,14 @@
 import type { IAutoMovieMedium } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
-import type { AutoMovieFilmAlpha } from "../AutoMovieFilmAlpha.js";
-import type { IAutoMovieFilmResponseRenderer } from "../IAutoMovieFilmResponseRenderer.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderFilmResponseShaders } from "../AutoMovieRenderFilmResponseShaders.js";
+import type { AutoMovieRenderFilmAlpha } from "../AutoMovieRenderFilmAlpha.js";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../IAutoMovieRenderFilmResponseRenderer.js";
 import { buildAutoMovieMediumShader } from "./internal/buildAutoMovieMediumShader.js";
 import { collectAutoMovieMediumLights } from "./internal/collectAutoMovieMediumLights.js";
 import { readAutoMovieSceneMedium } from "./internal/readAutoMovieSceneMedium.js";
-import * as AutoMovieFilmMediumPassData from "./internal/AutoMovieFilmMediumPassData";
+import { AutoMovieFilmMediumPassData } from "./internal/AutoMovieFilmMediumPassData";
 
 /*
  * The film response stage's participating-medium pass: march the scene's
@@ -45,8 +45,8 @@ export class AutoMovieFilmMediumPass {
   private readonly copy_: THREE.RawShaderMaterial = new THREE.RawShaderMaterial(
     {
       glslVersion: THREE.GLSL3,
-      vertexShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.vertex,
-      fragmentShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.downsample,
+      vertexShader: AutoMovieRenderFilmResponseShaders.vertex,
+      fragmentShader: AutoMovieRenderFilmResponseShaders.downsample,
       uniforms: { tSource: { value: null } },
       depthTest: false,
       depthWrite: false,
@@ -86,7 +86,7 @@ export class AutoMovieFilmMediumPass {
     /*
      * The renderer, whose shadow maps the scene's render just drew.
      */
-    renderer: IAutoMovieFilmResponseRenderer;
+    renderer: IAutoMovieRenderFilmResponseRenderer;
 
     /*
      * The scene, carrying its medium.
@@ -112,7 +112,7 @@ export class AutoMovieFilmMediumPass {
      * How the picture's alpha is kept; absent marches an opaque picture, as
      * `buildAutoMovieMediumShader` states for each.
      */
-    alpha?: AutoMovieFilmAlpha;
+    alpha?: AutoMovieRenderFilmAlpha;
   }): void {
     const medium: IAutoMovieMedium | null = readAutoMovieSceneMedium(
       props.scene,
@@ -142,7 +142,7 @@ export class AutoMovieFilmMediumPass {
         value: new THREE.Vector3().setFromMatrixPosition(camera.matrixWorld),
       },
       uOrthographic: {
-        value: AutoMovieThreeKind.isOrthographicCamera(camera) ? 1 : 0,
+        value: AutoMovieRenderThreeKind.isOrthographicCamera(camera) ? 1 : 0,
       },
       uScattering: { value: medium.scattering },
       uExtinction: { value: medium.scattering + medium.absorption },
@@ -177,7 +177,7 @@ export class AutoMovieFilmMediumPass {
     if (program === undefined) {
       program = new THREE.RawShaderMaterial({
         glslVersion: THREE.GLSL3,
-        vertexShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.vertex,
+        vertexShader: AutoMovieRenderFilmResponseShaders.vertex,
         fragmentShader: buildAutoMovieMediumShader(lights),
         uniforms,
         depthTest: false,

@@ -1,4 +1,4 @@
-import { AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieEngineViewLoft } from "@automovie/engine";
 import type {
   IAutoMovieHumanEar,
   IAutoMovieHumanHeadComposer,
@@ -192,7 +192,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
             host.lofts.get(name);
           if (previous !== undefined) return previous;
           const result: IAutoMovieViewLoft.IResult =
-            part === mass ? base.loft() : AutoMovieViewLoft.create(part);
+            part === mass ? base.loft() : AutoMovieEngineViewLoft.create(part);
           host.lofts.set(name, result);
           return result;
         },

@@ -1,11 +1,19 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  kneelPhaseTable,
-  kneelPlace,
-  prepareKneelClock,
-  walkRoot,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  kneelPhaseTable
+} from "../../../../../packages/motions/src/everyday/internal/kneelPhaseTable";
+import {
+  kneelPlace
+} from "../../../../../packages/motions/src/everyday/internal/kneelPlace";
+import {
+  prepareKneelClock
+} from "../../../../../packages/motions/src/everyday/internal/prepareKneelClock";
+import {
+  walkRoot
+} from "../../../../../packages/motions/src/actions/internal/walkRoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

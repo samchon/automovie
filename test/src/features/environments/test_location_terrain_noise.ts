@@ -1,4 +1,6 @@
-import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
 import { AutoMovieEngineWorld, AutoMovieEngineSpace, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -55,13 +57,13 @@ export function test_location_terrain_noise(): void {
     seed: number,
     recipe: Partial<IAutoMovieTerrainRecipe> = {},
   ): IAutoMovieEnvironment =>
-    AutoMovieEnvironment.create({
+    AutoMovieArchetypeEnvironment.create({
       id: "hills",
       seed,
       items: {
         land: {
           at: { x: 0, y: 2, z: 0 },
-          use: AutoMovieEnvironment.terrain({ size: { width: 60, depth: 40 }, relief: NOISE, ...recipe }),
+          use: AutoMovieArchetypeEnvironment.terrain({ size: { width: 60, depth: 40 }, relief: NOISE, ...recipe }),
         },
       },
     });

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -147,7 +147,7 @@ export namespace stuntFallPose {
       const x: number = surface.x - hips.x;
       const z: number = surface.z - hips.z;
       const y: number =
-        (Vector3.dot(surface, normal) -
+        (AutoMovieEngineVector3.dot(surface, normal) -
           supportAlong(places(bones), normal) -
           x * normal.x -
           z * normal.z) /
@@ -247,7 +247,7 @@ export namespace stuntFallPose {
     );
     const lowestY: ReturnType<typeof HumanColliders.prepareMinima> =
       HumanColliders.prepareMinima(body);
-    const wanted: IAutoMovieVector3 = Vector3.lerp(
+    const wanted: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       planted.left.ankle,
       planted.right.ankle,
       0.5,
@@ -256,7 +256,7 @@ export namespace stuntFallPose {
       posture: IAutoMovieMotionHumanPosture,
     ): IAutoMovieMotionHumanPosture => {
       const bones: ReturnType<typeof poseBones> = frames(posture);
-      const own: IAutoMovieVector3 = Vector3.lerp(
+      const own: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         bones.get("leftFoot")!.worldPosition,
         bones.get("rightFoot")!.worldPosition,
         0.5,
@@ -269,23 +269,23 @@ export namespace stuntFallPose {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const) {
         const foot: IFoot = planted[side];
-        const knee: IAutoMovieVector3 = Vector3.add(
+        const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           bones.get(`${side}LowerLeg`)!.worldPosition,
           root,
         );
         // Forward along the foot, as far as the shin is long.
-        const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+        const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           foot.rotation,
           {
             x: 0,
             y: 0,
-            z: Vector3.distance(knee, foot.ankle),
+            z: AutoMovieEngineVector3.distance(knee, foot.ankle),
           },
         );
         limbs[`${side}Leg`] = {
           point: foot.ankle,
           rotation: foot.rotation,
-          bend: Vector3.add(knee, { x: ahead.x, y: 0, z: ahead.z }),
+          bend: AutoMovieEngineVector3.add(knee, { x: ahead.x, y: 0, z: ahead.z }),
           planted: true,
         };
       }
@@ -305,7 +305,7 @@ export namespace stuntFallPose {
     hips: IAutoMovieVector3,
     offset: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture {
-    return { ...posture, root: Vector3.subtract(hips, offset) };
+    return { ...posture, root: AutoMovieEngineVector3.subtract(hips, offset) };
   }
 
   /*
@@ -338,7 +338,7 @@ export namespace stuntFallPose {
     return {
       ...shape,
       ...(fingers === undefined ? {} : { digits: fingers }),
-      root: Vector3.lerp(from.root, to.root, w),
+      root: AutoMovieEngineVector3.lerp(from.root, to.root, w),
       yaw: from.yaw + AutoMovieEngineMath.wrapDegrees(to.yaw - from.yaw) * w,
       pitch: from.pitch + (to.pitch - from.pitch) * w,
       roll: from.roll + (to.roll - from.roll) * w,
@@ -454,12 +454,12 @@ function shapeFrame(
 ): IShapeFrame {
   return {
     shape,
-    centre: Vector3.add(
+    centre: AutoMovieEngineVector3.add(
       pose.position,
-      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+      AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
     ),
-    inverse: Quaternion.inverse(
-      Quaternion.multiply(pose.rotation, shape.transform.rotation),
+    inverse: AutoMovieEngineQuaternion.inverse(
+      AutoMovieEngineQuaternion.multiply(pose.rotation, shape.transform.rotation),
     ),
   };
 }
@@ -471,9 +471,9 @@ function projectShape(
   { shape, centre, inverse }: IShapeFrame,
   normal: IAutoMovieVector3,
 ): number {
-  const along: number = Vector3.dot(centre, normal);
+  const along: number = AutoMovieEngineVector3.dot(centre, normal);
   if (shape.kind === "sphere") return along - shape.radius;
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(inverse, normal);
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(inverse, normal);
   if (shape.kind === "capsule")
     return along - Math.abs(local.y) * shape.halfLength - shape.radius;
   if (shape.kind === "box")
@@ -485,7 +485,7 @@ function projectShape(
     );
   let least: number = Infinity;
   for (const point of shape.points)
-    least = Math.min(least, along + Vector3.dot(point, local));
+    least = Math.min(least, along + AutoMovieEngineVector3.dot(point, local));
   return least;
 }
 

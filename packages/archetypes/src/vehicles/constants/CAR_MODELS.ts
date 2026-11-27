@@ -4,8 +4,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
-import * as CarModelsData from "./internal/CarModelsData";
-import { tyre } from "./internal/CarModelsData";
+import { CarModelsData } from "./internal/CarModelsData";
+
 
 /*
  * The read car models by class: each model's figures whole, the ranges a single
@@ -72,12 +72,12 @@ export const CAR_MODELS: Readonly<{
     hatchback: {
       jazzElegance: {
         ...CarModelsData.JAZZ,
-        wheelDiameter: tyre(185, 60, 15),
+        wheelDiameter: CarModelsData.tyre(185, 60, 15),
         lockTurns: 2.51,
       },
       jazzAdvance: {
         ...CarModelsData.JAZZ,
-        wheelDiameter: tyre(185, 55, 16),
+        wheelDiameter: CarModelsData.tyre(185, 55, 16),
         lockTurns: 2.35,
       },
       jazzCrosstarAdvance: {
@@ -85,28 +85,28 @@ export const CAR_MODELS: Readonly<{
         width: 1.725,
         height: 1.526,
         wheelbase: 2.52,
-        wheelDiameter: tyre(185, 60, 16),
+        wheelDiameter: CarModelsData.tyre(185, 60, 16),
         lockTurns: 2.63,
       },
       jazzAdvanceSport: {
         ...CarModelsData.JAZZ,
-        wheelDiameter: tyre(185, 55, 16),
+        wheelDiameter: CarModelsData.tyre(185, 55, 16),
         lockTurns: 2.35,
       },
       civicElegance: {
         ...CarModelsData.CIVIC,
-        wheelDiameter: tyre(215, 50, 17),
+        wheelDiameter: CarModelsData.tyre(215, 50, 17),
         lockTurns: 2.3,
       },
       civicSport: {
         ...CarModelsData.CIVIC,
-        wheelDiameter: tyre(235, 40, 18),
+        wheelDiameter: CarModelsData.tyre(235, 40, 18),
         lockTurns: 2.2,
         mass: 1503,
       },
       civicAdvance: {
         ...CarModelsData.CIVIC,
-        wheelDiameter: tyre(235, 40, 18),
+        wheelDiameter: CarModelsData.tyre(235, 40, 18),
         lockTurns: 2.2,
       },
     },

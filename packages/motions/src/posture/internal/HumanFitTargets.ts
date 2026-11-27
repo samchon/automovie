@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -133,13 +133,13 @@ export namespace HumanFitTargets {
           });
         } else {
           const delta: IAutoMovieVector3 = error(target, at.point);
-          const distance: number = Vector3.length(delta);
+          const distance: number = AutoMovieEngineVector3.length(delta);
           const f: (r: HumanFitTargets.IReading) => number = (
             r: HumanFitTargets.IReading,
           ): number =>
             r === current
               ? distance
-              : Vector3.length(error(target, frame(target, r, k).point));
+              : AutoMovieEngineVector3.length(error(target, frame(target, r, k).point));
           rows.push({
             row: {
               key: `point-ball:${k}`,
@@ -148,7 +148,7 @@ export namespace HumanFitTargets {
                 (motion: IAutoMovieMotionHumanJacobian.ITwist): number =>
                   distance === 0
                     ? 0
-                    : Vector3.dot(delta, motion.linear) / distance,
+                    : AutoMovieEngineVector3.dot(delta, motion.linear) / distance,
               ),
               l: -Infinity,
               u: (target.bound - distance) * mm,
@@ -194,7 +194,7 @@ export namespace HumanFitTargets {
             equal(
               `n${j}:${k}`,
               (r: HumanFitTargets.IReading): number =>
-                Vector3.dot(
+                AutoMovieEngineVector3.dot(
                   r === current
                     ? (normalAt ??= tilt(target, at.turn))
                     : tilt(target, frame(target, r, k).turn),
@@ -205,7 +205,7 @@ export namespace HumanFitTargets {
                 (
                   _motion: IAutoMovieMotionHumanJacobian.ITwist,
                   i: number,
-                ): number => Vector3.dot(columns[i]!, axis),
+                ): number => AutoMovieEngineVector3.dot(columns[i]!, axis),
               ),
               price,
             ),
@@ -235,7 +235,7 @@ export namespace HumanFitTargets {
         ? (target.axes ?? (["x", "y", "z"] as const)).map(
             (axis: MissesOutAxis): number => delta[axis],
           )
-        : [Math.max(0, Vector3.length(delta) - target.bound)];
+        : [Math.max(0, AutoMovieEngineVector3.length(delta) - target.bound)];
     if (target.rotation !== undefined) {
       const e: IAutoMovieVector3 = turn(target.rotation, at.turn);
       out.push(e.x, e.y, e.z);
@@ -243,7 +243,7 @@ export namespace HumanFitTargets {
     if (target.normal !== undefined) {
       const e: IAutoMovieVector3 = tilt(target, at.turn);
       for (const axis of across(target.normal.world))
-        out.push(Vector3.dot(e, axis));
+        out.push(AutoMovieEngineVector3.dot(e, axis));
     }
     return out;
   }
@@ -263,9 +263,9 @@ export namespace HumanFitTargets {
   ): IResidualResult {
     const at: IFrame = frame(target, r, k);
     return {
-      point: Vector3.length(error(target, at.point)) * 1000,
+      point: AutoMovieEngineVector3.length(error(target, at.point)) * 1000,
       turn:
-        (Vector3.length(
+        (AutoMovieEngineVector3.length(
           target.rotation !== undefined
             ? turn(target.rotation, at.turn)
             : target.normal !== undefined
@@ -284,9 +284,9 @@ export namespace HumanFitTargets {
     goal: IAutoMovieQuaternion,
     current: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
-    const q: IAutoMovieQuaternion = Quaternion.multiply(
+    const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       goal,
-      Quaternion.inverse(current),
+      AutoMovieEngineQuaternion.inverse(current),
     );
     const sign: number = q.w < 0 ? -1 : 1;
     const v: IAutoMovieVector3 = {
@@ -294,10 +294,10 @@ export namespace HumanFitTargets {
       y: q.y * sign,
       z: q.z * sign,
     };
-    const sine: number = Vector3.length(v);
+    const sine: number = AutoMovieEngineVector3.length(v);
     return sine < 1e-12
       ? { ...ZERO }
-      : Vector3.scale(v, (2 * Math.atan2(sine, Math.abs(q.w))) / sine);
+      : AutoMovieEngineVector3.scale(v, (2 * Math.atan2(sine, Math.abs(q.w))) / sine);
   }
 
   /*
@@ -307,16 +307,16 @@ export namespace HumanFitTargets {
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
-    const w: IAutoMovieVector3 = Vector3.normalize(target.normal!.world);
-    const n: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(rotation, target.normal!.local),
+    const w: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(target.normal!.world);
+    const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(rotation, target.normal!.local),
     );
-    const axis: IAutoMovieVector3 = Vector3.cross(w, n);
-    const sine: number = Vector3.length(axis);
-    const angle: number = Math.atan2(sine, Vector3.dot(w, n));
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(w, n);
+    const sine: number = AutoMovieEngineVector3.length(axis);
+    const angle: number = Math.atan2(sine, AutoMovieEngineVector3.dot(w, n));
     return sine < 1e-12
-      ? Vector3.scale(across(w)[0], angle)
-      : Vector3.scale(axis, angle / sine);
+      ? AutoMovieEngineVector3.scale(across(w)[0], angle)
+      : AutoMovieEngineVector3.scale(axis, angle / sine);
   }
 
   /*
@@ -325,7 +325,7 @@ export namespace HumanFitTargets {
   export function across(
     normal: IAutoMovieVector3,
   ): [IAutoMovieVector3, IAutoMovieVector3] {
-    const n: IAutoMovieVector3 = Vector3.normalize(normal);
+    const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(normal);
     const a: number = Math.abs(n.x);
     const b: number = Math.abs(n.y);
     const c: number = Math.abs(n.z);
@@ -335,8 +335,8 @@ export namespace HumanFitTargets {
         : b <= c
           ? { x: 0, y: 1, z: 0 }
           : { x: 0, y: 0, z: 1 };
-    const u: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(n, basis));
-    return [u, Vector3.cross(n, u)];
+    const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(n, basis));
+    return [u, AutoMovieEngineVector3.cross(n, u)];
   }
 }
 
@@ -423,13 +423,13 @@ function expressed(
   rotation: IAutoMovieQuaternion,
   bone?: AutoMovieHumanoidBone,
 ): IFrame {
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(rotation);
   return {
-    point: Quaternion.rotateVector(
+    point: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(r.points[k]!, position),
+      AutoMovieEngineVector3.subtract(r.points[k]!, position),
     ),
-    turn: Quaternion.multiply(inverse, r.turns[k]!),
+    turn: AutoMovieEngineQuaternion.multiply(inverse, r.turns[k]!),
     anchor: { bone, inverse },
   };
 }
@@ -459,13 +459,13 @@ function relative(
         : HumanJacobian.twist(motion, bone, r.points[k]!);
   const inverse: IAutoMovieQuaternion = at.anchor.inverse;
   return {
-    linear: Quaternion.rotateVector(
+    linear: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      on === undefined ? own.linear : Vector3.subtract(own.linear, on.linear),
+      on === undefined ? own.linear : AutoMovieEngineVector3.subtract(own.linear, on.linear),
     ),
-    angular: Quaternion.rotateVector(
+    angular: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      on === undefined ? own.angular : Vector3.subtract(own.angular, on.angular),
+      on === undefined ? own.angular : AutoMovieEngineVector3.subtract(own.angular, on.angular),
     ),
   };
 }

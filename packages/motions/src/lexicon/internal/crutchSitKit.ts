@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -60,15 +60,15 @@ export function crutchSitKit(
       held: IAutoMovieMotionHumanHeld.IHeld,
       frame: IAutoMovieRigidTransform,
     ): IAutoMovieHumanLimbGoal => {
-      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
           frame.rotation,
-          Quaternion.inverse(held.frame.rotation),
+          AutoMovieEngineQuaternion.inverse(held.frame.rotation),
         ),
       );
-      const at: IAutoMovieVector3 = Vector3.subtract(
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         frame.position,
-        Quaternion.rotateVector(rotation, held.frame.position),
+        AutoMovieEngineQuaternion.rotateVector(rotation, held.frame.position),
       );
       return {
         ...HumanHand.place(body, hand, "grip", at, rotation),
@@ -258,17 +258,17 @@ export namespace crutchSitKit {
     const ahead: IAutoMovieVector3 = forward(posture.yaw);
     const aside: number =
       m.hipHalfWidth / 2 - (side === kit.injured ? 0 : SPACING);
-    const tip: IAutoMovieVector3 = Vector3.add(
+    const tip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       { x: posture.root.x, y: 0, z: posture.root.z },
-      Vector3.add(
-        Vector3.scale(ahead, m.chestDepth / 2 + AHEAD),
-        Vector3.scale(lateral(posture.yaw, kit.injured), aside),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(ahead, m.chestDepth / 2 + AHEAD),
+        AutoMovieEngineVector3.scale(lateral(posture.yaw, kit.injured), aside),
       ),
     );
     return crutchSitPath.slid(
       kit.crutch[side],
       tip,
-      Vector3.add(tip, { x: 0, y: 1, z: 0 }),
+      AutoMovieEngineVector3.add(tip, { x: 0, y: 1, z: 0 }),
       ahead,
     );
   }
@@ -315,11 +315,11 @@ export namespace crutchSitKit {
     const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
     return {
       ...b,
-      point: Vector3.lerp(a.point, b.point, s),
-      bend: Vector3.lerp(a.bend, b.bend, s),
-      rotation: Quaternion.slerp(
-        a.rotation ?? Quaternion.identity(),
-        b.rotation ?? Quaternion.identity(),
+      point: AutoMovieEngineVector3.lerp(a.point, b.point, s),
+      bend: AutoMovieEngineVector3.lerp(a.bend, b.bend, s),
+      rotation: AutoMovieEngineQuaternion.slerp(
+        a.rotation ?? AutoMovieEngineQuaternion.identity(),
+        b.rotation ?? AutoMovieEngineQuaternion.identity(),
         s,
       ),
     };

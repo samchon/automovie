@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineQuaternion } from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -45,7 +45,7 @@ export function test_resolve_matrix4_decompose_collapsed(): void {
       position: IAutoMovieVector3;
       rotation: IAutoMovieQuaternion;
       scale: IAutoMovieVector3;
-    } = Matrix4.decompose(Matrix4.compose(t, identity, scale));
+    } = AutoMovieEngineMatrix4.decompose(AutoMovieEngineMatrix4.compose(t, identity, scale));
     // the collapsed axis reads exactly 0 (raw length), not the EPSILON floor
     TestValidator.predicate(
       `${title}: collapsed scale is 0`,
@@ -58,7 +58,7 @@ export function test_resolve_matrix4_decompose_collapsed(): void {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(Matrix4.compose(t, identity, { x: 0, y: 0, z: 0 }));
+  } = AutoMovieEngineMatrix4.decompose(AutoMovieEngineMatrix4.compose(t, identity, { x: 0, y: 0, z: 0 }));
   TestValidator.predicate(
     "all collapsed: scale is 0,0,0",
     vclose(allZero.scale, { x: 0, y: 0, z: 0 }, 0),
@@ -70,7 +70,7 @@ export function test_resolve_matrix4_decompose_collapsed(): void {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(Matrix4.compose(t, identity, tiny));
+  } = AutoMovieEngineMatrix4.decompose(AutoMovieEngineMatrix4.compose(t, identity, tiny));
   TestValidator.predicate("tiny scale x", nclose(rt.scale.x, 1e-3, 1e-9));
   TestValidator.predicate("tiny scale y", nclose(rt.scale.y, 1e-3, 1e-9));
   TestValidator.predicate("tiny scale z", nclose(rt.scale.z, 1e-3, 1e-9));
@@ -80,7 +80,7 @@ export function test_resolve_matrix4_decompose_collapsed(): void {
   );
 
   // 4. Collapsed axes under a generic rotation rebuild the original matrix.
-  const turned: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 2, z: 3 },
     70,
   );
@@ -93,17 +93,17 @@ export function test_resolve_matrix4_decompose_collapsed(): void {
     ["rotated z only", { x: 0, y: 0, z: 2 }],
   ];
   for (const [title, scale] of scales) {
-    const original: number[] = Matrix4.compose(t, turned, scale);
+    const original: number[] = AutoMovieEngineMatrix4.compose(t, turned, scale);
     const d: {
       position: IAutoMovieVector3;
       rotation: IAutoMovieQuaternion;
       scale: IAutoMovieVector3;
-    } = Matrix4.decompose(original);
+    } = AutoMovieEngineMatrix4.decompose(original);
     TestValidator.predicate(
       `${title}: unit rotation`,
       qunit(d.rotation, 1e-12),
     );
-    const rebuilt: number[] = Matrix4.compose(d.position, d.rotation, d.scale);
+    const rebuilt: number[] = AutoMovieEngineMatrix4.compose(d.position, d.rotation, d.scale);
     TestValidator.predicate(
       `${title}: recomposition matches`,
       rebuilt.every((value: number, at: number): boolean =>
@@ -118,7 +118,7 @@ export function test_resolve_matrix4_decompose_collapsed(): void {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(Matrix4.compose(t, turned, minute));
+  } = AutoMovieEngineMatrix4.decompose(AutoMovieEngineMatrix4.compose(t, turned, minute));
   TestValidator.predicate(
     "minute scale rotation is recovered",
     qclose(small.rotation, turned, 1e-12),

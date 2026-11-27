@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  Vector3,
-  AutoMoviePhysicalHullFaces,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysicalHullFaces,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
@@ -13,7 +13,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieHumanPolygon } from "@automovie/render";
+import { AutoMovieRenderHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
@@ -60,7 +60,7 @@ export function* colliderCases(
     if (only !== undefined && !only(`colliders-${name}`)) continue;
     const body: IAutoMovieHumanCanonicalBody.IBody =
       MotionBodies.population(name).body;
-    const drawing: AutoMovieHumanPolygon.IDrawing = AutoMovieHumanPolygon.build(
+    const drawing: AutoMovieRenderHumanPolygon.IDrawing = AutoMovieRenderHumanPolygon.build(
       AutoMovieHumanCanonicalBody.display(body),
     );
     const meshes: IMesh[] = [];
@@ -286,24 +286,24 @@ function samples(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
 ): THREE.Vector3[] {
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
   );
-  const rotation = Quaternion.multiply(pose.rotation, shape.transform.rotation);
+  const rotation = AutoMovieEngineQuaternion.multiply(pose.rotation, shape.transform.rotation);
   const out: THREE.Vector3[] = [];
   const push = (local: IAutoMovieVector3): void => {
-    const p: IAutoMovieVector3 = Vector3.add(
+    const p: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       centre,
-      Quaternion.rotateVector(rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(rotation, local),
     );
     out.push(new THREE.Vector3(p.x, p.y, p.z));
   };
   if (shape.kind === "hull") {
-    for (const face of AutoMoviePhysicalHullFaces.build(shape.points).faces) {
+    for (const face of AutoMovieEnginePhysicalHullFaces.build(shape.points).faces) {
       let middle: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const p of face.loop)
-        middle = Vector3.add(middle, Vector3.scale(p, 1 / face.loop.length));
+        middle = AutoMovieEngineVector3.add(middle, AutoMovieEngineVector3.scale(p, 1 / face.loop.length));
       push(middle);
       face.loop.forEach((p: IAutoMovieVector3, i: number): void => {
         const q: IAutoMovieVector3 = face.loop[(i + 1) % face.loop.length]!;
@@ -312,9 +312,9 @@ function samples(
             const wp: number = (a - b) / 4;
             const wq: number = b / 4;
             push(
-              Vector3.add(
-                Vector3.scale(middle, 1 - wp - wq),
-                Vector3.add(Vector3.scale(p, wp), Vector3.scale(q, wq)),
+              AutoMovieEngineVector3.add(
+                AutoMovieEngineVector3.scale(middle, 1 - wp - wq),
+                AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(p, wp), AutoMovieEngineVector3.scale(q, wq)),
               ),
             );
           }

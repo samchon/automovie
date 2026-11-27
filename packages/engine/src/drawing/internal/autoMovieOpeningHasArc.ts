@@ -1,11 +1,11 @@
 import { IAutoMovieOpeningProfile } from "@automovie/interface";
 
-import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "../AUTOMOVIE_OPENING_BULGE_EPSILON";
+import { AutoMovieEngineOpeningBulgeEpsilon } from "../AutoMovieEngineOpeningBulgeEpsilon";
 
 /*
  * Whether any edge of an opening profile bulges into a visible arc.
  *
- * Uses the same AUTOMOVIE_OPENING_BULGE_EPSILON threshold as
+ * Uses the same AutoMovieEngineOpeningBulgeEpsilon threshold as
  * `autoMovieOpeningArc`, so a profile reported here as arced has a bulge the
  * drafted outline and the measured area also treat as curved, unless that
  * edge's ends coincide. Absent bulges mean every edge is straight.
@@ -17,5 +17,5 @@ export const autoMovieOpeningHasArc = (
 ): boolean =>
   (profile.bulges ?? []).some(
     (bulge: number): boolean =>
-      Math.abs(bulge) > AUTOMOVIE_OPENING_BULGE_EPSILON,
+      Math.abs(bulge) > AutoMovieEngineOpeningBulgeEpsilon,
   );

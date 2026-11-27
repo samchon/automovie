@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSupport, IAutoMovieMotionHumanWallRun, IAutoMovieMotionTarget, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { support } from "../../actions/internal/support";
@@ -9,7 +9,7 @@ import "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { planWallRunFlight } from "./planWallRunFlight";
-import * as PlanWallRunData from "./PlanWallRunData";
+import { PlanWallRunData } from "./PlanWallRunData";
 
 /*
  * Use a wall's face as a brief foot support: a wall step plants one foot on the
@@ -48,13 +48,13 @@ export function planWallRun(
     side: AutoMovieHumanSide,
     height: number,
   ): IAutoMovieVector3 => {
-    const along: number = Vector3.dot(
-      Vector3.subtract(toe(side), face.center),
+    const along: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(toe(side), face.center),
       face.axis,
     );
-    return Vector3.add(
-      Vector3.add(face.center, Vector3.scale(face.axis, along)),
-      Vector3.add(Vector3.scale(face.normal, PlanWallRunData.SOLE), { x: 0, y: height, z: 0 }),
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(face.center, AutoMovieEngineVector3.scale(face.axis, along)),
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(face.normal, PlanWallRunData.SOLE), { x: 0, y: height, z: 0 }),
     );
   };
   const staged: Map<string, IAutoMovieVector3> = new Map();
@@ -93,9 +93,9 @@ export function planWallRun(
       kind: "point",
       frame: "world",
       at: {
-        ...Vector3.add(
+        ...AutoMovieEngineVector3.add(
           onFace(trail, 0),
-          Vector3.scale(face.normal, PlanWallRunData.STEP_IN * measure.hipHeight),
+          AutoMovieEngineVector3.scale(face.normal, PlanWallRunData.STEP_IN * measure.hipHeight),
         ),
         y: floor,
       },
@@ -131,7 +131,7 @@ export function planWallRun(
     // the feet as they enter, whichever way the face's axis runs: a hand
     // sent to the other side crosses the forearms.
     const leftward: number =
-      Vector3.dot(Vector3.subtract(toe("left"), toe("right")), face.axis) >= 0
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(toe("left"), toe("right")), face.axis) >= 0
         ? 1
         : -1;
     const hand = (
@@ -141,9 +141,9 @@ export function planWallRun(
       kind: "grip",
       target: target(
         `${side}Top`,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           top,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             face.axis,
             (side === "left" ? 1 : -1) * leftward * measure.shoulderHalfWidth,
           ),
@@ -236,13 +236,13 @@ export function planWallRun(
     const side: AutoMovieHumanSide = window.part.startsWith("left")
       ? "left"
       : "right";
-    const line: IAutoMovieVector3 = Vector3.subtract(
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       bones.get("hips")!.worldPosition,
       bones.get(`${side}Toes`)!.worldPosition,
     );
-    const normal: number = Vector3.dot(line, face.normal);
-    const tangent: number = Vector3.length(
-      Vector3.subtract(line, Vector3.scale(face.normal, normal)),
+    const normal: number = AutoMovieEngineVector3.dot(line, face.normal);
+    const tangent: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(line, AutoMovieEngineVector3.scale(face.normal, normal)),
     );
     if (!(normal > 0) || tangent / normal > PlanWallRunData.FRICTION)
       throw coverWall.refusal(
@@ -307,8 +307,8 @@ function topEdge(
   if (ledge === undefined)
     throw coverWall.refusal("top", id, `${subject} has no top ${id}`);
   const world: IAutoMovieRigidTransform = reader.frame(context.start);
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     world.position,
-    Quaternion.rotateVector(world.rotation, ledge.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(world.rotation, ledge.frame.translation),
   );
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, AutoMovieMotionHumanChannel, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanKnee, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionWeaponContact, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
@@ -123,7 +123,7 @@ export namespace knee {
       return lowerHumanPosture(
         body,
         {
-          root: Vector3.add(entry.root, Vector3.scale(thrust, drive)),
+          root: AutoMovieEngineVector3.add(entry.root, AutoMovieEngineVector3.scale(thrust, drive)),
           yaw: entry.yaw + turn * whole,
           pitch: entry.pitch - KneeForm.LEAN * whole,
           roll: entry.roll,
@@ -228,19 +228,19 @@ export namespace knee {
 
       // The thigh swung about the hip the carriage leaves, the shank folding
       // under it, and the stance's slack given back as the leg lifts.
-      const joint: IAutoMovieVector3 = Vector3.add(
+      const joint: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         KickCarriage.hip(body, posture, side, resolution, projection),
-        Vector3.scale(KneeReach.swing(g.from.thigh, g.to.thigh, rise), m.thigh),
+        AutoMovieEngineVector3.scale(KneeReach.swing(g.from.thigh, g.to.thigh, rise), m.thigh),
       );
-      const ankle: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
           joint,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             KneeReach.swing(g.from.shank, g.to.shank, rise),
             m.shank,
           ),
         ),
-        Vector3.scale(g.slack, 1 - rise),
+        AutoMovieEngineVector3.scale(g.slack, 1 - rise),
       );
       const hands: ReturnType<typeof StrikingStance.guard> = arms
         ? guardAt(posture, resolution, projection)
@@ -252,19 +252,19 @@ export namespace knee {
           // a held limb's feedback delay behind (`HumanPerception.HELD`).
           .bones(seconds - HumanPerception.HELD, NECK)
           .get("neck")!.worldPosition;
-        const lateral: IAutoMovieVector3 = Vector3.cross(up, g.heading);
+        const lateral: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, g.heading);
         const aside: number =
           KneeForm.CLINCH_SHARE * other.body.measure.shoulderHalfWidth;
         for (const arm of ["leftArm", "rightArm"] as const) {
           const g0: IAutoMovieHumanLimbGoal | undefined = hands[arm];
           if (g0 === undefined) continue;
-          const hold: IAutoMovieVector3 = Vector3.add(
-            Vector3.add(nape, Vector3.scale(g.heading, KneeForm.CLINCH_DEPTH)),
-            Vector3.scale(lateral, arm === "leftArm" ? aside : -aside),
+          const hold: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(nape, AutoMovieEngineVector3.scale(g.heading, KneeForm.CLINCH_DEPTH)),
+            AutoMovieEngineVector3.scale(lateral, arm === "leftArm" ? aside : -aside),
           );
           hands[arm] = {
             ...g0,
-            point: Vector3.lerp(g0.point, hold, Math.min(1, 2 * whole)),
+            point: AutoMovieEngineVector3.lerp(g0.point, hold, Math.min(1, 2 * whole)),
           };
         }
       }
@@ -275,8 +275,8 @@ export namespace knee {
           ...hands,
           [leg]: {
             point: ankle,
-            bend: Vector3.add(joint, Vector3.scale(g.heading, 0.1)),
-            rotation: Quaternion.slerp(feet[side].rotation, g.foot, rise),
+            bend: AutoMovieEngineVector3.add(joint, AutoMovieEngineVector3.scale(g.heading, 0.1)),
+            rotation: AutoMovieEngineQuaternion.slerp(feet[side].rotation, g.foot, rise),
             ...(t <= prep || t >= duration - 1e-9 ? { planted: true } : {}),
           },
         },

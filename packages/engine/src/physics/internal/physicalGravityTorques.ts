@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
 
 /*
  * Counter actual downstream gravitational moments through the same bounded
@@ -20,7 +20,7 @@ import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 export function physicalGravityTorques(
   profile: IAutoMoviePhysicalProfile,
   order: readonly IAutoMoviePhysicalJoint[],
-  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
+  segments: ReadonlyMap<string, AutoMovieEngineXpbdBody>,
   gravity: IAutoMovieVector3,
 ): IAutoMoviePhysicalGravityTorques.IResult {
   const loads: Map<string, { mass: number; moment: IAutoMovieVector3 }> =
@@ -32,7 +32,7 @@ export function physicalGravityTorques(
           segment.bone,
           {
             mass: segment.mass,
-            moment: Vector3.scale(
+            moment: AutoMovieEngineVector3.scale(
               segments.get(segment.bone)!.worldCom(),
               segment.mass,
             ),
@@ -42,27 +42,27 @@ export function physicalGravityTorques(
     );
   const result: Map<string, IAutoMovieVector3> = new Map();
   for (const joint of order) {
-    const child: AutoMovieXpbdBody = segments.get(joint.child)!;
-    const parent: AutoMovieXpbdBody = segments.get(joint.parent)!;
+    const child: AutoMovieEngineXpbdBody = segments.get(joint.child)!;
+    const parent: AutoMovieEngineXpbdBody = segments.get(joint.parent)!;
     const load: { mass: number; moment: IAutoMovieVector3 } = loads.get(
       joint.child,
     )!;
-    const point: IAutoMovieVector3 = Vector3.add(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       child.translation(),
-      Quaternion.rotateVector(child.rotation(), joint.childFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(child.rotation(), joint.childFrame.position),
     );
-    const torque: IAutoMovieVector3 = Vector3.scale(
-      Vector3.cross(
-        Vector3.subtract(load.moment, Vector3.scale(point, load.mass)),
+    const torque: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.cross(
+        AutoMovieEngineVector3.subtract(load.moment, AutoMovieEngineVector3.scale(point, load.mass)),
         gravity,
       ),
       -1,
     );
     result.set(
       joint.id,
-      Quaternion.rotateVector(
-        Quaternion.inverse(
-          Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(
+          AutoMovieEngineQuaternion.multiply(parent.rotation(), joint.parentFrame.rotation),
         ),
         torque,
       ),
@@ -71,7 +71,7 @@ export function physicalGravityTorques(
       joint.parent,
     )!;
     ancestor.mass += load.mass;
-    ancestor.moment = Vector3.add(ancestor.moment, load.moment);
+    ancestor.moment = AutoMovieEngineVector3.add(ancestor.moment, load.moment);
   }
   const root: IAutoMoviePhysicalSegment = profile.segments.find(
     (segment: (typeof profile.segments)[number]): boolean =>
@@ -83,12 +83,12 @@ export function physicalGravityTorques(
   const load: { mass: number; moment: IAutoMovieVector3 } = loads.get(
     root.bone,
   )!;
-  const moment: IAutoMovieVector3 = Vector3.subtract(
+  const moment: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     load.moment,
-    Vector3.scale(segments.get(root.bone)!.worldCom(), load.mass),
+    AutoMovieEngineVector3.scale(segments.get(root.bone)!.worldCom(), load.mass),
   );
   return {
     joints: result,
-    root: Vector3.scale(Vector3.cross(moment, gravity), -1),
+    root: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(moment, gravity), -1),
   };
 }

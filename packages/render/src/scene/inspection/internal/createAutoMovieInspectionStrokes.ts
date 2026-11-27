@@ -2,9 +2,9 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
+import { AutoMovieRenderInspectionDepthLead } from "../../AutoMovieRenderInspectionDepthLead.js";
 
 /*
  * Make the line object inspection marks are drawn with: segments taken in
@@ -26,7 +26,7 @@ import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../../AUTO_MOVIE_INSPECTION_DE
  * its owner places it and its vertices move.
  *
  * With `xray` the marks ignore depth and draw after everything else. Without it
- * they are depth-tested `AUTO_MOVIE_INSPECTION_DEPTH_LEAD` nearer the camera
+ * they are depth-tested `AutoMovieRenderInspectionDepthLead` nearer the camera
  * than they lie, through a patch to the line shader that leads both ends toward
  * the eye, so a mark on a surface is not lost to that surface.
  */
@@ -56,14 +56,14 @@ export function createAutoMovieInspectionStrokes(
   if (!options.xray)
     AutoMovieRenderMaterial.addShaderPatch(material, {
       key: "automovie-inspection-stroke-lead",
-      apply: (shader: IMaterialShaderSource): void => {
+      apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {
         // Lead both view-space ends toward the eye before the segment is widened.
         shader.vertexShader = shader.vertexShader.replace(
           VIEW_SPACE_ENDS,
           [
             VIEW_SPACE_ENDS,
-            `start.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( start.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
-            `end.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( end.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
+            `start.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( start.xyz ) ) * ${AutoMovieRenderInspectionDepthLead.toFixed(6)};`,
+            `end.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( end.xyz ) ) * ${AutoMovieRenderInspectionDepthLead.toFixed(6)};`,
           ].join("\n"),
         );
       },

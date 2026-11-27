@@ -1,5 +1,5 @@
 import type { IAutoMovieRenderSoftPropFrame } from "@automovie/interface";
-import { AutoMovieThreeKind, type IAutoMovieSceneSoftProps, AutoMovieRenderSceneLayout } from "@automovie/render";
+import { AutoMovieRenderThreeKind, type IAutoMovieRenderSceneSoftProps, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -46,7 +46,7 @@ export function test_render_scene_build_scene_soft_props(): void {
     },
   };
   const scene: THREE.Scene = new THREE.Scene();
-  const layer: IAutoMovieSceneSoftProps = AutoMovieRenderSceneLayout.buildSceneSoftProps(scene);
+  const layer: IAutoMovieRenderSceneSoftProps = AutoMovieRenderSceneLayout.buildSceneSoftProps(scene);
   try {
     layer.update([frame]);
     const mesh: THREE.Object3D | undefined = scene.getObjectByName("soft:cord");
@@ -66,7 +66,7 @@ export function test_render_scene_build_scene_soft_props(): void {
     ]);
     const collapsedInPlace: boolean =
       mesh !== undefined &&
-      AutoMovieThreeKind.isMesh(mesh) &&
+      AutoMovieRenderThreeKind.isMesh(mesh) &&
       !mesh.visible &&
       mesh.userData.step === 3 &&
       scene.getObjectByName("soft:cord") === mesh;
@@ -120,7 +120,7 @@ function hasTube(
   centres: readonly THREE.Vector3[],
   radius: number,
 ): boolean {
-  if (mesh === undefined || !AutoMovieThreeKind.isMesh(mesh) || !mesh.visible)
+  if (mesh === undefined || !AutoMovieRenderThreeKind.isMesh(mesh) || !mesh.visible)
     return false;
   const geometry: THREE.BufferGeometry = mesh.geometry;
   const vertex: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =

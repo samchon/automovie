@@ -5,9 +5,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import { blendVec } from "./blendVec";
 import { readWorld } from "./readWorld";
@@ -38,12 +38,12 @@ export function applyIterativeIK(
     readWorld(world, id, "iterative IK chain"),
   );
   const before: IAutoMovieVector3[] = matrices.map(
-    (m: number[]): IAutoMovieVector3 => Matrix4.position(m),
+    (m: number[]): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(m),
   );
   const lengths: number[] = [];
   for (let i: number = 0; i + 1 < before.length; ++i) {
-    const length: number = Vector3.length(
-      Vector3.subtract(before[i + 1]!, before[i]!),
+    const length: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(before[i + 1]!, before[i]!),
     );
     if (!(length > 0))
       throw new Error(
@@ -51,7 +51,7 @@ export function applyIterativeIK(
       );
     lengths.push(length);
   }
-  const goal: IAutoMovieVector3 = Matrix4.position(
+  const goal: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(
     readWorld(world, d.goal, "iterative IK goal"),
   );
 
@@ -112,20 +112,20 @@ const solveCcd: (
   );
   const tip: number = p.length - 1;
   for (let it: number = 0; it < iterations; ++it) {
-    if (Vector3.length(Vector3.subtract(p[tip]!, goal)) <= CONVERGENCE_EPSILON)
+    if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p[tip]!, goal)) <= CONVERGENCE_EPSILON)
       break;
     for (let j: number = tip - 1; j >= 0; --j) {
       // A degenerate direction (tip or goal exactly on the pivot) normalizes to
       // the zero vector, and rotationBetween of a zero vector is the identity.
       // The pivot simply contributes nothing that sweep, no guard needed.
       const rot: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
-        Vector3.normalize(Vector3.subtract(p[tip]!, p[j]!)),
-        Vector3.normalize(Vector3.subtract(goal, p[j]!)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(p[tip]!, p[j]!)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(goal, p[j]!)),
       );
       for (let k: number = j + 1; k <= tip; ++k)
-        p[k] = Vector3.add(
+        p[k] = AutoMovieEngineVector3.add(
           p[j]!,
-          Quaternion.rotateVector(rot, Vector3.subtract(p[k]!, p[j]!)),
+          AutoMovieEngineQuaternion.rotateVector(rot, AutoMovieEngineVector3.subtract(p[k]!, p[j]!)),
         );
     }
   }
@@ -159,38 +159,38 @@ const solveFabrik: (
     (sum: number, l: number): number => sum + l,
     0,
   );
-  const toGoal: IAutoMovieVector3 = Vector3.subtract(goal, root);
-  const goalDistance: number = Vector3.length(toGoal);
+  const toGoal: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goal, root);
+  const goalDistance: number = AutoMovieEngineVector3.length(toGoal);
 
   if (goalDistance >= total) {
     // Segment lengths are validated strictly positive, so total > 0 and the
     // division below is always safe here.
-    const dir: IAutoMovieVector3 = Vector3.scale(toGoal, 1 / goalDistance);
+    const dir: IAutoMovieVector3 = AutoMovieEngineVector3.scale(toGoal, 1 / goalDistance);
     let cumulative: number = 0;
     for (let i: number = 1; i <= tip; ++i) {
       cumulative += lengths[i - 1]!;
-      p[i] = Vector3.add(root, Vector3.scale(dir, cumulative));
+      p[i] = AutoMovieEngineVector3.add(root, AutoMovieEngineVector3.scale(dir, cumulative));
     }
     return p;
   }
 
   for (let it: number = 0; it < iterations; ++it) {
-    if (Vector3.length(Vector3.subtract(p[tip]!, goal)) <= CONVERGENCE_EPSILON)
+    if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p[tip]!, goal)) <= CONVERGENCE_EPSILON)
       break;
     // backward: pin the tip on the goal, walk to the root
     p[tip] = { ...goal };
     for (let j: number = tip - 1; j >= 0; --j)
-      p[j] = Vector3.add(
+      p[j] = AutoMovieEngineVector3.add(
         p[j + 1]!,
-        Vector3.scale(unitOr(Vector3.subtract(p[j]!, p[j + 1]!)), lengths[j]!),
+        AutoMovieEngineVector3.scale(unitOr(AutoMovieEngineVector3.subtract(p[j]!, p[j + 1]!)), lengths[j]!),
       );
     // forward: pin the root home, walk to the tip
     p[0] = { ...root };
     for (let j: number = 1; j <= tip; ++j)
-      p[j] = Vector3.add(
+      p[j] = AutoMovieEngineVector3.add(
         p[j - 1]!,
-        Vector3.scale(
-          unitOr(Vector3.subtract(p[j]!, p[j - 1]!)),
+        AutoMovieEngineVector3.scale(
+          unitOr(AutoMovieEngineVector3.subtract(p[j]!, p[j - 1]!)),
           lengths[j - 1]!,
         ),
       );
@@ -204,7 +204,7 @@ const solveFabrik: (
 const unitOr: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
   v: IAutoMovieVector3,
 ): IAutoMovieVector3 =>
-  Vector3.length(v) < 1e-12 ? FALLBACK_DIR : Vector3.normalize(v);
+  AutoMovieEngineVector3.length(v) < 1e-12 ? FALLBACK_DIR : AutoMovieEngineVector3.normalize(v);
 
 // The exact shortest-arc rotation now lives in worldShared.rotationBetween,
 // promoted there (#643) so the iterative solvers, the analytic twoBone
@@ -239,15 +239,15 @@ const writeChain: (
       position: IAutoMovieVector3;
       rotation: IAutoMovieQuaternion;
       scale: IAutoMovieVector3;
-    } = Matrix4.decompose(matrices[j]!);
+    } = AutoMovieEngineMatrix4.decompose(matrices[j]!);
     const rotation: IAutoMovieQuaternion =
       j < tip
-        ? Quaternion.slerp(
+        ? AutoMovieEngineQuaternion.slerp(
             dec.rotation,
-            Quaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(
               AutoMovieEngineMath.rotationBetween(
-                unitOr(Vector3.subtract(before[j + 1]!, before[j]!)),
-                unitOr(Vector3.subtract(after[j + 1]!, after[j]!)),
+                unitOr(AutoMovieEngineVector3.subtract(before[j + 1]!, before[j]!)),
+                unitOr(AutoMovieEngineVector3.subtract(after[j + 1]!, after[j]!)),
               ),
               dec.rotation,
             ),
@@ -256,7 +256,7 @@ const writeChain: (
         : dec.rotation;
     world.set(
       d.chain[j]!,
-      Matrix4.compose(blendVec(before[j]!, after[j]!, t), rotation, dec.scale),
+      AutoMovieEngineMatrix4.compose(blendVec(before[j]!, after[j]!, t), rotation, dec.scale),
     );
   }
   recompose(d.chain[tip]!, world, localById, childrenById);

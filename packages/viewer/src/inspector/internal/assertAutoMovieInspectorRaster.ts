@@ -1,4 +1,4 @@
-import type { IAutoMovieDrawScene } from "@automovie/render";
+import type { IAutoMovieRenderDrawScene } from "@automovie/render";
 
 /*
  * Refuse, naming the subject, a subject whose duration, frame rate, width or
@@ -8,7 +8,7 @@ import type { IAutoMovieDrawScene } from "@automovie/render";
 export function assertAutoMovieInspectorRaster(
   name: string,
   instance: Pick<
-    IAutoMovieDrawScene,
+    IAutoMovieRenderDrawScene,
     "durationSeconds" | "fps" | "width" | "height"
   >,
 ): void {

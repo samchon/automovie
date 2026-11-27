@@ -17,7 +17,7 @@ export namespace IAutoMovieDrawingToSvg {
    * The scale is drafting scale: one model metre is `1000 / scale` page
    * millimetres, so a 1:50 plan prints at 1:50, and pen weights and text height
    * are page millimetres. The page is the drawing's extent plus a fixed
-   * {@link AUTOMOVIE_DRAWING_SVG_MARGIN} on each side, with y flipped because
+   * {@link AutoMovieEngineDrawingSvgMargin} on each side, with y flipped because
    * SVG y grows downward. Numbers are rounded and printed to three decimals and
    * every attribute value is XML-escaped, so one drawing and view yield one
    * byte sequence.

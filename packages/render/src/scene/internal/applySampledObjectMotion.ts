@@ -1,7 +1,7 @@
 import type { IAutoMovieSampledChannel } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 
 /*
  * Write an already-authoritative sample table to borrowed Three scene objects.
@@ -70,9 +70,9 @@ const applyMorphWeights: (object: THREE.Object3D, value: number[]) => void = (
 ): void => {
   object.traverse((child: THREE.Object3D): void => {
     const influences: number[] | undefined =
-      AutoMovieThreeKind.isMesh(child) ||
-      AutoMovieThreeKind.isLine(child) ||
-      AutoMovieThreeKind.isPoints(child)
+      AutoMovieRenderThreeKind.isMesh(child) ||
+      AutoMovieRenderThreeKind.isLine(child) ||
+      AutoMovieRenderThreeKind.isPoints(child)
         ? child.morphTargetInfluences
         : undefined;
     if (influences === undefined) return;

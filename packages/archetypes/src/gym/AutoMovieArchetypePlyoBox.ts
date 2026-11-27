@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -12,7 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypePlyoBoxData from "./internal/AutoMovieArchetypePlyoBoxData";
+import { AutoMovieArchetypePlyoBoxData } from "./internal/AutoMovieArchetypePlyoBoxData";
 
 /** Constructs the plyo box archetype from its recipe. */
 export namespace AutoMovieArchetypePlyoBox {
@@ -63,14 +63,14 @@ export function create(
   });
   builder.box(
     "box",
-    Vector3.create(d.width!, d.height!, d.depth!),
-    Vector3.create(0, d.height! / 2, 0),
+    AutoMovieEngineVector3.create(d.width!, d.height!, d.depth!),
+    AutoMovieEngineVector3.create(0, d.height! / 2, 0),
     { color: "#c9a36b" },
   );
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.height!, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, d.height!, 0)),
     extent: null,
     width: d.width!,
     depth: d.depth!,

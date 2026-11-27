@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAudit,
@@ -64,11 +64,11 @@ import { solvedHumanAuditSpans } from "./internal/solvedHumanAuditSpans";
  * - `statics`: while a held body's bearing contacts all declare their load, the
  *   load-weighted contact centre lies under the centre of mass within 2 % of
  *   stature (`AutoMovieMotionHumanAuditStatics`).
- * - `range`: every joint stays within its range of motion, within `ROM_TOLERANCE`
+ * - `range`: every joint stays within its range of motion, within `AutoMovieEngineRomTolerance`
  *   (0.01 degrees).
  * - `unloaded`: a foot no plant holds dorsiflexes no further than an ankle
- *   bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`), within
- *   `ROM_TOLERANCE`.
+ *   bearing no weight does (`AutoMovieEngineAnkleDorsiflexion.unloaded`), within
+ *   `AutoMovieEngineRomTolerance`.
  * - `turn`: no bone snaps by more than 5 degrees, the turn left once an interval
  *   is halved until a smooth turn is gone
  *   (`AutoMovieMotionHumanAuditSpin.SNAP`).
@@ -240,7 +240,7 @@ export namespace AutoMovieMotionHumanVerdicts {
                 who,
                 rate,
               ).overshoot,
-              ROM_TOLERANCE,
+              AutoMovieEngineRomTolerance,
             ],
           ] as const)
             measured(
@@ -269,7 +269,7 @@ export namespace AutoMovieMotionHumanVerdicts {
         who,
         "range",
         AutoMovieMotionHumanAuditRange.measure(posed, who, rate).overshoot,
-        ROM_TOLERANCE,
+        AutoMovieEngineRomTolerance,
       );
       measured(
         who,

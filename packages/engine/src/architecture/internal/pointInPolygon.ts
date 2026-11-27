@@ -7,7 +7,7 @@ import { pointOnSegment } from "./pointOnSegment";
  *
  * polygonInside, polygonsOverlap and footprint-ring placement
  * share this answer. A point on an edge or vertex counts as inside under
- * pointOnSegment's scale-relative `PLANAR_EPSILON` tolerance. The
+ * pointOnSegment's scale-relative `AutoMovieEnginePlanarEpsilon` tolerance. The
  * polygon is an implicitly closed simple ring in either winding; an empty ring
  * contains nothing. Self-crossing rings are outside the geometric contract even
  * though the loop still evaluates parity.

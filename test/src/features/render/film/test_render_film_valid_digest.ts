@@ -1,4 +1,6 @@
-import { validDigest } from "@automovie/render/internal";
+import {
+  validDigest
+} from "../../../../../packages/render/src/film/internal/validDigest";
 import { TestValidator } from "@nestia/e2e";
 
 /**

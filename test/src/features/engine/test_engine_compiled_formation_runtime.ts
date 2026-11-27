@@ -1,4 +1,4 @@
-import { AUTOMOVIE_FORMATION_CHUNK_SIZE, AutoMovieEngineWorld, AutoMovieEngineCanonicalJson, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
+import { AutoMovieEngineFormationChunkSize, AutoMovieEngineWorld, AutoMovieEngineCanonicalJson, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledFormationHero,
@@ -34,10 +34,10 @@ const column: (
 ): IAutoMovieFormationDesign => ({
   id: "column",
   model: "member",
-  count: AUTOMOVIE_FORMATION_CHUNK_SIZE + 1,
+  count: AutoMovieEngineFormationChunkSize + 1,
   layout: {
     kind: "line",
-    files: AUTOMOVIE_FORMATION_CHUNK_SIZE + 1,
+    files: AutoMovieEngineFormationChunkSize + 1,
     ranks: 1,
     spacing: { lateral: 1, depth: 1 },
   },
@@ -47,7 +47,7 @@ const column: (
   capabilities: [],
   // Out of slot order on purpose: the compiled heroes are ordered by slot.
   heroOverrides: [
-    { slot: AUTOMOVIE_FORMATION_CHUNK_SIZE, actor: "rear" },
+    { slot: AutoMovieEngineFormationChunkSize, actor: "rear" },
     { slot: 0, actor: "front" },
   ],
   ...overrides,

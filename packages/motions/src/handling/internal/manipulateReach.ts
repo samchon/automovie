@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -107,14 +107,14 @@ export namespace manipulateReach {
         declared.surface,
         "flat",
       ).point;
-      const span: IAutoMovieVector3 = Vector3.subtract(
+      const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         tip,
-        Vector3.subtract(knuckle, wrist),
+        AutoMovieEngineVector3.subtract(knuckle, wrist),
       );
       digits.set(digit, {
-        radius: Vector3.length(span),
-        along: Vector3.normalize(Quaternion.rotateVector(rotation, span)),
-        tip: Quaternion.rotateVector(rotation, tip),
+        radius: AutoMovieEngineVector3.length(span),
+        along: AutoMovieEngineVector3.normalize(AutoMovieEngineQuaternion.rotateVector(rotation, span)),
+        tip: AutoMovieEngineQuaternion.rotateVector(rotation, tip),
       });
     }
     const geometry: ReadonlyMap<string, IDigit> = digits;
@@ -131,7 +131,7 @@ export namespace manipulateReach {
         );
       const radius: number = prepared.radius;
       const drop: number = typeText.HOVER + depth;
-      const slope: number = Vector3.dot(prepared.along, normal);
+      const slope: number = AutoMovieEngineVector3.dot(prepared.along, normal);
       const tangentSquared: number =
         drop * drop * Math.max(0, 1 - slope * slope);
       // Advance the knuckle by the chord's lost horizontal reach. An
@@ -140,9 +140,9 @@ export namespace manipulateReach {
         radius -
         drop * slope -
         Math.sqrt(Math.max(0, radius * radius - tangentSquared));
-      return Vector3.subtract(
-        Vector3.addScaled(
-          Vector3.addScaled(site, normal, typeText.HOVER),
+      return AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.addScaled(
+          AutoMovieEngineVector3.addScaled(site, normal, typeText.HOVER),
           prepared.along,
           advance,
         ),

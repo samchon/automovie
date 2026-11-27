@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBoat } from "@automovie/archetypes";
-import { RigidCarrierSample } from "@automovie/engine";
+import { AutoMovieEngineRigidCarrierSample } from "@automovie/engine";
 import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,8 +36,8 @@ export function test_motions_perform_object_rowboat_binding(): void {
       binding.motion,
       binding.point,
     );
-    const domains: readonly RigidCarrierSample.IHold[] =
-      RigidCarrierSample.holds(actual)!;
+    const domains: readonly AutoMovieEngineRigidCarrierSample.IHold[] =
+      AutoMovieEngineRigidCarrierSample.holds(actual)!;
     const end: number = start + ride.duration;
     TestValidator.predicate(
       "departure is still the initial clock sample",
@@ -46,14 +46,14 @@ export function test_motions_perform_object_rowboat_binding(): void {
     TestValidator.predicate(
       "the exact course endpoint is a live sample",
       () =>
-        !domains.some((domain: RigidCarrierSample.IHold): boolean =>
+        !domains.some((domain: AutoMovieEngineRigidCarrierSample.IHold): boolean =>
           domain.contains(end),
         ),
     );
     TestValidator.predicate(
       "only still water has a terminal hold",
       () =>
-        domains.some((domain: RigidCarrierSample.IHold): boolean =>
+        domains.some((domain: AutoMovieEngineRigidCarrierSample.IHold): boolean =>
           domain.contains(end + 1),
         ) ===
         (sea === undefined),
@@ -69,7 +69,7 @@ export function test_motions_perform_object_rowboat_binding(): void {
     );
     TestValidator.predicate(
       "an opaque reader does not inherit a stationary domain",
-      () => RigidCarrierSample.holds(wrapped) === undefined,
+      () => AutoMovieEngineRigidCarrierSample.holds(wrapped) === undefined,
     );
   }
 }

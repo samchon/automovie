@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -233,7 +233,7 @@ function segment(
   if (slot === "head") {
     const joint: IAutoMovieVector3 = restAt(body, "head");
     const reach: number = body.measure.stature - joint.y;
-    return frameAt(Vector3.add(joint, Vector3.scale(UP, reach / 2)), UP);
+    return frameAt(AutoMovieEngineVector3.add(joint, AutoMovieEngineVector3.scale(UP, reach / 2)), UP);
   }
   if (slot === "chest") {
     const joint: IAutoMovieVector3 = restAt(body, "chest");
@@ -248,12 +248,12 @@ function segment(
   const side: AutoMovieHumanSide = slot.startsWith("left") ? "left" : "right";
   if (slot === "leftHand" || slot === "rightHand") {
     const wrist: IAutoMovieVector3 = restAt(body, slot);
-    const along: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(restAt(body, `${side}MiddleProximal`), wrist),
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(restAt(body, `${side}MiddleProximal`), wrist),
     );
     return frameAt(
-      Vector3.add(wrist, Vector3.scale(along, body.measure.hand / 2)),
-      Vector3.scale(along, -1),
+      AutoMovieEngineVector3.add(wrist, AutoMovieEngineVector3.scale(along, body.measure.hand / 2)),
+      AutoMovieEngineVector3.scale(along, -1),
     );
   }
   const upper: IAutoMovieVector3 = restAt(body, slot);
@@ -262,8 +262,8 @@ function segment(
     slot.endsWith("Arm") ? `${side}Hand` : `${side}Foot`,
   );
   return frameAt(
-    Vector3.scale(Vector3.add(upper, lower), 0.5),
-    Vector3.subtract(upper, lower),
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(upper, lower), 0.5),
+    AutoMovieEngineVector3.subtract(upper, lower),
   );
 }
 
@@ -275,7 +275,7 @@ function frameAt(
   at: IAutoMovieVector3,
   up: IAutoMovieVector3,
 ): IAutoMovieTransform {
-  return AutoMovieArchetypeFrame.facing(at, up, Vector3.cross(up, FORWARD));
+  return AutoMovieArchetypeFrame.facing(at, up, AutoMovieEngineVector3.cross(up, FORWARD));
 }
 
 /*
@@ -297,12 +297,12 @@ function restFrame(
     (
       world: IAutoMovieQuaternion,
       local: IAutoMovieQuaternion,
-    ): IAutoMovieQuaternion => Quaternion.multiply(world, local),
-    Quaternion.identity(),
+    ): IAutoMovieQuaternion => AutoMovieEngineQuaternion.multiply(world, local),
+    AutoMovieEngineQuaternion.identity(),
   );
   return {
     translation: restAt(body, bone),
-    rotation: Quaternion.normalize(rotation),
+    rotation: AutoMovieEngineQuaternion.normalize(rotation),
     scale: { ...AutoMovieArchetypeFrame.UNIT },
   };
 }
@@ -323,11 +323,11 @@ function restAt(
  * The inverse of a unit-scale frame.
  */
 function invert(frame: IAutoMovieTransform): IAutoMovieTransform {
-  const rotation: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation);
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(frame.rotation);
   return {
-    translation: Quaternion.rotateVector(
+    translation: AutoMovieEngineQuaternion.rotateVector(
       rotation,
-      Vector3.scale(frame.translation, -1),
+      AutoMovieEngineVector3.scale(frame.translation, -1),
     ),
     rotation,
     scale: { ...AutoMovieArchetypeFrame.UNIT },

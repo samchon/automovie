@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
+import { AutoMovieRenderInspectionDepthLead } from "../../AutoMovieRenderInspectionDepthLead.js";
 
 /*
  * Make the points object inspection marks draw their places with: one
@@ -17,7 +17,7 @@ import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../../AUTO_MOVIE_INSPECTION_DE
  * `positions` holds one xyz vertex per point and `colors` the matching linear
  * rgb, kept by the geometry, not copied, so the caller rewrites `positions` in
  * place to move the points. Depth follows `createAutoMovieInspectionStrokes`:
- * ignored with `xray`, and otherwise led `AUTO_MOVIE_INSPECTION_DEPTH_LEAD`
+ * ignored with `xray`, and otherwise led `AutoMovieRenderInspectionDepthLead`
  * toward the camera.
  */
 export function createAutoMovieInspectionDotsImplementation(
@@ -47,13 +47,13 @@ export function createAutoMovieInspectionDotsImplementation(
   if (!options.xray)
     AutoMovieRenderMaterial.addShaderPatch(material, {
       key: "automovie-inspection-dot-lead",
-      apply: (shader: IMaterialShaderSource): void => {
+      apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {
         // Lead the view-space position toward the eye, then project it again.
         shader.vertexShader = shader.vertexShader.replace(
           "#include <project_vertex>",
           [
             "#include <project_vertex>",
-            `mvPosition.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( mvPosition.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
+            `mvPosition.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( mvPosition.xyz ) ) * ${AutoMovieRenderInspectionDepthLead.toFixed(6)};`,
             "gl_Position = projectionMatrix * mvPosition;",
           ].join("\n"),
         );

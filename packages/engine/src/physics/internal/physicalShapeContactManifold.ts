@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The contact manifold of two touching convex colliders along a known normal:
@@ -49,26 +49,26 @@ export function physicalShapeContactManifold(
   const second: IAutoMovieVector3[] = feature(
     poseB,
     shapeB,
-    Vector3.scale(normal, -1),
+    AutoMovieEngineVector3.scale(normal, -1),
     band,
   );
   const u: IAutoMovieVector3 = perpendicular(normal);
-  const w: IAutoMovieVector3 = Vector3.cross(normal, u);
+  const w: IAutoMovieVector3 = AutoMovieEngineVector3.cross(normal, u);
   const flat = (p: IAutoMovieVector3): IFlat => ({
-    x: Vector3.dot(p, u),
-    y: Vector3.dot(p, w),
+    x: AutoMovieEngineVector3.dot(p, u),
+    y: AutoMovieEngineVector3.dot(p, w),
   });
   const a: IFlat[] = hull(first.map(flat), band);
   const b: IFlat[] = hull(second.map(flat), band);
   const patch: IFlat[] = intersect(a, b, band);
   return patch.map((v: IFlat): AutoMovieEnginePhysicsContactTypes.IPoint => {
-    const p: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(u, v.x),
-      Vector3.scale(w, v.y),
+    const p: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(u, v.x),
+      AutoMovieEngineVector3.scale(w, v.y),
     );
     return {
-      pointA: Vector3.add(p, Vector3.scale(normal, height(first, normal, p))),
-      pointB: Vector3.add(p, Vector3.scale(normal, height(second, normal, p))),
+      pointA: AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(normal, height(first, normal, p))),
+      pointB: AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(normal, height(second, normal, p))),
     };
   });
 }
@@ -102,16 +102,16 @@ function feature(
   direction: IAutoMovieVector3,
   band: number,
 ): IAutoMovieVector3[] {
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
   );
   const world = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(centre, Quaternion.rotateVector(rotation, local));
+    AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, local));
   let core: IAutoMovieVector3[];
   let radius: number = 0;
   if (shape.kind === "sphere") {
@@ -141,16 +141,16 @@ function feature(
     throw new Error("Unknown physical shape kind");
   }
   const reach: number = Math.max(
-    ...core.map((p: IAutoMovieVector3): number => Vector3.dot(p, direction)),
+    ...core.map((p: IAutoMovieVector3): number => AutoMovieEngineVector3.dot(p, direction)),
   );
   return core
     .filter(
       (p: IAutoMovieVector3): boolean =>
-        Vector3.dot(p, direction) >= reach - band,
+        AutoMovieEngineVector3.dot(p, direction) >= reach - band,
     )
     .map(
       (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(p, Vector3.scale(direction, radius)),
+        AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(direction, radius)),
     );
 }
 
@@ -169,46 +169,46 @@ function height(
   let area: number = 0;
   for (let i: number = 1; i < feature.length; i++)
     for (let j: number = i + 1; j < feature.length; j++) {
-      const m: IAutoMovieVector3 = Vector3.cross(
-        Vector3.subtract(feature[i]!, first),
-        Vector3.subtract(feature[j]!, first),
+      const m: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+        AutoMovieEngineVector3.subtract(feature[i]!, first),
+        AutoMovieEngineVector3.subtract(feature[j]!, first),
       );
-      if (Vector3.length(m) > area) {
-        area = Vector3.length(m);
+      if (AutoMovieEngineVector3.length(m) > area) {
+        area = AutoMovieEngineVector3.length(m);
         best = m;
       }
     }
-  const facing: number = Vector3.dot(best, n);
+  const facing: number = AutoMovieEngineVector3.dot(best, n);
   if (area > 0 && Math.abs(facing) > 0)
-    return Vector3.dot(best, Vector3.subtract(first, p)) / facing;
+    return AutoMovieEngineVector3.dot(best, AutoMovieEngineVector3.subtract(first, p)) / facing;
   if (feature.length >= 2) {
     // A segment: the point of the segment whose projection is nearest p's.
     let far: IAutoMovieVector3 = first;
     for (const q of feature)
       if (
-        Vector3.length(Vector3.subtract(q, first)) >
-        Vector3.length(Vector3.subtract(far, first))
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(q, first)) >
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(far, first))
       )
         far = q;
     const flat = (q: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(q, Vector3.scale(n, Vector3.dot(q, n)));
-    const d: IAutoMovieVector3 = Vector3.subtract(flat(far), flat(first));
-    const length: number = Vector3.dot(d, d);
+      AutoMovieEngineVector3.subtract(q, AutoMovieEngineVector3.scale(n, AutoMovieEngineVector3.dot(q, n)));
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(flat(far), flat(first));
+    const length: number = AutoMovieEngineVector3.dot(d, d);
     const s: number =
       length > 0
         ? Math.max(
             0,
             Math.min(
               1,
-              Vector3.dot(Vector3.subtract(flat(p), flat(first)), d) / length,
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(flat(p), flat(first)), d) / length,
             ),
           )
         : 0;
     return (
-      Vector3.dot(first, n) + s * (Vector3.dot(far, n) - Vector3.dot(first, n))
+      AutoMovieEngineVector3.dot(first, n) + s * (AutoMovieEngineVector3.dot(far, n) - AutoMovieEngineVector3.dot(first, n))
     );
   }
-  return Vector3.dot(first, n);
+  return AutoMovieEngineVector3.dot(first, n);
 }
 
 /*
@@ -221,8 +221,8 @@ function perpendicular(n: IAutoMovieVector3): IAutoMovieVector3 {
       : Math.abs(n.y) <= Math.abs(n.z)
         ? { x: 0, y: 1, z: 0 }
         : { x: 0, y: 0, z: 1 };
-  const v: IAutoMovieVector3 = Vector3.cross(n, seed);
-  return Vector3.scale(v, 1 / Vector3.length(v));
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.cross(n, seed);
+  return AutoMovieEngineVector3.scale(v, 1 / AutoMovieEngineVector3.length(v));
 }
 
 /*

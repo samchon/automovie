@@ -90,7 +90,7 @@ export namespace AutoMovieRenderCapture {
    * `parseAutoMovieCapturePlanRequest` reads, so a request worked out in one host
    * repeats in another as an address, a command line or props.
    *
-   * Keys come in the order of `AUTO_MOVIE_CAPTURE_PLAN_KEYS`, and a key whose
+   * Keys come in the order of `AutoMovieRenderCapturePlanKeys`, and a key whose
    * value is the reader's absent value is left out, so the request that asks for
    * nothing is the empty list. Numbers are written in JavaScript's shortest form
    * that reads back to the same number, lists joined by commas and views by `;`.
@@ -119,7 +119,7 @@ export namespace AutoMovieRenderCapture {
    * passes its props as text.
    *
    * A key given without a value reads as the empty string, which turns a switch
-   * on. `AUTO_MOVIE_CAPTURE_PLAN_KEYS` lists every key and
+   * on. `AutoMovieRenderCapturePlanKeys` lists every key and
    * `formatAutoMovieCapturePlanRequest` writes a request back. The inspection
    * keys are read by `parseAutoMovieInspectionRequest`.
    *
@@ -412,7 +412,7 @@ export namespace AutoMovieRenderCapture {
    * round, `compareAutoMovieCaptureRounds` follows at `match` and diffs those
    * findings against the earlier record's. The record comes last.
    *
-   * Files are touched in the order `AutoMovieCaptureFolder` states: the host
+   * Files are touched in the order `AutoMovieRenderCaptureFolder` states: the host
    * opens the folder for the plan's round and compared round, which checks both
    * before anything is deleted; every still and sheet is claimed in a `running`
    * record before the first is written, the comparison's files are claimed before
@@ -422,7 +422,7 @@ export namespace AutoMovieRenderCapture {
    *
    * ```ts
    * const plan = planAutoMovieCapture({ request, subject, cuts: [] });
-   * const folder = await AutoMovieCaptureFolder.open({
+   * const folder = await AutoMovieRenderCaptureFolder.open({
    *   storage: fs,
    *   root: "media/capture",
    *   round: request.round,

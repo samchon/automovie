@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieHumanDigitGoal, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePreparation";
@@ -62,7 +62,7 @@ export function prepareGymnasticsPlacement(
   ): IAutoMovieMotionHumanPosture => {
     const rotation: ReturnType<typeof humanPostureHeading> =
       humanPostureHeading(heading);
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(rotation, local);
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, local);
     return HumanPosturePreparation.rigid(
       prepared,
       {

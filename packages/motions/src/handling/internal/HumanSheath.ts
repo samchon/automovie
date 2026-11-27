@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -68,8 +68,8 @@ export function HumanSheath(
     });
 
   // The tip must lie on the blade's own +Y for the seat's turn to aim it.
-  const reach: number = Vector3.length(tip.frame.translation);
-  const along: IAutoMovieVector3 = Vector3.scale(
+  const reach: number = AutoMovieEngineVector3.length(tip.frame.translation);
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     tip.frame.translation,
     1 / reach,
   );
@@ -86,7 +86,7 @@ export function HumanSheath(
 
   const withdrawal: number = reach + params.clearance;
   const rest: IAutoMovieAffordance[] = sockets(mouth, withdrawal, 0);
-  const down: IAutoMovieVector3 = Quaternion.rotateVector(
+  const down: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     mouth.frame.rotation,
     { x: 0, y: -1, z: 0 },
   );
@@ -146,7 +146,7 @@ export function HumanSheath(
         point: HumanSheath.SEAT,
         offset: {
           position: { x: 0, y: 0, z: 0 },
-          rotation: Quaternion.identity(),
+          rotation: AutoMovieEngineQuaternion.identity(),
         },
       },
     },
@@ -326,13 +326,13 @@ function sockets(
   withdrawal: number,
   travel: number,
 ): IAutoMovieAffordance[] {
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       mouth.frame.rotation,
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
     ),
   );
-  const out: IAutoMovieVector3 = Quaternion.rotateVector(mouth.frame.rotation, {
+  const out: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(mouth.frame.rotation, {
     x: 0,
     y: 1,
     z: 0,
@@ -340,7 +340,7 @@ function sockets(
   const at: (distance: number) => IAutoMovieVector3 = (
     distance: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(mouth.frame.translation, Vector3.scale(out, distance));
+    AutoMovieEngineVector3.add(mouth.frame.translation, AutoMovieEngineVector3.scale(out, distance));
   return [
     {
       id: HumanSheath.SEAT,
@@ -367,10 +367,10 @@ function sockets(
       kind: "slider",
       frame: {
         translation: mouth.frame.translation,
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
             mouth.frame.rotation,
-            Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
           ),
         ),
         scale: mouth.frame.scale,

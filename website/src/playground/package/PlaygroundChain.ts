@@ -3,9 +3,8 @@ import type {
   AutoMovieHumanSex,
   IAutoMovieComposition,
 } from "@automovie/interface";
-import * as motions from "@automovie/motions";
 import { AutoMovieMotionHumanActions, AutoMovieMotionHumanChain } from "@automovie/motions";
-import * as internal from "@automovie/motions/internal";
+import { MotionInventory } from "../../motions/package/MotionInventory";
 
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
 import { playgroundActionParams } from "../data/playgroundActionParams";
@@ -72,11 +71,6 @@ export namespace PlaygroundChain {
     ): { name: string };
   }
 
-  /** The package's exports by name, for the tables only some releases have. */
-  const EXPORTS: Readonly<Record<string, unknown>> = {
-    ...(motions as Readonly<Record<string, unknown>>),
-    ...(internal as Readonly<Record<string, unknown>>),
-  };
 
   /** A chain's prototype, which shows the operators the installed package has. */
   const PROTOTYPE: Record<string, unknown> =
@@ -107,7 +101,7 @@ export namespace PlaygroundChain {
    * @returns Each family's law records by family name; empty when the package has no such table.
    */
   export function lexicon(): Record<string, ILaw[]> {
-    const table: unknown = EXPORTS["HUMAN_LEXICON"];
+    const table: unknown = MotionInventory.lexicon();
     if (typeof table !== "object" || table === null) return {};
     return table as Record<string, ILaw[]>;
   }
@@ -119,16 +113,7 @@ export namespace PlaygroundChain {
    * @returns Each law by its name.
    */
   export function exported(): Map<string, ILaw> {
-    const found: Map<string, ILaw> = new Map();
-    for (const value of Object.values(EXPORTS))
-      if (
-        typeof value === "object" &&
-        value !== null &&
-        typeof (value as ILaw).name === "string" &&
-        typeof (value as { plan?: unknown }).plan === "function"
-      )
-        found.set((value as ILaw).name, value as ILaw);
-    return found;
+    return MotionInventory.exported();
   }
 
   /**
@@ -173,36 +158,7 @@ export namespace PlaygroundChain {
    * @returns The action and its public expression for each name.
    */
   export function mutualExports(): Record<string, IMutualExport> {
-    const join: unknown = (AutoMovieMotionHumanChain as unknown as Record<string, unknown>)[
-      "mutual"
-    ];
-    if (typeof join !== "function") return {};
-    const found: Record<string, IMutualExport> = {};
-    const register = (value: unknown, expression: string): void => {
-      if (
-        typeof value === "object" &&
-        value !== null &&
-        typeof (value as IMutual).name === "string" &&
-        Array.isArray((value as IMutual).roles) &&
-        typeof (value as IMutual).act === "function"
-      ) {
-        const record: IMutual = value as IMutual;
-        found[record.name] = { record, expression };
-      }
-    };
-    for (const [key, space] of Object.entries(EXPORTS)) {
-      if (typeof space !== "object" || space === null) continue;
-      register(space, key);
-      for (const [member, value] of Object.entries(space)) {
-        register(value, `${key}.${member}`);
-        // A family namespace holds a law that carries its mutual action, as
-        // `AutoMovieMotionHumanCarryPerson.HumanAssistedTransfer.mutual`.
-        if (typeof value !== "object" || value === null) continue;
-        for (const [inner, nested] of Object.entries(value))
-          register(nested, `${key}.${member}.${inner}`);
-      }
-    }
-    return found;
+    return MotionInventory.mutualExports();
   }
 
   /**
@@ -248,7 +204,7 @@ export namespace PlaygroundChain {
       if (action.over !== undefined && action.over.length !== 0) {
         if (next.over === undefined)
           throw new Error(
-            "The installed @automovie/motions has no HumanChain.over, so one action cannot be performed over another yet",
+            "The installed @automovie/motions has no AutoMovieMotionHumanChain.over, so one action cannot be performed over another yet",
           );
         const overlaid: IPlaygroundComposition.IAction[] = action.over;
         next = next.over(
@@ -264,7 +220,7 @@ export namespace PlaygroundChain {
       if (action.sync !== undefined) {
         if (next.sync === undefined)
           throw new Error(
-            "The installed @automovie/motions has no HumanChain.sync, so an action cannot be timed to another instant yet",
+            "The installed @automovie/motions has no AutoMovieMotionHumanChain.sync, so an action cannot be timed to another instant yet",
           );
         next = next.sync(action.sync);
       }

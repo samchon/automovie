@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
@@ -189,7 +189,7 @@ export namespace AutoMovieArchetypeManoeuvre {
       const state: AutoMovieArchetypeCourse.IState = plan.at(
         from + (to - from) * u,
       );
-      const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+      const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         state.placement.rotation,
         offset,
       );
@@ -249,7 +249,7 @@ export namespace AutoMovieArchetypeManoeuvre {
   ): IWindow[] {
     const inside: (seconds: number) => boolean = (seconds: number): boolean => {
       const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
-      const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+      const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         state.placement.rotation,
         { x: 0, y: 0, z: 1 },
       );

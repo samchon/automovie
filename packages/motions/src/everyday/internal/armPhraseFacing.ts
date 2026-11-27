@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieQuaternion,
@@ -22,20 +22,20 @@ export function armPhraseFacing(
   normal: IAutoMovieVector3,
   yaw: number,
 ): IAutoMovieQuaternion {
-  const n: IAutoMovieVector3 = Vector3.normalize(normal);
+  const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(normal);
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const across: IAutoMovieVector3 = Vector3.subtract(
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     up,
-    Vector3.scale(n, Vector3.dot(up, n)),
+    AutoMovieEngineVector3.scale(n, AutoMovieEngineVector3.dot(up, n)),
   );
   const fingers: IAutoMovieVector3 =
-    Vector3.length(across) > VERTICAL
+    AutoMovieEngineVector3.length(across) > VERTICAL
       ? across
       : HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw },
           { x: 0, y: 0, z: 1 },
         );
-  return HumanHand.rotation(side, { fingers, palm: Vector3.scale(n, -1) });
+  return HumanHand.rotation(side, { fingers, palm: AutoMovieEngineVector3.scale(n, -1) });
 }
 
 /*

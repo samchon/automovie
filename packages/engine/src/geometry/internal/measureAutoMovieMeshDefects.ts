@@ -3,7 +3,7 @@ import type {
   IAutoMovieMeshDefect,
 } from "@automovie/interface";
 
-import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
+import { AutoMovieEngineMeshWeldGrid } from "../../constants/AutoMovieEngineMeshWeldGrid";
 
 /*
  * List every defect of a triangle mesh with the vertices that carry it, so an
@@ -15,7 +15,7 @@ import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
  * changed. Vertices weld by position: each coordinate is multiplied by
  * `options.weld`, the number of lattice cells per unit of length, and rounded
  * to the nearest whole cell, and vertices in the same cell on all three axes
- * are one corner. The default is `MESH_WELD_GRID`, a nanometre grid when the
+ * are one corner. The default is `AutoMovieEngineMeshWeldGrid`, a nanometre grid when the
  * unit is the metre. Welding by cell is not welding by distance: two points
  * closer than a cell that fall on either side of a rounding boundary stay
  * apart.
@@ -47,7 +47,7 @@ import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
  * and surfaces that cross each other are not found here.
  * Parameter mesh: Position and index buffers to measure.
  * Parameter options: `weld` is the lattice's cells per unit of length, default
- * `MESH_WELD_GRID`. `sliver` is the aspect limit above which a triangle is a
+ * `AutoMovieEngineMeshWeldGrid`. `sliver` is the aspect limit above which a triangle is a
  * sliver; absent, no sliver is reported.
  * Returns: The defects, empty for a closed, consistently wound mesh without
  * degenerate triangles.
@@ -69,7 +69,7 @@ export function measureAutoMovieMeshDefects(
   /*
    * Lattice cells per unit of length.
    */
-  const weld: number = options?.weld ?? MESH_WELD_GRID;
+  const weld: number = options?.weld ?? AutoMovieEngineMeshWeldGrid;
 
   /*
    * Aspect limit, or undefined when slivers are not asked about.

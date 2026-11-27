@@ -50,7 +50,7 @@ export interface IAutoMovieDrawingSpacePlace {
 
   /**
    * Staged node ids in the space and its descendants, ascending, at most the
-   * engine's `AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS`.
+   * engine's `AutoMovieEngineDrawingScheduleMaxMembers`.
    *
    * An element with a model appears as `<environment>/<element>`. A population
    * contributes its one owner id, `instance-set:<set>`, rather than its

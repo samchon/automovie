@@ -7,10 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  ReactionFeet,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  ReactionFeet
+} from "../../../../../packages/motions/src/reaction/internal/ReactionFeet";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { strict as assert } from "node:assert";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

@@ -6,13 +6,13 @@
 export namespace KneeForm {
   /*
    * Knee flexion while driven, degrees: the heel drawn to the buttock so the
-   * foot trails behind the knee, a tenth inside `DEFAULT_HUMANOID_ROM`'s 150.
+   * foot trails behind the knee, a tenth inside `AutoMovieEngineDefaultHumanoidRom`'s 150.
    */
   export const FLEXION: number = 135;
 
   /*
    * Ankle plantarflexion while driven, degrees: the toes pointed down along the
-   * shank, a tenth inside `DEFAULT_HUMANOID_ROM`'s 50.
+   * shank, a tenth inside `AutoMovieEngineDefaultHumanoidRom`'s 50.
    */
   export const PLANTAR: number = 45;
 
@@ -22,7 +22,7 @@ export namespace KneeForm {
   export const LEAN: number = 10;
 
   /*
-   * The hip's flexion range used, degrees: `DEFAULT_HUMANOID_ROM`'s 120 kept a
+   * The hip's flexion range used, degrees: `AutoMovieEngineDefaultHumanoidRom`'s 120 kept a
    * tenth inside.
    */
   export const HIP_FLEXION: number = 108;

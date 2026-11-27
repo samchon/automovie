@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
@@ -122,8 +122,8 @@ export function affordanceCases(
           hinge,
           smooth(t),
         ).point;
-        const gap: number = Vector3.length(
-          Vector3.subtract(surfaceAt(t), want),
+        const gap: number = AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(surfaceAt(t), want),
         );
         if (gap > worst.value) worst = { value: gap, at: t };
       }
@@ -136,19 +136,19 @@ export function affordanceCases(
         },
       ];
       if (mechanism.kind === "button") {
-        const travel: IAutoMovieVector3 = Vector3.subtract(
+        const travel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           surfaceAt(end),
           surfaceAt(start),
         );
         const angle: number =
-          Vector3.length(travel) < 1e-6
+          AutoMovieEngineVector3.length(travel) < 1e-6
             ? 180
             : (Math.acos(
                 Math.max(
                   -1,
                   Math.min(
                     1,
-                    Vector3.dot(Vector3.normalize(travel), {
+                    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(travel), {
                       x: 0,
                       y: 0,
                       z: 1,
@@ -173,16 +173,16 @@ export function affordanceCases(
         // The shorter of the two quaternions of one rotation (w >= 0), so a
         // turn reads within a half circle either way and not as its
         // complement past it.
-        const raw: IAutoMovieQuaternion = Quaternion.multiply(
+        const raw: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           turn(end),
-          Quaternion.inverse(turn(start)),
+          AutoMovieEngineQuaternion.inverse(turn(start)),
         );
         const delta: IAutoMovieQuaternion =
           raw.w < 0 ? { x: -raw.x, y: -raw.y, z: -raw.z, w: -raw.w } : raw;
         const twist: number =
           (2 *
             Math.atan2(
-              Vector3.dot(
+              AutoMovieEngineVector3.dot(
                 { x: delta.x, y: delta.y, z: delta.z },
                 towardPerformer,
               ),

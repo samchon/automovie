@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieCapsuleShape,
   IAutoMovieCylinderShape,
@@ -68,7 +68,7 @@ export function animalEquipmentBearingObservation(
     const shape: IAutoMovieCapsuleShape | IAutoMovieCylinderShape =
       body.geometry.shape;
     const stock: IAutoMovieCylinderShape = Equipment.cylinder(bearing);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       body.transform!.rotation,
     );
     const a: IAutoMovieVector3 = local(Equipment.end(bearing, -1));
@@ -109,7 +109,7 @@ export function animalEquipmentBearingObservation(
       );
       const points: IAutoMovieVector3[] = [];
       for (let index: number = 0; index < mesh.positions.length; index += 3) {
-        const rotated: IAutoMovieVector3 = Quaternion.rotateVector(
+        const rotated: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           part.transform!.rotation,
           {
             x: mesh.positions[index]! * part.transform!.scale.x,
@@ -187,7 +187,7 @@ export function animalEquipmentBearingObservation(
 
     /** The observed body's rigid frame supplies local axial/radial coordinates. */
     function local(point: IAutoMovieVector3): IAutoMovieVector3 {
-      return Quaternion.rotateVector(inverse, {
+      return AutoMovieEngineQuaternion.rotateVector(inverse, {
         x: point.x - body.transform!.translation.x,
         y: point.y - body.transform!.translation.y,
         z: point.z - body.transform!.translation.z,

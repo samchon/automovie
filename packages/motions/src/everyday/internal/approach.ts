@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieBodyMeasure,
@@ -160,7 +160,7 @@ export namespace approach {
     const there: IAutoMovieMotionHumanApproach.IAim = {
       point: HumanFrame.point(
         { origin: last.position, yaw: turned },
-        Vector3.subtract(aimed.point, began.position),
+        AutoMovieEngineVector3.subtract(aimed.point, began.position),
       ),
       normal: HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: turned },

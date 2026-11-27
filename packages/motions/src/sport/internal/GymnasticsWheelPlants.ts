@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -287,7 +287,7 @@ export function GymnasticsWheelPlants(
         const turned: IAutoMovieHumanLimbGoal["rotation"] =
           ra === undefined || rb === undefined
             ? undefined
-            : Quaternion.slerp(ra, rb, u);
+            : AutoMovieEngineQuaternion.slerp(ra, rb, u);
         const goal: IAutoMovieHumanLimbGoal = {
           ...a.goal!,
           point:
@@ -295,24 +295,24 @@ export function GymnasticsWheelPlants(
             ra === undefined ||
             rb === undefined ||
             turned === undefined
-              ? Vector3.lerp(a.goal!.point, b.goal!.point, u)
-              : Vector3.subtract(
-                  Vector3.lerp(
-                    Vector3.add(
+              ? AutoMovieEngineVector3.lerp(a.goal!.point, b.goal!.point, u)
+              : AutoMovieEngineVector3.subtract(
+                  AutoMovieEngineVector3.lerp(
+                    AutoMovieEngineVector3.add(
                       a.goal!.point,
-                      Quaternion.rotateVector(ra, l.edge),
+                      AutoMovieEngineQuaternion.rotateVector(ra, l.edge),
                     ),
-                    Vector3.add(
+                    AutoMovieEngineVector3.add(
                       b.goal!.point,
-                      Quaternion.rotateVector(rb, l.edge),
+                      AutoMovieEngineQuaternion.rotateVector(rb, l.edge),
                     ),
                     u,
                   ),
-                  Quaternion.rotateVector(turned, l.edge),
+                  AutoMovieEngineQuaternion.rotateVector(turned, l.edge),
                 ),
           ...(turned === undefined ? {} : { rotation: turned }),
         };
-        const end: IAutoMovieVector3 = Vector3.lerp(
+        const end: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
           a.end.worldPosition,
           b.end.worldPosition,
           u,
@@ -322,12 +322,12 @@ export function GymnasticsWheelPlants(
             ? goal
             : {
                 ...goal,
-                point: Vector3.lerp(end, goal.point, w),
+                point: AutoMovieEngineVector3.lerp(end, goal.point, w),
                 ...(goal.rotation === undefined
                   ? {}
                   : {
-                      rotation: Quaternion.slerp(
-                        Quaternion.slerp(
+                      rotation: AutoMovieEngineQuaternion.slerp(
+                        AutoMovieEngineQuaternion.slerp(
                           a.end.worldRotation,
                           b.end.worldRotation,
                           u,

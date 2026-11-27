@@ -11,6 +11,7 @@ import { TestValidator } from "@nestia/e2e";
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
+import { nclose } from "../../internal/predicates";
 
 /**
  * A merge join realizes the union of two parts: its seam lies on both surfaces,
@@ -31,7 +32,9 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  *    and its normal curvature across the rail matches too, within the join's
  *    documented departure (spacing / r)^2 / 8; with the two surfaces swapped it
  *    does not.
- * 3. The same merge seeded by a search along the post's station line at phase pi /
+ * 3. A historical serialized point seed with tuple chart points realizes the
+ *    same seam as the named point seed.
+ * 4. The same merge seeded by a search along the post's station line at phase pi /
  *    2 traces the same seam on both cylinders.
  */
 export function test_engine_geometry_construction_join_merge(): void {
@@ -94,6 +97,42 @@ export function test_engine_geometry_construction_join_merge(): void {
     "blend.post",
   );
   const seamBound: number = ConstructionChecks.sectionSpline(R, 16);
+  const legacySeed: unknown = JSON.parse(
+    JSON.stringify({
+      type: "point",
+      partFace: "post",
+      hostFace: "beam",
+      part: [R + 0.001, Math.PI / 2],
+      host: [0.1 + r, 0.01],
+    }),
+  );
+  const legacy: IAutoMovieConstructionRealization.IRealization =
+    AutoMovieEngineConstruction.realize(
+      {
+        name: "made",
+        root: {
+          ...tree,
+          seed: legacySeed,
+        } as unknown as IAutoMovieConstructionNode,
+      },
+      { chord: 1e-4 },
+    );
+  TestValidator.equals(
+    "serialized tuple seed diagnostics",
+    legacy.diagnostics.length,
+    0,
+  );
+  const legacySeam: V3[] = seam(ConstructionRead.join(legacy, "blend.post"));
+  const namedSeam: V3[] = seam(joined);
+  TestValidator.predicate(
+    "serialized tuple seed seam",
+    legacySeam.length === namedSeam.length &&
+      legacySeam.every((point: V3, i: number): boolean =>
+        point.every((coordinate: number, k: number): boolean =>
+          nclose(coordinate, namedSeam[i]![k]!, 1e-12),
+        ),
+      ),
+  );
   TestValidator.equals(
     "on both",
     ConstructionChecks.onBoth(seam(joined), onPost, onBeam(0), seamBound),

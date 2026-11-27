@@ -4,11 +4,11 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieSceneSoftProps } from "../IAutoMovieSceneSoftProps.js";
-import type { IAutoMovieSoftBodyObject } from "../IAutoMovieSoftBodyObject.js";
+import type { IAutoMovieRenderSceneSoftProps } from "../IAutoMovieRenderSceneSoftProps.js";
+import type { IAutoMovieRenderSoftBodyObject } from "../IAutoMovieRenderSoftBodyObject.js";
 import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
 import { buildSoftBodyObject } from "./buildSoftBodyObject.js";
-import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
+import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { softPropCordSurface } from "./softPropCordSurface.js";
@@ -19,14 +19,14 @@ import { softPropCordSurface } from "./softPropCordSurface.js";
  */
 export function buildSceneSoftProps(
   scene: THREE.Scene,
-): IAutoMovieSceneSoftProps {
-  const mounted: Map<string, IAutoMovieSoftBodyObject> = new Map();
+): IAutoMovieRenderSceneSoftProps {
+  const mounted: Map<string, IAutoMovieRenderSoftBodyObject> = new Map();
   let closed: boolean = false;
   return {
     update: (frames: readonly IAutoMovieRenderSoftPropFrame[]): void => {
       if (closed) throw new Error("The scene's soft props are closed.");
       const incoming: Map<string, IAutoMovieRenderSoftPropFrame> = new Map();
-      const cords: Map<string, AutoMovieCollisionSource.ICord | null> =
+      const cords: Map<string, AutoMovieRenderCollisionSource.ICord | null> =
         new Map();
       for (const frame of frames) {
         if (frame.subject.trim() === "" || incoming.has(frame.subject))
@@ -47,11 +47,11 @@ export function buildSceneSoftProps(
       }
 
       for (const [subject, frame] of incoming) {
-        const previous: IAutoMovieSoftBodyObject | undefined =
+        const previous: IAutoMovieRenderSoftBodyObject | undefined =
           mounted.get(subject);
         if (previous !== undefined) previous.update(frame);
         else {
-          const projection: IAutoMovieSoftBodyObject =
+          const projection: IAutoMovieRenderSoftBodyObject =
             buildSoftBodyObject(frame);
           projection.object.name = `soft:${subject}`;
           mounted.set(subject, projection);
@@ -59,7 +59,7 @@ export function buildSceneSoftProps(
           scene.add(projection.object);
         }
         // Placed collision checks read the same particles the tube was drawn through.
-        AutoMovieCollisionSource.bindCord(
+        AutoMovieRenderCollisionSource.bindCord(
           mounted.get(subject)!.object,
           cords.get(subject) ?? null,
         );
@@ -94,7 +94,7 @@ export function buildSceneSoftProps(
 function cordParticles(
   positions: readonly number[],
   radius: number,
-): AutoMovieCollisionSource.ICord {
+): AutoMovieRenderCollisionSource.ICord {
   const points: number[] = [];
   for (let offset: number = 0; offset + 2 < positions.length; offset += 3) {
     const n: number = points.length;

@@ -1,6 +1,11 @@
-import { AutoMovieGravity, DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import type { IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-import { GymnasticsFlight, GymnasticsPalmRise } from "@automovie/motions/internal";
+import {
+  GymnasticsFlight
+} from "../../../../../packages/motions/src/sport/internal/GymnasticsFlight";
+import {
+  GymnasticsPalmRise
+} from "../../../../../packages/motions/src/sport/internal/GymnasticsPalmRise";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -51,7 +56,7 @@ const STAND: IAutoMovieMotionHumanPosture = {
  */
 export async function test_motions_sport_gymnastics(): Promise<void> {
   // 1. The parabola and its fall.
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   TestValidator.predicate(
     "the flight",
     vclose(
@@ -160,8 +165,8 @@ export async function test_motions_sport_gymnastics(): Promise<void> {
   );
 
   // 6. The palm.
-  const wrist: number = -DEFAULT_HUMANOID_ROM.leftHand!.flexion!.min;
-  const range: number = -DEFAULT_HUMANOID_ROM.leftIndexProximal!.flexion!.min;
+  const wrist: number = -AutoMovieEngineDefaultHumanoidRom.leftHand!.flexion!.min;
+  const range: number = -AutoMovieEngineDefaultHumanoidRom.leftIndexProximal!.flexion!.min;
   const expected: number = Math.min(range, Math.max(0, 90 - (wrist - 5)));
   const rise: GymnasticsPalmRise.IRise = GymnasticsPalmRise(
     "left",

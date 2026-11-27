@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineText } from "../../../text/AutoMovieEngineText";
 import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 import { validateColor } from "../../../validation/internal/validateColor";
@@ -72,7 +72,7 @@ export function validateLightPlacementShape(
       `a point light radiates in every direction and takes no direction`,
       light.direction,
     );
-  else if (Vector3.length(light.direction) === 0)
+  else if (AutoMovieEngineVector3.length(light.direction) === 0)
     out.push(
       "range",
       `${path}.direction`,

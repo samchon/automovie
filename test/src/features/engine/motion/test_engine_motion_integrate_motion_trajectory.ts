@@ -1,6 +1,6 @@
 import {
-  MotionTrajectoryFailure,
-  Quaternion,
+  AutoMovieEngineMotionTrajectoryFailure,
+  AutoMovieEngineQuaternion,
   AutoMovieEngineMotionAirborneRotation,
   AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
@@ -201,7 +201,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
   }
   TestValidator.predicate(
     "the top precesses and stays unit",
-    topAgrees && Quaternion.angle(top.at(0).q!, top.at(2).q!) > 0,
+    topAgrees && AutoMovieEngineQuaternion.angle(top.at(0).q!, top.at(2).q!) > 0,
   );
   const at2: (h: number) => number = (h: number): number =>
     AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({ f: decay, x0: [1], t0: 0, t1: 2, h }).at(2)
@@ -410,10 +410,10 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
     } catch (error) {
       foreign = error;
     }
-    if (!(foreign instanceof MotionTrajectoryFailure))
+    if (!(foreign instanceof AutoMovieEngineMotionTrajectoryFailure))
       throw new Error("expected the inner time-resolution failure");
     const before: ReturnType<
-      typeof Object.getOwnPropertyDescriptors<MotionTrajectoryFailure>
+      typeof Object.getOwnPropertyDescriptors<AutoMovieEngineMotionTrajectoryFailure>
     > = Object.getOwnPropertyDescriptors(foreign);
     let reads: number = 0;
     let kept: boolean = true;
@@ -427,7 +427,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
           },
           t0: 0,
           t1: 1,
-          q0: Quaternion.identity(),
+          q0: AutoMovieEngineQuaternion.identity(),
           momentum: { x: 1, y: 0, z: 0 },
           tolerance: { absolute: 1e-6, relative: 0 },
           errorScope: outer,

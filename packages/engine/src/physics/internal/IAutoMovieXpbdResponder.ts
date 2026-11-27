@@ -1,4 +1,4 @@
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
 import type { IAutoMovieXpbdPointImpulse } from "./IAutoMovieXpbdPointImpulse";
 import type { IAutoMovieXpbdPointResponse } from "./IAutoMovieXpbdPointResponse";
 
@@ -11,7 +11,7 @@ export interface IAutoMovieXpbdResponder {
    * @param body The body.
    * @returns Whether its corrections go through its tree.
    */
-  has(body: AutoMovieXpbdBody): boolean;
+  has(body: AutoMovieEngineXpbdBody): boolean;
 
   /**
    * The response of the impulses' trees to the impulses acting together; none

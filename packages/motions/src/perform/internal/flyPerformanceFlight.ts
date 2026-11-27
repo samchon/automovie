@@ -1,4 +1,4 @@
-import { AutoMovieGravity, MotionTrajectoryFailure, Quaternion, Vector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics, AutoMovieEngineMotionAirborneTakeoff } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineMotionTrajectoryFailure, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics, AutoMovieEngineMotionAirborneTakeoff } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFlight, IAutoMovieMotionHumanFlightTurns, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
 
 import { jump } from "../../actions/internal/jump";
@@ -56,7 +56,7 @@ export function flyPerformanceFlight(
     evaluation.resolution;
   const root: (pose: IAutoMoviePose) => IAutoMovieQuaternion = (
     pose: IAutoMoviePose,
-  ): IAutoMovieQuaternion => pose.root?.rotation ?? Quaternion.identity();
+  ): IAutoMovieQuaternion => pose.root?.rotation ?? AutoMovieEngineQuaternion.identity();
 
   // Contacts and IK have already resolved the composed joints. FK with no
   // rigid world root gives their root-frame shape directly, rather than
@@ -207,12 +207,12 @@ export function flyPerformanceFlight(
         const two: IAutoMovieVector3 = centre(at + 2 * delta);
         const v0: IAutoMovieVector3 = {
           x: (two.x - one.x) / delta,
-          y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
+          y: (two.y - one.y) / delta + 1.5 * AutoMovieEngineGravity.STANDARD * delta,
           z: (two.z - one.z) / delta,
         };
         return (
           model.mass *
-          Vector3.length(v0) *
+          AutoMovieEngineVector3.length(v0) *
           AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight)
         );
       };
@@ -304,9 +304,9 @@ export function flyPerformanceFlight(
               about:
                 pose.root === null
                   ? centre
-                  : Vector3.add(
+                  : AutoMovieEngineVector3.add(
                       pose.root.translation,
-                      Quaternion.rotateVector(pose.root.rotation, centre),
+                      AutoMovieEngineQuaternion.rotateVector(pose.root.rotation, centre),
                     ),
               root: root(pose),
             };
@@ -326,7 +326,7 @@ export function flyPerformanceFlight(
       plan.airborne!(rotation);
     } catch (error) {
       if (
-        error instanceof MotionTrajectoryFailure &&
+        error instanceof AutoMovieEngineMotionTrajectoryFailure &&
         error.scope === errorScope
       )
         throw HumanPerformanceFlightFailure(

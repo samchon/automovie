@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieBoxShape,
@@ -17,7 +17,7 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
 import type { liftStopHeights } from "./internal/liftStopHeights";
 import { liftLandingSpace } from "./liftLandingSpace";
 import { liftShaftParts } from "./liftShaftParts";
@@ -110,10 +110,10 @@ export function buildLiftEnvironment(
       "shaft-walls",
       root,
       root,
-      Vector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
       walls.id,
     ),
-    element("cab", "cab", root, root, Vector3.create(0, minimum, 0), cab.id),
+    element("cab", "cab", root, root, AutoMovieEngineVector3.create(0, minimum, 0), cab.id),
   ];
   const spaces: IAutoMovieBuiltSpace[] = [
     { id: root, kind: "shaft", parent: null, cells: [] },
@@ -121,18 +121,18 @@ export function buildLiftEnvironment(
   const surfaces: IAutoMovieBuiltSurface[] = [];
   const anchors: Record<string, IAutoMovieTransform> = Object.create(null);
   const world = (x: number, y: number, z: number): IAutoMovieVector3 =>
-    AutoMovieArchetypeFrame.point(context.frame, Vector3.create(x, y, z));
+    AutoMovieArchetypeFrame.point(context.frame, AutoMovieEngineVector3.create(x, y, z));
   const anchorFrame = (x: number, y: number, z: number): IAutoMovieTransform =>
     AutoMovieArchetypeFrame.compose(
       context.frame,
-      AutoMovieArchetypeFrame.upright(Vector3.create(x, y, z)),
+      AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(x, y, z)),
     );
   const leafOffset = (
     leaf: (typeof LEAVES)[number],
     opened: boolean,
   ): IAutoMovieVector3 => {
     const slider: IAutoMovieAffordance = car.affordance(leaf);
-    return Vector3.scale(
+    return AutoMovieEngineVector3.scale(
       AutoMovieArchetypeFrame.axis(slider.frame, "x"),
       opened ? slider.travel! : 0,
     );
@@ -166,7 +166,7 @@ export function buildLiftEnvironment(
       width: shaftWidth,
       depth: landingDepth,
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, 0, landingDepth / 2),
+        AutoMovieEngineVector3.create(0, 0, landingDepth / 2),
       ),
     };
     const landingModel: IAutoMovieModel = isolated(
@@ -179,7 +179,7 @@ export function buildLiftEnvironment(
           shaftWidth,
           wallThickness,
           landingDepth,
-          Vector3.create(0, -wallThickness / 2, landingDepth / 2),
+          AutoMovieEngineVector3.create(0, -wallThickness / 2, landingDepth / 2),
         ),
       ],
       [landingFloor, { ...landingFloor, id: "sill", width: aperture }],
@@ -198,7 +198,7 @@ export function buildLiftEnvironment(
         "landing-floor",
         root,
         local,
-        Vector3.create(0, height, gap),
+        AutoMovieEngineVector3.create(0, height, gap),
         landingModel.id,
       ),
       element(
@@ -206,7 +206,7 @@ export function buildLiftEnvironment(
         "call-button",
         root,
         local,
-        Vector3.create(0, height, callShift),
+        AutoMovieEngineVector3.create(0, height, callShift),
         callModel.id,
       ),
       element(
@@ -214,7 +214,7 @@ export function buildLiftEnvironment(
         "landing-doors",
         root,
         local,
-        Vector3.create(0, height, gap),
+        AutoMovieEngineVector3.create(0, height, gap),
         null,
       ),
     );
@@ -321,7 +321,7 @@ export function buildLiftEnvironment(
                 element: "cab",
                 motion: {
                   kind: "prismatic",
-                  axis: Vector3.create(0, 1, 0),
+                  axis: AutoMovieEngineVector3.create(0, 1, 0),
                   min: 0,
                   max: rise,
                 },
@@ -389,7 +389,7 @@ export namespace buildLiftEnvironment {
     /*
      * Door and cab state at film second zero.
      */
-    first: AutoMovieEnvironment.ILiftKey;
+    first: AutoMovieArchetypeEnvironment.ILiftKey;
   }
 
   /*

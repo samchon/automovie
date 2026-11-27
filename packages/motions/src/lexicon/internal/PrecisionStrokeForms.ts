@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -199,13 +199,13 @@ export namespace PrecisionStrokeForms {
   ): IAutoMovieVector3 {
     if (form.point === "tip") return direction;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const across: IAutoMovieVector3 = Vector3.cross(up, direction);
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, direction);
     const down: number = (form.down * Math.PI) / 180;
     const sign: number = side === "right" ? 1 : -1;
     const reach: number = form.oneHand === true ? -sign : sign;
-    return Vector3.add(
-      Vector3.scale(across, reach * Math.cos(down)),
-      Vector3.scale(up, -Math.sin(down)),
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(across, reach * Math.cos(down)),
+      AutoMovieEngineVector3.scale(up, -Math.sin(down)),
     );
   }
 
@@ -278,11 +278,11 @@ export namespace PrecisionStrokeForms {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const cue: boolean = form.point === "tip";
     const working: IAutoMovieVector3 = axis(form, side, direction);
-    const arc: IAutoMovieVector3 = Vector3.cross(working, direction);
+    const arc: IAutoMovieVector3 = AutoMovieEngineVector3.cross(working, direction);
     const radius: number = tool.length + body.measure.forearm * 0.25;
-    const pivot: IAutoMovieVector3 = Vector3.subtract(
+    const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       contact,
-      Vector3.scale(working, radius),
+      AutoMovieEngineVector3.scale(working, radius),
     );
     const path = (
       progress: number,
@@ -291,9 +291,9 @@ export namespace PrecisionStrokeForms {
         return StrikingHeld.hand(
           tool,
           0,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             contact,
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               direction,
               (progress - 1) * form.draw * body.measure.forearm,
             ),
@@ -301,32 +301,32 @@ export namespace PrecisionStrokeForms {
           working,
           cue ? up : direction,
         );
-      const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         arc,
         (progress - 1) * form.sweep,
       );
       return StrikingHeld.hand(
         tool,
         0,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           pivot,
-          Vector3.scale(Quaternion.rotateVector(rotation, working), radius),
+          AutoMovieEngineVector3.scale(AutoMovieEngineQuaternion.rotateVector(rotation, working), radius),
         ),
-        Quaternion.rotateVector(rotation, working),
-        Quaternion.rotateVector(rotation, direction),
+        AutoMovieEngineQuaternion.rotateVector(rotation, working),
+        AutoMovieEngineQuaternion.rotateVector(rotation, direction),
       );
     };
     if (form.sweep === 0) return path;
     const forward: IAutoMovieVector3 = HumanFrame.forward(props.entry.yaw);
     return holdPrecisionSwing(path, (progress: number): number =>
       Math.min(
-        Vector3.dot(
-          Vector3.subtract(path(progress).point, props.entry.root),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(path(progress).point, props.entry.root),
           forward,
         ) - body.measure.chestDepth,
         reach(body) -
-          Vector3.length(
-            Vector3.subtract(path(progress).point, props.shoulder),
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(path(progress).point, props.shoulder),
           ),
       ),
     );

@@ -8,13 +8,13 @@ import type {
 } from "@automovie/interface";
 
 import { triangulateAutoMoviePolygon } from "../../drawing/internal/triangulateAutoMoviePolygon";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeGjkWitness } from "./physicalShapeGjkWitness";
 import type { AutoMovieEnginePhysicsGjkTypes } from "../AutoMovieEnginePhysicsGjkTypes";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { physicalShapeSupport } from "./physicalShapeSupport";
-import * as PhysicalShapeFaceContactImplementationData from "./PhysicalShapeFaceContactImplementationData";
+import { PhysicalShapeFaceContactImplementationData } from "./PhysicalShapeFaceContactImplementationData";
 
 /*
  * Internal implementations shared by the one-function entry modules.
@@ -42,9 +42,9 @@ function physicalShapeFaceContactPrepare(
   outline: readonly IAutoMovieVector3[],
   column: IAutoMovieVector3 = PhysicalShapeFaceContactImplementationData.UP,
 ): (pose: IAutoMovieRigidTransform, shape: AutoMovieEnginePhysicsFaceContactTypes.Shape) => AutoMovieEnginePhysicsFaceContactTypes.IContact | undefined {
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(face.rotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(face.rotation);
   const pieces: readonly (readonly ISide[])[] = partition(outline);
-  const axis: IAutoMovieVector3 = Vector3.scale(column, 1 / column.y);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(column, 1 / column.y);
   const orthogonal: boolean = axis.x === 0 && axis.z === 0;
   const project = (point: IAutoMovieVector3): IAutoMovieVector3 => ({
     x: point.x - point.y * axis.x,
@@ -57,22 +57,22 @@ function physicalShapeFaceContactPrepare(
   ): AutoMovieEnginePhysicsFaceContactTypes.IContact | undefined => {
     if (pieces.length === 0) return undefined;
     const parent: IAutoMovieRigidTransform = {
-      position: Quaternion.rotateVector(
+      position: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(pose.position, face.position),
+        AutoMovieEngineVector3.subtract(pose.position, face.position),
       ),
-      rotation: Quaternion.multiply(inverse, pose.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(inverse, pose.rotation),
     };
-    const at: IAutoMovieVector3 = Vector3.add(
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parent.position,
-      Quaternion.rotateVector(parent.rotation, shape.transform.position),
+      AutoMovieEngineQuaternion.rotateVector(parent.rotation, shape.transform.position),
     );
-    const q: IAutoMovieQuaternion = Quaternion.multiply(
+    const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       parent.rotation,
       shape.transform.rotation,
     );
     const place = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(at, Quaternion.rotateVector(q, point));
+      AutoMovieEngineVector3.add(at, AutoMovieEngineQuaternion.rotateVector(q, point));
     const support: AutoMovieEnginePhysicsGjkTypes.Support = (
       direction: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
@@ -87,7 +87,7 @@ function physicalShapeFaceContactPrepare(
         : shape.kind === "hull"
           ? physicalShapeHull(shape).faces.map(({ loop }) => loop)
           : undefined;
-    const tangent: IAutoMovieVector3 = Quaternion.rotateVector(q, PhysicalShapeFaceContactImplementationData.UP);
+    const tangent: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(q, PhysicalShapeFaceContactImplementationData.UP);
     const read = (sides: readonly ISide[]): AutoMovieEnginePhysicsFaceContactTypes.IContact | undefined => {
       if (loops !== undefined) return polytope(loops, place, sides, project);
       if (
@@ -99,15 +99,15 @@ function physicalShapeFaceContactPrepare(
         const interval:
           | readonly [IAutoMovieVector3, IAutoMovieVector3]
           | undefined = clipSegment(
-          project(Vector3.addScaled(lowest, tangent, -shape.halfLength)),
-          project(Vector3.addScaled(lowest, tangent, shape.halfLength)),
+          project(AutoMovieEngineVector3.addScaled(lowest, tangent, -shape.halfLength)),
+          project(AutoMovieEngineVector3.addScaled(lowest, tangent, shape.halfLength)),
           sides,
         );
         if (interval !== undefined)
           return {
-            point: Vector3.lerp(interval[0], interval[1], 0.5),
+            point: AutoMovieEngineVector3.lerp(interval[0], interval[1], 0.5),
             clearance: bottom.y,
-            ...(Vector3.distance(interval[0], interval[1]) > 0
+            ...(AutoMovieEngineVector3.distance(interval[0], interval[1]) > 0
               ? { patch: interval }
               : {}),
           };
@@ -166,7 +166,7 @@ function partition(
       outline.every(
         (point: IAutoMovieVector3): boolean =>
           offset(side, point) >=
-          -32 * Number.EPSILON * Vector3.distance(side.a, point),
+          -32 * Number.EPSILON * AutoMovieEngineVector3.distance(side.a, point),
       ),
     )
   )
@@ -219,7 +219,7 @@ function polygon(outline: readonly IAutoMovieVector3[]): ISide[] {
  * Signed distance inside the side in metres.
  */
 function offset(side: ISide, point: IAutoMovieVector3): number {
-  return Vector3.dot(side.inward, Vector3.subtract(point, side.a));
+  return AutoMovieEngineVector3.dot(side.inward, AutoMovieEngineVector3.subtract(point, side.a));
 }
 
 /*
@@ -240,7 +240,7 @@ function clipSegment(
     if (db < 0) to = Math.min(to, da / (da - db));
     if (from > to) return undefined;
   }
-  return [Vector3.lerp(a, b, from), Vector3.lerp(a, b, to)];
+  return [AutoMovieEngineVector3.lerp(a, b, from), AutoMovieEngineVector3.lerp(a, b, to)];
 }
 
 /*
@@ -254,16 +254,16 @@ function sphere(
   let squared: number = Infinity;
   let point: IAutoMovieVector3 | undefined;
   for (const { a, b } of sides) {
-    const edge: IAutoMovieVector3 = Vector3.subtract(b, a);
+    const edge: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
     const t: number = Math.max(
       0,
       Math.min(
         1,
-        Vector3.dot(Vector3.subtract(centre, a), edge) /
-          Vector3.dot(edge, edge),
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(centre, a), edge) /
+          AutoMovieEngineVector3.dot(edge, edge),
       ),
     );
-    const candidate: IAutoMovieVector3 = Vector3.addScaled(a, edge, t);
+    const candidate: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(a, edge, t);
     const distance: number =
       (candidate.x - centre.x) ** 2 + (candidate.z - centre.z) ** 2;
     if (distance < squared) {
@@ -297,7 +297,7 @@ function polytope(
       for (const point of clipped) {
         const current: number = offset(side, project(point));
         if ((current < 0 && prior > 0) || (current > 0 && prior < 0))
-          next.push(Vector3.lerp(previous, point, prior / (prior - current)));
+          next.push(AutoMovieEngineVector3.lerp(previous, point, prior / (prior - current)));
         if (current >= 0) next.push(point);
         previous = point;
         prior = current;
@@ -318,16 +318,16 @@ function polytope(
       if (
         !patch.some(
           (other: IAutoMovieVector3): boolean =>
-            Vector3.distance(point, other) <= tolerance,
+            AutoMovieEngineVector3.distance(point, other) <= tolerance,
         )
       )
         patch.push(point);
     }
   if (patch.length <= 1) return { point: project(best), clearance: best.y };
-  const centre: IAutoMovieVector3 = Vector3.scale(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     patch.reduce(
       (total: IAutoMovieVector3, point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(total, point),
+        AutoMovieEngineVector3.add(total, point),
       { x: 0, y: 0, z: 0 },
     ),
     1 / patch.length,
@@ -379,8 +379,8 @@ function roundSupport(
   rotation: IAutoMovieQuaternion,
   direction: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const d: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(rotation),
+  const d: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(rotation),
     direction,
   );
   const r: number = Math.hypot(d.x, d.z);
@@ -395,7 +395,7 @@ function roundSupport(
     p.y = -half;
     p.z = 0;
   }
-  return Vector3.add(centre, Quaternion.rotateVector(rotation, p));
+  return AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, p));
 }
 
 /*
@@ -418,17 +418,17 @@ function roundPrism(
       support,
       (direction: IAutoMovieVector3): IAutoMovieVector3 => {
         let point: IAutoMovieVector3 = sides[0]!.a;
-        let score: number = Vector3.dot(point, direction);
+        let score: number = AutoMovieEngineVector3.dot(point, direction);
         for (const { a } of sides) {
-          const next: number = Vector3.dot(a, direction);
+          const next: number = AutoMovieEngineVector3.dot(a, direction);
           if (next > score) {
             point = a;
             score = next;
           }
         }
         const y: number =
-          Vector3.dot(direction, column) >= 0 ? height : bottom - tolerance;
-        return Vector3.addScaled(point, column, y);
+          AutoMovieEngineVector3.dot(direction, column) >= 0 ? height : bottom - tolerance;
+        return AutoMovieEngineVector3.addScaled(point, column, y);
       },
       tolerance,
     );

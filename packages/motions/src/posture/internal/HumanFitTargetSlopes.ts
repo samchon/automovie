@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanJacobian,
@@ -26,7 +26,7 @@ export namespace HumanFitTargetSlopes {
     motions: readonly IAutoMovieMotionHumanJacobian.ITwist[],
   ): IAutoMovieVector3[] {
     if (motions.length === 0) return [];
-    const angle: number = Vector3.length(e);
+    const angle: number = AutoMovieEngineVector3.length(e);
     const factor: number =
       angle < Number.EPSILON ** 0.25
         ? 1 / 12 + (angle * angle) / 720
@@ -34,12 +34,12 @@ export namespace HumanFitTargetSlopes {
     return motions.map(
       (motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 => {
         const omega: IAutoMovieVector3 = motion.angular;
-        const cross: IAutoMovieVector3 = Vector3.cross(e, omega);
-        return Vector3.add(
+        const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(e, omega);
+        return AutoMovieEngineVector3.add(
           omega,
-          Vector3.add(
-            Vector3.scale(cross, 0.5),
-            Vector3.scale(Vector3.cross(e, cross), factor),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(cross, 0.5),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(e, cross), factor),
           ),
         );
       },
@@ -64,13 +64,13 @@ export namespace HumanFitTargetSlopes {
     motions: readonly IAutoMovieMotionHumanJacobian.ITwist[],
   ): IAutoMovieVector3[] {
     if (motions.length === 0) return [];
-    const w: IAutoMovieVector3 = Vector3.normalize(goal.world);
-    const n: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(rotation, goal.local),
+    const w: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(goal.world);
+    const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(rotation, goal.local),
     );
-    const c: IAutoMovieVector3 = Vector3.cross(w, n);
-    const sine: number = Vector3.length(c);
-    const cosine: number = Vector3.dot(w, n);
+    const c: IAutoMovieVector3 = AutoMovieEngineVector3.cross(w, n);
+    const sine: number = AutoMovieEngineVector3.length(c);
+    const cosine: number = AutoMovieEngineVector3.dot(w, n);
     if (sine < Math.sqrt(Number.EPSILON)) {
       if (cosine < 0)
         throw new Error(
@@ -78,22 +78,22 @@ export namespace HumanFitTargetSlopes {
         );
       return motions.map(
         (motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 =>
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             motion.angular,
-            Vector3.scale(w, Vector3.dot(w, motion.angular)),
+            AutoMovieEngineVector3.scale(w, AutoMovieEngineVector3.dot(w, motion.angular)),
           ),
       );
     }
     const angle: number = Math.atan2(sine, cosine);
     return motions.map(
       (motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 => {
-        const dn: IAutoMovieVector3 = Vector3.cross(motion.angular, n);
-        const dc: IAutoMovieVector3 = Vector3.cross(w, dn);
-        const ds: number = Vector3.dot(c, dc) / sine;
-        const dt: number = cosine * ds - sine * Vector3.dot(w, dn);
-        return Vector3.add(
-          Vector3.scale(dc, angle / sine),
-          Vector3.scale(c, dt / sine - (angle * ds) / (sine * sine)),
+        const dn: IAutoMovieVector3 = AutoMovieEngineVector3.cross(motion.angular, n);
+        const dc: IAutoMovieVector3 = AutoMovieEngineVector3.cross(w, dn);
+        const ds: number = AutoMovieEngineVector3.dot(c, dc) / sine;
+        const dt: number = cosine * ds - sine * AutoMovieEngineVector3.dot(w, dn);
+        return AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(dc, angle / sine),
+          AutoMovieEngineVector3.scale(c, dt / sine - (angle * ds) / (sine * sine)),
         );
       },
     );

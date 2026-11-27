@@ -1,9 +1,15 @@
 import {
-  HumanArmGeometry,
-  HumanArmTrajectoryKnots,
-  HumanArmTrajectoryRangeExcess,
-  HumanArmTrajectoryRateProjection,
-} from "@automovie/motions/internal";
+  HumanArmGeometry
+} from "../../../../../packages/motions/src/posture/internal/HumanArmGeometry";
+import {
+  HumanArmTrajectoryKnots
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryKnots";
+import {
+  HumanArmTrajectoryRangeExcess
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryRangeExcess";
+import {
+  HumanArmTrajectoryRateProjection
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryRateProjection";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

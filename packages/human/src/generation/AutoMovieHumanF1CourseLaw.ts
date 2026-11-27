@@ -4,7 +4,7 @@ import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
 import { AutoMovieHumanF1Centres as Centres } from "./AutoMovieHumanF1Centres";
 import { AutoMovieHumanF1Placement as Placement } from "./AutoMovieHumanF1Placement";
 import { AutoMovieHumanF1Placing as T } from "./AutoMovieHumanF1Placing";
-import { AutoMovieViewChain, AutoMovieViewJointedCourse } from "@automovie/engine";
+import { AutoMovieEngineViewChain, AutoMovieEngineViewJointedCourse } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
@@ -70,7 +70,7 @@ export namespace AutoMovieHumanF1CourseLaw {
    * The least half length of a turn whose sections stay apart on the concave side, mm.
    *
    * The engine's jointed turn of angle `theta` over the arclength `2 h` turns its tangent by `theta S(x)`, `S(x) = 10 x^3 - 15 x^4 +
-   * 6 x^5` of the share `x` of that arclength (`AutoMovieViewAxis.jointed`). The curvature is `theta S'(x) / (2 h)` and `S'` is greatest
+   * 6 x^5` of the share `x` of that arclength (`AutoMovieEngineViewAxis.jointed`). The curvature is `theta S'(x) / (2 h)` and `S'` is greatest
    * at the middle, 15/8, so the greatest curvature is `15 theta / (16 h)`. A point at the distance `r` from the course on the side of the
    * centre of curvature moves along the course at the speed `1 - kappa r`; the sections cross where that reaches zero (the regular-offset
    * condition), so they stay apart while `h > (15 / 16) theta r`. The derivation is this package's (`docs/techniques/joint-logic.md`),
@@ -100,7 +100,7 @@ export namespace AutoMovieHumanF1CourseLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records.
    */
   export function folds(family: IAutoMovieHumanConicLoft.IFamily): IFold[] {
-    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
+    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieEngineViewJointedCourse.prepare(family.centres, family.halves);
     if (typeof prepared === "string") throw new Error("course of " + family.name + ": " + prepared);
     const names: readonly string[] = T.COURSES[family.name] ?? [];
     const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
@@ -116,7 +116,7 @@ export namespace AutoMovieHumanF1CourseLaw {
           const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
           const section: IAutoMovieViewChain.ISection = S.chain(read(station), family.layout);
           if (section.fault !== null) throw new Error("section of " + family.name + " at " + station + ": " + section.fault);
-          concave = AutoMovieViewChain.radius(section, Math.atan2(dot(bend, jet.value.v), dot(bend, jet.value.u)));
+          concave = AutoMovieEngineViewChain.radius(section, Math.atan2(dot(bend, jet.value.v), dot(bend, jet.value.u)));
         }
         const least: number = Number.isNaN(concave) ? NaN : halfLeast(turn.angle, concave);
         return { centre: names[turn.centre] ?? String(turn.centre), station, half: turn.half, angle: turn.angle, concave, least, margin: turn.half / least };

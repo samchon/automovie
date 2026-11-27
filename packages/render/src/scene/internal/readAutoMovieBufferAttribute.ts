@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 
 /*
  * Read a geometry attribute that owns its own array, as positions, normals,
@@ -19,7 +19,7 @@ export function readAutoMovieBufferAttribute(
     geometry.getAttribute(name);
   if (
     attribute === undefined ||
-    !AutoMovieThreeKind.isBufferAttribute(attribute)
+    !AutoMovieRenderThreeKind.isBufferAttribute(attribute)
   )
     throw new Error(
       `Geometry attribute "${name}" must be a buffer attribute owning its array`,

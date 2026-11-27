@@ -9,8 +9,8 @@ import type {
   IAutoMovieScheduleWalk,
 } from "@automovie/interface";
 
-import { AutoMovieScheduleError } from "../../AutoMovieScheduleError";
-import { AutoMovieScheduleWalk } from "../../AutoMovieScheduleWalk";
+import { AutoMovieEngineScheduleError } from "../../AutoMovieEngineScheduleError";
+import { AutoMovieEngineScheduleWalk } from "../../AutoMovieEngineScheduleWalk";
 import { normalizeAutoMovieScheduleCut } from "./normalizeAutoMovieScheduleCut";
 /*
  * Resolve an intent's cut.
@@ -42,7 +42,7 @@ export function resolveAutoMovieScheduleCut(
   switch (until.type) {
     case "proximity": {
       if (walk.laws.until === undefined)
-        throw new AutoMovieScheduleError(
+        throw new AutoMovieEngineScheduleError(
           `${intent.subject}.${intent.capability} cuts on proximity, which these laws cannot resolve`,
           { ...who, code: "law", value: "until" },
         );
@@ -56,19 +56,19 @@ export function resolveAutoMovieScheduleCut(
     }
     case "anchor-event": {
       const events: readonly IAutoMovieScheduleCue[] | undefined =
-        AutoMovieScheduleWalk.instants(walk, until.of);
+        AutoMovieEngineScheduleWalk.instants(walk, until.of);
       if (events === undefined)
-        throw new AutoMovieScheduleError(
+        throw new AutoMovieEngineScheduleError(
           `Cut of ${intent.subject}.${intent.capability} waits for ${until.of}, which is not placed earlier`,
           {
             ...who,
             code: "anchor",
             of: until.of,
             value: until.of,
-            alternatives: AutoMovieScheduleWalk.placed(walk),
+            alternatives: AutoMovieEngineScheduleWalk.placed(walk),
           },
         );
-      const seconds: number = AutoMovieScheduleWalk.instant(
+      const seconds: number = AutoMovieEngineScheduleWalk.instant(
         until.of,
         events,
         until.event,
@@ -87,7 +87,7 @@ export function resolveAutoMovieScheduleCut(
         (e: IAutoMovieMotionEvent): boolean => e.name === until.event,
       );
       if (event === undefined)
-        throw new AutoMovieScheduleError(
+        throw new AutoMovieEngineScheduleError(
           `${intent.subject}.${intent.capability} has no event ${until.event}; its events are ${(timing.events ?? []).map((e: IAutoMovieMotionEvent): string => e.name).join(", ") || "none"}`,
           {
             ...who,
@@ -106,7 +106,7 @@ export function resolveAutoMovieScheduleCut(
       break;
   }
   if (cut !== undefined && !(cut.share >= 0 && cut.share <= 1))
-    throw new AutoMovieScheduleError(
+    throw new AutoMovieEngineScheduleError(
       `Cut share of ${intent.subject}.${intent.capability} lies outside [0, 1]`,
       {
         ...who,

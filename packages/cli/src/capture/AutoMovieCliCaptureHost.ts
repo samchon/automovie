@@ -167,7 +167,7 @@ export class AutoMovieCliCaptureHost {
    */
   public async session(
     props: IAutoMovieCliCaptureSessionInput,
-  ): Promise<Render.AutoMovieDrawSession> {
+  ): Promise<Render.AutoMovieRenderDrawSession> {
     const page: Awaited<ReturnType<IAutoMovieCliChromium.IBrowser["newPage"]>> =
       await this.browser.newPage();
 
@@ -193,7 +193,7 @@ export class AutoMovieCliCaptureHost {
     );
     try {
       return await Promise.race([
-        this.render.AutoMovieDrawSession.open({
+        this.render.AutoMovieRenderDrawSession.open({
           page,
           url: this.page.url,
           props: { subject: props.subject, props: props.props },
@@ -227,7 +227,7 @@ export class AutoMovieCliCaptureHost {
     props: IAutoMovieCliCaptureHostInput,
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
     const { render } = this;
-    const session: Render.AutoMovieDrawSession = await this.session({
+    const session: Render.AutoMovieRenderDrawSession = await this.session({
       subject: props.request.subject,
       props: props.props,
     });
@@ -267,8 +267,8 @@ export class AutoMovieCliCaptureHost {
         subject: session.subject,
         cuts: [],
       });
-      const folder: Render.AutoMovieCaptureFolder =
-        await render.AutoMovieCaptureFolder.open({
+      const folder: Render.AutoMovieRenderCaptureFolder =
+        await render.AutoMovieRenderCaptureFolder.open({
           storage: props.storage ?? fs,
           root,
           round: props.request.round,

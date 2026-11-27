@@ -1,4 +1,4 @@
-import { AutoMovieLoftViewFullSource } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,
@@ -21,7 +21,7 @@ import path from "node:path";
  * The native path makes a person from fields (`AutoMovieHumanF1.nativeFrom`). At f1's own fields every family it returns must be the one
  * it returned before a change that only adds a law for other people. This tool builds f1's native assembly without lofting or realizing
  * anything, and records for every family its knots, its field values, its tips, its relief nets (window, grid and heights) and its
- * source's points at a fixed grid of stations and phases (`AutoMovieLoftViewFullSource`, the surface the loft will draw). With
+ * source's points at a fixed grid of stations and phases (`AutoMovieEngineLoftViewFullSource`, the surface the loft will draw). With
  * `--against=<file>` it lists every number that differs from that earlier record, family by family, with the greatest difference.
  *
  * It reads no reference body and fits nothing. Timed on first use: the assembly's cost is printed with the record.
@@ -77,7 +77,7 @@ namespace FamilyConicNativeIdentity {
       let points: number[] | string;
       try {
         if (typeof asked === "string") throw new Error("the person's construction: " + asked);
-        const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(asked.get(family.name) ?? H.source(family));
+        const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieEngineLoftViewFullSource.create(asked.get(family.name) ?? H.source(family));
         const out: number[] = [];
         for (let i: number = 0; i < STATIONS; ++i) {
           // The two ends are left out: a pole has no chart and an open end is the neighbour's.

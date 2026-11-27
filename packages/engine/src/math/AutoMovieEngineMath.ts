@@ -206,7 +206,7 @@ export namespace AutoMovieEngineMath {
    * throws before anything is built. Column `c` holds its nonzeros at
    * `columns[c]` up to `columns[c + 1]`, in ascending row order, and a weight of
    * exactly zero is kept as an explicit entry. A null row endpoint becomes
-   * `-AUTOMOVIE_QUADRATIC_INFINITY` or `AUTOMOVIE_QUADRATIC_INFINITY`, the
+   * `-AutoMovieEngineQuadraticInfinity` or `AutoMovieEngineQuadraticInfinity`, the
    * kernel's unbounded sentinel.
    *
    * @param input Program in sparse-row form; it is only read.

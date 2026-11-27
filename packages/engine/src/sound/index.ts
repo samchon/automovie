@@ -1,4 +1,4 @@
-export * from "./AUTOMOVIE_EBU_R128_LOUDNESS";
-export * from "./AUTOMOVIE_LIP_SYNC";
-export * from "./AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
+export * from "./AutoMovieEngineEbuR128Loudness";
+export * from "./AutoMovieEngineLipSync";
+export * from "./AutoMovieEngineProductionSoundEvidenceRasters";
 export * from "./AutoMovieEngineSound";

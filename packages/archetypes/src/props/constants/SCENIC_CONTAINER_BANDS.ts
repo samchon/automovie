@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../../core";
 import type { createScenicContainer } from "../internal/createScenicContainer";
-import * as ScenicContainerBandsData from "./internal/ScenicContainerBandsData";
+import { ScenicContainerBandsData } from "./internal/ScenicContainerBandsData";
 
 /*
  * All scenic container dimensions by kind. Historical entries cite the

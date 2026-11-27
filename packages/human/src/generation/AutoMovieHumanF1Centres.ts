@@ -6,7 +6,7 @@ import { AutoMovieHumanF1Placing as T } from "./AutoMovieHumanF1Placing";
 import {
   AutoMovieHumanF1SegmentLengths as Lengths,
 } from "./AutoMovieHumanF1SegmentLengths";
-import { AutoMovieViewJointedCourse } from "@automovie/engine";
+import { AutoMovieEngineViewJointedCourse } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
@@ -24,7 +24,7 @@ import type {
  * the rule that generates it from the joint centres, the segment frames and the person's measures, and how far each course stands from
  * its own sections and from its bone.
  *
- * A course is the engine's jointed axis (`AutoMovieViewAxis.jointed`): straight runs between consecutive centres and, at each interior
+ * A course is the engine's jointed axis (`AutoMovieEngineViewAxis.jointed`): straight runs between consecutive centres and, at each interior
  * centre, a turn of half arclength `h` whose angle follows the quintic smoothstep, so the tangent and the curvature are continuous. The
  * turn cuts its corner by a set-back, so the course does not pass through an interior centre: it stands inside the corner there.
  *
@@ -256,7 +256,7 @@ export namespace AutoMovieHumanF1Centres {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records.
    */
   export function turns(family: IAutoMovieHumanConicLoft.IFamily): ITurn[] {
-    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
+    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieEngineViewJointedCourse.prepare(family.centres, family.halves);
     if (typeof prepared === "string") throw new Error("course of " + family.name + ": " + prepared);
     const names: readonly string[] = T.COURSES[family.name] ?? [];
     const axis: IAutoMovieViewAxis.IAxis = H.axis(family);

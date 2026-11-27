@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief } from "@automovie/engine";
 import type {
   IAutoMovieHumanChordArc,
   IAutoMovieHumanLegGuides,
@@ -84,7 +84,7 @@ export namespace AutoMovieHumanLegTube {
         const length: number = Math.hypot(p[0], p[1]);
         const e: [number, number] = [p[0] / length, p[1] / length];
         for (const r of input.reliefs) {
-          const height: number = AutoMovieLoftRelief.height(r, s, m * h)[0];
+          const height: number = AutoMovieEngineLoftRelief.height(r, s, m * h)[0];
           if (height === 0) continue;
           const middle: number = r.phases.start + (r.phases.end - r.phases.start) / 2;
           const additive: boolean =

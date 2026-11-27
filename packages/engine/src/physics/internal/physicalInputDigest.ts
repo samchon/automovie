@@ -2,7 +2,7 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
-import { AutoMoviePhysicsCache } from "../AutoMoviePhysicsCache";
+import { AutoMovieEnginePhysicsCache } from "../AutoMovieEnginePhysicsCache";
 import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
 
 /*
@@ -40,7 +40,7 @@ export function physicalInputDigest(
   );
   return autoMovieRenderDigest(
     AutoMovieEngineCanonicalJson.canonicalize({
-      protocol: AutoMoviePhysicsCache.protocol,
+      protocol: AutoMovieEnginePhysicsCache.protocol,
       solver: "automovie-xpbd-1",
       input: {
         ...input,

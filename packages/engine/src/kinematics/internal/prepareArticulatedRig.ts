@@ -8,8 +8,8 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
@@ -126,7 +126,7 @@ export function prepareArticulatedRig<Bone extends string>(
         }
         const parent: IAutoMovieTransform =
           node.parent === null ? origin : world.get(node.parent)!;
-        const local: IAutoMovieQuaternion = Quaternion.multiply(
+        const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           node.rest.rotation,
           jointToQuaternionOnBasis.run(angles, node.axes),
         );
@@ -136,11 +136,11 @@ export function prepareArticulatedRig<Bone extends string>(
         world.set(
           node.bone,
           rigid({
-            translation: Vector3.add(
+            translation: AutoMovieEngineVector3.add(
               parent.translation,
-              Quaternion.rotateVector(parent.rotation, node.rest.translation),
+              AutoMovieEngineQuaternion.rotateVector(parent.rotation, node.rest.translation),
             ),
-            rotation: Quaternion.multiply(parent.rotation, local),
+            rotation: AutoMovieEngineQuaternion.multiply(parent.rotation, local),
             scale: { x: 1, y: 1, z: 1 },
           }),
         );
@@ -217,7 +217,7 @@ function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
     );
   return {
     translation,
-    rotation: Quaternion.normalize(rotation),
+    rotation: AutoMovieEngineQuaternion.normalize(rotation),
     scale: { x: 1, y: 1, z: 1 },
   };
 }

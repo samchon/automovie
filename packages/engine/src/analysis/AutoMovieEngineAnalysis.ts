@@ -466,7 +466,7 @@ export namespace AutoMovieEngineAnalysis {
    * resident plane slots are visited by index and missing records are refused at
    * their slot. The plane-array and other nested vector shapes remain a caller
    * premise; this helper does not validate arbitrary container types. The checks
-   * are a plane count of at least `AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES`, finite
+   * are a plane count of at least `AutoMovieEngineAnalysisMinSolidPlanes`, finite
    * normals longer than `1e-12`, and finite offsets. Whether the planes enclose a
    * non-empty, bounded region is not checked, so four or more planes describing
    * an unbounded or empty set pass.

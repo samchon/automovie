@@ -1,4 +1,6 @@
-import { roundOff } from "@automovie/motions/internal";
+import {
+  roundOff
+} from "../../../../../packages/motions/src/sport/internal/roundOff";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

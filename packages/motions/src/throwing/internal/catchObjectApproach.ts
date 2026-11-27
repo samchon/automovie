@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanCatchObject,
@@ -59,19 +59,19 @@ export function catchObjectApproach(
   // which stands off the origin for a ball not modelled about its centre:
   // that offset as the ball leaves the hand, carried along the path.
   const leaving: number = placed.start + launch.seconds;
-  const offset: IAutoMovieVector3 = Vector3.subtract(
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     HumanBall(context, context.params.ball, leaving, "ball").centre,
     context.prop(context.params.ball).frame(leaving).position,
   );
   const centre = (seconds: number): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       throwObject.path(launch, Math.max(0, seconds - released)),
       offset,
     );
   // A toss of the catcher's own is met as it falls to the chest
   // (`TOSS` of the stature), within the arms wherever it rises.
   if (placed.subject === context.subject) {
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const fall: number =
       launch.point.y - catchObjectApproach.TOSS * context.body.measure.stature;
     const vy: number = launch.velocity.y;
@@ -95,7 +95,7 @@ export function catchObjectApproach(
     contact: released + flight,
     speed: {
       ...launch.velocity,
-      y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
+      y: launch.velocity.y - AutoMovieEngineGravity.STANDARD * flight,
     },
     before: centre,
   };
@@ -133,7 +133,7 @@ export namespace catchObjectApproach {
     vy: number,
     fall: number,
   ): number {
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     if (!(vy * vy + 2 * g * fall >= 0) || !(vy > 0))
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",

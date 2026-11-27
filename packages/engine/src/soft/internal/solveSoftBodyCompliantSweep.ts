@@ -1,6 +1,6 @@
 import type { IAutoMovieSolveSoftBodyCompliantSweep } from "@automovie/interface";
 
-import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
+import { AutoMovieEngineSoftBodyNeighbours } from "../AutoMovieEngineSoftBodyNeighbours";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
 /*
@@ -29,7 +29,7 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  *   not differentiable.
  *
  * Edges are visited in a fixed order (row-major particles, each with the
- * neighbours that follow it in `SOFT_BODY_NEIGHBOURS`), so a solve is
+ * neighbours that follow it in `AutoMovieEngineSoftBodyNeighbours`), so a solve is
  * deterministic. `lambda` holds one multiplier per particle and neighbour slot
  * and is reset by the caller at the start of each step.
  * Parameter props: The lattice, the working buffers and the step.
@@ -38,7 +38,7 @@ export function solveSoftBodyCompliantSweep(
   props: IAutoMovieSolveSoftBodyCompliantSweep.IProps,
 ): void {
   const { columns, rows, predicted, inverseMass, lambda }: typeof props = props;
-  const slots: number = SOFT_BODY_NEIGHBOURS.length;
+  const slots: number = AutoMovieEngineSoftBodyNeighbours.length;
   const scale: number = 1 / (props.dt * props.dt);
   for (let row: number = 0; row < rows; ++row)
     for (let column: number = 0; column < columns; ++column) {
@@ -59,7 +59,7 @@ export function solveSoftBodyCompliantSweep(
         const wi: number = inverseMass[particle];
         const wk: number = inverseMass[other];
         const tilde: number =
-          props.compliance[SOFT_BODY_NEIGHBOURS[at][2]] * scale;
+          props.compliance[AutoMovieEngineSoftBodyNeighbours[at][2]] * scale;
         if (wi + wk + tilde === 0) continue;
         const dx: number = predicted[particle * 3] - predicted[other * 3];
         const dy: number =

@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The extent of every region of a body: the radius of the disc about the
@@ -34,7 +34,7 @@ export function AutoMovieHumanoidSurfaceExtents(
       const bone: IAutoMovieResolvedBone = at(frame.bone);
       const frameBone: AutoMovieHumanoidBone = frame.bone;
       const origin: IAutoMovieVector3 = bone.worldPosition;
-      const point: IAutoMovieVector3 = Quaternion.rotateVector(
+      const point: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         bone.worldRotation,
         frame.point,
       );
@@ -45,7 +45,7 @@ export function AutoMovieHumanoidSurfaceExtents(
         name: name as AutoMovieHumanoidRegion,
         bone: frameBone,
         point,
-        normal: Quaternion.rotateVector(bone.worldRotation, frame.normal),
+        normal: AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, frame.normal),
       };
     },
   );
@@ -56,9 +56,9 @@ export function AutoMovieHumanoidSurfaceExtents(
       const other: IPlaced = placed[j]!;
       if (
         other.name !== region.name &&
-        Vector3.dot(other.normal, region.normal) > 0
+        AutoMovieEngineVector3.dot(other.normal, region.normal) > 0
       ) {
-        const distance: number = Vector3.distance(other.point, region.point);
+        const distance: number = AutoMovieEngineVector3.distance(other.point, region.point);
         nearest[i] = Math.min(nearest[i]!, distance);
         nearest[j] = Math.min(nearest[j]!, distance);
       }

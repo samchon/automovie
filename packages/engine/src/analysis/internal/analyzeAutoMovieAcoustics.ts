@@ -12,12 +12,12 @@ import {
   type IAutoMovieAnalyzeAcoustics,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { AUTOMOVIE_SABINE_CONSTANT } from "../AUTOMOVIE_SABINE_CONSTANT";
+import { AutoMovieEngineAnalysisMaxSamples } from "../AutoMovieEngineAnalysisMaxSamples";
+import { AutoMovieEngineSabineConstant } from "../AutoMovieEngineSabineConstant";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
@@ -219,7 +219,7 @@ export function analyzeAutoMovieAcoustics(
       value:
         roomConstant === null
           ? null
-          : (AUTOMOVIE_SABINE_CONSTANT * request.volume) / absorption,
+          : (AutoMovieEngineSabineConstant * request.volume) / absorption,
       gap: roomConstant === null ? noDiffuseField : undefined,
     }),
     metric({
@@ -349,8 +349,8 @@ const directField: (
 ): number => {
   let energy: number = 0;
   sources.forEach((source: IAutoMovieAcousticSource, index: number): void => {
-    const distance: number = Vector3.length(
-      Vector3.subtract(receiver.position, source.position),
+    const distance: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(receiver.position, source.position),
     );
     if (distance <= EPSILON)
       throw new Error(
@@ -426,9 +426,9 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
         `acoustic source "${source.id}" directivity must be a finite number above zero, but was ${source.directivity}`,
       );
   }
-  if (request.receivers.length > AUTOMOVIE_ANALYSIS_MAX_SAMPLES)
+  if (request.receivers.length > AutoMovieEngineAnalysisMaxSamples)
     throw new Error(
-      `an acoustic study carries one sample per receiver and may not exceed ${AUTOMOVIE_ANALYSIS_MAX_SAMPLES}, but had ${request.receivers.length}`,
+      `an acoustic study carries one sample per receiver and may not exceed ${AutoMovieEngineAnalysisMaxSamples}, but had ${request.receivers.length}`,
     );
   const receivers: Set<string> = new Set<string>();
   for (const receiver of request.receivers) {

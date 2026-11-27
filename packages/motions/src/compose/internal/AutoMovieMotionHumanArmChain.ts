@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -99,7 +99,7 @@ export namespace AutoMovieMotionHumanArmChain {
         const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][typeof limb] =
           solved.seeds[limb];
         if (seed !== undefined && seed !== null)
-          next[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+          next[limb] = { ...seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
       }
       return { arms, near: next };
     };

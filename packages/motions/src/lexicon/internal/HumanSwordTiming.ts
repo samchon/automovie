@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -122,11 +122,11 @@ export namespace HumanSwordTiming {
     const startElbow: IAutoMovieVector3 = elbowOf(
       context.entry.posture,
       start,
-      Vector3.add(landedElbow, Vector3.subtract(start.point, landed.point)),
+      AutoMovieEngineVector3.add(landedElbow, AutoMovieEngineVector3.subtract(start.point, landed.point)),
     );
     return Math.max(
       travel(tool, entered, start),
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         poseBones(context.body, context.entry.pose, undefined, elbows).get(
           `${side}LowerArm`,
         )!.worldPosition,

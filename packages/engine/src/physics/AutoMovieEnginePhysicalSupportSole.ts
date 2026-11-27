@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 
 /**
@@ -51,10 +51,10 @@ export namespace AutoMovieEnginePhysicalSupportSole {
     const rotation: IAutoMovieQuaternion =
       state.seating?.[bone]?.anchor?.rotation ??
       sense.segments.get(bone)!.rotation();
-    const turned: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(
+    const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(
         rotation,
-        Quaternion.inverse(sense.targets[bone]!.rotation),
+        AutoMovieEngineQuaternion.inverse(sense.targets[bone]!.rotation),
       ),
       { x: 0, y: 0, z: 1 },
     );
@@ -113,10 +113,10 @@ export namespace AutoMovieEnginePhysicalSupportSole {
     sense: AutoMovieEnginePhysicalBalanceTypes.ISense,
     bone: string,
   ): "left" | "right" {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(
         sense.root.body.rotation(),
-        Quaternion.inverse(sense.targets[sense.root.segment.bone]!.rotation),
+        AutoMovieEngineQuaternion.inverse(sense.targets[sense.root.segment.bone]!.rotation),
       ),
       { x: 0, y: 0, z: 1 },
     );
@@ -124,12 +124,12 @@ export namespace AutoMovieEnginePhysicalSupportSole {
     const others: AutoMovieEnginePhysicalBalanceTypes.ILimb[] = sense.limbs.filter(
       (limb: AutoMovieEnginePhysicalBalanceTypes.ILimb): boolean => limb.bone !== bone,
     );
-    const mean: IAutoMovieVector3 = Vector3.scale(
+    const mean: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       others.reduce(
         (
           sum: IAutoMovieVector3,
           limb: AutoMovieEnginePhysicalBalanceTypes.ILimb,
-        ): IAutoMovieVector3 => Vector3.add(sum, sense.actual(limb.bone)),
+        ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, sense.actual(limb.bone)),
         { x: 0, y: 0, z: 0 },
       ),
       1 / Math.max(1, others.length),

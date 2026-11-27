@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmAngles,
@@ -38,7 +38,7 @@ export namespace stretchCrossBody {
       z: 0.35 * (m.upperArm + m.forearm),
     };
     const shoulderRest: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
-    const pressure: IAutoMovieVector3 = Vector3.scale(
+    const pressure: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       forward,
       m.forearmRadius + m.upperArmRadius,
     );
@@ -79,11 +79,11 @@ export namespace stretchCrossBody {
             facing: floor.direction({ x: 0, y: 0, z: -1 }),
             forward: floor.direction({ x: -sign, y: 0, z: 0 }),
           };
-          const off: IAutoMovieVector3 = Vector3.subtract(
+          const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             at.point,
             AutoMovieMotionHumanPlaced.wrist(body, side, at),
           );
-          return { ...at, point: Vector3.add(at.point, off) };
+          return { ...at, point: AutoMovieEngineVector3.add(at.point, off) };
         },
         bend: "forward",
       }),
@@ -100,8 +100,8 @@ export namespace stretchCrossBody {
           const floor: ReturnType<typeof HumanFrame.prepare> = frame(posture);
           const shoulder: IAutoMovieVector3 = floor.point(shoulderRest);
           return {
-            point: Vector3.add(
-              Vector3.lerp(reach(posture, floor), shoulder, 0.45),
+            point: AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.lerp(reach(posture, floor), shoulder, 0.45),
               pressure,
             ),
             facing: floor.direction({ x: 0, y: 0, z: -1 }),

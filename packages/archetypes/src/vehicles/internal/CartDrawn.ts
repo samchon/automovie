@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeEquine } from "../../animals/AutoMovieArchetypeEquine";
@@ -31,7 +31,7 @@ export namespace CartDrawn {
     >,
     d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const radius: number = d.wheelDiameter! / 2;
     const horse: AutoMovieArchetypeEquine.IRig = AutoMovieArchetypeEquine.rig({
       withersHeight: d.withersHeight!,
@@ -138,8 +138,8 @@ export namespace CartDrawn {
       EquineHarness.passes(horse);
     const ahead: number = coupling - horse.hitch.z;
     const used: number =
-      Vector3.length(Vector3.subtract(pass.ring, pass.bit)) +
-      Vector3.length(Vector3.subtract(pass.terret, pass.ring));
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(pass.ring, pass.bit)) +
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(pass.terret, pass.ring));
     const run: number = AutoMovieArchetypeCart.LINES - used;
     const rest: IAutoMovieVector3 = v(0, seat + AutoMovieArchetypeCart.REST.elbow, edge);
     for (const [side, sign] of EquineHarness.SIDES) {
@@ -148,12 +148,12 @@ export namespace CartDrawn {
         pass.terret.y,
         pass.terret.z + ahead,
       );
-      const along: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(rest, terret),
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(rest, terret),
       );
-      const up: IAutoMovieVector3 = Vector3.subtract(
+      const up: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         v(0, 1, 0),
-        Vector3.scale(along, along.y),
+        AutoMovieEngineVector3.scale(along, along.y),
       );
       builder.affordance({
         id: `${side}Line`,
@@ -161,9 +161,9 @@ export namespace CartDrawn {
         symmetry: "round",
         // `+X` runs forward along the run to the terret, `+Y` up, square to it.
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.add(terret, Vector3.scale(along, run / 2)),
+          AutoMovieEngineVector3.add(terret, AutoMovieEngineVector3.scale(along, run / 2)),
           up,
-          Vector3.scale(along, -1),
+          AutoMovieEngineVector3.scale(along, -1),
         ),
         extent: null,
         grip: "power",
@@ -175,7 +175,7 @@ export namespace CartDrawn {
       // apart by their terret spacing. The rest of the measured run continues
       // behind the hand. The hand station is provisional for this cart.
       const station: number = edge + (tree - edge) / 3;
-      const toHand: IAutoMovieVector3 = Vector3.subtract(
+      const toHand: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         v(
           terret.x,
           terret.y + ((station - terret.z) / along.z) * along.y,
@@ -183,17 +183,17 @@ export namespace CartDrawn {
         ),
         terret,
       );
-      const reach: number = Vector3.length(toHand);
+      const reach: number = AutoMovieEngineVector3.length(toHand);
       const toward: IAutoMovieVector3 =
-        reach === 0 ? along : Vector3.scale(toHand, 1 / reach);
-      const grip: IAutoMovieVector3 = Vector3.addScaled(
+        reach === 0 ? along : AutoMovieEngineVector3.scale(toHand, 1 / reach);
+      const grip: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         terret,
         toward,
         Math.min(run, reach),
       );
-      const handUp: IAutoMovieVector3 = Vector3.subtract(
+      const handUp: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         v(0, 1, 0),
-        Vector3.scale(toward, toward.y),
+        AutoMovieEngineVector3.scale(toward, toward.y),
       );
       builder.affordance({
         id: `${side}LineGrip`,
@@ -202,7 +202,7 @@ export namespace CartDrawn {
         frame: AutoMovieArchetypeFrame.facing(
           grip,
           handUp,
-          Vector3.scale(toward, -1),
+          AutoMovieEngineVector3.scale(toward, -1),
         ),
         extent: null,
         grip: "power",
@@ -213,9 +213,9 @@ export namespace CartDrawn {
         kind: "rein",
         symmetry: "round",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.addScaled(terret, toward, run),
+          AutoMovieEngineVector3.addScaled(terret, toward, run),
           handUp,
-          Vector3.scale(toward, -1),
+          AutoMovieEngineVector3.scale(toward, -1),
         ),
         extent: null,
       });
@@ -243,7 +243,7 @@ export namespace CartDrawn {
     >,
     d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const radius: number = d.wheelDiameter! / 2;
     const track: number = d.width! - TYRE;
     const half: number = AutoMovieArchetypeCart.RICKSHAW_SEAT_WIDTH / 2;
@@ -358,7 +358,7 @@ export namespace CartDrawn {
     >,
     d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const radius: number = d.wheelDiameter! / 2;
     const width: number = d.floorWidth!;
     const depth: number = d.floorDepth!;

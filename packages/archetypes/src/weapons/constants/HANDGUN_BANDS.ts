@@ -6,7 +6,7 @@ import {
 import { AutoMovieArchetypeFirearm } from "../internal/AutoMovieArchetypeFirearm";
 import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
 import type { AutoMovieArchetypeHandgun } from "../AutoMovieArchetypeHandgun";
-import * as HandgunBandsData from "./internal/HandgunBandsData";
+import { HandgunBandsData } from "./internal/HandgunBandsData";
 
 /*
  * The band of each free dimension of `createHandgun` a model leaves, by frame,

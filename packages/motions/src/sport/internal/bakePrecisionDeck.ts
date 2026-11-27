@@ -1,7 +1,7 @@
 import {
-  AutoMovieGravity,
-  AutoMoviePhysicalSimulation,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEnginePhysicalSimulation,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
@@ -53,11 +53,11 @@ export async function bakePrecisionDeck(
     ),
   ];
   const simulation: IAutoMoviePhysicalSimulation =
-    await AutoMoviePhysicalSimulation.compute({
+    await AutoMovieEnginePhysicalSimulation.compute({
       duration: input.duration,
       rate: RATE,
       substeps: 4,
-      gravity: AutoMovieGravity.DOWN,
+      gravity: AutoMovieEngineGravity.DOWN,
       floor: input.floor,
       floorBounds: input.floorBounds,
       bodies,
@@ -141,9 +141,9 @@ function placed(
       segments: {
         [root]: {
           ...rigid.pose,
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             rigid.pose.position,
-            Vector3.scale(velocity, 1 / RATE),
+            AutoMovieEngineVector3.scale(velocity, 1 / RATE),
           ),
         },
       },

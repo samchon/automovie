@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadNeck,
   IAutoMovieHumanHeadNeckCurves,
@@ -211,8 +211,8 @@ export namespace AutoMovieHumanHeadNeckScalars {
 function prepare(
   outline: IAutoMovieViewPart.IOutline,
 ): IAutoMovieViewOutline.IOutline {
-  const prepared: ReturnType<typeof AutoMovieViewOutline.create> =
-    AutoMovieViewOutline.create(outline);
+  const prepared: ReturnType<typeof AutoMovieEngineViewOutline.create> =
+    AutoMovieEngineViewOutline.create(outline);
   if ("detail" in prepared)
     throw new Error("Neck original source: " + prepared.detail);
   return prepared;

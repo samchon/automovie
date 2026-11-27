@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -27,17 +27,17 @@ export namespace walkLegBinding {
     a: Pick<IAutoMovieMotionHumanColliders.IPlaced, "pose">,
     b: Pick<IAutoMovieMotionHumanColliders.IPlaced, "pose">,
   ): (probe: IAutoMovieVector3) => IAutoMovieVector3 {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(b.pose.rotation);
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(a.pose.position, b.pose.position),
+      AutoMovieEngineVector3.subtract(a.pose.position, b.pose.position),
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       inverse,
       a.pose.rotation,
     );
     return (probe: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(offset, Quaternion.rotateVector(rotation, probe));
+      AutoMovieEngineVector3.add(offset, AutoMovieEngineQuaternion.rotateVector(rotation, probe));
   }
 
   /*
@@ -63,22 +63,22 @@ export namespace walkLegBinding {
             local,
           ),
         );
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       shape.transform.rotation,
     );
     const hull: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeHull> = AutoMovieEnginePhysics.physicalShapeHull(shape);
     return (local: IAutoMovieVector3, floor: number): number => {
-      const point: IAutoMovieVector3 = Quaternion.rotateVector(
+      const point: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(local, shape.transform.position),
+        AutoMovieEngineVector3.subtract(local, shape.transform.position),
       );
 
       // A point outside the sphere about the hull's vertices lies outside it.
-      if (Vector3.length(Vector3.subtract(point, hull.centre)) >= hull.radius)
+      if (AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, hull.centre)) >= hull.radius)
         return 0;
       let depth: number = Infinity;
       for (const f of hull.faces) {
-        depth = Math.min(depth, f.offset - Vector3.dot(f.normal, point));
+        depth = Math.min(depth, f.offset - AutoMovieEngineVector3.dot(f.normal, point));
         if (depth <= floor) break;
       }
       return Math.max(0, depth);

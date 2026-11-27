@@ -1,4 +1,4 @@
-import { AutoMovieSceneResource } from "@automovie/render";
+import { AutoMovieRenderSceneResource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -23,7 +23,7 @@ export function test_render_scene_collect_owned_resources(): void {
   const root: THREE.Group = new THREE.Group();
   root.add(first, second, new THREE.Group());
 
-  const borrowed = AutoMovieSceneResource.collectOwnedResources(root);
+  const borrowed = AutoMovieRenderSceneResource.collectOwnedResources(root);
   TestValidator.predicate(
     "shared once",
     borrowed.length === 3 &&
@@ -31,7 +31,7 @@ export function test_render_scene_collect_owned_resources(): void {
       borrowed.includes(material) &&
       borrowed.includes(depth),
   );
-  const owned = AutoMovieSceneResource.collectOwnedResources(root, true);
+  const owned = AutoMovieRenderSceneResource.collectOwnedResources(root, true);
   TestValidator.predicate(
     "textures",
     owned.length === 4 && owned.includes(map),

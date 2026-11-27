@@ -1,0 +1,152 @@
+import type { IAutoMovieMonotone } from "@automovie/interface";
+
+/**
+ * The Fritsch-Carlson monotone cubic on caller-owned arrays: slopes computed in
+ * place and evaluation without allocation, so a profile whose values change
+ * every frame, such as a posed sweep's volume scale, is rebuilt into the same
+ * buffers.
+ *
+ * `interpolateAutoMovieMonotone` validates its knots and wraps these two
+ * functions in a closure; callers that already hold validated knots call them
+ * directly. A `period` of 0 means an open curve.
+ */
+export namespace AutoMovieEngineMonotone {
+  /**
+   * Write the slope at each of `n` knots.
+   *
+   * Each interior slope starts as the mean of its two secants, or zero where
+   * they differ in sign or either is zero; a segment whose slope ratios leave
+   * the circle of radius 3 has both scaled back onto it; an open curve's end
+   * slopes are its end secants. A periodic curve takes secants across the wrap.
+   * One knot gives slope 0.
+   *
+   * @param xs Strictly increasing knots, at least `n`.
+   * @param ys Values, at least `n`.
+   * @param n Number of knots used.
+   * @param period Repeat length, or 0 for an open curve.
+   * @param slopes Output, at least `n`.
+   */
+  export const slope = (
+    xs: ArrayLike<number>,
+    ys: ArrayLike<number>,
+    n: number,
+    period: number,
+    slopes: IAutoMovieMonotone.ISlopeSlopes,
+  ): void => {
+    if (n < 2) {
+      if (n === 1) slopes[0] = 0;
+      return;
+    }
+    const segments: number = period === 0 ? n - 1 : n;
+    for (let k: number = 0; k < n; ++k) {
+      const before: number | undefined =
+        k > 0
+          ? secant(xs, ys, n, period, k - 1)
+          : period !== 0
+            ? secant(xs, ys, n, period, segments - 1)
+            : undefined;
+      const after: number | undefined =
+        k < segments ? secant(xs, ys, n, period, k) : undefined;
+      if (before === undefined) slopes[k] = after!;
+      else if (after === undefined) slopes[k] = before;
+      else slopes[k] = before * after <= 0 ? 0 : (before + after) / 2;
+    }
+    for (let k: number = 0; k < segments; ++k) {
+      const l: number = (k + 1) % n;
+      const d: number = secant(xs, ys, n, period, k);
+      if (d === 0) {
+        slopes[k] = 0;
+        slopes[l] = 0;
+        continue;
+      }
+      const alpha: number = slopes[k]! / d;
+      const beta: number = slopes[l]! / d;
+      // an end slope against its secant would leave the segment's range
+      if (alpha < 0) slopes[k] = 0;
+      if (beta < 0) slopes[l] = 0;
+      const radius: number = Math.hypot(Math.max(0, alpha), Math.max(0, beta));
+      if (radius > 3) {
+        const tau: number = 3 / radius;
+        slopes[k] = tau * Math.max(0, alpha) * d;
+        slopes[l] = tau * Math.max(0, beta) * d;
+      }
+    }
+  };
+
+  /**
+   * Evaluate the curve at `x`.
+   *
+   * An open curve holds its end values outside its knots; a periodic curve
+   * wraps `x` into one period from the first knot. Between knots it is the
+   * cubic Hermite segment of the two knots' values and slopes.
+   *
+   * @param xs Knots, as given to `slope`.
+   * @param ys Values, as given to `slope`.
+   * @param slopes Slopes from `slope`.
+   * @param n Number of knots used.
+   * @param period Repeat length, or 0 for an open curve.
+   * @param input Abscissa.
+   * @returns The value.
+   */
+  export const evaluate = (
+    xs: ArrayLike<number>,
+    ys: ArrayLike<number>,
+    slopes: ArrayLike<number>,
+    n: number,
+    period: number,
+    input: number,
+  ): number => {
+    if (n === 1) return ys[0]!;
+    const first: number = xs[0]!;
+    const last: number = xs[n - 1]!;
+    let x: number = input;
+    if (period !== 0) x = ((((x - first) % period) + period) % period) + first;
+    else {
+      if (x <= first) return ys[0]!;
+      if (x >= last) return ys[n - 1]!;
+    }
+    // the segment holding x: the last knot not above it, or the wrap segment
+    let low: number = 0;
+    let high: number = n - 1;
+    if (x >= last) low = n - 1;
+    else
+      while (high - low > 1) {
+        const middle: number = (low + high) >> 1;
+        if (xs[middle]! <= x) low = middle;
+        else high = middle;
+      }
+    const k: number = low;
+    const l: number = (k + 1) % n;
+    const h: number = width(xs, n, period, k);
+    const t: number = (x - xs[k]!) / h;
+    const t2: number = t * t;
+    const t3: number = t2 * t;
+    return (
+      (2 * t3 - 3 * t2 + 1) * ys[k]! +
+      (t3 - 2 * t2 + t) * h * slopes[k]! +
+      (-2 * t3 + 3 * t2) * ys[l]! +
+      (t3 - t2) * h * slopes[l]!
+    );
+  };
+
+  /*
+   * Width of segment `k`, the wrap segment's taken across the period.
+   */
+  const width = (
+    xs: ArrayLike<number>,
+    n: number,
+    period: number,
+    k: number,
+  ): number => (k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!);
+
+  /*
+   * Secant of segment `k`.
+   */
+  const secant = (
+    xs: ArrayLike<number>,
+    ys: ArrayLike<number>,
+    n: number,
+    period: number,
+    k: number,
+  ): number => (ys[(k + 1) % n]! - ys[k]!) / width(xs, n, period, k);
+}

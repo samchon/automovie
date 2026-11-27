@@ -17,7 +17,7 @@ import { buildFieldGun } from "./internal/buildFieldGun";
 import { cannonLaunch } from "./internal/cannonLaunch";
 import { cannonRecoil } from "./internal/cannonRecoil";
 import { cannonTowing } from "./internal/cannonTowing";
-import * as AutoMovieArchetypeCannonData from "./internal/AutoMovieArchetypeCannonData";
+import { AutoMovieArchetypeCannonData } from "./internal/AutoMovieArchetypeCannonData";
 
 /** Constructs the cannon archetype from its recipe. */
 export namespace AutoMovieArchetypeCannon {

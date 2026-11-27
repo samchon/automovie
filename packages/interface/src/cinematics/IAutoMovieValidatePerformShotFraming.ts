@@ -8,7 +8,7 @@ export namespace IAutoMovieValidatePerformShotFraming {
    * intent reach `performShot` in-process without the transport's structural
    * gate. Each unknown value is one `type` violation at `<path>.framing` or
    * `<path>.move` listing the accepted values, the members of
-   * {@link CAMERA_FRAMINGS} and {@link CAMERA_MOVES} in declaration order.
+   * {@link AutoMovieEngineCameraFramings} and {@link AutoMovieEngineCameraMoves} in declaration order.
    *
    * A refused value whose string conversion throws is described as `an
    * uninspectable value`; its original reference remains in the finding and the
@@ -16,13 +16,13 @@ export namespace IAutoMovieValidatePerformShotFraming {
    */
   export type IResult = {
     /**
-     * True exactly when the original framing value belongs to CAMERA_FRAMINGS;
+     * True exactly when the original framing value belongs to AutoMovieEngineCameraFramings;
      * false also appends a framing type violation.
      */
     framed: boolean;
 
     /**
-     * True exactly when the original movement value belongs to CAMERA_MOVES;
+     * True exactly when the original movement value belongs to AutoMovieEngineCameraMoves;
      * checked even if framing failed.
      */
     moved: boolean;

@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanArmTrajectory, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBrace, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
@@ -73,11 +73,11 @@ export function braceArms(scope: braceArms.IScope): braceArms.IArms {
     sternumBones,
   );
   const leftOffsets: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
-    left: Vector3.scale(left, m.shoulderHalfWidth * SPREAD),
-    right: Vector3.scale(left, -1 * m.shoulderHalfWidth * SPREAD),
+    left: AutoMovieEngineVector3.scale(left, m.shoulderHalfWidth * SPREAD),
+    right: AutoMovieEngineVector3.scale(left, -1 * m.shoulderHalfWidth * SPREAD),
   };
-  const aheadOffset: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(toward, reach),
+  const aheadOffset: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(toward, reach),
     {
       x: 0,
       y: catching ? -RECEIVE * m.stature : 0,
@@ -119,8 +119,8 @@ export function braceArms(scope: braceArms.IScope): braceArms.IArms {
         side,
         surface: "palm",
         shape: "flat",
-        point: Vector3.add(
-          Vector3.add(sternum, leftOffsets[side]),
+        point: AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(sternum, leftOffsets[side]),
           aheadOffset,
         ),
         rotation: rotations[side],

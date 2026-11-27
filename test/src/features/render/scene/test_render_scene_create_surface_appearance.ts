@@ -3,7 +3,7 @@ import {
   AutoMovieRenderDualQuaternionSkinning,
   AutoMovieRenderMaterial,
   AutoMovieRenderSurfaceAppearance,
-  AutoMovieSkinnedMesh,
+  AutoMovieRenderSkinnedMesh,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -34,7 +34,7 @@ export function test_render_scene_create_surface_appearance(): void {
   );
   const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   AutoMovieRenderDualQuaternionSkinning.apply(material);
-  const mesh: AutoMovieSkinnedMesh = new AutoMovieSkinnedMesh(
+  const mesh: AutoMovieRenderSkinnedMesh = new AutoMovieRenderSkinnedMesh(
     geometry,
     material,
     "dual-quaternion",

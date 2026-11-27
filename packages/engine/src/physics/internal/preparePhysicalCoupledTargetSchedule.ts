@@ -3,7 +3,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalCoupledTargetError } from "../AutoMoviePhysicalCoupledTargetError";
+import { AutoMovieEnginePhysicalCoupledTargetError } from "../AutoMovieEnginePhysicalCoupledTargetError";
 import type { IPhysicalCoupledTargetGroup } from "./IPhysicalCoupledTargetGroup";
 import type { IPhysicalCoupledTargetSchedule } from "./IPhysicalCoupledTargetSchedule";
 import { PHYSICAL_COUPLED_RELATIONSHIP_LIMIT } from "./PHYSICAL_COUPLED_RELATIONSHIP_LIMIT";
@@ -25,7 +25,7 @@ export function preparePhysicalCoupledTargetSchedule(
       const label: string | undefined = target.coupledGroup;
       if (label === undefined) continue;
       if (step < 1 || step > end || step > input.maximumSteps)
-        throw new AutoMoviePhysicalCoupledTargetError({
+        throw new AutoMovieEnginePhysicalCoupledTargetError({
           step,
           group: label,
           members: [body.id],
@@ -35,7 +35,7 @@ export function preparePhysicalCoupledTargetSchedule(
             "Expected a coupled group on a positive admitted output step.",
         });
       if (body.mode.kind !== "kinematic" && target.strength === 0)
-        throw new AutoMoviePhysicalCoupledTargetError({
+        throw new AutoMovieEnginePhysicalCoupledTargetError({
           step,
           group: label,
           members: [body.id],
@@ -109,7 +109,7 @@ function admitGroup(
     members: bodies.map((body: Body): string => body.id),
   };
   if (bodies.length < 2 || new Set(result.members).size !== bodies.length)
-    throw new AutoMoviePhysicalCoupledTargetError({
+    throw new AutoMovieEnginePhysicalCoupledTargetError({
       step,
       group,
       members: result.members,
@@ -128,7 +128,7 @@ function admitGroup(
         const target: Target = body.targets[step]!;
         const refusal: string | undefined = unsupportedMember(body, target);
         if (refusal !== undefined)
-          throw new AutoMoviePhysicalCoupledTargetError({
+          throw new AutoMovieEnginePhysicalCoupledTargetError({
             step,
             group,
             members: result.members,
@@ -157,7 +157,7 @@ function admitGroup(
     relationships > PHYSICAL_COUPLED_RELATIONSHIP_LIMIT ||
     coordinates > PHYSICAL_TARGET_LIMITS.coordinates
   )
-    throw new AutoMoviePhysicalCoupledTargetError({
+    throw new AutoMovieEnginePhysicalCoupledTargetError({
       step,
       group,
       members: result.members,
@@ -166,7 +166,7 @@ function admitGroup(
       detail: "The coupled relationship or coordinate budget was exceeded.",
     });
   if (!physicalCoupledTargetDependencies(members))
-    throw new AutoMoviePhysicalCoupledTargetError({
+    throw new AutoMovieEnginePhysicalCoupledTargetError({
       step,
       group,
       members: result.members,

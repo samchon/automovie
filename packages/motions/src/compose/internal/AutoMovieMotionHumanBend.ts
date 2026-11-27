@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
@@ -105,9 +105,9 @@ export namespace AutoMovieMotionHumanBend {
     const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
     const sign: number = side === "left" ? 1 : -1;
     const length: number = body.measure.upperArm;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       posture.root,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading({
           yaw: posture.yaw,
           pitch: posture.pitch ?? 0,

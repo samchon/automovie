@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
@@ -73,7 +73,7 @@ export namespace QuadrupedChange {
       high,
     ).change!;
     if (rule.kind === "froude")
-      return Math.sqrt(rule.froude * AutoMovieGravity.STANDARD * hip);
+      return Math.sqrt(rule.froude * AutoMovieEngineGravity.STANDARD * hip);
     if (rule.kind === "mass")
       return rule.speed * (dimensions.mass! / rule.mass) ** rule.exponent;
     if (rule.kind === "speed")

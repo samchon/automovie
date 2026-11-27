@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 
 import type { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -6,7 +6,7 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 /*
  * A knotted iterate's rates projected onto the ranges its positions keep: a
  * knot whose bounded coordinate lies on its bound (within the joint's
- * resolution, `ROM_TOLERANCE`) is still on it, its velocity zero (any motion
+ * resolution, `AutoMovieEngineRomTolerance`) is still on it, its velocity zero (any motion
  * would leave the range on one side of the knot) and its acceleration's outward
  * part dropped, so the quintics on both sides (`HumanArmTrajectoryKnots`) meet
  * the bound tangentially. Both intervals' Bernstein control points are inside
@@ -44,7 +44,7 @@ export function HumanArmTrajectoryRateProjection(
         const q: number = p[d]!;
         // The inward sense: up from the lower bound, down from the upper.
         const inward: number =
-          q <= b[0] + ROM_TOLERANCE ? 1 : q >= b[1] - ROM_TOLERANCE ? -1 : 0;
+          q <= b[0] + AutoMovieEngineRomTolerance ? 1 : q >= b[1] - AutoMovieEngineRomTolerance ? -1 : 0;
         // Either sense of motion leaves the range on one side of the knot:
         // the knot is still there, turning back inward at most.
         if (inward !== 0) v[d] = 0;

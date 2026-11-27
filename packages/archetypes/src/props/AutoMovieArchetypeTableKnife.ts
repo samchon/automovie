@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandToolDraw } from "./internal/HandToolDraw";
@@ -35,8 +35,8 @@ export namespace AutoMovieArchetypeTableKnife {
     const width: number = d.bladeWidth!;
     builder.box(
       "blade",
-      Vector3.create(width * HandToolDraw.KNIFE_THICKNESS, d.blade!, width),
-      Vector3.create(0, handle + d.blade! / 2, 0),
+      AutoMovieEngineVector3.create(width * HandToolDraw.KNIFE_THICKNESS, d.blade!, width),
+      AutoMovieEngineVector3.create(0, handle + d.blade! / 2, 0),
       { color: "#b9bcc0" },
     );
     builder.affordance({
@@ -44,9 +44,9 @@ export namespace AutoMovieArchetypeTableKnife {
       kind: "ledge",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, handle + d.blade! / 2, width / 2),
-        Vector3.create(0, 0, 1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, handle + d.blade! / 2, width / 2),
+        AutoMovieEngineVector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       length: d.blade!,

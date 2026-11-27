@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanHand,
@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFrame } from "./HumanFrame";
-import * as HumanHandDirectionData from "./HumanHandDirectionData";
+import { HumanHandDirectionData } from "./HumanHandDirectionData";
 
 /*
  * The world unit vector of a named direction for a hand of a performer heading
@@ -32,11 +32,11 @@ export function HumanHandDirection(
       throw new Error("A between share lies in [0, 1]");
     const a: IAutoMovieVector3 = named[direction.between[0]];
     const b: IAutoMovieVector3 = named[direction.between[1]];
-    if (Vector3.dot(a, b) < -0.5)
+    if (AutoMovieEngineVector3.dot(a, b) < -0.5)
       throw new Error("A direction between opposite axes is undefined");
-    local = Vector3.add(
-      Vector3.scale(a, 1 - direction.share),
-      Vector3.scale(b, direction.share),
+    local = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(a, 1 - direction.share),
+      AutoMovieEngineVector3.scale(b, direction.share),
     );
   } else {
     if (direction.source.trim() === "")
@@ -46,11 +46,11 @@ export function HumanHandDirection(
       y: direction.explicit.up,
       z: direction.explicit.forward,
     };
-    if (!(Vector3.length(local) > 1e-9))
+    if (!(AutoMovieEngineVector3.length(local) > 1e-9))
       throw new Error("An explicit direction has a length");
   }
   const unit: IAutoMovieVector3 =
-    typeof direction === "string" ? local : Vector3.normalize(local);
+    typeof direction === "string" ? local : AutoMovieEngineVector3.normalize(local);
   return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, unit);
 }
 

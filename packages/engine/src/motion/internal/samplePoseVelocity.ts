@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
-import { Quaternion } from "../../math/Quaternion";
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
 
 /*
  * Companion types and helpers of samplePoseVelocity.
@@ -125,7 +125,7 @@ export namespace samplePoseVelocity {
     const still: [number, number, number] = [0, 0, 0];
     const spins: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
     for (const bone of joints.keys()) {
-      const from: IAutoMovieQuaternion = Quaternion.inverse(
+      const from: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
         codec.rotation(bone, (side === "both" ? ba : pa).get(bone) ?? still),
       );
       const x: IAutoMovieVector3 = spinFrom(
@@ -150,15 +150,15 @@ export namespace samplePoseVelocity {
 
     // Rotation vectors are taken from the far sample when reading both sides,
     // where the near one's is the whole turn, and from the instant otherwise.
-    const origin: IAutoMovieQuaternion = Quaternion.inverse(
-      (side === "both" ? b : instant).root?.rotation ?? Quaternion.identity(),
+    const origin: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+      (side === "both" ? b : instant).root?.rotation ?? AutoMovieEngineQuaternion.identity(),
     );
     const ar: IAutoMovieVector3 = spinFrom(
-      a.root?.rotation ?? Quaternion.identity(),
+      a.root?.rotation ?? AutoMovieEngineQuaternion.identity(),
       origin,
     );
     const br: IAutoMovieVector3 = spinFrom(
-      b.root?.rotation ?? Quaternion.identity(),
+      b.root?.rotation ?? AutoMovieEngineQuaternion.identity(),
       origin,
     );
     return {
@@ -194,8 +194,8 @@ export namespace samplePoseVelocity {
    * offset velocity error `δv` moves the decayed offset by at most `256 / 3125
    * δv duration`, the peak of its quintic's signed lobe (`inertializeOffset`,
    * linear in the velocity over a fixed duration). That is held to
-   * `ROM_TOLERANCE`, the resolution a solver need resolve a joint's angle to,
-   * so `τ = ROM_TOLERANCE h 3125 / (8 256 duration)`: 3.8e-5 degrees for a 1 ms
+   * `AutoMovieEngineRomTolerance`, the resolution a solver need resolve a joint's angle to,
+   * so `τ = AutoMovieEngineRomTolerance h 3125 / (8 256 duration)`: 3.8e-5 degrees for a 1 ms
    * step and a 0.4 s decay, where a fit's own resolution
    * (`hingedArmSwivel.RESOLUTION`, 0.0062 degrees) bounds the displacement at
    * 1.6 degrees.
@@ -208,7 +208,7 @@ export namespace samplePoseVelocity {
       throw new Error(
         "A continued fit's tolerance needs a positive step and decay",
       );
-    return (ROM_TOLERANCE * step * 3125) / (8 * 256 * duration);
+    return (AutoMovieEngineRomTolerance * step * 3125) / (8 * 256 * duration);
   }
 
   /*
@@ -236,6 +236,6 @@ export namespace samplePoseVelocity {
     rotation: IAutoMovieQuaternion,
     from: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
-    return samplePoseVelocity.rotationVector(Quaternion.multiply(rotation, from));
+    return samplePoseVelocity.rotationVector(AutoMovieEngineQuaternion.multiply(rotation, from));
   }
 }

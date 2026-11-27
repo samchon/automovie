@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -82,7 +82,7 @@ export namespace EquineStanceSupport {
   ): AutoMovieArchetypeFrame.IMotion {
     return {
       rotation: motion.rotation,
-      translation: Vector3.add(motion.translation, shift),
+      translation: AutoMovieEngineVector3.add(motion.translation, shift),
     };
   }
 
@@ -95,7 +95,7 @@ export namespace EquineStanceSupport {
   export function heading(
     motion: AutoMovieArchetypeFrame.IMotion,
   ): IAutoMovieQuaternion {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       motion.rotation,
       {
         x: 0,
@@ -103,7 +103,7 @@ export namespace EquineStanceSupport {
         z: 1,
       },
     );
-    return Quaternion.fromAxisAngle(
+    return AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
     );
@@ -120,7 +120,7 @@ export namespace EquineStanceSupport {
     motion: AutoMovieArchetypeFrame.IMotion,
     vector: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(heading(motion), vector);
+    return AutoMovieEngineQuaternion.rotateVector(heading(motion), vector);
   }
 
   /*
@@ -138,7 +138,7 @@ export namespace EquineStanceSupport {
     share: number,
     height: number,
   ): IAutoMovieVector3 {
-    return Vector3.add(Vector3.lerp(from, to, share), {
+    return AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(from, to, share), {
       x: 0,
       y: height * Math.sin(Math.PI * share),
       z: 0,
@@ -159,7 +159,7 @@ export namespace EquineStanceSupport {
   ): AutoMovieArchetypeFrame.IMotion {
     return {
       rotation: to.rotation,
-      translation: Vector3.lerp(from.translation, to.translation, share),
+      translation: AutoMovieEngineVector3.lerp(from.translation, to.translation, share),
     };
   }
 
@@ -188,10 +188,10 @@ export namespace EquineStanceSupport {
         (limb: AutoMovieArchetypeQuadrupedBody.Limb): IAutoMovieVector3 =>
           state.anchors[limb],
       );
-    const middle: IAutoMovieVector3 = Vector3.scale(
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       corners.reduce(
         (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(sum, p),
+          AutoMovieEngineVector3.add(sum, p),
         { x: 0, y: 0, z: 0 },
       ),
       1 / 3,

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordanceCoupling,
   IAutoMovieVector3,
@@ -186,19 +186,19 @@ export namespace CarBody {
     // SAE J1516: the ball of foot lies its tool reference distance ahead of the seating reference point, and the heel point 203 mm back down the pedal plane from it.
     const pedal: number = AutoMovieArchetypeCar.pedalPlane(d.seatHeight!);
     const slope: number = pedal * AutoMovieArchetypeUnits.DEGREE;
-    const ball: IAutoMovieVector3 = Vector3.create(
+    const ball: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       sx,
       floor + AutoMovieArchetypeCar.BALL * Math.sin(slope),
       sz + AutoMovieArchetypeCar.seatAft(d.seatHeight!),
     );
-    const heel: IAutoMovieVector3 = Vector3.create(
+    const heel: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       sx,
       floor,
       ball.z - AutoMovieArchetypeCar.BALL * Math.cos(slope),
     );
 
     // The steering wheel from the ball of foot and the heel point; the firewall ahead of the front doors.
-    const wheel: IAutoMovieVector3 = Vector3.create(
+    const wheel: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       sx,
       heel.y + AutoMovieArchetypeCar.WHEEL_HEIGHT,
       ball.z - AutoMovieArchetypeCar.WHEEL_AFT,
@@ -229,7 +229,7 @@ export namespace CarBody {
           : kind === "pickup"
             ? rear + d.bedLength!
             : door - AutoMovieArchetypeCar.REAR_DOOR,
-      reference: Vector3.create(sx, sy, sz),
+      reference: AutoMovieEngineVector3.create(sx, sy, sz),
       heel,
       ball,
       pedal,
@@ -253,7 +253,7 @@ export namespace CarBody {
     >,
     l: ILayout,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const width: number = l.d.width!;
     builder.box(
       "floor",
@@ -313,7 +313,7 @@ export namespace CarBody {
         v(x - 0.02, l.belt + lid, l.firewall),
       ].map(
         (point: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.subtract(point, middle),
+          AutoMovieEngineVector3.subtract(point, middle),
       ),
       middle,
       { color: BODY },
@@ -361,7 +361,7 @@ export namespace CarBody {
     >,
     l: ILayout,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const wheelbase: number = l.d.wheelbase!;
     const radius: number = l.d.wheelDiameter! / 2;
     const ratio: number = l.d.steeringRatio!;

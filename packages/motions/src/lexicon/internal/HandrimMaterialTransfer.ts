@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -21,8 +21,8 @@ export namespace HandrimMaterialTransfer {
    */
   export function rate(anchor: Grip, displaced: Grip, seconds: number): number {
     const angle: number = Math.atan2(
-      Vector3.dot(anchor.axis!, displaced.normal),
-      Vector3.dot(anchor.normal, displaced.normal),
+      AutoMovieEngineVector3.dot(anchor.axis!, displaced.normal),
+      AutoMovieEngineVector3.dot(anchor.normal, displaced.normal),
     );
     return seconds === 0 ? 0 : angle / seconds;
   }
@@ -48,22 +48,22 @@ export namespace HandrimMaterialTransfer {
     const lead: number = seconds * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(share));
     if (lead === 0 || rate === 0) return grip;
 
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-      Vector3.cross(grip.normal, grip.axis!),
-      (lead * rate) / Quaternion.DEG2RAD,
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+      AutoMovieEngineVector3.cross(grip.normal, grip.axis!),
+      (lead * rate) / AutoMovieEngineQuaternion.DEG2RAD,
     );
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       rotation,
       grip.normal,
     );
     return {
       ...grip,
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         grip.point,
-        Vector3.scale(Vector3.subtract(normal, grip.normal), radius),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(normal, grip.normal), radius),
       ),
       normal,
-      axis: Quaternion.rotateVector(rotation, grip.axis!),
+      axis: AutoMovieEngineQuaternion.rotateVector(rotation, grip.axis!),
     };
   }
 }

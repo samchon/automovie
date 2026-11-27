@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematics,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
@@ -134,27 +134,27 @@ export namespace AutoMovieArchetypeQuadrupedLateralRest {
       for (const [bone, next, ...distal] of lowSide) {
         const root: IAutoMovieTransform = neutral.get(bone!)!;
         const joint: IAutoMovieTransform = neutral.get(next!)!;
-        const link: IAutoMovieVector3 = Vector3.subtract(
+        const link: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           joint.translation,
           root.translation,
         );
-        const inward: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          Vector3.cross(link, { x: -sign, y: 0, z: 0 }),
+        const inward: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+          AutoMovieEngineVector3.cross(link, { x: -sign, y: 0, z: 0 }),
           tuckDegrees * amount,
         );
-        const shift: IAutoMovieVector3 = Vector3.subtract(
-          Quaternion.rotateVector(inward, link),
+        const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+          AutoMovieEngineQuaternion.rotateVector(inward, link),
           link,
         );
         joints.set(bone!, {
           ...root,
-          rotation: Quaternion.multiply(inward, root.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(inward, root.rotation),
         });
         for (const child of [next!, ...distal]) {
           const frame: IAutoMovieTransform = neutral.get(child)!;
           joints.set(child, {
             ...frame,
-            translation: Vector3.add(frame.translation, shift),
+            translation: AutoMovieEngineVector3.add(frame.translation, shift),
           });
         }
       }
@@ -173,7 +173,7 @@ export namespace AutoMovieArchetypeQuadrupedLateralRest {
     function rotation(amount: number): IAutoMovieTransform {
       return {
         translation: { x: sign * offset * amount, y: 0, z: 0 },
-        rotation: Quaternion.fromAxisAngle(
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 0, y: 0, z: 1 },
           -sign * rollDegrees * amount,
         ),

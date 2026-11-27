@@ -1,4 +1,6 @@
-import { minimizeHumanBrent } from "@automovie/motions/internal";
+import {
+  minimizeHumanBrent
+} from "../../../../../packages/motions/src/posture/internal/minimizeHumanBrent";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

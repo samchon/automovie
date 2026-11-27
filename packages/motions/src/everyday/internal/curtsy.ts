@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -29,7 +29,7 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { curtsyCross } from "./curtsyCross";
-import * as CurtsyData from "./CurtsyData";
+import { CurtsyData } from "./CurtsyData";
 
 /*
  * A small ceremonial curtsy. The Royal Household describes a small curtsy as a
@@ -252,9 +252,9 @@ function plan(
       AutoMovieMotionHumanLeg.arc(rearEntry, crossed, 0.2 * length, share);
     return {
       ...arc,
-      ankle: Vector3.subtract(
+      ankle: AutoMovieEngineVector3.subtract(
         arc.ankle,
-        Vector3.scale(forward, length * share * (1 - share)),
+        AutoMovieEngineVector3.scale(forward, length * share * (1 - share)),
       ),
     };
   };
@@ -362,7 +362,7 @@ function plan(
       fitsFoot(
         solePoints(body, bones, rear),
         entryRear,
-        Vector3.subtract(rearAt(seconds).ankle, rearEntry.ankle),
+        AutoMovieEngineVector3.subtract(rearAt(seconds).ankle, rearEntry.ankle),
         floor,
         traveling(seconds),
       )
@@ -418,7 +418,7 @@ function fitsFoot(
       (swinging
         ? point.y > floor
         : i >= HumanFoot.SOCKETS.length || point.y <= floor + CurtsyData.FIT) &&
-      Vector3.length(Vector3.subtract(point, Vector3.add(entry[i]!, offset))) <=
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, AutoMovieEngineVector3.add(entry[i]!, offset))) <=
         CurtsyData.FIT,
   );
 }

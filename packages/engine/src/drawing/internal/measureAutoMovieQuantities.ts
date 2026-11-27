@@ -13,16 +13,16 @@ import {
 
 import { builtSpaceShellVolume } from "../../architecture/internal/builtSpaceShellVolume";
 import { validateBuiltEnvironment } from "../../architecture/internal/validateBuiltEnvironment";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { AutoMovieEngineSpace } from "../../space/AutoMovieEngineSpace";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingCellVolume } from "./autoMovieDrawingCellVolume";
 import { autoMovieOpeningArea } from "./autoMovieOpeningArea";
-import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "../AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
-import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "../AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
-import { AUTOMOVIE_QUANTITY_SUBJECTS } from "../AUTOMOVIE_QUANTITY_SUBJECTS";
+import { AutoMovieEngineQuantityCellUnionApproximation } from "../AutoMovieEngineQuantityCellUnionApproximation";
+import { AutoMovieEngineQuantityMaxContributors } from "../AutoMovieEngineQuantityMaxContributors";
+import { AutoMovieEngineQuantitySubjects } from "../AutoMovieEngineQuantitySubjects";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /*
@@ -37,7 +37,7 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * openings by kind and model occurrences by model. Nothing is looked up,
  * defaulted or carried over from a previous revision.
  *
- * Every subject in AUTOMOVIE_QUANTITY_SUBJECTS gets one finding, so an
+ * Every subject in AutoMovieEngineQuantitySubjects gets one finding, so an
  * absent quantity is a stated zero rather than a missing row. A finding names
  * its largest owners up to the bound, counts and sums the rest, and says
  * whether its total is exact; the space-volume total is approximate because
@@ -45,7 +45,7 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * SHA-256 over the canonical JSON of every other field.
  * Parameter props.environment: Design the quantities are measured from.
  * Parameter props.maxContributors: Owners named per finding; defaults to
- * AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS.
+ * AutoMovieEngineQuantityMaxContributors.
  * Returns: The quantity report.
  */
 export function measureAutoMovieQuantities(
@@ -56,7 +56,7 @@ export function measureAutoMovieQuantities(
   }: { environment: IAutoMovieBuiltEnvironment; maxContributors?: number } =
     props;
   const bound: number =
-    props.maxContributors ?? AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS;
+    props.maxContributors ?? AutoMovieEngineQuantityMaxContributors;
   if (bound < 1)
     throw new Error(
       `quantity report contributor bound must be a positive safe integer, but was ${bound}`,
@@ -73,7 +73,7 @@ export function measureAutoMovieQuantities(
   }
   const gaps: IAutoMovieDrawingGap[] = [];
   const measured: Map<AutoMovieQuantitySubject, Map<string, number>> = new Map(
-    AUTOMOVIE_QUANTITY_SUBJECTS.map(
+    AutoMovieEngineQuantitySubjects.map(
       (
         subject: AutoMovieQuantitySubject,
       ): [AutoMovieQuantitySubject, Map<string, number>] => [
@@ -159,8 +159,8 @@ export function measureAutoMovieQuantities(
   for (const connector of environment.connectors) {
     let length: number = 0;
     for (let index: number = 1; index < connector.route.length; ++index)
-      length += Vector3.length(
-        Vector3.subtract(connector.route[index]!, connector.route[index - 1]!),
+      length += AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(connector.route[index]!, connector.route[index - 1]!),
       );
     add("connector-length", connector.id, length);
   }
@@ -179,7 +179,7 @@ export function measureAutoMovieQuantities(
     version: 1,
     protocol: "automovie.quantity.v1",
     environment: environment.id,
-    findings: AUTOMOVIE_QUANTITY_SUBJECTS.map(
+    findings: AutoMovieEngineQuantitySubjects.map(
       (subject: AutoMovieQuantitySubject): IAutoMovieQuantityFinding =>
         finding(subject, measured.get(subject)!, bound),
     ),
@@ -302,7 +302,7 @@ const finding: (
     basis,
     approximation:
       basis === "approximate"
-        ? AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION
+        ? AutoMovieEngineQuantityCellUnionApproximation
         : null,
     contributors: ordered.slice(0, bound),
     omittedOwners: omitted.length,

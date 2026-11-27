@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -93,11 +93,11 @@ export function everydayGestureCases(
         within(
           "fingertip on the eye-to-target line",
           angle(
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               HumanHand.frame(body, mid, "right", "indexTip", "point").point,
               eye,
             ),
-            Vector3.subtract(goal, eye),
+            AutoMovieEngineVector3.subtract(goal, eye),
           ),
           2,
           "deg",
@@ -116,8 +116,8 @@ export function everydayGestureCases(
       verdicts.push(
         within(
           "fingertip at the face region",
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               HumanHand.frame(body, mid, "right", "indexTip", "flat").point,
               at,
             ),
@@ -156,8 +156,8 @@ export function everydayGestureCases(
         verdicts.push(
           within(
             `palms meet on beat ${k + 1}`,
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 HumanHand.frame(body, b, "left", "palm").point,
                 HumanHand.frame(body, b, "right", "palm").point,
               ),

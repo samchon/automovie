@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeScenicStandardData from "./internal/AutoMovieArchetypeScenicStandardData";
+import { AutoMovieArchetypeScenicStandardData } from "./internal/AutoMovieArchetypeScenicStandardData";
 
 /** Constructs the scenic standard archetype from its recipe. */
 export namespace AutoMovieArchetypeScenicStandard {
@@ -61,7 +61,7 @@ export function create(
     name: kind === "banner" ? "scenic banner" : "scenic roundel",
     draw,
   });
-  const vector: typeof Vector3.create = Vector3.create;
+  const vector: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const shaftRadius: number = dimensions.shaftDiameter / 2;
   const faceRadius: number = dimensions.headSpan / 2;
   const faceTop: number = dimensions.length - shaftRadius;

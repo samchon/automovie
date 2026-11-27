@@ -1,8 +1,8 @@
-import { AutoMoviePhysicalStepPlanner } from "@automovie/engine";
+import { AutoMovieEnginePhysicalStepPlanner } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMoviePhysicalStepPlanner.plan(start, film steps, cadence)` gives the steps a
+ * `AutoMovieEnginePhysicalStepPlanner.plan(start, film steps, cadence)` gives the steps a
  * dynamic run performs after the one it resumes from, and the snapshots after
  * each multiple of the cadence among them.
  *
@@ -17,31 +17,31 @@ import { TestValidator } from "@nestia/e2e";
  * 5. A run resumed at the film's end performs no step and no snapshot.
  */
 export function test_engine_physics_simulation_steps(): void {
-  TestValidator.equals("fresh", AutoMoviePhysicalStepPlanner.plan(0, 30, 10), {
+  TestValidator.equals("fresh", AutoMovieEnginePhysicalStepPlanner.plan(0, 30, 10), {
     steps: 30,
     snapshots: [10, 20, 30],
   });
-  TestValidator.equals("between", AutoMoviePhysicalStepPlanner.plan(0, 25, 10), {
+  TestValidator.equals("between", AutoMovieEnginePhysicalStepPlanner.plan(0, 25, 10), {
     steps: 25,
     snapshots: [10, 20],
   });
-  TestValidator.equals("on", AutoMoviePhysicalStepPlanner.plan(0, 10, 10), {
+  TestValidator.equals("on", AutoMovieEnginePhysicalStepPlanner.plan(0, 10, 10), {
     steps: 10,
     snapshots: [10],
   });
-  TestValidator.equals("before", AutoMoviePhysicalStepPlanner.plan(0, 5, 10), {
+  TestValidator.equals("before", AutoMovieEnginePhysicalStepPlanner.plan(0, 5, 10), {
     steps: 5,
     snapshots: [],
   });
-  TestValidator.equals("resumed", AutoMoviePhysicalStepPlanner.plan(20, 30, 10), {
+  TestValidator.equals("resumed", AutoMovieEnginePhysicalStepPlanner.plan(20, 30, 10), {
     steps: 10,
     snapshots: [30],
   });
-  TestValidator.equals("every", AutoMoviePhysicalStepPlanner.plan(24, 30, 1), {
+  TestValidator.equals("every", AutoMovieEnginePhysicalStepPlanner.plan(24, 30, 1), {
     steps: 6,
     snapshots: [25, 26, 27, 28, 29, 30],
   });
-  TestValidator.equals("end", AutoMoviePhysicalStepPlanner.plan(30, 30, 10), {
+  TestValidator.equals("end", AutoMovieEnginePhysicalStepPlanner.plan(30, 30, 10), {
     steps: 0,
     snapshots: [],
   });

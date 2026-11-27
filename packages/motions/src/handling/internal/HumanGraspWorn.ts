@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -48,23 +48,23 @@ export namespace HumanGraspWorn {
    */
   export function key(props: IKeyProps): IAutoMovieMotionHumanGrasp.IKey {
     const { context, held, world, tip, at, site }: typeof props = props;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       props.wrist.rotation,
     );
-    const position: IAutoMovieVector3 = Quaternion.rotateVector(
+    const position: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(world.position, props.wrist.point),
+      AutoMovieEngineVector3.subtract(world.position, props.wrist.point),
     );
-    const turn: IAutoMovieQuaternion = Quaternion.inverse(
-      Quaternion.multiply(inverse, world.rotation),
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+      AutoMovieEngineQuaternion.multiply(inverse, world.rotation),
     );
     // The wear socket in the hand's frame, from the wrist joint.
-    const socket: IAutoMovieVector3 = Quaternion.rotateVector(
+    const socket: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(
-        Vector3.add(
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           world.position,
-          Quaternion.rotateVector(world.rotation, tip.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(world.rotation, tip.frame.translation),
         ),
         props.wrist.point,
       ),
@@ -79,13 +79,13 @@ export namespace HumanGraspWorn {
         at,
         degrees,
       );
-      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(worn.rotation, turn),
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(worn.rotation, turn),
       );
       return {
-        point: Vector3.subtract(
+        point: AutoMovieEngineVector3.subtract(
           worn.position,
-          Quaternion.rotateVector(rotation, position),
+          AutoMovieEngineQuaternion.rotateVector(rotation, position),
         ),
         rotation,
       };
@@ -125,11 +125,11 @@ export namespace HumanGraspWorn {
       const kept: number =
         props.clear === undefined ? 0 : Math.min(0, props.clear(wrist));
       const miss: number =
-        Vector3.length(
-          Vector3.subtract(
-            Vector3.add(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.add(
               hand.worldPosition,
-              Quaternion.rotateVector(hand.worldRotation, socket),
+              AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, socket),
             ),
             site,
           ),
@@ -166,11 +166,11 @@ export namespace HumanGraspWorn {
         bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
       ): number => {
         const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
-        return Vector3.length(
-          Vector3.subtract(
-            Vector3.add(
+        return AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.add(
               hand.worldPosition,
-              Quaternion.rotateVector(hand.worldRotation, socket),
+              AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, socket),
             ),
             site,
           ),

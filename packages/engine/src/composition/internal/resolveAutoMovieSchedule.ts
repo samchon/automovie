@@ -9,8 +9,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineScheduleCut } from "../AutoMovieEngineScheduleCut";
-import { AutoMovieSchedulePlace } from "../AutoMovieSchedulePlace";
-import { AutoMovieScheduleWalk } from "../AutoMovieScheduleWalk";
+import { AutoMovieEngineSchedulePlace } from "../AutoMovieEngineSchedulePlace";
+import { AutoMovieEngineScheduleWalk } from "../AutoMovieEngineScheduleWalk";
 
 /*
  * Place a composition on the film clock with the production's pure laws.
@@ -44,7 +44,7 @@ export function resolveAutoMovieSchedule(
   composition: IAutoMovieComposition,
   laws: IAutoMovieScheduleLaws,
 ): IAutoMovieSchedule {
-  const walk: IAutoMovieScheduleWalk.IWalk = AutoMovieScheduleWalk.create(laws);
+  const walk: IAutoMovieScheduleWalk.IWalk = AutoMovieEngineScheduleWalk.create(laws);
   // A parallel group's parts are placed in declaration order. A law reading
   // a subject another part of its own group holds reads them as placed at
   // the group's start (`IAutoMovieScheduleContext.meeting`); a law reading a
@@ -215,7 +215,7 @@ export function resolveAutoMovieSchedule(
       const first: number = walk.entries.length;
       progress.at = place(part, progress.at);
       const leading: IAutoMovieIntent | undefined =
-        AutoMovieScheduleWalk.leading(part);
+        AutoMovieEngineScheduleWalk.leading(part);
       const own: number = walk.entries.findIndex(
         (e: IAutoMovieScheduleEntry, i: number): boolean =>
           i >= first && e.intent === leading,
@@ -233,7 +233,7 @@ export function resolveAutoMovieSchedule(
   };
   const place = (node: IAutoMovieComposition, start: number): number => {
     if (node.type === "intent")
-      return AutoMovieSchedulePlace.intent(walk, node.intent, start);
+      return AutoMovieEngineSchedulePlace.intent(walk, node.intent, start);
     if (node.type === "sequence") {
       const progress: IAutoMovieScheduleProgress = fresh(start);
       advance(node.parts, progress);
@@ -261,7 +261,7 @@ export function resolveAutoMovieSchedule(
         start,
       );
     }
-    return AutoMovieSchedulePlace.at(walk, node, start, place);
+    return AutoMovieEngineSchedulePlace.at(walk, node, start, place);
   };
   const end: number = place(normalizeCuts(composition, new WeakMap()), 0);
   const sorted: IAutoMovieScheduleEntry[] = [...walk.entries].sort(

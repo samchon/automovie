@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { resolvePose } from "../kinematics/internal/resolvePose";
-import { Matrix4 } from "../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../math/AutoMovieEngineMatrix4";
 
 /*
  * The column-major matrix that carries each part's local geometry into the
@@ -31,7 +31,7 @@ export const autoMovieModelPartMatrices = (
     let matrix: number[] | null =
       part.transform === null
         ? null
-        : Matrix4.compose(
+        : AutoMovieEngineMatrix4.compose(
             part.transform.translation,
             part.transform.rotation,
             part.transform.scale,
@@ -49,13 +49,13 @@ export const autoMovieModelPartMatrices = (
               candidate.bone === part.attachedBone,
           );
     if (bone !== undefined)
-      matrix = Matrix4.multiply(
-        Matrix4.compose(bone.worldPosition, bone.worldRotation, {
+      matrix = AutoMovieEngineMatrix4.multiply(
+        AutoMovieEngineMatrix4.compose(bone.worldPosition, bone.worldRotation, {
           x: 1,
           y: 1,
           z: 1,
         }),
-        matrix ?? Matrix4.identity(),
+        matrix ?? AutoMovieEngineMatrix4.identity(),
       );
     matrices.set(part, matrix);
   }

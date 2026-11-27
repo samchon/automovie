@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Merge core and compliant-surface impulses into one shape-pair episode.
@@ -16,7 +16,7 @@ export function recordPhysicalContact(
   const bKey: string = JSON.stringify(input.b);
   const forward: boolean = aKey < bKey;
   const key: string = JSON.stringify(forward ? [aKey, bKey] : [bKey, aKey]);
-  const normal: IAutoMovieVector3 = Vector3.scale(
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     input.normal,
     forward ? 1 : -1,
   );
@@ -56,10 +56,10 @@ export function recordPhysicalContact(
     | undefined = receipt.samples!.at(-1);
   if (sample?.seconds === input.seconds) {
     const total: number = sample.impulse + input.impulse;
-    sample.point = Vector3.scale(
-      Vector3.add(
-        Vector3.scale(sample.point, sample.impulse),
-        Vector3.scale(input.point, input.impulse),
+    sample.point = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(sample.point, sample.impulse),
+        AutoMovieEngineVector3.scale(input.point, input.impulse),
       ),
       1 / total,
     );

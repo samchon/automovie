@@ -3,8 +3,8 @@ import type {
   IAutoMovieWorldBlock,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../../../architecture/AUTOMOVIE_SUPPORT_TOLERANCE";
-import { Transform } from "../../../math/Transform";
+import { AutoMovieEngineSupportTolerance } from "../../../architecture/AutoMovieEngineSupportTolerance";
+import { AutoMovieEngineTransform } from "../../../math/AutoMovieEngineTransform";
 import { srgbHexToLinearColor } from "../../../math/internal/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "../../../model/internal/productionRuntimeModelId";
 
@@ -55,9 +55,9 @@ export function buildBlock(
     throw new Error(
       `World block "${input.id}" needs a representable center above its base and below its top.`,
     );
-  if (Math.abs(bounds.min.y - input.base.y) > AUTOMOVIE_SUPPORT_TOLERANCE)
+  if (Math.abs(bounds.min.y - input.base.y) > AutoMovieEngineSupportTolerance)
     throw new Error(
-      `World block "${input.id}" cannot place its bottom within ${AUTOMOVIE_SUPPORT_TOLERANCE} m of its base.`,
+      `World block "${input.id}" cannot place its bottom within ${AutoMovieEngineSupportTolerance} m of its base.`,
     );
   if (/^#[0-9a-f]{6}$/i.test(input.color) === false)
     throw new Error(`World block "${input.id}" color must be #RRGGBB.`);
@@ -106,7 +106,7 @@ export function buildBlock(
     node: {
       id: input.id,
       model: model.id,
-      transform: Transform.of(
+      transform: AutoMovieEngineTransform.of(
         {
           x: input.base.x,
           y: centerY,

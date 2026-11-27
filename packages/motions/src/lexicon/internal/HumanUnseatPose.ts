@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -126,9 +126,9 @@ export namespace HumanUnseatPose {
       limbs: {},
     };
     // The limbs that held the saddle let go but keep their place on the body: each goal is carried by the root's own motion since the release, unplanted, so nothing jumps.
-    const carry: IAutoMovieQuaternion = Quaternion.multiply(
+    const carry: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       humanPostureHeading(shown),
-      Quaternion.inverse(humanPostureHeading(from)),
+      AutoMovieEngineQuaternion.inverse(humanPostureHeading(from)),
     );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const [limb, goal] of Object.entries(from.limbs) as [
@@ -137,23 +137,23 @@ export namespace HumanUnseatPose {
     ][])
       limbs[limb] = {
         ...goal,
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           root,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             carry,
-            Vector3.subtract(goal.point, from.root),
+            AutoMovieEngineVector3.subtract(goal.point, from.root),
           ),
         ),
-        bend: Vector3.add(
+        bend: AutoMovieEngineVector3.add(
           root,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             carry,
-            Vector3.subtract(goal.bend, from.root),
+            AutoMovieEngineVector3.subtract(goal.bend, from.root),
           ),
         ),
         ...(goal.rotation === undefined
           ? {}
-          : { rotation: Quaternion.multiply(carry, goal.rotation) }),
+          : { rotation: AutoMovieEngineQuaternion.multiply(carry, goal.rotation) }),
         planted: false,
       };
     // A foot let go of its stirrup bears no weight: it turns toes-down about its ball as far as the shank leans past the unloaded dorsiflexion.
@@ -171,7 +171,7 @@ export namespace HumanUnseatPose {
           side,
           goal,
           hips[side],
-          ANKLE_DORSIFLEXION.unloaded,
+          AutoMovieEngineAnkleDorsiflexion.unloaded,
         );
     }
     return { ...shown, limbs };
@@ -188,9 +188,9 @@ export namespace HumanUnseatPose {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       posture.root,
-      Quaternion.rotateVector(humanPostureHeading(posture), {
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), {
         x: (side === "left" ? 1 : -1) * 0.25,
         y: -0.1,
         z: 0,
@@ -227,11 +227,11 @@ export namespace HumanUnseatPose {
         [`${side}Arm`]: {
           bend:
             posture.limbs[`${side}Arm`]?.bend ??
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               hanging,
-              Quaternion.rotateVector(turn, { x: sign * 0.3, y: 0, z: -0.3 }),
+              AutoMovieEngineQuaternion.rotateVector(turn, { x: sign * 0.3, y: 0, z: -0.3 }),
             ),
-          point: Vector3.lerp(hanging, point, share),
+          point: AutoMovieEngineVector3.lerp(hanging, point, share),
           planted: share >= 1,
         },
       },
@@ -253,12 +253,12 @@ export namespace HumanUnseatPose {
   ): IAutoMovieVector3 {
     // Out from the falling side's shoulder, not the hip: the hand comes down past the trunk's side, clear of the thigh.
     const sign: number = side === "left" ? 1 : -1;
-    const out: IAutoMovieVector3 = Quaternion.rotateVector(
+    const out: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       humanPostureHeading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
       { x: sign * 0.5 * body.measure.upperArm, y: 0, z: 0 },
     );
     return {
-      ...Vector3.add(shoulder(body, posture, side), out),
+      ...AutoMovieEngineVector3.add(shoulder(body, posture, side), out),
       y: body.measure.forearmRadius,
     };
   }
@@ -295,9 +295,9 @@ export namespace HumanUnseatPose {
       frame: IAutoMovieRigidTransform,
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.inverse(frame.rotation),
-        Vector3.subtract(point, frame.position),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(frame.rotation),
+        AutoMovieEngineVector3.subtract(point, frame.position),
       );
     const feet: number[] = (["left", "right"] as const)
       .map((side) => entry.limbs[`${side}Leg`]?.point)
@@ -317,7 +317,7 @@ export namespace HumanUnseatPose {
         throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "push",
-          value: Vector3.length(flight.push),
+          value: AutoMovieEngineVector3.length(flight.push),
           feasible: null,
           reason: `the fall crosses the carrier's flank ${t.toFixed(3)} s after the release`,
           fix: "push the fall harder to the side, or fall backward or forward",
@@ -379,7 +379,7 @@ export namespace HumanUnseatPose {
     const arm: number = m.upperArm + m.forearm + 0.5 * m.hand;
     for (let k: number = 0; k <= 16; ++k) {
       const t: number = from + ((to - from) * k) / 16;
-      if (Vector3.distance(shoulder(body, posture(t), side), target(t)) <= arm)
+      if (AutoMovieEngineVector3.distance(shoulder(body, posture(t), side), target(t)) <= arm)
         return t;
     }
     return undefined;

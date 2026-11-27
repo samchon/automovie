@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
@@ -88,8 +88,8 @@ export function addressPrecisionStroke(
     hand: AutoMovieHumanSide,
     point: IAutoMovieVector3,
   ): number =>
-    Vector3.distance(
-      Vector3.add(
+    AutoMovieEngineVector3.distance(
+      AutoMovieEngineVector3.add(
         AutoMovieMotionHumanPlaced.joint(
           body,
           inclined(angle),
@@ -147,7 +147,7 @@ export function addressPrecisionStroke(
   const stood: IAutoMovieVector3 = centre(entry);
   const leaned: IAutoMovieVector3 = centre({
     ...inclined(hinge),
-    root: Vector3.add(entry.root, kept),
+    root: AutoMovieEngineVector3.add(entry.root, kept),
   });
   const shift: IAutoMovieVector3 = {
     x: kept.x + stood.x - leaned.x,
@@ -160,7 +160,7 @@ export function addressPrecisionStroke(
   const legReach: number = LEG * (body.measure.thigh + body.measure.shank);
   let drop: number = 0;
   for (const leg of ["left", "right"] as const) {
-    const hip: IAutoMovieVector3 = Vector3.add(
+    const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       AutoMovieMotionHumanPlaced.joint(body, inclined(hinge), `${leg}UpperLeg`),
       shift,
     );
@@ -180,7 +180,7 @@ export function addressPrecisionStroke(
     tip(
       {
         ...posture,
-        root: Vector3.add(posture.root, Vector3.scale(move, share)),
+        root: AutoMovieEngineVector3.add(posture.root, AutoMovieEngineVector3.scale(move, share)),
       },
       hinge * share,
     );

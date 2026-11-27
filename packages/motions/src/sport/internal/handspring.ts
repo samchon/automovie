@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -264,7 +264,7 @@ export namespace handspring {
         new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]),
       );
     surface.within(
-      Vector3.lerp(
+      AutoMovieEngineVector3.lerp(
         placing.get("leftHand")!.worldPosition,
         placing.get("rightHand")!.worldPosition,
         0.5,
@@ -286,7 +286,7 @@ export namespace handspring {
       );
       return {
         centre,
-        slope: Vector3.subtract(
+        slope: AutoMovieEngineVector3.subtract(
           centre,
           GymnasticsFlight.centre(
             body,
@@ -364,7 +364,7 @@ export namespace handspring {
       else high = middle;
     }
     const rate: number = high;
-    const velocity: IAutoMovieVector3 = Vector3.scale(slope, rate);
+    const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(slope, rate);
     const flight: number = GymnasticsFlight.fall(cr.y, velocity.y, height)!;
 
     // Timing: constant angular acceleration from rest to the release's rate.

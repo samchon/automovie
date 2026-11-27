@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -113,7 +113,7 @@ export namespace HumanDigitReach {
             .filter((shape: IAutoMoviePhysicalShape): boolean => {
               const ball: INearBodyBall = HumanShapeFraming.sphere(p.pose, shape);
               return (
-                Vector3.length(Vector3.subtract(ball.centre, hand)) <
+                AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(ball.centre, hand)) <
                 ball.radius + body.measure.hand
               );
             })
@@ -145,9 +145,9 @@ export namespace HumanDigitReach {
     );
     const last: IAutoMovieResolvedBone = bones.get(chain.bones.at(-1)!)!;
     points.push(
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         last.worldPosition,
-        Quaternion.rotateVector(last.worldRotation, chain.tip),
+        AutoMovieEngineQuaternion.rotateVector(last.worldRotation, chain.tip),
       ),
     );
     return points;
@@ -190,14 +190,14 @@ export namespace HumanDigitReach {
       new Set([bone]),
     ).get(bone)!;
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         placed.worldPosition,
-        Quaternion.rotateVector(placed.worldRotation, goal.point),
+        AutoMovieEngineQuaternion.rotateVector(placed.worldRotation, goal.point),
       ),
       ...(goal.normal === undefined
         ? {}
         : {
-            normal: Quaternion.rotateVector(placed.worldRotation, goal.normal),
+            normal: AutoMovieEngineQuaternion.rotateVector(placed.worldRotation, goal.normal),
           }),
     };
   };

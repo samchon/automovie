@@ -3,8 +3,8 @@ import type {
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Interpolate sampled goals and derive world velocities from the same shortest
@@ -16,9 +16,9 @@ export function samplePhysicalTarget(
   fraction: number,
   rate: number,
 ): IAutoMovieSamplePhysicalTarget.IResult {
-  const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+  const delta: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
     after.rotation,
-    Quaternion.inverse(before.rotation),
+    AutoMovieEngineQuaternion.inverse(before.rotation),
   );
   const sign: number = delta.w < 0 ? -1 : 1;
   const norm: number = Math.hypot(delta.x, delta.y, delta.z);
@@ -28,17 +28,17 @@ export function samplePhysicalTarget(
       : (2 * Math.atan2(norm, Math.abs(delta.w)) * sign * rate) / norm;
   return {
     pose: {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         before.position,
-        Vector3.scale(
-          Vector3.subtract(after.position, before.position),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(after.position, before.position),
           fraction,
         ),
       ),
-      rotation: Quaternion.slerp(before.rotation, after.rotation, fraction),
+      rotation: AutoMovieEngineQuaternion.slerp(before.rotation, after.rotation, fraction),
     },
-    velocity: Vector3.scale(
-      Vector3.subtract(after.position, before.position),
+    velocity: AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(after.position, before.position),
       rate,
     ),
     angularVelocity: {

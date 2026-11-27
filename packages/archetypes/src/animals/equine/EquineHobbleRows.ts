@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -58,13 +58,13 @@ export namespace EquineHobbleRows {
           goal.trunk,
           goal.limbs[limb],
         );
-        return Vector3.addScaled(
+        return AutoMovieEngineVector3.addScaled(
           chain[3]!,
-          Vector3.normalize(Vector3.subtract(chain[2]!, chain[3]!)),
+          AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(chain[2]!, chain[3]!)),
           AutoMovieArchetypeEquineHobble.ABOVE,
         );
       };
-      return Vector3.distance(cuff("leftFore"), cuff("rightFore"));
+      return AutoMovieEngineVector3.distance(cuff("leftFore"), cuff("rightFore"));
     };
     if (!(cue.count >= 1) || !(cue.length > 0 && cue.strap > 0))
       throw new AutoMovieArchetypeRefusal({
@@ -85,12 +85,12 @@ export namespace EquineHobbleRows {
     const shifted = (
       anchor: IAutoMovieVector3,
       hops: number,
-    ): IAutoMovieVector3 => Vector3.addScaled(anchor, forward, hops);
+    ): IAutoMovieVector3 => AutoMovieEngineVector3.addScaled(anchor, forward, hops);
     const carried = (
       trunk: AutoMovieArchetypeFrame.IMotion,
       share: number,
     ): AutoMovieArchetypeFrame.IMotion =>
-      EquineStanceSupport.moved(trunk, Vector3.scale(forward, share));
+      EquineStanceSupport.moved(trunk, AutoMovieEngineVector3.scale(forward, share));
 
     // Each hop's states: after the fores, after the left hind, after the right hind; and each hind's loaded trunk.
     const states: EquineStanceRows.IState[] = [start];
@@ -164,7 +164,7 @@ export namespace EquineHobbleRows {
         const after: EquineStanceRows.IState = states[s + 1]!;
         if (s % PIECES === 0) {
           // The fores together, the trunk pitched about the hind hooves' middle at the hop's top.
-          const pivot: IAutoMovieVector3 = Vector3.lerp(
+          const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
             before.anchors.leftHind,
             before.anchors.rightHind,
             0.5,
@@ -173,10 +173,10 @@ export namespace EquineHobbleRows {
             EquineStanceSupport.blend(before.trunk, after.trunk, local);
           const pitch: number = PITCH * Math.sin(Math.PI * local);
           // The fores rise with the pitched shoulders, and their own lift over that.
-          const reach: number = Vector3.distance(
+          const reach: number = AutoMovieEngineVector3.distance(
             { ...pivot, y: 0 },
             {
-              ...Vector3.lerp(
+              ...AutoMovieEngineVector3.lerp(
                 before.anchors.leftFore,
                 before.anchors.rightFore,
                 0.5,
@@ -191,8 +191,8 @@ export namespace EquineHobbleRows {
             limb: AutoMovieArchetypeQuadrupedBody.Limb,
           ): EquineBodyPose.IPlaced => ({
             kind: "placed",
-            anchor: Vector3.add(
-              Vector3.lerp(before.anchors[limb], after.anchors[limb], local),
+            anchor: AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.lerp(before.anchors[limb], after.anchors[limb], local),
               { x: 0, y: rise, z: 0 },
             ),
             fold: 0,

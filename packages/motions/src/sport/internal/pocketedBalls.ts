@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBilliards,
   IAutoMovieMotionHumanPrecisionDeck,
@@ -55,9 +55,9 @@ export function pocketedBalls(
       const root: IAutoMovieRigidTransform | undefined = frame.bodies[id]?.root;
       if (root === undefined)
         throw new RangeError(`Ball ${id} is not in the deck cache`);
-      const centre: IAutoMovieVector3 = Vector3.add(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         root.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           root.rotation,
           ball.profile.segments[0]!.centerOfMass,
         ),

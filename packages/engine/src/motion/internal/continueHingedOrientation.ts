@@ -10,16 +10,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
 import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { wrapDegrees } from "../../math/internal/wrapDegrees";
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
 import type { IAutoMovieChainContinuationObserver } from "../IAutoMovieChainContinuationObserver";
-import { PLANT_RESIDUAL_EPSILON } from "../PLANT_RESIDUAL_EPSILON";
+import { AutoMovieEnginePlantResidualEpsilon } from "../AutoMovieEnginePlantResidualEpsilon";
 import { orientChainEffector } from "./orientChainEffector";
 import type { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
@@ -77,12 +77,12 @@ export function continueHingedOrientation(
     workspace.rig.effectorProjection();
   if (project.swivelCandidates === undefined) return null;
   const rawAxes: IAutoMovieJointAxes =
-    props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
+    props.jointAxes?.[props.chain.lower] ?? AutoMovieEngineDefaultJointAxes;
   const range: { min: number; max: number } | null = workspace.rig.hingeRange(
     (): { min: number; max: number } | null =>
       readHingeRange(props, prepared, rawAxes, lowerBasis),
   );
-  const target: hingedArmSwivel.IPreparedTarget | undefined = workspace.rig
+  const target: AutoMovieEngineHingedArmSwivel.IPreparedTarget | undefined = workspace.rig
     .hingedGeometry()
     ?.target(props.target, range ?? undefined);
   if (target?.harmonic === undefined) return null;
@@ -91,7 +91,7 @@ export function continueHingedOrientation(
   const branch: number = Math.min(near.branch, branches.length - 1);
   const stop: IAutoMovieHingedArmSwivel.IStop = branches[branch]!;
   if (stop.shortfall !== 0) return null;
-  const harmonic: hingedArmSwivel.IHarmonic = target.harmonic(stop.theta);
+  const harmonic: AutoMovieEngineHingedArmSwivel.IHarmonic = target.harmonic(stop.theta);
   const lower: IAutoMovieJointPose = workspace.clamp({
     bone: props.chain.lower,
     ...decomposeJointRotationOnBasis.run(
@@ -106,23 +106,23 @@ export function continueHingedOrientation(
     lowerBasis,
     props.restFrames?.[props.chain.lower],
   );
-  const left: IAutoMovieQuaternion = Quaternion.multiply(
+  const left: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     workspace.rig.effectorRestInverse(),
-    Quaternion.multiply(
-      Quaternion.inverse(lowerRotation),
-      Quaternion.inverse(prepared.lowerRotation),
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(lowerRotation),
+      AutoMovieEngineQuaternion.inverse(prepared.lowerRotation),
     ),
   );
-  const right: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(prepared.upper.worldRotation),
+  const right: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(prepared.upper.worldRotation),
     props.effectorRotation,
   );
-  const cosine: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.multiply(left, conjugate(harmonic.cosine)),
+  const cosine: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(left, conjugate(harmonic.cosine)),
     right,
   );
-  const sine: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.multiply(left, conjugate(harmonic.sine)),
+  const sine: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(left, conjugate(harmonic.sine)),
     right,
   );
   const proposed: ReturnType<NonNullable<typeof project.swivelCandidates>> =
@@ -134,8 +134,8 @@ export function continueHingedOrientation(
     props.chain.upper,
     "decomposeJointRotation axes",
   );
-  const poseAt: ReturnType<typeof hingedArmSwivel.pose> = harmonic.pose();
-  const wanted: IAutoMovieQuaternion = Quaternion.normalize(
+  const poseAt: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> = harmonic.pose();
+  const wanted: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
     props.effectorRotation,
   );
   let best:
@@ -147,11 +147,11 @@ export function continueHingedOrientation(
   let accepted: number = 0;
   for (const angle of angles) {
     const delta: number = wrapDegrees(angle - near.swivel);
-    if (!(Math.abs(delta) < hingedArmSwivel.STEP)) continue;
+    if (!(Math.abs(delta) < AutoMovieEngineHingedArmSwivel.STEP)) continue;
     const swivel: number = delta === 0 ? near.swivel : near.swivel + delta;
     trials++;
     observe?.("orientationRootTrial");
-    const raw: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+    const raw: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
       poseAt(swivel);
     const upper: IAutoMovieJointPose = workspace.clamp({
       bone: props.chain.upper,
@@ -178,14 +178,14 @@ export function continueHingedOrientation(
       });
     if (
       !(
-        Vector3.distance(frames.effector.worldPosition, props.target) <
-        PLANT_RESIDUAL_EPSILON
+        AutoMovieEngineVector3.distance(frames.effector.worldPosition, props.target) <
+        AutoMovieEnginePlantResidualEpsilon
       ) ||
       !(
-        (Quaternion.angleAfterNormalize(frames.effector.worldRotation, wanted) *
+        (AutoMovieEngineQuaternion.angleAfterNormalize(frames.effector.worldRotation, wanted) *
           180) /
           Math.PI <=
-        ROM_TOLERANCE
+        AutoMovieEngineRomTolerance
       )
     )
       continue;
@@ -195,7 +195,7 @@ export function continueHingedOrientation(
           (joint.bone === props.chain.upper ||
             joint.bone === props.chain.lower ||
             joint.bone === props.chain.effector) &&
-          !(workspace.rig.overshoot(joint.bone)(joint) <= ROM_TOLERANCE),
+          !(workspace.rig.overshoot(joint.bone)(joint) <= AutoMovieEngineRomTolerance),
       )
     )
       continue;
@@ -298,18 +298,18 @@ function samePole(
   knee: IAutoMovieVector3,
   hint: IAutoMovieVector3,
 ): boolean {
-  const axis: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(point, root),
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(point, root),
   );
   const across: (value: IAutoMovieVector3) => IAutoMovieVector3 = (
     value: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
-    const offset: IAutoMovieVector3 = Vector3.subtract(value, root);
-    return Vector3.subtract(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(value, root);
+    return AutoMovieEngineVector3.subtract(
       offset,
-      Vector3.scale(axis, Vector3.dot(offset, axis)),
+      AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(offset, axis)),
     );
   };
   const asked: IAutoMovieVector3 = across(hint);
-  return Vector3.length(asked) < 1e-9 || Vector3.dot(across(knee), asked) > 0;
+  return AutoMovieEngineVector3.length(asked) < 1e-9 || AutoMovieEngineVector3.dot(across(knee), asked) > 0;
 }

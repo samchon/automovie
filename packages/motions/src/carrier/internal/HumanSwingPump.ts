@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -14,7 +14,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanRide } from "../../lexicon/internal/HumanRide";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import * as HumanSwingPumpData from "./HumanSwingPumpData";
+import { HumanSwingPumpData } from "./HumanSwingPumpData";
 
 /*
  * Pump a swing from the seat: the seated ride with the hands on the chains
@@ -58,16 +58,16 @@ export function HumanSwingPump(
     ...context,
     params: { on, duration: seconds, seat, hands },
   });
-  const facing: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle(HumanSwingPumpData.UP, context.entry.posture.yaw),
+  const facing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.fromAxisAngle(HumanSwingPumpData.UP, context.entry.posture.yaw),
     { x: 0, y: 0, z: 1 },
   );
   const seatAt = (at: number): IAutoMovieVector3 =>
     context.aim({ kind: "prop", subject: on, point: seat }, context.start + at)
       .point;
   const forward = (at: number): number =>
-    Vector3.dot(
-      Vector3.subtract(seatAt(at + HumanSwingPumpData.STEP / 2), seatAt(at - HumanSwingPumpData.STEP / 2)),
+    AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(seatAt(at + HumanSwingPumpData.STEP / 2), seatAt(at - HumanSwingPumpData.STEP / 2)),
       facing,
     );
 
@@ -146,7 +146,7 @@ export function HumanSwingPump(
           : leaning.limbs[`${side}Arm`]?.point;
       if (wrist === undefined) continue;
       const slip: number =
-        Vector3.distance(bones.get(`${side}UpperArm`)!.worldPosition, wrist) -
+        AutoMovieEngineVector3.distance(bones.get(`${side}UpperArm`)!.worldPosition, wrist) -
         (context.body.measure.upperArm + context.body.measure.forearm);
       if (slip > HumanSwingPumpData.SLIP)
         throw new AutoMovieMotionHumanRefusal({
@@ -205,7 +205,7 @@ export namespace HumanSwingPump {
     // Positions in the swing's plane: z forward, y up, the pivot at the origin.
     const hip: PlanePoint = [0, -hang];
     const knee: PlanePoint = [thigh, -hang];
-    const tilt: number = lean * Quaternion.DEG2RAD;
+    const tilt: number = lean * AutoMovieEngineQuaternion.DEG2RAD;
 
     // Each part: mass, its centre of rotation, radius, start and end angle (radians from +z toward +y).
     const parts: readonly ITurningPart[] = [
@@ -251,7 +251,7 @@ export namespace HumanSwingPump {
         inertia +=
           (m / 2) * ((centre[0] + q[0]) ** 2 + (centre[1] + q[1]) ** 2);
     }
-    return Math.abs(swept / inertia) / Quaternion.DEG2RAD;
+    return Math.abs(swept / inertia) / AutoMovieEngineQuaternion.DEG2RAD;
   }
 }
 

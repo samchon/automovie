@@ -1,6 +1,6 @@
 import type { IAutoMovieJointAxes } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
 
 /*
@@ -14,7 +14,7 @@ export function basisOf(
   axes: IAutoMovieJointAxes | undefined,
 ): IAutoMovieJointAxes {
   return normalizeJointAxes(
-    axes ?? DEFAULT_JOINT_AXES,
+    axes ?? AutoMovieEngineDefaultJointAxes,
     "decomposeJointRotation axes",
   );
 }

@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import type { IMaterialOverlayShading } from "../../IMaterialOverlayShading.js";
-import type { IMaterialOverlayShape } from "../../IMaterialOverlayShape.js";
+import type { IAutoMovieRenderMaterialOverlayShading } from "../../IAutoMovieRenderMaterialOverlayShading.js";
+import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape.js";
 import { getOverlayFlatNormal } from "./getOverlayFlatNormal.js";
 import { materialOverlayFragment } from "./materialOverlayFragment.js";
 import { materialOverlayVertex } from "./materialOverlayVertex.js";
@@ -23,21 +23,21 @@ import { materialOverlayVertex } from "./materialOverlayVertex.js";
  */
 export const applyMaterialOverlays: (
   material: THREE.MeshPhysicalMaterial,
-  overlays: readonly IMaterialOverlayShading[],
+  overlays: readonly IAutoMovieRenderMaterialOverlayShading[],
 ) => void = (
   material: THREE.MeshPhysicalMaterial,
-  overlays: readonly IMaterialOverlayShading[],
+  overlays: readonly IAutoMovieRenderMaterialOverlayShading[],
 ): void => {
   if (overlays.length === 0) return;
   if (
     material.normalMap === null &&
-    overlays.some((o: IMaterialOverlayShading): boolean => o.normal !== null)
+    overlays.some((o: IAutoMovieRenderMaterialOverlayShading): boolean => o.normal !== null)
   ) {
     material.normalMap = getOverlayFlatNormal();
     material.userData.autoMovieOverlayFlatNormal = material.normalMap;
   }
   const uniforms: Record<string, THREE.IUniform> = {};
-  overlays.forEach((overlay: IMaterialOverlayShading, i: number): void => {
+  overlays.forEach((overlay: IAutoMovieRenderMaterialOverlayShading, i: number): void => {
     overlay.color.updateMatrix();
     uniforms[`overlayColorMap${i}`] = { value: overlay.color };
     uniforms[`overlayColorTransform${i}`] = {
@@ -63,8 +63,8 @@ export const applyMaterialOverlays: (
     }
   });
   material.userData.overlays = overlays;
-  const shapes: IMaterialOverlayShape[] = overlays.map(
-    (overlay: IMaterialOverlayShading): IMaterialOverlayShape => ({
+  const shapes: IAutoMovieRenderMaterialOverlayShape[] = overlays.map(
+    (overlay: IAutoMovieRenderMaterialOverlayShading): IAutoMovieRenderMaterialOverlayShape => ({
       blend: overlay.blend,
       roughness: overlay.roughness !== null,
       normal: overlay.normal !== null,
@@ -73,11 +73,11 @@ export const applyMaterialOverlays: (
   AutoMovieRenderMaterial.addShaderPatch(material, {
     key: `automovie-overlays-${shapes
       .map(
-        (shape: IMaterialOverlayShape): string =>
+        (shape: IAutoMovieRenderMaterialOverlayShape): string =>
           `${shape.blend[0]}${shape.roughness ? "r" : ""}${shape.normal ? "n" : ""}`,
       )
       .join(".")}`,
-    apply: (shader: IMaterialShaderSource): void => {
+    apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = materialOverlayVertex(shader.vertexShader, shapes);
       shader.fragmentShader = materialOverlayFragment(

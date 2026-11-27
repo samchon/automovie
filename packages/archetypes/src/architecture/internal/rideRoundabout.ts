@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -44,7 +44,7 @@ export function rideRoundabout(
       AutoMovieArchetypeFrame.compose(placement, {
         scale: ONE,
         translation: { x: 0, y: 0, z: 0 },
-        rotation: Quaternion.fromAxisAngle(UP, angle(seconds)),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(UP, angle(seconds)),
       }),
   };
 }

@@ -5,7 +5,7 @@ import type * as THREE from "three";
 import type { IRenderAutoMovieFilmFrameCompositors } from "./IRenderAutoMovieFilmFrameCompositors.js";
 import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
 import { renderFadeToBlackFrame } from "./renderFadeToBlackFrame.js";
-import { AutoMovieFilmResponseStage } from "../AutoMovieFilmResponseStage.js";
+import { AutoMovieRenderFilmResponseStage } from "../AutoMovieRenderFilmResponseStage.js";
 
 /*
  * Render already sampled film layers through one beauty/guide boundary.
@@ -50,8 +50,8 @@ export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
   transparent: boolean = false,
 ): void => {
   const composition: ReturnType<
-    typeof AutoMovieFilmResponseStage.resolveBeautyComposition<Layer>
-  > = AutoMovieFilmResponseStage.resolveBeautyComposition(layers);
+    typeof AutoMovieRenderFilmResponseStage.resolveBeautyComposition<Layer>
+  > = AutoMovieRenderFilmResponseStage.resolveBeautyComposition(layers);
   const draw = (layer: Omit<Layer, "weight"> & { weight: number }): void => {
     prepareLayer?.(layer);
     renderLayer(layer, pass);

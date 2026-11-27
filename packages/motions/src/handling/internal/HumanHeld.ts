@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -202,14 +202,14 @@ export namespace HumanHeld {
       // rotation to) are one, as the drink's facings read them
       // (`AutoMovieMotionHumanTouchDrink`), so a rounding-sized difference
       // between a hand's fit and its mirror's never chooses another side.
-      if (tilt < least - ROM_TOLERANCE) {
+      if (tilt < least - AutoMovieEngineRomTolerance) {
         least = tilt;
         best = candidate;
       }
 
       // A tilt is an angle, never below 0, so once the best is within the
       // tolerance of 0 no later side can replace it.
-      if (least <= ROM_TOLERANCE) break;
+      if (least <= AutoMovieEngineRomTolerance) break;
     }
 
     // A vessel the arm cannot hold level there is not brought tilted, unless

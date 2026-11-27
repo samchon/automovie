@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeBag } from "../AutoMovieArchetypeBag";
-import * as BagBandsData from "./internal/BagBandsData";
+import { BagBandsData } from "./internal/BagBandsData";
 
 /*
  * The band of each free dimension of `createBag`, by kind, with the sources

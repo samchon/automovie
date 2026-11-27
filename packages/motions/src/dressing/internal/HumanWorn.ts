@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
@@ -159,7 +159,7 @@ function alignment(
   at: ReturnType<typeof HumanTrunk.region>,
   yaw: number,
 ) => IAutoMovieQuaternion {
-  const into: IAutoMovieVector3 = Quaternion.rotateVector(wear.frame.rotation, {
+  const into: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(wear.frame.rotation, {
     x: 0,
     y: 1,
     z: 0,
@@ -175,7 +175,7 @@ function alignment(
     yaw: number,
   ): IAutoMovieQuaternion =>
     align({
-      normal: Vector3.scale(at.normal, -1),
+      normal: AutoMovieEngineVector3.scale(at.normal, -1),
       forward: along
         ? { x: 0, y: 1, z: 0 }
         : HumanFrame.point(
@@ -195,13 +195,13 @@ function placed(
   wear: IAutoMovieAffordance,
   turn: number,
 ): IAutoMovieRigidTransform {
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(Quaternion.fromAxisAngle(at.normal, turn), aligned),
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.fromAxisAngle(at.normal, turn), aligned),
   );
   return {
-    position: Vector3.subtract(
+    position: AutoMovieEngineVector3.subtract(
       at.point,
-      Quaternion.rotateVector(rotation, wear.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(rotation, wear.frame.translation),
     ),
     rotation,
   };

@@ -13,9 +13,9 @@ import {
 } from "@automovie/interface";
 
 import { builtElementRestMatrices } from "../../architecture/internal/builtElementRestMatrices";
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
 import { AutoMovieEngineSpace } from "../../space/index";
 
 import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
@@ -79,9 +79,9 @@ export function propAnchorFrame(
     if (spec === undefined || piece === undefined || affordance === undefined)
       return null;
     return transformOf(
-      Matrix4.multiply(
+      AutoMovieEngineMatrix4.multiply(
         setPieceMatrix(piece),
-        Matrix4.compose(
+        AutoMovieEngineMatrix4.compose(
           affordance.frame.translation,
           affordance.frame.rotation,
           affordance.frame.scale,
@@ -132,7 +132,7 @@ export function propAnchorFrame(
         AutoMovieEngineSpace.surfaceFootprint(entry.surface),
       );
       if (anchor === null) return null;
-      return Transform.of(
+      return AutoMovieEngineTransform.of(
         {
           x: anchor.x,
           y: surfaceHeightAt(entry.surface, anchor.x, anchor.z),
@@ -159,10 +159,10 @@ function elementFrame(
  * Decompose a world matrix into a transform with a renormalized rotation.
  */
 function transformOf(matrix: number[]): IAutoMovieTransform {
-  const world: IAutoMovieMatrix4.IDecomposeResult = Matrix4.decompose(matrix);
+  const world: IAutoMovieMatrix4.IDecomposeResult = AutoMovieEngineMatrix4.decompose(matrix);
   return {
     translation: world.position,
-    rotation: Quaternion.normalize(world.rotation),
+    rotation: AutoMovieEngineQuaternion.normalize(world.rotation),
     scale: world.scale,
   };
 }

@@ -1,7 +1,7 @@
 import {
-  AutoMovieLoftContract,
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
+  AutoMovieEngineLoftContract,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
 } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
@@ -126,7 +126,7 @@ export namespace AutoMovieHumanNativeSourceLaw {
       source: IAutoMovieViewPart.IOutline,
     ): IAutoMovieViewPart.IOutline => {
       if (a === b) return source;
-      const prepared = AutoMovieViewOutline.create(source);
+      const prepared = AutoMovieEngineViewOutline.create(source);
       if ("contract" in prepared) throw new Error(prepared.detail);
       const span: number = prepared.spline.xs.at(-1)! - prepared.spline.xs[0]!;
       const transform = (theta: number): number => {
@@ -140,7 +140,7 @@ export namespace AutoMovieHumanNativeSourceLaw {
         ...source,
         knots: source.knots.map(
           (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
-            const read = AutoMovieViewOutline.at(prepared, k.station);
+            const read = AutoMovieEngineViewOutline.at(prepared, k.station);
             if (typeof read === "string") throw new Error(read);
             const theta: number = read.value;
             const [c, s] = [Math.cos(theta), Math.sin(theta)];
@@ -329,14 +329,14 @@ function varying(
       );
     const prepared:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
       source,
       ends,
     );
     if ("contract" in prepared) throw new Error(prepared.detail);
     const span: number = prepared.spline.xs.at(-1)! - prepared.spline.xs[0]!;
     const [from, to]: readonly [number, number] = prepared.domain;
-    const gap: number = AutoMovieLoftContract.splineGap([from, to]);
+    const gap: number = AutoMovieEngineLoftContract.splineGap([from, to]);
 
     // Each break of the scale or of the centre line strictly inside the domain and clear of every knot (and of the breaks already
     // taken) by the engine's spline gap becomes a knot of its own.
@@ -358,9 +358,9 @@ function varying(
       )
       .map((knot: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
         const read: IAutoMovieViewOutline.IReading | string =
-          AutoMovieViewOutline.at(prepared, knot.station);
+          AutoMovieEngineViewOutline.at(prepared, knot.station);
         const inverse: [number, number] | null =
-          AutoMovieViewParameter.inverseJet(prepared.parameter, knot.station);
+          AutoMovieEngineViewParameter.inverseJet(prepared.parameter, knot.station);
         if (typeof read === "string" || inverse === null)
           throw new Error(
             "native scaled source parameter2 unavailable at " + knot.station,

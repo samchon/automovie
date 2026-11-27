@@ -6,7 +6,7 @@ import type {
   IAutoMovieSolidMeshPlan,
 } from "@automovie/interface";
 
-import { AutoMovieSolidMeshIncidence } from "../../AutoMovieSolidMeshIncidence";
+import { AutoMovieEngineSolidMeshIncidence } from "../../AutoMovieEngineSolidMeshIncidence";
 
 /*
  * Read exposed source-domain cycles from the complete positive index plan.
@@ -75,7 +75,7 @@ export function openAutoMovieSolidMesh(
   }
   const edges: Edge[] = [...uses.values()];
   const walks: IAutoMovieSolidMeshIncidence.IWalk[] | string =
-    AutoMovieSolidMeshIncidence.walks(chart, edges, period);
+    AutoMovieEngineSolidMeshIncidence.walks(chart, edges, period);
   if (typeof walks === "string") return walks;
   const claimed: Set<string> = new Set();
   const cycles: IAutoMovieSolidMesh.IOpen[] = [];

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile,
@@ -36,7 +36,7 @@ function articulated(
 ): boolean {
   return profile.joints.every(
     (joint: IProfile["joints"][number]): boolean =>
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         AutoMovieEnginePhysics.physicalSupportPoint(
           targets[joint.parent]!,
           joint.parentFrame.position,
@@ -75,9 +75,9 @@ export function test_engine_physics_plan_physical_support_targets(): void {
     const shape = shin(side).shapes[0]!;
     const reach: number =
       shape.kind === "capsule" ? shape.halfLength + shape.radius : 0;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       shape.transform.position,
-      Quaternion.rotateVector(shape.transform.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, {
         x: 0,
         y: -reach,
         z: 0,
@@ -118,7 +118,7 @@ export function test_engine_physics_plan_physical_support_targets(): void {
       stepped.rootDrop < MAXIMUM_DROP &&
       biped.limbs.every(
         (limb): boolean =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             AutoMovieEnginePhysics.physicalSupportPoint(stepped.targets[limb.bone]!, limb.localPoint!),
             limb === moving
               ? goal
@@ -181,7 +181,7 @@ export function test_engine_physics_plan_physical_support_targets(): void {
       Math.abs(planned.rootDrop - drop) <= ANCHOR &&
       quadruped.limbs.every(
         (limb): boolean =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             planned.targets[limb.bone]!.position,
             limb.bone === "support-0" ? target : rest[limb.bone]!.position,
           ) <= ENDPOINT,

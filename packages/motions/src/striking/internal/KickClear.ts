@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanKick,
@@ -86,9 +86,9 @@ export function KickClear(
           planned.carriage,
         leg: planned.leg,
         origin: launch.origin,
-        back: Vector3.add(
+        back: AutoMovieEngineVector3.add(
           launch.origin,
-          Vector3.scale(launch.line, planned.carriage.step),
+          AutoMovieEngineVector3.scale(launch.line, planned.carriage.step),
         ),
         contacts: [],
         record: {

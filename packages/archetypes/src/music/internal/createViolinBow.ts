@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -22,7 +22,7 @@ import {
 export function createViolinBow(
   params: { id?: string } | string = {},
 ): AutoMovieArchetype<"grip" | "hairFrog" | "hairTip", never> {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const overall: number = 0.745;
   const hair: number = 0.649;
   const head: number = 0.023;

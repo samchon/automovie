@@ -1,5 +1,5 @@
 import { nclose } from "../../internal/nclose";
-import { AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieEngineViewAxis } from "@automovie/engine";
 import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
@@ -95,12 +95,12 @@ export function test_human_native_root_transport(): void {
   const parent: IAutoMovieViewPart = circle(
     "parent",
     2,
-    AutoMovieViewAxis.straight([0, 0, 0], [1, 0, 0], [0, 0, 1]),
+    AutoMovieEngineViewAxis.straight([0, 0, 0], [1, 0, 0], [0, 0, 1]),
   );
   const child: IAutoMovieViewPart = circle(
     "child",
     0.2,
-    AutoMovieViewAxis.straight([4, 1.81, 0], [0, 1, 0], [0, 0, 1]),
+    AutoMovieEngineViewAxis.straight([4, 1.81, 0], [0, 1, 0], [0, 0, 1]),
   );
   const basis: IAutoMovieLoftSectionFrame = child.axis.at(2);
   const loop: IAutoMovieConstructionPortLoop = {

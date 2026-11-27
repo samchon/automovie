@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieComposition, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -78,7 +78,7 @@ export function grappleCases(
             table[side].region,
             table[side].across,
           ).point;
-          const gap: number = Vector3.length(Vector3.subtract(hand, want));
+          const gap: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(hand, want));
           if (gap > worst.value)
             worst = { value: gap, where: `${side} at ${t.toFixed(2)} s` };
         }

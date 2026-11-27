@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelchair";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -101,7 +101,7 @@ export function createWheelchair(
     name: kind === "selfPropelled" ? "wheelchair" : "transport wheelchair",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const frame: string = "#55595f";
   const cloth: string = "#2f3a48";
   const tyre: string = "#22262b";
@@ -122,7 +122,7 @@ export function createWheelchair(
   builder.box(
     "seat",
     v(d.seatWidth, 0.03, d.seatDepth / Math.cos(tilt)),
-    Vector3.scale(Vector3.add(frontEdge, rearEdge), 0.5),
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(frontEdge, rearEdge), 0.5),
     {
       color: cloth,
       rotation: AutoMovieArchetypeFrame.facing(
@@ -134,14 +134,14 @@ export function createWheelchair(
   );
 
   // The back, reclined from upright by the backrest angle, its top where the push handles leave it.
-  const backTop: IAutoMovieVector3 = Vector3.add(
+  const backTop: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     rearEdge,
     v(0, d.backHeight * Math.cos(recline), -d.backHeight * Math.sin(recline)),
   );
   builder.box(
     "back",
     v(d.seatWidth, d.backHeight, 0.03),
-    Vector3.scale(Vector3.add(rearEdge, backTop), 0.5),
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(rearEdge, backTop), 0.5),
     {
       color: cloth,
       rotation: AutoMovieArchetypeFrame.facing(
@@ -177,7 +177,7 @@ export function createWheelchair(
       `handle-${side}`,
       0.014,
       upright,
-      Vector3.add(upright, v(0, 0, -0.12)),
+      AutoMovieEngineVector3.add(upright, v(0, 0, -0.12)),
       { color: tyre },
     );
     builder.affordance({
@@ -185,7 +185,7 @@ export function createWheelchair(
       kind: "handle",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.add(upright, v(0, 0.014, 0)),
+        AutoMovieEngineVector3.add(upright, v(0, 0.014, 0)),
         v(0, 1, 0),
         v(sign, 0, 0),
       ),
@@ -231,7 +231,7 @@ export function createWheelchair(
       id: `${side}Footplate`,
       kind: "pedal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.add(plate, v(0, 0.005, 0)),
+        AutoMovieEngineVector3.add(plate, v(0, 0.005, 0)),
         v(0, 1, 0),
         v(1, 0, 0),
       ),
@@ -268,7 +268,7 @@ export function createWheelchair(
         id: `${side}Rim`,
         kind: "wheel",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.add(centre, v(sign * 0.02, 0, 0)),
+          AutoMovieEngineVector3.add(centre, v(sign * 0.02, 0, 0)),
           v(-sign, 0, 0),
           v(0, 0, 1),
         ),

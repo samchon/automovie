@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 import { hideAutoMovieSurfaceGraphics as hideAutoMovieSurfaceGraphicsImplementation } from "./surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
-import { type IAutoMovieSurfaceGraphicsObject } from "./IAutoMovieSurfaceGraphicsObject.js";
-import { type IPrepareAutoMovieSurfaceGraphicsProps } from "./IPrepareAutoMovieSurfaceGraphicsProps.js";
+import { type IAutoMovieRenderSurfaceGraphicsObject } from "./IAutoMovieRenderSurfaceGraphicsObject.js";
+import { type IAutoMovieRenderPrepareSurfaceGraphicsProps } from "./IAutoMovieRenderPrepareSurfaceGraphicsProps.js";
 import { prepareAutoMovieSurfaceGraphics as prepareAutoMovieSurfaceGraphicsImplementation } from "./surfaceGraphic/internal/prepareAutoMovieSurfaceGraphics.js";
 
 /** Public operations for Auto Movie Render Surface Graphic. */
@@ -45,7 +45,7 @@ export namespace AutoMovieRenderSurfaceGraphic {
    * affordance of its model, or an image that resolves nowhere rejects naming the
    * track, after releasing everything already made.
    */
-  export function prepare(props: IPrepareAutoMovieSurfaceGraphicsProps): Promise<IAutoMovieSurfaceGraphicsObject> {
+  export function prepare(props: IAutoMovieRenderPrepareSurfaceGraphicsProps): Promise<IAutoMovieRenderSurfaceGraphicsObject> {
     return prepareAutoMovieSurfaceGraphicsImplementation(props);
   }
 }

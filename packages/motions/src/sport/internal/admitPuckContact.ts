@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -84,9 +84,9 @@ export function admitPuckContact(
     position: blade.frame.translation,
     rotation: blade.frame.rotation,
   });
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(face.rotation),
-    Vector3.subtract(rim, face.position),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(face.rotation),
+    AutoMovieEngineVector3.subtract(rim, face.position),
   );
   const miss: number = Math.hypot(
     Math.max(0, Math.abs(local.x) - (blade.width ?? 0) / 2),
@@ -107,8 +107,8 @@ export function admitPuckContact(
       reason: `the fitted blade face misses the puck rim by ${(miss * 1000).toFixed(1)} mm`,
       fix: "place the performer and stick so both fitted hands can keep the blade at the puck",
     });
-  const facing: number = Vector3.dot(
-    Quaternion.rotateVector(face.rotation, UP),
+  const facing: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineQuaternion.rotateVector(face.rotation, UP),
     direction,
   );
   if (facing <= 0)

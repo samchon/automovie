@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeThrowingCircleData from "./internal/AutoMovieArchetypeThrowingCircleData";
+import { AutoMovieArchetypeThrowingCircleData } from "./internal/AutoMovieArchetypeThrowingCircleData";
 
 /** Constructs the throwing circle archetype from its recipe. */
 export namespace AutoMovieArchetypeThrowingCircle {
@@ -100,14 +100,14 @@ export function create(
     const radius: number = d.radius!;
     builder.box(
       "runway",
-      Vector3.create(width, AutoMovieArchetypeThrowingCircle.LINE, 4 * width),
-      Vector3.create(0, AutoMovieArchetypeThrowingCircle.LINE / 2, -2 * width),
+      AutoMovieEngineVector3.create(width, AutoMovieArchetypeThrowingCircle.LINE, 4 * width),
+      AutoMovieEngineVector3.create(0, AutoMovieArchetypeThrowingCircle.LINE / 2, -2 * width),
       { color: "#b5553a" },
     );
     builder.affordance({
       id: "arc",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
       extent: null,
       width,
       depth: radius,
@@ -117,14 +117,14 @@ export function create(
   const diameter: number = d.diameter!;
   builder.box(
     "circle",
-    Vector3.create(diameter, AutoMovieArchetypeThrowingCircle.LINE, diameter),
-    Vector3.create(0, AutoMovieArchetypeThrowingCircle.LINE / 2, 0),
+    AutoMovieEngineVector3.create(diameter, AutoMovieArchetypeThrowingCircle.LINE, diameter),
+    AutoMovieEngineVector3.create(0, AutoMovieArchetypeThrowingCircle.LINE / 2, 0),
     { color: "#9a9ea3" },
   );
   builder.affordance({
     id: "circle",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
     width: diameter,
     depth: diameter,

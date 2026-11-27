@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
 import {
@@ -9,8 +9,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-import * as HandheldDeviceData from "./HandheldDeviceData";
-import { kg } from "./HandheldDeviceData";
+import { HandheldDeviceData } from "./HandheldDeviceData";
+
 
 /*
  * Shared case construction and the existing records for handheld electronics.
@@ -183,14 +183,14 @@ export namespace HandheldDevice {
       width: AutoMovieArchetypeBand.metres(0.0642, 0.078, HandheldDeviceData.PHONE, true),
       height: AutoMovieArchetypeBand.metres(0.1315, 0.1634, HandheldDeviceData.PHONE, true),
       thickness: AutoMovieArchetypeBand.metres(0.00564, 0.00875, HandheldDeviceData.PHONE, true),
-      mass: kg(0.135, 0.249, HandheldDeviceData.PHONE, true),
+      mass: HandheldDeviceData.kg(0.135, 0.249, HandheldDeviceData.PHONE, true),
     },
     camera: {},
     remote: {
       width: AutoMovieArchetypeBand.metres(0.035, 0.042, HandheldDeviceData.REMOTE, true),
       height: AutoMovieArchetypeBand.metres(0.136, 0.142, HandheldDeviceData.REMOTE, true),
       thickness: AutoMovieArchetypeBand.metres(0.00925, 0.02, HandheldDeviceData.REMOTE, true),
-      mass: kg(0.0434, 0.085, HandheldDeviceData.REMOTE, true),
+      mass: HandheldDeviceData.kg(0.0434, 0.085, HandheldDeviceData.REMOTE, true),
     },
     tablet: {},
     walkieTalkie: {},
@@ -265,8 +265,8 @@ export namespace HandheldDevice {
   ): void {
     builder.box(
       "body",
-      Vector3.create(width, height, depth),
-      Vector3.create(0, height / 2, 0),
+      AutoMovieEngineVector3.create(width, height, depth),
+      AutoMovieEngineVector3.create(0, height / 2, 0),
       {
         color: "#2c2f33",
       },
@@ -281,9 +281,9 @@ export namespace HandheldDevice {
     depth: number,
   ): ReturnType<typeof AutoMovieArchetypeFrame.facing> {
     return AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, y, depth / 2),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, y, depth / 2),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     );
   }
 
@@ -306,9 +306,9 @@ export namespace HandheldDevice {
         kind: "handle",
         symmetry: "none",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(0, height * 0.4, 0),
-          Vector3.create(0, 0, -1),
-          Vector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(0, height * 0.4, 0),
+          AutoMovieEngineVector3.create(0, 0, -1),
+          AutoMovieEngineVector3.create(0, 1, 0),
         ),
         extent: null,
         grip: "power",
@@ -320,9 +320,9 @@ export namespace HandheldDevice {
         kind: "handle",
         symmetry: "none",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(0, 0.02, 0),
-          Vector3.create(0, 0, -1),
-          Vector3.create(1, 0, 0),
+          AutoMovieEngineVector3.create(0, 0.02, 0),
+          AutoMovieEngineVector3.create(0, 0, -1),
+          AutoMovieEngineVector3.create(1, 0, 0),
         ),
         extent: null,
         grip: "lateral",
@@ -367,9 +367,9 @@ export namespace HandheldDevice {
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, height / 2, 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, height / 2, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "power",

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMoviePose,
@@ -147,9 +147,9 @@ export function test_engine_kinematics_resolve_pose(): void {
     { bone: "leftUpperArm", flexion: 40, abduction: null, twist: null },
   ]);
   const localOf: (
-    axes: typeof HUMANOID_JOINT_AXES | undefined,
+    axes: typeof AutoMovieEngineHumanoidJointAxes | undefined,
   ) => IAutoMovieResolvedBone["localRotation"] = (
-    axes: typeof HUMANOID_JOINT_AXES | undefined,
+    axes: typeof AutoMovieEngineHumanoidJointAxes | undefined,
   ): IAutoMovieResolvedBone["localRotation"] =>
     AutoMovieEngineKinematics.resolvePose(arm, SKELETON, axes).find(
       (entry: IAutoMovieResolvedBone): boolean => entry.bone === "leftUpperArm",
@@ -157,7 +157,7 @@ export function test_engine_kinematics_resolve_pose(): void {
   TestValidator.predicate(
     "axes about Y with the table, about X without",
     qclose(
-      localOf(HUMANOID_JOINT_AXES),
+      localOf(AutoMovieEngineHumanoidJointAxes),
       { x: 0, y: Math.sin(Math.PI / 9), z: 0, w: Math.cos(Math.PI / 9) },
       ROUNDING,
     ) &&

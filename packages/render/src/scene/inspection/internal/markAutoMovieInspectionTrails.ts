@@ -3,7 +3,7 @@ import type {
   IAutoMovieMark,
 } from "@automovie/interface";
 
-import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
+import { AutoMovieRenderInspectionKinds } from "../../AutoMovieRenderInspectionKinds.js";
 
 /*
  * Draw sampled trails as marks for one drawn second: each moving object's path
@@ -83,10 +83,10 @@ export function markAutoMovieInspectionTrails(
  * Legend entry of the trail kind.
  */
 const TRAIL: { readonly label: string; readonly color: number } =
-  AUTO_MOVIE_INSPECTION_KINDS.trail!;
+  AutoMovieRenderInspectionKinds.trail!;
 
 /*
  * Legend entry of the emphasised tick.
  */
 const NOW: { readonly label: string; readonly color: number } =
-  AUTO_MOVIE_INSPECTION_KINDS["trail/now"]!;
+  AutoMovieRenderInspectionKinds["trail/now"]!;

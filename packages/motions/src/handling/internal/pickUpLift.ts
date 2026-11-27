@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -106,8 +106,8 @@ export namespace pickUpLift {
     const far: (posture: IAutoMovieMotionHumanPosture) => number = (
       posture: IAutoMovieMotionHumanPosture,
     ): number =>
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           lifted,
           readShoulder(posture, resolution).get(`${side}UpperArm`)!
             .worldPosition,

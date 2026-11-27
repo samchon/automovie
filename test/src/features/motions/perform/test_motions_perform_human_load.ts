@@ -1,10 +1,12 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanSustainedForce,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanLoad } from "@automovie/motions/internal";
+import {
+  HumanLoad
+} from "../../../../../packages/motions/src/perform/internal/HumanLoad";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -36,7 +38,7 @@ const HIPS: IAutoMovieMotionHumanSustainedForce["at"] = {
  *    nor `b`'s force.
  */
 export function test_motions_perform_human_load(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   TestValidator.predicate(
     "the lean",
     nclose(

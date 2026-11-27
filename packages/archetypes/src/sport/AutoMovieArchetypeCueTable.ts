@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeCueTableData from "./internal/AutoMovieArchetypeCueTableData";
+import { AutoMovieArchetypeCueTableData } from "./internal/AutoMovieArchetypeCueTableData";
 
 /** Canonical producer and authoring contract for CueTable. */
 export namespace AutoMovieArchetypeCueTable {
@@ -53,7 +53,7 @@ export namespace AutoMovieArchetypeCueTable {
       name: "pool table",
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const width: number = d.width;
     const length: number = d.length;
     const bed: number = d.height;

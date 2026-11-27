@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
-import { AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY } from "../AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY.js";
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
-import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
+import { AutoMovieRenderFormationCyclePatchKey } from "../AutoMovieRenderFormationCyclePatchKey.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../IAutoMovieRenderMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 
 /*
@@ -29,14 +29,14 @@ import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
  */
 export const applyFormationCycleMaterial: (
   material: THREE.Material,
-  cycle: IAutoMovieFormationCycle,
+  cycle: IAutoMovieRenderFormationCycle,
 ) => void = (
   material: THREE.Material,
-  cycle: IAutoMovieFormationCycle,
+  cycle: IAutoMovieRenderFormationCycle,
 ): void => {
   AutoMovieRenderMaterial.addShaderPatch(material, {
-    key: AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY,
-    apply: (shader: IMaterialShaderSource): void => {
+    key: AutoMovieRenderFormationCyclePatchKey,
+    apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {
       Object.assign(shader.uniforms, cycle.uniforms);
       shader.vertexShader = shader.vertexShader
         .replace("#include <common>", `#include <common>\n${CYCLE_PARS}`)

@@ -1,8 +1,8 @@
 import {
-  AutoMovieXpbdBody,
-  AutoMovieXpbdWorld,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineXpbdBody,
+  AutoMovieEngineXpbdWorld,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -38,16 +38,16 @@ export async function test_engine_physics_accumulate_physical_contact_carrier():
       minimum: -Math.PI / 2,
     },
   ];
-  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+  const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({
     x: 0,
     y: 0,
     z: 0,
   });
   {
-    const segments: Map<string, AutoMovieXpbdBody> = new Map(
+    const segments: Map<string, AutoMovieEngineXpbdBody> = new Map(
       profile.segments.map(
-        (segment: IAutoMoviePhysicalSegment): [string, AutoMovieXpbdBody] => {
-          const body: AutoMovieXpbdBody = world.createBody(
+        (segment: IAutoMoviePhysicalSegment): [string, AutoMovieEngineXpbdBody] => {
+          const body: AutoMovieEngineXpbdBody = world.createBody(
             true,
             segment.neutral,
           );
@@ -63,7 +63,7 @@ export async function test_engine_physics_accumulate_physical_contact_carrier():
     );
     for (const transformed of [false, true]) {
       const rotation: IAutoMovieRigidTransform["rotation"] = transformed
-        ? Quaternion.fromAxisAngle(
+        ? AutoMovieEngineQuaternion.fromAxisAngle(
             { x: Math.sqrt(1 / 3), y: Math.sqrt(1 / 3), z: Math.sqrt(1 / 3) },
             40,
           )
@@ -75,16 +75,16 @@ export async function test_engine_physics_accumulate_physical_contact_carrier():
         segments
           .get(segment.bone)!
           .setTranslation(
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               translation,
-              Quaternion.rotateVector(rotation, segment.neutral.position),
+              AutoMovieEngineQuaternion.rotateVector(rotation, segment.neutral.position),
             ),
           );
         segments.get(segment.bone)!.setRotation(rotation);
       }
       for (const joint of profile.joints.slice(0, 2)) {
         const frame: IAutoMovieRigidTransform["rotation"] = transformed
-          ? Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90)
+          ? AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90)
           : { x: 0, y: 0, z: 0, w: 1 };
         joint.parentFrame.rotation = frame;
         joint.childFrame.rotation = frame;
@@ -99,15 +99,15 @@ export async function test_engine_physics_accumulate_physical_contact_carrier():
             segments,
             chain: ["carrier", "source"],
             carrier,
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               translation,
-              Quaternion.rotateVector(rotation, {
+              AutoMovieEngineQuaternion.rotateVector(rotation, {
                 x: carrier === "carrier" ? 0.5 : 1.5,
                 y: 1,
                 z: 0,
               }),
             ),
-            force: Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
+            force: AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
             torque: { x: 0, y: 0, z: 0 },
             reverse,
             torques,

@@ -1,6 +1,8 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type { IAutoMovieIntegrateMotionTrajectory } from "@automovie/interface";
-import { HumanPropDynamics } from "@automovie/motions/internal";
+import {
+  HumanPropDynamics
+} from "../../../../../packages/motions/src/perform/internal/HumanPropDynamics";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -28,7 +30,7 @@ import { nclose } from "../../internal/nclose";
  *    `asin(120 / (70 g))`; a push its weight cannot balance gives none.
  */
 export function test_motions_perform_prop_dynamics(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const crate = (
     force: (seconds: number) => number,
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory =>

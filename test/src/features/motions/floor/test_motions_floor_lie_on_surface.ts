@@ -4,10 +4,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  lieOnSurfaceFits,
-  lieOnSurfaceSite,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  lieOnSurfaceFits
+} from "../../../../../packages/motions/src/floor/internal/lieOnSurfaceFits";
+import {
+  lieOnSurfaceSite
+} from "../../../../../packages/motions/src/floor/internal/lieOnSurfaceSite";
 import { TestValidator } from "@nestia/e2e";
 
 namespace part_lie_on_surface_fits {

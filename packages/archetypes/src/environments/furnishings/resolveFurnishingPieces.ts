@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieFurnishingWall,
   IAutoMovieFurnishingClearance,
@@ -118,7 +118,7 @@ export function resolveFurnishingPieces(
         y: 0,
         z: target.bounds.max.z + place.distance + piece.bounds.max.z,
       };
-      const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+      const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         target.rotation,
         local,
       );

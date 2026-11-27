@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -74,33 +74,33 @@ export function planLadderAccess(
     );
 
   const model: IAutoMovieRigidTransform = landing.frame(context.start);
-  const center: IAutoMovieVector3 = Vector3.add(
+  const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     model.position,
-    Quaternion.rotateVector(model.rotation, surface.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(model.rotation, surface.frame.translation),
   );
-  const turn: IAutoMovieQuaternion = Quaternion.multiply(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     model.rotation,
     surface.frame.rotation,
   );
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const across: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+  const across: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
     x: 1,
     y: 0,
     z: 0,
   });
-  const into: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+  const into: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
     x: 0,
     y: 0,
     z: 1,
   });
   const local: IAutoMovieVector3 = frame.local(center);
   const yaw: number = ladder.frame.yaw;
-  const acrossIn: IAutoMovieVector3 = frame.local(Vector3.add(center, across));
-  const intoIn: IAutoMovieVector3 = frame.local(Vector3.add(center, into));
+  const acrossIn: IAutoMovieVector3 = frame.local(AutoMovieEngineVector3.add(center, across));
+  const intoIn: IAutoMovieVector3 = frame.local(AutoMovieEngineVector3.add(center, into));
   if (
     normal.y < 0.999 ||
     Math.abs(acrossIn.z - local.z) > 0.03 ||
@@ -308,7 +308,7 @@ export function planLadderAccess(
       target: target(
         context.params.ladder,
         rail.id + ":" + level,
-        Vector3.add(rail.center, Vector3.scale(rail.axis, along)),
+        AutoMovieEngineVector3.add(rail.center, AutoMovieEngineVector3.scale(rail.axis, along)),
       ),
     };
   };

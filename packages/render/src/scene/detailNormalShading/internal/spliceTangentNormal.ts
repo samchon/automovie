@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { DETAIL_NORMAL_TARGET } from "../../DETAIL_NORMAL_TARGET.js";
+import { AutoMovieRenderDetailNormalTarget } from "../../AutoMovieRenderDetailNormalTarget.js";
 
 /*
  * Insert code into the tangent-space branch of three's normal-map chunk, just
@@ -20,12 +20,12 @@ export const spliceTangentNormal: (
         THREE.ShaderChunk.normal_fragment_maps,
       )
     : fragmentShader;
-  if (!expanded.includes(DETAIL_NORMAL_TARGET))
+  if (!expanded.includes(AutoMovieRenderDetailNormalTarget))
     throw new Error(
       "The normal-map chunk no longer has the tangent-space line normal blends splice into.",
     );
   return expanded.replace(
-    DETAIL_NORMAL_TARGET,
-    `${code}\n\t${DETAIL_NORMAL_TARGET}`,
+    AutoMovieRenderDetailNormalTarget,
+    `${code}\n\t${AutoMovieRenderDetailNormalTarget}`,
   );
 };

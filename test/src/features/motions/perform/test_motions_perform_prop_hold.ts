@@ -1,7 +1,12 @@
 
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanPropHold, poseBones } from "@automovie/motions/internal";
+import {
+  HumanPropHold
+} from "../../../../../packages/motions/src/perform/internal/HumanPropHold";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

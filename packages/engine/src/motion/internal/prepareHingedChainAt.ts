@@ -5,8 +5,8 @@ import type {
   IAutoMovieJointAxes,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
 import { basisOf } from "./basisOf";
 import { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
@@ -31,7 +31,7 @@ export function prepareHingedChainAt(
   )
     return null;
   const axes: IAutoMovieJointAxes =
-    props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
+    props.jointAxes?.[props.chain.lower] ?? AutoMovieEngineDefaultJointAxes;
   const upperBasis: IAutoMovieJointAxes =
     workspace.rig?.basis(props.chain.upper, "decomposeJointRotation axes") ??
     basisOf(props.jointAxes?.[props.chain.upper]);
@@ -54,7 +54,7 @@ export function prepareHingedChainAt(
     ...(range === null ? {} : { range }),
   };
   const branches: IAutoMovieHingedArmSwivel.IStop[] | null =
-    hingedArmSwivel.branches(chain);
+    AutoMovieEngineHingedArmSwivel.branches(chain);
   if (branches === null || branches.length === 0) return null;
   return { workspace, prepared, upperBasis, lowerBasis, chain, branches };
 }
@@ -93,7 +93,7 @@ export namespace prepareHingedChainAt {
     chain: IAutoMovieHingedChainGeometry;
 
     /*
-     * The bend branches in `hingedArmSwivel.branches` order, at least one.
+     * The bend branches in `AutoMovieEngineHingedArmSwivel.branches` order, at least one.
      */
     branches: IAutoMovieHingedArmSwivel.IStop[];
   }

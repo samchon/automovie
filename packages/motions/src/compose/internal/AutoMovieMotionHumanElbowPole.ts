@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -47,13 +47,13 @@ export function AutoMovieMotionHumanElbowPole(
     undefined,
     new Set<AutoMovieHumanoidBone>([hand]),
   ).get(hand)!.worldPosition;
-  const swing: IAutoMovieVector3 = Vector3.subtract(flexed, at);
-  if (!(Vector3.length(swing) > 1e-9)) return elbow;
-  return Vector3.add(
+  const swing: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(flexed, at);
+  if (!(AutoMovieEngineVector3.length(swing) > 1e-9)) return elbow;
+  return AutoMovieEngineVector3.add(
     elbow,
-    Vector3.scale(
-      Vector3.normalize(swing),
-      -AutoMovieMotionHumanElbowPole.POLE * Vector3.distance(at, elbow),
+    AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.normalize(swing),
+      -AutoMovieMotionHumanElbowPole.POLE * AutoMovieEngineVector3.distance(at, elbow),
     ),
   );
 }

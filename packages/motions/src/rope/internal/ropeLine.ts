@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -93,18 +93,18 @@ export namespace ropeLine {
     )
       throw refusal("line", id, `${subject} has no fixed rope line ${id}`);
     const world: IAutoMovieRigidTransform = reader.frame(context.start);
-    const center: IAutoMovieVector3 = Vector3.add(
+    const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       world.position,
-      Quaternion.rotateVector(world.rotation, bar.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(world.rotation, bar.frame.translation),
     );
-    let axis: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(world.rotation, bar.frame.rotation),
+    let axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(world.rotation, bar.frame.rotation),
       { x: 1, y: 0, z: 0 },
     );
-    if (axis.y < -1e-6) axis = Vector3.scale(axis, -1);
+    if (axis.y < -1e-6) axis = AutoMovieEngineVector3.scale(axis, -1);
     return {
-      low: Vector3.add(center, Vector3.scale(axis, -bar.length / 2)),
-      high: Vector3.add(center, Vector3.scale(axis, bar.length / 2)),
+      low: AutoMovieEngineVector3.add(center, AutoMovieEngineVector3.scale(axis, -bar.length / 2)),
+      high: AutoMovieEngineVector3.add(center, AutoMovieEngineVector3.scale(axis, bar.length / 2)),
       axis,
       length: bar.length,
       floor: world.position.y,
@@ -119,11 +119,11 @@ export namespace ropeLine {
    */
   export function atHeight(line: ILine, height: number): IAutoMovieVector3 {
     if (Math.abs(line.axis.y) < 1e-6)
-      return Vector3.lerp(line.low, line.high, 0.5);
+      return AutoMovieEngineVector3.lerp(line.low, line.high, 0.5);
     const along: number = (height - line.low.y) / line.axis.y;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       line.low,
-      Vector3.scale(line.axis, Math.max(0, Math.min(line.length, along))),
+      AutoMovieEngineVector3.scale(line.axis, Math.max(0, Math.min(line.length, along))),
     );
   }
 
@@ -168,17 +168,17 @@ export namespace ropeLine {
     // keeps one attitude wherever along the rope the hand is, never one the
     // wrist must turn through as the hands pass above and below the
     // shoulders. A foot stands on a hold that faces up.
-    const d: IAutoMovieVector3 = Vector3.subtract(
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       context.entry.posture.root,
       line.low,
     );
-    const across: IAutoMovieVector3 = Vector3.subtract(
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       d,
-      Vector3.scale(line.axis, Vector3.dot(d, line.axis)),
+      AutoMovieEngineVector3.scale(line.axis, AutoMovieEngineVector3.dot(d, line.axis)),
     );
     const out: IAutoMovieVector3 =
-      Vector3.length(across) > 1e-6
-        ? Vector3.normalize(across)
+      AutoMovieEngineVector3.length(across) > 1e-6
+        ? AutoMovieEngineVector3.normalize(across)
         : { x: 0, y: 1, z: 0 };
     return (reference: IAutoMovieMotionTarget, seconds: number) => {
       const point: IAutoMovieVector3 | undefined =

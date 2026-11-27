@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieMotionHumanChannel,
@@ -245,7 +245,7 @@ export namespace readHumanSegmentLegs {
     if (Object.keys(limbs).length === 0) return seeds;
     const near: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> = {};
     for (const [limb, seed] of previous ?? [])
-      near[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+      near[limb] = { ...seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
     const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
       resolveHumanPosture.seeded(body, { ...posture, limbs }, undefined, near);
     for (const limb of LEGS) {

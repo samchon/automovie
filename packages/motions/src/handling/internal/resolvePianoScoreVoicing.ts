@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanoidBone,
@@ -34,12 +34,12 @@ export function resolvePianoScoreVoicing(
       score,
       key,
     }: resolvePianoScoreVoicing.Key): resolvePianoScoreVoicing.Note => {
-      const site: IAutoMovieVector3 = Vector3.add(
+      const site: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, key.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, key.frame.translation),
       );
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.multiply(frame.rotation, key.frame.rotation),
+      const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(frame.rotation, key.frame.rotation),
         { x: 0, y: 1, z: 0 },
       );
       const dip: number = key.travel!;
@@ -47,7 +47,7 @@ export function resolvePianoScoreVoicing(
         score,
         dip,
         normal,
-        points: [site, Vector3.subtract(site, Vector3.scale(normal, dip))],
+        points: [site, AutoMovieEngineVector3.subtract(site, AutoMovieEngineVector3.scale(normal, dip))],
         digit:
           `${score.hand}${score.digit[0]!.toUpperCase()}${score.digit.slice(1)}` as AutoMovieHumanDigit,
       };
@@ -82,7 +82,7 @@ export function resolvePianoScoreVoicing(
       reach(note.score.digit, note.points[0], note.normal, note.dip),
   );
   const average: IAutoMovieVector3 = mean(preferred);
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: score.hand === "left" ? 1 : -1,
     y: 0,
     z: 0,
@@ -92,11 +92,11 @@ export function resolvePianoScoreVoicing(
   const advance: number = Math.max(
     0,
     ...preferred.map((point: IAutoMovieVector3): number =>
-      Vector3.dot(Vector3.subtract(point, average), forward),
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, average), forward),
     ),
   );
   const arm: IAutoMovieHumanLimbGoal = {
-    point: Vector3.addScaled(average, forward, advance),
+    point: AutoMovieEngineVector3.addScaled(average, forward, advance),
     bend,
     rotation,
   };
@@ -211,5 +211,5 @@ export namespace resolvePianoScoreVoicing {
  * The least-squares translation for a nonempty set of preferred placements.
  */
 function mean(points: readonly IAutoMovieVector3[]): IAutoMovieVector3 {
-  return Vector3.scale(points.reduce(Vector3.add), 1 / points.length);
+  return AutoMovieEngineVector3.scale(points.reduce(AutoMovieEngineVector3.add), 1 / points.length);
 }

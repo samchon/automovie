@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -95,4 +95,4 @@ const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#306f80" };
 /*
  * Vector constructor for metric bus-local dimensions.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;

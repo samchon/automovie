@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanRopeSkip,
@@ -81,7 +81,7 @@ export function ropeSkipHop(
         "the skip phases need distinct times on the action and film clocks",
       fix: "use a period closer to the default or place the skip earlier",
     });
-  const gravity: number = AutoMovieGravity.STANDARD;
+  const gravity: number = AutoMovieEngineGravity.STANDARD;
   const launch: number = (gravity * flight) / 2;
   return {
     duration,

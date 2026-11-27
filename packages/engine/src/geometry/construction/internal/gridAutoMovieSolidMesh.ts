@@ -10,12 +10,12 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
-import { AutoMovieSolidCycle } from "../../AutoMovieSolidCycle";
-import { AutoMovieSolidMeshAuthorities } from "../../AutoMovieSolidMeshAuthorities";
-import { AutoMovieSolidMeshConstraints } from "../../AutoMovieSolidMeshConstraints";
-import { AutoMovieSolidMeshLoop } from "../../AutoMovieSolidMeshLoop";
-import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
+import { AutoMovieEngineLoftAdmissionError } from "../../AutoMovieEngineLoftAdmissionError";
+import { AutoMovieEngineSolidCycle } from "../../AutoMovieEngineSolidCycle";
+import { AutoMovieEngineSolidMeshAuthorities } from "../../AutoMovieEngineSolidMeshAuthorities";
+import { AutoMovieEngineSolidMeshConstraints } from "../../AutoMovieEngineSolidMeshConstraints";
+import { AutoMovieEngineSolidMeshLoop } from "../../AutoMovieEngineSolidMeshLoop";
+import { AutoMovieEngineSolidVector } from "../../AutoMovieEngineSolidVector";
 import { domainAutoMovieSolidMesh } from "./domainAutoMovieSolidMesh";
 
 /*
@@ -72,10 +72,10 @@ export function gridAutoMovieSolidMesh(
   const base: number = mesh.positions.length / 3;
   const chart: Map<number, Readonly<AutoMovieVector2Tuple>> = new Map();
   const trim: IAutoMovieSolidMeshConstraints.ISegment[] | string =
-    AutoMovieSolidMeshAuthorities.collect(mesh, loops, chart, period);
+    AutoMovieEngineSolidMeshAuthorities.collect(mesh, loops, chart, period);
   if (typeof trim === "string") return trim;
   const domainAuthorities: IAutoMovieSolidMeshConstraints.ISegment[] | string =
-    AutoMovieSolidMeshAuthorities.domainSegments(mesh, input, chart, period);
+    AutoMovieEngineSolidMeshAuthorities.domainSegments(mesh, input, chart, period);
   if (typeof domainAuthorities === "string") return domainAuthorities;
   const barriers: IAutoMovieSolidMeshConstraints.ISegment[] =
     domainAuthorities.length === 0 ? trim : [...trim, ...domainAuthorities];
@@ -87,7 +87,7 @@ export function gridAutoMovieSolidMesh(
       try {
         read = surface.jet(u, v);
       } catch (error: unknown) {
-        if (error instanceof AutoMovieLoftAdmissionError)
+        if (error instanceof AutoMovieEngineLoftAdmissionError)
           return `face grid has unavailable source physical2: ${error.message}`;
         throw error;
       }
@@ -219,7 +219,7 @@ export function gridAutoMovieSolidMesh(
     return scale > 0 ? [shear, scale] : [0, metric];
   };
   const classify: IAutoMovieSolidMeshLoop.Classifier =
-    AutoMovieSolidMeshLoop.prepare(loops, period);
+    AutoMovieEngineSolidMeshLoop.prepare(loops, period);
   const du: number[] = stations.map((u: number, i: number): number =>
     Math.min(
       ...[stations[i - 1], stations[i + 1]]
@@ -410,7 +410,7 @@ export function gridAutoMovieSolidMesh(
       );
   const readers: ((u: number, v: number) => boolean)[] = loops.map(
     (loop: IAutoMovieSolidMesh.ILoop): ((u: number, v: number) => boolean) =>
-      AutoMovieSolidCycle.prepare(loop, period),
+      AutoMovieEngineSolidCycle.prepare(loop, period),
   );
   const source: (u: number, v: number) => boolean = (
     u: number,
@@ -458,7 +458,7 @@ export function gridAutoMovieSolidMesh(
         !residual(stations[i]!, phases[j]!)
       )
         continue;
-      const contact: boolean | string = AutoMovieSolidMeshConstraints.contains(
+      const contact: boolean | string = AutoMovieEngineSolidMeshConstraints.contains(
         chart,
         barriers,
         [stations[i]!, phases[j]!],
@@ -486,7 +486,7 @@ export function gridAutoMovieSolidMesh(
 /*
  * Existing vector lengths and analytic chart-cross arithmetic.
  */
-const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
+const { cross, norm, sub }: typeof AutoMovieEngineSolidVector = AutoMovieEngineSolidVector;
 
 /*
  * Share of the first-corner split's bend below which a full cell takes its
@@ -612,7 +612,7 @@ function touches(
       if (Math.max(first, last) >= v0 && Math.min(first, last) <= v1)
         if (
           index < domainFrom ||
-          !AutoMovieSolidMeshAuthorities.consumedByCell(
+          !AutoMovieEngineSolidMeshAuthorities.consumedByCell(
             [a[0], first],
             [b[0], last],
             [u0, u1],

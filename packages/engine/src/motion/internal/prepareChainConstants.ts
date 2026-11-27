@@ -10,7 +10,7 @@ import type {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
+import { AutoMovieEngineDefaultJointAxes } from "../../kinematics/AutoMovieEngineDefaultJointAxes";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { prepareChainRigConstants } from "./prepareChainRigConstants";
@@ -91,7 +91,7 @@ export function prepareChainConstants(props: {
     effectorOffset: { ...effector.rest.translation },
     effectorBaseRotation,
     hinge: normalizeJointAxes(
-      props.jointAxes?.[chain.lower] ?? DEFAULT_JOINT_AXES,
+      props.jointAxes?.[chain.lower] ?? AutoMovieEngineDefaultJointAxes,
       "prepareChainConstants axes",
     ).flexion,
     upperDomain,

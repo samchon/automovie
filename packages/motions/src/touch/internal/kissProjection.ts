@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
@@ -30,13 +30,13 @@ export function kissProjection(
     pitch: 0,
     roll: 0,
   });
-  const held: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(humanPostureHeading(entry)),
-    Vector3.subtract(mouth, hip),
+  const held: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(humanPostureHeading(entry)),
+    AutoMovieEngineVector3.subtract(mouth, hip),
   );
-  const goal: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(yaw),
-    Vector3.subtract(target, hip),
+  const goal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(yaw),
+    AutoMovieEngineVector3.subtract(target, hip),
   );
   const lateral: number = Math.hypot(held.x, held.y);
   if (lateral === 0 || Math.abs(goal.x) > lateral) return null;

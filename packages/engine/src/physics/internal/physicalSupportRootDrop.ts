@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalJointPoint } from "./physicalJointPoint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -26,9 +26,9 @@ export function physicalSupportRootDrop(
       ? [limb.reach.root, limb.reach.middle, limb.reach.tip]
       : limb.chain;
     if (limb.reach)
-      goal = Vector3.subtract(
+      goal = AutoMovieEngineVector3.subtract(
         goal,
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           endpoint,
           physicalJointPoint(input.profile, limb.reach.tip, input.targets),
         ),
@@ -40,15 +40,15 @@ export function physicalSupportRootDrop(
     );
     let length: number = 0;
     for (let i: number = 1; i < path.length; i++)
-      length += Vector3.length(
-        Vector3.subtract(
+      length += AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           physicalJointPoint(input.profile, path[i]!, input.targets),
           physicalJointPoint(input.profile, path[i - 1]!, input.targets),
         ),
       );
     if (!limb.reach)
-      length += Vector3.length(
-        Vector3.subtract(
+      length += AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           endpoint,
           physicalJointPoint(input.profile, path.at(-1)!, input.targets),
         ),

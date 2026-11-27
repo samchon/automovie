@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
@@ -147,7 +147,7 @@ export namespace AquaticTeam {
       left: HumanFoot.offset(body, "left", "ball"),
       right: HumanFoot.offset(body, "right", "ball"),
     };
-    const flat: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const flat: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       AquaticTeamBase.UP,
       high.yaw,
     );

@@ -1,6 +1,6 @@
 import { AutoMovieEnginePhysics,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -131,8 +131,8 @@ export namespace HumanArmTrajectoryPairs {
   ): [IAutoMovieVector3, IAutoMovieVector3] {
     const helper: IAutoMovieVector3 =
       Math.abs(n.x) < 0.9 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
-    const t1: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(n, helper));
-    return [t1, Vector3.cross(n, t1)];
+    const t1: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(n, helper));
+    return [t1, AutoMovieEngineVector3.cross(n, t1)];
   }
 
   /*
@@ -199,7 +199,7 @@ export namespace HumanArmTrajectoryPairs {
 
         // The part's screen: its probes' sphere against the shape's.
         if (
-          Vector3.distance(link.centre, s.centre) - link.radius - s.radius >=
+          AutoMovieEngineVector3.distance(link.centre, s.centre) - link.radius - s.radius >=
           T.REACH
         )
           continue;
@@ -248,7 +248,7 @@ export namespace HumanArmTrajectoryPairs {
             1000 *
             (allowance -
               (Math.max(
-                Vector3.distance(p, s.centre) - s.radius,
+                AutoMovieEngineVector3.distance(p, s.centre) - s.radius,
                 HumanArmShapeBox(s, p),
               ) -
                 r));
@@ -338,14 +338,14 @@ export namespace HumanArmTrajectoryPairs {
         : on.owner === "lower"
           ? [theirs.elbow, theirs.lower]
           : [theirs.wrist, theirs.hand];
-    const point: IAutoMovieVector3 = Vector3.add(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       origin,
-      Quaternion.rotateVector(turn, on.point),
+      AutoMovieEngineQuaternion.rotateVector(turn, on.point),
     );
     const rotation: ILocatedRotation =
       on.rotation === undefined
         ? {}
-        : { rotation: Quaternion.multiply(turn, on.rotation) };
+        : { rotation: AutoMovieEngineQuaternion.multiply(turn, on.rotation) };
     // A grip on an object both hands hold touches no surface of the other
     // arm: the contact is held to the point on every axis, a closed chain.
     if (on.normal === undefined)
@@ -358,7 +358,7 @@ export namespace HumanArmTrajectoryPairs {
       };
     const shape: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
       where < 0 ? undefined : S.colliders(c.frames[on.arm]![k]!, theirs)[where];
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(turn, on.normal);
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, on.normal);
     return {
       point,
       normal,
@@ -412,9 +412,9 @@ export namespace HumanArmTrajectoryPairs {
     placed: ReturnType<typeof G.chain>,
     contact: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       placed.wrist,
-      Quaternion.rotateVector(placed.hand, contact),
+      AutoMovieEngineQuaternion.rotateVector(placed.hand, contact),
     );
   }
 
@@ -442,7 +442,7 @@ export namespace HumanArmTrajectoryPairs {
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
-    let q: IAutoMovieQuaternion = Quaternion.multiply(Quaternion.inverse(a), b);
+    let q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(a), b);
     if (q.w < 0) q = { x: -q.x, y: -q.y, z: -q.z, w: -q.w };
     const s: number = Math.hypot(q.x, q.y, q.z);
     if (s < 1e-12) return { x: 0, y: 0, z: 0 };

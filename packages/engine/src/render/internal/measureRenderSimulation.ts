@@ -28,11 +28,11 @@ import { AutoMovieEngineFluid } from "../../fluid/AutoMovieEngineFluid";
 import { plantingBudget } from "../../soft/internal/plantingBudget";
 import { softBodyBudget } from "../../soft/internal/softBodyBudget";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { AUTOMOVIE_FLOW_BYTES } from "../AUTOMOVIE_FLOW_BYTES";
-import { AUTOMOVIE_INDEX_BYTES } from "../AUTOMOVIE_INDEX_BYTES";
-import { AUTOMOVIE_NORMAL_BYTES } from "../AUTOMOVIE_NORMAL_BYTES";
-import { AUTOMOVIE_POSITION_BYTES } from "../AUTOMOVIE_POSITION_BYTES";
-import { AUTOMOVIE_UV_BYTES } from "../AUTOMOVIE_UV_BYTES";
+import { AutoMovieEngineFlowBytes } from "../AutoMovieEngineFlowBytes";
+import { AutoMovieEngineIndexBytes } from "../AutoMovieEngineIndexBytes";
+import { AutoMovieEngineNormalBytes } from "../AutoMovieEngineNormalBytes";
+import { AutoMovieEnginePositionBytes } from "../AutoMovieEnginePositionBytes";
+import { AutoMovieEngineUvBytes } from "../AutoMovieEngineUvBytes";
 
 /*
  * Extend prior counts with simulated drawable costs and explicit missing
@@ -118,10 +118,10 @@ export function measureRenderSimulation(
     instanceSlots += cap;
     simulatedBytes +=
       4 *
-        (AUTOMOVIE_POSITION_BYTES +
-          AUTOMOVIE_NORMAL_BYTES +
-          AUTOMOVIE_UV_BYTES) +
-      6 * AUTOMOVIE_INDEX_BYTES;
+        (AutoMovieEnginePositionBytes +
+          AutoMovieEngineNormalBytes +
+          AutoMovieEngineUvBytes) +
+      6 * AutoMovieEngineIndexBytes;
     ++simulatedNodes;
     add(owner, source, "triangles", effectTriangles);
     add(owner, source, "vertices", effectVertices);
@@ -157,10 +157,10 @@ export function measureRenderSimulation(
     const panelDraws: 1 | 0 = panelTriangles === 0 ? 0 : 1;
     const panelBytes: number =
       panelVertices *
-        (AUTOMOVIE_POSITION_BYTES +
-          AUTOMOVIE_NORMAL_BYTES +
-          AUTOMOVIE_UV_BYTES) +
-      panelTriangles * 3 * AUTOMOVIE_INDEX_BYTES;
+        (AutoMovieEnginePositionBytes +
+          AutoMovieEngineNormalBytes +
+          AutoMovieEngineUvBytes) +
+      panelTriangles * 3 * AutoMovieEngineIndexBytes;
     triangles += panelTriangles;
     vertices += panelVertices;
     drawCalls += panelDraws;
@@ -314,11 +314,11 @@ export function measureRenderSimulation(
     const waterDraws: 1 | 0 = waterTriangles === 0 ? 0 : 1;
     const waterBytes: number =
       waterVertices *
-        (AUTOMOVIE_POSITION_BYTES +
-          AUTOMOVIE_NORMAL_BYTES +
-          AUTOMOVIE_UV_BYTES +
-          AUTOMOVIE_FLOW_BYTES) +
-      waterTriangles * 3 * AUTOMOVIE_INDEX_BYTES;
+        (AutoMovieEnginePositionBytes +
+          AutoMovieEngineNormalBytes +
+          AutoMovieEngineUvBytes +
+          AutoMovieEngineFlowBytes) +
+      waterTriangles * 3 * AutoMovieEngineIndexBytes;
     triangles += waterTriangles;
     vertices += waterVertices;
     drawCalls += waterDraws;
@@ -392,5 +392,5 @@ const prototypeBytes: (cost: IAutoMovieRenderPrototypeCost) => number = (
   cost: IAutoMovieRenderPrototypeCost,
 ): number =>
   cost.vertices *
-    (AUTOMOVIE_POSITION_BYTES + AUTOMOVIE_NORMAL_BYTES + AUTOMOVIE_UV_BYTES) +
-  cost.triangles * 3 * AUTOMOVIE_INDEX_BYTES;
+    (AutoMovieEnginePositionBytes + AutoMovieEngineNormalBytes + AutoMovieEngineUvBytes) +
+  cost.triangles * 3 * AutoMovieEngineIndexBytes;

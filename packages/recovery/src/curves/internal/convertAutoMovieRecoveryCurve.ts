@@ -1,4 +1,4 @@
-import { AutoMovieCurveMath64 as M } from "@automovie/engine";
+import { AutoMovieEngineCurveMath64 as M } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   AutoMovieRecoveryCurveFormat,

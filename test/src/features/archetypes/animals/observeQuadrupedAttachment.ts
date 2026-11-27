@@ -1,6 +1,8 @@
 import { type AutoMovieArchetype, type AutoMovieArchetypeConvexCell, AutoMovieArchetypeFrame, AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedJoints, type AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
-import { QuadrupedRidePose as Pose } from "@automovie/archetypes/internal";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  QuadrupedRidePose as Pose
+} from "../../../../../packages/archetypes/src/animals/quadruped/QuadrupedRidePose";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,7 +29,7 @@ export function observeQuadrupedAttachment<Id extends string, Dimension extends 
     Pose.prepare(animal, species, rig);
   const placement: IAutoMovieTransform = {
     translation: { x: 2, y: 0, z: -3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 29),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 29),
     scale: { x: 1, y: 1, z: 1 },
   };
   const goal = (limb: Body.Limb): Pose.IGoal => {
@@ -69,9 +71,9 @@ export function observeQuadrupedAttachment<Id extends string, Dimension extends 
     for (const limb of Body.LIMBS) {
       const foot: observe.IFoot = feet.get(limb)!;
       const neutral: IAutoMovieVector3 = rig.limbs[limb][4]!;
-      const expected: IAutoMovieVector3 = Vector3.add(
+      const expected: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         placement.translation,
-        Quaternion.rotateVector(placement.rotation, { ...neutral, y: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(placement.rotation, { ...neutral, y: 0 }),
       );
       TestValidator.predicate(
         `${label}/${name}/${limb} solid clearance and footprint`,
@@ -89,18 +91,18 @@ export function observeQuadrupedAttachment<Id extends string, Dimension extends 
 
   for (const contact of posed.affordances) {
     const actual: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(placement, contact.frame);
-    const expected: IAutoMovieVector3 = Vector3.add(
+    const expected: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       placement.translation,
-      Quaternion.rotateVector(placement.rotation, contact.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(placement.rotation, contact.frame.translation),
     );
     TestValidator.predicate(`${label}/${contact.id} world placement`,
-      Vector3.length(Vector3.subtract(actual.translation, expected)) <= GEOMETRY_ROUNDOFF,
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(actual.translation, expected)) <= GEOMETRY_ROUNDOFF,
     );
     if (contact.id !== "seat" && contact.id !== "hitch" && contact.id !== "leftLoad" && contact.id !== "rightLoad") continue;
     const frame: IAutoMovieTransform | undefined = prepared.frame(raised, nod, 0, contact.id);
     TestValidator.predicate(`${label}/${contact.id} carrier-only projection`,
       frame !== undefined &&
-        Vector3.length(Vector3.subtract(frame.translation, contact.frame.translation)) <= GEOMETRY_ROUNDOFF &&
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(frame.translation, contact.frame.translation)) <= GEOMETRY_ROUNDOFF &&
         nclose(Math.abs(frame.rotation.x * contact.frame.rotation.x + frame.rotation.y * contact.frame.rotation.y +
           frame.rotation.z * contact.frame.rotation.z + frame.rotation.w * contact.frame.rotation.w), 1, GEOMETRY_ROUNDOFF),
     );

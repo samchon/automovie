@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetypeRide,
   AutoMovieArchetypeEquinePackLoad as Pack,
 } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -84,15 +84,15 @@ export function test_archetypes_animals_pack_load(): void {
     const normal: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const local: IAutoMovieVector3 = pad.translation;
     const actual: IAutoMovieTransform = placed[id];
-    const displacement: IAutoMovieVector3 = Quaternion.rotateVector(
+    const displacement: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       actual.rotation,
       inside,
     );
-    const localNormal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const localNormal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       pad.rotation,
       normal,
     );
-    const worldNormal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const worldNormal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       actual.rotation,
       normal,
     );

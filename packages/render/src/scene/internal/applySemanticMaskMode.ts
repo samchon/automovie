@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import type { IAutoMovieSemanticMaskHandle } from "../IAutoMovieSemanticMaskHandle.js";
+import type { IAutoMovieRenderSemanticMaskHandle } from "../IAutoMovieRenderSemanticMaskHandle.js";
 import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
 
 /*
@@ -24,7 +24,7 @@ export const applySemanticMaskMode: (
   scene: THREE.Scene,
   binding: IAutoMovieSemanticMaskBinding,
 ): IAutoMovieRenderModeHandle => {
-  const handle: IAutoMovieSemanticMaskHandle = AutoMovieRenderSemanticMask.apply({
+  const handle: IAutoMovieRenderSemanticMaskHandle = AutoMovieRenderSemanticMask.apply({
     scene,
     design: binding.design,
     mask: binding.mask,

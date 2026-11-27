@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeUnevenBarsData from "./internal/AutoMovieArchetypeUnevenBarsData";
+import { AutoMovieArchetypeUnevenBarsData } from "./internal/AutoMovieArchetypeUnevenBarsData";
 
 /** Constructs the uneven bars archetype from its recipe. */
 export namespace AutoMovieArchetypeUnevenBars {
@@ -47,7 +47,7 @@ export function create(
     name: "uneven bars",
     draw,
   });
-  const point: typeof Vector3.create = Vector3.create;
+  const point: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const radius: number = values.diameter / 2;
   const half: number = values.length / 2;
   const heightDifference: number = values.highHeight - values.lowHeight;

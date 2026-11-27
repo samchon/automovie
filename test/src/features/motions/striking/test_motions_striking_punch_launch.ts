@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanSkill } from "@automovie/interface";
-import { punchLaunch } from "@automovie/motions/internal";
+import {
+  punchLaunch
+} from "../../../../../packages/motions/src/striking/internal/punchLaunch";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

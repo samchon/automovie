@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
@@ -10,7 +10,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { rideSeesaw } from "./internal/rideSeesaw";
-import * as AutoMovieArchetypeSeesawData from "./internal/AutoMovieArchetypeSeesawData";
+import { AutoMovieArchetypeSeesawData } from "./internal/AutoMovieArchetypeSeesawData";
 
 /** Constructs the seesaw archetype from its recipe. */
 export namespace AutoMovieArchetypeSeesaw {
@@ -53,14 +53,14 @@ export function create(
   });
   builder.box(
     "post",
-    Vector3.create(0.2, pivot, 0.2),
-    Vector3.create(0, pivot / 2, 0),
+    AutoMovieEngineVector3.create(0.2, pivot, 0.2),
+    AutoMovieEngineVector3.create(0, pivot / 2, 0),
     { color: "#c1121f" },
   );
   builder.affordance({
     id: "ground",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
     width: 1,
     depth: length,
@@ -139,8 +139,8 @@ export function create(
       });
     builder.box(
       "beam",
-      Vector3.create(0.12, 0.08, length),
-      Vector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0.12, 0.08, length),
+      AutoMovieEngineVector3.create(0, 0, 0),
       { color: "#ffb703" },
     );
     for (const end of [1, -1] as const) {
@@ -153,9 +153,9 @@ export function create(
         id: end > 0 ? "frontSeat" : "rearSeat",
         kind: "seat",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(0, SEAT, seatZ - end * 0.15),
-          Vector3.create(0, 1, 0),
-          Vector3.create(-end, 0, 0),
+          AutoMovieEngineVector3.create(0, SEAT, seatZ - end * 0.15),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(-end, 0, 0),
         ),
         extent: null,
         width: 0.3,
@@ -165,8 +165,8 @@ export function create(
       builder.rod(
         `${name}HandleBar`,
         0.015,
-        Vector3.create(-0.15, SEAT + RISE, handleZ),
-        Vector3.create(0.15, SEAT + RISE, handleZ),
+        AutoMovieEngineVector3.create(-0.15, SEAT + RISE, handleZ),
+        AutoMovieEngineVector3.create(0.15, SEAT + RISE, handleZ),
         { color: "#333333" },
       );
       for (const hand of ["Left", "Right"] as const) {
@@ -178,9 +178,9 @@ export function create(
           symmetry: "round",
           grip: "power",
           frame: AutoMovieArchetypeFrame.facing(
-            Vector3.create(x, SEAT + RISE, handleZ),
-            Vector3.create(0, 0, end),
-            Vector3.create(1, 0, 0),
+            AutoMovieEngineVector3.create(x, SEAT + RISE, handleZ),
+            AutoMovieEngineVector3.create(0, 0, end),
+            AutoMovieEngineVector3.create(1, 0, 0),
           ),
           extent: null,
           length: 0.1,

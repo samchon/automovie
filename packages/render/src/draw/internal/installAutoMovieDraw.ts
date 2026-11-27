@@ -9,22 +9,22 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { AutoMovieFilmAlpha } from "../../scene/AutoMovieFilmAlpha.js";
-import type { IAutoMovieInspectionHandle } from "../../scene/IAutoMovieInspectionHandle.js";
+import type { AutoMovieRenderFilmAlpha } from "../../scene/AutoMovieRenderFilmAlpha.js";
+import type { IAutoMovieRenderInspectionHandle } from "../../scene/IAutoMovieRenderInspectionHandle.js";
 import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/parseAutoMovieInspectionView.js";
 import { renderWithAutoMovieInspectionDiagnostics } from "../../scene/inspection/internal/renderWithAutoMovieInspectionDiagnostics.js";
 import { AutoMovieRenderInspectionCamera } from "../../scene/AutoMovieRenderInspectionCamera.js";
-import type { IAutoMovieViewerSubjectBounds } from "../../scene/IAutoMovieViewerSubjectBounds.js";
-import { AUTO_MOVIE_DRAW_GLOBALS } from "../AUTO_MOVIE_DRAW_GLOBALS.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "../../scene/IAutoMovieRenderViewerSubjectBounds.js";
+import { AutoMovieRenderDrawGlobals } from "../AutoMovieRenderDrawGlobals.js";
 import { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
-import { AutoMovieDrawFilm } from "../AutoMovieDrawFilm.js";
-import { AutoMovieDrawPlacement } from "../AutoMovieDrawPlacement.js";
-import type { AutoMovieDrawSubjects } from "../AutoMovieDrawSubjects.js";
-import type { IAutoMovieDrawFunction } from "../IAutoMovieDrawFunction.js";
-import type { IAutoMovieDrawGlobal } from "../IAutoMovieDrawGlobal.js";
-import type { IAutoMovieDrawProps } from "../IAutoMovieDrawProps.js";
-import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
-import type { IAutoMovieDrawSubject } from "../IAutoMovieDrawSubject.js";
+import { AutoMovieRenderDrawFilm } from "../AutoMovieRenderDrawFilm.js";
+import { AutoMovieRenderDrawPlacement } from "../AutoMovieRenderDrawPlacement.js";
+import type { AutoMovieRenderDrawSubjects } from "../AutoMovieRenderDrawSubjects.js";
+import type { IAutoMovieRenderDrawFunction } from "../IAutoMovieRenderDrawFunction.js";
+import type { IAutoMovieRenderDrawGlobal } from "../IAutoMovieRenderDrawGlobal.js";
+import type { IAutoMovieRenderDrawProps } from "../IAutoMovieRenderDrawProps.js";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
+import type { IAutoMovieRenderDrawSubject } from "../IAutoMovieRenderDrawSubject.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";
 import { isAutoMoviePlainBeautyRequest } from "./isAutoMoviePlainBeautyRequest.js";
 import { observeAutoMoviePlacedInspection } from "./observeAutoMoviePlacedInspection.js";
@@ -46,17 +46,17 @@ import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
  *    drawn raster, the call's raster or for the `beauty` shade twice each side,
  *    and cleared to alpha 0 for a transparent picture or 1 otherwise;
  * 2. For a fitted view, places and inspects each framing second through
- *    `AutoMovieDrawPlacement`, as the shot that second's picture shows, and
+ *    `AutoMovieRenderDrawPlacement`, as the shot that second's picture shows, and
  *    frames the union of what the inspection leaves drawn, or its focus,
  *    measured once per view and selection;
- * 3. Plans the second through `AutoMovieDrawFilm`: the shot it shows,
+ * 3. Plans the second through `AutoMovieRenderDrawFilm`: the shot it shows,
  *    `playbackShownLayer` of the layers `AutoMovieRenderDraw.planLayers` gives, and,
  *    for the film picture, a delivered or plain `beauty` picture or `graphics`
  *    plate, a transition's layers. Every layer of positive weight but the shown
  *    one is placed on its own entry's clock, drawn and held, and a sampled
  *    film's shutter and lens samples of the shown layer are accumulated, each
  *    on that layer's own clock;
- * 4. Places the second itself through `AutoMovieDrawPlacement.inspect`, which
+ * 4. Places the second itself through `AutoMovieRenderDrawPlacement.inspect`, which
  *    restores the previous inspection and places the shown layer on its own
  *    entry's clock, at each of the request's trail times and then at the call's
  *    second, by `seekShot` when it is a transition's outgoing shot, so marks,
@@ -104,12 +104,12 @@ import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
  * ```
  */
 export function installAutoMovieDraw<Props = unknown>(
-  subjects: AutoMovieDrawSubjects<Props | null>,
-  target: IAutoMovieDrawGlobal<Props | null> = globalThis,
+  subjects: AutoMovieRenderDrawSubjects<Props | null>,
+  target: IAutoMovieRenderDrawGlobal<Props | null> = globalThis,
 ): void {
   // The host injects the props its own subjects take, by the page contract.
-  const injected: IAutoMovieDrawProps<Props | null> = target[
-    AUTO_MOVIE_DRAW_GLOBALS.props
+  const injected: IAutoMovieRenderDrawProps<Props | null> = target[
+    AutoMovieRenderDrawGlobals.props
   ] ?? {
     subject: null,
     props: null,
@@ -118,14 +118,14 @@ export function installAutoMovieDraw<Props = unknown>(
   let loading: Promise<ILoaded> | undefined;
   const load = (): Promise<ILoaded> =>
     (loading ??= Promise.resolve().then(async (): Promise<ILoaded> => {
-      const offered: Readonly<Record<string, IAutoMovieDrawSubject>> = subjects(
+      const offered: Readonly<Record<string, IAutoMovieRenderDrawSubject>> = subjects(
         injected.props,
       );
       const name: string = selectAutoMovieDrawSubject(
         Object.keys(offered),
         injected.subject,
       );
-      const scene: IAutoMovieDrawScene = await offered[name]!.create();
+      const scene: IAutoMovieRenderDrawScene = await offered[name]!.create();
       const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
         antialias: false,
         // The drawing buffer carries alpha for transparent output.
@@ -137,12 +137,12 @@ export function installAutoMovieDraw<Props = unknown>(
         name,
         scene,
         renderer,
-        placement: new AutoMovieDrawPlacement(name, scene, renderer),
+        placement: new AutoMovieRenderDrawPlacement(name, scene, renderer),
         beauty: new AutoMovieDrawBeauty(renderer),
       };
     }));
 
-  const draw: IAutoMovieDrawFunction = {
+  const draw: IAutoMovieRenderDrawFunction = {
     describe: async (): Promise<IAutoMovieDrawDescription> => {
       const loaded: ILoaded = await load();
       const context: WebGLRenderingContext | WebGL2RenderingContext =
@@ -165,7 +165,7 @@ export function installAutoMovieDraw<Props = unknown>(
     draw: async (call: IAutoMovieDrawCall): Promise<IAutoMovieDrawResult> =>
       drawCall(await load(), call),
   };
-  target[AUTO_MOVIE_DRAW_GLOBALS.draw] = draw;
+  target[AutoMovieRenderDrawGlobals.draw] = draw;
 
   // Leaving the page releases what it holds.
   target.addEventListener?.(
@@ -205,7 +205,7 @@ interface ILoaded {
   /*
    * The created subject.
    */
-  scene: IAutoMovieDrawScene;
+  scene: IAutoMovieRenderDrawScene;
 
   /*
    * The renderer, on a canvas never attached to the document.
@@ -215,7 +215,7 @@ interface ILoaded {
   /*
    * The subject's placement, inspection and dialogue mouths.
    */
-  placement: AutoMovieDrawPlacement;
+  placement: AutoMovieRenderDrawPlacement;
 
   /*
    * The beauty pass's stages and a transition's held layers; they allocate
@@ -243,7 +243,7 @@ async function drawCall(
     );
   const transparent: boolean =
     call.background === "transparent" || shade === "graphics";
-  const alpha: AutoMovieFilmAlpha | undefined =
+  const alpha: AutoMovieRenderFilmAlpha | undefined =
     call.background === "transparent" ? "transparent" : undefined;
 
   // The supersampled surface keeps marks at the requested output-pixel width.
@@ -261,7 +261,7 @@ async function drawCall(
   );
   const fitted: boolean =
     view.type === "named" && scene.views?.[view.name] === undefined;
-  const bounds: IAutoMovieViewerSubjectBounds | null =
+  const bounds: IAutoMovieRenderViewerSubjectBounds | null =
     fitted && view.type === "named" ? await placement.frame(call, view) : null;
   if (scene.camera.aspect !== call.width / call.height) {
     scene.camera.aspect = call.width / call.height;
@@ -289,7 +289,7 @@ async function drawCall(
   // other layer of its transition placed, drawn and held, and the shown
   // layer's samples accumulated, before the shown layer is placed.
   const delivery: boolean = call.inspectionDiagnostics === "delivery";
-  const picture: AutoMovieDrawFilm = new AutoMovieDrawFilm({
+  const picture: AutoMovieRenderDrawFilm = new AutoMovieRenderDrawFilm({
     ...{ name: loaded.name, scene, renderer, beauty, shade, width, height },
     seconds: call.seconds,
     ...(alpha === undefined ? {} : { alpha }),
@@ -307,7 +307,7 @@ async function drawCall(
   // 4. The second itself, once the subject is ready: the shown layer, placed
   // by `seekShot` when it is a transition's outgoing shot.
   let diagnostics: IAutoMovieInspectionDiagnostics | undefined;
-  const handle: IAutoMovieInspectionHandle = await placement.inspect(
+  const handle: IAutoMovieRenderInspectionHandle = await placement.inspect(
     { ...call.request, stroke: call.request.stroke * factor },
     call.seconds,
     (): void => {

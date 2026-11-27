@@ -8,7 +8,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Skin a mesh's vertices from its rest pose into a resolved pose, by the method
@@ -154,11 +154,11 @@ const jointTransforms: (
       throw new Error(
         `skin joint "${joint}" is missing from the ${r === undefined ? "rest" : "posed"} bones`,
       );
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       p.worldRotation,
-      Quaternion.inverse(r.worldRotation),
+      AutoMovieEngineQuaternion.inverse(r.worldRotation),
     );
-    const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+    const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       rotation,
       r.worldPosition,
     );
@@ -167,7 +167,7 @@ const jointTransforms: (
       y: p.worldPosition.y - turned.y,
       z: p.worldPosition.z - turned.z,
     };
-    const product: IAutoMovieQuaternion = Quaternion.multiply(
+    const product: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       { x: translation.x, y: translation.y, z: translation.z, w: 0 },
       rotation,
     );
@@ -207,7 +207,7 @@ const blendLinear: (
     const weight: number = skin.weights[vertex * 4 + k]!;
     if (weight === 0) continue;
     const joint: IJointTransform = joints[skin.boneIndices[vertex * 4 + k]!]!;
-    const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+    const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       joint.rotation,
       point,
     );
@@ -272,7 +272,7 @@ const blendDualQuaternion: (
   const [dx, dy, dz, dw]: number[] = dual.map(
     (c: number): number => c / length,
   );
-  const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+  const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     { x: rx!, y: ry!, z: rz!, w: rw! },
     point,
   );

@@ -9,11 +9,11 @@ import type {
 import type * as THREE from "three";
 
 import { resolveAutoMovieCapturePatterns } from "../../capture/internal/resolveAutoMovieCapturePatterns.js";
-import type { IAutoMovieInspectionHandle } from "../../scene/IAutoMovieInspectionHandle.js";
-import type { IAutoMovieInspectionPath } from "../../scene/IAutoMovieInspectionPath.js";
+import type { IAutoMovieRenderInspectionHandle } from "../../scene/IAutoMovieRenderInspectionHandle.js";
+import type { IAutoMovieRenderInspectionPath } from "../../scene/IAutoMovieRenderInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../../scene/inspection/internal/listAutoMovieInspectionPaths.js";
 import type { AutoMovieRenderInspectionCamera } from "../../scene/AutoMovieRenderInspectionCamera.js";
-import { AutoMovieRenderSemanticMask } from "../../scene/semanticMask/index.js";
+import { AutoMovieRenderSemanticMask, AutoMovieRenderSemanticMask } from "../../scene/AutoMovieRenderSemanticMask.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
 
 /*
@@ -56,7 +56,7 @@ export function readAutoMovieDrawResult(props: {
   /*
    * The inspection the picture was drawn under.
    */
-  handle: IAutoMovieInspectionHandle;
+  handle: IAutoMovieRenderInspectionHandle;
 
   /*
    * The witness legend of the picture.
@@ -142,7 +142,7 @@ export function readAutoMovieDrawResult(props: {
     resolved: resolveAutoMovieCapturePatterns({
       paths: [
         ...listAutoMovieInspectionPaths(props.scene).map(
-          (entry: IAutoMovieInspectionPath): string => entry.path,
+          (entry: IAutoMovieRenderInspectionPath): string => entry.path,
         ),
         ...handle.selected,
       ],

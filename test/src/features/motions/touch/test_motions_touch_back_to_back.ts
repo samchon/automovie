@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, backToBackTogether } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  backToBackTogether
+} from "../../../../../packages/motions/src/touch/internal/backToBackTogether";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -193,17 +193,17 @@ export namespace AquaticPolo {
             site.kind === "handle" &&
             site.symmetry === "round" &&
             (site.aperture ?? 0) > 0 &&
-            Vector3.length(site.frame.translation) === 0,
+            AutoMovieEngineVector3.length(site.frame.translation) === 0,
         );
-      const turn: IAutoMovieQuaternion = Quaternion.multiply(
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         last.rotation,
-        Quaternion.inverse(first.rotation),
+        AutoMovieEngineQuaternion.inverse(first.rotation),
       );
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         last.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           turn,
-          Vector3.subtract(ball.position, first.position),
+          AutoMovieEngineVector3.subtract(ball.position, first.position),
         ),
       );
       const target: IAutoMovieVector3 | undefined = params.at;

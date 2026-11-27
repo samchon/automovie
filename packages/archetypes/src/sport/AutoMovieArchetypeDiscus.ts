@@ -1,12 +1,10 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import {
-  band as AutoMovieArchetypeDiscusDataBand,
-} from "./internal/AutoMovieArchetypeDiscusData";
+import { AutoMovieArchetypeDiscusData } from "./internal/AutoMovieArchetypeDiscusData";
 
 /** Canonical producer and authoring contract for Discus. */
 export namespace AutoMovieArchetypeDiscus {
@@ -59,14 +57,14 @@ export namespace AutoMovieArchetypeDiscus {
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      diameter: AutoMovieArchetypeDiscusDataBand("m", 0.219, 0.221, "the men's 219 to 221 mm across"),
-      thickness: AutoMovieArchetypeDiscusDataBand(
+      diameter: AutoMovieArchetypeDiscusData.band("m", 0.219, 0.221, "the men's 219 to 221 mm across"),
+      thickness: AutoMovieArchetypeDiscusData.band(
         "m",
         0.044,
         0.046,
         "the men's 44 to 46 mm thick at the centre",
       ),
-      mass: AutoMovieArchetypeDiscusDataBand(
+      mass: AutoMovieArchetypeDiscusData.band(
         "kg",
         2,
         2,
@@ -74,14 +72,14 @@ export namespace AutoMovieArchetypeDiscus {
       ),
     },
     women: {
-      diameter: AutoMovieArchetypeDiscusDataBand("m", 0.18, 0.182, "the women's 180 to 182 mm across"),
-      thickness: AutoMovieArchetypeDiscusDataBand(
+      diameter: AutoMovieArchetypeDiscusData.band("m", 0.18, 0.182, "the women's 180 to 182 mm across"),
+      thickness: AutoMovieArchetypeDiscusData.band(
         "m",
         0.037,
         0.039,
         "the women's 37 to 39 mm thick at the centre",
       ),
-      mass: AutoMovieArchetypeDiscusDataBand(
+      mass: AutoMovieArchetypeDiscusData.band(
         "kg",
         1,
         1,
@@ -136,8 +134,8 @@ export namespace AutoMovieArchetypeDiscus {
     builder.rod(
       "disc",
       d.diameter / 2,
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, d.thickness, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, d.thickness, 0),
       { color: "#8a8d91" },
     );
     builder.affordance({
@@ -145,7 +143,7 @@ export namespace AutoMovieArchetypeDiscus {
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, d.thickness / 2, 0),
+        AutoMovieEngineVector3.create(0, d.thickness / 2, 0),
       ),
       extent: null,
       grip: "hook",
@@ -155,9 +153,9 @@ export namespace AutoMovieArchetypeDiscus {
       id: "rim",
       kind: "ledge",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, d.thickness, d.diameter / 2),
-        Vector3.create(0, 1, 0),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, d.thickness, d.diameter / 2),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       length: d.diameter / 4,

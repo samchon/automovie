@@ -1,6 +1,6 @@
 import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
 
-import { AUTOMOVIE_QUADRATIC_INFINITY } from "../../constants/AUTOMOVIE_QUADRATIC_INFINITY";
+import { AutoMovieEngineQuadraticInfinity } from "../../constants/AutoMovieEngineQuadraticInfinity";
 
 /*
  * Expand admitted interval CSC into the engine's zero/nonnegative standard
@@ -32,9 +32,9 @@ export function createAutoMovieQuadraticConicProgram(
   const equalities: number = mapping.length;
   for (let row: number = 0; row < count; row++) {
     if (input.lower[row] === input.upper[row]) continue;
-    if (input.upper[row]! < AUTOMOVIE_QUADRATIC_INFINITY)
+    if (input.upper[row]! < AutoMovieEngineQuadraticInfinity)
       mapping.push({ original: row, sign: 1, bound: input.upper[row]! });
-    if (input.lower[row]! > -AUTOMOVIE_QUADRATIC_INFINITY)
+    if (input.lower[row]! > -AutoMovieEngineQuadraticInfinity)
       mapping.push({ original: row, sign: -1, bound: -input.lower[row]! });
   }
   for (let row: number = 0; row < mapping.length; row++)

@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
-import * as BoatBandsData from "./internal/BoatBandsData";
+import { BoatBandsData } from "./internal/BoatBandsData";
 
 /*
  * The band of each free dimension of a boat, by kind, with the source it was

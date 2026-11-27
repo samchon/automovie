@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematicsJointRotation } from "../kinematics/AutoMovieEngineKinematicsJointRotation";
-import { Quaternion } from "../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
 import { bilinearAngleBoxCandidates } from "../math/internal/bilinearAngleBoxCandidates";
 import { readNormalizedQuaternion } from "../math/internal/readNormalizedQuaternion";
 import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
@@ -463,7 +463,7 @@ export namespace AutoMovieEngineMotionJointProjection {
       rotation: IAutoMovieQuaternion,
       requested: boolean,
     ): IEvaluation => {
-      const local: IAutoMovieQuaternion = Quaternion.normalize(rotation);
+      const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(rotation);
       const raw: IAutoMovieJointPose = {
         bone: props.domain.bone,
         ...readJointRotation(local),

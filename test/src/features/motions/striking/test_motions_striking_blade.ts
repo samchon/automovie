@@ -1,8 +1,10 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanTrunk,
-  StrikingBlade,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanTrunk
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTrunk";
+import {
+  StrikingBlade
+} from "../../../../../packages/motions/src/striking/internal/StrikingBlade";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

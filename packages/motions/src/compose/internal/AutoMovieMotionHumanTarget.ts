@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -187,8 +187,8 @@ export namespace AutoMovieMotionHumanTarget {
       y: 0,
       z: point.z - place.point.z,
     };
-    return Vector3.length(d) > 1e-6
-      ? Vector3.normalize(d)
+    return AutoMovieEngineVector3.length(d) > 1e-6
+      ? AutoMovieEngineVector3.normalize(d)
       : HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw },
           { x: 0, y: 0, z: -1 },

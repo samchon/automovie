@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanMountRider,
@@ -22,22 +22,22 @@ export function placeRideReinPalm(
   fingers: IAutoMovieVector3,
   cross?: number,
 ): IAutoMovieMotionHumanHand.IWrist {
-  const point: IAutoMovieVector3 = Vector3.addScaled(
+  const point: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     grip.point,
     grip.normal,
     grip.radius ?? 0,
   );
   const square: IAutoMovieQuaternion = HumanHand.align(palm, {
-    normal: Vector3.scale(grip.normal, -1),
+    normal: AutoMovieEngineVector3.scale(grip.normal, -1),
     forward: fingers,
   });
   // The line crosses the palm at the hold's own angle, a turn about the outward normal (`crossRideReinGrip`).
   const rotation: IAutoMovieQuaternion =
     cross === undefined
       ? square
-      : Quaternion.normalize(
-          Quaternion.multiply(
-            Quaternion.fromAxisAngle(grip.normal, cross),
+      : AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.fromAxisAngle(grip.normal, cross),
             square,
           ),
         );

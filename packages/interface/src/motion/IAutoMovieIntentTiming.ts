@@ -3,7 +3,7 @@ import type { IAutoMovieMotionEvent } from "./IAutoMovieMotionEvent";
 /** An intent's timing. */
 export interface IAutoMovieIntentTiming {
   /**
-   * Full uncut duration in seconds; AutoMovieSchedulePlace rejects negative or
+   * Full uncut duration in seconds; AutoMovieEngineSchedulePlace rejects negative or
    * nonfinite values.
    */
   duration: number;

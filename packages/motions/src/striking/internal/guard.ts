@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineMath,
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -205,8 +205,8 @@ export namespace guard {
           : "right";
     const staggered: boolean =
       Math.abs(
-        Vector3.dot(
-          Vector3.subtract(
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(
             context.entry.feet.left.ankle,
             context.entry.feet.right.ankle,
           ),
@@ -256,7 +256,7 @@ export namespace guard {
     );
     return back === null
       ? laid
-      : lay(context, duration, joints, stance, from, Vector3.add(centre, back));
+      : lay(context, duration, joints, stance, from, AutoMovieEngineVector3.add(centre, back));
   }
 
   /*
@@ -309,10 +309,10 @@ export namespace guard {
     const moving: Record<AutoMovieHumanSide, boolean> = {
       left:
         support?.landings.left !== undefined ||
-        Vector3.distance(from.left.ankle, to.left.ankle) > 0.01,
+        AutoMovieEngineVector3.distance(from.left.ankle, to.left.ankle) > 0.01,
       right:
         support?.landings.right !== undefined ||
-        Vector3.distance(from.right.ankle, to.right.ankle) > 0.01,
+        AutoMovieEngineVector3.distance(from.right.ankle, to.right.ankle) > 0.01,
     };
     const first: readonly [number, number] = [0, 0.3];
     const second: readonly [number, number] = [
@@ -331,10 +331,10 @@ export namespace guard {
     const lift: number = STEP_LIFT * body.measure.stature;
     const rotations: Record<
       AutoMovieHumanSide,
-      ReturnType<typeof Quaternion.prepareSlerp>
+      ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp>
     > = {
-      left: Quaternion.prepareSlerp(from.left.rotation, to.left.rotation),
-      right: Quaternion.prepareSlerp(from.right.rotation, to.right.rotation),
+      left: AutoMovieEngineQuaternion.prepareSlerp(from.left.rotation, to.left.rotation),
+      right: AutoMovieEngineQuaternion.prepareSlerp(from.right.rotation, to.right.rotation),
     };
     const foot = (
       side: AutoMovieHumanSide,
@@ -350,12 +350,12 @@ export namespace guard {
         (raw - STEP_TRAVEL[0]) / (STEP_TRAVEL[1] - STEP_TRAVEL[0]),
       );
       const bump: number = Math.sin(Math.PI * raw) ** 2;
-      const ankle: IAutoMovieVector3 = Vector3.lerp(
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         from[side].ankle,
         to[side].ankle,
         s,
       );
-      const rotation: ReturnType<typeof Quaternion.prepareSlerp> =
+      const rotation: ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp> =
         rotations[side];
       return StrikingFootPoint(
         body,
@@ -505,10 +505,10 @@ export namespace guard {
         from === undefined
           ? to
           : {
-              point: Vector3.lerp(from.point, to.point, s),
-              bend: Vector3.lerp(from.bend, to.bend, s),
+              point: AutoMovieEngineVector3.lerp(from.point, to.point, s),
+              bend: AutoMovieEngineVector3.lerp(from.bend, to.bend, s),
               ...(from.rotation !== undefined && to.rotation !== undefined
-                ? { rotation: Quaternion.slerp(from.rotation, to.rotation, s) }
+                ? { rotation: AutoMovieEngineQuaternion.slerp(from.rotation, to.rotation, s) }
                 : {}),
             };
     }

@@ -2,8 +2,8 @@
 
 import { getUp } from "../../floor/internal/getUp";
 import "./HumanSupportContacts";
-import * as HumanSupportSlideOffData from "./internal/HumanSupportSlideOffData";
-import { on } from "./internal/HumanSupportSlideOffData";
+import { HumanSupportSlideOffData } from "./internal/HumanSupportSlideOffData";
+
 
 /*
  * The slide-off preset: seated upright on a table's edge with the seat and the
@@ -15,14 +15,14 @@ import { on } from "./internal/HumanSupportSlideOffData";
 export const HUMAN_SUPPORT_SLIDE_OFF: IAutoMovieMotionHumanSupport.IPreset = {
   stances: [
     {
-      contacts: [on("seat", -0.5), on("leftHand", -0.5), on("rightHand", -0.5)],
+      contacts: [HumanSupportSlideOffData.on("seat", -0.5), HumanSupportSlideOffData.on("leftHand", -0.5), HumanSupportSlideOffData.on("rightHand", -0.5)],
       prefer: HumanSupportSlideOffData.SEATED,
     },
     {
       contacts: [
-        on("seat", -0.5),
-        on("leftHand", -0.5),
-        on("rightHand", -0.5),
+        HumanSupportSlideOffData.on("seat", -0.5),
+        HumanSupportSlideOffData.on("leftHand", -0.5),
+        HumanSupportSlideOffData.on("rightHand", -0.5),
         ...HumanSupportSlideOffData.FEET,
       ],
       prefer: HumanSupportSlideOffData.SEATED,

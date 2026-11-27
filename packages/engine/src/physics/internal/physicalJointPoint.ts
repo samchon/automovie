@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Locate the actual joint anchor even when a primitive's bone origin is its
@@ -24,9 +24,9 @@ export function physicalJointPoint(
       candidate.child === bone,
   );
   return joint
-    ? Vector3.add(
+    ? AutoMovieEngineVector3.add(
         pose.position,
-        Quaternion.rotateVector(pose.rotation, joint.childFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(pose.rotation, joint.childFrame.position),
       )
     : { ...pose.position };
 }

@@ -18,8 +18,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { validateSceneEnvironment } from "../../validation/internal/validateSceneEnvironment";
 import { validateSpace } from "../../validation/internal/validateSpace";
@@ -230,9 +230,9 @@ export function stageScene(
       (actor: IAutoMovieStageActor): IAutoMovieSceneNode => ({
         id: actor.node,
         model: cast.get(actor.node)!.modelRef ?? actor.node,
-        transform: Transform.of(
+        transform: AutoMovieEngineTransform.of(
           actor.position,
-          Quaternion.fromAxisAngle(UP, actor.facingDeg),
+          AutoMovieEngineQuaternion.fromAxisAngle(UP, actor.facingDeg),
         ),
         motion: null,
         pose: null,
@@ -254,7 +254,7 @@ export function stageScene(
     (camera: IAutoMovieStageCamera): IAutoMovieCamera => {
       return {
         id: camera.node,
-        transform: Transform.of(
+        transform: AutoMovieEngineTransform.of(
           camera.position,
           lookRotation(cameraDirections.get(camera)!),
         ),

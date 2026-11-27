@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -94,7 +94,7 @@ export namespace StagePeriodGunConstruction {
     profile: IProfile,
     id: string,
   ): AutoMovieArchetypeBuilder<Contact | Id, Dimension> {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession(
         profile.name,

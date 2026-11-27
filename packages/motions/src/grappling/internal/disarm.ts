@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -236,8 +236,8 @@ function holding(
     return held.side;
   }
   const frame: IAutoMovieVector3 = reader.frame(context.start).position;
-  return Vector3.distance(bones.get("leftHand")!.worldPosition, frame) <
-    Vector3.distance(bones.get("rightHand")!.worldPosition, frame)
+  return AutoMovieEngineVector3.distance(bones.get("leftHand")!.worldPosition, frame) <
+    AutoMovieEngineVector3.distance(bones.get("rightHand")!.worldPosition, frame)
     ? "left"
     : "right";
 }

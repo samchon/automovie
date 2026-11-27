@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -30,8 +30,8 @@ export function HumanHandTarget(
 ): IAutoMovieMotionHumanArmTarget.ITarget {
   const surface: IAutoMovieMotionHumanHand.Surface = options.surface ?? "palm";
   const shape: IAutoMovieMotionHumanHand.Shape = options.shape ?? "relaxed";
-  const normal: IAutoMovieVector3 = Vector3.scale(
-    Vector3.normalize(place.normal),
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.normalize(place.normal),
     -1,
   );
   const rotation: IAutoMovieQuaternion = oriented(
@@ -150,8 +150,8 @@ export namespace HumanHandTarget {
     const inputNormal: IAutoMovieVector3 = { ...placeNormal };
     const surface: IAutoMovieMotionHumanHand.Surface = fixed.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = fixed.shape ?? "relaxed";
-    const normal: IAutoMovieVector3 = Vector3.scale(
-      Vector3.normalize(inputNormal),
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.normalize(inputNormal),
       -1,
     );
     const local: IAutoMovieMotionHumanHand.IFrame = structuredClone(
@@ -230,7 +230,7 @@ export namespace HumanHandTarget {
     ): ReturnType<ReturnType<typeof prepareMoving>["frame"]> => {
       const rotation: IAutoMovieQuaternion = oriented(
         posture,
-        Vector3.scale(Vector3.normalize(normal), -1),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(normal), -1),
         forward ?? fixed.forward,
         offset,
         align,
@@ -322,8 +322,8 @@ export namespace HumanHandTarget {
       >,
       forward?: IAutoMovieVector3,
     ): IAutoMovieHumanLimbGoal => {
-      const normal: IAutoMovieVector3 = Vector3.scale(
-        Vector3.normalize(place.normal),
+      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(place.normal),
         -1,
       );
       const rotation: IAutoMovieQuaternion = oriented(
@@ -459,7 +459,7 @@ function oriented(
       { x: 0, y: 0, z: 1 },
     );
     forward =
-      Math.abs(Vector3.dot(heading, normal)) < ALONG
+      Math.abs(AutoMovieEngineVector3.dot(heading, normal)) < ALONG
         ? heading
         : { x: 0, y: 1, z: 0 };
   }

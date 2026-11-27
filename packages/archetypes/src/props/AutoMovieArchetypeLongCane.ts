@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeLongCaneData from "./internal/AutoMovieArchetypeLongCaneData";
+import { AutoMovieArchetypeLongCaneData } from "./internal/AutoMovieArchetypeLongCaneData";
 
 /** Constructs the long cane archetype from its recipe. */
 export namespace AutoMovieArchetypeLongCane {
@@ -54,21 +54,21 @@ export function create(
   });
   const r: number = d.diameter / 2;
   const grip: number = d.length - AutoMovieArchetypeLongCane.GRIP / 2;
-  builder.rod("shaft", r, Vector3.create(0, 0, 0), Vector3.create(0, 0.25, 0), {
+  builder.rod("shaft", r, AutoMovieEngineVector3.create(0, 0, 0), AutoMovieEngineVector3.create(0, 0.25, 0), {
     color: "#c0262d",
   });
   builder.rod(
     "white",
     r,
-    Vector3.create(0, 0.25, 0),
-    Vector3.create(0, d.length - AutoMovieArchetypeLongCane.GRIP, 0),
+    AutoMovieEngineVector3.create(0, 0.25, 0),
+    AutoMovieEngineVector3.create(0, d.length - AutoMovieArchetypeLongCane.GRIP, 0),
     { color: "#f2f2f2" },
   );
   builder.rod(
     "handle",
     r * 1.4,
-    Vector3.create(0, d.length - AutoMovieArchetypeLongCane.GRIP, 0),
-    Vector3.create(0, d.length, 0),
+    AutoMovieEngineVector3.create(0, d.length - AutoMovieArchetypeLongCane.GRIP, 0),
+    AutoMovieEngineVector3.create(0, d.length, 0),
     { color: "#202020" },
   );
   builder.affordance({
@@ -76,9 +76,9 @@ export function create(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, grip, 0),
-      Vector3.create(0, 0, 1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, grip, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     grip: "power",
@@ -89,9 +89,9 @@ export function create(
     id: "tip",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, 0, 0),
-      Vector3.create(0, -1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, -1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });

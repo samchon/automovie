@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -13,7 +13,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeBarrelData from "./internal/AutoMovieArchetypeBarrelData";
+import { AutoMovieArchetypeBarrelData } from "./internal/AutoMovieArchetypeBarrelData";
 
 /** Constructs the barrel archetype from its recipe. */
 export namespace AutoMovieArchetypeBarrel {
@@ -78,8 +78,8 @@ export function create(
   builder.rod(
     kind,
     radius,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, height, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, height, 0),
     { color: kind === "keg" ? "#b9bec4" : "#4a6b8a", surface: "steel" },
   );
   for (const [id, sign] of [
@@ -91,9 +91,9 @@ export function create(
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(sign * radius, height, 0),
-        Vector3.create(sign, 0, 0),
-        Vector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(sign * radius, height, 0),
+        AutoMovieEngineVector3.create(sign, 0, 0),
+        AutoMovieEngineVector3.create(0, 0, 1),
       ),
       extent: null,
       grip: "two-hand",
@@ -102,13 +102,13 @@ export function create(
   for (let k: number = 0; k < SIDES; k++) {
     const angle: number = (2 * Math.PI * k) / SIDES;
     outline.push(
-      Vector3.create(radius * Math.cos(angle), 0, radius * Math.sin(angle)),
+      AutoMovieEngineVector3.create(radius * Math.cos(angle), 0, radius * Math.sin(angle)),
     );
   }
   builder.affordance({
     id: "top",
     kind: "stack-top",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: outline,
   });
   return builder.build(d.mass!, { rests: "steel" });

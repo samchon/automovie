@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionEvent,
@@ -105,7 +105,7 @@ export function jumpPhases(
       : { kind: "prop", subject: context.params.on };
   const events: IAutoMovieMotionEvent[] = [
     { name: "takeoff", share: P / duration },
-    { name: "apex", share: (P + vy / AutoMovieGravity.STANDARD) / duration },
+    { name: "apex", share: (P + vy / AutoMovieEngineGravity.STANDARD) / duration },
     { name: "touchdown", share: touchdown / duration },
     { name: "settled", share: settled / duration },
   ];

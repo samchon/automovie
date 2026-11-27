@@ -6,7 +6,7 @@ import type {
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
-import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
+import { AutoMovieEnginePhysicalTargetInterval as Interval } from "../AutoMovieEnginePhysicalTargetInterval";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /*

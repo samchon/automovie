@@ -1,4 +1,4 @@
-import { LIGHT_CHANNEL_PROPERTIES, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineLightChannelProperties, AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieLightPointer } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -60,7 +60,7 @@ export function test_resolve_light_pointer(): void {
   ] as const;
   TestValidator.equals(
     "the table admits exactly these properties",
-    Object.keys(LIGHT_CHANNEL_PROPERTIES),
+    Object.keys(AutoMovieEngineLightChannelProperties),
     [...PROPERTIES],
   );
   TestValidator.equals(

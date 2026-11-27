@@ -12,8 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
 import type { ResolvePhysicalContactPose } from "./ResolvePhysicalContactPose";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
@@ -104,18 +104,18 @@ export function preparePhysicalContactBindingRows(
         .target.normal
         ? physicalShapeSurfaceAnchor(pose, receiverShape, binding.target.normal)
         : {
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               measured.point,
-              Vector3.scale(measured.normal, measured.separation / 2),
+              AutoMovieEngineVector3.scale(measured.normal, measured.separation / 2),
             ),
-            normal: Vector3.scale(measured.normal, -1),
+            normal: AutoMovieEngineVector3.scale(measured.normal, -1),
           };
-      const point: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(pose.rotation),
-        Vector3.subtract(anchor.point, pose.position),
+      const point: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(pose.rotation),
+        AutoMovieEngineVector3.subtract(anchor.point, pose.position),
       );
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(pose.rotation),
+      const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(pose.rotation),
         anchor.normal,
       );
       const start: IAutoMovieVector3 = input.geometry.project(
@@ -126,18 +126,18 @@ export function preparePhysicalContactBindingRows(
         poses: IAutoMoviePoses,
       ): number[] => {
         const target: IAutoMovieRigidTransform = receiver.read(poses);
-        const endpoint: IAutoMovieVector3 = Vector3.subtract(
+        const endpoint: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           physicalSupportPoint(target, point),
-          Vector3.scale(
-            Quaternion.rotateVector(target.rotation, normal),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineQuaternion.rotateVector(target.rotation, normal),
             binding.compression,
           ),
         );
-        const goal: IAutoMovieVector3 = Vector3.add(
+        const goal: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           start,
-          Vector3.scale(Vector3.subtract(endpoint, start), binding.weight),
+          AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(endpoint, start), binding.weight),
         );
-        const difference: IAutoMovieVector3 = Vector3.subtract(
+        const difference: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           input.geometry.project(first(poses), goal),
           goal,
         );

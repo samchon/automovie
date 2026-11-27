@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieVector3,
@@ -46,9 +46,9 @@ export function climbStairsPelvis(
   const heights: number[] = contacts.map(
     (_: number, i: number): number => stance[i + 1]!.y - stance[i]!.y,
   );
-  const positions: ReturnType<typeof Vector3.prepareLerp>[] = contacts.map(
-    (_: number, i: number): ReturnType<typeof Vector3.prepareLerp> =>
-      Vector3.prepareLerp(stance[i]!, stance[i + 1]!),
+  const positions: ReturnType<typeof AutoMovieEngineVector3.prepareLerp>[] = contacts.map(
+    (_: number, i: number): ReturnType<typeof AutoMovieEngineVector3.prepareLerp> =>
+      AutoMovieEngineVector3.prepareLerp(stance[i]!, stance[i + 1]!),
   );
   const interval: (times: readonly number[], seconds: number) => number = (
     times: readonly number[],

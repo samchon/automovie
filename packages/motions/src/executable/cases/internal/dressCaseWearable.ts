@@ -1,4 +1,4 @@
-import { Quaternion, Transform, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanDress,
@@ -24,7 +24,7 @@ export function dressCaseWearable(
     id: "hold",
     kind: "handle",
     symmetry: "none",
-    frame: Transform.of(
+    frame: AutoMovieEngineTransform.of(
       hat ? { x: -0.13, y: 0.002, z: 0 } : { x: 0, y: 0.02, z: 0 },
       hat
         ? AutoMovieEngineMath.quaternionFromBasis(
@@ -46,7 +46,7 @@ export function dressCaseWearable(
     subject: "item",
     frame: {
       position: at,
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, hat ? 0 : 180),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, hat ? 0 : 180),
     },
     points: {},
     shapes: [
@@ -86,7 +86,7 @@ export namespace dressCaseWearable {
   export const WEAR: Readonly<
     Record<IAutoMovieMotionHumanDress.Item, IAutoMovieAffordance["frame"]>
   > = {
-    hat: Transform.of(
+    hat: AutoMovieEngineTransform.of(
       { x: 0, y: 0.11, z: 0 },
       AutoMovieEngineMath.quaternionFromBasis(
         { x: 0, y: 0, z: 1 },
@@ -94,7 +94,7 @@ export namespace dressCaseWearable {
         { x: 1, y: 0, z: 0 },
       ),
     ),
-    glasses: Transform.of(
+    glasses: AutoMovieEngineTransform.of(
       { x: 0, y: 0.016, z: -0.002 },
       AutoMovieEngineMath.quaternionFromBasis(
         { x: 1, y: 0, z: 0 },

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeCourse } from "../../core";
@@ -157,7 +157,7 @@ function prefixes(totals: readonly (readonly number[])[]): number[][] {
  * Model-forward direction, including the course's pitch.
  */
 function forward(state: AutoMovieArchetypeCourse.IState): IAutoMovieVector3 {
-  return Quaternion.rotateVector(state.placement.rotation, {
+  return AutoMovieEngineQuaternion.rotateVector(state.placement.rotation, {
     x: 0,
     y: 0,
     z: 1,

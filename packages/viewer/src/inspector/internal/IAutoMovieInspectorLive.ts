@@ -1,14 +1,14 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import type {
-  IAutoMovieDrawScene,
-  IAutoMovieInspectionHandle,
+  IAutoMovieRenderDrawScene,
+  IAutoMovieRenderInspectionHandle,
 } from "@automovie/render";
 import type * as THREE from "three";
 
 import type { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
-import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
+import type { AutoMovieViewerInspectorPlayhead } from "../AutoMovieViewerInspectorPlayhead.js";
 import type { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition.js";
-import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
+import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost.js";
 
 /*
  * What an inspector mount holds once its subject is ready: the subject and the
@@ -18,12 +18,12 @@ export interface IAutoMovieInspectorLive {
   /*
    * The created subject.
    */
-  instance: IAutoMovieDrawScene;
+  instance: IAutoMovieRenderDrawScene;
 
   /*
    * The host's renderer.
    */
-  renderer: IAutoMovieInspectorSceneHost.IRenderer;
+  renderer: IAutoMovieViewerInspectorSceneHost.IRenderer;
 
   /*
    * The host's renderer as a WebGL one, or null when it is not.
@@ -43,7 +43,7 @@ export interface IAutoMovieInspectorLive {
   /*
    * The inspection applied to the subject's scene.
    */
-  inspection: IAutoMovieInspectionHandle;
+  inspection: IAutoMovieRenderInspectionHandle;
 
   /*
    * The request that inspection was applied from.
@@ -63,12 +63,12 @@ export interface IAutoMovieInspectorLive {
   /*
    * The playhead snapshot last drawn.
    */
-  drawn: AutoMovieInspectorPlayhead.ISnapshot | undefined;
+  drawn: AutoMovieViewerInspectorPlayhead.ISnapshot | undefined;
 
   /*
    * The size the renderer was last sized to.
    */
-  size: IAutoMovieInspectorSceneHost.ISize | undefined;
+  size: IAutoMovieViewerInspectorSceneHost.ISize | undefined;
 
   /*
    * Whether the next frame must redraw though the snapshot did not change.

@@ -1,8 +1,8 @@
 import {
-  AutoMovieNaturalSpline,
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
-  AutoMovieViewSection,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -79,18 +79,18 @@ export namespace AutoMovieHumanHeadLipPart {
       return Math.acos(Math.max(-1, Math.min(1, -s / half)));
     }
     const xs: number[] = [0, theta(-peak), Math.PI / 2, theta(peak), Math.PI];
-    const base: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const base: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       xs,
       [0, 0, height, 0, 0],
     );
-    const unit: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const unit: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       xs,
       [0, 1, 0, 1, 0],
     );
     const bowHeight: number =
-      -AutoMovieNaturalSpline.derivative(base, xs[3]!)[0] /
-      AutoMovieNaturalSpline.derivative(unit, xs[3]!)[0];
-    const bow: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      -AutoMovieEngineNaturalSpline.derivative(base, xs[3]!)[0] /
+      AutoMovieEngineNaturalSpline.derivative(unit, xs[3]!)[0];
+    const bow: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       xs,
       [0, bowHeight, height, bowHeight, 0],
     );
@@ -98,7 +98,7 @@ export namespace AutoMovieHumanHeadLipPart {
       { length: INTERVALS + 1 },
       (_: unknown, i: number): number => (Math.PI * i) / INTERVALS,
     );
-    const lower: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const lower: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       angles,
       angles.map((angle: number, i: number): number =>
         i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
@@ -111,7 +111,7 @@ export namespace AutoMovieHumanHeadLipPart {
     function border(s: number): number {
       return Math.abs(s) >= half
         ? 0
-        : AutoMovieNaturalSpline.evaluate(upper ? bow : lower, theta(s));
+        : AutoMovieEngineNaturalSpline.evaluate(upper ? bow : lower, theta(s));
     }
     if (attachment.parent !== mass)
       throw new Error("Lip contact belongs to a different material parent");
@@ -155,7 +155,7 @@ export namespace AutoMovieHumanHeadLipPart {
     );
     const prepared:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(positive, {
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(positive, {
       bottom: -half,
       top: half,
     });
@@ -174,7 +174,7 @@ export namespace AutoMovieHumanHeadLipPart {
       if (s === cachedStation && cachedSection !== undefined)
         return cachedSection;
       const own: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(prepared, s);
+        AutoMovieEngineViewOutline.at(prepared, s);
       if (typeof own === "string") throw new Error(`Lip border: ${own}`);
       cachedSection = attachment.section(
         s,
@@ -203,7 +203,7 @@ export namespace AutoMovieHumanHeadLipPart {
         const inverse: [number, number] | null =
           parameter === undefined
             ? [1, 0]
-            : AutoMovieViewParameter.inverseJet(parameter, s);
+            : AutoMovieEngineViewParameter.inverseJet(parameter, s);
         if (inverse === null) return null;
         const first: IAutoMovieLoftSectionFrame = {
           origin: [0, 0, 0],
@@ -244,7 +244,7 @@ export namespace AutoMovieHumanHeadLipPart {
             (station: number): IAutoMovieViewPart.IKnot => ({
               site: "lip.section",
               station,
-              value: AutoMovieViewSection.ELLIPSE,
+              value: AutoMovieEngineViewSection.ELLIPSE,
             }),
           ),
         },

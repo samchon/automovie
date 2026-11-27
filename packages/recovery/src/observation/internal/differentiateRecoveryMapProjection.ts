@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryMapLocalCurvature,
   IAutoMovieRecoveryMapPose,
@@ -33,7 +33,7 @@ export function differentiateRecoveryMapProjection(
     }
   const count: number = tangent === null ? 6 : tangent.length === 0 ? 0 : 5;
   const width: number = count + 3;
-  const rotated: [number, number, number] = AutoMovieMatrix3.apply(
+  const rotated: [number, number, number] = AutoMovieEngineMatrix3.apply(
     pose.rotation,
     point,
   );

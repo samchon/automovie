@@ -6,11 +6,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { SPACE_GROUP_NAME } from "../SPACE_GROUP_NAME.js";
+import { AutoMovieRenderSpaceGroupName } from "../AutoMovieRenderSpaceGroupName.js";
 
 /*
  * Build the structural ground of an IAutoMovieSpace: one `Mesh` per
- * standable surface, grouped under SPACE_GROUP_NAME.
+ * standable surface, grouped under AutoMovieRenderSpaceGroupName.
  *
  * This is what closes the gap between the space the feet obey and the world the
  * guide passes draw (#1173). The surfaces were already the engine's semantic
@@ -42,7 +42,7 @@ export const buildSpaceObject: (space: IAutoMovieSpace) => THREE.Group = (
   space: IAutoMovieSpace,
 ): THREE.Group => {
   const group: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
-  group.name = SPACE_GROUP_NAME;
+  group.name = AutoMovieRenderSpaceGroupName;
   for (const surface of space.surfaces) {
     const geometry: THREE.BufferGeometry<
       THREE.NormalBufferAttributes,

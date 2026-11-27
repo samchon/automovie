@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -203,18 +203,18 @@ export namespace armPhrase {
         ): IAutoMovieVector3 =>
           o === undefined
             ? { x: 0, y: 0, z: 0 }
-            : Vector3.scale(
-                Vector3.add(
-                  Vector3.add(
-                    Vector3.scale(direction(hold.yaw, "out"), o.out),
-                    Vector3.scale(direction(hold.yaw, "up"), o.up),
+            : AutoMovieEngineVector3.scale(
+                AutoMovieEngineVector3.add(
+                  AutoMovieEngineVector3.add(
+                    AutoMovieEngineVector3.scale(direction(hold.yaw, "out"), o.out),
+                    AutoMovieEngineVector3.scale(direction(hold.yaw, "up"), o.up),
                   ),
-                  Vector3.scale(direction(hold.yaw, "forward"), o.forward),
+                  AutoMovieEngineVector3.scale(direction(hold.yaw, "forward"), o.forward),
                 ),
                 reach,
               );
         const aimed: IPlanArmsAimed = aim(side);
-        const place: IAutoMovieVector3 = Vector3.add(
+        const place: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           aimed.point,
           shift(p.offset),
         );
@@ -249,8 +249,8 @@ export namespace armPhrase {
         const offset: IAutoMovieVector3 | null =
           named === null
             ? null
-            : Vector3.subtract(
-                Vector3.add(
+            : AutoMovieEngineVector3.subtract(
+                AutoMovieEngineVector3.add(
                   HumanHand.offset(body, side, "grip").point,
                   named.point,
                 ),
@@ -277,7 +277,7 @@ export namespace armPhrase {
                       ),
                     },
                     {
-                      normal: Vector3.scale(aimed.normal, -1),
+                      normal: AutoMovieEngineVector3.scale(aimed.normal, -1),
                       forward: { x: 0, y: 1, z: 0 },
                     },
                   );
@@ -291,11 +291,11 @@ export namespace armPhrase {
                     // The wrist that puts the working point on the place: the
                     // point's grip-socket offset turned with the hand.
                     wrist: (r: IAutoMovieQuaternion): IAutoMovieVector3 =>
-                      Vector3.subtract(
+                      AutoMovieEngineVector3.subtract(
                         place,
-                        Quaternion.rotateVector(
+                        AutoMovieEngineQuaternion.rotateVector(
                           r,
-                          Vector3.add(
+                          AutoMovieEngineVector3.add(
                             HumanHand.offset(body, side, "grip").point,
                             named.point,
                           ),
@@ -310,14 +310,14 @@ export namespace armPhrase {
         const lever: IAutoMovieVector3 =
           offset === null
             ? { x: 0, y: 0, z: 0 }
-            : Quaternion.rotateVector(rotation, offset);
+            : AutoMovieEngineQuaternion.rotateVector(rotation, offset);
         const target: (
           point: IAutoMovieVector3,
         ) => IAutoMovieMotionHumanArmTarget.ITarget = (
           point: IAutoMovieVector3,
         ): IAutoMovieMotionHumanArmTarget.ITarget =>
           emit({
-            point: Vector3.subtract(point, lever),
+            point: AutoMovieEngineVector3.subtract(point, lever),
             rotation,
             bend,
           });
@@ -341,11 +341,11 @@ export namespace armPhrase {
           from,
           swing,
           target,
-          prepare: Vector3.distance(
-            Vector3.subtract(Vector3.add(place, from), lever),
+          prepare: AutoMovieEngineVector3.distance(
+            AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.add(place, from), lever),
             start,
           ),
-          retract: Vector3.distance(Vector3.subtract(place, lever), start),
+          retract: AutoMovieEngineVector3.distance(AutoMovieEngineVector3.subtract(place, lever), start),
         };
       },
     );
@@ -361,7 +361,7 @@ export namespace armPhrase {
     );
     const beat: number = AutoMovieMotionHumanTiming.seconds("beat");
     const cycles: number = p.count ?? 2;
-    const path: number = Vector3.length(arms[0]!.from);
+    const path: number = AutoMovieEngineVector3.length(arms[0]!.from);
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
       prepare: mods.tempo * prepared,
       attack:
@@ -385,7 +385,7 @@ export namespace armPhrase {
           origin: a.origin,
           manner: mods,
         };
-        const begin: IAutoMovieVector3 = Vector3.add(a.place, a.from);
+        const begin: IAutoMovieVector3 = AutoMovieEngineVector3.add(a.place, a.from);
         const visited: IAutoMovieMotionHumanArmTarget.ITarget = a.target(
           a.place,
         );
@@ -403,7 +403,7 @@ export namespace armPhrase {
                     _seconds: number,
                     progress: number,
                   ): IAutoMovieMotionHumanArmTarget.ITarget =>
-                    a.target(Vector3.lerp(begin, a.place, progress)),
+                    a.target(AutoMovieEngineVector3.lerp(begin, a.place, progress)),
                 })
               : AutoMovieMotionHumanArmPhrase.oscillate({
                   ...phrase,
@@ -413,7 +413,7 @@ export namespace armPhrase {
                     _seconds: number,
                     swing: number,
                   ): IAutoMovieMotionHumanArmTarget.ITarget =>
-                    a.target(Vector3.addScaled(a.place, a.swing, swing)),
+                    a.target(AutoMovieEngineVector3.addScaled(a.place, a.swing, swing)),
                 });
 
         // Targets are fixed above; the move reads root and preserves its

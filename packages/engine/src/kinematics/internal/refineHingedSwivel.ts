@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "../hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../AutoMovieEngineHingedArmSwivel";
 
 /*
  * Refine one swivel bracket by the articulation's original golden-section
@@ -57,9 +57,9 @@ export function refineHingedSwivel<T>(
 /*
  * The original articulation's fixed swivel step, degrees.
  */
-const STEP: number = hingedArmSwivel.STEP;
+const STEP: number = AutoMovieEngineHingedArmSwivel.STEP;
 
 /*
  * The original golden-section contraction factor.
  */
-const GOLDEN: number = hingedArmSwivel.GOLDEN;
+const GOLDEN: number = AutoMovieEngineHingedArmSwivel.GOLDEN;

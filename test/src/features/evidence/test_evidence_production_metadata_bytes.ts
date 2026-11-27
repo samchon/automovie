@@ -1,4 +1,6 @@
-import { verifyEvidenceMetadataRewrite } from "@automovie/evidence/internal";
+import {
+  verifyEvidenceMetadataRewrite
+} from "../../../../packages/evidence/src/narrative/internal/verifyEvidenceMetadataRewrite";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";

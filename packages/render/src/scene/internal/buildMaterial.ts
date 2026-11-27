@@ -5,13 +5,13 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieTextureResolver } from "../IAutoMovieTextureResolver.js";
+import { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { AutoMovieRenderDetailNormalShading } from "../detailNormalShading/index.js";
-import { AutoMovieRenderMaterialOverlayShading } from "../materialOverlayShading/index.js";
-import { AutoMovieRenderProceduralShading } from "../proceduralShading/index.js";
+import { AutoMovieRenderDetailNormalShading, AutoMovieRenderDetailNormalShading } from "../AutoMovieRenderDetailNormalShading.js";
+import { AutoMovieRenderMaterialOverlayShading, AutoMovieRenderMaterialOverlayShading } from "../AutoMovieRenderMaterialOverlayShading.js";
+import { AutoMovieRenderProceduralShading, AutoMovieRenderProceduralShading } from "../AutoMovieRenderProceduralShading.js";
 import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture.js";
-import { AutoMovieRenderSubsurfaceShading } from "../subsurfaceShading/index.js";
+import { AutoMovieRenderSubsurfaceShading, AutoMovieRenderSubsurfaceShading } from "../AutoMovieRenderSubsurfaceShading.js";
 
 /*
  * Build a `three.js` physical PBR material from an automovie material, mapping
@@ -27,10 +27,10 @@ import { AutoMovieRenderSubsurfaceShading } from "../subsurfaceShading/index.js"
  */
 export const buildMaterial: (
   material: IAutoMovieMaterial,
-  resolveTexture?: IAutoMovieTextureResolver,
+  resolveTexture?: IAutoMovieRenderTextureResolver,
 ) => THREE.MeshPhysicalMaterial = (
   material: IAutoMovieMaterial,
-  resolveTexture?: IAutoMovieTextureResolver,
+  resolveTexture?: IAutoMovieRenderTextureResolver,
 ): THREE.MeshPhysicalMaterial => {
   return constructAutoMovieOwnedResources(
     (

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordanceCoupling, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeFrame } from "../core";
@@ -58,7 +58,7 @@ export namespace AutoMovieArchetypeUmbrellaRunner {
     length: number,
     canopy: number,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const rib: number = canopy / 2 / Math.sin((OPEN * Math.PI) / 180);
     const below: (phi: number) => number = (phi: number): number => {
       const a: number = STRETCHER_AT * rib;

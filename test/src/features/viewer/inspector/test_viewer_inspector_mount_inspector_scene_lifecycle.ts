@@ -3,9 +3,9 @@ import type {
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
 import {
-  AutoMovieInspectorPlayhead,
+  AutoMovieViewerInspectorPlayhead,
   AutoMovieViewerInspector,
-  type IAutoMovieInspectorScene,
+  type IAutoMovieViewerInspectorScene,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
@@ -44,7 +44,7 @@ import { InspectorMountRecording } from "../../internal/InspectorMountRecording"
  */
 export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): Promise<void> {
   const host: InspectorMountRecording.Host = new InspectorMountRecording.Host();
-  const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
+  const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
   const request: IAutoMovieCapturePlanRequest = AutoMovieViewerInspector.readAddress(
     "marks=contact&at=0.25",
   );
@@ -66,7 +66,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
     new InspectorMountRecording.Subject(2);
   const report: InspectorMountRecording.Report =
     new InspectorMountRecording.Report();
-  const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
+  const mounted: IAutoMovieViewerInspectorScene = AutoMovieViewerInspector.mountScene({
     name: "recorded",
     subject: second,
     request,
@@ -93,7 +93,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
   );
   TestValidator.equals("one ready report", report.facts.length, 1);
   TestValidator.equals("silent contact is admitted", report.refusals, []);
-  const facts: IAutoMovieInspectorScene.IFacts = report.facts[0]!;
+  const facts: IAutoMovieViewerInspectorScene.IFacts = report.facts[0]!;
   TestValidator.equals("silent contact is selectable", facts.markKinds, [
     "contact",
   ]);
@@ -258,7 +258,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
   );
   const third: InspectorMountRecording.Subject =
     new InspectorMountRecording.Subject(2);
-  const again: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
+  const again: IAutoMovieViewerInspectorScene = AutoMovieViewerInspector.mountScene({
     name: "recorded",
     subject: third,
     request,

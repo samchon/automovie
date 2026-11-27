@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -63,10 +63,10 @@ export namespace VariationSeries {
    * The root mean square distance of points from their mean, metres.
    */
   export function dispersion(points: IAutoMovieVector3[]): number {
-    const mean: IAutoMovieVector3 = Vector3.scale(
+    const mean: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       points.reduce(
         (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(sum, p),
+          AutoMovieEngineVector3.add(sum, p),
         { x: 0, y: 0, z: 0 },
       ),
       1 / points.length,
@@ -74,7 +74,7 @@ export namespace VariationSeries {
     return Math.sqrt(
       points.reduce(
         (sum: number, p: IAutoMovieVector3): number =>
-          sum + Vector3.length(Vector3.subtract(p, mean)) ** 2,
+          sum + AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p, mean)) ** 2,
         0,
       ) / points.length,
     );

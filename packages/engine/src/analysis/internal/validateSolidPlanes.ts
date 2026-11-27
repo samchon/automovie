@@ -3,7 +3,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "../AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
+import { AutoMovieEngineAnalysisMinSolidPlanes } from "../AutoMovieEngineAnalysisMinSolidPlanes";
 
 /*
  * Check the half-spaces of one convex blocker.
@@ -16,7 +16,7 @@ import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "../AUTOMOVIE_ANALYSIS_MIN_S
  * resident plane slots are visited by index and missing records are refused at
  * their slot. The plane-array and other nested vector shapes remain a caller
  * premise; this helper does not validate arbitrary container types. The checks
- * are a plane count of at least `AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES`, finite
+ * are a plane count of at least `AutoMovieEngineAnalysisMinSolidPlanes`, finite
  * normals longer than `1e-12`, and finite offsets. Whether the planes enclose a
  * non-empty, bounded region is not checked, so four or more planes describing
  * an unbounded or empty set pass.
@@ -33,11 +33,11 @@ export function validateSolidPlanes(
   label: string,
   out: IAutoMovieViolationCollector,
 ): void {
-  if (planes.length < AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES)
+  if (planes.length < AutoMovieEngineAnalysisMinSolidPlanes)
     out.push(
       "range",
       path,
-      `a convex ${label} needs at least ${AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES} half-spaces to bound a solid, but had ${planes.length}`,
+      `a convex ${label} needs at least ${AutoMovieEngineAnalysisMinSolidPlanes} half-spaces to bound a solid, but had ${planes.length}`,
       planes.length,
     );
   for (let index: number = 0; index < planes.length; ++index) {

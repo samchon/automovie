@@ -1,6 +1,6 @@
 import {
-  AUTOMOVIE_ARKIT_CHANNELS,
-  AUTOMOVIE_EXPRESSION_PRESETS,
+  AutoMovieEngineArkitChannels,
+  AutoMovieEngineExpressionPresets,
 } from "@automovie/engine";
 import type {
   IAutoMovieExpression,
@@ -9,8 +9,8 @@ import type {
 import * as THREE from "three";
 
 import { AUTOMOVIE_EXPRESSION_PRESET_CHANNELS } from "./AUTOMOVIE_EXPRESSION_PRESET_CHANNELS.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
 import { autoMovieVisemeChannelWeights } from "./autoMovieVisemeChannelWeights.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 
@@ -30,11 +30,11 @@ import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose
  * values of the same channels.
  */
 export const applyExpression: (
-  target: IAutoMovieModelObject,
+  target: IAutoMovieRenderModelObject,
   expression: IAutoMovieExpression | null,
   visemes?: IAutoMovieHumanVisemeWeights,
 ) => void = (
-  target: IAutoMovieModelObject,
+  target: IAutoMovieRenderModelObject,
   expression: IAutoMovieExpression | null,
   visemes?: IAutoMovieHumanVisemeWeights,
 ): void => {
@@ -53,8 +53,8 @@ export const applyExpression: (
 // One list with engine admission, which refuses a pose-driven morph target
 // under any of these names because this reset would overwrite it.
 const EXPRESSION_RESET_NAMES: readonly string[] = [
-  ...AUTOMOVIE_EXPRESSION_PRESETS,
-  ...AUTOMOVIE_ARKIT_CHANNELS,
+  ...AutoMovieEngineExpressionPresets,
+  ...AutoMovieEngineArkitChannels,
 ];
 
 /*
@@ -104,7 +104,7 @@ const applyMorphTargets: (
   weights: ReadonlyMap<string, number>,
 ): void => {
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if (!AutoMovieThreeKind.isMesh(object)) return;
+    if (!AutoMovieRenderThreeKind.isMesh(object)) return;
     const mesh: THREE.Mesh = object;
     if (
       mesh.morphTargetDictionary === undefined ||

@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkSteps,
@@ -68,7 +68,7 @@ export function walkRoot(
     const speed: number = props.walkingSpeed;
     const fast: number = Math.hypot(
       speed,
-      Math.sqrt(4 * AutoMovieGravity.STANDARD * similar * walkRoot.BOB),
+      Math.sqrt(4 * AutoMovieEngineGravity.STANDARD * similar * walkRoot.BOB),
     );
 
     // The swing advances two steps in its swing time. Differentiate its
@@ -167,7 +167,7 @@ export namespace walkRoot {
         continue;
       const centre: number =
         segment.neutral.position.y +
-        Quaternion.rotateVector(segment.neutral.rotation, segment.centerOfMass)
+        AutoMovieEngineQuaternion.rotateVector(segment.neutral.rotation, segment.centerOfMass)
           .y;
       moment += segment.mass * (body.measure.hipHeight - centre);
     }

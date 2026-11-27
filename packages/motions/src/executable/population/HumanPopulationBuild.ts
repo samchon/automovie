@@ -9,7 +9,8 @@ import { HumanPopulationAnchors } from "./HumanPopulationAnchors";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import { HumanPopulationEnds } from "./HumanPopulationEnds";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
-import { f1, m1 } from "./human-parameters/index";
+import { f1 } from "./human-parameters/internal/f1";
+import { m1 } from "./human-parameters/internal/m1";
 
 /*
  * A population end as a full public input set, written from the end's surveyed

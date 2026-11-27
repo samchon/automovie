@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalTracking as Tracking } from "@automovie/engine";
+import { AutoMovieEnginePhysicalTracking as Tracking } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalTracking,

@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 
 /*
  * Measure Euclidean distance in world metres between point, landmark or
@@ -44,6 +44,6 @@ export function measureAutoMovieGeometryDistance(
 
   return {
     kind: "distance",
-    meters: Vector3.length(Vector3.subtract(left, right)),
+    meters: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(left, right)),
   };
 }

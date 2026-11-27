@@ -14,7 +14,7 @@ export namespace IAutoMovieDescribeSubject {
    * where a built element's node is `<environment>/<element>`. Prototype and
    * prototype-part bounds are in model coordinates and every other kind's in
    * world metres. `members` is one page of at most
-   * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` ids in render-id order starting at
+   * `AutoMovieEngineSubjectMemberSampleLimit` ids in render-id order starting at
    * `memberOffset`, clamped to the total. An unknown address, or an offset that
    * is not a whole number of members, throws an `Error`; so does an addressed
    * instance its set cannot regenerate.

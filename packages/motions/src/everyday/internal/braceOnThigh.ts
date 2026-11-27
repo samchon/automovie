@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -103,7 +103,7 @@ export function braceOnThigh(
       return palm({
         point: brace.point,
         rotation: brace.rotation,
-        bend: Vector3.addScaled(
+        bend: AutoMovieEngineVector3.addScaled(
           AutoMovieMotionHumanBend.hang(body, posture, side),
           brace.normal,
           body.measure.forearmRadius,

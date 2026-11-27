@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanMountRider,
@@ -29,7 +29,7 @@ export function sideRideGrips(
     NonNullable<IAutoMovieMotionHumanMountRider.IHoldGrip["across"]>
   >
 > {
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     humanPostureHeading(seated),
     { x: 0, y: 0, z: 1 },
   );
@@ -44,7 +44,7 @@ export function sideRideGrips(
       grips[side];
     if (grip?.axis === undefined) continue;
     sides[side] =
-      Vector3.dot(Vector3.cross(grip.axis, grip.normal), forward) < 0 ? -1 : 1;
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(grip.axis, grip.normal), forward) < 0 ? -1 : 1;
   }
   return sides;
 }

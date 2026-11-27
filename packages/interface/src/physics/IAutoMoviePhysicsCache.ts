@@ -11,7 +11,7 @@ import type { IAutoMoviePhysicalSupportWrench } from "./IAutoMoviePhysicalSuppor
  *
  * Frames use local film seconds at cached rate; checkpoint keys count cached
  * intervals, while ownership and contact samples may carry finer native times.
- * AutoMoviePhysicalSimulation fills this cache and freezes published ordinary
+ * AutoMovieEnginePhysicalSimulation fills this cache and freezes published ordinary
  * records. Methods allocate samples, but public arrays, Maps and snapshot
  * buffers are borrowed producer state. readonly prevents property reassignment,
  * not Map or typed-buffer mutation. Consumers must preserve snapshots and

@@ -1,7 +1,7 @@
 import type { IAutoMovieFormationCadenceSegment } from "@automovie/interface";
 
-import type { IAutoMovieFormationCadence } from "../IAutoMovieFormationCadence.js";
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
+import type { IAutoMovieRenderFormationCadence } from "../IAutoMovieRenderFormationCadence.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
 import { formationCycleCadence } from "./formationCycleCadence.js";
 
 /*
@@ -13,13 +13,13 @@ import { formationCycleCadence } from "./formationCycleCadence.js";
  * remain additional work, and final pixels also depend on host scene state.
  */
 export const applyFormationCycleCadence: (
-  cycle: IAutoMovieFormationCycle,
+  cycle: IAutoMovieRenderFormationCycle,
   segments: readonly IAutoMovieFormationCadenceSegment[],
-) => IAutoMovieFormationCadence = (
-  cycle: IAutoMovieFormationCycle,
+) => IAutoMovieRenderFormationCadence = (
+  cycle: IAutoMovieRenderFormationCycle,
   segments: readonly IAutoMovieFormationCadenceSegment[],
-): IAutoMovieFormationCadence => {
-  const cadence: IAutoMovieFormationCadence = formationCycleCadence(
+): IAutoMovieRenderFormationCadence => {
+  const cadence: IAutoMovieRenderFormationCadence = formationCycleCadence(
     cycle,
     segments,
   );

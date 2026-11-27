@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -151,15 +151,15 @@ export namespace treeClimbRoute {
     // runs along the branch, so every hold is sided by that facing.
     const facing: IAutoMovieVector3 = { x: toward.z, y: 0, z: -toward.x };
     const along: boolean =
-      Math.abs(Vector3.dot(lowest.direction, facing)) < Math.SQRT1_2;
+      Math.abs(AutoMovieEngineVector3.dot(lowest.direction, facing)) < Math.SQRT1_2;
     const right: IAutoMovieVector3 = along
-      ? Vector3.scale(lowest.direction, -1)
+      ? AutoMovieEngineVector3.scale(lowest.direction, -1)
       : facing;
     const sided = (
       branch: treeLimbs.IBranch,
       pair: readonly [number, number],
     ): Record<AutoMovieHumanSide, number> =>
-      Vector3.dot(branch.direction, right) >= 0
+      AutoMovieEngineVector3.dot(branch.direction, right) >= 0
         ? { left: pair[0], right: pair[1] }
         : { left: pair[1], right: pair[0] };
     const grip = (
@@ -209,7 +209,7 @@ export namespace treeClimbRoute {
         kind: hand ? "grip" : "bear",
         key: `${side}${hand ? "Hand" : "Foot"}@bole${height.toFixed(3)}`,
         point,
-        normal: Vector3.normalize({
+        normal: AutoMovieEngineVector3.normalize({
           x: point.x - tree.bole.foot.x,
           y: 0,
           z: point.z - tree.bole.foot.z,
@@ -222,7 +222,7 @@ export namespace treeClimbRoute {
     const arm: number = measure.upperArm + measure.forearm;
     const hands: (k: number) => IHold[] = (k: number): IHold[] => {
       const next: treeLimbs.IBranch | undefined = tree.branches[k + 1];
-      const feet: IAutoMovieVector3 = Vector3.lerp(
+      const feet: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         stand(tree.branches[k]!, "left").point,
         stand(tree.branches[k]!, "right").point,
         0.5,
@@ -264,7 +264,7 @@ export namespace treeClimbRoute {
         (treeClimbRouteForms.HOLDS[0] + treeClimbRouteForms.HOLDS[1]) / 2,
         0,
       );
-      const centre: IAutoMovieVector3 = Vector3.addScaled(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         { x: under.x, y: from.point.y, z: under.z },
         ahead,
         -measure.hand,
@@ -275,7 +275,7 @@ export namespace treeClimbRoute {
       ): IHold => ({
         ...hold,
         key: `${hold.key}@across`,
-        point: Vector3.addScaled(
+        point: AutoMovieEngineVector3.addScaled(
           centre,
           right,
           (side === "right" ? 1 : -1) * treeClimbRouteForms.SPLAY,
@@ -286,7 +286,7 @@ export namespace treeClimbRoute {
       const grips: IHold[] = [grip(lowest, "left"), grip(lowest, "right")];
       // The steps on the bole are on its face toward where the climber now
       // stands, under the grip.
-      const facingBole: IAutoMovieVector3 = Vector3.normalize({
+      const facingBole: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: centre.x - tree.bole.foot.x,
         y: 0,
         z: centre.z - tree.bole.foot.z,
@@ -306,7 +306,7 @@ export namespace treeClimbRoute {
           kind: "bear",
           key: `${side}Foot@bole${height.toFixed(3)}@across`,
           point,
-          normal: Vector3.normalize({
+          normal: AutoMovieEngineVector3.normalize({
             x: point.x - tree.bole.foot.x,
             y: 0,
             z: point.z - tree.bole.foot.z,
@@ -429,8 +429,8 @@ export namespace treeClimbRoute {
     index: number,
   ): IStance[] {
     const branch: treeLimbs.IBranch = tree.branches[index]!;
-    const seatOut: number = Vector3.dot(
-      Vector3.subtract(branch.seat, branch.root),
+    const seatOut: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(branch.seat, branch.root),
       branch.direction,
     );
     const hands: IHold[] = standing.holds.filter(

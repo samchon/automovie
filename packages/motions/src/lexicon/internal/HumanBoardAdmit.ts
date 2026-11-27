@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBoard,
@@ -9,7 +9,7 @@ import type {
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanMountedFrame } from "./HumanMountedFrame";
-import * as HumanBoardAdmitData from "./HumanBoardAdmitData";
+import { HumanBoardAdmitData } from "./HumanBoardAdmitData";
 
 /*
  * Admit a boarding: the performer's take-off velocity against the seat (the
@@ -39,9 +39,9 @@ export function HumanBoardAdmit(
     film: number,
   ): IAutoMovieVector3 => {
     const frame: IAutoMovieRigidTransform = carrier(film);
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(self(film), frame.position),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
+      AutoMovieEngineVector3.subtract(self(film), frame.position),
     );
   };
   // A performer with no motion of its own before the act has none against the
@@ -50,9 +50,9 @@ export function HumanBoardAdmit(
   // other error propagates.
   let slip: number = 0;
   try {
-    slip = Vector3.length(
-      Vector3.scale(
-        Vector3.subtract(relative(context.start), relative(context.start - h)),
+    slip = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(relative(context.start), relative(context.start - h)),
         1 / h,
       ),
     );
@@ -101,7 +101,7 @@ export namespace HumanBoardAdmit {
     from: Pick<IAutoMovieMotionHumanPosture, "root">,
     key: Pick<IAutoMovieMotionHumanPosture, "root">,
   ): void {
-    const way: IAutoMovieVector3 = Vector3.subtract(key.root, from.root);
+    const way: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(key.root, from.root);
     const checks: readonly [string, number, number][] = [
       ["speed", slip, HumanBoardAdmitData.BOUNDS.speed],
       ["reach", Math.hypot(way.x, way.z), HumanBoardAdmitData.BOUNDS.reach],

@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief } from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkFeature,
   IAutoMovieHumanTrunkReliefNet,
@@ -142,7 +142,7 @@ export namespace AutoMovieHumanTrunkReliefNet {
     };
 
     // Scale the net so the evaluated relief reaches the feature's height at the apex.
-    const reached: number = AutoMovieLoftRelief.height(relief, apexS, apexT)[0];
+    const reached: number = AutoMovieEngineLoftRelief.height(relief, apexS, apexT)[0];
     const wanted: number = feature.height(feature.apex[0], feature.apex[1]);
     const gain: number = reached !== 0 ? wanted / reached : 0;
     const scaled: number[] = heights.map((h: number): number => h * gain);

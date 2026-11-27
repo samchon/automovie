@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeLadle } from "../AutoMovieArchetypeLadle";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { HandToolDraw } from "./HandToolDraw";
@@ -28,7 +28,7 @@ export function createLadle(
     HandToolDraw.prepare<AutoMovieArchetypeLadle.Affordance>("ladle", params, seed);
   const length: number = d.length!;
   const radius: number = d.gripDiameter! / 2;
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
   const handle: number = length - d.bowl!;
   HandToolDraw.handle(builder, handle, radius, {

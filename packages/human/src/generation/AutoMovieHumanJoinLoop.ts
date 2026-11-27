@@ -1,5 +1,5 @@
 import { AutoMovieHumanSkinCutLoop } from "./AutoMovieHumanSkinCutLoop";
-import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource as Full } from "@automovie/engine";
 import type {
   IAutoMovieConstructionChartPoint,
   IAutoMovieConstructionPortLoop,
@@ -53,7 +53,7 @@ export namespace AutoMovieHumanJoinLoop {
    * A world point's address on a part's chart: the station at which the point lies in the course's section plane, mm, and its polar
    * angle in that station's frame, rad.
    *
-   * The section plane's normal is `v x u` (`AutoMovieLoftFrame`), and a point `d` ahead of a section along it lies about `d` of
+   * The section plane's normal is `v x u` (`AutoMovieEngineLoftFrame`), and a point `d` ahead of a section along it lies about `d` of
    * station ahead, so the first step is that distance and lands on a straight course; round a turn the distance to the plane is
    * brought to zero by the secant through the last two stations, which does not depend on how tight the turn is (stepped by the
    * distance alone, a made turn whose tightest radius is 1.6 times the point's distance had not landed in 64 steps).

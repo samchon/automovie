@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -40,7 +40,7 @@ export namespace CarRear {
     >,
     l: CarBody.ILayout,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const width: number = l.d.width!;
     const length: number = l.back - l.rear;
     const middle: number = (l.back + l.rear) / 2;
@@ -125,7 +125,7 @@ export namespace CarRear {
     >,
     l: CarBody.ILayout,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const width: number = l.d.width!;
     const bulkhead: number = CarBody.bulkhead(l);
     const opening: number = l.d.sideDoorWidth!;
@@ -186,7 +186,7 @@ export namespace CarRear {
     >,
     l: CarBody.ILayout,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const inner: number = l.d.bedWidth!;
     const floor: number = l.d.bedFloor!;
     const length: number = l.d.bedLength!;

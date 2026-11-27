@@ -1,5 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
-import { demandedHumanChannels } from "@automovie/motions/internal";
+import {
+  demandedHumanChannels
+} from "../../../../../packages/motions/src/perform/internal/demandedHumanChannels";
 import { TestValidator } from "@nestia/e2e";
 
 /**

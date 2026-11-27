@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeConsoleData from "./internal/AutoMovieArchetypeConsoleData";
+import { AutoMovieArchetypeConsoleData } from "./internal/AutoMovieArchetypeConsoleData";
 
 /** Constructs the console archetype from its recipe. */
 export namespace AutoMovieArchetypeConsole {
@@ -61,7 +61,7 @@ export function create(
     name: `control console ${size.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const { depth, surface, thickness } = AutoMovieArchetypeConsoleData.CONSOLE;
   const panel: number = ESTIMATES.panel;
   const rear: number = depth - surface;

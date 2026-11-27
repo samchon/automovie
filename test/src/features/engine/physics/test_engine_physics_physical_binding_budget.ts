@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry as Geometry, AutoMoviePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
   IAutoMoviePhysicalJoint,

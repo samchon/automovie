@@ -2,8 +2,8 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createLariat as createLariatImplementation } from "./internal/createLariat";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../core";
 import { type IAutoMovieVector3 } from "@automovie/interface";
-import { Vector3 } from "@automovie/engine";
-import * as AutoMovieArchetypeLariatData from "./internal/AutoMovieArchetypeLariatData";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+import { AutoMovieArchetypeLariatData } from "./internal/AutoMovieArchetypeLariatData";
 
 /** Public operations for Auto Movie Archetype Lariat. */
 export namespace AutoMovieArchetypeLariat {
@@ -129,7 +129,7 @@ export namespace AutoMovieArchetypeLariat {
     length: number,
     segments: number = SEGMENTS,
   ): IStanding {
-    const chord: number = Vector3.distance(from, to);
+    const chord: number = AutoMovieEngineVector3.distance(from, to);
     const taut: boolean = chord >= length;
     const sag: number =
       taut || chord === 0 ? 0 : Math.sqrt((3 * chord * (length - chord)) / 8);
@@ -137,7 +137,7 @@ export namespace AutoMovieArchetypeLariat {
     for (let k: number = 0; k <= segments; ++k) {
       const u: number = k / segments;
       points.push(
-        Vector3.add(Vector3.lerp(from, to, u), {
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(from, to, u), {
           x: 0,
           y: -4 * sag * u * (1 - u),
           z: 0,

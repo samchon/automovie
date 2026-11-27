@@ -2,8 +2,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { AutoMovieRenderSurfaceAppearance } from "../AutoMovieRenderSurfaceAppearance.js";
-import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderSkinnedMesh } from "../AutoMovieRenderSkinnedMesh.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
 import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
@@ -126,7 +126,7 @@ export function createAutoMovieSurfaceAppearance(
         adapter,
       });
       surface.mesh.geometry = geometry;
-      surface.mesh.material = AutoMovieThreeKind.isMaterial(originalMaterial)
+      surface.mesh.material = AutoMovieRenderThreeKind.isMaterial(originalMaterial)
         ? materials[0]!
         : materials;
     }
@@ -150,7 +150,7 @@ export function createAutoMovieSurfaceAppearance(
         position.copyArray(record.positions);
         if (record.moved) {
           position.needsUpdate = true;
-          if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(record.mesh))
+          if (AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(record.mesh))
             record.mesh.invalidatePose();
         }
         let moved: boolean = false;
@@ -201,10 +201,10 @@ export function createAutoMovieSurfaceAppearance(
           record.geometry.computeVertexNormals();
           record.geometry.computeBoundingSphere();
           record.geometry.computeBoundingBox();
-          if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(record.mesh))
+          if (AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(record.mesh))
             record.mesh.invalidatePose();
-          else if (AutoMovieThreeKind.isSkinnedMesh(record.mesh))
-            AutoMovieSkinnedMesh.clearBounds(record.mesh);
+          else if (AutoMovieRenderThreeKind.isSkinnedMesh(record.mesh))
+            AutoMovieRenderSkinnedMesh.clearBounds(record.mesh);
         }
         record.moved = moved;
       }

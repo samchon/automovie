@@ -1,5 +1,5 @@
 import type { IAutoMovieMeshPhysicalVertices } from "@automovie/interface";
-import { AutoMovieGeometryPhysicalVertices } from "@automovie/render";
+import { AutoMovieRenderGeometryPhysicalVertices } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
   BufferAttribute,
@@ -42,23 +42,23 @@ export function test_render_scene_geometry_physical_vertices(): void {
     sources: [{ domain: "opaque-source", id: 66991 }],
     vertices: [0, null],
   };
-  AutoMovieGeometryPhysicalVertices.writeOwned(generated, authored);
+  AutoMovieRenderGeometryPhysicalVertices.writeOwned(generated, authored);
   authored.sources[0]!.id = 1;
   authored.vertices[0] = null;
   const read: IAutoMovieMeshPhysicalVertices =
-    AutoMovieGeometryPhysicalVertices.read(generated)!;
+    AutoMovieRenderGeometryPhysicalVertices.read(generated)!;
   TestValidator.equals("writing owns the supplied records", read, expected);
   read.sources[0]!.id = 2;
   read.vertices[1] = 0;
   TestValidator.equals(
     "reading owns the returned records",
-    AutoMovieGeometryPhysicalVertices.read(generated),
+    AutoMovieRenderGeometryPhysicalVertices.read(generated),
     expected,
   );
-  AutoMovieGeometryPhysicalVertices.writeOwned(generated, undefined);
+  AutoMovieRenderGeometryPhysicalVertices.writeOwned(generated, undefined);
   TestValidator.equals(
     "removed table stays absent",
-    AutoMovieGeometryPhysicalVertices.read(generated),
+    AutoMovieRenderGeometryPhysicalVertices.read(generated),
     undefined,
   );
 
@@ -72,20 +72,20 @@ export function test_render_scene_geometry_physical_vertices(): void {
   TestValidator.predicate(
     "a missing wire source table refuses",
     throwsError(
-      () => AutoMovieGeometryPhysicalVertices.read(imported),
+      () => AutoMovieRenderGeometryPhysicalVertices.read(imported),
       "Orphan physical source",
     ),
   );
   imported.userData.automoviePhysicalVertices = { sources: expected.sources };
   TestValidator.equals(
     "wire components follow the accessor stride",
-    AutoMovieGeometryPhysicalVertices.read(imported),
+    AutoMovieRenderGeometryPhysicalVertices.read(imported),
     expected,
   );
   TestValidator.predicate(
     "owned update refuses imported storage",
     throwsError(
-      () => AutoMovieGeometryPhysicalVertices.writeOwned(imported, expected),
+      () => AutoMovieRenderGeometryPhysicalVertices.writeOwned(imported, expected),
       "metadata is readonly",
     ),
   );

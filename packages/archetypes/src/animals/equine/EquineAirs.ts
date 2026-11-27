@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeFrame } from "../../core";
@@ -90,7 +90,7 @@ export namespace EquineAirs {
       levade.start.trunk,
       { x: 0, y: 0, z: LEAP },
     );
-    const travel: IAutoMovieVector3 = Vector3.scale(forward, cue.leaps);
+    const travel: IAutoMovieVector3 = AutoMovieEngineVector3.scale(forward, cue.leaps);
     const held: EquineBodyPose.IGoal = levade.goal(1);
     const period: number = cue.hold / cue.leaps;
     const apex: number = (GRAVITY * period * period) / 8;
@@ -111,7 +111,7 @@ export namespace EquineAirs {
         const u: number = Math.min(1, seconds / period - k);
         const base: EquineBodyPose.IGoal = shift(
           held,
-          Vector3.scale(forward, k),
+          AutoMovieEngineVector3.scale(forward, k),
         );
         const limbs: Record<
           AutoMovieArchetypeQuadrupedBody.Limb,
@@ -128,7 +128,7 @@ export namespace EquineAirs {
         return {
           trunk: EquineStanceSupport.moved(
             base.trunk,
-            Vector3.addScaled(
+            AutoMovieEngineVector3.addScaled(
               { x: 0, y: 4 * apex * u * (1 - u), z: 0 },
               forward,
               u,
@@ -236,7 +236,7 @@ export namespace EquineAirs {
     for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const state: EquineBodyPose.Limb = goal.limbs[limb];
       if (state.kind === "placed")
-        limbs[limb] = { ...state, anchor: Vector3.add(state.anchor, by) };
+        limbs[limb] = { ...state, anchor: AutoMovieEngineVector3.add(state.anchor, by) };
     }
     return { trunk: EquineStanceSupport.moved(goal.trunk, by), limbs };
   }
@@ -251,10 +251,10 @@ export namespace EquineAirs {
     return {
       trunk: EquineStanceSupport.moved(state.trunk, by),
       anchors: {
-        leftFore: Vector3.add(state.anchors.leftFore, by),
-        rightFore: Vector3.add(state.anchors.rightFore, by),
-        leftHind: Vector3.add(state.anchors.leftHind, by),
-        rightHind: Vector3.add(state.anchors.rightHind, by),
+        leftFore: AutoMovieEngineVector3.add(state.anchors.leftFore, by),
+        rightFore: AutoMovieEngineVector3.add(state.anchors.rightFore, by),
+        leftHind: AutoMovieEngineVector3.add(state.anchors.leftHind, by),
+        rightHind: AutoMovieEngineVector3.add(state.anchors.rightHind, by),
       },
     };
   }

@@ -1,6 +1,8 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { AutoMovieMotionClock } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

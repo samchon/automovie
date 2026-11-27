@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The rigid ring modules of a humanoid body, each a short stack of eight-sided
@@ -60,8 +60,8 @@ export function resolveAutoMovieHumanoidRingModules(
     if (list.length === 0)
       throw new Error("A ring module requires joint endpoints");
     let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const bone of list) centre = Vector3.add(centre, at(bone));
-    return Vector3.scale(centre, 1 / list.length);
+    for (const bone of list) centre = AutoMovieEngineVector3.add(centre, at(bone));
+    return AutoMovieEngineVector3.scale(centre, 1 / list.length);
   };
   const modules: IAutoMovieResolveHumanoidRingModules.IModule[] = [];
   const drawn: Set<string> = new Set();
@@ -74,23 +74,23 @@ export function resolveAutoMovieHumanoidRingModules(
   ): void => {
     // The section frame: the axis as normal, the first in-plane axis across
     // the breadth axis (forward when none is given), the second along it.
-    const normal: IAutoMovieVector3 = Vector3.scale(
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       axis,
-      1 / Vector3.length(axis),
+      1 / AutoMovieEngineVector3.length(axis),
     );
     let u: IAutoMovieVector3 =
-      breadth === null ? { x: 1, y: 0, z: 0 } : Vector3.cross(breadth, normal);
-    u = Vector3.subtract(u, Vector3.scale(normal, Vector3.dot(u, normal)));
-    if (Vector3.dot(u, u) < Number.EPSILON)
-      u = Vector3.subtract(
+      breadth === null ? { x: 1, y: 0, z: 0 } : AutoMovieEngineVector3.cross(breadth, normal);
+    u = AutoMovieEngineVector3.subtract(u, AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(u, normal)));
+    if (AutoMovieEngineVector3.dot(u, u) < Number.EPSILON)
+      u = AutoMovieEngineVector3.subtract(
         { x: 0, y: 1, z: 0 },
-        Vector3.scale(normal, normal.y),
+        AutoMovieEngineVector3.scale(normal, normal.y),
       );
-    u = Vector3.scale(u, 1 / Vector3.length(u));
-    const cross: IAutoMovieVector3 = Vector3.cross(normal, u);
-    const v: IAutoMovieVector3 = Vector3.scale(
+    u = AutoMovieEngineVector3.scale(u, 1 / AutoMovieEngineVector3.length(u));
+    const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(normal, u);
+    const v: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       cross,
-      1 / Vector3.length(cross),
+      1 / AutoMovieEngineVector3.length(cross),
     );
     modules.push({
       bone: bone.bone,
@@ -104,11 +104,11 @@ export function resolveAutoMovieHumanoidRingModules(
             { length: SIDES },
             (_: unknown, index: number): IAutoMovieVector3 => {
               const angle: number = (2 * Math.PI * index) / SIDES;
-              return Vector3.add(
+              return AutoMovieEngineVector3.add(
                 ring.centre,
-                Vector3.add(
-                  Vector3.scale(u, Math.cos(angle) * ring.depth),
-                  Vector3.scale(v, Math.sin(angle) * ring.breadth),
+                AutoMovieEngineVector3.add(
+                  AutoMovieEngineVector3.scale(u, Math.cos(angle) * ring.depth),
+                  AutoMovieEngineVector3.scale(v, Math.sin(angle) * ring.breadth),
                 ),
               );
             },
@@ -175,7 +175,7 @@ export function resolveAutoMovieHumanoidRingModules(
   const crown: IAutoMovieVector3 =
     head.tip !== null
       ? vector(head.tip)
-      : Vector3.add(at(head), { x: 0, y: 2 * head.radius, z: 0 });
+      : AutoMovieEngineVector3.add(at(head), { x: 0, y: 2 * head.radius, z: 0 });
   const neckRings: ISection[] = [
     section(at(neck), neck.radius, neck.radius),
     section(at(head), neck.radius * 0.92, neck.radius * 0.92),
@@ -185,12 +185,12 @@ export function resolveAutoMovieHumanoidRingModules(
     [
       neckRings[1]!,
       section(
-        Vector3.lerp(at(head), crown, 0.35),
+        AutoMovieEngineVector3.lerp(at(head), crown, 0.35),
         head.radius,
         head.radius * 0.92,
       ),
       section(
-        Vector3.lerp(at(head), crown, 0.75),
+        AutoMovieEngineVector3.lerp(at(head), crown, 0.75),
         head.radius * 0.85,
         head.radius * 0.8,
       ),
@@ -229,26 +229,26 @@ export function resolveAutoMovieHumanoidRingModules(
     // section sits at the farthest root along that axis, so every finger
     // starts on or inside the palm and no knuckle is left bare beyond it.
     const mean: IAutoMovieVector3 = average(roots);
-    const toward: IAutoMovieVector3 = Vector3.subtract(mean, at(hand));
-    const reach: number = Vector3.length(toward);
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(mean, at(hand));
+    const reach: number = AutoMovieEngineVector3.length(toward);
     if (!(reach > 0))
       throw new Error(`The palm of ${hand.bone} has no length to its fingers`);
     const farthest: number = Math.max(
       ...roots.map(
         (root: IAutoMovieResolveHumanoidRingModules.IBone): number =>
-          Vector3.dot(Vector3.subtract(at(root), at(hand)), toward) / reach,
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(at(root), at(hand)), toward) / reach,
       ),
     );
-    const knuckles: IAutoMovieVector3 = Vector3.add(
+    const knuckles: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       at(hand),
-      Vector3.scale(toward, farthest / reach),
+      AutoMovieEngineVector3.scale(toward, farthest / reach),
     );
-    const across: IAutoMovieVector3 = Vector3.subtract(
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       at(roots[0]!),
       at(roots[3]!),
     );
     const width: number =
-      Vector3.length(across) / 2 + Math.max(roots[0]!.radius, roots[3]!.radius);
+      AutoMovieEngineVector3.length(across) / 2 + Math.max(roots[0]!.radius, roots[3]!.radius);
     const wrist: number = Math.min(
       hand.radius,
       boneAt(`${side}LowerArm`).radius,
@@ -259,7 +259,7 @@ export function resolveAutoMovieHumanoidRingModules(
         section(at(hand), wrist, wrist),
         section(knuckles, hand.radius, Math.max(width, hand.radius)),
       ],
-      Vector3.subtract(knuckles, at(hand)),
+      AutoMovieEngineVector3.subtract(knuckles, at(hand)),
       across,
       null,
     );
@@ -286,7 +286,7 @@ export function resolveAutoMovieHumanoidRingModules(
         section(at(subtalar), subtalar.radius, subtalar.radius),
         section(at(midfoot), midfoot.radius, footWidth),
       ],
-      Vector3.subtract(at(midfoot), at(subtalar)),
+      AutoMovieEngineVector3.subtract(at(midfoot), at(subtalar)),
       LEFT,
       null,
     );
@@ -296,7 +296,7 @@ export function resolveAutoMovieHumanoidRingModules(
         section(at(midfoot), midfoot.radius, footWidth),
         section(toeCentre, midfoot.radius, footWidth),
       ],
-      Vector3.subtract(toeCentre, at(midfoot)),
+      AutoMovieEngineVector3.subtract(toeCentre, at(midfoot)),
       LEFT,
       null,
     );
@@ -323,8 +323,8 @@ export function resolveAutoMovieHumanoidRingModules(
     if (end === undefined) continue;
     const start: IAutoMovieVector3 = at(bone);
     const finish: IAutoMovieVector3 = vector(end);
-    const axis: IAutoMovieVector3 = Vector3.subtract(finish, start);
-    if (!(Vector3.dot(axis, axis) > 0)) continue;
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(finish, start);
+    if (!(AutoMovieEngineVector3.dot(axis, axis) > 0)) continue;
     const distal: number =
       bone.tip === null
         ? Math.min(bone.radius, next?.radius ?? bone.radius)
@@ -334,7 +334,7 @@ export function resolveAutoMovieHumanoidRingModules(
       [
         { centre: start, depth: bone.radius, breadth: bone.radius },
         {
-          centre: Vector3.lerp(start, finish, 0.5),
+          centre: AutoMovieEngineVector3.lerp(start, finish, 0.5),
           depth: bone.radius,
           breadth: bone.radius,
         },

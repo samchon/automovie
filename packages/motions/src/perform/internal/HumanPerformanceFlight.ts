@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineMotionTrajectory, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineMotionTrajectory, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFlight, IAutoMovieMotionHumanFlightTurns, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieResolveCenterOfMass } from "@automovie/interface";
 
 import { jumpAirborne } from "../../actions/internal/jumpAirborne";
@@ -171,7 +171,7 @@ export namespace HumanPerformanceFlight {
             model,
             readBones(pose, evaluation.resolution()),
           ),
-          root: pose.root?.rotation ?? Quaternion.identity(),
+          root: pose.root?.rotation ?? AutoMovieEngineQuaternion.identity(),
         };
       },
     );

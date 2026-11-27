@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
-import { composeAutoMovieMotionHumanAction } from "@automovie/motions/internal";
+import {
+  composeAutoMovieMotionHumanAction
+} from "../../../../../packages/motions/src/compose/internal/composeAutoMovieMotionHumanAction";
 import { TestValidator } from "@nestia/e2e";
 
 import { linearMotionClock } from "../../internal/synthetic/linearMotionClock";

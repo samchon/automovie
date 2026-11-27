@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalJointChart, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysicalJointChart, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
@@ -58,7 +58,7 @@ export function test_engine_physics_physical_joint_chart(): void {
     { position: zero, rotation: identity };
 
   // 1. Inside the chart box, past it in the independent reading.
-  const inside: IAutoMovieQuaternion = AutoMoviePhysicalJointChart.compose(
+  const inside: IAutoMovieQuaternion = AutoMovieEnginePhysicalJointChart.compose(
     order,
     [1.2, 0.9, 0.4],
   );
@@ -109,7 +109,7 @@ export function test_engine_physics_physical_joint_chart(): void {
     );
 
   // 2. Past the chart box on y.
-  const past: IAutoMovieQuaternion = AutoMoviePhysicalJointChart.compose(
+  const past: IAutoMovieQuaternion = AutoMovieEnginePhysicalJointChart.compose(
     order,
     [1.2, 1.1, 0.4],
   );

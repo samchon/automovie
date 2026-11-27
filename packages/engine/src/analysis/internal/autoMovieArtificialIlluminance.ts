@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 
 /*
@@ -34,11 +34,11 @@ export function autoMovieArtificialIlluminance(props: {
 }): number {
   let total: number = 0;
   for (const luminaire of props.luminaires) {
-    const offset: IAutoMovieVector3 = Vector3.subtract(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       luminaire.position,
       props.point,
     );
-    const distance: number = Vector3.length(offset);
+    const distance: number = AutoMovieEngineVector3.length(offset);
     if (distance <= EPSILON) {
       // Reported once per fitting rather than once per sample: the fact is
       // about the luminaire, and a warning repeated per grid cell would bury
@@ -53,8 +53,8 @@ export function autoMovieArtificialIlluminance(props: {
       }
       continue;
     }
-    const direction: IAutoMovieVector3 = Vector3.normalize(offset);
-    const incidence: number = Vector3.dot(props.normal, direction);
+    const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(offset);
+    const incidence: number = AutoMovieEngineVector3.dot(props.normal, direction);
     if (incidence <= 0) continue;
     if (
       autoMovieRayObstructed({

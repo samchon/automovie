@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -63,9 +63,9 @@ export function KickLaunch(
   // horizontal reach at the target's height from the hip's standing height.
   const stance: IAutoMovieMotionHumanStrikingTarget.IStance =
     StrikingTarget.stance(context.entry);
-  const ahead: number = Vector3.dot(
-    Vector3.subtract(
-      Vector3.lerp(
+  const ahead: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.lerp(
         { ...entry.root, y: 0 },
         { ...feet[support].ankle, y: 0 },
         KickForm.CENTRE_SHARE,
@@ -92,8 +92,8 @@ export function KickLaunch(
   const first: IAutoMovieVector3 = aim(t0 - StrikingTarget.LOOK);
   const line: IAutoMovieVector3 =
     kept?.line ?? StrikingTarget.line(entry.root, first, entry.yaw);
-  const outward: IAutoMovieVector3 = Vector3.scale(
-    Vector3.cross(up, line),
+  const outward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.cross(up, line),
     side === "left" ? 1 : -1,
   );
   const level: OfLevel = KickLaunch.band(m, first);
@@ -110,13 +110,13 @@ export function KickLaunch(
     : 0;
   const pitch: number = round ? 0 : -KickForm.PUSH_PITCH * amplitude;
   const direction: IAutoMovieVector3 = round
-    ? Vector3.normalize(
-        Vector3.add(
-          Vector3.add(
-            Vector3.scale(outward, -KickForm.TRAVEL.across),
-            Vector3.scale(line, KickForm.TRAVEL.along),
+    ? AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(outward, -KickForm.TRAVEL.across),
+            AutoMovieEngineVector3.scale(line, KickForm.TRAVEL.along),
           ),
-          Vector3.scale(up, KickForm.TRAVEL.vertical[level]),
+          AutoMovieEngineVector3.scale(up, KickForm.TRAVEL.vertical[level]),
         ),
       )
     : line;
@@ -126,13 +126,13 @@ export function KickLaunch(
     ...(p.accuracy === undefined ? {} : { accuracy: p.accuracy }),
     direction,
     radius: m.shankRadius,
-    distance: Vector3.distance(first, feet[side].ankle),
+    distance: AutoMovieEngineVector3.distance(first, feet[side].ankle),
     seconds: impact - prep,
   });
 
   // The goal the tracker plans at the launch (`StrikingAim.track`'s first
   // prediction).
-  const planned: IAutoMovieVector3 = Vector3.add(
+  const planned: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     StrikingAim.predict(
       aim,
       t0 - StrikingTarget.LOOK,
@@ -219,7 +219,7 @@ export function KickLaunch(
             ? StrikingSkill.IMPACT_SPEED_SHARE.kick
             : KickForm.PUSH_SPEED_SHARE,
         plant: { knee, ankle: origin, rotation: feet[side].rotation },
-        step: Vector3.scale(line, found.carriage.step),
+        step: AutoMovieEngineVector3.scale(line, found.carriage.step),
       }),
     };
   };

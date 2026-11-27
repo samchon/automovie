@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -245,16 +245,16 @@ export namespace HumanMount {
     const ankle: IAutoMovieVector3 =
       over === undefined
         ? line
-        : Vector3.add(
+        : AutoMovieEngineVector3.add(
             line,
-            Vector3.scale(
-              Vector3.subtract(over, Vector3.lerp(from.ankle, to.ankle, 0.5)),
+            AutoMovieEngineVector3.scale(
+              AutoMovieEngineVector3.subtract(over, AutoMovieEngineVector3.lerp(from.ankle, to.ankle, 0.5)),
               4 * s * (1 - s),
             ),
           );
     return {
       ankle: { ...ankle, y: ankle.y + lift * Math.sin(Math.PI * s) },
-      bend: Vector3.lerp(from.bend, to.bend, s),
+      bend: AutoMovieEngineVector3.lerp(from.bend, to.bend, s),
       yaw: from.yaw + (to.yaw - from.yaw) * s,
     };
   }

@@ -1,9 +1,9 @@
 import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieNaturalSpline,
-  AutoMovieViewSection,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   IAutoMovieConstructionView,
@@ -134,14 +134,14 @@ export namespace AutoMovieHumanHeadEarPlate {
     widthSites.sort(
       (a: [number, number], b: [number, number]): number => a[0] - b[0],
     );
-    const width: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    const width: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
       widthSites.map((p: [number, number]): number => theta(p[0])),
       widthSites.map((p: [number, number]): number => p[1]),
     );
     function half(y: number): number {
       return y === low || y === high
         ? 0
-        : AutoMovieNaturalSpline.evaluate(width, theta(y));
+        : AutoMovieEngineNaturalSpline.evaluate(width, theta(y));
     }
     const stand: number = (f.protrusion * 8.3) / 17.3;
     function rootZ(y: number): number {
@@ -223,7 +223,7 @@ export namespace AutoMovieHumanHeadEarPlate {
             (station: number): IAutoMovieViewPart.IKnot => ({
               site: "auricle.ellipse",
               station,
-              value: AutoMovieViewSection.ELLIPSE,
+              value: AutoMovieEngineViewSection.ELLIPSE,
             }),
           ),
         },
@@ -248,17 +248,17 @@ export namespace AutoMovieHumanHeadEarPlate {
     const actualLow: number = station("subaurale");
     const actualHigh: number = station("superaurale");
     const admitted: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(actual.part);
+      AutoMovieEngineLoftViewSource.create(actual.part);
     if (admitted === null || admitted.source === null)
       throw new Error(`Ear ${side} has no admitted original plate field`);
     const original: IAutoMovieLoftViewSource.ISource = admitted.source;
     function section(at: number): IAutoMovieHumanHeadEarPlate.ISection {
       const inputs: IAutoMovieLoftViewRead.IValues | string =
-        AutoMovieLoftViewRead.values(original, at);
+        AutoMovieEngineLoftViewRead.values(original, at);
       if (typeof inputs === "string")
         throw new Error(`Ear source section: ${inputs}`);
       const jets: IAutoMovieLoftViewRead.IJets | string =
-        AutoMovieLoftViewRead.jets(original, at);
+        AutoMovieEngineLoftViewRead.jets(original, at);
       return {
         frame: actual.part.axis.at(at),
         inputs,
@@ -266,7 +266,7 @@ export namespace AutoMovieHumanHeadEarPlate {
         jetFailure: typeof jets === "string" ? jets : null,
         phase: inputs.extents.every((value: number): boolean => value === 0)
           ? null
-          : AutoMovieLoftSectionNative.phase(inputs),
+          : AutoMovieEngineLoftSectionNative.phase(inputs),
       };
     }
     return {

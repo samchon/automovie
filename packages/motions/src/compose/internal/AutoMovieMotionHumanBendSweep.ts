@@ -1,4 +1,4 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, swingTwistRange, AutoMovieEngineKinematics, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
+import { AutoMovieEngineDefaultJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineSwingTwistRange, AutoMovieEngineKinematics, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -61,7 +61,7 @@ export function AutoMovieMotionHumanBendSweep(
   const upperRange: IAutoMovieJointConstraint | null =
     prepared.upperDomain.constraint;
   const upperBasis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
-    chain.axes[upperBone] ?? DEFAULT_JOINT_AXES,
+    chain.axes[upperBone] ?? AutoMovieEngineDefaultJointAxes,
     "AutoMovieMotionHumanBendSearch axes",
   );
   const strained: (
@@ -105,7 +105,7 @@ export function AutoMovieMotionHumanBendSweep(
     const l: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
       lower,
       lowerBasis,
-      HUMANOID_REST_FRAME[lowerBone],
+      AutoMovieEngineHumanoidRestFrame[lowerBone],
       prepared.lowerDomain,
     );
     mid = {
@@ -124,16 +124,16 @@ export function AutoMovieMotionHumanBendSweep(
     const u: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
       upper,
       upperBasis,
-      HUMANOID_REST_FRAME[upperBone],
+      AutoMovieEngineHumanoidRestFrame[upperBone],
       prepared.upperDomain,
     );
-    const turned: IAutoMovieQuaternion = Quaternion.multiply(
+    const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       prepared.upper.worldRotation,
       upper,
     );
-    const elbow: IAutoMovieVector3 = Vector3.add(
+    const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       chain.shoulder,
-      Quaternion.rotateVector(turned, prepared.lowerOffset),
+      AutoMovieEngineQuaternion.rotateVector(turned, prepared.lowerOffset),
     );
     // With a hand rotation the strain's costly share is the hand's, read only
     // when a comparison asks for it; the shoulder's share bounds it from
@@ -143,8 +143,8 @@ export function AutoMovieMotionHumanBendSweep(
       (strain ??= strained(
         u,
         (): IAutoMovieQuaternion =>
-          Quaternion.multiply(
-            Quaternion.multiply(turned, prepared.lowerRotation),
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(turned, prepared.lowerRotation),
             lower,
           ),
       ));
@@ -174,7 +174,7 @@ export function AutoMovieMotionHumanBendSweep(
     byStrain && near === undefined && neutral !== null
       ? AutoMovieMotionHumanBendBound.prepare({
           basis: upperBasis,
-          frame: HUMANOID_REST_FRAME[upperBone],
+          frame: AutoMovieEngineHumanoidRestFrame[upperBone],
           range: upperRange,
           neutral,
           hand:
@@ -187,7 +187,7 @@ export function AutoMovieMotionHumanBendSweep(
                   axis: lowerAxes.twist,
                   range: prepared.lowerDomain.constraint?.twist,
                   handAxes: wrist.axes,
-                  handFrame: HUMANOID_REST_FRAME[`${side}Hand`],
+                  handFrame: AutoMovieEngineHumanoidRestFrame[`${side}Hand`],
                   handRange: wrist.range,
                 },
         })
@@ -209,9 +209,9 @@ export function AutoMovieMotionHumanBendSweep(
       ): ((low: number, high: number) => boolean) =>
         AutoMovieEngineKinematics.boxExcludedSwivels({
           basis: upperBasis,
-          frame: HUMANOID_REST_FRAME[upperBone],
+          frame: AutoMovieEngineHumanoidRestFrame[upperBone],
           constraint: upperRange,
-          joint: swingTwistRange.of(upperBone),
+          joint: AutoMovieEngineSwingTwistRange.of(upperBone),
           rotation: upper,
         }),
       score: (

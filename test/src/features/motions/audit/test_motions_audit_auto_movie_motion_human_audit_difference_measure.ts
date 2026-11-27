@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditDifference,
@@ -6,7 +6,9 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditDifference
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditDifference";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -41,9 +43,9 @@ export function test_motions_audit_auto_movie_motion_human_audit_difference_meas
     name,
     {
       bone: name,
-      localRotation: Quaternion.identity(),
+      localRotation: AutoMovieEngineQuaternion.identity(),
       worldPosition: at,
-      worldRotation: Quaternion.identity(),
+      worldRotation: AutoMovieEngineQuaternion.identity(),
     },
   ];
   const person = (

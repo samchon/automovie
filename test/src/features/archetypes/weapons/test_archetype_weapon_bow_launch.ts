@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits, AutoMovieArchetypeBow } from "@automovie/archetypes";
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -21,7 +21,7 @@ export function test_archetype_weapon_bow_launch(): void {
   const findings: string[] = [];
   // A pound-force in the order the band multiplies it, so a band end fixed here is the band's own float.
   const lbf: (pounds: number) => number = (pounds: number): number =>
-    pounds * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
+    pounds * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD;
   for (const pounds of [49, 54]) {
     const bow: ReturnType<typeof AutoMovieArchetypeBow.create> = AutoMovieArchetypeBow.create({
       kind: "recurve",

@@ -1,4 +1,4 @@
-import { Quaternion, Transform } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -97,14 +97,14 @@ export namespace motionUpperPhrase {
       {
         id: "handle",
         kind: "handle",
-        frame: Transform.identity(),
+        frame: AutoMovieEngineTransform.identity(),
         extent: null,
         radius: 0.015,
       },
       ...(["lip", "face"] as const).map((id: string) => ({
         id,
         kind: "surface" as const,
-        frame: { ...Transform.identity(), translation: END },
+        frame: { ...AutoMovieEngineTransform.identity(), translation: END },
         extent: null,
       })),
     ];
@@ -116,7 +116,7 @@ export namespace motionUpperPhrase {
           y: m.waistHeight,
           z: 0.6 * (m.upperArm + m.forearm),
         },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       points: {},
       affordances,

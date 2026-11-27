@@ -13,7 +13,7 @@ import {
 } from "@automovie/interface";
 
 import { quaternionFromAutoMovieBasis } from "../../../math/internal/quaternionFromAutoMovieBasis";
-import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
+import { AutoMovieEngineSweepRotation } from "../../AutoMovieEngineSweepRotation";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";
@@ -418,7 +418,7 @@ export const rigAutoMovieSweep: (
       for (let k: number = 0; k < s; ++k) {
         const pair: number[] = bones.stations[k]!;
         for (let j: number = 0; j < pair.length; ++j) {
-          AutoMovieSweepRotation.multiply(
+          AutoMovieEngineSweepRotation.multiply(
             motion.rotations,
             4 * pair[j]!,
             planes,
@@ -426,10 +426,10 @@ export const rigAutoMovieSweep: (
             turned,
             4 * j,
           );
-          AutoMovieSweepRotation.normalize(turned, 4 * j);
+          AutoMovieEngineSweepRotation.normalize(turned, 4 * j);
         }
         if (pair.length === 2)
-          AutoMovieSweepRotation.slerp(
+          AutoMovieEngineSweepRotation.slerp(
             turned,
             0,
             turned,

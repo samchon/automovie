@@ -1,4 +1,6 @@
-import { backToBackLoad } from "@automovie/motions/internal";
+import {
+  backToBackLoad
+} from "../../../../../packages/motions/src/touch/internal/backToBackLoad";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

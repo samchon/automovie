@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -288,7 +288,7 @@ const NAMES: Readonly<Record<AutoMovieArchetypeLight.Kind, string>> = {
 /*
  * Practical-light geometry in metres and model-space coordinates.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * Open the saved draw stream for the light's particular body and mounting form.

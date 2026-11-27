@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Compile one interval's motion coefficients. Scalar checks retain direct
@@ -32,11 +32,11 @@ export function preparePhysicalTargetSampler(
         position: { ...after.position },
         rotation: { ...after.rotation },
       };
-      displacement = Vector3.subtract(last.position, first.position);
-      velocity = Vector3.scale(displacement, rate);
-      const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+      displacement = AutoMovieEngineVector3.subtract(last.position, first.position);
+      velocity = AutoMovieEngineVector3.scale(displacement, rate);
+      const delta: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
         last.rotation,
-        Quaternion.inverse(first.rotation),
+        AutoMovieEngineQuaternion.inverse(first.rotation),
       );
       const sign: number = delta.w < 0 ? -1 : 1;
       const norm: number = Math.hypot(delta.x, delta.y, delta.z);
@@ -52,11 +52,11 @@ export function preparePhysicalTargetSampler(
     }
     return {
       pose: {
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           first!.position,
-          Vector3.scale(displacement, fraction),
+          AutoMovieEngineVector3.scale(displacement, fraction),
         ),
-        rotation: Quaternion.slerp(first!.rotation, last!.rotation, fraction),
+        rotation: AutoMovieEngineQuaternion.slerp(first!.rotation, last!.rotation, fraction),
       },
       velocity: { ...velocity },
       angularVelocity: { ...angularVelocity },

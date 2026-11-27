@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -306,8 +306,8 @@ export namespace AutoMovieArchetypeEquine {
     );
     return {
       ...rest,
-      draft: Vector3.create(side, shoulder.y, rest.limbs.leftFore[1]!.z),
-      hitch: Vector3.create(0, axis, rest.trunk / 2 - SADDLE),
+      draft: AutoMovieEngineVector3.create(side, shoulder.y, rest.limbs.leftFore[1]!.z),
+      hitch: AutoMovieEngineVector3.create(0, axis, rest.trunk / 2 - SADDLE),
     };
   }
 

@@ -1,4 +1,4 @@
-import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -55,23 +55,23 @@ export function touchFingerStance<T>(
     const direction = (
       v: IAutoMovieVector3,
     ): IAutoMovieMotionHumanTouchEffector.Direction => ({
-      fingers: Vector3.dot(v, axis("fingers")),
-      palm: Vector3.dot(v, axis("palm")),
-      thumb: Vector3.dot(v, axis("thumb")),
+      fingers: AutoMovieEngineVector3.dot(v, axis("fingers")),
+      palm: AutoMovieEngineVector3.dot(v, axis("palm")),
+      thumb: AutoMovieEngineVector3.dot(v, axis("thumb")),
     });
     let lo: number = 0;
     let hi: number = 1;
-    while ((hi - lo) * angle > ROM_TOLERANCE) {
+    while ((hi - lo) * angle > AutoMovieEngineRomTolerance) {
       const share: number = (lo + hi) / 2;
-      const q: IAutoMovieQuaternion = Quaternion.slerp(
+      const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
         { x: 0, y: 0, z: 0, w: 1 },
         rotation,
         share,
       );
       const trial: IAutoMovieMotionHumanTouchEffector.IEffector = {
         ...requested,
-        facing: direction(Quaternion.rotateVector(q, distal.normal)),
-        along: direction(Quaternion.rotateVector(q, distal.forward)),
+        facing: direction(AutoMovieEngineQuaternion.rotateVector(q, distal.normal)),
+        along: direction(AutoMovieEngineQuaternion.rotateVector(q, distal.forward)),
       };
       try {
         best = [trial, fit(trial)];

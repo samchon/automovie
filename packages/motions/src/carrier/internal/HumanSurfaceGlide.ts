@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -230,29 +230,29 @@ export namespace HumanSurfaceGlide {
       left: entry.feet.left.ankle,
       right: entry.feet.right.ankle,
     };
-    const desired: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.fromAxisAngle(UP, start.yaw),
-      Quaternion.fromAxisAngle(RIGHT, grade),
+    const desired: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(UP, start.yaw),
+      AutoMovieEngineQuaternion.fromAxisAngle(RIGHT, grade),
     );
     const deck: prepareGlideSlope.ISlope | undefined =
       slope === undefined
         ? undefined
         : prepareGlideSlope(context, slope, desired);
     const origin: IAutoMovieRigidTransform = {
-      position: Vector3.lerp(ankle.left, ankle.right, 0.5),
+      position: AutoMovieEngineVector3.lerp(ankle.left, ankle.right, 0.5),
       rotation: deck?.rotation ?? desired,
     };
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(origin.rotation);
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       origin.rotation,
       FORWARD,
     );
     const enteredSpeed: number = Math.max(
       0,
-      Vector3.dot(entry.velocity.linear, forward),
+      AutoMovieEngineVector3.dot(entry.velocity.linear, forward),
     );
     const course: ICourse = motionClock.prepare(enteredSpeed);
-    const curvature: number = (turn * Quaternion.DEG2RAD) / course.travel;
+    const curvature: number = (turn * AutoMovieEngineQuaternion.DEG2RAD) / course.travel;
     const offsets: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {
       left: HumanFoot.offset(body, "left", "sole"),
       right: HumanFoot.offset(body, "right", "sole"),
@@ -261,15 +261,15 @@ export namespace HumanSurfaceGlide {
       deck === undefined
         ? ankle[side]
         : deck.enter(
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               ankle[side],
-              Quaternion.rotateVector(entry.feet[side].rotation, offsets[side]),
+              AutoMovieEngineQuaternion.rotateVector(entry.feet[side].rotation, offsets[side]),
             ),
           );
     const foot = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(contact(side), origin.position),
+        AutoMovieEngineVector3.subtract(contact(side), origin.position),
       );
     const local: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: foot("left"),
@@ -295,10 +295,10 @@ export namespace HumanSurfaceGlide {
         deck.travel(origin.position, local[side], course.travel, curvature);
 
     const tangent = (side: AutoMovieHumanSide): IAutoMovieQuaternion =>
-      Quaternion.fromAxisAngle(
+      AutoMovieEngineQuaternion.fromAxisAngle(
         UP,
         Math.atan2(curvature * local[side].z, 1 - curvature * local[side].x) /
-          Quaternion.DEG2RAD,
+          AutoMovieEngineQuaternion.DEG2RAD,
       );
     const toe: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: tangent("left"),
@@ -351,17 +351,17 @@ export namespace HumanSurfaceGlide {
         const chord: number =
           half === 0 ? distance : (distance * Math.sin(half)) / half;
         const frame: IAutoMovieRigidTransform = {
-          position: Vector3.add(
+          position: AutoMovieEngineVector3.add(
             origin.position,
-            Quaternion.rotateVector(origin.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(origin.rotation, {
               x: chord * Math.sin(half),
               y: 0,
               z: chord * Math.cos(half),
             }),
           ),
-          rotation: Quaternion.multiply(
+          rotation: AutoMovieEngineQuaternion.multiply(
             origin.rotation,
-            Quaternion.fromAxisAngle(UP, angle / Quaternion.DEG2RAD),
+            AutoMovieEngineQuaternion.fromAxisAngle(UP, angle / AutoMovieEngineQuaternion.DEG2RAD),
           ),
         };
         const set: number = AutoMovieEngineMotionSampling.minimumJerkShare(acquired);
@@ -377,46 +377,46 @@ export namespace HumanSurfaceGlide {
           origin,
           {
             ...frame,
-            position: Vector3.add(frame.position, { x: 0, y: -drop, z: 0 }),
+            position: AutoMovieEngineVector3.add(frame.position, { x: 0, y: -drop, z: 0 }),
           },
         );
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...carried.limbs,
         };
-        const delta: IAutoMovieQuaternion = Quaternion.multiply(
+        const delta: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           frame.rotation,
           inverse,
         );
         for (const side of SIDES) {
           const part: PlanPart = `${side}Leg`;
           const knee: IAutoMovieHumanLimbGoal = knees[part]!;
-          const before: IAutoMovieQuaternion = Quaternion.multiply(
+          const before: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
             delta,
             entry.feet[side].rotation,
           );
-          const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+          const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
             before,
-            Quaternion.multiply(frame.rotation, toe[side]),
+            AutoMovieEngineQuaternion.multiply(frame.rotation, toe[side]),
             set,
           );
-          const contact: IAutoMovieVector3 = Vector3.add(
+          const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             frame.position,
-            Quaternion.rotateVector(frame.rotation, local[side]),
+            AutoMovieEngineQuaternion.rotateVector(frame.rotation, local[side]),
           );
           limbs[part] = {
             ...knee,
             point:
               deck === undefined
                 ? contact
-                : Vector3.subtract(
+                : AutoMovieEngineVector3.subtract(
                     contact,
-                    Quaternion.rotateVector(rotation, offsets[side]),
+                    AutoMovieEngineQuaternion.rotateVector(rotation, offsets[side]),
                   ),
-            bend: Vector3.add(
+            bend: AutoMovieEngineVector3.add(
               frame.position,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 delta,
-                Vector3.subtract(knee.bend, origin.position),
+                AutoMovieEngineVector3.subtract(knee.bend, origin.position),
               ),
             ),
             rotation,

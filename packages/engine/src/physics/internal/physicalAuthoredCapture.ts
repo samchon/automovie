@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /*
@@ -85,9 +85,9 @@ export namespace physicalAuthoredCapture {
           sum: IAutoMovieVector3,
           segment: IAutoMoviePhysicalSegment,
         ): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             sum,
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               physicalSupportPoint(
                 sense.targets[segment.bone]!,
                 segment.centerOfMass,
@@ -97,6 +97,6 @@ export namespace physicalAuthoredCapture {
           ),
         { x: 0, y: 0, z: 0 },
       );
-    return Vector3.add(authored, offset);
+    return AutoMovieEngineVector3.add(authored, offset);
   }
 }

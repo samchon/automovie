@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -40,28 +40,28 @@ export namespace BedConstruction {
     const height: number = d.height ?? thick;
     builder.box(
       "mattress",
-      Vector3.create(width, thick, length),
-      Vector3.create(0, height - thick / 2, 0),
+      AutoMovieEngineVector3.create(width, thick, length),
+      AutoMovieEngineVector3.create(0, height - thick / 2, 0),
       { color: "#e7e3da", density: 0.3 },
     );
     if (kind !== "mattress") {
       builder.box(
         "base",
-        Vector3.create(width, height - thick, length),
-        Vector3.create(0, (height - thick) / 2, 0),
+        AutoMovieEngineVector3.create(width, height - thick, length),
+        AutoMovieEngineVector3.create(0, (height - thick) / 2, 0),
         { color: "#8a6a4a", density: 0.3 },
       );
       builder.box(
         "headboard",
-        Vector3.create(width, height + 0.4, 0.04),
-        Vector3.create(0, (height + 0.4) / 2, -length / 2 - 0.02),
+        AutoMovieEngineVector3.create(width, height + 0.4, 0.04),
+        AutoMovieEngineVector3.create(0, (height + 0.4) / 2, -length / 2 - 0.02),
         { color: "#8a6a4a" },
       );
     }
     builder.affordance({
       id: "surface",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
       extent: null,
       width,
       depth: length,
@@ -74,9 +74,9 @@ export namespace BedConstruction {
         id,
         kind: "seat",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create((sign * width) / 2, height, 0),
-          Vector3.create(0, 1, 0),
-          Vector3.create(0, 0, -sign),
+          AutoMovieEngineVector3.create((sign * width) / 2, height, 0),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(0, 0, -sign),
         ),
         extent: null,
         width: length,

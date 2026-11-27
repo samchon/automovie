@@ -13,9 +13,9 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKeyframeSearch } from "../../math/AutoMovieEngineKeyframeSearch";
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { normalizeClipTime } from "../../math/internal/normalizeClipTime";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
@@ -61,7 +61,7 @@ export namespace sampleMotion {
   }
 }
 
-const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
+const IDENTITY_TRANSFORM: IAutoMovieTransform = AutoMovieEngineTransform.identity();
 
 /*
  * Select the clamped or wrapped key or eased segment for the requested
@@ -243,9 +243,9 @@ const lerpTransform: (
   const ta: IAutoMovieTransform = a ?? IDENTITY_TRANSFORM;
   const tb: IAutoMovieTransform = b ?? IDENTITY_TRANSFORM;
   return {
-    translation: Vector3.lerp(ta.translation, tb.translation, t),
-    rotation: Quaternion.slerp(ta.rotation, tb.rotation, t),
-    scale: Vector3.lerp(ta.scale, tb.scale, t),
+    translation: AutoMovieEngineVector3.lerp(ta.translation, tb.translation, t),
+    rotation: AutoMovieEngineQuaternion.slerp(ta.rotation, tb.rotation, t),
+    scale: AutoMovieEngineVector3.lerp(ta.scale, tb.scale, t),
   };
 };
 

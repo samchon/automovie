@@ -1,4 +1,4 @@
-import { AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieEngineViewAxis } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadDome,
@@ -219,7 +219,7 @@ export namespace AutoMovieHumanHeadDome {
     }
     return {
       name: dome.name,
-      axis: AutoMovieViewAxis.straight(origin, u, v),
+      axis: AutoMovieEngineViewAxis.straight(origin, u, v),
       stations,
       front: {
         positive: outline(dome.extents[0], 1),

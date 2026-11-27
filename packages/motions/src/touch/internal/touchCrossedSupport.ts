@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -120,8 +120,8 @@ export namespace touchCrossedSupport {
       let before: Wrists = wrists(start);
       for (let i: number = 1; i <= steps; ++i) {
         const after: Wrists = wrists(start + ((end - start) * i) / steps);
-        arcs[0] += Vector3.distance(before[0], after[0]);
-        arcs[1] += Vector3.distance(before[1], after[1]);
+        arcs[0] += AutoMovieEngineVector3.distance(before[0], after[0]);
+        arcs[1] += AutoMovieEngineVector3.distance(before[1], after[1]);
         before = after;
       }
       return Math.max(...arcs);

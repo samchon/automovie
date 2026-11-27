@@ -3,8 +3,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMovieGravity } from "../AutoMovieGravity";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineGravity } from "../AutoMovieEngineGravity";
 import { solveBallisticLaunch } from "./solveBallisticLaunch";
 
 /*
@@ -34,7 +34,7 @@ export const solveMovingLaunch: (
   origin: IAutoMovieVector3,
   targetAt: (t: number) => IAutoMovieVector3,
   speed: number,
-  gravity: IAutoMovieVector3 = AutoMovieGravity.DOWN,
+  gravity: IAutoMovieVector3 = AutoMovieEngineGravity.DOWN,
   arc: "direct" | "high" = "direct",
   iterations: number = 8,
 ): IAutoMovieBallisticSolution | null => {
@@ -49,7 +49,7 @@ export const solveMovingLaunch: (
   // one visited. Converged shots hit the `settled` early-out, where the last
   // iterate IS the minimum, so tracking only changes the un-settled tail.
   let t: number =
-    Vector3.length(Vector3.subtract(initialTarget, origin)) / speed;
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(initialTarget, origin)) / speed;
   let best: IAutoMovieBallisticSolution | null = null;
   let bestResidual: number = Infinity;
   for (let i: number = 0; i < iterations; ++i) {

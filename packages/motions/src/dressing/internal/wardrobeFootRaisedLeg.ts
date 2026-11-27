@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -75,9 +75,9 @@ export function wardrobeFootRaisedLeg(
       posture,
       seat.bone,
     );
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       bone.position,
-      Quaternion.rotateVector(bone.rotation, seat.point),
+      AutoMovieEngineQuaternion.rotateVector(bone.rotation, seat.point),
     );
   };
   const occupied: IAutoMovieVector3 = socket(start);
@@ -102,9 +102,9 @@ export function wardrobeFootRaisedLeg(
     };
     const anchored: IAutoMovieMotionHumanPosture = {
       ...leaned,
-      root: Vector3.add(
+      root: AutoMovieEngineVector3.add(
         leaned.root,
-        Vector3.subtract(occupied, socket(leaned)),
+        AutoMovieEngineVector3.subtract(occupied, socket(leaned)),
       ),
     };
     return {

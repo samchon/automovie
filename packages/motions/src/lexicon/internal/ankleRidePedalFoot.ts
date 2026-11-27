@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -42,34 +42,34 @@ export function ankleRidePedalFoot(
   // A foot on a pedal bears on its ball, whether or not its goal says what it turns about.
   const contact: IAutoMovieVector3 =
     goal.contact ?? HumanFoot.offset(body, side, "ball");
-  const ball: IAutoMovieVector3 = Vector3.add(
+  const ball: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     goal.point,
-    Quaternion.rotateVector(rotation, contact),
+    AutoMovieEngineQuaternion.rotateVector(rotation, contact),
   );
-  const across: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const across: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 1,
     y: 0,
     z: 0,
   });
-  const turn: ReturnType<typeof Quaternion.prepareAxisAngle> =
-    Quaternion.prepareAxisAngle(across);
+  const turn: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+    AutoMovieEngineQuaternion.prepareAxisAngle(across);
   const placement: (degrees: number) => Placement = (
     degrees: number,
   ): Placement => {
-    const pitched: IAutoMovieQuaternion = Quaternion.multiply(
+    const pitched: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       turn(degrees),
       rotation,
     );
     return {
       rotation: pitched,
-      point: Vector3.subtract(ball, Quaternion.rotateVector(pitched, contact)),
+      point: AutoMovieEngineVector3.subtract(ball, AutoMovieEngineQuaternion.rotateVector(pitched, contact)),
     };
   };
   const turnedBy: (degrees: number) => IAutoMovieHumanLimbGoal = (
     degrees: number,
   ): IAutoMovieHumanLimbGoal => ({ ...goal, contact, ...placement(degrees) });
   const far: (degrees: number) => number = (degrees: number): number =>
-    Vector3.length(Vector3.subtract(placement(degrees).point, hip));
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(placement(degrees).point, hip));
   if (far(0) <= reach) return goal;
   const sign: number = far(1) < far(-1) ? 1 : -1;
   if (far(sign * ankling) > reach) return turnedBy(sign * ankling);

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanBody,
@@ -31,13 +31,13 @@ export function jumpTouchdownRotation(
   subject: string,
 ): jumpTouchdownRotation.IRequirement {
   const turn: IAutoMovieQuaternion = HumanFrame.turn(headingChange);
-  let radius: number = Vector3.length(Vector3.subtract(centre, landed.touched));
+  let radius: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(centre, landed.touched));
   for (const side of ["left", "right"] as const)
     for (const point of ["heel", "ball", "toe"] as const)
       radius = Math.max(
         radius,
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             centre,
             HumanFoot.point(body, side, point, landed.feet[side]),
           ),
@@ -51,15 +51,15 @@ export function jumpTouchdownRotation(
     turnedLanding: headingChange !== 0,
     angularTolerance,
     check: (actual: IAutoMovieHumanPostureRotation): void => {
-      const angle: number = Quaternion.angle(actual.turn, turn);
-      const pivotDelta: IAutoMovieVector3 = Vector3.subtract(
+      const angle: number = AutoMovieEngineQuaternion.angle(actual.turn, turn);
+      const pivotDelta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         actual.about,
         centre,
       );
-      const pivotDrift: number = Vector3.length(
-        Vector3.subtract(
+      const pivotDrift: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           pivotDelta,
-          Quaternion.rotateVector(actual.turn, pivotDelta),
+          AutoMovieEngineQuaternion.rotateVector(actual.turn, pivotDelta),
         ),
       );
       const displacement: number =

@@ -1,4 +1,4 @@
-import { Quaternion, AutoMoviePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMoviePhysicalShape,
@@ -31,7 +31,7 @@ import { nclose } from "../../internal/nclose";
  */
 export async function test_engine_validation_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
-    await AutoMoviePhysicalGeometry.prepare();
+    await AutoMovieEnginePhysicalGeometry.prepare();
   const radius: number = 0.375;
   const formationA: Collision.IGroup = {
     id: "line-a",
@@ -419,10 +419,10 @@ function shapePart(
           material: "solid",
           transform: {
             position: { x: 0, y: 0, z: 0 },
-            rotation: Quaternion.identity(),
+            rotation: AutoMovieEngineQuaternion.identity(),
           },
         },
-        pose: { position: { x, y: 0, z: 0 }, rotation: Quaternion.identity() },
+        pose: { position: { x, y: 0, z: 0 }, rotation: AutoMovieEngineQuaternion.identity() },
       },
     },
   };

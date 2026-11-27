@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -185,17 +185,17 @@ export namespace AutoMovieMotionHumanTrunk {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     // The hips where the posture's own heading puts them, then lowered and
     // moved back along the yaw.
-    const goal: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
+    const goal: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         posture.root,
-        Quaternion.rotateVector(humanPostureHeading(posture), hips),
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), hips),
       ),
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
         { x: 0, y: -depth, z: -back },
       ),
     );
-    const level: IAutoMovieVector3 = Vector3.subtract(
+    const level: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       goal,
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -221,9 +221,9 @@ export namespace AutoMovieMotionHumanTrunk {
     };
     return {
       ...tipped,
-      root: Vector3.subtract(
+      root: AutoMovieEngineVector3.subtract(
         goal,
-        Quaternion.rotateVector(humanPostureHeading(tipped), hips),
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(tipped), hips),
       ),
     };
   }

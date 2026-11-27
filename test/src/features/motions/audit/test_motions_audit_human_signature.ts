@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
@@ -9,7 +9,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanSignature } from "@automovie/motions";
-import { HumanFoot } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { auditStanceMotion } from "../../internal/auditStanceMotion";
@@ -228,7 +230,7 @@ export async function test_motions_audit_human_signature(): Promise<void> {
           bones: () =>
             resolvedBones(
               [["head", { x: 0, y: 1.6, z: 0 }]],
-              Quaternion.fromAxisAngle(
+              AutoMovieEngineQuaternion.fromAxisAngle(
                 { x: axis === "x" ? 1 : 0, y: axis === "y" ? 1 : 0, z: 0 },
                 degrees,
               ),

@@ -1,5 +1,10 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, zipSites } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  zipSites
+} from "../../../../../packages/motions/src/handling/internal/zipSites";
 import { strict as assert } from "node:assert";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";

@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
-import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalBalance } from "./AutoMovieEnginePhysicalBalance";
 import { AutoMovieEnginePhysicalStanceBalance } from "./AutoMovieEnginePhysicalStanceBalance";
 import { AutoMovieEnginePhysicalStanceSupport } from "./AutoMovieEnginePhysicalStanceSupport";
 
@@ -21,11 +21,11 @@ export namespace AutoMovieEnginePhysicalStanceAllocation {
     reference: IAutoMovieVector3,
     bias?: { x: number; z: number },
   ): IAutoMovieVector3 {
-    return Vector3.add(
-      Vector3.add(
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         capture,
-        Vector3.scale(
-          Vector3.subtract(capture, reference),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(capture, reference),
           AutoMovieEnginePhysicalStanceBalance.GAIN,
         ),
       ),
@@ -139,7 +139,7 @@ export namespace AutoMovieEnginePhysicalStanceAllocation {
         ...(strategy ? { strategy } : {}),
       };
     };
-    const edge: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+    const edge: IAutoMovieVector3 = AutoMovieEnginePhysicalBalance.nearest(
       input.support,
       capture,
     );
@@ -159,13 +159,13 @@ export namespace AutoMovieEnginePhysicalStanceAllocation {
           strategy >= 0 ? Math.min(strategy, Math.max(0, along)) : strategy;
         return result(
           edge,
-          Vector3.add(edge, Vector3.scale(direction, shift)),
+          AutoMovieEngineVector3.add(edge, AutoMovieEngineVector3.scale(direction, shift)),
           direction,
         );
       }
-      return result(edge, Vector3.subtract(edge, offset));
+      return result(edge, AutoMovieEngineVector3.subtract(edge, offset));
     }
-    const inner: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+    const inner: IAutoMovieVector3 = AutoMovieEnginePhysicalBalance.nearest(
       input.shrunken,
       capture,
     );
@@ -173,7 +173,7 @@ export namespace AutoMovieEnginePhysicalStanceAllocation {
       Math.hypot(capture.x - inner.x, capture.z - inner.z) <= 1e-9;
     const room: readonly IAutoMovieVector3[] =
       input.shrunken.length >= 3 && sheltered ? input.shrunken : input.support;
-    const away: IAutoMovieVector3 = Vector3.subtract(capture, input.reference);
+    const away: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(capture, input.reference);
     const length: number = Math.hypot(away.x, away.z);
     const admissible: IAutoMovieVector3[] =
       room.length >= 3 && length > 1e-9
@@ -183,8 +183,8 @@ export namespace AutoMovieEnginePhysicalStanceAllocation {
             z: away.z / length,
           })
         : [...room];
-    const wanted: IAutoMovieVector3 = Vector3.add(command, offset);
-    const pressure: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+    const wanted: IAutoMovieVector3 = AutoMovieEngineVector3.add(command, offset);
+    const pressure: IAutoMovieVector3 = AutoMovieEnginePhysicalBalance.nearest(
       admissible.length > 0 ? admissible : room,
       wanted,
     );
@@ -214,7 +214,7 @@ export namespace AutoMovieEnginePhysicalStanceAllocation {
       return result(
         pressure,
         excess > allowed
-          ? Vector3.subtract(command, Vector3.scale(outward, excess - allowed))
+          ? AutoMovieEngineVector3.subtract(command, AutoMovieEngineVector3.scale(outward, excess - allowed))
           : command,
       );
     }
@@ -222,13 +222,13 @@ export namespace AutoMovieEnginePhysicalStanceAllocation {
     // stays on the capture point's outer side, u . n >= xi . n, the condition
     // under which xi' = omega (xi - u) does not carry xi out (Hof et al. 2005;
     // Koolen et al., Corollary 3).
-    const pivot: IAutoMovieVector3 = Vector3.subtract(pressure, offset);
+    const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(pressure, offset);
     const inside: number = outward
       ? (capture.x - pivot.x) * outward.x + (capture.z - pivot.z) * outward.z
       : 0;
     return result(
       pressure,
-      inside > 0 ? Vector3.add(pivot, Vector3.scale(outward!, inside)) : pivot,
+      inside > 0 ? AutoMovieEngineVector3.add(pivot, AutoMovieEngineVector3.scale(outward!, inside)) : pivot,
     );
   }
 }

@@ -1,8 +1,8 @@
 import {
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
-  hingedArmSwivel,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
+  AutoMovieEngineHingedArmSwivel,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -120,50 +120,50 @@ export function HumanFreeCurveFit(
       const knee: IAutoMovieResolvedBone = bones.get(`${side}LowerLeg`)!;
       const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       const length: number =
-        Vector3.distance(hip.worldPosition, knee.worldPosition) +
-        Vector3.distance(knee.worldPosition, foot.worldPosition);
+        AutoMovieEngineVector3.distance(hip.worldPosition, knee.worldPosition) +
+        AutoMovieEngineVector3.distance(knee.worldPosition, foot.worldPosition);
       const precision: number = length * radians;
       if (
         !(precision > 0) ||
-        Vector3.distance(foot.worldPosition, goal.point) > precision
+        AutoMovieEngineVector3.distance(foot.worldPosition, goal.point) > precision
       )
         return undefined;
       if (
         goal.rotation !== undefined &&
-        (Quaternion.angleAfterNormalize(
+        (AutoMovieEngineQuaternion.angleAfterNormalize(
           foot.worldRotation,
-          Quaternion.normalize(goal.rotation),
+          AutoMovieEngineQuaternion.normalize(goal.rotation),
         ) *
           180) /
           Math.PI >
-          ROM_TOLERANCE
+          AutoMovieEngineRomTolerance
       )
         return undefined;
-      const reach: IAutoMovieVector3 = Vector3.subtract(
+      const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         goal.point,
         hip.worldPosition,
       );
-      const distance: number = Vector3.length(reach);
+      const distance: number = AutoMovieEngineVector3.length(reach);
       if (!(distance > precision)) return undefined;
-      const axis: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(reach, 1 / distance);
       const off: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 => {
-        const offset: IAutoMovieVector3 = Vector3.subtract(
+        const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           point,
           hip.worldPosition,
         );
-        return Vector3.subtract(
+        return AutoMovieEngineVector3.subtract(
           offset,
-          Vector3.scale(axis, Vector3.dot(offset, axis)),
+          AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(offset, axis)),
         );
       };
       const bent: IAutoMovieVector3 = off(knee.worldPosition);
       const asked: IAutoMovieVector3 = off(goal.bend);
       if (
-        !(Vector3.length(bent) > precision) ||
-        !(Vector3.length(asked) > precision) ||
-        !(Vector3.dot(bent, asked) > 0)
+        !(AutoMovieEngineVector3.length(bent) > precision) ||
+        !(AutoMovieEngineVector3.length(asked) > precision) ||
+        !(AutoMovieEngineVector3.dot(bent, asked) > 0)
       )
         return undefined;
       rotations.push(hip.worldRotation, knee.worldRotation, foot.worldRotation);
@@ -191,7 +191,7 @@ export function HumanFreeCurveFit(
   ): boolean {
     return (
       (legality.get(bone)?.({ bone, flexion, abduction, twist }) ??
-        Infinity) <= ROM_TOLERANCE
+        Infinity) <= AutoMovieEngineRomTolerance
     );
   }
 
@@ -242,7 +242,7 @@ export function HumanFreeCurveFit(
           before !== undefined &&
           seed.branch === before.branch &&
           Math.abs(seed.swivel - before.swivel) <
-            hingedArmSwivel.STEP - tolerance
+            AutoMovieEngineHingedArmSwivel.STEP - tolerance
         );
       },
     );
@@ -260,10 +260,10 @@ export function HumanFreeCurveFit(
       value.rotations.length === prior.rotations.length &&
       value.rotations.every(
         (rotation: IAutoMovieQuaternion, i: number): boolean =>
-          (Quaternion.angleAfterNormalize(rotation, prior.rotations[i]!) *
+          (AutoMovieEngineQuaternion.angleAfterNormalize(rotation, prior.rotations[i]!) *
             180) /
             Math.PI <=
-          hingedArmSwivel.STEP,
+          AutoMovieEngineHingedArmSwivel.STEP,
       );
     if (!continuous) {
       return { kind: "refine" };

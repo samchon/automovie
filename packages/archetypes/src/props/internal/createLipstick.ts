@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeLipstick } from "../AutoMovieArchetypeLipstick";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { GroomingPropDraw } from "./GroomingPropDraw";
@@ -37,15 +37,15 @@ export function createLipstick(
   builder.rod(
     "case",
     width / 2,
-    Vector3.create(0, width / 2, 0),
-    Vector3.create(0, width / 2, length - GroomingPropDraw.BULLET),
+    AutoMovieEngineVector3.create(0, width / 2, 0),
+    AutoMovieEngineVector3.create(0, width / 2, length - GroomingPropDraw.BULLET),
     { color: "#1d1f22" },
   );
   builder.rod(
     "bullet",
     width * 0.3,
-    Vector3.create(0, width / 2, length - GroomingPropDraw.BULLET),
-    Vector3.create(0, width / 2, length),
+    AutoMovieEngineVector3.create(0, width / 2, length - GroomingPropDraw.BULLET),
+    AutoMovieEngineVector3.create(0, width / 2, length),
     { color: "#b22234" },
   );
   builder.affordance({
@@ -53,9 +53,9 @@ export function createLipstick(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, width / 2, (length - GroomingPropDraw.BULLET) / 2),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, width / 2, (length - GroomingPropDraw.BULLET) / 2),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "precision",
@@ -67,9 +67,9 @@ export function createLipstick(
     kind: "surface",
     direction: "along",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, width / 2, length),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, width / 2, length),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
   });

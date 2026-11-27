@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { humanDrapeLying } from "@automovie/motions/internal";
+import {
+  humanDrapeLying
+} from "../../../../../packages/motions/src/lexicon/internal/humanDrapeLying";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

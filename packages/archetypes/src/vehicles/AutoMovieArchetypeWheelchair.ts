@@ -236,7 +236,7 @@ export namespace AutoMovieArchetypeWheelchair {
    * positive toward the front. At each sample, carry the same point on the
    * rotating wheel. Other affordances pass through.
    *
-   * Pass the returned reader as the contact callback of `HumanObject.prop`,
+   * Pass the returned reader as the contact callback of `AutoMovieMotionHumanObject.prop`,
    * translating film seconds into ride seconds if the course starts later.
    *
    * @param ride The wheelchair ride whose placement and rotation are sampled.

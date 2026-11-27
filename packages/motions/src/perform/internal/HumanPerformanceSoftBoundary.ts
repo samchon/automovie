@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -94,9 +94,9 @@ export function HumanPerformanceSoftBoundary(
     )!;
     anchors.push({
       particle: anchor.particle,
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         bone.worldPosition,
-        Quaternion.rotateVector(bone.worldRotation, binding.offset),
+        AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, binding.offset),
       ),
     });
   }
@@ -281,9 +281,9 @@ export namespace HumanPerformanceSoftBoundary {
     const hand: IAutoMovieResolvedBone = bones(person, k, seconds).get(
       `${side}Hand`,
     )!;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       hand.worldPosition,
-      Quaternion.rotateVector(hand.worldRotation, socket.point),
+      AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, socket.point),
     );
   }
   /*
@@ -414,9 +414,9 @@ function place(
   frame: IAutoMovieRigidTransform,
   offset: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, offset),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, offset),
   );
 }
 

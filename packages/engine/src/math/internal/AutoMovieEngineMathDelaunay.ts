@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../Vector3";
+import { AutoMovieEngineVector3 } from "../AutoMovieEngineVector3";
 import { seededValue } from "./seededValue";
 
 /*
@@ -51,17 +51,17 @@ export function tetrahedralizeAutoMovieDelaunay(
       z: p.z + jog(i, 2),
     }),
   );
-  const centre: IAutoMovieVector3 = Vector3.scale(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     joggled.reduce(
       (s: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(s, p),
+        AutoMovieEngineVector3.add(s, p),
       { x: 0, y: 0, z: 0 },
     ),
     1 / n,
   );
   const radius: number = Math.max(
     ...joggled.map((p: IAutoMovieVector3): number =>
-      Vector3.length(Vector3.subtract(p, centre)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p, centre)),
     ),
     Number.MIN_VALUE,
   );
@@ -79,7 +79,7 @@ export function tetrahedralizeAutoMovieDelaunay(
       { x: -1, y: -1, z: 1 },
     ].map(
       (c: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(centre, Vector3.scale(c, far / Math.sqrt(3))),
+        AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(c, far / Math.sqrt(3))),
     ),
   ];
   let tetrahedra: [number, number, number, number][] = [
@@ -175,12 +175,12 @@ export function delaunayVolumeImplementation(
   t: readonly [number, number, number, number],
 ): number {
   const a: IAutoMovieVector3 = points[t[0]]!;
-  return Vector3.dot(
-    Vector3.cross(
-      Vector3.subtract(points[t[1]]!, a),
-      Vector3.subtract(points[t[2]]!, a),
+  return AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.cross(
+      AutoMovieEngineVector3.subtract(points[t[1]]!, a),
+      AutoMovieEngineVector3.subtract(points[t[2]]!, a),
     ),
-    Vector3.subtract(points[t[3]]!, a),
+    AutoMovieEngineVector3.subtract(points[t[3]]!, a),
   );
 }
 
@@ -215,17 +215,17 @@ export function delaunayCircumscribesImplementation(
   const a: IAutoMovieVector3 = points[t[0]]!;
   const rows: IAutoMovieVector3[] = [t[1], t[2], t[3]].map(
     (i: number): IAutoMovieVector3 =>
-      Vector3.scale(Vector3.subtract(points[i]!, a), 2),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(points[i]!, a), 2),
   );
   const rhs: number[] = [t[1], t[2], t[3]].map(
     (i: number): number =>
-      Vector3.dot(points[i]!, points[i]!) - Vector3.dot(a, a),
+      AutoMovieEngineVector3.dot(points[i]!, points[i]!) - AutoMovieEngineVector3.dot(a, a),
   );
   const det = (
     u: IAutoMovieVector3,
     v: IAutoMovieVector3,
     w: IAutoMovieVector3,
-  ): number => Vector3.dot(u, Vector3.cross(v, w));
+  ): number => AutoMovieEngineVector3.dot(u, AutoMovieEngineVector3.cross(v, w));
   const column = (k: number): IAutoMovieVector3[] =>
     rows.map(
       (r: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
@@ -243,8 +243,8 @@ export function delaunayCircumscribesImplementation(
   }) as [number, number, number];
   const c: IAutoMovieVector3 = { x: cx, y: cy, z: cz };
   return (
-    Vector3.length(Vector3.subtract(p, c)) <
-    Vector3.length(Vector3.subtract(a, c))
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p, c)) <
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, c))
   );
 }
 

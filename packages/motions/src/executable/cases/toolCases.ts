@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanToolWork, IAutoMovieMotionHumanUseTool, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -98,9 +98,9 @@ export function toolCases(
           frame,
           bones.get(frame.bone)!,
         ).point;
-        return Vector3.add(
+        return AutoMovieEngineVector3.add(
           grip,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             bones.get("rightHand")!.worldRotation,
             offer.tool.offset,
           ),
@@ -109,7 +109,7 @@ export function toolCases(
       let worst: IToolCasesWorst = { value: 0, where: "none" };
       for (let k: number = 1; k <= 4; k++) {
         const t: number = FamilyCaseKit.event(performance, `contact${k}`);
-        const gap: number = Vector3.length(Vector3.subtract(tip(t), at));
+        const gap: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip(t), at));
         if (gap > worst.value)
           worst = { value: gap, where: `contact${k} at ${t.toFixed(2)} s` };
       }

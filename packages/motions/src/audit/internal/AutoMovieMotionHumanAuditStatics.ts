@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
@@ -202,7 +202,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
           : w.contact.support.kind === "ground"
             ? {
                 position: { x: 0, y: w.contact.support.height ?? 0, z: 0 },
-                rotation: Quaternion.identity(),
+                rotation: AutoMovieEngineQuaternion.identity(),
               }
             : motion.support?.(w.contact.support, seconds);
       const corners: IAutoMovieVector3[] = patch(

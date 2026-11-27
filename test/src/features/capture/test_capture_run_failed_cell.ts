@@ -6,7 +6,7 @@ import type {
   IAutoMovieCaptureRecord,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -79,7 +79,7 @@ export async function test_capture_run_failed_cell(): Promise<void> {
     await AutoMovieRenderCapture.run({
       plan,
       draw,
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out",
         round: null,

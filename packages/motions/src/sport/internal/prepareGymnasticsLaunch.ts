@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -67,7 +67,7 @@ export function prepareGymnasticsLaunch(
     const two: IAutoMovieVector3 = observe(seconds + 2 * delta);
     const velocity: IAutoMovieVector3 = {
       x: (two.x - one.x) / delta,
-      y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
+      y: (two.y - one.y) / delta + 1.5 * AutoMovieEngineGravity.STANDARD * delta,
       z: (two.z - one.z) / delta,
     };
     return {
@@ -76,7 +76,7 @@ export function prepareGymnasticsLaunch(
         y:
           one.y -
           velocity.y * delta +
-          0.5 * AutoMovieGravity.STANDARD * delta * delta,
+          0.5 * AutoMovieEngineGravity.STANDARD * delta * delta,
         z: one.z - velocity.z * delta,
       },
       velocity,

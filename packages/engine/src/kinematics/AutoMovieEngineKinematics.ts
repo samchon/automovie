@@ -71,8 +71,8 @@ import { swingConeAngle as swingConeAngleImplementation } from "../rom/internal/
 import { swingConeBlend as swingConeBlendImplementation } from "../rom/internal/swingConeBlend";
 import { validateJointRom as validateJointRomImplementation } from "../rom/internal/validateJointRom";
 import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
-import { type distalEndSwivelReadings } from "./distalEndSwivelReadings";
-import { type distalTwistSwivelRange } from "./distalTwistSwivelRange";
+import { type AutoMovieEngineDistalEndSwivelReadings } from "./AutoMovieEngineDistalEndSwivelReadings";
+import { type AutoMovieEngineDistalTwistSwivelRange } from "./AutoMovieEngineDistalTwistSwivelRange";
 import { AutoMovieHumanoidDigitSurfaces as AutoMovieHumanoidDigitSurfacesImplementation } from "./internal/AutoMovieHumanoidDigitSurfaces";
 import type { AutoMovieHumanoidNeutralBounds } from "./internal/AutoMovieHumanoidNeutralBounds";
 import { AutoMovieHumanoidSurfaceExtents as AutoMovieHumanoidSurfaceExtentsImplementation } from "./internal/AutoMovieHumanoidSurfaceExtents";
@@ -122,7 +122,7 @@ import { skeletonJointAxes as skeletonJointAxesImplementation } from "./internal
 import { solveResolvedRate as solveResolvedRateImplementation } from "./internal/solveResolvedRate";
 import { solveTwoBoneIK as solveTwoBoneIKImplementation } from "./internal/solveTwoBoneIK";
 import { validateJointAxesBasis as validateJointAxesBasisImplementation } from "./internal/validateJointAxesBasis";
-import { type swingTwistRange } from "./swingTwistRange";
+import { type AutoMovieEngineSwingTwistRange } from "./AutoMovieEngineSwingTwistRange";
 
 /** Pure forward-kinematics and authored-gaze operations for AutoMovie poses. */
 export namespace AutoMovieEngineKinematics {
@@ -441,7 +441,7 @@ export namespace AutoMovieEngineKinematics {
    *
    * Every refusal is certain. A sinusoid above `MARGIN` puts its angle past the
    * bound by more than `MARGIN` radians, the joints' tolerance
-   * (`ROM_TOLERANCE`, about 1.7e-4), far beyond the rounding of the fit, of the
+   * (`AutoMovieEngineRomTolerance`, about 1.7e-4), far beyond the rounding of the fit, of the
    * arc's ends and of the decomposition itself (near 1e-15); and an outer
    * angle's vector is then longer than `MARGIN`, past the gimbal band
    * (`sqrt(ε)`, 1.5e-8) inside which the decomposition pins that angle instead.
@@ -601,7 +601,7 @@ export namespace AutoMovieEngineKinematics {
    * is projected into the range (`clampJointToSkeleton`) before it is measured.
    * The point counts as reached within the effector's motion for one resolution
    * step of every joint, and a descent stops when its step moves no joint by
-   * more than `ROM_TOLERANCE`, the resolution to which the engine resolves a
+   * more than `AutoMovieEngineRomTolerance`, the resolution to which the engine resolves a
    * joint's angle. The fit is a continuation: it descends from the pose's own
    * angles for the digit, so a caller that seeds each fit from the one before
    * follows a moving target in one basin, its joints moving continuously. Only
@@ -723,9 +723,9 @@ export namespace AutoMovieEngineKinematics {
    *
    * The angles are clinical, so `validatePose` can compare them with the ROM
    * table directly. The clinical axes and the rest frame are two halves of one
-   * convention: this function applies {@link HUMANOID_JOINT_AXES} under any axes
+   * convention: this function applies {@link AutoMovieEngineHumanoidJointAxes} under any axes
    * the arm bones declare ({@link skeletonJointAxes}) and so defaults
-   * `restFrames` to the matching {@link HUMANOID_REST_FRAME}. Pass a table for a
+   * `restFrames` to the matching {@link AutoMovieEngineHumanoidRestFrame}. Pass a table for a
    * rig with its own rest convention, or `{}` for raw rest-relative angles.
    *
    * Returns `null` when `side` is not `"left"` or `"right"` (the value arrives
@@ -739,7 +739,7 @@ export namespace AutoMovieEngineKinematics {
    * @param side Which arm reaches.
    * @param target Point the hand lands on, in the skeleton's model space.
    * @param restFrames Per-bone rest frames for the clinical lift; defaults to
-   *   `HUMANOID_REST_FRAME`.
+   *   `AutoMovieEngineHumanoidRestFrame`.
    */
   export function reachPose(
     skeleton: IAutoMovieSkeleton,
@@ -890,7 +890,7 @@ export namespace AutoMovieEngineKinematics {
    * digit. Its pad is the palmar face of the same phalanx: where a ray from the
    * middle of the phalanx, between the last joint and the tip, leaves the
    * colliders toward the palm's side. The palm faces -Y in the canonical rest
-   * (`HUMANOID_REST_FRAME`), so the palmar direction is -Y made perpendicular
+   * (`AutoMovieEngineHumanoidRestFrame`), so the palmar direction is -Y made perpendicular
    * to the phalanx; the rig's thumb lies in the palm's plane with its nail up,
    * so its pad faces the same side. A profile with no segment for a phalanx
    * reads the hand's colliders instead, as the index tip did.
@@ -899,7 +899,7 @@ export namespace AutoMovieEngineKinematics {
    * twin's mirror image, as it does for every region.
    *
    * @param rays The rest-pose readers of the body
-   *   (`AutoMovieHumanoidSurfaceRays.tools`).
+   *   (`AutoMovieEngineHumanoidSurfaceRays.tools`).
    * @param profile The body's physical profile, segments keyed by rig bones.
    * @returns The tip and pad frames of every digit, keyed by region.
    * @throws {Error} When a digit bone is missing or a ray misses its colliders.
@@ -942,8 +942,8 @@ export namespace AutoMovieEngineKinematics {
    *
    * A bone that declares axes describes its own rest frame, so its declaration
    * wins over a table the host chose for a whole family of rigs, such as
-   * `HUMANOID_JOINT_AXES`; every other bone keeps the table's entry, and a bone
-   * in neither falls through to `DEFAULT_JOINT_AXES` where the caller reads it.
+   * `AutoMovieEngineHumanoidJointAxes`; every other bone keeps the table's entry, and a bone
+   * in neither falls through to `AutoMovieEngineDefaultJointAxes` where the caller reads it.
    * Every engine entry that receives both a skeleton and a table, forward or
    * inverse, reads its table through this or applies the same precedence per
    * bone, so pose resolution, baking and the solvers agree on one rig.
@@ -1082,7 +1082,7 @@ export namespace AutoMovieEngineKinematics {
    * its range, as arcs in closed form.
    *
    * The end joint's two free angles are read off where the mid segment points
-   * in the requested rotation's frame (`distalEndSwivelReadings` states the
+   * in the requested rotation's frame (`AutoMovieEngineDistalEndSwivelReadings` states the
    * derivation): the abduction by its sine `-d_flexion`, the flexion by the
    * vector `(d_abduction, d_twist)`, every component a sinusoid of the swivel.
    * Each bound of the joint's box therefore refuses the arc where its sinusoid
@@ -1091,16 +1091,16 @@ export namespace AutoMovieEngineKinematics {
    *
    * The arcs say nothing of the mid segment's own twist range: the twist the
    * request leaves it is not a sinusoid of the swivel, though where it meets an
-   * end of its range is (`distalTwistSwivelRange`), and the swivel chosen is
+   * end of its range is (`AutoMovieEngineDistalTwistSwivelRange`), and the swivel chosen is
    * the caller's to verify.
    *
    * @param props The end joint, the mid segment's direction by swivel and the
    *   margin.
    * @returns The refused arcs merged over a turn, every swivel, or null when
-   *   the analysis does not apply (`distalEndSwivelReadings.of`).
+   *   the analysis does not apply (`AutoMovieEngineDistalEndSwivelReadings.of`).
    */
   export function distalEndSwivelArcs(
-    props: distalEndSwivelReadings.IProps & {
+    props: AutoMovieEngineDistalEndSwivelReadings.IProps & {
       /**
        * How far past a bound, in sine or projected units, a reading must lie to
        * be refused; negative keeps the result strictly inside.
@@ -1119,7 +1119,7 @@ export namespace AutoMovieEngineKinematics {
    * Whatever twist the mid segment takes and wherever in its box the end joint
    * stands, the rotation the chain shows carries the mid segment's world axis
    * `u` to `d(f, a) = (-sin a, cos a sin f, cos a cos f)` in the end joint's
-   * basis, with `(f, a)` inside the box (`distalEndSwivelReadings`), while the
+   * basis, with `(f, a)` inside the box (`AutoMovieEngineDistalEndSwivelReadings`), while the
    * requested rotation carries it to `x(s)`, the direction the readings give at
    * swivel `s`. A rotation by an angle moves no unit vector by more than that
    * angle, so the angle between the shown and the requested rotation is at
@@ -1138,16 +1138,16 @@ export namespace AutoMovieEngineKinematics {
    * more than its point moves, is bounded over an interval by its value at the
    * middle less the radius times the half width.
    *
-   * The bound is lowered by the joints' tolerance (`ROM_TOLERANCE`), within
+   * The bound is lowered by the joints' tolerance (`AutoMovieEngineRomTolerance`), within
    * which a projection onto the box may stand past its ends, so it stays below
    * every miss it bounds.
    *
    * @param props The end joint and the mid segment's direction by swivel.
    * @returns The bound over `low` to `high` degrees, never negative; null when
-   *   the analysis does not apply (`distalEndSwivelReadings.of`).
+   *   the analysis does not apply (`AutoMovieEngineDistalEndSwivelReadings.of`).
    */
   export function distalEndSwivelMiss(
-    props: distalEndSwivelReadings.IProps,
+    props: AutoMovieEngineDistalEndSwivelReadings.IProps,
   ): ((low: number, high: number) => number) | null {
     return distalEndSwivelMissImplementation(props);
   }
@@ -1157,7 +1157,7 @@ export namespace AutoMovieEngineKinematics {
    * distally (an arm) can take a requested end rotation: outside the arcs its
    * end joint's box refuses (`distalEndSwivelArcs`) and where the twist the
    * rotation leaves the mid segment lies inside its range
-   * (`distalTwistSwivelRange`).
+   * (`AutoMovieEngineDistalTwistSwivelRange`).
    *
    * The admissible swivels are a union of intervals whose ends are the refused
    * arcs' ends and the twist range's breakpoints, so the admissible swivel
@@ -1180,7 +1180,7 @@ export namespace AutoMovieEngineKinematics {
    */
   export function distalEndSwivelNearest(
     arcs: readonly IAutoMovieSwivelArcs.IArc[] | "all",
-    range: distalTwistSwivelRange.IRange | null,
+    range: AutoMovieEngineDistalTwistSwivelRange.IRange | null,
     desired: number,
   ): number | null {
     return distalEndSwivelNearestImplementation(arcs, range, desired);
@@ -1242,7 +1242,7 @@ export namespace AutoMovieEngineKinematics {
    * Why the analytic arm IK cannot articulate one arm chain of `skeleton`, or
    * `null` when it can.
    *
-   * `HUMANOID_JOINT_AXES` puts the arm's flexion on local +Y because the
+   * `AutoMovieEngineHumanoidJointAxes` puts the arm's flexion on local +Y because the
    * canonical humanoid rests in the VRM T-pose with its arms along local ±X. On
    * a rig whose forearm rests along that flexion axis, such as arms hanging
    * along −Y, elbow flexion only rolls the forearm about its own length: the
@@ -1263,7 +1263,7 @@ export namespace AutoMovieEngineKinematics {
    *
    * @param skeleton Rig whose arm chain is read; only rest offsets are used.
    * @param side Which arm to test.
-   * @param jointAxes Per-bone clinical axes; defaults to `HUMANOID_JOINT_AXES`,
+   * @param jointAxes Per-bone clinical axes; defaults to `AutoMovieEngineHumanoidJointAxes`,
    *   the table every arm computation applies, under any axes the lower arm
    *   declares itself.
    */
@@ -1314,7 +1314,7 @@ export namespace AutoMovieEngineKinematics {
    * matrix, which is only a rotation for a unit quaternion.
    *
    * @param q Bone-local articulation rotation; unit length expected.
-   * @param axes Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
+   * @param axes Clinical axis basis; defaults to `AutoMovieEngineDefaultJointAxes`.
    * @param frame Rest frame lifting rest-relative angles to clinical ones;
    *   omitted, the angles stay rest-relative.
    * @param domain Bone and resolved ROM that choose among equivalent charts;
@@ -1365,7 +1365,7 @@ export namespace AutoMovieEngineKinematics {
    * {@link normalizeJointAxes}), or an invalid frame sign or neutral.
    *
    * @param joint Clinical angles in degrees; `null` axes are at rest.
-   * @param axes Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
+   * @param axes Clinical axis basis; defaults to `AutoMovieEngineDefaultJointAxes`.
    * @param frame Rest frame mapping clinical angles to rest-relative ones;
    *   omitted, the angles are already rest-relative.
    */
@@ -1382,7 +1382,7 @@ export namespace AutoMovieEngineKinematics {
    * repeated over many poses of the same skeleton.
    *
    * `childrenByParent` lists each bone under its parent, in declaration order,
-   * with null-parent roots under `SKELETON_ROOT_PARENT`. `reachableBones` holds
+   * with null-parent roots under `AutoMovieEngineSkeletonRootParent`. `reachableBones` holds
    * every bone whose parent chain ends at such a root: a bone whose parent is
    * undeclared, or whose chain is a cycle, is never entered from a root and is
    * absent. The index is a snapshot; it holds the skeleton's bone objects, so a
@@ -1650,7 +1650,7 @@ export namespace AutoMovieEngineKinematics {
   export function jointRomOvershoot(
     joint: IAutoMovieJointPose,
     constraint: IAutoMovieJointConstraint | null,
-    rig?: swingTwistRange.IPrepared,
+    rig?: AutoMovieEngineSwingTwistRange.IPrepared,
   ): number {
     return jointRomOvershootImplementation(joint, constraint, rig);
   }
@@ -1677,7 +1677,7 @@ export namespace AutoMovieEngineKinematics {
   export function prepareJointRomOvershoot(
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint | null,
-    rig?: swingTwistRange.IPrepared,
+    rig?: AutoMovieEngineSwingTwistRange.IPrepared,
   ): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number {
     return prepareJointRomOvershootImplementation(bone, constraint, rig);
   }
@@ -1710,8 +1710,8 @@ export namespace AutoMovieEngineKinematics {
    *
    * A ball joint whose constraint declares `swingTwist`, on a bone with axes in
    * its frame (the caller's `rig`, or the humanoid tables' through
-   * `swingTwistRange.of`), is instead brought into its range as a rotation
-   * (`swingTwistRange.project`: its direction along its great circle from rest,
+   * `AutoMovieEngineSwingTwistRange.of`), is instead brought into its range as a rotation
+   * (`AutoMovieEngineSwingTwistRange.project`: its direction along its great circle from rest,
    * its twist clamped) and read back in the reading the three-angle box
    * prefers; a joint already inside comes back as given.
    *
@@ -1726,7 +1726,7 @@ export namespace AutoMovieEngineKinematics {
   export function clampJointRom(
     joint: IAutoMovieJointPose,
     constraint: IAutoMovieJointConstraint,
-    rig?: swingTwistRange.IPrepared,
+    rig?: AutoMovieEngineSwingTwistRange.IPrepared,
   ): IAutoMovieJointPose {
     return clampJointRomImplementation(joint, constraint, rig);
   }
@@ -1759,7 +1759,7 @@ export namespace AutoMovieEngineKinematics {
    * its constraint and frame once, and every incoming joint is projected.
    *
    * An optional axes table must be the complete result of
-   * skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES) for this same operation.
+   * skeletonJointAxes(skeleton, AutoMovieEngineHumanoidJointAxes) for this same operation.
    * Without it, that merge is made only when a constrained joint first needs
    * its frame. Axis admission still occurs inside the actual projection.
    *
@@ -1989,9 +1989,9 @@ export namespace AutoMovieEngineKinematics {
    * `swingDeg`.
    *
    * A ball joint whose constraint declares `swingTwist` is measured by its
-   * rotation instead (`swingTwistRange`), in the frame of its bone the
+   * rotation instead (`AutoMovieEngineSwingTwistRange`), in the frame of its bone the
    * caller's rig resolves (`rig`), or the humanoid tables'
-   * (`swingTwistRange.of`): a `swing` fault by the degrees its direction lies
+   * (`AutoMovieEngineSwingTwistRange.of`): a `swing` fault by the degrees its direction lies
    * past the reach of its flexion and abduction ranges, then a `twist` fault
    * by the degrees its turn about its own axis lies past `swingTwist.twist`.
    * A non-finite angle is reported as above and nothing else is measured. A
@@ -2005,7 +2005,7 @@ export namespace AutoMovieEngineKinematics {
    *   value in degrees and its overshoot in degrees, `undefined` for a
    *   non-finite value.
    * @param rig The bone's frame as the caller's rig resolves it
-   *   (`swingTwistRange.of(bone, skeleton)`); the humanoid tables' when
+   *   (`AutoMovieEngineSwingTwistRange.of(bone, skeleton)`); the humanoid tables' when
    *   absent.
    */
   export function scanJointRom(

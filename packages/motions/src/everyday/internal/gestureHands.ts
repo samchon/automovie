@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -80,7 +80,7 @@ export namespace gestureHands {
     const turn: IAutoMovieQuaternion | undefined =
       p.turn === undefined
         ? undefined
-        : Quaternion.fromAxisAngle(
+        : AutoMovieEngineQuaternion.fromAxisAngle(
             { x: 0, y: -1, z: 0 },
             (side === "left" ? -1 : 1) * p.turn,
           );
@@ -159,7 +159,7 @@ export namespace gestureHands {
         const turned: IAutoMovieQuaternion =
           turn === undefined
             ? goal.rotation
-            : Quaternion.multiply(goal.rotation, turn);
+            : AutoMovieEngineQuaternion.multiply(goal.rotation, turn);
         const surface: IAutoMovieMotionHumanHand.Surface = goal.surface;
         const shape: IAutoMovieMotionHumanHand.Shape = goal.shape;
         const point: IAutoMovieVector3 = goal.point;

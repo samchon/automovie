@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -35,7 +35,7 @@ export function preparePoleVaultLinks(
     );
     const rest: IAutoMovieRigidTransform = {
       position,
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
     };
     return owner === undefined
       ? { rest }

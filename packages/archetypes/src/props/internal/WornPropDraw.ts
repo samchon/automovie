@@ -5,7 +5,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-import * as WornPropDrawData from "./WornPropDrawData";
+import { WornPropDrawData } from "./WornPropDrawData";
 
 /*
  * The seeded recipes originally published as `createWearable`.

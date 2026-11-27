@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -145,15 +145,15 @@ export namespace lieTogetherDrape {
       HumanColliders.cast(
         partner,
         bones,
-        Vector3.addScaled(on.point, on.normal, partner.measure.chestDepth),
-        Vector3.scale(on.normal, -1),
+        AutoMovieEngineVector3.addScaled(on.point, on.normal, partner.measure.chestDepth),
+        AutoMovieEngineVector3.scale(on.normal, -1),
         2 * partner.measure.chestDepth,
       );
     const normal: IAutoMovieVector3 = hit?.normal ?? on.normal;
     // The fingers toward the partner's front, in the palm's plane.
     const front: IAutoMovieVector3 = region("sternum").normal;
-    const forward: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled(front, normal, -Vector3.dot(front, normal)),
+    const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled(front, normal, -AutoMovieEngineVector3.dot(front, normal)),
     );
     const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.preparePlaced(
@@ -168,11 +168,11 @@ export namespace lieTogetherDrape {
       {
         surface: "palm",
         shape: "flat",
-        point: Vector3.addScaled(hit?.point ?? on.point, normal, REST),
+        point: AutoMovieEngineVector3.addScaled(hit?.point ?? on.point, normal, REST),
         rotation: HumanHand.align(
           HumanHand.offset(body, side, "palm", "flat"),
           {
-            normal: Vector3.scale(normal, -1),
+            normal: AutoMovieEngineVector3.scale(normal, -1),
             forward,
           },
         ),

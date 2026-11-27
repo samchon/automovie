@@ -1,8 +1,8 @@
-import { AutoMovieSolidVector } from "@automovie/engine";
+import { AutoMovieEngineSolidVector } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieSolidVector` is the solid operators' vector algebra: sums,
+ * `AutoMovieEngineSolidVector` is the solid operators' vector algebra: sums,
  * products, the unit vector, and the 3 x 3, 2 x 2 (Cramer) and general
  * (partially pivoted) linear solves that refuse nearly singular systems.
  *
@@ -21,7 +21,7 @@ import { TestValidator } from "@nestia/e2e";
  *    known x = (1, -2, 3, 0.5); a dependent system gives null.
  */
 export function test_engine_geometry_solid_vector(): void {
-  const V = AutoMovieSolidVector;
+  const V = AutoMovieEngineSolidVector;
   const near = (a: readonly number[] | null, b: readonly number[]): boolean =>
     a !== null &&
     a.length === b.length &&

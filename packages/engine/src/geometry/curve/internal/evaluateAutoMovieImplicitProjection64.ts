@@ -3,7 +3,7 @@ import type {
   IAutoMovieEvaluateImplicitProjection64,
 } from "@automovie/interface";
 
-import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
+import { AutoMovieEngineCurveMath64 as M } from "../../AutoMovieEngineCurveMath64";
 
 /*
  * Continue an implicit level along one declared constant physical direction.

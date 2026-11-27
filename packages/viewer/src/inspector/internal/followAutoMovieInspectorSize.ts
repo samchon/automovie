@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive.js";
-import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
+import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost.js";
 
 /*
  * Follow the host's drawing size: when every side and the pixel ratio are
@@ -10,7 +10,7 @@ import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHo
  */
 export function followAutoMovieInspectorSize(
   now: IAutoMovieInspectorLive,
-  size: IAutoMovieInspectorSceneHost.ISize,
+  size: IAutoMovieViewerInspectorSceneHost.ISize,
 ): boolean {
   const drawable: boolean = [size.width, size.height, size.pixelRatio].every(
     (value: number): boolean => value > 0,

@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanLimb, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieJointPose, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGymnasticsFlight, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -169,7 +169,7 @@ export namespace GymnasticsFlight {
     const c: IAutoMovieVector3 = centre(body, model, posture);
     return {
       ...posture,
-      root: Vector3.add(posture.root, Vector3.subtract(at, c)),
+      root: AutoMovieEngineVector3.add(posture.root, AutoMovieEngineVector3.subtract(at, c)),
     };
   }
 
@@ -213,14 +213,14 @@ export namespace GymnasticsFlight {
   ): (yaw: number, pitch: number) => IAutoMovieMotionHumanPosture {
     if (Math.abs(posture.roll) > 1e-9)
       throw new Error("GymnasticsFlight.turned turns a posture with no roll");
-    const before: IAutoMovieQuaternion = Quaternion.inverse(
+    const before: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       humanPostureHeading(posture),
     );
-    const rootOffset: IAutoMovieVector3 = Vector3.subtract(posture.root, pivot);
+    const rootOffset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(posture.root, pivot);
     const rootAt: (turn: IAutoMovieQuaternion) => IAutoMovieVector3 = (
       turn: IAutoMovieQuaternion,
     ): IAutoMovieVector3 =>
-      Vector3.add(pivot, Quaternion.rotateVector(turn, rootOffset));
+      AutoMovieEngineVector3.add(pivot, AutoMovieEngineQuaternion.rotateVector(turn, rootOffset));
     return (yaw: number, pitch: number): IAutoMovieMotionHumanPosture => {
       const after: Pick<IAutoMovieMotionHumanPosture, PrepareTurnedAfter> = {
         yaw: posture.yaw + yaw,
@@ -228,13 +228,13 @@ export namespace GymnasticsFlight {
         roll: 0,
       };
       const heading: IAutoMovieQuaternion = humanPostureHeading(after);
-      const turn: IAutoMovieQuaternion = Quaternion.multiply(heading, before);
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(heading, before);
       const round: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           pivot,
-          Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
+          AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(point, pivot)),
         );
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       for (const [limb, goal] of Object.entries(posture.limbs) as [
@@ -250,7 +250,7 @@ export namespace GymnasticsFlight {
                 bend: round(goal.bend),
                 ...(goal.rotation === undefined
                   ? {}
-                  : { rotation: Quaternion.multiply(turn, goal.rotation) }),
+                  : { rotation: AutoMovieEngineQuaternion.multiply(turn, goal.rotation) }),
               };
       return { ...posture, ...after, root: rootAt(turn), limbs };
     };
@@ -267,10 +267,10 @@ export namespace GymnasticsFlight {
    */
   export function fall(from: number, vy: number, to: number): number | null {
     const discriminant: number =
-      vy * vy - 2 * AutoMovieGravity.STANDARD * (to - from);
+      vy * vy - 2 * AutoMovieEngineGravity.STANDARD * (to - from);
     if (discriminant < 0) return null;
     const t: number =
-      (vy + Math.sqrt(discriminant)) / AutoMovieGravity.STANDARD;
+      (vy + Math.sqrt(discriminant)) / AutoMovieEngineGravity.STANDARD;
     return t > 0 ? t : null;
   }
 
@@ -288,7 +288,7 @@ export namespace GymnasticsFlight {
   ): IAutoMovieVector3 {
     return {
       x: from.x + velocity.x * t,
-      y: from.y + velocity.y * t - 0.5 * AutoMovieGravity.STANDARD * t * t,
+      y: from.y + velocity.y * t - 0.5 * AutoMovieEngineGravity.STANDARD * t * t,
       z: from.z + velocity.z * t,
     };
   }

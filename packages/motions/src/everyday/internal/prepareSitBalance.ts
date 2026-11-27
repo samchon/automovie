@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanSit, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
@@ -108,7 +108,7 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
       t: number,
       back: number,
     ): number =>
-      Vector3.dot(centre(lowered(t, back, read), read, project), heading);
+      AutoMovieEngineVector3.dot(centre(lowered(t, back, read), read, project), heading);
     const stood: number = ahead(0, 0);
 
     // Keep every bracket trial and the original physical travel tolerance;

@@ -2,7 +2,9 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { prepareInstancePosture } from "@automovie/motions/internal";
+import {
+  prepareInstancePosture
+} from "../../../../../packages/motions/src/ensemble/internal/prepareInstancePosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

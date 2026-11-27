@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineText, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineText, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieExplicitInstanceTransform,
@@ -381,7 +381,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
             z: 0.15,
           }) &&
           vclose(
-            Quaternion.rotateVector(instanced.transforms[1]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(instanced.transforms[1]!.rotation, {
               x: 1,
               y: 0,
               z: 0,
@@ -398,7 +398,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
             z: 0.075,
           }) &&
           vclose(
-            Quaternion.rotateVector(instanced.transforms[2]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(instanced.transforms[2]!.rotation, {
               x: 1,
               y: 0,
               z: 0,

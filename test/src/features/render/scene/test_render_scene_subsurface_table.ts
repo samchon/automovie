@@ -1,7 +1,9 @@
 import {
-  SUBSURFACE_TEXTURE_SIZE,
-  subsurfaceTable,
-} from "@automovie/render/internal";
+  SUBSURFACE_TEXTURE_SIZE
+} from "../../../../../packages/render/src/scene/subsurfaceShading/SUBSURFACE_TEXTURE_SIZE";
+import {
+  subsurfaceTable
+} from "../../../../../packages/render/src/scene/subsurfaceShading/internal/subsurfaceTable";
 import { TestValidator } from "@nestia/e2e";
 
 /** Tolerance of the closed-form first row. */

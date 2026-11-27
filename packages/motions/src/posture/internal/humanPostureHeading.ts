@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -13,10 +13,10 @@ import type {
 export function humanPostureHeading(
   posture: Pick<IAutoMovieMotionHumanPosture, HumanPostureHeadingPosture>,
 ): IAutoMovieQuaternion {
-  return Quaternion.normalize(
-    Quaternion.multiply(
+  return AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       YAW(posture.yaw),
-      Quaternion.multiply(PITCH(posture.pitch), ROLL(posture.roll)),
+      AutoMovieEngineQuaternion.multiply(PITCH(posture.pitch), ROLL(posture.roll)),
     ),
   );
 }
@@ -32,17 +32,17 @@ export namespace humanPostureHeading {
   export function angles(
     rotation: IAutoMovieQuaternion,
   ): Pick<IAutoMovieMotionHumanPosture, HumanPostureHeadingAnglesResult> {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
     });
-    const left: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const left: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 1,
       y: 0,
       z: 0,
     });
-    const up: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 1,
       z: 0,
@@ -58,20 +58,20 @@ export namespace humanPostureHeading {
 /*
  * Private world-up yaw geometry.
  */
-const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+const YAW: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
 
 /*
  * Private intrinsic left-axis pitch geometry.
  */
-const PITCH: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 1, y: 0, z: 0 });
+const PITCH: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 1, y: 0, z: 0 });
 
 /*
  * Private intrinsic forward-axis roll geometry.
  */
-const ROLL: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 0, y: 0, z: 1 });
+const ROLL: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 0, z: 1 });
 /*
  * The alternatives of `HumanPostureHeadingPosture`'s site.
  */

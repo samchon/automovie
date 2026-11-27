@@ -3,7 +3,7 @@ import type {
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
+import { AutoMovieEnginePhysicalHullFaces } from "../AutoMovieEnginePhysicalHullFaces";
 
 /*
  * The hull of a convex-hull shape: the one built with its record, or, for a
@@ -14,5 +14,5 @@ import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
 export function physicalShapeHull(
   shape: Extract<IAutoMoviePhysicalShape, { kind: "hull" }>,
 ): IAutoMoviePhysicalHullFaces.IHull {
-  return shape.hull ?? AutoMoviePhysicalHullFaces.build(shape.points);
+  return shape.hull ?? AutoMovieEnginePhysicalHullFaces.build(shape.points);
 }

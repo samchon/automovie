@@ -1,6 +1,14 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, guitarNoteEntry, resolveGuitarStringContact } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  guitarNoteEntry
+} from "../../../../../packages/motions/src/handling/internal/guitarNoteEntry";
+import {
+  resolveGuitarStringContact
+} from "../../../../../packages/motions/src/handling/internal/resolveGuitarStringContact";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 
@@ -57,8 +65,8 @@ export function test_motions_handling_guitar_note(): void {
     extent: null,
     length,
   });
-  const along: IAutoMovieQuaternion = Quaternion.identity();
-  const across: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const along: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
+  const across: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );

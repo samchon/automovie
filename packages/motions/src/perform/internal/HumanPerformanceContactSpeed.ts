@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
@@ -75,8 +75,8 @@ export namespace HumanPerformanceContactSpeed {
           IAutoMovieVector3 | undefined,
         ] = read(second(k + 1));
         const moved: number = Math.max(
-          Vector3.distance(before![0], after[0]),
-          Vector3.distance(before![1] ?? before![0], after[1] ?? after[0]),
+          AutoMovieEngineVector3.distance(before![0], after[0]),
+          AutoMovieEngineVector3.distance(before![1] ?? before![0], after[1] ?? after[0]),
         );
         rates.push(moved / (second(k + 1) - second(k)));
         before = after;

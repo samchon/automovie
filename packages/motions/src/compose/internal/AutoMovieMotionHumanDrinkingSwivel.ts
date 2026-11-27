@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -111,15 +111,15 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       bones.get(bone)!.worldPosition;
     const shoulder: IAutoMovieVector3 = at(`${side}UpperArm`);
-    const hip: IAutoMovieVector3 = Vector3.subtract(
+    const hip: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       at(`${side}UpperLeg`),
       shoulder,
     );
-    const upper: number = Vector3.length(
-      Vector3.subtract(at(`${side}LowerArm`), shoulder),
+    const upper: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(at(`${side}LowerArm`), shoulder),
     );
-    const lower: number = Vector3.length(
-      Vector3.subtract(at(`${side}Hand`), at(`${side}LowerArm`)),
+    const lower: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(at(`${side}Hand`), at(`${side}LowerArm`)),
     );
     const heading: number = (posture.yaw * Math.PI) / 180;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -138,8 +138,8 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
     const normals: IAutoMovieVector3[] = planes.flatMap(
       ([along, bound]: [IAutoMovieVector3, number]): IAutoMovieVector3[] => {
         const h: [number, number] = [
-          Vector3.dot(hip, along),
-          Vector3.dot(hip, up),
+          AutoMovieEngineVector3.dot(hip, along),
+          AutoMovieEngineVector3.dot(hip, up),
         ];
         if (!(Math.hypot(...h) > 1e-9)) return [];
         const turn = (by: number): [number, number] => [
@@ -155,7 +155,7 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
         ];
         return sides.map(
           ([x, y]: [number, number]): IAutoMovieVector3 =>
-            Vector3.add(Vector3.scale(along, x), Vector3.scale(up, y)),
+            AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(along, x), AutoMovieEngineVector3.scale(up, y)),
         );
       },
     );

@@ -1,5 +1,7 @@
 import type { AutoMovieArchetypeCourse } from "@automovie/archetypes";
-import { QuadrupedHoofTrack as Hoof } from "@automovie/archetypes/internal";
+import {
+  QuadrupedHoofTrack as Hoof
+} from "../../../../../packages/archetypes/src/animals/quadruped/QuadrupedHoofTrack";
 import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

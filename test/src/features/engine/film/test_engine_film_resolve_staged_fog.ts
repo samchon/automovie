@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector, AutoMovieEngineScene } from "@automovie/engine";
-import { resolveStagedFog } from "@automovie/engine/internal";
+import {
+  resolveStagedFog
+} from "../../../../../packages/engine/src/film/staging/internal/resolveStagedFog";
 import type { IAutoMovieFog, IAutoMovieStage } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

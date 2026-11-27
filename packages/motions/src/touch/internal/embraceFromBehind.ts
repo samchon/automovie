@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics, swivelArcs } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics, AutoMovieEngineSwivelArcs } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieHumanLimbGoal, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEmbraceFromBehind, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanStrikingBody, IAutoMovieMotionManner, IAutoMovieResolvedBone, IAutoMovieSwivelArcs, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
@@ -25,7 +25,7 @@ import { embraceFromBehindSolve } from "./embraceFromBehindSolve";
 import { embraceTrunkClear } from "./embraceTrunkClear";
 import { kissBody } from "./kissBody";
 import { touchHoldRests } from "./touchHoldRests";
-import * as EmbraceFromBehindData from "./EmbraceFromBehindData";
+import { EmbraceFromBehindData } from "./EmbraceFromBehindData";
 
 /*
  * Embrace a partner from behind. The stance and the head are one problem,
@@ -156,11 +156,11 @@ function planEmbraceFromBehind(
   const abdomen: IAutoMovieResolvedBone = bones.get(
     partner.body.surfaces.regions.abdomen.bone,
   )!;
-  const leftward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const leftward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     abdomen.worldRotation,
     { x: 1, y: 0, z: 0 },
   );
-  const upright: IAutoMovieVector3 = Quaternion.rotateVector(
+  const upright: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     abdomen.worldRotation,
     { x: 0, y: 1, z: 0 },
   );
@@ -190,13 +190,13 @@ function planEmbraceFromBehind(
     })({ skeleton: body.skeleton.id, root: null });
   const tips: number =
     body.measure.hand -
-    Vector3.length(HumanHand.offset(body, "left", "palm", "flat").point) +
+    AutoMovieEngineVector3.length(HumanHand.offset(body, "left", "palm", "flat").point) +
     embraceFromBehindSolve.NEAR;
   const place = (
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmTarget.ITarget => {
     const sign: number = side === "left" ? 1 : -1;
-    const inward: IAutoMovieVector3 = Vector3.scale(
+    const inward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       leftward,
       -sign,
     );
@@ -212,15 +212,15 @@ function planEmbraceFromBehind(
       "flat",
     );
     const hand: IAutoMovieResolvedBone = flat.get(`${side}Hand`)!;
-    const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(
+    const inverse: ReturnType<typeof AutoMovieEngineQuaternion.inverse> = AutoMovieEngineQuaternion.inverse(
       hand.worldRotation,
     );
     const offsets: IAutoMovieVector3[] = tipsBySide[side].map(
       (tip: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
-        Vector3.subtract(
-          Quaternion.rotateVector(
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineQuaternion.rotateVector(
             inverse,
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(tip, flat.get(tip.bone)!),
               hand.worldPosition,
             ),
@@ -228,9 +228,9 @@ function planEmbraceFromBehind(
           palm.point,
         ),
     );
-    const normal: IAutoMovieVector3 = Vector3.scale(site.normal, -1);
-    const room: number = Vector3.dot(
-      Vector3.subtract(belly.point, site.point),
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(site.normal, -1);
+    const room: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(belly.point, site.point),
       inward,
     );
     const forward: IAutoMovieVector3 | undefined = embraceForward(
@@ -268,7 +268,7 @@ function planEmbraceFromBehind(
     p.manner,
   );
   const approach: number = AutoMovieMotionHumanTiming.transport(
-    Vector3.distance(chin(), rest),
+    AutoMovieEngineVector3.distance(chin(), rest),
   );
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({
@@ -525,42 +525,42 @@ function embraceForward(
   upright: IAutoMovieVector3,
   room: number,
 ): IAutoMovieVector3 | undefined {
-  const tangent: IAutoMovieVector3 = Vector3.addScaled(
+  const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     inward,
     normal,
-    -Vector3.dot(inward, normal),
+    -AutoMovieEngineVector3.dot(inward, normal),
   );
-  const forward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.dot(tangent, tangent) > 0
+  const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.dot(tangent, tangent) > 0
       ? tangent
-      : Vector3.addScaled(upright, normal, -Vector3.dot(upright, normal)),
+      : AutoMovieEngineVector3.addScaled(upright, normal, -AutoMovieEngineVector3.dot(upright, normal)),
   );
-  const across: IAutoMovieVector3 = Vector3.cross(normal, forward);
-  const rise: IAutoMovieVector3 = Vector3.scale(
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(normal, forward);
+  const rise: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     across,
-    Vector3.dot(across, upright) >= 0 ? 1 : -1,
+    AutoMovieEngineVector3.dot(across, upright) >= 0 ? 1 : -1,
   );
-  const restForward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.addScaled(
+  const restForward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.addScaled(
       palm.forward,
       palm.normal,
-      -Vector3.dot(palm.forward, palm.normal),
+      -AutoMovieEngineVector3.dot(palm.forward, palm.normal),
     ),
   );
-  const restSide: IAutoMovieVector3 = Vector3.cross(palm.normal, restForward);
-  const upSide: IAutoMovieVector3 = Vector3.cross(normal, rise);
-  const riseForward: number = Vector3.dot(inward, rise);
-  const riseLateral: number = Vector3.dot(inward, upSide);
-  const acrossForward: number = Vector3.dot(inward, forward);
-  const acrossLateral: number = Vector3.dot(inward, across);
-  const perpendicular: number = Vector3.dot(inward, normal);
+  const restSide: IAutoMovieVector3 = AutoMovieEngineVector3.cross(palm.normal, restForward);
+  const upSide: IAutoMovieVector3 = AutoMovieEngineVector3.cross(normal, rise);
+  const riseForward: number = AutoMovieEngineVector3.dot(inward, rise);
+  const riseLateral: number = AutoMovieEngineVector3.dot(inward, upSide);
+  const acrossForward: number = AutoMovieEngineVector3.dot(inward, forward);
+  const acrossLateral: number = AutoMovieEngineVector3.dot(inward, across);
+  const perpendicular: number = AutoMovieEngineVector3.dot(inward, normal);
   const ranges: [number, number][] = [];
   for (const tip of offsets) {
-    const along: number = Vector3.dot(tip, restForward);
-    const lateral: number = Vector3.dot(tip, restSide);
-    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+    const along: number = AutoMovieEngineVector3.dot(tip, restForward);
+    const lateral: number = AutoMovieEngineVector3.dot(tip, restSide);
+    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = AutoMovieEngineSwivelArcs.above(
       {
-        a: Vector3.dot(tip, palm.normal) * perpendicular,
+        a: AutoMovieEngineVector3.dot(tip, palm.normal) * perpendicular,
         b: along * acrossForward + lateral * acrossLateral,
         c: along * riseForward + lateral * riseLateral,
       },
@@ -578,9 +578,9 @@ function embraceForward(
   );
   const turn: number = up <= down ? up : -down;
   if (Math.abs(turn) > 90) return undefined;
-  const radians: number = turn * Quaternion.DEG2RAD;
-  return Vector3.addScaled(
-    Vector3.scale(forward, Math.cos(radians)),
+  const radians: number = turn * AutoMovieEngineQuaternion.DEG2RAD;
+  return AutoMovieEngineVector3.addScaled(
+    AutoMovieEngineVector3.scale(forward, Math.cos(radians)),
     rise,
     Math.sin(radians),
   );

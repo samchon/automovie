@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieComposition,
@@ -342,7 +342,7 @@ export namespace FamilyCaseKit {
         .bones(subject, t)
         .get(bone)!.worldPosition;
       const goal: IAutoMovieVector3 = point(t);
-      worst = Math.max(worst, Vector3.length(Vector3.subtract(at, goal)));
+      worst = Math.max(worst, AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at, goal)));
     }
     return worst;
   }

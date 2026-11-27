@@ -1,8 +1,8 @@
 import {
-  AutoMovieGravity,
-  AutoMoviePhysicalSimulation,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
+  AutoMovieEngineGravity,
+  AutoMovieEnginePhysicalSimulation,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -316,7 +316,7 @@ export namespace HumanPerformanceSimulation {
     const input: IAutoMoviePhysicalSimulationInput.IInput = {
       duration,
       rate: RATE,
-      gravity: { x: 0, y: -AutoMovieGravity.STANDARD, z: 0 },
+      gravity: { x: 0, y: -AutoMovieEngineGravity.STANDARD, z: 0 },
       floor: FLOOR,
       floorBounds: {
         min: { x: solids.box.minimum.x, z: solids.box.minimum.z },
@@ -337,7 +337,7 @@ export namespace HumanPerformanceSimulation {
       ),
     };
     const simulation: IAutoMoviePhysicalSimulation =
-      await AutoMoviePhysicalSimulation.compute(input);
+      await AutoMovieEnginePhysicalSimulation.compute(input);
     return {
       record: {
         window: structuredClone(window),
@@ -353,8 +353,8 @@ export namespace HumanPerformanceSimulation {
             profile: profiles.get(subject)!,
             codec: AutoMovieEngineKinematics.poseJointCodec({
               skeleton: bodies.get(subject)!.skeleton,
-              jointAxes: HUMANOID_JOINT_AXES,
-              restFrames: HUMANOID_REST_FRAME,
+              jointAxes: AutoMovieEngineHumanoidJointAxes,
+              restFrames: AutoMovieEngineHumanoidRestFrame,
             }),
           },
         ]),

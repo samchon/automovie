@@ -21,7 +21,7 @@ export interface IAutoMovieIntent {
   goal?: IAutoMovieRelationalGoal;
 
   /**
-   * Optional stable id other parts align to with `AutoMovieComposition.at`;
+   * Optional stable id other parts align to with `AutoMovieEngineComposition.at`;
    * unique in a composition.
    */
   anchor?: string;

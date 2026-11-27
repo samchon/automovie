@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -119,28 +119,28 @@ export namespace pour {
     );
     const wrist: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
     const bend: IAutoMovieVector3 = bones.get(`${side}LowerArm`)!.worldPosition;
-    const lipOffset: IAutoMovieVector3 = Vector3.add(
+    const lipOffset: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       HumanHand.offset(context.body, side, "grip").point,
       lip.point,
     );
-    const initialUp: IAutoMovieVector3 = Quaternion.rotateVector(
+    const initialUp: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       wrist.worldRotation,
       lip.direction,
     );
-    const sourceRotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const sourceRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       wrist.worldRotation,
       held.frame.rotation,
     );
-    const radial: IAutoMovieVector3 = Quaternion.rotateVector(sourceRotation, {
+    const radial: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(sourceRotation, {
       x: rim.frame.translation.x,
       y: 0,
       z: rim.frame.translation.z,
     });
-    const axisVector: IAutoMovieVector3 = Vector3.cross(UP, radial);
+    const axisVector: IAutoMovieVector3 = AutoMovieEngineVector3.cross(UP, radial);
     if (
       !(
-        Vector3.dot(initialUp, UP) >= UPRIGHT &&
-        Vector3.length(axisVector) >= 0.005
+        AutoMovieEngineVector3.dot(initialUp, UP) >= UPRIGHT &&
+        AutoMovieEngineVector3.length(axisVector) >= 0.005
       )
     )
       throw vesselRefusal(
@@ -148,10 +148,10 @@ export namespace pour {
         params.source,
         "the held lip needs an upright axis and a radial rim",
       );
-    const axis: IAutoMovieVector3 = Vector3.normalize(axisVector);
-    const pivot: IAutoMovieVector3 = Vector3.add(
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(axisVector);
+    const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       opening.center,
-      Vector3.scale(UP, params.gap),
+      AutoMovieEngineVector3.scale(UP, params.gap),
     );
     const tiltAt = (seconds: number): number =>
       params.tilt *
@@ -168,9 +168,9 @@ export namespace pour {
     // check's 10 degrees for any hand longer than 0.12 m.
     const limits: IAutoMovieHumanEffectorPointLimit[] = [
       lipOffset,
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         lipOffset,
-        Vector3.scale(lip.direction, context.body.measure.hand),
+        AutoMovieEngineVector3.scale(lip.direction, context.body.measure.hand),
       ),
     ].map(
       (contact: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit => ({
@@ -216,14 +216,14 @@ export namespace pour {
               _posture: IAutoMovieMotionHumanPosture,
               seconds: number,
             ): IAutoMovieHumanLimbGoal => {
-              const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-                Quaternion.fromAxisAngle(axis, tiltAt(seconds)),
+              const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.fromAxisAngle(axis, tiltAt(seconds)),
                 wrist.worldRotation,
               );
               return {
-                point: Vector3.subtract(
+                point: AutoMovieEngineVector3.subtract(
                   pivot,
-                  Quaternion.rotateVector(rotation, lipOffset),
+                  AutoMovieEngineQuaternion.rotateVector(rotation, lipOffset),
                 ),
                 rotation,
                 contact: lipOffset,
@@ -251,24 +251,24 @@ export namespace pour {
         context.body,
         resolveHumanPosture(context.body, composed.posture(seconds)),
       ).get(`${side}Hand`)!;
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         fitted.worldPosition,
-        Quaternion.rotateVector(fitted.worldRotation, lipOffset),
+        AutoMovieEngineQuaternion.rotateVector(fitted.worldRotation, lipOffset),
       );
-      const delta: IAutoMovieVector3 = Vector3.subtract(point, opening.center);
-      const up: IAutoMovieVector3 = Quaternion.rotateVector(
+      const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, opening.center);
+      const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         fitted.worldRotation,
         lip.direction,
       );
-      const expected: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(axis, tiltAt(seconds)),
+      const expected: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(axis, tiltAt(seconds)),
         initialUp,
       );
       if (
         !(
           Math.hypot(delta.x, delta.z) <= opening.radius &&
-          Vector3.length(Vector3.subtract(point, pivot)) <= 0.025 &&
-          Vector3.dot(up, expected) >= TIP_ALIGNMENT
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, pivot)) <= 0.025 &&
+          AutoMovieEngineVector3.dot(up, expected) >= TIP_ALIGNMENT
         )
       )
         throw new AutoMovieMotionHumanRefusal({
@@ -410,18 +410,18 @@ function openingOf(
       "the distinct recipient needs a fixed rigid mouth socket and a rim lip",
     );
   const frame: IAutoMovieRigidTransform = receiver.frame(seconds);
-  const up: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(frame.rotation, mouth.frame.rotation),
+  const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, mouth.frame.rotation),
     UP,
   );
-  const rim: IAutoMovieVector3 = Vector3.subtract(
+  const rim: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     edge.frame.translation,
     mouth.frame.translation,
   );
   const radius: number = Math.hypot(rim.x, rim.z);
   if (
     !(
-      Vector3.dot(up, UP) >= UPRIGHT &&
+      AutoMovieEngineVector3.dot(up, UP) >= UPRIGHT &&
       Math.abs(rim.y) <= 0.005 &&
       radius >= 0.005 &&
       radius <= 0.15
@@ -433,9 +433,9 @@ function openingOf(
       "the recipient needs an upright circular opening with a rim 5 to 150 mm from its mouth centre",
     );
   return {
-    center: Vector3.add(
+    center: AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, mouth.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, mouth.frame.translation),
     ),
     radius,
   };

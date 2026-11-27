@@ -1,4 +1,4 @@
-import { AutoMovieLoftViewSource, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieEngineLoftViewSource, AutoMovieEngineViewAxis } from "@automovie/engine";
 import type {
   IAutoMovieHumanArmWalk,
   IAutoMovieHumanHandParent,
@@ -19,7 +19,7 @@ export namespace AutoMovieHumanHandParent {
         "A hand attachment needs its successful actual arm original",
       );
     const admitted: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(part);
+      AutoMovieEngineLoftViewSource.create(part);
     if (
       admitted === null ||
       admitted.source === null ||
@@ -45,7 +45,7 @@ export namespace AutoMovieHumanHandParent {
           station: number,
         ): IAutoMovieHumanHandParent.IOutput["stations"][number] => {
           const frame: IAutoMovieHumanHandParent.Frame = part.axis.at(station);
-          return { station, frame, normal: AutoMovieViewAxis.normal(frame) };
+          return { station, frame, normal: AutoMovieEngineViewAxis.normal(frame) };
         },
       ),
     };
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanHandParent {
           station: number,
         ): IAutoMovieHumanHandParent.IOutput["stations"][number] => {
           const frame: IAutoMovieHumanHandParent.Frame = axis.at(station);
-          return { station, frame, normal: AutoMovieViewAxis.normal(frame) };
+          return { station, frame, normal: AutoMovieEngineViewAxis.normal(frame) };
         },
       ),
     };

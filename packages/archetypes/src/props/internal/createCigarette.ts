@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeCigarette } from "../AutoMovieArchetypeCigarette";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { SmokingPropDraw } from "./SmokingPropDraw";
@@ -36,15 +36,15 @@ export function createCigarette(
   builder.rod(
     "filter",
     radius,
-    Vector3.create(0, radius, 0),
-    Vector3.create(0, radius, filter),
+    AutoMovieEngineVector3.create(0, radius, 0),
+    AutoMovieEngineVector3.create(0, radius, filter),
     { color: "#c98f4e" },
   );
   builder.rod(
     "paper",
     radius,
-    Vector3.create(0, radius, filter),
-    Vector3.create(0, radius, length),
+    AutoMovieEngineVector3.create(0, radius, filter),
+    AutoMovieEngineVector3.create(0, radius, length),
     { color: "#f1efe8" },
   );
   builder.affordance({
@@ -52,9 +52,9 @@ export function createCigarette(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, radius, filter + 0.01),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, radius, filter + 0.01),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "precision",
@@ -65,8 +65,8 @@ export function createCigarette(
     kind: "socket",
     direction: "along",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, radius, 0),
-      Vector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(0, radius, 0),
+      AutoMovieEngineVector3.create(0, 0, -1),
     ),
     extent: null,
   });
@@ -75,8 +75,8 @@ export function createCigarette(
     kind: "socket",
     direction: "along",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, radius, length),
-      Vector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(0, radius, length),
+      AutoMovieEngineVector3.create(0, 0, 1),
     ),
     extent: null,
   });

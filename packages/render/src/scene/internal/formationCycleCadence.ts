@@ -1,8 +1,8 @@
 import type { IAutoMovieFormationCadenceSegment } from "@automovie/interface";
 
-import type { IAutoMovieFormationCadence } from "../IAutoMovieFormationCadence.js";
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
-import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
+import type { IAutoMovieRenderFormationCadence } from "../IAutoMovieRenderFormationCadence.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake.js";
 
 /*
  * Fold one unit's cue segments into the cycles its members have turned over.
@@ -25,13 +25,13 @@ import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTa
  * contact or no-slip motion for arbitrary gait paths.
  */
 export const formationCycleCadence: (
-  cycle: IAutoMovieFormationCycle,
+  cycle: IAutoMovieRenderFormationCycle,
   segments: readonly IAutoMovieFormationCadenceSegment[],
-) => IAutoMovieFormationCadence = (
-  cycle: IAutoMovieFormationCycle,
+) => IAutoMovieRenderFormationCadence = (
+  cycle: IAutoMovieRenderFormationCycle,
   segments: readonly IAutoMovieFormationCadenceSegment[],
-): IAutoMovieFormationCadence => {
-  let take: IAutoMovieFormationCycleTake = cycle.fallback;
+): IAutoMovieRenderFormationCadence => {
+  let take: IAutoMovieRenderFormationCycleTake = cycle.fallback;
   let advance: number = 0;
   let turn: number = 0;
   for (const segment of segments) {

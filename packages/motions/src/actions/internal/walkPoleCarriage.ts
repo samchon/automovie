@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -138,10 +138,10 @@ export namespace walkPoleCarriage {
       const heading: IAutoMovieQuaternion = HumanFrame.turn(
         context.entry.posture.yaw,
       );
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(heading);
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(heading);
       const root: IAutoMovieVector3 = context.entry.posture.root;
       const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Quaternion.rotateVector(inverse, Vector3.subtract(point, root));
+        AutoMovieEngineQuaternion.rotateVector(inverse, AutoMovieEngineVector3.subtract(point, root));
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         HumanTrunk.resolve(
           context.body,
@@ -161,9 +161,9 @@ export namespace walkPoleCarriage {
         );
       const hand: IAutoMovieResolvedBone = bones.get(`${carrying}Hand`)!;
       const grip: IAutoMovieVector3 = local(
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           hand.worldPosition,
-          Quaternion.rotateVector(hand.worldRotation, pole.hands[0]!.socket),
+          AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, pole.hands[0]!.socket),
         ),
       );
       const shoulders: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> =
@@ -180,9 +180,9 @@ export namespace walkPoleCarriage {
         level > 0
           ? degrees(Math.asin(Math.min(1, Math.abs(grip.x) / level)))
           : 0;
-      const fulcrum: IAutoMovieVector3 = Vector3.add(
+      const fulcrum: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         grip,
-        Vector3.scale(line(carrying, CARRY, across), pole.fulcrum),
+        AutoMovieEngineVector3.scale(line(carrying, CARRY, across), pole.fulcrum),
       );
 
       // The plant's elevation: the vault's straight top arm at the grip's
@@ -285,7 +285,7 @@ export namespace walkPoleCarriage {
     if (holds.length === 0) return posture;
     const heading: IAutoMovieQuaternion = HumanFrame.turn(posture.yaw);
     const world = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(posture.root, Quaternion.rotateVector(heading, local));
+      AutoMovieEngineVector3.add(posture.root, AutoMovieEngineQuaternion.rotateVector(heading, local));
     let written: IAutoMovieMotionHumanPosture = posture;
     for (const hold of holds) {
       const share: number =
@@ -321,12 +321,12 @@ export namespace walkPoleCarriage {
       const goals: walkPoleFrame.IGoal[] = walkPoleFrame.place(
         hold.pole,
         world(
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             hold.fulcrum,
-            Vector3.scale(along, hold.pole.fulcrum),
+            AutoMovieEngineVector3.scale(along, hold.pole.fulcrum),
           ),
         ),
-        Quaternion.rotateVector(heading, along),
+        AutoMovieEngineQuaternion.rotateVector(heading, along),
         (side: AutoMovieHumanSide): IAutoMovieVector3 =>
           world(hold.shoulders[side]!),
       );

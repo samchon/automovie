@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
@@ -43,17 +43,17 @@ export function HumanArmTrajectoryLimits(
         limit: NonNullable<M.ISite["limits"]>[number],
       ): HumanArmTrajectoryLimits.IRead => {
         const contact: IAutoMovieVector3 = P.pad(own, limit.contact);
-        const point: IAutoMovieVector3 = Vector3.add(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           at.point,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             rotation,
-            Vector3.subtract(limit.contact, site.contact),
+            AutoMovieEngineVector3.subtract(limit.contact, site.contact),
           ),
         );
         return {
           contact,
           point,
-          distance: 1000 * Vector3.length(Vector3.subtract(contact, point)),
+          distance: 1000 * AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(contact, point)),
           allowance: Math.max(0, 1000 * limit.bound - T.TOLERANCE),
         };
       },
@@ -131,8 +131,8 @@ export namespace HumanArmTrajectoryLimits {
         i: number,
       ): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
         if (limit.distance <= 1e-6) return [];
-        const dir: IAutoMovieVector3 = Vector3.scale(
-          Vector3.subtract(limit.contact, limit.point),
+        const dir: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(limit.contact, limit.point),
           1000 / limit.distance,
         );
         const variables: number[] = c.free[a]!.map(
@@ -145,7 +145,7 @@ export namespace HumanArmTrajectoryLimits {
           k,
           "hand",
           limit.contact,
-        ).map((column: IAutoMovieVector3): number => Vector3.dot(column, dir));
+        ).map((column: IAutoMovieVector3): number => AutoMovieEngineVector3.dot(column, dir));
         if (located.on !== undefined) {
           const parent: NonNullable<P.ILocated["on"]> = located.on;
           variables.push(
@@ -155,7 +155,7 @@ export namespace HumanArmTrajectoryLimits {
           );
           coef.push(
             ...J.carried(at, jac, parent.arm, k, parent.owner, limit.point).map(
-              (column: IAutoMovieVector3): number => -Vector3.dot(column, dir),
+              (column: IAutoMovieVector3): number => -AutoMovieEngineVector3.dot(column, dir),
             ),
           );
         }
@@ -194,7 +194,7 @@ function skin(
       if (collider.owner !== "hand") continue;
       if (
         nearest !== undefined &&
-        Vector3.distance(placed.centre, point) - placed.radius >
+        AutoMovieEngineVector3.distance(placed.centre, point) - placed.radius >
           nearest.distance
       )
         continue;

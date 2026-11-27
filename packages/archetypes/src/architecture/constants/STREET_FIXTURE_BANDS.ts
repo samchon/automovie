@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBand, AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand, } from "../../core";
 import type { AutoMovieArchetypeStreetFixture } from "../AutoMovieArchetypeStreetFixture";
-import * as StreetFixtureBandsData from "./internal/StreetFixtureBandsData";
+import { StreetFixtureBandsData } from "./internal/StreetFixtureBandsData";
 /*
  * The band of each free dimension of AutoMovieArchetypeStreetFixture, by kind, but
  * those its models fix.

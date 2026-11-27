@@ -6,9 +6,9 @@ import type {
   IAutoMoviePlanLocalHermite64,
 } from "@automovie/interface";
 
-import { AutoMovieBernsteinAlgebra64 as B } from "../../AutoMovieBernsteinAlgebra64";
-import { AutoMovieBernsteinGrid64 as G } from "../../AutoMovieBernsteinGrid64";
-import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
+import { AutoMovieEngineBernsteinAlgebra64 as B } from "../../AutoMovieEngineBernsteinAlgebra64";
+import { AutoMovieEngineBernsteinGrid64 as G } from "../../AutoMovieEngineBernsteinGrid64";
+import { AutoMovieEngineCurveMath64 as V } from "../../AutoMovieEngineCurveMath64";
 import { planAutoMovieLocalHermite64 } from "./planAutoMovieLocalHermite64";
 import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
 

@@ -9,12 +9,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { nearestHullEdge } from "../../math/internal/nearestHullEdge";
 import { pointInHull } from "../../math/internal/pointInHull";
-import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
+import { AutoMovieEngineGravity } from "../../physics/AutoMovieEngineGravity";
 import { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 
@@ -67,13 +67,13 @@ export namespace resolveAutoMovieCenterOfMass {
    * its own velocity's extrapolation.
    * Parameter length: The pendulum's length, metres; positive.
    * Parameter gravity: Gravitational acceleration, m/s짼; standard gravity
-   * (`AutoMovieGravity.STANDARD`) when absent.
+   * (`AutoMovieEngineGravity.STANDARD`) when absent.
    * Returns: Radians per second.
    * When the length or gravity is not positive.
    */
   export function frequency(
     length: number,
-    gravity: number = AutoMovieGravity.STANDARD,
+    gravity: number = AutoMovieEngineGravity.STANDARD,
   ): number {
     if (!(length > 0) || !(gravity > 0))
       throw new Error(
@@ -118,7 +118,7 @@ export namespace resolveAutoMovieCenterOfMass {
     bone: IAutoMovieResolvedBone,
   ): IAutoMovieVector3 {
     const origin: IAutoMovieVector3 = bone.worldPosition;
-    const posed: IAutoMovieVector3 = Quaternion.rotateVector(
+    const posed: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bone.worldRotation,
       segment.point,
     );
@@ -169,7 +169,7 @@ export namespace resolveAutoMovieCenterOfMass {
    * Parameter velocity: Its velocity, metres per second.
    * Parameter length: The pendulum length, metres; positive.
    * Parameter gravity: Gravitational acceleration, m/s짼; standard gravity
-   * (`AutoMovieGravity.STANDARD`) when absent.
+   * (`AutoMovieEngineGravity.STANDARD`) when absent.
    * Returns: The extrapolated centre of mass, world metres.
    * When the length or gravity is not positive.
    */
@@ -177,9 +177,9 @@ export namespace resolveAutoMovieCenterOfMass {
     com: IAutoMovieVector3,
     velocity: IAutoMovieVector3,
     length: number,
-    gravity: number = AutoMovieGravity.STANDARD,
+    gravity: number = AutoMovieEngineGravity.STANDARD,
   ): IAutoMovieVector3 {
-    const offset: IAutoMovieVector3 = Vector3.scale(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       velocity,
       1 / frequency(length, gravity),
     );
@@ -258,32 +258,32 @@ function fromRest(
         if (bone === undefined)
           throw new Error(`The mass model needs the rig bone ${s.bone}`);
         const origin: IAutoMovieVector3 = s.neutral.position;
-        const world: IAutoMovieVector3 = Quaternion.rotateVector(
+        const world: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           s.neutral.rotation,
           s.centerOfMass,
         );
         world.x = origin.x + world.x;
         world.y = origin.y + world.y;
         world.z = origin.z + world.z;
-        const unturn: IAutoMovieQuaternion = Quaternion.inverse(
+        const unturn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
           bone.worldRotation,
         );
         return {
           bone: bone.bone,
           mass: s.mass,
-          point: Quaternion.rotateVector(
+          point: AutoMovieEngineQuaternion.rotateVector(
             unturn,
-            Vector3.subtract(world, bone.worldPosition),
+            AutoMovieEngineVector3.subtract(world, bone.worldPosition),
           ),
           inertia: s.inertia,
 
           // The principal axes go from the segment's neutral frame to the
           // bone's rest frame as the centre does, so a pose turns them by
           // the bone's world rotation alone.
-          axes: Quaternion.normalize(
-            Quaternion.multiply(
+          axes: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(
               unturn,
-              Quaternion.multiply(s.neutral.rotation, s.inertiaRotation),
+              AutoMovieEngineQuaternion.multiply(s.neutral.rotation, s.inertiaRotation),
             ),
           ),
         };

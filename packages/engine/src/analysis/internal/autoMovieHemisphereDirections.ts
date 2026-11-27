@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Deterministic cosine-weighted unit directions over the hemisphere around
@@ -38,10 +38,10 @@ export function autoMovieHemisphereDirections(
     throw new Error(
       `hemisphere sample count must be a positive safe integer, but was ${count}`,
     );
-  const length: number = Vector3.length(props.normal);
+  const length: number = AutoMovieEngineVector3.length(props.normal);
   if (length <= AXIS_EPSILON)
     throw new Error("hemisphere sampling needs a finite, non-zero normal");
-  const normal: IAutoMovieVector3 = Vector3.normalize(props.normal);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(props.normal);
   // Duff et al.'s branchless orthonormal basis: `sign + normal.z` is never zero
   // because `sign` is chosen from the sign of `normal.z`, so there is no
   // singular pole to special-case.

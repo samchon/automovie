@@ -1,7 +1,7 @@
 import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -24,7 +24,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
-import * as HumanSwingLeapData from "./HumanSwingLeapData";
+import { HumanSwingLeapData } from "./HumanSwingLeapData";
 
 /*
  * Leap off a moving swing seat: the pelvis leaves with the velocity of the
@@ -61,19 +61,19 @@ export function HumanSwingLeap(
   const frame = (seconds: number): IAutoMovieRigidTransform =>
     context.prop(context.params.on).frame(seconds);
   const held: IAutoMovieRigidTransform = frame(context.start);
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(held.rotation),
-    Vector3.subtract(pelvis, held.position),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(held.rotation),
+    AutoMovieEngineVector3.subtract(pelvis, held.position),
   );
   const seat = (seconds: number): IAutoMovieVector3 => {
     const at: IAutoMovieRigidTransform = frame(seconds);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       at.position,
-      Quaternion.rotateVector(at.rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(at.rotation, local),
     );
   };
-  const velocity: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(seat(context.start), seat(context.start - HumanSwingLeapData.RATE)),
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(seat(context.start), seat(context.start - HumanSwingLeapData.RATE)),
     1 / HumanSwingLeapData.RATE,
   );
   const landing: number = ground + HumanSwingLeapData.LAND * standing;
@@ -86,7 +86,7 @@ export function HumanSwingLeap(
   const duration: number = flight + HumanSwingLeapData.SETTLE;
   const flown = (t: number): IAutoMovieVector3 => ({
     x: pelvis.x + velocity.x * t,
-    y: pelvis.y + velocity.y * t - (AutoMovieGravity.STANDARD * t * t) / 2,
+    y: pelvis.y + velocity.y * t - (AutoMovieEngineGravity.STANDARD * t * t) / 2,
     z: pelvis.z + velocity.z * t,
   });
   const touchdown: IAutoMovieVector3 = flown(flight);
@@ -94,40 +94,40 @@ export function HumanSwingLeap(
   // Each ankle's place from the pelvis: as the seat held it, and at
   // touchdown on the ground under its knee, so the shank stands upright as
   // the foot lands flat and the knee gives above it.
-  const heading: IAutoMovieQuaternion = Quaternion.fromAxisAngle(HumanSwingLeapData.UP, start.yaw);
-  const facing: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+  const heading: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(HumanSwingLeapData.UP, start.yaw);
+  const facing: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(heading, {
     x: 0,
     y: 0,
     z: 1,
   });
   const flat: IAutoMovieQuaternion = heading;
   const seated: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
-    left: Vector3.subtract(entered.get("leftFoot")!.worldPosition, pelvis),
-    right: Vector3.subtract(entered.get("rightFoot")!.worldPosition, pelvis),
+    left: AutoMovieEngineVector3.subtract(entered.get("leftFoot")!.worldPosition, pelvis),
+    right: AutoMovieEngineVector3.subtract(entered.get("rightFoot")!.worldPosition, pelvis),
   };
   const drop: number = touchdown.y - ground - body.measure.ankleHeight;
   const ahead: number = Math.sqrt(
     Math.max(0, body.measure.thigh ** 2 - (drop - body.measure.shank) ** 2),
   );
   const under = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       {
-        ...Quaternion.rotateVector(
+        ...AutoMovieEngineQuaternion.rotateVector(
           heading,
-          Vector3.subtract(body.rest.get(`${side}Foot`)!, rest),
+          AutoMovieEngineVector3.subtract(body.rest.get(`${side}Foot`)!, rest),
         ),
         y: -drop,
       },
-      Vector3.scale(facing, ahead),
+      AutoMovieEngineVector3.scale(facing, ahead),
     );
-  const left: IAutoMovieVector3 = Vector3.cross(HumanSwingLeapData.UP, facing);
+  const left: IAutoMovieVector3 = AutoMovieEngineVector3.cross(HumanSwingLeapData.UP, facing);
   const hipAt = (
     pelvisAt: IAutoMovieVector3,
     side: AutoMovieHumanSide,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       pelvisAt,
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         left,
         (side === "left" ? 1 : -1) * body.measure.hipHalfWidth,
       ),
@@ -197,7 +197,7 @@ export function HumanSwingLeap(
         t <= flight
           ? flown(t)
           : {
-              ...Vector3.add(touchdown, Vector3.scale(facing, ahead * settled)),
+              ...AutoMovieEngineVector3.add(touchdown, AutoMovieEngineVector3.scale(facing, ahead * settled)),
               y: landing + (ground + standing - landing) * settled,
             };
       const turn: IAutoMovieMotionHumanPosture = {
@@ -205,9 +205,9 @@ export function HumanSwingLeap(
         pitch: start.pitch * (1 - unfold),
         roll: start.roll * (1 - unfold),
       };
-      const root: IAutoMovieVector3 = Vector3.subtract(
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         hips,
-        Quaternion.rotateVector(humanPostureHeading(turn), rest),
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(turn), rest),
       );
 
       // Each ankle unfolds from where the seat held it to its landing place
@@ -216,9 +216,9 @@ export function HumanSwingLeap(
       // it comes flat as it lands.
       const limbs: Posture["limbs"] = {};
       for (const side of ["left", "right"] as const) {
-        const free: IAutoMovieVector3 = Vector3.add(
+        const free: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           t <= flight ? hips : touchdown,
-          Vector3.lerp(seated[side], hanging[side], unfold),
+          AutoMovieEngineVector3.lerp(seated[side], hanging[side], unfold),
         );
         const point: IAutoMovieVector3 = {
           ...free,
@@ -226,22 +226,22 @@ export function HumanSwingLeap(
         };
         const leg: IAutoMovieHumanLimbGoal = {
           point,
-          bend: Vector3.add(
-            Vector3.lerp(hips, point, 0.5),
-            Vector3.scale(facing, body.measure.thigh),
+          bend: AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.lerp(hips, point, 0.5),
+            AutoMovieEngineVector3.scale(facing, body.measure.thigh),
           ),
           rotation:
             t >= flight
               ? flat
-              : Quaternion.slerp(
-                  Quaternion.multiply(
-                    Quaternion.fromAxisAngle(
+              : AutoMovieEngineQuaternion.slerp(
+                  AutoMovieEngineQuaternion.multiply(
+                    AutoMovieEngineQuaternion.fromAxisAngle(
                       left,
                       shankTilt(body, hipAt(hips, side), point, facing) -
                         shankTilt(
                           body,
                           hipAt(pelvis, side),
-                          Vector3.add(pelvis, seated[side]),
+                          AutoMovieEngineVector3.add(pelvis, seated[side]),
                           facing,
                         ),
                     ),
@@ -290,7 +290,7 @@ export namespace HumanSwingLeap {
         reason: `the pelvis at ${height.toFixed(3)} m is below the ${landing.toFixed(3)} m the leap lands at`,
         fix: "leap from higher in the swing",
       });
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const root: number = Math.sqrt(speed * speed + 2 * g * rise);
     return speed < 0 ? (2 * rise) / (root - speed) : (speed + root) / g;
   }

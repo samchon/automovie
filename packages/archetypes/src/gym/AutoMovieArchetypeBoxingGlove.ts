@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeBoxingGloveData from "./internal/AutoMovieArchetypeBoxingGloveData";
+import { AutoMovieArchetypeBoxingGloveData } from "./internal/AutoMovieArchetypeBoxingGloveData";
 
 /** Constructs the boxing glove archetype from its recipe. */
 export namespace AutoMovieArchetypeBoxingGlove {
@@ -65,7 +65,7 @@ export function create(
     name: `boxing glove ${weight.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const cuff: number = AutoMovieArchetypeBoxingGlove.CUFF;
   builder.box(
     "fist",

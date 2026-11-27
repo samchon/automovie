@@ -3,7 +3,7 @@ import {
   IAutoMovieFormationSlotState,
 } from "@automovie/interface";
 
-import { IDENTITY_FORMATION_SLOT_STATE } from "../../../constants/IDENTITY_FORMATION_SLOT_STATE";
+import { IAutoMovieEngineIdentityFormationSlotState } from "../../../constants/IAutoMovieEngineIdentityFormationSlotState";
 import { lerp } from "../../../math/internal/lerp";
 import { ease } from "../../../motion/internal/ease";
 
@@ -47,7 +47,7 @@ export function sampleFormationSlotMotion(
         (left.id < right.id ? -1 : left.id > right.id ? 1 : 0),
     );
   if (cues.length === 0 || time < cues[0]!.start)
-    return IDENTITY_FORMATION_SLOT_STATE;
+    return IAutoMovieEngineIdentityFormationSlotState;
   let retained: IAutoMovieFormationSlotState = cues[0]!.from;
   for (const cue of cues) {
     if (time < cue.start) return retained;

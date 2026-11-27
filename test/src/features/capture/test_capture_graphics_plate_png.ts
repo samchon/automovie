@@ -5,7 +5,7 @@ import type {
   IAutoMovieGuidePassOutput,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture, AutoMovieRenderMedia } from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture, AutoMovieRenderMedia } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -90,7 +90,7 @@ export async function test_capture_graphics_plate_png(): Promise<void> {
       labels: [],
       backend: "cpu",
     }),
-    folder: await AutoMovieCaptureFolder.open({
+    folder: await AutoMovieRenderCaptureFolder.open({
       storage: memory.storage,
       root: "out",
       round: plan.request.round,

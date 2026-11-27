@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalHullFaces } from "@automovie/engine";
+import { AutoMovieEnginePhysicalHullFaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanColliders,
@@ -293,7 +293,7 @@ export namespace HumanArmMirror {
     const points: IAutoMovieVector3[] = flipped(shape.points);
     return shape.hull === undefined
       ? { points }
-      : { points, hull: AutoMoviePhysicalHullFaces.mirrorHull(points, shape.hull) };
+      : { points, hull: AutoMovieEnginePhysicalHullFaces.mirrorHull(points, shape.hull) };
   }
 }
 

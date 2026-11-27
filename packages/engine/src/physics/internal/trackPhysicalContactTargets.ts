@@ -6,9 +6,9 @@ import type {
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
-import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
+import type { IAutoMovieEnginePhysicalBinding as Bound } from "../IAutoMovieEnginePhysicalBinding";
 import type { IPhysicalContactTargetSeed } from "./IPhysicalContactTargetSeed";
-import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
+import { AutoMovieEnginePhysicalTargetInterval as Interval } from "../AutoMovieEnginePhysicalTargetInterval";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
 import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTargetSeed";

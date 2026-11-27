@@ -1,11 +1,11 @@
-import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief } from "@automovie/engine";
 import type { IAutoMovieLoftRelief, IAutoMovieViewAxis } from "@automovie/interface";
 
 /**
  * A family's relief nets re-expressed in the chart of a family re-centred on another origin line (`AutoMovieHumanConicRecentre`): the
  * same skin, each net written over a window of the new chart.
  *
- * What a net is to the chart (`IAutoMovieLoftRelief`, `AutoMovieLoftReliefCompose.point`): the skin at a chart address `(s, t)` is the
+ * What a net is to the chart (`IAutoMovieLoftRelief`, `AutoMovieEngineLoftReliefCompose.point`): the skin at a chart address `(s, t)` is the
  * wall's point there moved by `h_k(s, t) e_k(t)` for every net `k`, all read at the one address. `e_k` is a fixed world axis, or with
  * `turn` the direction `cos(t - c) axis + sin(t - c) turn` about the window's middle `c`, which turns with the chart's phase. So the
  * origin enters a net three ways: its window is a rectangle of the chart, its heights are a tensor spline over that rectangle, and a
@@ -211,9 +211,9 @@ export namespace AutoMovieHumanConicReliefRecentre {
               return dot(sub(composed(props.stored, props.reliefs, index, s, tau), q), unit(sub(p1!, p0!)));
             };
             const tau: number | null = root(offset, start, 1e-5);
-            if (tau !== null) height = AutoMovieLoftRelief.height(stored, s, tau)[0];
+            if (tau !== null) height = AutoMovieEngineLoftRelief.height(stored, s, tau)[0];
           } else {
-            const e: V3 = AutoMovieLoftRelief.direction(laid, t)[0];
+            const e: V3 = AutoMovieEngineLoftRelief.direction(laid, t)[0];
             if (flat && Math.abs(dot(e, normal)) <= PLANAR && Math.abs(dot(stored.axis, normal)) <= PLANAR && (stored.turn === undefined || Math.abs(dot(stored.turn, normal)) <= PLANAR)) {
               // Within the section plane: the stored phase at which the stored skin with this net crosses the line through `q` along `e`.
               const across: V3 = unit(cross(normal, e));
@@ -253,7 +253,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
       let [sum, worst]: [number, number] = [0, 0];
       observed.forEach((i: number, r: number): void =>
         phases.forEach((t: number, j: number): void => {
-          const d: number = Math.abs(targets[r]![j]! - AutoMovieLoftRelief.height(finished, sampled.stations[i]!, t)[0]);
+          const d: number = Math.abs(targets[r]![j]! - AutoMovieEngineLoftRelief.height(finished, sampled.stations[i]!, t)[0]);
           sum += d;
           worst = Math.max(worst, d);
         }),
@@ -294,14 +294,14 @@ export namespace AutoMovieHumanConicReliefRecentre {
   };
 
   /*
-   * A wall's point with the first `count` nets composed on it, as `AutoMovieLoftReliefCompose.point` composes them.
+   * A wall's point with the first `count` nets composed on it, as `AutoMovieEngineLoftReliefCompose.point` composes them.
    */
   function composed(skin: ISkin, nets: readonly IAutoMovieLoftRelief[], count: number, station: number, phase: number): V3 {
     const p: V3 = skin.point(station, phase);
     for (let k: number = 0; k < count; ++k) {
-      const h: number = AutoMovieLoftRelief.height(nets[k]!, station, phase)[0];
+      const h: number = AutoMovieEngineLoftRelief.height(nets[k]!, station, phase)[0];
       if (h === 0) continue;
-      const e: readonly number[] = AutoMovieLoftRelief.direction(nets[k]!, phase)[0];
+      const e: readonly number[] = AutoMovieEngineLoftRelief.direction(nets[k]!, phase)[0];
       for (let c: number = 0; c < 3; ++c) p[c]! += h * e[c]!;
     }
     return p;
@@ -350,7 +350,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
 
   /*
    * The four weights of a clamped-free uniform cubic B-spline at a parameter of `[0, count - 3]` and the first control they apply to:
-   * `AutoMovieLoftRelief`'s own basis, which this module needs as a design matrix and the engine keeps private.
+   * `AutoMovieEngineLoftRelief`'s own basis, which this module needs as a design matrix and the engine keeps private.
    */
   function weights(x: number, count: number): [number, number[]] {
     const i: number = Math.min(count - 4, Math.max(0, Math.floor(x)));

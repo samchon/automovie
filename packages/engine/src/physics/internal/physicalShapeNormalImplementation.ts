@@ -5,10 +5,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeHull } from "./physicalShapeHull";
-import * as PhysicalShapeNormalImplementationData from "./PhysicalShapeNormalImplementationData";
+import { PhysicalShapeNormalImplementationData } from "./PhysicalShapeNormalImplementationData";
 
 
 /*
@@ -77,15 +77,15 @@ function prepareNormal(
   frame: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
 ): IPrepared {
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     frame.rotation,
     shape.transform.rotation,
   );
   return {
     centre: centreOfShape(frame, shape),
     rotation,
-    axis: Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
-    inverse: Quaternion.inverse(rotation),
+    axis: AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
+    inverse: AutoMovieEngineQuaternion.inverse(rotation),
     planes:
       shape.kind === "hull"
         ? physicalShapeHull(shape).faces
@@ -119,22 +119,22 @@ function normal(
       -shape.halfLength,
       Math.min(
         shape.halfLength,
-        Vector3.dot(Vector3.subtract(point, centre), axis),
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, centre), axis),
       ),
     );
-    const middle: IAutoMovieVector3 = Vector3.scale(axis, along);
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(axis, along);
     middle.x = centre.x + middle.x;
     middle.y = centre.y + middle.y;
     middle.z = centre.z + middle.z;
     return radial(point, middle, fallback);
   }
-  const o: IAutoMovieVector3 = Quaternion.rotateVector(
+  const o: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     inverse,
-    Vector3.subtract(point, centre),
+    AutoMovieEngineVector3.subtract(point, centre),
   );
   const heights: number[] = planes.map(
     (plane: { normal: IAutoMovieVector3; offset: number }): number =>
-      Vector3.dot(plane.normal, o) - plane.offset,
+      AutoMovieEngineVector3.dot(plane.normal, o) - plane.offset,
   );
   const top: number = Math.max(...heights);
   let x: number = 0;
@@ -148,8 +148,8 @@ function normal(
     z += plane.normal.z * weight;
   }
   const sum: IAutoMovieVector3 = { x, y, z };
-  return Vector3.length(sum) > PhysicalShapeNormalImplementationData.BOUNDARY
-    ? Vector3.normalize(Quaternion.rotateVector(rotation, sum))
+  return AutoMovieEngineVector3.length(sum) > PhysicalShapeNormalImplementationData.BOUNDARY
+    ? AutoMovieEngineVector3.normalize(AutoMovieEngineQuaternion.rotateVector(rotation, sum))
     : fallback;
 }
 
@@ -162,8 +162,8 @@ function radial(
   from: IAutoMovieVector3,
   fallback: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const r: IAutoMovieVector3 = Vector3.subtract(point, from);
-  return Vector3.length(r) > PhysicalShapeNormalImplementationData.BOUNDARY ? Vector3.normalize(r) : fallback;
+  const r: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, from);
+  return AutoMovieEngineVector3.length(r) > PhysicalShapeNormalImplementationData.BOUNDARY ? AutoMovieEngineVector3.normalize(r) : fallback;
 }
 
 /*
@@ -175,7 +175,7 @@ function centreOfShape(
   shape: IAutoMoviePhysicalShape,
 ): IAutoMovieVector3 {
   const origin: IAutoMovieVector3 = frame.position;
-  const centre: IAutoMovieVector3 = Quaternion.rotateVector(
+  const centre: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.rotation,
     shape.transform.position,
   );

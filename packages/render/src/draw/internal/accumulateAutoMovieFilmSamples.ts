@@ -2,8 +2,8 @@ import { AutoMovieEngineFilmResponse } from "@automovie/engine";
 import type { IAutoMoviePlanFilmSamples } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../scene/AutoMovieThreeKind.js";
-import type { IAutoMovieAccumulateFilmSamplesProps } from "../IAutoMovieAccumulateFilmSamplesProps.js";
+import { AutoMovieRenderThreeKind } from "../../scene/AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderAccumulateFilmSamplesProps } from "../IAutoMovieRenderAccumulateFilmSamplesProps.js";
 
 /*
  * Place and draw every sub-frame sample of one frame into the film response
@@ -29,7 +29,7 @@ import type { IAutoMovieAccumulateFilmSamplesProps } from "../IAutoMovieAccumula
  * host's placement and camera callbacks.
  * Returns: The samples drawn, in drawing order.
  */
-export async function accumulateAutoMovieFilmSamples(props: IAutoMovieAccumulateFilmSamplesProps): Promise<IAutoMoviePlanFilmSamples.ISample[]> {
+export async function accumulateAutoMovieFilmSamples(props: IAutoMovieRenderAccumulateFilmSamplesProps): Promise<IAutoMoviePlanFilmSamples.ISample[]> {
   const samples: IAutoMoviePlanFilmSamples.ISample[] = AutoMovieEngineFilmResponse.planAutoMovieFilmSamples(
     {
       seconds: props.seconds,
@@ -45,7 +45,7 @@ export async function accumulateAutoMovieFilmSamples(props: IAutoMovieAccumulate
     const camera: THREE.Camera =
       sample.eye !== null &&
       focus !== null &&
-      AutoMovieThreeKind.isPerspectiveCamera(base)
+      AutoMovieRenderThreeKind.isPerspectiveCamera(base)
         ? offsetLens(props.scratch, base, sample.eye, focus)
         : base;
     const draw: () => void = (): void =>

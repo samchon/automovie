@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, floorEntry } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  floorEntry
+} from "../../../../../packages/motions/src/floor/internal/floorEntry";
 import { TestValidator } from "@nestia/e2e";
 
 /**

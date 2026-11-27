@@ -1,4 +1,6 @@
-import { HumanKnotTiming } from "@automovie/motions/internal";
+import {
+  HumanKnotTiming
+} from "../../../../../packages/motions/src/posture/internal/HumanKnotTiming";
 import { TestValidator } from "@nestia/e2e";
 
 /** The grid's chord error, metres: toppra's `maxErrThreshold`. */

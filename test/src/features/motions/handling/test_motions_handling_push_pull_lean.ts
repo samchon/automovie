@@ -1,4 +1,6 @@
-import { pushPullLean } from "@automovie/motions/internal";
+import {
+  pushPullLean
+} from "../../../../../packages/motions/src/handling/internal/pushPullLean";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain as Loft } from "@automovie/engine";
+import { AutoMovieEngineLoftChain as Loft } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanFootCourse,

@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanInterruptRow } from "@automovie/interface";
-import { AutoMovieMotionHumanInterrupt } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanInterrupt
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanInterrupt";
 import { TestValidator } from "@nestia/e2e";
 
 /**

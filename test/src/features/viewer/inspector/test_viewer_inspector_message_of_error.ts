@@ -1,4 +1,6 @@
-import { messageOfAutoMovieInspectorError } from "@automovie/viewer/internal";
+import {
+  messageOfAutoMovieInspectorError
+} from "../../../../../packages/viewer/src/inspector/internal/messageOfAutoMovieInspectorError";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -4,16 +4,16 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
-import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
+import { AutoMovieEngineDrawingEpsilon } from "../AutoMovieEngineDrawingEpsilon";
 
 /*
  * Keep only the part of a triangle soup beyond the cut plane, the side a cut
  * leaves standing.
  *
  * Each triangle is clipped against the plane, with corners within
- * AUTOMOVIE_DRAWING_EPSILON of it kept, and the surviving convex polygon
+ * AutoMovieEngineDrawingEpsilon of it kept, and the surviving convex polygon
  * is re-fanned into triangles that keep the source winding. New edges lying in
  * the plane are exactly what the cut linework draws, and the drafter drops
  * their silhouette so no segment is drafted twice.
@@ -37,10 +37,10 @@ export const clipAutoMovieDrawingTriangles = (
       const next: number = (index + 1) % 3;
       const da: number = distances[index]!;
       const db: number = distances[next]!;
-      if (da <= AUTOMOVIE_DRAWING_EPSILON) polygon.push(corners[index]!);
+      if (da <= AutoMovieEngineDrawingEpsilon) polygon.push(corners[index]!);
       if (da * db < 0)
         polygon.push(
-          Vector3.lerp(corners[index]!, corners[next]!, da / (da - db)),
+          AutoMovieEngineVector3.lerp(corners[index]!, corners[next]!, da / (da - db)),
         );
     }
     for (let index: number = 1; index + 1 < polygon.length; ++index)

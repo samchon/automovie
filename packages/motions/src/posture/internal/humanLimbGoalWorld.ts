@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -61,9 +61,9 @@ export function humanLimbGoalWorld(
   const place: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       frame.worldPosition,
-      Quaternion.rotateVector(frame.worldRotation, p),
+      AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, p),
     );
   const {
     on: _attached,
@@ -78,8 +78,8 @@ export function humanLimbGoalWorld(
     ...segment,
     pose: {
       position: place(segment.pose.position),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(frame.worldRotation, segment.pose.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(frame.worldRotation, segment.pose.rotation),
       ),
     },
   });
@@ -96,8 +96,8 @@ export function humanLimbGoalWorld(
     ...(goal.rotation === undefined
       ? {}
       : {
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(frame.worldRotation, goal.rotation),
+          rotation: AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(frame.worldRotation, goal.rotation),
           ),
         }),
   };

@@ -5,7 +5,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeStorage } from "../AutoMovieArchetypeStorage";
-import * as StorageBandsData from "./internal/StorageBandsData";
+import { StorageBandsData } from "./internal/StorageBandsData";
 
 /*
  * The band of each free dimension of createStorage, by kind, but those

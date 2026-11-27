@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionDiagnostics as Diagnostics } from "@automovie/interface";
 
-import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
+import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene.js";
 
 /*
  * Report confirmed problems when first seen and summarize observed multi-sample
@@ -25,7 +25,7 @@ export class AutoMovieInspectorDiagnosticLog {
    */
   public constructor(
     private readonly report: Pick<
-      IAutoMovieInspectorScene.IReport,
+      IAutoMovieViewerInspectorScene.IReport,
       "diagnosticIncident"
     >,
   ) {}
@@ -46,7 +46,7 @@ export class AutoMovieInspectorDiagnosticLog {
       previous.time.filmSeconds === time.filmSeconds
     )
       return;
-    const link: IAutoMovieInspectorScene.EpisodeBasis | undefined = linkOf(
+    const link: IAutoMovieViewerInspectorScene.EpisodeBasis | undefined = linkOf(
       previous,
       scope,
       time,
@@ -188,7 +188,7 @@ function linkOf(
   scope: string,
   time: Diagnostics.ITime,
   playhead: { playing: boolean; jump: number },
-): IAutoMovieInspectorScene.EpisodeBasis | undefined {
+): IAutoMovieViewerInspectorScene.EpisodeBasis | undefined {
   if (
     previous === undefined ||
     previous.scope !== scope ||
@@ -217,7 +217,7 @@ function checkKey(value: Pick<Diagnostics.IFinding, "check" | "key">): string {
  */
 interface IOpen {
   scope: string;
-  basis: IAutoMovieInspectorScene.EpisodeBasis;
+  basis: IAutoMovieViewerInspectorScene.EpisodeBasis;
   first: Diagnostics.IObservation;
   firstSample: Diagnostics.ITime;
   worst: Diagnostics.IObservation;

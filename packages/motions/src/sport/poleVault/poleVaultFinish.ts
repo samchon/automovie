@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -82,10 +82,10 @@ export function poleVaultFinish(
     (last.position.forward ** 2 + last.position.up ** 2);
   const released: IAutoMovieMotionHumanPosture = swinging(swing.duration);
   const cr: IAutoMovieVector3 = GymnasticsFlight.centre(body, model, released);
-  const out: IAutoMovieVector3 = Vector3.subtract(
+  const out: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     cr,
-    Vector3.add(
-      Vector3.add(tipAt, Vector3.scale(ahead, last.position.forward)),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(tipAt, AutoMovieEngineVector3.scale(ahead, last.position.forward)),
       {
         x: 0,
         y: last.position.up,
@@ -93,9 +93,9 @@ export function poleVaultFinish(
       },
     ),
   );
-  const forth: number = Vector3.dot(out, ahead);
-  const velocity: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(ahead, last.velocity.forward + omega * out.y),
+  const forth: number = AutoMovieEngineVector3.dot(out, ahead);
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(ahead, last.velocity.forward + omega * out.y),
     { x: 0, y: last.velocity.up - omega * forth, z: 0 },
   );
   // The flight keeps the articulation the swing reached at the release: the
@@ -195,7 +195,7 @@ export function poleVaultFinish(
     from: flying(down),
     velocity: {
       ...velocity,
-      y: velocity.y - AutoMovieGravity.STANDARD * down,
+      y: velocity.y - AutoMovieEngineGravity.STANDARD * down,
     },
     height: surface,
     ...(pad === undefined || exterior === undefined
@@ -211,7 +211,7 @@ export function poleVaultFinish(
             const bearing:
               | IAutoMovieMotionHumanContactWindow.IMaterial
               | undefined = exterior(posture, face);
-            const up: number = Quaternion.rotateVectorY(
+            const up: number = AutoMovieEngineQuaternion.rotateVectorY(
               face.frame.rotation,
               HumanMaterialContact.NORMAL,
             );
@@ -254,7 +254,7 @@ export function poleVaultFinish(
           share * release <= off
             ? {
                 position: { x: 0, y: 0, z: 0 },
-                rotation: Quaternion.identity(),
+                rotation: AutoMovieEngineQuaternion.identity(),
               }
             : swingGripOffset(hand.side, share * release - off),
       }),
@@ -294,14 +294,14 @@ export function poleVaultFinish(
     },
     HumanPropFrame.compose(swingGripOffset(side, swing.duration), held.frame),
   );
-  const arm: IAutoMovieVector3 = Vector3.subtract(poleFrame.position, tipAt);
+  const arm: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(poleFrame.position, tipAt);
   const launch: IAutoMovieMotionPropLaunch = {
     prop: p.pole,
     seconds: release,
     point: poleFrame.position,
-    velocity: Vector3.add(Vector3.scale(ahead, omega * arm.y), {
+    velocity: AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(ahead, omega * arm.y), {
       x: 0,
-      y: -omega * Vector3.dot(arm, ahead),
+      y: -omega * AutoMovieEngineVector3.dot(arm, ahead),
       z: 0,
     }),
     rotation: poleFrame.rotation,

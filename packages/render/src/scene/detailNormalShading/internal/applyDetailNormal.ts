@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { AutoMovieRenderDetailNormalShading } from "../../AutoMovieRenderDetailNormalShading.js";
 
@@ -25,7 +25,7 @@ export const applyDetailNormal: (
     key: string;
     apply: (
       shader: Pick<
-        IMaterialShaderSource,
+        IAutoMovieRenderMaterialShaderSource,
         "vertexShader" | "fragmentShader" | "uniforms"
       >,
     ) => void;

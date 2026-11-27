@@ -10,7 +10,9 @@ import {
   AutoMovieMotionHumanChain,
   AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
-import { HUMAN_LEXICON } from "@automovie/motions/internal";
+import {
+  HUMAN_LEXICON
+} from "../../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

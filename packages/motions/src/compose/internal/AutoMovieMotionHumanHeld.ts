@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -80,20 +80,20 @@ export function AutoMovieMotionHumanHeld(
     `${side}Hand`,
   )?.worldRotation;
   if (rotation === undefined) throw handless();
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(rotation);
   return {
     prop,
     side,
     frame: {
-      position: Quaternion.rotateVector(
+      position: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(
+        AutoMovieEngineVector3.subtract(
           world.position,
           HumanHand.frame(context.body, bones, side, "grip").point,
         ),
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(inverse, world.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(inverse, world.rotation),
       ),
     },
     affordances: read.prop.affordances ?? [],
@@ -137,10 +137,10 @@ export namespace AutoMovieMotionHumanHeld {
     affordances: readonly IAutoMovieAffordance[],
     wrist: IAutoMovieMotionHumanHeld.IGraspedWrist,
   ): IAutoMovieMotionHumanHeld.IHeld {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(wrist.rotation);
-    const socket: IAutoMovieVector3 = Vector3.add(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(wrist.rotation);
+    const socket: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       wrist.point,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         wrist.rotation,
         HumanHand.offset(body, side, "grip").point,
       ),
@@ -149,12 +149,12 @@ export namespace AutoMovieMotionHumanHeld {
       prop,
       side,
       frame: {
-        position: Quaternion.rotateVector(
+        position: AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(lying.position, socket),
+          AutoMovieEngineVector3.subtract(lying.position, socket),
         ),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(inverse, lying.rotation),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(inverse, lying.rotation),
         ),
       },
       affordances,
@@ -192,14 +192,14 @@ export namespace AutoMovieMotionHumanHeld {
         fix: "name one of the prop's contacts, or hold a prop that declares it",
       });
     return {
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         held.frame.position,
-        Quaternion.rotateVector(held.frame.rotation, found.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(held.frame.rotation, found.frame.translation),
       ),
-      direction: Vector3.normalize(
-        Quaternion.rotateVector(
+      direction: AutoMovieEngineVector3.normalize(
+        AutoMovieEngineQuaternion.rotateVector(
           held.frame.rotation,
-          Quaternion.rotateVector(found.frame.rotation, { x: 0, y: 1, z: 0 }),
+          AutoMovieEngineQuaternion.rotateVector(found.frame.rotation, { x: 0, y: 1, z: 0 }),
         ),
       ),
     };

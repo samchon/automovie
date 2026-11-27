@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
@@ -29,8 +29,8 @@ export function prepareHumanFootSole(
       (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
         frame.bone === `${side}Foot`
           ? frame.point
-          : Vector3.add(
-              Vector3.subtract(body.rest.get(frame.bone)!, ankle),
+          : AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.subtract(body.rest.get(frame.bone)!, ankle),
               frame.point,
             ),
     ),
@@ -40,7 +40,7 @@ export function prepareHumanFootSole(
   ): IAutoMovieVector3[] =>
     local.map(
       (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, point)),
+        AutoMovieEngineVector3.add(foot.ankle, AutoMovieEngineQuaternion.rotateVector(foot.rotation, point)),
     );
 }
 

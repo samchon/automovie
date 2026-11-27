@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionEvent,
@@ -214,7 +214,7 @@ export namespace HumanWeaponPresent {
         const ready: IAutoMovieMotionHumanStrikingHeld.IHandFrame | undefined =
           context.entry.base.kind === "seated" && carriage === "aim"
             ? {
-                point: Vector3.add(eye, {
+                point: AutoMovieEngineVector3.add(eye, {
                   x: READY.ahead * reach * line.x,
                   y: -READY.below * context.body.measure.stature,
                   z: READY.ahead * reach * line.z,
@@ -252,8 +252,8 @@ export namespace HumanWeaponPresent {
                       const to: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
                         aimed(progress, at);
                       return {
-                        point: Vector3.lerp(ready.point, to.point, progress),
-                        rotation: Quaternion.slerp(
+                        point: AutoMovieEngineVector3.lerp(ready.point, to.point, progress),
+                        rotation: AutoMovieEngineQuaternion.slerp(
                           ready.rotation,
                           to.rotation,
                           progress,

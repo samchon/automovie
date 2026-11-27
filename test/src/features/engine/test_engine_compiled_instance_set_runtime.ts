@@ -1,4 +1,4 @@
-import { AUTOMOVIE_INSTANCE_CHUNK_SIZE, AutoMovieEngineCanonicalJson, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
+import { AutoMovieEngineInstanceChunkSize, AutoMovieEngineCanonicalJson, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormationLod,
   IAutoMovieCompiledInstancePrototype,
@@ -29,11 +29,11 @@ const row: (
 ): IAutoMovieInstanceSetDesign => ({
   id: "hedge",
   model: "tree",
-  count: AUTOMOVIE_INSTANCE_CHUNK_SIZE + 1,
+  count: AutoMovieEngineInstanceChunkSize + 1,
   layout: {
     kind: "grid",
     rows: 1,
-    columns: AUTOMOVIE_INSTANCE_CHUNK_SIZE + 1,
+    columns: AutoMovieEngineInstanceChunkSize + 1,
     spacing: { x: 1, z: 1 },
   },
   anchor: { x: 0, y: 0, z: 0 },

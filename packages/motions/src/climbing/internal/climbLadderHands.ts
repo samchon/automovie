@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -25,7 +25,7 @@ import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 export function climbLadderHands(
   body: IAutoMovieMotionHumanBody,
   normal: IAutoMovieVector3,
-  along: IAutoMovieVector3 = Vector3.cross({ x: 0, y: 1, z: 0 }, normal),
+  along: IAutoMovieVector3 = AutoMovieEngineVector3.cross({ x: 0, y: 1, z: 0 }, normal),
 ): (
   side: AutoMovieHumanSide,
   posture: IAutoMovieMotionHumanPosture,
@@ -44,7 +44,7 @@ export function climbLadderHands(
     right: HumanHandTarget.prepareFrame(body, "right", normal, {
       surface: "grip",
       shape: "relaxed",
-      forward: Vector3.scale(along, -1),
+      forward: AutoMovieEngineVector3.scale(along, -1),
     }),
   };
   const contacts: Record<AutoMovieHumanSide, IAutoMovieVector3> = {

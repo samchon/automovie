@@ -1,4 +1,4 @@
-import type { IAutoMovieFormationCycle } from "@automovie/render";
+import type { IAutoMovieRenderFormationCycle } from "@automovie/render";
 import * as THREE from "three";
 
 /**
@@ -9,7 +9,7 @@ import * as THREE from "three";
  * that is 0 at sample 0 and 10 at sample 1, a stride of 2 m and a period of 1 s.
  * The idle take has no stride and a period of 4 s.
  */
-export function createFormationCycleFixture(): IAutoMovieFormationCycle {
+export function createFormationCycleFixture(): IAutoMovieRenderFormationCycle {
   const samples: number = 2;
   const matrices: Float32Array = new Float32Array(3 * samples * 4);
   for (let sample: number = 0; sample < samples; ++sample)
@@ -18,14 +18,14 @@ export function createFormationCycleFixture(): IAutoMovieFormationCycle {
   matrices[(0 * samples + 1) * 4 + 3] = 10;
   const texture = (): THREE.DataTexture =>
     new THREE.DataTexture(new Float32Array(4), 1, 1);
-  const walk: IAutoMovieFormationCycle["fallback"] = {
+  const walk: IAutoMovieRenderFormationCycle["fallback"] = {
     gait: "walk",
     strideMeters: 2,
     periodSeconds: 1,
     matrices,
     texture: texture(),
   };
-  const idle: IAutoMovieFormationCycle["fallback"] = {
+  const idle: IAutoMovieRenderFormationCycle["fallback"] = {
     gait: "idle",
     strideMeters: 0,
     periodSeconds: 4,

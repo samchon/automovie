@@ -50,7 +50,7 @@ export interface IAutoMovieDrawCall {
    * built it. A subject with `optics` keeps its camera response, which the film
    * response stage gives to straight colour while alpha passes it unchanged;
    * its glare spreads alpha with light and a medium adds its own opacity, as
-   * render's `AutoMovieFilmAlpha` states. A transition's fade falls to alpha 0.
+   * render's `AutoMovieRenderFilmAlpha` states. A transition's fade falls to alpha 0.
    * Absent draws the opaque picture.
    *
    * The page refuses it for any other pass, whose black background is part of

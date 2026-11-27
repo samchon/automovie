@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -363,8 +363,8 @@ export namespace handOver {
         },
         rotation: (yaw: number): IAutoMovieQuaternion =>
           t <= shared.offer
-            ? Quaternion.multiply(
-                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+            ? AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
                 rotation,
               )
             : rotation,

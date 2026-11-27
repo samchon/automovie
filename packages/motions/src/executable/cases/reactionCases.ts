@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -76,8 +76,8 @@ export function reactionCases(
       );
       const peak: number = FamilyCaseKit.event(performance, "stroke");
       const gap = (seconds: number): number =>
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             performance.bones("a", seconds).get("head")!.worldPosition,
             at,
           ),
@@ -99,8 +99,8 @@ export function reactionCases(
         },
         everydayVerdicts.within(
           "head travel at the peak",
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               bones.get("head")!.worldPosition,
               start.get("head")!.worldPosition,
             ),
@@ -116,15 +116,15 @@ export function reactionCases(
         ),
       ];
       for (const side of ["left", "right"] as const) {
-        const wrist: IAutoMovieVector3 = Vector3.subtract(
+        const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           bones.get(`${side}Hand`)!.worldPosition,
           face.point,
         );
-        const ahead: number = Vector3.dot(wrist, face.normal);
+        const ahead: number = AutoMovieEngineVector3.dot(wrist, face.normal);
         verdicts.push({
           name: `${side} wrist before the face at the peak`,
-          passed: ahead > 0 && Vector3.length(wrist) <= reach,
-          detail: `${(ahead * 1000).toFixed(1)} mm ahead, ${(Vector3.length(wrist) * 1000).toFixed(1)} mm away (limit ${(reach * 1000).toFixed(1)} mm)`,
+          passed: ahead > 0 && AutoMovieEngineVector3.length(wrist) <= reach,
+          detail: `${(ahead * 1000).toFixed(1)} mm ahead, ${(AutoMovieEngineVector3.length(wrist) * 1000).toFixed(1)} mm away (limit ${(reach * 1000).toFixed(1)} mm)`,
         });
       }
       out.push({

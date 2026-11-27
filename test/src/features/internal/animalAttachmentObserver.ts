@@ -2,7 +2,7 @@ import type {
   AutoMovieArchetype,
   AutoMovieArchetypeQuadrupedBody,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -208,12 +208,12 @@ export function animalAttachmentObserver(
       local(now, posed.frame.translation),
       local(old, contact.frame.translation),
     );
-    const a: IAutoMovieTransform["rotation"] = Quaternion.multiply(
-      Quaternion.inverse(old.rotation),
+    const a: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(old.rotation),
       contact.frame.rotation,
     );
-    const b: IAutoMovieTransform["rotation"] = Quaternion.multiply(
-      Quaternion.inverse(now.rotation),
+    const b: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(now.rotation),
       posed.frame.rotation,
     );
     near(
@@ -293,9 +293,9 @@ export function animalAttachmentObserver(
 
   /** World observations use the actual root once, independently of ride.frame. */
   function world(value: IAutoMovieVector3): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       sample.placement.translation,
-      Quaternion.rotateVector(sample.placement.rotation, value),
+      AutoMovieEngineQuaternion.rotateVector(sample.placement.rotation, value),
     );
   }
 
@@ -440,9 +440,9 @@ function dimensions(part: IAutoMovieModelPart): {
 
 /** A rigid bar's proximal/distal endpoint is its signed rotated half-height. */
 function endpoint(part: IAutoMovieModelPart, side: -1 | 1): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     frame(part).translation,
-    Quaternion.rotateVector(frame(part).rotation, {
+    AutoMovieEngineQuaternion.rotateVector(frame(part).rotation, {
       x: 0,
       y: (side * dimensions(part).height) / 2,
       z: 0,
@@ -458,9 +458,9 @@ function local(
   parent: IAutoMovieTransform,
   value: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Quaternion.rotateVector(
-    Quaternion.inverse(parent.rotation),
-    Vector3.subtract(value, parent.translation),
+  return AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(parent.rotation),
+    AutoMovieEngineVector3.subtract(value, parent.translation),
   );
 }
 

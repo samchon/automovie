@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, ROM_TOLERANCE, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -74,7 +74,7 @@ export function prepareBendSquat(
   const lo: Angles = [knee, 0, 0, -rollLimit, 0, 0, -lateralLimit, -twistLimit];
   const hi: Angles = [
     clinical(`${side}LowerLeg`).flexion!.max,
-    ANKLE_DORSIFLEXION.loaded,
+    AutoMovieEngineAnkleDorsiflexion.loaded,
     clinical(`${side}UpperLeg`).flexion!.max,
     rollLimit,
     spine.flexion!.max,
@@ -99,7 +99,7 @@ export function prepareBendSquat(
     lean,
     turn,
   ];
-  const ankle = Vector3.lerp(
+  const ankle = AutoMovieEngineVector3.lerp(
     nominal.limbs.leftLeg!.point,
     nominal.limbs.rightLeg!.point,
     0.5,
@@ -120,7 +120,7 @@ export function prepareBendSquat(
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 =>
-    Vector3.lerp(
+    AutoMovieEngineVector3.lerp(
       upright.get(a)!.worldPosition,
       upright.get(b)!.worldPosition,
       0.5,
@@ -161,7 +161,7 @@ export function prepareBendSquat(
     const hips = hipJoints(body, p.root, humanPostureHeading(p), p.joints.hips);
     return kneePlanes(body, {
       ...p,
-      root: Vector3.subtract(centre, Vector3.lerp(hips.left, hips.right, 0.5)),
+      root: AutoMovieEngineVector3.subtract(centre, AutoMovieEngineVector3.lerp(hips.left, hips.right, 0.5)),
     });
   };
   /*
@@ -201,21 +201,21 @@ export function prepareBendSquat(
     );
     const placed = HumanColliders.placed(body, bones);
     const site = braced(bones);
-    const braceWrist = Vector3.subtract(
+    const braceWrist = AutoMovieEngineVector3.subtract(
       site.point,
-      Quaternion.rotateVector(site.rotation, palm.point),
+      AutoMovieEngineQuaternion.rotateVector(site.rotation, palm.point),
     );
     const rows: number[] = [
       Math.max(
         0,
-        Vector3.distance(
+        AutoMovieEngineVector3.distance(
           bones.get(`${side}UpperArm`)!.worldPosition,
           wrist(p, bones),
         ) - span,
       ),
       Math.max(
         0,
-        Vector3.distance(
+        AutoMovieEngineVector3.distance(
           bones.get(`${other}UpperArm`)!.worldPosition,
           braceWrist,
         ) - span,
@@ -229,16 +229,16 @@ export function prepareBendSquat(
         c = g.contact ?? { x: 0, y: 0, z: 0 };
       const sockets = HumanFoot.sockets(body, bones, s);
       for (let j = 0; j < sockets.length; ++j) {
-        const error = Vector3.subtract(sockets[j]!.point, targets[i]![j]!);
+        const error = AutoMovieEngineVector3.subtract(sockets[j]!.point, targets[i]![j]!);
         rows.push(error.x, error.y, error.z);
       }
       rows.push(
         Math.min(...sockets.map((f) => f.point.y)) - ground[i]!,
-        Vector3.distance(
-          Vector3.add(g.point, Quaternion.rotateVector(g.rotation!, c)),
-          Vector3.add(
+        AutoMovieEngineVector3.distance(
+          AutoMovieEngineVector3.add(g.point, AutoMovieEngineQuaternion.rotateVector(g.rotation!, c)),
+          AutoMovieEngineVector3.add(
             foot.worldPosition,
-            Quaternion.rotateVector(foot.worldRotation, c),
+            AutoMovieEngineQuaternion.rotateVector(foot.worldRotation, c),
           ),
         ),
       );
@@ -252,13 +252,13 @@ export function prepareBendSquat(
   const cost = (values: readonly number[]): number =>
     values.reduce((sum, v) => sum + v * v, 0);
   const positionalResolution: number =
-    body.measure.stature * Math.sin(ROM_TOLERANCE * RAD);
+    body.measure.stature * Math.sin(AutoMovieEngineRomTolerance * RAD);
   while (Math.max(...at.rows.map(Math.abs)) > positionalResolution) {
     const gradients = q.map((_, i) => {
       const moved = q.slice();
-      moved[i]! += ROM_TOLERANCE;
+      moved[i]! += AutoMovieEngineRomTolerance;
       return residual(moved).rows.reduce(
-        (s, v, j) => s + ((v - at.rows[j]!) * at.rows[j]!) / ROM_TOLERANCE,
+        (s, v, j) => s + ((v - at.rows[j]!) * at.rows[j]!) / AutoMovieEngineRomTolerance,
         0,
       );
     });
@@ -266,14 +266,14 @@ export function prepareBendSquat(
     if (largest === 0) break;
     const best: number = cost(at.rows);
     let accepted: boolean = false;
-    for (let step = (hi[0] - lo[0]) / 2; step >= ROM_TOLERANCE; step /= 2) {
+    for (let step = (hi[0] - lo[0]) / 2; step >= AutoMovieEngineRomTolerance; step /= 2) {
       const next = q.map((v, i) =>
         Math.max(
           lo[i]!,
           Math.min(hi[i]!, v - (step * gradients[i]!) / largest),
         ),
       );
-      if (next.every((v, i) => Math.abs(v - q[i]!) < ROM_TOLERANCE)) continue;
+      if (next.every((v, i) => Math.abs(v - q[i]!) < AutoMovieEngineRomTolerance)) continue;
       const trial: ITrial = residual(next);
       if (cost(trial.rows) >= best) continue;
       q.splice(0, q.length, ...next);
@@ -303,7 +303,7 @@ export function prepareBendSquat(
       roll: p.roll + share * (peak.roll - nominal.roll),
       joints,
     };
-    const currentAnkle = Vector3.lerp(
+    const currentAnkle = AutoMovieEngineVector3.lerp(
       p.limbs.leftLeg!.point,
       p.limbs.rightLeg!.point,
       0.5,
@@ -314,8 +314,8 @@ export function prepareBendSquat(
       humanPostureHeading(standing),
       standing.joints.hips,
     );
-    const start = Vector3.lerp(standingHips.left, standingHips.right, 0.5);
-    const startAnkle = Vector3.lerp(
+    const start = AutoMovieEngineVector3.lerp(standingHips.left, standingHips.right, 0.5);
+    const startAnkle = AutoMovieEngineVector3.lerp(
       standing.limbs.leftLeg!.point,
       standing.limbs.rightLeg!.point,
       0.5,
@@ -358,7 +358,7 @@ export function prepareBendSquat(
     );
     return kneePlanes(body, {
       ...result,
-      root: Vector3.subtract(aim, Vector3.lerp(hips.left, hips.right, 0.5)),
+      root: AutoMovieEngineVector3.subtract(aim, AutoMovieEngineVector3.lerp(hips.left, hips.right, 0.5)),
     });
   };
 }

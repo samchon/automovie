@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
-import { AutoMovieMotionHumanArmStated } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanArmStated
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArmStated";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

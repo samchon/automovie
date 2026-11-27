@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeScubaSetData from "./internal/AutoMovieArchetypeScubaSetData";
+import { AutoMovieArchetypeScubaSetData } from "./internal/AutoMovieArchetypeScubaSetData";
 
 /** Constructs the scuba set archetype from its recipe. */
 export namespace AutoMovieArchetypeScubaSet {
@@ -45,7 +45,7 @@ export function create(
     material: "steel",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.rod(
     "cylinder",
     d.diameter / 2,

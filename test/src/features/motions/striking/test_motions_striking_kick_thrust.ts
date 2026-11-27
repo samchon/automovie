@@ -1,6 +1,11 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { KickForm, KickThrust } from "@automovie/motions/internal";
+import {
+  KickForm
+} from "../../../../../packages/motions/src/striking/internal/KickForm";
+import {
+  KickThrust
+} from "../../../../../packages/motions/src/striking/internal/KickThrust";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -96,7 +101,7 @@ export function test_motions_striking_kick_thrust(): void {
       vclose(highDrawn.thigh, segment(0.5, most), 1e-12),
   );
   const g: number = KickForm.PUSH_ANKLE_GIVE;
-  const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+  const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     KickThrust.footed(forward, { x: 1, y: 0, z: 0 }),
     forward,
   );
@@ -105,7 +110,7 @@ export function test_motions_striking_kick_thrust(): void {
     "footed",
     g === 20 &&
       vclose(
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           KickThrust.footed(forward, {
             x: Math.sin(0.2),
             y: 0,

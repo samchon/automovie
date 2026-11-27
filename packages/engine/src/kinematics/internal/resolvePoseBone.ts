@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Compose one bone through the same parent-first FK used by resolvePose.
@@ -19,17 +19,17 @@ export function resolvePoseBone(
   parentPosition: IAutoMovieVector3,
   articulation: IAutoMovieQuaternion,
 ): IAutoMovieResolvedBone {
-  const localRotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const localRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     bone.rest.rotation,
     articulation,
   );
-  const worldRotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const worldRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     parentRotation,
     localRotation,
   );
-  const worldPosition: IAutoMovieVector3 = Vector3.add(
+  const worldPosition: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     parentPosition,
-    Quaternion.rotateVector(parentRotation, bone.rest.translation),
+    AutoMovieEngineQuaternion.rotateVector(parentRotation, bone.rest.translation),
   );
   return { bone: bone.bone, localRotation, worldPosition, worldRotation };
 }

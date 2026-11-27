@@ -1,10 +1,12 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { carryHumanPosture } from "@automovie/motions/internal";
+import {
+  carryHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/carryHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 /** Center of a rectangular seat in its carrier's own frame, metres. */
@@ -18,7 +20,7 @@ function course(film: number): IAutoMovieRigidTransform {
   const share: number = Math.max(0, Math.min(1, (film - 3) / 4));
   return {
     position: { x: 0, y: 0, z: share },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90 * share),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90 * share),
   };
 }
 
@@ -61,7 +63,7 @@ export function test_motions_lexicon_ride_cushion(): void {
     const seat: IAutoMovieVector3 = { ...actual.root, y: actual.root.y - PELVIS };
     TestValidator.predicate(
       `the pelvis follows its cushion at ${film} s`,
-      Vector3.distance(seat, expected) <= 0.01 &&
+      AutoMovieEngineVector3.distance(seat, expected) <= 0.01 &&
         Math.abs(actual.yaw - (radians * 180) / Math.PI) <= 1,
     );
   }

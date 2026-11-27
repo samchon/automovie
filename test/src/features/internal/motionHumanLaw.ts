@@ -15,9 +15,11 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
-  AutoMovieMotionHumanAudit,
-  AutoMovieMotionHumanAuditMotion,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanAudit
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAudit";
+import {
+  AutoMovieMotionHumanAuditMotion
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditMotion";
 
 import { motionHumanFrame } from "./motionHumanFrame";
 

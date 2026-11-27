@@ -1,6 +1,6 @@
 import type { AutoMovieLightProperty } from "@automovie/interface";
 
-import { LIGHT_CHANNEL_PROPERTIES } from "../LIGHT_CHANNEL_PROPERTIES";
+import { AutoMovieEngineLightChannelProperties } from "../AutoMovieEngineLightChannelProperties";
 
 /*
  * Whether a string names an animatable light property.
@@ -8,5 +8,5 @@ import { LIGHT_CHANNEL_PROPERTIES } from "../LIGHT_CHANNEL_PROPERTIES";
 export function isLightProperty(
   property: string,
 ): property is AutoMovieLightProperty {
-  return Object.hasOwn(LIGHT_CHANNEL_PROPERTIES, property);
+  return Object.hasOwn(AutoMovieEngineLightChannelProperties, property);
 }

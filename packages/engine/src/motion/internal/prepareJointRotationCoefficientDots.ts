@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import type { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { bilinearQuaternionSwivelRoots } from "../../math/internal/bilinearQuaternionSwivelRoots";
 import { prepareFiniteQuaternionDot } from "../../math/internal/prepareFiniteQuaternionDot";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
@@ -34,7 +34,7 @@ export function prepareJointRotationCoefficientDots(
       const direction: IAutoMovieJointAxes[ClinicalAxis] = props.basis[axis];
       const angle: number =
         AutoMovieEngineRigAngle.toRigAngle(props.fixed[axis], props.frame?.[axis]) ?? 0;
-      const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const factor: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         direction,
         angle,
       );
@@ -45,7 +45,7 @@ export function prepareJointRotationCoefficientDots(
         axis,
         factor,
         bit,
-        rest: Quaternion.fromAxisAngle(props.basis[axis], 0),
+        rest: AutoMovieEngineQuaternion.fromAxisAngle(props.basis[axis], 0),
       };
       fixed[axis] = row;
       if (bit !== 0) nullable.push(row);
@@ -62,7 +62,7 @@ export function prepareJointRotationCoefficientDots(
       (mask: number): IAutoMovieQuaternion => {
         if (props.mobile.length === 1 && mask >= 2)
           return { x: 0, y: 0, z: 0, w: 0 };
-        let product: IAutoMovieQuaternion = Quaternion.identity();
+        let product: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
         for (const axis of props.order) {
           const index: number = props.mobile.indexOf(axis);
           const row: IFixed | undefined = fixed[axis];
@@ -72,9 +72,9 @@ export function prepareJointRotationCoefficientDots(
                 ? row!.factor
                 : row!.rest
               : (mask & (1 << index)) === 0
-                ? Quaternion.identity()
+                ? AutoMovieEngineQuaternion.identity()
                 : { ...props.basis[axis], w: 0 };
-          product = Quaternion.multiply(product, factor);
+          product = AutoMovieEngineQuaternion.multiply(product, factor);
         }
         return product;
       },

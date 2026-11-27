@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -163,7 +163,7 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
           kind: "point",
           frame: "world",
           at: surface(
-            Vector3.add(floor, Vector3.scale(forward, ahead)),
+            AutoMovieEngineVector3.add(floor, AutoMovieEngineVector3.scale(forward, ahead)),
             ground + offset.y,
           ),
           normal: UP,
@@ -259,7 +259,7 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       const from: IAutoMovieVector3 = previous.target.at;
       const to: IAutoMovieVector3 = next.target.at;
       // A foot named again where it stands does not step.
-      if (Vector3.distance(from, to) <= HumanFoot.BEARING) return undefined;
+      if (AutoMovieEngineVector3.distance(from, to) <= HumanFoot.BEARING) return undefined;
       const height: number = Math.max(toesAt(from), toesAt(to)) + crawl.LIFT;
       return [
         { ...from, y: height },
@@ -298,9 +298,9 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       const grip: IAutoMovieAffordance = (read.prop.affordances ?? []).find(
         (a: IAutoMovieAffordance): boolean => a.id === "grip",
       )!;
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, grip.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, grip.frame.translation),
       );
     };
     const offset =
@@ -311,9 +311,9 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
             seconds > m.from && seconds < m.to,
         );
         if (move === undefined) return STILL;
-        return Vector3.subtract(
+        return AutoMovieEngineVector3.subtract(
           gripAt(side, seconds),
-          Vector3.lerp(
+          AutoMovieEngineVector3.lerp(
             gripAt(side, move.from),
             gripAt(side, move.to),
             AutoMovieEngineMotionSampling.minimumJerkShare((seconds - move.from) / (move.to - move.from)),
@@ -336,9 +336,9 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     // The flight's profile along its climb, which the held leg clears and
     // each foot's lock stands on.
     const flight: crutchHeldLeg.IStairs = {
-      origin: Vector3.add(
+      origin: AutoMovieEngineVector3.add(
         floor,
-        Vector3.scale(forward, 0.25 * body.measure.footLength),
+        AutoMovieEngineVector3.scale(forward, 0.25 * body.measure.footLength),
       ),
       forward,
       steps: crutchStairsFlight.profile(climb, ground),
@@ -410,8 +410,8 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       // A toe joint stands at least its height above its sole over the
       // flight's level beneath it (`HumanContactWindow.IPath.floor`).
       floor: (_: HumanContactWindow.Foot, toe: IAutoMovieVector3): number => {
-        const ahead: number = Vector3.dot(
-          Vector3.subtract(toe, flight.origin),
+        const ahead: number = AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(toe, flight.origin),
           flight.forward,
         );
         let height: number = ground;

@@ -1,4 +1,4 @@
-import { AutoMovieEnginePlanarRegion, Quaternion, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion, AutoMovieEngineQuaternion, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentModule,
   IAutoMoviePlanarPoint,
@@ -287,7 +287,7 @@ function preparePad(
     throw new Error(`Terrain grade "${id}" requires an upright pad frame.`);
   const outline: IAutoMoviePlanarPoint[] = pad.outline.map(
     ({ x, z }: IAutoMovieTerrainRecipe.IXzPoint): IAutoMoviePlanarPoint => {
-      const point: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+      const point: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
         x,
         y: 0,
         z,

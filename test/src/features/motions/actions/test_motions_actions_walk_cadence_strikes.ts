@@ -6,7 +6,9 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanGait } from "@automovie/motions";
-import { HumanSkill } from "@automovie/motions/internal";
+import {
+  HumanSkill
+} from "../../../../../packages/motions/src/skill/internal/HumanSkill";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

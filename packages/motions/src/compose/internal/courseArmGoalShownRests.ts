@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieMotionEvent,
@@ -114,7 +114,7 @@ export function courseArmGoalShownRests(
   for (const [held, seed] of seeds)
     near[held] = {
       ...seed,
-      tolerance: hingedArmSwivel.RESOLUTION,
+      tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
       prescribed: true,
     };
   const pose: IAutoMoviePose = resolveHumanPosture.seeded(

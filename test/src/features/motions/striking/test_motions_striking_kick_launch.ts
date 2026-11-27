@@ -1,4 +1,9 @@
-import { KickForm, KickLaunch } from "@automovie/motions/internal";
+import {
+  KickForm
+} from "../../../../../packages/motions/src/striking/internal/KickForm";
+import {
+  KickLaunch
+} from "../../../../../packages/motions/src/striking/internal/KickLaunch";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,4 +1,6 @@
-import type { HumanArmTrajectory } from "@automovie/motions/internal";
+import type {
+  HumanArmTrajectory
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectory";
 import { TestValidator } from "@nestia/e2e";
 
 import { armPlannerFixture } from "../../internal/armPlanner/armPlannerFixture";

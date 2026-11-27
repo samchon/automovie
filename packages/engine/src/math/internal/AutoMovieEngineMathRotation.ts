@@ -3,8 +3,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../Quaternion";
-import { Vector3 } from "../Vector3";
+import { AutoMovieEngineQuaternion } from "../AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../AutoMovieEngineVector3";
 
 /*
  * Shortest-arc rotation operations for finite directions.
@@ -34,8 +34,8 @@ export function rotationBetween(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const from: IAutoMovieVector3 = Vector3.normalize(a);
-  const to: IAutoMovieVector3 = Vector3.normalize(b);
+  const from: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(a);
+  const to: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(b);
   return turn(from, to);
 }
 
@@ -59,9 +59,9 @@ export function rotationBetween(
 export function prepareRotationBetween(
   source: IAutoMovieVector3,
 ): (target: IAutoMovieVector3) => IAutoMovieQuaternion {
-  const from: IAutoMovieVector3 = Vector3.normalize(source);
+  const from: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(source);
   return (target: IAutoMovieVector3): IAutoMovieQuaternion =>
-    turn(from, Vector3.normalize(target));
+    turn(from, AutoMovieEngineVector3.normalize(target));
 }
 
 /*
@@ -71,18 +71,18 @@ function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const cross: IAutoMovieVector3 = Vector3.cross(from, to);
-  const sin: number = Vector3.length(cross);
-  const cos: number = Vector3.dot(from, to);
+  const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, to);
+  const sin: number = AutoMovieEngineVector3.length(cross);
+  const cos: number = AutoMovieEngineVector3.dot(from, to);
   if (sin === 0) {
-    if (cos >= 0) return Quaternion.identity();
+    if (cos >= 0) return AutoMovieEngineQuaternion.identity();
     const perp: IAutoMovieVector3 =
       Math.abs(from.x) < 0.9
-        ? Vector3.cross(from, { x: 1, y: 0, z: 0 })
-        : Vector3.cross(from, { x: 0, y: 1, z: 0 });
-    return Quaternion.fromAxisAngle(perp, 180);
+        ? AutoMovieEngineVector3.cross(from, { x: 1, y: 0, z: 0 })
+        : AutoMovieEngineVector3.cross(from, { x: 0, y: 1, z: 0 });
+    return AutoMovieEngineQuaternion.fromAxisAngle(perp, 180);
   }
-  return Quaternion.fromAxisAngle(
+  return AutoMovieEngineQuaternion.fromAxisAngle(
     cross,
     (Math.atan2(sin, cos) * 180) / Math.PI,
   );

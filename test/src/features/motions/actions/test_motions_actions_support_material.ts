@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -9,9 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanMaterialContact,
-  prepareSupportInterval,
-} from "@automovie/motions/internal";
+  HumanMaterialContact
+} from "../../../../../packages/motions/src/posture/internal/HumanMaterialContact";
+import {
+  prepareSupportInterval
+} from "../../../../../packages/motions/src/actions/internal/prepareSupportInterval";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,11 +33,11 @@ export async function test_motions_actions_support_material(): Promise<void> {
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const start: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const end: IAutoMovieRigidTransform = {
     position: { x: 6, y: 2, z: 9 },
-    rotation: Quaternion.fromAxisAngle(up, 180),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(up, 180),
   };
   const a: IAutoMovieVector3 = { x: 2, y: 2, z: 3 };
   const b: IAutoMovieVector3 = { x: 4, y: 2, z: 9 };
@@ -43,25 +45,25 @@ export async function test_motions_actions_support_material(): Promise<void> {
     prepareSupportInterval.materialPoint([start, end], [a, b]);
   const between: IAutoMovieRigidTransform = {
     position: { x: 20, y: 4, z: 30 },
-    rotation: Quaternion.fromAxisAngle(up, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(up, 90),
   };
   TestValidator.predicate(
     "the destination retains the achieved endpoint",
-    Vector3.distance(read(end, 1), b) <= ROUNDING,
+    AutoMovieEngineVector3.distance(read(end, 1), b) <= ROUNDING,
   );
   TestValidator.predicate(
     "the local interval follows the intermediate material frame",
-    Vector3.distance(read(between, 0.25), { x: 20, y: 4, z: 28.75 }) <=
+    AutoMovieEngineVector3.distance(read(between, 0.25), { x: 20, y: 4, z: 28.75 }) <=
       ROUNDING,
   );
   TestValidator.predicate(
     "reading backwards retains the achieved start",
-    Vector3.distance(read(start, 0), a) <= ROUNDING,
+    AutoMovieEngineVector3.distance(read(start, 0), a) <= ROUNDING,
   );
 
   const origin: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const radius: number = 0.125;
   const ball: IAutoMoviePhysicalShape = {
@@ -79,7 +81,7 @@ export async function test_motions_actions_support_material(): Promise<void> {
   ];
   const raised: IAutoMovieRigidTransform = {
     position: { x: 3, y: 8, z: 5 },
-    rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 37),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 37),
   };
   const local: IAutoMovieVector3 = { x: 0.2, y: 0.176, z: -0.35 };
   const world: IAutoMovieVector3 = HumanMaterialContact.world(

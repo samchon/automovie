@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineKinematics,
   AutoMovieEngineMath,
-  Vector3,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -69,7 +69,7 @@ export namespace kissHandMeeting {
           role.name === "presenter"
             ? Math.max(
                 AutoMovieMotionHumanTiming.transport(
-                  Vector3.distance(
+                  AutoMovieEngineVector3.distance(
                     point,
                     AutoMovieMotionHumanTouchEffector.point(
                       role.body,
@@ -92,7 +92,7 @@ export namespace kissHandMeeting {
                     ),
               )
             : AutoMovieMotionHumanTiming.transport(
-                Vector3.distance(point, neutralMouth(role)),
+                AutoMovieEngineVector3.distance(point, neutralMouth(role)),
               );
         return { ready, stroke: ready, relax: ready + hold };
       },
@@ -212,10 +212,10 @@ export namespace kissHandMeeting {
         kisser.bones.get(region.bone)!,
       );
     const first: IAutoMovieVector3 = wrist(initial);
-    if (Vector3.distance(shoulder, first) <= arm) return initial;
-    const center: IAutoMovieVector3 = Vector3.add(
+    if (AutoMovieEngineVector3.distance(shoulder, first) <= arm) return initial;
+    const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       shoulder,
-      Vector3.subtract(start, first),
+      AutoMovieEngineVector3.subtract(start, first),
     );
     const entry: IAutoMovieMotionHumanPosture | undefined =
       kisser.entry?.posture;
@@ -254,7 +254,7 @@ export namespace kissHandMeeting {
         read,
       );
     const near: IAutoMovieVector3 = wrist(placed(closest));
-    if (Vector3.distance(shoulder, near) > arm)
+    if (AutoMovieEngineVector3.distance(shoulder, near) > arm)
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "region",
@@ -266,7 +266,7 @@ export namespace kissHandMeeting {
     const precision: number = (Math.sqrt(Number.EPSILON) * 180) / Math.PI;
     const pitch: number = AutoMovieEngineMath.bracketedBisection(
       (angle: number): boolean =>
-        Vector3.distance(shoulder, wrist(placed(angle))) > arm,
+        AutoMovieEngineVector3.distance(shoulder, wrist(placed(angle))) > arm,
       0,
       closest,
       precision,
@@ -282,6 +282,6 @@ export namespace kissHandMeeting {
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.normalize({ x: to.x - from.x, y: 0, z: to.z - from.z });
+    return AutoMovieEngineVector3.normalize({ x: to.x - from.x, y: 0, z: to.z - from.z });
   }
 }

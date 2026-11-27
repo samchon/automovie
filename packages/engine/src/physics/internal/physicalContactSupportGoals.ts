@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEnginePhysicalRecoverySupportGoals } from "../AutoMovieEnginePhysicalRecoverySupportGoals";
 import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
@@ -63,9 +63,9 @@ export function physicalContactSupportGoals(
         limb.localPoint,
       );
       const stationary: boolean =
-        Vector3.length(Vector3.subtract(authored, previous)) * rate <=
-        64 * Number.EPSILON * Math.max(1, Vector3.length(authored) * rate);
-      const shift: IAutoMovieVector3 = Vector3.subtract(point, authored);
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(authored, previous)) * rate <=
+        64 * Number.EPSILON * Math.max(1, AutoMovieEngineVector3.length(authored) * rate);
+      const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, authored);
       const contacts: readonly string[] = limb.contacts ?? [limb.bone];
       const height: number = limb.floorPoints?.length
         ? Math.max(

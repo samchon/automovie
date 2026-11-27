@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKeyframeSearch } from "../../math/AutoMovieEngineKeyframeSearch";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { cubicHermiteValue } from "../../math/internal/cubicHermiteValue";
 import { normalizeClipTime } from "../../math/internal/normalizeClipTime";
 import { clipDurationFault } from "../../validation/internal/clipDurationFault";
@@ -143,7 +143,7 @@ const cubicHermite: (
 const normalizeQuatArray: (q: number[]) => number[] = (
   q: number[],
 ): number[] => {
-  const n: IAutoMovieQuaternion = Quaternion.normalize({
+  const n: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize({
     x: q[0]!,
     y: q[1]!,
     z: q[2]!,

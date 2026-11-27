@@ -4,7 +4,12 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, launchPropProjectile } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  launchPropProjectile
+} from "../../../../../packages/motions/src/perform/internal/launchPropProjectile";
 import { TestValidator } from "@nestia/e2e";
 
 /**

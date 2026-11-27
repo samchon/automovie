@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -99,11 +99,11 @@ export namespace kiss {
    * The most the body leans to a side, degrees: with both feet planted a side
    * lean from the hips turns one hip into adduction and the other into
    * abduction by the lean, so it is the lesser of the hip's adduction and
-   * abduction ranges (`DEFAULT_HUMANOID_ROM`, the upper leg's abduction).
+   * abduction ranges (`AutoMovieEngineDefaultHumanoidRom`, the upper leg's abduction).
    */
   export const ROLL: number = Math.min(
-    -(DEFAULT_HUMANOID_ROM.leftUpperLeg?.abduction?.min ?? 0),
-    DEFAULT_HUMANOID_ROM.leftUpperLeg?.abduction?.max ?? 0,
+    -(AutoMovieEngineDefaultHumanoidRom.leftUpperLeg?.abduction?.min ?? 0),
+    AutoMovieEngineDefaultHumanoidRom.leftUpperLeg?.abduction?.max ?? 0,
   );
 
   /*
@@ -189,7 +189,7 @@ export namespace kiss {
     const mouth: ReturnType<typeof HumanTrunk.preparePoint> =
       HumanTrunk.preparePoint(body, "mouth");
     const miss = (s: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">): number =>
-      Vector3.distance(mouth(postureAt(s), resolution), at);
+      AutoMovieEngineVector3.distance(mouth(postureAt(s), resolution), at);
     const least = (
       candidates: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">[],
     ): IAutoMovieMotionHumanKiss.ISolved => {
@@ -232,7 +232,7 @@ export namespace kiss {
       miss: Infinity,
     };
     const start: IAutoMovieVector3 = mouth(postureAt(neutral), resolution);
-    neutral.miss = Vector3.distance(start, at);
+    neutral.miss = AutoMovieEngineVector3.distance(start, at);
     if (neutral.miss <= NEAR) return neutral;
 
     // Try the rigid sagittal arc first, then check it on the actual stance.
@@ -289,7 +289,7 @@ export namespace kiss {
       };
       const keyed: IAutoMovieMotionHumanPosture = postureAt(projected);
       const landed: IAutoMovieVector3 = mouth(keyed, resolution);
-      projected.miss = Vector3.distance(landed, at);
+      projected.miss = AutoMovieEngineVector3.distance(landed, at);
       if (projected.miss <= NEAR) return projected;
       const sink: number = landed.y - at.y;
       if (
@@ -454,7 +454,7 @@ export namespace kiss {
      * The direct kiss keeps its own transport and manner.
      */
     function solo(): IAutoMovieMotionClock {
-      const travel: number = Vector3.distance(
+      const travel: number = AutoMovieEngineVector3.distance(
         HumanTrunk.region(body, entry, "mouth").point,
         at,
       );

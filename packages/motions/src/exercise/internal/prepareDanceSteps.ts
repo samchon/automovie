@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
@@ -79,11 +79,11 @@ export function prepareDanceSteps({
       ...paths[foot].map((fall: IFall): IOffset => fall.at),
     ]) {
       const placement: IAutoMovieMotionHumanFoot.IPlacement = {
-        ankle: Vector3.add(
+        ankle: AutoMovieEngineVector3.add(
           stance[foot].ankle,
-          Vector3.add(
-            Vector3.scale(leftward, at.x),
-            Vector3.scale(forward, at.z),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(leftward, at.x),
+            AutoMovieEngineVector3.scale(forward, at.z),
           ),
         ),
         rotation: stance[foot].rotation,

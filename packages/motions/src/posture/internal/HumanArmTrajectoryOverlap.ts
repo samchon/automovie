@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Quaternion, Vector3 } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -134,23 +134,23 @@ export namespace HumanArmTrajectoryOverlap {
       const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
       const own: IAutoMovieMotionHumanArmGeometry.IPlaced = placed[a]!;
       const centres: Record<Owner, IAutoMovieVector3> = {
-        upper: Vector3.add(
+        upper: AutoMovieEngineVector3.add(
           own.shoulder,
-          Quaternion.rotateVector(own.upper, frame.bounds.upper.centre),
+          AutoMovieEngineQuaternion.rotateVector(own.upper, frame.bounds.upper.centre),
         ),
-        lower: Vector3.add(
+        lower: AutoMovieEngineVector3.add(
           own.elbow,
-          Quaternion.rotateVector(own.lower, frame.bounds.lower.centre),
+          AutoMovieEngineQuaternion.rotateVector(own.lower, frame.bounds.lower.centre),
         ),
-        hand: Vector3.add(
+        hand: AutoMovieEngineVector3.add(
           own.wrist,
-          Quaternion.rotateVector(own.hand, frame.bounds.hand.centre),
+          AutoMovieEngineQuaternion.rotateVector(own.hand, frame.bounds.hand.centre),
         ),
       };
       const near = (owner: Owner): boolean[] =>
         theirs.map(
           (shape: IAutoMovieMotionHumanArmGeometry.IShape): boolean =>
-            Vector3.length(Vector3.subtract(centres[owner], shape.centre)) -
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(centres[owner], shape.centre)) -
               shape.radius -
               frame.bounds[owner].radius <
             T.REACH,
@@ -218,7 +218,7 @@ export namespace HumanArmTrajectoryOverlap {
               const [p, r]: readonly [IAutoMovieVector3, number] =
                 own.probes[probe]!;
               const apart: number =
-                Vector3.length(Vector3.subtract(p, shape.centre)) -
+                AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p, shape.centre)) -
                 shape.radius -
                 r;
               if (apart >= T.REACH) continue;
@@ -315,17 +315,17 @@ export namespace HumanArmTrajectoryOverlap {
       : [];
     // Each segment's sphere screens the corners before its shapes.
     const centres: Record<Owner, IAutoMovieVector3> = {
-      upper: Vector3.add(
+      upper: AutoMovieEngineVector3.add(
         placed.shoulder,
-        Quaternion.rotateVector(placed.upper, frame.bounds.upper.centre),
+        AutoMovieEngineQuaternion.rotateVector(placed.upper, frame.bounds.upper.centre),
       ),
-      lower: Vector3.add(
+      lower: AutoMovieEngineVector3.add(
         placed.elbow,
-        Quaternion.rotateVector(placed.lower, frame.bounds.lower.centre),
+        AutoMovieEngineQuaternion.rotateVector(placed.lower, frame.bounds.lower.centre),
       ),
-      hand: Vector3.add(
+      hand: AutoMovieEngineVector3.add(
         placed.wrist,
-        Quaternion.rotateVector(placed.hand, frame.bounds.hand.centre),
+        AutoMovieEngineQuaternion.rotateVector(placed.hand, frame.bounds.hand.centre),
       ),
     };
     const visit = (
@@ -335,15 +335,15 @@ export namespace HumanArmTrajectoryOverlap {
     ): void => {
       const close: Record<Owner, boolean> = {
         upper:
-          Vector3.length(Vector3.subtract(corner.point, centres.upper)) -
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(corner.point, centres.upper)) -
             frame.bounds.upper.radius <
           T.REACH,
         lower:
-          Vector3.length(Vector3.subtract(corner.point, centres.lower)) -
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(corner.point, centres.lower)) -
             frame.bounds.lower.radius <
           T.REACH,
         hand:
-          Vector3.length(Vector3.subtract(corner.point, centres.hand)) -
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(corner.point, centres.hand)) -
             frame.bounds.hand.radius <
           T.REACH,
       };
@@ -352,7 +352,7 @@ export namespace HumanArmTrajectoryOverlap {
         (shape: IAutoMovieMotionHumanArmGeometry.IShape, j: number): void => {
           if (!close[owners[j]!]) return;
           const apart: number =
-            Vector3.length(Vector3.subtract(corner.point, shape.centre)) -
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(corner.point, shape.centre)) -
             shape.radius;
           if (apart >= T.REACH) return;
           if (frame.related[corner.part]?.[shape.part] === true) return;

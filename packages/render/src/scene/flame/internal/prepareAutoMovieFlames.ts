@@ -14,10 +14,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieModelObject } from "../../IAutoMovieModelObject.js";
+import type { IAutoMovieRenderModelObject } from "../../IAutoMovieRenderModelObject.js";
 import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
-import type { IAutoMovieFlamesObject } from "../../IAutoMovieFlamesObject.js";
-import type { IPrepareAutoMovieFlamesProps } from "../../IPrepareAutoMovieFlamesProps.js";
+import type { IAutoMovieRenderFlamesObject } from "../../IAutoMovieRenderFlamesObject.js";
+import type { IAutoMovieRenderPrepareFlamesProps } from "../../IAutoMovieRenderPrepareFlamesProps.js";
 import { createAutoMovieFlameMaterial } from "./createAutoMovieFlameMaterial.js";
 
 /*
@@ -45,8 +45,8 @@ import { createAutoMovieFlameMaterial } from "./createAutoMovieFlameMaterial.js"
  * was made.
  */
 export function prepareAutoMovieFlames(
-  props: IPrepareAutoMovieFlamesProps,
-): IAutoMovieFlamesObject {
+  props: IAutoMovieRenderPrepareFlamesProps,
+): IAutoMovieRenderFlamesObject {
   const cues: readonly IAutoMovieFlameCue[] = props.shot.flames ?? [];
   const models: Map<string, IAutoMovieModel> = new Map(
     props.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
@@ -82,7 +82,7 @@ export function prepareAutoMovieFlames(
       const model: IAutoMovieModel | undefined = models.get(
         modelOfNode.get(cue.node) ?? "",
       );
-      const object: IAutoMovieModelObject | undefined = props.resolveNode(
+      const object: IAutoMovieRenderModelObject | undefined = props.resolveNode(
         cue.node,
       );
       const emitter: IAutoMovieAffordance | undefined =
@@ -191,7 +191,7 @@ function toGeometry(mesh: IAutoMovieMesh): THREE.BufferGeometry {
  */
 function boundEmission(
   cue: IAutoMovieFlameCue,
-  props: IPrepareAutoMovieFlamesProps,
+  props: IAutoMovieRenderPrepareFlamesProps,
 ): { color: IAutoMovieColor; luminance: number } {
   const clip: IAutoMovieClip | undefined = props.shot.lightMotions?.find(
     (entry: IAutoMovieClip): boolean => entry.id === cue.light,

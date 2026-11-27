@@ -1,7 +1,7 @@
 import {
-  AffordanceArticulation,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineAffordanceArticulation,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -34,7 +34,7 @@ import { fitPianoScoreContact } from "./fitPianoScoreContact";
 import { pianoScoreEvents } from "./pianoScoreEvents";
 import { pianoScoreHand } from "./pianoScoreHand";
 import { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
-import * as PianoScoreData from "./PianoScoreData";
+import { PianoScoreData } from "./PianoScoreData";
 
 /*
  * Play named keys on a fixed upright piano from a seated base. The authored
@@ -190,7 +190,7 @@ function plan(
       !(key.travel > 0) ||
       key.rides !== undefined ||
       key.follows !== undefined ||
-      AffordanceArticulation.travel(sites, state, score.key) !== 0
+      AutoMovieEngineAffordanceArticulation.travel(sites, state, score.key) !== 0
     )
       refuse(
         "notes.key",
@@ -365,22 +365,22 @@ function movingArm(
   elbow: IAutoMovieVector3,
 ): IAutoMovieHumanLimbGoal {
   if (transport === 1) return note.arm;
-  const point: IAutoMovieVector3 = Vector3.lerp(
+  const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     previous?.arm.point ?? entry.worldPosition,
     note.arm.point,
     transport,
   );
   return {
     ...note.arm,
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       point,
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         note.normal,
         typeText.HOVER * Math.sin(Math.PI * transport),
       ),
     ),
-    bend: Vector3.lerp(previous?.arm.bend ?? elbow, note.arm.bend, transport),
-    rotation: Quaternion.slerp(
+    bend: AutoMovieEngineVector3.lerp(previous?.arm.bend ?? elbow, note.arm.bend, transport),
+    rotation: AutoMovieEngineQuaternion.slerp(
       previous?.arm.rotation ?? entry.worldRotation,
       note.arm.rotation!,
       transport,
@@ -419,7 +419,7 @@ function sampleFingers(
     const travel: number = depression(note.score, seconds);
     for (const contact of note.notes)
       digits[contact.digit] = goal(
-        Vector3.lerp(contact.points[0], contact.points[1], travel),
+        AutoMovieEngineVector3.lerp(contact.points[0], contact.points[1], travel),
         contact.normal,
       );
   }

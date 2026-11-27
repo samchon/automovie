@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadDome,
   IAutoMovieHumanHeadFeatures,
@@ -295,7 +295,7 @@ export namespace AutoMovieHumanHeadInnerParts {
       extents: e,
       height: h,
       profile: 2,
-      shoulder: AutoMovieViewSection.ELLIPSE,
+      shoulder: AutoMovieEngineViewSection.ELLIPSE,
     };
 
     // A missing material parent is its own failed premise, recorded like

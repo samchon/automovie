@@ -1,4 +1,4 @@
-import { AutoMovieCaptureFolder } from "@automovie/render";
+import { AutoMovieRenderCaptureFolder } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "../../capture/createCaptureMemory";
@@ -40,7 +40,7 @@ export async function test_render_capture_capture_folder(): Promise<void> {
     "a foreign file refuses the folder",
     await rejectsError(
       (): Promise<unknown> =>
-        AutoMovieCaptureFolder.open({
+        AutoMovieRenderCaptureFolder.open({
           storage: foreign.storage,
           root: "out",
           round: null,
@@ -66,7 +66,7 @@ export async function test_render_capture_capture_folder(): Promise<void> {
   const rounds: createCaptureMemory.IMemory = createCaptureMemory({
     "out/rounds/before/record.json": complete([]),
   });
-  await AutoMovieCaptureFolder.open({
+  await AutoMovieRenderCaptureFolder.open({
     storage: rounds.storage,
     root: "out/",
     round: null,
@@ -85,7 +85,7 @@ export async function test_render_capture_capture_folder(): Promise<void> {
     }),
     "out/a.png": "a",
   });
-  await AutoMovieCaptureFolder.open({
+  await AutoMovieRenderCaptureFolder.open({
     storage: interrupted.storage,
     root: "out",
     round: null,
@@ -106,7 +106,7 @@ export async function test_render_capture_capture_folder(): Promise<void> {
     "a foreign file in a round is refused",
     await rejectsError(
       (): Promise<unknown> =>
-        AutoMovieCaptureFolder.open({
+        AutoMovieRenderCaptureFolder.open({
           storage: round.storage,
           root: "out",
           round: "r1",
@@ -119,7 +119,7 @@ export async function test_render_capture_capture_folder(): Promise<void> {
     "rounds inside a round is not owned",
     await rejectsError(
       (): Promise<unknown> =>
-        AutoMovieCaptureFolder.open({
+        AutoMovieRenderCaptureFolder.open({
           storage: round.storage,
           root: "out",
           round: "r2",
@@ -161,7 +161,7 @@ export async function test_render_capture_capture_folder(): Promise<void> {
       `a ${title} compared round is refused`,
       await rejectsError(
         (): Promise<unknown> =>
-          AutoMovieCaptureFolder.open({
+          AutoMovieRenderCaptureFolder.open({
             storage: memory.storage,
             root: "out",
             round: null,
@@ -184,7 +184,7 @@ export async function test_render_capture_capture_folder(): Promise<void> {
     "a malformed record is refused",
     await rejectsError(
       (): Promise<unknown> =>
-        AutoMovieCaptureFolder.open({
+        AutoMovieRenderCaptureFolder.open({
           storage: broken.storage,
           root: "out",
           round: null,
@@ -210,12 +210,12 @@ export async function test_render_capture_capture_folder(): Promise<void> {
     realpath: async (path: string): Promise<string> => locations[path]!,
   };
   const open = (round: string, compare: string | null): Promise<unknown> =>
-    AutoMovieCaptureFolder.open({ storage, root: "out", round, compare });
+    AutoMovieRenderCaptureFolder.open({ storage, root: "out", round, compare });
   TestValidator.predicate(
     "using the same name twice is refused even without host resolution",
     await rejectsError(
       (): Promise<unknown> =>
-        AutoMovieCaptureFolder.open({
+        AutoMovieRenderCaptureFolder.open({
           storage: aliases.storage,
           root: "out",
           round: "before",
@@ -251,7 +251,7 @@ export async function test_render_capture_capture_folder(): Promise<void> {
     ["prior still", false],
   );
 
-  const folder: AutoMovieCaptureFolder = await AutoMovieCaptureFolder.open({
+  const folder: AutoMovieRenderCaptureFolder = await AutoMovieRenderCaptureFolder.open({
     storage: createCaptureMemory().storage,
     root: "out",
     round: null,

@@ -7,7 +7,7 @@ import type {
   IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
 
-import { AutoMovieCurveLengthQuadrature64 } from "../../AutoMovieCurveLengthQuadrature64";
+import { AutoMovieEngineCurveLengthQuadrature64 } from "../../AutoMovieEngineCurveLengthQuadrature64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
@@ -28,7 +28,7 @@ export function measureAutoMovieCubicCurveLength64(
   if (subdivisions < 1 || subdivisions > 1024)
     throw new Error("Cubic length subdivisions must be an integer in [1,1024]");
   const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
-    AutoMovieCurveLengthQuadrature64.measure(
+    AutoMovieEngineCurveLengthQuadrature64.measure(
       curve.spans.map(
         (
           p: AutoMovieCubicBezierControls3,

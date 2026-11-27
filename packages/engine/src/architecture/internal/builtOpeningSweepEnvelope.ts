@@ -10,11 +10,11 @@ import {
 } from "@automovie/interface";
 
 import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
-import { Matrix4 } from "../../math/Matrix4";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtPointBounds } from "./builtPointBounds";
-import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
+import { AutoMovieEngineFullTurnEpsilon } from "../AutoMovieEngineFullTurnEpsilon";
 import { requireBuiltOpening } from "./requireBuiltOpening";
 
 /*
@@ -42,7 +42,7 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
  * operation answers an empty list. Throws an `Error` when the opening does not
  * exist, a panel's element is missing, or travel limits are non-finite,
  * unordered, empty, exclude rest at zero, or span more than a full revolute
- * turn plus `AUTOMOVIE_FULL_TURN_EPSILON`; these are the travel rules
+ * turn plus `AutoMovieEngineFullTurnEpsilon`; these are the travel rules
  * `validateBuiltEnvironment` applies.
  * Parameter environment: Building record holding the opening.
  * Parameter openingId: Id of the opening whose panels are swept.
@@ -119,14 +119,14 @@ const restingFrame: (
     throw new Error(
       `built environment "${environment.id}" has no element "${panel.element}" for panel "${panel.id}"`,
     );
-  const rest: number[] = Matrix4.compose(
+  const rest: number[] = AutoMovieEngineMatrix4.compose(
     element.transform.translation,
     element.transform.rotation,
     element.transform.scale,
   );
   return element.parent === null
     ? rest
-    : Matrix4.multiply(staged.get(element.parent)!, rest);
+    : AutoMovieEngineMatrix4.multiply(staged.get(element.parent)!, rest);
 };
 
 /*
@@ -151,7 +151,7 @@ const requireEnumerableTravel: (
     max < 0 ||
     max <= min ||
     (panel.motion.kind === "revolute" &&
-      max - min > 2 * Math.PI + AUTOMOVIE_FULL_TURN_EPSILON)
+      max - min > 2 * Math.PI + AutoMovieEngineFullTurnEpsilon)
   )
     throw new Error(
       `panel "${panel.id}" of built environment "${environment.id}" travels [${min}, ${max}], which no swept envelope can enumerate`,
@@ -200,30 +200,30 @@ const sweptCornerBounds: (
   motion: IAutoMovieTravelMotion,
   corner: IAutoMovieVector3,
 ): IAutoMovieSubjectBox => {
-  const axis: IAutoMovieVector3 = Vector3.normalize(motion.axis);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(motion.axis);
   if (motion.kind === "prismatic")
     return builtPointBounds(
       [motion.min, motion.max].map(
         (value: number): IAutoMovieVector3 =>
-          applyMatrix(base, Vector3.add(corner, Vector3.scale(axis, value))),
+          applyMatrix(base, AutoMovieEngineVector3.add(corner, AutoMovieEngineVector3.scale(axis, value))),
       ),
     )!;
-  const offset: IAutoMovieVector3 = Vector3.subtract(corner, motion.pivot);
-  const along: IAutoMovieVector3 = Vector3.scale(
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(corner, motion.pivot);
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     axis,
-    Vector3.dot(axis, offset),
+    AutoMovieEngineVector3.dot(axis, offset),
   );
   const center: IAutoMovieVector3 = applyMatrix(
     base,
-    Vector3.add(motion.pivot, along),
+    AutoMovieEngineVector3.add(motion.pivot, along),
   );
   const cosine: IAutoMovieVector3 = applyDirection(
     base,
-    Vector3.subtract(offset, along),
+    AutoMovieEngineVector3.subtract(offset, along),
   );
   const sine: IAutoMovieVector3 = applyDirection(
     base,
-    Vector3.cross(axis, offset),
+    AutoMovieEngineVector3.cross(axis, offset),
   );
   const reach: (component: "x" | "y" | "z") => { low: number; high: number } = (
     component: "x" | "y" | "z",

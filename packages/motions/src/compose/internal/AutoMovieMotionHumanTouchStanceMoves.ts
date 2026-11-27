@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -63,7 +63,7 @@ export function AutoMovieMotionHumanTouchStanceMoves(
       root:
         ankles === undefined || degrees === 0
           ? posture.root
-          : Vector3.add(
+          : AutoMovieEngineVector3.add(
               posture.root,
               AutoMovieMotionHumanRise.lift(body, ankles, degrees),
             ),
@@ -153,7 +153,7 @@ export function AutoMovieMotionHumanTouchStanceMoves(
       undefined,
       HumanBoneGroups.SHOULDERS,
     );
-    return Vector3.lerp(
+    return AutoMovieEngineVector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
       bones.get("rightUpperArm")!.worldPosition,
       0.5,

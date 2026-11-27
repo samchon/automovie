@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalProjectile, Quaternion, Vector3, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -32,7 +32,7 @@ import { HumanPropSweepHands } from "./HumanPropSweepHands";
  * the launcher holds or wears as the flight starts (they go with the launcher)
  * and, through its fitted approach, those a later launch that ends the flight
  * holds (a bat striking the incoming ball), and the floor, through the engine's
- * one resolver (`AutoMoviePhysicalProjectile.firstContact`). The step keeps the prop from
+ * one resolver (`AutoMovieEnginePhysicalProjectile.firstContact`). The step keeps the prop from
  * crossing the thinnest collider it may meet in one step, finger bones aside: a
  * finger is the stated blind spot. A person is read only as the gap to them
  * could close at the audit's part speed and the flight's own (conservative
@@ -101,7 +101,7 @@ export namespace HumanPropSweep {
     handback?: IHandback,
   ): IAutoMovieMotionHumanPropOutcome.IMeeting | null {
     const colliders: IAutoMovieProjectileFirstContact.ICollider[] = [
-      AutoMoviePhysicalProjectile.planeCollider(
+      AutoMovieEnginePhysicalProjectile.planeCollider(
         "ground",
         { x: 0, y: 0, z: 0 },
         { x: 0, y: 1, z: 0 },
@@ -167,8 +167,8 @@ export namespace HumanPropSweep {
         root: IAutoMovieVector3,
       ): number =>
         Math.min(
-          Vector3.length(Vector3.subtract(a, root)),
-          Vector3.length(Vector3.subtract(b, root)),
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, root)),
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(b, root)),
         ) - reach;
       // The struck bone's motion carries the surface point, read on the
       // displayed pose the sweep reads.
@@ -332,8 +332,8 @@ export namespace HumanPropSweep {
         );
         return (
           Math.min(
-            Vector3.length(Vector3.subtract(a, root)),
-            Vector3.length(Vector3.subtract(b, root)),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, root)),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(b, root)),
           ) -
           HumanPerformanceRead.person(self, grip.subject).performer.body.measure
             .stature -
@@ -346,7 +346,7 @@ export namespace HumanPropSweep {
           if (id === leave) return;
           solid.push(shape);
           const shaped: IAutoMovieProjectileFirstContact.ICollider =
-            AutoMoviePhysicalProjectile.shapeCollider(id, shape, fixed ?? pose);
+            AutoMovieEnginePhysicalProjectile.shapeCollider(id, shape, fixed ?? pose);
           const placed: IAutoMovieProjectileFirstContact.ICollider =
             carried.length === 0
               ? shaped
@@ -398,7 +398,7 @@ export namespace HumanPropSweep {
     }
     const tip: IAutoMovieVector3 | undefined =
       radius === undefined ? prop.points["tip"]?.point : undefined;
-    const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const hit: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       projectile,
       colliders,
       { from: 0, to: horizon },
@@ -431,7 +431,7 @@ export namespace HumanPropSweep {
     // relative to; the floor and a prop standing still are at rest.
     const reader: HumanPropSweepColliders.Surface | undefined =
       surfaces.get(id);
-    const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(projectile, hit.time);
+    const state: IAutoMovieProjectileState = AutoMovieEngineAir.projectileAt(projectile, hit.time);
     return {
       hit,
       struck,
@@ -449,7 +449,7 @@ export namespace HumanPropSweep {
     function end(at: IAutoMovieProjectileState): IAutoMovieVector3 {
       return tip === undefined || at.rotation === undefined
         ? at.position
-        : Vector3.add(at.position, Quaternion.rotateVector(at.rotation, tip));
+        : AutoMovieEngineVector3.add(at.position, AutoMovieEngineQuaternion.rotateVector(at.rotation, tip));
     }
 
     /*

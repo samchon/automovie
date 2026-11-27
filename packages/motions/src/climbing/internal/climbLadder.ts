@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -236,7 +236,7 @@ export namespace climbLadder {
       (
         rung: IAutoMovieMotionHumanLadder.IRung,
       ): ReturnType<typeof climbLadderHands> =>
-        climbLadderHands(body, rung.normal, Vector3.scale(rung.axis, -1)),
+        climbLadderHands(body, rung.normal, AutoMovieEngineVector3.scale(rung.axis, -1)),
     );
     const radius: number = Math.max(
       ladder.radius,
@@ -367,7 +367,7 @@ export namespace climbLadder {
               // Move back off the rungs and in again so the toe clears them.
               return {
                 ...out,
-                ankle: Vector3.add(
+                ankle: AutoMovieEngineVector3.add(
                   out.ankle,
                   directional.point({
                     x: 0,
@@ -414,7 +414,7 @@ export namespace climbLadder {
           ? handArcs[side][at.index - reach - 1]!(at.u)
           : handholds[side][at.index - reach]!;
         const lifted: IAutoMovieVector3 = at.moving
-          ? Vector3.add(
+          ? AutoMovieEngineVector3.add(
               grip,
               directional.point({
                 x: 0,
@@ -437,8 +437,8 @@ export namespace climbLadder {
           );
           limbs[`${side}Arm`] = {
             ...target,
-            point: Vector3.lerp(start.point, target.point, at.u),
-            rotation: Quaternion.slerp(start.rotation!, target.rotation!, at.u),
+            point: AutoMovieEngineVector3.lerp(start.point, target.point, at.u),
+            rotation: AutoMovieEngineQuaternion.slerp(start.rotation!, target.rotation!, at.u),
           };
         }
       }

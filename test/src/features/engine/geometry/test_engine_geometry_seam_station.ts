@@ -1,6 +1,6 @@
 import {
-  AutoMovieNaturalSpline,
-  AutoMovieSeamStation,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineSeamStation,
 } from "@automovie/engine";
 import type { IAutoMovieLoftChain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -8,14 +8,14 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `AutoMovieSeamStation` is the station rule along a chain: `curvatures` and
+ * `AutoMovieEngineSeamStation` is the station rule along a chain: `curvatures` and
  * `slopes` are the natural cubic spline's second and first derivatives at the
  * stations for every column, `continuous` puts them on a chain's layers except
  * the kept ones, and `copy` signs a shared owner layer into a neighbour's
  * station direction.
  *
  * Fixture: stations 0, 1, 3, 4 with columns (0, 2, 1, 3) and the constant 1,
- * the same knots `AutoMovieNaturalSpline` reads independently.
+ * the same knots `AutoMovieEngineNaturalSpline` reads independently.
  *
  * Scenarios:
  *
@@ -44,10 +44,10 @@ export function test_engine_geometry_seam_station(): void {
     e: number = 1e-12,
   ): boolean =>
     a.every((x: number, i: number): boolean => Math.abs(x - b[i]!) <= e);
-  const spline = AutoMovieNaturalSpline.create(t, [0, 2, 1, 3]);
+  const spline = AutoMovieEngineNaturalSpline.create(t, [0, 2, 1, 3]);
 
   // 1.
-  const M: number[][] = AutoMovieSeamStation.curvatures(t, values);
+  const M: number[][] = AutoMovieEngineSeamStation.curvatures(t, values);
   TestValidator.predicate(
     "curvatures",
     near(
@@ -55,13 +55,13 @@ export function test_engine_geometry_seam_station(): void {
       [0, -3.75, 3.75, 0],
     ) && M.every((r) => r[1] === 0),
   );
-  const S: number[][] = AutoMovieSeamStation.slopes(t, values, M);
+  const S: number[][] = AutoMovieEngineSeamStation.slopes(t, values, M);
   TestValidator.predicate(
     "slopes",
     near(
       S.map((r) => r[0]!),
       t.map(
-        (x: number): number => AutoMovieNaturalSpline.derivative(spline, x)[0],
+        (x: number): number => AutoMovieEngineNaturalSpline.derivative(spline, x)[0],
       ),
     ) && S.every((r) => Math.abs(r[1]!) <= 1e-15),
   );
@@ -83,7 +83,7 @@ export function test_engine_geometry_seam_station(): void {
         layer(y, values[k]!),
     ),
   };
-  const solved: IAutoMovieLoftChain = AutoMovieSeamStation.continuous(chain);
+  const solved: IAutoMovieLoftChain = AutoMovieEngineSeamStation.continuous(chain);
   TestValidator.predicate(
     "continuous",
     solved.layers.every(
@@ -96,7 +96,7 @@ export function test_engine_geometry_seam_station(): void {
     slopes: [9, 9],
     curvatures: [7, 7],
   };
-  const kept: IAutoMovieLoftChain = AutoMovieSeamStation.continuous(
+  const kept: IAutoMovieLoftChain = AutoMovieEngineSeamStation.continuous(
     {
       ...chain,
       layers: [chain.layers[0]!, own, chain.layers[2]!, chain.layers[3]!],
@@ -114,7 +114,7 @@ export function test_engine_geometry_seam_station(): void {
   TestValidator.predicate(
     "kept bare",
     throwsError(
-      (): unknown => AutoMovieSeamStation.continuous(chain, [1]),
+      (): unknown => AutoMovieEngineSeamStation.continuous(chain, [1]),
       "Kept layer 1 of seam carries no curvatures",
     ),
   );
@@ -133,7 +133,7 @@ export function test_engine_geometry_seam_station(): void {
     frameSlopes: frame,
     frameCurvatures: frame,
   };
-  const copied = AutoMovieSeamStation.copy(owner, -1);
+  const copied = AutoMovieEngineSeamStation.copy(owner, -1);
   TestValidator.equals(
     "copy",
     [
@@ -154,7 +154,7 @@ export function test_engine_geometry_seam_station(): void {
   TestValidator.predicate(
     "no jets",
     throwsError(
-      (): unknown => AutoMovieSeamStation.copy(layer(5, [1, 2]), 1),
+      (): unknown => AutoMovieEngineSeamStation.copy(layer(5, [1, 2]), 1),
       "carries no jets",
     ),
   );
@@ -162,7 +162,7 @@ export function test_engine_geometry_seam_station(): void {
   // 4.
   TestValidator.equals(
     "flat",
-    AutoMovieSeamStation.unflat(AutoMovieSeamStation.flat(frame)),
+    AutoMovieEngineSeamStation.unflat(AutoMovieEngineSeamStation.flat(frame)),
     frame,
   );
 }

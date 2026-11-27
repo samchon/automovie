@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeBarbellData from "./internal/AutoMovieArchetypeBarbellData";
+import { AutoMovieArchetypeBarbellData } from "./internal/AutoMovieArchetypeBarbellData";
 
 /** Constructs the barbell archetype from its recipe. */
 export namespace AutoMovieArchetypeBarbell {
@@ -98,9 +98,9 @@ export function create(
     name: kind === "mens" ? "men's barbell" : "women's barbell",
     draw,
   });
-  const along: (x: number) => ReturnType<typeof Vector3.create> = (
+  const along: (x: number) => ReturnType<typeof AutoMovieEngineVector3.create> = (
     x: number,
-  ): ReturnType<typeof Vector3.create> => Vector3.create(x, 0, 0);
+  ): ReturnType<typeof AutoMovieEngineVector3.create> => AutoMovieEngineVector3.create(x, 0, 0);
 
   // The shaft is laid in pieces, one centred on each hand's place, so the
   // collider nearest a grip is the shaft a hand closes on and never a disc.
@@ -157,8 +157,8 @@ export function create(
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
         along((side * d.grip!) / 2),
-        Vector3.create(0, 0, -1),
-        Vector3.create(1, 0, 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(1, 0, 0),
       ),
       extent: null,
       grip: "power",

@@ -1,6 +1,6 @@
 import {
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanFootConnection,
@@ -219,7 +219,7 @@ function convert(
   parameter: NonNullable<IAutoMovieViewPart.IOutline["parameter"]>,
   station: number,
 ): NonNullable<IAutoMovieViewPart.IKnot["jet"]> {
-  const change: [number, number] | null = AutoMovieViewParameter.jet(
+  const change: [number, number] | null = AutoMovieEngineViewParameter.jet(
     parameter,
     station,
   );
@@ -251,7 +251,7 @@ function prepare(
   >;
   const source:
     | IAutoMovieViewOutline.IOutline
-    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+    | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
     outline,
     radial ? { bottom: parameter.bottom, top: parameter.top } : {},
   );
@@ -267,7 +267,7 @@ function read(
   station: number,
 ): IAutoMovieViewOutline.IReading {
   const value: IAutoMovieViewOutline.IReading | string =
-    AutoMovieViewOutline.at(source, station);
+    AutoMovieEngineViewOutline.at(source, station);
   if (typeof value === "string") throw new Error(value);
   return value;
 }

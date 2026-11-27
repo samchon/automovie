@@ -3,8 +3,8 @@ import type {
   IAutoMovieResolveHydrodynamicForce,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineGravity } from "../../physics/AutoMovieEngineGravity";
 import { physicalHullFacesMass } from "../../physics/internal/physicalHullFacesMass";
 import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
 
@@ -45,7 +45,7 @@ export namespace ResolveHydrodynamicForceImplementation {
     props: IAutoMovieResolveHydrodynamicForce.IProps,
   ): IAutoMovieResolveHydrodynamicForce.IForce {
     const density: number = props.density ?? WATER;
-    const gravity: number = props.gravity ?? AutoMovieGravity.STANDARD;
+    const gravity: number = props.gravity ?? AutoMovieEngineGravity.STANDARD;
     if (!(props.volume > 0 && density > 0))
       throw new Error("The water's force needs a positive volume and density");
     const r: number = Math.cbrt((3 * props.volume) / (4 * Math.PI));
@@ -55,12 +55,12 @@ export namespace ResolveHydrodynamicForceImplementation {
     );
     const submerged: number = (Math.PI * depth * depth * (3 * r - depth)) / 3;
     const share: number = submerged / props.volume;
-    const speed: number = Vector3.length(props.velocity);
+    const speed: number = AutoMovieEngineVector3.length(props.velocity);
     const area: number = Math.PI * r * r * share;
     return {
       submerged,
       buoyancy: { x: 0, y: density * gravity * submerged, z: 0 },
-      drag: Vector3.scale(props.velocity, -0.5 * density * DRAG * area * speed),
+      drag: AutoMovieEngineVector3.scale(props.velocity, -0.5 * density * DRAG * area * speed),
     };
   }
 

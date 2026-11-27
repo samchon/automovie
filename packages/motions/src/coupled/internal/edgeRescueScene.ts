@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -121,26 +121,26 @@ export namespace edgeRescueScene {
     if (edge === undefined)
       throw refusal("edge", p.edge, `${p.ledge} has no ledge ${p.edge}`);
     const world: IAutoMovieRigidTransform = reader.frame(context.start);
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       world.rotation,
       edge.frame.rotation,
     );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
       x: 1,
       y: 0,
       z: 0,
     });
-    const out: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+    const out: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
       x: 0,
       y: 0,
       z: 1,
     });
-    const lip: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
+    const lip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         world.position,
-        Quaternion.rotateVector(world.rotation, edge.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(world.rotation, edge.frame.translation),
       ),
-      Vector3.scale(along, p.along ?? 0),
+      AutoMovieEngineVector3.scale(along, p.along ?? 0),
     );
     const hold: number = p.hold ?? HOLD;
     if (!(hold >= DROP))
@@ -151,7 +151,7 @@ export namespace edgeRescueScene {
       );
 
     // The pull the rescuer's supports must hold, and the margin behind the lip.
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const pull: number =
       (faller.massModel.mass * g) / Math.exp((LIP_FRICTION * Math.PI) / 2);
     const holdable: number = GROUND_FRICTION * rescuer.massModel.mass * g;
@@ -181,8 +181,8 @@ export namespace edgeRescueScene {
       rescuer.measure.forearm +
       rescuer.measure.hand / 2;
     const shoulder: number = proneShoulder(rescuer);
-    const grip: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(lip, Vector3.scale(out, reach)),
+    const grip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(lip, AutoMovieEngineVector3.scale(out, reach)),
       { x: 0, y: shoulder - HANG * arm, z: 0 },
     );
     return timeline({ lip, reach, out, along, hold, holds, grip });
@@ -209,22 +209,22 @@ export namespace edgeRescueScene {
   export function timeline(props: ITimeline): IScene {
     const { lip, reach, out, along, hold: release, holds, grip } = props;
     const fall: number = Math.sqrt(
-      (2 * Math.max(0, lip.y - grip.y)) / AutoMovieGravity.STANDARD,
+      (2 * Math.max(0, lip.y - grip.y)) / AutoMovieEngineGravity.STANDARD,
     );
     const caught: number = release + fall;
     const haul: number = caught + ARREST;
     const kneel: number = haul + HAUL;
     const end: number = holds ? kneel + KNEEL : haul;
-    const raised: IAutoMovieVector3 = Vector3.add(lip, {
-      ...Vector3.scale(out, reach),
+    const raised: IAutoMovieVector3 = AutoMovieEngineVector3.add(lip, {
+      ...AutoMovieEngineVector3.scale(out, reach),
       y: LIFT,
     });
-    const over: IAutoMovieVector3 = Vector3.add(lip, {
-      ...Vector3.scale(out, -BACK),
+    const over: IAutoMovieVector3 = AutoMovieEngineVector3.add(lip, {
+      ...AutoMovieEngineVector3.scale(out, -BACK),
       y: LIFT,
     });
-    const rise: number = Vector3.distance(grip, raised);
-    const retreat: number = Vector3.distance(raised, over);
+    const rise: number = AutoMovieEngineVector3.distance(grip, raised);
+    const retreat: number = AutoMovieEngineVector3.distance(raised, over);
     const span: number = rise + retreat;
     const gripAt: (seconds: number) => IAutoMovieVector3 = (
       seconds: number,
@@ -233,9 +233,9 @@ export namespace edgeRescueScene {
       const u: number = Math.min(1, (seconds - haul) / HAUL);
       // Minimum jerk along the two stretches by length: up past the lip, then back.
       const s: number = (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5) * span;
-      if (s < rise) return Vector3.lerp(grip, raised, s / rise);
+      if (s < rise) return AutoMovieEngineVector3.lerp(grip, raised, s / rise);
       if (retreat === 0) return over;
-      return Vector3.lerp(raised, over, (s - rise) / retreat);
+      return AutoMovieEngineVector3.lerp(raised, over, (s - rise) / retreat);
     };
     return {
       lip,

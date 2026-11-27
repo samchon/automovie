@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind } from "@automovie/render";
+import { AutoMovieRenderThreeKind } from "@automovie/render";
 import * as THREE from "three";
 
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
@@ -19,8 +19,8 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
     | THREE.OrthographicCamera => {
     if (
       !(
-        AutoMovieThreeKind.isPerspectiveCamera(camera) ||
-        AutoMovieThreeKind.isOrthographicCamera(camera)
+        AutoMovieRenderThreeKind.isPerspectiveCamera(camera) ||
+        AutoMovieRenderThreeKind.isOrthographicCamera(camera)
       ) ||
       camera.parent !== null ||
       !camera.matrixAutoUpdate ||
@@ -56,7 +56,7 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
         layers: owned.layers.mask,
         projection: owned.projectionMatrix.toArray(),
         view: owned.view === null ? null : { ...owned.view },
-        lens: AutoMovieThreeKind.isPerspectiveCamera(owned)
+        lens: AutoMovieRenderThreeKind.isPerspectiveCamera(owned)
           ? {
               kind: "perspective",
               fov: owned.fov,
@@ -113,7 +113,7 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
     const candidate: THREE.PerspectiveCamera | THREE.OrthographicCamera =
       owned.clone();
     const lens: AutoMovieViewerDisplay.ICameraStateSnapshot["lens"] = state.lens;
-    if (AutoMovieThreeKind.isPerspectiveCamera(candidate)) {
+    if (AutoMovieRenderThreeKind.isPerspectiveCamera(candidate)) {
       if (lens.kind !== "perspective")
         throw new Error("Camera transfer changed projection type.");
       if (
@@ -186,7 +186,7 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
     // setViewOffset also writes Perspective.aspect. A later native resize may
     // legitimately have changed that lens while preserving the crop window.
     if (
-      AutoMovieThreeKind.isPerspectiveCamera(candidate) &&
+      AutoMovieRenderThreeKind.isPerspectiveCamera(candidate) &&
       lens.kind === "perspective"
     )
       candidate.aspect = lens.aspect;
@@ -217,13 +217,13 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
     )
       throw new Error("The transferred camera world transform is degenerate.");
     if (
-      AutoMovieThreeKind.isPerspectiveCamera(owned) &&
-      AutoMovieThreeKind.isPerspectiveCamera(candidate)
+      AutoMovieRenderThreeKind.isPerspectiveCamera(owned) &&
+      AutoMovieRenderThreeKind.isPerspectiveCamera(candidate)
     )
       owned.copy(candidate, false);
     else if (
-      AutoMovieThreeKind.isOrthographicCamera(owned) &&
-      AutoMovieThreeKind.isOrthographicCamera(candidate)
+      AutoMovieRenderThreeKind.isOrthographicCamera(owned) &&
+      AutoMovieRenderThreeKind.isOrthographicCamera(candidate)
     )
       owned.copy(candidate, false);
     else throw new Error("The validated camera projection changed type.");

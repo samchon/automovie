@@ -27,7 +27,7 @@ export interface IAutoMovieRenderModeHandle {
    * mask pass drawn from the legacy index ramp.
    *
    * A structural pass is evidence, and evidence has to answer for what it left
-   * out. These are the same three counts {@link IAutoMovieSemanticMaskHandle}
+   * out. These are the same three counts {@link IAutoMovieRenderSemanticMaskHandle}
    * carries, surfaced here so the caller that asked for the pass can read them
    * without reaching past the handle it was given.
    */

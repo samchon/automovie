@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 
 /*
  * The drawn objects whose every material states a display colour (`toneMapped:
@@ -12,7 +12,7 @@ export function collectAutoMovieFilmOverlays(
 ): Map<THREE.Object3D, number> {
   const overlays: Map<THREE.Object3D, number> = new Map();
   scene.traverse((object: THREE.Object3D): void => {
-    if (!AutoMovieThreeKind.isDrawn(object) || object.layers.mask === 0) return;
+    if (!AutoMovieRenderThreeKind.isDrawn(object) || object.layers.mask === 0) return;
     const materials: THREE.Material[] = [object.material].flat();
     if (
       materials.length !== 0 &&

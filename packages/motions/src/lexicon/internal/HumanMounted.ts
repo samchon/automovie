@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -295,7 +295,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           ? moved
           : {
               ...moved,
-              root: Vector3.lerp(
+              root: AutoMovieEngineVector3.lerp(
                 moved.root,
                 HumanMountedStride.level(carrier, film, local.root, stride!),
                 level,

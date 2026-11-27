@@ -1,8 +1,8 @@
 import type { IAutoMovieSectionPlane } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IApplyAutoMovieSectionPlanesProps } from "../IApplyAutoMovieSectionPlanesProps.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderApplySectionPlanesProps } from "../IAutoMovieRenderApplySectionPlanesProps.js";
 
 /*
  * Put an inspection-owned section on an already-built scene and return the same
@@ -35,9 +35,9 @@ import type { IApplyAutoMovieSectionPlanesProps } from "../IApplyAutoMovieSectio
  * cost-free render.
  */
 export const applyAutoMovieSectionPlanes: (
-  props: IApplyAutoMovieSectionPlanesProps,
+  props: IAutoMovieRenderApplySectionPlanesProps,
 ) => THREE.Plane[] = (
-  props: IApplyAutoMovieSectionPlanesProps,
+  props: IAutoMovieRenderApplySectionPlanesProps,
 ): THREE.Plane[] => {
   const built: THREE.Plane[] = props.planes.map(
     (plane: IAutoMovieSectionPlane): THREE.Plane =>
@@ -54,7 +54,7 @@ export const applyAutoMovieSectionPlanes: (
   const assigned: THREE.Plane[] | null = built.length === 0 ? null : built;
   props.root.traverse(
     (object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-      if (!AutoMovieThreeKind.isDrawn(object)) return;
+      if (!AutoMovieRenderThreeKind.isDrawn(object)) return;
       for (const material of [object.material].flat()) {
         if ((material.clippingPlanes?.length ?? 0) !== built.length)
           material.needsUpdate = true;

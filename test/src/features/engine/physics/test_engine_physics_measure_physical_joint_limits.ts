@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysicalFloorChainTarget, AutoMovieEnginePhysics, AutoMoviePhysicalSimulation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalFloorChainTarget, AutoMovieEnginePhysics, AutoMovieEnginePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalSegment,
@@ -35,14 +35,14 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
       ],
     ),
   );
-  authored["upper-0"]!.rotation = Quaternion.multiply(
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 80),
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 60),
+  authored["upper-0"]!.rotation = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 80),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 60),
   );
   authored["upper-0"]!.position.x += 0.1;
   const before: string = JSON.stringify(authored);
-  const projection: ReturnType<typeof AutoMoviePhysicalSimulation.projectTargets> =
-    AutoMoviePhysicalSimulation.projectTargets(profile, authored);
+  const projection: ReturnType<typeof AutoMovieEnginePhysicalSimulation.projectTargets> =
+    AutoMovieEnginePhysicalSimulation.projectTargets(profile, authored);
   TestValidator.predicate(
     "physical approximation remains observable",
     projection.maximumTranslation > 0.05 && projection.maximumRotation > 0.01,
@@ -83,14 +83,14 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
                 y: segment.neutral.position.y + 0.08,
               },
               rotation: segment.bone.startsWith("support-")
-                ? Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, pitch)
+                ? AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, pitch)
                 : { ...segment.neutral.rotation },
             },
           ],
         ),
       );
     const targets: Record<string, IAutoMovieRigidTransform> =
-      AutoMoviePhysicalSimulation.projectTargets(profile, initial).targets;
+      AutoMovieEnginePhysicalSimulation.projectTargets(profile, initial).targets;
     const pattern: IAutoMovieFootfallPattern = {
       id: "independent-box-patches",
       minimumSupports: 1,
@@ -180,9 +180,9 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
           ) < 0.002,
       );
       for (const witness of limb.floorPoints!) {
-        const surface: IAutoMovieVector3 = Vector3.add(
+        const surface: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           result.targets[limb.bone]!.position,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             result.targets[limb.bone]!.rotation,
             witness.localPoint,
           ),
@@ -240,16 +240,16 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
     for (const joint of profile.joints) {
       const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
       const child: IAutoMovieRigidTransform = targets[joint.child]!;
-      const a: IAutoMovieVector3 = Vector3.add(
+      const a: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         parent.position,
-        Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
       );
-      const b: IAutoMovieVector3 = Vector3.add(
+      const b: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         child.position,
-        Quaternion.rotateVector(child.rotation, joint.childFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(child.rotation, joint.childFrame.position),
       );
       if (
-        Vector3.length(Vector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED
       )
         failures.push(`${joint.id}: anchor`);
       if (

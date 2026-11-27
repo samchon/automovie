@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * The world-space support contacts of a `"stack-top"` affordance: its extent
@@ -45,17 +45,17 @@ export const affordanceSupportContacts: (
   const frame: IAutoMovieTransform = affordance.frame;
   return affordance.extent.map(
     (corner: IAutoMovieVector3): IAutoMovieVector3 => {
-      const inModel: IAutoMovieVector3 = Vector3.add(
+      const inModel: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         frame.translation,
-        Quaternion.rotateVector(frame.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
           x: corner.x,
           y: 0,
           z: corner.z,
         }),
       );
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         parentWorld.translation,
-        Quaternion.rotateVector(parentWorld.rotation, inModel),
+        AutoMovieEngineQuaternion.rotateVector(parentWorld.rotation, inModel),
       );
     },
   );

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -73,8 +73,8 @@ export namespace HumanHoldMesh {
           bones.push({
             from: at(side, bone.bone),
             to: at(side, bone.parent),
-            length: Vector3.length(
-              Vector3.subtract(
+            length: AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 body.rest.get(bone.bone)!,
                 body.rest.get(bone.parent)!,
               ),
@@ -91,7 +91,7 @@ export namespace HumanHoldMesh {
           ): IAutoMovieMotionHumanInteractionMesh.IContact => ({
             a: at(0, c.a),
             b: at(1, c.b),
-            offset: Vector3.subtract(points[at(0, c.a)]!, points[at(1, c.b)]!),
+            offset: AutoMovieEngineVector3.subtract(points[at(0, c.a)]!, points[at(1, c.b)]!),
           }),
         ),
       });
@@ -115,7 +115,7 @@ export namespace HumanHoldMesh {
       }
       return {
         joints,
-        shift: Vector3.subtract(
+        shift: AutoMovieEngineVector3.subtract(
           joints.get("hips") ?? { x: 0, y: 0, z: 0 },
           key[side].bones.get("hips")?.worldPosition ?? { x: 0, y: 0, z: 0 },
         ),

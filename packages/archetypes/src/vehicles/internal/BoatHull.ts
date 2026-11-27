@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -49,19 +49,19 @@ export namespace BoatHull {
       Math.atan2(to.x - from.x, to.z - from.z) / AutoMovieArchetypeUnits.DEGREE;
     builder.box(
       id,
-      Vector3.create(
+      AutoMovieEngineVector3.create(
         AutoMovieArchetypeBoat.ESTIMATES.plank,
         gunwale - bottom,
         run,
       ),
-      Vector3.create(
+      AutoMovieEngineVector3.create(
         (from.x + to.x) / 2,
         (gunwale + bottom) / 2,
         (from.z + to.z) / 2,
       ),
       {
         color: PAINT,
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
       },
     );
   }
@@ -94,8 +94,8 @@ export namespace BoatHull {
     const board: number = AutoMovieArchetypeBoat.ESTIMATES.seat;
     builder.box(
       `seat-${id}`,
-      Vector3.create(width, board, depth),
-      Vector3.create(0, height - board / 2, edge - (facing * depth) / 2),
+      AutoMovieEngineVector3.create(width, board, depth),
+      AutoMovieEngineVector3.create(0, height - board / 2, edge - (facing * depth) / 2),
       {
         color: WOOD,
         surface: "wood",
@@ -105,9 +105,9 @@ export namespace BoatHull {
       id,
       kind: "seat",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, height, edge),
-        Vector3.create(0, 1, 0),
-        Vector3.create(facing, 0, 0),
+        AutoMovieEngineVector3.create(0, height, edge),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(facing, 0, 0),
       ),
       extent: null,
       depth,

@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -36,13 +36,13 @@ export function coverPeek(
   const body: IAutoMovieMotionHumanBody = context.body;
   const face: coverWall.IFace = coverWall.read(context, p.wall, p.face);
   const sign: number = p.side === "left" ? -1 : 1;
-  const out: IAutoMovieVector3 = Vector3.scale(face.axis, sign);
-  const end: IAutoMovieVector3 = Vector3.add(
+  const out: IAutoMovieVector3 = AutoMovieEngineVector3.scale(face.axis, sign);
+  const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     face.center,
-    Vector3.scale(out, face.half),
+    AutoMovieEngineVector3.scale(out, face.half),
   );
   const past = (point: IAutoMovieVector3): number =>
-    Vector3.dot(Vector3.subtract(point, end), out);
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, end), out);
 
   const entry: ReturnType<typeof poseBones> = poseBones(
     body,
@@ -78,7 +78,7 @@ export function coverPeek(
   // The lean splits into a roll and a pitch by the out direction's share of
   // the body's sides and front; each sign is the one that moves the head out.
   const forward: IAutoMovieVector3 = HumanFrame.forward(stood.yaw);
-  const ahead: number = Vector3.dot(out, forward);
+  const ahead: number = AutoMovieEngineVector3.dot(out, forward);
   const sideways: number = Math.sqrt(Math.max(0, 1 - ahead * ahead));
   const angle: number =
     (Math.asin(Math.min(1, shift / height)) * 180) / Math.PI;

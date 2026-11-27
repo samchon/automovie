@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -77,7 +77,7 @@ export function ArmourHelmet(
       const angle: number = index * step;
       const canonical: number = profile.fitted ? 0 : index % (count / 2);
       const sourceAngle: number = canonical * step;
-      const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         ((angle - sourceAngle) * 180) / Math.PI,
       );
@@ -115,7 +115,7 @@ export function ArmourHelmet(
       const canonical: number = profile.fitted ? 0 : index % (count / 2);
       const a: number = canonical * step;
       const b: number = (canonical + 1) * step;
-      const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         ((index - canonical) * step * 180) / Math.PI,
       );

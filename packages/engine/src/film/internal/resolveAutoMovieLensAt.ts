@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Resolve the lens a directly rendered frame draws at one shot-local second:
@@ -42,10 +42,10 @@ export function resolveAutoMovieLensAt(
   if (active === null || active.fNumber === undefined || active.focus === null)
     return null;
 
-  const forward: IAutoMovieVector3 = Vector3.normalize(props.forward);
+  const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(props.forward);
   const depth: (mark: IAutoMovieVector3) => number = (
     mark: IAutoMovieVector3,
-  ): number => Vector3.dot(Vector3.subtract(mark, props.position), forward);
+  ): number => AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(mark, props.position), forward);
   const near: number = depth(active.focus);
   const pull: IAutoMovieCameraIntent["focusPull"] = active.focusPull;
   let focusDistance: number = near;

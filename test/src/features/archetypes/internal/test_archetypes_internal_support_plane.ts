@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { solveQuadrupedSupportPlane } from "@automovie/archetypes/internal";
+import {
+  solveQuadrupedSupportPlane
+} from "../../../../../packages/archetypes/src/animals/quadruped/solveQuadrupedSupportPlane";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadDome,
   IAutoMovieHumanHeadEyeOpening,
@@ -297,7 +297,7 @@ export namespace AutoMovieHumanHeadFeatures {
           extents,
           height: h,
           profile,
-          shoulder: AutoMovieViewSection.ELLIPSE,
+          shoulder: AutoMovieEngineViewSection.ELLIPSE,
         },
         host,
         seed,

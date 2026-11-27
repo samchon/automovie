@@ -111,11 +111,11 @@ Read in `packages/interface/src/construction` (each interface's admission paragr
 
 | Capability | Where | Used by the figure |
 | --- | --- | --- |
-| A split's end composed of its children's own sections in one declared plane: forks, seam planes, seam valleys and rails all derived (`IAutoMovieConstructionSplit.compose`) | `AutoMovieConstructionComposedEnd`, `SplitCompose`, `SplitEdge` | No. Seams are authored phases and knots read on the reference; rails are one station |
-| A child's rail as its skin cut by planes fixed in a named frame, with a rounded wedge (`IChild.cut`, `ICut`) | `AutoMovieConstructionSkinCut` | No |
-| A join on a declared shared loop, tangent on some arcs and crossing on others, with the fold width `hypot(reach, R tan(beta / 2))`, a radius table round the loop, exact ball contact on curved walls, `cleft` refusal (`IAutoMovieConstructionJoin.loop`, `IAutoMovieConstructionFoldWidth`) | `AutoMovieConstructionSharedLoop`, `AutoMovieSolidSharedCurve`, `AutoMovieSolidFoldContact`, `AutoMovieConstructionWidths` | No |
-| A width bounded by the normal and the geodesic curvature (`IAutoMovieConstructionCurvatureWidth`) | `AutoMovieConstructionWidths` | Yes: both cutters with a closed end |
-| A port band whose start edge is the port curve itself between columns | `AutoMovieConstructionPortCurve`, `PortBand` | Yes |
+| A split's end composed of its children's own sections in one declared plane: forks, seam planes, seam valleys and rails all derived (`IAutoMovieConstructionSplit.compose`) | `AutoMovieEngineConstructionComposedEnd`, `SplitCompose`, `SplitEdge` | No. Seams are authored phases and knots read on the reference; rails are one station |
+| A child's rail as its skin cut by planes fixed in a named frame, with a rounded wedge (`IChild.cut`, `ICut`) | `AutoMovieEngineConstructionSkinCut` | No |
+| A join on a declared shared loop, tangent on some arcs and crossing on others, with the fold width `hypot(reach, R tan(beta / 2))`, a radius table round the loop, exact ball contact on curved walls, `cleft` refusal (`IAutoMovieConstructionJoin.loop`, `IAutoMovieConstructionFoldWidth`) | `AutoMovieEngineConstructionSharedLoop`, `AutoMovieEngineSolidSharedCurve`, `AutoMovieSolidFoldContact`, `AutoMovieEngineConstructionWidths` | No |
+| A width bounded by the normal and the geodesic curvature (`IAutoMovieConstructionCurvatureWidth`) | `AutoMovieEngineConstructionWidths` | Yes: both cutters with a closed end |
+| A port band whose start edge is the port curve itself between columns | `AutoMovieEngineConstructionPortCurve`, `PortBand` | Yes |
 | A known port record (a band pulled back from both neighbours' fields) | `AutoMovieConstructionKnownPort` | Declared in the interface; not a node of the tree |
 
 ## Premises, by operator
@@ -448,7 +448,7 @@ What the engine reads of a part beyond its visible skin, from the interface's ad
 
 | Operator | What it reads | Its refusals |
 | --- | --- | --- |
-| A join on a declared loop (`IAutoMovieConstructionJoin`, `AutoMovieSolidSharedCurve`) | The part's face through the loop: every loop point within the tolerance of the face, the foot found on the face's own 2-jet, the part's side read all round. The face proximal of its rail is trimmed | A loop point off the face; a foot that does not return; a loop that encloses no region; a kept side that reverses (the part passes under its host along an arc); a width or a fold radius the surfaces do not admit |
+| A join on a declared loop (`IAutoMovieConstructionJoin`, `AutoMovieEngineSolidSharedCurve`) | The part's face through the loop: every loop point within the tolerance of the face, the foot found on the face's own 2-jet, the part's side read all round. The face proximal of its rail is trimmed | A loop point off the face; a foot that does not return; a loop that encloses no region; a kept side that reverses (the part passes under its host along an arc); a width or a fold radius the surfaces do not admit |
 | A composed end (`IAutoMovieConstructionSplit.ICompose`, `ICut`) | Each child's whole root section in the end plane, a closed curve. Neighbouring sections cross in exactly two points, the forks; the outline is each section's arcs outside its neighbours; the seam is, in the seam plane through the forks, the deeper of the two children's skins, where their union crosses the plane. A child keeps only its skin inside the wedge of the end plane and its seam planes, moved along its axis by its rail | A child whose skin does not cross the end plane all round; neighbours that do not cross exactly twice; children that are not neighbours and overlap; a seam plane that does not cross the host's ring twice; a host ring farther from the outline than the shortest rail; a child phase whose skin never enters the wedge |
 | A port (`IAutoMovieConstructionPort`) | Nothing: the part keeps its stations beyond its rail | - |
 
@@ -517,8 +517,8 @@ Each stated once as a general capability, with the red-first made case and its c
 
 | Piece | Where | Joints | Made case that fails first | Files |
 | --- | --- | --- | --- | --- |
-| A band owned by a join's declared loop, exact between columns | Engine | Armscye, breast, nose, alae, ear | A cylinder on a plane joined on their circle with 16 columns: between columns the blend's start edge must lie on the circle within 1e-9 mm; today it is exact at the columns only and stands off by the chord's sagitta `a (1 - cos(pi / 16))` between them | `AutoMovieSolidJoin`, `AutoMovieSolidBlendChain`, `AutoMovieSolidBodyMerge`, `AutoMovieSolidSharedCurve` |
-| A join's loop, and a port's, as a face's skin cut by a declared surface, as `ICut` gives a split's child | Engine and interface | Armscye, breast, nose, ear, neck | A sphere cut by a plane: the loop is the circle of radius `sqrt(R^2 - d^2)` with its exact tangent, at any phase | `IAutoMovieConstructionJoin`, `AutoMovieConstructionSharedLoop`, `AutoMovieConstructionSkinCut` |
+| A band owned by a join's declared loop, exact between columns | Engine | Armscye, breast, nose, alae, ear | A cylinder on a plane joined on their circle with 16 columns: between columns the blend's start edge must lie on the circle within 1e-9 mm; today it is exact at the columns only and stands off by the chord's sagitta `a (1 - cos(pi / 16))` between them | `AutoMovieEngineSolidJoin`, `AutoMovieEngineSolidBlendChain`, `AutoMovieEngineSolidBodyMerge`, `AutoMovieEngineSolidSharedCurve` |
+| A join's loop, and a port's, as a face's skin cut by a declared surface, as `ICut` gives a split's child | Engine and interface | Armscye, breast, nose, ear, neck | A sphere cut by a plane: the loop is the circle of radius `sqrt(R^2 - d^2)` with its exact tangent, at any phase | `IAutoMovieConstructionJoin`, `AutoMovieEngineConstructionSharedLoop`, `AutoMovieEngineConstructionSkinCut` |
 | A chart roll with local support (done) | Human | Ankle and ball under a changed foot; every posed limb | `test_human_conic_pose` scenario 9: three runs, the last twisted 0.1 rad; the first two runs' axes equal the unrolled axes bit for bit. It failed on the natural cubic (off by 9.2e-8 to 1.6e-3) and passes on `IRoll.eases`; f1's leg with a foot 0.9 as long now differs from f1's at its root by 0 machine epsilons | `AutoMovieHumanConicPose.twist`, `AutoMovieHumanConicLoft.IRoll`, `eased` |
 | The loop of a part on a host as the part's skin cut by their dividing surface | Human | Armscye, breast | A made cylinder cut by a made plane: the loop's stations are the closed form at every phase. The crossing of the two fitted walls is not the loop: past the surface each wall is a free closure (measured on f1: the crossing jumped between arm stations 74 and 119 over the cap) | `AutoMovieHumanLandmarkSurface` (done, `test_human_landmark_surface`), `AutoMovieHumanF1Armscye` rule `surface` (its made case owed) |
 | Reliefs placed in a bone's frame | Human | Elbow, knee, wrist, ankle | A feature window at a made hinge turned 0.5 rad keeps its place in its bone's frame | `AutoMovieHumanConicPose`, `AutoMovieHumanF1Placement` |
@@ -613,8 +613,8 @@ Each with the design answer if the premise refuses; none is answered by a tolera
 | --- | --- |
 | `AutoMovieHumanF1.ts` | lines 90 to 330, 600 to 1300, 1867 to 2200 and 2264 to 3129 in full; the rest in part |
 | `packages/interface/src/construction`: `Split`, `Port`, `Join`, `Continuation`, `FoldWidth`, `CurvatureWidth`, `Trim`, `KnownPort`, `LoftRelief` | in full, without their evidence tags |
-| Engine: `AutoMovieSolidBlend.ts` | in full |
-| Engine: `AutoMovieSolidJoin.ts`, `AutoMovieConstructionWidths.ts`, `AutoMovieConstructionComposedEnd.ts` | in part |
+| Engine: `AutoMovieEngineSolidBlend.ts` | in full |
+| Engine: `AutoMovieEngineSolidJoin.ts`, `AutoMovieEngineConstructionWidths.ts`, `AutoMovieEngineConstructionComposedEnd.ts` | in part |
 | Engine: `SplitCompose`, `SkinCut`, `SharedLoop`, `PortCurve`, `PortBand` | refusal texts only |
 | `test_construction_operator_mixed_join_cases.ts` | in full |
 | `FamilyConicBody.ts` | the trunk's, the arm's and the digits' part declarations, the part record's closure options and the relief refit path, in part |

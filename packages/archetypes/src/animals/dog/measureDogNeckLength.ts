@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { buildDogBody } from "./buildDogBody";
@@ -15,5 +15,5 @@ export function measureDogNeckLength(
 ): number {
   const rig: AutoMovieArchetypeQuadrupedBody.IRig =
     AutoMovieArchetypeQuadrupedBody.rig(buildDogBody(cohort), dimensions);
-  return Vector3.length(Vector3.subtract(rig.poll, rig.neck));
+  return AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(rig.poll, rig.neck));
 }

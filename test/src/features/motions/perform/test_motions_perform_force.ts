@@ -5,7 +5,12 @@ import {
   type IAutoMovieMotionHumanImpulse,
   type IAutoMovieMotionHumanSustainedForce,
 } from "@automovie/interface";
-import { HumanBlast, HumanForce } from "@automovie/motions/internal";
+import {
+  HumanBlast
+} from "../../../../../packages/motions/src/perform/internal/HumanBlast";
+import {
+  HumanForce
+} from "../../../../../packages/motions/src/perform/internal/HumanForce";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

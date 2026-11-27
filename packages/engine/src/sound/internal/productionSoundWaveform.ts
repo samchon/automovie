@@ -1,6 +1,6 @@
 import type { IAutoMovieProductionSoundRaster } from "@automovie/interface";
 
-import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "../AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
+import { AutoMovieEngineProductionSoundEvidenceRasters } from "../AutoMovieEngineProductionSoundEvidenceRasters";
 import { assertProductionSoundRasterInput } from "./assertProductionSoundRasterInput";
 
 /*
@@ -12,8 +12,8 @@ export const productionSoundWaveform: (
   height?: number,
 ) => IAutoMovieProductionSoundRaster = (
   pcm: Float32Array,
-  width: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.waveform.width,
-  height: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.waveform.height,
+  width: number = AutoMovieEngineProductionSoundEvidenceRasters.waveform.width,
+  height: number = AutoMovieEngineProductionSoundEvidenceRasters.waveform.height,
 ): IAutoMovieProductionSoundRaster => {
   assertProductionSoundRasterInput(pcm, width, height, "waveform");
   const rgba: Uint8Array<ArrayBufferLike> = rasterBackground(width, height);

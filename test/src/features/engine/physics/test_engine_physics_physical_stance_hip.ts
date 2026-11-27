@@ -1,6 +1,6 @@
 import {
-  AutoMovieXpbdBody,
-  Quaternion,
+  AutoMovieEngineXpbdBody,
+  AutoMovieEngineQuaternion,
   AutoMovieEnginePhysicalStanceHip,
 } from "@automovie/engine";
 import type {
@@ -155,7 +155,7 @@ export function test_engine_physics_physical_stance_hip(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   type Rigid = Pick<
-    AutoMovieXpbdBody,
+    AutoMovieEngineXpbdBody,
     "translation" | "rotation" | "worldCom" | "angvel"
   >;
   const rigid = (
@@ -269,7 +269,7 @@ export function test_engine_physics_physical_stance_hip(): void {
   const leaning = capacity(
     limbs,
     { x: 0, y: 0, z: 1 },
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, (-0.1 * 180) / Math.PI),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, (-0.1 * 180) / Math.PI),
   );
   if (!leaning) failures.push("a leaning trunk has no forward strategy");
   else

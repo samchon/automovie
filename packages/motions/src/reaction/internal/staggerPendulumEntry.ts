@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -85,7 +85,7 @@ export namespace staggerPendulumEntry {
         (side: AutoMovieHumanSide): number => {
           const along: number[] = HumanFoot.sole(body, side, entered[side]).map(
             (q: IAutoMovieVector3): number =>
-              Vector3.dot(Vector3.subtract(q, entered[side].ankle), axis),
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(q, entered[side].ankle), axis),
           );
           return Math.max(...along) - Math.min(...along);
         },

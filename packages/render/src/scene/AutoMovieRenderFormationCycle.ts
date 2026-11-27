@@ -1,14 +1,14 @@
 import { type IAutoMovieGait, type IAutoMovieModel, type IAutoMovieFormationCadenceSegment } from "@automovie/interface";
 import { formationCycleGait as formationCycleGaitImplementation } from "./internal/formationCycleGait.js";
-import { type IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
-import { type IBakeFormationCycleProps } from "./IBakeFormationCycleProps.js";
+import { type IAutoMovieRenderFormationCycle } from "./IAutoMovieRenderFormationCycle.js";
+import { type IAutoMovieRenderBakeFormationCycleProps } from "./IAutoMovieRenderBakeFormationCycleProps.js";
 import { bakeFormationCycle as bakeFormationCycleImplementation } from "./internal/bakeFormationCycle.js";
 import { formationCycleStride as formationCycleStrideImplementation } from "./internal/formationCycleStride.js";
-import { type IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence.js";
+import { type IAutoMovieRenderFormationCadence } from "./IAutoMovieRenderFormationCadence.js";
 import { formationCycleCadence as formationCycleCadenceImplementation } from "./internal/formationCycleCadence.js";
 import { applyFormationCycleCadence as applyFormationCycleCadenceImplementation } from "./internal/applyFormationCycleCadence.js";
 import { formationCyclePosition as formationCyclePositionImplementation } from "./internal/formationCyclePosition.js";
-import { type IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
+import { type IAutoMovieRenderFormationCycleTake } from "./IAutoMovieRenderFormationCycleTake.js";
 import { sampleFormationCycleMatrix as sampleFormationCycleMatrixImplementation } from "./internal/sampleFormationCycleMatrix.js";
 import { formationCycleOf as formationCycleOfImplementation } from "./internal/formationCycleOf.js";
 import { applyFormationCycleMaterial as applyFormationCycleMaterialImplementation } from "./internal/applyFormationCycleMaterial.js";
@@ -39,10 +39,10 @@ export namespace AutoMovieRenderFormationCycle {
 
   /** Create this cycle tier's owned shadow projections and palette selector. */
   export const createFormationCycleShadowMaterials: (
-    cycle: IAutoMovieFormationCycle,
+    cycle: IAutoMovieRenderFormationCycle,
     palette: readonly THREE.Material[],
   ) => IShadowMaterials = (
-    cycle: IAutoMovieFormationCycle,
+    cycle: IAutoMovieRenderFormationCycle,
     palette: readonly THREE.Material[],
   ): IShadowMaterials =>
     createFormationCycleShadowMaterialsImplementation(cycle, palette);
@@ -92,7 +92,7 @@ export namespace AutoMovieRenderFormationCycle {
    * rest-space vertex to where the cycle puts it. The object is left at the last
    * sampled pose; callers extract geometry before baking, never after.
    *
-   * The poses are the given pose takes (`IBakeFormationCycleProps.takes`, a
+   * The poses are the given pose takes (`IAutoMovieRenderBakeFormationCycleProps.takes`, a
    * performed member's cycle) or, without them, come from {@link gaitMotion},
    * whose keyframe `i` of `samples` sits exactly at cycle position `i / samples`.
    * The loop-closing duplicate is omitted because texture playback wraps the last
@@ -106,7 +106,7 @@ export namespace AutoMovieRenderFormationCycle {
    * existing lowest-part trajectory heuristic. Returned take textures transfer to
    * the representation owner; a later take's refusal retires earlier textures.
    */
-  export function bakeFormationCycle(input: IBakeFormationCycleProps): IAutoMovieFormationCycle | null {
+  export function bakeFormationCycle(input: IAutoMovieRenderBakeFormationCycleProps): IAutoMovieRenderFormationCycle | null {
     return bakeFormationCycleImplementation(input);
   }
 
@@ -150,7 +150,7 @@ export namespace AutoMovieRenderFormationCycle {
    * integration uses the bake's stride estimate; it does not prove exact foot
    * contact or no-slip motion for arbitrary gait paths.
    */
-  export function formationCycleCadence(cycle: IAutoMovieFormationCycle, segments: readonly IAutoMovieFormationCadenceSegment[]): IAutoMovieFormationCadence {
+  export function formationCycleCadence(cycle: IAutoMovieRenderFormationCycle, segments: readonly IAutoMovieFormationCadenceSegment[]): IAutoMovieRenderFormationCadence {
     return formationCycleCadenceImplementation(cycle, segments);
   }
 
@@ -162,7 +162,7 @@ export namespace AutoMovieRenderFormationCycle {
    * describes cadence uniforms only; culling, instance transforms and draws
    * remain additional work, and final pixels also depend on host scene state.
    */
-  export function applyFormationCycleCadence(cycle: IAutoMovieFormationCycle, segments: readonly IAutoMovieFormationCadenceSegment[]): IAutoMovieFormationCadence {
+  export function applyFormationCycleCadence(cycle: IAutoMovieRenderFormationCycle, segments: readonly IAutoMovieFormationCadenceSegment[]): IAutoMovieRenderFormationCadence {
     return applyFormationCycleCadenceImplementation(cycle, segments);
   }
 
@@ -177,7 +177,7 @@ export namespace AutoMovieRenderFormationCycle {
    * mathematical point under these inputs. That does not establish identical
    * captured bytes across GPU arithmetic or unrelated host state.
    */
-  export function formationCyclePosition(cadence: Pick<IAutoMovieFormationCadence, "advance" | "turn">, phase: number, radius?: number): number {
+  export function formationCyclePosition(cadence: Pick<IAutoMovieRenderFormationCadence, "advance" | "turn">, phase: number, radius?: number): number {
     return formationCyclePositionImplementation(cadence, phase, radius);
   }
 
@@ -189,7 +189,7 @@ export namespace AutoMovieRenderFormationCycle {
    * shader law without claiming bit-identical native GLSL or observed
    * appearance.
    */
-  export function sampleFormationCycleMatrix(cycle: IAutoMovieFormationCycle, part: number, position: number, take?: IAutoMovieFormationCycleTake): THREE.Matrix4 {
+  export function sampleFormationCycleMatrix(cycle: IAutoMovieRenderFormationCycle, part: number, position: number, take?: IAutoMovieRenderFormationCycleTake): THREE.Matrix4 {
     return sampleFormationCycleMatrixImplementation(cycle, part, position, take);
   }
 
@@ -198,7 +198,7 @@ export namespace AutoMovieRenderFormationCycle {
    * metadata is an internal typed handoff; arbitrary foreign userData values are
    * not structurally admitted by this lookup.
    */
-  export function formationCycleOf(object: THREE.Object3D): IAutoMovieFormationCycle | null {
+  export function formationCycleOf(object: THREE.Object3D): IAutoMovieRenderFormationCycle | null {
     return formationCycleOfImplementation(object);
   }
 
@@ -224,7 +224,7 @@ export namespace AutoMovieRenderFormationCycle {
    * it again, with this cycle or another, replaces it rather than injecting
    * twice.
    */
-  export function applyFormationCycleMaterial(material: THREE.Material, cycle: IAutoMovieFormationCycle): void {
+  export function applyFormationCycleMaterial(material: THREE.Material, cycle: IAutoMovieRenderFormationCycle): void {
     applyFormationCycleMaterialImplementation(material, cycle);
   }
 }

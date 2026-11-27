@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBand,
@@ -8,7 +8,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
-import * as FieldImplementsData from "./internal/FieldImplementsData";
+import { FieldImplementsData } from "./internal/FieldImplementsData";
 
 /*
  * The 6-pdr field gun's long implements as the 1862 Ordnance Manual gives them,
@@ -219,7 +219,7 @@ export namespace FIELD_IMPLEMENTS {
     radius: number,
     mass: number,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const ash: string = "#c8a874";
     const iron: string = "#4a4d52";
     // The working end at the origin, facing down out of the tool.

@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import { solveTwoBoneIK } from "./solveTwoBoneIK";
 
@@ -131,19 +131,19 @@ function readSource(
   const root: IAutoMovieVector3 = props.upper.worldPosition;
   const mid: IAutoMovieVector3 = props.lower.worldPosition;
 
-  const l1: number = Vector3.distance(mid, root);
-  const l2: number = Vector3.distance(props.end, mid);
+  const l1: number = AutoMovieEngineVector3.distance(mid, root);
+  const l2: number = AutoMovieEngineVector3.distance(props.end, mid);
   if (l1 < 1e-6 || l2 < 1e-6) return null;
-  const restUpperDir: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(mid, root),
+  const restUpperDir: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(mid, root),
   );
-  const restForeDir: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(props.end, mid),
+  const restForeDir: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(props.end, mid),
   );
-  const lowerInverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const lowerInverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     props.lower.worldRotation,
   );
-  const localFore: IAutoMovieVector3 = Quaternion.rotateVector(
+  const localFore: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     lowerInverse,
     restForeDir,
   );
@@ -154,7 +154,7 @@ function readSource(
     l2,
     restUpperDir,
     restForeDir,
-    upperInverse: Quaternion.inverse(props.upper.worldRotation),
+    upperInverse: AutoMovieEngineQuaternion.inverse(props.upper.worldRotation),
     lowerInverse,
     localFore,
     aimUpper: AutoMovieEngineKinematics.prepareAimRotation(restUpperDir),
@@ -170,10 +170,10 @@ function readTarget(
   source: ISource,
   goal: Pick<IProps, "target">,
 ): ITarget | null {
-  const reach: IAutoMovieVector3 = Vector3.subtract(goal.target, source.root);
-  const dist: number = Vector3.length(reach);
+  const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goal.target, source.root);
+  const dist: number = AutoMovieEngineVector3.length(reach);
   if (dist < 1e-6) return null;
-  const axis: IAutoMovieVector3 = Vector3.normalize(reach);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(reach);
 
   const lift: number = solveTwoBoneIK(source.l1, source.l2, dist).lift;
   return { goal, axis, lift };
@@ -194,21 +194,21 @@ function evaluate(
   // Bend plane: the caller's explicit normal when it has one, else normal ⟂
   // (reach axis, world-down pole). The upper segment lifts by `lift` off the
   // axis in this plane, displacing the mid joint toward the pole.
-  let normal: IAutoMovieVector3 = bendNormal ?? Vector3.cross(axis, POLE);
-  if (Vector3.length(normal) < 1e-6)
-    normal = Vector3.cross(axis, POLE_FALLBACK);
-  normal = Vector3.normalize(normal);
+  let normal: IAutoMovieVector3 = bendNormal ?? AutoMovieEngineVector3.cross(axis, POLE);
+  if (AutoMovieEngineVector3.length(normal) < 1e-6)
+    normal = AutoMovieEngineVector3.cross(axis, POLE_FALLBACK);
+  normal = AutoMovieEngineVector3.normalize(normal);
 
-  const upperDir: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle(normal, target.lift),
+  const upperDir: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.fromAxisAngle(normal, target.lift),
     axis,
   );
-  const midJoint: IAutoMovieVector3 = Vector3.add(
+  const midJoint: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     source.root,
-    Vector3.scale(upperDir, source.l1),
+    AutoMovieEngineVector3.scale(upperDir, source.l1),
   );
-  const foreDir: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(target.goal.target, midJoint),
+  const foreDir: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(target.goal.target, midJoint),
   );
 
   // Root joint: world delta taking the rest upper dir onto upperDir, lowered
@@ -217,17 +217,17 @@ function evaluate(
   const du: IAutoMovieQuaternion = shareAims
     ? source.aimUpper(upperDir)
     : AutoMovieEngineKinematics.aimRotation(source.restUpperDir, upperDir);
-  const upper: IAutoMovieQuaternion = Quaternion.multiply(
+  const upper: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     source.upperInverse,
-    Quaternion.multiply(du, rsu),
+    AutoMovieEngineQuaternion.multiply(du, rsu),
   );
 
   // Mid joint: worldRot(L) = du · Rsl · articL, so the fore segment's local
   // axis (Rsl⁻¹ · restForeDir) must rotate onto (Rsl⁻¹ · du⁻¹ · foreDir).
   const rslInv: IAutoMovieQuaternion = source.lowerInverse;
-  const localGoal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const localGoal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     rslInv,
-    Quaternion.rotateVector(Quaternion.inverse(du), foreDir),
+    AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(du), foreDir),
   );
   const lower: IAutoMovieQuaternion = shareAims
     ? source.aimLower(localGoal)

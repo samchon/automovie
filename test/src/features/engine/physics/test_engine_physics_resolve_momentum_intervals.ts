@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, AutoMoviePhysicalInertiaTensor } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEnginePhysicalInertiaTensor } from "@automovie/engine";
 import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -286,8 +286,8 @@ function reentrantReaders(): void {
       }),
     ],
   };
-  const tensor: ReturnType<typeof AutoMoviePhysicalInertiaTensor.prepare> =
-    AutoMoviePhysicalInertiaTensor.prepare();
+  const tensor: ReturnType<typeof AutoMovieEnginePhysicalInertiaTensor.prepare> =
+    AutoMovieEnginePhysicalInertiaTensor.prepare();
   const interval: ReturnType<
     typeof AutoMovieEngineKinematics.prepareAutoMovieMomentumIntervals
   > = AutoMovieEngineKinematics.prepareAutoMovieMomentumIntervals();

@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 import { applyChannelLimit } from "./applyChannelLimit";
 import { bindProfile } from "./bindProfile";
 import { channelKey } from "./channelKey";
@@ -141,7 +141,7 @@ export function resolveFrame(
       (
         c: IAutoMovieSpringCollider,
       ): { center: IAutoMovieVector3; radius: number } => ({
-        center: Matrix4.position(readWorld(world, c.node, "spring collider")),
+        center: AutoMovieEngineMatrix4.position(readWorld(world, c.node, "spring collider")),
         radius: c.radius,
       }),
     );

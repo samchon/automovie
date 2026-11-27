@@ -16,7 +16,7 @@ export namespace IAutoMovieDeriveDrawingSchedule {
    * size and basis; a room is its own row, because two alike rooms are still
    * two rooms to visit. Rows are ordered by kind, model, size, basis and first
    * member, and marked `<kind>-NN` in that order. A row names at most
-   * {@link AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS} members and counts the rest.
+   * {@link AutoMovieEngineDrawingScheduleMaxMembers} members and counts the rest.
    *
    * An opening's size comes from its authored void or its fill's world extent,
    * labelled fill because the leaf is not the hole; with neither source its

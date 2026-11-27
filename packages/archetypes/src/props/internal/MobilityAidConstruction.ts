@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -204,7 +204,7 @@ const NAMES: Readonly<Record<AutoMovieArchetypeMobilityAid.Kind, string>> = {
 /*
  * Model coordinates in metres.
  */
-const v: typeof Vector3.create = Vector3.create;
+const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
 
 /*
  * The shared painted metal part color.

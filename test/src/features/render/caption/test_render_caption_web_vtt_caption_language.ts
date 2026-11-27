@@ -1,4 +1,6 @@
-import { webVttCaptionLanguage } from "@automovie/render/internal";
+import {
+  webVttCaptionLanguage
+} from "../../../../../packages/render/src/caption/internal/webVttCaptionLanguage";
 import { TestValidator } from "@nestia/e2e";
 
 /**

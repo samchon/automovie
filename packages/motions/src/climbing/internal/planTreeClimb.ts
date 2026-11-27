@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -35,7 +35,7 @@ export function planTreeClimb(
     context.entry.pose,
   );
   const hips: IAutoMovieVector3 = entry.get("hips")!.worldPosition;
-  const toward: IAutoMovieVector3 = Vector3.normalize({
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: hips.x - tree.bole.foot.x,
     y: 0,
     z: hips.z - tree.bole.foot.z,
@@ -50,12 +50,12 @@ export function planTreeClimb(
     key: `${side}Foot@ground`,
     point:
       at ??
-      Vector3.add(
-        Vector3.add(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
           tree.bole.foot,
-          Vector3.scale(toward, tree.bole.radius + STAND_OFF),
+          AutoMovieEngineVector3.scale(toward, tree.bole.radius + STAND_OFF),
         ),
-        Vector3.scale(right, side === "right" ? STANCE : -STANCE),
+        AutoMovieEngineVector3.scale(right, side === "right" ? STANCE : -STANCE),
       ),
     normal: { x: 0, y: 1, z: 0 },
   });

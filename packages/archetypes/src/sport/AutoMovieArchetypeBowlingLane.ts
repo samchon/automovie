@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -42,7 +42,7 @@ export namespace AutoMovieArchetypeBowlingLane {
       name: "ten-pin bowling lane",
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const spacing: number = 12 * inch;
     const head: number = 60 * spacing;
     const length: number = head + 34.1875 * inch;

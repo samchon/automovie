@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -122,30 +122,30 @@ export namespace crabWalk {
     // The travel in the world, and the heading the body takes: the feet lead
     // along it, or the head does.
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       entry.yaw,
     );
-    const travel: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+    const travel: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
       x: to.x,
       y: 0,
       z: to.z,
     });
-    const distance: number = Vector3.length(travel);
+    const distance: number = AutoMovieEngineVector3.length(travel);
     const along: IAutoMovieVector3 =
       distance > 1e-9
-        ? Vector3.scale(travel, 1 / distance)
-        : Quaternion.rotateVector(turn, { x: 0, y: 0, z: 1 });
+        ? AutoMovieEngineVector3.scale(travel, 1 / distance)
+        : AutoMovieEngineQuaternion.rotateVector(turn, { x: 0, y: 0, z: 1 });
     const ahead: IAutoMovieVector3 =
-      params.lead === "head" ? Vector3.scale(along, -1) : along;
+      params.lead === "head" ? AutoMovieEngineVector3.scale(along, -1) : along;
     const yaw: number = (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
-    const facing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const facing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       yaw,
     );
     const frame: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
       local: IAutoMovieVector3,
-    ): IAutoMovieVector3 => Quaternion.rotateVector(facing, local);
+    ): IAutoMovieVector3 => AutoMovieEngineQuaternion.rotateVector(facing, local);
 
     // The root, at the feet's level, placed so the pitched body's hips sit
     // at the authored height over the pelvis's place.
@@ -159,7 +159,7 @@ export namespace crabWalk {
     const root: (at: IAutoMovieVector3) => IAutoMovieVector3 = (
       at: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         { x: at.x, y: height - hip * Math.cos(radians), z: at.z },
         frame({ x: 0, y: 0, z: -hip * Math.sin(radians) }),
       );
@@ -224,19 +224,19 @@ export namespace crabWalk {
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
       const u: number = clock.progress(seconds);
-      const centre: IAutoMovieVector3 = Vector3.add(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         pelvis,
-        Vector3.scale(along, (u / cycles) * distance),
+        AutoMovieEngineVector3.scale(along, (u / cycles) * distance),
       );
       const goals: IAutoMovieMotionHumanPosture["limbs"] = {};
       for (const l of limbs) {
         const [walked, lift] = crabWalkClock.step(clock, l.phase, u);
-        const point: IAutoMovieVector3 = Vector3.add(
-          Vector3.add(
+        const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             { x: pelvis.x, y: 0, z: pelvis.z },
-            Vector3.scale(along, walked * stride),
+            AutoMovieEngineVector3.scale(along, walked * stride),
           ),
-          Vector3.add(frame(l.stance), { x: 0, y: lift, z: 0 }),
+          AutoMovieEngineVector3.add(frame(l.stance), { x: 0, y: lift, z: 0 }),
         );
         // An end bears only once the body has settled onto its supports.
         const planted: boolean = lift === 0 && seconds >= SETTLE;
@@ -255,14 +255,14 @@ export namespace crabWalk {
           goals[l.limb] = {
             point: wrist.point,
             rotation: wrist.rotation,
-            bend: Vector3.add(wrist.point, frame(l.bend)),
+            bend: AutoMovieEngineVector3.add(wrist.point, frame(l.bend)),
             planted,
           } satisfies IAutoMovieHumanLimbGoal;
         } else
           goals[l.limb] = {
             point,
             rotation: facing,
-            bend: Vector3.add(point, frame(l.bend)),
+            bend: AutoMovieEngineVector3.add(point, frame(l.bend)),
             planted,
           } satisfies IAutoMovieHumanLimbGoal;
       }

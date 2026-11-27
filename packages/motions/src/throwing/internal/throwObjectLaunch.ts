@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
@@ -91,7 +91,7 @@ export namespace throwObjectLaunch {
     const lift: number = d * Math.tan(angle) - (target.y - release.y);
     if (!(d > 1e-6 && lift > 0)) return undefined;
     const speed: number = Math.sqrt(
-      (AutoMovieGravity.STANDARD * d * d) / (2 * Math.cos(angle) ** 2 * lift),
+      (AutoMovieEngineGravity.STANDARD * d * d) / (2 * Math.cos(angle) ** 2 * lift),
     );
     return {
       x: (dx / d) * speed * Math.cos(angle),
@@ -110,11 +110,11 @@ export namespace throwObjectLaunch {
     launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch,
     seconds: number,
   ): IAutoMovieVector3 {
-    return AutoMovieAir.projectileAt(
+    return AutoMovieEngineAir.projectileAt(
       {
         origin: launch.point,
         velocity: launch.velocity,
-        gravity: AutoMovieGravity.DOWN,
+        gravity: AutoMovieEngineGravity.DOWN,
       },
       seconds,
     ).position;

@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
@@ -134,7 +134,7 @@ export namespace KickGeometry {
         shown: plans.shown,
         leg: plans.leg,
         origin,
-        back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
+        back: AutoMovieEngineVector3.add(origin, AutoMovieEngineVector3.scale(line, carriage.step)),
         contacts: windows(
           timing,
           side,
@@ -252,8 +252,8 @@ export namespace KickGeometry {
         leg: parts.leg(
           back,
           base,
-          Vector3.scale(
-            Vector3.subtract(parts.back, parts.origin),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.subtract(parts.back, parts.origin),
             stepped * w,
           ),
           hip,

@@ -1,6 +1,6 @@
 import type { IAutoMovieInterpolateMonotone } from "@automovie/interface";
 
-import { AutoMovieMonotone } from "../../AutoMovieMonotone";
+import { AutoMovieEngineMonotone } from "../../AutoMovieEngineMonotone";
 
 /*
  * Build a shape-preserving piecewise cubic interpolant through knots, the
@@ -58,7 +58,7 @@ export const interpolateAutoMovieMonotone: (
   }
   const slopes: Float64Array = new Float64Array(n);
   const width: number = period ?? 0;
-  AutoMovieMonotone.slope(xs, ys, n, width, slopes);
+  AutoMovieEngineMonotone.slope(xs, ys, n, width, slopes);
   return (x: number): number =>
-    AutoMovieMonotone.evaluate(xs, ys, slopes, n, width, x);
+    AutoMovieEngineMonotone.evaluate(xs, ys, slopes, n, width, x);
 };

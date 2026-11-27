@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -49,7 +49,7 @@ export function preparePairedFloorSupport(
     return undefined;
   const forward: IAutoMovieVector3 = HumanFrame.forward(preferred.yaw);
   const across: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
-  const mid: IAutoMovieVector3 = Vector3.lerp(
+  const mid: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     targets[contacts.indexOf(hands[0]!)]!.goal,
     targets[contacts.indexOf(hands[1]!)]!.goal,
     0.5,
@@ -84,13 +84,13 @@ export function preparePairedFloorSupport(
         (r.normal.world.x !== 0 || r.normal.world.z !== 0))
     )
       return undefined;
-    const offset: IAutoMovieVector3 = Vector3.subtract(l.goal, mid);
-    const mirrored: IAutoMovieVector3 = Vector3.addScaled(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(l.goal, mid);
+    const mirrored: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       l.goal,
       across,
-      -2 * Vector3.dot(offset, across),
+      -2 * AutoMovieEngineVector3.dot(offset, across),
     );
-    if (Vector3.distance(mirrored, r.goal) > HumanBodyFitMerit.TOLERANCE)
+    if (AutoMovieEngineVector3.distance(mirrored, r.goal) > HumanBodyFitMerit.TOLERANCE)
       return undefined;
   }
   const variables: Variable[] = HumanFitVariables.BODY.filter(
@@ -121,10 +121,10 @@ export function preparePairedFloorSupport(
       joints[HumanArmMirror.opposite(bone)] = angles;
     } else if (!bone.startsWith("right")) joints[bone] = [angles[0], 0, 0];
   }
-  const root: IAutoMovieVector3 = Vector3.addScaled(
+  const root: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     half.root,
     across,
-    Vector3.dot(Vector3.subtract(mid, half.root), across),
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(mid, half.root), across),
   );
   const pose: IAutoMovieMotionHumanPosture = {
     ...half,

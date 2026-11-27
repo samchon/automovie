@@ -52,7 +52,7 @@ export namespace IAutoMovieBuiltEnvironmentSupportSweep {
     /** World height a body may rest on directly, in metres. Defaults to `0`. */
     groundY?: number;
 
-    /** Contact slack in metres. Defaults to `AUTOMOVIE_SUPPORT_TOLERANCE`. */
+    /** Contact slack in metres. Defaults to `AutoMovieEngineSupportTolerance`. */
     tolerance?: number;
   };
 }

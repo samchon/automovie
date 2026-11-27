@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, Transform, Vector3, AutoMovieEngineMotionPlanting, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineHumanoidRestFrame, AutoMovieEngineTransform, AutoMovieEngineVector3, AutoMovieEngineMotionPlanting, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
@@ -34,7 +34,7 @@ export function AutoMovieMotionHumanBendChain(
     body.poseResolution.jointAxes;
   const pose: IAutoMoviePose = shared?.pose ?? {
     skeleton: body.skeleton.id,
-    root: Transform.of(
+    root: AutoMovieEngineTransform.of(
       posture.root,
       humanPostureHeading({
         yaw: posture.yaw,
@@ -59,7 +59,7 @@ export function AutoMovieMotionHumanBendChain(
         },
         topology: body.topology,
         jointAxes: axes,
-        restFrames: HUMANOID_REST_FRAME,
+        restFrames: AutoMovieEngineHumanoidRestFrame,
       },
       resolution(),
       body.poseResolution,
@@ -76,8 +76,8 @@ export function AutoMovieMotionHumanBendChain(
       prepared,
       shoulder: prepared.upper.worldPosition,
       span:
-        Vector3.length(prepared.lowerOffset) +
-        Vector3.length(prepared.effectorOffset),
+        AutoMovieEngineVector3.length(prepared.lowerOffset) +
+        AutoMovieEngineVector3.length(prepared.effectorOffset),
       axes,
       shapes: shared === undefined ? shapes : copyShapes(shapes),
     };
@@ -168,7 +168,7 @@ export namespace AutoMovieMotionHumanBendChain {
     return {
       pose: {
         skeleton: body.skeleton.id,
-        root: Transform.of(
+        root: AutoMovieEngineTransform.of(
           { x: posture.root.x, y: posture.root.y, z: posture.root.z },
           humanPostureHeading({
             yaw: posture.yaw,

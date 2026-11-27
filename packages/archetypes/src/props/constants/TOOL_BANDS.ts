@@ -5,7 +5,7 @@ import {
 } from "../../core";
 import { PRIMING_WIRE } from "./PRIMING_WIRE";
 import type { AutoMovieArchetypeTool } from "../AutoMovieArchetypeTool";
-import * as ToolBandsData from "./internal/ToolBandsData";
+import { ToolBandsData } from "./internal/ToolBandsData";
 
 /*
  * The band of each free dimension of createTool, by kind, with the

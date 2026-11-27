@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
 
-import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError";
+import { AutoMovieRecoveryFeasibleCapacityError } from "../AutoMovieRecoveryFeasibleCapacityError";
 import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 
 /*
@@ -105,11 +105,11 @@ export function prepareRecoveryFeasibleMapWork(
   // Unsafe arithmetic, malformed configuration and the original gauge above
   // remain core errors even when a declared resource ceiling is also too small.
   if (retained > options.maxResidentLinearEntries)
-    throw new RecoveryFeasibleCapacityError("resident");
+    throw new AutoMovieRecoveryFeasibleCapacityError("resident");
   if (directionEntries > options.directionBudget.maxEntries)
-    throw new RecoveryFeasibleCapacityError("direction-entries");
+    throw new AutoMovieRecoveryFeasibleCapacityError("direction-entries");
   if (minimumDirectionWork > options.directionBudget.maxWork)
-    throw new RecoveryFeasibleCapacityError("direction-work");
+    throw new AutoMovieRecoveryFeasibleCapacityError("direction-work");
   return {
     observations,
     cameraWidth,

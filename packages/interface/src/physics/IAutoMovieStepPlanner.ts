@@ -5,7 +5,7 @@ import type { IAutoMovieFootfallPattern } from "./IAutoMovieFootfallPattern";
  *
  * The schedule uses film seconds and world X/Z placements in metres with radian
  * yaw/pitch; reserved intervals and generated swings share one ordered history.
- * AutoMovieStepPlanner constructs and freezes its owned schedule, indexes steps
+ * AutoMovieEngineStepPlanner constructs and freezes its owned schedule, indexes steps
  * by bone and returns detached placements and step records from at. Sampling
  * accepts any finite time and a known bone, using initial/final planted poses
  * outside its schedule. This plan requests kinematic support movement and does
@@ -36,7 +36,7 @@ export namespace IAutoMovieStepPlanner {
    * Floor-plane support anchor, heading, pitch and vertical clearance.
    *
    * Point is [world X,world Z] metres, yaw about +Y and pitch about the support
-   * lateral axis are radians, clearance is metres. AutoMovieStepPlanner copies
+   * lateral axis are radians, clearance is metres. AutoMovieEngineStepPlanner copies
    * desired placements into its schedule and returns detached sampled
    * placements; the swing helper uses a sine clearance arc. Placement numbers
    * must be finite; swing admission checks them, while the constructor checks
@@ -66,7 +66,7 @@ export namespace IAutoMovieStepPlanner {
    *
    * Start and end are finite film seconds with end > start; bone must name a
    * declared support and same-bone reservations may not overlap.
-   * AutoMovieStepPlanner copies reservation data into scheduled reserved steps
+   * AutoMovieEngineStepPlanner copies reservation data into scheduled reserved steps
    * and samples the desired placement at their end. The constructor admits
    * identity and timing. A reservation governs scheduling rather than native
    * contact, and its endpoint may lie outside the overall construction window.
@@ -88,7 +88,7 @@ export namespace IAutoMovieStepPlanner {
    *
    * Inherited times and bone identify the interval; kind selects either
    * interpolated swing sampling or a held reserved departure until end.
-   * AutoMovieStepPlanner freezes schedule steps and returns structured clones
+   * AutoMovieEngineStepPlanner freezes schedule steps and returns structured clones
    * through at; standalone step records remain mutable unless their owner
    * freezes them. from/to are requested placements, not measured landings. A
    * reserved sample does not reconstruct the authored movement inside its
@@ -109,7 +109,7 @@ export namespace IAutoMovieStepPlanner {
    * Requested support phase and placement at one sampled film second.
    *
    * Progress lies in [0,1], with zero before any step and one after a completed
-   * step; step is absent while planted. AutoMovieStepPlanner.at returns
+   * step; step is absent while planted. AutoMovieEngineStepPlanner.at returns
    * detached mutable placement and optional step data, preserving its frozen
    * schedule. For reserved phases placement stays at step.from until the end;
    * callers need their authored motion for the reserved trajectory. phase is a
@@ -138,7 +138,7 @@ export namespace IAutoMovieStepPlanner {
    *
    * Film times use seconds, rate ticks/s, distances metres and angles radians;
    * pattern supplies support identities, phase ordering and minimum remaining
-   * support count. AutoMovieStepPlanner consumes callbacks synchronously during
+   * support count. AutoMovieEngineStepPlanner consumes callbacks synchronously during
    * construction and copies placements and reservations; it retains no callback
    * after construction and propagates callback errors. The constructor checks
    * interval, principal budgets, pattern and reservations. Callers supply

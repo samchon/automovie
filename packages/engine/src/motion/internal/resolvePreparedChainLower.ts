@@ -9,8 +9,8 @@ import type {
 
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import type { prepareChainFit } from "./prepareChainFit";
 
 /*
@@ -58,16 +58,16 @@ export namespace resolvePreparedChainLower {
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): IAutoMovieChainBone {
-    const upperRotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const upperRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       prepared.upper.worldRotation,
       upper,
     );
-    const lowerPosition: IAutoMovieVector3 = Vector3.add(
+    const lowerPosition: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       prepared.upper.worldPosition,
-      Quaternion.rotateVector(upperRotation, prepared.lowerOffset),
+      AutoMovieEngineQuaternion.rotateVector(upperRotation, prepared.lowerOffset),
     );
-    const lowerRotation: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(upperRotation, prepared.lowerRotation),
+    const lowerRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(upperRotation, prepared.lowerRotation),
       lower,
     );
     return { worldPosition: lowerPosition, worldRotation: lowerRotation };

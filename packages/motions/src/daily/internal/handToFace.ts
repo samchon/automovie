@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -329,7 +329,7 @@ export namespace handToFace {
         side,
         effector(side),
       );
-      far = Math.max(far, Vector3.length(Vector3.subtract(at, from)));
+      far = Math.max(far, AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at, from)));
     }
     // How each hand lies at the face, its elbow's hint and its reference.
     const arms: IAutoMovieMotionHumanHandToFaceArm.IArm[] = hands.map(

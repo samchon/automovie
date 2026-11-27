@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -245,16 +245,16 @@ export function pushSledPlan(
         .get(values[0]!)
         ?.get(values[1]!);
       if (previous !== undefined) return previous;
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         at.point,
-        Vector3.scale(at.forward, values[1]!),
+        AutoMovieEngineVector3.scale(at.forward, values[1]!),
       );
       const wrist: IAutoMovieMotionHumanHand.IWrist = placeHumanHandSurface(
         sockets[side],
         point,
         align({
-          normal: Quaternion.rotateVector(
-            Quaternion.fromAxisAngle(at.forward, values[0]!),
+          normal: AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.fromAxisAngle(at.forward, values[0]!),
             at.normal,
           ),
           forward: at.forward,
@@ -277,7 +277,7 @@ export function pushSledPlan(
           wrist: { point: hand.worldPosition, rotation: hand.worldRotation },
           bend,
         },
-        off: Vector3.length(Vector3.subtract(gripAt(bones), point)),
+        off: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(gripAt(bones), point)),
       };
       let positions: Map<number, Grasp> | undefined = grasps.get(values[0]!);
       if (positions === undefined)
@@ -320,14 +320,14 @@ export function pushSledPlan(
             const posture: IAutoMovieMotionHumanPosture = pushing[index]!;
             const frame: pushSledCarry.IFrame = carry(chest(posture));
             const carried: Hold = frame.hold(taken.hold);
-            yield Vector3.length(
-              Vector3.subtract(
+            yield AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 gripAt(fit(posture, side, carried, resolution)),
-                Vector3.add(
+                AutoMovieEngineVector3.add(
                   carried.wrist.point,
-                  Quaternion.rotateVector(
+                  AutoMovieEngineQuaternion.rotateVector(
                     frame.turn,
-                    Vector3.subtract(taken.point, taken.hold.wrist.point),
+                    AutoMovieEngineVector3.subtract(taken.point, taken.hold.wrist.point),
                   ),
                 ),
               ),
@@ -378,12 +378,12 @@ export function pushSledPlan(
   // The walking arms the grips take over from during the settle, solved at
   // knots AutoKnots places over the settle (Vitenti et al. 2024,
   // arXiv:2412.13423) to the arm solver's angular resolution
-  // (`ROM_TOLERANCE`) and read from their course
+  // (`AutoMovieEngineRomTolerance`) and read from their course
   // (`prepareHumanSampledCourse`), so a read resolves no posture.
   const settling: (seconds: number) => number[] = prepareHumanSampledCourse({
     from: 0,
     to: pushSled.SETTLE,
-    tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+    tolerance: { kind: "absolute", absolute: AutoMovieEngineRomTolerance },
     step: AutoMovieMotionHumanArmCourse.STEP,
     sample: (t: number): number[] => {
       const walked: ReturnType<typeof resolveHumanPosture> =

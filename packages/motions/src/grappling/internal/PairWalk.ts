@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -65,7 +65,7 @@ export namespace PairWalk {
     from: number,
     to: number,
   ): IStep[] {
-    const length: number = Vector3.length(travel);
+    const length: number = AutoMovieEngineVector3.length(travel);
     if (!(length > 1e-6)) return [];
     const count: number = Math.max(1, Math.ceil(length / STEP));
     const span: number = (to - from) / (count + 1);
@@ -76,9 +76,9 @@ export namespace PairWalk {
     const out: IStep[] = [];
     for (let j: number = 0; j <= count; ++j) {
       const side: AutoMovieHumanSide = j % 2 === 0 ? "left" : "right";
-      const end: IAutoMovieVector3 = Vector3.add(
+      const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         side === "left" ? entry.feet.left.ankle : entry.feet.right.ankle,
-        Vector3.scale(travel, Math.min(1, (j + 1) / count)),
+        AutoMovieEngineVector3.scale(travel, Math.min(1, (j + 1) / count)),
       );
       out.push({
         side,
@@ -117,7 +117,7 @@ export namespace PairWalk {
             const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(
               (seconds - s.from) / (s.to - s.from),
             );
-            point = Vector3.add(Vector3.lerp(s.start, s.end, u), {
+            point = AutoMovieEngineVector3.add(AutoMovieEngineVector3.lerp(s.start, s.end, u), {
               x: 0,
               y: Math.sin(Math.PI * u) * LIFT,
               z: 0,

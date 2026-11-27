@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyBox,
   IAutoMovieHumanBodyMeasures,
@@ -121,7 +121,7 @@ export namespace AutoMovieHumanTrunkViews {
       measures.underbustCircumference * scale,
     );
     const ellipse: { shoulder: number } = {
-      shoulder: AutoMovieViewSection.ELLIPSE,
+      shoulder: AutoMovieEngineViewSection.ELLIPSE,
     };
 
     const sites: IAutoMovieHumanTrunkViews.ISite[] = [

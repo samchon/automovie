@@ -1,8 +1,8 @@
 import {
-  AutoMovieConicFieldJet,
-  AutoMovieConicHermite,
-  AutoMovieViewConic,
-  AutoMovieViewSectionField,
+  AutoMovieEngineConicFieldJet,
+  AutoMovieEngineConicHermite,
+  AutoMovieEngineViewConic,
+  AutoMovieEngineViewSectionField,
 } from "@automovie/engine";
 import type {
   IAutoMovieConicFieldJet,
@@ -20,9 +20,9 @@ import { nclose } from "../../internal/predicates";
 type Scalar = IAutoMovieViewSectionField.IStationJet;
 
 /**
- * `AutoMovieViewSectionField.prepare` prepares a section field from four
+ * `AutoMovieEngineViewSectionField.prepare` prepares a section field from four
  * station values and shoulders (each with its first two derivatives) without
- * changing it from the generic composition `AutoMovieViewConic` offers.
+ * changing it from the generic composition `AutoMovieEngineViewConic` offers.
  *
  * Fixtures: extents (3, 2, 3, 2) times a scale (0.001, 1 or 1000) with
  * shoulders sqrt 2 - 1 (an exact ellipse), and extents (3, 2, 4, 1) with
@@ -40,7 +40,7 @@ type Scalar = IAutoMovieViewSectionField.IStationJet;
  * 3. Two preparations share no output record; a copy whose quarter extents are
  *    overwritten is refused by `read` (a failure record).
  * 4. A callback's original thrown value (an Error, or undefined) passes through
- *    `AutoMovieViewConic.curvatures` unchanged; a nonpositive shared curvature
+ *    `AutoMovieEngineViewConic.curvatures` unchanged; a nonpositive shared curvature
  *    is refused before any end arithmetic; equal own and shared curvature
  *    create no replacement end; the second end is evaluated (four divisions)
  *    before the first end's refusal "quarter 0: G2 conic end needs" is
@@ -48,7 +48,7 @@ type Scalar = IAutoMovieViewSectionField.IStationJet;
  * 5. Empty and malformed stations, shoulders 0 and 1, and unrepresentable
  *    curvature arithmetic (extents 1e308 and 1e-308) are refused.
  * 6. One preparation of the unit ellipse and of the asymmetric case calls the
- *    endpoint curvature formula (`AutoMovieConicArcField.curvature`) at least
+ *    endpoint curvature formula (`AutoMovieEngineConicArcField.curvature`) at least
  *    once and at most eight times, the four quarters' own ends, read by V8's
  *    precise coverage in this process.
  */
@@ -79,7 +79,7 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
     e: readonly Scalar[],
     r: readonly Scalar[],
   ): IAutoMovieViewSectionField.IPrepared => {
-    const result = AutoMovieViewSectionField.prepare(e, r);
+    const result = AutoMovieEngineViewSectionField.prepare(e, r);
     if (result.kind === "failure") throw new Error(result.detail);
     return result;
   };
@@ -93,24 +93,24 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
       const { e, r } = inputs(scale, ellipse);
       const at: IAutoMovieViewSectionField.IPrepared = made(e, r);
       const ee: IAutoMovieConicFieldJet.IJet[] = e.map(
-        AutoMovieConicFieldJet.fromStation,
+        AutoMovieEngineConicFieldJet.fromStation,
       );
       const rr: IAutoMovieConicFieldJet.IJet[] = r.map(
-        AutoMovieConicFieldJet.fromStation,
+        AutoMovieEngineConicFieldJet.fromStation,
       );
       const expected: IAutoMovieViewConic.ICurve<IAutoMovieConicFieldJet.IJet> =
-        AutoMovieViewConic.prepareGeometry(
-          AutoMovieConicFieldJet.AD,
+        AutoMovieEngineViewConic.prepareGeometry(
+          AutoMovieEngineConicFieldJet.AD,
           ee,
           rr,
-          AutoMovieViewConic.curvatures(AutoMovieConicFieldJet.AD, ee, rr),
+          AutoMovieEngineViewConic.curvatures(AutoMovieEngineConicFieldJet.AD, ee, rr),
         );
       TestValidator.predicate(`${label} source`, same(at.source, expected));
       TestValidator.predicate(
         `${label} geometry`,
         same(
           at.geometry,
-          AutoMovieViewConic.primal(AutoMovieConicFieldJet.AD, expected),
+          AutoMovieEngineViewConic.primal(AutoMovieEngineConicFieldJet.AD, expected),
         ),
       );
       if (!ellipse)
@@ -131,7 +131,7 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
         2 * Math.PI + 0.13,
       ]) {
         const value: IAutoMovieViewSectionField.IRead =
-          AutoMovieViewSectionField.read(at, phi);
+          AutoMovieEngineViewSectionField.read(at, phi);
         if ("kind" in value)
           throw new Error(`${label} read ${phi}: ${value.detail}`);
         if (!ellipse) continue;
@@ -164,7 +164,7 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
       copy.geometry.quarters[0]!.extents = [99, 99];
       TestValidator.predicate(
         `${label} changed copy refused`,
-        "kind" in AutoMovieViewSectionField.read(copy, 0),
+        "kind" in AutoMovieEngineViewSectionField.read(copy, 0),
       );
       TestValidator.predicate(
         `${label} another preparation unchanged`,
@@ -173,13 +173,13 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
     }
 
   const ops: IAutoMovieConicFieldJet.IAlgebra<number> = {
-    ...AutoMovieConicFieldJet.NUMBER,
+    ...AutoMovieEngineConicFieldJet.NUMBER,
   };
   const originals: unknown[] = [new Error("owned algebra failure"), undefined];
   originals.forEach((original: unknown, i: number): void => {
     let caught: unknown = "none";
     try {
-      AutoMovieViewConic.curvatures(
+      AutoMovieEngineViewConic.curvatures(
         {
           ...ops,
           value: (_value: number): number => {
@@ -205,7 +205,7 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
   };
   TestValidator.predicate(
     "nonpositive shared curvature refused",
-    AutoMovieViewConic.prepareGeometry(
+    AutoMovieEngineViewConic.prepareGeometry(
       refuseArithmetic,
       [1, 2, 3, 4],
       [0.5, 0.5, 0.5, 0.5],
@@ -214,12 +214,12 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
   );
   TestValidator.equals(
     "equal curvature creates no end",
-    AutoMovieConicHermite.prepare(ops, 2, 3, 0.5, 1 / 9),
+    AutoMovieEngineConicHermite.prepare(ops, 2, 3, 0.5, 1 / 9),
     null,
   );
   let divisions: number = 0;
   const refused: IAutoMovieViewConic.ICurve =
-    AutoMovieViewConic.prepareGeometry(
+    AutoMovieEngineViewConic.prepareGeometry(
       {
         ...ops,
         divide: (a: number, b: number): number => {
@@ -242,13 +242,13 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
   for (const bad of malformed)
     TestValidator.equals(
       "malformed stations",
-      AutoMovieViewSectionField.prepare(bad, r).kind,
+      AutoMovieEngineViewSectionField.prepare(bad, r).kind,
       "failure",
     );
   for (const value of [0, 1])
     TestValidator.equals(
       `shoulder ${value}`,
-      AutoMovieViewSectionField.prepare(
+      AutoMovieEngineViewSectionField.prepare(
         e,
         r.map((): Scalar => [value, 0, 0]),
       ).kind,
@@ -259,7 +259,7 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
   );
   TestValidator.equals(
     "unrepresentable curvature",
-    AutoMovieViewSectionField.prepare(huge, r).kind,
+    AutoMovieEngineViewSectionField.prepare(huge, r).kind,
     "failure",
   );
 

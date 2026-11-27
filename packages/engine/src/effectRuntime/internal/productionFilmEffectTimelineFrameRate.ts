@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { resolveProductionFrameRate } from "../../film/internal/resolveProductionFrameRate";
-import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
+import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 
 /*
  * Resolve the timeline's exact rate for a film-effect question, or refuse it.
@@ -21,7 +21,7 @@ export const productionFilmEffectTimelineFrameRate = (
   try {
     return resolveProductionFrameRate(timeline);
   } catch {
-    throw new AutoMovieFilmEffectRuntimeError(
+    throw new AutoMovieEngineFilmEffectRuntimeError(
       "film-effect-input-invalid",
       "Film effect timeline frame rate must be a consistent positive exact rational identity.",
     );

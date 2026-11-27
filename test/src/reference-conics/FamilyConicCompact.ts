@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanF1, AutoMovieHumanF1Placement } from "@automovie/human";
 import type {
   IAutoMovieHumanConicLoft,
@@ -59,7 +59,7 @@ namespace FamilyConicCompact {
   /** Whether the body's reflection maps the net's window and directions onto themselves. */
   function reflective(relief: IAutoMovieLoftRelief): boolean {
     const middle: number =
-      relief.phases.start + AutoMovieLoftRelief.width(relief) / 2;
+      relief.phases.start + AutoMovieEngineLoftRelief.width(relief) / 2;
     return (
       Math.abs(Math.sin(middle)) < MIDDLE &&
       Math.abs(relief.axis[2]) < 1e-9 &&

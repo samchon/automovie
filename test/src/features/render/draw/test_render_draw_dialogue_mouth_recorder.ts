@@ -3,7 +3,7 @@ import type {
   IAutoMovieDrawnMouth,
   IAutoMovieHumanVisemeWeights,
 } from "@automovie/interface";
-import { AutoMovieDialogueMouthRecorder } from "@automovie/render";
+import { AutoMovieRenderDialogueMouthRecorder } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
@@ -45,8 +45,8 @@ export function test_render_draw_dialogue_mouth_recorder(): void {
       },
     ],
   };
-  const recorder: AutoMovieDialogueMouthRecorder =
-    new AutoMovieDialogueMouthRecorder(track);
+  const recorder: AutoMovieRenderDialogueMouthRecorder =
+    new AutoMovieRenderDialogueMouthRecorder(track);
   TestValidator.equals("nothing is read yet", recorder.drawn(), []);
 
   recorder.mouths.jaw("ann", 11 / 24);

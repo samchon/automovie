@@ -1,11 +1,13 @@
 import { AutoMovieArchetypeUnits } from "../../../core";
 
-/*
- * Inches.
- */
-export const IN: number = AutoMovieArchetypeUnits.INCH;
+export namespace CartModelsData {
+  /*
+   * Inches.
+   */
+  export const IN: number = AutoMovieArchetypeUnits.INCH;
 
-/*
- * Centimetres.
- */
-export const CM: number = AutoMovieArchetypeUnits.CENTIMETRE;
+  /*
+   * Centimetres.
+   */
+  export const CM: number = AutoMovieArchetypeUnits.CENTIMETRE;
+}

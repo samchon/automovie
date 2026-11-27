@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieHumanLimbGoal,
@@ -41,14 +41,14 @@ export namespace AutoMovieMotionHumanGoal {
         `A limb goal on ${from.on ?? "the world"} cannot be mixed with one on ${to.on ?? "the world"}`,
       );
     return {
-      point: Vector3.lerp(from.point, to.point, s),
-      bend: Vector3.lerp(from.bend, to.bend, s),
+      point: AutoMovieEngineVector3.lerp(from.point, to.point, s),
+      bend: AutoMovieEngineVector3.lerp(from.bend, to.bend, s),
       ...(to.rotation === undefined
         ? from.rotation === undefined
           ? {}
           : { rotation: from.rotation }
         : {
-            rotation: Quaternion.slerp(
+            rotation: AutoMovieEngineQuaternion.slerp(
               from.rotation ?? to.rotation,
               to.rotation,
               s,

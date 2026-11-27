@@ -1,5 +1,13 @@
 import type { IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanPropReader, IAutoMovieRigidTransform } from "@automovie/interface";
-import { stickBallClock, stickBallModel, stickBallPoint } from "@automovie/motions/internal";
+import {
+  stickBallClock
+} from "../../../../../packages/motions/src/sport/internal/stickBallClock";
+import {
+  stickBallModel
+} from "../../../../../packages/motions/src/sport/internal/stickBallModel";
+import {
+  stickBallPoint
+} from "../../../../../packages/motions/src/sport/internal/stickBallPoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

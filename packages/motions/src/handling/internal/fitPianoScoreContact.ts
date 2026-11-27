@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -75,7 +75,7 @@ export function fitPianoScoreContact(
         score.hand,
         `${score.digit}Tip` as IAutoMovieMotionHumanHand.DigitSurface,
       ).point;
-      const miss: number = Vector3.length(Vector3.subtract(tip, goal.point));
+      const miss: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip, goal.point));
       if (!(miss <= PIANO_CONTACT_TOLERANCE))
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",

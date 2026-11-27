@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -95,7 +95,7 @@ export namespace balletJete {
     const p: IAutoMovieMotionHumanBallet.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const l: number = body.measure.hipHeight;
     const leg: number = 0.98 * (body.measure.thigh + body.measure.shank);
     const leading: AutoMovieHumanSide = p.side ?? "right";
@@ -125,9 +125,9 @@ export namespace balletJete {
       y: standing.y - sink,
       z: base.z,
     };
-    const taken: IAutoMovieVector3 = Vector3.add(
+    const taken: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       { x: base.x, y: standing.y, z: base.z },
-      Vector3.scale(forward, 0.1 * l),
+      AutoMovieEngineVector3.scale(forward, 0.1 * l),
     );
     // The flight: up APEX from the take-off and down to the height at
     // which the leading leg, LAND degrees ahead, meets the floor.
@@ -143,15 +143,15 @@ export namespace balletJete {
     const settled: number = land + ABSORB;
     const end: number = settled + beats.period;
     const vx: number = (TRAVEL * l) / flight;
-    const velocity: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(forward, vx),
+    const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(forward, vx),
       { x: 0, y: lift, z: 0 },
     );
     const ballistic: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 => {
       const s: number = t - take;
-      return Vector3.add(taken, {
+      return AutoMovieEngineVector3.add(taken, {
         x: velocity.x * s,
         y: lift * s - 0.5 * g * s * s,
         z: velocity.z * s,
@@ -163,15 +163,15 @@ export namespace balletJete {
       y: -lift,
       z: velocity.z,
     };
-    const absorbed: IAutoMovieVector3 = Vector3.add(
+    const absorbed: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       { ...landed, y: landed.y - sink },
-      Vector3.scale(forward, 0.1 * l),
+      AutoMovieEngineVector3.scale(forward, 0.1 * l),
     );
     const hips: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 => {
       if (t <= take - push)
-        return Vector3.lerp(
+        return AutoMovieEngineVector3.lerp(
           standing,
           crouched,
           AutoMovieEngineMotionSampling.minimumJerkShare(t / (take - push)),
@@ -181,7 +181,7 @@ export namespace balletJete {
       if (t <= land) return ballistic(t);
       if (t <= settled)
         return hermite(landed, landing, absorbed, zero(), land, settled, t);
-      return Vector3.lerp(
+      return AutoMovieEngineVector3.lerp(
         absorbed,
         { ...absorbed, y: absorbed.y + sink },
         AutoMovieEngineMotionSampling.minimumJerkShare((t - settled) / (end - settled)),
@@ -193,10 +193,10 @@ export namespace balletJete {
       side: AutoMovieHumanSide,
       t: number,
     ): IAutoMovieVector3 =>
-      Vector3.add(
-        Vector3.add(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
           hips(t),
-          Vector3.scale(left, side === "left" ? half : -half),
+          AutoMovieEngineVector3.scale(left, side === "left" ? half : -half),
         ),
         { x: 0, y: -drop, z: 0 },
       );
@@ -234,13 +234,13 @@ export namespace balletJete {
       const front: boolean = side === leading;
       const a: number = angle(front, t);
       const r: number = (a * Math.PI) / 180;
-      const direction: IAutoMovieVector3 = Vector3.add(
-        Vector3.scale(forward, (front ? 1 : -1) * Math.sin(r)),
+      const direction: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(forward, (front ? 1 : -1) * Math.sin(r)),
         { x: 0, y: -Math.cos(r), z: 0 },
       );
-      const ankle: IAutoMovieVector3 = Vector3.add(
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         joint(side, t),
-        Vector3.scale(direction, leg),
+        AutoMovieEngineVector3.scale(direction, leg),
       );
       return {
         ankle,
@@ -254,15 +254,15 @@ export namespace balletJete {
       rotation: HumanFoot.rotation(yaw, 0),
     };
     const behind: IAutoMovieMotionHumanFoot.IPlacement = {
-      ankle: Vector3.add(
-        Vector3.add(
+      ankle: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
           touch.ankle,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             forward,
             -balletPositions.FOURTH * body.measure.footLength,
           ),
         ),
-        Vector3.scale(left, (leading === "left" ? -1 : 1) * 2 * half),
+        AutoMovieEngineVector3.scale(left, (leading === "left" ? -1 : 1) * 2 * half),
       ),
       rotation: HumanFoot.rotation(yaw, 0),
     };
@@ -387,9 +387,9 @@ export namespace balletJete {
     const h10: number = s * s * s - 2 * s * s + s;
     const h01: number = -2 * s * s * s + 3 * s * s;
     const h11: number = s * s * s - s * s;
-    return Vector3.add(
-      Vector3.add(Vector3.scale(a, h00), Vector3.scale(va, h10 * d)),
-      Vector3.add(Vector3.scale(b, h01), Vector3.scale(vb, h11 * d)),
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(a, h00), AutoMovieEngineVector3.scale(va, h10 * d)),
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(b, h01), AutoMovieEngineVector3.scale(vb, h11 * d)),
     );
   }
 }

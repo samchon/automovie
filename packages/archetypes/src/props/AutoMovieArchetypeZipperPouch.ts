@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordanceCoupling, IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -27,7 +27,7 @@ export namespace AutoMovieArchetypeZipperPouch {
   export function create(
     params: AutoMovieArchetypeZipperPouch.IParams = {},
   ): AutoMovieArchetype<string, never> {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const width: number = 0.21;
     const depth: number = 0.1;
     const height: number = 0.12;
@@ -112,7 +112,7 @@ export namespace AutoMovieArchetypeZipperPouch {
         rides: "zipper",
         frame: {
           ...AutoMovieArchetypeFrame.upright(point),
-          rotation: Quaternion.fromAxisAngle(v(1, 0, 0), facing > 0 ? 0 : 180),
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle(v(1, 0, 0), facing > 0 ? 0 : 180),
         },
       });
     }
@@ -150,7 +150,7 @@ export namespace AutoMovieArchetypeZipperPouch {
             ...AutoMovieArchetypeFrame.upright(
               v(edge - section / 2, height - skin, (side * depth) / 2),
             ),
-            rotation: Quaternion.fromAxisAngle(v(0, 0, 1), -side * 90),
+            rotation: AutoMovieEngineQuaternion.fromAxisAngle(v(0, 0, 1), -side * 90),
           },
           follows: {
             id: "zipper",

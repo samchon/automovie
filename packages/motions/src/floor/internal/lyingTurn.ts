@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -14,12 +14,12 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
  */
 export function lyingTurn(posture: Tilt): lyingTurn.ITurn {
   const rotation: IAutoMovieQuaternion = humanPostureHeading(posture);
-  const head: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const head: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const chest: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const chest: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 0,
     z: 1,
@@ -32,7 +32,7 @@ export function lyingTurn(posture: Tilt): lyingTurn.ITurn {
   };
   return {
     yaw,
-    turn: (Math.atan2(Vector3.dot(chest, left), chest.y) * 180) / Math.PI,
+    turn: (Math.atan2(AutoMovieEngineVector3.dot(chest, left), chest.y) * 180) / Math.PI,
   };
 }
 
@@ -78,12 +78,12 @@ export namespace lyingTurn {
    */
   export function tilt(turn: ITurn): Tilt {
     return humanPostureHeading.angles(
-      Quaternion.multiply(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn.yaw),
-          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn.yaw),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
         ),
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn.turn),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn.turn),
       ),
     );
   }

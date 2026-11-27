@@ -1,7 +1,7 @@
 import {
   AutoMovieEnginePlanarHull,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -111,13 +111,13 @@ export namespace HumanObstacle {
       )
         continue;
       const local: IAutoMovieAffordance["frame"] = affordance.frame;
-      const origin: IAutoMovieVector3 = Quaternion.rotateVector(
+      const origin: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         placed.rotation,
         local.translation,
       );
-      const x: IAutoMovieVector3 = Quaternion.rotateVector(
+      const x: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         placed.rotation,
-        Quaternion.rotateVector(local.rotation, { x: 1, y: 0, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(local.rotation, { x: 1, y: 0, z: 0 }),
       );
       const level: number = Math.hypot(x.x, x.z);
       if (!(level > LEVEL)) continue;
@@ -180,16 +180,16 @@ export namespace HumanObstacle {
       const bounds: IObjectBounds = AutoMovieEnginePhysics.physicalShapeBounds(placed, shape);
       bottom = Math.min(bottom, bounds.min.y);
       top = Math.max(top, bounds.max.y);
-      const centre: IAutoMovieVector3 = Vector3.add(
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         placed.position,
-        Quaternion.rotateVector(placed.rotation, shape.transform.position),
+        AutoMovieEngineQuaternion.rotateVector(placed.rotation, shape.transform.position),
       );
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         placed.rotation,
         shape.transform.rotation,
       );
       const at = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(centre, Quaternion.rotateVector(rotation, local));
+        AutoMovieEngineVector3.add(centre, AutoMovieEngineQuaternion.rotateVector(rotation, local));
       if (shape.kind === "box") {
         const h: IAutoMovieVector3 = shape.halfExtents;
         for (const x of [-1, 1])

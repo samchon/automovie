@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionClock, IAutoMovieMotionHumanPour } from "@automovie/interface";
-import { pourClock } from "@automovie/motions/internal";
+import {
+  pourClock
+} from "../../../../../packages/motions/src/affordance/internal/pourClock";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

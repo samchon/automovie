@@ -9,7 +9,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as fs from "node:fs/promises";
 
@@ -71,7 +71,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  *    claim about the full delivery schedule.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public planner, folder and run against a Map-backed storage and reads the calls, the files and the record; a run that wrote a still before claiming it, wrote the record before the stills, touched a path outside its root, or recorded a hash of other bytes fails.
- * @evidence contracts/development/testing.md#independent-expectations The expected call order is the order `AutoMovieCaptureFolder` documents, the names follow the plan's documented form, and the hash is recomputed from the file's own decoded pixels; the drawn colours are written by this test.
+ * @evidence contracts/development/testing.md#independent-expectations The expected call order is the order `AutoMovieRenderCaptureFolder` documents, the names follow the plan's documented form, and the hash is recomputed from the file's own decoded pixels; the drawn colours are written by this test.
  * @evidence contracts/development/testing.md#distinguishing-cases A fresh folder against one holding a previous capture, a matching folder against one opened for another round. Foreign files are owned by `test_capture_folder_ownership`, failed cells by `test_capture_run_failed_cell`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_run_order`; `node:fs/promises` is only assigned, never called, and no file, browser or process is touched.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each naming the input and the behavior it pins.
@@ -121,7 +121,7 @@ export async function test_capture_run_order(): Promise<void> {
     return AutoMovieRenderCapture.run({
       plan: planned,
       draw: drawCell,
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out/duel",
         round: planned.request.round,
@@ -276,7 +276,7 @@ export async function test_capture_run_order(): Promise<void> {
     await AutoMovieRenderCapture.run({
       plan: plan("at=1&round=r2"),
       draw,
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out/duel",
         round: null,

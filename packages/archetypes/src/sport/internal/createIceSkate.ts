@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeIceSkate } from "../AutoMovieArchetypeIceSkate";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -41,7 +41,7 @@ export function createIceSkate(
       name: "hockey skate",
       draw,
     });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const d: typeof GEOMETRY = GEOMETRY;
   const sole: number = d.steel + d.holder;
   const heel: number = -FIT.foot / 4;

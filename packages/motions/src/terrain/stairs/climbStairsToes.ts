@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -22,7 +22,7 @@ import type { climbStairsRocker } from "./climbStairsRocker";
  * landed foot accepts weight. The rocker's heel-rise search runs only here, on
  * the standing posture the climb writes over, at knots AutoKnots places
  * (Vitenti et al. 2024, arXiv:2412.13423) to the rocker's angular resolution
- * (`ROM_TOLERANCE`); each foot's extension is read between them from a course
+ * (`AutoMovieEngineRomTolerance`); each foot's extension is read between them from a course
  * split at its own toe-offs and tread contacts (`prepareHumanSampledCourse`),
  * so a read searches nothing.
  * Parameter scope: The climb's clock, steps, frames, load and rocker.
@@ -69,7 +69,7 @@ export function climbStairsToes(
             : [],
       ),
       sample: (s: number): number[] => [flexion(side, s)],
-      tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+      tolerance: { kind: "absolute", absolute: AutoMovieEngineRomTolerance },
       step: AutoMovieMotionHumanArmCourse.STEP,
     });
   return { left: course("left"), right: course("right") };

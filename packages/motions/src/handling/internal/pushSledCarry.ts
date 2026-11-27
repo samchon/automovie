@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
@@ -54,18 +54,18 @@ export namespace pushSledCarry {
   ): (chest: IAutoMovieResolvedBone) => IFrame {
     const facing: number = heading(arrived.worldRotation);
     return (chest: IAutoMovieResolvedBone): IFrame => {
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         heading(chest.worldRotation) - facing,
       );
       const moved: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 => {
-        const carried: IAutoMovieVector3 = Vector3.add(
+        const carried: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           chest.worldPosition,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             turn,
-            Vector3.subtract(point, arrived.worldPosition),
+            AutoMovieEngineVector3.subtract(point, arrived.worldPosition),
           ),
         );
         return { x: carried.x, y: point.y, z: carried.z };
@@ -74,8 +74,8 @@ export namespace pushSledCarry {
         hold: (hold: pushSledCarry.IHold): pushSledCarry.IHold => ({
           wrist: {
             point: moved(hold.wrist.point),
-            rotation: Quaternion.normalize(
-              Quaternion.multiply(turn, hold.wrist.rotation),
+            rotation: AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(turn, hold.wrist.rotation),
             ),
           },
           bend: moved(hold.bend),
@@ -90,7 +90,7 @@ export namespace pushSledCarry {
  * Read a quaternion's world heading with the push's original +Z convention.
  */
 function heading(rotation: IAutoMovieQuaternion): number {
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 0,
     z: 1,

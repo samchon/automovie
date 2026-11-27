@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
 import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 import { AutoMovieEnginePhysicalStanceBalance } from "../AutoMovieEnginePhysicalStanceBalance";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -31,7 +31,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 export function physicalSupportFootprint(
   profile: IAutoMoviePhysicalProfile,
   poses:
-    | ReadonlyMap<string, AutoMovieXpbdBody>
+    | ReadonlyMap<string, AutoMovieEngineXpbdBody>
     | Readonly<Record<string, IAutoMovieRigidTransform>>,
   limb: IAutoMovieFootfallPattern["limbs"][number],
   floor: number,
@@ -98,7 +98,7 @@ export namespace physicalSupportFootprint {
   export function grounded(
     profile: IAutoMoviePhysicalProfile,
     poses:
-      | ReadonlyMap<string, AutoMovieXpbdBody>
+      | ReadonlyMap<string, AutoMovieEngineXpbdBody>
       | Readonly<Record<string, IAutoMovieRigidTransform>>,
     limb: IAutoMovieFootfallPattern["limbs"][number],
     floor: number,
@@ -170,13 +170,13 @@ export namespace physicalSupportFootprint {
  */
 function poseOf(
   poses:
-    | ReadonlyMap<string, AutoMovieXpbdBody>
+    | ReadonlyMap<string, AutoMovieEngineXpbdBody>
     | Readonly<Record<string, IAutoMovieRigidTransform>>,
   bone: string,
 ): IAutoMovieRigidTransform | undefined {
   if (poses instanceof Map) {
-    const rigid: AutoMovieXpbdBody | undefined = (
-      poses as ReadonlyMap<string, AutoMovieXpbdBody>
+    const rigid: AutoMovieEngineXpbdBody | undefined = (
+      poses as ReadonlyMap<string, AutoMovieEngineXpbdBody>
     ).get(bone);
     return rigid
       ? {

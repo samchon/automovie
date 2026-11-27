@@ -10,11 +10,11 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionSplitBand } from "../../AutoMovieConstructionSplitBand";
-import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
-import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
-import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
-import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
+import { AutoMovieEngineConstructionSplitBand } from "../../AutoMovieEngineConstructionSplitBand";
+import { AutoMovieEngineConstructionState } from "../../AutoMovieEngineConstructionState";
+import { AutoMovieEngineConstructionViews } from "../../AutoMovieEngineConstructionViews";
+import { AutoMovieEngineLoftAdmissionError } from "../../AutoMovieEngineLoftAdmissionError";
+import { AutoMovieEngineSolidMesh } from "../../AutoMovieEngineSolidMesh";
 
 /*
  * Realize a continuation with a band
@@ -24,7 +24,7 @@ import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
  * other's.
  *
  * The band is a split's band with one stretch, the host's whole end ring, and
- * no seam (`AutoMovieConstructionSplitBand.fan`): its start ribbon is the
+ * no seam (`AutoMovieEngineConstructionSplitBand.fan`): its start ribbon is the
  * host's own 2-jet along its station line out of its end, its end ribbon the
  * part's own 2-jet at the rail toward its kept side, both scaled by the strip's
  * one factor, so the band is G2 to both. The ring's vertices are the host's end
@@ -78,10 +78,10 @@ export function AutoMovieConstructionBridgeRealize(
       `the host face's ${node.hostEnd} end is already cut away or shared`,
     );
   const snapshot: IAutoMovieConstructionState.ISnapshot =
-    AutoMovieConstructionState.snap(body, state);
+    AutoMovieEngineConstructionState.snap(body, state);
   const fail = (detail: string): void => {
     report(node.name, "band", detail);
-    AutoMovieConstructionState.restore(body, state, snapshot);
+    AutoMovieEngineConstructionState.restore(body, state, snapshot);
   };
   try {
     walk(node.part);
@@ -111,7 +111,7 @@ export function AutoMovieConstructionBridgeRealize(
     const into: 1 | -1 = node.partEnd === "bottom" ? 1 : -1;
     const rail: number =
       end(partChain, node.partEnd) +
-      into * node.band.rail * AutoMovieConstructionViews.SCALE;
+      into * node.band.rail * AutoMovieEngineConstructionViews.SCALE;
     const [first, last]: [number, number] = part.domain ?? [
       partChain.layers[0]!.y,
       partChain.layers[partChain.layers.length - 1]!.y,
@@ -124,7 +124,7 @@ export function AutoMovieConstructionBridgeRealize(
     // One stretch round the whole ring, from the host's phase 0, and no seam: the split's band with its corner turn idle.
     const band:
       | (IAutoMovieConstructionSplitBand.IStrip & { phases: number[] })
-      | string = AutoMovieConstructionSplitBand.fan(
+      | string = AutoMovieEngineConstructionSplitBand.fan(
       {
         name: node.name,
         host: { surface: host, station: hostStation, into: hostInto },
@@ -139,9 +139,9 @@ export function AutoMovieConstructionBridgeRealize(
 
     // The shared vertices: the host's end ring at the band's columns and the part's rail at their matched phases.
     const mesh: IAutoMovieSolidMesh.IMesh = body.mesh;
-    const hostOwner: number = AutoMovieSolidMesh.owner(mesh, host);
+    const hostOwner: number = AutoMovieEngineSolidMesh.owner(mesh, host);
     const ring: number[] = band.phases.map((phi: number): number =>
-      AutoMovieSolidMesh.vertex(
+      AutoMovieEngineSolidMesh.vertex(
         mesh,
         host.jet(hostStation, phi).p,
         hostOwner,
@@ -149,9 +149,9 @@ export function AutoMovieConstructionBridgeRealize(
         phi,
       ),
     );
-    const partOwner: number = AutoMovieSolidMesh.owner(mesh, part);
+    const partOwner: number = AutoMovieEngineSolidMesh.owner(mesh, part);
     const rails: number[] = band.childPhases.map((psi: number): number =>
-      AutoMovieSolidMesh.vertex(
+      AutoMovieEngineSolidMesh.vertex(
         mesh,
         part.jet(rail, psi).p,
         partOwner,
@@ -260,8 +260,8 @@ export function AutoMovieConstructionBridgeRealize(
     state.chainList.push(band.chain);
     state.chainSurfaces.push(band.surface);
   } catch (error: unknown) {
-    AutoMovieConstructionState.restore(body, state, snapshot);
-    if (!(error instanceof AutoMovieLoftAdmissionError)) throw error;
+    AutoMovieEngineConstructionState.restore(body, state, snapshot);
+    if (!(error instanceof AutoMovieEngineLoftAdmissionError)) throw error;
     report(node.name, "band", error.message);
   }
 }

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeMop } from "../AutoMovieArchetypeMop";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { LongImplementDraw } from "./LongImplementDraw";
@@ -52,9 +52,9 @@ export function createMop(
       kind: "handle",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, PAD + share * (d.length! - PAD), 0),
-        Vector3.create(0, 0, -1),
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, PAD + share * (d.length! - PAD), 0),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "power",

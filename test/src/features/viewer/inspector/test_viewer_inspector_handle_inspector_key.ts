@@ -1,5 +1,5 @@
 import {
-  AutoMovieInspectorPlayhead,
+  AutoMovieViewerInspectorPlayhead,
   AutoMovieViewerInspector,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -35,7 +35,7 @@ type Target = { closest(selectors: string): unknown } | null;
  *    stepping starts from the displayed frame.
  */
 export function test_viewer_inspector_handle_inspector_key(): void {
-  const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
+  const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
   playhead.setDuration(4);
 
   // A test element: `closest` matches a simple selector of the list, its tag,

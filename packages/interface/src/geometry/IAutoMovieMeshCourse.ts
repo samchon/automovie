@@ -5,8 +5,8 @@ import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 export namespace IAutoMovieMeshCourse {
   /**
    * One station's section plane: origin on the course, chart axes `u` and `v`
-   * in the plane, normal `v x u` along the course (the `AutoMovieLoftFrame` and
-   * `AutoMovieViewAxis` convention).
+   * in the plane, normal `v x u` along the course (the `AutoMovieEngineLoftFrame` and
+   * `AutoMovieEngineViewAxis` convention).
    */
   export interface IPlane extends IAutoMovieLoftSectionFrame {
     /**
@@ -157,7 +157,7 @@ export namespace IAutoMovieMeshCourse {
     reach: number | null;
 
     /**
-     * The cut's own flags (`AutoMovieMeshExtract.outline`: open, bridged,
+     * The cut's own flags (`AutoMovieEngineMeshExtract.outline`: open, bridged,
      * unclosed), in full.
      */
     flags: string[];

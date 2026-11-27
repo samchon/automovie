@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import * as AutoMovieArchetypeRingData from "./internal/AutoMovieArchetypeRingData";
+import { AutoMovieArchetypeRingData } from "./internal/AutoMovieArchetypeRingData";
 
 /** A roped training ring with a canvas and named corner contacts. */
 export namespace AutoMovieArchetypeRing {
@@ -53,7 +53,7 @@ export function create(
     name: "ring",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const half: number = d.size / 2;
   const outer: number = d.size + 2 * AutoMovieArchetypeRing.APRON;
   const floor: number = d.platform;

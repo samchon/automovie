@@ -8,7 +8,7 @@ import {
   type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-import { swingTwistRange } from "../../kinematics/swingTwistRange";
+import { AutoMovieEngineSwingTwistRange } from "../../kinematics/AutoMovieEngineSwingTwistRange";
 import { abductionRange } from "./abductionRange";
 import { AutoMovieEngineJointRomScan } from "./AutoMovieEngineJointRomScan";
 
@@ -98,6 +98,6 @@ export function validateJointRom(
       constraint.swingTwist === undefined ||
       constraint.swingTwist === null
       ? undefined
-      : swingTwistRange.prepare(joint.bone, props.rig, constraint),
+      : AutoMovieEngineSwingTwistRange.prepare(joint.bone, props.rig, constraint),
   );
 }

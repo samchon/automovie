@@ -1,4 +1,6 @@
-import { StrikingWeaponTable } from "@automovie/motions/internal";
+import {
+  StrikingWeaponTable
+} from "../../../../../packages/motions/src/striking/internal/StrikingWeaponTable";
 import { TestValidator } from "@nestia/e2e";
 
 /**

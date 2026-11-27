@@ -1,5 +1,5 @@
 import { nclose } from "../../internal/predicates";
-import { AutoMovieViewAxis, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewAxis, AutoMovieEngineViewOutline } from "@automovie/engine";
 import {
   AutoMovieHumanConicSection as S,
   AutoMovieHumanNativeControlLaw as N,
@@ -230,7 +230,7 @@ export function test_human_native_control_law(): void {
   }
   if (!shiftedRefused)
     failures.push("a junction disagreeing with its changed natural cubic was accepted");
-  const reference = AutoMovieViewOutline.create(equalJunction);
+  const reference = AutoMovieEngineViewOutline.create(equalJunction);
   for (const nudge of [0, 5e-12]) {
     let bound: IAutoMovieViewPart.IOutline | undefined;
     try {
@@ -242,14 +242,14 @@ export function test_human_native_control_law(): void {
       failures.push(`an equal junction (nudge ${nudge}) was refused: ${String(error)}`);
     }
     if (bound === undefined || "contract" in reference) continue;
-    const curve = AutoMovieViewOutline.create(bound);
+    const curve = AutoMovieEngineViewOutline.create(bound);
     if ("contract" in curve) {
       failures.push("an equal junction made an inadmissible source");
       continue;
     }
     for (const station of [0.25, 0.5, 0.75]) {
-      const a = AutoMovieViewOutline.at(reference, station);
-      const b = AutoMovieViewOutline.at(curve, station);
+      const a = AutoMovieEngineViewOutline.at(reference, station);
+      const b = AutoMovieEngineViewOutline.at(curve, station);
       if (
         typeof a === "string" ||
         typeof b === "string" ||
@@ -268,16 +268,16 @@ export function test_human_native_control_law(): void {
     source([1, 2, 1, 5]),
     { type: "interval", domain: [0, 1] },
   );
-  const old: ReturnType<typeof AutoMovieViewOutline.create> =
-    AutoMovieViewOutline.create(original);
-  const changed: ReturnType<typeof AutoMovieViewOutline.create> =
-    AutoMovieViewOutline.create(protectedSource);
+  const old: ReturnType<typeof AutoMovieEngineViewOutline.create> =
+    AutoMovieEngineViewOutline.create(original);
+  const changed: ReturnType<typeof AutoMovieEngineViewOutline.create> =
+    AutoMovieEngineViewOutline.create(protectedSource);
   if ("contract" in old || "contract" in changed)
     failures.push("made original source admission failed");
   else
     for (const station of [0, 0.25, 0.5, 0.75, 1]) {
-      const a = AutoMovieViewOutline.at(old, station);
-      const b = AutoMovieViewOutline.at(changed, station);
+      const a = AutoMovieEngineViewOutline.at(old, station);
+      const b = AutoMovieEngineViewOutline.at(changed, station);
       const expected: readonly number[] = [
         1 + 1.5 * station - 0.5 * station ** 3,
         1.5 - 1.5 * station ** 2,
@@ -310,13 +310,13 @@ export function test_human_native_control_law(): void {
     ...rootOriginal,
     knots: [...rootOriginal.knots, { site: "nine", station: 9, value: 3 }],
   };
-  const sameParameter = AutoMovieViewOutline.create(
+  const sameParameter = AutoMovieEngineViewOutline.create(
     N.outline(rootOriginal, rootChanged, { type: "interval", domain: [1, 4] }),
   );
   if ("contract" in sameParameter)
     failures.push("same-root-parameter counterpart refused");
   else {
-    const value = AutoMovieViewOutline.at(sameParameter, 2.5);
+    const value = AutoMovieEngineViewOutline.at(sameParameter, 2.5);
     if (
       typeof value === "string" ||
       value.stationJet === null ||
@@ -343,7 +343,7 @@ export function test_human_native_control_law(): void {
     failures.push(
       "nonlinear root-to-station parameter was accepted as exact preservation",
     );
-  const movedSkin: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const movedSkin: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.straight(
     [3, 0, 9],
     [1, 0, 0],
     [0, 0, 1],

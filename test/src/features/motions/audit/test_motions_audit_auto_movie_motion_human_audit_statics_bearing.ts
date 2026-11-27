@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanAuditMotion } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditStatics } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditStatics
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditStatics";
 import { TestValidator } from "@nestia/e2e";
 
 /**

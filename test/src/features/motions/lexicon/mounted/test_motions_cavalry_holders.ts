@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { AutoMovieComposition, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineComposition, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
@@ -58,7 +58,7 @@ export function test_motions_cavalry_holders(): void {
     x: number,
   ): IAutoMovieVector3 => {
     const frame: IAutoMovieTransform = horse.affordance("lead").frame;
-    return Vector3.add(frame.translation, { x, y: 0, z: 0 });
+    return AutoMovieEngineVector3.add(frame.translation, { x, y: 0, z: 0 });
   };
   const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "holders",
@@ -76,7 +76,7 @@ export function test_motions_cavalry_holders(): void {
       AutoMovieMotionHumanObject.prop("left", horse, parked(PAIR / 2)),
       AutoMovieMotionHumanObject.prop("right", horse, parked(-PAIR / 2)),
     ],
-    composition: AutoMovieComposition.parallel(
+    composition: AutoMovieEngineComposition.parallel(
       AutoMovieMotionHumanChain.subject("holder")
         .stand({ hold: HOLD })
         .over((holder) =>

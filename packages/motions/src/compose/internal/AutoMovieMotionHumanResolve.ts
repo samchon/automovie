@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -297,20 +297,20 @@ export namespace AutoMovieMotionHumanResolve {
         if (error instanceof AutoMovieMotionHumanRefusal) return "out of reach";
         throw error;
       }
-      const axis: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(props.point, shoulder),
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(props.point, shoulder),
       );
       const across = (p: IAutoMovieVector3): IAutoMovieVector3 => {
-        const v: IAutoMovieVector3 = Vector3.subtract(p, shoulder);
-        return Vector3.normalize(
-          Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis))),
+        const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(p, shoulder);
+        return AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(v, axis))),
         );
       };
       const angle: number =
         (Math.acos(
           Math.max(
             -1,
-            Math.min(1, Vector3.dot(across(solved), across(preset))),
+            Math.min(1, AutoMovieEngineVector3.dot(across(solved), across(preset))),
           ),
         ) *
           180) /

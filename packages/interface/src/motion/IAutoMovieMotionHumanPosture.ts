@@ -16,7 +16,7 @@ import type { IAutoMovieHumanPostureRotation } from "./IAutoMovieHumanPostureRot
  * lowers the whole body 0.1; `yaw` turns the body about +Y in degrees (0 faces
  * +Z, 90 faces +X), then `pitch` tips it forward and `roll` toward its right,
  * both in degrees about the turned axes. `joints` holds clinical degrees
- * `[flexion, abduction, twist]` read through `HUMANOID_REST_FRAME`; a bone a
+ * `[flexion, abduction, twist]` read through `AutoMovieEngineHumanoidRestFrame`; a bone a
  * limb goal solves takes the goal's result instead. A limb goal places its end
  * joint (the wrist or the ankle) on `point`, bends its middle joint toward
  * `bend` and, when `rotation` is given, turns the hand or foot to that world

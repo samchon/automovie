@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { ArmourProfile } from "./ArmourProfile";
@@ -103,9 +103,9 @@ export namespace ArmourCell {
       point: IAutoMovieVector3,
       factorValue: number,
     ): IAutoMovieVector3 {
-      const moved: IAutoMovieVector3 = Vector3.add(
+      const moved: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         centre,
-        Vector3.scale(Vector3.subtract(point, centre), factorValue),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(point, centre), factorValue),
       );
       return course === "axis" ? { ...moved, y: point.y } : moved;
     }
@@ -118,12 +118,12 @@ export namespace ArmourCell {
     face: readonly IAutoMovieVector3[],
     centre: IAutoMovieVector3,
   ): number {
-    const normal: IAutoMovieVector3 = Vector3.cross(
-      Vector3.subtract(face[1]!, face[0]!),
-      Vector3.subtract(face[2]!, face[0]!),
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+      AutoMovieEngineVector3.subtract(face[1]!, face[0]!),
+      AutoMovieEngineVector3.subtract(face[2]!, face[0]!),
     );
     return (
-      Math.abs(Vector3.dot(normal, Vector3.subtract(face[0]!, centre))) /
+      Math.abs(AutoMovieEngineVector3.dot(normal, AutoMovieEngineVector3.subtract(face[0]!, centre))) /
       Math.hypot(normal.x, normal.y, normal.z)
     );
   }

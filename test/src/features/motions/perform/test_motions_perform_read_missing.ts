@@ -1,7 +1,9 @@
 import {
-  HumanPerformanceReadMissing,
-  AutoMovieMotionHumanRefusal,
-} from "@automovie/motions/internal";
+  HumanPerformanceReadMissing
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceReadMissing";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

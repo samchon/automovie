@@ -1,6 +1,6 @@
-import { type IApplyAutoMovieInspectionProps, type IAutoMovieDrawScene, type IAutoMovieViewerViewpoint, AutoMovieRenderSubjectViewpoint, AutoMovieRenderInspectionPath } from "@automovie/render";
+import { type IAutoMovieRenderApplyInspectionProps, type IAutoMovieRenderDrawScene, type IAutoMovieRenderViewerViewpoint, AutoMovieRenderSubjectViewpoint, AutoMovieRenderInspectionPath } from "@automovie/render";
 
-import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
+import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene.js";
 
 /*
  * What the inspector learns from a subject placed at its first second: the
@@ -15,15 +15,15 @@ export function readAutoMovieInspectorFacts(props: {
   /*
    * The created subject, placed at `seconds`.
    */
-  instance: IAutoMovieDrawScene;
+  instance: IAutoMovieRenderDrawScene;
 
   /*
    * The placed second.
    */
   seconds: number;
-}): IAutoMovieInspectorScene.IFacts {
+}): IAutoMovieViewerInspectorScene.IFacts {
   const { instance }: typeof props = props;
-  const marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]> =
+  const marks: NonNullable<IAutoMovieRenderApplyInspectionProps["marks"]> =
     instance.marks?.(props.seconds) ?? [];
   return {
     paths: [
@@ -37,7 +37,7 @@ export function readAutoMovieInspectorFacts(props: {
     views: [
       ...Object.keys(instance.views ?? {}),
       ...AutoMovieRenderSubjectViewpoint.autoMovieViewerNamedViewpoints().map(
-        ({ id }: IAutoMovieViewerViewpoint): string => id,
+        ({ id }: IAutoMovieRenderViewerViewpoint): string => id,
       ),
     ],
     width: instance.width,

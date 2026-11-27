@@ -18,7 +18,7 @@ const disjoint: (
 /**
  * Observe literal region sizes, selected semantic membership, disjointness and fullBody concatenation. The runtime unit does not enumerate the complete AutoMovieHumanoidBone union independently, so extending that vocabulary without updating the partition is outside these assertions.
  *
- * Current bodyRegionBones declares its three lists with satisfies readonly AutoMovieHumanoidBone[], which admits each named element but does not prove vocabulary exhaustiveness. No AUTOMOVIE_RIG_IS_PARTITIONED declaration exists in that source owner, so this comment does not claim a compiler completeness guard that the current implementation lacks.
+ * Current bodyRegionBones declares its three lists with satisfies readonly AutoMovieHumanoidBone[], which admits each named element but does not prove vocabulary exhaustiveness. No AutoMovieEngineRigIsPartitioned declaration exists in that source owner, so this comment does not claim a compiler completeness guard that the current implementation lacks.
  *
  * Scenarios:
  *

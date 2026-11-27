@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -50,16 +50,16 @@ export function HumanMountedKeys(
   const back: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Quaternion.rotateVector(
-      Quaternion.inverse(origin.rotation),
-      Vector3.subtract(point, origin.position),
+    AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(origin.rotation),
+      AutoMovieEngineVector3.subtract(point, origin.position),
     );
   const world: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       origin.position,
-      Quaternion.rotateVector(origin.rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(origin.rotation, point),
     );
   const seats: HumanMountedSeats.IContext = {
     body: context.body,

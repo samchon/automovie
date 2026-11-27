@@ -5,11 +5,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import type { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
-import type { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
+import type { AutoMovieEngineMotionTrajectoryFailure } from "../../AutoMovieEngineMotionTrajectoryFailure";
 
 /*
  * Measure a dense flight's angular-momentum defect in the actual mass model.
@@ -84,19 +84,19 @@ export function AirborneMomentumDefect(
         throw new Error(
           "Airborne momentum defect needs positive principal moments",
         );
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        AirborneShapeHistory.inverse(instant!) ?? Quaternion.inverse(rotation),
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AirborneShapeHistory.inverse(instant!) ?? AutoMovieEngineQuaternion.inverse(rotation),
         angularVelocity,
       );
       local.x *= moments.x;
       local.y *= moments.y;
       local.z *= moments.z;
-      body = Quaternion.rotateVector(rotation, local);
+      body = AutoMovieEngineQuaternion.rotateVector(rotation, local);
     }
     body.x += read.relative.x;
     body.y += read.relative.y;
     body.z += read.relative.z;
-    const world: IAutoMovieVector3 = Quaternion.rotateVector(orientation, body);
+    const world: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(orientation, body);
     const error: number = Math.hypot(
       world.x - target.x,
       world.y - target.y,
@@ -248,17 +248,17 @@ export namespace AirborneMomentumDefect {
    * changes.
    */
   export function failure(
-    error: MotionTrajectoryFailure,
+    error: AutoMovieEngineMotionTrajectoryFailure,
     history: IAutoMovieIntegrateAirborneRotation.IHistory,
     momentum: IAutoMovieVector3,
     tolerance: MomentumTolerance | undefined,
-  ): MotionTrajectoryFailure & IFailureContext {
+  ): AutoMovieEngineMotionTrajectoryFailure & IFailureContext {
     const startRate: NonNullable<
-      MotionTrajectoryFailure["rejection"]
+      AutoMovieEngineMotionTrajectoryFailure["rejection"]
     >["start"] = error.rejection?.start;
-    const endRate: NonNullable<MotionTrajectoryFailure["rejection"]>["end"] =
+    const endRate: NonNullable<AutoMovieEngineMotionTrajectoryFailure["rejection"]>["end"] =
       error.rejection?.end;
-    const probe: NonNullable<MotionTrajectoryFailure["rejection"]>["probe"] =
+    const probe: NonNullable<AutoMovieEngineMotionTrajectoryFailure["rejection"]>["probe"] =
       error.rejection?.probe;
     const trialEnd: number | null =
       error.rejection === undefined ? null : error.time + error.rejection.step;

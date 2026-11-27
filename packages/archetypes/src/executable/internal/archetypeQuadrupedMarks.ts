@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieMark,
@@ -93,12 +93,12 @@ export function archetypeQuadrupedMarks(
       if (node.parent === null) continue;
       const parent: Bar = bars.get(node.parent)!;
       const current: Bar = bars.get(node.bone)!;
-      const expected: IAutoMovieVector3 = Vector3.add(
+      const expected: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         parent.frame.translation,
-        Quaternion.rotateVector(parent.frame.rotation, node.rest.translation),
+        AutoMovieEngineQuaternion.rotateVector(parent.frame.rotation, node.rest.translation),
       );
-      const gap: number = Vector3.length(
-        Vector3.subtract(expected, current.from),
+      const gap: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(expected, current.from),
       );
       marks.push(
         mark(
@@ -160,7 +160,7 @@ export function archetypeQuadrupedMarks(
       const actual: Bar | undefined = bars.get(bone);
       if (actual === undefined)
         throw new RangeError(`No actual bar for inspection goal ${bone}`);
-      const gap: number = Vector3.length(Vector3.subtract(actual.to, target));
+      const gap: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(actual.to, target));
       marks.push(
         mark(
           `effector-goal/${bone}`,
@@ -239,15 +239,15 @@ function bar(part: IAutoMovieModelPart | undefined): Bar {
       "Quadruped inspection requires each actual transformed bar",
     );
   const frame: IAutoMovieTransform = part.transform;
-  const half: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+  const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
     x: 0,
     y: part.geometry.shape.height / 2,
     z: 0,
   });
-  const from: IAutoMovieVector3 = Vector3.subtract(frame.translation, half);
+  const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(frame.translation, half);
   return {
     from,
-    to: Vector3.add(frame.translation, half),
+    to: AutoMovieEngineVector3.add(frame.translation, half),
     frame: { ...frame, translation: from },
   };
 }
@@ -273,7 +273,7 @@ function sole(part: IAutoMovieModelPart): IAutoMovieVector3 {
     );
   const shape: typeof part.geometry.shape = part.geometry.shape;
   const current: Bar = bar(part);
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     current.frame.rotation,
     { x: 0, y: 1, z: 0 },
   );
@@ -284,8 +284,8 @@ function sole(part: IAutoMovieModelPart): IAutoMovieVector3 {
     y: axis.y * axis.y - 1,
     z: axis.z * axis.y,
   };
-  const length: number = Vector3.length(projected);
+  const length: number = AutoMovieEngineVector3.length(projected);
   return length === 0
     ? { ...end }
-    : Vector3.add(end, Vector3.scale(projected, shape.radius / length));
+    : AutoMovieEngineVector3.add(end, AutoMovieEngineVector3.scale(projected, shape.radius / length));
 }

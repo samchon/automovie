@@ -1,4 +1,4 @@
-import { type IAutoMovieViewerViewpoint, AutoMovieRenderSubjectViewpoint } from "@automovie/render";
+import { type IAutoMovieRenderViewerViewpoint, AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,14 +15,14 @@ import { TestValidator } from "@nestia/e2e";
  *    label are refused.
  */
 export function test_render_scene_turntable_viewpoints(): void {
-  const views: IAutoMovieViewerViewpoint[] =
+  const views: IAutoMovieRenderViewerViewpoint[] =
     AutoMovieRenderSubjectViewpoint.autoMovieViewerTurntableViewpoints({
       azimuthCount: 4,
       elevationsDeg: [0, -15],
     });
   TestValidator.equals(
     "ids",
-    views.map((view: IAutoMovieViewerViewpoint): string => view.id),
+    views.map((view: IAutoMovieRenderViewerViewpoint): string => view.id),
     [
       "az000-el000",
       "az090-el000",
@@ -36,7 +36,7 @@ export function test_render_scene_turntable_viewpoints(): void {
   );
   TestValidator.equals(
     "angles",
-    views.map((view: IAutoMovieViewerViewpoint): number[] => [
+    views.map((view: IAutoMovieRenderViewerViewpoint): number[] => [
       view.azimuthDeg,
       view.elevationDeg,
       view.distanceFactor,

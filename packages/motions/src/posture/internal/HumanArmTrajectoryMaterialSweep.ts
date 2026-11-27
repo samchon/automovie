@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -95,7 +95,7 @@ export function HumanArmTrajectoryMaterialSweep(
           pair.shape,
           to.probes[probe]![0],
         );
-      const travel: number = Vector3.distance(point, moved.point);
+      const travel: number = AutoMovieEngineVector3.distance(point, moved.point);
       if (
         travel === 0 ||
         Math.min(first, last) + 1000 * travel <= T.SKIN + worst
@@ -107,10 +107,10 @@ export function HumanArmTrajectoryMaterialSweep(
           c.allowed(a, n, probe, pair.shape),
         ) -
         T.SKIN / 1000;
-      const centre: IAutoMovieVector3 = Vector3.lerp(point, moved.point, 0.5);
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(point, moved.point, 0.5);
       const margin: number = lower + radius + travel / 2 - worst / 1000;
       if (
-        Vector3.distance(centre, shape.centre) - shape.radius > margin ||
+        AutoMovieEngineVector3.distance(centre, shape.centre) - shape.radius > margin ||
         HumanArmShapeBox(shape, centre) > margin
       )
         continue;
@@ -141,10 +141,10 @@ export function HumanArmTrajectoryMaterialSweep(
       startPoint,
       endPoint,
     );
-    const travel: IAutoMovieVector3 = Vector3.subtract(endPoint, startPoint);
+    const travel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(endPoint, startPoint);
     const u: number =
-      Vector3.dot(Vector3.subtract(nearest.at, startPoint), travel) /
-      Vector3.dot(travel, travel);
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(nearest.at, startPoint), travel) /
+      AutoMovieEngineVector3.dot(travel, travel);
     if (!(u > 0 && u < 1)) continue;
     const seconds: number = c.times[k]! + u * (c.times[n]! - c.times[k]!);
     encounters.push({

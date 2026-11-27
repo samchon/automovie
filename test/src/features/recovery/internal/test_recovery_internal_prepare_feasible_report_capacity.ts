@@ -1,4 +1,4 @@
-import { RecoveryFeasibleCapacityError, AutoMovieRecoveryCameraMap } from "@automovie/recovery";
+import { AutoMovieRecoveryFeasibleCapacityError, AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -28,7 +28,7 @@ export function test_recovery_internal_prepare_feasible_report_capacity(): void 
   try {
     AutoMovieRecoveryCameraMap.prepareFeasibleReportCapacity(2048, 2048, 3);
   } catch (error) {
-    if (error instanceof RecoveryFeasibleCapacityError) reason = error.reason;
+    if (error instanceof AutoMovieRecoveryFeasibleCapacityError) reason = error.reason;
   }
   TestValidator.equals("everything reserved", reason, "resident");
   TestValidator.error("a zero scene", (): unknown =>

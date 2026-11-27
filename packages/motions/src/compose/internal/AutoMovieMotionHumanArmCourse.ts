@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -387,7 +387,7 @@ function solver(
       // A fit that names no seed (another candidate won) leaves the last one,
       // so the next instant still continues rather than sweeping afresh.
       if (fitted.seed !== undefined && fitted.seed !== null)
-        next[limb] = { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION };
+        next[limb] = { ...fitted.seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
       else if (near[limb] !== undefined) next[limb] = near[limb]!;
     }
     return {
@@ -463,7 +463,7 @@ function entered(
     const seed: IAutoMovieSwivelSeed | null =
       arm.hold ?? (reached ? null : HumanLimbFit.seed(props.body, pose, limb));
     if (seed !== null)
-      near[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+      near[limb] = { ...seed, tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION };
   }
   return reached
     ? { near }

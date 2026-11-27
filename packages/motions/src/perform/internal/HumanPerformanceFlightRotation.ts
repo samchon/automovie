@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieQuaternion,
@@ -20,14 +20,14 @@ import { createHumanPostureRotation } from "../../posture/internal/createHumanPo
 export function HumanPerformanceFlightRotation(
   props: HumanPerformanceFlightRotation.IProps,
 ): (seconds: number) => IAutoMovieHumanPostureRotation {
-  const reads: ReturnType<typeof Quaternion.prepareSlerp>[] = props.table
+  const reads: ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp>[] = props.table
     .slice(0, -1)
     .map(
       (
         row: HumanPerformanceFlightRotation.IRow,
         i: number,
-      ): ReturnType<typeof Quaternion.prepareSlerp> =>
-        Quaternion.prepareSlerp(row.root, props.table[i + 1]!.root),
+      ): ReturnType<typeof AutoMovieEngineQuaternion.prepareSlerp> =>
+        AutoMovieEngineQuaternion.prepareSlerp(row.root, props.table[i + 1]!.root),
     );
   return (seconds: number): IAutoMovieHumanPostureRotation => {
     const t: number = Math.max(
@@ -42,11 +42,11 @@ export function HumanPerformanceFlightRotation(
     const u: number = (t - a) / (props.times[i + 1]! - a);
     const unturned: IAutoMovieQuaternion = reads[i]!(u);
     return createHumanPostureRotation(
-      Vector3.lerp(props.table[i]!.about, props.table[i + 1]!.about, u),
-      Quaternion.normalize(
-        Quaternion.multiply(
+      AutoMovieEngineVector3.lerp(props.table[i]!.about, props.table[i + 1]!.about, u),
+      AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
           props.orientation(t, unturned),
-          Quaternion.inverse(unturned),
+          AutoMovieEngineQuaternion.inverse(unturned),
         ),
       ),
     );

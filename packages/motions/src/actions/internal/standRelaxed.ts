@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -226,7 +226,7 @@ export namespace standRelaxed {
     let lo: number = 0;
     let hi: number = range.max;
     if (sinks(lo))
-      while (hi - lo > ROM_TOLERANCE) {
+      while (hi - lo > AutoMovieEngineRomTolerance) {
         const mid: number = (lo + hi) / 2;
         if (sinks(mid)) lo = mid;
         else hi = mid;

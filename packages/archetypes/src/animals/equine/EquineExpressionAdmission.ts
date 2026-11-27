@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -79,12 +79,12 @@ export namespace EquineExpressionAdmission {
     sample: AutoMovieArchetypeRide.IPose<string, string>,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       sample.placement.rotation,
     );
-    return Quaternion.rotateVector(
+    return AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(point, sample.placement.translation),
+      AutoMovieEngineVector3.subtract(point, sample.placement.translation),
     );
   }
 

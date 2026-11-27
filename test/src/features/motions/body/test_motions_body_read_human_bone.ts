@@ -3,7 +3,9 @@ import type {
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import { readHumanBone } from "@automovie/motions/internal";
+import {
+  readHumanBone
+} from "../../../../../packages/motions/src/body/internal/readHumanBone";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IHumanFixture } from "../../internal/fixtures/IHumanFixture";

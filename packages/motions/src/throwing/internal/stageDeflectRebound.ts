@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -23,11 +23,11 @@ export function stageDeflectRebound(
   intercept: number = contact,
 ): IAutoMovieVector3 {
   const span: number = Math.min(contact / 2, 1e-4);
-  const incoming: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(object(contact), object(contact - span)),
+  const incoming: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(object(contact), object(contact - span)),
     1 / span,
   );
-  if (!(Vector3.length(incoming) > 0))
+  if (!(AutoMovieEngineVector3.length(incoming) > 0))
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "intercept",
@@ -35,5 +35,5 @@ export function stageDeflectRebound(
       reason: "the ball is not moving at the touch",
       fix: "deflect the ball in flight",
     });
-  return Vector3.scale(incoming, -restitution);
+  return AutoMovieEngineVector3.scale(incoming, -restitution);
 }

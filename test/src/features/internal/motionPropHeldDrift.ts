@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
@@ -42,9 +42,9 @@ export function motionPropHeldDrift(
     const hand: IAutoMovieResolvedBone = performance
       .bones("a", seconds)
       .get("rightHand")!;
-    return Quaternion.rotateVector(
-      Quaternion.inverse(hand.worldRotation),
-      Vector3.subtract(
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+      AutoMovieEngineVector3.subtract(
         performance.prop(prop, seconds).position,
         hand.worldPosition,
       ),
@@ -59,7 +59,7 @@ export function motionPropHeldDrift(
   )
     worst = Math.max(
       worst,
-      Vector3.length(Vector3.subtract(seat(seconds), first)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(seat(seconds), first)),
     );
   return worst;
 }

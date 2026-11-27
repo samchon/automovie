@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -41,7 +41,7 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
   function placed(side: AutoMovieHumanSide): kneelKeys.IFoot {
     return {
       ...props.tucks[side].foot,
-      at: Vector3.add(
+      at: AutoMovieEngineVector3.add(
         crawling.limbs[`${side}Leg`]!.bend,
         props.tucks[side].offset,
       ),
@@ -55,7 +55,7 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
     right: AutoMovieMotionHumanArm.angles(props.entry, "right"),
   };
   const middle = (pair: Record<AutoMovieHumanSide, IAutoMovieVector3>) =>
-    Vector3.lerp(pair.left, pair.right, 0.5);
+    AutoMovieEngineVector3.lerp(pair.left, pair.right, 0.5);
   const hipsOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
     middle(
       hipJoints(
@@ -93,7 +93,7 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
   ): ReturnType<ReturnType<typeof crawlFeet.prepareRoll>> =>
     rollers[side](share);
   const short = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
-    Vector3.subtract(tucked[side].at, roll(side, 1).mtp);
+    AutoMovieEngineVector3.subtract(tucked[side].at, roll(side, 1).mtp);
   const shorts = { left: short("left"), right: short("right") };
 
   const armed = (
@@ -174,11 +174,11 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
       (Math.acos(
         Math.min(
           1,
-          Vector3.dot(
-            Vector3.normalize(
-              Vector3.subtract(hipsOf(at(back, 0, false)), knee),
+          AutoMovieEngineVector3.dot(
+            AutoMovieEngineVector3.normalize(
+              AutoMovieEngineVector3.subtract(hipsOf(at(back, 0, false)), knee),
             ),
-            Vector3.normalize(Vector3.subtract(ankle, knee)),
+            AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(ankle, knee)),
           ),
         ),
       ) *
@@ -203,14 +203,14 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
       posture: IAutoMovieMotionHumanPosture,
     ): IAutoMovieVector3 => read.shoulders({ ...posture, limbs: {} });
     const shoulder: IAutoMovieVector3 = shoulders(crawling);
-    const reach: number = Vector3.length(Vector3.subtract(shoulder, wrist));
-    const trunk: number = Vector3.length(
-      Vector3.subtract(shoulder, hipsOf(crawling)),
+    const reach: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(shoulder, wrist));
+    const trunk: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(shoulder, hipsOf(crawling)),
     );
     const leanAt = (back: number): number => {
       const short = (degrees: number): number =>
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             shoulders(at(back, degrees / props.pitch, false)),
             wrist,
           ),
@@ -239,8 +239,8 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
         const bones: ReturnType<typeof read.knees> = read.knees(posture);
         return sides.every(
           (side): boolean =>
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 bones.get(`${side}LowerLeg`)!.worldPosition,
                 posture.limbs[`${side}Leg`]!.bend,
               ),
@@ -289,8 +289,8 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
           const centre: ReturnType<typeof HumanBalance.prepareCentre> =
             HumanBalance.prepareCentre(body);
           const error = (back: number): number =>
-            Vector3.dot(
-              Vector3.subtract(centre(at(back, leanAt(back))), support),
+            AutoMovieEngineVector3.dot(
+              AutoMovieEngineVector3.subtract(centre(at(back, leanAt(back))), support),
               forward,
             );
           const back: number =
@@ -352,16 +352,16 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
       root: crawlFrame.rootFor(
         body,
         tilted,
-        Vector3.lerp(hipsOf(S), hipsOf(to), u),
+        AutoMovieEngineVector3.lerp(hipsOf(S), hipsOf(to), u),
       ),
     };
     for (const side of sides) {
       const r = roll(side, u);
       out.limbs[`${side}Leg`] = {
-        point: Vector3.add(r.placement.ankle, Vector3.scale(shorts[side], u)),
+        point: AutoMovieEngineVector3.add(r.placement.ankle, AutoMovieEngineVector3.scale(shorts[side], u)),
         rotation: r.placement.rotation,
         contact: HumanFoot.offset(body, side, "mtp"),
-        bend: Vector3.lerp(
+        bend: AutoMovieEngineVector3.lerp(
           S.limbs[`${side}Leg`]!.bend,
           to.limbs[`${side}Leg`]!.bend,
           u,

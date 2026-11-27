@@ -3,7 +3,7 @@ import type {
   IAutoMoviePoses,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalCoupledTargetError } from "../AutoMoviePhysicalCoupledTargetError";
+import { AutoMovieEnginePhysicalCoupledTargetError } from "../AutoMovieEnginePhysicalCoupledTargetError";
 import { planPhysicalCoupledTargets } from "./planPhysicalCoupledTargets";
 
 /*
@@ -32,7 +32,7 @@ export function fitPhysicalCoupledTargetGroup(
     active.size !== input.members.length ||
     interval.members.some((body: string): boolean => !active.has(body))
   )
-    throw new AutoMoviePhysicalCoupledTargetError({
+    throw new AutoMovieEnginePhysicalCoupledTargetError({
       ...frame,
       kind: "refused",
       reason: "membership",
@@ -41,7 +41,7 @@ export function fitPhysicalCoupledTargetGroup(
   const result: ReturnType<typeof planPhysicalCoupledTargets> =
     planPhysicalCoupledTargets(input);
   if (result.kind !== "converged")
-    throw new AutoMoviePhysicalCoupledTargetError({ ...frame, ...result });
+    throw new AutoMovieEnginePhysicalCoupledTargetError({ ...frame, ...result });
   const { targets, ...fit } = result;
   return { targets, report: { ...frame, ...fit } };
 }

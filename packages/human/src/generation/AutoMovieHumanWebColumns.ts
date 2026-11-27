@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieArcLengthJet,
@@ -60,27 +60,27 @@ export namespace AutoMovieHumanWebColumns {
         const sc: number = down
           ? child.layers[child.layers.length - 1]!.y
           : child.layers[0]!.y;
-        const onChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
+        const onChild: (t: number) => Vec3 = AutoMovieEngineLoftChain.sampler(
           child,
           sc,
         );
-        const inChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
+        const inChild: (t: number) => Vec3 = AutoMovieEngineLoftChain.sampler(
           child,
           sc + (down ? -H : H),
         );
         const into = (t: number): Vec3 => unit(sub(inChild(t), onChild(t)));
         // The child's station curve at a phase, entering it from its end ring.
-        const deepChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
+        const deepChild: (t: number) => Vec3 = AutoMovieEngineLoftChain.sampler(
           child,
           sc + (down ? -2 * H : 2 * H),
         );
         const childJet = (t: number): IAutoMovieArcLengthJet =>
           leaving(onChild(t), inChild(t), deepChild(t), 1);
-        const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(
+        const f: IAutoMovieLoftSectionFrame = AutoMovieEngineLoftChain.frame(
           child,
           sc,
         );
-        const O: Vec3 = AutoMovieLoftChain.axis(child, sc);
+        const O: Vec3 = AutoMovieEngineLoftChain.axis(child, sc);
         const angle = (p: Vec3): number =>
           Math.atan2(dot(sub(p, O), f.v), dot(sub(p, O), f.u));
 

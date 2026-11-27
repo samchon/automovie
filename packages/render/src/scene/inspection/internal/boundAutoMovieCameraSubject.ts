@@ -1,6 +1,6 @@
 import { Box3, Mesh } from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 
 /*
@@ -21,11 +21,11 @@ export function boundAutoMovieCameraSubject(
   const combined: Box3 = new Box3();
   const world: Box3 = new Box3();
   for (const mesh of meshes) {
-    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh))
+    if (AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(mesh))
       mesh.computeBoundingBox();
     else if (mesh.geometry.boundingBox === null)
       mesh.geometry.computeBoundingBox();
-    const local: Box3 | null = AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
+    const local: Box3 | null = AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(mesh)
       ? mesh.boundingBox
       : mesh.geometry.boundingBox;
     if (local === null || !isFiniteBox(local)) return undefined;

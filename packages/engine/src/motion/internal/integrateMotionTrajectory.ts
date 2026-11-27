@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { MotionTrajectoryRead } from "./trajectory/MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./trajectory/MotionTrajectoryRotation";
 import { MotionTrajectoryStepper } from "./trajectory/MotionTrajectoryStepper";
@@ -163,7 +163,7 @@ export namespace integrateMotionTrajectory {
     const times: number[] = [t0];
     const xs: number[][] = [[...props.x0]];
     const qs: (IAutoMovieQuaternion | null)[] = [
-      oriented ? Quaternion.normalize(props.q0!) : null,
+      oriented ? AutoMovieEngineQuaternion.normalize(props.q0!) : null,
     ];
     const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [
       retained(t0, xs[0]!, qs[0]!),
@@ -232,7 +232,7 @@ export namespace integrateMotionTrajectory {
               z: (dt / 6) * (u1!.z + 2 * u2!.z + 2 * u3!.z + u4!.z),
             };
       const qn: IAutoMovieQuaternion | null =
-        q === null ? null : Quaternion.normalize(turn(q, step)!);
+        q === null ? null : AutoMovieEngineQuaternion.normalize(turn(q, step)!);
       times.push(next);
       xs.push(xn);
       qs.push(qn);

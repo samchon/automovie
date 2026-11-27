@@ -1,9 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  KneeGeometry,
-  type KneeReach,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  KneeGeometry
+} from "../../../../../packages/motions/src/striking/internal/KneeGeometry";
+import type {
+  KneeReach
+} from "../../../../../packages/motions/src/striking/internal/KneeReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

@@ -6,10 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
-import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalBalance } from "./AutoMovieEnginePhysicalBalance";
+import type { AutoMovieEngineXpbdBody } from "./AutoMovieEngineXpbdBody";
 
 /**
  * The stance's swing terms (`AutoMovieEnginePhysicalStanceBalance`): the reach of a step, the
@@ -97,7 +97,7 @@ export namespace AutoMovieEnginePhysicalStanceSwing {
     profile: IAutoMoviePhysicalProfile,
     poses: ReadonlyMap<
       string,
-      Pick<AutoMovieXpbdBody, "translation" | "rotation">
+      Pick<AutoMovieEngineXpbdBody, "translation" | "rotation">
     >,
     limb: Limb,
   ): number {
@@ -113,13 +113,13 @@ export namespace AutoMovieEnginePhysicalStanceSwing {
     profile: IAutoMoviePhysicalProfile,
     poses: ReadonlyMap<
       string,
-      Pick<AutoMovieXpbdBody, "translation" | "rotation">
+      Pick<AutoMovieEngineXpbdBody, "translation" | "rotation">
     >,
     limb: Limb,
   ): { mass: number; length: number; torque: number } {
     const pose = (bone: string): IAutoMovieRigidTransform | undefined => {
       const rigid:
-        | Pick<AutoMovieXpbdBody, "translation" | "rotation">
+        | Pick<AutoMovieEngineXpbdBody, "translation" | "rotation">
         | undefined = poses.get(bone);
       return rigid
         ? { position: rigid.translation(), rotation: rigid.rotation() }
@@ -132,29 +132,29 @@ export namespace AutoMovieEnginePhysicalStanceSwing {
       first && pose(first.parent);
     const tip: IAutoMovieRigidTransform | undefined = pose(limb.bone);
     if (!first || !parent || !tip) return { mass: 0, length: 0, torque: 0 };
-    const hip: IAutoMovieVector3 = Vector3.add(
+    const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parent.position,
-      Quaternion.rotateVector(parent.rotation, first.parentFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(parent.rotation, first.parentFrame.position),
     );
-    const end: IAutoMovieVector3 = Vector3.add(
+    const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       tip.position,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         tip.rotation,
         limb.localPoint ?? { x: 0, y: 0, z: 0 },
       ),
     );
-    const length: number = Vector3.length(Vector3.subtract(end, hip));
+    const length: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(end, hip));
     if (!(length > 0)) return { mass: 0, length: 0, torque: 0 };
     let moment: number = 0;
     for (const bone of new Set([...limb.chain, ...(limb.contacts ?? [])])) {
       const segment = profile.segments.find((s): boolean => s.bone === bone);
       const at: IAutoMovieRigidTransform | undefined = pose(bone);
       if (!segment || !at) continue;
-      const center: IAutoMovieVector3 = Vector3.add(
+      const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         at.position,
-        Quaternion.rotateVector(at.rotation, segment.centerOfMass),
+        AutoMovieEngineQuaternion.rotateVector(at.rotation, segment.centerOfMass),
       );
-      moment += segment.mass * Vector3.length(Vector3.subtract(center, hip));
+      moment += segment.mass * AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(center, hip));
     }
     return {
       mass: moment / length,
@@ -177,7 +177,7 @@ export namespace AutoMovieEnginePhysicalStanceSwing {
     return Math.min(
       height,
       (LIFT_SHARE * mass * gravity * duration * duration) /
-        (AutoMoviePhysicalBalance.CLEARANCE * leg),
+        (AutoMovieEnginePhysicalBalance.CLEARANCE * leg),
     );
   }
 
@@ -188,33 +188,33 @@ export namespace AutoMovieEnginePhysicalStanceSwing {
    */
   export function momentum(
     profile: IAutoMoviePhysicalProfile,
-    segments: ReadonlyMap<string, AutoMovieXpbdBody>,
+    segments: ReadonlyMap<string, AutoMovieEngineXpbdBody>,
     center: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     let total: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const segment of profile.segments) {
-      const rigid: AutoMovieXpbdBody | undefined = segments.get(segment.bone);
+      const rigid: AutoMovieEngineXpbdBody | undefined = segments.get(segment.bone);
       if (!rigid) continue;
-      const axes: IAutoMovieQuaternion = Quaternion.multiply(
+      const axes: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         rigid.rotation(),
         segment.inertiaRotation,
       );
       const spin: IAutoMovieVector3 = rigid.angvel();
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(axes),
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(axes),
         spin,
       );
-      const own: IAutoMovieVector3 = Quaternion.rotateVector(axes, {
+      const own: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(axes, {
         x: segment.inertia.x * local.x,
         y: segment.inertia.y * local.y,
         z: segment.inertia.z * local.z,
       });
       const at: IAutoMovieVector3 = rigid.worldCom();
-      const orbit: IAutoMovieVector3 = Vector3.scale(
-        Vector3.cross(Vector3.subtract(at, center), rigid.linvel()),
+      const orbit: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.cross(AutoMovieEngineVector3.subtract(at, center), rigid.linvel()),
         segment.mass,
       );
-      total = Vector3.add(total, Vector3.add(own, orbit));
+      total = AutoMovieEngineVector3.add(total, AutoMovieEngineVector3.add(own, orbit));
     }
     return total;
   }

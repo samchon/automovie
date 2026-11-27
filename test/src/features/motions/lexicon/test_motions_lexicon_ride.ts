@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  Transform,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineTransform,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -13,10 +13,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  humanRidePosting,
-  humanRideWindows,
-  placeRideFeet,
-} from "@automovie/motions/internal";
+  humanRidePosting
+} from "../../../../../packages/motions/src/lexicon/internal/humanRidePosting";
+import {
+  humanRideWindows
+} from "../../../../../packages/motions/src/lexicon/internal/humanRideWindows";
+import {
+  placeRideFeet
+} from "../../../../../packages/motions/src/lexicon/internal/placeRideFeet";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -110,11 +114,11 @@ export function test_motions_lexicon_ride(): void {
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const start: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
-    rotation: Quaternion.fromAxisAngle(up, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(up, 90),
   };
   const turned: IAutoMovieRigidTransform = {
     position: { x: 4, y: 6, z: 8 },
-    rotation: Quaternion.fromAxisAngle(up, 180),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(up, 180),
   };
   const id: string = "leftStirrup";
   const probe: placeRideFeet.IRetain = {
@@ -134,7 +138,7 @@ export function test_motions_lexicon_ride(): void {
     },
     foot: {
       ankle: { x: 2, y: 2, z: 3 },
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
       planted: true,
     },
     goal: {
@@ -150,7 +154,7 @@ export function test_motions_lexicon_ride(): void {
         frame: start,
         points: { [id]: { point: start.position, normal: up } },
         affordances: [
-          { id, kind: "stirrup", frame: Transform.identity(), extent: null },
+          { id, kind: "stirrup", frame: AutoMovieEngineTransform.identity(), extent: null },
         ],
       },
       frame: () => start,
@@ -166,18 +170,18 @@ export function test_motions_lexicon_ride(): void {
   const roundoff: number = 32 * Number.EPSILON * 10;
   TestValidator.predicate(
     "a named stirrup retains the displayed ankle, ball, knee pole and branch",
-    Vector3.distance(kept.at(3).point, probe.foot.ankle) < roundoff &&
-      Vector3.distance(read.point, { x: 4, y: 6, z: 7 }) < roundoff &&
-      Vector3.distance(read.bend, { x: 5, y: 7, z: 8 }) < roundoff &&
-      Vector3.distance(Quaternion.rotateVector(read.rotation!, forward), {
+    AutoMovieEngineVector3.distance(kept.at(3).point, probe.foot.ankle) < roundoff &&
+      AutoMovieEngineVector3.distance(read.point, { x: 4, y: 6, z: 7 }) < roundoff &&
+      AutoMovieEngineVector3.distance(read.bend, { x: 5, y: 7, z: 8 }) < roundoff &&
+      AutoMovieEngineVector3.distance(AutoMovieEngineQuaternion.rotateVector(read.rotation!, forward), {
         x: 1,
         y: 0,
         z: 0,
       }) < roundoff &&
-      Vector3.distance(
-        Vector3.add(
+      AutoMovieEngineVector3.distance(
+        AutoMovieEngineVector3.add(
           read.point,
-          Quaternion.rotateVector(read.rotation!, read.contact!),
+          AutoMovieEngineQuaternion.rotateVector(read.rotation!, read.contact!),
         ),
         { x: 4.2, y: 6, z: 7 },
       ) < roundoff &&
@@ -197,7 +201,7 @@ export function test_motions_lexicon_ride(): void {
           prop: {
             ...probe.support.prop,
             affordances: [
-              { id, kind: "pedal", frame: Transform.identity(), extent: null },
+              { id, kind: "pedal", frame: AutoMovieEngineTransform.identity(), extent: null },
             ],
           },
         },
@@ -212,7 +216,7 @@ function testFootAcquisition(): void {
   const entry: IAutoMovieHumanLimbGoal = {
     point: { x: 0, y: 0.3, z: 0 },
     bend: { x: 0, y: 0.3, z: 0.3 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
     contact: { x: 0, y: -0.05, z: 0.1 },
     planted: true,
     seed: { swivel: 25, branch: 1 },
@@ -226,8 +230,8 @@ function testFootAcquisition(): void {
     limbs: { leftLeg: entry },
   };
   const rotation: IAutoMovieRigidTransform["rotation"] =
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 30);
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 30);
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 1,
     z: 0,
@@ -259,10 +263,10 @@ function testFootAcquisition(): void {
   TestValidator.predicate(
     "the acquisition midpoint advances the socket and drops the entry seed",
     middle.seed === undefined &&
-      Vector3.distance(
-        Vector3.add(
+      AutoMovieEngineVector3.distance(
+        AutoMovieEngineVector3.add(
           middle.point,
-          Quaternion.rotateVector(middle.rotation!, foot.contact),
+          AutoMovieEngineQuaternion.rotateVector(middle.rotation!, foot.contact),
         ),
         { x: 0.1, y: 0.15, z: 0.15 },
       ) < 1e-12,
@@ -282,7 +286,7 @@ function testFootAcquisition(): void {
     halfExtents: { x: 0.04, y: 0.01, z: 0.06 },
     transform: {
       position: { x: 0, y: -0.04, z: 0.1 },
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
     },
   };
   const outline: readonly IAutoMovieVector3[] = [
@@ -306,7 +310,7 @@ function testFootAcquisition(): void {
         goal.planted === true &&
         contact !== undefined &&
         nclose(contact.clearance, 0, 1e-12) &&
-        Vector3.distance(contact.point, { x: 0, y: 0, z: 0 }) < 1e-12,
+        AutoMovieEngineVector3.distance(contact.point, { x: 0, y: 0, z: 0 }) < 1e-12,
     );
   }
 }

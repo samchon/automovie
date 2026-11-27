@@ -4,7 +4,7 @@ import type {
   IAutoMoviePhysicsCache,
 } from "@automovie/interface";
 
-import { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
+import { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
 
 /*
  * Restore the complete solver and causal prefix selected by sampled-input
@@ -22,7 +22,7 @@ export function restorePhysicalSimulationCheckpoint(
   cache: IAutoMoviePhysicsCache,
   start: number,
   diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
-): AutoMovieXpbdWorld {
+): AutoMovieEngineXpbdWorld {
   if (start > 0 && previous) {
     for (let index: number = 0; index <= start; index++)
       cache.frames.push(previous.cache.frames[index]!);
@@ -79,9 +79,9 @@ export function restorePhysicalSimulationCheckpoint(
 
     // Finish every fallible prefix copy before building the world.
     // The caller receives sole disposal ownership immediately on return.
-    return AutoMovieXpbdWorld.restoreSnapshot(
+    return AutoMovieEngineXpbdWorld.restoreSnapshot(
       previous.cache.checkpoints.get(start)!,
     );
   }
-  return new AutoMovieXpbdWorld(input.gravity);
+  return new AutoMovieEngineXpbdWorld(input.gravity);
 }

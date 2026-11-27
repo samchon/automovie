@@ -1,5 +1,5 @@
 import {
-  Vector3,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -45,7 +45,7 @@ export function HumanArmTrajectoryLiftTurn(
   // The hand's extent from the tracked point: the farthest of its probes,
   // the most any digit can swing below it whatever the turn.
   const reach: number = Math.max(
-    ...hand.map((p: IAutoMovieVector3): number => Vector3.distance(p, from)),
+    ...hand.map((p: IAutoMovieVector3): number => AutoMovieEngineVector3.distance(p, from)),
   );
 
   // The nearest shape to any probe of the hand, within that extent.
@@ -54,7 +54,7 @@ export function HumanArmTrajectoryLiftTurn(
   let shape: IAutoMovieMotionHumanArmGeometry.IShape | undefined;
   for (const s of at.shapes)
     for (const p of hand) {
-      if (Vector3.distance(p, s.centre) - s.radius > reach) continue;
+      if (AutoMovieEngineVector3.distance(p, s.centre) - s.radius > reach) continue;
       const gap: number = AutoMovieEnginePhysics.physicalShapeSegmentDistance(s.pose, s.shape, p, p);
       if (gap < nearest) {
         nearest = gap;
@@ -63,12 +63,12 @@ export function HumanArmTrajectoryLiftTurn(
       }
     }
   if (shape === undefined || point === undefined) return 0;
-  const normal: IAutoMovieVector3 = Vector3.normalize(
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
     AutoMovieEnginePhysics.physicalShapeNormal(
       shape.pose,
       shape.shape,
       point,
-      Vector3.normalize(Vector3.subtract(point, shape.centre)),
+      AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(point, shape.centre)),
     ),
   );
 
@@ -77,10 +77,10 @@ export function HumanArmTrajectoryLiftTurn(
   const extent: number = Math.max(
     0,
     ...hand.map((p: IAutoMovieVector3): number =>
-      Vector3.dot(Vector3.subtract(from, p), normal),
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(from, p), normal),
     ),
   );
   if (nearest > extent) return 0;
-  const rise: number = Vector3.dot(Vector3.subtract(to, from), normal);
+  const rise: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(to, from), normal);
   return rise > extent ? extent / rise : 0;
 }

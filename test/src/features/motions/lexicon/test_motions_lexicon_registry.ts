@@ -3,10 +3,14 @@ import type {
   IAutoMovieMotionHumanLexiconFamilies,
 } from "@automovie/interface";
 import {
-  HUMAN_LEXICON,
-  HUMAN_LEXICON_FAMILIES,
-  HumanGait,
-} from "@automovie/motions/internal";
+  HUMAN_LEXICON
+} from "../../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON";
+import {
+  HUMAN_LEXICON_FAMILIES
+} from "../../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON_FAMILIES";
+import {
+  HumanGait
+} from "../../../../../packages/motions/src/lexicon/internal/HumanGait";
 import { TestValidator } from "@nestia/e2e";
 
 /**

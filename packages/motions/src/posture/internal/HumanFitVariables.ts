@@ -1,6 +1,6 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
-import * as HumanFitVariablesData from "./HumanFitVariablesData";
+import { HumanFitVariablesData } from "./HumanFitVariablesData";
 
 /*
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
@@ -236,8 +236,8 @@ export namespace HumanFitVariables {
     v: IAutoMovieMotionHumanJacobian.IVariable,
   ): Readonly<IAutoMovieAngleRange> | null {
     if (v.kind !== "angle") return UNBOUNDED;
-    const joint: (typeof DEFAULT_HUMANOID_ROM)[AutoMovieHumanoidBone] =
-      DEFAULT_HUMANOID_ROM[v.bone];
+    const joint: (typeof AutoMovieEngineDefaultHumanoidRom)[AutoMovieHumanoidBone] =
+      AutoMovieEngineDefaultHumanoidRom[v.bone];
     const span: IAutoMovieAngleRange | null | undefined =
       joint === undefined
         ? null

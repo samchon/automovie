@@ -1,2 +1,2 @@
 export * from "./AutoMovieCliScaffold";
-export type { AutoMovieCliProjectNameSelection } from "./AutoMovieCliProjectNameSelection";
+export type * from "./IAutoMovieCliProjectNameSelection";

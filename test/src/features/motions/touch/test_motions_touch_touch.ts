@@ -10,13 +10,23 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  touchEffectors,
-  touchFaces,
-  touchLayouts,
-  touchSide,
-  touchSite,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  touchEffectors
+} from "../../../../../packages/motions/src/touch/internal/touchEffectors";
+import {
+  touchFaces
+} from "../../../../../packages/motions/src/touch/internal/touchFaces";
+import {
+  touchLayouts
+} from "../../../../../packages/motions/src/touch/internal/touchLayouts";
+import {
+  touchSide
+} from "../../../../../packages/motions/src/touch/internal/touchSide";
+import {
+  touchSite
+} from "../../../../../packages/motions/src/touch/internal/touchSite";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

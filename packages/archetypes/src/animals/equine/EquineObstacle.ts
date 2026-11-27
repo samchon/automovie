@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -53,16 +53,16 @@ export namespace EquineObstacle {
       plan.when(span.from),
     );
     const start: IAutoMovieVector3 = origin.placement.translation;
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+    const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       origin.placement.rotation,
       { x: 0, y: 0, z: 1 },
     );
     const obstacles: IObstacle[] = [];
     for (const pole of footing?.poles ?? []) {
-      const along: IAutoMovieVector3 = Vector3.subtract(pole.to, pole.from);
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(pole.to, pole.from);
       const cross: number = ahead.x * along.z - ahead.z * along.x;
       if (cross === 0) continue;
-      const offset: IAutoMovieVector3 = Vector3.subtract(pole.from, start);
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(pole.from, start);
       const distance: number =
         (offset.x * along.z - offset.z * along.x) / cross;
       const share: number = (offset.x * ahead.z - offset.z * ahead.x) / cross;
@@ -139,10 +139,10 @@ export namespace EquineObstacle {
   ): number {
     const leg: IAutoMovieTransform = plan.at(plan.when(start)).placement;
     const inverse: IAutoMovieTransform = {
-      rotation: Quaternion.inverse(leg.rotation),
-      translation: Quaternion.rotateVector(
-        Quaternion.inverse(leg.rotation),
-        Vector3.scale(leg.translation, -1),
+      rotation: AutoMovieEngineQuaternion.inverse(leg.rotation),
+      translation: AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(leg.rotation),
+        AutoMovieEngineVector3.scale(leg.translation, -1),
       ),
       scale: AutoMovieArchetypeFrame.UNIT,
     };
@@ -161,9 +161,9 @@ export namespace EquineObstacle {
         )
           continue;
         const [low, rear, front]: readonly number[] = [
-          Quaternion.identity(),
-          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+          AutoMovieEngineQuaternion.identity(),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
         ].map((rotation: IAutoMovieQuaternion): number =>
           QuadrupedRestFloor(
             {
@@ -185,7 +185,7 @@ export namespace EquineObstacle {
           if (-front! > obstacle.from - start && rear! < obstacle.to - start)
             extra = Math.max(
               extra,
-              short / ((AutoMovieGravity.STANDARD / 2) * (at - takeoff)),
+              short / ((AutoMovieEngineGravity.STANDARD / 2) * (at - takeoff)),
             );
         }
       }

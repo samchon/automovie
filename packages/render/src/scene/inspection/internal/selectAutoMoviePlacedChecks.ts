@@ -1,11 +1,11 @@
-import type { IObserveAutoMoviePlacedSceneCheck } from "../../IObserveAutoMoviePlacedSceneCheck.js";
-import type { ISelectAutoMoviePlacedChecksProps } from "../../ISelectAutoMoviePlacedChecksProps.js";
-import type { ISelectAutoMoviePlacedChecksRule } from "../../ISelectAutoMoviePlacedChecksRule.js";
-import type { ISelectAutoMoviePlacedChecksSupportPhase } from "../../ISelectAutoMoviePlacedChecksSupportPhase.js";
-import type { ISelectAutoMoviePlacedChecksGripWindow } from "../../ISelectAutoMoviePlacedChecksGripWindow.js";
-import type { ISelectAutoMoviePlacedChecksCustody } from "../../ISelectAutoMoviePlacedChecksCustody.js";
-import type { ISelectAutoMoviePlacedChecksContinuity } from "../../ISelectAutoMoviePlacedChecksContinuity.js";
-import type { ISelectAutoMoviePlacedChecksTrack } from "../../ISelectAutoMoviePlacedChecksTrack.js";
+import type { IAutoMovieRenderObservePlacedSceneCheck } from "../../IAutoMovieRenderObservePlacedSceneCheck.js";
+import type { IAutoMovieRenderSelectPlacedChecksProps } from "../../IAutoMovieRenderSelectPlacedChecksProps.js";
+import type { IAutoMovieRenderSelectPlacedChecksRule } from "../../IAutoMovieRenderSelectPlacedChecksRule.js";
+import type { IAutoMovieRenderSelectPlacedChecksSupportPhase } from "../../IAutoMovieRenderSelectPlacedChecksSupportPhase.js";
+import type { IAutoMovieRenderSelectPlacedChecksGripWindow } from "../../IAutoMovieRenderSelectPlacedChecksGripWindow.js";
+import type { IAutoMovieRenderSelectPlacedChecksCustody } from "../../IAutoMovieRenderSelectPlacedChecksCustody.js";
+import type { IAutoMovieRenderSelectPlacedChecksContinuity } from "../../IAutoMovieRenderSelectPlacedChecksContinuity.js";
+import type { IAutoMovieRenderSelectPlacedChecksTrack } from "../../IAutoMovieRenderSelectPlacedChecksTrack.js";
 import { AutoMovieEngineFilm, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieClassifyPlaybackBoundary,
@@ -35,16 +35,16 @@ import type { Object3D } from "three";
  * Returns: The observer's checks for this sample, in declaration order.
  */
 export function selectAutoMoviePlacedChecks(
-  props: ISelectAutoMoviePlacedChecksProps,
+  props: IAutoMovieRenderSelectPlacedChecksProps,
 ): ICheck[] {
   const seconds: number = props.time.filmSeconds;
   const checks: ICheck[] = [];
   for (const support of props.supports ?? []) {
     const index: number = support.phases.findIndex(
-      (phase: ISelectAutoMoviePlacedChecksSupportPhase): boolean =>
+      (phase: IAutoMovieRenderSelectPlacedChecksSupportPhase): boolean =>
         contains(phase, seconds),
     );
-    const phase: ISelectAutoMoviePlacedChecksSupportPhase | undefined =
+    const phase: IAutoMovieRenderSelectPlacedChecksSupportPhase | undefined =
       support.phases[index];
     if (phase === undefined) continue;
     checks.push({
@@ -64,10 +64,10 @@ export function selectAutoMoviePlacedChecks(
   }
   for (const grip of props.grips ?? []) {
     const index: number = grip.windows.findIndex(
-      (window: ISelectAutoMoviePlacedChecksGripWindow): boolean =>
+      (window: IAutoMovieRenderSelectPlacedChecksGripWindow): boolean =>
         contains(window, seconds),
     );
-    const window: ISelectAutoMoviePlacedChecksGripWindow | undefined =
+    const window: IAutoMovieRenderSelectPlacedChecksGripWindow | undefined =
       grip.windows[index];
     if (window === undefined) continue;
     checks.push({
@@ -116,7 +116,7 @@ export function selectAutoMoviePlacedChecks(
       checks.push(...trackChecks(props, props.continuity, track));
   return checks;
 }
-type ICheck = IObserveAutoMoviePlacedSceneCheck;
+type ICheck = IAutoMovieRenderObservePlacedSceneCheck;
 type IObservation = Exclude<
   Extract<
     IAutoMoviePlacedContinuity.IProps,
@@ -124,7 +124,7 @@ type IObservation = Exclude<
   >["observation"],
   undefined
 >;
-type IScheduleEntry = ISelectAutoMoviePlacedChecksCustody["schedule"][number];
+type IScheduleEntry = IAutoMovieRenderSelectPlacedChecksCustody["schedule"][number];
 
 type IEnvelope = Pick<ICheck, "key" | "required" | "paths" | "observedContact">;
 
@@ -143,7 +143,7 @@ function contains(
  * when the producer has some.
  */
 function envelope(
-  rule: ISelectAutoMoviePlacedChecksRule,
+  rule: IAutoMovieRenderSelectPlacedChecksRule,
   seconds: number,
 ): IEnvelope {
   const observedContact: ICheck["observedContact"] = rule.contact?.(seconds);
@@ -162,7 +162,7 @@ function envelope(
  */
 function holderOf(
   scene: Object3D,
-  custody: ISelectAutoMoviePlacedChecksCustody,
+  custody: IAutoMovieRenderSelectPlacedChecksCustody,
 ): string | null | undefined {
   const names: Map<Object3D, string> = new Map(
     Object.entries(custody.holders).map(
@@ -186,9 +186,9 @@ function holderOf(
  * frame, its step from the previous output frame with source-time limits.
  */
 function trackChecks(
-  props: ISelectAutoMoviePlacedChecksProps,
-  continuity: ISelectAutoMoviePlacedChecksContinuity,
-  track: ISelectAutoMoviePlacedChecksTrack,
+  props: IAutoMovieRenderSelectPlacedChecksProps,
+  continuity: IAutoMovieRenderSelectPlacedChecksContinuity,
+  track: IAutoMovieRenderSelectPlacedChecksTrack,
 ): ICheck[] {
   const after: number = props.time.filmSeconds;
   const frame: number | undefined = props.time.outputFrame;

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -133,7 +133,7 @@ export namespace throwObjectRelease {
         z: shoulder.z + share.z * arm,
       });
     }
-    const along: IAutoMovieVector3 = Vector3.normalize({
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: outward * share.x,
       y: share.y,
       z: share.z,
@@ -146,10 +146,10 @@ export namespace throwObjectRelease {
     );
     const wrist: IAutoMovieVector3 = HumanFrame.point(
       frame,
-      Vector3.add(shoulder, Vector3.scale(along, reach)),
+      AutoMovieEngineVector3.add(shoulder, AutoMovieEngineVector3.scale(along, reach)),
     );
-    return Vector3.subtract(
-      Vector3.scale(wrist, 2),
+    return AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.scale(wrist, 2),
       HumanHand.place(body, side, "grip", wrist, props.held, "relaxed").point,
     );
   }

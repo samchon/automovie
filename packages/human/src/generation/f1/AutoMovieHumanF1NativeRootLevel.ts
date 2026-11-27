@@ -1,4 +1,4 @@
-import { AutoMovieSolidVector as Vector, AutoMovieEngineMath, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineSolidVector as Vector, AutoMovieEngineMath, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,

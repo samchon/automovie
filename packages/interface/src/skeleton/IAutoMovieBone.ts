@@ -47,7 +47,7 @@ export interface IAutoMovieBone {
    *
    * A generated rig states here what its clinical angles mean, so a pose
    * articulates it correctly whichever host resolves it. Omitted, the engine
-   * reads the per-bone table the host passes, such as `HUMANOID_JOINT_AXES`,
+   * reads the per-bone table the host passes, such as `AutoMovieEngineHumanoidJointAxes`,
    * and then the default basis. `validateModel` refuses a non-finite,
    * degenerate or non-orthogonal triple.
    */

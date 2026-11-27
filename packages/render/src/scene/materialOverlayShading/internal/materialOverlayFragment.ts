@@ -1,21 +1,21 @@
-import { AutoMovieRenderDetailNormalShading } from "../../detailNormalShading/index.js";
-import type { IMaterialOverlayShape } from "../../IMaterialOverlayShape.js";
+import { AutoMovieRenderDetailNormalShading, AutoMovieRenderDetailNormalShading } from "../../AutoMovieRenderDetailNormalShading.js";
+import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape.js";
 
 /*
  * The fragment shader compositing each overlay's colour, roughness and slopes.
  */
 export const materialOverlayFragment: (
   fragmentShader: string,
-  shapes: readonly IMaterialOverlayShape[],
+  shapes: readonly IAutoMovieRenderMaterialOverlayShape[],
 ) => string = (
   fragmentShader: string,
-  shapes: readonly IMaterialOverlayShape[],
+  shapes: readonly IAutoMovieRenderMaterialOverlayShape[],
 ): string => {
   const declarations: string[] = [];
   const colours: string[] = [];
   const roughnesses: string[] = [];
   const normals: string[] = [];
-  shapes.forEach((shape: IMaterialOverlayShape, i: number): void => {
+  shapes.forEach((shape: IAutoMovieRenderMaterialOverlayShape, i: number): void => {
     declarations.push(
       `uniform sampler2D overlayColorMap${i};`,
       `uniform float overlayStrength${i};`,

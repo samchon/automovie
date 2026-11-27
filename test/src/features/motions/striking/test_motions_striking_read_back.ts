@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, strikingReadBack } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  strikingReadBack
+} from "../../../../../packages/motions/src/striking/internal/strikingReadBack";
 import { TestValidator } from "@nestia/e2e";
 
 /**

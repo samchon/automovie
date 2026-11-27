@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 import type { IAutoMovieInstancedGeometry } from "../IAutoMovieInstancedGeometry.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
@@ -38,7 +38,7 @@ export const flattenRigidParts: (
         >,
         index: number,
       ): void => {
-        if (AutoMovieThreeKind.isSkinnedMesh(mesh))
+        if (AutoMovieRenderThreeKind.isSkinnedMesh(mesh))
           throw new Error(`${owner} has a skinned source mesh.`);
         if (
           Object.values(mesh.geometry.morphAttributes).some(
@@ -51,7 +51,7 @@ export const flattenRigidParts: (
           )
         )
           throw new Error(`${owner} has morph-target source geometry.`);
-        if (!AutoMovieThreeKind.isMaterial(mesh.material))
+        if (!AutoMovieRenderThreeKind.isMaterial(mesh.material))
           throw new Error(`${owner} has a multi-material source mesh.`);
         const flattened: THREE.BufferGeometry<
           THREE.NormalBufferAttributes,

@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
 /*
@@ -29,9 +29,9 @@ export function animatedBaseAt(
   motion: IAutoMovieMotion,
 ): (seconds: number) => IAutoMovieVector3 {
   return (seconds: number): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       base,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         facing,
         AutoMovieEngineMotionSampling.sampleRoot(motion, seconds)?.translation ?? ZERO,
       ),

@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -123,7 +123,7 @@ export namespace trampolineBounce {
    * Returns: Metres.
    */
   export function deflection(mass: number, fall: number): number {
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     let x: number = Math.sqrt((2 * mass * g * Math.max(fall, 0.01)) / K1);
     for (let i: number = 0; i < 40; i++) {
       const f: number =
@@ -150,7 +150,7 @@ export namespace trampolineBounce {
     const p: IAutoMovieMotionHumanTrampoline.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const mass: number = body.profile.mass;
     const bounces: number = HumanBound.whole("bounces", p.bounces ?? 4);
     const apex: number = p.apex ?? 1;
@@ -268,9 +268,9 @@ export namespace trampolineBounce {
     };
 
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
-    const standingHips: IAutoMovieVector3 = Vector3.add(
+    const standingHips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       entry.root,
-      Quaternion.rotateVector(humanPostureHeading(entry), rest),
+      AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(entry), rest),
     );
     const shape: IAutoMovieMotionHumanExerciseKey.ILimb =
       SHAPES[p.shape ?? "straight"];
@@ -318,9 +318,9 @@ export namespace trampolineBounce {
           ...posture,
           joints: { ...posture.joints, ...key.joints },
         };
-        const root: IAutoMovieVector3 = Vector3.subtract(
+        const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           hips,
-          Quaternion.rotateVector(humanPostureHeading(turned), rest),
+          AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(turned), rest),
         );
         const onBed: boolean = phaseAt(s).kind !== "flight";
         // The feet ride the bed on it; in the air each foot leaves the bed's
@@ -378,8 +378,8 @@ export namespace trampolineBounce {
       new Set<AutoMovieHumanoidBone>([bone]),
     ).get(bone)!;
     return {
-      ankle: Vector3.lerp(bed.ankle, free.worldPosition, air),
-      rotation: Quaternion.slerp(bed.rotation, free.worldRotation, air),
+      ankle: AutoMovieEngineVector3.lerp(bed.ankle, free.worldPosition, air),
+      rotation: AutoMovieEngineQuaternion.slerp(bed.rotation, free.worldRotation, air),
     };
   }
   /*
@@ -439,9 +439,9 @@ export namespace trampolineBounce {
         reason: `${subject} declares no bed`,
         fix: "bounce on a trampoline that declares its bed",
       });
-    const top: number = Vector3.add(
+    const top: number = AutoMovieEngineVector3.add(
       placed.position,
-      Quaternion.rotateVector(placed.rotation, found.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(placed.rotation, found.frame.translation),
     ).y;
     const ankle: number = context.body.rest.get("leftFoot")!.y;
     const off: number = Math.abs(context.entry.feet.left.ankle.y - ankle - top);

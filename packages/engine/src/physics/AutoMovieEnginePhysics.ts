@@ -37,7 +37,7 @@ import { derivePhysicalModelJoints as derivePhysicalModelJointsImplementation } 
 import { limitPhysicalSwingTwist as limitPhysicalSwingTwistImplementation } from "./internal/limitPhysicalSwingTwist";
 import { linearizePhysicalInterval as linearizePhysicalIntervalImplementation } from "./internal/linearizePhysicalInterval";
 import { linearizePhysicalTargetRows as linearizePhysicalTargetRowsImplementation } from "./internal/linearizePhysicalTargetRows";
-import { type AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
+import { type AutoMovieEnginePhysicalJointChart } from "./AutoMovieEnginePhysicalJointChart";
 import { measurePhysicalJointLimits as measurePhysicalJointLimitsImplementation } from "./internal/measurePhysicalJointLimits";
 import { measurePhysicalMotionConstraint as measurePhysicalMotionConstraintImplementation } from "./internal/measurePhysicalMotionConstraint";
 import { physicalGravityTorques as physicalGravityTorquesImplementation } from "./internal/physicalGravityTorques";
@@ -50,14 +50,14 @@ import { solvePhysicalChainTarget as solvePhysicalChainTargetImplementation } fr
 import { solvePhysicalTargetStep as solvePhysicalTargetStepImplementation } from "./internal/solvePhysicalTargetStep";
 import { admitPhysicalContactBindings as admitPhysicalContactBindingsImplementation } from "./internal/admitPhysicalContactBindings";
 import { admitPhysicalSupportPattern as admitPhysicalSupportPatternImplementation } from "./internal/admitPhysicalSupportPattern";
-import { type AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { type AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
+import { type AutoMovieEngineXpbdWorld } from "./AutoMovieEngineXpbdWorld";
+import { type AutoMovieEngineXpbdJoint } from "./AutoMovieEngineXpbdJoint";
 import { accumulatePhysicalMotorTorques as accumulatePhysicalMotorTorquesImplementation } from "./internal/accumulatePhysicalMotorTorques";
 import { configurePhysicalJointMotor as configurePhysicalJointMotorImplementation } from "./internal/configurePhysicalJointMotor";
 
 import { physicalAuthoredCenter as physicalAuthoredCenterImplementation } from "./internal/physicalAuthoredCenter";
 import { advancePhysicalOwnership as advancePhysicalOwnershipImplementation } from "./internal/advancePhysicalOwnership";
-import { type IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
+import { type IAutoMovieEnginePhysicalBinding as Bound } from "./IAutoMovieEnginePhysicalBinding";
 import { collectPhysicalContacts as collectPhysicalContactsImplementation } from "./internal/collectPhysicalContacts";
 import { compileImpactEffects as compileImpactEffectsImplementation } from "./internal/compileImpactEffects";
 import { distributePhysicalSupportWrench as distributePhysicalSupportWrenchImplementation } from "./internal/distributePhysicalSupportWrench";
@@ -102,7 +102,7 @@ import type { AutoMovieEnginePhysicsTrackingTypes } from "./AutoMovieEnginePhysi
 
 import { type IAutoMovieCombinePhysicalMassProperties, type IAutoMovieFootfallPattern, type IAutoMovieModel, type IAutoMoviePhysicalHullFaces, type IAutoMoviePhysicalHullMass, type IAutoMoviePhysicalProfile, type IAutoMoviePhysicalShape, type IAutoMoviePhysicalShapePairContact, type IAutoMoviePrimitiveShape, type IAutoMovieRigidTransform, type IAutoMovieVector3, type IAutoMovieMotionGeometry, type IAutoMovieDerivePhysicalProfile, type IAutoMovieQuaternion, type IAutoMoviePrincipalTensorFrame, type IAutoMoviePhysicalJoint, type IAutoMovieSamplePhysicalTarget, type IAutoMoviePhysicalShapeBounds, type IAutoMoviePhysicalShapeNearest, type IAutoMoviePhysicalShapeSurfaceAnchor, type IAutoMoviePhysicalFrame, type IAutoMoviePhysicalSimulationInput, type IAutoMoviePreparePhysicalGeometry, type IAutoMovieContactReceipt, type IAutoMoviePhysicalSegment, type IAutoMovieDerivePhysicalActuators, type IAutoMoviePoses, type IAutoMovieLinearizePhysicalTargetRows, type IAutoMovieMeasurePhysicalJointLimits, type IAutoMovieMeasurePhysicalMotionConstraint, type IAutoMoviePhysicalSegmentState, type IAutoMoviePhysicalGravityTorques, type IAutoMoviePhysicalJointEffort, type IAutoMovieConfigurePhysicalJointMotor, type IAutoMoviePhysicalJointMotorCommand, type IAutoMoviePhysicalJointAxis, type IAutoMovieSolvePhysicalArticulationTargets, type IAutoMovieSolvePhysicalChainTarget, type IAutoMovieSolvePhysicalTargetStep, type IAutoMoviePhysicalContactBinding, type IAutoMoviePhysicalPointBound, type IAutoMovieCompiledEffect, type IAutoMovieCompileImpactEffects, type IAutoMovieDistributePhysicalSupportWrench, type IAutoMovieRecoilPush, type IAutoMoviePhysicalContactBindingRows, type IAutoMoviePhysicalContactSupportRows, type IAutoMoviePhysicalRecoveryState, type IAutoMovieStepPlanner, type IAutoMoviePhysicalSupportRootDrop, type IAutoMoviePlanPhysicalContactTargets, type IAutoMoviePlanPhysicalFloorSupportTargets, type IAutoMoviePlanPhysicalRootSupportTargets, type IAutoMoviePlanPhysicalSupportTargets, type IAutoMovieProjectPhysicalSupportReach, type IAutoMovieRecordPhysicalContact, type IAutoMovieImpact, type IAutoMovieImpactBodyState, type IAutoMovieResolvePhysicalSupportRedundancy, type IAutoMovieSampleContactSurfaceResponse, type IAutoMovieSamplePhysicalRecoveryGoal, type IAutoMovieSamplePhysicalRecoverySupport, type IAutoMovieSolvePhysicalCompliantContacts, type IAutoMovieCollisionResponse, type IAutoMovieSuggestCollisionResponse, type IAutoMovieWarmPhysicalSupportTargets, type IAutoMoviePose, type AutoMovieHumanoidBone, type IAutoMovieSkeleton } from "@automovie/interface";
 
-import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieEngineXpbdBody } from "./AutoMovieEngineXpbdBody";
 import { bodyCenterOfMass } from "./internal/bodyCenterOfMass";
 import { combinePhysicalMassProperties } from "./internal/combinePhysicalMassProperties";
 import { deriveCenterOfMass as derivePhysicalCenterOfMass } from "./internal/deriveCenterOfMass";
@@ -568,7 +568,7 @@ export namespace AutoMovieEnginePhysics {
   export function supportFootprint(
     profile: IAutoMoviePhysicalProfile,
     poses:
-      | ReadonlyMap<string, AutoMovieXpbdBody>
+      | ReadonlyMap<string, AutoMovieEngineXpbdBody>
       | Readonly<Record<string, IAutoMovieRigidTransform>>,
     limb: IAutoMovieFootfallPattern["limbs"][number],
     floor: number,
@@ -623,7 +623,7 @@ export namespace AutoMovieEnginePhysics {
    * Project both bodies' world inverse inertia tensors onto each joint axis,
    * giving relative-rotation inertia.
    */
-  export function physicalJointInertia(frame: IAutoMovieQuaternion, child: AutoMovieXpbdBody, parent?: AutoMovieXpbdBody): IAutoMovieVector3 {
+  export function physicalJointInertia(frame: IAutoMovieQuaternion, child: AutoMovieEngineXpbdBody, parent?: AutoMovieEngineXpbdBody): IAutoMovieVector3 {
     return physicalJointInertiaImplementation(frame, child, parent);
   }
 
@@ -689,7 +689,7 @@ export namespace AutoMovieEnginePhysics {
    * directions times the twist interval (`swingTwistRange.chart`), and the
    * projection clamps each factor; no box applies, the clinical angles being
    * readings of such a joint, not limits. A joint declaring a sequential chart
-   * (`order`) is admitted in it (`AutoMoviePhysicalJointChart`): each Tait-Bryan
+   * (`order`) is admitted in it (`AutoMovieEnginePhysicalJointChart`): each Tait-Bryan
    * angle clamped into its free axis's range, a locked one held at zero.
    * Otherwise the solver's independent twist coordinates, 2 atan(q.axis / w) per
    * free axis: with positive quaternion w, each free coordinate is 2 atan(q.axis
@@ -1002,7 +1002,7 @@ export namespace AutoMovieEnginePhysics {
    * interval, radians, the third entry zero. A joint that declares a sequential
    * chart (`order`) is read in it, as the solver admits it
    * (`projectPhysicalJointRotation`): each Tait-Bryan angle of the chart's
-   * reading (`AutoMoviePhysicalJointChart.nearest`) against its free axis's
+   * reading (`AutoMovieEnginePhysicalJointChart.nearest`) against its free axis's
    * range, a locked axis's, with the turn that reading leaves about it, against
    * zero; a pose the solver admitted then reads within its limits. Otherwise
    * free-axis limits use the wrapped twist projection 2 atan2(q.axis,q.w). Locked
@@ -1011,7 +1011,7 @@ export namespace AutoMovieEnginePhysics {
    * belongs to the caller, rather than being subtracted from the measurement.
    */
   export function measurePhysicalJointLimits(joint: IAutoMovieMotionGeometry["joints"][number] &
-    Pick<AutoMoviePhysicalJointChart.IJoint, "order"> &
+    Pick<AutoMovieEnginePhysicalJointChart.IJoint, "order"> &
     Pick<IAutoMoviePhysicalJoint, "range">, parent: IAutoMovieRigidTransform, child: IAutoMovieRigidTransform): IAutoMovieMeasurePhysicalJointLimits.IResult {
     return measurePhysicalJointLimitsImplementation(joint, parent, child);
   }
@@ -1033,7 +1033,7 @@ export namespace AutoMovieEnginePhysics {
    * actuator demand, not an additional unbounded force or a change to any
    * physical mass or gravity.
    */
-  export function physicalGravityTorques(profile: IAutoMoviePhysicalProfile, order: readonly IAutoMoviePhysicalJoint[], segments: ReadonlyMap<string, AutoMovieXpbdBody>, gravity: IAutoMovieVector3): IAutoMoviePhysicalGravityTorques.IResult {
+  export function physicalGravityTorques(profile: IAutoMoviePhysicalProfile, order: readonly IAutoMoviePhysicalJoint[], segments: ReadonlyMap<string, AutoMovieEngineXpbdBody>, gravity: IAutoMovieVector3): IAutoMoviePhysicalGravityTorques.IResult {
     return physicalGravityTorquesImplementation(profile, order, segments, gravity);
   }
 
@@ -1166,7 +1166,7 @@ export namespace AutoMovieEnginePhysics {
   /**
    * Record the rigid contacts the world's last step solved, one receipt sample
    * per touching collider pair, in the world's canonical pair order
-   * (`AutoMovieXpbdWorld.manifolds`: creation order of the first collider, then
+   * (`AutoMovieEngineXpbdWorld.manifolds`: creation order of the first collider, then
    * of the second).
    *
    * A manifold's impulse is the sum of the normal impulses the step applied at
@@ -1190,7 +1190,7 @@ export namespace AutoMovieEnginePhysics {
    * @param active Open receipts by pair key, updated.
    * @param found Pair keys touched in this cache frame, added to.
    */
-  export function collectPhysicalContacts(world: AutoMovieXpbdWorld, input: IAutoMoviePhysicalSimulationInput.IInput, bound: Bound, seconds: number, contacts: IAutoMovieContactReceipt[], active: Map<string, IAutoMovieContactReceipt>, found: Set<string>): void {
+  export function collectPhysicalContacts(world: AutoMovieEngineXpbdWorld, input: IAutoMoviePhysicalSimulationInput.IInput, bound: Bound, seconds: number, contacts: IAutoMovieContactReceipt[], active: Map<string, IAutoMovieContactReceipt>, found: Set<string>): void {
     collectPhysicalContactsImplementation(world, input, bound, seconds, contacts, active, found);
   }
 
@@ -1391,7 +1391,7 @@ export namespace AutoMovieEnginePhysics {
    *
    * @param input The admitted simulation input: profiles, joints and exclusions.
    * @param bound The world's binding: collider identities by handle.
-   * @returns The filter `AutoMovieXpbdWorld.step` takes; true admits the pair.
+   * @returns The filter `AutoMovieEngineXpbdWorld.step` takes; true admits the pair.
    */
   export function preparePhysicalContactHooks(input: IAutoMoviePhysicalSimulationInput.IInput, bound: Bound): solveXpbdContacts.Filter {
     return preparePhysicalContactHooksImplementation(input, bound);
@@ -1420,7 +1420,7 @@ export namespace AutoMovieEnginePhysics {
    * @param h The substep, seconds.
    * @returns Fresh manifolds, in pair order; their colliders are the contacts'.
    */
-  export function readXpbdManifolds(contacts: readonly solveXpbdContacts.IContact[], h: number): AutoMovieXpbdWorld.IManifold[] {
+  export function readXpbdManifolds(contacts: readonly solveXpbdContacts.IContact[], h: number): AutoMovieEngineXpbdWorld.IManifold[] {
     return readXpbdManifoldsImplementation(contacts, h);
   }
 
@@ -1628,7 +1628,7 @@ export namespace AutoMovieEnginePhysics {
    *   received, and the separation (m).
    */
   export function solvePhysicalCompliantContacts(
-    world: AutoMovieXpbdWorld,
+    world: AutoMovieEngineXpbdWorld,
     surfaces: ReadonlyMap<
       number,
       IAutoMovieSolvePhysicalCompliantContacts.ISurface
@@ -1767,7 +1767,7 @@ export namespace AutoMovieEnginePhysics {
    */
   export function accumulatePhysicalMotorTorques(input: {
     /** Admitted articulated geometry. */ profile: IAutoMoviePhysicalProfile;
-    /** Current actual native segments. */ segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    /** Current actual native segments. */ segments: ReadonlyMap<string, AutoMovieEngineXpbdBody>;
     /** Actuator path from proximal to distal. */ chain: readonly string[];
     /** Segment carrying the application point. */ carrier: string;
     /** World point controlled by the force. */ point: IAutoMovieVector3;
@@ -1787,8 +1787,8 @@ export namespace AutoMovieEnginePhysics {
    * @returns The configured motor's angular result.
    */
   export function configurePhysicalJointMotor(input: {
-    world: AutoMovieXpbdWorld;
-    native: AutoMovieXpbdJoint;
+    world: AutoMovieEngineXpbdWorld;
+    native: AutoMovieEngineXpbdJoint;
     joint: IAutoMoviePhysicalJoint;
     current: IAutoMovieQuaternion;
     target: IAutoMovieQuaternion;

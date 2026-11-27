@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -54,9 +54,9 @@ export function drawFromCarrierPivot(
   const hanger: IAutoMovieVector3 =
     hangerLocal === undefined
       ? carrier.position
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           carrier.position,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             carrier.rotation,
             hangerLocal.frame.translation,
           ),
@@ -79,12 +79,12 @@ export function drawFromCarrierPivot(
         fix: "draw from a carrier that declares the slide its slider moves",
       });
     return {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         carrier.position,
-        Quaternion.rotateVector(carrier.rotation, slide.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(carrier.rotation, slide.frame.translation),
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(carrier.rotation, slide.frame.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(carrier.rotation, slide.frame.rotation),
       ),
     };
   };
@@ -117,24 +117,24 @@ export function drawFromCarrierPivot(
   // pulling hand can carry the throat. With `d` the line's unit direction, a
   // point `e` from a shoulder slid back by `r` lies `|e - r d|` from it, so
   // the reach is met between the roots of `r^2 - 2 r (d.e) + |e|^2 - R^2`.
-  const along: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(slid(travel).position, slid(0).position),
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(slid(travel).position, slid(0).position),
   );
   const roots: (e: IAutoMovieVector3) => drawFromCarrierPivot.IRoots | null = (
     e: IAutoMovieVector3,
   ): drawFromCarrierPivot.IRoots | null => {
-    const de: number = Vector3.dot(along, e);
-    const disc: number = de * de - Vector3.dot(e, e) + reach * reach;
+    const de: number = AutoMovieEngineVector3.dot(along, e);
+    const disc: number = de * de - AutoMovieEngineVector3.dot(e, e) + reach * reach;
     if (!(disc >= 0)) return null;
     const root: number = Math.sqrt(disc);
     return { low: de - root, high: de + root };
   };
   const most: number = Math.max(
     0,
-    roots(Vector3.subtract(pulled.wrist.position, holding))?.high ?? 0,
+    roots(AutoMovieEngineVector3.subtract(pulled.wrist.position, holding))?.high ?? 0,
   );
   const least: drawFromCarrierPivot.IRoots | null = roots(
-    Vector3.subtract(drawn, shoulder),
+    AutoMovieEngineVector3.subtract(drawn, shoulder),
   );
   const back: number = Math.min(
     most,
@@ -142,37 +142,37 @@ export function drawFromCarrierPivot(
   );
   const slide: (share: number) => IAutoMovieVector3 = (
     share: number,
-  ): IAutoMovieVector3 => Vector3.scale(along, -back * share);
+  ): IAutoMovieVector3 => AutoMovieEngineVector3.scale(along, -back * share);
 
   // Then the least turn about the slid hanger toward the drawing shoulder
   // that brings the drawn wrist the rest of the way within reach.
-  const pivot: IAutoMovieVector3 = Vector3.add(hanger, slide(1));
-  const v: IAutoMovieVector3 = Vector3.subtract(
-    Vector3.add(drawn, slide(1)),
+  const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(hanger, slide(1));
+  const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.add(drawn, slide(1)),
     pivot,
   );
-  const w: IAutoMovieVector3 = Vector3.subtract(shoulder, pivot);
-  const across: IAutoMovieVector3 = Vector3.cross(v, w);
-  const lv: number = Vector3.length(v);
-  const lw: number = Vector3.length(w);
+  const w: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(shoulder, pivot);
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(v, w);
+  const lv: number = AutoMovieEngineVector3.length(v);
+  const lw: number = AutoMovieEngineVector3.length(w);
   const angle: number = ((): number => {
     if (
-      Vector3.distance(v, w) <= reach ||
-      !(Vector3.length(across) > Number.EPSILON * lv * lw)
+      AutoMovieEngineVector3.distance(v, w) <= reach ||
+      !(AutoMovieEngineVector3.length(across) > Number.EPSILON * lv * lw)
     )
       return 0;
     const phi: number = Math.acos(
-      Math.min(1, Math.max(-1, Vector3.dot(v, w) / (lv * lw))),
+      Math.min(1, Math.max(-1, AutoMovieEngineVector3.dot(v, w) / (lv * lw))),
     );
     const c: number = (lv * lv + lw * lw - reach * reach) / (2 * lv * lw);
     return c > 1 ? phi : phi - Math.acos(Math.max(-1, c));
   })();
   const axis: IAutoMovieVector3 =
-    angle === 0 ? { x: 1, y: 0, z: 0 } : Vector3.normalize(across);
+    angle === 0 ? { x: 1, y: 0, z: 0 } : AutoMovieEngineVector3.normalize(across);
   const turn: (share: number) => IAutoMovieQuaternion = (
     share: number,
   ): IAutoMovieQuaternion =>
-    Quaternion.fromAxisAngle(axis, (angle * share * 180) / Math.PI);
+    AutoMovieEngineQuaternion.fromAxisAngle(axis, (angle * share * 180) / Math.PI);
   // A frame carried with the carrier: slid back, then turned about the
   // slid hanger.
   const carry: (
@@ -184,16 +184,16 @@ export function drawFromCarrierPivot(
   ): IAutoMovieRigidTransform => {
     const q: IAutoMovieQuaternion = turn(share);
     const moved: IAutoMovieVector3 = slide(share);
-    const about: IAutoMovieVector3 = Vector3.add(hanger, moved);
+    const about: IAutoMovieVector3 = AutoMovieEngineVector3.add(hanger, moved);
     return {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         about,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           q,
-          Vector3.subtract(Vector3.add(frame.position, moved), about),
+          AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.add(frame.position, moved), about),
         ),
       ),
-      rotation: Quaternion.normalize(Quaternion.multiply(q, frame.rotation)),
+      rotation: AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(q, frame.rotation)),
     };
   };
   return {

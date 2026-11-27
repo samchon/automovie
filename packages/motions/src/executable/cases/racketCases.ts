@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -104,8 +104,8 @@ export function racketCases(
           verdicts.push(
             everydayVerdicts.within(
               "fists apart on the handle",
-              Vector3.length(
-                Vector3.subtract(at(mid, "leftHand"), at(mid, "rightHand")),
+              AutoMovieEngineVector3.length(
+                AutoMovieEngineVector3.subtract(at(mid, "leftHand"), at(mid, "rightHand")),
               ),
               1.5 * m.hand,
               "mm",
@@ -154,23 +154,23 @@ export function racketCases(
         }
         case "golfAddress": {
           const mid: number = ready;
-          const trunk: IAutoMovieVector3 = Vector3.subtract(
+          const trunk: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             at(mid, "neck"),
             at(mid, "hips"),
           );
           const lean: number =
-            (Math.acos(trunk.y / Vector3.length(trunk)) * 180) / Math.PI;
+            (Math.acos(trunk.y / AutoMovieEngineVector3.length(trunk)) * 180) / Math.PI;
           verdicts.push({
             name: "trunk 25 to 45 deg from the vertical",
             passed: lean >= 25 && lean <= 45,
             detail: `${lean.toFixed(1)} deg`,
           });
-          const shoulders: IAutoMovieVector3 = Vector3.scale(
-            Vector3.add(at(mid, "leftUpperArm"), at(mid, "rightUpperArm")),
+          const shoulders: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(at(mid, "leftUpperArm"), at(mid, "rightUpperArm")),
             0.5,
           );
-          const hands: IAutoMovieVector3 = Vector3.scale(
-            Vector3.add(at(mid, "leftHand"), at(mid, "rightHand")),
+          const hands: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(at(mid, "leftHand"), at(mid, "rightHand")),
             0.5,
           );
           verdicts.push(

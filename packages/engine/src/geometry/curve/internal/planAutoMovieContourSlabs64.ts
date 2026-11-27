@@ -8,7 +8,7 @@ import type {
   IAutoMoviePreparedContourEvent64,
 } from "@automovie/interface";
 
-import { AutoMovieContourLoftCurves64 as curves } from "../../AutoMovieContourLoftCurves64";
+import { AutoMovieEngineContourLoftCurves64 as curves } from "../../AutoMovieEngineContourLoftCurves64";
 import { admitAutoMovieContourIntervals64 } from "./admitAutoMovieContourIntervals64";
 
 /*

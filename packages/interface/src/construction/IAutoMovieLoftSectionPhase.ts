@@ -1,8 +1,8 @@
 /**
  * Local section point and phase partials at fixed physical station.
  *
- * AutoMovieLoftSectionLegacy reads the periodic spline's correspondence phase
- * in radians; AutoMovieLoftSection also returns this shape for native polar and
+ * AutoMovieEngineLoftSectionLegacy reads the periodic spline's correspondence phase
+ * in radians; AutoMovieEngineLoftSection also returns this shape for native polar and
  * mixed fields. The [u,v] components are local to the section plane before
  * frame, lift or relief placement. Producers return fresh mutable finite
  * vectors and reject nonfinite requested readings. Phase-only admission

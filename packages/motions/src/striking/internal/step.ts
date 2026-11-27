@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  AutoMovieGravity,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -108,7 +108,7 @@ export namespace step {
    * Bohannon 1997).
    */
   export const PERIOD: number =
-    0.35 / Math.sqrt(0.93 / AutoMovieGravity.STANDARD);
+    0.35 / Math.sqrt(0.93 / AutoMovieEngineGravity.STANDARD);
 
   /*
    * A body's step period, seconds: `PERIOD` pendulum units of its own hip
@@ -123,7 +123,7 @@ export namespace step {
     >;
   }): number {
     return (
-      PERIOD * Math.sqrt(body.measure.hipHeight / AutoMovieGravity.STANDARD)
+      PERIOD * Math.sqrt(body.measure.hipHeight / AutoMovieEngineGravity.STANDARD)
     );
   }
 
@@ -194,10 +194,10 @@ export namespace step {
       p.direction === "forward"
         ? forward
         : p.direction === "back"
-          ? Vector3.scale(forward, -1)
+          ? AutoMovieEngineVector3.scale(forward, -1)
           : p.direction === "left"
             ? left
-            : Vector3.scale(left, -1);
+            : AutoMovieEngineVector3.scale(left, -1);
     const first: AutoMovieHumanSide =
       p.direction === "forward"
         ? lead
@@ -262,7 +262,7 @@ export namespace step {
             ? (toY - fromY) * g.share
             : toY - fromY;
           placed[side] = {
-            ankle: Vector3.add(feet[side].ankle, {
+            ankle: AutoMovieEngineVector3.add(feet[side].ankle, {
               x: unit.x * g.travelled,
               y:
                 landing + (g.swinging ? lift * 4 * g.share * (1 - g.share) : 0),
@@ -279,7 +279,7 @@ export namespace step {
         const posture: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           body,
           {
-            root: Vector3.add(entry.root, Vector3.scale(unit, carried)),
+            root: AutoMovieEngineVector3.add(entry.root, AutoMovieEngineVector3.scale(unit, carried)),
             yaw: entry.yaw,
             pitch: entry.pitch,
             roll: entry.roll,

@@ -1,4 +1,6 @@
-import { hoseLineReaction } from "@automovie/motions/internal";
+import {
+  hoseLineReaction
+} from "../../../../../packages/motions/src/tasks/internal/hoseLineReaction";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

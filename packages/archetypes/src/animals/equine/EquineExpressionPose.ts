@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -172,9 +172,9 @@ export namespace EquineExpressionPose {
       IAutoMovieTransform
     > = new Map(current);
     const trunk: IAutoMovieTransform = current.get("trunk")!;
-    const body: IAutoMovieQuaternion = Quaternion.multiply(
+    const body: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       trunk.rotation,
-      Quaternion.inverse(prepared.trunk),
+      AutoMovieEngineQuaternion.inverse(prepared.trunk),
     );
 
     // The neck turns about its root and carries the poll; the head turns about the moved poll.
@@ -184,25 +184,25 @@ export namespace EquineExpressionPose {
     ) {
       const neck: IAutoMovieTransform = current.get("neck")!;
       const head: IAutoMovieTransform = current.get("head")!;
-      const turned: IAutoMovieQuaternion = Quaternion.slerp(
+      const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
         IDENTITY,
         channels.head?.turn.neck ?? IDENTITY,
         channels.head?.share ?? 0,
       );
 
       // A roll turns the turned neck about its own bar and carries the head with it.
-      const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        Quaternion.rotateVector(Quaternion.multiply(turned, neck.rotation), {
+      const roll: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+        AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.multiply(turned, neck.rotation), {
           x: 0,
           y: 1,
           z: 0,
         }),
         channels.roll,
       );
-      const turnNeck: IAutoMovieQuaternion = Quaternion.multiply(roll, turned);
-      const turnHead: IAutoMovieQuaternion = Quaternion.multiply(
+      const turnNeck: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(roll, turned);
+      const turnHead: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         roll,
-        Quaternion.slerp(
+        AutoMovieEngineQuaternion.slerp(
           IDENTITY,
           channels.head?.turn.head ?? IDENTITY,
           channels.head?.share ?? 0,
@@ -210,21 +210,21 @@ export namespace EquineExpressionPose {
       );
       posed.set("neck", {
         ...neck,
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(turnNeck, neck.rotation),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(turnNeck, neck.rotation),
         ),
       });
       posed.set("head", {
         ...head,
-        translation: Vector3.add(
+        translation: AutoMovieEngineVector3.add(
           neck.translation,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             turnNeck,
-            Vector3.subtract(head.translation, neck.translation),
+            AutoMovieEngineVector3.subtract(head.translation, neck.translation),
           ),
         ),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(turnHead, head.rotation),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(turnHead, head.rotation),
         ),
       });
     }
@@ -232,17 +232,17 @@ export namespace EquineExpressionPose {
     // The tail turns about its dock in the trunk's frame.
     if (channels.tail.raise !== 0 || channels.tail.swing !== 0) {
       const tail: IAutoMovieTransform = current.get("tail")!;
-      const local: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, channels.tail.swing),
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, channels.tail.raise),
+      const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, channels.tail.swing),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, channels.tail.raise),
       );
       posed.set("tail", {
         ...tail,
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(
-            Quaternion.multiply(
-              Quaternion.multiply(body, local),
-              Quaternion.inverse(body),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.multiply(body, local),
+              AutoMovieEngineQuaternion.inverse(body),
             ),
             tail.rotation,
           ),
@@ -254,9 +254,9 @@ export namespace EquineExpressionPose {
       AutoMovieArchetypeQuadrupedBody.Bone,
       AutoMovieArchetypeFrame.IMotion
     > = QuadrupedRigDelta.between(current, posed);
-    const head: IAutoMovieQuaternion = Quaternion.multiply(
+    const head: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       posed.get("head")!.rotation,
-      Quaternion.inverse(prepared.head),
+      AutoMovieEngineQuaternion.inverse(prepared.head),
     );
     const cells: AutoMovieArchetypeConvexCell.Table = animal.convexCells;
     const parts: IAutoMovieModelPart[] = animal.parts.map(
@@ -285,8 +285,8 @@ export namespace EquineExpressionPose {
           frame = about(
             frame,
             start(part, frame),
-            Quaternion.fromAxisAngle(
-              Quaternion.rotateVector(head, { x: 1, y: 0, z: 0 }),
+            AutoMovieEngineQuaternion.fromAxisAngle(
+              AutoMovieEngineQuaternion.rotateVector(head, { x: 1, y: 0, z: 0 }),
               channels.jaw,
             ),
           );
@@ -294,8 +294,8 @@ export namespace EquineExpressionPose {
           frame = about(
             frame,
             start(part, frame),
-            Quaternion.fromAxisAngle(
-              Quaternion.rotateVector(head, { x: 1, y: 0, z: 0 }),
+            AutoMovieEngineQuaternion.fromAxisAngle(
+              AutoMovieEngineQuaternion.rotateVector(head, { x: 1, y: 0, z: 0 }),
               -channels.lip,
             ),
           );
@@ -339,14 +339,14 @@ export namespace EquineExpressionPose {
     head: IAutoMovieQuaternion,
   ): IAutoMovieTransform {
     if (channel === undefined || channel.share <= 0) return frame;
-    const now: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    const now: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 1,
       z: 0,
     });
-    const wanted: IAutoMovieVector3 = Quaternion.rotateVector(
+    const wanted: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       head,
-      Vector3.normalize({
+      AutoMovieEngineVector3.normalize({
         x: sign * channel.direction.x,
         y: channel.direction.y,
         z: channel.direction.z,
@@ -355,7 +355,7 @@ export namespace EquineExpressionPose {
     return about(
       frame,
       start(part, frame),
-      Quaternion.slerp(IDENTITY, AutoMovieEngineMath.rotationBetween(now, wanted), channel.share),
+      AutoMovieEngineQuaternion.slerp(IDENTITY, AutoMovieEngineMath.rotationBetween(now, wanted), channel.share),
     );
   }
 
@@ -375,9 +375,9 @@ export namespace EquineExpressionPose {
         geometry.shape.type === "capsule")
         ? geometry.shape.height
         : 0;
-    return Vector3.subtract(
+    return AutoMovieEngineVector3.subtract(
       frame.translation,
-      Quaternion.rotateVector(frame.rotation, { x: 0, y: length / 2, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: length / 2, z: 0 }),
     );
   }
 
@@ -392,9 +392,9 @@ export namespace EquineExpressionPose {
     return AutoMovieArchetypeFrame.move(
       {
         rotation,
-        translation: Vector3.subtract(
+        translation: AutoMovieEngineVector3.subtract(
           pivot,
-          Quaternion.rotateVector(rotation, pivot),
+          AutoMovieEngineQuaternion.rotateVector(rotation, pivot),
         ),
       },
       frame,

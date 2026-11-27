@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanKickboxingRing,
@@ -43,9 +43,9 @@ export function KickboxingRing(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     );
     if (found === undefined) throw refuse(`${prop.subject} declares no ${id}`);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       prop.frame.position,
-      Quaternion.rotateVector(prop.frame.rotation, found.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(prop.frame.rotation, found.frame.translation),
     );
   };
   const canvas: IAutoMovieVector3 = at("canvas");
@@ -53,7 +53,7 @@ export function KickboxingRing(
     a: string,
     b: string,
   ): number => {
-    const d: IAutoMovieVector3 = Vector3.subtract(at(a), at(b));
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(a), at(b));
     return Math.hypot(d.x, d.z);
   };
   const size: number = across("northRope", "southRope");
@@ -61,7 +61,7 @@ export function KickboxingRing(
     throw refuse(
       `${prop.subject}'s ropes stand ${size.toFixed(3)} m apart one way and ${across("eastRope", "westRope").toFixed(3)} m the other, no square`,
     );
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     prop.frame.rotation,
     { x: 0, y: 0, z: 1 },
   );

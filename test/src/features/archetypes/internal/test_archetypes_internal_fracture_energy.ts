@@ -1,4 +1,6 @@
-import { ArchetypeFractureEnergy } from "@automovie/archetypes/internal";
+import {
+  ArchetypeFractureEnergy
+} from "../../../../../packages/archetypes/src/core/internal/ArchetypeFractureEnergy";
 import { TestValidator } from "@nestia/e2e";
 
 /**

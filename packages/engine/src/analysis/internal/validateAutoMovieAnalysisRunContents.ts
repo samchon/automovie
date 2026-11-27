@@ -7,9 +7,9 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AutoMovieEngineAnalysisMaxSamples } from "../AutoMovieEngineAnalysisMaxSamples";
 
 /*
  * Check every field of one analysis run except its seal.
@@ -68,7 +68,7 @@ export function validateAutoMovieAnalysisRunContents(
     run.solver.model,
     "solver governing model",
   );
-  if (!SHA256_DIGEST_PATTERN.test(run.settings))
+  if (!AutoMovieEngineSha256DigestPattern.test(run.settings))
     out.push(
       "type",
       `${root}.settings`,
@@ -114,11 +114,11 @@ export function validateAutoMovieAnalysisRunContents(
       if (metric.value !== null) measured.add(metric.key);
     }
 
-    if (outcome.samples.length > AUTOMOVIE_ANALYSIS_MAX_SAMPLES)
+    if (outcome.samples.length > AutoMovieEngineAnalysisMaxSamples)
       out.push(
         "range",
         `${root}.outcome.samples`,
-        `an analysis run carries at most ${AUTOMOVIE_ANALYSIS_MAX_SAMPLES} spatial samples, but had ${outcome.samples.length}`,
+        `an analysis run carries at most ${AutoMovieEngineAnalysisMaxSamples} spatial samples, but had ${outcome.samples.length}`,
         outcome.samples.length,
       );
     const sampleIds: Set<string> = new Set<string>();

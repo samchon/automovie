@@ -5,9 +5,9 @@ import {
   IAutoMovieHalfSpacePlane,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AUTOMOVIE_DRAWING_CELL_BOUND } from "../AUTOMOVIE_DRAWING_CELL_BOUND";
-import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineDrawingCellBound } from "../AutoMovieEngineDrawingCellBound";
+import { AutoMovieEngineDrawingEpsilon } from "../AutoMovieEngineDrawingEpsilon";
 
 /*
  * Cross-section of one convex cell on the cut plane, as an unrounded page
@@ -16,7 +16,7 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
  * Each world half-space `normal . p <= offset` becomes the page half-plane `a x
  * + b y <= c` through the frame's origin, right and up axes, and the section is
  * what survives clipping a square of half-extent
- * AUTOMOVIE_DRAWING_CELL_BOUND by all of them. The square is what makes
+ * AutoMovieEngineDrawingCellBound by all of them. The square is what makes
  * an unbounded cell detectable: a result that still reaches it was never closed
  * by the design, so `bounded` is `false` and the caller reports a gap instead
  * of printing the square as a room.
@@ -33,7 +33,7 @@ export const autoMovieDrawingCellSection = (
   frame: IAutoMovieDrawingFrame,
   planes: readonly IAutoMovieHalfSpacePlane[],
 ): IAutoMovieDrawingCellSection.IResult => {
-  const bound: number = AUTOMOVIE_DRAWING_CELL_BOUND;
+  const bound: number = AutoMovieEngineDrawingCellBound;
   let polygon: IAutoMovieDrawingPoint[] = [
     { x: -bound, y: -bound },
     { x: bound, y: -bound },
@@ -41,16 +41,16 @@ export const autoMovieDrawingCellSection = (
     { x: -bound, y: bound },
   ];
   for (const plane of planes) {
-    const a: number = Vector3.dot(plane.normal, frame.right);
-    const b: number = Vector3.dot(plane.normal, frame.up);
-    const c: number = plane.offset - Vector3.dot(plane.normal, frame.origin);
+    const a: number = AutoMovieEngineVector3.dot(plane.normal, frame.right);
+    const b: number = AutoMovieEngineVector3.dot(plane.normal, frame.up);
+    const c: number = plane.offset - AutoMovieEngineVector3.dot(plane.normal, frame.origin);
     if (
-      Math.abs(a) <= AUTOMOVIE_DRAWING_EPSILON &&
-      Math.abs(b) <= AUTOMOVIE_DRAWING_EPSILON
+      Math.abs(a) <= AutoMovieEngineDrawingEpsilon &&
+      Math.abs(b) <= AutoMovieEngineDrawingEpsilon
     ) {
       // The plane is parallel to the page: it either contains the whole
       // cross-section or removes all of it, and there is no line to clip on.
-      if (c < -AUTOMOVIE_DRAWING_EPSILON) return { polygon: [], bounded: true };
+      if (c < -AutoMovieEngineDrawingEpsilon) return { polygon: [], bounded: true };
       continue;
     }
     polygon = clipHalfPlane(polygon, a, b, c);
@@ -58,8 +58,8 @@ export const autoMovieDrawingCellSection = (
   }
   const bounded: boolean = polygon.every(
     (point: IAutoMovieDrawingPoint): boolean =>
-      Math.abs(point.x) < bound - AUTOMOVIE_DRAWING_EPSILON &&
-      Math.abs(point.y) < bound - AUTOMOVIE_DRAWING_EPSILON,
+      Math.abs(point.x) < bound - AutoMovieEngineDrawingEpsilon &&
+      Math.abs(point.y) < bound - AutoMovieEngineDrawingEpsilon,
   );
   return { polygon, bounded };
 };

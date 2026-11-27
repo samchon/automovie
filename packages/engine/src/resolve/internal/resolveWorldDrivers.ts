@@ -8,9 +8,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import { applyIterativeIK } from "./applyIterativeIK";
 import { blendVec } from "./blendVec";
@@ -63,9 +63,9 @@ const applyAim: (
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(readWorld(world, d.owner, "aim owner"));
-  const dir: IAutoMovieVector3 = Vector3.subtract(
-    Matrix4.position(readWorld(world, d.target, "aim target")),
+  } = AutoMovieEngineMatrix4.decompose(readWorld(world, d.owner, "aim owner"));
+  const dir: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineMatrix4.position(readWorld(world, d.target, "aim target")),
     dec.position,
   );
   const aimed: IAutoMovieQuaternion = aimRotation(
@@ -74,12 +74,12 @@ const applyAim: (
     d.upAxis,
     d.worldUp,
   );
-  const blended: IAutoMovieQuaternion = Quaternion.slerp(
+  const blended: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
     dec.rotation,
     aimed,
     d.influence,
   );
-  world.set(d.owner, Matrix4.compose(dec.position, blended, dec.scale));
+  world.set(d.owner, AutoMovieEngineMatrix4.compose(dec.position, blended, dec.scale));
   recompose(d.owner, world, localById, childrenById);
 };
 
@@ -103,15 +103,15 @@ const applyParent: (
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(readWorld(world, d.owner, "parent owner"));
+  } = AutoMovieEngineMatrix4.decompose(readWorld(world, d.owner, "parent owner"));
   const par: {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(readWorld(world, d.parent, "parent parent"));
+  } = AutoMovieEngineMatrix4.decompose(readWorld(world, d.parent, "parent parent"));
   world.set(
     d.owner,
-    Matrix4.compose(
+    AutoMovieEngineMatrix4.compose(
       d.translation ? par.position : own.position,
       d.rotation ? par.rotation : own.rotation,
       d.scale ? par.scale : own.scale,
@@ -149,17 +149,17 @@ const applyTwoBoneIK: (
   const rootM: number[] = readWorld(world, rootId, "two-bone IK root");
   const midM: number[] = readWorld(world, midId, "two-bone IK mid");
   const tipM: number[] = readWorld(world, tipId, "two-bone IK tip");
-  const rootP: IAutoMovieVector3 = Matrix4.position(rootM);
-  const midP: IAutoMovieVector3 = Matrix4.position(midM);
-  const tipP: IAutoMovieVector3 = Matrix4.position(tipM);
-  const goalP: IAutoMovieVector3 = Matrix4.position(
+  const rootP: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(rootM);
+  const midP: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(midM);
+  const tipP: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(tipM);
+  const goalP: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(
     readWorld(world, d.goal, "two-bone IK goal"),
   );
 
-  const upper: IAutoMovieVector3 = Vector3.subtract(midP, rootP);
-  const lower: IAutoMovieVector3 = Vector3.subtract(tipP, midP);
-  const l1: number = Vector3.length(upper);
-  const l2: number = Vector3.length(lower);
+  const upper: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(midP, rootP);
+  const lower: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(tipP, midP);
+  const l1: number = AutoMovieEngineVector3.length(upper);
+  const l2: number = AutoMovieEngineVector3.length(lower);
   if (!(l1 > 0))
     throw new Error(
       `world driver two-bone IK upper bone length must be > 0, but was ${l1}`,
@@ -169,8 +169,8 @@ const applyTwoBoneIK: (
       `world driver two-bone IK lower bone length must be > 0, but was ${l2}`,
     );
 
-  const toGoal: IAutoMovieVector3 = Vector3.subtract(goalP, rootP);
-  const goalLen: number = Vector3.length(toGoal);
+  const toGoal: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goalP, rootP);
+  const goalLen: number = AutoMovieEngineVector3.length(toGoal);
   const reach: number = clamp(
     goalLen,
     Math.abs(l1 - l2) + 1e-5,
@@ -178,76 +178,76 @@ const applyTwoBoneIK: (
   );
   const dir: IAutoMovieVector3 =
     goalLen < 1e-8
-      ? Vector3.normalize(upper)
-      : Vector3.scale(toGoal, 1 / goalLen);
+      ? AutoMovieEngineVector3.normalize(upper)
+      : AutoMovieEngineVector3.scale(toGoal, 1 / goalLen);
 
   // Bend plane: from the pole (when one is wired) else the limb's current bend.
   const poleRef: IAutoMovieVector3 =
     d.pole !== null && d.pole.node !== null
-      ? Vector3.subtract(
-          Matrix4.position(readWorld(world, d.pole.node, "two-bone IK pole")),
+      ? AutoMovieEngineVector3.subtract(
+          AutoMovieEngineMatrix4.position(readWorld(world, d.pole.node, "two-bone IK pole")),
           rootP,
         )
       : upper;
-  let axis: IAutoMovieVector3 = Vector3.cross(dir, poleRef);
-  if (Vector3.length(axis) < 1e-8) axis = anyPerp(dir);
+  let axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(dir, poleRef);
+  if (AutoMovieEngineVector3.length(axis) < 1e-8) axis = anyPerp(dir);
   if (d.pole !== null && d.pole.angle !== 0)
-    axis = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(dir, d.pole.angle),
+    axis = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle(dir, d.pole.angle),
       axis,
     );
-  axis = Vector3.normalize(axis);
+  axis = AutoMovieEngineVector3.normalize(axis);
 
   const cosRoot: number = clamp(
     (l1 * l1 + reach * reach - l2 * l2) / (2 * l1 * reach),
     -1,
     1,
   );
-  const bend: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const bend: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     axis,
     (Math.acos(cosRoot) * 180) / Math.PI,
   );
-  const newMid: IAutoMovieVector3 = Vector3.add(
+  const newMid: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     rootP,
-    Vector3.scale(Quaternion.rotateVector(bend, dir), l1),
+    AutoMovieEngineVector3.scale(AutoMovieEngineQuaternion.rotateVector(bend, dir), l1),
   );
-  const newTip: IAutoMovieVector3 = Vector3.add(
+  const newTip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     rootP,
-    Vector3.scale(dir, reach),
+    AutoMovieEngineVector3.scale(dir, reach),
   );
 
   const rootDelta: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
-    Vector3.normalize(upper),
-    Vector3.normalize(Vector3.subtract(newMid, rootP)),
+    AutoMovieEngineVector3.normalize(upper),
+    AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(newMid, rootP)),
   );
   const midDelta: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
-    Vector3.normalize(lower),
-    Vector3.normalize(Vector3.subtract(newTip, newMid)),
+    AutoMovieEngineVector3.normalize(lower),
+    AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(newTip, newMid)),
   );
   const rootDec: {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(rootM);
+  } = AutoMovieEngineMatrix4.decompose(rootM);
   const midDec: {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(midM);
+  } = AutoMovieEngineMatrix4.decompose(midM);
   const tipDec: {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(tipM);
+  } = AutoMovieEngineMatrix4.decompose(tipM);
   const t: number = d.influence;
 
   world.set(
     rootId,
-    Matrix4.compose(
+    AutoMovieEngineMatrix4.compose(
       rootP,
-      Quaternion.slerp(
+      AutoMovieEngineQuaternion.slerp(
         rootDec.rotation,
-        Quaternion.multiply(rootDelta, rootDec.rotation),
+        AutoMovieEngineQuaternion.multiply(rootDelta, rootDec.rotation),
         t,
       ),
       rootDec.scale,
@@ -255,11 +255,11 @@ const applyTwoBoneIK: (
   );
   world.set(
     midId,
-    Matrix4.compose(
+    AutoMovieEngineMatrix4.compose(
       blendVec(midP, newMid, t),
-      Quaternion.slerp(
+      AutoMovieEngineQuaternion.slerp(
         midDec.rotation,
-        Quaternion.multiply(midDelta, midDec.rotation),
+        AutoMovieEngineQuaternion.multiply(midDelta, midDec.rotation),
         t,
       ),
       midDec.scale,
@@ -267,7 +267,7 @@ const applyTwoBoneIK: (
   );
   world.set(
     tipId,
-    Matrix4.compose(blendVec(tipP, newTip, t), tipDec.rotation, tipDec.scale),
+    AutoMovieEngineMatrix4.compose(blendVec(tipP, newTip, t), tipDec.rotation, tipDec.scale),
   );
   recompose(tipId, world, localById, childrenById);
 };
@@ -285,7 +285,7 @@ const validateAimVector: (
   label: "aimAxis" | "upAxis" | "worldUp",
   value: IAutoMovieVector3,
 ): void => {
-  if (Vector3.length(value) === 0)
+  if (AutoMovieEngineVector3.length(value) === 0)
     throw new Error(`world driver aim ${label} must be non-zero`);
 };
 
@@ -295,10 +295,10 @@ const validateAimVector: (
 const anyPerp: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
   v: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
-  const c: IAutoMovieVector3 = Vector3.cross(v, { x: 0, y: 1, z: 0 });
-  return Vector3.length(c) > 1e-6
-    ? Vector3.normalize(c)
-    : Vector3.normalize(Vector3.cross(v, { x: 1, y: 0, z: 0 }));
+  const c: IAutoMovieVector3 = AutoMovieEngineVector3.cross(v, { x: 0, y: 1, z: 0 });
+  return AutoMovieEngineVector3.length(c) > 1e-6
+    ? AutoMovieEngineVector3.normalize(c)
+    : AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(v, { x: 1, y: 0, z: 0 }));
 };
 
 /*
@@ -318,30 +318,30 @@ const aimRotation: (
   upAxis: IAutoMovieVector3,
   worldUp: IAutoMovieVector3,
 ): IAutoMovieQuaternion => {
-  const f: IAutoMovieVector3 = Vector3.normalize(dir);
+  const f: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(dir);
   const r1: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
-    Vector3.normalize(aimAxis),
+    AutoMovieEngineVector3.normalize(aimAxis),
     f,
   );
 
   const desired: IAutoMovieVector3 = projectPerp(worldUp, f);
   const current: IAutoMovieVector3 = projectPerp(
-    Quaternion.rotateVector(r1, upAxis),
+    AutoMovieEngineQuaternion.rotateVector(r1, upAxis),
     f,
   );
-  const dl: number = Vector3.length(desired);
-  const cl: number = Vector3.length(current);
+  const dl: number = AutoMovieEngineVector3.length(desired);
+  const cl: number = AutoMovieEngineVector3.length(current);
   if (dl < 1e-8 || cl < 1e-8) return r1;
 
-  const du: IAutoMovieVector3 = Vector3.scale(desired, 1 / dl);
-  const cu: IAutoMovieVector3 = Vector3.scale(current, 1 / cl);
-  const cos: number = Math.max(-1, Math.min(1, Vector3.dot(cu, du)));
-  const sin: number = Vector3.dot(Vector3.cross(cu, du), f);
-  const r2: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const du: IAutoMovieVector3 = AutoMovieEngineVector3.scale(desired, 1 / dl);
+  const cu: IAutoMovieVector3 = AutoMovieEngineVector3.scale(current, 1 / cl);
+  const cos: number = Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(cu, du)));
+  const sin: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(cu, du), f);
+  const r2: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     f,
     (Math.atan2(sin, cos) * 180) / Math.PI,
   );
-  return Quaternion.multiply(r2, r1);
+  return AutoMovieEngineQuaternion.multiply(r2, r1);
 };
 
 /*
@@ -354,4 +354,4 @@ const projectPerp: (
   v: IAutoMovieVector3,
   f: IAutoMovieVector3,
 ): IAutoMovieVector3 =>
-  Vector3.subtract(v, Vector3.scale(f, Vector3.dot(v, f)));
+  AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(f, AutoMovieEngineVector3.dot(v, f)));

@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
-import { HumanPerformanceReadWhere } from "@automovie/motions/internal";
+import {
+  HumanPerformanceReadWhere
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceReadWhere";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

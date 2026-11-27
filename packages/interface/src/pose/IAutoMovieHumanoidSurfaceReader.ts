@@ -10,7 +10,7 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * Shared rest-pose and collision-surface readers for one humanoid rig and
  * physical profile.
  *
- * `AutoMovieHumanoidSurfaceRays.tools` resolves the unposed skeleton once and
+ * `AutoMovieEngineHumanoidSurfaceRays.tools` resolves the unposed skeleton once and
  * retains that map together with the supplied profile. The caller keeps the rig
  * and profile coherent for the reader's lifetime; profile segments are
  * borrowed, not cloned. Releasing the reader releases these closures. World

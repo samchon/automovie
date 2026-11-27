@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -239,7 +239,7 @@ export namespace throwObject {
     );
     const finished: IAutoMovieQuaternion = HumanHand.rotation(side, {
       fingers: toward,
-      palm: Vector3.scale(up, -1),
+      palm: AutoMovieEngineVector3.scale(up, -1),
     });
     /*
      * Actual world grip-surface point and hand attitude, before inverse wrist
@@ -250,7 +250,7 @@ export namespace throwObject {
       posture: IAutoMovieMotionHumanPosture,
     ): GripFrame => ({
       point: AutoMovieMotionHumanArm.point(posture, origin),
-      rotation: Quaternion.multiply(
+      rotation: AutoMovieEngineQuaternion.multiply(
         HumanFrame.turn(posture.yaw),
         origin.rotation,
       ),
@@ -271,7 +271,7 @@ export namespace throwObject {
             style === "windmill"
               ? precisionThrow.windmill(frame, arm, chamber, rest.point, u)
               : swing.windup(posture, rest.point, chamber, u),
-          rotation: Quaternion.slerp(rest.rotation, cocking, u),
+          rotation: AutoMovieEngineQuaternion.slerp(rest.rotation, cocking, u),
         };
       }
       // The carry: the hand's share of the launch held through the release,
@@ -279,11 +279,11 @@ export namespace throwObject {
       const carried: number = seconds - releasedAt;
       if (Math.abs(carried) <= throwObjectForm.CARRY)
         return {
-          point: Vector3.add(release, Vector3.scale(velocity, carried)),
+          point: AutoMovieEngineVector3.add(release, AutoMovieEngineVector3.scale(velocity, carried)),
           rotation:
             carried <= 0
               ? lever.rotation(carried)
-              : Quaternion.slerp(
+              : AutoMovieEngineQuaternion.slerp(
                   lever.rotation(carried),
                   finished,
                   AutoMovieEngineMotionSampling.minimumJerkShare(
@@ -300,7 +300,7 @@ export namespace throwObject {
       if (seconds <= followedAt) {
         return {
           point: followCurve((carried - throwObjectForm.CARRY) / following),
-          rotation: Quaternion.slerp(
+          rotation: AutoMovieEngineQuaternion.slerp(
             carriedOut,
             finished,
             AutoMovieEngineMotionSampling.minimumJerkShare(
@@ -312,8 +312,8 @@ export namespace throwObject {
       const rest: GripFrame = restAt(posture);
       const u: number = clock.progress("recover", "end", seconds);
       return {
-        point: Vector3.lerp(finish, rest.point, u),
-        rotation: Quaternion.slerp(finished, rest.rotation, u),
+        point: AutoMovieEngineVector3.lerp(finish, rest.point, u),
+        rotation: AutoMovieEngineQuaternion.slerp(finished, rest.rotation, u),
       };
     };
     const prop: string | undefined = context.params.prop;
@@ -464,7 +464,7 @@ export namespace throwObject {
         style,
         throwObjectLaunch.launches(prop, attitude, {
           point: lever.point,
-          velocity: Vector3.add(
+          velocity: AutoMovieEngineVector3.add(
             lever.velocity,
             HumanSupportFrame.at(context, context.start + releasedAt).velocity,
           ),

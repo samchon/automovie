@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieFloat64";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 import { projectileAt } from "./projectileAt";
@@ -152,7 +152,7 @@ export namespace projectileShapeDeparture {
       throw new RangeError(
         "Projectile shape departure needs a unit pose rotation.",
       );
-    return { position: frame.position, rotation: Quaternion.normalize(q) };
+    return { position: frame.position, rotation: AutoMovieEngineQuaternion.normalize(q) };
   }
 }
 

@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieNaturalCubicSpline,
@@ -302,15 +302,15 @@ export namespace AutoMovieHumanNativeScaleProfile {
       );
     const splines: IAutoMovieNaturalCubicSpline[] = [u, v].map(
       (values: readonly number[]): IAutoMovieNaturalCubicSpline =>
-        AutoMovieNaturalSpline.create(knots, values),
+        AutoMovieEngineNaturalSpline.create(knots, values),
     );
     const [first, last]: [number, number] = [knots[0]!, knots.at(-1)!];
     const read = (k: 0 | 1, station: number): [number, number, number] => {
       const end: number | null =
         station < first ? first : station > last ? last : null;
-      if (end === null) return AutoMovieNaturalSpline.read(splines[k]!, station);
+      if (end === null) return AutoMovieEngineNaturalSpline.read(splines[k]!, station);
       const [value, slope]: [number, number, number] =
-        AutoMovieNaturalSpline.read(splines[k]!, end);
+        AutoMovieEngineNaturalSpline.read(splines[k]!, end);
       return [value + slope * (station - end), slope, 0];
     };
     return {

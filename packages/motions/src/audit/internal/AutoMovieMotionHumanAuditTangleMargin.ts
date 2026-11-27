@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditTangle,
@@ -103,7 +103,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
         // (each centre lies within the segment's extent), so the gap itself
         // is the margin.
         const reach: number = m.parts[i]!.radius + m.parts[j]!.radius;
-        const apart: number = Vector3.distance(centres[i]!, centres[j]!);
+        const apart: number = AutoMovieEngineVector3.distance(centres[i]!, centres[j]!);
         if (apart >= reach) {
           read?.heard(index, apart - reach, true, 0);
           continue;
@@ -204,7 +204,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
 
         // Bounding spheres apart: the gap itself is the margin (`within`).
         const reach: number = m.parts[i]!.radius + o.parts[j]!.radius;
-        const apart: number = Vector3.distance(near[i]!, far[j]!);
+        const apart: number = AutoMovieEngineVector3.distance(near[i]!, far[j]!);
         if (apart >= reach) {
           read?.heard(index, apart - reach, true, 0);
           continue;
@@ -323,13 +323,13 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
         for (let s: number = 0; s < m.parts.length; s++) {
           const a: IAutoMovieMotionHumanColliders.IPlaced = frames[k - 1]![s]!;
           const b: IAutoMovieMotionHumanColliders.IPlaced = frames[k]![s]!;
-          const turn: IAutoMovieQuaternion = Quaternion.multiply(
+          const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
             b.pose.rotation,
-            Quaternion.inverse(a.pose.rotation),
+            AutoMovieEngineQuaternion.inverse(a.pose.rotation),
           );
           sum[s] =
             before[s]! +
-            Vector3.distance(a.pose.position, b.pose.position) +
+            AutoMovieEngineVector3.distance(a.pose.position, b.pose.position) +
             2 * Math.hypot(turn.x, turn.y, turn.z) * m.parts[s]!.extent;
         }
       }

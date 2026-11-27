@@ -1,4 +1,4 @@
-import { AffordanceArticulation, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Transform, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineTransform, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -127,7 +127,7 @@ export function manipulateHeld(
     bones: chain.map(
       (bone: IAutoMovieBone): IAutoMovieBone =>
         bone.bone === hand
-          ? { ...bone, parent: null, rest: Transform.identity() }
+          ? { ...bone, parent: null, rest: AutoMovieEngineTransform.identity() }
           : bone,
     ),
   };
@@ -186,7 +186,7 @@ export function manipulateHeld(
       prop.point !== undefined ||
       (prop.articulate !== undefined &&
         (affordance.rides !== undefined ||
-          AffordanceArticulation.KINDS.has(affordance.kind)))
+          AutoMovieEngineAffordanceArticulation.KINDS.has(affordance.kind)))
     )
       throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
@@ -204,9 +204,9 @@ export function manipulateHeld(
         reason: "the site's travel must be finite and nonnegative",
         fix: "give the site's measured travel in metres",
       });
-    const target: IAutoMovieVector3 = Vector3.add(
+    const target: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       grip,
-      Vector3.add(site.point, Vector3.scale(site.direction, -depth)),
+      AutoMovieEngineVector3.add(site.point, AutoMovieEngineVector3.scale(site.direction, -depth)),
     );
     const fit: IAutoMovieFitDigitToTarget.IResult = AutoMovieEngineKinematics.fitDigitToTarget({
       skeleton,
@@ -215,9 +215,9 @@ export function manipulateHeld(
       bones,
       effector: tip,
       target,
-      normal: Vector3.scale(site.direction, -1),
-      jointAxes: HUMANOID_JOINT_AXES,
-      restFrames: HUMANOID_REST_FRAME,
+      normal: AutoMovieEngineVector3.scale(site.direction, -1),
+      jointAxes: AutoMovieEngineHumanoidJointAxes,
+      restFrames: AutoMovieEngineHumanoidRestFrame,
     });
     if (!(fit.residual <= CONTACT_BOUND))
       throw new AutoMovieMotionHumanRefusal({

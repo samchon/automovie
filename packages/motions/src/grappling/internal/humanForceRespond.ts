@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSustainedForce, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
@@ -51,7 +51,7 @@ export function humanForceRespond(
     (
       s: IAutoMovieVector3,
       f: IAutoMovieMotionHumanSustainedForce,
-    ): IAutoMovieVector3 => Vector3.add(s, HumanForce.at(f, context.start)),
+    ): IAutoMovieVector3 => AutoMovieEngineVector3.add(s, HumanForce.at(f, context.start)),
     { x: 0, y: 0, z: 0 },
   );
   const force: number = Math.hypot(sum.x, sum.z);
@@ -86,8 +86,8 @@ export function humanForceRespond(
   );
   const base: IAutoMovieVector3[] = HumanFoot.base(body, bones);
   const feet = context.entry.feet;
-  const pivot: IAutoMovieVector3 = Vector3.scale(
-    Vector3.add(feet.left.ankle, feet.right.ankle),
+  const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.add(feet.left.ankle, feet.right.ankle),
     0.5,
   );
   const height: number = centre.y - pivot.y;
@@ -157,9 +157,9 @@ export function humanForceRespond(
       (HumanArmTrajectoryTerms.TOLERANCE / 1000) * height,
     );
     return (
-      Vector3.dot(
-        Vector3.subtract(
-          shown(Vector3.add(entry.root, Vector3.scale(right, h))),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(
+          shown(AutoMovieEngineVector3.add(entry.root, AutoMovieEngineVector3.scale(right, h))),
           shown(entry.root),
         ),
         right,
@@ -177,8 +177,8 @@ export function humanForceRespond(
     posture: IAutoMovieMotionHumanPosture,
     offset: number,
   ) => IAutoMovieMotionHumanPosture) => {
-    const alongForward: number = Vector3.dot(along, forward);
-    const alongRight: number = Vector3.dot(along, right);
+    const alongForward: number = AutoMovieEngineVector3.dot(along, forward);
+    const alongRight: number = AutoMovieEngineVector3.dot(along, right);
     return (
       posture: IAutoMovieMotionHumanPosture,
       offset: number,
@@ -189,9 +189,9 @@ export function humanForceRespond(
       );
       return {
         ...tip,
-        root: Vector3.add(
+        root: AutoMovieEngineVector3.add(
           tip.root,
-          Vector3.scale(right, (offset * alongRight) / across),
+          AutoMovieEngineVector3.scale(right, (offset * alongRight) / across),
         ),
       };
     };
@@ -223,7 +223,7 @@ export function humanForceRespond(
           "an impulse at the start fells the body, which cannot then resist the pull",
         fix: "give a smaller impulse, or let the body fall",
       });
-    const back: IAutoMovieVector3 = Vector3.scale(direction, -1);
+    const back: IAutoMovieVector3 = AutoMovieEngineVector3.scale(direction, -1);
     const behind: number = HumanForceExchange.edge(centre, back, base);
     const shift: number | null = HumanForceExchange.resisted({
       mass: model.mass,
@@ -239,7 +239,7 @@ export function humanForceRespond(
         feasible: {
           kind: "range",
           minimum: 0,
-          maximum: (model.mass * AutoMovieGravity.STANDARD * behind) / grip,
+          maximum: (model.mass * AutoMovieEngineGravity.STANDARD * behind) / grip,
           unit: "N",
         },
         reason: `a pull of ${force.toFixed(0)} N at ${grip.toFixed(2)} m moves the centre of pressure past the base ${behind.toFixed(2)} m behind`,

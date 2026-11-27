@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -13,7 +13,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 /*
  * A kneel's foot turned toes down by a share of any excess of its ankle's
  * dorsiflexion over what a weightless ankle reaches
- * (`ANKLE_DORSIFLEXION.unloaded`), the excess read on the knee the fit will
+ * (`AutoMovieEngineAnkleDorsiflexion.unloaded`), the excess read on the knee the fit will
  * place: the two-link knee in the plane of the hip, the ankle and the goal's
  * own bend point. The foot turns about its toes' joint while the toes extend by
  * the turn, up to their range, so the toe pads keep where they lie: a foot in
@@ -43,53 +43,53 @@ export function kneelLiftedFoot(
   if (goal.rotation === undefined || weight <= 0) return kept;
   const thigh: number = body.measure.thigh;
   const shank: number = body.measure.shank;
-  const reach: IAutoMovieVector3 = Vector3.subtract(goal.point, hip);
-  const d: number = Math.max(1e-9, Vector3.length(reach));
-  const u: IAutoMovieVector3 = Vector3.scale(reach, 1 / d);
+  const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(goal.point, hip);
+  const d: number = Math.max(1e-9, AutoMovieEngineVector3.length(reach));
+  const u: IAutoMovieVector3 = AutoMovieEngineVector3.scale(reach, 1 / d);
   const across: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.subtract(point, Vector3.scale(u, Vector3.dot(point, u)));
+    AutoMovieEngineVector3.subtract(point, AutoMovieEngineVector3.scale(u, AutoMovieEngineVector3.dot(point, u)));
   // The knee lies on the side of the hip-to-ankle line its bend point does,
   // never behind it: a knee bends forward, the leg's own pole. Where the bend
   // point falls near the line (a knee coming down under its hip) its side is
   // undetermined, so the pole decides, as the leg's fit does.
-  const bend: IAutoMovieVector3 = across(Vector3.subtract(goal.bend, hip));
+  const bend: IAutoMovieVector3 = across(AutoMovieEngineVector3.subtract(goal.bend, hip));
   const ahead: IAutoMovieVector3 = across(pole);
   const off: IAutoMovieVector3 =
-    Vector3.length(bend) > SIDE * d && Vector3.dot(bend, ahead) > 0
+    AutoMovieEngineVector3.length(bend) > SIDE * d && AutoMovieEngineVector3.dot(bend, ahead) > 0
       ? bend
       : ahead;
-  if (Vector3.length(off) < 1e-9) return kept;
+  if (AutoMovieEngineVector3.length(off) < 1e-9) return kept;
   const a: number = Math.min(
     thigh,
     (thigh * thigh - shank * shank + d * d) / (2 * d),
   );
-  const knee: IAutoMovieVector3 = Vector3.add(
+  const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     hip,
-    Vector3.add(
-      Vector3.scale(u, a),
-      Vector3.scale(
-        Vector3.normalize(off),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(u, a),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(off),
         Math.sqrt(Math.max(0, thigh * thigh - a * a)),
       ),
     ),
   );
-  const up: IAutoMovieVector3 = Quaternion.rotateVector(goal.rotation, {
+  const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(goal.rotation, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(goal.rotation, {
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(goal.rotation, {
     x: 0,
     y: 0,
     z: 1,
   });
-  const leg: IAutoMovieVector3 = Vector3.subtract(knee, goal.point);
+  const leg: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(knee, goal.point);
   const lean: number =
-    (Math.atan2(Vector3.dot(leg, forward), Vector3.dot(leg, up)) * 180) /
+    (Math.atan2(AutoMovieEngineVector3.dot(leg, forward), AutoMovieEngineVector3.dot(leg, up)) * 180) /
     Math.PI;
-  const excess: number = lean - (ANKLE_DORSIFLEXION.unloaded - MARGIN);
+  const excess: number = lean - (AutoMovieEngineAnkleDorsiflexion.unloaded - MARGIN);
   if (excess <= 0) return kept;
   // The toes extend by the turn up to their range, the foot turning about
   // the toes' joint; past their range the toes turn with the foot about
@@ -98,7 +98,7 @@ export function kneelLiftedFoot(
     AutoMovieMotionHumanRange.limit(`${side}Toes`, "flexion") ?? toes;
   const turn: number = excess * weight;
   const extend: number = Math.min(turn, Math.max(0, range - toes));
-  const axis: IAutoMovieVector3 = Vector3.cross(up, forward);
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(up, forward);
   const about: (
     foot: IAutoMovieHumanLimbGoal,
     pivot: kneelLiftedFoot.Pivot,
@@ -111,8 +111,8 @@ export function kneelLiftedFoot(
     bent: number,
   ): IAutoMovieHumanLimbGoal => {
     if (angle <= 0) return foot;
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.fromAxisAngle(axis, angle),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(axis, angle),
       foot.rotation!,
     );
     const held: IAutoMovieVector3 = HumanFoot.point(
@@ -131,7 +131,7 @@ export function kneelLiftedFoot(
     );
     return {
       ...foot,
-      point: Vector3.add(foot.point, Vector3.subtract(held, moved)),
+      point: AutoMovieEngineVector3.add(foot.point, AutoMovieEngineVector3.subtract(held, moved)),
       rotation,
     };
   };

@@ -6,7 +6,7 @@ import {
   type IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
+import { AutoMovieEngineSkeletonRootParent } from "../AutoMovieEngineSkeletonRootParent";
 
 /*
  * Group declared bones by parent. Reject duplicate names before traversal.
@@ -22,7 +22,7 @@ export function indexSkeletonTopologyChildren(
       throw new Error(`Skeleton topology has duplicate bone "${bone.bone}".`);
     names.add(bone.bone);
     const key: AutoMovieSkeletonParentKey =
-      bone.parent ?? SKELETON_ROOT_PARENT;
+      bone.parent ?? AutoMovieEngineSkeletonRootParent;
     const children: IAutoMovieBone[] = childrenByParent.get(key) ?? [];
     children.push(bone);
     childrenByParent.set(key, children);

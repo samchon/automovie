@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -28,7 +28,7 @@ export function test_archetypes_core_finite_material_site(): void {
   TestValidator.predicate(
     "a real tread extends by 50 mm",
     nclose(
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         horse.site("leftStirrup", 0.5, 0).translation,
         horse.site("leftStirrup", 0.5, 1).translation,
       ),

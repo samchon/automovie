@@ -1,4 +1,4 @@
-import { DETAIL_NORMAL_TARGET, AutoMovieRenderDetailNormalShading } from "@automovie/render";
+import { AutoMovieRenderDetailNormalTarget, AutoMovieRenderDetailNormalShading } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,8 +12,8 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_scene_splice_tangent_normal(): void {
   TestValidator.equals(
     "inserted",
-    AutoMovieRenderDetailNormalShading.spliceTangentNormal(`head\n${DETAIL_NORMAL_TARGET}\ntail`, "blend();"),
-    `head\nblend();\n\t${DETAIL_NORMAL_TARGET}\ntail`,
+    AutoMovieRenderDetailNormalShading.spliceTangentNormal(`head\n${AutoMovieRenderDetailNormalTarget}\ntail`, "blend();"),
+    `head\nblend();\n\t${AutoMovieRenderDetailNormalTarget}\ntail`,
   );
   TestValidator.error("no target", (): void => {
     AutoMovieRenderDetailNormalShading.spliceTangentNormal("void main() {}", "blend();");

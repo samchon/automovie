@@ -1,6 +1,6 @@
 import {
-  AutoMoviePhysicalPlayback,
-  AutoMoviePhysicalSimulation,
+  AutoMovieEnginePhysicalPlayback,
+  AutoMovieEnginePhysicalSimulation,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalFrame,
@@ -22,8 +22,8 @@ const RATE: number = 120;
 const DURATION: number = 0.5;
 
 /**
- * `AutoMoviePhysicalSimulation.compute` solves a minimal pin rack, one ball
- * striking one pin head-on in free space, and `AutoMoviePhysicalPlayback`
+ * `AutoMovieEnginePhysicalSimulation.compute` solves a minimal pin rack, one ball
+ * striking one pin head-on in free space, and `AutoMovieEnginePhysicalPlayback`
  * replays the solve from its archive.
  *
  * Fixture: no gravity; a 1 kg sphere of radius 0.1 m at the origin moving +z at
@@ -152,7 +152,7 @@ export async function test_engine_physics_rack_impact(): Promise<void> {
     maximumSegments: 2,
   };
   const solved: IAutoMoviePhysicalSimulation =
-    await AutoMoviePhysicalSimulation.compute(input);
+    await AutoMovieEnginePhysicalSimulation.compute(input);
   const cache: IAutoMoviePhysicalSimulation["cache"] = solved.cache;
   const root = (frame: IAutoMoviePhysicalFrame, id: string) =>
     frame.bodies[id]!.root!;
@@ -211,8 +211,8 @@ export async function test_engine_physics_rack_impact(): Promise<void> {
   // 4.
   const bytes: number = 1 << 24;
   const playback: IAutoMoviePhysicalPlayback =
-    await AutoMoviePhysicalPlayback.decode(
-      await AutoMoviePhysicalPlayback.encode(cache, bytes),
+    await AutoMovieEnginePhysicalPlayback.decode(
+      await AutoMovieEnginePhysicalPlayback.encode(cache, bytes),
       cache.identity,
       { maximumBytes: bytes, maximumFrames: steps + 1, maximumSegments: 2 },
     );

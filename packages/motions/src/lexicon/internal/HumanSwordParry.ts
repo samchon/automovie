@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionEvent,
@@ -144,11 +144,11 @@ export namespace HumanSwordParry {
               share,
             );
             if (
-              Vector3.length(
-                Vector3.subtract(
-                  Vector3.subtract(
+              AutoMovieEngineVector3.length(
+                AutoMovieEngineVector3.subtract(
+                  AutoMovieEngineVector3.subtract(
                     frame.point,
-                    Quaternion.rotateVector(frame.rotation, grip),
+                    AutoMovieEngineQuaternion.rotateVector(frame.rotation, grip),
                   ),
                   s.shoulder,
                 ),
@@ -216,8 +216,8 @@ export namespace HumanSwordParry {
         const speed: number = s.skill(HumanSword.SPEED.thrust);
         const natural: number =
           (HumanSwordTiming.UNIT *
-            Vector3.length(
-              Vector3.subtract(met.at, StrikingHeld.point(s.tool, held, back)),
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(met.at, StrikingHeld.point(s.tool, held, back)),
             )) /
           speed;
         const lead: number = met.lead ?? natural;
@@ -249,11 +249,11 @@ export namespace HumanSwordParry {
         return StrikingBlade.plan(context, {
           tool: s.tool,
           clock,
-          ...(Vector3.length(met.aside) === 0
+          ...(AutoMovieEngineVector3.length(met.aside) === 0
             ? {}
             : {
                 follow: (seconds: number): IAutoMovieVector3 =>
-                  Vector3.scale(
+                  AutoMovieEngineVector3.scale(
                     met.aside,
                     AutoMovieMotionInterval.progress(sweep, relax, seconds),
                   ),
@@ -261,12 +261,12 @@ export namespace HumanSwordParry {
           path: (
             progress: number,
           ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-            point: Vector3.lerp(
+            point: AutoMovieEngineVector3.lerp(
               held.point,
               closed.point,
               Math.min(1, progress),
             ),
-            rotation: Quaternion.slerp(
+            rotation: AutoMovieEngineQuaternion.slerp(
               held.rotation,
               closed.rotation,
               Math.min(1, progress),
@@ -313,12 +313,12 @@ export namespace HumanSwordParry {
       const point: IAutoMovieVector3 = { x: 0, y: high ? 1 : -1, z: 0 };
       const edge: number = (outside * m.chestBreadth) / 2 - m.shoulderHalfWidth;
       return {
-        at: Vector3.add(
-          Vector3.add(
+        at: AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
             s.shoulder,
             s.world({ out: edge, up: -m.upperArm, forward: m.forearm }),
           ),
-          Vector3.scale(point, HumanSword.LANDS.parry * s.tool.length),
+          AutoMovieEngineVector3.scale(point, HumanSword.LANDS.parry * s.tool.length),
         ),
         point,
         edge: s.world({ out: outside, up: 0, forward: 0 }),
@@ -367,18 +367,18 @@ export namespace HumanSwordParry {
         fix: "parry an attack made with a prop that declares its point",
       });
     const frame: IAutoMovieRigidTransform = held.frame(seconds);
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       frame.rotation,
       tip.normal,
     );
-    const length: number = Vector3.dot(tip.point, tip.normal);
-    const end: IAutoMovieVector3 = Vector3.add(
+    const length: number = AutoMovieEngineVector3.dot(tip.point, tip.normal);
+    const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, tip.point),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, tip.point),
     );
-    const middle: IAutoMovieVector3 = Vector3.subtract(
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       end,
-      Vector3.scale(along, weak * length),
+      AutoMovieEngineVector3.scale(along, weak * length),
     );
 
     // A taken blade is carried aside from the end of the attack's
@@ -397,36 +397,36 @@ export namespace HumanSwordParry {
     // so the hand stays under a high parry and over a low one; an attacking
     // blade within the parry's own `LEAN` of upright is crossed level,
     // across the defender's front.
-    const lifted: IAutoMovieVector3 = Vector3.subtract(
+    const lifted: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       { x: 0, y: 1, z: 0 },
-      Vector3.scale(along, along.y),
+      AutoMovieEngineVector3.scale(along, along.y),
     );
     const high: boolean = middle.y >= hand.y;
-    const upright: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.length(lifted) < Math.sin((LEAN * Math.PI) / 180)
-        ? Vector3.cross(along, forward)
+    const upright: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.length(lifted) < Math.sin((LEAN * Math.PI) / 180)
+        ? AutoMovieEngineVector3.cross(along, forward)
         : lifted,
     );
-    const point: IAutoMovieVector3 = Vector3.scale(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       upright,
       upright.y >= 0 === high ? 1 : -1,
     );
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(along, point),
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(along, point),
     );
     const mine: number =
-      Vector3.dot(normal, Vector3.subtract(s.shoulder, middle)) >= 0 ? 1 : -1;
+      AutoMovieEngineVector3.dot(normal, AutoMovieEngineVector3.subtract(s.shoulder, middle)) >= 0 ? 1 : -1;
     return {
-      at: Vector3.add(middle, Vector3.scale(normal, mine * HumanSword.GAP)),
+      at: AutoMovieEngineVector3.add(middle, AutoMovieEngineVector3.scale(normal, mine * HumanSword.GAP)),
       point,
-      edge: Vector3.scale(normal, -mine),
+      edge: AutoMovieEngineVector3.scale(normal, -mine),
       lead: seconds - context.start,
       stays,
       aside: taken
         ? HumanSwordParryAside(
             context,
             s,
-            [end, Vector3.subtract(end, Vector3.scale(along, length))],
+            [end, AutoMovieEngineVector3.subtract(end, AutoMovieEngineVector3.scale(along, length))],
             middle,
           )
         : { x: 0, y: 0, z: 0 },

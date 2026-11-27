@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPropReader,
@@ -62,27 +62,27 @@ export function swipeTouchscreenScreen(
     });
   const width: number = screen.width;
   const frame: IAutoMovieRigidTransform = read.frame(start);
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     frame.rotation,
     screen.frame.rotation,
   );
-  const center: IAutoMovieVector3 = Vector3.add(
+  const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, screen.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, screen.frame.translation),
   );
   const site: (share: number) => IAutoMovieVector3 = (
     share: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       center,
-      Quaternion.rotateVector(rotation, { x: share * width, y: 0, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(rotation, { x: share * width, y: 0, z: 0 }),
     );
   return {
     center,
     first: site(from),
     last: site(to),
-    normal: Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
-    forward: Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 }),
+    normal: AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
+    forward: AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 }),
   };
 }
 

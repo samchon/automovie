@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -102,7 +102,7 @@ export namespace operateLongInsertStep {
   ): IAutoMovieMotionHumanSupportCarry.ICarry {
     return {
       point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(p, Vector3.scale(toward, x)),
+        AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(toward, x)),
       turn: { x: 0, y: 0, z: 0, w: 1 },
       yaw: 0,
     };

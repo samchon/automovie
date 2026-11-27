@@ -3,7 +3,7 @@ import type {
   IAutoMovieActorWorldFrame,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Read the actor context's staged metre position and +Y heading as a rigid
@@ -15,7 +15,7 @@ export function actorContextWorldFrame(
 ): IAutoMovieActorWorldFrame {
   return {
     position: context.position,
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.facingDeg),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.facingDeg),
     facingDeg: context.facingDeg,
   };
 }

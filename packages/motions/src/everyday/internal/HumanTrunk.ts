@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Transform, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineTransform, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTrunk, IAutoMovieMotionHumanTurnHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -83,7 +83,7 @@ export namespace HumanTrunk {
       return staged(
         {
           skeleton: body.skeleton.id,
-          root: Transform.of(turned.position, turned.rotation),
+          root: AutoMovieEngineTransform.of(turned.position, turned.rotation),
         },
         prepareHumanPoseResolution.read(resolution),
       );
@@ -149,10 +149,10 @@ export namespace HumanTrunk {
 
   /*
    * The hip flexion a forward-tilted pelvis leaves room for, degrees:
-   * `HIP_MARGIN` short of the hip's flexion range in `DEFAULT_HUMANOID_ROM`.
+   * `HIP_MARGIN` short of the hip's flexion range in `AutoMovieEngineDefaultHumanoidRom`.
    */
   export const HIP_FLEXION: number =
-    DEFAULT_HUMANOID_ROM.leftUpperLeg!.flexion!.max - HIP_MARGIN;
+    AutoMovieEngineDefaultHumanoidRom.leftUpperLeg!.flexion!.max - HIP_MARGIN;
 
   /*
    * The most the pelvis may tilt forward before a planted leg's hip flexion
@@ -334,7 +334,7 @@ export namespace HumanTrunk {
    * every region bone and, for rays, all midline collider bones the reading
    * will use.
    * Parameter resolution: Optional exact FK source borrowed only during the
-   * immediate constructor resolve; the returned reader never captures it.
+   * immediate function Object() { [native code] } resolve; the returned reader never captures it.
    * Returns: The resolved bones and region/ray readers borrowing them.
    */
   export function prepare(

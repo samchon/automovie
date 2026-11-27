@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -81,14 +81,14 @@ export function prepareZipperPinch(
     side,
     "indexTip",
   ).point;
-  const normal: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(top, bottom),
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(top, bottom),
   );
   const half: number = thickness / 2;
-  let center: IAutoMovieVector3 = Vector3.lerp(top, bottom, 0.5);
+  let center: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(top, bottom, 0.5);
   for (let attempt: number = 0; attempt < 20; ++attempt) {
-    const high: IAutoMovieVector3 = Vector3.addScaled(center, normal, half);
-    const low: IAutoMovieVector3 = Vector3.addScaled(center, normal, -half);
+    const high: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(center, normal, half);
+    const low: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(center, normal, -half);
     pose = HumanDigitFit.fitted(body, pose, {
       [thumb]: { point: high, surface: "tip", contact: true },
       [index]: { point: low, surface: "tip", contact: true },
@@ -97,11 +97,11 @@ export function prepareZipperPinch(
     top = HumanHand.frame(body, bones, side, "thumbTip").point;
     bottom = HumanHand.frame(body, bones, side, "indexTip").point;
     const error: number = Math.max(
-      Vector3.length(Vector3.subtract(top, high)),
-      Vector3.length(Vector3.subtract(bottom, low)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(top, high)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(bottom, low)),
     );
     if (error <= 0.0001) break;
-    center = Vector3.lerp(top, bottom, 0.5);
+    center = AutoMovieEngineVector3.lerp(top, bottom, 0.5);
   }
   for (const joint of pose.joints)
     if (joints[joint.bone] !== undefined)
@@ -110,14 +110,14 @@ export function prepareZipperPinch(
         joint.abduction ?? 0,
         joint.twist ?? 0,
       ];
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(wrist.worldRotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(wrist.worldRotation);
   return {
     joints,
-    contact: Quaternion.rotateVector(
+    contact: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(center, wrist.worldPosition),
+      AutoMovieEngineVector3.subtract(center, wrist.worldPosition),
     ),
-    normal: Quaternion.rotateVector(inverse, normal),
+    normal: AutoMovieEngineQuaternion.rotateVector(inverse, normal),
   };
 }
 

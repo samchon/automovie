@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -156,8 +156,8 @@ export function stretchCases(
           break;
         }
         case "quadriceps": {
-          const grip: number = Vector3.length(
-            Vector3.subtract(
+          const grip: number = AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               AutoMovieMotionHumanTouchEffector.point(body, bones, "right", {
                 surface: "grip",
                 shape: "fist",
@@ -191,8 +191,8 @@ export function stretchCases(
           });
           const palm = { surface: "palm", shape: "flat" } as const;
           const gap: number =
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 AutoMovieMotionHumanTouchEffector.point(
                   body,
                   bones,

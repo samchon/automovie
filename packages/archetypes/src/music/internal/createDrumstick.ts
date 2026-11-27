@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -21,7 +21,7 @@ import {
 export function createDrumstick(
   params: { id?: string } | string = {},
 ): AutoMovieArchetype<"grip" | "face", never> {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const length: number = 0.4064;
   const shaftRadius: number = 0.014351 / 2;
   const beadRadius: number = 0.009;

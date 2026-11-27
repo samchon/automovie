@@ -1,4 +1,4 @@
-import { SUBSURFACE_TARGET } from "../../SUBSURFACE_TARGET.js";
+import { AutoMovieRenderSubsurfaceTarget } from "../../AutoMovieRenderSubsurfaceTarget.js";
 import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
 
 /*
@@ -8,7 +8,7 @@ import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
  * replaced.
  */
 export function subsurfacePhysicalChunk(pars: string): string {
-  if (!pars.includes(SUBSURFACE_TARGET))
+  if (!pars.includes(AutoMovieRenderSubsurfaceTarget))
     throw new Error(
       "The physical lighting chunk no longer has the direct diffuse line subsurface shading replaces.",
     );
@@ -28,7 +28,7 @@ vec3 subsurfaceDiffuse( const in float dotNL ) {
 }
 ` +
     pars.replace(
-      SUBSURFACE_TARGET,
+      AutoMovieRenderSubsurfaceTarget,
       "reflectedLight.directDiffuse += directLight.color * subsurfaceDiffuse( dot( geometryNormal, directLight.direction ) ) * diffuseBRDF * ( 1.0 - F );",
     )
   );

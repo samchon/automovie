@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
@@ -31,7 +31,7 @@ export function planWallRunFlight(
   const t0: number = at("wallStep");
   const t1: number = at("catch");
   const span: number = t1 - t0;
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
 
   const capture = (): IFlight => {
     const from: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(

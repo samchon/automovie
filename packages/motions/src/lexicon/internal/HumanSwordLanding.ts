@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
@@ -131,11 +131,11 @@ export namespace HumanSwordLanding {
         tool,
         back,
         target,
-        Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(travel, turn),
-          Vector3.subtract(
-            Vector3.normalize(Vector3.subtract(target, reach)),
-            Vector3.scale(travel, lean),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(travel, turn),
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(target, reach)),
+            AutoMovieEngineVector3.scale(travel, lean),
           ),
         ),
         travel,
@@ -177,23 +177,23 @@ export namespace HumanSwordLanding {
         turn,
       );
       if (roll === 0 && tilt === 0) return frame;
-      const run: IAutoMovieVector3 = Quaternion.rotateVector(
+      const run: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         frame.rotation,
         tool.axis,
       );
-      const aside: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(run, travel),
+      const aside: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(run, travel),
       );
-      const leant: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(run, around),
-        Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), run),
+      const leant: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(run, around),
+        AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.fromAxisAngle(aside, tilt), run),
       );
       return StrikingHeld.hand(
         tool,
         back,
         target,
         leant,
-        Quaternion.rotateVector(Quaternion.fromAxisAngle(leant, roll), travel),
+        AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.fromAxisAngle(leant, roll), travel),
       );
     };
     // Off the line: the line leaned inside the cone and an edgeless tool

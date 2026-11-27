@@ -13,7 +13,7 @@ export namespace IAutoMovieHumanCanonicalBody {
   export interface IBody {
     /**
      * The canonical rig at its T-pose rest; consumers read it with
-     * `HUMANOID_JOINT_AXES` and `HUMANOID_REST_FRAME`.
+     * `AutoMovieEngineHumanoidJointAxes` and `AutoMovieEngineHumanoidRestFrame`.
      */
     skeleton: IAutoMovieSkeleton;
 

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
@@ -58,13 +58,13 @@ export namespace HumanCarriedGripGaps {
           const fingers: IAutoMovieVector3 | undefined = row.holds[k]?.fingers;
           return reach[index]!(theirs, {
             point: fit.place(local.point),
-            normal: Quaternion.rotateVector(fit.turn, local.normal),
+            normal: AutoMovieEngineQuaternion.rotateVector(fit.turn, local.normal),
             ...(fingers === undefined
               ? {}
               : {
-                  forward: Quaternion.rotateVector(
+                  forward: AutoMovieEngineQuaternion.rotateVector(
                     fit.turn,
-                    Quaternion.rotateVector(
+                    AutoMovieEngineQuaternion.rotateVector(
                       mine.get(surface.bone)!.worldRotation,
                       fingers,
                     ),
@@ -130,7 +130,7 @@ export namespace HumanCarriedGripGaps {
         `${side}UpperArm`,
       )!.worldPosition;
       if (place.forward !== undefined)
-        return Vector3.distance(wrist, shoulder) - arm;
+        return AutoMovieEngineVector3.distance(wrist, shoulder) - arm;
       return (
         HumanCarriedWristCircle(place.point, place.normal, wrist, shoulder)
           .distance - arm

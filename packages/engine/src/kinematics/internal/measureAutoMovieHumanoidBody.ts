@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeBoundsImplementation } from "../../physics/internal/physicalShapeBoundsImplementation";
 import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
@@ -95,8 +95,8 @@ function measureAutoMovieHumanoidBodyRun(
   for (const bone of skeleton.bones as IAutoMovieBone[])
     rest.set(
       bone.bone,
-      Vector3.add(
-        bone.parent === null ? Vector3.create(0, 0, 0) : rest.get(bone.parent)!,
+      AutoMovieEngineVector3.add(
+        bone.parent === null ? AutoMovieEngineVector3.create(0, 0, 0) : rest.get(bone.parent)!,
         bone.rest.translation,
       ),
     );
@@ -112,7 +112,7 @@ function measureAutoMovieHumanoidBodyRun(
   const distance = (
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,
-  ): number => Vector3.length(Vector3.subtract(at(a), at(b)));
+  ): number => AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at(a), at(b)));
   const segment: (name: AutoMovieHumanoidBone) => IAutoMoviePhysicalSegment = (
     name: AutoMovieHumanoidBone,
   ): IAutoMoviePhysicalSegment => {
@@ -167,7 +167,7 @@ function measureAutoMovieHumanoidBodyRun(
           for (const face of hull.faces) {
             let back: number = Infinity;
             for (const vertex of hull.vertices)
-              back = Math.min(back, Vector3.dot(face.normal, vertex));
+              back = Math.min(back, AutoMovieEngineVector3.dot(face.normal, vertex));
             width = Math.min(width, face.offset - back);
           }
           return width / 2;
@@ -185,8 +185,8 @@ function measureAutoMovieHumanoidBodyRun(
     bounds("chest");
   const hand = (side: "left" | "right"): number => {
     const wrist: IAutoMovieVector3 = at(bone(side, "Hand"));
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(wrist, at(bone(side, "LowerArm"))),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(wrist, at(bone(side, "LowerArm"))),
     );
     // The hand's colliders and, when the profile has them, its fingers'.
     const parts: AutoMovieHumanoidBone[] = [
@@ -210,7 +210,7 @@ function measureAutoMovieHumanoidBodyRun(
           for (const z of [b.min.z, b.max.z])
             far = Math.max(
               far,
-              Vector3.dot(Vector3.subtract({ x, y, z }, wrist), axis),
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract({ x, y, z }, wrist), axis),
             );
     }
     return far;

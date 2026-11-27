@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyMeasures,
@@ -171,7 +171,7 @@ export namespace AutoMovieHumanFootHost {
       ];
       const source:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
         { knots },
         { bottom: 0, top: plan.end * d.length },
       );
@@ -182,13 +182,13 @@ export namespace AutoMovieHumanFootHost {
       const stations: number[] = [
         from,
         to,
-        ...AutoMovieViewOutline.criticalStations(source).filter(
+        ...AutoMovieEngineViewOutline.criticalStations(source).filter(
           (station: number): boolean => station > from && station < to,
         ),
       ];
       return Math.max(
         ...stations.map((station: number): number => {
-          const value: number | string = AutoMovieViewOutline.value(
+          const value: number | string = AutoMovieEngineViewOutline.value(
             source,
             station,
           );

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeStilt } from "../AutoMovieArchetypeStilt";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
@@ -42,20 +42,20 @@ export function createStilt(
   builder.rod(
     "pole",
     AutoMovieArchetypeStilt.POLE,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, d.height - AutoMovieArchetypeStilt.PLATFORM, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, d.height - AutoMovieArchetypeStilt.PLATFORM, 0),
     { color: "#8a6a44" },
   );
   builder.box(
     "platform",
-    Vector3.create(0.1, AutoMovieArchetypeStilt.PLATFORM, d.length),
-    Vector3.create(0, d.height - AutoMovieArchetypeStilt.PLATFORM / 2, 0),
+    AutoMovieEngineVector3.create(0.1, AutoMovieArchetypeStilt.PLATFORM, d.length),
+    AutoMovieEngineVector3.create(0, d.height - AutoMovieArchetypeStilt.PLATFORM / 2, 0),
     { color: "#5b4a3a" },
   );
   builder.affordance({
     id: "foot",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, d.height, 0)),
     extent: null,
     width: 0.1,
     depth: d.length,
@@ -63,7 +63,7 @@ export function createStilt(
   builder.affordance({
     id: "tip",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
     extent: null,
     width: 2 * AutoMovieArchetypeStilt.POLE,
     depth: 2 * AutoMovieArchetypeStilt.POLE,

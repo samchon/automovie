@@ -11,7 +11,7 @@ import type { IAutoMovieHumanConicLoft } from "./IAutoMovieHumanConicLoft";
 export namespace IAutoMovieHumanConicPose {
   /**
    * A jointed course's runs and turns in arclength, as
-   * `AutoMovieViewJointedCourse.prepare` dates them.
+   * `AutoMovieEngineViewJointedCourse.prepare` dates them.
    */
   export interface ICourse {
     /** Segment lengths between neighbouring centres, mm. */

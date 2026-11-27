@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -28,26 +28,26 @@ export function resolveGuitarStringContact(
   const across: IAutoMovieVector3 = barAxis(fret);
   const origin: IAutoMovieVector3 = string.frame.translation;
   const halfLength: number = (string.length ?? 0) / 2;
-  const delta: IAutoMovieVector3 = Vector3.subtract(
+  const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     fret.frame.translation,
     origin,
   );
-  const dot: number = Vector3.dot(axis, across);
+  const dot: number = AutoMovieEngineVector3.dot(axis, across);
   const determinant: number = 1 - dot * dot;
-  const a: number = Vector3.dot(delta, axis);
-  const b: number = Vector3.dot(delta, across);
+  const a: number = AutoMovieEngineVector3.dot(delta, axis);
+  const b: number = AutoMovieEngineVector3.dot(delta, across);
   const alongFret: number = (a - b * dot) / determinant;
   const acrossFret: number = (a * dot - b) / determinant;
-  const stop: IAutoMovieVector3 = Vector3.add(
+  const stop: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     origin,
-    Vector3.scale(axis, alongFret),
+    AutoMovieEngineVector3.scale(axis, alongFret),
   );
-  const gap: IAutoMovieVector3 = Vector3.subtract(
+  const gap: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     stop,
-    Vector3.add(fret.frame.translation, Vector3.scale(across, acrossFret)),
+    AutoMovieEngineVector3.add(fret.frame.translation, AutoMovieEngineVector3.scale(across, acrossFret)),
   );
-  const alongBody: number = Vector3.dot(
-    Vector3.subtract(body.frame.translation, origin),
+  const alongBody: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(body.frame.translation, origin),
     axis,
   );
 
@@ -56,7 +56,7 @@ export function resolveGuitarStringContact(
       determinant > COINCIDENCE &&
       Math.abs(alongFret) <= halfLength &&
       Math.abs(acrossFret) <= (fret.length ?? 0) / 2 + COINCIDENCE &&
-      Vector3.length(gap) <= COINCIDENCE &&
+      AutoMovieEngineVector3.length(gap) <= COINCIDENCE &&
       Math.abs(alongBody) < halfLength &&
       alongBody !== alongFret
     )
@@ -69,23 +69,23 @@ export function resolveGuitarStringContact(
         "the fret must cross the string away from the soundboard projection, which must lie inside the string",
       fix: "name the rigid fret and string bars of a staged guitar",
     });
-  const pluck: IAutoMovieVector3 = Vector3.add(
+  const pluck: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     origin,
-    Vector3.scale(axis, alongBody),
+    AutoMovieEngineVector3.scale(axis, alongBody),
   );
 
   // The bars carry no endpoint labels. Use the direction from the pluck to
   // the stop so reversing the authored bar leaves the sweep unchanged.
-  const along: IAutoMovieVector3 = Vector3.scale(
+  const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     axis,
     Math.sign(alongFret - alongBody),
   );
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     body.frame.rotation,
     { x: 0, y: 1, z: 0 },
   );
-  const sweep: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(along, normal),
+  const sweep: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(along, normal),
   );
   let spacing: number = Infinity;
   for (const other of affordances) {
@@ -96,14 +96,14 @@ export function resolveGuitarStringContact(
     )
       continue;
     const direction: IAutoMovieVector3 = barAxis(other);
-    const offset: IAutoMovieVector3 = Vector3.subtract(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       other.frame.translation,
       pluck,
     );
     const lateral: number =
-      Vector3.dot(offset, sweep) -
-      (Vector3.dot(offset, along) * Vector3.dot(direction, sweep)) /
-        Vector3.dot(direction, along);
+      AutoMovieEngineVector3.dot(offset, sweep) -
+      (AutoMovieEngineVector3.dot(offset, along) * AutoMovieEngineVector3.dot(direction, sweep)) /
+        AutoMovieEngineVector3.dot(direction, along);
     spacing = Math.min(spacing, Math.abs(lateral));
   }
   if (!(spacing > COINCIDENCE && spacing < Infinity))
@@ -115,7 +115,7 @@ export function resolveGuitarStringContact(
         "the stroke needs a distinct neighbouring string for its clearance",
       fix: "use guitar string bars with separate lines",
     });
-  return { stop, pluck, normal, sweep: Vector3.scale(sweep, spacing / 2) };
+  return { stop, pluck, normal, sweep: AutoMovieEngineVector3.scale(sweep, spacing / 2) };
 }
 
 /*
@@ -186,5 +186,5 @@ function site(
  * A rigid bar's unit length axis in the guitar frame.
  */
 function barAxis(bar: IAutoMovieAffordance): IAutoMovieVector3 {
-  return Quaternion.rotateVector(bar.frame.rotation, { x: 1, y: 0, z: 0 });
+  return AutoMovieEngineQuaternion.rotateVector(bar.frame.rotation, { x: 1, y: 0, z: 0 });
 }

@@ -1,4 +1,4 @@
-import { AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkColumn,
   IAutoMovieHumanTrunkFeature,
@@ -60,7 +60,7 @@ export namespace AutoMovieHumanTrunkFeatures {
 
     for (let k: number = 0; k < 40; k++) {
       const mid: number = (lo + hi) / 2;
-      const zm: number = AutoMovieSplineCurve.evaluate(
+      const zm: number = AutoMovieEngineSplineCurve.evaluate(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         mid,
@@ -91,7 +91,7 @@ export namespace AutoMovieHumanTrunkFeatures {
         controls = AutoMovieHumanTrunkRing.controls(col.at(y));
         rings.set(y, controls);
       }
-      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
+      const p: [number, number, number, number] = AutoMovieEngineSplineCurve.evaluate(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         t,
@@ -134,7 +134,7 @@ export namespace AutoMovieHumanTrunkFeatures {
       controls,
     );
     const j: [number, number, number, number, number, number] =
-      AutoMovieSplineCurve.jet(
+      AutoMovieEngineSplineCurve.jet(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         phaseAt(controls, "front", lateral),
@@ -198,7 +198,7 @@ export namespace AutoMovieHumanTrunkFeatures {
       controls,
     );
     const j: [number, number, number, number, number, number] =
-      AutoMovieSplineCurve.jet(
+      AutoMovieEngineSplineCurve.jet(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         phaseAt(controls, "back", lateral),
@@ -264,7 +264,7 @@ export namespace AutoMovieHumanTrunkFeatures {
       controls,
     );
     const j: [number, number, number, number, number, number] =
-      AutoMovieSplineCurve.jet(
+      AutoMovieEngineSplineCurve.jet(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         phaseAt(controls, "back", lateral),

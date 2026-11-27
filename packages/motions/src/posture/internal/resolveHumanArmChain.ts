@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
@@ -26,38 +26,38 @@ export function resolveHumanArmChain(
 ): Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
   const rest: IAutoMovieMotionHumanArmGeometry.ISetup["rest"] = setup.rest;
   const parent: IAutoMovieMotionHumanArmGeometry.IFrame["parent"] = at.parent;
-  const wu: IAutoMovieQuaternion = Quaternion.multiply(
+  const wu: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     parent.rotation,
-    Quaternion.multiply(rest.upper.rotation, readShoulder(setup, c)),
+    AutoMovieEngineQuaternion.multiply(rest.upper.rotation, readShoulder(setup, c)),
   );
   const pu: IAutoMovieVector3 =
     at.shoulder === undefined
-      ? Vector3.add(
+      ? AutoMovieEngineVector3.add(
           parent.position,
-          Quaternion.rotateVector(parent.rotation, rest.upper.translation),
+          AutoMovieEngineQuaternion.rotateVector(parent.rotation, rest.upper.translation),
         )
       : { x: at.shoulder.x, y: at.shoulder.y, z: at.shoulder.z };
-  const wl: IAutoMovieQuaternion = Quaternion.multiply(
+  const wl: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     wu,
-    Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
       rest.lower.rotation,
       readRotation(setup, setup.bones.lower, [c[3]!, c[4]!, c[5]!]),
     ),
   );
-  const pl: IAutoMovieVector3 = Vector3.add(
+  const pl: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pu,
-    Quaternion.rotateVector(wu, rest.lower.translation),
+    AutoMovieEngineQuaternion.rotateVector(wu, rest.lower.translation),
   );
-  const wh: IAutoMovieQuaternion = Quaternion.multiply(
+  const wh: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     wl,
-    Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
       rest.hand.rotation,
       readRotation(setup, setup.bones.hand, [c[6]!, c[7]!, c[8]!]),
     ),
   );
-  const ph: IAutoMovieVector3 = Vector3.add(
+  const ph: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pl,
-    Quaternion.rotateVector(wl, rest.hand.translation),
+    AutoMovieEngineQuaternion.rotateVector(wl, rest.hand.translation),
   );
   return {
     shoulder: pu,

@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { edgeRescueScene } from "@automovie/motions/internal";
+import {
+  edgeRescueScene
+} from "../../../../../packages/motions/src/coupled/internal/edgeRescueScene";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

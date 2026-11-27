@@ -6,11 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdCollider } from "../AutoMovieXpbdCollider";
-import { AutoMovieXpbdMath } from "../AutoMovieXpbdMath";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdCollider } from "../AutoMovieEngineXpbdCollider";
+import { AutoMovieEngineXpbdMath } from "../AutoMovieEngineXpbdMath";
 import type { IAutoMovieXpbdContactRow } from "./IAutoMovieXpbdContactRow";
 import type { IAutoMovieXpbdResponder } from "./IAutoMovieXpbdResponder";
 import { correctXpbdContactRow } from "./correctXpbdContactRow";
@@ -45,10 +45,10 @@ export namespace solveXpbdContacts {
    */
   export interface IContact {
     /** The first collider. */
-    a: AutoMovieXpbdCollider;
+    a: AutoMovieEngineXpbdCollider;
 
     /** The second collider. */
-    b: AutoMovieXpbdCollider;
+    b: AutoMovieEngineXpbdCollider;
 
     /**
      * Index of the collider pair among the step's touching pairs; the points of
@@ -118,8 +118,8 @@ export namespace solveXpbdContacts {
    * overlap reports.
    */
   export type Filter = (
-    a: AutoMovieXpbdCollider,
-    b: AutoMovieXpbdCollider,
+    a: AutoMovieEngineXpbdCollider,
+    b: AutoMovieEngineXpbdCollider,
   ) => boolean;
 
   /*
@@ -135,21 +135,21 @@ export namespace solveXpbdContacts {
    * colliders.
    */
   export function detect(
-    colliders: readonly AutoMovieXpbdCollider[],
+    colliders: readonly AutoMovieEngineXpbdCollider[],
     filter: Filter,
     band: number,
   ): IContact[] {
     const bounds: IAutoMoviePhysicalShapeBounds.IResult[] = colliders.map(
       (
-        collider: AutoMovieXpbdCollider,
+        collider: AutoMovieEngineXpbdCollider,
       ): IAutoMoviePhysicalShapeBounds.IResult => collider.bounds(),
     );
     const found: IContact[] = [];
     let pair: number = 0;
     for (let i: number = 0; i < colliders.length; i++)
       for (let j: number = i + 1; j < colliders.length; j++) {
-        const a: AutoMovieXpbdCollider = colliders[i]!;
-        const b: AutoMovieXpbdCollider = colliders[j]!;
+        const a: AutoMovieEngineXpbdCollider = colliders[i]!;
+        const b: AutoMovieEngineXpbdCollider = colliders[j]!;
         if (a.body === b.body || (!a.body.dynamic && !b.body.dynamic)) continue;
         const ba: IAutoMoviePhysicalShapeBounds.IResult = bounds[i]!;
         const bb: IAutoMoviePhysicalShapeBounds.IResult = bounds[j]!;
@@ -180,11 +180,11 @@ export namespace solveXpbdContacts {
           ? patch
           : [{ pointA: measured.pointA, pointB: measured.pointB }];
         for (const point of points) {
-          const gap: number = Vector3.dot(
-            Vector3.subtract(point.pointB, point.pointA),
+          const gap: number = AutoMovieEngineVector3.dot(
+            AutoMovieEngineVector3.subtract(point.pointB, point.pointA),
             measured.normal,
           );
-          const relative: IAutoMovieVector3 = Vector3.subtract(
+          const relative: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             a.body.velocityAtPoint(point.pointA),
             b.body.velocityAtPoint(point.pointB),
           );
@@ -201,7 +201,7 @@ export namespace solveXpbdContacts {
             tangentLambda: { x: 0, y: 0, z: 0 },
             tangentImpulse: 0,
             frictionImpulse: { x: 0, y: 0, z: 0 },
-            approach: Vector3.dot(relative, measured.normal),
+            approach: AutoMovieEngineVector3.dot(relative, measured.normal),
             separation: gap,
             detected: gap,
             velocityImpulse: 0,
@@ -231,20 +231,20 @@ export namespace solveXpbdContacts {
     const omega: number = 2 * Math.PI * frequency;
     for (const patch of manifolds(contacts)) {
       for (const contact of patch) {
-        const first: AutoMovieXpbdBody = contact.a.body;
-        const second: AutoMovieXpbdBody = contact.b.body;
+        const first: AutoMovieEngineXpbdBody = contact.a.body;
+        const second: AutoMovieEngineXpbdBody = contact.b.body;
         const armA: IAutoMovieVector3 = arm(first, contact.localA);
         const armB: IAutoMovieVector3 = arm(second, contact.localB);
-        const depth: number = -Vector3.dot(
-          Vector3.subtract(
-            Vector3.add(second.center, armB),
-            Vector3.add(first.center, armA),
+        const depth: number = -AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.add(second.center, armB),
+            AutoMovieEngineVector3.add(first.center, armA),
           ),
           contact.normal,
         );
         contact.separation = -depth;
         if (!(depth > allowed)) continue;
-        const away: IAutoMovieVector3 = Vector3.scale(contact.normal, -1);
+        const away: IAutoMovieVector3 = AutoMovieEngineVector3.scale(contact.normal, -1);
         contact.normalLambda += correctXpbdContactRow(
           trees,
           first,
@@ -269,8 +269,8 @@ export namespace solveXpbdContacts {
         0,
       );
       if (!(pressed > 0)) continue;
-      const first: AutoMovieXpbdBody = head.a.body;
-      const second: AutoMovieXpbdBody = head.b.body;
+      const first: AutoMovieEngineXpbdBody = head.a.body;
+      const second: AutoMovieEngineXpbdBody = head.b.body;
       const localA: IAutoMovieVector3 = centroid(
         patch.map((contact: IContact): IAutoMovieVector3 => contact.localA),
       );
@@ -280,21 +280,21 @@ export namespace solveXpbdContacts {
       const armA: IAutoMovieVector3 = arm(first, localA);
       const armB: IAutoMovieVector3 = arm(second, localB);
 
-      const slip: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.subtract(
-          Vector3.add(first.center, armA),
+      const slip: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.add(first.center, armA),
           previous(first, localA),
         ),
-        Vector3.subtract(
-          Vector3.add(second.center, armB),
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.add(second.center, armB),
           previous(second, localB),
         ),
       );
-      const tangent: IAutoMovieVector3 = Vector3.subtract(
+      const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         slip,
-        Vector3.scale(head.normal, Vector3.dot(slip, head.normal)),
+        AutoMovieEngineVector3.scale(head.normal, AutoMovieEngineVector3.dot(slip, head.normal)),
       );
-      const length: number = Vector3.length(tangent);
+      const length: number = AutoMovieEngineVector3.length(tangent);
       if (length > 0) {
         const back: IAutoMovieVector3 = {
           x: -tangent.x / length,
@@ -311,32 +311,32 @@ export namespace solveXpbdContacts {
             armB,
           );
           if (!(along.weight > 0)) break;
-          const wanted: IAutoMovieVector3 = Vector3.add(
+          const wanted: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             head.tangentLambda,
-            Vector3.scale(back, length / along.weight),
+            AutoMovieEngineVector3.scale(back, length / along.weight),
           );
           const bound: number = head.friction * pressed;
-          const size: number = Vector3.length(wanted);
+          const size: number = AutoMovieEngineVector3.length(wanted);
           const next: IAutoMovieVector3 =
-            size > bound ? Vector3.scale(wanted, bound / size) : wanted;
-          const step: IAutoMovieVector3 = Vector3.subtract(
+            size > bound ? AutoMovieEngineVector3.scale(wanted, bound / size) : wanted;
+          const step: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             next,
             head.tangentLambda,
           );
           // The step along the slip moves the pair as the slip's own row; a
           // part of it off the slip (the cone's projection keeps it along
           // `back` here) moves them rigidly, as before.
-          const amount: number = Vector3.dot(step, back);
+          const amount: number = AutoMovieEngineVector3.dot(step, back);
           if (along.limit(amount)) continue;
           head.tangentLambda = next;
           along.apply(amount);
-          const rest: IAutoMovieVector3 = Vector3.addScaled(
+          const rest: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
             step,
             back,
             -amount,
           );
-          if (Vector3.length(rest) > 0)
-            AutoMovieXpbdMath.apply(first, second, rest, armA, armB);
+          if (AutoMovieEngineVector3.length(rest) > 0)
+            AutoMovieEngineXpbdMath.apply(first, second, rest, armA, armB);
           break;
         }
       }
@@ -368,10 +368,10 @@ export namespace solveXpbdContacts {
   export function centroid(
     points: readonly IAutoMovieVector3[],
   ): IAutoMovieVector3 {
-    return Vector3.scale(
+    return AutoMovieEngineVector3.scale(
       points.reduce(
         (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(sum, p),
+          AutoMovieEngineVector3.add(sum, p),
         { x: 0, y: 0, z: 0 },
       ),
       1 / points.length,
@@ -384,10 +384,10 @@ export namespace solveXpbdContacts {
    * Returns: The world arm, metres.
    */
   export function arm(
-    body: AutoMovieXpbdBody,
+    body: AutoMovieEngineXpbdBody,
     offset: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(body.orientation, offset);
+    return AutoMovieEngineQuaternion.rotateVector(body.orientation, offset);
   }
 
   /*
@@ -398,10 +398,10 @@ export namespace solveXpbdContacts {
    * round wire is one segment.
    */
   function measure(
-    a: AutoMovieXpbdCollider,
-    b: AutoMovieXpbdCollider,
+    a: AutoMovieEngineXpbdCollider,
+    b: AutoMovieEngineXpbdCollider,
   ): IAutoMoviePhysicalShapePairContact | null {
-    const round = (collider: AutoMovieXpbdCollider): boolean =>
+    const round = (collider: AutoMovieEngineXpbdCollider): boolean =>
       collider.shape.kind === "sphere" || collider.shape.kind === "capsule";
     if (round(a) || round(b))
       return physicalShapePairContact(
@@ -426,12 +426,12 @@ export namespace solveXpbdContacts {
    * A world witness as a body-frame offset from the centre.
    */
   function local(
-    body: AutoMovieXpbdBody,
+    body: AutoMovieEngineXpbdBody,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(body.orientation),
-      Vector3.subtract(point, body.center),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(body.orientation),
+      AutoMovieEngineVector3.subtract(point, body.center),
     );
   }
 
@@ -439,13 +439,13 @@ export namespace solveXpbdContacts {
    * Where a body-frame offset was at the start of the step.
    */
   function previous(
-    body: AutoMovieXpbdBody,
+    body: AutoMovieEngineXpbdBody,
     offset: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const rotation: IAutoMovieQuaternion = body.previousOrientation;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       body.previousCenter,
-      Quaternion.rotateVector(rotation, offset),
+      AutoMovieEngineQuaternion.rotateVector(rotation, offset),
     );
   }
 }

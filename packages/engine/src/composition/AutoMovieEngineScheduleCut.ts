@@ -30,7 +30,7 @@ export namespace AutoMovieEngineScheduleCut {
    * @param start Where it starts, film seconds.
    * @param context What the laws see while it is placed.
    * @returns The cut, or undefined when nothing cuts it.
-   * @throws {AutoMovieScheduleError} When the law, anchor, event or share is
+   * @throws {AutoMovieEngineScheduleError} When the law, anchor, event or share is
    *   invalid.
    * @throws {TypeError} When its cut is malformed or ambiguous.
    */

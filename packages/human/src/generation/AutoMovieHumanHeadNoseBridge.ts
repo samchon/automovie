@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadCompiled,
   IAutoMovieHumanHeadNoseFrame,
@@ -39,13 +39,13 @@ export namespace AutoMovieHumanHeadNoseBridge {
   ): number {
     const v: number = frame.v;
     return v > knots[0]! && v < 1
-      ? Math.max(0, AutoMovieNaturalSpline.evaluate(compiled.profile, v)) *
+      ? Math.max(0, AutoMovieEngineNaturalSpline.evaluate(compiled.profile, v)) *
           AutoMovieHumanHeadMath.smooth((1 - v) / ROOT) *
           frame.lead *
           AutoMovieHumanHeadMath.bell(
             a /
               (frame.width *
-                AutoMovieNaturalSpline.evaluate(compiled.dorsum, v)),
+                AutoMovieEngineNaturalSpline.evaluate(compiled.dorsum, v)),
           )
       : 0;
   }

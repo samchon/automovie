@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -21,17 +21,17 @@ export function HumanBikeGuideStance(
     Math.min(1, Math.max(0, (t - mid) / (print.lift - mid))),
   );
   if (!(share > 0)) return print;
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     print.rotation,
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, ROCKER * share),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, ROCKER * share),
   );
-  const fixed: IAutoMovieVector3 = Vector3.add(
+  const fixed: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     print.ankle,
-    Quaternion.rotateVector(print.rotation, ball),
+    AutoMovieEngineQuaternion.rotateVector(print.rotation, ball),
   );
   return {
     ...print,
-    ankle: Vector3.subtract(fixed, Quaternion.rotateVector(rotation, ball)),
+    ankle: AutoMovieEngineVector3.subtract(fixed, AutoMovieEngineQuaternion.rotateVector(rotation, ball)),
     rotation,
   };
 }

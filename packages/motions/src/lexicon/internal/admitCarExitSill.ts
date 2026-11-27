@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanPosture,
@@ -28,7 +28,7 @@ export function admitCarExitSill(
     const ankle: IAutoMovieVector3 = starts[side].ankle;
     const inside: number = -outward(ankle);
     const landed: IAutoMovieVector3 = landing.limbs[`${side}Leg`]!.point;
-    return Vector3.lerp(ankle, landed, inside / (inside + outward(landed)));
+    return AutoMovieEngineVector3.lerp(ankle, landed, inside / (inside + outward(landed)));
   };
   if (outward(starts.left.ankle) >= 0 || outward(starts.right.ankle) >= 0)
     throw new AutoMovieMotionHumanRefusal({

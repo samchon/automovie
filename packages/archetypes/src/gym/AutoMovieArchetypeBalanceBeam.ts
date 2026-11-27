@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeBalanceBeamData from "./internal/AutoMovieArchetypeBalanceBeamData";
+import { AutoMovieArchetypeBalanceBeamData } from "./internal/AutoMovieArchetypeBalanceBeamData";
 
 /** Constructs the balance beam archetype from its recipe. */
 export namespace AutoMovieArchetypeBalanceBeam {
@@ -61,7 +61,7 @@ export function create(
     (z: number): IAutoMovieVector3[] =>
       section.map(
         ([x, y]: readonly [number, number]): IAutoMovieVector3 =>
-          Vector3.create(x, y, z),
+          AutoMovieEngineVector3.create(x, y, z),
       ),
   );
   const builder: AutoMovieArchetypeBuilder<
@@ -83,8 +83,8 @@ export function create(
     const z: number = side * length * 0.28;
     builder.box(
       `foot-${name}`,
-      Vector3.create(1.06, base, 0.2),
-      Vector3.create(0, base / 2, z),
+      AutoMovieEngineVector3.create(1.06, base, 0.2),
+      AutoMovieEngineVector3.create(0, base / 2, z),
       {
         color: "#484e5b",
       },
@@ -92,8 +92,8 @@ export function create(
     const leg: number = height - depth - base;
     builder.box(
       `stand-${name}`,
-      Vector3.create(0.12, leg, 0.14),
-      Vector3.create(0, base + leg / 2, z),
+      AutoMovieEngineVector3.create(0.12, leg, 0.14),
+      AutoMovieEngineVector3.create(0, base + leg / 2, z),
       {
         color: "#636d82",
       },
@@ -102,7 +102,7 @@ export function create(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, height, 0)),
     extent: null,
     width,
     depth: length,

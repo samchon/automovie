@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -325,9 +325,9 @@ export namespace supportContact {
           target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
         ): IAutoMovieVector3 => {
           const bone: IAutoMovieResolvedBone = bones.get(target.bone)!;
-          return Vector3.add(
+          return AutoMovieEngineVector3.add(
             bone.worldPosition,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               bone.worldRotation,
               target.point ?? { x: 0, y: 0, z: 0 },
             ),

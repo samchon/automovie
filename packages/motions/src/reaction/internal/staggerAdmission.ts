@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -111,14 +111,14 @@ export function staggerAdmission(
     s: IAutoMovieVector3,
   ): number => {
     // The closest points of two segments (Ericson 2005, section 5.1.9).
-    const d1: IAutoMovieVector3 = Vector3.subtract(q, p);
-    const d2: IAutoMovieVector3 = Vector3.subtract(s, r);
-    const w: IAutoMovieVector3 = Vector3.subtract(p, r);
-    const a: number = Vector3.dot(d1, d1);
-    const e: number = Vector3.dot(d2, d2);
-    const f: number = Vector3.dot(d2, w);
-    const c: number = Vector3.dot(d1, w);
-    const b: number = Vector3.dot(d1, d2);
+    const d1: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(q, p);
+    const d2: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(s, r);
+    const w: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(p, r);
+    const a: number = AutoMovieEngineVector3.dot(d1, d1);
+    const e: number = AutoMovieEngineVector3.dot(d2, d2);
+    const f: number = AutoMovieEngineVector3.dot(d2, w);
+    const c: number = AutoMovieEngineVector3.dot(d1, w);
+    const b: number = AutoMovieEngineVector3.dot(d1, d2);
     const denom: number = a * e - b * b;
     let u: number =
       a > 1e-12 && denom > 1e-12
@@ -132,9 +132,9 @@ export function staggerAdmission(
       v = 1;
       u = a > 1e-12 ? Math.min(1, Math.max(0, (b - c) / a)) : 0;
     }
-    return Vector3.distance(
-      Vector3.add(p, Vector3.scale(d1, u)),
-      Vector3.add(r, Vector3.scale(d2, v)),
+    return AutoMovieEngineVector3.distance(
+      AutoMovieEngineVector3.add(p, AutoMovieEngineVector3.scale(d1, u)),
+      AutoMovieEngineVector3.add(r, AutoMovieEngineVector3.scale(d2, v)),
     );
   };
   function apart(
@@ -148,16 +148,16 @@ export function staggerAdmission(
     for (const side of ["left", "right"] as const) {
       const hip: IAutoMovieVector3 = ground.hips[side];
       const ankle: IAutoMovieVector3 = ground.feet[side].ankle;
-      const d: number = Math.max(1e-9, Vector3.distance(hip, ankle));
-      const n: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(ankle, hip),
+      const d: number = Math.max(1e-9, AutoMovieEngineVector3.distance(hip, ankle));
+      const n: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(ankle, hip),
         1 / d,
       );
       const x: number = Math.min(
         thigh,
         Math.max(-thigh, (thigh ** 2 - shank ** 2 + d ** 2) / (2 * d)),
       );
-      const pole: IAutoMovieVector3 = Vector3.subtract(
+      const pole: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         staggerKnots.kneePole(
           body,
           ground.root,
@@ -167,15 +167,15 @@ export function staggerAdmission(
         ),
         hip,
       );
-      const off: IAutoMovieVector3 = Vector3.subtract(
+      const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         pole,
-        Vector3.scale(n, Vector3.dot(pole, n)),
+        AutoMovieEngineVector3.scale(n, AutoMovieEngineVector3.dot(pole, n)),
       );
-      const size: number = Vector3.length(off);
-      const knee: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(hip, Vector3.scale(n, x)),
+      const size: number = AutoMovieEngineVector3.length(off);
+      const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(hip, AutoMovieEngineVector3.scale(n, x)),
         size > 1e-9
-          ? Vector3.scale(
+          ? AutoMovieEngineVector3.scale(
               off,
               Math.sqrt(Math.max(0, thigh ** 2 - x ** 2)) / size,
             )
@@ -188,12 +188,12 @@ export function staggerAdmission(
         const capsule: walkLegCapsules.ICapsule | undefined =
           capsules.get(bone);
         if (capsule === undefined) return false;
-        const dir: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(to, from),
+        const dir: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(to, from),
         );
         parts[side].push({
-          from: Vector3.add(from, Vector3.scale(dir, capsule.lo)),
-          to: Vector3.add(from, Vector3.scale(dir, capsule.hi)),
+          from: AutoMovieEngineVector3.add(from, AutoMovieEngineVector3.scale(dir, capsule.lo)),
+          to: AutoMovieEngineVector3.add(from, AutoMovieEngineVector3.scale(dir, capsule.hi)),
           radius: capsule.radius,
         });
       }
@@ -258,7 +258,7 @@ export function staggerAdmission(
     for (const side of planted) {
       const hip: IAutoMovieVector3 = ground.hips[side];
       const ankle: IAutoMovieVector3 = ground.feet[side].ankle;
-      const reach: number = Vector3.distance(hip, ankle);
+      const reach: number = AutoMovieEngineVector3.distance(hip, ankle);
       if (!(reach <= thigh + shank + 1e-9)) return false;
 
       // The knee's flexion by the cosine law: 180 degrees less the angle
@@ -290,7 +290,7 @@ export function staggerAdmission(
           placement: { ankle: foot.ankle, rotation: foot.rotation },
           toes: foot.toes,
         });
-        if (Vector3.distance(swung.ankle, foot.ankle) > staggerBounds.SETTLED)
+        if (AutoMovieEngineVector3.distance(swung.ankle, foot.ankle) > staggerBounds.SETTLED)
           return false;
       }
     }

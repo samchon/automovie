@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieVector3,
@@ -96,7 +96,7 @@ export function test_engine_physics_combine_physical_mass_properties(): void {
         { x: 0, y: 0, z: 1 },
       ].map(
         (axis: IAutoMovieVector3): IAutoMovieVector3 =>
-          Quaternion.rotateVector(rotated.inertiaRotation, axis),
+          AutoMovieEngineQuaternion.rotateVector(rotated.inertiaRotation, axis),
       );
       const moments: number[] = [
         rotated.inertia.x,

@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -178,8 +178,8 @@ export function planSkydive(
       prepareHumanShapeBlend(a.joints, landingKeys[i + 1]!.joints),
     );
   const keyEnd = (i: number): number => keys[i + 1]!.at;
-  const landingDirection: IAutoMovieVector3 = Vector3.normalize(path.landing);
-  const landingDrift: number = Vector3.length(path.landing) * 0.25 * PLF;
+  const landingDirection: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(path.landing);
+  const landingDrift: number = AutoMovieEngineVector3.length(path.landing) * 0.25 * PLF;
   // The feet stand where the flare touched them down.
   const planted: stuntFallPose.IFeet | undefined =
     landing === "standUp"
@@ -215,9 +215,9 @@ export function planSkydive(
       const v: number = Math.min(1, u / 0.25);
       const drift: number =
         landingDrift * (v - (2.5 * v ** 4 - 3 * v ** 5 + v ** 6));
-      const along: IAutoMovieVector3 = Vector3.add(
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         touched.hips,
-        Vector3.scale(landingDirection, drift),
+        AutoMovieEngineVector3.scale(landingDirection, drift),
       );
       const k: number = PreparedHumanIntervals.upperBound(
         keys.length - 2,

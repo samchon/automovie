@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanHoldInfant,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import * as HoldInfantCrookData from "./HoldInfantCrookData";
+import { HoldInfantCrookData } from "./HoldInfantCrookData";
 
 /*
  * The cradling arm of a hold.
@@ -32,31 +32,31 @@ export function holdInfantCrook(
   ) => number = (
     from: AutoMovieHumanoidBone,
     to: AutoMovieHumanoidBone,
-  ): number => Vector3.distance(body.rest.get(from)!, body.rest.get(to)!);
+  ): number => AutoMovieEngineVector3.distance(body.rest.get(from)!, body.rest.get(to)!);
   const radians: (degrees: number) => number = (degrees: number): number =>
     (degrees * Math.PI) / 180;
-  const elbow: IAutoMovieVector3 = Vector3.add(
+  const elbow: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     shoulder,
-    Vector3.scale(
-      Vector3.add(
-        Vector3.scale(HoldInfantCrookData.UP, -Math.cos(radians(HoldInfantCrookData.FLEXION))),
-        Vector3.scale(forward, Math.sin(radians(HoldInfantCrookData.FLEXION))),
+    AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(HoldInfantCrookData.UP, -Math.cos(radians(HoldInfantCrookData.FLEXION))),
+        AutoMovieEngineVector3.scale(forward, Math.sin(radians(HoldInfantCrookData.FLEXION))),
       ),
       length(`${side}UpperArm`, `${side}LowerArm`),
     ),
   );
-  const across: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(toward, -Math.cos(radians(HoldInfantCrookData.ACROSS))),
-    Vector3.scale(forward, Math.sin(radians(HoldInfantCrookData.ACROSS))),
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(toward, -Math.cos(radians(HoldInfantCrookData.ACROSS))),
+    AutoMovieEngineVector3.scale(forward, Math.sin(radians(HoldInfantCrookData.ACROSS))),
   );
   return {
     elbow,
-    wrist: Vector3.add(
+    wrist: AutoMovieEngineVector3.add(
       elbow,
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(across, Math.cos(radians(holdInfantCrook.RISE[hold]))),
-          Vector3.scale(HoldInfantCrookData.UP, -Math.sin(radians(holdInfantCrook.RISE[hold]))),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(across, Math.cos(radians(holdInfantCrook.RISE[hold]))),
+          AutoMovieEngineVector3.scale(HoldInfantCrookData.UP, -Math.sin(radians(holdInfantCrook.RISE[hold]))),
         ),
         length(`${side}LowerArm`, `${side}Hand`),
       ),

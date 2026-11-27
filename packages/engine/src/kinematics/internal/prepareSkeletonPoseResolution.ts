@@ -14,8 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
-import { DEFAULT_JOINT_AXES } from "../DEFAULT_JOINT_AXES";
-import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
+import { AutoMovieEngineDefaultJointAxes } from "../AutoMovieEngineDefaultJointAxes";
+import { AutoMovieEngineSkeletonRootParent } from "../AutoMovieEngineSkeletonRootParent";
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { composePoseFrames } from "./composePoseFrames";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
@@ -207,7 +207,7 @@ function snapshotRig(
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
   const fallbackAxes: IAutoMovieJointAxes =
-    PoseResolutionSnapshot.axes(DEFAULT_JOINT_AXES);
+    PoseResolutionSnapshot.axes(AutoMovieEngineDefaultJointAxes);
   const fallback: IConvention =
     preparePoseJointResolution.convention(fallbackAxes);
   const copiedAxes: Map<string, IAutoMovieJointAxes> = new Map();
@@ -249,7 +249,7 @@ function snapshotRig(
     nodes[index]!.subtreeEnd = nodes.length;
   };
   const roots: readonly IAutoMovieBone[] | undefined =
-    topology.childrenByParent.get(SKELETON_ROOT_PARENT);
+    topology.childrenByParent.get(AutoMovieEngineSkeletonRootParent);
   if (roots !== undefined) for (const root of roots) append(root, -1);
   const preparedAxes: Readonly<
     Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>

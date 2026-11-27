@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -38,10 +38,10 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 export function operateLongInsertCourse(
   props: operateLongInsertCourse.IProps,
 ): operateLongInsertCourse.IResult {
-  const n: IAutoMovieVector3 = Vector3.normalize(props.normal);
+  const n: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(props.normal);
   const along: IAutoMovieVector3 = props.step;
   const at: (u: number) => IAutoMovieVector3 = (u: number): IAutoMovieVector3 =>
-    Vector3.add(props.mouth, Vector3.scale(n, u));
+    AutoMovieEngineVector3.add(props.mouth, AutoMovieEngineVector3.scale(n, u));
   const shoulder: (
     hand: operateLongInsertCourse.Hand,
     x: number,
@@ -49,7 +49,7 @@ export function operateLongInsertCourse(
     hand: operateLongInsertCourse.Hand,
     x: number,
   ): IAutoMovieVector3 =>
-    Vector3.add(props.shoulders[hand], Vector3.scale(along, x));
+    AutoMovieEngineVector3.add(props.shoulders[hand], AutoMovieEngineVector3.scale(along, x));
   // The hand's chord of the axis at a stance.
   const chord: (
     hand: operateLongInsertCourse.Hand,
@@ -58,12 +58,12 @@ export function operateLongInsertCourse(
     hand: operateLongInsertCourse.Hand,
     x: number,
   ): operateLongInsertCourse.IRange => {
-    const m: IAutoMovieVector3 = Vector3.subtract(
+    const m: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       props.mouth,
       shoulder(hand, x),
     );
-    const b: number = Vector3.dot(n, m);
-    const disc: number = b * b - Vector3.dot(m, m) + props.reach * props.reach;
+    const b: number = AutoMovieEngineVector3.dot(n, m);
+    const disc: number = b * b - AutoMovieEngineVector3.dot(m, m) + props.reach * props.reach;
     if (disc < 0) return { lo: Infinity, hi: -Infinity };
     return { lo: -b - Math.sqrt(disc), hi: -b + Math.sqrt(disc) };
   };
@@ -76,9 +76,9 @@ export function operateLongInsertCourse(
     hand: operateLongInsertCourse.Hand,
     u: number,
   ): operateLongInsertCourse.IRange => {
-    const p: IAutoMovieVector3 = Vector3.subtract(at(u), props.shoulders[hand]);
-    const b: number = Vector3.dot(p, along);
-    const disc: number = b * b - Vector3.dot(p, p) + props.reach * props.reach;
+    const p: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at(u), props.shoulders[hand]);
+    const b: number = AutoMovieEngineVector3.dot(p, along);
+    const disc: number = b * b - AutoMovieEngineVector3.dot(p, p) + props.reach * props.reach;
     if (disc < 0) return { lo: Infinity, hi: -Infinity };
     return { lo: b - Math.sqrt(disc), hi: b + Math.sqrt(disc) };
   };

@@ -4,7 +4,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 import {
-  AUTOMOVIE_MP4_SRGB_COLOUR,
+  AutoMovieRenderMp4SrgbColour,
   AutoMovieRenderDelivery,
   AutoMovieRenderVideo,
 } from "@automovie/render";
@@ -77,7 +77,7 @@ export class CliRenderDeliveryFixture {
         render: {
           AutoMovieRenderVideo,
           createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
-          AUTOMOVIE_MP4_SRGB_COLOUR,
+          AutoMovieRenderMp4SrgbColour,
           AutoMovieRenderDelivery,
         },
         session: async () => ({

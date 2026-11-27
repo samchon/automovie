@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMatrix3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraChartCreationOperation,
   IAutoMovieRecoveryMapObservation,
@@ -45,7 +45,7 @@ export function triangulateRecoverySceneTrack(
       | undefined = charts[observation.viewIndex];
     if (!pose || !chart)
       return { point: null, reasons: ["unregistered-point-observation"] };
-    const ray: [number, number, number] = AutoMovieMatrix3.apply(
+    const ray: [number, number, number] = AutoMovieEngineMatrix3.apply(
       chart.inverse,
       [...observation.pixel, 1],
     );

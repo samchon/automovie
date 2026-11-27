@@ -17,7 +17,7 @@ import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/pr
 import type { IPlantStanceFeetProps } from "./IPlantStanceFeetProps";
 import { groundFunction } from "../../space/internal/groundFunction";
 import { assemblePlantedFeet } from "./assemblePlantedFeet";
-import { HUMANOID_LEG_CHAINS } from "../HUMANOID_LEG_CHAINS";
+import { AutoMovieEngineHumanoidLegChains } from "../AutoMovieEngineHumanoidLegChains";
 import { pinStanceTargets } from "./pinStanceTargets";
 import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
 import { resolveBoneMap } from "./resolveBoneMap";
@@ -138,8 +138,8 @@ const DEFAULT_TOLERANCE: number = 0.02;
  * The humanoid legs, named from the shared chain table so the ground-IK pass
  * and the retarget contact pass cannot disagree about which bones a leg is.
  */
-const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
-  (chain: (typeof HUMANOID_LEG_CHAINS)[number]): IAutoMovieFootLeg => ({
+const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = AutoMovieEngineHumanoidLegChains.map(
+  (chain: (typeof AutoMovieEngineHumanoidLegChains)[number]): IAutoMovieFootLeg => ({
     foot: chain.effector,
     upper: chain.upper,
     lower: chain.lower,

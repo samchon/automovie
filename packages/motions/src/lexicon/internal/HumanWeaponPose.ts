@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanWeaponHeld, IAutoMovieMotionHumanWeaponPresent, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVerdicts } from "../../audit/AutoMovieMotionHumanVerdicts";
@@ -51,15 +51,15 @@ export function HumanWeaponPose(
   // original axis and length describe its tip from the active grip.
   const piece: IAutoMovieVector3 | undefined =
     carriage === "shoulder" && s.butt !== undefined
-      ? Vector3.subtract(s.tool.tip, s.butt)
+      ? AutoMovieEngineVector3.subtract(s.tool.tip, s.butt)
       : undefined;
   const shoulderTool: IAutoMovieMotionHumanStrikingHeld.ITool =
     piece === undefined
       ? s.tool
       : {
           ...s.tool,
-          axis: Vector3.normalize(piece),
-          length: Vector3.length(piece),
+          axis: AutoMovieEngineVector3.normalize(piece),
+          length: AutoMovieEngineVector3.length(piece),
         };
   // A two-hand plan's support offsets use the original tool axes.
   const tool: IAutoMovieMotionHumanStrikingHeld.ITool =
@@ -101,8 +101,8 @@ export function HumanWeaponPose(
     );
     const bearing: number =
       (Math.atan2(
-        Vector3.dot(floor, left),
-        Vector3.dot(floor, ahead(entry.yaw)),
+        AutoMovieEngineVector3.dot(floor, left),
+        AutoMovieEngineVector3.dot(floor, ahead(entry.yaw)),
       ) *
         180) /
       Math.PI;
@@ -158,7 +158,7 @@ export function HumanWeaponPose(
             ).point;
   const chest: IAutoMovieVector3 = bones.get("chest")!.worldPosition;
   const target: IAutoMovieVector3 =
-    aimed ?? Vector3.add(eye, Vector3.scale(ahead(entry.yaw), 10));
+    aimed ?? AutoMovieEngineVector3.add(eye, AutoMovieEngineVector3.scale(ahead(entry.yaw), 10));
   const line: IAutoMovieVector3 = StrikingTarget.line(
     entry.root,
     target,
@@ -166,7 +166,7 @@ export function HumanWeaponPose(
   );
   const off: number =
     (Math.acos(
-      Math.max(-1, Math.min(1, Vector3.dot(line, ahead(entry.yaw + mounted)))),
+      Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(line, ahead(entry.yaw + mounted)))),
     ) *
       180) /
     Math.PI;
@@ -193,8 +193,8 @@ export function HumanWeaponPose(
         // The bore on the line from the eye to the target, the arms out
         // (a handgun) or the butt drawn in to the shoulder (a long gun);
         // the pose is chosen and judged by both ends of the bore.
-        const sight: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(target, eye),
+        const sight: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(target, eye),
         );
         const held = (
           out: number,
@@ -203,19 +203,19 @@ export function HumanWeaponPose(
             context,
             s.tool,
             s.tool.length,
-            Vector3.add(eye, Vector3.scale(sight, out)),
+            AutoMovieEngineVector3.add(eye, AutoMovieEngineVector3.scale(sight, out)),
             sight,
             0,
             supported,
           );
         // The arm's length short of straight by only the solver's angular
-        // resolution: the law of cosines at ROM_TOLERANCE.
+        // resolution: the law of cosines at AutoMovieEngineRomTolerance.
         const upper: number = context.body.measure.upperArm;
         const lower: number = context.body.measure.forearm;
         const goal: number = Math.sqrt(
           upper * upper +
             lower * lower +
-            2 * upper * lower * Math.cos((ROM_TOLERANCE * Math.PI) / 180),
+            2 * upper * lower * Math.cos((AutoMovieEngineRomTolerance * Math.PI) / 180),
         );
         if (!p.extended) {
           // Held a share of the arm out along the line, or nearer where the
@@ -228,7 +228,7 @@ export function HumanWeaponPose(
           let out: number = (s.long ? 0.3 : 0.7) * s.arm;
           let laid: IAutoMovieMotionHumanStrikingHeld.IHandFrame = held(out);
           for (let pass: number = 0; pass < PASSES; ++pass) {
-            const v: IAutoMovieVector3 = Vector3.subtract(
+            const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
               HumanHand.place(
                 context.body,
                 s.tool.side,
@@ -239,9 +239,9 @@ export function HumanWeaponPose(
               ).point,
               shoulder,
             );
-            const excess: number = Vector3.dot(v, v) - goal * goal;
+            const excess: number = AutoMovieEngineVector3.dot(v, v) - goal * goal;
             if (excess <= 0) return laid;
-            const along: number = Vector3.dot(v, sight);
+            const along: number = AutoMovieEngineVector3.dot(v, sight);
             const room: number = along * along - excess;
             if (room < 0) return laid;
             out += Math.sqrt(room) - along;
@@ -261,7 +261,7 @@ export function HumanWeaponPose(
         // `c`, the length `r`). A line the length never meets is refused.
         const outward = (from: IAutoMovieVector3, r: number): number => {
           const step: number | undefined = HumanWeaponPoseReach(
-            Vector3.subtract(from, shoulder),
+            AutoMovieEngineVector3.subtract(from, shoulder),
             sight,
             r,
           );
@@ -269,7 +269,7 @@ export function HumanWeaponPose(
             throw new AutoMovieMotionHumanRefusal({
               kind: "reach",
               axis: "target",
-              value: Vector3.length(Vector3.subtract(from, shoulder)),
+              value: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(from, shoulder)),
               feasible: { kind: "range", minimum: 0, maximum: r, unit: "m" },
               reason: `the line of aim passes beyond the ${s.tool.side} arm's ${r.toFixed(3)} m reach from its shoulder`,
               fix: "face the target, or present without extending the arm",
@@ -280,7 +280,7 @@ export function HumanWeaponPose(
           outward(
             eye,
             s.arm +
-              Vector3.length(
+              AutoMovieEngineVector3.length(
                 HumanHand.offset(context.body, s.tool.side, "grip").point,
               ),
           ),
@@ -294,9 +294,9 @@ export function HumanWeaponPose(
           "relaxed",
         ).point;
         return {
-          point: Vector3.add(
+          point: AutoMovieEngineVector3.add(
             chosen.point,
-            Vector3.scale(sight, outward(wrist, goal)),
+            AutoMovieEngineVector3.scale(sight, outward(wrist, goal)),
           ),
           rotation: chosen.rotation,
         };
@@ -345,8 +345,8 @@ export function HumanWeaponPose(
         };
         const hip: IAutoMovieVector3 = surface(hipName);
         const before: IAutoMovieVector3 = surface(shoulderName);
-        const along: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(before, hip),
+        const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(before, hip),
         );
         const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
           StrikingRoll.hand(
@@ -372,7 +372,7 @@ export function HumanWeaponPose(
           "relaxed",
         ).point;
         const lift: number | undefined = HumanWeaponHeld.rise(
-          Vector3.subtract(wrist, shoulder),
+          AutoMovieEngineVector3.subtract(wrist, shoulder),
           along,
           s.arm - AutoMovieMotionHumanVerdicts.SKIN,
         );
@@ -380,7 +380,7 @@ export function HumanWeaponPose(
           throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "gun",
-            value: Vector3.length(Vector3.subtract(wrist, shoulder)),
+            value: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist, shoulder)),
             feasible: {
               kind: "range",
               minimum: 0,
@@ -391,7 +391,7 @@ export function HumanWeaponPose(
             fix: "shoulder a shorter piece",
           });
         return {
-          point: Vector3.add(held.point, Vector3.scale(along, lift)),
+          point: AutoMovieEngineVector3.add(held.point, AutoMovieEngineVector3.scale(along, lift)),
           rotation: held.rotation,
         };
       }
@@ -419,13 +419,13 @@ export function HumanWeaponPose(
         const piece: IAutoMovieVector3 | undefined =
           s.butt === undefined
             ? undefined
-            : Vector3.subtract(s.tool.tip, s.butt);
+            : AutoMovieEngineVector3.subtract(s.tool.tip, s.butt);
         return StrikingRoll.hand(
           context,
           piece === undefined
             ? s.tool
-            : { ...s.tool, axis: Vector3.normalize(piece) },
-          piece === undefined ? s.tool.length : Vector3.length(piece),
+            : { ...s.tool, axis: AutoMovieEngineVector3.normalize(piece) },
+          piece === undefined ? s.tool.length : AutoMovieEngineVector3.length(piece),
           breast,
           { x: 0, y: 1, z: 0 },
           0,

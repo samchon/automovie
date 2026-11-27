@@ -1,6 +1,6 @@
 import { IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 
 /*
  * The COMPOSE pass: turn a flat list of nodes (each with a parent-local TRS)
@@ -33,11 +33,11 @@ export function composeScene(
     resolving.add(id);
     const node: IAutoMovieNode = byId.get(id)!.node;
     const t: IAutoMovieTransform = localOverrides?.get(id) ?? node.transform;
-    const local: number[] = Matrix4.compose(t.translation, t.rotation, t.scale);
+    const local: number[] = AutoMovieEngineMatrix4.compose(t.translation, t.rotation, t.scale);
     const m: number[] =
       node.parent === null
         ? local
-        : Matrix4.multiply(resolve(node.parent), local);
+        : AutoMovieEngineMatrix4.multiply(resolve(node.parent), local);
     world.set(id, m);
     resolving.delete(id);
     return m;

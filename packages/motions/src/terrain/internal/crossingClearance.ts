@@ -23,7 +23,7 @@ import { HumanColliderPlacement } from "../../posture/internal/HumanColliderPlac
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import * as CrossingClearanceData from "./CrossingClearanceData";
+import { CrossingClearanceData } from "./CrossingClearanceData";
 
 /*
  * Require the fully posed actor to clear named stationary shapes throughout a

@@ -6,7 +6,7 @@ import type {
 
 import { boxRefusedArcs } from "./boxRefusedArcs";
 import { swingTwistRefusedArcs } from "./swingTwistRefusedArcs";
-import { swivelArcs } from "../swivelArcs";
+import { AutoMovieEngineSwivelArcs } from "../AutoMovieEngineSwivelArcs";
 
 /*
  * The feasible swivels of a chain's root joint: the intervals of the swivel its
@@ -38,7 +38,7 @@ export function hingedSwivelFeasible(
       swingTwistRefusedArcs(props);
     return refused !== "all" && refused.length === 0
       ? "all"
-      : swivelArcs.complement(refused);
+      : AutoMovieEngineSwivelArcs.complement(refused);
   }
   const [principal, alternate]: [
     IAutoMovieSwivelArcs.IArc[] | "all",
@@ -49,9 +49,9 @@ export function hingedSwivelFeasible(
     (alternate !== "all" && alternate.length === 0)
   )
     return "all";
-  const feasible: IAutoMovieSwivelArcs.IArc[] | "all" = swivelArcs.union([
-    ...swivelArcs.complement(principal),
-    ...swivelArcs.complement(alternate),
+  const feasible: IAutoMovieSwivelArcs.IArc[] | "all" = AutoMovieEngineSwivelArcs.union([
+    ...AutoMovieEngineSwivelArcs.complement(principal),
+    ...AutoMovieEngineSwivelArcs.complement(alternate),
   ]);
   // The union keeps each arc a turn either way too; one copy starts in the
   // turn from 0.

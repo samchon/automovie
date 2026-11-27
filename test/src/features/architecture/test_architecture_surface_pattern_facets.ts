@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieExplicitInstanceTransform,
@@ -104,7 +104,7 @@ const corner: (width: number) => IAutoMovieSurfacePatternResult = (
 const heading: (index: number) => IAutoMovieVector3 = (
   index: number,
 ): IAutoMovieVector3 => {
-  const angle: number = index * 15 * Quaternion.DEG2RAD;
+  const angle: number = index * 15 * AutoMovieEngineQuaternion.DEG2RAD;
   return { x: Math.cos(angle), y: 0, z: Math.sin(angle) };
 };
 
@@ -368,7 +368,7 @@ export function test_architecture_surface_pattern_facets(): void {
         "first",
         (): boolean =>
           vclose(
-            Quaternion.rotateVector(folded.transforms[0]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(folded.transforms[0]!.rotation, {
               x: 0,
               y: 0,
               z: 1,
@@ -380,7 +380,7 @@ export function test_architecture_surface_pattern_facets(): void {
         "return",
         (): boolean =>
           vclose(
-            Quaternion.rotateVector(folded.transforms[4]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(folded.transforms[4]!.rotation, {
               x: 0,
               y: 0,
               z: 1,
@@ -392,7 +392,7 @@ export function test_architecture_surface_pattern_facets(): void {
         "along",
         (): boolean =>
           vclose(
-            Quaternion.rotateVector(folded.transforms[4]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(folded.transforms[4]!.rotation, {
               x: 1,
               y: 0,
               z: 0,
@@ -451,7 +451,7 @@ export function test_architecture_surface_pattern_facets(): void {
               one: IAutoMovieExplicitInstanceTransform,
               index: number,
             ): boolean => {
-              const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+              const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
                 one.rotation,
                 {
                   x: 0,
@@ -459,7 +459,7 @@ export function test_architecture_surface_pattern_facets(): void {
                   z: 1,
                 },
               );
-              const angle: number = index * 15 * Quaternion.DEG2RAD;
+              const angle: number = index * 15 * AutoMovieEngineQuaternion.DEG2RAD;
               return vclose(normal, {
                 x: -Math.sin(angle),
                 y: 0,
@@ -485,7 +485,7 @@ export function test_architecture_surface_pattern_facets(): void {
               curved.transforms[index + 1]!.translation;
             return nclose(
               Math.hypot(right.x - left.x, right.z - left.z),
-              Math.cos(7.5 * Quaternion.DEG2RAD),
+              Math.cos(7.5 * AutoMovieEngineQuaternion.DEG2RAD),
               1e-12,
             );
           }),

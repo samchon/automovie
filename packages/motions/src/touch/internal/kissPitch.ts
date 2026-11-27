@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -24,16 +24,16 @@ export function kissPitch(
     y: 0,
     z: -Math.sin(around),
   };
-  const arc: IAutoMovieVector3 = Vector3.subtract(mouth, hip);
-  const radial: IAutoMovieVector3 = Vector3.subtract(
+  const arc: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(mouth, hip);
+  const radial: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     arc,
-    Vector3.scale(axis, Vector3.dot(arc, axis)),
+    AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(arc, axis)),
   );
-  const toward: IAutoMovieVector3 = Vector3.subtract(point, hip);
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(point, hip);
   return (
     (Math.atan2(
-      Vector3.dot(toward, Vector3.cross(axis, radial)),
-      Vector3.dot(toward, radial),
+      AutoMovieEngineVector3.dot(toward, AutoMovieEngineVector3.cross(axis, radial)),
+      AutoMovieEngineVector3.dot(toward, radial),
     ) *
       180) /
     Math.PI

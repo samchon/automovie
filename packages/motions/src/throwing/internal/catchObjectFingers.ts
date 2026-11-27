@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
@@ -35,20 +35,20 @@ export function catchObjectFingers(
   } = input;
 
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const across: IAutoMovieVector3 = Vector3.subtract(
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     up,
-    Vector3.scale(outward, Vector3.dot(up, outward)),
+    AutoMovieEngineVector3.scale(outward, AutoMovieEngineVector3.dot(up, outward)),
   );
   const first: IAutoMovieVector3 =
-    Vector3.length(across) > 1e-6
-      ? Vector3.normalize(across)
+    AutoMovieEngineVector3.length(across) > 1e-6
+      ? AutoMovieEngineVector3.normalize(across)
       : HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw },
           { x: 0, y: 0, z: 1 },
         );
-  const back: IAutoMovieVector3 = Vector3.add(
+  const back: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     meet,
-    Vector3.scale(outward, radius),
+    AutoMovieEngineVector3.scale(outward, radius),
   );
   let best: ICatchObjectFingersBest = {
     fingers: first,
@@ -67,8 +67,8 @@ export function catchObjectFingers(
     // two turns it holds alike, each hand keeps the one that is the
     // other's mirror.
     const degrees: number = side === "left" && roll !== 0 ? -roll : roll;
-    const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(outward, degrees),
+    const fingers: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle(outward, degrees),
       first,
     );
     const frame: ReturnType<typeof hand.frame> = hand.frame(

@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -103,14 +103,14 @@ export function courtStroke(
     [profile.step[0], 0, profile.step[1]],
     size * manner.extent,
   );
-  const moves: boolean = Vector3.length(step) > 0;
+  const moves: boolean = AutoMovieEngineVector3.length(step) > 0;
   const lead: AutoMovieHumanSide = profile.sameFoot ? side : other;
   const footprint = (
     foot: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanFoot.IPlacement => {
     const from: IAutoMovieMotionHumanFoot.IPlacement = context.entry.feet[foot];
     return moves && foot === lead
-      ? { ...from, ankle: Vector3.add(from.ankle, step) }
+      ? { ...from, ankle: AutoMovieEngineVector3.add(from.ankle, step) }
       : from;
   };
   const landings: Readonly<
@@ -125,7 +125,7 @@ export function courtStroke(
     s > takeoff && s < landing;
   const lift: (s: number) => number = (s: number): number =>
     airborne(s)
-      ? AutoMovieGravity.STANDARD * 0.5 * (s - takeoff) * (landing - s)
+      ? AutoMovieEngineGravity.STANDARD * 0.5 * (s - takeoff) * (landing - s)
       : 0;
   const extent: (s: number) => number = AutoMovieMotionClock.prepareEnvelope(
     clock,
@@ -163,7 +163,7 @@ export function courtStroke(
     const phaseAngle = (axis: NominalPosturePhaseAngleAxis): number =>
       weight *
       (profile.chamber[axis] + (profile.hit[axis] - profile.chamber[axis]) * t);
-    const horizontal: IAutoMovieVector3 = Vector3.scale(
+    const horizontal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       step,
       0.5 * transfer(s),
     );
@@ -174,7 +174,7 @@ export function courtStroke(
     return StrikingBlade.turned(
       {
         ...posture,
-        root: Vector3.add(posture.root, {
+        root: AutoMovieEngineVector3.add(posture.root, {
           ...horizontal,
           y: lift(s) - size * profile.sink * (compression(s) + absorb),
         }),
@@ -243,15 +243,15 @@ export function courtStroke(
     ...feet,
   ];
 
-  const face: IAutoMovieVector3 = Vector3.normalize(local(profile.face, 1));
+  const face: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(local(profile.face, 1));
   const rawAxis: IAutoMovieVector3 = local(profile.axis, 1);
-  const axis: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(rawAxis, Vector3.scale(face, Vector3.dot(rawAxis, face))),
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(rawAxis, AutoMovieEngineVector3.scale(face, AutoMovieEngineVector3.dot(rawAxis, face))),
   );
   const drive: IAutoMovieVector3 = local(profile.drive, arm * manner.extent);
   const strike: number = clock.at("stroke");
   const straight = (s: number): IAutoMovieVector3 =>
-    Vector3.scale(
+    AutoMovieEngineVector3.scale(
       drive,
       AutoMovieMotionClock.through(clock, ["ready", "stroke", "strokeEnd"], s) -
         1,
@@ -260,15 +260,15 @@ export function courtStroke(
   const finish: IAutoMovieVector3 | undefined =
     profile.finish === undefined
       ? undefined
-      : Vector3.subtract(
+      : AutoMovieEngineVector3.subtract(
           local(profile.finish, arm),
-          Vector3.add(dominant, straight(clock.at("strokeEnd"))),
+          AutoMovieEngineVector3.add(dominant, straight(clock.at("strokeEnd"))),
         );
   const recover: (s: number) => number = (s: number): number =>
     finish === undefined ? 0 : clock.progress("stroke", "strokeEnd", s);
   const partner: IAutoMovieVector3 = local(profile.balance, arm);
-  const middle: IAutoMovieVector3 = Vector3.scale(
-    Vector3.add(dominant, partner),
+  const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.add(dominant, partner),
     0.5,
   );
   const centre = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
@@ -297,20 +297,20 @@ export function courtStroke(
     "stroke",
     "relax",
   ).progress;
-  const zero: IAutoMovieVector3 = Vector3.create(0, 0, 0);
+  const zero: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, 0);
 
   // Convert the proposed wrist line to the actual racket face line using
   // the same rigid offsets the arm solver inverts for the held implement.
   const reach: IAutoMovieVector3 =
-    racket === undefined ? dominant : Vector3.add(dominant, racket.faceOffset);
-  const nominal: IAutoMovieVector3 = Vector3.add(
+    racket === undefined ? dominant : AutoMovieEngineVector3.add(dominant, racket.faceOffset);
+  const nominal: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     centre(postureAt(entry, strike)),
     profile.paired === true ? middle : reach,
   );
   const correction: IAutoMovieVector3 =
     options.contact === undefined
       ? zero
-      : Vector3.subtract(options.contact, nominal);
+      : AutoMovieEngineVector3.subtract(options.contact, nominal);
   const handPoint = (
     posture: IAutoMovieMotionHumanPosture,
     s: number,
@@ -324,10 +324,10 @@ export function courtStroke(
     const path: IAutoMovieVector3 =
       finish === undefined
         ? through
-        : Vector3.add(through, Vector3.scale(finish, eased));
-    return Vector3.add(
-      Vector3.add(centre(posture), place),
-      Vector3.add(path, Vector3.scale(correction, extent(s) * (1 - eased))),
+        : AutoMovieEngineVector3.add(through, AutoMovieEngineVector3.scale(finish, eased));
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(centre(posture), place),
+      AutoMovieEngineVector3.add(path, AutoMovieEngineVector3.scale(correction, extent(s) * (1 - eased))),
     );
   };
   const balanceHand = (

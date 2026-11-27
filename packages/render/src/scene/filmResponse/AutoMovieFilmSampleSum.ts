@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
-import type { IAutoMovieFilmResponseRenderer } from "../IAutoMovieFilmResponseRenderer.js";
+import { AutoMovieRenderFilmResponseShaders } from "../AutoMovieRenderFilmResponseShaders.js";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../IAutoMovieRenderFilmResponseRenderer.js";
 import { collectAutoMovieFilmOverlays } from "./internal/collectAutoMovieFilmOverlays.js";
 
 /*
@@ -34,8 +34,8 @@ export class AutoMovieFilmSampleSum {
   private readonly material_: THREE.RawShaderMaterial =
     new THREE.RawShaderMaterial({
       glslVersion: THREE.GLSL3,
-      vertexShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.vertex,
-      fragmentShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.accumulate,
+      vertexShader: AutoMovieRenderFilmResponseShaders.vertex,
+      fragmentShader: AutoMovieRenderFilmResponseShaders.accumulate,
       uniforms: {
         tSum: { value: null },
         tSample: { value: null },
@@ -87,7 +87,7 @@ export class AutoMovieFilmSampleSum {
     /*
      * The renderer.
      */
-    renderer: IAutoMovieFilmResponseRenderer;
+    renderer: IAutoMovieRenderFilmResponseRenderer;
 
     /*
      * The scene, placed at this sample's second.

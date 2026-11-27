@@ -6,7 +6,7 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
  * zero for collinear points.
  *
  * It is the free-form region kernel's raw orientation measure; callers compare
- * it against the absolute `PLANAR_EPSILON`. The architecture graph's
+ * it against the absolute `AutoMovieEnginePlanarEpsilon`. The architecture graph's
  * `planarSide` asks the same question with a tolerance that grows with the
  * figure, which is why the two are not merged.
  * Parameter origin: Shared corner of both edges.

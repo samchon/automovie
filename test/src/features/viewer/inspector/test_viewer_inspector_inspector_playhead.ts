@@ -1,4 +1,4 @@
-import { AutoMovieInspectorPlayhead } from "@automovie/viewer";
+import { AutoMovieViewerInspectorPlayhead } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,7 +20,7 @@ import { TestValidator } from "@nestia/e2e";
  *    that is not positive is refused.
  */
 export function test_viewer_inspector_inspector_playhead(): void {
-  const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
+  const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
   let heard: number = 0;
   const unsubscribe: () => void = playhead.subscribe((): void => {
     ++heard;
@@ -46,7 +46,7 @@ export function test_viewer_inspector_inspector_playhead(): void {
     playhead.getSnapshot().seconds,
     0,
   );
-  const still: AutoMovieInspectorPlayhead.ISnapshot = playhead.getSnapshot();
+  const still: AutoMovieViewerInspectorPlayhead.ISnapshot = playhead.getSnapshot();
   const before: number = heard;
   playhead.seek(0);
   playhead.pause();

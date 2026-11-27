@@ -96,7 +96,7 @@ export namespace AutoMovieMotionHumanReaction {
    * them, so a startle synced to it begins that much after the shot.
    *
    * The delay is the distance over the speed of sound of the engine's one air
-   * (`AutoMovieAir.SOUND`, the ICAO Standard Atmosphere at sea level). The
+   * (`AutoMovieEngineAir.SOUND`, the ICAO Standard Atmosphere at sea level). The
    * report is a cue instant, not a hit: it delivers no impulse, and the
    * reaction's own latency is the sync's to add (`latency: "reaction"`).
    */

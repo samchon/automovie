@@ -4,7 +4,12 @@ import type {
   IAutoMovieMotionHumanEntryState,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, HumanSupportFrame } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSupportFrame
+} from "../../../../../packages/motions/src/carrier/internal/HumanSupportFrame";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

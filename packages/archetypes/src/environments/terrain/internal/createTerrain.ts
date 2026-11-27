@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, AutoMovieEngineRandom, Quaternion, AutoMovieEngineMath, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineRandom, AutoMovieEngineQuaternion, AutoMovieEngineMath, AutoMovieEngineValidation } from "@automovie/engine";
 
 import type {
   IAutoMovieEnvironmentContribution,
@@ -452,7 +452,7 @@ function routeEnd(
       ...point,
       y: AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, point.x, point.z),
     },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
     scale: { x: 1, y: 1, z: 1 },
   };
 }

@@ -3,7 +3,7 @@ import type {
   IAutoMovieSweepOrientation,
 } from "@automovie/interface";
 
-import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
+import { AutoMovieEngineSweepRotation } from "../../AutoMovieEngineSweepRotation";
 
 /*
  * Create the station-rotation buffers of a sweep and the in-place computation
@@ -58,12 +58,12 @@ export const orientAutoMovieSweep: (
       }
       turned = true;
       carried(knots[k]!, scratch, 0);
-      AutoMovieSweepRotation.fromBasis(scratch, 3, 6, 9, scratch, 12);
-      AutoMovieSweepRotation.conjugate(scratch, 12, scratch, 12);
+      AutoMovieEngineSweepRotation.fromBasis(scratch, 3, 6, 9, scratch, 12);
+      AutoMovieEngineSweepRotation.conjugate(scratch, 12, scratch, 12);
       for (let a: number = 0; a < 4; ++a) scratch[16 + a] = rotations[o + a]!;
-      AutoMovieSweepRotation.normalize(scratch, 16);
-      AutoMovieSweepRotation.multiply(scratch, 12, scratch, 16, offsets, o);
-      AutoMovieSweepRotation.normalize(offsets, o);
+      AutoMovieEngineSweepRotation.normalize(scratch, 16);
+      AutoMovieEngineSweepRotation.multiply(scratch, 12, scratch, 16, offsets, o);
+      AutoMovieEngineSweepRotation.normalize(offsets, o);
     }
   };
   // the interpolated turn at u, written at scratch[16]
@@ -88,21 +88,21 @@ export const orientAutoMovieSweep: (
     for (let c: number = 0; c < 4; ++c)
       scratch[16 + c] =
         offsets[a + c]! + (sign * offsets[b + c]! - offsets[a + c]!) * t;
-    AutoMovieSweepRotation.normalize(scratch, 16);
+    AutoMovieEngineSweepRotation.normalize(scratch, 16);
   };
   const frame = (input: number, out: Float64Array, at: number): void => {
     const u: number = Math.min(1, Math.max(0, input));
     carried(u, out, at);
     if (!turned) return;
-    AutoMovieSweepRotation.fromBasis(out, at + 3, at + 6, at + 9, scratch, 12);
+    AutoMovieEngineSweepRotation.fromBasis(out, at + 3, at + 6, at + 9, scratch, 12);
     offset(u);
-    AutoMovieSweepRotation.multiply(scratch, 12, scratch, 16, scratch, 20);
+    AutoMovieEngineSweepRotation.multiply(scratch, 12, scratch, 16, scratch, 20);
     // the turned plane's axes are the rotation's columns
     for (let axis: number = 0; axis < 3; ++axis) {
       scratch[24] = axis === 0 ? 1 : 0;
       scratch[25] = axis === 1 ? 1 : 0;
       scratch[26] = axis === 2 ? 1 : 0;
-      AutoMovieSweepRotation.rotate(
+      AutoMovieEngineSweepRotation.rotate(
         scratch,
         20,
         scratch,

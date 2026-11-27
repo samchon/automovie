@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -89,7 +89,7 @@ export function siegeStructureFloor(
       for (const vertex of corners(part))
         critical(vertex.y - height, vertex.z, ratio);
     } else if (part.geometry.shape.type === "cylinder") {
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         part.transform!.rotation,
         { x: 0, y: 1, z: 0 },
       );
@@ -123,7 +123,7 @@ export function siegeStructureFloor(
           ...corners(part).map((point: IAutoMovieVector3): number => point.y),
         );
       else if (part.geometry.shape.type === "cylinder") {
-        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+        const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           part.transform!.rotation,
           { x: 0, y: 1, z: 0 },
         );
@@ -165,9 +165,9 @@ function corners(part: IAutoMovieModelPart): IAutoMovieVector3[] {
     for (const y of [-1, 1] as const)
       for (const z of [-1, 1] as const)
         result.push(
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             part.transform!.translation,
-            Quaternion.rotateVector(part.transform!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(part.transform!.rotation, {
               x: (x * shape.width) / 2,
               y: (y * shape.height) / 2,
               z: (z * shape.depth) / 2,

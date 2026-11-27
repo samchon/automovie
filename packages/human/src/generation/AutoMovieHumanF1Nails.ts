@@ -1,6 +1,6 @@
 import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
 import { AutoMovieHumanNail } from "./AutoMovieHumanNail";
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionNode,
@@ -11,11 +11,8 @@ import type {
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
-import * as AutoMovieHumanF1NailsData from "./internal/AutoMovieHumanF1NailsData";
-import {
-  finger as AutoMovieHumanF1NailsDataFinger,
-  toe as AutoMovieHumanF1NailsDataToe,
-} from "./internal/AutoMovieHumanF1NailsData";
+import { AutoMovieHumanF1NailsData } from "./internal/AutoMovieHumanF1NailsData";
+
 
 /**
  * f1's twenty nails: which distal segment each digit's nail stands on, how that segment's axes read as distal and dorsal, and the
@@ -55,16 +52,16 @@ export namespace AutoMovieHumanF1Nails {
 
   /** The rows, one per digit of a side. */
   export const ROWS: readonly IAutoMovieHumanF1Nails.IRow[] = [
-    AutoMovieHumanF1NailsDataFinger("finger.thumb", "thumb.distal", 13.2 / 18.8, 9.6 / 13.2, 0.48),
-    AutoMovieHumanF1NailsDataFinger("finger.index", "index.distal", 11.1 / 15.4, 7.4 / 11.1, 0.47),
-    AutoMovieHumanF1NailsDataFinger("finger.middle", "middle.distal", 11.5 / 15.1, 7.3 / 11.5, 0.47),
-    AutoMovieHumanF1NailsDataFinger("finger.ring", "ring.distal", 10.7 / 14.4, 6.8 / 10.7, 0.45),
-    AutoMovieHumanF1NailsDataFinger("finger.pinky", "pinky.distal", 8.8 / 12.0, 5.2 / 8.8, 0.42),
-    AutoMovieHumanF1NailsDataToe("toe.big", "bigtoe.distal", 1.1, null, 1.38, 0.343),
-    AutoMovieHumanF1NailsDataToe("toe.index", "indextoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
-    AutoMovieHumanF1NailsDataToe("toe.middle", "middletoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
-    AutoMovieHumanF1NailsDataToe("toe.ring", "ringtoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
-    AutoMovieHumanF1NailsDataToe("toe.little", "littletoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
+    AutoMovieHumanF1NailsData.finger("finger.thumb", "thumb.distal", 13.2 / 18.8, 9.6 / 13.2, 0.48),
+    AutoMovieHumanF1NailsData.finger("finger.index", "index.distal", 11.1 / 15.4, 7.4 / 11.1, 0.47),
+    AutoMovieHumanF1NailsData.finger("finger.middle", "middle.distal", 11.5 / 15.1, 7.3 / 11.5, 0.47),
+    AutoMovieHumanF1NailsData.finger("finger.ring", "ring.distal", 10.7 / 14.4, 6.8 / 10.7, 0.45),
+    AutoMovieHumanF1NailsData.finger("finger.pinky", "pinky.distal", 8.8 / 12.0, 5.2 / 8.8, 0.42),
+    AutoMovieHumanF1NailsData.toe("toe.big", "bigtoe.distal", 1.1, null, 1.38, 0.343),
+    AutoMovieHumanF1NailsData.toe("toe.index", "indextoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
+    AutoMovieHumanF1NailsData.toe("toe.middle", "middletoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
+    AutoMovieHumanF1NailsData.toe("toe.ring", "ringtoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
+    AutoMovieHumanF1NailsData.toe("toe.little", "littletoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
   ];
 
   /** The chord of the merge's blend either side of the fold's curve, mm: the fold's rounding, a quarter of the bed's ramp. */
@@ -105,7 +102,7 @@ export namespace AutoMovieHumanF1Nails {
     const first: number = Math.max(from, joint - SKIN.before);
     const rows: number = Math.ceil((end - first) / SKIN.station) + 1;
     const pitch: number = (end - first) / (rows - 1);
-    const net: number[][][] = Array.from({ length: rows }, (_: unknown, i: number): number[][] => Array.from({ length: SKIN.phases }, (__: unknown, j: number): number[] => AutoMovieLoftChain.point(chain, i === rows - 1 ? end : first + pitch * i, (2 * Math.PI * j) / SKIN.phases)));
+    const net: number[][][] = Array.from({ length: rows }, (_: unknown, i: number): number[][] => Array.from({ length: SKIN.phases }, (__: unknown, j: number): number[] => AutoMovieEngineLoftChain.point(chain, i === rows - 1 ? end : first + pitch * i, (2 * Math.PI * j) / SKIN.phases)));
     const point = (station: number, phase: number): readonly number[] => {
       const a: number = Math.max(0, Math.min(rows - 1, (station - first) / pitch));
       const i: number = Math.min(rows - 2, Math.floor(a));

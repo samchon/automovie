@@ -19,7 +19,7 @@ import { AutoMovieEngineSpace } from "../../space/index";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
-import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
+import { AutoMovieEngineSupportTolerance } from "../AutoMovieEngineSupportTolerance";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
 /*
@@ -35,7 +35,7 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * resolving to a default, because it does not narrow or widen what "touching"
  * means, it withdraws the meaning: every distance would be outside a negative
  * band, so the answer would be a confident `floating` or `sunk` for a member
- * that rests exactly. An omitted tolerance is `AUTOMOVIE_SUPPORT_TOLERANCE`,
+ * that rests exactly. An omitted tolerance is `AutoMovieEngineSupportTolerance`,
  * `1e-9` metres.
  *
  * Both bases travel with the verdict. A subject the record carries no vertices
@@ -66,7 +66,7 @@ export function builtEnvironmentSupportStatus(
   props: IAutoMovieBuiltEnvironmentSupportStatus.IProps,
 ): IAutoMovieBuiltSupportResult {
   const tolerance: number =
-    props.query.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
+    props.query.tolerance ?? AutoMovieEngineSupportTolerance;
   if (tolerance < 0)
     throw new RangeError(
       `building support tolerance must be finite and non-negative, but was ${String(tolerance)}`,

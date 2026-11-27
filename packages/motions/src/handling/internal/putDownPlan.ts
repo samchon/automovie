@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -83,9 +83,9 @@ export function putDownPlan(
           tip: onto.via,
         });
   const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
-    point: Vector3.add(
+    point: AutoMovieEngineVector3.add(
       place,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         rotation,
         HumanHand.offset(body, side, "grip").point,
       ),
@@ -108,9 +108,9 @@ export function putDownPlan(
       ? undefined
       : [
           offset.position,
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             offset.position,
-            Quaternion.rotateVector(offset.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(offset.rotation, {
               x: 0,
               y: body.measure.hand,
               z: 0,
@@ -123,19 +123,19 @@ export function putDownPlan(
           }),
         );
   const mouth: IAutoMovieVector3 | undefined =
-    aperture === undefined ? undefined : Vector3.add(place, aperture);
+    aperture === undefined ? undefined : AutoMovieEngineVector3.add(place, aperture);
   if (aperture !== undefined) {
     const targets: readonly IAutoMovieVector3[] =
       route === undefined
         ? [aperture]
         : [...route.approach, aperture, ...route.insertion];
     for (const target of targets) {
-      pickUp.reachable(context, side, Vector3.add(place, target));
+      pickUp.reachable(context, side, AutoMovieEngineVector3.add(place, target));
       if (tool !== undefined)
         StrikingRoll.reachable(
           context,
           tool,
-          { ...frame, point: Vector3.add(frame.point, target) },
+          { ...frame, point: AutoMovieEngineVector3.add(frame.point, target) },
           0,
           held,
           "take the prop by a grasp that aligns with the aperture",
@@ -196,13 +196,13 @@ export function putDownPlan(
   pickUp.reachable(
     context,
     side,
-    displacement === undefined ? place : Vector3.add(place, displacement(down)),
+    displacement === undefined ? place : AutoMovieEngineVector3.add(place, displacement(down)),
   );
   if (displacement !== undefined)
     pickUp.reachable(
       context,
       side,
-      Vector3.add(place, displacement(down + putDown.OPEN)),
+      AutoMovieEngineVector3.add(place, displacement(down + putDown.OPEN)),
     );
   const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
     context.entry.pose,
@@ -320,7 +320,7 @@ export function putDownPlan(
               ? 1
               : 1 -
                 AutoMovieMotionInterval.progress(duration - back, duration, t);
-        wrist = Vector3.add(wrist, Vector3.scale(displacement(t), follow));
+        wrist = AutoMovieEngineVector3.add(wrist, AutoMovieEngineVector3.scale(displacement(t), follow));
       }
       return {
         ...held,

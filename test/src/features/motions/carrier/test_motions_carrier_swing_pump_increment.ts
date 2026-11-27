@@ -1,4 +1,6 @@
-import { HumanSwingPump } from "@automovie/motions/internal";
+import {
+  HumanSwingPump
+} from "../../../../../packages/motions/src/carrier/internal/HumanSwingPump";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

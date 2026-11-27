@@ -4,7 +4,7 @@ import {
 } from "./AutoMovieHumanConicRecentre";
 import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Trunk } from "./f1/AutoMovieHumanF1Trunk";
-import { AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineViewChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicRecentre,
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanF1TrunkCentre {
     let [area, u, v]: [number, number, number] = [0, 0, 0];
     for (let j: number = 0; j < ROUND; ++j) {
       const t: number = (2 * Math.PI * j) / ROUND;
-      const r: number = AutoMovieViewChain.radius(section, t);
+      const r: number = AutoMovieEngineViewChain.radius(section, t);
       area += r * r;
       u += r * r * r * Math.cos(t);
       v += r * r * r * Math.sin(t);
@@ -115,7 +115,7 @@ export namespace AutoMovieHumanF1TrunkCentre {
     let reach: number = 0;
     for (const s of knots) {
       const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(s), family.layout);
-      centres.push(centroid(AutoMovieViewChain.of(chain.input)));
+      centres.push(centroid(AutoMovieEngineViewChain.of(chain.input)));
       reach += chain.guides.reduce((sum: number, k: number): number => sum + Math.hypot(chain.input.points[k]![0], chain.input.points[k]![1]), 0) / chain.guides.length;
     }
     const width: number = (share * reach) / knots.length;

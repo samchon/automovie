@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -23,7 +23,7 @@ import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
 import { guitarNoteEntry } from "./guitarNoteEntry";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
-import * as GuitarNoteData from "./GuitarNoteData";
+import { GuitarNoteData } from "./GuitarNoteData";
 
 /*
  * A left index stops one string while the right index crosses it on a
@@ -75,23 +75,23 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     resolveGuitarStringContact(context.params, reader.prop.affordances ?? []);
   const frame: IAutoMovieRigidTransform = reader.frame(context.start);
   const world = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, point));
+    AutoMovieEngineVector3.add(frame.position, AutoMovieEngineQuaternion.rotateVector(frame.rotation, point));
   const stop: IAutoMovieVector3 = world(sites.stop);
   const pluck: IAutoMovieVector3 = world(sites.pluck);
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.rotation,
     sites.normal,
   );
-  const sweep: IAutoMovieVector3 = Quaternion.rotateVector(
+  const sweep: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     frame.rotation,
     sites.sweep,
   );
-  const lift: IAutoMovieVector3 = Vector3.scale(
+  const lift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     normal,
     context.body.measure.hand / 8,
   );
-  const rightBefore: IAutoMovieVector3 = Vector3.subtract(pluck, sweep);
-  const rightAfter: IAutoMovieVector3 = Vector3.add(pluck, sweep);
+  const rightBefore: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(pluck, sweep);
+  const rightAfter: IAutoMovieVector3 = AutoMovieEngineVector3.add(pluck, sweep);
   const halfSweep: number = Math.min(pluckAt - stopAt, releaseAt - pluckAt) / 2;
   const begins: number = pluckAt - halfSweep;
   const ends: number = pluckAt + halfSweep;
@@ -134,23 +134,23 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       // Land on the fret first, then keep the tip still until release.
       const down: number = ease(seconds, leftPrep, stopAt);
       const up: number = ease(seconds, releaseAt, duration);
-      const leftTip: IAutoMovieVector3 = Vector3.add(
+      const leftTip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         stop,
-        Vector3.scale(lift, 1 - down + up),
+        AutoMovieEngineVector3.scale(lift, 1 - down + up),
       );
 
       // The centre of this continuous right-hand sweep is the decisive instant.
       const rightPrep: number = begins / 2;
       const rightDown: number = ease(seconds, rightPrep, begins);
       const rightUp: number = ease(seconds, ends, releaseAt);
-      const crossing: IAutoMovieVector3 = Vector3.lerp(
+      const crossing: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         rightBefore,
         rightAfter,
         ease(seconds, begins, ends),
       );
-      const rightTip: IAutoMovieVector3 = Vector3.add(
+      const rightTip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         crossing,
-        Vector3.scale(lift, 1 - rightDown + rightUp),
+        AutoMovieEngineVector3.scale(lift, 1 - rightDown + rightUp),
       );
       return right(
         left(hold, leftTip, ease(seconds, 0, leftPrep)),
@@ -180,27 +180,27 @@ function handPath(
   const shoulder: IAutoMovieVector3 = bones.get(
     `${side}UpperArm`,
   )!.worldPosition;
-  const toward: IAutoMovieVector3 = Vector3.subtract(contact, shoulder);
+  const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(contact, shoulder);
   const along: IAutoMovieVector3 = reject(toward, normal);
   const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
     fingers:
-      Vector3.length(along) > GuitarNoteData.COINCIDENCE
+      AutoMovieEngineVector3.length(along) > GuitarNoteData.COINCIDENCE
         ? along
-        : Vector3.normalize(
-            Vector3.cross(
+        : AutoMovieEngineVector3.normalize(
+            AutoMovieEngineVector3.cross(
               normal,
               Math.abs(normal.x) < 0.9
                 ? { x: 1, y: 0, z: 0 }
                 : { x: 0, y: 0, z: 1 },
             ),
           ),
-    palm: Vector3.scale(normal, -1),
+    palm: AutoMovieEngineVector3.scale(normal, -1),
   });
-  const wristOffset: IAutoMovieVector3 = Quaternion.rotateVector(
+  const wristOffset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     rotation,
     HumanHand.offset(context.body, side, "indexTip", "relaxed").point,
   );
-  const reach: number = Vector3.length(Vector3.subtract(toward, wristOffset));
+  const reach: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(toward, wristOffset));
   const upper: number = context.body.measure.upperArm;
   const lower: number = context.body.measure.forearm;
   if (!(Math.abs(upper - lower) <= reach && reach <= upper + lower))
@@ -260,12 +260,12 @@ function handPath(
       limbs: {
         ...hold.limbs,
         [`${side}Arm`]: {
-          point: Vector3.lerp(
+          point: AutoMovieEngineVector3.lerp(
             entry.worldPosition,
-            Vector3.subtract(tip, wristOffset),
+            AutoMovieEngineVector3.subtract(tip, wristOffset),
             weight,
           ),
-          rotation: Quaternion.slerp(entry.worldRotation, rotation, weight),
+          rotation: AutoMovieEngineQuaternion.slerp(entry.worldRotation, rotation, weight),
           bend,
         },
       },
@@ -286,9 +286,9 @@ function reject(
   value: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.subtract(
+  return AutoMovieEngineVector3.subtract(
     value,
-    Vector3.scale(normal, Vector3.dot(value, normal)),
+    AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(value, normal)),
   );
 }
 

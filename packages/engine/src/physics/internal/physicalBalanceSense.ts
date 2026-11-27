@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
 import { AutoMovieEnginePhysicalStanceBalance } from "../AutoMovieEnginePhysicalStanceBalance";
 import type { AutoMovieEnginePhysicalStanceSeat } from "../AutoMovieEnginePhysicalStanceSeat";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
@@ -39,24 +39,24 @@ export function physicalBalanceSense(
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of input.profile.segments) {
-    const rigid: AutoMovieXpbdBody = input.segments.get(segment.bone)!;
-    center = Vector3.add(
+    const rigid: AutoMovieEngineXpbdBody = input.segments.get(segment.bone)!;
+    center = AutoMovieEngineVector3.add(
       center,
-      Vector3.scale(
-        Vector3.add(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
           rigid.translation(),
-          Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
+          AutoMovieEngineQuaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
         ),
         segment.mass / input.profile.mass,
       ),
     );
-    velocity = Vector3.add(
+    velocity = AutoMovieEngineVector3.add(
       velocity,
-      Vector3.scale(
+      AutoMovieEngineVector3.scale(
         rigid.velocityAtPoint(
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             rigid.translation(),
-            Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
+            AutoMovieEngineQuaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
           ),
         ),
         segment.mass / input.profile.mass,
@@ -78,7 +78,7 @@ export function physicalBalanceSense(
   const authored = (bone: string): IAutoMovieVector3 =>
     physicalSupportPoint(input.targets[bone]!, limb(bone).localPoint);
   const actual = (bone: string): IAutoMovieVector3 => {
-    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
+    const rigid: AutoMovieEngineXpbdBody = input.segments.get(bone)!;
     return physicalSupportPoint(
       { position: rigid.translation(), rotation: rigid.rotation() },
       limb(bone).localPoint,
@@ -98,7 +98,7 @@ export function physicalBalanceSense(
     const seat = state.seating?.[of.bone];
     const offset: IAutoMovieVector3 =
       at !== undefined
-        ? Vector3.subtract(at, authored(of.bone))
+        ? AutoMovieEngineVector3.subtract(at, authored(of.bone))
         : (state.offsets[of.bone] ?? { x: 0, y: 0, z: 0 });
     const points: IAutoMovieVector3[] = physicalSupportFootprint(
       input.profile,
@@ -110,7 +110,7 @@ export function physicalBalanceSense(
                     [
                       carrier,
                       {
-                        position: Vector3.add(
+                        position: AutoMovieEngineVector3.add(
                           input.targets[carrier]!.position,
                           { x: offset.x, y: 0, z: offset.z },
                         ),
@@ -132,12 +132,12 @@ export function physicalBalanceSense(
     return {
       bone: of.bone,
       points,
-      position: Vector3.scale(
+      position: AutoMovieEngineVector3.scale(
         points.reduce(
           (
             sum: IAutoMovieVector3,
             point: IAutoMovieVector3,
-          ): IAutoMovieVector3 => Vector3.add(sum, point),
+          ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, point),
           { x: 0, y: 0, z: 0 },
         ),
         1 / points.length,
@@ -177,7 +177,7 @@ export function physicalBalanceSense(
             candidate.bone === bone,
         );
       const goal: IAutoMovieRigidTransform | undefined = input.targets[bone];
-      const rigid: AutoMovieXpbdBody | undefined = input.segments.get(bone);
+      const rigid: AutoMovieEngineXpbdBody | undefined = input.segments.get(bone);
       if (!segment || !goal || !rigid) return 0;
       const vertices: IAutoMovieVector3[] = physicalSupportFootprint
         .colliders(segment)
@@ -226,7 +226,7 @@ export function physicalBalanceSense(
       ),
     hang: (of: AutoMovieEnginePhysicalBalanceTypes.ILimb): number => {
       const at: IAutoMovieVector3 = actual(of.bone);
-      const shift: IAutoMovieVector3 = Vector3.subtract(at, authored(of.bone));
+      const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at, authored(of.bone));
       return AutoMovieEnginePhysicalSwingReference.hang({
         profile: input.profile,
         carriers: of.contacts ?? [of.bone],
@@ -235,7 +235,7 @@ export function physicalBalanceSense(
             input.targets[bone];
           return goal
             ? {
-                position: Vector3.add(goal.position, shift),
+                position: AutoMovieEngineVector3.add(goal.position, shift),
                 rotation: goal.rotation,
               }
             : undefined;
@@ -254,9 +254,9 @@ export function physicalBalanceSense(
       const patch: IAutoMoviePhysicalSupportPatch = footprint(
         limb(bone),
         { offsets },
-        Vector3.add(authored(bone), offsets[bone] ?? { x: 0, y: 0, z: 0 }),
+        AutoMovieEngineVector3.add(authored(bone), offsets[bone] ?? { x: 0, y: 0, z: 0 }),
       );
-      const endpoint: IAutoMovieVector3 = Vector3.add(
+      const endpoint: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         authored(bone),
         offsets[bone] ?? { x: 0, y: 0, z: 0 },
       );

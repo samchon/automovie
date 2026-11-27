@@ -1,4 +1,4 @@
-import { AutoMovieMotionBound, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMotionBound, AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanArmGeometry } from "./HumanArmGeometry";
@@ -40,9 +40,9 @@ export function inspectHumanArmFaceCourse(props: IFaceCourse): IInspection {
   const velocities = rates.velocities[0]!;
   const accelerations = rates.accelerations[0]!;
   const trajectory = course.trajectories[0]!;
-  const upperLength = Vector3.length(setup.rest.lower.translation);
-  const lowerLength = Vector3.length(setup.rest.hand.translation);
-  const faceLength = Vector3.length(contact);
+  const upperLength = AutoMovieEngineVector3.length(setup.rest.lower.translation);
+  const lowerLength = AutoMovieEngineVector3.length(setup.rest.hand.translation);
+  const faceLength = AutoMovieEngineVector3.length(contact);
   const levers = [
     upperLength + lowerLength + faceLength,
     lowerLength + faceLength,
@@ -60,7 +60,7 @@ export function inspectHumanArmFaceCourse(props: IFaceCourse): IInspection {
     );
   // For the swing vector r(azimuth) q, |q d(azimuth)| <= |dq|.
   const swingRate = (radius + steepest) / HumanArmGeometry.SCALE;
-  const resolution = ROM_TOLERANCE * radians * levers[0]!;
+  const resolution = AutoMovieEngineRomTolerance * radians * levers[0]!;
   const tolerance = HumanArmTrajectoryTerms.TOLERANCE / 1000;
   const misses: number[] = [];
   let uncertain: IInspection["uncertain"];
@@ -68,7 +68,7 @@ export function inspectHumanArmFaceCourse(props: IFaceCourse): IInspection {
   const error = (seconds: number): number => {
     const coordinates = HumanArmGeometry.encode(setup, trajectory(seconds));
     const arm = HumanArmGeometry.chain(setup, frame, coordinates);
-    return Vector3.distance(
+    return AutoMovieEngineVector3.distance(
       HumanArmTrajectoryPairs.pad(arm, contact),
       target(seconds),
     );
@@ -90,7 +90,7 @@ export function inspectHumanArmFaceCourse(props: IFaceCourse): IInspection {
 
     const width = to - from;
     const rate = (start: number, end: number): number =>
-      AutoMovieMotionBound.quinticHermiteSpeed(
+      AutoMovieEngineMotionBound.quinticHermiteSpeed(
         q[i]!.slice(start, end),
         velocities[i]!.slice(start, end),
         accelerations[i]!.slice(start, end),
@@ -105,10 +105,10 @@ export function inspectHumanArmFaceCourse(props: IFaceCourse): IInspection {
     const closest = Math.hypot(q[i]![0]!, q[i]![1]!) - swing * width;
     if (
       swing !== 0 &&
-      !((closest * radius) / HumanArmGeometry.SCALE > ROM_TOLERANCE * radians)
+      !((closest * radius) / HumanArmGeometry.SCALE > AutoMovieEngineRomTolerance * radians)
     )
       return { misses: [], unsupported: true };
-    const speed = AutoMovieMotionBound.chainSpeed(
+    const speed = AutoMovieEngineMotionBound.chainSpeed(
       targetSpeed,
       [
         swingRate * swing + radians * rate(2, 3),

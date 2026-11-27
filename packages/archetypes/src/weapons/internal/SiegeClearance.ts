@@ -1,4 +1,4 @@
-import { AutoMovieEngineMath, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
@@ -80,9 +80,9 @@ export namespace SiegeClearance {
           for (const z of [-1, 1] as const)
             low = Math.min(
               low,
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 current.translation,
-                Quaternion.rotateVector(current.rotation, {
+                AutoMovieEngineQuaternion.rotateVector(current.rotation, {
                   x: (x * size.x) / 2,
                   y: (y * size.y) / 2,
                   z: (z * size.z) / 2,
@@ -104,7 +104,7 @@ export namespace SiegeClearance {
     first: number,
     last: number,
   ): number {
-    const length: number = Vector3.length(Vector3.subtract(to, from));
+    const length: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(to, from));
     if (!(length > 0 && radius >= 0))
       throw new RangeError("Siege support needs an actual finite cylinder");
     const candidates: Set<number> = new Set([first, last]);
@@ -128,10 +128,10 @@ export namespace SiegeClearance {
         }
     }
     const rest: ReturnType<typeof AutoMovieArchetypeFrame.upright> = {
-      translation: Vector3.scale(Vector3.add(from, to), 0.5),
+      translation: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5),
       rotation: AutoMovieEngineMath.rotationBetween(
         { x: 0, y: 1, z: 0 },
-        Vector3.subtract(to, from),
+        AutoMovieEngineVector3.subtract(to, from),
       ),
       scale: { x: 1, y: 1, z: 1 },
     };
@@ -144,7 +144,7 @@ export namespace SiegeClearance {
         ),
         rest,
       );
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         current.rotation,
         { x: 0, y: 1, z: 0 },
       );

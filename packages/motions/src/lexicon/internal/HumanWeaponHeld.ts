@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -126,9 +126,9 @@ export namespace HumanWeaponHeld {
           : fore !== undefined
             ? {
                 offset: {
-                  x: Vector3.dot(fore, tool.axis),
-                  y: Vector3.dot(fore, tool.edge),
-                  z: Vector3.dot(fore, Vector3.cross(tool.axis, tool.edge)),
+                  x: AutoMovieEngineVector3.dot(fore, tool.axis),
+                  y: AutoMovieEngineVector3.dot(fore, tool.edge),
+                  z: AutoMovieEngineVector3.dot(fore, AutoMovieEngineVector3.cross(tool.axis, tool.edge)),
                 },
                 handle: "axis",
               }
@@ -152,9 +152,9 @@ export namespace HumanWeaponHeld {
               const at: IAutoMovieVector3 = read({ tip: "cock" }).tip;
               return {
                 offset: {
-                  x: Vector3.dot(at, tool.axis),
-                  y: Vector3.dot(at, tool.edge),
-                  z: Vector3.dot(at, Vector3.cross(tool.axis, tool.edge)),
+                  x: AutoMovieEngineVector3.dot(at, tool.axis),
+                  y: AutoMovieEngineVector3.dot(at, tool.edge),
+                  z: AutoMovieEngineVector3.dot(at, AutoMovieEngineVector3.cross(tool.axis, tool.edge)),
                 },
                 handle: "axis",
               };
@@ -186,28 +186,28 @@ export namespace HumanWeaponHeld {
       context.body,
       posture,
     ).get(`${other}UpperArm`)!.worldPosition;
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       pose.rotation,
       s.tool.axis,
     );
     const offset: IAutoMovieVector3 = s.support.offset;
-    const middle: IAutoMovieVector3 = Vector3.add(
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       pose.point,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         pose.rotation,
-        Vector3.add(
-          Vector3.add(
-            Vector3.scale(s.tool.axis, offset.x),
-            Vector3.scale(s.tool.edge, offset.y),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.scale(s.tool.axis, offset.x),
+            AutoMovieEngineVector3.scale(s.tool.edge, offset.y),
           ),
-          Vector3.scale(Vector3.cross(s.tool.axis, s.tool.edge), offset.z),
+          AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(s.tool.axis, s.tool.edge), offset.z),
         ),
       ),
     );
     const far = (back: number): number =>
-      Vector3.length(
-        Vector3.subtract(
-          Vector3.subtract(middle, Vector3.scale(axis, back)),
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.subtract(middle, AutoMovieEngineVector3.scale(axis, back)),
           shoulder,
         ),
       );
@@ -215,12 +215,12 @@ export namespace HumanWeaponHeld {
     // distance from the wrist beyond it.
     const limit: number =
       s.arm +
-      Vector3.length(HumanHand.offset(context.body, other, "grip").point);
+      AutoMovieEngineVector3.length(HumanHand.offset(context.body, other, "grip").point);
     // The least slide back along the fore-end that brings the grip within
     // the arm's reach, in closed form (`rise`).
     const back: number | undefined = rise(
-      Vector3.subtract(middle, shoulder),
-      Vector3.scale(axis, -1),
+      AutoMovieEngineVector3.subtract(middle, shoulder),
+      AutoMovieEngineVector3.scale(axis, -1),
       limit,
     );
     if (back !== undefined && back <= s.slide)
@@ -251,9 +251,9 @@ export namespace HumanWeaponHeld {
     u: IAutoMovieVector3,
     r: number,
   ): number | undefined => {
-    const c: number = Vector3.dot(d, d) - r * r;
+    const c: number = AutoMovieEngineVector3.dot(d, d) - r * r;
     if (c <= 0) return 0;
-    const b: number = Vector3.dot(d, u);
+    const b: number = AutoMovieEngineVector3.dot(d, u);
     const disc: number = b * b - c;
     if (disc < 0) return undefined;
     const step: number = -b - Math.sqrt(disc);

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -138,8 +138,8 @@ export namespace operateInsert {
     socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket,
   ): IPrepareMovingResult {
     const side: AutoMovieHumanSide = tool.side;
-    const inward: IAutoMovieVector3 = Vector3.scale(
-      Vector3.normalize(socket.normal),
+    const inward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.normalize(socket.normal),
       -1,
     );
     const read: ReturnType<typeof StrikingRollHand> = StrikingRollHand(
@@ -163,9 +163,9 @@ export namespace operateInsert {
       progress: number,
     ): ReturnType<typeof placed> => {
       const hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame = read(
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           socket.point,
-          Vector3.scale(inward, depth(mechanism, progress)),
+          AutoMovieEngineVector3.scale(inward, depth(mechanism, progress)),
         ),
         posture,
       );

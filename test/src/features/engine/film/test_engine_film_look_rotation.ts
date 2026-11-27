@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -40,7 +40,7 @@ export function test_engine_film_look_rotation(): void {
     TestValidator.predicate(`unit ${JSON.stringify(direction)}`, qunit(q));
     TestValidator.predicate(
       `forward ${JSON.stringify(direction)}`,
-      vclose(Quaternion.rotateVector(q, forward), {
+      vclose(AutoMovieEngineQuaternion.rotateVector(q, forward), {
         x: direction.x / length,
         y: direction.y / length,
         z: direction.z / length,
@@ -48,7 +48,7 @@ export function test_engine_film_look_rotation(): void {
     );
     TestValidator.predicate(
       `level ${JSON.stringify(direction)}`,
-      nclose(Quaternion.rotateVector(q, right).y, 0, 1e-9),
+      nclose(AutoMovieEngineQuaternion.rotateVector(q, right).y, 0, 1e-9),
     );
   }
   TestValidator.predicate(
@@ -62,7 +62,7 @@ export function test_engine_film_look_rotation(): void {
     TestValidator.predicate(
       `vertical ${JSON.stringify(direction)}`,
       vclose(
-        Quaternion.rotateVector(AutoMovieEngineFilm.lookRotation(direction), forward),
+        AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineFilm.lookRotation(direction), forward),
         direction,
       ),
     );

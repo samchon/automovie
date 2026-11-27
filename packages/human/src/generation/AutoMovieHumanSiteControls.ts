@@ -1,7 +1,7 @@
 import {
-  AutoMovieConstructionViews,
-  AutoMovieLoftViewSource,
-  AutoMovieViewSection,
+  AutoMovieEngineConstructionViews,
+  AutoMovieEngineLoftViewSource,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanSectionSite,
@@ -47,7 +47,7 @@ export namespace AutoMovieHumanSiteControls {
         "Shared frame belongs to another canonical axis declaration",
       );
     const frame: IAutoMovieViewAxis.IAxis | string =
-      sharedFrame?.value ?? AutoMovieConstructionViews.frame(input.axis);
+      sharedFrame?.value ?? AutoMovieEngineConstructionViews.frame(input.axis);
     if (typeof frame === "string") return fail("axis", frame);
     const sites: IAutoMovieHumanSectionSite[] = input.sites;
     if (sites.length < 2)
@@ -113,7 +113,7 @@ export namespace AutoMovieHumanSiteControls {
           extents: [number, number, number, number],
           girth: number,
         ): IAutoMovieViewSection.ISolved =>
-          AutoMovieViewSection.solve(name, { extents }, girth));
+          AutoMovieEngineViewSection.solve(name, { extents }, girth));
       const solved: IAutoMovieViewSection.ISolved = solve(
         `${producer} ${site.site}`,
         [site.edges[0], site.edges[1], -site.edges[2], -site.edges[3]],
@@ -203,7 +203,7 @@ export namespace AutoMovieHumanSiteControls {
     return (): IAutoMovieLoftViewSource.ISource => {
       if (retained !== undefined) return retained;
       const admitted: IAutoMovieLoftViewSource.IResult | null =
-        AutoMovieLoftViewSource.create(scalars);
+        AutoMovieEngineLoftViewSource.create(scalars);
       if (admitted === null || admitted.source === null)
         throw new Error(
           `The actual ${name} has no direct original field: ${JSON.stringify(admitted)}`,

@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, AutoMovieGravity, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEngineGravity, AutoMovieEngineQuaternion } from "@automovie/engine";
 
 import type {
   IAutoMovieRandom,
@@ -156,11 +156,11 @@ export namespace AutoMovieArchetypeSea {
     const components: IComponent[] = [];
     if (height > 0) {
       const peak: number =
-        (0.877 * AutoMovieGravity.STANDARD * Math.sqrt(0.0246)) /
+        (0.877 * AutoMovieEngineGravity.STANDARD * Math.sqrt(0.0246)) /
         (2 * Math.PI * 1.075 * Math.sqrt(height));
       const width: number = (BAND[1] - BAND[0]) / COMPONENTS;
       const scale: number =
-        (1.075 * 1.075) / (0.0246 * AutoMovieGravity.STANDARD);
+        (1.075 * 1.075) / (0.0246 * AutoMovieEngineGravity.STANDARD);
 
       // E(f) df becomes u19.5^4/g^2 times a dimensionless function of r=f/peak.
       // Taking its square root first leaves H as one final linear factor.
@@ -175,7 +175,7 @@ export namespace AutoMovieArchetypeSea {
                 Math.exp(-0.74 / (0.877 * relative) ** 4),
             ));
         const wave: number =
-          ((2 * Math.PI) / Math.sqrt(AutoMovieGravity.STANDARD)) * frequency;
+          ((2 * Math.PI) / Math.sqrt(AutoMovieEngineGravity.STANDARD)) * frequency;
         components.push({
           frequency,
           wavenumber: wave * wave,
@@ -320,12 +320,12 @@ export namespace AutoMovieArchetypeSea {
     seconds: number,
   ): IAutoMovieTransform {
     const moved: IMotion = motion(sea, level, seconds);
-    const tilt: IAutoMovieTransform["rotation"] = Quaternion.multiply(
-      Quaternion.fromAxisAngle(
+    const tilt: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(
         { x: -1, y: 0, z: 0 },
         moved.pitch / AutoMovieArchetypeUnits.DEGREE,
       ),
-      Quaternion.fromAxisAngle(
+      AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 0, z: 1 },
         moved.roll / AutoMovieArchetypeUnits.DEGREE,
       ),
@@ -335,7 +335,7 @@ export namespace AutoMovieArchetypeSea {
         ...level.translation,
         y: level.translation.y + moved.heave,
       },
-      rotation: Quaternion.multiply(level.rotation, tilt),
+      rotation: AutoMovieEngineQuaternion.multiply(level.rotation, tilt),
       scale: { ...AutoMovieArchetypeFrame.UNIT },
     };
   }

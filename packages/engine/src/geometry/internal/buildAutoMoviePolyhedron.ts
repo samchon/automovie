@@ -1,6 +1,6 @@
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Build a boundary representation from planar convex polygonal faces.
@@ -56,7 +56,7 @@ export const buildAutoMoviePolyhedron = (
     if (
       corners.some(
         (corner: IAutoMovieVector3): boolean =>
-          Math.abs(Vector3.dot(Vector3.subtract(corner, origin), normal)) >
+          Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(corner, origin), normal)) >
           FACE_EPSILON,
       )
     )
@@ -67,15 +67,15 @@ export const buildAutoMoviePolyhedron = (
         corners[(index + corners.length - 1) % corners.length]!;
       const current: IAutoMovieVector3 = corners[index]!;
       const next: IAutoMovieVector3 = corners[(index + 1) % corners.length]!;
-      const incoming: IAutoMovieVector3 = Vector3.subtract(current, previous);
-      const outgoing: IAutoMovieVector3 = Vector3.subtract(next, current);
-      const turn: number = Vector3.dot(
-        Vector3.cross(incoming, outgoing),
+      const incoming: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(current, previous);
+      const outgoing: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(next, current);
+      const turn: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.cross(incoming, outgoing),
         normal,
       );
       if (turn < -FACE_EPSILON)
         throw new Error(`polyhedron face[${face}] must be convex`);
-      turning += Math.atan2(Math.max(0, turn), Vector3.dot(incoming, outgoing));
+      turning += Math.atan2(Math.max(0, turn), AutoMovieEngineVector3.dot(incoming, outgoing));
     }
     // A closed planar ring turns a whole number of times; one turn is 2 pi,
     // so anything past 3 pi winds at least twice and its fan overlaps itself.
@@ -87,7 +87,7 @@ export const buildAutoMoviePolyhedron = (
     for (const corner of corners) {
       positions.push(corner.x, corner.y, corner.z);
       normals.push(normal.x, normal.y, normal.z);
-      uvs.push(Vector3.dot(corner, frame.u), Vector3.dot(corner, frame.v));
+      uvs.push(AutoMovieEngineVector3.dot(corner, frame.u), AutoMovieEngineVector3.dot(corner, frame.v));
     }
     for (let index: number = 1; index + 1 < corners.length; ++index)
       indices.push(base, base + index, base + index + 1);
@@ -110,14 +110,14 @@ const faceNormal = (
 ): IAutoMovieVector3 => {
   for (let index: number = 0; index < corners.length; ++index) {
     const current: IAutoMovieVector3 = corners[index]!;
-    const spans: IAutoMovieVector3 = Vector3.cross(
-      Vector3.subtract(corners[(index + 1) % corners.length]!, current),
-      Vector3.subtract(
+    const spans: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+      AutoMovieEngineVector3.subtract(corners[(index + 1) % corners.length]!, current),
+      AutoMovieEngineVector3.subtract(
         corners[(index + corners.length - 1) % corners.length]!,
         current,
       ),
     );
-    if (Vector3.length(spans) > FACE_EPSILON) return Vector3.normalize(spans);
+    if (AutoMovieEngineVector3.length(spans) > FACE_EPSILON) return AutoMovieEngineVector3.normalize(spans);
   }
   throw new Error(`polyhedron face[${face}] encloses no area`);
 };
@@ -150,10 +150,10 @@ const surfaceUvFrame = (
 ): { u: IAutoMovieVector3; v: IAutoMovieVector3 } => {
   if (Math.abs(normal.y) < LEVEL_FACE_LIMIT) {
     const v: IAutoMovieVector3 = inPlaneAxis({ x: 0, y: 1, z: 0 }, normal);
-    return { u: Vector3.cross(v, normal), v };
+    return { u: AutoMovieEngineVector3.cross(v, normal), v };
   }
   const u: IAutoMovieVector3 = inPlaneAxis({ x: 1, y: 0, z: 0 }, normal);
-  return { u, v: Vector3.cross(normal, u) };
+  return { u, v: AutoMovieEngineVector3.cross(normal, u) };
 };
 
 /*
@@ -163,8 +163,8 @@ const inPlaneAxis = (
   axis: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ): IAutoMovieVector3 =>
-  Vector3.normalize(
-    Vector3.subtract(axis, Vector3.scale(normal, Vector3.dot(axis, normal))),
+  AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(axis, AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(axis, normal))),
   );
 
 /*

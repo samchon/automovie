@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
@@ -29,7 +29,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanCaneSweepTouches } from "./humanCaneSweepTouches";
-import * as HumanCaneSweepData from "./HumanCaneSweepData";
+import { HumanCaneSweepData } from "./HumanCaneSweepData";
 
 /*
  * Sweep a long cane while walking, performed over the walk. The cane hand is
@@ -141,17 +141,17 @@ function planHumanCaneSweep(
   // The hand on the cane as it took the cane up (`held.frame`, the cane in
   // the hand's grip frame): the grip socket's place and the hand's attitude
   // in the cane's frame, and the socket's distance to the tip.
-  const inHand: IAutoMovieQuaternion = Quaternion.inverse(held.frame.rotation);
-  const gripLocal: IAutoMovieVector3 = Vector3.scale(
-    Quaternion.rotateVector(inHand, held.frame.position),
+  const inHand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(held.frame.rotation);
+  const gripLocal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineQuaternion.rotateVector(inHand, held.frame.position),
     -1,
   );
-  const length: number = Vector3.distance(gripLocal, tipLocal);
-  const shaft: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(gripLocal, tipLocal),
+  const length: number = AutoMovieEngineVector3.distance(gripLocal, tipLocal);
+  const shaft: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(gripLocal, tipLocal),
   );
   // The hand's thumb side, the rig hand's +Z, in the cane's frame.
-  const thumb: IAutoMovieVector3 = Quaternion.rotateVector(inHand, {
+  const thumb: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(inHand, {
     x: 0,
     y: 0,
     z: 1,
@@ -214,12 +214,12 @@ function planHumanCaneSweep(
         fix: "use a cane fitted to the sternum",
       });
     const left: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
-    const tip: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
+    const tip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         { x: hand.x, y: height, z: hand.z },
-        Vector3.scale(forward, Math.sqrt(ahead2)),
+        AutoMovieEngineVector3.scale(forward, Math.sqrt(ahead2)),
       ),
-      Vector3.scale(left, lateral),
+      AutoMovieEngineVector3.scale(left, lateral),
     );
     // The shaft from the tip to the grip, turned onto the world's tip-to-hand
     // line by the shortest arc (the swing of a swing-twist decomposition,
@@ -227,33 +227,33 @@ function planHumanCaneSweep(
     // that line so the thumb's side points as near up as it can: the
     // handshake grip, the sweep made by the wrist side to side and never by
     // rolling it.
-    const line: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(hand, tip),
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(hand, tip),
     );
     const swung: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(shaft, line);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const across: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
       v: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.subtract(v, Vector3.scale(line, Vector3.dot(v, line)));
+      AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(line, AutoMovieEngineVector3.dot(v, line)));
     const turned: IAutoMovieVector3 = across(
-      Quaternion.rotateVector(swung, thumb),
+      AutoMovieEngineQuaternion.rotateVector(swung, thumb),
     );
     const above: IAutoMovieVector3 = across(up);
     const roll: number = Math.atan2(
-      Vector3.dot(Vector3.cross(turned, above), line),
-      Vector3.dot(turned, above),
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(turned, above), line),
+      AutoMovieEngineVector3.dot(turned, above),
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(line, (roll * 180) / Math.PI),
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(line, (roll * 180) / Math.PI),
         swung,
       ),
     );
     return {
-      position: Vector3.subtract(
+      position: AutoMovieEngineVector3.subtract(
         tip,
-        Quaternion.rotateVector(rotation, tipLocal),
+        AutoMovieEngineQuaternion.rotateVector(rotation, tipLocal),
       ),
       rotation,
     };

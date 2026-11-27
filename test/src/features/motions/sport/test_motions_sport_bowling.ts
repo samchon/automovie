@@ -5,9 +5,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  bowlingPinfall,
-  bowlingSlideSchedule,
-} from "@automovie/motions/internal";
+  bowlingPinfall
+} from "../../../../../packages/motions/src/sport/internal/bowlingPinfall";
+import {
+  bowlingSlideSchedule
+} from "../../../../../packages/motions/src/sport/internal/bowlingSlideSchedule";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

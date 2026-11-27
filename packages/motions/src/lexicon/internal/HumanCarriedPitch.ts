@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -63,30 +63,30 @@ export function HumanCarriedPitch(
     AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(borne.massModel, read.mine),
   );
   const ahead = (point: IAutoMovieVector3): number =>
-    Vector3.dot(point, forward);
+    AutoMovieEngineVector3.dot(point, forward);
   const rearmost: IAutoMovieVector3 = supports.reduce(
     (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 =>
       ahead(b) < ahead(a) ? b : a,
   );
-  const lever: IAutoMovieVector3 = Vector3.subtract(centre, rearmost);
-  const out: number = Vector3.dot(lever, forward);
+  const lever: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(centre, rearmost);
+  const out: number = AutoMovieEngineVector3.dot(lever, forward);
   if (!(out < 0) || !(lever.y > 0)) return read;
 
   // Pitch forward about the rearmost support, about the bearer's left: the
   // turn that carries up toward forward until the centre's reach is nil.
   const degrees: number = (Math.atan2(-out, lever.y) * 180) / Math.PI;
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(left, degrees);
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(left, degrees);
   return {
     ...read,
     fit: {
       ...read.fit,
-      turn: Quaternion.multiply(turn, read.fit.turn),
+      turn: AutoMovieEngineQuaternion.multiply(turn, read.fit.turn),
       place: (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           rearmost,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             turn,
-            Vector3.subtract(read.fit.place(point), rearmost),
+            AutoMovieEngineVector3.subtract(read.fit.place(point), rearmost),
           ),
         ),
     },

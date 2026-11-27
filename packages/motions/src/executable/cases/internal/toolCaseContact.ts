@@ -1,4 +1,4 @@
-import { Transform, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineTransform, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
@@ -28,12 +28,12 @@ export function toolCaseContact(
   const rotation: IAutoMovieQuaternion = AutoMovieEngineMath.quaternionFromBasis(
     along,
     out,
-    Vector3.cross(along, out),
+    AutoMovieEngineVector3.cross(along, out),
   );
   return {
     id,
     kind,
-    frame: Transform.of(at, rotation),
+    frame: AutoMovieEngineTransform.of(at, rotation),
     extent: null,
     ...extra,
   };

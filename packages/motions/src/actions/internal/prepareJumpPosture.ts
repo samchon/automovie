@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -82,7 +82,7 @@ export function prepareJumpPosture(
     const u: number = t === fixed.to ? fixed.flightSeconds : t - fixed.from;
     const at: IAutoMovieVector3 = {
       x: centre.x + launch.x * u,
-      y: centre.y + launch.y * u - 0.5 * AutoMovieGravity.STANDARD * u * u,
+      y: centre.y + launch.y * u - 0.5 * AutoMovieEngineGravity.STANDARD * u * u,
       z: centre.z + launch.z * u,
     };
     return turning.turned(
@@ -199,7 +199,7 @@ export namespace prepareJumpPosture {
     settled: number;
   }
   /*
-   * Existing plan members produced by the actual dispatcher constructor.
+   * Existing plan members produced by the actual dispatcher function Object() { [native code] }.
    */
   export interface IConstruction {
     /*

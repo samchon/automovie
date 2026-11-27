@@ -1,8 +1,8 @@
 import type { IAutoMovieSoftBodySurface } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieSoftBodyObject } from "../IAutoMovieSoftBodyObject.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderSoftBodyObject } from "../IAutoMovieRenderSoftBodyObject.js";
 import type { IBuildSoftBodyObjectProps } from "./IBuildSoftBodyObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
@@ -22,9 +22,9 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  */
 export const buildSoftBodyObject: (
   props: IBuildSoftBodyObjectProps,
-) => IAutoMovieSoftBodyObject = (
+) => IAutoMovieRenderSoftBodyObject = (
   props: IBuildSoftBodyObjectProps,
-): IAutoMovieSoftBodyObject => {
+): IAutoMovieRenderSoftBodyObject => {
   let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
   let retire: () => void = retirement(geometry);
   let failedRetirement: (() => void) | undefined;
@@ -55,9 +55,9 @@ export const buildSoftBodyObject: (
     const mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
     mesh.name = `soft:${props.surface.domain}`;
     const metadata: (
-      frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0],
+      frame: Parameters<IAutoMovieRenderSoftBodyObject["update"]>[0],
     ) => void = (
-      frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0],
+      frame: Parameters<IAutoMovieRenderSoftBodyObject["update"]>[0],
     ): void => {
       mesh.visible = frame.surface.bounds !== null;
       mesh.userData.domain = frame.surface.domain;
@@ -65,8 +65,8 @@ export const buildSoftBodyObject: (
       mesh.userData.status = frame.status;
     };
     metadata({ surface: props.surface, status: props.status });
-    const upload: IAutoMovieSoftBodyObject["update"] = (
-      frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0],
+    const upload: IAutoMovieRenderSoftBodyObject["update"] = (
+      frame: Parameters<IAutoMovieRenderSoftBodyObject["update"]>[0],
     ): void => {
       if (closed) throw new Error("The cloth projection is closed.");
       if (failure !== undefined) throw failure.error;
@@ -92,14 +92,14 @@ export const buildSoftBodyObject: (
           | THREE.InterleavedBufferAttribute
           | undefined = geometry.getAttribute("uv");
         if (
-          AutoMovieThreeKind.isBufferAttribute(position) &&
-          AutoMovieThreeKind.isFloat32Array(position.array) &&
+          AutoMovieRenderThreeKind.isBufferAttribute(position) &&
+          AutoMovieRenderThreeKind.isFloat32Array(position.array) &&
           position.array.length === surface.mesh.positions.length &&
-          AutoMovieThreeKind.isBufferAttribute(normal) &&
-          AutoMovieThreeKind.isFloat32Array(normal.array) &&
+          AutoMovieRenderThreeKind.isBufferAttribute(normal) &&
+          AutoMovieRenderThreeKind.isFloat32Array(normal.array) &&
           normal.array.length === (surface.mesh.normals ?? []).length &&
-          AutoMovieThreeKind.isBufferAttribute(uv) &&
-          AutoMovieThreeKind.isFloat32Array(uv.array) &&
+          AutoMovieRenderThreeKind.isBufferAttribute(uv) &&
+          AutoMovieRenderThreeKind.isFloat32Array(uv.array) &&
           uv.array.length === (surface.mesh.uvs ?? []).length &&
           previousIndex !== null &&
           previousIndex.array.length === index.array.length &&

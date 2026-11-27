@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -25,7 +25,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { admitLapSupport } from "./admitLapSupport";
 import { requireOtherPerformer } from "./requireOtherPerformer";
-import * as SitOnLapData from "./SitOnLapData";
+import { SitOnLapData } from "./SitOnLapData";
 
 /*
  * Sit on a seated partner's lap. The lap is the seated partner's thighs where
@@ -71,15 +71,15 @@ function planSitOnLap(
   const at = (seconds: number): ILap =>
     lap(partner, p.partner, partner.bones(context.start + seconds, SitOnLapData.LEGS));
   const start: ILap = at(0);
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     start.frame.rotation,
     { x: 0, y: 0, z: 1 },
   );
   const thigh: number = context.body.measure.thigh;
   const seat: IAutoMovieMotionHumanSeated.ISeat = {
-    at: Vector3.add(
+    at: AutoMovieEngineVector3.add(
       start.frame.position,
-      Vector3.scale(forward, thigh - SitOnLapData.CLEARANCE),
+      AutoMovieEngineVector3.scale(forward, thigh - SitOnLapData.CLEARANCE),
     ),
     yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
     depth: thigh + SitOnLapData.CLEARANCE,
@@ -126,12 +126,12 @@ function planSitOnLap(
   ): IAutoMovieMotionHumanPosture => {
     const weight: number = entered <= 0 ? 1 : AutoMovieEngineMotionSampling.minimumJerkShare(time / entered);
     const now: IAutoMovieRigidTransform = {
-      position: Vector3.lerp(
+      position: AutoMovieEngineVector3.lerp(
         start.frame.position,
         current.frame.position,
         weight,
       ),
-      rotation: Quaternion.slerp(
+      rotation: AutoMovieEngineQuaternion.slerp(
         start.frame.rotation,
         current.frame.rotation,
         weight,
@@ -272,18 +272,18 @@ function lap(
 ): ILap {
   const point = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
     bones.get(bone)!.worldPosition;
-  const hips: IAutoMovieVector3 = Vector3.lerp(
+  const hips: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     point("leftUpperLeg"),
     point("rightUpperLeg"),
     0.5,
   );
-  const knees: IAutoMovieVector3 = Vector3.lerp(
+  const knees: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     point("leftLowerLeg"),
     point("rightLowerLeg"),
     0.5,
   );
   admitLapSupport(subject, hips.y - knees.y, partner.body.measure.thigh);
-  const top: IAutoMovieVector3 = Vector3.lerp(
+  const top: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
     StrikingBody.region(partner.body, bones, SitOnLapData.THIGHS[0]).point,
     StrikingBody.region(partner.body, bones, SitOnLapData.THIGHS[1]).point,
     0.5,
@@ -294,7 +294,7 @@ function lap(
     bones,
     frame: {
       position: top,
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
     },
   };
 }

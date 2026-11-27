@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanApertureSpan,
   IAutoMovieHumanBodyApertures,
@@ -186,7 +186,7 @@ export namespace AutoMovieHumanApertureSpan {
         (x: readonly number[]): number => chord(x, a, b),
         (p.chain === ring.owner ? p : q).t,
       );
-      const point: [number, number, number] = AutoMovieLoftChain.point(
+      const point: [number, number, number] = AutoMovieEngineLoftChain.point(
         owner,
         ring.station,
         t,
@@ -280,7 +280,7 @@ export namespace AutoMovieHumanApertureSpan {
     cost: (x: readonly number[]) => number,
     guess: number,
   ): number {
-    const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
+    const at: (t: number) => number[] = AutoMovieEngineLoftChain.sampler(chain, s);
     const gap = (t: number): number => cost(at(t));
     let t: number = guess;
     let least: number = gap(t);
@@ -411,7 +411,7 @@ export namespace AutoMovieHumanApertureSpan {
         s += 0.5
       ) {
         const at: (t: number) => [number, number, number] =
-          AutoMovieLoftChain.sampler(chain, s);
+          AutoMovieEngineLoftChain.sampler(chain, s);
         for (let i: number = 0; i < 512; i++) {
           const t: number = (2 * Math.PI * i) / 512;
           const p: [number, number, number] = at(t);
@@ -452,7 +452,7 @@ export namespace AutoMovieHumanApertureSpan {
       let [s, t] = start;
       let past: boolean = false;
       for (let iteration: number = 0; iteration < 30; iteration++) {
-        const p: [number, number, number] = AutoMovieLoftChain.point(
+        const p: [number, number, number] = AutoMovieEngineLoftChain.point(
           chain,
           s,
           t,
@@ -463,12 +463,12 @@ export namespace AutoMovieHumanApertureSpan {
           p[2] - target[2]!,
         ]);
         const h: number = s + STEP <= y1 ? STEP : -STEP;
-        const ps: [number, number, number] = AutoMovieLoftChain.point(
+        const ps: [number, number, number] = AutoMovieEngineLoftChain.point(
           chain,
           s + h,
           t,
         );
-        const pt: [number, number, number] = AutoMovieLoftChain.point(
+        const pt: [number, number, number] = AutoMovieEngineLoftChain.point(
           chain,
           s,
           t + TURN,
@@ -505,7 +505,7 @@ export namespace AutoMovieHumanApertureSpan {
         s = next;
         t += dt;
       }
-      const p: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
+      const p: [number, number, number] = AutoMovieEngineLoftChain.point(chain, s, t);
       return {
         s,
         t,
@@ -554,7 +554,7 @@ export namespace AutoMovieHumanApertureSpan {
     let last: number = -1;
     layers.forEach((layer: IAutoMovieLoftChain.ILayer, k: number): void => {
       const at: (t: number) => [number, number, number] =
-        AutoMovieLoftChain.sampler(chain, layer.y);
+        AutoMovieEngineLoftChain.sampler(chain, layer.y);
       for (let i: number = 0; i < PHASES; i++) {
         const p: [number, number, number] = at((2 * Math.PI * i) / PHASES);
         if (
@@ -603,7 +603,7 @@ export namespace AutoMovieHumanApertureSpan {
   const PAST: number = 1;
 
   /*
-   * Least feet a trim loop is drawn through, as for `AutoMovieSolidTrim`'s landmarks.
+   * Least feet a trim loop is drawn through, as for `AutoMovieEngineSolidTrim`'s landmarks.
    */
   const MARGIN: number = 4;
 

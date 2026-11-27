@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeTentData from "./internal/AutoMovieArchetypeTentData";
+import { AutoMovieArchetypeTentData } from "./internal/AutoMovieArchetypeTentData";
 
 /** Constructs the tent archetype from its recipe. */
 export namespace AutoMovieArchetypeTent {
@@ -67,7 +67,7 @@ export function create(
     name: "relief family tent",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const canvas: string = "#c9c2a8";
 
   // The side walls' box, and the roof's two slabs from the walls' tops up to the ridge.

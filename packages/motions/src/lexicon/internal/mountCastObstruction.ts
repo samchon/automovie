@@ -1,4 +1,4 @@
-import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Vector3, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -30,11 +30,11 @@ export function mountCastObstruction(
   faces?: readonly IAutoMovieVector3[],
 ): Span | undefined {
   const placed = (distance: number): AutoMovieEnginePhysicsGjkTypes.ISolid => {
-    const delta: IAutoMovieVector3 = Vector3.scale(axis, distance);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.scale(axis, distance);
     return {
       points: moving.points.map(
         (point: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(point, delta),
+          AutoMovieEngineVector3.add(point, delta),
       ),
       radius: moving.radius,
     };

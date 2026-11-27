@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -50,13 +50,13 @@ export function HumanClaspCandidateFrames(
     const band: number[] = within.map((index: number): number => {
       const frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         readBand(reaches[index]!.pose, resolution());
-      const upper: IAutoMovieVector3 = Vector3.subtract(
+      const upper: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         frames.get(`${side}LowerArm`)!.worldPosition,
         frames.get(`${side}UpperArm`)!.worldPosition,
       );
       const raised: number =
         (Math.acos(
-          Math.max(-1, Math.min(1, -upper.y / Vector3.length(upper))),
+          Math.max(-1, Math.min(1, -upper.y / AutoMovieEngineVector3.length(upper))),
         ) *
           180) /
         Math.PI;

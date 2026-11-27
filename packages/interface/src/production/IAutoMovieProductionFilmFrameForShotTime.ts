@@ -12,7 +12,7 @@ export namespace IAutoMovieProductionFilmFrameForShotTime {
    * of the shot exactly once, so an absent or repeated occurrence answers
    * `null` rather than choosing one occurrence. A negative, non-finite or
    * unrepresentable time also answers `null`, while an inconsistent clock
-   * throws `AutoMovieFilmEffectRuntimeError` with `film-effect-input-invalid`.
+   * throws `AutoMovieEngineFilmEffectRuntimeError` with `film-effect-input-invalid`.
    * The answer depends only on the compiled timeline, never on whether a render
    * has prepared any other runtime.
    */

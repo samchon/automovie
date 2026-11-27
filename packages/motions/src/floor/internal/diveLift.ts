@@ -8,7 +8,7 @@ import { dive } from "./dive";
 /*
  * Each foot's toe-off roll, solved by secant steps on the planted take-off
  * itself from the flat take-off's dorsiflexion past the unloaded limit
- * (`ANKLE_DORSIFLEXION.unloaded`); none for a slide, whose feet stay on the
+ * (`AutoMovieEngineAnkleDorsiflexion.unloaded`); none for a slide, whose feet stay on the
  * floor.
  *
  * Part of `dive.plan`, which prepares it once per plan.

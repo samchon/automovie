@@ -1,4 +1,4 @@
-import { Quaternion, Transform, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConvexSpaceCell,
@@ -28,12 +28,12 @@ export function emitBuildingRoom(
 ): void {
   const name: string = `${level.id}/${room.id}`;
   const region: buildingPlans.IRegion = room.floor ?? room.region;
-  const origin: IAutoMovieVector3 = Vector3.create(
+  const origin: IAutoMovieVector3 = AutoMovieEngineVector3.create(
     room.support.anchor.x,
     level.elevation,
     room.support.anchor.y,
   );
-  const world: IAutoMovieTransform = Transform.of(
+  const world: IAutoMovieTransform = AutoMovieEngineTransform.of(
     AutoMovieEngineFilm.placeTransformedPoint(root, origin),
     root.rotation,
   );
@@ -44,7 +44,7 @@ export function emitBuildingRoom(
         (point: IAutoMovieProfilePoint): IAutoMovieVector3 =>
           AutoMovieEngineFilm.placeTransformedPoint(
             root,
-            Vector3.create(point.x, level.elevation, point.y),
+            AutoMovieEngineVector3.create(point.x, level.elevation, point.y),
           ),
       ),
   );
@@ -77,8 +77,8 @@ export function emitBuildingRoom(
       color,
     ],
   ];
-  const rotation: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle(
-    Vector3.create(1, 0, 0),
+  const rotation: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.fromAxisAngle(
+    AutoMovieEngineVector3.create(1, 0, 0),
     90,
   );
   for (const [kind, y, plate, swatch] of slabs) {
@@ -96,7 +96,7 @@ export function emitBuildingRoom(
       kind,
       parent,
       space: name,
-      transform: Transform.of(Vector3.create(0, y, 0), rotation),
+      transform: AutoMovieEngineTransform.of(AutoMovieEngineVector3.create(0, y, 0), rotation),
       model: model.id,
     });
   }
@@ -119,27 +119,27 @@ function prismCells(
 ): IAutoMovieConvexSpaceCell[] {
   const points: IAutoMovieVector3[] = region.points.map(
     (point: IAutoMovieProfilePoint): IAutoMovieVector3 =>
-      AutoMovieEngineFilm.placeTransformedPoint(root, Vector3.create(point.x, bottom, point.y)),
+      AutoMovieEngineFilm.placeTransformedPoint(root, AutoMovieEngineVector3.create(point.x, bottom, point.y)),
   );
   const y: number = root.translation.y + bottom;
   const cells: IAutoMovieConvexSpaceCell[] = [];
   for (let index: number = 0; index < region.triangles.length; index += 3) {
     const planes: IAutoMovieHalfSpacePlane[] = [
-      { normal: Vector3.create(0, -1, 0), offset: -y },
-      { normal: Vector3.create(0, 1, 0), offset: y + height },
+      { normal: AutoMovieEngineVector3.create(0, -1, 0), offset: -y },
+      { normal: AutoMovieEngineVector3.create(0, 1, 0), offset: y + height },
     ];
     for (let edge: number = 0; edge < 3; ++edge) {
       const a: IAutoMovieVector3 = points[region.triangles[index + edge]!]!;
       const b: IAutoMovieVector3 =
         points[region.triangles[index + ((edge + 1) % 3)]!]!;
-      const direction: IAutoMovieVector3 = Vector3.subtract(b, a);
+      const direction: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
       const length: number = Math.hypot(direction.x, direction.z);
-      const normal: IAutoMovieVector3 = Vector3.create(
+      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.create(
         direction.z / length,
         0,
         -direction.x / length,
       );
-      planes.push({ normal, offset: Vector3.dot(normal, a) });
+      planes.push({ normal, offset: AutoMovieEngineVector3.dot(normal, a) });
     }
     cells.push({ id: String(index / 3), planes });
   }

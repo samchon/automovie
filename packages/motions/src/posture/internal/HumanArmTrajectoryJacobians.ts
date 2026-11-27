@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanJacobian,
@@ -157,7 +157,7 @@ export namespace HumanArmTrajectoryJacobians {
     const contact: IAutoMovieVector3 | undefined =
       site === undefined
         ? undefined
-        : Vector3.subtract(P.pad(here, site.contact), here.wrist);
+        : AutoMovieEngineVector3.subtract(P.pad(here, site.contact), here.wrist);
     const target: IAutoMovieQuaternion | undefined =
       site?.rotation === undefined
         ? undefined
@@ -221,7 +221,7 @@ export namespace HumanArmTrajectoryJacobians {
         rows[offset++] = scratch.x;
         rows[offset++] = scratch.y;
         rows[offset++] = scratch.z;
-        sum += Vector3.length(scratch);
+        sum += AutoMovieEngineVector3.length(scratch);
       }
       entry.move = Math.max(entry.move, sum);
     }
@@ -255,7 +255,7 @@ export namespace HumanArmTrajectoryJacobians {
         : owner === "lower"
           ? placed.elbow
           : placed.wrist;
-    const offset: IAutoMovieVector3 = Vector3.subtract(p, origin);
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(p, origin);
     return jac[b]![k]!.segments.map(
       (column: Record<CarriedColumnEntry, IMotion>): IAutoMovieVector3 =>
         pointMotion(column[owner], offset),
@@ -277,20 +277,20 @@ export namespace HumanArmTrajectoryJacobians {
     hand: IAutoMovieQuaternion,
     omega: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const size: number = Vector3.length(omega);
+    const size: number = AutoMovieEngineVector3.length(omega);
     if (size === 0) return { x: 0, y: 0, z: 0 };
-    const axis: IAutoMovieVector3 = Vector3.scale(omega, 1 / size);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(omega, 1 / size);
     const read: (sign: number) => IAutoMovieVector3 = (
       sign: number,
     ): IAutoMovieVector3 =>
       P.rotationVector(
         site,
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle(axis, (sign * HAIR * size * 180) / Math.PI),
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle(axis, (sign * HAIR * size * 180) / Math.PI),
           hand,
         ),
       );
-    return Vector3.scale(Vector3.subtract(read(1), read(-1)), 1 / (2 * HAIR));
+    return AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(read(1), read(-1)), 1 / (2 * HAIR));
   }
 
   /*
@@ -302,7 +302,7 @@ export namespace HumanArmTrajectoryJacobians {
     motion: IMotion,
     offset: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const out: IAutoMovieVector3 = Vector3.cross(motion.omega, offset);
+    const out: IAutoMovieVector3 = AutoMovieEngineVector3.cross(motion.omega, offset);
     out.x = motion.origin.x + out.x * 1000;
     out.y = motion.origin.y + out.y * 1000;
     out.z = motion.origin.z + out.z * 1000;
@@ -314,7 +314,7 @@ export namespace HumanArmTrajectoryJacobians {
    * only its angular vector.
    */
   function motion(twist: IAutoMovieMotionHumanJacobian.ITwist): IMotion {
-    return { origin: Vector3.scale(twist.linear, 1000), omega: twist.angular };
+    return { origin: AutoMovieEngineVector3.scale(twist.linear, 1000), omega: twist.angular };
   }
 }
 

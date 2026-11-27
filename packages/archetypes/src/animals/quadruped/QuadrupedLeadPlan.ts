@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -54,8 +54,8 @@ export class QuadrupedLeadPlan {
     tack: AutoMovieArchetypeQuadrupedLead.IParams,
     archetype: string,
   ) {
-    const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
-    const length: number = Vector3.length(axis);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(rig.poll, rig.neck);
+    const length: number = AutoMovieEngineVector3.length(axis);
     if (!(length > 0 && rig.neckRadius > 0))
       throw new RangeError(
         "A collar plan requires an actual positive finite neck",
@@ -97,16 +97,16 @@ export class QuadrupedLeadPlan {
         fix: "reduce the lead radius",
       });
 
-    const centre: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(rig.neck, rig.poll),
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(rig.neck, rig.poll),
       0.5,
     );
-    const half: IAutoMovieVector3 = Vector3.scale(
+    const half: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       axis,
       tack.width / (2 * length),
     );
-    this.#from = Vector3.subtract(centre, half);
-    this.#to = Vector3.add(centre, half);
+    this.#from = AutoMovieEngineVector3.subtract(centre, half);
+    this.#to = AutoMovieEngineVector3.add(centre, half);
     this.#collar = AnnularFitting.prepare(
       rig.neckRadius,
       rig.neckRadius + tack.thickness,
@@ -118,9 +118,9 @@ export class QuadrupedLeadPlan {
     this.#length = tack.leadLength;
     this.#aperture = 2 * tack.leadRadius;
     this.#frame = AutoMovieArchetypeFrame.facing(
-      Vector3.scale(Vector3.add(this.#attached, this.#end), 0.5),
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(this.#attached, this.#end), 0.5),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     );
   }
 

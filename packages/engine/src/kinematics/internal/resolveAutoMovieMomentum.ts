@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
-import { AutoMoviePhysicalInertiaTensor } from "../../physics/AutoMoviePhysicalInertiaTensor";
+import { AutoMovieEnginePhysicalInertiaTensor } from "../../physics/AutoMovieEnginePhysicalInertiaTensor";
 import { physicalPrincipalAxes } from "../../physics/internal/physicalPrincipalAxes";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
@@ -177,8 +177,8 @@ export namespace resolveAutoMovieMomentum {
     seconds: number,
   ) => IMomentum {
     const intervals: (IRotationInterval | undefined)[] = [];
-    const tensor: AutoMoviePhysicalInertiaTensor.IPrepared =
-      AutoMoviePhysicalInertiaTensor.prepare();
+    const tensor: AutoMovieEnginePhysicalInertiaTensor.IPrepared =
+      AutoMovieEnginePhysicalInertiaTensor.prepare();
     let active: boolean = false;
     const read: (
       i: number,
@@ -233,9 +233,9 @@ export namespace resolveAutoMovieMomentum {
       after.z = tz;
       after.w = tw;
       const turn: IAutoMovieVector3 = AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
-        Quaternion.multiply(after, Quaternion.inverse(before)),
+        AutoMovieEngineQuaternion.multiply(after, AutoMovieEngineQuaternion.inverse(before)),
       );
-      const middle: IAutoMovieQuaternion = Quaternion.slerp(before, after, 0.5);
+      const middle: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(before, after, 0.5);
 
       // Both computations consume this exact captured key. An existing row
       // stays ineligible for reuse until both numeric results are complete.
@@ -274,7 +274,7 @@ export namespace resolveAutoMovieMomentum {
    * The composite inertia tensor of a posed body about its whole-body centre of
    * mass, in the bones' frame: each segment's principal tensor turned by its
    * bone's rotation times its rest axes and shifted by the parallel-axis
-   * theorem (`AutoMoviePhysicalInertiaTensor`).
+   * theorem (`AutoMovieEnginePhysicalInertiaTensor`).
    * Parameter model: The body's mass model.
    * Parameter bones: The posed bones.
    * Returns: The symmetric tensor, kg m짼.
@@ -285,7 +285,7 @@ export namespace resolveAutoMovieMomentum {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number[][] {
     const posed: IPosed = pose(model, bones);
-    return AutoMoviePhysicalInertiaTensor.compute(posed.parts, posed.centre);
+    return AutoMovieEnginePhysicalInertiaTensor.compute(posed.parts, posed.centre);
   }
 
   /*
@@ -406,7 +406,7 @@ function posePart(
     mass: segment.mass,
     centerOfMass: resolveAutoMovieCenterOfMass.point(segment, bone),
     inertia: segment.inertia,
-    inertiaRotation: Quaternion.multiply(bone.worldRotation, segment.axes),
+    inertiaRotation: AutoMovieEngineQuaternion.multiply(bone.worldRotation, segment.axes),
   };
 }
 
@@ -425,16 +425,16 @@ function reduceBetween(
     from: IAutoMovieQuaternion,
     to: IAutoMovieQuaternion,
   ) => IRotationInterval,
-  tensor?: AutoMoviePhysicalInertiaTensor.IPrepared,
+  tensor?: AutoMovieEnginePhysicalInertiaTensor.IPrepared,
 ): IAutoMovieBodyMomentum {
   if (!(seconds > 0))
     throw new Error(`The momentum needs a positive interval, got ${seconds}`);
   const reciprocal: number = 1 / seconds;
-  const centre: IAutoMovieVector3 = Vector3.add(before.centre, after.centre);
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(before.centre, after.centre);
   centre.x *= 0.5;
   centre.y *= 0.5;
   centre.z *= 0.5;
-  const velocity: IAutoMovieVector3 = Vector3.subtract(
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     after.centre,
     before.centre,
   );
@@ -465,9 +465,9 @@ function reduceBetween(
     const w: IAutoMovieVector3 =
       rotation === undefined
         ? AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
-            Quaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(
               p1.inertiaRotation,
-              Quaternion.inverse(p0.inertiaRotation),
+              AutoMovieEngineQuaternion.inverse(p0.inertiaRotation),
             ),
           )
         : rotation.rate;
@@ -481,10 +481,10 @@ function reduceBetween(
     w.z *= reciprocal;
     const middle: IAutoMovieQuaternion =
       rotation?.middle ??
-      Quaternion.slerp(p0.inertiaRotation, p1.inertiaRotation, 0.5);
+      AutoMovieEngineQuaternion.slerp(p0.inertiaRotation, p1.inertiaRotation, 0.5);
     const spin: IAutoMovieVector3 =
       tensor === undefined
-        ? AutoMoviePhysicalInertiaTensor.spin(p0, middle, w)
+        ? AutoMovieEnginePhysicalInertiaTensor.spin(p0, middle, w)
         : tensor.spin(before.parts, i, middle, w);
 
     // m ((middle - centre) cross velocity) + spin, followed by the same
@@ -496,7 +496,7 @@ function reduceBetween(
   return {
     centre,
     velocity,
-    linear: Vector3.scale(velocity, model.mass),
+    linear: AutoMovieEngineVector3.scale(velocity, model.mass),
     angular: { x: angularX, y: angularY, z: angularZ },
   };
 }

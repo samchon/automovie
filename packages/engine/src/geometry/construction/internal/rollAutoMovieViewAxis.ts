@@ -7,8 +7,8 @@ import type {
   IAutoMovieViewOutline,
 } from "@automovie/interface";
 
-import { AutoMovieViewOutline } from "../../AutoMovieViewOutline";
-import { AutoMovieViewParameter } from "../../AutoMovieViewParameter";
+import { AutoMovieEngineViewOutline } from "../../AutoMovieEngineViewOutline";
+import { AutoMovieEngineViewParameter } from "../../AutoMovieEngineViewParameter";
 
 /*
  * Apply one explicitly requested C2 material rotation to an admitted base axis.
@@ -73,7 +73,7 @@ export function rollAutoMovieViewAxis(
   const measured: number = Math.atan2(sine, cosine);
   const angle: number = measured === -Math.PI ? Math.PI : measured;
   if (angle === 0) return base;
-  const source: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create({
+  const source: IAutoMovieViewOutline.IResult = AutoMovieEngineViewOutline.create({
     knots: [
       {
         site: "material roll start",
@@ -102,7 +102,7 @@ export function rollAutoMovieViewAxis(
     const frame: IAutoMovieLoftSectionFrame = base.at(station);
     if (station <= from) return frame;
     const rotation: number | string =
-      station >= to ? angle : AutoMovieViewOutline.value(source, station);
+      station >= to ? angle : AutoMovieEngineViewOutline.value(source, station);
     if (typeof rotation === "string")
       throw new Error(`material roll source: ${rotation}`);
     const c: number = Math.cos(rotation);
@@ -132,7 +132,7 @@ export function rollAutoMovieViewAxis(
             );
             if (frame === null) return null;
             const reading: IAutoMovieViewOutline.IReading | string =
-              AutoMovieViewOutline.at(
+              AutoMovieEngineViewOutline.at(
                 source,
                 Math.min(to, Math.max(from, station)),
               );
@@ -140,7 +140,7 @@ export function rollAutoMovieViewAxis(
               throw new Error(`material roll source: ${reading}`);
             if (reading.stationJet === null) return null;
             const inverse: [number, number] | null =
-              AutoMovieViewParameter.inverseJet(parameter, station);
+              AutoMovieEngineViewParameter.inverseJet(parameter, station);
             if (inverse === null) return null;
             const active: boolean = station > from && station < to;
             const rate: number = active

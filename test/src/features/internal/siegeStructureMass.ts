@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -85,7 +85,7 @@ export function siegeStructureMass(
           { x: 0, y: 0, z: 1 },
         ].map(
           (axis: IAutoMovieVector3): IAutoMovieVector3 =>
-            Quaternion.rotateVector(part.transform!.rotation, axis),
+            AutoMovieEngineQuaternion.rotateVector(part.transform!.rotation, axis),
         ),
         diagonal,
       };

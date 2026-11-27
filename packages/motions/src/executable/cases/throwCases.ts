@@ -1,4 +1,4 @@
-import { Transform, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineTransform, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanActionPlan,
@@ -56,7 +56,7 @@ export function throwCases(
       {
         id: "grip",
         kind: "handle",
-        frame: Transform.identity(),
+        frame: AutoMovieEngineTransform.identity(),
         extent: null,
         grip: "power",
         aperture: 0.22,
@@ -120,23 +120,23 @@ export function throwCases(
         motionCaseSocket(who.body, performance, "a", seconds, "gripRight");
       const h: number = 1 / 240;
       const from: IAutoMovieVector3 = grip(release);
-      const velocity: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(grip(release + h), grip(release - h)),
+      const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(grip(release + h), grip(release - h)),
         1 / (2 * h),
       );
       let miss: number = Infinity;
       for (let u: number = 0; u <= 3; u += 1 / 2400)
         miss = Math.min(
           miss,
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               throwObject.path({ ...launch, point: from, velocity }, u),
               target,
             ),
           ),
         );
-      const planned: number = Vector3.length(launch.velocity);
-      const shown: number = Vector3.length(velocity);
+      const planned: number = AutoMovieEngineVector3.length(launch.velocity);
+      const shown: number = AutoMovieEngineVector3.length(velocity);
 
       // The catching palms against the object's surface.
       const offer: IAutoMovieMotionHumanActionPlan.IOffer | undefined =
@@ -149,8 +149,8 @@ export function throwCases(
         Math.max(
           ...(["palmLeft", "palmRight"] as const).map((name) =>
             Math.abs(
-              Vector3.length(
-                Vector3.subtract(
+              AutoMovieEngineVector3.length(
+                AutoMovieEngineVector3.subtract(
                   motionCaseSocket(who.body, performance, "b", seconds, name),
                   object(seconds),
                 ),

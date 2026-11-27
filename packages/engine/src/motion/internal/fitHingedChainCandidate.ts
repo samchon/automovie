@@ -23,19 +23,19 @@ import { distalEndSwivelAdmitted } from "../../kinematics/internal/distalEndSwiv
 import { distalEndSwivelArcs } from "../../kinematics/internal/distalEndSwivelArcs";
 import { distalEndSwivelMiss } from "../../kinematics/internal/distalEndSwivelMiss";
 import { distalEndSwivelNearest } from "../../kinematics/internal/distalEndSwivelNearest";
-import { distalEndSwivelReadings } from "../../kinematics/distalEndSwivelReadings";
-import type { distalTwistSwivelRange } from "../../kinematics/distalTwistSwivelRange";
+import { AutoMovieEngineDistalEndSwivelReadings } from "../../kinematics/AutoMovieEngineDistalEndSwivelReadings";
+import type { AutoMovieEngineDistalTwistSwivelRange } from "../../kinematics/AutoMovieEngineDistalTwistSwivelRange";
 import { hingedArmArticulation } from "../../kinematics/internal/hingedArmArticulation";
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
 import { hingedSwivelAhead } from "../../kinematics/internal/hingedSwivelAhead";
 import { hingedSwivelFeasible } from "../../kinematics/internal/hingedSwivelFeasible";
 import { immobileAxisSwivels } from "../../kinematics/internal/immobileAxisSwivels";
 import { readsSwingTwistFrame } from "../../kinematics/internal/readsSwingTwistFrame";
-import { swingTwistRange } from "../../kinematics/swingTwistRange";
-import { swivelArcs } from "../../kinematics/swivelArcs";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
+import { AutoMovieEngineSwingTwistRange } from "../../kinematics/AutoMovieEngineSwingTwistRange";
+import { AutoMovieEngineSwivelArcs } from "../../kinematics/AutoMovieEngineSwivelArcs";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { distalTwistRange } from "./distalTwistRange";
 import { fitHingedClosedRoots } from "./fitHingedClosedRoots";
@@ -79,13 +79,13 @@ import { readHingeRange } from "./readHingeRange";
  * when it is legal and the rotation is met. A limb whose mid segment twists
  * distally (an arm) offers one candidate the same way: the swivel nearest the
  * hint's pole that its end joint's box (`distalEndSwivelArcs`) and its mid
- * segment's twist range (`distalTwistSwivelRange`) both admit, an interval end
+ * segment's twist range (`AutoMovieEngineDistalTwistSwivelRange`) both admit, an interval end
  * in closed form (`distalEndSwivelNearest`); with a reference pose, the box's
  * alone, since the reference's turn then ranks beside the hint. Where that
  * candidate does not answer, the sweep is bounded from below by the least the
  * end joint must miss the rotation by at each swivel (`distalEndSwivelMiss`)
  * or, when greater, the least the mid segment's twist range must
- * (`distalTwistSwivelRange`'s miss), besides the hint's side, so a rotation no
+ * (`AutoMovieEngineDistalTwistSwivelRange`'s miss), besides the hint's side, so a rotation no
  * swivel lets the wrist take is fitted by scoring only the swivels near the
  * least miss, with the full sweep's choice. One degree of joint turn from the
  * reference counts as much as one degree of effector error (times the request's
@@ -100,7 +100,7 @@ import { readHingeRange } from "./readHingeRange";
  * sweeping only where it is not. A request with a `strain` ranks the swivels by
  * task priority instead (Siciliano and Slotine 1991): legality, then the hand's
  * rotation error, two errors in one bucket of the joints' tolerance
- * (`ROM_TOLERANCE`) being one (a quantisation, so the ranking is transitive and
+ * (`AutoMovieEngineRomTolerance`) being one (a quantisation, so the ranking is transitive and
  * its choice independent of the order candidates are met in; the rotation's
  * certified miss bounds that first key, so swivels whose miss lies in a later
  * bucket are not scored), then the turn from a `referencePose` when one is
@@ -186,19 +186,19 @@ export function fitHingedChainCandidate(
     return error;
   };
   const root: IAutoMovieVector3 = prepared.upper.worldPosition;
-  const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
-  if (Vector3.length(reach) < 1e-9) return null;
-  const axis: IAutoMovieVector3 = Vector3.normalize(reach);
+  const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(props.target, root);
+  if (AutoMovieEngineVector3.length(reach) < 1e-9) return null;
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(reach);
   const across = (p: IAutoMovieVector3): IAutoMovieVector3 => {
-    const v: IAutoMovieVector3 = Vector3.subtract(p, root);
-    return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
+    const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(p, root);
+    return AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(v, axis)));
   };
   const hint: IAutoMovieVector3 = across(
     props.bend ??
-      Vector3.subtract(root, posedHingeSwing(props, prepared, axes)),
+      AutoMovieEngineVector3.subtract(root, posedHingeSwing(props, prepared, axes)),
   );
   const side: IAutoMovieVector3 | null =
-    Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
+    AutoMovieEngineVector3.length(hint) < 1e-9 ? null : AutoMovieEngineVector3.normalize(hint);
 
   // The mid joint's offset across the root-to-target axis at a swivel of a
   // branch whose root rotation `upper` gives, read by the side bound and pole.
@@ -208,10 +208,10 @@ export function fitHingedChainCandidate(
     ): ((swivel: number) => IAutoMovieVector3) =>
     (swivel: number): IAutoMovieVector3 =>
       across(
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           root,
-          Quaternion.rotateVector(
-            Quaternion.multiply(prepared.upper.worldRotation, upper(swivel)),
+          AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.multiply(prepared.upper.worldRotation, upper(swivel)),
             prepared.lowerOffset,
           ),
         ),
@@ -257,7 +257,7 @@ export function fitHingedChainCandidate(
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
   ): number =>
-    b === null ? 0 : (Quaternion.angleAfterNormalize(a, b) * 180) / Math.PI;
+    b === null ? 0 : (AutoMovieEngineQuaternion.angleAfterNormalize(a, b) * 180) / Math.PI;
 
   // The gate's axes, clinical frame and constraint are fixed for every swivel
   // here.
@@ -276,7 +276,7 @@ export function fitHingedChainCandidate(
     upperConstraint.swingTwist === undefined ||
     upperConstraint.swingTwist === null
       ? undefined
-      : swingTwistRange.of(props.chain.upper);
+      : AutoMovieEngineSwingTwistRange.of(props.chain.upper);
   const upperPrepared: IAutoMovieJointRotationFrame | undefined =
     rig.upperRange;
   const upperRotated: boolean =
@@ -409,19 +409,19 @@ export function fitHingedChainCandidate(
       (strain !== undefined && props.referencePose === undefined);
     const turnedUpper: IAutoMovieQuaternion | undefined =
       needsMid || needsAbove
-        ? Quaternion.multiply(prepared.upper.worldRotation, upper)
+        ? AutoMovieEngineQuaternion.multiply(prepared.upper.worldRotation, upper)
         : undefined;
     const above: IAutoMovieQuaternion | undefined = needsAbove
-      ? Quaternion.multiply(turnedUpper!, prepared.lowerRotation)
+      ? AutoMovieEngineQuaternion.multiply(turnedUpper!, prepared.lowerRotation)
       : undefined;
     const lowerWorld: IAutoMovieQuaternion | undefined =
       props.obstruction === undefined
         ? undefined
-        : Quaternion.multiply(above!, lower);
+        : AutoMovieEngineQuaternion.multiply(above!, lower);
     const mid: IAutoMovieVector3 | undefined = needsMid
-      ? Vector3.add(
+      ? AutoMovieEngineVector3.add(
           root,
-          Quaternion.rotateVector(turnedUpper!, prepared.lowerOffset),
+          AutoMovieEngineQuaternion.rotateVector(turnedUpper!, prepared.lowerOffset),
         )
       : undefined;
     const blocked: number =
@@ -429,9 +429,9 @@ export function fitHingedChainCandidate(
         ? 0
         : props.obstruction(
             mid!,
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               mid!,
-              Quaternion.rotateVector(lowerWorld!, prepared.effectorOffset),
+              AutoMovieEngineQuaternion.rotateVector(lowerWorld!, prepared.effectorOffset),
             ),
           );
     // Angles are left unread only under task priority, whose effort is 0;
@@ -462,7 +462,7 @@ export function fitHingedChainCandidate(
   }
   // With a strain the swivels are ranked by task priority (Siciliano and
   // Slotine 1991): legality, then the hand's rotation error, errors in one
-  // bucket of the joints' tolerance (`ROM_TOLERANCE`) being one, then the strain; the
+  // bucket of the joints' tolerance (`AutoMovieEngineRomTolerance`) being one, then the strain; the
   // bend hint's side plays no part.
   const strain:
     | ((
@@ -472,35 +472,35 @@ export function fitHingedChainCandidate(
       ) => number)
     | undefined = props.strain;
   // Where the mid segment points in the requested rotation's frame at a
-  // swivel of a branch (`distalEndSwivelReadings`), read by the closed-form
+  // swivel of a branch (`AutoMovieEngineDistalEndSwivelReadings`), read by the closed-form
   // candidate and by the sweep's bound alike.
   const along: IAutoMovieVector3 | null = ((): IAutoMovieVector3 | null => {
-    const length: number = Vector3.length(prepared.effectorOffset);
+    const length: number = AutoMovieEngineVector3.length(prepared.effectorOffset);
     return length > 1e-12
-      ? Vector3.scale(prepared.effectorOffset, 1 / length)
+      ? AutoMovieEngineVector3.scale(prepared.effectorOffset, 1 / length)
       : null;
   })();
   const pointing = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
-  ): distalEndSwivelReadings.IProps => {
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
+  ): AutoMovieEngineDistalEndSwivelReadings.IProps => {
     const end: IEnd = (ended ??= endOf(props, rig));
-    const back: IAutoMovieQuaternion = Quaternion.inverse(
-      Quaternion.normalize(rotation!),
+    const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+      AutoMovieEngineQuaternion.normalize(rotation!),
     );
     return {
       basis: end.basis,
       frame: end.frame,
       constraint: end.constraint,
-      axis: Quaternion.rotateVector(end.restInverse, along!),
+      axis: AutoMovieEngineQuaternion.rotateVector(end.restInverse, along!),
       direction: (swivel: number): IAutoMovieVector3 => {
-        const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+        const at: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
           posed(swivel);
-        return Quaternion.rotateVector(
+        return AutoMovieEngineQuaternion.rotateVector(
           back,
-          Quaternion.rotateVector(
-            Quaternion.multiply(
-              Quaternion.multiply(
-                Quaternion.multiply(prepared.upper.worldRotation, at.upper),
+          AutoMovieEngineQuaternion.rotateVector(
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.multiply(
+                AutoMovieEngineQuaternion.multiply(prepared.upper.worldRotation, at.upper),
                 prepared.lowerRotation,
               ),
               at.lower,
@@ -521,7 +521,7 @@ export function fitHingedChainCandidate(
     rotation !== undefined &&
     along !== null &&
     lowerBasis.twistPlacement === "distal" &&
-    Math.abs(Vector3.dot(Vector3.normalize(lowerBasis.twist), along)) >
+    Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(lowerBasis.twist), along)) >
       1 - 1e-9;
   let ended: IEnd | undefined;
   // The arc the chosen swivel's requested rotation is admitted in, and
@@ -535,7 +535,7 @@ export function fitHingedChainCandidate(
   // joint's immobile axis neutral (`immobileAxisSwivels`): the closed-form
   // candidates of a cold fit and the start of a continued one.
   const immobileRoots = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
   ): number[] | null => {
     const end: IEnd = (ended ??= endOf(props, rig));
     return immobileAxisSwivels({
@@ -543,16 +543,16 @@ export function fitHingedChainCandidate(
       frame: end.frame,
       constraint: end.constraint,
       rotation: (swivel: number): IAutoMovieQuaternion => {
-        const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+        const at: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
           posed(swivel);
-        return Quaternion.normalize(
-          Quaternion.multiply(
+        return AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
             end.restInverse,
-            Quaternion.multiply(
-              Quaternion.inverse(
-                Quaternion.multiply(
-                  Quaternion.multiply(
-                    Quaternion.multiply(prepared.upper.worldRotation, at.upper),
+            AutoMovieEngineQuaternion.multiply(
+              AutoMovieEngineQuaternion.inverse(
+                AutoMovieEngineQuaternion.multiply(
+                  AutoMovieEngineQuaternion.multiply(
+                    AutoMovieEngineQuaternion.multiply(prepared.upper.worldRotation, at.upper),
                     prepared.lowerRotation,
                   ),
                   at.lower,
@@ -575,7 +575,7 @@ export function fitHingedChainCandidate(
     { arcs: ReturnType<typeof distalEndSwivelArcs> }
   > = new Map();
   const arcsOf = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
   ): ReturnType<typeof distalEndSwivelArcs> => {
     if (along === null) return null;
     let known: { arcs: ReturnType<typeof distalEndSwivelArcs> } | undefined =
@@ -593,12 +593,12 @@ export function fitHingedChainCandidate(
   // by the closed-form candidate and by the sweep's bound alike.
   const twists: Map<
     object,
-    { range: distalTwistSwivelRange.IRange | null }
+    { range: AutoMovieEngineDistalTwistSwivelRange.IRange | null }
   > = new Map();
   const twisting = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
-  ): distalTwistSwivelRange.IRange | null => {
-    let known: { range: distalTwistSwivelRange.IRange | null } | undefined =
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
+  ): AutoMovieEngineDistalTwistSwivelRange.IRange | null => {
+    let known: { range: AutoMovieEngineDistalTwistSwivelRange.IRange | null } | undefined =
       twists.get(posed);
     if (known === undefined) {
       const end: IEnd = (ended ??= endOf(props, rig));
@@ -622,18 +622,18 @@ export function fitHingedChainCandidate(
   // null when either joint's analysis does not apply. Read only where
   // `missed` holds, so the mid segment's twist axis lies along it.
   const twistMiss = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
   ): ((low: number, high: number) => number) | null => {
-    const range: distalTwistSwivelRange.IRange | null = twisting(posed);
+    const range: AutoMovieEngineDistalTwistSwivelRange.IRange | null = twisting(posed);
     if (range === null) return null;
-    const read: distalEndSwivelReadings.IReadings | null =
-      distalEndSwivelReadings.of(pointing(posed));
+    const read: AutoMovieEngineDistalEndSwivelReadings.IReadings | null =
+      AutoMovieEngineDistalEndSwivelReadings.of(pointing(posed));
     if (read === null) return null;
     // The rectangle's sense: the end joint's rest carries its twist axis
     // onto the mid segment's direction or its opposite (`read.sense`), and
     // the mid segment's own twist axis runs along that direction or
     // against it.
-    const forward: 1 | -1 = Vector3.dot(lowerBasis.twist, along!) > 0 ? 1 : -1;
+    const forward: 1 | -1 = AutoMovieEngineVector3.dot(lowerBasis.twist, along!) > 0 ? 1 : -1;
     return range.miss(
       read.abduction ?? [-90, 90],
       read.sense === forward ? 1 : -1,
@@ -645,14 +645,14 @@ export function fitHingedChainCandidate(
   // The miss is bounded twice, by what the end joint's box cannot take of
   // where the mid segment points (`distalEndSwivelMiss`) and by what the mid
   // segment's twist range cannot take of the twist left to it
-  // (`distalTwistSwivelRange`'s miss): a rotation no swivel meets fails one
+  // (`AutoMovieEngineDistalTwistSwivelRange`'s miss): a rotation no swivel meets fails one
   // or the other at every swivel, and the greater of two lower bounds is one.
   const misses: Map<
     object,
     { miss: ((low: number, high: number) => number) | null }
   > = new Map();
   const missOf = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
   ): ((low: number, high: number) => number) | null => {
     let known:
       | { miss: ((low: number, high: number) => number) | null }
@@ -678,7 +678,7 @@ export function fitHingedChainCandidate(
   // branch, in closed form: the swivel lies outside every arc the end joint's
   // box refuses, with `INSIDE` to spare (`distalEndSwivelArcs`), and the twist
   // the rotation leaves the mid segment exists and lies inside its range
-  // (`distalTwistSwivelRange.admits`). That twist is then one of the roots
+  // (`AutoMovieEngineDistalTwistSwivelRange.admits`). That twist is then one of the roots
   // `solveDistalTwist` reads among its candidates, and the end joint's
   // demand at it lies inside its box, which its projection returns as it is:
   // the measured error is rounding, in the first bucket of any tolerance.
@@ -686,14 +686,14 @@ export function fitHingedChainCandidate(
   const shows: Map<object, { test: ((swivel: number) => boolean) | null }> =
     new Map();
   const shown = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     swivel: number,
   ): boolean => {
     let known: { test: ((swivel: number) => boolean) | null } | undefined =
       shows.get(posed);
     if (known === undefined) {
       const arcs: ReturnType<typeof distalEndSwivelArcs> = arcsOf(posed);
-      const twist: distalTwistSwivelRange.IRange | null =
+      const twist: AutoMovieEngineDistalTwistSwivelRange.IRange | null =
         arcs === null || arcs === "all" ? null : twisting(posed);
       known = {
         test:
@@ -729,13 +729,13 @@ export function fitHingedChainCandidate(
   // intervals its limits leave, in closed form, the frame its overshoot
   // reads it in without a rig.
   const feasibleOf = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
   ): IAutoMovieSwivelArcs.IArc[] | "all" =>
     hingedSwivelFeasible({
       basis: upperBasis,
       frame: props.restFrames?.[props.chain.upper],
       constraint: prepared.upperDomain.constraint,
-      joint: upperPrepared ?? swingTwistRange.of(props.chain.upper),
+      joint: upperPrepared ?? AutoMovieEngineSwingTwistRange.of(props.chain.upper),
       rotation: (swivel: number): IAutoMovieQuaternion => posed(swivel).upper,
     });
 
@@ -747,13 +747,13 @@ export function fitHingedChainCandidate(
   // vanished: null, reported (`IAutoMovieSwivelSeed.vanished`). A seed with
   // no interval of its own stays where it is.
   const feasibleStart = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     swivel: number,
   ): number | null => {
     const held: IAutoMovieSwivelArcs.IArc | undefined = props.near?.feasible;
     if (held === undefined) return swivel;
     const arcs: IAutoMovieSwivelArcs.IArc[] | "all" = feasibleOf(posed);
-    if (arcs === "all" || swivelArcs.holding(arcs, swivel) !== null)
+    if (arcs === "all" || AutoMovieEngineSwivelArcs.holding(arcs, swivel) !== null)
       return swivel;
     const next: IAutoMovieSwivelArcs.IArc | undefined = arcs.find(
       (arc: IAutoMovieSwivelArcs.IArc): boolean => overlapping(arc, held),
@@ -779,19 +779,19 @@ export function fitHingedChainCandidate(
   // admitted in no arc follows an admitted swivel only within the
   // refinement's own step.
   const admittedStart = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     swivel: number,
   ): number | null => {
     const arcs: ReturnType<typeof distalEndSwivelArcs> = arcsOf(posed);
     if (arcs === null) return swivel;
-    const range: distalTwistSwivelRange.IRange | null = twisting(posed);
+    const range: AutoMovieEngineDistalTwistSwivelRange.IRange | null = twisting(posed);
     const start: number | null = distalEndSwivelNearest(arcs, range, swivel);
     if (start === null || start === swivel) return swivel;
     const held: IAutoMovieSwivelArcs.IArc | undefined = props.near?.admitted;
     if (held === undefined) {
       const turn: number = start - swivel;
       return Math.abs(turn - 360 * Math.round(turn / 360)) <=
-        hingedArmSwivel.STEP
+        AutoMovieEngineHingedArmSwivel.STEP
         ? start
         : swivel;
     }
@@ -812,7 +812,7 @@ export function fitHingedChainCandidate(
   // 3.2.3: an end-joint limit is a sinusoid of the swivel): the root nearest
   // the start, so a knee keeps the side the seed chose.
   const rootStart = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     swivel: number,
   ): number => {
     const roots: number[] | null = immobileRoots(posed);
@@ -836,7 +836,7 @@ export function fitHingedChainCandidate(
   // the feasible interval keeps the feasible one, which the ranking puts
   // first. Null where an interval vanished, the seed then refined alone.
   const continuedStart = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     swivel: number,
   ): number | null => {
     const feasible: number | null = feasibleStart(posed, swivel);
@@ -853,7 +853,7 @@ export function fitHingedChainCandidate(
     if (turned === feasible || props.near?.feasible === undefined)
       return turned;
     const arcs: IAutoMovieSwivelArcs.IArc[] | "all" = feasibleOf(posed);
-    return arcs === "all" || swivelArcs.holding(arcs, turned) !== null
+    return arcs === "all" || AutoMovieEngineSwivelArcs.holding(arcs, turned) !== null
       ? turned
       : feasible;
   };
@@ -882,7 +882,7 @@ export function fitHingedChainCandidate(
       // (`continuedStart`): kept inside the root's feasible interval and the
       // arc the requested rotation is admitted in, never jumping to another.
       ...(props.near === undefined ? {} : { nearest: continuedStart }),
-      ...(strain === undefined ? {} : { tie: ROM_TOLERANCE }),
+      ...(strain === undefined ? {} : { tie: AutoMovieEngineRomTolerance }),
       // With no hint side, reference or obstruction, every actual term is
       // non-negative in the original arithmetic: ROM excess, rotation angle
       // and squared clinical effort. An exact-zero original first candidate
@@ -916,7 +916,7 @@ export function fitHingedChainCandidate(
         ? {
             bound: (
               upper: (swivel: number) => IAutoMovieQuaternion,
-              posed: ReturnType<typeof hingedArmSwivel.pose>,
+              posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
             ): ((low: number, high: number) => number) => {
               const sided: ((low: number, high: number) => number) | null =
                 side === null || strain !== undefined
@@ -963,7 +963,7 @@ export function fitHingedChainCandidate(
         : props.placed === true && side !== null
           ? {
               pole: (
-                posed: ReturnType<typeof hingedArmSwivel.pose>,
+                posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
               ): number | null =>
                 hingedChainSide.peak(
                   offsetOf(
@@ -979,7 +979,7 @@ export function fitHingedChainCandidate(
               ? {}
               : {
                   pole: (
-                    posed: ReturnType<typeof hingedArmSwivel.pose>,
+                    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
                   ): number | null =>
                     hingedChainSide.peak(
                       offsetOf(
@@ -1000,7 +1000,7 @@ export function fitHingedChainCandidate(
                   // its own axis for free, so its start leaves the end joint
                   // the least swing (`hingedTwistStart`).
                   pole: (
-                    posed: ReturnType<typeof hingedArmSwivel.pose>,
+                    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
                   ): number | null =>
                     lowerBasis.twistPlacement === "distal"
                       ? hingedTwistStart(prepared, posed, rotation!)
@@ -1008,7 +1008,7 @@ export function fitHingedChainCandidate(
                   met: (
                     upper: IAutoMovieQuaternion,
                     lower: IAutoMovieQuaternion,
-                  ): boolean => measure(upper, lower) <= ROM_TOLERANCE,
+                  ): boolean => measure(upper, lower) <= AutoMovieEngineRomTolerance,
                   // Where the rotation's certified miss exceeds the joints'
                   // tolerance over every step of a branch's turn, no swivel of
                   // the branch is met: the measured error is never below that
@@ -1016,7 +1016,7 @@ export function fitHingedChainCandidate(
                   ...(missed
                     ? {
                         unmet: (
-                          posed: ReturnType<typeof hingedArmSwivel.pose>,
+                          posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
                         ): boolean => {
                           const miss:
                             | ((low: number, high: number) => number)
@@ -1025,12 +1025,12 @@ export function fitHingedChainCandidate(
                           for (
                             let low: number = 0;
                             low < 360;
-                            low += hingedArmSwivel.STEP
+                            low += AutoMovieEngineHingedArmSwivel.STEP
                           )
                             if (
                               !(
-                                miss(low, low + hingedArmSwivel.STEP) >
-                                ROM_TOLERANCE
+                                miss(low, low + AutoMovieEngineHingedArmSwivel.STEP) >
+                                AutoMovieEngineRomTolerance
                               )
                             )
                               return false;
@@ -1053,7 +1053,7 @@ export function fitHingedChainCandidate(
                         // candidate is the swivel inside the box nearest the
                         // hint's pole, or the least-swing start without a hint.
                         closed: (
-                          posed: ReturnType<typeof hingedArmSwivel.pose>,
+                          posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
                         ): number[] | null => {
                           const arcs: ReturnType<typeof distalEndSwivelArcs> =
                             arcsOf(posed);
@@ -1072,7 +1072,7 @@ export function fitHingedChainCandidate(
                           if (desired === null) return null;
 
                           // The forearm's own twist range admits an interval
-                          // of swivels too (`distalTwistSwivelRange`): the
+                          // of swivels too (`AutoMovieEngineDistalTwistSwivelRange`): the
                           // candidate is the swivel nearest the desired one
                           // that both the box and that range admit. A reference
                           // pose weighs a degree of turn from it like a degree
@@ -1096,12 +1096,12 @@ export function fitHingedChainCandidate(
       // The arc the chosen swivel's requested rotation is admitted in, which
       // the seed carries for the fit continuing it.
       chosen: (
-        posed: ReturnType<typeof hingedArmSwivel.pose>,
+        posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
         swivel: number,
       ): void => {
         const feasible: IAutoMovieSwivelArcs.IArc[] | "all" = feasibleOf(posed);
         feasibleArc =
-          feasible === "all" ? null : swivelArcs.holding(feasible, swivel);
+          feasible === "all" ? null : AutoMovieEngineSwivelArcs.holding(feasible, swivel);
         if (rotation === undefined || lowerBasis.twistPlacement !== "distal")
           return;
         // The answer is refined to the swivel's resolution, so it keeps the
@@ -1114,7 +1114,7 @@ export function fitHingedChainCandidate(
                 arcs,
                 twisting(posed),
                 swivel,
-                hingedArmSwivel.RESOLUTION,
+                AutoMovieEngineHingedArmSwivel.RESOLUTION,
               );
       },
       excluded: (
@@ -1124,7 +1124,7 @@ export function fitHingedChainCandidate(
           basis: upperBasis,
           frame: props.restFrames?.[props.chain.upper],
           constraint: prepared.upperDomain.constraint,
-          joint: upperPrepared ?? swingTwistRange.of(props.chain.upper),
+          joint: upperPrepared ?? AutoMovieEngineSwingTwistRange.of(props.chain.upper),
           rotation: upper,
         }),
       // Where that refusal covers every swivel no candidate is legal, and the
@@ -1148,7 +1148,7 @@ export function fitHingedChainCandidate(
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
         swivel: number,
-        posed: ReturnType<typeof hingedArmSwivel.pose>,
+        posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
       ): {
         overshoot: number;
         deviation: number;
@@ -1183,7 +1183,7 @@ export function fitHingedChainCandidate(
                 ? strain(
                     upper,
                     lower,
-                    lowerWorld ?? Quaternion.multiply(above!, lower),
+                    lowerWorld ?? AutoMovieEngineQuaternion.multiply(above!, lower),
                   )
                 : anchor * (apart(upper, before[0]) + midTurn),
           };
@@ -1193,10 +1193,10 @@ export function fitHingedChainCandidate(
         let away: number = 0;
         if (side !== null) {
           const offset: IAutoMovieVector3 = across(mid!);
-          const off: number = Vector3.length(offset);
+          const off: number = AutoMovieEngineVector3.length(offset);
           if (!(off < 1e-12))
             away =
-              (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
+              (1 - AutoMovieEngineVector3.dot(AutoMovieEngineVector3.scale(offset, 1 / off), side)) *
               Math.min(1, off / SIDED);
         }
         // The effector's error is the costly term and is never negative, so
@@ -1226,7 +1226,7 @@ export function fitHingedChainCandidate(
     side !== null &&
     lowerBasis.twistPlacement !== "distal"
   ) {
-    const geometry: hingedArmSwivel.IPreparedTarget | undefined = rig
+    const geometry: AutoMovieEngineHingedArmSwivel.IPreparedTarget | undefined = rig
       .hingedGeometry()
       ?.target(props.target, range ?? undefined);
     const rooted: fitHingedClosedRoots.ISolved | null =
@@ -1245,11 +1245,11 @@ export function fitHingedChainCandidate(
               const read: IReading | null = reading(upper, lower, true, true);
               if (read === null) return null;
               const offset: IAutoMovieVector3 = across(read.mid!);
-              const off: number = Vector3.length(offset);
+              const off: number = AutoMovieEngineVector3.length(offset);
               const away: number =
                 off < 1e-12
                   ? 0
-                  : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
+                  : (1 - AutoMovieEngineVector3.dot(AutoMovieEngineVector3.scale(offset, 1 / off), side)) *
                     Math.min(1, off / SIDED);
               return {
                 joint: read.joint!,
@@ -1275,8 +1275,8 @@ export function fitHingedChainCandidate(
     certifying &&
     hingedSwivelAhead.rank(
       measure(solved.upper, solved.lower),
-      ROM_TOLERANCE,
-    ) !== hingedSwivelAhead.rank(solved.deviation, ROM_TOLERANCE)
+      AutoMovieEngineRomTolerance,
+    ) !== hingedSwivelAhead.rank(solved.deviation, AutoMovieEngineRomTolerance)
   )
     solved = search(false);
   if (solved === null) return null;

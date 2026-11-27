@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import type {
   IAutoMovieHumanArmGuides,
   IAutoMovieHumanArmPiece,
@@ -52,7 +52,7 @@ export namespace AutoMovieHumanArmGuides {
     const splines: IAutoMovieNaturalCubicSpline[] = Array.from(
       { length: CHANNELS },
       (_: unknown, k: number): IAutoMovieNaturalCubicSpline =>
-        AutoMovieNaturalSpline.create(
+        AutoMovieEngineNaturalSpline.create(
           xs,
           rows.map((r: IAutoMovieHumanArmPiece.IRow): number => r.channels[k]!),
         ),
@@ -64,7 +64,7 @@ export namespace AutoMovieHumanArmGuides {
       const at: number = Math.min(hi, Math.max(lo, s));
       const v: number[] = splines.map(
         (sp: IAutoMovieNaturalCubicSpline): number =>
-          AutoMovieNaturalSpline.evaluate(sp, at),
+          AutoMovieEngineNaturalSpline.evaluate(sp, at),
       );
 
       return {

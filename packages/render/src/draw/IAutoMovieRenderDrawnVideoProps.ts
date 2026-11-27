@@ -3,12 +3,12 @@ import type {
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
-import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
+import type { AutoMovieRenderDrawSession } from "./AutoMovieRenderDrawSession.js";
 
 /** Inputs for drawing and encoding one subject's video. */
 export interface IAutoMovieRenderDrawnVideoProps {
   /** The opened draw session. */
-  session: Pick<AutoMovieDrawSession, "subject" | "frame" | "speak">;
+  session: Pick<AutoMovieRenderDrawSession, "subject" | "frame" | "speak">;
   /** Encoding controls; the frame format comes from the subject. */
   spec: Omit<IAutoMovieRenderSpec, "frameFormat">;
   /** Folder for frame files. */

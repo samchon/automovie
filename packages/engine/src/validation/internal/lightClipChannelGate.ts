@@ -6,7 +6,7 @@ import type {
   IAutoMovieLightPointer,
 } from "@automovie/interface";
 
-import { LIGHT_CHANNEL_PROPERTIES } from "../../resolve/LIGHT_CHANNEL_PROPERTIES";
+import { AutoMovieEngineLightChannelProperties } from "../../resolve/AutoMovieEngineLightChannelProperties";
 import { parseLightPointer } from "../../resolve/internal/parseLightPointer";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { pushViolation } from "./pushViolation";
@@ -41,13 +41,13 @@ export function lightClipChannelGate(
         violations,
         "type",
         `${path}.pointer`,
-        `light clip track pointer must be /lights/<light id>/<property> with property one of ${[...Object.keys(LIGHT_CHANNEL_PROPERTIES)].join(", ")}, but was ${JSON.stringify(channel.pointer)}`,
+        `light clip track pointer must be /lights/<light id>/<property> with property one of ${[...Object.keys(AutoMovieEngineLightChannelProperties)].join(", ")}, but was ${JSON.stringify(channel.pointer)}`,
         channel.pointer,
       );
       return;
     }
     const property: IAutoMovieLightChannelProperty =
-      LIGHT_CHANNEL_PROPERTIES[target.property];
+      AutoMovieEngineLightChannelProperties[target.property];
     if (channel.valueType !== property.valueType)
       pushViolation(
         violations,

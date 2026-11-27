@@ -7,7 +7,7 @@ import {
 
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AutoMovieEngineAnalysisMaxSamples } from "../AutoMovieEngineAnalysisMaxSamples";
 import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
 
 /*
@@ -58,9 +58,9 @@ export function resolveAutoMovieEnvelopeRequest(
     );
   if (request.assemblies.length === 0)
     throw new Error("an envelope study needs at least one assembly");
-  if (request.assemblies.length > AUTOMOVIE_ANALYSIS_MAX_SAMPLES)
+  if (request.assemblies.length > AutoMovieEngineAnalysisMaxSamples)
     throw new Error(
-      `an envelope study carries one sample per assembly and may not exceed ${AUTOMOVIE_ANALYSIS_MAX_SAMPLES}, but had ${request.assemblies.length}`,
+      `an envelope study carries one sample per assembly and may not exceed ${AutoMovieEngineAnalysisMaxSamples}, but had ${request.assemblies.length}`,
     );
   const assemblies: Set<string> = new Set<string>();
   for (const assembly of request.assemblies) {

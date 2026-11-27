@@ -4,13 +4,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../../math/internal/convexHull2D";
-import { AutoMoviePhysicalBalance } from "../AutoMoviePhysicalBalance";
+import { AutoMovieEnginePhysicalBalance } from "../AutoMovieEnginePhysicalBalance";
 import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
 
 /*
- * A diagonal pair's step (`AutoMoviePhysicalBalance.assess`): both feet moved
+ * A diagonal pair's step (`AutoMovieEnginePhysicalBalance.assess`): both feet moved
  * by one displacement while the other diagonal holds the centre of pressure on
  * its hull (Chen et al. 2022, Section 2.1, Example 1; MIT Cheetah-Software,
  * trotting): its place and time are chosen together as a single step's are, the
@@ -59,16 +59,16 @@ export namespace physicalBalancePair {
   ): IPair {
     const { input, capturePoint, omega }: Assessment.IAssessment = scope;
     const held = (outline: IAutoMovieVector3[]): IAutoMovieVector3[] =>
-      AutoMoviePhysicalBalance.held(scope, outline);
+      AutoMovieEnginePhysicalBalance.held(scope, outline);
     const swing = (distance: number): number =>
-      AutoMoviePhysicalBalance.swing(scope, distance);
+      AutoMovieEnginePhysicalBalance.swing(scope, distance);
     const until = (distance: number): number =>
-      AutoMoviePhysicalBalance.until(scope, distance);
+      AutoMovieEnginePhysicalBalance.until(scope, distance);
     const {
       PASSES,
       SETTLED,
     }: Pick<typeof Assessment, "PASSES" | "SETTLED"> = Assessment;
-    const excess = AutoMoviePhysicalBalance.excess;
+    const excess = AutoMovieEnginePhysicalBalance.excess;
     const rest: IAutoMovieVector3[] = input.supports
       .filter(
         (other: (typeof input.supports)[number]): boolean =>
@@ -106,7 +106,7 @@ export namespace physicalBalancePair {
         gap > 0
           ? { x: aim.x / gap, y: 0, z: aim.z / gap }
           : { x: 0, y: 0, z: 1 };
-      const step = (d: number): IAutoMovieVector3 => Vector3.scale(toward, d);
+      const step = (d: number): IAutoMovieVector3 => AutoMovieEngineVector3.scale(toward, d);
       let near: number = 0;
       let far: number = input.maximumStep;
       if (excess(after(step(far)), xi) > 0) return step(far);
@@ -128,7 +128,7 @@ export namespace physicalBalancePair {
     let landing: IAutoMovieVector3 = { ...capturePoint };
     for (let pass: number = 0; pass < PASSES; pass++) {
       const before: IAutoMovieVector3 = travel;
-      landing = AutoMoviePhysicalBalance.diverge(
+      landing = AutoMovieEnginePhysicalBalance.diverge(
         capturePoint,
         holding,
         omega * until(distance),

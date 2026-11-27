@@ -3,7 +3,7 @@ import type * as THREE from "three";
 
 import { autoMovieAnalysisRampColor as autoMovieAnalysisRampColorImplementation } from "./internal/autoMovieAnalysisRampColor.js";
 import { buildAnalysisOverlayObject as buildAnalysisOverlayObjectImplementation } from "./internal/buildAnalysisOverlayObject.js";
-import type { IAutoMovieAnalysisOverlayObject } from "./IAutoMovieAnalysisOverlayObject.js";
+import type { IAutoMovieRenderAnalysisOverlayObject } from "./IAutoMovieRenderAnalysisOverlayObject.js";
 
 /** Public operations for an analysis result's point overlay. */
 export namespace AutoMovieRenderAnalysisOverlay {
@@ -34,7 +34,7 @@ export namespace AutoMovieRenderAnalysisOverlay {
   /** Build and return a drawable point field for one solved analysis metric. */
   export function build(
     props: IBuildProps,
-  ): IAutoMovieAnalysisOverlayObject {
+  ): IAutoMovieRenderAnalysisOverlayObject {
     return buildAnalysisOverlayObjectImplementation(props);
   }
 }

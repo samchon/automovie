@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -119,8 +119,8 @@ function observed(
     resolution,
     projection,
   );
-  const velocity: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(b, a),
+  const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.subtract(b, a),
     1 / (2 * h),
   );
   const pose: ReturnType<typeof resolveHumanPosture> =

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanFrame,
   IAutoMovieQuaternion,
@@ -201,7 +201,7 @@ export namespace HumanFrame {
    * Returns: Degrees about +Y.
    */
   export function heading(rotation: IAutoMovieQuaternion): number {
-    const f: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const f: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
@@ -214,7 +214,7 @@ export namespace HumanFrame {
  * Private unchanged +Y axis; its original magnitude is prepared on the first
  * turn.
  */
-const TURN: (yaw: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle(
+const TURN: (yaw: number) => IAutoMovieQuaternion = AutoMovieEngineQuaternion.prepareAxisAngle(
   {
     x: 0,
     y: 1,

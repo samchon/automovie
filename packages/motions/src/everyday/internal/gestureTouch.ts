@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -154,17 +154,17 @@ export namespace gestureTouch {
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const line: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(input.target, eye),
+    const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(input.target, eye),
     );
     const reach: number = fixed?.reach ?? pointingReach(body, side);
 
     // The point on the line at the reach from the shoulder: |eye + s d - shoulder| = reach.
-    const w: IAutoMovieVector3 = Vector3.subtract(eye, shoulder);
-    const b: number = Vector3.dot(w, line);
-    const c: number = Vector3.dot(w, w) - reach * reach;
+    const w: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(eye, shoulder);
+    const b: number = AutoMovieEngineVector3.dot(w, line);
+    const c: number = AutoMovieEngineVector3.dot(w, w) - reach * reach;
     const s: number = -b + Math.sqrt(Math.max(0, b * b - c));
-    const distance: number = Math.min(s, Vector3.distance(input.target, eye));
+    const distance: number = Math.min(s, AutoMovieEngineVector3.distance(input.target, eye));
     const palm: IAutoMovieVector3 =
       Math.abs(line.y) > STEEP
         ? HumanFrame.point(
@@ -175,7 +175,7 @@ export namespace gestureTouch {
     return {
       surface: "indexTip",
       shape: "point",
-      point: Vector3.addScaled(eye, line, distance),
+      point: AutoMovieEngineVector3.addScaled(eye, line, distance),
       rotation: HumanHand.rotation(side, { fingers: line, palm }),
       out: 0,
     };
@@ -210,10 +210,10 @@ export namespace gestureTouch {
       fixed?.region === undefined || fixed.region.name !== region
         ? HumanTrunk.region(body, input.base, region, input.resolution)
         : fixed.region.read(input.base, input.resolution);
-    const up: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
+    const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(
         { x: 0, y: 1, z: 0 },
-        Vector3.scale(surface.normal, surface.normal.y),
+        AutoMovieEngineVector3.scale(surface.normal, surface.normal.y),
       ),
     );
     const slide: number =
@@ -226,14 +226,14 @@ export namespace gestureTouch {
     return {
       surface: "indexTip",
       shape: "flat",
-      point: Vector3.addScaled(
-        Vector3.addScaled(surface.point, surface.normal, pad),
+      point: AutoMovieEngineVector3.addScaled(
+        AutoMovieEngineVector3.addScaled(surface.point, surface.normal, pad),
         up,
         slide,
       ),
       rotation: HumanHand.rotation(side, {
         fingers: up,
-        palm: Vector3.scale(surface.normal, -1),
+        palm: AutoMovieEngineVector3.scale(surface.normal, -1),
       }),
       out: TOUCH_OUT,
     };
@@ -287,7 +287,7 @@ function pointingReach(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
 ): number {
-  const tip: number = Vector3.length(
+  const tip: number = AutoMovieEngineVector3.length(
     HumanHand.offset(body, side, "indexTip", "point").point,
   );
   return POINT_REACH * (body.measure.upperArm + body.measure.forearm) + tip;

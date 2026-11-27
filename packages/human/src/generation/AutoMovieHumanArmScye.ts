@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanArmScye,
@@ -78,7 +78,7 @@ export namespace AutoMovieHumanArmScye {
       if (found === undefined)
         rows.set(
           run,
-          (found = AutoMovieLoftChain.ring(upper, bottom - run, phases).map(
+          (found = AutoMovieEngineLoftChain.ring(upper, bottom - run, phases).map(
             (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => sided(p, sign),
           )),
         );

@@ -4,7 +4,7 @@ import {
   AutoMovieArchetypeQuadrupedBody,
   type AutoMovieArchetypeQuadrupedFooting,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -150,13 +150,13 @@ export namespace equineFordScene {
         part.geometry.shape.type !== "capsule")
     )
       throw new Error(`${part.id} is not a bar`);
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform!.rotation,
       { x: 0, y: part.geometry.shape.height / 2, z: 0 },
     );
     return [
-      Vector3.subtract(part.transform!.translation, half),
-      Vector3.add(part.transform!.translation, half),
+      AutoMovieEngineVector3.subtract(part.transform!.translation, half),
+      AutoMovieEngineVector3.add(part.transform!.translation, half),
     ];
   }
 
@@ -199,18 +199,18 @@ export namespace equineFordScene {
       placement,
       part.transform!,
     );
-    const normal: IAutoMovieVector3 = Vector3.normalize({
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: -plane.slope.x,
       y: 1,
       z: -plane.slope.z,
     });
-    const centre: number = Vector3.dot(
-      Vector3.subtract(world.translation, plane.origin),
+    const centre: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(world.translation, plane.origin),
       normal,
     );
     const axis = (local: IAutoMovieVector3): number =>
       Math.abs(
-        Vector3.dot(Quaternion.rotateVector(world.rotation, local), normal),
+        AutoMovieEngineVector3.dot(AutoMovieEngineQuaternion.rotateVector(world.rotation, local), normal),
       );
     if (shape.type === "sphere") return centre - shape.radius;
     if (shape.type === "box")

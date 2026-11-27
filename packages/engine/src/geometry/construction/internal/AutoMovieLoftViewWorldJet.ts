@@ -7,8 +7,8 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
-import { AutoMovieLoftViewRead } from "../../AutoMovieLoftViewRead";
+import { AutoMovieEngineLoftSectionNative } from "../../AutoMovieEngineLoftSectionNative";
+import { AutoMovieEngineLoftViewRead } from "../../AutoMovieEngineLoftViewRead";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 
 /*
@@ -32,7 +32,7 @@ export function AutoMovieLoftViewWorldJet(
   if (readAxis === undefined)
     return "Original view world2 requires actual axis2, not frame values alone.";
   const inputs: IAutoMovieLoftViewRead.IJets | string =
-    AutoMovieLoftViewRead.jets(source, station);
+    AutoMovieEngineLoftViewRead.jets(source, station);
   if (typeof inputs === "string") return `Original view world2: ${inputs}`;
 
   // Foreign code and getters remain outside the numeric admission boundary.
@@ -44,7 +44,7 @@ export function AutoMovieLoftViewWorldJet(
   // Both callees below read only the freshly owned numeric arrays above.
   try {
     const local: ReturnType<(phi: number) => IAutoMovieLoftSectionJet> =
-      AutoMovieLoftSectionNative.jet(inputs)(phase);
+      AutoMovieEngineLoftSectionNative.jet(inputs)(phase);
     const world: IAutoMovieLoftWorldJetWorld = AutoMovieLoftWorldJet(
       local,
       rows,

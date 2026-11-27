@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -244,15 +244,15 @@ export namespace HumanCarriedBearing {
                       resolution,
                       anchorBones,
                     ).get(coupled.anchor)!;
-                  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+                  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
                     anchor.worldRotation,
                   );
                   const toBone = (
                     point: IAutoMovieVector3,
                   ): IAutoMovieVector3 =>
-                    Quaternion.rotateVector(
+                    AutoMovieEngineQuaternion.rotateVector(
                       inverse,
-                      Vector3.subtract(point, anchor.worldPosition),
+                      AutoMovieEngineVector3.subtract(point, anchor.worldPosition),
                     );
                   const moving: boolean =
                     cradle !== undefined &&
@@ -260,14 +260,14 @@ export namespace HumanCarriedBearing {
                     transfer !== undefined &&
                     (time < transfer.lift || time > seconds - transfer.setDown);
                   const carried = {
-                    point: Vector3.add(
+                    point: AutoMovieEngineVector3.add(
                       anchor.worldPosition,
-                      Quaternion.rotateVector(
+                      AutoMovieEngineQuaternion.rotateVector(
                         anchor.worldRotation,
                         local.point,
                       ),
                     ),
-                    normal: Quaternion.rotateVector(
+                    normal: AutoMovieEngineQuaternion.rotateVector(
                       anchor.worldRotation,
                       local.normal,
                     ),
@@ -284,7 +284,7 @@ export namespace HumanCarriedBearing {
                   const forward: IAutoMovieVector3 | undefined =
                     tangent === undefined
                       ? undefined
-                      : Quaternion.rotateVector(anchor.worldRotation, tangent);
+                      : AutoMovieEngineQuaternion.rotateVector(anchor.worldRotation, tangent);
                   let world: IAutoMovieHumanLimbGoal = palm(
                     posture,
                     current,
@@ -302,7 +302,7 @@ export namespace HumanCarriedBearing {
                       place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
                       grip: IAutoMovieHumanLimbGoal,
                     ): IAutoMovieHumanLimbGoal => {
-                      if (Vector3.distance(grip.point, origin) <= arm)
+                      if (AutoMovieEngineVector3.distance(grip.point, origin) <= arm)
                         return grip;
                       const circle: ReturnType<typeof HumanCarriedWristCircle> =
                         HumanCarriedWristCircle(
@@ -313,15 +313,15 @@ export namespace HumanCarriedBearing {
                         );
                       const direction: IAutoMovieVector3 =
                         forward ??
-                        Quaternion.rotateVector(
+                        AutoMovieEngineQuaternion.rotateVector(
                           grip.rotation!,
                           surface.forward!,
                         );
                       return palm(
                         posture,
                         place,
-                        Quaternion.rotateVector(
-                          Quaternion.fromAxisAngle(
+                        AutoMovieEngineQuaternion.rotateVector(
+                          AutoMovieEngineQuaternion.fromAxisAngle(
                             place.normal,
                             circle.degrees,
                           ),
@@ -338,7 +338,7 @@ export namespace HumanCarriedBearing {
                     ...(world.rotation === undefined
                       ? {}
                       : {
-                          rotation: Quaternion.multiply(
+                          rotation: AutoMovieEngineQuaternion.multiply(
                             inverse,
                             world.rotation,
                           ),
@@ -348,7 +348,7 @@ export namespace HumanCarriedBearing {
                   };
                 }
                 return {
-                  point: Vector3.add(
+                  point: AutoMovieEngineVector3.add(
                     HumanCarriedCouplingPose.region(
                       body,
                       HumanTrunk.resolve(

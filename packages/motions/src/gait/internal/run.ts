@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieBodyMeasure,
@@ -11,7 +11,7 @@ import type {
 
 import "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { walk } from "./walk";
-import * as RunData from "./RunData";
+import { RunData } from "./RunData";
 
 /*
  * Running to a floor point, at a jog, a run or a sprint: the walk's footprint
@@ -154,7 +154,7 @@ export namespace run {
   ): number {
     return Math.sqrt(
       GAITS[pace ?? "run"].froude *
-        AutoMovieGravity.STANDARD *
+        AutoMovieEngineGravity.STANDARD *
         body.measure.hipHeight,
     );
   }

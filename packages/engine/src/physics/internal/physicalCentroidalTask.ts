@@ -4,10 +4,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AutoMoviePhysicalTracking as Tracking } from "../AutoMoviePhysicalTracking";
-import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEnginePhysicalTracking as Tracking } from "../AutoMovieEnginePhysicalTracking";
+import type { AutoMovieEngineXpbdBody } from "../AutoMovieEngineXpbdBody";
+import type { AutoMovieEngineXpbdWorld } from "../AutoMovieEngineXpbdWorld";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /*
@@ -29,14 +29,14 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  */
 export function physicalCentroidalTask(
   input: AutoMovieEnginePhysicalBalanceTypes.ICentroidalTaskInput,
-): AutoMovieXpbdWorld.IRootTask {
+): AutoMovieEngineXpbdWorld.IRootTask {
   let mass: number = 0;
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let planned: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let plannedVelocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of input.profile.segments) {
-    const rigid: AutoMovieXpbdBody = input.segments.get(segment.bone)!;
+    const rigid: AutoMovieEngineXpbdBody = input.segments.get(segment.bone)!;
     const goal: IAutoMovieSamplePhysicalTarget.IResult =
       input.goals[segment.bone]!;
     const at: IAutoMovieVector3 = rigid.worldCom();
@@ -45,20 +45,20 @@ export function physicalCentroidalTask(
       segment.centerOfMass,
     );
     mass += segment.mass;
-    center = Vector3.add(center, Vector3.scale(at, segment.mass));
-    velocity = Vector3.add(
+    center = AutoMovieEngineVector3.add(center, AutoMovieEngineVector3.scale(at, segment.mass));
+    velocity = AutoMovieEngineVector3.add(
       velocity,
-      Vector3.scale(rigid.velocityAtPoint(at), segment.mass),
+      AutoMovieEngineVector3.scale(rigid.velocityAtPoint(at), segment.mass),
     );
-    planned = Vector3.add(planned, Vector3.scale(aim, segment.mass));
-    plannedVelocity = Vector3.add(
+    planned = AutoMovieEngineVector3.add(planned, AutoMovieEngineVector3.scale(aim, segment.mass));
+    plannedVelocity = AutoMovieEngineVector3.add(
       plannedVelocity,
-      Vector3.scale(
-        Vector3.add(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
           goal.velocity,
-          Vector3.cross(
+          AutoMovieEngineVector3.cross(
             goal.angularVelocity,
-            Vector3.subtract(aim, goal.pose.position),
+            AutoMovieEngineVector3.subtract(aim, goal.pose.position),
           ),
         ),
         segment.mass,
@@ -66,19 +66,19 @@ export function physicalCentroidalTask(
     );
   }
   const root: IAutoMovieSamplePhysicalTarget.IResult = input.goals[input.root]!;
-  const reference: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(planned, 1 / mass),
-    Vector3.subtract(input.rootGoal, root.pose.position),
+  const reference: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(planned, 1 / mass),
+    AutoMovieEngineVector3.subtract(input.rootGoal, root.pose.position),
   );
-  const referenceVelocity: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(plannedVelocity, 1 / mass),
-    Vector3.subtract(input.rootVelocity, root.velocity),
+  const referenceVelocity: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.scale(plannedVelocity, 1 / mass),
+    AutoMovieEngineVector3.subtract(input.rootVelocity, root.velocity),
   );
-  const origin: IAutoMovieVector3 = Vector3.scale(center, 1 / mass);
-  let force: IAutoMovieVector3 = Vector3.subtract(
+  const origin: IAutoMovieVector3 = AutoMovieEngineVector3.scale(center, 1 / mass);
+  let force: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     Tracking.force(
-      Vector3.subtract(reference, origin),
-      Vector3.subtract(Vector3.scale(velocity, 1 / mass), referenceVelocity),
+      AutoMovieEngineVector3.subtract(reference, origin),
+      AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.scale(velocity, 1 / mass), referenceVelocity),
       mass,
       input.stiffness,
       input.damping,
@@ -87,8 +87,8 @@ export function physicalCentroidalTask(
     ),
     input.weight,
   );
-  const magnitude: number = Vector3.length(force);
+  const magnitude: number = AutoMovieEngineVector3.length(force);
   if (magnitude > input.maximumForce)
-    force = Vector3.scale(force, input.maximumForce / magnitude);
+    force = AutoMovieEngineVector3.scale(force, input.maximumForce / magnitude);
   return { origin, force, torque: input.torque };
 }

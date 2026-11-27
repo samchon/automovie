@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeJumpRopeData from "./internal/AutoMovieArchetypeJumpRopeData";
+import { AutoMovieArchetypeJumpRopeData } from "./internal/AutoMovieArchetypeJumpRopeData";
 
 /** Constructs the jump rope archetype from its recipe. */
 export namespace AutoMovieArchetypeJumpRope {
@@ -67,7 +67,7 @@ export function create(
     name: `skipping rope ${handle.name}, ${cable.name} cable`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = d.gripDiameter / 2;
   const inner: number = d.length / 2;
   const end: number = inner + d.handleLength;

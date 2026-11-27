@@ -5,8 +5,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
-import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineDrawingEpsilon } from "../AutoMovieEngineDrawingEpsilon";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /*
@@ -35,12 +35,12 @@ export const autoMovieDrawingSilhouetteEdges = (
     `${roundAutoMovieDrawingScalar(point.x)},${roundAutoMovieDrawingScalar(point.y)},${roundAutoMovieDrawingScalar(point.z)}`;
   const owners: Map<string, IEdgeOwners> = new Map();
   for (const triangle of triangles) {
-    const normal: IAutoMovieVector3 = Vector3.cross(
-      Vector3.subtract(triangle.b, triangle.a),
-      Vector3.subtract(triangle.c, triangle.a),
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+      AutoMovieEngineVector3.subtract(triangle.b, triangle.a),
+      AutoMovieEngineVector3.subtract(triangle.c, triangle.a),
     );
-    if (Vector3.length(normal) <= AUTOMOVIE_DRAWING_EPSILON) continue;
-    const front: boolean = Vector3.dot(normal, frame.normal) > 0;
+    if (AutoMovieEngineVector3.length(normal) <= AutoMovieEngineDrawingEpsilon) continue;
+    const front: boolean = AutoMovieEngineVector3.dot(normal, frame.normal) > 0;
     const corners: IAutoMovieVector3[] = [triangle.a, triangle.b, triangle.c];
     const keys: string[] = corners.map(key);
     for (let index: number = 0; index < 3; ++index) {

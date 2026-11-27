@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { projectileAt } from "./projectileAt";
 import { projectileDragDeparture } from "./projectileDragDeparture";
 
@@ -49,11 +49,11 @@ export function projectilePlaneDeparture(
   if (projectile.drag !== undefined)
     return projectileDragDeparture(normal, projectile, contact);
 
-  const speed: number = Vector3.dot(
+  const speed: number = AutoMovieEngineVector3.dot(
     projectileAt(projectile, contact.from).velocity,
     normal,
   );
-  const acceleration: number = Vector3.dot(projectile.gravity, normal);
+  const acceleration: number = AutoMovieEngineVector3.dot(projectile.gravity, normal);
   if (speed < 0 || (speed === 0 && acceleration <= 0)) return undefined;
   if (acceleration >= 0) return { kind: "no-entry" };
 
@@ -63,7 +63,7 @@ export function projectilePlaneDeparture(
   const endGap: number = contact.at(end);
   if (endGap !== Infinity && endGap > 0)
     return { kind: "clearance", seconds: end };
-  const endSpeed: number = Vector3.dot(
+  const endSpeed: number = AutoMovieEngineVector3.dot(
     projectileAt(projectile, end).velocity,
     normal,
   );
@@ -78,7 +78,7 @@ export function projectilePlaneDeparture(
     if (!(seconds > lo && seconds < hi)) return undefined;
     const gap: number = contact.at(seconds);
     if (gap !== Infinity && gap > 0) return { kind: "clearance", seconds };
-    const velocity: number = Vector3.dot(
+    const velocity: number = AutoMovieEngineVector3.dot(
       projectileAt(projectile, seconds).velocity,
       normal,
     );

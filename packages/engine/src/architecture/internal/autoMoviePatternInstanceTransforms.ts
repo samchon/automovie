@@ -11,8 +11,8 @@ import {
 } from "@automovie/interface";
 
 import { positive } from "../../geometry/internal/positive";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
 
 /*
@@ -65,23 +65,23 @@ export function autoMoviePatternInstanceTransforms(
       continue;
     }
     const panel: IResolvedPanel = panels.get(placement.zone) ?? flat;
-    const angle: number = placement.rotationDeg * Quaternion.DEG2RAD;
-    const axisU: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(panel.u, Math.cos(angle)),
-      Vector3.scale(panel.v, Math.sin(angle)),
+    const angle: number = placement.rotationDeg * AutoMovieEngineQuaternion.DEG2RAD;
+    const axisU: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(panel.u, Math.cos(angle)),
+      AutoMovieEngineVector3.scale(panel.v, Math.sin(angle)),
     );
     const slot: IAutoMovieExplicitInstanceTransform = {
       id: placement.id,
-      translation: Vector3.add(
+      translation: AutoMovieEngineVector3.add(
         panel.origin,
-        Vector3.add(
-          Vector3.scale(panel.u, placement.center.u - panel.anchor.u),
-          Vector3.scale(panel.v, placement.center.v - panel.anchor.v),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(panel.u, placement.center.u - panel.anchor.u),
+          AutoMovieEngineVector3.scale(panel.v, placement.center.v - panel.anchor.v),
         ),
       ),
       rotation: quaternionFromAutoMovieBasis(
         axisU,
-        Vector3.cross(panel.normal, axisU),
+        AutoMovieEngineVector3.cross(panel.normal, axisU),
         panel.normal,
       ),
       scale: {
@@ -183,9 +183,9 @@ const resolvePanel: (
 ): IResolvedPanel => {
   const u: IAutoMovieVector3 = unitAxis(frame.u, `${label} u`);
   const v: IAutoMovieVector3 = unitAxis(frame.v, `${label} v`);
-  if (Math.abs(Vector3.dot(u, v)) > 1e-6)
+  if (Math.abs(AutoMovieEngineVector3.dot(u, v)) > 1e-6)
     throw new Error(`${label} axes must be perpendicular`);
-  return { anchor, origin: frame.origin, u, v, normal: Vector3.cross(u, v) };
+  return { anchor, origin: frame.origin, u, v, normal: AutoMovieEngineVector3.cross(u, v) };
 };
 
 /*
@@ -198,7 +198,7 @@ const unitAxis: (
   axis: IAutoMovieVector3,
   label: string,
 ): IAutoMovieVector3 => {
-  if (Math.abs(Vector3.length(axis) - 1) > 1e-6)
+  if (Math.abs(AutoMovieEngineVector3.length(axis) - 1) > 1e-6)
     throw new Error(`${label} must be a unit vector`);
   return axis;
 };

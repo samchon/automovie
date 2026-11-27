@@ -8,7 +8,7 @@ import type {
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
 
-import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError";
+import { AutoMovieRecoveryFeasibleCapacityError } from "../AutoMovieRecoveryFeasibleCapacityError";
 import { prepareRecoveryFeasibleMapWork } from "./prepareRecoveryFeasibleMapWork";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 
@@ -52,7 +52,7 @@ export function prepareRecoveryFeasibleMapReporting(
   )
     throw new Error("camera-feasible: owned reporting capacity required");
   if (work.retained > reporting.fitEntries)
-    throw new RecoveryFeasibleCapacityError("resident");
+    throw new AutoMovieRecoveryFeasibleCapacityError("resident");
   charge(1984);
   return { ...work, reporting };
 }

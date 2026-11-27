@@ -1,4 +1,6 @@
-import { swimImmersedCoast } from "@automovie/motions/internal";
+import {
+  swimImmersedCoast
+} from "../../../../../packages/motions/src/sport/internal/swimImmersedCoast";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

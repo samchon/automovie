@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -189,7 +189,7 @@ export namespace brace {
       p.target === undefined
         ? HumanFrame.point({ origin: middle, yaw }, { x: 0, y: 0, z: 1 })
         : context.aim(p.target, context.start).point;
-    const toward: IAutoMovieVector3 = Vector3.normalize({
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
       x: source.x - middle.x,
       y: 0,
       z: source.z - middle.z,
@@ -201,23 +201,23 @@ export namespace brace {
 
     // The foot farther from the source steps back along the line and out.
     const back: AutoMovieHumanSide =
-      Vector3.dot(Vector3.subtract(feet.left, feet.right), toward) < 0
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(feet.left, feet.right), toward) < 0
         ? "left"
         : "right";
-    const out: IAutoMovieVector3 = Vector3.scale(
+    const out: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       left,
       back === "left" ? 1 : -1,
     );
     const leg: number = m.thigh + m.shank;
     const across: number = Math.abs(
-      Vector3.dot(Vector3.subtract(feet.left, feet.right), out),
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(feet.left, feet.right), out),
     );
     const widen: number = Math.max(0, 2 * m.shoulderHalfWidth - across);
-    const placed: IAutoMovieVector3 = Vector3.add(
+    const placed: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       feet[back],
-      Vector3.add(
-        Vector3.scale(toward, -STAGGER * leg),
-        Vector3.scale(out, widen),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(toward, -STAGGER * leg),
+        AutoMovieEngineVector3.scale(out, widen),
       ),
     );
     const swing: readonly [number, number] = STEP;
@@ -229,7 +229,7 @@ export namespace brace {
         return { ankle: feet[side], planted: true };
       if (t >= swing[1]) return { ankle: placed, planted: true };
       const u: number = (t - swing[0]) / (swing[1] - swing[0]);
-      const ankle: IAutoMovieVector3 = Vector3.lerp(
+      const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         feet[side],
         placed,
         AutoMovieEngineMotionSampling.minimumJerkShare(u),
@@ -249,7 +249,7 @@ export namespace brace {
         z: (body.rest.get("leftFoot")!.z + body.rest.get("rightFoot")!.z) / 2,
       },
     );
-    const settled: IAutoMovieVector3 = Vector3.lerp(
+    const settled: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       feet[back === "left" ? "right" : "left"],
       placed,
       0.5,

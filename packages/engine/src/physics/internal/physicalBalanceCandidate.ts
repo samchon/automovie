@@ -4,13 +4,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { convexHull2D } from "../../math/internal/convexHull2D";
-import { AutoMoviePhysicalBalance } from "../AutoMoviePhysicalBalance";
+import { AutoMovieEnginePhysicalBalance } from "../AutoMovieEnginePhysicalBalance";
 import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
 
 /*
- * One limb's recovery step (`AutoMoviePhysicalBalance.assess`): where it lands,
+ * One limb's recovery step (`AutoMovieEnginePhysicalBalance.assess`): where it lands,
  * when, and whether it captures and can be unloaded at once.
  */
 export namespace physicalBalanceCandidate {
@@ -81,16 +81,16 @@ export namespace physicalBalanceCandidate {
       denominator,
     }: Assessment.IAssessment = scope;
     const held = (outline: IAutoMovieVector3[]): IAutoMovieVector3[] =>
-      AutoMoviePhysicalBalance.held(scope, outline);
+      AutoMovieEnginePhysicalBalance.held(scope, outline);
     const swing = (distance: number): number =>
-      AutoMoviePhysicalBalance.swing(scope, distance);
+      AutoMovieEnginePhysicalBalance.swing(scope, distance);
     const until = (distance: number): number =>
-      AutoMoviePhysicalBalance.until(scope, distance);
+      AutoMovieEnginePhysicalBalance.until(scope, distance);
     const {
       PASSES,
       SETTLED,
     }: Pick<typeof Assessment, "PASSES" | "SETTLED"> = Assessment;
-    const excess = AutoMoviePhysicalBalance.excess;
+    const excess = AutoMovieEnginePhysicalBalance.excess;
     const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
       input.pattern.limbs.find(
         (candidate: (typeof input.pattern.limbs)[number]): boolean =>
@@ -103,7 +103,7 @@ export namespace physicalBalanceCandidate {
       z: support.position.z - centroid.z,
     };
     const along: number =
-      denominator > 0 ? Vector3.dot(offset, direction) / denominator : 0;
+      denominator > 0 ? AutoMovieEngineVector3.dot(offset, direction) / denominator : 0;
     // The remaining supports hold the centre of pressure on their
     // shrunken outline, at its point nearest the capture point, while this
     // limb swings; the capture point diverges from it by e^(omega t) (Hof
@@ -139,7 +139,7 @@ export namespace physicalBalanceCandidate {
         (other: (typeof input.supports)[number]): IAutoMovieVector3[] =>
           other.points,
       );
-    const stance: IAutoMovieVector3 = Vector3.scale(
+    const stance: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       input.supports
         .filter(
           (other: (typeof input.supports)[number]): boolean =>
@@ -147,7 +147,7 @@ export namespace physicalBalanceCandidate {
         )
         .reduce(
           (sum: IAutoMovieVector3, other: (typeof input.supports)[number]) =>
-            Vector3.add(sum, other.position),
+            AutoMovieEngineVector3.add(sum, other.position),
           { x: 0, y: 0, z: 0 },
         ),
       1 / Math.max(1, input.supports.length - 1),
@@ -245,7 +245,7 @@ export namespace physicalBalanceCandidate {
     let length: number = 0;
     for (let pass: number = 0; pass < PASSES; pass++) {
       const before: IAutoMovieVector3 = target;
-      landing = AutoMoviePhysicalBalance.diverge(
+      landing = AutoMovieEnginePhysicalBalance.diverge(
         capturePoint,
         holding,
         omega * until(distance),

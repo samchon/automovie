@@ -1,5 +1,5 @@
 import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
-import { AutoMovieViewJointedCourse } from "@automovie/engine";
+import { AutoMovieEngineViewJointedCourse } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
@@ -10,7 +10,7 @@ import type {
 /**
  * A conic family carried to a pose: what a change of its course's joint angles asks of the family besides moving its centres.
  *
- * A jointed course (`AutoMovieViewAxis.jointed`) rounds each interior centre by a turn of arclength `2 half`, which leaves both
+ * A jointed course (`AutoMovieEngineViewAxis.jointed`) rounds each interior centre by a turn of arclength `2 half`, which leaves both
  * neighbouring segments at the set-back `d` from the centre; between two turns the course is the segment's own line, a straight run.
  * The straight runs are bone and the turn is the joint, so a pose must keep each run on its bone:
  *
@@ -41,7 +41,7 @@ export namespace AutoMovieHumanConicPose {
   export function share(angle: number): number {
     if (angle === 0) return 1;
     const made: IAutoMovieViewJointedCourse.ICourse | string =
-      AutoMovieViewJointedCourse.prepare(
+      AutoMovieEngineViewJointedCourse.prepare(
         [
           [-1e6, 0, 0],
           [0, 0, 0],
@@ -195,7 +195,7 @@ export namespace AutoMovieHumanConicPose {
    */
   export function twist(reference: IAutoMovieHumanConicLoft.IFamily, posed: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up">, carried: (run: number, direction: AutoMovieVector3Tuple) => AutoMovieVector3Tuple): IAutoMovieHumanConicLoft.IRoll | undefined {
     // A posed course the engine does not admit has no chart to read; the family is refused with the engine's own rule when it is lofted.
-    if (typeof AutoMovieViewJointedCourse.prepare(posed.centres, posed.halves) === "string") return undefined;
+    if (typeof AutoMovieEngineViewJointedCourse.prepare(posed.centres, posed.halves) === "string") return undefined;
     const [from, to]: IAutoMovieHumanConicPose.ICourse[] = [course(reference.centres, reference.halves), course(posed.centres, posed.halves)];
     const ends = (c: IAutoMovieHumanConicPose.ICourse): [number, number][] => c.lengths.map((_: number, k: number): [number, number] => [k === 0 ? 0 : c.starts[k - 1]! + 2 * c.halves[k - 1]!, k < c.starts.length ? c.starts[k]! : c.total]);
     const [runs, placed]: [number, number][][] = [ends(from!), ends(to!)];

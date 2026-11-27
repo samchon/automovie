@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -122,7 +122,7 @@ export namespace EquinePack {
     d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
     rig: AutoMovieArchetypeEquine.IRig,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const r: number = EquineHarness.ESTIMATES.strap;
     const steps: number = EquineHarness.ESTIMATES.arc;
     const size: ReturnType<typeof saddle> = saddle(d.withersHeight);
@@ -154,8 +154,8 @@ export namespace EquinePack {
           sign,
           outer,
         );
-        const middle: IAutoMovieVector3 = Vector3.scale(Vector3.add(a, b), 0.5);
-        const tangent: number = Vector3.length(Vector3.subtract(b, a));
+        const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(a, b), 0.5);
+        const tangent: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(b, a));
         builder.box(
           `pad-${side}-${k + 1}`,
           v(tangent, PAD, size.along),
@@ -163,7 +163,7 @@ export namespace EquinePack {
           {
             color: CANVAS,
             share: (100 * size.mass) / d.mass / (2 * steps),
-            rotation: Quaternion.fromAxisAngle(
+            rotation: AutoMovieEngineQuaternion.fromAxisAngle(
               v(0, 0, 1),
               (-sign * ((sweep * (k + 0.5)) / steps)) /
                 AutoMovieArchetypeUnits.DEGREE,

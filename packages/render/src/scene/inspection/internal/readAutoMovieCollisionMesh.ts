@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieSkinnedMesh } from "../../AutoMovieSkinnedMesh.js";
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderSkinnedMesh } from "../../AutoMovieRenderSkinnedMesh.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
 import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
@@ -39,7 +39,7 @@ export function readAutoMovieCollisionMesh(
     return unsupported("morph-targets");
   const topology: readAutoMovieCollisionTopology.ITopology | null =
     readAutoMovieCollisionTopology(mesh.geometry);
-  if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) {
+  if (AutoMovieRenderThreeKind.isAutoMovieSkinnedMesh(mesh)) {
     const bounds: IAutoMovieSubjectBox | null =
       readAutoMovieDisplayedBox.skinEnvelope(mesh);
     const read: AutoMovieRenderInspectionGeometry.IPartSurface["read"] | null =
@@ -113,7 +113,7 @@ export namespace readAutoMovieCollisionMesh {
  * the vertex budget only when a candidate pair reads it.
  */
 function readSkin(
-  mesh: AutoMovieSkinnedMesh,
+  mesh: AutoMovieRenderSkinnedMesh,
   topology: readAutoMovieCollisionTopology.ITopology,
   budget: { posedVertices: number; parts?: number },
 ): AutoMovieRenderInspectionGeometry.IPartSurface["read"] | null {
@@ -141,7 +141,7 @@ function readSkin(
  * buffers.
  */
 function dominantJoints(
-  mesh: AutoMovieSkinnedMesh,
+  mesh: AutoMovieRenderSkinnedMesh,
 ): ((vertex: number) => string | undefined) | undefined {
   const indices:
     | THREE.BufferAttribute

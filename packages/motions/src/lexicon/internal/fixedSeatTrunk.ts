@@ -1,7 +1,7 @@
 import {
-  DEFAULT_HUMANOID_ROM,
-  ROM_TOLERANCE,
-  Vector3,
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -35,7 +35,7 @@ export function fixedSeatTrunk(
   const twists: IVariable[] = [];
   for (const bone of TRUNK) {
     const limit: OptionalLimit =
-      body.bones.get(bone)?.constraint ?? DEFAULT_HUMANOID_ROM[bone];
+      body.bones.get(bone)?.constraint ?? AutoMovieEngineDefaultHumanoidRom[bone];
     if (
       !limit ||
       limit.swingTwist ||
@@ -45,7 +45,7 @@ export function fixedSeatTrunk(
     for (let index: number = 0; index < AXES.length; ++index) {
       const axis: Axis = AXES[index]!;
       const range: OptionalRange = limit[axis];
-      if (!range || range.max - range.min <= ROM_TOLERANCE) continue;
+      if (!range || range.max - range.min <= AutoMovieEngineRomTolerance) continue;
       if (range.max - range.min >= 360) return [];
       const variable: IVariable = { bone, index, range };
       variables.push(variable);
@@ -82,15 +82,15 @@ export function fixedSeatTrunk(
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read(
       source.joints,
     )(root);
-    const left: IAutoMovieVector3 = Vector3.subtract(
+    const left: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       bones.get("leftUpperArm")!.worldPosition,
       sites.left,
     );
-    const right: IAutoMovieVector3 = Vector3.subtract(
+    const right: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       bones.get("rightUpperArm")!.worldPosition,
       sites.right,
     );
-    return [Vector3.dot(left, left), Vector3.dot(right, right)];
+    return [AutoMovieEngineVector3.dot(left, left), AutoMovieEngineVector3.dot(right, right)];
   };
   const candidates: ICandidate[] = [];
   for (const initial of ["min", "entry", "max"] as const) {
@@ -128,7 +128,7 @@ export function fixedSeatTrunk(
         turn(source.joints, variable, angle);
       }
       score = maximum(squared());
-      if (!(score < previous) || moved <= ROM_TOLERANCE) break;
+      if (!(score < previous) || moved <= AutoMovieEngineRomTolerance) break;
     }
     candidates.push({ joints: source.joints, squared: score });
   }

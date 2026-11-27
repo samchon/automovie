@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -166,11 +166,11 @@ export namespace HumanIceGlide {
           );
           const phase: number =
             AutoMovieEngineMotionSampling.minimumJerkShare(u);
-          const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
             UP,
             posture.yaw,
           );
-          const shift: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+          const shift: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
             x: step.offset.x * phase,
             y: step.clearance * Math.sin(Math.PI * u),
             z: step.offset.z * phase,
@@ -256,11 +256,11 @@ export namespace HumanIceGlide {
                 (share - 1 + HumanSurfaceGlide.BRAKE) / HumanSurfaceGlide.BRAKE,
               )
             : 1);
-        const facing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        const facing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
           UP,
           posture.yaw,
         );
-        const back: IAutoMovieVector3 = Quaternion.rotateVector(facing, {
+        const back: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(facing, {
           x: 0,
           y: 0,
           z: -params.trail * set,
@@ -280,7 +280,7 @@ export namespace HumanIceGlide {
             ...posture.limbs,
             [leading]: shifted(
               posture.limbs[leading]!,
-              Vector3.scale(back, -1),
+              AutoMovieEngineVector3.scale(back, -1),
             ),
             [trailing]: shifted(
               pivotSurfaceFoot(goal, ball, CROSS, params.heel * set),
@@ -340,7 +340,7 @@ function sheds(
       share,
     );
   return {
-    ...shifted(goal, Vector3.subtract(placed.ankle, goal.point)),
+    ...shifted(goal, AutoMovieEngineVector3.subtract(placed.ankle, goal.point)),
     rotation: placed.rotation,
   };
 }
@@ -353,8 +353,8 @@ function shifted(
 ): IAutoMovieHumanLimbGoal {
   return {
     ...goal,
-    point: Vector3.add(goal.point, by),
-    bend: Vector3.add(goal.bend, by),
+    point: AutoMovieEngineVector3.add(goal.point, by),
+    bend: AutoMovieEngineVector3.add(goal.bend, by),
   };
 }
 type Skate = IAutoMovieMotionHumanSurface.ISkateParams;

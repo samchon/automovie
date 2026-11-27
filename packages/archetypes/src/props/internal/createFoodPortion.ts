@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeFoodPortion } from "../AutoMovieArchetypeFoodPortion";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -37,7 +37,7 @@ export function createFoodPortion(
     AutoMovieArchetypeFoodPortion.KINDS,
   );
   const size: AutoMovieArchetypeFoodPortion.ISize = SIZES[kind];
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeFoodPortion.Dimension> =
     new AutoMovieArchetypeDrawSession(
       "foodPortion",

@@ -1,5 +1,5 @@
-import { type IAutoMovieFlamesObject } from "./IAutoMovieFlamesObject.js";
-import { type IPrepareAutoMovieFlamesProps } from "./IPrepareAutoMovieFlamesProps.js";
+import { type IAutoMovieRenderFlamesObject } from "./IAutoMovieRenderFlamesObject.js";
+import { type IAutoMovieRenderPrepareFlamesProps } from "./IAutoMovieRenderPrepareFlamesProps.js";
 import { prepareAutoMovieFlames as prepareAutoMovieFlamesImplementation } from "./flame/internal/prepareAutoMovieFlames.js";
 
 /** Public operations for Auto Movie Render Flame. */
@@ -28,7 +28,7 @@ export namespace AutoMovieRenderFlame {
    * missing emitter or an unresolvable bound light throws, after releasing what
    * was made.
    */
-  export function prepare(props: IPrepareAutoMovieFlamesProps): IAutoMovieFlamesObject {
+  export function prepare(props: IAutoMovieRenderPrepareFlamesProps): IAutoMovieRenderFlamesObject {
     return prepareAutoMovieFlamesImplementation(props);
   }
 }

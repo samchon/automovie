@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -39,7 +39,7 @@ export function FootStrikeTilt(
   // A positive turn about the horizontal axis across the leg carries the
   // body's up away from the leg.
   return {
-    axis: Vector3.normalize(Vector3.cross(excess.across, FootStrikeForms.UP)),
+    axis: AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(excess.across, FootStrikeForms.UP)),
     degrees: Math.min(KickForm.LEAN_MOST, excess.degrees),
   };
 }
@@ -49,7 +49,7 @@ export function FootStrikeTilt(
  * the leg to the contact.
  *
  * The hip's reach at an azimuth about the pelvis is read as the ellipse of its
- * range table (`DEFAULT_HUMANOID_ROM`): flexion `F` forward, abduction `A` to
+ * range table (`AutoMovieEngineDefaultHumanoidRom`): flexion `F` forward, abduction `A` to
  * the side, `1 / r² = cos²ψ / F² + sin²ψ / A²`, against the thigh's elevation:
  * the hip-to-ankle line's, raised by the knee's bend over that line's length
  * (the law of cosines). The abduction ceiling is the one the flexion the leg
@@ -86,7 +86,7 @@ export namespace FootStrikeTilt {
    * How far a kicking leg, reaching from the hip to an ankle, rises past the
    * hip's range: the leg line's elevation plus the thigh's rise above it for a
    * bent knee, against the share of the elliptical reach between the hip's
-   * flexion and its abduction at that azimuth (`DEFAULT_HUMANOID_ROM`).
+   * flexion and its abduction at that azimuth (`AutoMovieEngineDefaultHumanoidRom`).
    * Parameter side: The kicking side.
    * Parameter yaw: The kicker's heading, degrees.
    * Parameter hip: The hip, world metres.
@@ -152,14 +152,14 @@ export namespace FootStrikeTilt {
     if (excess === undefined) return folded;
     const turn: number = Math.min(excess.elevation, excess.degrees - tilted);
     if (!(turn > 0)) return folded;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       hip,
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(
-          Vector3.normalize(Vector3.cross(FootStrikeForms.UP, excess.across)),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(
+          AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(FootStrikeForms.UP, excess.across)),
           turn,
         ),
-        Vector3.subtract(folded, hip),
+        AutoMovieEngineVector3.subtract(folded, hip),
       ),
     );
   }
@@ -184,17 +184,17 @@ export namespace FootStrikeTilt {
     thigh: number,
     length: number,
   ): IAutoMovieVector3 {
-    const chord: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    const d: number = Vector3.length(chord);
-    const u: IAutoMovieVector3 = Vector3.normalize(chord);
+    const chord: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ankle, hip);
+    const d: number = AutoMovieEngineVector3.length(chord);
+    const u: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(chord);
     if (!(d < thigh + length) || d <= 1e-9) return u;
-    const off: IAutoMovieVector3 = Vector3.subtract(hint, hip);
-    const across: IAutoMovieVector3 = Vector3.subtract(
+    const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(hint, hip);
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       off,
-      Vector3.scale(u, Vector3.dot(off, u)),
+      AutoMovieEngineVector3.scale(u, AutoMovieEngineVector3.dot(off, u)),
     );
-    if (Vector3.length(across) < 1e-9) return u;
-    const w: IAutoMovieVector3 = Vector3.normalize(across);
+    if (AutoMovieEngineVector3.length(across) < 1e-9) return u;
+    const w: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(across);
     const alpha: number = Math.acos(
       Math.max(
         -1,
@@ -204,14 +204,14 @@ export namespace FootStrikeTilt {
         ),
       ),
     );
-    const knee: IAutoMovieVector3 = Vector3.add(
+    const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hip,
-      Vector3.add(
-        Vector3.scale(u, thigh * Math.cos(alpha)),
-        Vector3.scale(w, thigh * Math.sin(alpha)),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(u, thigh * Math.cos(alpha)),
+        AutoMovieEngineVector3.scale(w, thigh * Math.sin(alpha)),
       ),
     );
-    return Vector3.normalize(Vector3.subtract(ankle, knee));
+    return AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(ankle, knee));
   }
 
   /*
@@ -238,60 +238,60 @@ export namespace FootStrikeTilt {
     asked: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const twist: IAutoMovieAngleRange | null | undefined =
-      DEFAULT_HUMANOID_ROM[`${side}UpperLeg`]?.twist;
+      AutoMovieEngineDefaultHumanoidRom[`${side}UpperLeg`]?.twist;
     if (twist === null || twist === undefined) return asked;
-    const leg: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(ankle, hip),
+    const leg: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(ankle, hip),
     );
-    const middle: IAutoMovieVector3 = Vector3.lerp(hip, ankle, 0.5);
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(hip, ankle, 0.5);
     const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(v, Vector3.scale(leg, Vector3.dot(v, leg)));
-    const offset: IAutoMovieVector3 = across(Vector3.subtract(asked, middle));
-    if (Vector3.length(offset) < 1e-9) return asked;
-    const down: IAutoMovieVector3 = Quaternion.rotateVector(pelvis, {
+      AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(leg, AutoMovieEngineVector3.dot(v, leg)));
+    const offset: IAutoMovieVector3 = across(AutoMovieEngineVector3.subtract(asked, middle));
+    if (AutoMovieEngineVector3.length(offset) < 1e-9) return asked;
+    const down: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(pelvis, {
       x: 0,
       y: -1,
       z: 0,
     });
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(pelvis, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(pelvis, {
       x: 0,
       y: 0,
       z: 1,
     });
-    const axis: IAutoMovieVector3 = Vector3.cross(down, leg);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(down, leg);
     const swing: IAutoMovieQuaternion =
-      Vector3.length(axis) < 1e-9
-        ? Quaternion.identity()
-        : Quaternion.fromAxisAngle(
+      AutoMovieEngineVector3.length(axis) < 1e-9
+        ? AutoMovieEngineQuaternion.identity()
+        : AutoMovieEngineQuaternion.fromAxisAngle(
             axis,
-            (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(down, leg)))) *
+            (Math.acos(Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(down, leg)))) *
               180) /
               Math.PI,
           );
     const rest: IAutoMovieVector3 = across(
-      Quaternion.rotateVector(swing, forward),
+      AutoMovieEngineQuaternion.rotateVector(swing, forward),
     );
-    if (Vector3.length(rest) < 1e-9) return asked;
-    const from: IAutoMovieVector3 = Vector3.normalize(rest);
-    const to: IAutoMovieVector3 = Vector3.normalize(offset);
+    if (AutoMovieEngineVector3.length(rest) < 1e-9) return asked;
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(rest);
+    const to: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(offset);
     const turned: number =
       (Math.atan2(
-        Vector3.dot(Vector3.cross(from, to), leg),
-        Vector3.dot(from, to),
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(from, to), leg),
+        AutoMovieEngineVector3.dot(from, to),
       ) *
         180) /
       Math.PI;
     const limit: number =
       KickForm.RANGE_SHARE * Math.min(Math.abs(twist.min), Math.abs(twist.max));
     if (Math.abs(turned) <= limit) return asked;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       middle,
-      Vector3.scale(
-        Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(leg, Math.sign(turned) * limit),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(leg, Math.sign(turned) * limit),
           from,
         ),
-        Vector3.length(offset),
+        AutoMovieEngineVector3.length(offset),
       ),
     );
   }
@@ -315,7 +315,7 @@ function over(
   share: number = KickForm.RANGE_SHARE,
 ): IExcess | undefined {
   const constraint: IAutoMovieJointConstraint | undefined =
-    DEFAULT_HUMANOID_ROM[`${side}UpperLeg`];
+    AutoMovieEngineDefaultHumanoidRom[`${side}UpperLeg`];
   if (
     constraint === undefined ||
     constraint.flexion === null ||
@@ -324,12 +324,12 @@ function over(
     throw new Error(
       `The range-of-motion table gives ${side}UpperLeg no flexion or abduction`,
     );
-  const chord: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-  const d: number = Vector3.length(chord);
-  const leg: IAutoMovieVector3 = Vector3.normalize(chord);
+  const chord: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ankle, hip);
+  const d: number = AutoMovieEngineVector3.length(chord);
+  const leg: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(chord);
   const flat: IAutoMovieVector3 = { x: leg.x, y: 0, z: leg.z };
-  if (Vector3.length(flat) < 1e-9) return undefined;
-  const across: IAutoMovieVector3 = Vector3.normalize(flat);
+  if (AutoMovieEngineVector3.length(flat) < 1e-9) return undefined;
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(flat);
   const line: number =
     (Math.acos(Math.max(-1, Math.min(1, -leg.y))) * 180) / Math.PI;
   // The thigh's rise above the hip-to-ankle line at this chord's length.
@@ -354,16 +354,16 @@ function over(
     { origin: { x: 0, y: 0, z: 0 }, yaw },
     { x: 0, y: 0, z: 1 },
   );
-  const left: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(FootStrikeForms.UP, forward),
+  const left: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.cross(FootStrikeForms.UP, forward),
   );
-  const outward: IAutoMovieVector3 = Vector3.scale(
+  const outward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     left,
     side === "left" ? 1 : -1,
   );
   const azimuth: number = Math.atan2(
-    Vector3.dot(across, outward),
-    Vector3.dot(across, forward),
+    AutoMovieEngineVector3.dot(across, outward),
+    AutoMovieEngineVector3.dot(across, forward),
   );
 
   // The range ellipse's reach at that azimuth, its abduction ceiling the

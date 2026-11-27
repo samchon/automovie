@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  Vector3,
-  hingedArmSwivel,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineHingedArmSwivel,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -20,7 +20,7 @@ import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
 
 /*
  * A leg posed as the posture's own fit poses it, read through the engine's
- * hinged chain (`hingedArmSwivel`): the knee bends about its hinge alone, and
+ * hinged chain (`AutoMovieEngineHingedArmSwivel`): the knee bends about its hinge alone, and
  * the leg is one bend branch and one swivel about its hip-to-ankle line. `fit`
  * runs the posture's leg fit itself (`applyHumanLimbFit`, solved directly every
  * time) on a pelvis and reads its branch and swivel, and `seeded` does so
@@ -56,11 +56,11 @@ export namespace HumanLegChain {
       target,
     );
     const stops: IAutoMovieHingedArmSwivel.IStop[] | null =
-      hingedArmSwivel.branches(chain);
+      AutoMovieEngineHingedArmSwivel.branches(chain);
     if (stops === null) return null;
     const theta: number = stops[Math.min(held.branch, stops.length - 1)]!.theta;
-    const rotations: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
-      hingedArmSwivel.pose(chain, theta)(held.swivel);
+    const rotations: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
+      AutoMovieEngineHingedArmSwivel.pose(chain, theta)(held.swivel);
     return placed(chain, rotations.upper, rotations.lower);
   }
 
@@ -91,17 +91,17 @@ export namespace HumanLegChain {
       pelvis,
       hip,
     );
-    const geometry: hingedArmSwivel.IPrepared = hingedArmSwivel.prepare(source);
+    const geometry: AutoMovieEngineHingedArmSwivel.IPrepared = AutoMovieEngineHingedArmSwivel.prepare(source);
     return (
       point: IAutoMovieVector3,
       held: IAutoMovieMotionHumanLegChain.ISwivel,
     ): IAutoMovieMotionHumanLegChain.IPosed | null => {
-      const target: hingedArmSwivel.IPreparedTarget = geometry.target(point);
+      const target: AutoMovieEngineHingedArmSwivel.IPreparedTarget = geometry.target(point);
       const stops: IAutoMovieHingedArmSwivel.IStop[] | null = target.branches();
       if (stops === null) return null;
       const theta: number =
         stops[Math.min(held.branch, stops.length - 1)]!.theta;
-      const rotations: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+      const rotations: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
         target.pose(theta)(held.swivel);
       return placed(source, rotations.upper, rotations.lower);
     };
@@ -128,24 +128,24 @@ export namespace HumanLegChain {
       thigh.worldPosition,
       bones.get(`${side}Foot`)!.worldPosition,
     );
-    const upper: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(chain.upper.worldRotation),
+    const upper: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(chain.upper.worldRotation),
       thigh.worldRotation,
     );
-    const lower: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(
-        Quaternion.multiply(thigh.worldRotation, chain.midRest),
+    const lower: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(
+        AutoMovieEngineQuaternion.multiply(thigh.worldRotation, chain.midRest),
       ),
       shank.worldRotation,
     );
-    const hinge: IAutoMovieVector3 = Vector3.normalize(chain.hinge);
+    const hinge: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(chain.hinge);
     const theta: number =
       2 *
       Math.atan2(
         lower.x * hinge.x + lower.y * hinge.y + lower.z * hinge.z,
         lower.w,
       );
-    const stops: IAutoMovieHingedArmSwivel.IStop[] = hingedArmSwivel.branches(
+    const stops: IAutoMovieHingedArmSwivel.IStop[] = AutoMovieEngineHingedArmSwivel.branches(
       chain,
     ) ?? [{ theta, shortfall: 0 }];
     const apart = (a: number): number =>
@@ -154,7 +154,7 @@ export namespace HumanLegChain {
     stops.forEach((stop: IAutoMovieHingedArmSwivel.IStop, i: number): void => {
       if (apart(stop.theta) < apart(stops[branch]!.theta)) branch = i;
     });
-    return { branch, swivel: hingedArmSwivel.read(chain, upper, theta) };
+    return { branch, swivel: AutoMovieEngineHingedArmSwivel.read(chain, upper, theta) };
   }
 
   /*
@@ -258,7 +258,7 @@ export namespace HumanLegChain {
     return {
       upper: {
         worldPosition: hip,
-        worldRotation: Quaternion.multiply(pelvis, rest.upperRotation),
+        worldRotation: AutoMovieEngineQuaternion.multiply(pelvis, rest.upperRotation),
       },
       midOffset: rest.lowerOffset,
       midRest: rest.lowerRotation,
@@ -275,23 +275,23 @@ export namespace HumanLegChain {
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): IAutoMovieMotionHumanLegChain.IPosed {
-    const thigh: IAutoMovieQuaternion = Quaternion.multiply(
+    const thigh: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       chain.upper.worldRotation,
       upper,
     );
     const hip: IAutoMovieVector3 = chain.upper.worldPosition;
-    const knee: IAutoMovieVector3 = Vector3.add(
+    const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hip,
-      Quaternion.rotateVector(thigh, chain.midOffset),
+      AutoMovieEngineQuaternion.rotateVector(thigh, chain.midOffset),
     );
-    const shank: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(thigh, chain.midRest),
+    const shank: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(thigh, chain.midRest),
       lower,
     );
     return {
       hip,
       knee,
-      ankle: Vector3.add(knee, Quaternion.rotateVector(shank, chain.endOffset)),
+      ankle: AutoMovieEngineVector3.add(knee, AutoMovieEngineQuaternion.rotateVector(shank, chain.endOffset)),
       thigh,
       shank,
     };

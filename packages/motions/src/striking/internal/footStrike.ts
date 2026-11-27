@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -185,10 +185,10 @@ export namespace footStrike {
         target,
         entry.yaw,
       );
-      const left: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(FootStrikeForms.UP, line),
+      const left: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(FootStrikeForms.UP, line),
       );
-      const outward: IAutoMovieVector3 = Vector3.scale(
+      const outward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         left,
         side === "left" ? 1 : -1,
       );
@@ -261,7 +261,7 @@ export namespace footStrike {
           rotation,
         },
       );
-      let ankle: IAutoMovieVector3 = Vector3.subtract(target, offset);
+      let ankle: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(target, offset);
       const reach: number = m.thigh + m.shank;
 
       // A low target drops the hips, the support knee bending, until the leg
@@ -273,7 +273,7 @@ export namespace footStrike {
       );
       const straight: number = STRAIGHT * reach;
       const drop: number =
-        level < straight && Vector3.distance(ankle, standing) > straight
+        level < straight && AutoMovieEngineVector3.distance(ankle, standing) > straight
           ? Math.min(
               DROP * reach,
               Math.max(
@@ -306,21 +306,21 @@ export namespace footStrike {
       if (
         p.technique === "sweep" &&
         p.at.kind === "person" &&
-        Vector3.distance(ankle, hip) > reach
+        AutoMovieEngineVector3.distance(ankle, hip) > reach
       )
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "at",
-          value: Vector3.distance(ankle, hip),
-          reason: `the sweep needs ${Vector3.distance(ankle, hip).toFixed(3)} m from the hip to the partner's ankle, beyond the leg's ${reach.toFixed(3)} m`,
+          value: AutoMovieEngineVector3.distance(ankle, hip),
+          reason: `the sweep needs ${AutoMovieEngineVector3.distance(ankle, hip).toFixed(3)} m from the hip to the partner's ankle, beyond the leg's ${reach.toFixed(3)} m`,
           fix: "stand closer to the partner, or sweep a nearer leg",
         });
       const clamp = (goal: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.distance(goal, hip) > reach
-          ? Vector3.add(
+        AutoMovieEngineVector3.distance(goal, hip) > reach
+          ? AutoMovieEngineVector3.add(
               hip,
-              Vector3.scale(
-                Vector3.normalize(Vector3.subtract(goal, hip)),
+              AutoMovieEngineVector3.scale(
+                AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(goal, hip)),
                 reach,
               ),
             )
@@ -339,9 +339,9 @@ export namespace footStrike {
           pelvis,
           hip,
           at,
-          Vector3.add(
-            Vector3.lerp(hip, at, 0.5),
-            Vector3.scale(FootStrikeForms.UP, 0.25 * m.thigh),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.lerp(hip, at, 0.5),
+            AutoMovieEngineVector3.scale(FootStrikeForms.UP, 0.25 * m.thigh),
           ),
         );
       // The foot's attitude is the form's, turned square to the shank it
@@ -353,7 +353,7 @@ export namespace footStrike {
         v: IAutoMovieVector3,
         along: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
-        Vector3.subtract(v, Vector3.scale(along, Vector3.dot(v, along)));
+        AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(along, AutoMovieEngineVector3.dot(v, along)));
       for (let i: number = 0; i < 2; ++i) {
         const leg: IAutoMovieVector3 = FootStrikeTilt.shank(
           hip,
@@ -366,16 +366,16 @@ export namespace footStrike {
           form.toes(line, left, outward),
           leg,
         );
-        if (Vector3.length(toes) < 1e-3) break;
-        const pointing: IAutoMovieVector3 = Vector3.normalize(toes);
+        if (AutoMovieEngineVector3.length(toes) < 1e-3) break;
+        const pointing: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(toes);
         rotation = StrikingBody.foot(
           pointing,
-          Vector3.normalize(
+          AutoMovieEngineVector3.normalize(
             square(square(form.instep(line, left, outward), leg), pointing),
           ),
         );
         ankle = clamp(
-          Vector3.subtract(
+          AutoMovieEngineVector3.subtract(
             target,
             HumanFoot.point(body, side, form.contact, {
               ankle: { x: 0, y: 0, z: 0 },
@@ -405,10 +405,10 @@ export namespace footStrike {
         m.shank,
         (tilt?.degrees ?? 0) * share(chamber),
       );
-      const through: IAutoMovieVector3 = Vector3.add(
+      const through: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         folded,
-        Vector3.scale(
-          Vector3.subtract(ankle, folded),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(ankle, folded),
           1 / AutoMovieEngineMotionSampling.minimumJerkShare(MEET),
         ),
       );

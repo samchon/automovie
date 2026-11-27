@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieCrowdAgent,
   IAutoMovieVector3,
@@ -198,7 +198,7 @@ export namespace AutoMovieArchetypePassageSearch {
     const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
     const origin: IAutoMovieVector3 = state.placement.translation;
     return points.map((point: IAutoMovieVector3): IAutoMovieVector3 => {
-      const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+      const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         state.placement.rotation,
         point,
       );

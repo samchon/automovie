@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import type { physicalInertiaFactor } from "../../physics/internal/physicalInertiaFactor";
 import { AirborneMomentumDefect } from "./airborne/AirborneMomentumDefect";
 import { AirborneShapeHistory } from "./airborne/AirborneShapeHistory";
@@ -55,9 +55,9 @@ export function solveAirborneInvariant(
   const factor: physicalInertiaFactor.IPrepared | undefined =
     AirborneShapeHistory.constant(props.history, t0, t1);
   if (factor === undefined) return undefined;
-  const q0: IAutoMovieQuaternion = Quaternion.normalize(props.q0);
-  const back: IAutoMovieQuaternion = Quaternion.inverse(q0);
-  const carried: IAutoMovieVector3 = Quaternion.rotateVector(
+  const q0: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(props.q0);
+  const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(q0);
+  const carried: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     back,
     props.momentum,
   );
@@ -81,7 +81,7 @@ export function solveAirborneInvariant(
 
   const tangents: IAutoMovieVector3[] = directions.map(
     (direction: IAutoMovieVector3): IAutoMovieVector3 =>
-      factor.solve(Quaternion.rotateVector(back, direction)),
+      factor.solve(AutoMovieEngineQuaternion.rotateVector(back, direction)),
   );
 
   if (props.momentumTolerance !== undefined) {

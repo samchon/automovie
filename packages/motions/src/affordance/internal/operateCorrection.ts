@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionPlan,
@@ -57,7 +57,7 @@ export function operateCorrection(
       ? posture
       : {
           ...posture,
-          root: Vector3.addScaled(posture.root, direction, shift * weight),
+          root: AutoMovieEngineVector3.addScaled(posture.root, direction, shift * weight),
         };
   };
   const course: ReturnType<typeof prepareHumanPostureCorrection> =
@@ -74,7 +74,7 @@ export function operateCorrection(
       exact,
       {
         root: HumanBalance.TOLERANCE,
-        angle: ROM_TOLERANCE,
+        angle: AutoMovieEngineRomTolerance,
         step: AutoMovieMotionHumanArmCourse.STEP,
       },
     );

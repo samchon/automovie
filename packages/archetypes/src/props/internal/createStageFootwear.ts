@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeStageFootwear } from "../AutoMovieArchetypeStageFootwear";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -52,7 +52,7 @@ export function createStageFootwear(
   const profile: (typeof PROFILES)[AutoMovieArchetypeStageFootwear.Kind] = PROFILES[kind];
   const wall: number = profile.thickness;
   const half: number = length / 2;
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const builder: AutoMovieArchetypeBuilder<
     AutoMovieArchetypeStageFootwear.Affordance,
     AutoMovieArchetypeStageFootwear.Dimension

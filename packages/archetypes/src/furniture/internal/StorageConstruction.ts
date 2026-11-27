@@ -7,8 +7,8 @@ import {
   AutoMovieArchetypeUnits,
 } from "../../core";
 import type { AutoMovieArchetypeStorage } from "../AutoMovieArchetypeStorage";
-import * as StorageConstructionData from "./StorageConstructionData";
-import { v } from "./StorageConstructionData";
+import { StorageConstructionData } from "./StorageConstructionData";
+
 
 /*
  * How createStorage builds each kind of cabinet: a wardrobe, a chest of
@@ -75,9 +75,9 @@ export namespace StorageConstruction {
       id: "push",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.facing(
-        v(width / 2, height / 2, 0),
-        v(1, 0, 0),
-        v(0, 0, 1),
+        StorageConstructionData.v(width / 2, height / 2, 0),
+        StorageConstructionData.v(1, 0, 0),
+        StorageConstructionData.v(0, 0, 1),
       ),
       extent: null,
       width: depth,
@@ -86,7 +86,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(StorageConstructionData.v(0, height, 0)),
       extent: null,
       width,
       depth,
@@ -109,8 +109,8 @@ export namespace StorageConstruction {
     const pull: number = d.pullHeight!;
     builder.box(
       "carcass",
-      v(width, height, depth - E.panel),
-      v(0, height / 2, -E.panel / 2),
+      StorageConstructionData.v(width, height, depth - E.panel),
+      StorageConstructionData.v(0, height / 2, -E.panel / 2),
       { color: StorageConstructionData.WOOD, density: 0.3 },
     );
     faces(builder, width, height, depth);
@@ -120,24 +120,24 @@ export namespace StorageConstruction {
     ] as const) {
       builder.box(
         `door-${side}`,
-        v(width / 2, height, E.panel),
-        v((sign * width) / 4, height / 2, face - E.panel / 2),
+        StorageConstructionData.v(width / 2, height, E.panel),
+        StorageConstructionData.v((sign * width) / 4, height / 2, face - E.panel / 2),
         { color: FRONT },
       );
       builder.rod(
         `pull-${side}`,
         E.pull / 2,
-        v(sign * 0.04, pull - E.grip / 2, face + E.pull),
-        v(sign * 0.04, pull + E.grip / 2, face + E.pull),
+        StorageConstructionData.v(sign * 0.04, pull - E.grip / 2, face + E.pull),
+        StorageConstructionData.v(sign * 0.04, pull + E.grip / 2, face + E.pull),
         { color: HARDWARE },
       );
       builder.affordance({
         id: `${side}Door`,
         kind: "hinge",
         frame: AutoMovieArchetypeFrame.facing(
-          v((sign * width) / 2, pull, face),
-          v(0, sign, 0),
-          v(-sign, 0, 0),
+          StorageConstructionData.v((sign * width) / 2, pull, face),
+          StorageConstructionData.v(0, sign, 0),
+          StorageConstructionData.v(-sign, 0, 0),
         ),
         extent: null,
         travel: d.swing!,
@@ -148,9 +148,9 @@ export namespace StorageConstruction {
         kind: "handle",
         symmetry: "none",
         frame: AutoMovieArchetypeFrame.facing(
-          v(sign * 0.04, pull, face + E.pull),
-          v(0, 0, 1),
-          v(0, 1, 0),
+          StorageConstructionData.v(sign * 0.04, pull, face + E.pull),
+          StorageConstructionData.v(0, 0, 1),
+          StorageConstructionData.v(0, 1, 0),
         ),
         extent: null,
         grip: "power",
@@ -182,8 +182,8 @@ export namespace StorageConstruction {
     const count: number = make.count;
     builder.box(
       "carcass",
-      v(width, height, depth - E.panel),
-      v(0, height / 2, -E.panel / 2),
+      StorageConstructionData.v(width, height, depth - E.panel),
+      StorageConstructionData.v(0, height / 2, -E.panel / 2),
       { color: make.color, density: 0.3 },
     );
     faces(builder, width, height, depth);
@@ -193,31 +193,31 @@ export namespace StorageConstruction {
       const front: number = make.pulls ? face + E.pull : face;
       builder.box(
         `box-${index}`,
-        v(width - 0.06, height / count - 0.06, run),
-        v(0, y, face - E.panel - run / 2),
+        StorageConstructionData.v(width - 0.06, height / count - 0.06, run),
+        StorageConstructionData.v(0, y, face - E.panel - run / 2),
         { color: "#c9a77c", density: 0.1 },
       );
       builder.box(
         `front-${index}`,
-        v(width - 0.02, height / count - 0.02, E.panel),
-        v(0, y, face - E.panel / 2),
+        StorageConstructionData.v(width - 0.02, height / count - 0.02, E.panel),
+        StorageConstructionData.v(0, y, face - E.panel / 2),
         { color: make.color === StorageConstructionData.WOOD ? FRONT : make.color },
       );
       if (make.pulls)
         builder.rod(
           `pull-${index}`,
           E.pull / 2,
-          v(-E.grip / 2, y, face + E.pull),
-          v(E.grip / 2, y, face + E.pull),
+          StorageConstructionData.v(-E.grip / 2, y, face + E.pull),
+          StorageConstructionData.v(E.grip / 2, y, face + E.pull),
           { color: HARDWARE },
         );
       builder.affordance({
         id: `drawer${index}`,
         kind: "slider",
         frame: AutoMovieArchetypeFrame.facing(
-          v(0, y, front),
-          v(0, 1, 0),
-          v(0, 0, 1),
+          StorageConstructionData.v(0, y, front),
+          StorageConstructionData.v(0, 1, 0),
+          StorageConstructionData.v(0, 0, 1),
         ),
         extent: null,
         travel: d.travel!,
@@ -231,9 +231,9 @@ export namespace StorageConstruction {
           kind: "handle",
           symmetry: "none",
           frame: AutoMovieArchetypeFrame.facing(
-            v(0, y, front),
-            v(0, 0, 1),
-            v(1, 0, 0),
+            StorageConstructionData.v(0, y, front),
+            StorageConstructionData.v(0, 0, 1),
+            StorageConstructionData.v(1, 0, 0),
           ),
           extent: null,
           grip: "power",
@@ -272,22 +272,22 @@ export namespace StorageConstruction {
     ] as const)
       builder.box(
         id,
-        v(0.03, legs, 0.03),
-        v(sx * (width / 2 - 0.015), legs / 2, sz * (depth / 2 - 0.015)),
+        StorageConstructionData.v(0.03, legs, 0.03),
+        StorageConstructionData.v(sx * (width / 2 - 0.015), legs / 2, sz * (depth / 2 - 0.015)),
         { color: StorageConstructionData.STEEL, surface: "steel" },
       );
     for (const [id, x] of [
       ["side-left", width / 2 - t / 2],
       ["side-right", -width / 2 + t / 2],
     ] as const)
-      builder.box(id, v(t, top - legs, body), v(x, mid, back + body / 2), {
+      builder.box(id, StorageConstructionData.v(t, top - legs, body), StorageConstructionData.v(x, mid, back + body / 2), {
         color: StorageConstructionData.STEEL,
         surface: "steel",
       });
     builder.box(
       "back",
-      v(width - 2 * t, top - legs, t),
-      v(0, mid, back + t / 2),
+      StorageConstructionData.v(width - 2 * t, top - legs, t),
+      StorageConstructionData.v(0, mid, back + t / 2),
       { color: StorageConstructionData.STEEL, surface: "steel" },
     );
     for (const [id, y] of [
@@ -296,26 +296,26 @@ export namespace StorageConstruction {
     ] as const)
       builder.box(
         id,
-        v(width - 2 * t, t, body - t),
-        v(0, y, back + t + (body - t) / 2),
+        StorageConstructionData.v(width - 2 * t, t, body - t),
+        StorageConstructionData.v(0, y, back + t + (body - t) / 2),
         { color: StorageConstructionData.STEEL, surface: "steel" },
       );
     const shelf: number = legs + LOCKER_SHELF;
     const inside: number = back + t + (body - t) / 2;
     builder.box(
       "shelf",
-      v(width - 2 * t, t, body - t),
-      v(0, shelf - t / 2, inside),
+      StorageConstructionData.v(width - 2 * t, t, body - t),
+      StorageConstructionData.v(0, shelf - t / 2, inside),
       { color: StorageConstructionData.STEEL, surface: "steel" },
     );
     builder.affordance({
       id: "shelf1",
       kind: "stack-top",
-      frame: AutoMovieArchetypeFrame.upright(v(0, shelf, inside)),
+      frame: AutoMovieArchetypeFrame.upright(StorageConstructionData.v(0, shelf, inside)),
       extent: rectangle(width - 2 * t, body - t),
     });
     const face: number = back + depth;
-    builder.box("door", v(width, top - legs, t), v(0, mid, face - t / 2), {
+    builder.box("door", StorageConstructionData.v(width, top - legs, t), StorageConstructionData.v(0, mid, face - t / 2), {
       color: "#a3acb4",
       surface: "steel",
     });
@@ -323,9 +323,9 @@ export namespace StorageConstruction {
       id: "door",
       kind: "hinge",
       frame: AutoMovieArchetypeFrame.facing(
-        v(-width / 2, mid, face),
-        v(0, -1, 0),
-        v(1, 0, 0),
+        StorageConstructionData.v(-width / 2, mid, face),
+        StorageConstructionData.v(0, -1, 0),
+        StorageConstructionData.v(1, 0, 0),
       ),
       extent: null,
       parts: ["door"],
@@ -353,30 +353,30 @@ export namespace StorageConstruction {
       ["side-left", width / 2 - t / 2],
       ["side-right", -width / 2 + t / 2],
     ] as const)
-      builder.box(id, v(t, height, depth), v(x, height / 2, 0), {
+      builder.box(id, StorageConstructionData.v(t, height, depth), StorageConstructionData.v(x, height / 2, 0), {
         color: LAMINATE,
       });
     builder.box(
       "back",
-      v(inner, height, t),
-      v(0, height / 2, -depth / 2 + t / 2),
+      StorageConstructionData.v(inner, height, t),
+      StorageConstructionData.v(0, height / 2, -depth / 2 + t / 2),
       { color: LAMINATE },
     );
-    builder.box("plinth", v(inner, plinth, shelfDepth), v(0, plinth / 2, z), {
+    builder.box("plinth", StorageConstructionData.v(inner, plinth, shelfDepth), StorageConstructionData.v(0, plinth / 2, z), {
       color: LAMINATE,
     });
-    builder.box("roof", v(inner, t, shelfDepth), v(0, height - t / 2, z), {
+    builder.box("roof", StorageConstructionData.v(inner, t, shelfDepth), StorageConstructionData.v(0, height - t / 2, z), {
       color: LAMINATE,
     });
     for (let k: number = 1; k <= SHELVES; k++) {
       const y: number = (height * k) / (SHELVES + 1);
-      builder.box(`shelf-${k}`, v(inner, t, shelfDepth), v(0, y - t / 2, z), {
+      builder.box(`shelf-${k}`, StorageConstructionData.v(inner, t, shelfDepth), StorageConstructionData.v(0, y - t / 2, z), {
         color: LAMINATE,
       });
       builder.affordance({
         id: `shelf${k}`,
         kind: "stack-top",
-        frame: AutoMovieArchetypeFrame.upright(v(0, y, z)),
+        frame: AutoMovieArchetypeFrame.upright(StorageConstructionData.v(0, y, z)),
         extent: rectangle(inner, shelfDepth),
       });
     }
@@ -407,10 +407,10 @@ const LAMINATE: string = "#efece6";
  */
 function rectangle(width: number, depth: number): IAutoMovieVector3[] {
   return [
-    v(-width / 2, 0, -depth / 2),
-    v(width / 2, 0, -depth / 2),
-    v(width / 2, 0, depth / 2),
-    v(-width / 2, 0, depth / 2),
+    StorageConstructionData.v(-width / 2, 0, -depth / 2),
+    StorageConstructionData.v(width / 2, 0, -depth / 2),
+    StorageConstructionData.v(width / 2, 0, depth / 2),
+    StorageConstructionData.v(-width / 2, 0, depth / 2),
   ];
 }
 

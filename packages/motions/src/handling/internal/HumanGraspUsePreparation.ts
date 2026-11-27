@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGraspUse, IAutoMovieMotionHumanPropReader, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -47,10 +47,10 @@ export function HumanGraspUsePreparation(
 
   // The tool's line as it lies now, and the line asked: forward of the
   // body, risen by the use's angle.
-  const lying: IAutoMovieVector3 = Vector3.normalize(
-    Quaternion.rotateVector(
+  const lying: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineQuaternion.rotateVector(
       world.rotation,
-      Vector3.subtract(tip.frame.translation, handle.frame.translation),
+      AutoMovieEngineVector3.subtract(tip.frame.translation, handle.frame.translation),
     ),
   );
   const yaw: number = (context.entry.posture.yaw * Math.PI) / 180;
@@ -122,16 +122,16 @@ export function HumanGraspUsePreparation(
   // onto the surface, turned about its normal. A line across the body
   // runs level toward the other hand: the body's left from the right
   // hand, its right from the left.
-  const face: IAutoMovieVector3 = Vector3.normalize(
-    Quaternion.rotateVector(
+  const face: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineQuaternion.rotateVector(
       world.rotation,
-      Quaternion.rotateVector(tip.frame.rotation, { x: 0, y: 1, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(tip.frame.rotation, { x: 0, y: 1, z: 0 }),
     ),
   );
   const from: IAutoMovieVector3 = props.use.line === "along" ? face : lying;
   const asked: IAutoMovieVector3 =
     props.use.line === "along"
-      ? Vector3.scale(Vector3.normalize(placed!.normal), -1)
+      ? AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(placed!.normal), -1)
       : props.use.line === "across"
         ? {
             x: (props.side === "right" ? 1 : -1) * Math.cos(yaw),
@@ -147,15 +147,15 @@ export function HumanGraspUsePreparation(
   // The shortest turn from one to the other; directions that oppose each
   // other turn about the body's left, which keeps the turn in the plane
   // the body faces.
-  const across: IAutoMovieVector3 = Vector3.cross(from, asked);
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, asked);
   const axis: IAutoMovieVector3 =
-    Vector3.length(across) > 1e-9
-      ? Vector3.normalize(across)
+    AutoMovieEngineVector3.length(across) > 1e-9
+      ? AutoMovieEngineVector3.normalize(across)
       : { x: Math.cos(yaw), y: 0, z: -Math.sin(yaw) };
-  const laid: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.fromAxisAngle(
+  const laid: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle(
       axis,
-      (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, asked)))) * 180) /
+      (Math.acos(Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(from, asked)))) * 180) /
         Math.PI,
     ),
     props.wrist.rotation,
@@ -183,7 +183,7 @@ export function HumanGraspUsePreparation(
     laid,
     ahead,
     socket,
-    roll: Quaternion.prepareAxisAngle(asked),
+    roll: AutoMovieEngineQuaternion.prepareAxisAngle(asked),
   };
 }
 
@@ -256,7 +256,7 @@ export namespace HumanGraspUsePreparation {
      * Rotations by degrees about the asked line, or the surface's normal for an
      * `along` use.
      */
-    roll: ReturnType<typeof Quaternion.prepareAxisAngle>;
+    roll: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle>;
   }
 }
 

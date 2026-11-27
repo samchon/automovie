@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type { IAutoMovieLoftChain } from "@automovie/interface";
 
 /**
@@ -51,7 +51,7 @@ export namespace AutoMovieHumanLoftStations {
     // Each interval's end sections are handed down to its halves, so every
     // station's section is evaluated once.
     function at(s: number): Ring {
-      return AutoMovieLoftChain.ring(chain, s, probes);
+      return AutoMovieEngineLoftChain.ring(chain, s, probes);
     }
     const split = (
       a: number,

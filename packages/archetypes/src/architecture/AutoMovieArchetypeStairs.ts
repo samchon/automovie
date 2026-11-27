@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -14,7 +14,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeStairsData from "./internal/AutoMovieArchetypeStairsData";
+import { AutoMovieArchetypeStairsData } from "./internal/AutoMovieArchetypeStairsData";
 
 /** Constructs the stairs archetype from its recipe. */
 export namespace AutoMovieArchetypeStairs {
@@ -106,17 +106,17 @@ export function create(
     const depth: number = k === steps ? landing : tread;
     builder.box(
       k === steps ? "landing" : `step-${k}`,
-      Vector3.create(width, k * riser, depth),
-      Vector3.create(0, (k * riser) / 2, (k - 1) * tread + depth / 2),
+      AutoMovieEngineVector3.create(width, k * riser, depth),
+      AutoMovieEngineVector3.create(0, (k * riser) / 2, (k - 1) * tread + depth / 2),
       { color: "#b9b4a8" },
     );
     builder.affordance({
       id: `step${k}`,
       kind: "ledge",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, k * riser, (k - 1) * tread),
-        Vector3.create(0, 1, 0),
-        Vector3.create(-1, 0, 0),
+        AutoMovieEngineVector3.create(0, k * riser, (k - 1) * tread),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(-1, 0, 0),
       ),
       extent: null,
       length: width,
@@ -126,7 +126,7 @@ export function create(
     id: "landing",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, steps * riser, (steps - 1) * tread + landing / 2),
+      AutoMovieEngineVector3.create(0, steps * riser, (steps - 1) * tread + landing / 2),
     ),
     extent: null,
     width,
@@ -145,30 +145,30 @@ export function create(
   ] as const) {
     if (rail !== "both" && rail !== side) continue;
     const x: number = sign * (width / 2 - AutoMovieArchetypeStairs.CLEARANCE - radius);
-    const low: IAutoMovieVector3 = Vector3.create(
+    const low: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       x,
       d.railHeight - drop,
       -tread,
     );
-    const high: IAutoMovieVector3 = Vector3.create(
+    const high: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       x,
       steps * riser + d.railHeight - drop,
       top,
     );
-    const end: IAutoMovieVector3 = Vector3.create(
+    const end: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       x,
       high.y,
       top + AutoMovieArchetypeStairs.EXTENSION,
     );
     builder.rod(`rail-${side}`, radius, low, high, { color: "#55595f" });
     builder.rod(`rail-top-${side}`, radius, high, end, { color: "#55595f" });
-    builder.rod(`post-low-${side}`, radius, Vector3.create(x, 0, -tread), low, {
+    builder.rod(`post-low-${side}`, radius, AutoMovieEngineVector3.create(x, 0, -tread), low, {
       color: "#55595f",
     });
     builder.rod(
       `post-high-${side}`,
       radius,
-      Vector3.create(x, steps * riser, end.z),
+      AutoMovieEngineVector3.create(x, steps * riser, end.z),
       end,
       { color: "#55595f" },
     );
@@ -177,14 +177,14 @@ export function create(
       kind: "bar",
       symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.scale(Vector3.add(low, high), 0.5),
-        Vector3.create(0, tread, -riser),
-        Vector3.create(0, riser, tread),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(low, high), 0.5),
+        AutoMovieEngineVector3.create(0, tread, -riser),
+        AutoMovieEngineVector3.create(0, riser, tread),
       ),
       extent: null,
       grip: "power",
       aperture: 2 * radius,
-      length: Vector3.length(Vector3.subtract(high, low)),
+      length: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(high, low)),
     });
   }
   return builder.build(d.mass * steps);

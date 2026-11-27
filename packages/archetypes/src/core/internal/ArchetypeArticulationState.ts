@@ -1,4 +1,4 @@
-import { AffordanceArticulation, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieAffordanceArticulation,
@@ -31,7 +31,7 @@ export function ArchetypeArticulationState(
   if (state.size === 0) return inputs;
   for (const [id, input] of state) {
     const resolved: IAutoMovieAffordanceArticulation.Input =
-      AffordanceArticulation.input(byId, id, input);
+      AutoMovieEngineAffordanceArticulation.input(byId, id, input);
     if (!resolved.success) {
       const at: IAutoMovieAffordance | undefined = byId.get(resolved.id);
       if (resolved.kind === "range" && at !== undefined) {

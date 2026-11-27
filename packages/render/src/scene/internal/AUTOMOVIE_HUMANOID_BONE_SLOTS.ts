@@ -1,5 +1,5 @@
 
-import * as AutomovieHumanoidBoneSlotsData from "./AutomovieHumanoidBoneSlotsData";
+import { AutomovieHumanoidBoneSlotsData } from "./AutomovieHumanoidBoneSlotsData";
 
 /*
  * The names of every humanoid bone slot, for membership checks.

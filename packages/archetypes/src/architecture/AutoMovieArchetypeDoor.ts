@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieArchetype,
@@ -139,21 +139,21 @@ export function create(
     if (kind === "sliding" && side === s) continue;
     builder.box(
       side === 1 ? "jamb-left" : "jamb-right",
-      Vector3.create(jamb, height + jamb, 0.1),
-      Vector3.create(side * (width / 2 + jamb / 2), (height + jamb) / 2, 0),
+      AutoMovieEngineVector3.create(jamb, height + jamb, 0.1),
+      AutoMovieEngineVector3.create(side * (width / 2 + jamb / 2), (height + jamb) / 2, 0),
       { color: "#d8d2c4" },
     );
   }
   builder.box(
     "head",
-    Vector3.create(width, jamb, 0.1),
-    Vector3.create(0, height + jamb / 2, 0),
+    AutoMovieEngineVector3.create(width, jamb, 0.1),
+    AutoMovieEngineVector3.create(0, height + jamb / 2, 0),
     { color: "#d8d2c4" },
   );
   builder.box(
     "leaf",
-    Vector3.create(width, height, thick),
-    Vector3.create(0, height / 2, 0),
+    AutoMovieEngineVector3.create(width, height, thick),
+    AutoMovieEngineVector3.create(0, height / 2, 0),
     { color: "#b08a60" },
   );
 
@@ -168,7 +168,7 @@ export function create(
     id: "aperture",
     kind: "aperture",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create((-s * (kind === "sliding" ? 0.1 : thick)) / 2, 0, 0),
+      AutoMovieEngineVector3.create((-s * (kind === "sliding" ? 0.1 : thick)) / 2, 0, 0),
     ),
     extent: null,
     width: clear,
@@ -179,7 +179,7 @@ export function create(
    * One face's hardware: the part or parts and the contact a hand takes.
    */
   const face = (id: "pull" | "push", z: 1 | -1): void => {
-    const out: IAutoMovieVector3 = Vector3.create(0, 0, z);
+    const out: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, z);
     const on: number = (z * thick) / 2;
     if (hardware === "lever" || hardware === "knob") {
       const off: number = on + z * d.projection!;
@@ -187,20 +187,20 @@ export function create(
       builder.rod(
         `${id}-stem`,
         BAR,
-        Vector3.create(x, y, on),
-        Vector3.create(x, y, off),
+        AutoMovieEngineVector3.create(x, y, on),
+        AutoMovieEngineVector3.create(x, y, off),
         { color: "#8a8d91" },
       );
       if (hardware === "lever")
         builder.rod(
           `${id}-grip`,
           BAR,
-          Vector3.create(x, y, off),
-          Vector3.create(x + s * d.grip!, y, off),
+          AutoMovieEngineVector3.create(x, y, off),
+          AutoMovieEngineVector3.create(x + s * d.grip!, y, off),
           { color: "#8a8d91", round: true },
         );
       else
-        builder.ball(`${id}-grip`, d.grip! / 2, Vector3.create(x, y, off), {
+        builder.ball(`${id}-grip`, d.grip! / 2, AutoMovieEngineVector3.create(x, y, off), {
           color: "#8a8d91",
         });
       builder.affordance({
@@ -210,14 +210,14 @@ export function create(
         frame:
           hardware === "lever"
             ? AutoMovieArchetypeFrame.facing(
-                Vector3.create(x + (s * d.grip!) / 2, y, off),
-                Vector3.create(0, 1, 0),
-                Vector3.create(s, 0, 0),
+                AutoMovieEngineVector3.create(x + (s * d.grip!) / 2, y, off),
+                AutoMovieEngineVector3.create(0, 1, 0),
+                AutoMovieEngineVector3.create(s, 0, 0),
               )
             : AutoMovieArchetypeFrame.facing(
-                Vector3.create(x, y, off),
+                AutoMovieEngineVector3.create(x, y, off),
                 out,
-                Vector3.create(0, 1, 0),
+                AutoMovieEngineVector3.create(0, 1, 0),
               ),
         extent: null,
         grip: "power",
@@ -230,14 +230,14 @@ export function create(
 
     // Push-and-pull hardware and a sliding door's pulls: a plate to push on, or an upright bar to pull.
     if (id === "push" && kind === "hinged") {
-      const plate: IAutoMovieVector3 = Vector3.create(
+      const plate: IAutoMovieVector3 = AutoMovieEngineVector3.create(
         x,
         AutoMovieArchetypeDoor.PLATE_HEIGHT,
         on - 0.001,
       );
       builder.box(
         "push-plate",
-        Vector3.create(AutoMovieArchetypeDoor.PLATE.width, AutoMovieArchetypeDoor.PLATE.height, 0.002),
+        AutoMovieEngineVector3.create(AutoMovieArchetypeDoor.PLATE.width, AutoMovieArchetypeDoor.PLATE.height, 0.002),
         plate,
         { color: "#8a8d91" },
       );
@@ -248,7 +248,7 @@ export function create(
         frame: AutoMovieArchetypeFrame.facing(
           plate,
           out,
-          Vector3.create(-z, 0, 0),
+          AutoMovieEngineVector3.create(-z, 0, 0),
         ),
         extent: null,
         width: AutoMovieArchetypeDoor.PLATE.width,
@@ -261,8 +261,8 @@ export function create(
     builder.rod(
       `${id}-bar`,
       BAR,
-      Vector3.create(x, y - AutoMovieArchetypeDoor.PULL.length / 2, off),
-      Vector3.create(x, y + AutoMovieArchetypeDoor.PULL.length / 2, off),
+      AutoMovieEngineVector3.create(x, y - AutoMovieArchetypeDoor.PULL.length / 2, off),
+      AutoMovieEngineVector3.create(x, y + AutoMovieArchetypeDoor.PULL.length / 2, off),
       { color: "#8a8d91" },
     );
     moving.push(`${id}-bar`);
@@ -271,9 +271,9 @@ export function create(
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(x, y, off),
+        AutoMovieEngineVector3.create(x, y, off),
         out,
-        Vector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
       ),
       extent: null,
       grip: "power",
@@ -291,9 +291,9 @@ export function create(
       id: "latch",
       kind: "knob",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(x, y, (-s * thick) / 2),
-        Vector3.create(0, 0, -s),
-        Vector3.create(s, 0, 0),
+        AutoMovieEngineVector3.create(x, y, (-s * thick) / 2),
+        AutoMovieEngineVector3.create(0, 0, -s),
+        AutoMovieEngineVector3.create(s, 0, 0),
       ),
       extent: null,
       travel: d.latchTurn!,
@@ -306,9 +306,9 @@ export function create(
       id: "slide",
       kind: "slider",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(x, y, thick / 2),
-        Vector3.create(0, 0, 1),
-        Vector3.create(s, 0, 0),
+        AutoMovieEngineVector3.create(x, y, thick / 2),
+        AutoMovieEngineVector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(s, 0, 0),
       ),
       extent: null,
       travel: clear,
@@ -319,9 +319,9 @@ export function create(
       id: "hinge",
       kind: "hinge",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create((s * width) / 2, y, thick / 2),
-        Vector3.create(0, s, 0),
-        Vector3.create(-s, 0, 0),
+        AutoMovieEngineVector3.create((s * width) / 2, y, thick / 2),
+        AutoMovieEngineVector3.create(0, s, 0),
+        AutoMovieEngineVector3.create(-s, 0, 0),
       ),
       extent: null,
       travel: d.swing!,

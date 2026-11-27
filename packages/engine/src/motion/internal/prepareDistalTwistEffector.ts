@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import type { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistalTwist";
 
@@ -23,16 +23,16 @@ export function prepareDistalTwistEffector(
   const rest: IAutoMovieQuaternion = props.effectorRest;
   const basis: IAutoMovieJointAxes = props.effectorBasis;
   const frame: IAutoMovieRestFrame | undefined = props.effectorFrame;
-  const abduction: IAutoMovieVector3 = Quaternion.rotateVector(
+  const abduction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     rest,
     basis.abduction,
   );
-  const flexion: IAutoMovieVector3 = Quaternion.rotateVector(
+  const flexion: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     rest,
     basis.flexion,
   );
   const handed: number =
-    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
+    AutoMovieEngineVector3.dot(basis.twist, AutoMovieEngineVector3.cross(basis.flexion, basis.abduction)) >= 0
       ? 1
       : -1;
   const phi: number =

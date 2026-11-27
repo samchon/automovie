@@ -6,8 +6,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 
 /*
@@ -36,9 +36,9 @@ export function projectToNdc(
   aspect: number,
   crop?: IAutoMovieDeliveryCrop,
 ): IAutoMovieProjectToNdc.IResult {
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(camera.rotation),
-    Vector3.subtract(point, camera.position),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(camera.rotation),
+    AutoMovieEngineVector3.subtract(point, camera.position),
   );
   const depth: number = -local.z;
   const ndcX: number = local.x / (depth * halfY * aspect);

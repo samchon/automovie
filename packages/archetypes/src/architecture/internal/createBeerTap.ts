@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBeerTap } from "../AutoMovieArchetypeBeerTap";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeUnits } from "../../core";
 
@@ -45,7 +45,7 @@ export function createBeerTap(
     name: "beer tower",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
   const chrome: string = "#c9ccd1";
   const middle: number = TOWER.height - TOWER.head / 2;

@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -73,7 +73,7 @@ export function poleVaultGrip(
         velocity: { forward: vf, up: vy },
         mass: body.profile.mass,
         buckling,
-        gravity: AutoMovieGravity.STANDARD,
+        gravity: AutoMovieEngineGravity.STANDARD,
         upright: 0,
         run: speed,
       }).failure === null

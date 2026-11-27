@@ -1,4 +1,6 @@
-import { StrikingStrain } from "@automovie/motions/internal";
+import {
+  StrikingStrain
+} from "../../../../../packages/motions/src/striking/internal/StrikingStrain";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

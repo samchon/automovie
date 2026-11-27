@@ -1,8 +1,10 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanVariation,
-  AutoMovieMotionHumanVariationDraw,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanVariation
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanVariation";
+import {
+  AutoMovieMotionHumanVariationDraw
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanVariationDraw";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionComplaints } from "../../internal/motionComplaints";

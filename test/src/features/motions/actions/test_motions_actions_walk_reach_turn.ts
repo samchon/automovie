@@ -1,6 +1,11 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanWalkFoot } from "@automovie/interface";
-import { HumanFoot, walkReach } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  walkReach
+} from "../../../../../packages/motions/src/actions/internal/walkReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

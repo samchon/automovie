@@ -13,7 +13,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 import { checkAutoMovieSweepFeature } from "./checkAutoMovieSweepFeature";
 import { compileAutoMovieSweepFeature } from "./compileAutoMovieSweepFeature";
 import { compileAutoMovieSweepGuide } from "./compileAutoMovieSweepGuide";
@@ -317,25 +317,25 @@ export const compileAutoMovieSweep: (
   function point(u: number, v: number, loop: number = 0): IAutoMovieVector3 {
     const f: IAutoMovieSweepFrame = frame(u);
     const p: IAutoMovieSweepSection.IPoint = section(u, v, loop);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       f.origin,
-      Vector3.add(Vector3.scale(f.x, p.x), Vector3.scale(f.y, p.y)),
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(f.x, p.x), AutoMovieEngineVector3.scale(f.y, p.y)),
     );
   }
   function along(u: number, v: number, loop: number = 0): IAutoMovieVector3 {
     const a: number = Math.max(0, u - STEP);
     const b: number = Math.min(1, u + STEP);
-    return Vector3.scale(
-      Vector3.subtract(point(b, v, loop), point(a, v, loop)),
+    return AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(point(b, v, loop), point(a, v, loop)),
       1 / (b - a),
     );
   }
   function normal(u: number, v: number, loop: number = 0): IAutoMovieVector3 {
-    const around: IAutoMovieVector3 = Vector3.subtract(
+    const around: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       point(u, v + STEP, loop),
       point(u, v - STEP, loop),
     );
-    return Vector3.normalize(Vector3.cross(around, along(u, v, loop)));
+    return AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross(around, along(u, v, loop)));
   }
   return {
     sweep,

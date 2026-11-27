@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type AutoMovieArchetypeBuilder, AutoMovieArchetypeFrame } from "../../core";
@@ -50,8 +50,8 @@ export function EquineSaddleTree(
   const points = (station: ISection): IAutoMovieVector3[] =>
     [-station.half, station.half].flatMap(
       (x: number): IAutoMovieVector3[] => [
-        Vector3.create(x, station.bottom, station.z),
-        Vector3.create(x, station.top, station.z),
+        AutoMovieEngineVector3.create(x, station.bottom, station.z),
+        AutoMovieEngineVector3.create(x, station.top, station.z),
       ],
     );
   const join = (id: string, a: ISection, b: ISection): void => {
@@ -60,14 +60,14 @@ export function EquineSaddleTree(
 
   builder.box(
     "saddle",
-    Vector3.create(width, top - bottom, panFront - panBack),
-    Vector3.create(0, (top + bottom) / 2, (panFront + panBack) / 2),
+    AutoMovieEngineVector3.create(width, top - bottom, panFront - panBack),
+    AutoMovieEngineVector3.create(0, (top + bottom) / 2, (panFront + panBack) / 2),
     { color, share },
   );
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, top, panFront)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, top, panFront)),
     extent: null,
     depth: panFront - panBack,
     width,
@@ -87,7 +87,7 @@ export function EquineSaddleTree(
     ["pommel", front],
     ["cantle", rear],
   ] as const) {
-    const grip: IAutoMovieVector3 = Vector3.create(0, top + STOCK.gripRise, z);
+    const grip: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, top + STOCK.gripRise, z);
     builder.rod(
       id,
       STOCK.gripRadius,
@@ -125,7 +125,7 @@ export function EquineSaddleTree(
         const edge: number = a.half + ((b.half - a.half) * (z - a.z)) / (b.z - a.z);
         return [inner, edge].flatMap((x: number): IAutoMovieVector3[] => {
           const under: number = axis + (radius * radius - bearing * x) / vertical;
-          return [Vector3.create(side * x, under, z), Vector3.create(side * x, bottom, z)];
+          return [AutoMovieEngineVector3.create(side * x, under, z), AutoMovieEngineVector3.create(side * x, bottom, z)];
         });
       };
       builder.convex(`saddle-panel-${name}-${side}`, [...at(from), ...at(to)], undefined, skin);

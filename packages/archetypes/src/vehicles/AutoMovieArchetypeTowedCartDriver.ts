@@ -1,4 +1,4 @@
-import { type RigidCarrierSample } from "@automovie/engine";
+import { type AutoMovieEngineRigidCarrierSample } from "@automovie/engine";
 import { type AutoMovieArchetype } from "../core/AutoMovieArchetype";
 import { type AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { type AutoMovieArchetypeRide } from "../core/AutoMovieArchetypeRide";
@@ -15,7 +15,7 @@ export namespace AutoMovieArchetypeTowedCartDriver {
   export function prepareDriver(cart: AutoMovieArchetype<AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Dimension>, ride: AutoMovieArchetypeRide.ITowedRide<
     AutoMovieArchetypeCart.Affordance,
     AutoMovieArchetypeCart.Dimension
-  >): RigidCarrierSample.IBinding {
+  >): AutoMovieEngineRigidCarrierSample.IBinding {
     return prepareTowedCartDriverImplementation(cart, ride);
   }
 }

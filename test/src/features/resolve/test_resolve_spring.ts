@@ -1,4 +1,4 @@
-import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieSpringDriver,
   type IAutoMovieSpringState,
@@ -14,7 +14,7 @@ import { vclose } from "../internal/vclose";
 const W: (p: IAutoMovieVector3) => number[] = (
   p: IAutoMovieVector3,
 ): number[] =>
-  Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
+  AutoMovieEngineMatrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
 const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
   x: number,
@@ -48,7 +48,7 @@ const local: Map<string, IAutoMovieTransform> = new Map<
 const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   world: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(world.get(id)!);
 
 const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
   a: IAutoMovieVector3,
@@ -242,7 +242,7 @@ export function test_resolve_spring(): void {
     for (const driver of drivers)
       AutoMovieEngineResolve.stepSpring(driver, world, state, 1 / 60, sharedLocal);
     for (const [id, matrix] of world) {
-      const position: IAutoMovieVector3 = Matrix4.position(matrix);
+      const position: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(matrix);
       world.set(id, W({ ...position, y: position.y + 10 }));
     }
     for (const driver of drivers)

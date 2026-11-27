@@ -4,9 +4,11 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 import {
-  HumanPerformanceLayers,
-  HumanPerformancePlaceTiming,
-} from "@automovie/motions/internal";
+  HumanPerformanceLayers
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceLayers";
+import {
+  HumanPerformancePlaceTiming
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformancePlaceTiming";
 import { TestValidator } from "@nestia/e2e";
 
 /** A 4 s plan with its contact at 3 s and events at a quarter, half and end. */

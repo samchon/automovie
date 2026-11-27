@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -15,7 +15,7 @@ import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrume
  * Parameter front: The case's front plane along local +Z, metres.
  */
 export function PianoPedalConstruction(builder: Builder, front: number): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const centre: number = front + D.projection;
   const y: number = D.restHeight - D.thickness / 2;
   const color: string = "#ad8a46";

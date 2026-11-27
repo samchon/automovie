@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMatrix3, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraPointTriangulationOperation,
   IAutoMovieVector3,
@@ -22,11 +22,11 @@ export function triangulateRecoveryCameraPoint(
   minimumDesignRatio: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[5],
   maxSweeps: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[6],
 ): ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation> {
-  const ray1: [number, number, number] = AutoMovieMatrix3.apply(first.inverse, [
+  const ray1: [number, number, number] = AutoMovieEngineMatrix3.apply(first.inverse, [
     ...firstPoint,
     1,
   ]);
-  const ray2: [number, number, number] = AutoMovieMatrix3.apply(
+  const ray2: [number, number, number] = AutoMovieEngineMatrix3.apply(
     second.inverse,
     [...secondPoint, 1],
   );
@@ -70,7 +70,7 @@ export function triangulateRecoveryCameraPoint(
     homogeneous[1]! / homogeneous[3]!,
     homogeneous[2]! / homogeneous[3]!,
   ];
-  const rotated: [number, number, number] = AutoMovieMatrix3.apply(r, point);
+  const rotated: [number, number, number] = AutoMovieEngineMatrix3.apply(r, point);
   const inSecond: [number, number, number] = [
     rotated[0] + t[0]!,
     rotated[1] + t[1]!,
@@ -85,11 +85,11 @@ export function triangulateRecoveryCameraPoint(
     inSecond[2] === 0
   )
     return null;
-  const projection1: [number, number, number] = AutoMovieMatrix3.apply(
+  const projection1: [number, number, number] = AutoMovieEngineMatrix3.apply(
     first.matrix,
     [point[0] / point[2], point[1] / point[2], 1],
   );
-  const projection2: [number, number, number] = AutoMovieMatrix3.apply(
+  const projection2: [number, number, number] = AutoMovieEngineMatrix3.apply(
     second.matrix,
     [inSecond[0] / inSecond[2], inSecond[1] / inSecond[2], 1],
   );
@@ -130,8 +130,8 @@ function measureParallax(
   rotation: readonly number[],
 ): number | null {
   // A free ray rotates into the first frame without a camera-centre shift.
-  const backward: [number, number, number] = AutoMovieMatrix3.apply(
-    AutoMovieMatrix3.transpose(rotation),
+  const backward: [number, number, number] = AutoMovieEngineMatrix3.apply(
+    AutoMovieEngineMatrix3.transpose(rotation),
     second,
   );
   const norm1: number = Math.hypot(...first);
@@ -148,8 +148,8 @@ function measureParallax(
     y: backward[1] / norm2,
     z: backward[2] / norm2,
   };
-  const cross: IAutoMovieVector3 = Vector3.cross(unit1, unit2);
+  const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(unit1, unit2);
   const sine: number = Math.hypot(cross.x, cross.y, cross.z);
   if (!(sine > PARALLEL_RAY_RESOLUTION)) return null;
-  return Math.atan2(sine, Vector3.dot(unit1, unit2));
+  return Math.atan2(sine, AutoMovieEngineVector3.dot(unit1, unit2));
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -29,7 +29,7 @@ export namespace AutoMovieArchetypeLaptop {
     d,
   }: ReturnType<typeof KeyboardHardware.draw<AutoMovieArchetypeLaptop.Display>> =
     KeyboardHardware.draw<AutoMovieArchetypeLaptop.Display>("laptop", params, seed);
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const tilt: number = KeyboardHardware.LID;
   const thick: number = KeyboardHardware.LID_THICKNESS;
   const rad: number = tilt * AutoMovieArchetypeUnits.DEGREE;
@@ -37,19 +37,19 @@ export namespace AutoMovieArchetypeLaptop {
   const up: IAutoMovieVector3 = v(0, Math.sin(rad), Math.cos(rad));
   const out: IAutoMovieVector3 = v(0, -Math.cos(rad), Math.sin(rad));
   const hinge: IAutoMovieVector3 = v(0, d.height, -d.depth / 2);
-  const centre: IAutoMovieVector3 = Vector3.add(
-    Vector3.add(hinge, Vector3.scale(up, d.depth / 2)),
-    Vector3.scale(out, -thick / 2),
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(hinge, AutoMovieEngineVector3.scale(up, d.depth / 2)),
+    AutoMovieEngineVector3.scale(out, -thick / 2),
   );
   builder.box("lid", v(d.width, d.depth, thick), centre, {
     color: "#8a8d91",
-    rotation: Quaternion.fromAxisAngle(v(1, 0, 0), 90 - tilt),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(v(1, 0, 0), 90 - tilt),
   });
   builder.affordance({
     id: "screen",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.add(hinge, Vector3.scale(up, d.depth / 2)),
+      AutoMovieEngineVector3.add(hinge, AutoMovieEngineVector3.scale(up, d.depth / 2)),
       out,
       v(1, 0, 0),
     ),
@@ -57,9 +57,9 @@ export namespace AutoMovieArchetypeLaptop {
     width: d.width,
     depth: d.depth,
   });
-  const top: IAutoMovieVector3 = Vector3.add(
-    Vector3.add(hinge, Vector3.scale(up, d.depth)),
-    Vector3.scale(out, -thick / 2),
+  const top: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(hinge, AutoMovieEngineVector3.scale(up, d.depth)),
+    AutoMovieEngineVector3.scale(out, -thick / 2),
   );
   builder.affordance({
     id: "lid",

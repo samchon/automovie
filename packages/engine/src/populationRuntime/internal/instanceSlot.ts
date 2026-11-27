@@ -9,7 +9,7 @@ import type {
   IAutoMovieWorldRoute,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { seededValue } from "../../math/internal/seededValue";
 import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
 import { selectInstancePrototype } from "./selectInstancePrototype";
@@ -172,9 +172,9 @@ export function instanceSlot(
             seededValue(instanceSet.seed, slot, 0x73637a7a),
           ),
         });
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, instanceSet.facingDeg),
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, instanceSet.facingDeg),
       explicit?.rotation ?? seededInstanceRotation(instanceSet, slot),
     ),
   );
@@ -209,8 +209,8 @@ const seededInstanceRotation: (
       }
     | undefined = instanceSet.variation.rotationDeg;
   return ranges === undefined
-    ? Quaternion.identity()
-    : Quaternion.fromEuler({
+    ? AutoMovieEngineQuaternion.identity()
+    : AutoMovieEngineQuaternion.fromEuler({
         x: stableInterpolate(
           ranges.x.min,
           ranges.x.max,

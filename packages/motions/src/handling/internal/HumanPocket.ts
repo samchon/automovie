@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -79,16 +79,16 @@ export namespace HumanPocket {
     // its +Y up along the body, its +Z into the region, as a phone slides
     // into a pocket on its edge (a prop stands on its bottom edge with its
     // front toward +Z, `createPhone`).
-    const inward: IAutoMovieVector3 = Vector3.scale(region.normal, -1);
-    const up: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract({ x: 0, y: 1, z: 0 }, Vector3.scale(inward, inward.y)),
+    const inward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(region.normal, -1);
+    const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract({ x: 0, y: 1, z: 0 }, AutoMovieEngineVector3.scale(inward, inward.y)),
     );
     return {
       bone: region.bone,
       offset: {
         position: region.point,
         rotation: AutoMovieEngineMath.quaternionFromBasis(
-          Vector3.cross(up, inward),
+          AutoMovieEngineVector3.cross(up, inward),
           up,
           inward,
         ),

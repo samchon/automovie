@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -160,9 +160,9 @@ export namespace HumanToolWork {
         fix: "give the vessel's inside its width, as createVessel does",
       });
     const world = (a: Pick<IAutoMovieAffordance, "frame">): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, a.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, a.frame.translation),
       );
     const floor: IAutoMovieVector3 = world(inside);
     const top: number = world(rim).y;
@@ -178,9 +178,9 @@ export namespace HumanToolWork {
       });
     const radius: number = Math.min(stir.forearm / 3, inside.width! / 4);
     return {
-      on: Vector3.subtract(
+      on: AutoMovieEngineVector3.subtract(
         { x: floor.x, y: floor.y + depth, z: floor.z },
-        Vector3.scale(stir.forward, radius),
+        AutoMovieEngineVector3.scale(stir.forward, radius),
       ),
       radius,
     };

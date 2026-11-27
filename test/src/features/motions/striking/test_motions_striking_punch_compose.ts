@@ -1,4 +1,6 @@
-import { punchCompose } from "@automovie/motions/internal";
+import {
+  punchCompose
+} from "../../../../../packages/motions/src/striking/internal/punchCompose";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

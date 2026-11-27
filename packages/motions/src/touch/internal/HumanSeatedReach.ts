@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -58,14 +58,14 @@ export namespace HumanSeatedReach {
         ?.flexion?.max ?? null;
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       role.bones.get(bone)!.worldPosition;
-    const down: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(at("hips"), at("chest")),
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(at("hips"), at("chest")),
     );
-    const thigh: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(at("leftLowerLeg"), at("leftUpperLeg")),
+    const thigh: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(at("leftLowerLeg"), at("leftUpperLeg")),
     );
     const hip: number =
-      (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(down, thigh)))) * 180) /
+      (Math.acos(Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(down, thigh)))) * 180) /
       Math.PI;
     // A spine joint's flexion held: the signed turn about the body's left
     // from the segment below it to the segment above it.
@@ -81,18 +81,18 @@ export namespace HumanSeatedReach {
     );
     const chain: readonly AutoMovieHumanoidBone[] = ["hips", ...spine, "neck"];
     const flexion = (k: number): number => {
-      const below: IAutoMovieVector3 = Vector3.subtract(
+      const below: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         at(chain[k]!),
         at(chain[k - 1]!),
       );
-      const above: IAutoMovieVector3 = Vector3.subtract(
+      const above: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         at(chain[k + 1]!),
         at(chain[k]!),
       );
       return (
         (Math.atan2(
-          Vector3.dot(Vector3.cross(below, above), left),
-          Vector3.dot(below, above),
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(below, above), left),
+          AutoMovieEngineVector3.dot(below, above),
         ) *
           180) /
         Math.PI
@@ -267,7 +267,7 @@ export namespace HumanSeatedReach {
       joint,
     );
     const distance = (share: number): number =>
-      Vector3.distance(read(share), point);
+      AutoMovieEngineVector3.distance(read(share), point);
     if (joints.length === 0 || distance(0) <= limit)
       return { share: 0, joints };
     const width: number = resolution([[role, joints, shoulder]]);
@@ -314,15 +314,15 @@ export namespace HumanSeatedReach {
       const pivots: IAutoMovieVector3[] = [...original];
       joints.forEach(
         (j: IAutoMovieMotionHumanSeatedReach.IJoint, k: number): void => {
-          const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
             left,
             share * j.room,
           );
           const about: IAutoMovieVector3 = pivots[k]!;
           const carry = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               about,
-              Quaternion.rotateVector(turn, Vector3.subtract(p, about)),
+              AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(p, about)),
             );
           moved = carry(moved);
           for (let above: number = k + 1; above < pivots.length; above++)
@@ -374,8 +374,8 @@ export namespace HumanSeatedReach {
     const swing: number = Math.max(
       ...arms.map(
         ([role, joints, shoulder]): number =>
-          Vector3.length(
-            Vector3.subtract(shoulder, role.bones.get("hips")!.worldPosition),
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(shoulder, role.bones.get("hips")!.worldPosition),
           ) *
           ((joints.reduce(
             (s: number, j: IAutoMovieMotionHumanSeatedReach.IJoint): number =>

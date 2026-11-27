@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
@@ -88,7 +88,7 @@ export namespace HumanSwordThrust {
             s.tool,
             0,
             a.target,
-            Vector3.subtract(a.target, a.reach),
+            AutoMovieEngineVector3.subtract(a.target, a.reach),
             HumanSword.CONE,
             a.posture,
           );
@@ -110,7 +110,7 @@ export namespace HumanSwordThrust {
             // to the target: where the hand stands before the shoulder with
             // the tool on that line, behind it when negative.
             const room: number =
-              Vector3.length(Vector3.subtract(a.target, a.reach)) -
+              AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a.target, a.reach)) -
               s.tool.length;
             if (!(error instanceof AutoMovieMotionHumanRefusal) || room >= NEAR * s.arm)
               throw error;
@@ -133,7 +133,7 @@ export namespace HumanSwordThrust {
         // out from the trunk by `CHAMBER` so it never lies inside it, and the
         // forearm square to it toward the target, the point already on the
         // line to the target.
-        const hilt: IAutoMovieVector3 = Vector3.add(
+        const hilt: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           s.shoulder,
           s.world(
             {
@@ -165,11 +165,11 @@ export namespace HumanSwordThrust {
         const travel: IAutoMovieVector3 =
           a.advance === "none"
             ? { x: 0, y: 0, z: 0 }
-            : Vector3.subtract(
+            : AutoMovieEngineVector3.subtract(
                 shoulderOf(a.posture),
                 shoulderOf(context.entry.posture),
               );
-        const carried: number = Vector3.length(travel);
+        const carried: number = AutoMovieEngineVector3.length(travel);
 
         // The chamber is the landing drawn back along the stroke's line
         // (`chamberDepth`), the
@@ -182,10 +182,10 @@ export namespace HumanSwordThrust {
         // the basins within a frame. The hand draws back, from where it
         // lands as the entry's shoulder stands, as deep along the line as the
         // hilt's chamber by the side lies.
-        const line: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(a.target, a.reach),
+        const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(a.target, a.reach),
         );
-        const reached: IAutoMovieVector3 = Vector3.subtract(
+        const reached: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           landed.point,
           travel,
         );
@@ -197,7 +197,7 @@ export namespace HumanSwordThrust {
         const drawnAt = (
           depth: number,
         ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-          point: Vector3.subtract(reached, Vector3.scale(line, depth)),
+          point: AutoMovieEngineVector3.subtract(reached, AutoMovieEngineVector3.scale(line, depth)),
           rotation: landed.rotation,
         });
         const holds = (depth: number): boolean =>
@@ -239,8 +239,8 @@ export namespace HumanSwordThrust {
         // (`StrikingBlade.coursed`); a supported one back to the entry hold.
         const clock: IAutoMovieMotionClock = HumanSword.timed(
           context,
-          Vector3.length(
-            Vector3.subtract(a.target, StrikingHeld.point(s.tool, drawn)),
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(a.target, StrikingHeld.point(s.tool, drawn)),
           ),
           s.skill(HumanSword.SPEED.thrust),
           0,
@@ -269,8 +269,8 @@ export namespace HumanSwordThrust {
             path: (
               progress: number,
             ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-              point: Vector3.lerp(drawn.point, landed.point, progress),
-              rotation: Quaternion.slerp(
+              point: AutoMovieEngineVector3.lerp(drawn.point, landed.point, progress),
+              rotation: AutoMovieEngineQuaternion.slerp(
                 drawn.rotation,
                 landed.rotation,
                 Math.min(1, progress),
@@ -326,12 +326,12 @@ function chamberDepth(
 ): number {
   const depth: number = Math.max(
     0,
-    Vector3.dot(Vector3.subtract(reached, hilt), line),
+    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(reached, hilt), line),
   );
-  const radius: number = Vector3.distance(hilt, shoulder);
-  const from: IAutoMovieVector3 = Vector3.subtract(reached, shoulder);
-  const along: number = Vector3.dot(from, line);
-  const beyond: number = Vector3.dot(from, from) - radius * radius;
+  const radius: number = AutoMovieEngineVector3.distance(hilt, shoulder);
+  const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(reached, shoulder);
+  const along: number = AutoMovieEngineVector3.dot(from, line);
+  const beyond: number = AutoMovieEngineVector3.dot(from, from) - radius * radius;
   if (beyond <= 0) return 0;
   const discriminant: number = along * along - beyond;
   return discriminant < 0

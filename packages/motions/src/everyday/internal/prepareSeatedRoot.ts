@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -21,12 +21,12 @@ export function prepareSeatedRoot(
   body: IAutoMovieMotionHumanBody,
   heading: Pick<IAutoMovieMotionHumanPosture, PrepareSeatedRootHeading>,
 ): (at: IAutoMovieVector3) => IAutoMovieVector3 {
-  const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+  const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     humanPostureHeading(heading),
     seated.offset(body),
   );
   return (at: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.subtract(at, offset);
+    AutoMovieEngineVector3.subtract(at, offset);
 }
 
 /*

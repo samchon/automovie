@@ -1,4 +1,4 @@
-import { AffordanceArticulation, Vector3, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineVector3, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -37,7 +37,7 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 export namespace AutoMovieArchetypeArticulation {
   /** The kinds whose travel moves parts and carried affordances. */
   export const KINDS: ReadonlySet<IAutoMovieAffordance["kind"]> =
-    AffordanceArticulation.KINDS;
+    AutoMovieEngineAffordanceArticulation.KINDS;
 
   /**
    * A model's moving data: its parts and its affordances, both in the model's
@@ -100,7 +100,7 @@ export namespace AutoMovieArchetypeArticulation {
       sign: number,
     ): AutoMovieArchetypeFrame.IMotion => ({
       rotation: AutoMovieArchetypeFrame.STILL.rotation,
-      translation: Vector3.scale(
+      translation: AutoMovieEngineVector3.scale(
         AutoMovieArchetypeFrame.axis(affordance.frame, axis),
         sign * travel,
       ),
@@ -343,7 +343,7 @@ export namespace AutoMovieArchetypeArticulation {
         ).translation;
         return AutoMovieArchetypeFrame.chain(carried(carrier), {
           rotation: AutoMovieArchetypeFrame.STILL.rotation,
-          translation: Vector3.subtract(turned, at),
+          translation: AutoMovieEngineVector3.subtract(turned, at),
         });
       };
       return {

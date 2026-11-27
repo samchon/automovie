@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
 import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -105,7 +105,7 @@ export function physicalContactSupportRows(
         const measure: (poses: Poses) => number[] = (
           poses: Poses,
         ): number[] => {
-          const difference: IAutoMovieVector3 = Vector3.subtract(
+          const difference: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             physicalSupportPoint(poses[support.bone]!, support.localPoint),
             support.point,
           );

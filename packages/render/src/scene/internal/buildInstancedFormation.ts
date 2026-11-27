@@ -15,9 +15,9 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
-import type { IAutoMovieFormationViewerObject } from "../IAutoMovieFormationViewerObject.js";
-import type { IAutoMovieFormationViewerStats } from "../IAutoMovieFormationViewerStats.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderFormationViewerObject } from "../IAutoMovieRenderFormationViewerObject.js";
+import type { IAutoMovieRenderFormationViewerStats } from "../IAutoMovieRenderFormationViewerStats.js";
 import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps.js";
 import type { IChunkObject } from "./IChunkObject.js";
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
@@ -28,9 +28,9 @@ import { createFormationRepresentations } from "./createFormationRepresentations
 import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop.js";
 import { describeFormationTextureSources } from "./describeFormationTextureSources.js";
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
-import { AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
+import { AutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
 import { formationSpacingOffset } from "./formationSpacingOffset.js";
-import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
+import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource.js";
 import { objectTransform } from "./objectTransform.js";
 import { regenerateFormationSlot } from "./regenerateFormationSlot.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
@@ -58,15 +58,15 @@ import { vector } from "./vector.js";
  */
 export const buildInstancedFormation: (
   input: IBuildInstancedFormationProps,
-) => IAutoMovieFormationViewerObject = (
+) => IAutoMovieRenderFormationViewerObject = (
   input: IBuildInstancedFormationProps,
-): IAutoMovieFormationViewerObject => {
+): IAutoMovieRenderFormationViewerObject => {
   return constructAutoMovieOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,
       ) => Resource,
-    ): IAutoMovieFormationViewerObject => {
+    ): IAutoMovieRenderFormationViewerObject => {
       const root: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
       root.name = `formation:${input.formation.id}`;
       root.position.copy(vector(input.formation.anchor));
@@ -83,13 +83,13 @@ export const buildInstancedFormation: (
         dispose: (): void =>
           disposeFormationRepresentations(representations.values()),
       });
-      const cycles: IAutoMovieFormationCycle[] = [
+      const cycles: IAutoMovieRenderFormationCycle[] = [
         ...representations.values(),
       ].flatMap(
         (
           representation: IFormationTierRepresentation,
-        ): IAutoMovieFormationCycle[] => {
-          const cycle: IAutoMovieFormationCycle | null = representation.cycle;
+        ): IAutoMovieRenderFormationCycle[] => {
+          const cycle: IAutoMovieRenderFormationCycle | null = representation.cycle;
           return cycle === null ? [] : [cycle];
         },
       );
@@ -154,7 +154,7 @@ export const buildInstancedFormation: (
             mesh.name = `${input.formation.id}:${chunk.index}:${lod.tier}`;
             // Placed collision checks read each drawn instance by its slot, and
             // leave member spacing inside the formation to its own owner.
-            AutoMovieCollisionSource.bindInstances(mesh, {
+            AutoMovieRenderCollisionSource.bindInstances(mesh, {
               id: root.name,
               group: { id: input.formation.id, kind: "managed-formation" },
               region: String(chunk.index),
@@ -261,7 +261,7 @@ export const buildInstancedFormation: (
             [actor, objectTransform(object)] as const,
         ),
       );
-      const stats: IAutoMovieFormationViewerStats = {
+      const stats: IAutoMovieRenderFormationViewerStats = {
         visible: { hero: 0, near: 0, far: 0 },
         culled: 0,
         removed: 0,

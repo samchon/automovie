@@ -1,7 +1,12 @@
-import { Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidRegion, IAutoMovieMotionClock, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
-import { AutoMovieMotionClock, HumanColliders } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionClock
+} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  HumanColliders
+} from "../../../../packages/motions/src/posture/internal/HumanColliders";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -78,7 +83,7 @@ export namespace motionContactArmFixture {
     const point: IAutoMovieVector3 = shown.limbs.rightArm!.point;
     TestValidator.predicate(
       `at ${time} s wrist ${JSON.stringify(point)} reaches ${JSON.stringify(expected)}`,
-      Vector3.distance(point, expected) <= 1e-9,
+      AutoMovieEngineVector3.distance(point, expected) <= 1e-9,
     );
   }
   /** Resolve a named skin landmark using its carrier's displayed transform. */

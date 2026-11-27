@@ -1,6 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Linearly interpolate two vectors by influence `t`.
@@ -10,5 +10,5 @@ export function blendVec(
   b: IAutoMovieVector3,
   t: number,
 ): IAutoMovieVector3 {
-  return Vector3.add(a, Vector3.scale(Vector3.subtract(b, a), t));
+  return AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(b, a), t));
 }

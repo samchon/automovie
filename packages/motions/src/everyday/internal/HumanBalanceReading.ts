@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
@@ -188,19 +188,19 @@ export namespace HumanBalanceReading {
     let rear: number = Infinity;
     let front: number = -Infinity;
     for (const p of placed.base) {
-      const along: number = Vector3.dot(p, forward);
+      const along: number = AutoMovieEngineVector3.dot(p, forward);
       rear = Math.min(rear, along);
       front = Math.max(front, along);
     }
-    return Vector3.dot(placed.centre, forward) - (rear + front) / 2;
+    return AutoMovieEngineVector3.dot(placed.centre, forward) - (rear + front) / 2;
   }
 
   /*
    * World heading of a yaw, used by the support's directional reads.
    */
   function heading(yaw: number): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
       { x: 0, y: 0, z: 1 },
     );
   }

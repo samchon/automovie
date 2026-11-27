@@ -1,5 +1,5 @@
 import {
-  Quaternion,
+  AutoMovieEngineQuaternion,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -379,7 +379,7 @@ export namespace EquineFootwork {
       ...(goal.orientation === undefined
         ? {}
         : {
-            orientation: Quaternion.slerp(
+            orientation: AutoMovieEngineQuaternion.slerp(
               goal.orientation,
               { x: 0, y: 0, z: 0, w: 1 },
               amount,

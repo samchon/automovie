@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { combinePhysicalMassProperties } from "./combinePhysicalMassProperties";
 import { derivePhysicalModelJoints } from "./derivePhysicalModelJoints";
 import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
@@ -88,12 +88,12 @@ export function derivePhysicalProfile(
       let position: IAutoMovieVector3 = part.transform?.translation ?? zero;
       if (model.skeleton && !part.attachedBone) {
         if (unboundInverse === undefined)
-          unboundInverse = Quaternion.inverse(neutral.rotation);
-        position = Quaternion.rotateVector(
+          unboundInverse = AutoMovieEngineQuaternion.inverse(neutral.rotation);
+        position = AutoMovieEngineQuaternion.rotateVector(
           unboundInverse,
-          Vector3.subtract(position, neutral.position),
+          AutoMovieEngineVector3.subtract(position, neutral.position),
         );
-        rotation = Quaternion.multiply(unboundInverse, rotation);
+        rotation = AutoMovieEngineQuaternion.multiply(unboundInverse, rotation);
       }
       const mass: number =
         primitiveVolume(shape) * scale.x * scale.y * scale.z * density;
@@ -102,7 +102,7 @@ export function derivePhysicalProfile(
           `Physical provider requires a solid positive-volume part: ${part.id}`,
         );
       const centroid: IAutoMovieVector3 = primitiveCentroid(shape);
-      const center: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      const center: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
         x: centroid.x * scale.x,
         y: centroid.y * scale.y,
         z: centroid.z * scale.z,
@@ -217,7 +217,7 @@ export function derivePhysicalProfile(
   let centerY: number = 0;
   let centerZ: number = 0;
   for (const segment of segments) {
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       segment.neutral.rotation,
       segment.centerOfMass,
     );
@@ -237,7 +237,7 @@ export function derivePhysicalProfile(
     );
   if (
     model.body?.centerOfMass &&
-    Vector3.length(Vector3.subtract(model.body.centerOfMass, centerOfMass)) >
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(model.body.centerOfMass, centerOfMass)) >
       1e-8
   )
     throw new Error(

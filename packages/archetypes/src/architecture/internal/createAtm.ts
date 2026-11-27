@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeAtm } from "../AutoMovieArchetypeAtm";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -181,7 +181,7 @@ function fascia(
   width: number,
   depth: number,
 ): void {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
   const front: number = depth / 2 + SHELF.out;
   builder.box(

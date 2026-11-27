@@ -1,4 +1,4 @@
-import { AutoMovieEngineFilm, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieClip,
@@ -14,7 +14,7 @@ import { AutoMovieArchetypeDoor } from "../../architecture/AutoMovieArchetypeDoo
 import type { AutoMovieArchetype } from "../../core/AutoMovieArchetype";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
 
 /*
  * Divide the standard door into a fixed frame and a portable hinge-root leaf.
@@ -26,7 +26,7 @@ import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 export function buildingDoor(
   id: string,
   opening: Extract<
-    AutoMovieEnvironment.IBuildingOpening,
+    AutoMovieArchetypeEnvironment.IBuildingOpening,
     { kind: "door" }
   >,
   seed: number | undefined,
@@ -87,7 +87,7 @@ export function buildingDoor(
           ...part,
           transform: relativeToPivot(
             part.transform ??
-              AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+              AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
             pivot,
           ),
         }),
@@ -121,7 +121,7 @@ export function buildingDoor(
     clearCenter: aperture.frame.translation.x,
     clip: (rotation: IAutoMovieQuaternion): IAutoMovieClip | null => {
       const swing: Extract<
-        AutoMovieEnvironment.IBuildingOpening,
+        AutoMovieArchetypeEnvironment.IBuildingOpening,
         { kind: "door" }
       >["swing"] = opening.swing;
       if (swing === undefined) return null;
@@ -136,9 +136,9 @@ export function buildingDoor(
         throw new Error(
           `door "${id}" needs increasing nonnegative shot seconds and a swing within hinge travel below 180 degrees`,
         );
-      const last: IAutoMovieQuaternion = Quaternion.multiply(
+      const last: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         rotation,
-        Quaternion.fromAxisAngle(axis, degrees),
+        AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees),
       );
       return {
         id: `${id}/swing`,
@@ -222,5 +222,5 @@ function relativeToPivot(
   frame: IAutoMovieTransform,
   pivot: IAutoMovieVector3,
 ): IAutoMovieTransform {
-  return { ...frame, translation: Vector3.subtract(frame.translation, pivot) };
+  return { ...frame, translation: AutoMovieEngineVector3.subtract(frame.translation, pivot) };
 }

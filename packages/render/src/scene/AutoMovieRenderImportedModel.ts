@@ -1,21 +1,21 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieImportedModelOptions } from "./IAutoMovieImportedModelOptions.js";
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import type { IAutoMovieRenderImportedModelOptions } from "./IAutoMovieRenderImportedModelOptions.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
 import { createImportedModelObject as createImportedModelImplementation } from "./importedModel/internal/createImportedModelObject.js";
 import { mapImportedHumanoidBones as mapImportedHumanoidBonesImplementation } from "./importedModel/internal/mapImportedHumanoidBones.js";
 
 /** Public operations for adopting host-loaded render models. */
 export namespace AutoMovieRenderImportedModel {
   /**
-   * Wrap an imported runtime object as an {@link IAutoMovieModelObject}. The
+   * Wrap an imported runtime object as an {@link IAutoMovieRenderModelObject}. The
    * loader remains with the host application. The viewer receives a root
    * wrapper, normalized humanoid bones, and optional expression/frame hooks so
    * imported assets use the same pose path as generated models.
    */
   export function create(
-    options: IAutoMovieImportedModelOptions,
-  ): IAutoMovieModelObject {
+    options: IAutoMovieRenderImportedModelOptions,
+  ): IAutoMovieRenderModelObject {
     return createImportedModelImplementation(options);
   }
 

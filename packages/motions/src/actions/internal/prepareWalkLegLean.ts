@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
@@ -18,7 +18,7 @@ export function prepareWalkLegLean(
 ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
   const fixed: IGeometry = geometry(body, heading);
   return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number =>
-    fixed.at(hip, ankle, Vector3.distance(ankle, hip));
+    fixed.at(hip, ankle, AutoMovieEngineVector3.distance(ankle, hip));
 }
 
 /*
@@ -42,7 +42,7 @@ export namespace prepareWalkLegLean {
       hip: IAutoMovieVector3,
       ankle: IAutoMovieVector3,
     ): number | undefined => {
-      const d: number = Vector3.distance(ankle, hip);
+      const d: number = AutoMovieEngineVector3.distance(ankle, hip);
       return d > fixed.span ? undefined : fixed.at(hip, ankle, d);
     };
   }

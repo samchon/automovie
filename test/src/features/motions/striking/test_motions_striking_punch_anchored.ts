@@ -1,4 +1,6 @@
-import { punchAnchored } from "@automovie/motions/internal";
+import {
+  punchAnchored
+} from "../../../../../packages/motions/src/striking/internal/punchAnchored";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

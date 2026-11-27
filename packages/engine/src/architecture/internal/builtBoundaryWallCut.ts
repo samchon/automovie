@@ -6,8 +6,8 @@ import {
   type IAutoMovieWallOpening,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { outlineHull } from "./outlineHull";
 import { polygonBounds } from "./polygonBounds";
 
@@ -69,9 +69,9 @@ export function builtBoundaryWallCut(
     width: bounds.max.x - bounds.min.x,
     height: bounds.max.y - bounds.min.y,
     depth: face.thickness,
-    origin: Vector3.add(
+    origin: AutoMovieEngineVector3.add(
       face.origin,
-      Quaternion.rotateVector(face.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(face.rotation, {
         x: (bounds.min.x + bounds.max.x) / 2,
         y: (bounds.min.y + bounds.max.y) / 2,
         z: 0,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -122,13 +122,13 @@ export namespace treeLimbs {
       );
     const world: IAutoMovieRigidTransform = reader.frame(context.start);
     const place = (item: IAutoMovieAffordance): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         world.position,
-        Quaternion.rotateVector(world.rotation, item.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(world.rotation, item.frame.translation),
       );
     const axis = (item: IAutoMovieAffordance): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.multiply(world.rotation, item.frame.rotation),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(world.rotation, item.frame.rotation),
         { x: 1, y: 0, z: 0 },
       );
     const centre: IAutoMovieVector3 = place(bole);
@@ -149,9 +149,9 @@ export namespace treeLimbs {
       const direction: IAutoMovieVector3 = axis(bar);
       branches.push({
         index: k,
-        root: Vector3.add(
+        root: AutoMovieEngineVector3.add(
           place(bar),
-          Vector3.scale(direction, -bar.length / 2),
+          AutoMovieEngineVector3.scale(direction, -bar.length / 2),
         ),
         direction,
         length: bar.length,
@@ -185,10 +185,10 @@ export namespace treeLimbs {
     out: number,
     lift: number,
   ): IAutoMovieVector3 {
-    return Vector3.add(
-      Vector3.add(
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(
         branch.root,
-        Vector3.scale(branch.direction, Math.min(branch.length, out)),
+        AutoMovieEngineVector3.scale(branch.direction, Math.min(branch.length, out)),
       ),
       { x: 0, y: lift * branch.radius, z: 0 },
     );
@@ -211,13 +211,13 @@ export namespace treeLimbs {
   ): IAutoMovieVector3 {
     const angle: number = aside / tree.bole.radius;
     const right: IAutoMovieVector3 = { x: -toward.z, y: 0, z: toward.x };
-    const out: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(toward, Math.cos(angle)),
-      Vector3.scale(right, Math.sin(angle)),
+    const out: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(toward, Math.cos(angle)),
+      AutoMovieEngineVector3.scale(right, Math.sin(angle)),
     );
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       { ...tree.bole.foot, y: tree.bole.foot.y + height },
-      Vector3.scale(out, tree.bole.radius),
+      AutoMovieEngineVector3.scale(out, tree.bole.radius),
     );
   }
 

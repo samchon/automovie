@@ -1,6 +1,6 @@
 import {
-  AutoMoviePhysicalGeometry as Geometry,
-  Quaternion,
+  AutoMovieEnginePhysicalGeometry as Geometry,
+  AutoMovieEngineQuaternion,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
@@ -46,7 +46,7 @@ export async function test_engine_physics_prepare_physical_geometry_boundary(): 
   ) => IAutoMoviePreparePhysicalGeometry.ICollider = (
     shape: IAutoMoviePhysicalShape,
     x: number,
-    rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.identity(),
+    rotation: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.identity(),
   ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
     body: x === 0 ? "first" : "second",
     bone: "root",
@@ -75,13 +75,13 @@ export async function test_engine_physics_prepare_physical_geometry_boundary(): 
       ...original,
       transform: {
         position: { x: 0, y: 0.3, z: 0.1 },
-        rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 17),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 17),
       },
     };
     const first: IAutoMoviePreparePhysicalGeometry.ICollider = make(
       shape,
       0,
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
     );
     const second: IAutoMoviePreparePhysicalGeometry.ICollider = make(
       shape,

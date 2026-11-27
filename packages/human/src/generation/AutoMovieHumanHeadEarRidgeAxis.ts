@@ -1,4 +1,4 @@
-import { AutoMovieViewAxis, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewAxis, AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadEarRidge,
@@ -74,7 +74,7 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
       };
       const prepared:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(input);
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(input);
       if ("detail" in prepared)
         throw new Error(`Ear source course ${name}: ${prepared.detail}`);
       return prepared;
@@ -88,7 +88,7 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
     if (parent === undefined)
       return {
         coordinates,
-        axis: AutoMovieViewAxis.minimal(
+        axis: AutoMovieEngineViewAxis.minimal(
           stations.map(
             (station: number, i: number): IAutoMovieViewAxis.IAxisKnot => ({
               station,
@@ -106,7 +106,7 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
             outline: IAutoMovieViewOutline.IOutline,
           ): IAutoMovieViewOutline.IReading => {
             const read: IAutoMovieViewOutline.IReading | string =
-              AutoMovieViewOutline.at(outline, station);
+              AutoMovieEngineViewOutline.at(outline, station);
             if (typeof read === "string" || read.stationJet === null)
               throw new Error(`Ear source ${name} has no regular course frame`);
             return read;

@@ -66,7 +66,7 @@ export namespace IAutoMovieResolvePoseKeypoints {
 
     /**
      * Requested joint order, with duplicates preserved. Omitted uses
-     * DEFAULT_KEYPOINT_BONES; an empty list emits none and absent rig bones are
+     * AutoMovieEngineDefaultKeypointBones; an empty list emits none and absent rig bones are
      * skipped.
      */
     joints?: readonly AutoMovieHumanoidBone[];

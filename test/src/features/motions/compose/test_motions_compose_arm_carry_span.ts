@@ -5,7 +5,9 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanArmCarrySpan } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanArmCarrySpan
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArmCarrySpan";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

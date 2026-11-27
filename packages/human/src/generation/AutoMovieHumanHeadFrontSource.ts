@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadFrontSource,
   IAutoMovieHumanHeadLayout,
@@ -189,7 +189,7 @@ export namespace AutoMovieHumanHeadFrontSource {
   ): IAutoMovieViewOutline.IOutline {
     const source:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(outline);
     if ("detail" in source)
       throw new Error(`Head front source: ${source.detail}`);
     return source;
@@ -203,7 +203,7 @@ export namespace AutoMovieHumanHeadFrontSource {
     station: number,
   ): IAutoMovieViewOutline.IReading {
     const value: IAutoMovieViewOutline.IReading | string =
-      AutoMovieViewOutline.at(source, station);
+      AutoMovieEngineViewOutline.at(source, station);
     if (typeof value === "string")
       throw new Error(`Head front source: ${value}`);
     return value;

@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { walkDelayed } from "@automovie/motions/internal";
+import {
+  walkDelayed
+} from "../../../../../packages/motions/src/actions/internal/walkDelayed";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

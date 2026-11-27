@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCoupling, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
@@ -168,15 +168,15 @@ export namespace HumanCarriedCouplingCouple {
     );
     const keyHeading: IAutoMovieQuaternion = humanPostureHeading(keyed);
     const root: IAutoMovieVector3 = fit.place({ x: 0, y: 0, z: 0 });
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       anchored.worldRotation,
     );
     const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, anchored.worldPosition),
+        AutoMovieEngineVector3.subtract(point, anchored.worldPosition),
       );
 
     // A second helper stands where its side's region meets the borne
@@ -185,7 +185,7 @@ export namespace HumanCarriedCouplingCouple {
     const bearers: Record<string, Bearer> = {};
     if (second !== undefined) {
       const still: Bones = secondBones!;
-      const shift: IAutoMovieVector3 = Vector3.subtract(
+      const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         fit.place(
           HumanCarriedCouplingPose.region(borne, mine, second.row.mine),
         ),
@@ -197,9 +197,9 @@ export namespace HumanCarriedCouplingCouple {
       );
       const bone: IAutoMovieResolvedBone = still.get(own)!;
       bearers[rules.SECOND] = {
-        position: local(Vector3.add(bone.worldPosition, shift)),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(inverse, bone.worldRotation),
+        position: local(AutoMovieEngineVector3.add(bone.worldPosition, shift)),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(inverse, bone.worldRotation),
         ),
         anchor: own,
       };
@@ -226,14 +226,14 @@ export namespace HumanCarriedCouplingCouple {
               still,
               hand,
               {
-                point: Vector3.subtract(fit.place(place.point), shift),
-                normal: Quaternion.rotateVector(fit.turn, place.normal),
+                point: AutoMovieEngineVector3.subtract(fit.place(place.point), shift),
+                normal: AutoMovieEngineQuaternion.rotateVector(fit.turn, place.normal),
                 ...(fingers === undefined
                   ? {}
                   : {
-                      forward: Quaternion.rotateVector(
+                      forward: AutoMovieEngineQuaternion.rotateVector(
                         fit.turn,
-                        Quaternion.rotateVector(
+                        AutoMovieEngineQuaternion.rotateVector(
                           mine.get(surface.bone)!.worldRotation,
                           fingers,
                         ),
@@ -373,10 +373,10 @@ export namespace HumanCarriedCouplingCouple {
       anchor,
       key: {
         position: local(root),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
             inverse,
-            Quaternion.multiply(fit.turn, keyHeading),
+            AutoMovieEngineQuaternion.multiply(fit.turn, keyHeading),
           ),
         ),
         legs: fit.legs,

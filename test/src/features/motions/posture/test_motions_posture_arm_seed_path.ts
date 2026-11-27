@@ -4,10 +4,14 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 import {
-  HumanArmSeed,
-  HumanArmTrajectoryContext,
-  HumanArmTrajectoryModel,
-} from "@automovie/motions/internal";
+  HumanArmSeed
+} from "../../../../../packages/motions/src/posture/internal/HumanArmSeed";
+import {
+  HumanArmTrajectoryContext
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryContext";
+import {
+  HumanArmTrajectoryModel
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryModel";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

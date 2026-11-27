@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -37,7 +37,7 @@ export function wheelchairHandrimFrame(
 
   const at: ReturnType<typeof ride.at> = ride.at(catchAt);
   const angle: number = (degrees * Math.PI) / 180;
-  const radial: IAutoMovieVector3 = Quaternion.rotateVector(
+  const radial: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     at.placement.rotation,
     {
       x: 0,
@@ -55,9 +55,9 @@ export function wheelchairHandrimFrame(
     if (radius === undefined) continue;
     selections.set(
       rim,
-      Quaternion.rotateVector(
-        Quaternion.inverse(ride.frame(rim, catchAt).rotation),
-        Vector3.scale(radial, radius),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(ride.frame(rim, catchAt).rotation),
+        AutoMovieEngineVector3.scale(radial, radius),
       ),
     );
   }
@@ -68,19 +68,19 @@ export function wheelchairHandrimFrame(
     const frame: IAutoMovieTransform = ride.frame(id, seconds);
     const selected: IAutoMovieVector3 | undefined = selections.get(id);
     if (selected === undefined) return frame;
-    const spoke: IAutoMovieVector3 = Quaternion.rotateVector(
+    const spoke: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       frame.rotation,
       selected,
     );
-    const axle: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    const axle: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 1,
       z: 0,
     });
     return AutoMovieArchetypeFrame.facing(
-      Vector3.add(frame.translation, spoke),
+      AutoMovieEngineVector3.add(frame.translation, spoke),
       spoke,
-      Vector3.cross(axle, spoke),
+      AutoMovieEngineVector3.cross(axle, spoke),
     );
   };
 }

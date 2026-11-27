@@ -1,4 +1,6 @@
-import { selectEquineTack } from "@automovie/archetypes/internal";
+import {
+  selectEquineTack
+} from "../../../../../packages/archetypes/src/animals/fittings/selectEquineTack";
 import { TestValidator } from "@nestia/e2e";
 
 /**

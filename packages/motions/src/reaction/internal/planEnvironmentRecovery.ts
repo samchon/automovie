@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -102,7 +102,7 @@ export function planEnvironmentRecovery(
       subject: context.subject,
       at: { bone: part, point: { x: 0, y: 0, z: 0 } },
       seconds: context.start,
-      impulse: Vector3.scale(cue.direction, body.massModel.mass * cue.severity),
+      impulse: AutoMovieEngineVector3.scale(cue.direction, body.massModel.mass * cue.severity),
     };
     reacted = perturb.plan({
       ...local,
@@ -151,9 +151,9 @@ export function planEnvironmentRecovery(
           [limb]: {
             ...goal,
             planted: false,
-            point: Vector3.add(
+            point: AutoMovieEngineVector3.add(
               goal.point,
-              Vector3.scale(
+              AutoMovieEngineVector3.scale(
                 cue.direction,
                 glide * Math.sin((Math.PI * t) / release),
               ),
@@ -252,14 +252,14 @@ function slip(
   // own acceleration is taken out first.
   const carrier: IAutoMovieMotionHumanSupportFrame.IFrame =
     HumanSupportFrame.at(context, context.start, surface);
-  const relative: IAutoMovieVector3 = Vector3.subtract(
+  const relative: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     entry.acceleration,
     carrier.acceleration,
   );
   return environmentRecoveryCue.slip(
     asked.support ?? "floor",
     relative,
-    Vector3.subtract(foot.velocity, carrier.velocity),
+    AutoMovieEngineVector3.subtract(foot.velocity, carrier.velocity),
     asked.coefficient,
     HumanLoad.required(relative),
     entry.posture.yaw,

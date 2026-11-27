@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineFluid,
-  FLUID_MAX_CELLS,
-  FLUID_MAX_STEPS,
+  AutoMovieEngineFluidMaxCells,
+  AutoMovieEngineFluidMaxSteps,
 } from "@automovie/engine";
 import {
   IAutoMovieFluidDomain,
@@ -91,7 +91,7 @@ const spray: (
  *    grids nobody can afford are exactly the ones a counted budget can stop
  *    counting.
  * 3. The solver: a non-positive step, gravity, and reference depth; a negative
- *    drag and dry depth; a step budget past `FLUID_MAX_STEPS`.
+ *    drag and dry depth; a step budget past `AutoMovieEngineFluidMaxSteps`.
  * 4. Stability: an above-limit step has a located range finding, while the
  *    limit step is accepted, and finite gravity/depth whose product overflows
  *    cause a step finding. This entry does not assert the measured overshoot.
@@ -185,7 +185,7 @@ export function test_fluid_domain_validation(): void {
         (): boolean => hasViolation(lattice, "range", "$input.grid.cellZ"),
       ],
       ["budget", (): boolean => hasViolation(huge, "range", "$input.grid")],
-      ["budgetValue", (): boolean => FLUID_MAX_CELLS === 65_536],
+      ["budgetValue", (): boolean => AutoMovieEngineFluidMaxCells === 65_536],
       [
         "overflow",
         (): boolean => hasViolation(overflowing, "range", "$input.grid"),
@@ -217,7 +217,7 @@ export function test_fluid_domain_validation(): void {
         drag: -1,
         dryDepth: -0.5,
         referenceDepth: 0,
-        maxSteps: FLUID_MAX_STEPS + 1,
+        maxSteps: AutoMovieEngineFluidMaxSteps + 1,
       },
     }),
   });

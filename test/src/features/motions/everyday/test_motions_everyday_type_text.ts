@@ -2,7 +2,9 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { typeTextPresses } from "@automovie/motions/internal";
+import {
+  typeTextPresses
+} from "../../../../../packages/motions/src/everyday/internal/typeTextPresses";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -73,7 +73,7 @@ export function createLongGun(
     name: AutoMovieArchetypeLongGun.NAMES[kind],
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const steel: string = "#2c2f33";
   const pull: number = d.lengthOfPull!;
   const breech: number = d.length! - d.barrel!;

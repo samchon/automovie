@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSkydive,
   IAutoMovieVector3,
@@ -101,7 +101,7 @@ export namespace skydivePath {
     yaw: number,
     ground: number,
   ): IPath {
-    const g: number = AutoMovieGravity.STANDARD;
+    const g: number = AutoMovieEngineGravity.STANDARD;
     const height: number = hips.y - ground;
     if (!(p.deploy > 0 && height > p.deploy))
       throw refusal(
@@ -156,12 +156,12 @@ export namespace skydivePath {
       spin,
     );
     const openedDirection: IAutoMovieVector3 = HumanFrame.forward(ffHeading);
-    const ffEnd: IAutoMovieVector3 = Vector3.add(hips, {
+    const ffEnd: IAutoMovieVector3 = AutoMovieEngineVector3.add(hips, {
       ...freefall(deploy),
       y: -fall,
     });
-    const openEnd: IAutoMovieVector3 = Vector3.add(ffEnd, {
-      ...Vector3.scale(openedDirection, OPEN * eased(glide, FORWARD, 1)),
+    const openEnd: IAutoMovieVector3 = AutoMovieEngineVector3.add(ffEnd, {
+      ...AutoMovieEngineVector3.scale(openedDirection, OPEN * eased(glide, FORWARD, 1)),
       y: -OPEN * eased(speed, SINK, 1),
     });
     const canopyAt: ReturnType<typeof prepareCanopy> = prepareCanopy(
@@ -170,7 +170,7 @@ export namespace skydivePath {
       toggles,
     );
     const flareStart: ICanopy = canopyAt(flare - open);
-    const flareOrigin: IAutoMovieVector3 = Vector3.add(
+    const flareOrigin: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       openEnd,
       flareStart.offset,
     );
@@ -184,7 +184,7 @@ export namespace skydivePath {
         const drop: number =
           ((TERMINAL * TERMINAL) / g) * Math.log(Math.cosh((g * t) / TERMINAL));
         return {
-          hips: Vector3.add(hips, { ...freefall(t), y: -drop }),
+          hips: AutoMovieEngineVector3.add(hips, { ...freefall(t), y: -drop }),
           heading: yaw + spin * t,
           phase: "freefall",
           share: t / deploy,
@@ -193,8 +193,8 @@ export namespace skydivePath {
       if (t < open) {
         const u: number = (t - deploy) / OPEN;
         return {
-          hips: Vector3.add(ffEnd, {
-            ...Vector3.scale(openedDirection, OPEN * eased(glide, FORWARD, u)),
+          hips: AutoMovieEngineVector3.add(ffEnd, {
+            ...AutoMovieEngineVector3.scale(openedDirection, OPEN * eased(glide, FORWARD, u)),
             y: -OPEN * eased(speed, SINK, u),
           }),
           heading: ffHeading,
@@ -205,7 +205,7 @@ export namespace skydivePath {
       if (t < flare) {
         const c: ICanopy = canopyAt(t - open);
         return {
-          hips: Vector3.add(openEnd, c.offset),
+          hips: AutoMovieEngineVector3.add(openEnd, c.offset),
           heading: c.heading,
           phase: "canopy",
           share: (t - open) / Math.max(1e-6, flare - open),
@@ -213,8 +213,8 @@ export namespace skydivePath {
       }
       const u: number = (t - flare) / flareTime;
       return {
-        hips: Vector3.add(flareOrigin, {
-          ...Vector3.scale(
+        hips: AutoMovieEngineVector3.add(flareOrigin, {
+          ...AutoMovieEngineVector3.scale(
             flareDirection,
             flareTime * eased(FORWARD, TOUCH_FORWARD, u),
           ),
@@ -230,7 +230,7 @@ export namespace skydivePath {
       open,
       flare,
       touchdown,
-      landing: Vector3.scale(flareDirection, TOUCH_FORWARD),
+      landing: AutoMovieEngineVector3.scale(flareDirection, TOUCH_FORWARD),
       at,
     };
   }
@@ -293,7 +293,7 @@ export namespace skydivePath {
       const turn: number = before.heading + before.rate * elapsed;
       arcs.push({
         start,
-        offset: Vector3.add(before.offset, before.at(elapsed)),
+        offset: AutoMovieEngineVector3.add(before.offset, before.at(elapsed)),
         heading: turn,
         rate,
         at: prepareArc(FORWARD, turn, rate),
@@ -312,7 +312,7 @@ export namespace skydivePath {
         PreparedHumanIntervals.upperBound(arcs.length, startAt, seconds) - 1;
       const arc: ICanopyArc = arcs[Math.max(0, i)]!;
       const t: number = Math.max(0, seconds - arc.start);
-      const offset: IAutoMovieVector3 = Vector3.add(arc.offset, arc.at(t));
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.add(arc.offset, arc.at(t));
       return {
         offset: { ...offset, y: -SINK * seconds },
         heading: arc.heading + arc.rate * t,
@@ -332,7 +332,7 @@ export namespace skydivePath {
     if (Math.abs(rate) < 1e-9) {
       const forward: IAutoMovieVector3 = HumanFrame.forward(heading);
       return (seconds: number): IAutoMovieVector3 =>
-        Vector3.scale(forward, speed * seconds);
+        AutoMovieEngineVector3.scale(forward, speed * seconds);
     }
     const w: number = (rate * Math.PI) / 180;
     const h0: number = (heading * Math.PI) / 180;

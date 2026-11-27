@@ -3,7 +3,7 @@ import type {
   IAutoMovieJointPose,
 } from "@automovie/interface";
 
-import type { swingTwistRange } from "../../kinematics/swingTwistRange";
+import type { AutoMovieEngineSwingTwistRange } from "../../kinematics/AutoMovieEngineSwingTwistRange";
 import { clampJointRomValues } from "./clampJointRomValues";
 
 /*
@@ -15,8 +15,8 @@ import { clampJointRomValues } from "./clampJointRomValues";
  *
  * A ball joint whose constraint declares `swingTwist`, on a bone with axes in
  * its frame (the caller's `rig`, or the humanoid tables' through
- * `swingTwistRange.of`), is instead brought into its range as a rotation
- * (`swingTwistRange.project`: its direction along its great circle from rest,
+ * `AutoMovieEngineSwingTwistRange.of`), is instead brought into its range as a rotation
+ * (`AutoMovieEngineSwingTwistRange.project`: its direction along its great circle from rest,
  * its twist clamped) and read back in the reading the three-angle box prefers;
  * a joint already inside comes back as given.
  * Parameter joint: The joint's clinical angles.
@@ -29,7 +29,7 @@ import { clampJointRomValues } from "./clampJointRomValues";
 export function clampJointRom(
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
-  rig?: swingTwistRange.IPrepared,
+  rig?: AutoMovieEngineSwingTwistRange.IPrepared,
 ): IAutoMovieJointPose {
   return clampJointRomValues.into(
     joint.bone,

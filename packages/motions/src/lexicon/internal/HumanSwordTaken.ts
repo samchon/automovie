@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -101,7 +101,7 @@ export namespace HumanSwordTaken {
             IAutoMovieVector3,
           ] = ends.read();
           const at: number = context.start + seconds;
-          return Vector3.subtract(
+          return AutoMovieEngineVector3.subtract(
             at < left ? reader.frame(at).position : release,
             origin,
           );

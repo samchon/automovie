@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -79,7 +79,7 @@ export namespace AquaticTeamBase {
       const ahead: number = Math.sqrt(
         Math.max(0, (EXTENSION * arm) ** 2 - up ** 2 - out ** 2),
       );
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         shoulder,
         HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
@@ -125,7 +125,7 @@ export namespace AquaticTeamBase {
             rotation,
             weight,
           ),
-          bend: Vector3.add(
+          bend: AutoMovieEngineVector3.add(
             palm,
             HumanFrame.point(
               { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
@@ -155,19 +155,19 @@ export namespace AquaticTeamBase {
     facing: IAutoMovieQuaternion,
     weight: number,
   ): IAutoMovieHumanLimbGoal {
-    const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
       end.worldRotation,
       facing,
       weight,
     );
-    const original: IAutoMovieVector3 = Vector3.add(
+    const original: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       end.worldPosition,
-      Quaternion.rotateVector(end.worldRotation, contact),
+      AutoMovieEngineQuaternion.rotateVector(end.worldRotation, contact),
     );
     return {
-      point: Vector3.subtract(
-        Vector3.lerp(original, target, weight),
-        Quaternion.rotateVector(rotation, contact),
+      point: AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.lerp(original, target, weight),
+        AutoMovieEngineQuaternion.rotateVector(rotation, contact),
       ),
       bend,
       rotation,

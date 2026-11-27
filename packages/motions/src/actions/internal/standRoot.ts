@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -39,8 +39,8 @@ export function standRoot(
   let y: number = placed.y;
   for (const side of ["left", "right"] as const) {
     const hip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
-    const span: number = Vector3.distance(
-      Vector3.add(rested, hip),
+    const span: number = AutoMovieEngineVector3.distance(
+      AutoMovieEngineVector3.add(rested, hip),
       quiet[side],
     );
     const turned: IAutoMovieVector3 = HumanFrame.point(

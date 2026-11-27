@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -94,7 +94,7 @@ export namespace QuadrupedPoleSwing {
       const key: string = `${limb}:${index}`;
       const cached: number | undefined = cache.get(key);
       if (cached !== undefined) return cached;
-      const up: IAutoMovieVector3 = Vector3.subtract(chain[3]!, chain[4]!);
+      const up: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(chain[3]!, chain[4]!);
       const needed: number = apex(
         poles,
         round(limb, parts),
@@ -113,7 +113,7 @@ export namespace QuadrupedPoleSwing {
               y: floor(goal, x),
               z: goal.z,
             }),
-            axis: Quaternion.rotateVector(moment.placement.rotation, up),
+            axis: AutoMovieEngineQuaternion.rotateVector(moment.placement.rotation, up),
           };
         },
         (share: number): number =>
@@ -147,7 +147,7 @@ export namespace QuadrupedPoleSwing {
       if (!(lift > 0)) continue;
       const bar: IBar = path(share);
       for (let j: number = 0; j <= BAR; j++) {
-        const at: IAutoMovieVector3 = Vector3.addScaled(
+        const at: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
           bar.ground,
           bar.axis,
           j / BAR,

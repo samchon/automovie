@@ -1,5 +1,5 @@
 import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedGait, type AutoMovieArchetypeRide, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
-import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -128,7 +128,7 @@ export namespace EquineEarObservation {
         shape.depth,
         (height * row.width) / 10,
       );
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         frame(ear).rotation,
         { x: 0, y: 1, z: 0 },
       );
@@ -243,7 +243,7 @@ export namespace EquineEarObservation {
     for (const y of ends)
       for (const x of [-1, 1])
         for (const z of [-1, 1]) {
-          const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+          const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             frame(part).rotation,
             {
               x: (x * shape.width) / 2,
@@ -265,7 +265,7 @@ export namespace EquineEarObservation {
     at: IAutoMovieTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(Quaternion.inverse(at.rotation), {
+    return AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(at.rotation), {
       x: point.x - at.translation.x,
       y: point.y - at.translation.y,
       z: point.z - at.translation.z,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -79,12 +79,12 @@ export function prepareLieDownFootPins(
         );
         joints[`${side}Toes`] = [toes, 0, 0];
         limbs[`${side}Leg`] = {
-          point: Vector3.subtract(
+          point: AutoMovieEngineVector3.subtract(
             point,
-            Quaternion.rotateVector(ankle.worldRotation, local),
+            AutoMovieEngineQuaternion.rotateVector(ankle.worldRotation, local),
           ),
           rotation: ankle.worldRotation,
-          bend: Vector3.add(knee.worldPosition, posture.root),
+          bend: AutoMovieEngineVector3.add(knee.worldPosition, posture.root),
           planted: true,
         };
         continue;
@@ -97,12 +97,12 @@ export function prepareLieDownFootPins(
         (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === socket,
       )!.point;
       limbs[`${side}Leg`] = {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           point,
-          Vector3.subtract(ankle.worldPosition, placed),
+          AutoMovieEngineVector3.subtract(ankle.worldPosition, placed),
         ),
         rotation: ankle.worldRotation,
-        bend: Vector3.add(knee.worldPosition, posture.root),
+        bend: AutoMovieEngineVector3.add(knee.worldPosition, posture.root),
         planted: true,
       };
     }

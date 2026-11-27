@@ -8,10 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidJointAxes } from "../../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
 /*
@@ -37,22 +37,22 @@ export function resolveBoneTarget(
   const [resolved]: IAutoMovieResolvedBone[] = resolvePose(
     pose,
     context.rig,
-    HUMANOID_JOINT_AXES,
+    AutoMovieEngineHumanoidJointAxes,
     context.restFrames,
     undefined,
     undefined,
     new Set([target.bone]),
   );
   if (resolved === undefined) return null;
-  const facing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const facing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     context.facingDeg,
   );
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     context.position,
     // `resolvePose` starts its FK walk at `pose.root.translation`, so its
     // world position already carries locomotion exactly once. Rotate that
     // model-space point into the staged facing, then translate to the actor.
-    Quaternion.rotateVector(facing, resolved.worldPosition),
+    AutoMovieEngineQuaternion.rotateVector(facing, resolved.worldPosition),
   );
 }

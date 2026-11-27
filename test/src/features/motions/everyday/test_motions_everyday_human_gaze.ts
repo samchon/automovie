@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { HumanGaze, blendGazeJoint } from "@automovie/motions/internal";
+import {
+  HumanGaze
+} from "../../../../../packages/motions/src/everyday/internal/HumanGaze";
+import {
+  blendGazeJoint
+} from "../../../../../packages/motions/src/everyday/internal/blendGazeJoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

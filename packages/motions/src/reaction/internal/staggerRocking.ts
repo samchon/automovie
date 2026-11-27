@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -91,7 +91,7 @@ export function staggerRocking(
         point: reached[side].ankle,
         bend:
           step === undefined && ease < 1 && entered?.bend !== undefined
-            ? Vector3.lerp(entered.bend, knee, ease)
+            ? AutoMovieEngineVector3.lerp(entered.bend, knee, ease)
             : knee,
         rotation: reached[side].rotation,
         ...(bearing ? { planted: true } : {}),
@@ -100,29 +100,29 @@ export function staggerRocking(
         // bears in the fixed stance frame at the event.
         ...(proximity === 0
           ? {}
-          : { contact: Vector3.scale(socket, proximity) }),
+          : { contact: AutoMovieEngineVector3.scale(socket, proximity) }),
       };
       if (reacting < 1 && bearing) {
         const foot: IAutoMovieMotionHumanFoot.IPlacement = entryFeet[side];
-        const at: IAutoMovieVector3 = Vector3.lerp(
-          Vector3.add(
+        const at: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
+          AutoMovieEngineVector3.add(
             foot.ankle,
-            Quaternion.rotateVector(foot.rotation, socket),
+            AutoMovieEngineQuaternion.rotateVector(foot.rotation, socket),
           ),
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             goal.point,
-            Quaternion.rotateVector(reached[side].rotation, socket),
+            AutoMovieEngineQuaternion.rotateVector(reached[side].rotation, socket),
           ),
           reacting,
         );
-        goal.rotation = Quaternion.slerp(
+        goal.rotation = AutoMovieEngineQuaternion.slerp(
           foot.rotation,
           reached[side].rotation,
           reacting,
         );
-        goal.point = Vector3.subtract(
+        goal.point = AutoMovieEngineVector3.subtract(
           at,
-          Quaternion.rotateVector(goal.rotation, socket),
+          AutoMovieEngineQuaternion.rotateVector(goal.rotation, socket),
         );
       }
       const reference: IAutoMovieHumanLimbReference | undefined =

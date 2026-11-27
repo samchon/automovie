@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeRhythmicBallData from "./internal/AutoMovieArchetypeRhythmicBallData";
+import { AutoMovieArchetypeRhythmicBallData } from "./internal/AutoMovieArchetypeRhythmicBallData";
 
 /** Constructs the rhythmic ball archetype from its recipe. */
 export namespace AutoMovieArchetypeRhythmicBall {
@@ -50,7 +50,7 @@ export function create(
     name: "rhythmic gymnastics ball",
     draw,
   });
-  const point: typeof Vector3.create = Vector3.create;
+  const point: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const radius: number = values.diameter / 2;
   const centre = point(0, radius, 0);
   builder.ball("ball", radius, centre, { color: "#e84d71" });

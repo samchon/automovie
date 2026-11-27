@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBend,
   IAutoMovieVector3,
@@ -25,24 +25,24 @@ export function AutoMovieMotionHumanBendTurn(
   const chain: AutoMovieMotionHumanBendChain.IChain | null =
     AutoMovieMotionHumanBendChain(props.body, props.posture, props.side);
   if (chain === null) return elbow;
-  const axis: IAutoMovieVector3 = Vector3.subtract(props.point, chain.shoulder);
-  if (!(Vector3.length(axis) > 1e-9)) return elbow;
-  const line: IAutoMovieVector3 = Vector3.normalize(axis);
-  const foot: IAutoMovieVector3 = Vector3.add(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(props.point, chain.shoulder);
+  if (!(AutoMovieEngineVector3.length(axis) > 1e-9)) return elbow;
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(axis);
+  const foot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     chain.shoulder,
-    Vector3.scale(
+    AutoMovieEngineVector3.scale(
       line,
-      Vector3.dot(Vector3.subtract(elbow, chain.shoulder), line),
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(elbow, chain.shoulder), line),
     ),
   );
-  const radial: IAutoMovieVector3 = Vector3.subtract(elbow, foot);
-  if (!(Vector3.length(radial) > 1e-9)) return elbow;
+  const radial: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(elbow, foot);
+  if (!(AutoMovieEngineVector3.length(radial) > 1e-9)) return elbow;
   const angle: number = (degrees * Math.PI) / 180;
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     foot,
-    Vector3.add(
-      Vector3.scale(radial, Math.cos(angle)),
-      Vector3.scale(Vector3.cross(line, radial), Math.sin(angle)),
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(radial, Math.cos(angle)),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(line, radial), Math.sin(angle)),
     ),
   );
 }

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingReach,
   IAutoMovieVector3,
@@ -60,18 +60,18 @@ export namespace StrikingReach {
   ): IAutoMovieMotionHumanStrikingReach.ISolution {
     const { root, upper, lower } = input;
     let along: number = input.along;
-    const toward: IAutoMovieVector3 = Vector3.subtract(input.point, root);
-    const distance: number = Vector3.length(toward);
+    const toward: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(input.point, root);
+    const distance: number = AutoMovieEngineVector3.length(toward);
     if (!(distance > 1e-9))
       throw new Error("A strike's target coincides with the limb's root");
-    const e1: IAutoMovieVector3 = Vector3.scale(toward, 1 / distance);
-    const side: IAutoMovieVector3 = Vector3.subtract(
+    const e1: IAutoMovieVector3 = AutoMovieEngineVector3.scale(toward, 1 / distance);
+    const side: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       input.bend,
-      Vector3.scale(e1, Vector3.dot(input.bend, e1)),
+      AutoMovieEngineVector3.scale(e1, AutoMovieEngineVector3.dot(input.bend, e1)),
     );
-    if (!(Vector3.length(side) > 1e-9))
+    if (!(AutoMovieEngineVector3.length(side) > 1e-9))
       throw new Error("A limb's bend direction is parallel to its reach");
-    const e2: IAutoMovieVector3 = Vector3.normalize(side);
+    const e2: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(side);
     const [least, most] = input.flexion;
     const longest: number = reach(upper, along, least);
     const shortest: number = reach(upper, along, most);
@@ -116,27 +116,27 @@ export namespace StrikingReach {
       ),
     );
     const sinAlpha: number = Math.sqrt(1 - cosAlpha * cosAlpha);
-    const middle: IAutoMovieVector3 = Vector3.add(
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       root,
-      Vector3.add(
-        Vector3.scale(e1, upper * cosAlpha),
-        Vector3.scale(e2, upper * sinAlpha),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(e1, upper * cosAlpha),
+        AutoMovieEngineVector3.scale(e2, upper * sinAlpha),
       ),
     );
-    const point: IAutoMovieVector3 = Vector3.add(root, Vector3.scale(e1, span));
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(root, AutoMovieEngineVector3.scale(e1, span));
     const distal: IAutoMovieVector3 =
       along > 1e-9
-        ? Vector3.normalize(Vector3.subtract(point, middle))
-        : Vector3.normalize(Vector3.subtract(middle, root));
-    const end: IAutoMovieVector3 = Vector3.add(
+        ? AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(point, middle))
+        : AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(middle, root));
+    const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       middle,
-      Vector3.scale(distal, lower),
+      AutoMovieEngineVector3.scale(distal, lower),
     );
-    const thigh: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(middle, root),
+    const thigh: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(middle, root),
     );
     const flexion: number =
-      (Math.acos(Math.min(1, Math.max(-1, Vector3.dot(thigh, distal)))) * 180) /
+      (Math.acos(Math.min(1, Math.max(-1, AutoMovieEngineVector3.dot(thigh, distal)))) * 180) /
       Math.PI;
     return { middle, end, point, flexion, along, status, gap };
   }
@@ -157,13 +157,13 @@ export namespace StrikingReach {
     bend: IAutoMovieVector3,
     distance: number,
   ): IAutoMovieVector3 {
-    const e1: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(solution.end, root),
+    const e1: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(solution.end, root),
     );
-    const side: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(bend, Vector3.scale(e1, Vector3.dot(bend, e1))),
+    const side: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(bend, AutoMovieEngineVector3.scale(e1, AutoMovieEngineVector3.dot(bend, e1))),
     );
-    return Vector3.add(solution.middle, Vector3.scale(side, distance));
+    return AutoMovieEngineVector3.add(solution.middle, AutoMovieEngineVector3.scale(side, distance));
   }
 
   /*

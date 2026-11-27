@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPropReader,
@@ -82,12 +82,12 @@ export namespace ladderAccessRails {
           (item.length ?? 0) > 0,
       )
       .map((bar: IAutoMovieAffordance): IRail => {
-        const center: IAutoMovieVector3 = Vector3.add(
+        const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           model.position,
-          Quaternion.rotateVector(model.rotation, bar.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(model.rotation, bar.frame.translation),
         );
-        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.multiply(model.rotation, bar.frame.rotation),
+        const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.multiply(model.rotation, bar.frame.rotation),
           { x: 1, y: 0, z: 0 },
         );
         return {

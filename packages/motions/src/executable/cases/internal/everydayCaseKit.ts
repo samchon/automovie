@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -130,7 +130,7 @@ export namespace everydayCaseKit {
       (Math.acos(
         Math.max(
           -1,
-          Math.min(1, Vector3.dot(Vector3.normalize(a), Vector3.normalize(b))),
+          Math.min(1, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(a), AutoMovieEngineVector3.normalize(b))),
         ),
       ) *
         180) /

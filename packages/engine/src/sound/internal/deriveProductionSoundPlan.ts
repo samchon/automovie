@@ -23,8 +23,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { resolveCameraAt } from "../../film/internal/resolveCameraAt";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { transformFormationBounds } from "../../populationRuntime/formation/internal/transformFormationBounds";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
@@ -96,13 +96,13 @@ export function deriveProductionSoundPlan(
           sample.time,
         );
         const emitter: IAutoMovieVector3 = mass.centroid;
-        const delta: IAutoMovieVector3 = Vector3.subtract(
+        const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           emitter,
           listener.position,
         );
-        const distanceMeters: number = Vector3.length(delta);
-        const local: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.inverse(listener.rotation),
+        const distanceMeters: number = AutoMovieEngineVector3.length(delta);
+        const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(listener.rotation),
           delta,
         );
         // The listener is not `distanceMeters` from a source that has size: it is
@@ -363,18 +363,18 @@ const resolveSourceMass: (
     throw new Error(
       `Sound event in shot "${compiled.shot.id}" has no spatially resolved subject among ${subjects.join(", ")}.`,
     );
-  const centroid: IAutoMovieVector3 = Vector3.scale(
+  const centroid: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     resolved.reduce(
       (sum: IAutoMovieVector3, mass: IAutoMovieSoundMass): IAutoMovieVector3 =>
-        Vector3.add(sum, Vector3.scale(mass.centroid, mass.count)),
-      Vector3.create(),
+        AutoMovieEngineVector3.add(sum, AutoMovieEngineVector3.scale(mass.centroid, mass.count)),
+      AutoMovieEngineVector3.create(),
     ),
     1 / count,
   );
   const variance: number =
     resolved.reduce((sum: number, mass: IAutoMovieSoundMass): number => {
-      const offset: number = Vector3.length(
-        Vector3.subtract(mass.centroid, centroid),
+      const offset: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(mass.centroid, centroid),
       );
       return sum + mass.count * (mass.variance + offset * offset);
     }, 0) / count;

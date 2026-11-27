@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypeKettlebellData from "./internal/AutoMovieArchetypeKettlebellData";
+import { AutoMovieArchetypeKettlebellData } from "./internal/AutoMovieArchetypeKettlebellData";
 
 /** Constructs the kettlebell archetype from its recipe. */
 export namespace AutoMovieArchetypeKettlebell {
@@ -62,20 +62,20 @@ export function create(
     name: "kettlebell",
     draw,
   });
-  builder.ball("body", body, Vector3.create(0, body, 0), { color: "#2c2f33" });
+  builder.ball("body", body, AutoMovieEngineVector3.create(0, body, 0), { color: "#2c2f33" });
   builder.rod(
     "handle",
     slim,
-    Vector3.create(-half, top, 0),
-    Vector3.create(half, top, 0),
+    AutoMovieEngineVector3.create(-half, top, 0),
+    AutoMovieEngineVector3.create(half, top, 0),
     { color: "#b8bcc2" },
   );
   for (const side of [1, -1] as const)
     builder.rod(
       side === 1 ? "horn-left" : "horn-right",
       slim,
-      Vector3.create(side * half, top, 0),
-      Vector3.create(side * half, body, 0),
+      AutoMovieEngineVector3.create(side * half, top, 0),
+      AutoMovieEngineVector3.create(side * half, body, 0),
       { color: "#b8bcc2" },
     );
   builder.affordance({
@@ -83,9 +83,9 @@ export function create(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, top, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, top, 0),
+      AutoMovieEngineVector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     grip: "power",

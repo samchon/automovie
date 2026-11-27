@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanCarried,
@@ -141,19 +141,19 @@ export namespace HumanCarriedLean {
     const pivot: IAutoMovieVector3 =
       legs.length === 0
         ? posture.root
-        : Vector3.scale(
+        : AutoMovieEngineVector3.scale(
             legs.reduce(
               (
                 s: IAutoMovieVector3,
                 g: IAutoMovieHumanLimbGoal,
-              ): IAutoMovieVector3 => Vector3.add(s, g.point),
+              ): IAutoMovieVector3 => AutoMovieEngineVector3.add(s, g.point),
               { x: 0, y: 0, z: 0 },
             ),
             1 / legs.length,
           );
-    const own: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(humanPostureHeading(posture)),
-      Vector3.subtract(pivot, posture.root),
+    const own: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(humanPostureHeading(posture)),
+      AutoMovieEngineVector3.subtract(pivot, posture.root),
     );
     const turned: IAutoMovieMotionHumanPosture = {
       ...posture,
@@ -162,9 +162,9 @@ export namespace HumanCarriedLean {
     };
     return {
       ...turned,
-      root: Vector3.subtract(
+      root: AutoMovieEngineVector3.subtract(
         pivot,
-        Quaternion.rotateVector(humanPostureHeading(turned), own),
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(turned), own),
       ),
     };
   }

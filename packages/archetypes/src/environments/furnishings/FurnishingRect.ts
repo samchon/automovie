@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMoviePropBox,
@@ -102,7 +102,7 @@ export namespace FurnishingRect {
     z: number,
     heading: number,
   ): IPlacement {
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       heading % 360,
     );
@@ -136,7 +136,7 @@ export namespace FurnishingRect {
     const corners: IAutoMovieVector3[] = [];
     for (const x of [box.minX, box.maxX])
       for (const z of [box.minZ, box.maxZ])
-        corners.push(Quaternion.rotateVector(rotation, { x, y: 0, z }));
+        corners.push(AutoMovieEngineQuaternion.rotateVector(rotation, { x, y: 0, z }));
     return {
       minX: Math.min(...corners.map((p: IAutoMovieVector3): number => p.x)),
       maxX: Math.max(...corners.map((p: IAutoMovieVector3): number => p.x)),

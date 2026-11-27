@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 
 /*
  * Validate authored generation metadata beside a supplied output-digest
@@ -49,7 +49,7 @@ export function validateGeneratedAcquisition(
       acquisition.prompt,
     );
   for (const key of ["promptDigest", "outputDigest"] as const)
-    if (!SHA256_DIGEST_PATTERN.test(acquisition[key]))
+    if (!AutoMovieEngineSha256DigestPattern.test(acquisition[key]))
       out.push(
         "type",
         `${root}.${key}`,

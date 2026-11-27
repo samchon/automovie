@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -194,7 +194,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
           "A yielding plane needs a known material, a finite nonnegative depth and its source.",
           plane.id,
         );
-      const normal: IAutoMovieVector3 = Vector3.normalize({
+      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: -slope.x,
         y: 1,
         z: -slope.z,
@@ -202,9 +202,9 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       const rotation: IAutoMovieQuaternion = turn(normal, UP);
       const frame: IAutoMovieTransform = {
         rotation,
-        translation: Quaternion.rotateVector(
+        translation: AutoMovieEngineQuaternion.rotateVector(
           rotation,
-          Vector3.scale(origin, -1),
+          AutoMovieEngineVector3.scale(origin, -1),
         ),
         scale: AutoMovieArchetypeFrame.UNIT,
       };
@@ -220,7 +220,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       if (
         !finitePoint(pole.from) ||
         !finitePoint(pole.to) ||
-        !(Vector3.distance(pole.from, pole.to) > 0) ||
+        !(AutoMovieEngineVector3.distance(pole.from, pole.to) > 0) ||
         !(pole.radius > 0)
       )
         throw refusal(
@@ -272,8 +272,8 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
           depth,
           point: { ...point, y: y - depth },
           normal: { ...normal },
-          rotation: Quaternion.multiply(
-            turn(Quaternion.rotateVector(rotation, UP), normal),
+          rotation: AutoMovieEngineQuaternion.multiply(
+            turn(AutoMovieEngineQuaternion.rotateVector(rotation, UP), normal),
             rotation,
           ),
         };
@@ -332,7 +332,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         const roundoff: number =
           256 *
           Number.EPSILON *
-          Math.max(1, Vector3.length(part.transform!.translation));
+          Math.max(1, AutoMovieEngineVector3.length(part.transform!.translation));
         for (const { plane, frame, clearance } of surfaces)
           if (
             minX! < plane.x[1] &&
@@ -357,7 +357,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
             AutoMovieEnginePhysics.physicalShapeSegmentDistance(
               {
                 position: { x: 0, y: 0, z: 0 },
-                rotation: Quaternion.identity(),
+                rotation: AutoMovieEngineQuaternion.identity(),
               },
               bounds,
               pole.from,
@@ -395,10 +395,10 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 const SIDES: readonly IAutoMovieQuaternion[] = [
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
 ];
 
 /*
@@ -422,11 +422,11 @@ function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const axis: IAutoMovieVector3 = Vector3.cross(from, to);
-  const magnitude: number = Vector3.length(axis);
-  return Quaternion.fromAxisAngle(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, to);
+  const magnitude: number = AutoMovieEngineVector3.length(axis);
+  return AutoMovieEngineQuaternion.fromAxisAngle(
     axis,
-    (Math.atan2(magnitude, Vector3.dot(from, to)) * 180) / Math.PI,
+    (Math.atan2(magnitude, AutoMovieEngineVector3.dot(from, to)) * 180) / Math.PI,
   );
 }
 

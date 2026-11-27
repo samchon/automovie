@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -241,7 +241,7 @@ function build(name: string, who: string): IMotionCaptureCase {
     let farthest: number = 0;
     for (const a of points)
       for (const b of points)
-        farthest = Math.max(farthest, Vector3.length(Vector3.subtract(a, b)));
+        farthest = Math.max(farthest, AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, b)));
     return farthest / arm;
   };
   verdicts.push({
@@ -377,8 +377,8 @@ function reached(
     record,
   ).point;
   const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
-  const distance: number = Vector3.length(
-    Vector3.subtract(named, {
+  const distance: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(named, {
       ...shoulder,
       y: shoulder.y - body.measure.upperArm - body.measure.forearm,
     }),

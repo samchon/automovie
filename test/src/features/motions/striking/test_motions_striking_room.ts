@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { StrikingRoom } from "@automovie/motions/internal";
+import {
+  StrikingRoom
+} from "../../../../../packages/motions/src/striking/internal/StrikingRoom";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

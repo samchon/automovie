@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -218,7 +218,7 @@ export namespace catchObject {
         ? neutral
         : (context.carrier?.posture(contact) ?? neutral);
     const meet: IAutoMovieVector3 = timing.before(contact);
-    const along: IAutoMovieVector3 = Vector3.normalize(timing.speed);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(timing.speed);
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([
       "leftUpperArm",
       "rightUpperArm",
@@ -236,26 +236,26 @@ export namespace catchObject {
       undefined,
       shoulderBones,
     );
-    const shoulders: IAutoMovieVector3 = Vector3.lerp(
+    const shoulders: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
       bones.get("rightUpperArm")!.worldPosition,
       0.5,
     );
     if (
-      Vector3.length(Vector3.subtract(meet, shoulders)) >
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(meet, shoulders)) >
       arm + m.hand + m.shoulderHalfWidth
     )
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: context.params.partner,
-        reason: `the object passes ${Vector3.length(Vector3.subtract(meet, shoulders)).toFixed(2)} m from the shoulders, beyond the arms`,
+        reason: `the object passes ${AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(meet, shoulders)).toFixed(2)} m from the shoulders, beyond the arms`,
         fix: "stand on the throw's path, or aim the throw at the catcher",
       });
 
     // The clock on the catcher's own time, contact at the path's instant.
     const travel: number = AutoMovieMotionHumanTiming.aimed(
-      Vector3.length(Vector3.subtract(meet, shoulders)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(meet, shoulders)),
       2 * radius,
     );
     const reach: number = Math.max(0, contact - travel);
@@ -280,9 +280,9 @@ export namespace catchObject {
 
     // The object: on its path before contact, given with after it, then
     // carried to before the sternum.
-    const given: IAutoMovieVector3 = Vector3.add(
+    const given: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       meet,
-      Vector3.scale(along, GIVE),
+      AutoMovieEngineVector3.scale(along, GIVE),
     );
     const sternumAt: ReturnType<typeof HumanTrunk.prepareRegion> =
       HumanTrunk.prepareRegion(body, "sternum");
@@ -298,7 +298,7 @@ export namespace catchObject {
       if (seconds < contact) return timing.before(seconds);
       if (seconds === contact) return meet;
       if (seconds <= secured)
-        return Vector3.lerp(
+        return AutoMovieEngineVector3.lerp(
           meet,
           given,
           clock.progress("contact", "secured", seconds),
@@ -307,11 +307,11 @@ export namespace catchObject {
         posture,
         resolution,
       );
-      const before: IAutoMovieVector3 = Vector3.add(
+      const before: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         sternum.point,
-        Vector3.scale(sternum.normal, radius + 0.15 * arm),
+        AutoMovieEngineVector3.scale(sternum.normal, radius + 0.15 * arm),
       );
-      return Vector3.lerp(
+      return AutoMovieEngineVector3.lerp(
         given,
         before,
         clock.progress("secured", "held", seconds),
@@ -353,13 +353,13 @@ export namespace catchObject {
     ): IAutoMovieVector3 =>
       pocket === undefined
         ? back
-        : Vector3.subtract(back, Quaternion.rotateVector(rotation, pocket));
+        : AutoMovieEngineVector3.subtract(back, AutoMovieEngineQuaternion.rotateVector(rotation, pocket));
     const hand: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
       side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive => {
       const outward: IAutoMovieVector3 =
         sides.length === 2
-          ? Vector3.scale(left, side === "left" ? 1 : -1)
+          ? AutoMovieEngineVector3.scale(left, side === "left" ? 1 : -1)
           : along;
       const fingers: IAutoMovieVector3 = catchObjectFingers({
         body,
@@ -424,9 +424,9 @@ export namespace catchObject {
             posture,
             resolution,
           );
-          const back: IAutoMovieVector3 = Vector3.add(
+          const back: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             centre,
-            Vector3.scale(outward, radius),
+            AutoMovieEngineVector3.scale(outward, radius),
           );
           const target: IAutoMovieMotionHumanArmTarget.ITarget = prepared(
             posture,

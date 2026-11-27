@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -246,12 +246,12 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
       turnHumanPosture(a);
     const tb: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
       turnHumanPosture(b);
-    const position: IAutoMovieVector3 = Vector3.lerp(
+    const position: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       ta.position,
       tb.position,
       share,
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
       from.rotation,
       to.rotation,
       share,
@@ -272,13 +272,13 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
         limbs: {},
         rotation: {
           about: position,
-          turn: Quaternion.multiply(
+          turn: AutoMovieEngineQuaternion.multiply(
             rotation,
-            Quaternion.inverse(humanPostureHeading(heading)),
+            AutoMovieEngineQuaternion.inverse(humanPostureHeading(heading)),
           ),
         },
       },
-      root: Vector3.lerp(from.root, to.root, share),
+      root: AutoMovieEngineVector3.lerp(from.root, to.root, share),
       rotation,
     };
   }

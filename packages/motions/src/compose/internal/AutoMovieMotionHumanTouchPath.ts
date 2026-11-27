@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -43,16 +43,16 @@ export namespace AutoMovieMotionHumanTouchPath {
     fallback: IAutoMovieVector3,
     elbow: LayElbow = "natural",
   ): IAutoMovieVector3 {
-    const way: IAutoMovieVector3 = Vector3.subtract(
+    const way: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       point,
       elbowOf(body, posture, side, elbow),
     );
-    const across: IAutoMovieVector3 = Vector3.subtract(
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       way,
-      Vector3.scale(normal, Vector3.dot(way, normal)),
+      AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(way, normal)),
     );
-    return Vector3.length(across) > 0.3 * Vector3.length(way)
-      ? Vector3.normalize(across)
+    return AutoMovieEngineVector3.length(across) > 0.3 * AutoMovieEngineVector3.length(way)
+      ? AutoMovieEngineVector3.normalize(across)
       : fallback;
   }
 
@@ -79,12 +79,12 @@ export namespace AutoMovieMotionHumanTouchPath {
     elbow: ReachElbow = "natural",
     from?: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const way: IAutoMovieVector3 = Vector3.subtract(
+    const way: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       point,
       from ?? elbowOf(body, posture, side, elbow),
     );
-    return Vector3.length(way) > 1e-9
-      ? Vector3.normalize(way)
+    return AutoMovieEngineVector3.length(way) > 1e-9
+      ? AutoMovieEngineVector3.normalize(way)
       : { x: 0, y: 1, z: 0 };
   }
 }

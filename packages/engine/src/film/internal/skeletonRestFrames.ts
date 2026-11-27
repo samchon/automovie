@@ -5,8 +5,8 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Every bone's rest-pose frame in model space, composed down the parent chain.
@@ -74,11 +74,11 @@ export function skeletonRestFrames(
       const parent: Pick<IAutoMovieTransform, "translation" | "rotation"> =
         resolve(bone.parent);
       frame = {
-        translation: Vector3.add(
+        translation: AutoMovieEngineVector3.add(
           parent.translation,
-          Quaternion.rotateVector(parent.rotation, bone.rest.translation),
+          AutoMovieEngineQuaternion.rotateVector(parent.rotation, bone.rest.translation),
         ),
-        rotation: Quaternion.multiply(parent.rotation, bone.rest.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(parent.rotation, bone.rest.rotation),
       };
     }
     resolving.delete(name);

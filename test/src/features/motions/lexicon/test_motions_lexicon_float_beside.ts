@@ -1,4 +1,6 @@
-import { humanFloatBesideAdmit } from "@automovie/motions/internal";
+import {
+  humanFloatBesideAdmit
+} from "../../../../../packages/motions/src/lexicon/internal/humanFloatBesideAdmit";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

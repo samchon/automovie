@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineSpace } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineSpace } from "@automovie/engine";
 import {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
@@ -55,7 +55,7 @@ export function test_space_affordance_contacts(): void {
   };
   const parentWorld: IAutoMovieTransform = {
     translation: { x: 2, y: 0, z: 1 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
     scale: UNIT,
   };
 

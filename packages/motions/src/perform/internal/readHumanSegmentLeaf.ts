@@ -1,4 +1,4 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -27,7 +27,7 @@ import { readHumanSegmentAnchors } from "./readHumanSegmentAnchors";
 import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 import { unfollowedHumanChannels } from "./unfollowedHumanChannels";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
-import * as ReadHumanSegmentLeafData from "./ReadHumanSegmentLeafData";
+import { ReadHumanSegmentLeafData } from "./ReadHumanSegmentLeafData";
 
 /*
  * Read the action before its entering offset, including current holds and
@@ -174,7 +174,7 @@ export function readHumanSegmentLeaf(
                 ] => [`leaf::${limb}`, seed],
               ),
           ]),
-          tolerance: hingedArmSwivel.RESOLUTION,
+          tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
           prescribed: true,
         };
   const overlaid: HumanSegmentOverlay.IOverlaid = HumanSegmentOverlay.overlaid(

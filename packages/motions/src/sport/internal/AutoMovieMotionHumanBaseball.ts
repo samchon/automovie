@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -302,7 +302,7 @@ export namespace AutoMovieMotionHumanBaseball {
               resolution?: baseballGroundBall.IFK,
             ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
               // Ahead of the crouched chest, not of the standing one.
-              point: Vector3.add(
+              point: AutoMovieEngineVector3.add(
                 AutoMovieMotionHumanPlaced.joint(
                   body,
                   posture,
@@ -348,8 +348,8 @@ export namespace AutoMovieMotionHumanBaseball {
       }
       case "battingStance": {
         const leftward: IAutoMovieVector3 = local(entry, { x: 1, y: 0, z: 0 });
-        const apart: number = Vector3.dot(
-          Vector3.subtract(
+        const apart: number = AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(
             context.entry.feet.left.ankle,
             context.entry.feet.right.ankle,
           ),
@@ -376,7 +376,7 @@ export namespace AutoMovieMotionHumanBaseball {
               AutoMovieMotionHumanLeg.arc(
                 from,
                 {
-                  ankle: Vector3.add(from.ankle, Vector3.scale(leftward, out)),
+                  ankle: AutoMovieEngineVector3.add(from.ankle, AutoMovieEngineVector3.scale(leftward, out)),
                   rotation: from.rotation,
                 },
                 0.03 * m.stature,
@@ -391,7 +391,7 @@ export namespace AutoMovieMotionHumanBaseball {
               side,
               (posture: IAutoMovieMotionHumanPosture, s: number) => {
                 // Ahead of the right shoulder's joint, far enough that the folded elbows reach it.
-                const handle: IAutoMovieVector3 = Vector3.add(
+                const handle: IAutoMovieVector3 = AutoMovieEngineVector3.add(
                   AutoMovieMotionHumanPlaced.joint(
                     body,
                     posture,

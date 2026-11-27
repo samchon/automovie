@@ -1,5 +1,7 @@
 import { AutoMovieEvidenceConfig } from "@automovie/evidence";
-import { createBriefFiles } from "@automovie/evidence/internal";
+import {
+  createBriefFiles
+} from "../../../../packages/evidence/src/narrative/internal/createBriefFiles";
 import { TestValidator } from "@nestia/e2e";
 import type { IEvidenceClaim, IEvidenceConfig } from "@wrtnlabs/evidence";
 import fs from "node:fs";

@@ -1,6 +1,6 @@
 
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 
 /*
  * Sample increasing knot seconds and their posed mass parts over a flight.
@@ -100,7 +100,7 @@ function maximumTurn(
 ): number {
   let largest: number = 0;
   for (let i: number = 0; i < a.parts.length; ++i) {
-    const angle: number = Quaternion.angle(
+    const angle: number = AutoMovieEngineQuaternion.angle(
       a.parts[i]!.inertiaRotation,
       b.parts[i]!.inertiaRotation,
     );

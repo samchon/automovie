@@ -1,4 +1,4 @@
-import { AutoMovieViewJointedCourse } from "@automovie/engine";
+import { AutoMovieEngineViewJointedCourse } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,
@@ -89,7 +89,7 @@ export function test_human_f1_centres(): void {
   // 4. Every turn is C2: straight tangents and zero curvature at its ends, the quintic's peak curvature at its middle.
   for (const family of families) {
     if (family.halves.length === 0) continue;
-    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
+    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieEngineViewJointedCourse.prepare(family.centres, family.halves);
     if (typeof prepared === "string") {
       failures.push(`${family.name}: ${prepared}`);
       continue;

@@ -3,7 +3,7 @@ import type {
   IAutoMovieStepPlanner,
 } from "@automovie/interface";
 
-import { AutoMovieStepPlanner as Planner } from "../AutoMovieStepPlanner";
+import { AutoMovieEngineStepPlanner as Planner } from "../AutoMovieEngineStepPlanner";
 
 /*
  * Sample the declared recovery trajectory and its derivative at one clock,
@@ -31,7 +31,7 @@ export function samplePhysicalRecoveryGoal(
   // its speed vanishes at both ends and its height stays well clear through
   // the swing (Khadiv et al. 2017, Section III-C: strictly positive height),
   // peaking at h at mid-swing. Its acceleration peaks at
-  // `AutoMoviePhysicalBalance.CLEARANCE` h / T^2 at lift-off and touchdown.
+  // `AutoMovieEnginePhysicalBalance.CLEARANCE` h / T^2 at lift-off and touchdown.
   const u: number = progress * (1 - progress);
   const inside: boolean = progress > 0 && progress < 1;
   const clearance: number = input.height * 16 * u * u;

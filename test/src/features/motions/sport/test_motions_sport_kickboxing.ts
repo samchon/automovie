@@ -10,10 +10,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  KickboxingRing,
-  KickboxingRules,
-  KnockdownCount,
-} from "@automovie/motions/internal";
+  KickboxingRing
+} from "../../../../../packages/motions/src/sport/kickboxing/KickboxingRing";
+import {
+  KickboxingRules
+} from "../../../../../packages/motions/src/sport/kickboxing/KickboxingRules";
+import {
+  KnockdownCount
+} from "../../../../../packages/motions/src/sport/kickboxing/KnockdownCount";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

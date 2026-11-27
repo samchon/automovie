@@ -1,5 +1,5 @@
 import {
-  Quaternion,
+  AutoMovieEngineQuaternion,
   AutoMovieEngineMotionSampling,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
@@ -256,7 +256,7 @@ function measureOpening(
     )) {
       const parent: IAutoMovieRigidTransform = {
         position: local.local(segment.pose.position),
-        rotation: Quaternion.multiply(inverse, segment.pose.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(inverse, segment.pose.rotation),
       };
       for (const shape of segment.shapes) {
         const bounds: IAutoMoviePhysicalShapeBounds.IResult =

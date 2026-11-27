@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanVehicleHit, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { lieDown } from "../../floor/internal/lieDown";
@@ -37,7 +37,7 @@ export function planVehicleHit(
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanVehicleHit.IParams = context.params;
   const body: IAutoMovieMotionHumanBody = context.body;
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const reader: IAutoMovieMotionHumanPropReader = context.prop(p.vehicle);
   const front: vehicleFront.IFront = vehicleFront.read(
     context,
@@ -69,7 +69,7 @@ export function planVehicleHit(
   const struck: IAutoMovieRigidTransform = reader.frame(tc);
   const at: IAutoMovieVector3 = vehicleFront.local(struck, hips0);
   const v0: IAutoMovieVector3 = vehicleFront.velocity(reader, tc);
-  const speed: number = Vector3.length(v0);
+  const speed: number = AutoMovieEngineVector3.length(v0);
   // The class reads the body's centre of mass against the leading edge.
   const centre: IAutoMovieVector3 = vehicleFront.local(
     struck,
@@ -103,7 +103,7 @@ export function planVehicleHit(
     shape: IAutoMovieMotionHumanPosture["joints"],
     offset: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture => ({
-    root: Vector3.subtract(hips, offset),
+    root: AutoMovieEngineVector3.subtract(hips, offset),
     yaw: 0,
     pitch: 0,
     roll: 0,
@@ -155,31 +155,31 @@ export function planVehicleHit(
     ? ((body.measure.stature - front.top) * (Math.PI / 2)) /
       Math.max(speed, vehicleFront.STEP)
     : 0;
-  const faced: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(struck.rotation),
+  const faced: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(struck.rotation),
     q0,
   );
-  const fromPivot: IAutoMovieVector3 = Vector3.subtract(at, pivot);
-  const turnAboutEdge: ReturnType<typeof Quaternion.prepareAxisAngle> =
-    Quaternion.prepareAxisAngle({ x: 1, y: 0, z: 0 });
+  const fromPivot: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at, pivot);
+  const turnAboutEdge: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+    AutoMovieEngineQuaternion.prepareAxisAngle({ x: 1, y: 0, z: 0 });
   // Where the full turn alone would leave the hips in the car's frame, and
   // where they lie on the bonnet: over the leading edge, the turned body's
   // lowest point on the bonnet's top.
   const quarter: IAutoMovieQuaternion = turnAboutEdge(-90);
-  const turned: IAutoMovieVector3 = Vector3.add(
+  const turned: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pivot,
-    Quaternion.rotateVector(quarter, fromPivot),
+    AutoMovieEngineQuaternion.rotateVector(quarter, fromPivot),
   );
   const settle: IAutoMovieVector3 = wraps
-    ? Vector3.subtract(
+    ? AutoMovieEngineVector3.subtract(
         {
           x: at.x,
           y:
             front.top -
             lowAt(
-              Quaternion.multiply(
+              AutoMovieEngineQuaternion.multiply(
                 struck.rotation,
-                Quaternion.multiply(quarter, faced),
+                AutoMovieEngineQuaternion.multiply(quarter, faced),
               ),
               joints,
               stoodOffset,
@@ -203,14 +203,14 @@ export function planVehicleHit(
     // rest over the leading edge with the body's underside on the bonnet.
     const hips: IAutoMovieVector3 = vehicleFront.world(
       frame,
-      Vector3.add(
-        Vector3.add(pivot, Quaternion.rotateVector(turn, fromPivot)),
-        Vector3.scale(settle, theta / 90),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(pivot, AutoMovieEngineQuaternion.rotateVector(turn, fromPivot)),
+        AutoMovieEngineVector3.scale(settle, theta / 90),
       ),
     );
     return shaped(
       hips,
-      Quaternion.multiply(frame.rotation, Quaternion.multiply(turn, faced)),
+      AutoMovieEngineQuaternion.multiply(frame.rotation, AutoMovieEngineQuaternion.multiply(turn, faced)),
       joints,
       stoodOffset,
     );
@@ -226,10 +226,10 @@ export function planVehicleHit(
       reader,
       film + vehicleFront.DT,
     );
-    const along: number = Vector3.length(before);
+    const along: number = AutoMovieEngineVector3.length(before);
     if (!(along > 0)) return false;
     const slowing: number =
-      -Vector3.dot(Vector3.subtract(after, before), before) /
+      -AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(after, before), before) /
       (along * 2 * vehicleFront.DT);
     return slowing > BONNET * g;
   };
@@ -255,13 +255,13 @@ export function planVehicleHit(
   const launched: IAutoMovieMotionHumanPosture = wraps
     ? wrapped(separate)
     : shaped(hips0, q0, joints, stoodOffset);
-  const hipsS: IAutoMovieVector3 = Vector3.add(launched.root, stoodOffset);
+  const hipsS: IAutoMovieVector3 = AutoMovieEngineVector3.add(launched.root, stoodOffset);
   const qS: IAutoMovieQuaternion = launched.rotation!.turn;
   const carS: IAutoMovieVector3 = vehicleFront.velocity(reader, separate);
   const vS: IAutoMovieVector3 =
     trajectory === "wrap"
       ? carS
-      : Vector3.scale(carS, trajectory === "forwardProjection" ? 1 : VAULT);
+      : AutoMovieEngineVector3.scale(carS, trajectory === "forwardProjection" ? 1 : VAULT);
   if (trajectory === "forwardProjection")
     // A projected body leaves the road at a shallow angle, its feet off it.
     vS.y = Math.hypot(vS.x, vS.z) * Math.tan((PROJECTION * Math.PI) / 180);
@@ -292,7 +292,7 @@ export function planVehicleHit(
     (vS.y + Math.sqrt(Math.max(0, vS.y * vS.y + 2 * g * (hipsS.y - lieHips)))) /
     g;
   const across: IAutoMovieVector3 = { x: vS.x, y: 0, z: vS.z };
-  const slideSpeed: number = Vector3.length(across);
+  const slideSpeed: number = AutoMovieEngineVector3.length(across);
   const slide: number = slideSpeed / (SLIDE * g);
   const landing: IAutoMovieVector3 = {
     x: hipsS.x + vS.x * flight,
@@ -300,7 +300,7 @@ export function planVehicleHit(
     z: hipsS.z + vS.z * flight,
   };
   const direction: IAutoMovieVector3 =
-    slideSpeed > 0 ? Vector3.scale(across, 1 / slideSpeed) : across;
+    slideSpeed > 0 ? AutoMovieEngineVector3.scale(across, 1 / slideSpeed) : across;
   const leave: number = separate - context.start;
   const land: number = leave + flight;
   const rest: number = land + slide;
@@ -308,9 +308,9 @@ export function planVehicleHit(
 
   const blend: ReturnType<typeof prepareHumanShapeBlend> =
     prepareHumanShapeBlend(joints, supine.joints);
-  const stopped: IAutoMovieVector3 = Vector3.add(
+  const stopped: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     landing,
-    Vector3.scale(direction, (slideSpeed * slide) / 2),
+    AutoMovieEngineVector3.scale(direction, (slideSpeed * slide) / 2),
   );
 
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
@@ -327,7 +327,7 @@ export function planVehicleHit(
       const tau: number = t - leave;
       const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(flight > 0 ? tau / flight : 1);
       const shape: IAutoMovieMotionHumanPosture["joints"] = blend(w);
-      const turn: IAutoMovieQuaternion = Quaternion.slerp(qS, qLie, w);
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(qS, qLie, w);
       const offset: IAutoMovieVector3 = stuntFallPose.offset(body, bare(shape));
       const ballistic: IAutoMovieVector3 = {
         x: hipsS.x + vS.x * tau,
@@ -346,7 +346,7 @@ export function planVehicleHit(
     const sigma: number = t - land;
     const slid: number = slideSpeed * sigma - 0.5 * SLIDE * g * sigma * sigma;
     return shaped(
-      { ...Vector3.add(landing, Vector3.scale(direction, slid)), y: lieHips },
+      { ...AutoMovieEngineVector3.add(landing, AutoMovieEngineVector3.scale(direction, slid)), y: lieHips },
       qLie,
       supine.joints,
       lieOffset,

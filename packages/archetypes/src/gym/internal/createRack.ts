@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRack } from "../AutoMovieArchetypeRack";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -59,14 +59,14 @@ export function createRack(
     const name: string = side === 1 ? "left" : "right";
     builder.box(
       `upright-${name}`,
-      Vector3.create(AutoMovieArchetypeRack.POST, d.height!, AutoMovieArchetypeRack.POST),
-      Vector3.create(side * half, d.height! / 2, 0),
+      AutoMovieEngineVector3.create(AutoMovieArchetypeRack.POST, d.height!, AutoMovieArchetypeRack.POST),
+      AutoMovieEngineVector3.create(side * half, d.height! / 2, 0),
       { color: "#5a5f66" },
     );
     builder.box(
       `hook-${name}`,
-      Vector3.create(AutoMovieArchetypeRack.POST, AutoMovieArchetypeRack.LIP, AutoMovieArchetypeRack.HOOK),
-      Vector3.create(
+      AutoMovieEngineVector3.create(AutoMovieArchetypeRack.POST, AutoMovieArchetypeRack.LIP, AutoMovieArchetypeRack.HOOK),
+      AutoMovieEngineVector3.create(
         side * half,
         d.rest! - AutoMovieArchetypeRack.SEAT - AutoMovieArchetypeRack.LIP / 2,
         -(AutoMovieArchetypeRack.POST + AutoMovieArchetypeRack.HOOK) / 2,
@@ -78,7 +78,7 @@ export function createRack(
     id: "rest",
     kind: "ledge",
     frame: AutoMovieArchetypeFrame.upright(
-      Vector3.create(0, d.rest!, -(AutoMovieArchetypeRack.POST + AutoMovieArchetypeRack.HOOK) / 2),
+      AutoMovieEngineVector3.create(0, d.rest!, -(AutoMovieArchetypeRack.POST + AutoMovieArchetypeRack.HOOK) / 2),
     ),
     extent: null,
     width: d.width!,

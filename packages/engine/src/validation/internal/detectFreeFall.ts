@@ -9,7 +9,7 @@ import {
 
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { pointHullDistance } from "../../math/internal/pointHullDistance";
-import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
+import { AutoMovieEngineGravity } from "../../physics/AutoMovieEngineGravity";
 import { projectileTrajectory } from "../../physics/internal/projectileTrajectory";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
@@ -98,7 +98,7 @@ export function detectFreeFall(
 
 const DEFAULT_MARGIN: number = 0.02;
 
-const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
+const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieEngineGravity.DOWN;
 
 const DEFAULT_VELOCITY: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 

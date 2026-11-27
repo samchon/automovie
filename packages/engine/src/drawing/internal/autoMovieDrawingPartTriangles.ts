@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 
 import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
-import { Matrix4 } from "../../math/Matrix4";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
 /*
@@ -66,7 +66,7 @@ export function autoMovieDrawingPartTriangles(
   const matrix: number[] | null =
     part.transform === null
       ? null
-      : Matrix4.compose(
+      : AutoMovieEngineMatrix4.compose(
           part.transform.translation,
           part.transform.rotation,
           part.transform.scale,

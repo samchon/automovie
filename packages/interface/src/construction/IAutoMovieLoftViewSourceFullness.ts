@@ -5,7 +5,7 @@ import type { IAutoMovieViewOutline } from "./IAutoMovieViewOutline";
 /**
  * Prepared direct fullness ownership for an original view-generated section.
  *
- * AutoMovieLoftViewSource.create admits each scalar outline independently and
+ * AutoMovieEngineLoftViewSource.create admits each scalar outline independently and
  * publishes this union only when the direct shoulder or top declaration is
  * complete. Generic girth has no variant: that factory returns null to leave
  * the existing girth path in charge. Prepared curves must remain unchanged

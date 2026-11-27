@@ -2,7 +2,12 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionManner,
 } from "@automovie/interface";
-import { AutoMovieMotionManner, flinch } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionManner
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+import {
+  flinch
+} from "../../../../../packages/motions/src/reaction/internal/flinch";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

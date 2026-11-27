@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { IAutoMovieUpdateComparisonCameraProps } from "../../IAutoMovieUpdateComparisonCameraProps.js";
+import type { IAutoMovieRenderUpdateComparisonCameraProps } from "../../IAutoMovieRenderUpdateComparisonCameraProps.js";
 
 import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "../../internal/AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
 
@@ -14,7 +14,7 @@ import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "../../internal/AUTOMOVIE_MATRIX_
  * distinct input and output objects. The output camera and vector are mutable
  * scratch; a refused output is unqualified.
  */
-export function updateAutoMovieComparisonCamera(input: IAutoMovieUpdateComparisonCameraProps): void {
+export function updateAutoMovieComparisonCamera(input: IAutoMovieRenderUpdateComparisonCameraProps): void {
   const source: THREE.PerspectiveCamera = input.perspective;
   const distance: number = source.position.distanceTo(input.target);
   const halfHeight: number =

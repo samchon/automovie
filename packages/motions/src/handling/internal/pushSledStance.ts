@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -188,7 +188,7 @@ export namespace pushSledStance {
       ...(["left", "right"] as const).map(
         (foot: AutoMovieHumanSide): number =>
           feet[foot].ankle.y +
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             feet[foot].rotation,
             HumanFoot.offset(body, foot, "sole"),
           ).y,

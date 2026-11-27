@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -126,7 +126,7 @@ export namespace kneelKeys {
    * Returns: Whether the toe joint stays within `STILL` of its place.
    */
   export function still(from: IFoot, to: IFoot): boolean {
-    return Vector3.length(Vector3.subtract(from.at, to.at)) <= STILL;
+    return AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(from.at, to.at)) <= STILL;
   }
 
   /*
@@ -151,8 +151,8 @@ export namespace kneelKeys {
     const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
     const dorsiflexion: number = required(`${side}Foot`, "flexion");
     const extension: number = required(`${side}Toes`, "flexion");
-    const toe: number = Vector3.length(
-      Vector3.subtract(
+    const toe: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         HumanFoot.offset(body, side, "toe"),
         HumanFoot.offset(body, side, "mtp"),
       ),
@@ -164,7 +164,7 @@ export namespace kneelKeys {
         floor +
         toe * Math.sin((Math.max(0, pitch - extension) * Math.PI) / 180);
       return (d: number): IAutoMovieVector3 => ({
-        ...Vector3.subtract(kneeAt, Vector3.scale(forward, d)),
+        ...AutoMovieEngineVector3.subtract(kneeAt, AutoMovieEngineVector3.scale(forward, d)),
         y: height,
       });
     };
@@ -198,7 +198,7 @@ export namespace kneelKeys {
       for (let i: number = 0; i < 40; i++) {
         const mid: number = (lo + hi) / 2;
         if (
-          Vector3.length(Vector3.subtract(pivot(at(mid)).ankle, kneeAt)) <
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(pivot(at(mid)).ankle, kneeAt)) <
           m.shank
         )
           lo = mid;
@@ -235,25 +235,25 @@ export namespace kneelKeys {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): (u: number) => IAutoMovieVector3 {
-    const from: IAutoMovieVector3 = Vector3.subtract(a, pivot);
-    const to: IAutoMovieVector3 = Vector3.subtract(b, pivot);
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(a, pivot);
+    const to: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, pivot);
     const angle: number = Math.acos(
       Math.max(
         -1,
         Math.min(
           1,
-          Vector3.dot(from, to) / (Vector3.length(from) * Vector3.length(to)),
+          AutoMovieEngineVector3.dot(from, to) / (AutoMovieEngineVector3.length(from) * AutoMovieEngineVector3.length(to)),
         ),
       ),
     );
     if (angle < 1e-6) return (_u: number): IAutoMovieVector3 => a;
     const sine: number = Math.sin(angle);
     return (u: number): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         pivot,
-        Vector3.add(
-          Vector3.scale(from, Math.sin((1 - u) * angle) / sine),
-          Vector3.scale(to, Math.sin(u * angle) / sine),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(from, Math.sin((1 - u) * angle) / sine),
+          AutoMovieEngineVector3.scale(to, Math.sin(u * angle) / sine),
         ),
       );
   }
@@ -279,12 +279,12 @@ export namespace kneelKeys {
     let most: number = -Infinity;
     for (const side of ["left", "right"] as const) {
       const range: number = -required(`${side}UpperLeg`, "extension");
-      const to: IAutoMovieVector3 = Vector3.subtract(ankles[side], hips[side]);
+      const to: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ankles[side], hips[side]);
       const length: number = Math.max(
         1e-6,
-        Math.min(m.thigh + m.shank, Vector3.length(to)),
+        Math.min(m.thigh + m.shank, AutoMovieEngineVector3.length(to)),
       );
-      const line: number = Math.atan2(-Vector3.dot(to, forward), -to.y);
+      const line: number = Math.atan2(-AutoMovieEngineVector3.dot(to, forward), -to.y);
       const inside: number = Math.acos(
         Math.max(
           -1,
@@ -389,14 +389,14 @@ export namespace kneelKeys {
       forward,
       behind,
       height: hipY,
-      across: Vector3.subtract(rest[f], rest[k]),
+      across: AutoMovieEngineVector3.subtract(rest[f], rest[k]),
       ...(at === undefined ? {} : { at }),
     });
-    const rootKneel: IAutoMovieVector3 = Vector3.subtract(hipK, rest[k]);
+    const rootKneel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(hipK, rest[k]);
 
-    const kneeK: IAutoMovieVector3 = Vector3.subtract(
+    const kneeK: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       hipK,
-      Vector3.scale(up, m.thigh),
+      AutoMovieEngineVector3.scale(up, m.thigh),
     );
     const backFoot: IFoot = tucked(body, k, kneeK, yaw, foot0[k].at.y);
 
@@ -410,7 +410,7 @@ export namespace kneelKeys {
     const trail: IFoot = kneelTrailingFoot(
       body,
       f,
-      Vector3.add(rootKneel, rest[f]),
+      AutoMovieEngineVector3.add(rootKneel, rest[f]),
       foot0[f],
       forward,
     );
@@ -423,35 +423,35 @@ export namespace kneelKeys {
       const secondFoot: IFoot = tucked(
         body,
         f,
-        { ...Vector3.add(rootKneel, rest[f]), y: knee },
+        { ...AutoMovieEngineVector3.add(rootKneel, rest[f]), y: knee },
         yaw,
         foot0[f].at.y,
       );
       keys.push({ root: rootKneel, feet: feet(secondFoot) });
       if (kind === "sitBack") {
         // Only sitting back turns the thigh about the knee to SIT degrees.
-        const shankDir: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(ankleOf(k, backFoot), kneeK),
+        const shankDir: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.subtract(ankleOf(k, backFoot), kneeK),
         );
-        const across: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.cross(shankDir, up),
+        const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.cross(shankDir, up),
         );
-        const normal: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.cross(across, shankDir),
+        const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineVector3.cross(across, shankDir),
         );
         const open: number = ((180 - SIT) * Math.PI) / 180;
-        const hipSit: IAutoMovieVector3 = Vector3.add(
+        const hipSit: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           kneeK,
-          Vector3.scale(
-            Vector3.add(
-              Vector3.scale(shankDir, Math.cos(open)),
-              Vector3.scale(normal, Math.sin(open)),
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(shankDir, Math.cos(open)),
+              AutoMovieEngineVector3.scale(normal, Math.sin(open)),
             ),
             m.thigh,
           ),
         );
         keys.push({
-          root: Vector3.subtract(hipSit, rest[k]),
+          root: AutoMovieEngineVector3.subtract(hipSit, rest[k]),
           feet: feet(secondFoot),
         });
       }
@@ -460,10 +460,10 @@ export namespace kneelKeys {
       keys,
       forward,
       rest,
-      pivot: Vector3.subtract(kneeK, rest[k]),
+      pivot: AutoMovieEngineVector3.subtract(kneeK, rest[k]),
       extension: Math.min(
         1,
-        Vector3.length(Vector3.subtract(frontAnkle, standingHips[f])) /
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(frontAnkle, standingHips[f])) /
           (m.thigh + m.shank),
       ),
     };

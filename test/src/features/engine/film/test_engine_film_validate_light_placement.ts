@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { validateLightPlacementShape } from "@automovie/engine/internal";
+import {
+  validateLightPlacementShape
+} from "../../../../../packages/engine/src/film/staging/internal/validateLightPlacementShape";
 import type { IAutoMovieStageLight } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,8 +1,8 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
-import { distalEndSwivelReadings } from "../distalEndSwivelReadings";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
+import { AutoMovieEngineDistalEndSwivelReadings } from "../AutoMovieEngineDistalEndSwivelReadings";
 import { sphericalBoxMiss } from "./sphericalBoxMiss";
 
 /*
@@ -13,7 +13,7 @@ import { sphericalBoxMiss } from "./sphericalBoxMiss";
  * Whatever twist the mid segment takes and wherever in its box the end joint
  * stands, the rotation the chain shows carries the mid segment's world axis `u`
  * to `d(f, a) = (-sin a, cos a sin f, cos a cos f)` in the end joint's basis,
- * with `(f, a)` inside the box (`distalEndSwivelReadings`), while the requested
+ * with `(f, a)` inside the box (`AutoMovieEngineDistalEndSwivelReadings`), while the requested
  * rotation carries it to `x(s)`, the direction the readings give at swivel `s`.
  * A rotation by an angle moves no unit vector by more than that angle, so the
  * angle between the shown and the requested rotation is at least the angle from
@@ -31,20 +31,20 @@ import { sphericalBoxMiss } from "./sphericalBoxMiss";
  * than its point moves, is bounded over an interval by its value at the middle
  * less the radius times the half width.
  *
- * The bound is lowered by the joints' tolerance (`ROM_TOLERANCE`), within which
+ * The bound is lowered by the joints' tolerance (`AutoMovieEngineRomTolerance`), within which
  * a projection onto the box may stand past its ends, so it stays below every
  * miss it bounds.
  * Parameter props: The end joint and the mid segment's direction by swivel.
  * Returns: The bound over `low` to `high` degrees, never negative; null when
- * the analysis does not apply (`distalEndSwivelReadings.of`).
+ * the analysis does not apply (`AutoMovieEngineDistalEndSwivelReadings.of`).
  */
 export function distalEndSwivelMiss(
-  props: distalEndSwivelReadings.IProps,
+  props: AutoMovieEngineDistalEndSwivelReadings.IProps,
 ): ((low: number, high: number) => number) | null {
-  const read: distalEndSwivelReadings.IReadings | null =
-    distalEndSwivelReadings.of(props);
+  const read: AutoMovieEngineDistalEndSwivelReadings.IReadings | null =
+    AutoMovieEngineDistalEndSwivelReadings.of(props);
   if (read === null) return null;
-  const { onFlexion, onAbduction, onTwist }: distalEndSwivelReadings.IReadings =
+  const { onFlexion, onAbduction, onTwist }: AutoMovieEngineDistalEndSwivelReadings.IReadings =
     read;
   const box: readonly [number, number] = read.abduction ?? [-90, 90];
   const flexion: readonly [number, number] | null = read.flexion;
@@ -52,7 +52,7 @@ export function distalEndSwivelMiss(
     Math.hypot(onFlexion.b, onAbduction.b, onTwist.b),
     Math.hypot(onFlexion.c, onAbduction.c, onTwist.c),
   );
-  const D: number = Quaternion.DEG2RAD;
+  const D: number = AutoMovieEngineQuaternion.DEG2RAD;
 
   // The direction's distance from the box at one swivel, degrees
   // (`sphericalBoxMiss`).
@@ -75,6 +75,6 @@ export function distalEndSwivelMiss(
   return (low: number, high: number): number =>
     Math.max(
       0,
-      at((low + high) / 2) - (radius * (high - low)) / 2 - ROM_TOLERANCE,
+      at((low + high) / 2) - (radius * (high - low)) / 2 - AutoMovieEngineRomTolerance,
     );
 }

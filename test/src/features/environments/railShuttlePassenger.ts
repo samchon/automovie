@@ -1,4 +1,4 @@
-import { Quaternion, Transform, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieModel,
@@ -46,9 +46,9 @@ export function railShuttlePassenger(
       (item) => item.id === contact,
     )!.frame.translation;
     const frame = placement(time);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, { ...local, x: local.x + x }),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, { ...local, x: local.x + x }),
     );
   };
   const origin = platform(environment, "origin");
@@ -168,14 +168,14 @@ function platform(
         {
           id: "floor",
           kind: "surface",
-          frame: Transform.identity(),
+          frame: AutoMovieEngineTransform.identity(),
           extent: null,
           width: maxX - minX,
           depth: maxZ - minZ,
         },
       ],
     },
-    { position: center, rotation: Quaternion.identity(), fixed: true },
+    { position: center, rotation: AutoMovieEngineQuaternion.identity(), fixed: true },
   );
   return { center, innerEdge: minX, prop };
 }

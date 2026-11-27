@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeStageShaftToken } from "../AutoMovieArchetypeStageShaftToken";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -37,7 +37,7 @@ export function createStageShaftToken(
     AutoMovieArchetypeStageShaftToken.KINDS,
   );
   return StageTokenConstruction(kind, params, seed, (builder, d, model) => {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const length: number = d.length!;
     const head: number = kind === "bolt" ? d.head! : 0;
     const r: number = d.diameter! / 2;

@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanImpulse, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPerturb, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStagger, IAutoMovieMotionTarget, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
@@ -142,7 +142,7 @@ export namespace perturb {
       (
         sum: IAutoMovieVector3,
         f: IAutoMovieMotionHumanImpulse,
-      ): IAutoMovieVector3 => Vector3.add(sum, f.impulse),
+      ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
     const requestedBones: Set<AutoMovieHumanoidBone> = new Set(
@@ -210,7 +210,7 @@ export namespace perturb {
     // The side the impulse comes from: a point behind the push.
     const from: IAutoMovieMotionTarget = {
       kind: "point",
-      at: Vector3.subtract(entry.posture.root, push),
+      at: AutoMovieEngineVector3.subtract(entry.posture.root, push),
       frame: "world",
     };
     // Past the absorb, the stagger's own admission decides whether its
@@ -328,7 +328,7 @@ export namespace perturb {
     const w0: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
       AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
     );
-    const speed: number = Vector3.dot(outcome.velocity, push);
+    const speed: number = AutoMovieEngineVector3.dot(outcome.velocity, push);
 
     // Settled to within e^-4 (under 2 %) of the peak: x(t) / x(1 / ω0) =
     // τ e^(1 - τ) at τ = ω0 t, which falls to e^-4 where τ - ln τ = 5.
@@ -367,7 +367,7 @@ export namespace perturb {
               roll: 0,
             }),
             shift: (seconds: number): IAutoMovieVector3 =>
-              Vector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
+              AutoMovieEngineVector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
             legs: legsAt,
           }),
 

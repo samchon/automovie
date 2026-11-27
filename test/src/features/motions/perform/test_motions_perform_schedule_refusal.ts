@@ -1,6 +1,11 @@
-import { AutoMovieScheduleError } from "@automovie/engine";
+import { AutoMovieEngineScheduleError } from "@automovie/engine";
 import type { IAutoMovieScheduleError } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, HumanScheduleRefusal } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanScheduleRefusal
+} from "../../../../../packages/motions/src/perform/internal/HumanScheduleRefusal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -29,8 +34,8 @@ export function test_motions_perform_schedule_refusal(): void {
     asked.push(`${subject}/${capability}`);
     return 4;
   };
-  const error = (props: IAutoMovieScheduleError.IProps): AutoMovieScheduleError =>
-    new AutoMovieScheduleError("schedule", props);
+  const error = (props: IAutoMovieScheduleError.IProps): AutoMovieEngineScheduleError =>
+    new AutoMovieEngineScheduleError("schedule", props);
 
   // 1. An anchor.
   const anchor: Error = HumanScheduleRefusal(
@@ -145,8 +150,8 @@ export function test_motions_perform_schedule_refusal(): void {
   );
 
   // 6. Unrepairable.
-  const timing: AutoMovieScheduleError = error({ code: "timing", value: 0 });
-  const law: AutoMovieScheduleError = error({ code: "law", value: "x" });
+  const timing: AutoMovieEngineScheduleError = error({ code: "timing", value: 0 });
+  const law: AutoMovieEngineScheduleError = error({ code: "law", value: "x" });
   TestValidator.predicate(
     "timing and law errors pass through",
     HumanScheduleRefusal(timing, counter) === timing &&

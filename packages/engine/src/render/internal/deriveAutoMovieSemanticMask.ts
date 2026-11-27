@@ -21,9 +21,9 @@ import { autoMovieRenderHash32 } from "./autoMovieRenderHash32";
 import { autoMovieSoftBodyNodeName } from "./autoMovieSoftBodyNodeName";
 import { autoMovieSurfaceGraphicNodeName } from "./autoMovieSurfaceGraphicNodeName";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { AUTOMOVIE_SEMANTIC_MASK_COLORS } from "../AUTOMOVIE_SEMANTIC_MASK_COLORS";
-import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "../AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
-import { AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE } from "../AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE";
+import { AutoMovieEngineSemanticMaskColors } from "../AutoMovieEngineSemanticMaskColors";
+import { AutoMovieEngineSemanticMaskMaxEntries } from "../AutoMovieEngineSemanticMaskMaxEntries";
+import { AutoMovieEngineSemanticMaskSpaceNode } from "../AutoMovieEngineSemanticMaskSpaceNode";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
 /*
@@ -145,13 +145,13 @@ const allocate: (claims: readonly IClaim[]) => IAutoMovieSemanticMaskEntry[] = (
       } => {
         let color: number =
           1 +
-          (autoMovieRenderHash32(claim.id) % AUTOMOVIE_SEMANTIC_MASK_COLORS);
+          (autoMovieRenderHash32(claim.id) % AutoMovieEngineSemanticMaskColors);
         // Linear probe wrapped inside `[1, COLORS]`, so the sequence visits every
         // assignable colour and `#000000` stays reserved. The entry count is
         // bounded below the palette size, so a free colour always exists and this
         // loop has no failure path to conceal a defect in.
         while (used.has(color))
-          color = (color % AUTOMOVIE_SEMANTIC_MASK_COLORS) + 1;
+          color = (color % AutoMovieEngineSemanticMaskColors) + 1;
         used.add(color);
         return {
           id: claim.id,
@@ -195,7 +195,7 @@ const collectClaims: (subject: IAutoMovieRenderSubject) => IClaim[] = (
       owner: null,
       // The viewer groups every standable surface under one named object; the
       // ground is one drawable, not one per polygon patch.
-      nodes: [AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE],
+      nodes: [AutoMovieEngineSemanticMaskSpaceNode],
       slot: null,
     });
   for (const instanceSet of subject.instanceSets ?? [])
@@ -437,11 +437,11 @@ const collectSlotClaims: (
       right: IAutoMovieCompiledInstanceSet,
     ): number => compareAutoMovieRenderIds(left.id, right.id),
   )) {
-    if (total + instanceSet.count > AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES) {
+    if (total + instanceSet.count > AutoMovieEngineSemanticMaskMaxEntries) {
       unaddressed.push({
         instanceSet: instanceSet.id,
         slots: instanceSet.count,
-        reason: `addressing ${instanceSet.count} slots would take the mask past its bounded maximum of ${AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES} entries`,
+        reason: `addressing ${instanceSet.count} slots would take the mask past its bounded maximum of ${AutoMovieEngineSemanticMaskMaxEntries} entries`,
         remedy: `split "${instanceSet.id}" into smaller sets, or read per-slot identity from the compiled instance runtime instead of the mask`,
       });
       continue;

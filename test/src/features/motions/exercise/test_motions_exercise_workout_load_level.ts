@@ -1,5 +1,7 @@
-import { Vector3 } from "@automovie/engine";
-import { WorkoutLoad } from "@automovie/motions/internal";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  WorkoutLoad
+} from "../../../../../packages/motions/src/exercise/workout/WorkoutLoad";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -33,7 +35,7 @@ export function test_motions_exercise_workout_load_level(): void {
     vclose(right.across, { x: 1, y: 0, z: 0 }, ROUNDING) &&
       vclose(
         right.forward,
-        Vector3.normalize({ x: 0, y: -0.2, z: 0.05 }),
+        AutoMovieEngineVector3.normalize({ x: 0, y: -0.2, z: 0.05 }),
         ROUNDING,
       ),
   );

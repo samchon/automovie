@@ -1,12 +1,13 @@
 import * as THREE from "three";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { EDGE_SHELL_NAME } from "../EDGE_SHELL_NAME.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderEdgeShellName } from "../AutoMovieRenderEdgeShellName.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
-import { type IAutoMovieFormationCycle, AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
+import { AutoMovieRenderDualQuaternionSkinning, AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
+import type { IAutoMovieRenderFormationCycle, IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
@@ -50,14 +51,14 @@ export const applyEdgeMode: (
   scene.background = new THREE.Color(0x000000);
   // Share one shell material per cycle plus one static material; native program variants still depend on Three's complete compile inputs.
   const shellMaterials: Map<
-    IAutoMovieFormationCycle | null,
+    IAutoMovieRenderFormationCycle | null,
     THREE.ShaderMaterial
-  > = new Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial>();
+  > = new Map<IAutoMovieRenderFormationCycle | null, THREE.ShaderMaterial>();
   // dual-quaternion skins take their own shells, patched like their surface
   const dualShellMaterials: Map<
-    IAutoMovieFormationCycle | null,
+    IAutoMovieRenderFormationCycle | null,
     THREE.ShaderMaterial
-  > = new Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial>();
+  > = new Map<IAutoMovieRenderFormationCycle | null, THREE.ShaderMaterial>();
   const fill: IAutoMovieRenderModeHandle = overrideAutoMovieRenderModeMaterials(
     scene,
     "outline",
@@ -73,9 +74,9 @@ export const applyEdgeMode: (
     shell: AutoMovieRenderModeMesh;
   }[] = [];
   for (const mesh of collectAutoMovieRenderModeMeshes(scene)) {
-    const cycle: IAutoMovieFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
+    const cycle: IAutoMovieRenderFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
     const dual: boolean = AutoMovieRenderDualQuaternionSkinning.of(mesh);
-    const cache: Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial> =
+    const cache: Map<IAutoMovieRenderFormationCycle | null, THREE.ShaderMaterial> =
       dual ? dualShellMaterials : shellMaterials;
     let shellMaterial: THREE.ShaderMaterial | undefined = cache.get(cycle);
     if (shellMaterial === undefined) {
@@ -85,7 +86,7 @@ export const applyEdgeMode: (
       cache.set(cycle, shellMaterial);
     }
     const shell: AutoMovieRenderModeMesh = mesh.clone(false);
-    shell.name = EDGE_SHELL_NAME;
+    shell.name = AutoMovieRenderEdgeShellName;
     shell.material = shellMaterial;
     mesh.parent!.add(shell);
     shells.push({ mesh, shell });
@@ -202,8 +203,8 @@ const followEdgeShell: (
   }
 
   if (
-    AutoMovieThreeKind.isInstancedMesh(mesh) &&
-    AutoMovieThreeKind.isInstancedMesh(shell)
+    AutoMovieRenderThreeKind.isInstancedMesh(mesh) &&
+    AutoMovieRenderThreeKind.isInstancedMesh(shell)
   ) {
     shell.count = mesh.count;
     if (shell.instanceMatrix.array.length === mesh.instanceMatrix.array.length)
@@ -217,13 +218,13 @@ const followEdgeShell: (
   }
 
   if (
-    AutoMovieThreeKind.isSkinnedMesh(mesh) &&
-    AutoMovieThreeKind.isSkinnedMesh(shell)
+    AutoMovieRenderThreeKind.isSkinnedMesh(mesh) &&
+    AutoMovieRenderThreeKind.isSkinnedMesh(shell)
   )
     followEdgeVolumes(mesh, shell);
   if (
-    AutoMovieThreeKind.isInstancedMesh(mesh) &&
-    AutoMovieThreeKind.isInstancedMesh(shell)
+    AutoMovieRenderThreeKind.isInstancedMesh(mesh) &&
+    AutoMovieRenderThreeKind.isInstancedMesh(shell)
   )
     followEdgeVolumes(mesh, shell);
 };

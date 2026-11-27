@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -159,15 +159,15 @@ export function affectHeldHands(
     // Carry the goal rigidly with the touched bone from before to after.
     const from: IAutoMovieResolvedBone = was.get(hold.bone)!;
     const to: IAutoMovieResolvedBone = is.get(hold.bone)!;
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       to.worldRotation,
-      Quaternion.inverse(from.worldRotation),
+      AutoMovieEngineQuaternion.inverse(from.worldRotation),
     );
-    const moved: IAutoMovieVector3 = Vector3.add(
+    const moved: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       to.worldPosition,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         turn,
-        Vector3.subtract(point, from.worldPosition),
+        AutoMovieEngineVector3.subtract(point, from.worldPosition),
       ),
     );
     limbs[ARM[hold.side]] = {
@@ -175,7 +175,7 @@ export function affectHeldHands(
       point: moved,
       ...(rotation === undefined
         ? {}
-        : { rotation: Quaternion.multiply(turn, rotation) }),
+        : { rotation: AutoMovieEngineQuaternion.multiply(turn, rotation) }),
     };
   }
   return { ...after, joints, limbs };

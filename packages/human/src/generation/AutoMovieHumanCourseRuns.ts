@@ -1,4 +1,4 @@
-import { AutoMovieViewJointedCourse } from "@automovie/engine";
+import { AutoMovieEngineViewJointedCourse } from "@automovie/engine";
 import type {
   IAutoMovieViewAxis,
   IAutoMovieViewJointedCourse,
@@ -55,7 +55,7 @@ export namespace AutoMovieHumanCourseRuns {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one array.
    */
   export function joints(centres: readonly V3[], halves: readonly number[]): number[] {
-    const course: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(
+    const course: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieEngineViewJointedCourse.prepare(
       centres.map((c: V3): [number, number, number] => [c[0]!, c[1]!, c[2]!]),
       halves,
     );

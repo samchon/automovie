@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieFormationBlock,
   IAutoMovieFormationDesign,
@@ -183,7 +183,7 @@ export namespace HumanPopulation {
     const stride: number = Math.hypot(end.x - origin.x, end.z - origin.z);
     const heading: number =
       stride > 1e-9 ? Math.atan2(end.x - origin.x, end.z - origin.z) : 0;
-    const back: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       (-heading * 180) / Math.PI,
     );
@@ -198,7 +198,7 @@ export namespace HumanPopulation {
         poses.push(pose);
         continue;
       }
-      const moved: IAutoMovieVector3 = Quaternion.rotateVector(back, {
+      const moved: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(back, {
         x: pose.root.translation.x - origin.x,
         y: pose.root.translation.y,
         z: pose.root.translation.z - origin.z,
@@ -208,7 +208,7 @@ export namespace HumanPopulation {
         root: {
           ...pose.root,
           translation: { x: moved.x, y: moved.y, z: moved.z - u * stride },
-          rotation: Quaternion.multiply(back, pose.root.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(back, pose.root.rotation),
         },
       });
     }
@@ -301,7 +301,7 @@ export namespace HumanPopulation {
             root: {
               ...pose.root,
               translation: { x: 0, y: pose.root.translation.y - floor, z: 0 },
-              rotation: Quaternion.multiply(
+              rotation: AutoMovieEngineQuaternion.multiply(
                 HumanFrame.turn(-HumanFrame.heading(pose.root.rotation)),
                 pose.root.rotation,
               ),

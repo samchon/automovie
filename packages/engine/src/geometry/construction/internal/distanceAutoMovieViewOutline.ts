@@ -1,6 +1,6 @@
 import type { IAutoMovieViewOutline } from "@automovie/interface";
 
-import { AutoMovieViewParameter } from "../../AutoMovieViewParameter";
+import { AutoMovieEngineViewParameter } from "../../AutoMovieEngineViewParameter";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 
 /*
@@ -46,8 +46,8 @@ export function distanceAutoMovieViewOutline(
       .filter((s: number): boolean => s > domain[0] && s < domain[1]),
     domain[1],
   ];
-  const start: number = AutoMovieViewParameter.at(outline.parameter, domain[0]);
-  const end: number = AutoMovieViewParameter.at(outline.parameter, domain[1]);
+  const start: number = AutoMovieEngineViewParameter.at(outline.parameter, domain[0]);
+  const end: number = AutoMovieEngineViewParameter.at(outline.parameter, domain[1]);
   for (let i: number = 0; i + 1 < xs.length; i++) {
     const x0: number = xs[i]!;
     const h: number = xs[i + 1]! - x0;
@@ -108,7 +108,7 @@ export function distanceAutoMovieViewOutline(
     const upper: number = Math.min(1, (end - x0) / h);
     for (const t of rootsAutoMovieViewPolynomial(polynomial)) {
       if (!(t > lower && t < upper)) continue;
-      const s: number = AutoMovieViewParameter.station(p, x0 + h * t);
+      const s: number = AutoMovieEngineViewParameter.station(p, x0 + h * t);
       if (s > domain[0] && s < domain[1]) result.push(s);
     }
   }

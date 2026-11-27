@@ -9,12 +9,20 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance, AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import {
-  AutoMovieMotionHumanTrunk,
-  HumanBalance,
-  HumanTrunk,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanTrunk
+} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTrunk";
+import {
+  HumanBalance
+} from "../../../../packages/motions/src/everyday/internal/HumanBalance";
+import {
+  HumanTrunk
+} from "../../../../packages/motions/src/everyday/internal/HumanTrunk";
+import {
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionComposeTrunk } from "./motionComposeTrunk";

@@ -1,4 +1,4 @@
-import { RigidCarrierSample } from "@automovie/engine";
+import { AutoMovieEngineRigidCarrierSample } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
@@ -508,14 +508,14 @@ export namespace AutoMovieArchetypeBoat {
   export function bind(
     ride: IRowRide,
     start: number,
-  ): RigidCarrierSample.IBinding {
+  ): AutoMovieEngineRigidCarrierSample.IBinding {
     const source: IRowing | undefined = ride.rowing;
     if (source === undefined)
       throw new RangeError(
         "A bound rowboat needs a native course and a finite film second.",
       );
     const clock = (seconds: number): number => Math.max(0, seconds - start);
-    const holds: RigidCarrierSample.IHold[] = [
+    const holds: AutoMovieEngineRigidCarrierSample.IHold[] = [
       {
         from: -Infinity,
         to: start,
@@ -529,9 +529,9 @@ export namespace AutoMovieArchetypeBoat {
         contains: (seconds: number): boolean =>
           clock(seconds) > source.duration,
       });
-    return RigidCarrierSample.bind(
+    return AutoMovieEngineRigidCarrierSample.bind(
       source.boat,
-      (seconds: number): ReturnType<RigidCarrierSample.IBinding["motion"]> => {
+      (seconds: number): ReturnType<AutoMovieEngineRigidCarrierSample.IBinding["motion"]> => {
         const placement: IAutoMovieTransform = source.placement(clock(seconds));
         return {
           position: placement.translation,

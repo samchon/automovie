@@ -1,4 +1,4 @@
-import { AutoMovieViewParameter } from "@automovie/engine";
+import { AutoMovieEngineViewParameter } from "@automovie/engine";
 import type {
   IAutoMovieHumanSectionSite,
   IAutoMovieHumanSectionSource,
@@ -217,7 +217,7 @@ export namespace AutoMovieHumanTrunkViewPart {
     // The shared map owns theta; no physical station jet is fabricated at a pole.
     let poleJets: IAutoMovieHumanSectionSource["poleJets"] = undefined;
     if (top !== undefined) {
-      const theta: number = AutoMovieViewParameter.at(
+      const theta: number = AutoMovieEngineViewParameter.at(
         { type: "angle", bottom: views.perineum.y, top: top.y },
         last.y,
       );

@@ -1,4 +1,4 @@
-import { AutoMovieFilmEffectRuntimeError, AutoMovieEngineEffect } from "@automovie/engine";
+import { AutoMovieEngineFilmEffectRuntimeError, AutoMovieEngineEffect } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
@@ -23,7 +23,7 @@ const refusal: (timeline: IAutoMovieFilmTimeline) => string | null = (
     });
     return null;
   } catch (error) {
-    return error instanceof AutoMovieFilmEffectRuntimeError ? error.code : null;
+    return error instanceof AutoMovieEngineFilmEffectRuntimeError ? error.code : null;
   }
 };
 

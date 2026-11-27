@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
 /*
@@ -37,19 +37,19 @@ export function physicalHullFacesMass(
   ];
   for (const face of hull.faces)
     for (let index: number = 1; index + 1 < face.loop.length; index++) {
-      const a: IAutoMovieVector3 = Vector3.subtract(face.loop[0]!, hull.centre);
-      const b: IAutoMovieVector3 = Vector3.subtract(
+      const a: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(face.loop[0]!, hull.centre);
+      const b: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         face.loop[index]!,
         hull.centre,
       );
-      const c: IAutoMovieVector3 = Vector3.subtract(
+      const c: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         face.loop[index + 1]!,
         hull.centre,
       );
-      const v: number = Vector3.dot(a, Vector3.cross(b, c)) / 6;
-      const s: IAutoMovieVector3 = Vector3.add(Vector3.add(a, b), c);
+      const v: number = AutoMovieEngineVector3.dot(a, AutoMovieEngineVector3.cross(b, c)) / 6;
+      const s: IAutoMovieVector3 = AutoMovieEngineVector3.add(AutoMovieEngineVector3.add(a, b), c);
       volume += v;
-      moment = Vector3.add(moment, Vector3.scale(s, v / 4));
+      moment = AutoMovieEngineVector3.add(moment, AutoMovieEngineVector3.scale(s, v / 4));
       for (let row: number = 0; row < 3; row++)
         for (let column: number = 0; column < 3; column++)
           second[row]![column]! +=
@@ -60,7 +60,7 @@ export function physicalHullFacesMass(
               s[axes[row]!] * s[axes[column]!]);
     }
   if (!(volume > 0)) throw new Error("A hull must span a volume");
-  const offset: IAutoMovieVector3 = Vector3.scale(moment, 1 / volume);
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.scale(moment, 1 / volume);
   // Second moments about the centroid per unit mass, then the inertia tensor
   // as their trace on the diagonal less the moments themselves.
   for (let row: number = 0; row < 3; row++)
@@ -80,7 +80,7 @@ export function physicalHullFacesMass(
     physicalPrincipalAxes(tensor);
   return {
     volume,
-    centerOfMass: Vector3.add(hull.centre, offset),
+    centerOfMass: AutoMovieEngineVector3.add(hull.centre, offset),
     inertia: principal.moments,
     inertiaRotation: principal.rotation,
   };

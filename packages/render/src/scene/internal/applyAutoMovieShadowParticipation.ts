@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { SPACE_GROUP_NAME } from "../buildSpace.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderSpaceGroupName } from "../buildSpace.js";
 
 /*
  * Say which objects cast a shadow and which receive one.
@@ -25,7 +25,7 @@ import { SPACE_GROUP_NAME } from "../buildSpace.js";
  * place, which is here. A model's parts are solids: they cast and they receive,
  * except that a mesh with a blended (transparent) material receives but does
  * not cast, since a shadow map draws it fully opaque. The standable surfaces
- * under SPACE_GROUP_NAME are open patches for structural guides and
+ * under AutoMovieRenderSpaceGroupName are open patches for structural guides and
  * optional flat color. They neither cast nor receive. A volume-free patch
  * casting onto its own plane produces depth acne, and its basic material has no
  * shadow response. Objects without geometry are untouched.
@@ -46,7 +46,7 @@ export const applyAutoMovieShadowParticipation: (
 ) => void = (root: THREE.Object3D): void => {
   const groups: THREE.Object3D[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if (object.name === SPACE_GROUP_NAME) groups.push(object);
+    if (object.name === AutoMovieRenderSpaceGroupName) groups.push(object);
   });
   const ground: Set<THREE.Object3D<THREE.Object3DEventMap>> =
     new Set<THREE.Object3D>();
@@ -60,7 +60,7 @@ export const applyAutoMovieShadowParticipation: (
     // `isMesh` covers `SkinnedMesh` and `InstancedMesh`, which is what makes a
     // compact population of several thousand members participate as one object
     // rather than not at all.
-    if (!AutoMovieThreeKind.isMesh(object)) return;
+    if (!AutoMovieRenderThreeKind.isMesh(object)) return;
     const patch: boolean = ground.has(object);
     // A blended surface (a lantern's glass globe, a flame, a screen's graphic)
     // would cast a fully opaque shadow, because the shadow map ignores

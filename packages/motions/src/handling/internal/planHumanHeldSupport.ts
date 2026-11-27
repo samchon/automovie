@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -113,9 +113,9 @@ export function planHumanHeldSupport(
   );
   const limits: IAutoMovieHumanEffectorPointLimit[] = [
     { x: 0, y: 0, z: 0 },
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       palm.point,
-      Vector3.scale(palm.forward, Vector3.length(palm.point)),
+      AutoMovieEngineVector3.scale(palm.forward, AutoMovieEngineVector3.length(palm.point)),
     ),
   ].map(
     (contact: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit => ({
@@ -124,15 +124,15 @@ export function planHumanHeldSupport(
     }),
   );
   const tool = (hand: IAutoMovieResolvedBone): IAutoMovieRigidTransform => ({
-    position: Vector3.add(
+    position: AutoMovieEngineVector3.add(
       hand.worldPosition,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         hand.worldRotation,
-        Vector3.add(socket, held.frame.position),
+        AutoMovieEngineVector3.add(socket, held.frame.position),
       ),
     ),
-    rotation: Quaternion.normalize(
-      Quaternion.multiply(hand.worldRotation, held.frame.rotation),
+    rotation: AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(hand.worldRotation, held.frame.rotation),
     ),
   });
   const at: IAutoMovieMotionHumanPosture = lead.posture(span.ready);
@@ -179,7 +179,7 @@ export function planHumanHeldSupport(
   const palmPoint = (
     hand: IAutoMovieMotionHumanHand.IWrist,
   ): IAutoMovieVector3 =>
-    Vector3.add(hand.point, Quaternion.rotateVector(hand.rotation, palm.point));
+    AutoMovieEngineVector3.add(hand.point, AutoMovieEngineQuaternion.rotateVector(hand.rotation, palm.point));
   let selected: IPlanHumanHeldSupportSelected | undefined;
   for (const { grip, station, tilt, turns } of heldSupportGrip.stations(
     used,
@@ -200,14 +200,14 @@ export function planHumanHeldSupport(
         point: shown.worldPosition,
         rotation: shown.worldRotation,
       };
-      const gap: number = Vector3.distance(
+      const gap: number = AutoMovieEngineVector3.distance(
         palmPoint(reached),
         palmPoint(target),
       );
       if (gap > AutoMovieMotionHumanAuditSkin.BUILT) continue;
       const miss: number =
-        Vector3.distance(reached.point, target.point) +
-        ((Quaternion.angle(reached.rotation, target.rotation) * Math.PI) /
+        AutoMovieEngineVector3.distance(reached.point, target.point) +
+        ((AutoMovieEngineQuaternion.angle(reached.rotation, target.rotation) * Math.PI) /
           180) *
           body.measure.hand;
 
@@ -312,15 +312,15 @@ export function planHumanHeldSupport(
   // The admitted grip rides the camera from the actual wrist where its
   // fingers closed. No other wrist attitude is solved during the hold.
   const chosen = selected;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     presentedTool.rotation,
   );
   const relative: IAutoMovieMotionHumanHand.IWrist = {
-    point: Quaternion.rotateVector(
+    point: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(chosen.wrist.point, presentedTool.position),
+      AutoMovieEngineVector3.subtract(chosen.wrist.point, presentedTool.position),
     ),
-    rotation: Quaternion.multiply(inverse, chosen.wrist.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(inverse, chosen.wrist.rotation),
   };
   const fingers: ReturnType<typeof prepareHumanShapeBlend> =
     prepareHumanShapeBlend(
@@ -395,11 +395,11 @@ export function planHumanHeldSupport(
         ).get(leadBone)!,
       );
       return {
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, relative.point),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, relative.point),
         ),
-        rotation: Quaternion.multiply(frame.rotation, relative.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(frame.rotation, relative.rotation),
         contact: palm.point,
         limits,
         bend: HumanFrame.point(

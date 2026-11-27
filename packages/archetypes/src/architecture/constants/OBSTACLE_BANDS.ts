@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBand, AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand, } from "../../core";
 import type { AutoMovieArchetypeObstacle } from "../AutoMovieArchetypeObstacle";
-import * as ObstacleBandsData from "./internal/ObstacleBandsData";
+import { ObstacleBandsData } from "./internal/ObstacleBandsData";
 /*
  * The band of each free dimension of AutoMovieArchetypeObstacle, by kind.
  */

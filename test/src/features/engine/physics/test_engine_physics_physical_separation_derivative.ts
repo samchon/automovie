@@ -1,7 +1,7 @@
 import {
-  AutoMoviePhysicalGeometry as Geometry,
-  Quaternion,
-  Vector3,
+  AutoMovieEnginePhysicalGeometry as Geometry,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
@@ -58,7 +58,7 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       radius: 0.1,
       transform: {
         position: { x: 0.01, y: 0, z: -0.02 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
     },
     {
@@ -69,7 +69,7 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       halfLength: 0.15,
       transform: {
         position: { x: 0, y: 0.02, z: 0 },
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 30),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 30),
       },
     },
     {
@@ -79,14 +79,14 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       halfExtents: { x: 0.1, y: 0.12, z: 0.09 },
       transform: {
         position: { x: -0.02, y: 0, z: 0.01 },
-        rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 25),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 25),
       },
     },
   ];
   const approach: IAutoMovieVector3 = unit({ x: 1, y: 0.3, z: -0.2 });
   const first: IAutoMovieRigidTransform = {
     position: { x: 0, y: 1, z: 0 },
-    rotation: Quaternion.fromAxisAngle(unit({ x: 1, y: 2, z: 3 }), 23),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(unit({ x: 1, y: 2, z: 3 }), 23),
   };
   const findings: string[] = [];
   for (const [index, a] of shapes.entries())
@@ -95,11 +95,11 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       const place: (distance: number) => IAutoMovieRigidTransform = (
         distance: number,
       ): IAutoMovieRigidTransform => ({
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           first.position,
-          Vector3.scale(approach, distance),
+          AutoMovieEngineVector3.scale(approach, distance),
         ),
-        rotation: Quaternion.fromAxisAngle(unit({ x: -2, y: 1, z: 1 }), 41),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(unit({ x: -2, y: 1, z: 1 }), 41),
       });
       const signed: (
         poseA: IAutoMovieRigidTransform,
@@ -211,9 +211,9 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       ])
         for (const sign of [-1, 1]) {
           const moved: IAutoMovieRigidTransform = {
-            position: Vector3.add(
+            position: AutoMovieEngineVector3.add(
               deep.position,
-              Vector3.scale(axis, sign * 0.001),
+              AutoMovieEngineVector3.scale(axis, sign * 0.001),
             ),
             rotation: deep.rotation,
           };
@@ -241,9 +241,9 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
         0,
       )!.normal;
       const slid: IAutoMovieRigidTransform = {
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           deep.position,
-          Vector3.scale(unit(Vector3.cross(normal, { x: 0, y: 1, z: 0 })), 0.6),
+          AutoMovieEngineVector3.scale(unit(AutoMovieEngineVector3.cross(normal, { x: 0, y: 1, z: 0 })), 0.6),
         ),
         rotation: deep.rotation,
       };
@@ -287,9 +287,9 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
   ): IAutoMovieRigidTransform {
     return {
       position: pose.position,
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle(axis, sign * 0.05),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.fromAxisAngle(axis, sign * 0.05),
           pose.rotation,
         ),
       ),
@@ -298,6 +298,6 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
 
   /** Normalize a nonzero direction. */
   function unit(vector: IAutoMovieVector3): IAutoMovieVector3 {
-    return Vector3.scale(vector, 1 / Vector3.length(vector));
+    return AutoMovieEngineVector3.scale(vector, 1 / AutoMovieEngineVector3.length(vector));
   }
 }

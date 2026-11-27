@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeSurfboard } from "../AutoMovieArchetypeSurfboard";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
@@ -53,7 +53,7 @@ export function createSurfboard(
     name: `surfboard ${model.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const length: number = d.length!;
   const width: number = d.width!;
   const thickness: number = d.thickness!;

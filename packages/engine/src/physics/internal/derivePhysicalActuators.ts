@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Size declared actuators from the entire neutral downstream load about each
@@ -37,15 +37,15 @@ export function derivePhysicalActuators(
         (segment: (typeof segments)[number]): boolean =>
           segment.bone === joint.child,
       )!;
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         child.neutral.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           child.neutral.rotation,
           joint.childFrame.position,
         ),
       );
       const rotation: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(child.neutral.rotation, joint.childFrame.rotation);
+        AutoMovieEngineQuaternion.multiply(child.neutral.rotation, joint.childFrame.rotation);
       const descendants: Set<string> = new Set([joint.child]);
       for (let count: number = 0; count < segments.length; count++)
         for (const link of joints)
@@ -61,10 +61,10 @@ export function derivePhysicalActuators(
       );
       const reference: number = load.reduce(
         (sum: number, segment: IAutoMoviePhysicalSegment): number => {
-          const displacement: IAutoMovieVector3 = Vector3.subtract(
-            Vector3.add(
+          const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.add(
               segment.neutral.position,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 segment.neutral.rotation,
                 segment.centerOfMass,
               ),
@@ -74,7 +74,7 @@ export function derivePhysicalActuators(
           return (
             sum +
             Math.max(segment.inertia.x, segment.inertia.y, segment.inertia.z) +
-            segment.mass * Vector3.dot(displacement, displacement)
+            segment.mass * AutoMovieEngineVector3.dot(displacement, displacement)
           );
         },
         0,
@@ -85,25 +85,25 @@ export function derivePhysicalActuators(
           (axis: (typeof joint.axes)[number]): IAutoMoviePhysicalJointAxis => {
             const unit: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
             unit[axis.axis] = 1;
-            const direction: IAutoMovieVector3 = Quaternion.rotateVector(
+            const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
               rotation,
               unit,
             );
             const inertia: number = load.reduce(
               (sum: number, segment: IAutoMoviePhysicalSegment): number => {
-                const principal: IAutoMovieVector3 = Quaternion.rotateVector(
-                  Quaternion.inverse(
-                    Quaternion.multiply(
+                const principal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+                  AutoMovieEngineQuaternion.inverse(
+                    AutoMovieEngineQuaternion.multiply(
                       segment.neutral.rotation,
                       segment.inertiaRotation,
                     ),
                   ),
                   direction,
                 );
-                const displacement: IAutoMovieVector3 = Vector3.subtract(
-                  Vector3.add(
+                const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+                  AutoMovieEngineVector3.add(
                     segment.neutral.position,
-                    Quaternion.rotateVector(
+                    AutoMovieEngineQuaternion.rotateVector(
                       segment.neutral.rotation,
                       segment.centerOfMass,
                     ),
@@ -116,7 +116,7 @@ export function derivePhysicalActuators(
                   segment.inertia.y * principal.y ** 2 +
                   segment.inertia.z * principal.z ** 2 +
                   segment.mass *
-                    Vector3.length(Vector3.cross(displacement, direction)) ** 2
+                    AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(displacement, direction)) ** 2
                 );
               },
               0,

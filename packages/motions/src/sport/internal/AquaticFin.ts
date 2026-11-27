@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -88,7 +88,7 @@ export namespace AquaticFin {
     ): IAutoMovieMotionHumanPosture =>
       AquaticPosture.translate(
         posture,
-        Vector3.add(posture.root, Vector3.subtract(hips, at)),
+        AutoMovieEngineVector3.add(posture.root, AutoMovieEngineVector3.subtract(hips, at)),
       );
     const entered: IAutoMovieVector3 = hipsAt(entry.posture).get(
       "hips",
@@ -98,7 +98,7 @@ export namespace AquaticFin {
       const seconds: number = params.duration ?? 4;
       const depth: number = kind === "snorkel" ? 0 : (params.depth ?? 2);
       const hips: IAutoMovieVector3 = hipsAt(prone).get("hips")!.worldPosition;
-      const heading: IAutoMovieVector3 = Vector3.subtract(
+      const heading: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         AquaticPosture.along(entry.posture, 1, 0),
         AquaticPosture.along(entry.posture, 0, 0),
       );
@@ -111,7 +111,7 @@ export namespace AquaticFin {
           y: water - body.measure.stature,
         },
       );
-      const resistance: number = -Vector3.dot(
+      const resistance: number = -AutoMovieEngineVector3.dot(
         HumanWater.sum(
           body,
           poseBones(body, resolveHumanPosture(body, deep)),

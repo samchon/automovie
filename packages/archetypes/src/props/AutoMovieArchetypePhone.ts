@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandheldDevice } from "./internal/HandheldDevice";
@@ -57,9 +57,9 @@ export namespace AutoMovieArchetypePhone {
       kind: "surface",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, height * 0.9, -depth / 2),
-        Vector3.create(0, 0, -1),
-        Vector3.create(-1, 0, 0),
+        AutoMovieEngineVector3.create(0, height * 0.9, -depth / 2),
+        AutoMovieEngineVector3.create(0, 0, -1),
+        AutoMovieEngineVector3.create(-1, 0, 0),
       ),
       extent: null,
     });

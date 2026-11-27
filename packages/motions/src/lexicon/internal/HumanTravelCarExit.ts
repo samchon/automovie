@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -116,13 +116,13 @@ export namespace HumanTravelCarExit {
         const across: IAutoMovieVector3 = through.across;
         const normal: IAutoMovieVector3 = { x: across.z, y: 0, z: -across.x };
         const out: IAutoMovieVector3 =
-          Vector3.dot(Vector3.subtract(start, through.at), normal) > 0
-            ? Vector3.scale(normal, -1)
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(start, through.at), normal) > 0
+            ? AutoMovieEngineVector3.scale(normal, -1)
             : normal;
         const outward = (point: IAutoMovieVector3): number =>
-          Vector3.dot(Vector3.subtract(point, through.at), out);
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, through.at), out);
         const along = (point: IAutoMovieVector3): number =>
-          Vector3.dot(Vector3.subtract(point, through.at), across);
+          AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(point, through.at), across);
         const targetYaw: number = (Math.atan2(out.x, out.z) * 180) / Math.PI;
         const delta: number = targetYaw - entry.posture.yaw;
         const turn: number = delta - 360 * Math.round(delta / 360);
@@ -173,9 +173,9 @@ export namespace HumanTravelCarExit {
 
         const ankleY: number = floor + body.measure.ankleHeight;
         const stance: IAutoMovieVector3 = {
-          ...Vector3.add(
+          ...AutoMovieEngineVector3.add(
             edge,
-            Vector3.scale(out, -outward(edge) + landingDistance),
+            AutoMovieEngineVector3.scale(out, -outward(edge) + landingDistance),
           ),
           y: ankleY,
         };
@@ -300,7 +300,7 @@ export namespace HumanTravelCarExit {
             entry.posture.pitch + (leaned - entry.posture.pitch) * rock;
           const root: IAutoMovieVector3 = seated.root(
             body,
-            Vector3.lerp(start, edge, share),
+            AutoMovieEngineVector3.lerp(start, edge, share),
             {
               yaw: heading,
               pitch,
@@ -344,8 +344,8 @@ export namespace HumanTravelCarExit {
                 phase,
                 liftShare,
               ),
-              bend: Vector3.lerp(initial.bend, landed.bend, flight),
-              rotation: Quaternion.slerp(
+              bend: AutoMovieEngineVector3.lerp(initial.bend, landed.bend, flight),
+              rotation: AutoMovieEngineQuaternion.slerp(
                 entry.feet[side].rotation,
                 landed.rotation!,
                 flight,

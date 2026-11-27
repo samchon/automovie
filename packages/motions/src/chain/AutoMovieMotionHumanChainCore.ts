@@ -1,4 +1,4 @@
-import { AutoMovieChain, AutoMovieComposition } from "@automovie/engine";
+import { AutoMovieEngineChain, AutoMovieEngineComposition } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieComposition,
@@ -18,7 +18,7 @@ import { HumanHitTrack } from "../perform/internal/HumanHitTrack";
  * action's name, so `chain.touch(params)` and `chain.act("touch", params)`
  * append the same intent and are checked against the same parameter type.
  */
-export class AutoMovieMotionHumanChainCore extends AutoMovieChain {
+export class AutoMovieMotionHumanChainCore extends AutoMovieEngineChain {
   /** The person whose actions this chain appends. */
   public readonly subject: string;
 
@@ -180,7 +180,7 @@ export class AutoMovieMotionHumanChainCore extends AutoMovieChain {
       type: "sequence",
       parts: [
         ...parts.slice(0, -1),
-        AutoMovieComposition.at(
+        AutoMovieEngineComposition.at(
           of,
           sync.latency === undefined ? last : latency(last),
           sync.offset ?? 0,

@@ -8,11 +8,11 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { assertAutoMovieAnalysisSolids } from "./assertAutoMovieAnalysisSolids";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AutoMovieEngineAnalysisMaxSamples } from "../AutoMovieEngineAnalysisMaxSamples";
 import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
 
 /*
@@ -78,21 +78,21 @@ export function resolveAutoMovieDaylightRequest(
       );
   }
   const cells: number = workplane.countU * workplane.countV;
-  if (cells > AUTOMOVIE_ANALYSIS_MAX_SAMPLES)
+  if (cells > AutoMovieEngineAnalysisMaxSamples)
     throw new Error(
-      `a workplane grid of ${cells} cells exceeds the ${AUTOMOVIE_ANALYSIS_MAX_SAMPLES}-sample bound one run may carry; measure a coarser grid or split the plane`,
+      `a workplane grid of ${cells} cells exceeds the ${AutoMovieEngineAnalysisMaxSamples}-sample bound one run may carry; measure a coarser grid or split the plane`,
     );
   for (const key of ["axisU", "axisV"] as const) {
-    const length: number = Vector3.length(workplane[key]);
+    const length: number = AutoMovieEngineVector3.length(workplane[key]);
     if (length <= EPSILON)
       throw new Error(
         `workplane ${key} must be a finite non-zero in-plane direction`,
       );
   }
-  const axisU: IAutoMovieVector3 = Vector3.normalize(workplane.axisU);
-  const axisV: IAutoMovieVector3 = Vector3.normalize(workplane.axisV);
-  const normal: IAutoMovieVector3 = Vector3.cross(axisU, axisV);
-  if (Vector3.length(normal) <= EPSILON)
+  const axisU: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(workplane.axisU);
+  const axisV: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(workplane.axisV);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(axisU, axisV);
+  if (AutoMovieEngineVector3.length(normal) <= EPSILON)
     throw new Error(
       "a workplane needs two non-parallel in-plane axes to have a normal",
     );
@@ -119,7 +119,7 @@ export function resolveAutoMovieDaylightRequest(
   }
   assertAutoMovieAnalysisSolids(request.shades, "shading solid");
   assertAutoMovieAnalysisTargets(request.targets);
-  return { instant, normal: Vector3.normalize(normal), axisU, axisV };
+  return { instant, normal: AutoMovieEngineVector3.normalize(normal), axisU, axisV };
 }
 
 /*

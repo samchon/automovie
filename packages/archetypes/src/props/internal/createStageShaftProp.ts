@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeStageShaftProp } from "../AutoMovieArchetypeStageShaftProp";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -36,7 +36,7 @@ export function createStageShaftProp(
     AutoMovieArchetypeStageShaftProp.KINDS,
   );
   return StageShaftConstruction(kind, params, seed, 0.8, (builder, height) => {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const radius: number = (kind === "shuo" ? 0.052 : 0.027) * height;
     const lower: number = (kind === "shuo" ? 0.68 : 0.78) * height;
     builder.rod("ornament", radius, v(0, lower, 0), v(0, height - radius, 0), {

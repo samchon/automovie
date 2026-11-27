@@ -1,6 +1,8 @@
 import { type AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
-import { QuadrupedChange } from "@automovie/archetypes/internal";
-import { AutoMovieGravity } from "@automovie/engine";
+import {
+  QuadrupedChange
+} from "../../../../../packages/archetypes/src/animals/quadruped/QuadrupedChange";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -27,7 +29,7 @@ export function test_archetypes_animals_gait_change_boundary(): void {
     mass: 170,
   };
   const hip: number = 0.9;
-  const walk: number = Math.sqrt(0.35 * AutoMovieGravity.STANDARD * hip);
+  const walk: number = Math.sqrt(0.35 * AutoMovieEngineGravity.STANDARD * hip);
   TestValidator.predicate(
     "Froude and mass reduce to their independent reference values",
     nclose(

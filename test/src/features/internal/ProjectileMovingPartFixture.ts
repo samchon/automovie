@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieProjectileFirstContact,
   IAutoMovieRigidTransform,
@@ -72,8 +72,8 @@ export namespace ProjectileMovingPartFixture {
           },
           rotation:
             spin === 0
-              ? Quaternion.identity()
-              : Quaternion.fromAxisAngle(
+              ? AutoMovieEngineQuaternion.identity()
+              : AutoMovieEngineQuaternion.fromAxisAngle(
                   axis,
                   (spin * elapsed * 180) / Math.PI,
                 ),

@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
@@ -14,7 +14,7 @@ import type {
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "../AutoMovieArchetypeQuadrupedSkeleton";
-import * as QuadrupedWorldPoseData from "./internal/QuadrupedWorldPoseData";
+import { QuadrupedWorldPoseData } from "./internal/QuadrupedWorldPoseData";
 
 /*
  * A quadruped's displayed pose as a world root frame and parent-local bone
@@ -120,9 +120,9 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
       const wt: IAutoMovieVector3 = spin(t, t1);
       return {
         x: AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
-          Quaternion.multiply(s, Quaternion.inverse(t)),
+          AutoMovieEngineQuaternion.multiply(s, AutoMovieEngineQuaternion.inverse(t)),
         ),
-        v: Vector3.scale(Vector3.subtract(ws, wt), 1 / step),
+        v: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(ws, wt), 1 / step),
       };
     };
     const local: Map<
@@ -141,14 +141,14 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
       );
     return {
       shift: {
-        x: Vector3.subtract(source.root.translation, target.root.translation),
-        v: Vector3.scale(
-          Vector3.subtract(
-            Vector3.subtract(
+        x: AutoMovieEngineVector3.subtract(source.root.translation, target.root.translation),
+        v: AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.subtract(
               source.root.translation,
               sourceBefore.root.translation,
             ),
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               targetAfter.root.translation,
               target.root.translation,
             ),
@@ -187,8 +187,8 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
         bone,
         channel === undefined
           ? rotation
-          : Quaternion.normalize(
-              Quaternion.multiply(
+          : AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(
                 exponent(decay(channel, duration, elapsed)),
                 rotation,
               ),
@@ -197,9 +197,9 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
     }
     return {
       root: {
-        translation: Vector3.add(target.root.translation, shift),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(
+        translation: AutoMovieEngineVector3.add(target.root.translation, shift),
+        rotation: AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
             exponent(decay(offset.turn, duration, elapsed)),
             target.root.rotation,
           ),
@@ -382,8 +382,8 @@ export namespace QuadrupedWorldPose {
   ): IAutoMovieTransform {
     const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
     return {
-      translation: Vector3.lerp(from.translation, to.translation, u),
-      rotation: Quaternion.slerp(from.rotation, to.rotation, u),
+      translation: AutoMovieEngineVector3.lerp(from.translation, to.translation, u),
+      rotation: AutoMovieEngineQuaternion.slerp(from.rotation, to.rotation, u),
       scale: { ...to.scale },
     };
   }
@@ -399,7 +399,7 @@ export namespace QuadrupedWorldPose {
     pose: IPose,
     placement: IAutoMovieTransform,
   ): Map<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       placement.rotation,
     );
     const result: Map<
@@ -409,22 +409,22 @@ export namespace QuadrupedWorldPose {
     for (const link of links) {
       if (link.parent === null) {
         result.set(link.bone, {
-          translation: Quaternion.rotateVector(
+          translation: AutoMovieEngineQuaternion.rotateVector(
             inverse,
-            Vector3.subtract(pose.root.translation, placement.translation),
+            AutoMovieEngineVector3.subtract(pose.root.translation, placement.translation),
           ),
-          rotation: Quaternion.multiply(inverse, pose.root.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(inverse, pose.root.rotation),
           scale: { ...pose.root.scale },
         });
         continue;
       }
       const parent: IAutoMovieTransform = result.get(link.parent)!;
       result.set(link.bone, {
-        translation: Vector3.add(
+        translation: AutoMovieEngineVector3.add(
           parent.translation,
-          Quaternion.rotateVector(parent.rotation, link.attachment),
+          AutoMovieEngineQuaternion.rotateVector(parent.rotation, link.attachment),
         ),
-        rotation: Quaternion.multiply(
+        rotation: AutoMovieEngineQuaternion.multiply(
           parent.rotation,
           pose.local.get(link.bone)!,
         ),
@@ -444,7 +444,7 @@ function spin(
   to: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
   return AutoMovieEngineMotionSampling.samplePoseVelocityRotationVector(
-    Quaternion.multiply(to, Quaternion.inverse(from)),
+    AutoMovieEngineQuaternion.multiply(to, AutoMovieEngineQuaternion.inverse(from)),
   );
 }
 
@@ -472,11 +472,11 @@ function decay(
  * The rotation a rotation vector names.
  */
 function exponent(turn: IAutoMovieVector3): IAutoMovieQuaternion {
-  const angle: number = Vector3.length(turn);
+  const angle: number = AutoMovieEngineVector3.length(turn);
   return angle < 1e-12
-    ? Quaternion.identity()
-    : Quaternion.fromAxisAngle(
-        Vector3.scale(turn, 1 / angle),
+    ? AutoMovieEngineQuaternion.identity()
+    : AutoMovieEngineQuaternion.fromAxisAngle(
+        AutoMovieEngineVector3.scale(turn, 1 / angle),
         (angle * 180) / Math.PI,
       );
 }

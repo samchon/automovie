@@ -2,7 +2,7 @@ import type { IAutoMovieSolidMesh } from "../construction/IAutoMovieSolidMesh";
 
 /**
  * One solid join as published data: its blend chain
- * (`AutoMovieSolidBlendChain`) and the two rails as trim loops of their faces,
+ * (`AutoMovieEngineSolidBlendChain`) and the two rails as trim loops of their faces,
  * column `k` of each loop at the blend's phase `2 pi k / n`.
  */
 export interface IAutoMovieHumanSurfaceMerge {
@@ -17,7 +17,7 @@ export interface IAutoMovieHumanSurfaceMerge {
 
   /**
    * The host chain of each column of `hostLoop`, for a rail that crosses the
-   * faces of a merged body (`AutoMovieSolidBody`): column `k`'s chart point
+   * faces of a merged body (`AutoMovieEngineSolidBody`): column `k`'s chart point
    * lies on chain `hostChains[k]`. Absent, every column is on `host`.
    */
   hostChains?: string[];
@@ -36,13 +36,13 @@ export interface IAutoMovieHumanSurfaceMerge {
 
   /**
    * The host's chart direction at each column toward and past its rail, of unit
-   * world speed (`AutoMovieSolidBlendChain.IBlend.across`).
+   * world speed (`AutoMovieEngineSolidBlendChain.IBlend.across`).
    */
   across: [number, number][];
 
   /**
    * The part's chart direction at each column toward and past its rail, of unit
-   * world speed (`AutoMovieSolidBlendChain.IBlend.partAcross`): along its
+   * world speed (`AutoMovieEngineSolidBlendChain.IBlend.partAcross`): along its
    * station under the phase parameter, square to the curve under the angle.
    * Absent, the station direction `sigma`.
    */
@@ -50,14 +50,14 @@ export interface IAutoMovieHumanSurfaceMerge {
 
   /**
    * The intersection curve's point at each column, mm
-   * (`AutoMovieSolidBlendChain.IBlend.curve`). Absent on an entry built before
+   * (`AutoMovieEngineSolidBlendChain.IBlend.curve`). Absent on an entry built before
    * it was published.
    */
   curve?: [number, number, number][];
 
   /**
    * The declared chords at each column, mm
-   * (`AutoMovieSolidBlendChain.IBlend.widths`).
+   * (`AutoMovieEngineSolidBlendChain.IBlend.widths`).
    */
   widths?: {
     /**
@@ -74,13 +74,13 @@ export interface IAutoMovieHumanSurfaceMerge {
 
   /**
    * The kind of the curve's parameter: `phase`, `angle` or `arc`
-   * (`AutoMovieSolidBlendChain.IBlend.parameter`).
+   * (`AutoMovieEngineSolidBlendChain.IBlend.parameter`).
    */
   parameter?: "phase" | "angle" | "arc";
 
   /**
    * The part's kept side in its station
-   * (`AutoMovieSolidBlendChain.IBlend.sigma`).
+   * (`AutoMovieEngineSolidBlendChain.IBlend.sigma`).
    */
   sigma: 1 | -1;
 

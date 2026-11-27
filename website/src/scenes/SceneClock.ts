@@ -1,4 +1,4 @@
-import { AutoMovieFrameGrid } from "@automovie/render";
+import { AutoMovieRenderFrameGrid } from "@automovie/render";
 
 /**
  * One film clock that several views read, so the takes of a scene shown
@@ -27,12 +27,12 @@ export class SceneClock {
 
   /** The last zero-based frame number of the current presentation. */
   public get lastFrame(): number {
-    return AutoMovieFrameGrid.last(this.duration, this.fps);
+    return AutoMovieRenderFrameGrid.last(this.duration, this.fps);
   }
 
   /** The nearest regular frame while playing, or the end when reached. */
   public get frame(): number {
-    return AutoMovieFrameGrid.nearest(
+    return AutoMovieRenderFrameGrid.nearest(
       this.time,
       this.duration,
       this.fps,
@@ -117,7 +117,7 @@ export class SceneClock {
    * @param frame The zero-based frame number, clamped to the presentation.
    */
   public seekFrame(frame: number): void {
-    this.seek(AutoMovieFrameGrid.time(frame, this.duration, this.fps));
+    this.seek(AutoMovieRenderFrameGrid.time(frame, this.duration, this.fps));
   }
 
   /** Set the speed or the loop, and tell the listeners. */

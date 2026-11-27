@@ -11,7 +11,7 @@ import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAn
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import type { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
-import * as PreparePoseJointResolutionData from "./PreparePoseJointResolutionData";
+import { PreparePoseJointResolutionData } from "./PreparePoseJointResolutionData";
 
 /*
  * Admit changing ordered joint records on one genuine immutable prepared rig.

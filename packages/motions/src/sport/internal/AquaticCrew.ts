@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
@@ -88,11 +88,11 @@ export namespace AquaticCrew {
       });
     const carrier: IAutoMovieMotionHumanPropReader = context.prop(id);
     const origin: IAutoMovieRigidTransform = carrier.frame(start);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(origin.rotation);
     const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, origin.position),
+        AutoMovieEngineVector3.subtract(point, origin.position),
       );
     const rest: IAutoMovieVector3 | undefined = params.footRest;
     const foot = (side: Side, sign: number): IAutoMovieVector3 =>
@@ -161,16 +161,16 @@ export namespace AquaticCrew {
   ): IAutoMovieMotionHumanPosture {
     const frame: IAutoMovieRigidTransform = hull.frame(seconds);
     const world = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, point),
+        AutoMovieEngineQuaternion.rotateVector(frame.rotation, point),
       );
     const root: IAutoMovieVector3 = world(local);
-    const carrierTurn: IAutoMovieQuaternion = Quaternion.multiply(
+    const carrierTurn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       frame.rotation,
       hull.inverse,
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       carrierTurn,
       humanPostureHeading(shape),
     );
@@ -190,7 +190,7 @@ export namespace AquaticCrew {
             side,
             {
               ankle: world(foot),
-              rotation: Quaternion.multiply(
+              rotation: AutoMovieEngineQuaternion.multiply(
                 carrierTurn,
                 context.entry.feet[side].rotation,
               ),
@@ -203,9 +203,9 @@ export namespace AquaticCrew {
       if (grip !== undefined)
         posture.limbs[`${side}Arm`] = {
           point: grip,
-          bend: Vector3.add(
+          bend: AutoMovieEngineVector3.add(
             grip,
-            Quaternion.rotateVector(rotation, {
+            AutoMovieEngineQuaternion.rotateVector(rotation, {
               x: side === "left" ? 0.24 : -0.24,
               y: -0.18,
               z: -0.1,
@@ -224,9 +224,9 @@ export namespace AquaticCrew {
     hull: IHull,
     displacement: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
+    return AutoMovieEngineQuaternion.rotateVector(
       hull.inverse,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading(context.entry.posture),
         displacement,
       ),

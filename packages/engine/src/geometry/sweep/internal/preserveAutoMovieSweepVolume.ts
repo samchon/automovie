@@ -3,7 +3,7 @@ import type {
   IAutoMovieSweep,
 } from "@automovie/interface";
 
-import { AutoMovieSpline } from "../../AutoMovieSpline";
+import { AutoMovieEngineSpline } from "../../AutoMovieEngineSpline";
 import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
@@ -97,7 +97,7 @@ export function preserveAutoMovieSweepVolume(
   const profile: (factor: number) => void = (factor: number): void => {
     for (let k: number = 0; k < knots.length; ++k)
       values[k] = base[k]! * (joint[k] === 1 ? factor : 1);
-    tension = AutoMovieSpline.fit(
+    tension = AutoMovieEngineSpline.fit(
       knots,
       values,
       knots.length,
@@ -107,7 +107,7 @@ export function preserveAutoMovieSweepVolume(
     );
   };
   const at: (u: number) => number = (u: number): number =>
-    AutoMovieSpline.evaluate(
+    AutoMovieEngineSpline.evaluate(
       knots,
       values,
       curvature,

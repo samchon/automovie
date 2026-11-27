@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -119,7 +119,7 @@ export function pickUpStance(
   const place = (searched: pickUpSearch.ISearched): IAutoMovieVector3 => {
     const { point } = searched.chosen.wrist;
     const raised: IAutoMovieVector3 = { ...point, y: point.y + lift };
-    return carried === undefined ? raised : Vector3.add(raised, carried);
+    return carried === undefined ? raised : AutoMovieEngineVector3.add(raised, carried);
   };
   const raise: pickUpLift.IRaise | null = pickUpLift.raise(
     context,

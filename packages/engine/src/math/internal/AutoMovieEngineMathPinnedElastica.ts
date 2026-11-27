@@ -1,4 +1,4 @@
-import { EllipticFunctions } from "../EllipticFunctions";
+import { AutoMovieEngineEllipticFunctions } from "../AutoMovieEngineEllipticFunctions";
 import { bracketedRoot } from "./bracketedRoot";
 
 /*
@@ -15,7 +15,7 @@ export namespace AutoMovieEngineMathPinnedElastica {
  * The rod's tangent leaves each end at the slope `θ0` from its chord, and every
  * shape is fixed by the parameter `m = k^2`, `k = sin(θ0 / 2)`, with `K` and
  * `E` the complete elliptic integrals of the first and second kinds at `m`
- * (`EllipticFunctions`):
+ * (`AutoMovieEngineEllipticFunctions`):
  *
  * - The chord's share of the arc: `d / L = 2 E(m) / K(m) - 1`.
  * - The tangent's angle from the chord at arc `s` from one end, toward the bow:
@@ -31,8 +31,8 @@ export namespace AutoMovieEngineMathPinnedElastica {
  */
 export function pinnedElasticaChord(m: number): number {
   return (
-    (2 * EllipticFunctions.secondKind(m)) /
-      EllipticFunctions.firstKind(1 - m) -
+    (2 * AutoMovieEngineEllipticFunctions.secondKind(m)) /
+      AutoMovieEngineEllipticFunctions.firstKind(1 - m) -
     1
   );
 }
@@ -68,11 +68,11 @@ export function pinnedElasticaParameter(ratio: number): number {
  */
 export function pinnedElasticaSlope(m: number, share: number): number {
   if (m === 0) return 0;
-  const K: number = EllipticFunctions.firstKind(1 - m);
+  const K: number = AutoMovieEngineEllipticFunctions.firstKind(1 - m);
   return (
     2 *
     Math.asin(
-      Math.sqrt(m) * EllipticFunctions.jacobi(K * (1 - 2 * share), m).sn,
+      Math.sqrt(m) * AutoMovieEngineEllipticFunctions.jacobi(K * (1 - 2 * share), m).sn,
     )
   );
 }
@@ -84,7 +84,7 @@ export function pinnedElasticaSlope(m: number, share: number): number {
  * Returns: `κ`, per metre.
  */
 export function pinnedElasticaCurvature(m: number, length: number): number {
-  return (4 * Math.sqrt(m) * EllipticFunctions.firstKind(1 - m)) / length;
+  return (4 * Math.sqrt(m) * AutoMovieEngineEllipticFunctions.firstKind(1 - m)) / length;
 }
 
 /*

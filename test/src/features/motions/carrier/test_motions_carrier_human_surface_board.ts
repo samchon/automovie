@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -7,10 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanFoot,
-  AutoMovieMotionHumanRefusal,
-  HumanSurfaceBoard,
-} from "@automovie/motions/internal";
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSurfaceBoard
+} from "../../../../../packages/motions/src/carrier/internal/HumanSurfaceBoard";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -49,7 +53,7 @@ const ROUNDING: number = 1e-9;
  *    is its window.
  */
 export async function test_motions_carrier_human_surface_board(): Promise<void> {
-  const quarter: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const quarter: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );
@@ -125,7 +129,7 @@ export async function test_motions_carrier_human_surface_board(): Promise<void> 
               "deck",
               "surface",
               { x: 0, y: 0.08, z: 0 },
-              Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 30),
+              AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 30),
             ),
           ]),
           "board",
@@ -155,9 +159,9 @@ export async function test_motions_carrier_human_surface_board(): Promise<void> 
   TestValidator.predicate(
     "a sole goal",
     vclose(
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         goal.point,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           quarter,
           HumanFoot.offset(body, "left", "sole"),
         ),

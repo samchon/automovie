@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanActionPlan } from "@automovie/interface";
-import { HumanSegment, prepareHumanSegment } from "@automovie/motions/internal";
+import {
+  HumanSegment
+} from "../../../../../packages/motions/src/perform/internal/HumanSegment";
+import {
+  prepareHumanSegment
+} from "../../../../../packages/motions/src/perform/internal/prepareHumanSegment";
 import { TestValidator } from "@nestia/e2e";
 
 import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan";

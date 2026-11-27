@@ -1,4 +1,4 @@
-import { AutoMovieAir, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAir, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanReaction,
   IAutoMovieVector3,
@@ -10,7 +10,7 @@ import type {
  * them, so a startle synced to it begins that much after the shot.
  *
  * The delay is the distance over the speed of sound of the engine's one air
- * (`AutoMovieAir.SOUND`, the ICAO Standard Atmosphere at sea level). The report
+ * (`AutoMovieEngineAir.SOUND`, the ICAO Standard Atmosphere at sea level). The report
  * is a cue instant, not a hit: it delivers no impulse, and the reaction's own
  * latency is the sync's to add (`latency: "reaction"`).
  */
@@ -28,8 +28,8 @@ export namespace HumanReaction {
   ): number {
     return (
       shot.seconds +
-      Vector3.length(Vector3.subtract(listener, shot.point)) /
-        AutoMovieAir.SOUND
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(listener, shot.point)) /
+        AutoMovieEngineAir.SOUND
     );
   }
 }

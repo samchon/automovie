@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -36,9 +36,9 @@ export namespace stickBallModel {
     frame: IAutoMovieRigidTransform,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, local),
     );
   }
 }

@@ -1,4 +1,4 @@
-import { AffordanceArticulation, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformanceState,
@@ -85,7 +85,7 @@ export namespace HumanPerformanceObject {
           out.push({
             articulation: own.articulation,
             leader:
-              AffordanceArticulation.leader(byId, own.articulation) ??
+              AutoMovieEngineAffordanceArticulation.leader(byId, own.articulation) ??
               own.articulation,
             from,
             to,
@@ -99,7 +99,7 @@ export namespace HumanPerformanceObject {
       out.push({
         articulation: track.articulation,
         leader:
-          AffordanceArticulation.leader(byId, track.articulation) ??
+          AutoMovieEngineAffordanceArticulation.leader(byId, track.articulation) ??
           track.articulation,
         from,
         to: from + (track.duration ?? Infinity),
@@ -177,7 +177,7 @@ export namespace HumanPerformanceObject {
     if (found === undefined) return rest;
     return {
       point: found.frame.translation,
-      normal: Quaternion.rotateVector(found.frame.rotation, {
+      normal: AutoMovieEngineQuaternion.rotateVector(found.frame.rotation, {
         x: 0,
         y: 1,
         z: 0,

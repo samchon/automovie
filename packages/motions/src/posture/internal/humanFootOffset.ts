@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
@@ -24,11 +24,11 @@ export function humanFootOffset(
 ): IAutoMovieVector3 {
   const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
   if (point === "mtp")
-    return Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
+    return AutoMovieEngineVector3.subtract(body.rest.get(`${side}Toes`)!, foot);
   const socket: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
   if (socket.bone === `${side}Foot`) return socket.point;
-  const joint: IAutoMovieVector3 = Vector3.subtract(
+  const joint: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     body.rest.get(socket.bone)!,
     foot,
   );
@@ -58,7 +58,7 @@ export namespace humanFootOffset {
   ): (toes: number) => IAutoMovieVector3 {
     const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
     if (point === "mtp") {
-      const joint: IAutoMovieVector3 = Vector3.subtract(
+      const joint: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         body.rest.get(`${side}Toes`)!,
         foot,
       );
@@ -68,7 +68,7 @@ export namespace humanFootOffset {
       body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
     if (socket.bone === `${side}Foot`)
       return (_toes: number): IAutoMovieVector3 => socket.point;
-    const joint: IAutoMovieVector3 = Vector3.subtract(
+    const joint: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       body.rest.get(socket.bone)!,
       foot,
     );
@@ -84,14 +84,14 @@ function articulated(
   point: IAutoMovieVector3,
   toes: number,
 ): IAutoMovieVector3 {
-  return Vector3.add(joint, Quaternion.rotateVector(FLEXION(toes), point));
+  return AutoMovieEngineVector3.add(joint, AutoMovieEngineQuaternion.rotateVector(FLEXION(toes), point));
 }
 
 /*
  * The private unchanged negative lateral toe-flexion axis.
  */
-const FLEXION: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: -1, y: 0, z: 0 });
+const FLEXION: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: -1, y: 0, z: 0 });
 
 /*
  * The alternatives of `HumanFootOffsetPoint`'s site.

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeAssembly, AutoMovieArchetypeFrame, AutoMovieArchetypeBar, AutoMovieArchetypeSeat, AutoMovieArchetypeWall } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 /**
  * A test carriage: three benches facing along `+Z` down its middle, a rail along each side and a low wall across its front, as one assembly.
@@ -102,7 +102,7 @@ export namespace archetypeCarriage {
   ): IAutoMovieTransform {
     return {
       translation: { x, y, z },
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
       scale: { ...AutoMovieArchetypeFrame.UNIT },
     };
   }

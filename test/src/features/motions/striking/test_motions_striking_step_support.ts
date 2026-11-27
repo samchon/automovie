@@ -1,4 +1,6 @@
-import { strikingStepSupport } from "@automovie/motions/internal";
+import {
+  strikingStepSupport
+} from "../../../../../packages/motions/src/striking/internal/strikingStepSupport";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,5 +1,7 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
-import { curtsyCross } from "@automovie/motions/internal";
+import {
+  curtsyCross
+} from "../../../../../packages/motions/src/everyday/internal/curtsyCross";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -7,9 +7,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanHeld,
-  HumanHand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanHeld
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanHeld";
+import {
+  HumanHand
+} from "../../../../../packages/motions/src/posture/internal/HumanHand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -59,7 +61,7 @@ export async function test_motions_compose_human_held(): Promise<void> {
     side: "right",
     frame: {
       position: { x: 0.1, y: 0, z: 0 },
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
     },
     affordances: [LIP],
   };
@@ -95,11 +97,11 @@ export async function test_motions_compose_human_held(): Promise<void> {
     point: { x: 1, y: 1, z: 1 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  const socket: IAutoMovieVector3 = Vector3.add(
+  const socket: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     wrist.point,
     HumanHand.offset(body, "right", "grip").point,
   );
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     30,
   );
@@ -109,7 +111,7 @@ export async function test_motions_compose_human_held(): Promise<void> {
       "right",
       "glass",
       {
-        position: Vector3.add(socket, { x: 0, y: 0, z: 0.05 }),
+        position: AutoMovieEngineVector3.add(socket, { x: 0, y: 0, z: 0.05 }),
         rotation: turn,
       },
       [LIP],

@@ -22,7 +22,7 @@ export namespace KickForm {
    * Where the target lies from the turned pelvis's forward toward the kicking
    * side at contact, degrees, by height band. A full turnover would put it at
    * 90 degrees and lift the leg by abduction alone, but the rig's hip abducts
-   * at most 45 degrees (`DEFAULT_HUMANOID_ROM`), so higher kicks rise more
+   * at most 45 degrees (`AutoMovieEngineDefaultHumanoidRom`), so higher kicks rise more
    * through the hip's flexion with less turnover. Provisional: no study gives
    * the angle.
    */

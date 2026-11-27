@@ -5,7 +5,7 @@ import {
 } from "../../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 import type { AutoMovieArchetypeDoor } from "../AutoMovieArchetypeDoor";
-import * as DoorBandsData from "./internal/DoorBandsData";
+import { DoorBandsData } from "./internal/DoorBandsData";
 
 /*
  * The band of each free dimension of a door, by hardware and for a sliding

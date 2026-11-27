@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -11,7 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import * as AutoMovieArchetypePolearmData from "./internal/AutoMovieArchetypePolearmData";
+import { AutoMovieArchetypePolearmData } from "./internal/AutoMovieArchetypePolearmData";
 
 /** Constructs the polearm archetype from its recipe. */
 export namespace AutoMovieArchetypePolearm {
@@ -80,7 +80,7 @@ export function create(
     name: kind,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const length: number = d.length!;
   const head: number = d.headLength ?? 0;
   // The head carries its read mass as its share of the whole; the shaft carries the rest.

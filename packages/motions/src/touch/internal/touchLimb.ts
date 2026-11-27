@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -44,9 +44,9 @@ export namespace touchLimb {
       (shape: Shape): boolean => shape.kind === "capsule",
     );
     if (segment === undefined || capsule === undefined) return undefined;
-    return Vector3.normalize(
-      Quaternion.rotateVector(
-        Quaternion.multiply(segment.pose.rotation, capsule.transform.rotation),
+    return AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(segment.pose.rotation, capsule.transform.rotation),
         { x: 0, y: 1, z: 0 },
       ),
     );

@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 
-import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
 
 /*
  * Read production diagnostics once from a settled scene and its delivery
@@ -28,10 +28,10 @@ import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
  * If the producer returns another sample's time or frame.
  */
 export function observeAutoMoviePlacedInspection(
-  subject: IAutoMovieDrawScene,
+  subject: IAutoMovieRenderDrawScene,
   seconds: number,
-  mode: IAutoMovieDrawScene.IPlacedSample["mode"],
-  auditRaster?: IAutoMovieDrawScene.IPlacedSample["auditRaster"],
+  mode: IAutoMovieRenderDrawScene.IPlacedSample["mode"],
+  auditRaster?: IAutoMovieRenderDrawScene.IPlacedSample["auditRaster"],
   byShot: boolean = false,
 ): IAutoMovieInspectionDiagnostics | undefined {
   if (subject.inspectPlaced === undefined) return undefined;

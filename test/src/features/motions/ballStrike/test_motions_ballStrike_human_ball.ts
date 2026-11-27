@@ -1,5 +1,7 @@
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanPropReader, IAutoMovieRigidTransform } from "@automovie/interface";
-import { HumanBall } from "@automovie/motions/internal";
+import {
+  HumanBall
+} from "../../../../../packages/motions/src/ballStrike/internal/HumanBall";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

@@ -1,8 +1,12 @@
 import {
-  createSettingsFiles,
-  readSettingsFiles,
-  validateSettingsOutline,
-} from "@automovie/evidence/internal";
+  createSettingsFiles
+} from "../../../../packages/evidence/src/narrative/internal/createSettingsFiles";
+import {
+  readSettingsFiles
+} from "../../../../packages/evidence/src/narrative/internal/readSettingsFiles";
+import {
+  validateSettingsOutline
+} from "../../../../packages/evidence/src/narrative/internal/validateSettingsOutline";
 // Internal helpers, which the package no longer exports.
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";

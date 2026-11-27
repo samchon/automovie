@@ -1,13 +1,14 @@
 import type { IAutoMovieSemanticMaskEntry } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import { AutoMovieRenderDualQuaternionSkinning } from "../../dualQuaternionSkinning/index.js";
-import { type IAutoMovieFormationCycle, AutoMovieRenderFormationCycle } from "../../formationCycle/index.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderDualQuaternionSkinning, AutoMovieRenderDualQuaternionSkinning } from "../../AutoMovieRenderDualQuaternionSkinning.js";
+import type { IAutoMovieRenderFormationCycle, IAutoMovieRenderFormationCycle } from "../../IAutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle } from "../../AutoMovieRenderFormationCycle.js";
 import { guardAutoMovieRenderModeRetirement } from "../../internal/guardAutoMovieRenderModeRetirement.js";
 import { restoreAutoMovieRenderModeOnce } from "../../internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../../internal/restoreAutoMovieRenderModeState.js";
-import type { IAutoMovieSemanticMaskHandle } from "../../IAutoMovieSemanticMaskHandle.js";
+import type { IAutoMovieRenderSemanticMaskHandle } from "../../IAutoMovieRenderSemanticMaskHandle.js";
 import { maskRoots } from "./maskRoots.js";
 import { nearest } from "./nearest.js";
 import { unresolvedOf } from "./unresolvedOf.js";
@@ -39,7 +40,7 @@ import type { AutoMovieRenderSemanticMask } from "../../AutoMovieRenderSemanticM
  * deformation route; actual shader compilation, frame correspondence and
  * delivered pixels remain rendering observations.
  */
-export function applyAutoMovieSemanticMaskImplementation(props: AutoMovieRenderSemanticMask.IApplyProps): IAutoMovieSemanticMaskHandle {
+export function applyAutoMovieSemanticMaskImplementation(props: AutoMovieRenderSemanticMask.IApplyProps): IAutoMovieRenderSemanticMaskHandle {
   const { scene, mask }: AutoMovieRenderSemanticMask.IApplyProps =
     props;
   guardAutoMovieRenderModeRetirement(scene);
@@ -72,21 +73,21 @@ export function applyAutoMovieSemanticMaskImplementation(props: AutoMovieRenderS
   // One material per colour/cycle identity shares the same configured hook within this installation; native program compilation remains the renderer's responsibility.
   const materials: Map<
     string,
-    Map<IAutoMovieFormationCycle | null, THREE.Material>
-  > = new Map<string, Map<IAutoMovieFormationCycle | null, THREE.Material>>();
+    Map<IAutoMovieRenderFormationCycle | null, THREE.Material>
+  > = new Map<string, Map<IAutoMovieRenderFormationCycle | null, THREE.Material>>();
   const materialOf: (
     color: string,
-    cycle: IAutoMovieFormationCycle | null,
+    cycle: IAutoMovieRenderFormationCycle | null,
     dual: boolean,
   ) => THREE.Material = (
     color: string,
-    cycle: IAutoMovieFormationCycle | null,
+    cycle: IAutoMovieRenderFormationCycle | null,
     dual: boolean,
   ): THREE.Material => {
     // a dual-quaternion skin deforms in its own vertex stage, so it keys apart
     const key: string = `${dual}:${color}`;
     let byCycle:
-      | Map<IAutoMovieFormationCycle | null, THREE.Material>
+      | Map<IAutoMovieRenderFormationCycle | null, THREE.Material>
       | undefined = materials.get(key);
     if (byCycle === undefined) {
       byCycle = new Map();
@@ -157,9 +158,9 @@ export function applyAutoMovieSemanticMaskImplementation(props: AutoMovieRenderS
     scene.traverse((object: THREE.Object3D): void => {
       if (!object.visible) return;
       if (
-        AutoMovieThreeKind.isLine(object) ||
-        AutoMovieThreeKind.isPoints(object) ||
-        AutoMovieThreeKind.isSprite(object)
+        AutoMovieRenderThreeKind.isLine(object) ||
+        AutoMovieRenderThreeKind.isPoints(object) ||
+        AutoMovieRenderThreeKind.isSprite(object)
       ) {
         hidden.push(object);
         object.visible = false;
@@ -167,7 +168,7 @@ export function applyAutoMovieSemanticMaskImplementation(props: AutoMovieRenderS
     });
     scene.background = new THREE.Color(0x000000);
     scene.traverse((object: THREE.Object3D): void => {
-      if (!AutoMovieThreeKind.isMesh(object)) return;
+      if (!AutoMovieRenderThreeKind.isMesh(object)) return;
       const mesh: THREE.Mesh = object;
       const entry: IAutoMovieSemanticMaskEntry | undefined = nearest(
         mesh,
@@ -185,12 +186,12 @@ export function applyAutoMovieSemanticMaskImplementation(props: AutoMovieRenderS
         return;
       }
       ++painted;
-      const cycle: IAutoMovieFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
+      const cycle: IAutoMovieRenderFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
       if (entry.kind !== "instance-set") {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }
-      if (!AutoMovieThreeKind.isInstancedMesh(mesh)) {
+      if (!AutoMovieRenderThreeKind.isInstancedMesh(mesh)) {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }

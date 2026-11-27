@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
 import { buildLiftEnvironment } from "./buildLiftEnvironment";
 import { liftStopHeights } from "./internal/liftStopHeights";
 import { liftObjectMotion } from "./liftObjectMotion";
@@ -25,9 +25,9 @@ import { liftObjectMotion } from "./liftObjectMotion";
  * not aligned.
  */
 export function createLift(
-  input: AutoMovieEnvironment.ILiftProps,
-): AutoMovieEnvironment.ILiftDefinition {
-  const props: AutoMovieEnvironment.ILiftProps =
+  input: AutoMovieArchetypeEnvironment.ILiftProps,
+): AutoMovieArchetypeEnvironment.ILiftDefinition {
+  const props: AutoMovieArchetypeEnvironment.ILiftProps =
     structuredClone(input);
   if (props.gap <= 0)
     throw new Error("Lift gap must be a positive finite number of metres.");
@@ -74,8 +74,8 @@ export function createLift(
     };
   };
   const transfer = (
-    crossing: AutoMovieEnvironment.ILiftCrossing,
-  ): AutoMovieEnvironment.ILiftTransfer => {
+    crossing: AutoMovieArchetypeEnvironment.ILiftCrossing,
+  ): AutoMovieArchetypeEnvironment.ILiftTransfer => {
     const { id, stop, direction, start, seconds, lead, landing } = crossing;
     if (!Object.hasOwn(props.stops, stop))
       throw new Error(`Lift ${id} has no stop named ${stop}.`);
@@ -95,11 +95,11 @@ export function createLift(
       throw new Error(
         `Lift ${id} stop ${stop} is not fully open and docked throughout the transfer.`,
       );
-    const cab: AutoMovieEnvironment.ILiftSurface = {
+    const cab: AutoMovieArchetypeEnvironment.ILiftSurface = {
       prop: `${id}/cab`,
       surface: "sill",
     };
-    const pad: AutoMovieEnvironment.ILiftSurface = {
+    const pad: AutoMovieArchetypeEnvironment.ILiftSurface = {
       prop: `${id}/stops/${stop}/landing`,
       surface: "sill",
     };
@@ -123,9 +123,9 @@ type Interval = { from: number; to: number };
  * Admit the key clock and collect consecutive full-open windows per stop.
  */
 function prepareSchedule(
-  props: AutoMovieEnvironment.ILiftProps,
+  props: AutoMovieArchetypeEnvironment.ILiftProps,
 ): Map<string, Interval[]> {
-  const keys: readonly AutoMovieEnvironment.ILiftKey[] =
+  const keys: readonly AutoMovieArchetypeEnvironment.ILiftKey[] =
     props.schedule;
   if (keys.length < 2 || keys[0]!.seconds !== 0)
     throw new Error(
@@ -133,9 +133,9 @@ function prepareSchedule(
     );
   const byStop: Map<string, Interval[]> = new Map();
   for (let i: number = 0; i < keys.length; ++i) {
-    const key: AutoMovieEnvironment.ILiftKey = keys[i]!;
+    const key: AutoMovieArchetypeEnvironment.ILiftKey = keys[i]!;
     const before:
-      | AutoMovieEnvironment.ILiftKey
+      | AutoMovieArchetypeEnvironment.ILiftKey
       | undefined = keys[i - 1];
     if (!Object.hasOwn(props.stops, key.stop))
       throw new Error(

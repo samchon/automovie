@@ -6,7 +6,7 @@ import type {
 
 import { boxRefusedArcs } from "./boxRefusedArcs";
 import { swingTwistExcludedSwivels } from "./swingTwistExcludedSwivels";
-import { swivelArcs } from "../swivelArcs";
+import { AutoMovieEngineSwivelArcs } from "../AutoMovieEngineSwivelArcs";
 
 /*
  * The swivels a joint's three-angle box provably refuses: for a joint whose
@@ -33,7 +33,7 @@ import { swivelArcs } from "../swivelArcs";
  * (`swivelJointReadings.coneExceeded`). The arcs are `boxRefusedArcs`'s.
  *
  * Every refusal is certain. A sinusoid above `MARGIN` puts its angle past the
- * bound by more than `MARGIN` radians, the joints' tolerance (`ROM_TOLERANCE`,
+ * bound by more than `MARGIN` radians, the joints' tolerance (`AutoMovieEngineRomTolerance`,
  * about 1.7e-4), far beyond the rounding of the fit, of the arc's ends and of
  * the decomposition itself (near 1e-15); and an outer angle's vector is then
  * longer than `MARGIN`, past the gimbal band (`sqrt(ε)`, 1.5e-8) inside which
@@ -72,6 +72,6 @@ export function boxExcludedSwivels(
     IAutoMovieSwivelArcs.IArc[] | "all",
   ] = boxRefusedArcs(props);
   return (low: number, high: number): boolean =>
-    swivelArcs.covers(principal, low, high) &&
-    swivelArcs.covers(alternate, low, high);
+    AutoMovieEngineSwivelArcs.covers(principal, low, high) &&
+    AutoMovieEngineSwivelArcs.covers(alternate, low, high);
 }

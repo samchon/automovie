@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, type IAutoMovieSectionRenderer, AutoMovieRenderInspection } from "@automovie/render";
+import { AutoMovieRenderThreeKind, type IAutoMovieRenderInspectionHandle, type IAutoMovieRenderSectionRenderer, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -36,7 +36,7 @@ export function test_render_scene_apply_inspection_restore(): void {
     new THREE.Plane(new THREE.Vector3(1, 0, 0), 5),
   ];
   singleMaterial(left.material).clippingPlanes = planes;
-  const renderer: IAutoMovieSectionRenderer = { localClippingEnabled: false };
+  const renderer: IAutoMovieRenderSectionRenderer = { localClippingEnabled: false };
 
   // Every geometry and material the inspection adds is watched for its dispose.
   const disposed: Set<object> = new Set<object>();
@@ -44,9 +44,9 @@ export function test_render_scene_apply_inspection_restore(): void {
   const watch: () => void = (): void =>
     stage.traverse((object: THREE.Object3D): void => {
       if (
-        !AutoMovieThreeKind.isMesh(object) &&
-        !AutoMovieThreeKind.isPoints(object) &&
-        !AutoMovieThreeKind.isLine(object)
+        !AutoMovieRenderThreeKind.isMesh(object) &&
+        !AutoMovieRenderThreeKind.isPoints(object) &&
+        !AutoMovieRenderThreeKind.isLine(object)
       )
         return;
       const resources: THREE.EventDispatcher<{ dispose: {} }>[] = [
@@ -74,7 +74,7 @@ export function test_render_scene_apply_inspection_restore(): void {
     });
 
   // 1. Applied.
-  const handle: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+  const handle: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       parts: ["left"],

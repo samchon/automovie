@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -161,7 +161,7 @@ export namespace touchRegion {
         return along === undefined
           ? sited(frame, shoulder)
           : {
-              point: Vector3.add(frame.point, along(context.start + seconds)),
+              point: AutoMovieEngineVector3.add(frame.point, along(context.start + seconds)),
               normal: frame.normal,
             };
       };
@@ -172,7 +172,7 @@ export namespace touchRegion {
    * The radius about its site a hand may land within on its region: the first
    * hand's site's own radius (drawn or chosen within), else the region's extent
    * on the body it belongs to (a region is an area,
-   * `AutoMovieHumanoidSurfaceRegions`); none for a prop or a point.
+   * `AutoMovieEngineHumanoidSurfaceRegions`); none for a prop or a point.
    * Parameter context: The action's context.
    * Parameter target: The hand's target.
    * Parameter site: The hand's site, the first hand's only.

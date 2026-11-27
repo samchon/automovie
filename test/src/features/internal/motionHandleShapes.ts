@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMoviePhysicalShape,
@@ -32,7 +32,7 @@ export function motionHandleShapes(
               material: "handle",
               transform: {
                 position: a.frame.translation,
-                rotation: Quaternion.identity(),
+                rotation: AutoMovieEngineQuaternion.identity(),
               },
               kind: "sphere",
               radius: a.radius,

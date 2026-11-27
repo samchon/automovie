@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 import { validateCameraClearanceEnvelope } from "./validateCameraClearanceEnvelope";
 import { validateCameraDepthPrecision } from "./validateCameraDepthPrecision";
@@ -77,8 +77,8 @@ export function validateStageCamera(
       : camera.lookAt.point;
   let direction: IAutoMovieVector3 | undefined;
   if (target !== undefined) {
-    const offset: IAutoMovieVector3 = Vector3.subtract(target, camera.position);
-    if (Vector3.length(offset) < LOOK_DISTANCE_EPSILON)
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(target, camera.position);
+    if (AutoMovieEngineVector3.length(offset) < LOOK_DISTANCE_EPSILON)
       out.push(
         "range",
         `${path}.lookAt`,

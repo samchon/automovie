@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { walkPaced, type walkStation } from "@automovie/motions/internal";
+import {
+  walkPaced
+} from "../../../../../packages/motions/src/actions/internal/walkPaced";
+import type {
+  walkStation
+} from "../../../../../packages/motions/src/gait/internal/walkStation";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

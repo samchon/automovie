@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineMotionSampling,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -145,7 +145,7 @@ export namespace legTouch {
       goal?: IAutoMovieHumanLimbGoal,
     ): IAutoMovieMotionHumanPosture => ({
       ...posture,
-      root: Vector3.add(posture.root, shift),
+      root: AutoMovieEngineVector3.add(posture.root, shift),
       ...(goal === undefined
         ? {}
         : { limbs: { ...posture.limbs, [`${side}Leg`]: goal } }),
@@ -158,11 +158,11 @@ export namespace legTouch {
 
     // The entry geometry places the pelvis over the stance ankle. Active corrections use the resulting foot support.
     const over: IAutoMovieVector3 = level(
-      Vector3.subtract(
+      AutoMovieEngineVector3.subtract(
         ankle,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           entry.root,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             humanPostureHeading(entry),
             body.rest.get("hips")!,
           ),
@@ -175,10 +175,10 @@ export namespace legTouch {
 
     // The leg's two lengths are this body's own, between its rest joints: the
     // knee falls on its place only on the circle those lengths allow.
-    const thigh: number = Vector3.distance(rest("LowerLeg"), rest("UpperLeg"));
-    const shank: number = Vector3.distance(rest("Foot"), rest("LowerLeg"));
+    const thigh: number = AutoMovieEngineVector3.distance(rest("LowerLeg"), rest("UpperLeg"));
+    const shank: number = AutoMovieEngineVector3.distance(rest("Foot"), rest("LowerLeg"));
     const turned = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(foot.rotation, local);
+      AutoMovieEngineQuaternion.rotateVector(foot.rotation, local);
     // The hip as the body displays it under a shift: the pelvis is fitted
     // over the planted leg, so the hip is read, not carried with the root.
     const requested: ReadonlySet<AutoMovieHumanoidBone> =
@@ -203,9 +203,9 @@ export namespace legTouch {
     let shift: IAutoMovieVector3 = over;
     let goal: IAutoMovieHumanLimbGoal;
     if (part === "knee") {
-      const knee: IAutoMovieVector3 = Vector3.add(
+      const knee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         place.point,
-        Vector3.scale(place.normal, KNEE),
+        AutoMovieEngineVector3.scale(place.normal, KNEE),
       );
       // The shift that puts the displayed hip a thigh from the knee: the
       // nearer root of the thigh's length along the level line to the knee,
@@ -217,15 +217,15 @@ export namespace legTouch {
       let residual: number = Infinity;
       for (;;) {
         const before: number = residual;
-        const from: IAutoMovieVector3 = Vector3.subtract(knee, current);
+        const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(knee, current);
         const flat: IAutoMovieVector3 = level(from);
         const line: IAutoMovieVector3 =
-          Vector3.length(flat) > 1e-6
-            ? Vector3.normalize(flat)
+          AutoMovieEngineVector3.length(flat) > 1e-6
+            ? AutoMovieEngineVector3.normalize(flat)
             : { x: 0, y: 0, z: 1 };
-        const along: number = Vector3.dot(from, line);
+        const along: number = AutoMovieEngineVector3.dot(from, line);
         const inside: number =
-          along ** 2 - (Vector3.dot(from, from) - thigh ** 2);
+          along ** 2 - (AutoMovieEngineVector3.dot(from, from) - thigh ** 2);
         const root: number = inside < 0 ? NaN : Math.sqrt(inside);
         const far: number =
           inside < 0
@@ -233,43 +233,43 @@ export namespace legTouch {
             : [along - root, along + root].sort(
                 (a: number, b: number): number => Math.abs(a) - Math.abs(b),
               )[0]!;
-        shift = Vector3.add(shift, Vector3.scale(line, far));
+        shift = AutoMovieEngineVector3.add(shift, AutoMovieEngineVector3.scale(line, far));
         current = hip(shift);
-        residual = Math.abs(Vector3.distance(knee, current) - thigh);
-        if (!(Vector3.distance(shift, over) <= SHIFT)) break;
+        residual = Math.abs(AutoMovieEngineVector3.distance(knee, current) - thigh);
+        if (!(AutoMovieEngineVector3.distance(shift, over) <= SHIFT)) break;
         if (residual <= TOLERANCE || !(residual < before)) break;
       }
-      if (!(Vector3.distance(shift, over) <= SHIFT) || !(residual <= TOLERANCE))
+      if (!(AutoMovieEngineVector3.distance(shift, over) <= SHIFT) || !(residual <= TOLERANCE))
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "target",
-          value: `${(Vector3.distance(knee, initial) * 1000).toFixed(0)} mm`,
+          value: `${(AutoMovieEngineVector3.distance(knee, initial) * 1000).toFixed(0)} mm`,
           feasible: { kind: "alternatives", values: ["a nearer place"] },
-          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.distance(knee, initial) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close (the hip stays ${(residual * 1000).toFixed(0)} mm off the thigh's length)`,
+          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(AutoMovieEngineVector3.distance(knee, initial) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close (the hip stays ${(residual * 1000).toFixed(0)} mm off the thigh's length)`,
           fix: "stand nearer the place, or aim the knee at a place at the hip's height or below",
         });
-      const line: IAutoMovieVector3 = Vector3.normalize(
-        level(Vector3.subtract(knee, current)),
+      const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        level(AutoMovieEngineVector3.subtract(knee, current)),
       );
-      const down: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract({ x: 0, y: -1, z: 0 }, Vector3.scale(line, 0.5)),
+      const down: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract({ x: 0, y: -1, z: 0 }, AutoMovieEngineVector3.scale(line, 0.5)),
       );
       // No rotation is asked of the foot: a foot turned as it stood would
       // state the knee's plane against the bend point.
       goal = {
-        point: Vector3.add(knee, Vector3.scale(down, shank)),
+        point: AutoMovieEngineVector3.add(knee, AutoMovieEngineVector3.scale(down, shank)),
         bend: knee,
       };
     } else {
       const local: IAutoMovieVector3 =
         part === "toes"
-          ? Vector3.subtract(rest("Toes"), rest("Foot"))
+          ? AutoMovieEngineVector3.subtract(rest("Toes"), rest("Foot"))
           : { x: 0, y: -rest("Foot").y, z: -HEEL };
       goal = {
-        point: Vector3.subtract(place.point, turned(local)),
+        point: AutoMovieEngineVector3.subtract(place.point, turned(local)),
         rotation: foot.rotation,
         // The knee ahead of the hip, as the foot stood at the entry.
-        bend: Vector3.add(hip(shift), turned({ x: 0, y: 0, z: thigh })),
+        bend: AutoMovieEngineVector3.add(hip(shift), turned({ x: 0, y: 0, z: thigh })),
       };
     }
 
@@ -277,7 +277,7 @@ export namespace legTouch {
     const reach: number =
       1.5 *
       AutoMovieMotionHumanTiming.transport(
-        Vector3.distance(goal.point, foot.ankle),
+        AutoMovieEngineVector3.distance(goal.point, foot.ankle),
       );
     const relax: number = reach + hold;
     const duration: number = relax + reach;
@@ -327,18 +327,18 @@ export namespace legTouch {
               );
       return moved(
         base.posture(t, undefined, source, nativeProjection),
-        Vector3.scale(shift, s),
+        AutoMovieEngineVector3.scale(shift, s),
         {
-          point: Vector3.add(
-            Vector3.add(
+          point: AutoMovieEngineVector3.add(
+            AutoMovieEngineVector3.add(
               foot.ankle,
-              Vector3.scale(Vector3.subtract(goal.point, foot.ankle), s),
+              AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(goal.point, foot.ankle), s),
             ),
             { x: 0, y: lift * Math.sin(Math.PI * s), z: 0 },
           ),
           ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
           // The hint rides the root, which is short of its full shift by 1 - s.
-          bend: Vector3.subtract(goal.bend, Vector3.scale(shift, 1 - s)),
+          bend: AutoMovieEngineVector3.subtract(goal.bend, AutoMovieEngineVector3.scale(shift, 1 - s)),
           ...(s === 0 ? { planted: true } : {}),
         },
       );
@@ -365,7 +365,7 @@ export namespace legTouch {
             ): IAutoMovieMotionHumanPosture => adjust(posture, t),
             {
               root: HumanBalance.TOLERANCE,
-              angle: ROM_TOLERANCE,
+              angle: AutoMovieEngineRomTolerance,
               step: AutoMovieMotionHumanArmCourse.STEP,
             },
           );

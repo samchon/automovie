@@ -3,7 +3,7 @@ import type {
   IAutoMovieWarpRoot,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { minimumJerk as minimumJerkImplementation } from "./minimumJerk";
 
 /*
@@ -38,8 +38,8 @@ export function warpRoot(
       y: root.translation.y + warp.translation.y * s,
       z: root.translation.z + warp.translation.z * s,
     },
-    rotation: Quaternion.normalize(
-      Quaternion.multiply(yawRotation(warp.yaw * s), root.rotation),
+    rotation: AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(yawRotation(warp.yaw * s), root.rotation),
     ),
     scale: root.scale,
   };
@@ -48,5 +48,5 @@ export function warpRoot(
 /*
  * Rotations about the fixed world-up axis.
  */
-const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+const yawRotation: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });

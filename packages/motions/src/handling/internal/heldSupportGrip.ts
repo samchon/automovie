@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -72,9 +72,9 @@ export namespace heldSupportGrip {
     for (const station of [-0.25, 0.25, -0.5, 0.5]) {
       const grip: IAutoMovieMotionHumanGrasp.ITarget = {
         ...middle,
-        point: Vector3.add(
+        point: AutoMovieEngineVector3.add(
           middle.point,
-          Vector3.scale(middle.axis, station * length),
+          AutoMovieEngineVector3.scale(middle.axis, station * length),
         ),
       };
       for (const tilt of HumanGraspUse.OBLIQUE)
@@ -134,17 +134,17 @@ export namespace heldSupportGrip {
       pose,
     );
     const reference: IAutoMovieResolvedBone = bones.get(hand)!;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       reference.worldRotation,
     );
     const local: IMaterial[] = handMaterial(body, bones, hand).map(
       (segment: IMaterial): IMaterial => {
         const pose: IAutoMovieRigidTransform = {
-          position: Quaternion.rotateVector(
+          position: AutoMovieEngineQuaternion.rotateVector(
             inverse,
-            Vector3.subtract(segment.pose.position, reference.worldPosition),
+            AutoMovieEngineVector3.subtract(segment.pose.position, reference.worldPosition),
           ),
-          rotation: Quaternion.multiply(inverse, segment.pose.rotation),
+          rotation: AutoMovieEngineQuaternion.multiply(inverse, segment.pose.rotation),
         };
         return { shape: segment.shape, pose };
       },
@@ -154,11 +154,11 @@ export namespace heldSupportGrip {
         (part: IMaterial): IMaterial => ({
           shape: part.shape,
           pose: {
-            position: Vector3.add(
+            position: AutoMovieEngineVector3.add(
               wrist.point,
-              Quaternion.rotateVector(wrist.rotation, part.pose.position),
+              AutoMovieEngineQuaternion.rotateVector(wrist.rotation, part.pose.position),
             ),
-            rotation: Quaternion.multiply(wrist.rotation, part.pose.rotation),
+            rotation: AutoMovieEngineQuaternion.multiply(wrist.rotation, part.pose.rotation),
           },
         }),
       );

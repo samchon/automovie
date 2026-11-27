@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -122,7 +122,7 @@ export function stepOverSwing(
     if (side === trail && t > middle && HumanFoot.pitch(ranged) < 0) {
       const pitch: number = HumanFoot.pitch(ranged);
       const onto: number = smooth(t, middle, to);
-      start = Vector3.lerp(
+      start = AutoMovieEngineVector3.lerp(
         goal.point,
         heeled(trail, goal.point, pitch).ankle,
         onto,

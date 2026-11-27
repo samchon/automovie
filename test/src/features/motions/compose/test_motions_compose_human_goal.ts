@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -7,9 +7,11 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanGoal,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  AutoMovieMotionHumanGoal
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanGoal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,7 +33,7 @@ const FROM: IAutoMovieHumanLimbGoal = {
 const TO: IAutoMovieHumanLimbGoal = {
   point: { x: 0.4, y: 1.2, z: 0.8 },
   bend: { x: 0.4, y: 1, z: -0.2 },
-  rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 80),
+  rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 80),
   contact: { x: 0.4, y: 1.25, z: 0.8 },
 };
 
@@ -71,7 +73,7 @@ export function test_motions_compose_human_goal(): void {
     TO,
     0.25,
   );
-  const twenty: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const twenty: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     20,
   );

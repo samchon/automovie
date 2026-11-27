@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector, AutoMovieEngineValidation } from "@automovie/engine";
-import { collectDeclaredIds } from "@automovie/engine/internal";
+import {
+  collectDeclaredIds
+} from "../../../../../packages/engine/src/validation/internal/collectDeclaredIds";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

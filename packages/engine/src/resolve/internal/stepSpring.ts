@@ -7,9 +7,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { readLocal } from "./readLocal";
 import { readWorld } from "./readWorld";
 
@@ -38,8 +38,8 @@ export const stepSpring: (
   validateSpringInputs(d, dt);
   validateSpringColliders(colliders);
   const centerDelta: IAutoMovieVector3 = readCenterDelta(d, world, state);
-  const gravity: IAutoMovieVector3 = Vector3.scale(
-    Vector3.normalize(d.gravityDir),
+  const gravity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.normalize(d.gravityDir),
     d.gravityPower * dt * dt,
   );
   for (let i: number = 1; i < d.chain.length; ++i) {
@@ -51,10 +51,10 @@ export const stepSpring: (
       "parent",
       "spring driver",
     );
-    const parentPos: IAutoMovieVector3 = Matrix4.position(parentM);
+    const parentPos: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(parentM);
     const currentM: number[] = readWorld(world, id, "joint", "spring driver");
-    const cur: IAutoMovieVector3 = Matrix4.position(currentM);
-    const prev: IAutoMovieVector3 = Vector3.add(
+    const cur: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(currentM);
+    const prev: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       state.prev.get(id) ?? cur,
       centerDelta,
     );
@@ -64,38 +64,38 @@ export const stepSpring: (
       id,
       "spring driver local transform",
     );
-    const boneDir: IAutoMovieVector3 = Vector3.normalize(local.translation);
-    const boneLength: number = Vector3.length(local.translation);
+    const boneDir: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(local.translation);
+    const boneLength: number = AutoMovieEngineVector3.length(local.translation);
 
     // rest target: the bone at its parent-relative rest direction, in world
-    const restDir: IAutoMovieVector3 = Quaternion.rotateVector(
-      Matrix4.decompose(parentM).rotation,
+    const restDir: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineMatrix4.decompose(parentM).rotation,
       boneDir,
     );
-    const restPos: IAutoMovieVector3 = Vector3.add(
+    const restPos: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       parentPos,
-      Vector3.scale(restDir, boneLength),
+      AutoMovieEngineVector3.scale(restDir, boneLength),
     );
 
     // verlet: inertia + gravity, then a stiffness pull toward rest
-    const inertia: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(cur, prev),
+    const inertia: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(cur, prev),
       1 - d.drag,
     );
-    let next: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(cur, inertia),
+    let next: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(cur, inertia),
       gravity,
     );
-    next = Vector3.add(
+    next = AutoMovieEngineVector3.add(
       next,
-      Vector3.scale(Vector3.subtract(restPos, next), d.stiffness * dt),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(restPos, next), d.stiffness * dt),
     );
 
     // hard length constraint against the (already-updated) parent
-    next = Vector3.add(
+    next = AutoMovieEngineVector3.add(
       parentPos,
-      Vector3.scale(
-        Vector3.normalize(Vector3.subtract(next, parentPos)),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(next, parentPos)),
         boneLength,
       ),
     );
@@ -104,13 +104,13 @@ export const stepSpring: (
     // after the length constraint, so a hit stretches rather than tunnels)
     for (const sphere of colliders) {
       const minimum: number = sphere.radius + d.hitRadius;
-      const away: IAutoMovieVector3 = Vector3.subtract(next, sphere.center);
-      const distance: number = Vector3.length(away);
+      const away: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(next, sphere.center);
+      const distance: number = AutoMovieEngineVector3.length(away);
       if (distance < minimum)
-        next = Vector3.add(
+        next = AutoMovieEngineVector3.add(
           sphere.center,
-          Vector3.scale(
-            distance < 1e-12 ? { x: 0, y: 1, z: 0 } : Vector3.normalize(away),
+          AutoMovieEngineVector3.scale(
+            distance < 1e-12 ? { x: 0, y: 1, z: 0 } : AutoMovieEngineVector3.normalize(away),
             minimum,
           ),
         );
@@ -122,8 +122,8 @@ export const stepSpring: (
       position: IAutoMovieVector3;
       rotation: IAutoMovieQuaternion;
       scale: IAutoMovieVector3;
-    } = Matrix4.decompose(currentM);
-    world.set(id, Matrix4.compose(next, dec.rotation, dec.scale));
+    } = AutoMovieEngineMatrix4.decompose(currentM);
+    world.set(id, AutoMovieEngineMatrix4.compose(next, dec.rotation, dec.scale));
   }
 };
 
@@ -136,15 +136,15 @@ const readCenterDelta: (
   world: Map<string, number[]>,
   state: IAutoMovieSpringState,
 ): IAutoMovieVector3 => {
-  if (d.center === null) return Vector3.create();
+  if (d.center === null) return AutoMovieEngineVector3.create();
 
-  const center: IAutoMovieVector3 = Matrix4.position(
+  const center: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(
     readWorld(world, d.center, "center", "spring driver"),
   );
   const key: string = JSON.stringify([d.center, d.chain]);
   const prev: IAutoMovieVector3 = state.centers.get(key) ?? center;
   state.centers.set(key, center);
-  return Vector3.subtract(center, prev);
+  return AutoMovieEngineVector3.subtract(center, prev);
 };
 
 const validateSpringInputs: (d: IAutoMovieSpringDriver, dt: number) => void = (
@@ -174,7 +174,7 @@ const validateSpringInputs: (d: IAutoMovieSpringDriver, dt: number) => void = (
     throw new Error(
       `spring driver gravityPower must be non-negative, but was ${d.gravityPower}`,
     );
-  if (Vector3.length(d.gravityDir) === 0)
+  if (AutoMovieEngineVector3.length(d.gravityDir) === 0)
     throw new Error("spring driver gravityDir must be non-zero");
 };
 

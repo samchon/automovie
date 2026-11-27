@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Turn a solved sun position into the unit world direction from the site toward
@@ -27,28 +27,28 @@ import { Vector3 } from "../../math/Vector3";
 export function autoMovieSunDirection(
   props: IAutoMovieSunDirection.IProps,
 ): IAutoMovieVector3 {
-  const up: IAutoMovieVector3 = Vector3.normalize(props.context.ground.up);
+  const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(props.context.ground.up);
   const north: IAutoMovieVector3 = props.context.north;
-  const horizontal: IAutoMovieVector3 = Vector3.subtract(
+  const horizontal: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     north,
-    Vector3.scale(up, Vector3.dot(north, up)),
+    AutoMovieEngineVector3.scale(up, AutoMovieEngineVector3.dot(north, up)),
   );
-  if (!(Vector3.length(horizontal) > PARALLEL * Vector3.length(north)))
+  if (!(AutoMovieEngineVector3.length(horizontal) > PARALLEL * AutoMovieEngineVector3.length(north)))
     throw new Error(
       "autoMovieSunDirection: context.north is parallel to context.ground.up, so it names no heading on the ground plane.",
     );
 
-  const heading: IAutoMovieVector3 = Vector3.normalize(horizontal);
-  const east: IAutoMovieVector3 = Vector3.cross(heading, up);
+  const heading: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(horizontal);
+  const east: IAutoMovieVector3 = AutoMovieEngineVector3.cross(heading, up);
   const azimuth: number = (props.position.azimuth * Math.PI) / 180;
   const elevation: number = (props.position.elevation * Math.PI) / 180;
   const level: number = Math.cos(elevation);
-  return Vector3.add(
-    Vector3.add(
-      Vector3.scale(heading, level * Math.cos(azimuth)),
-      Vector3.scale(east, level * Math.sin(azimuth)),
+  return AutoMovieEngineVector3.add(
+    AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(heading, level * Math.cos(azimuth)),
+      AutoMovieEngineVector3.scale(east, level * Math.sin(azimuth)),
     ),
-    Vector3.scale(up, Math.sin(elevation)),
+    AutoMovieEngineVector3.scale(up, Math.sin(elevation)),
   );
 }
 

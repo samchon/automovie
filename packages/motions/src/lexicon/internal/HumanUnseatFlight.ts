@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -15,7 +15,7 @@ export function HumanUnseatFlight(
   push: IAutoMovieVector3,
   floor: number,
 ): HumanUnseatFlight.IFlight {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const drop: number = origin.y - floor;
   // In the push phase the height above the landing is drop + vy t + (py / (2 TAKE) - g / 2) t^2.
   const a: number = push.y / (2 * HumanUnseatFlight.TAKE) - g / 2;
@@ -51,7 +51,7 @@ export function HumanUnseatFlight(
     land,
     landed,
     slide: level,
-    stop: Vector3.length(level) / (HumanUnseatFlight.FRICTION * g),
+    stop: AutoMovieEngineVector3.length(level) / (HumanUnseatFlight.FRICTION * g),
   };
 }
 
@@ -129,11 +129,11 @@ export namespace HumanUnseatFlight {
         Math.max(0, t),
       );
     const s: number = Math.min(flight.stop, t - flight.land);
-    const speed: number = Vector3.length(flight.slide);
+    const speed: number = AutoMovieEngineVector3.length(flight.slide);
     if (speed < 1e-9) return flight.landed;
     const run: number =
-      speed * s - 0.5 * FRICTION * AutoMovieGravity.STANDARD * s * s;
-    return Vector3.add(flight.landed, Vector3.scale(flight.slide, run / speed));
+      speed * s - 0.5 * FRICTION * AutoMovieEngineGravity.STANDARD * s * s;
+    return AutoMovieEngineVector3.add(flight.landed, AutoMovieEngineVector3.scale(flight.slide, run / speed));
   }
 }
 
@@ -146,7 +146,7 @@ function position(
   push: IAutoMovieVector3,
   t: number,
 ): IAutoMovieVector3 {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const built: number = Math.min(t, HumanUnseatFlight.TAKE);
   const after: number = Math.max(0, t - HumanUnseatFlight.TAKE);
   // The push's displacement: t^2 / (2 TAKE) while it builds, then its full velocity.

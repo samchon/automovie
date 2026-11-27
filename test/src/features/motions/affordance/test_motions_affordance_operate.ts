@@ -1,5 +1,13 @@
 import type { IAutoMovieMotionHumanOperateState, IAutoMovieMotionTarget } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, operateLongInsertCourse, operateState } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  operateLongInsertCourse
+} from "../../../../../packages/motions/src/affordance/internal/operateLongInsertCourse";
+import {
+  operateState
+} from "../../../../../packages/motions/src/affordance/internal/operateState";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

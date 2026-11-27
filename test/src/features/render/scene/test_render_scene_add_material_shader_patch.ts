@@ -1,5 +1,5 @@
 import {
-  type IMaterialShaderPatch,
+  type IAutoMovieRenderMaterialShaderPatch,
   AutoMovieRenderMaterial,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -18,13 +18,13 @@ import { MeshBasicMaterial } from "three";
 export function test_render_scene_add_material_shader_patch(): void {
   const material: MeshBasicMaterial = new MeshBasicMaterial();
   const untouched: MeshBasicMaterial = new MeshBasicMaterial();
-  const first: IMaterialShaderPatch = { key: "first", apply: () => {} };
-  const second: IMaterialShaderPatch = { key: "second", apply: () => {} };
-  const replacement: IMaterialShaderPatch = { key: "first", apply: () => {} };
+  const first: IAutoMovieRenderMaterialShaderPatch = { key: "first", apply: () => {} };
+  const second: IAutoMovieRenderMaterialShaderPatch = { key: "second", apply: () => {} };
+  const replacement: IAutoMovieRenderMaterialShaderPatch = { key: "first", apply: () => {} };
 
   AutoMovieRenderMaterial.addShaderPatch(material, first);
   AutoMovieRenderMaterial.addShaderPatch(material, second);
-  const original: readonly IMaterialShaderPatch[] =
+  const original: readonly IAutoMovieRenderMaterialShaderPatch[] =
     AutoMovieRenderMaterial.readShaderPatches(material);
   TestValidator.predicate(
     "original registration order",
@@ -37,7 +37,7 @@ export function test_render_scene_add_material_shader_patch(): void {
   );
 
   AutoMovieRenderMaterial.addShaderPatch(material, replacement);
-  const registered: readonly IMaterialShaderPatch[] =
+  const registered: readonly IAutoMovieRenderMaterialShaderPatch[] =
     AutoMovieRenderMaterial.readShaderPatches(material);
   TestValidator.predicate(
     "replacement is unique and last",

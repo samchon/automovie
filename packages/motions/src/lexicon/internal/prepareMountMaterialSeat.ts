@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSeated, IAutoMoviePhysicalShape, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { seated } from "../../everyday/internal/seated";
@@ -9,7 +9,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { prepareMountSeat } from "./prepareMountSeat";
-import * as PrepareMountMaterialSeatData from "./PrepareMountMaterialSeatData";
+import { PrepareMountMaterialSeatData } from "./PrepareMountMaterialSeatData";
 
 /*
  * Prepare the seat goal of an astride mount whose two actual stirrup treads
@@ -266,9 +266,9 @@ function bind(
       fix: "use a saddle with a larger clear bearing surface for this rider",
     });
 
-  const target: IAutoMovieVector3 = Vector3.add(
+  const target: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     world.position,
-    Quaternion.rotateVector(world.rotation, admitted.point),
+    AutoMovieEngineQuaternion.rotateVector(world.rotation, admitted.point),
   );
   // The root writer names the rest-frame seat socket. Retain the actual posed
   // anatomical socket even when hips angles displace it from that reference.
@@ -281,9 +281,9 @@ function bind(
     domain: admitted,
     affordances,
     shapes,
-    goal: Vector3.add(
+    goal: AutoMovieEngineVector3.add(
       target,
-      Vector3.subtract(seated.socket(context.body, posture), point),
+      AutoMovieEngineVector3.subtract(seated.socket(context.body, posture), point),
     ),
   };
 }
@@ -322,17 +322,17 @@ function top(
   const roundoff: number =
     64 *
     Number.EPSILON *
-    Math.max(1, depth, halfWidth, Vector3.length(pose.position));
+    Math.max(1, depth, halfWidth, AutoMovieEngineVector3.length(pose.position));
   if (
-    Vector3.distance(Quaternion.rotateVector(pose.rotation, PrepareMountMaterialSeatData.UP), PrepareMountMaterialSeatData.UP) > roundoff
+    AutoMovieEngineVector3.distance(AutoMovieEngineQuaternion.rotateVector(pose.rotation, PrepareMountMaterialSeatData.UP), PrepareMountMaterialSeatData.UP) > roundoff
   )
     return false;
   const half: IAutoMovieVector3 = shape.halfExtents;
   for (const x of [-half.x, half.x])
     for (const z of [-half.z, half.z]) {
-      const corner: IAutoMovieVector3 = Vector3.add(
+      const corner: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         pose.position,
-        Quaternion.rotateVector(pose.rotation, { x, y: half.y, z }),
+        AutoMovieEngineQuaternion.rotateVector(pose.rotation, { x, y: half.y, z }),
       );
       if (
         Math.abs(corner.y) > roundoff ||

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 /*
@@ -40,57 +40,57 @@ export namespace HumanPropHold {
     const turn: (h: IHand) => IAutoMovieQuaternion = (
       h: IHand,
     ): IAutoMovieQuaternion =>
-      Quaternion.normalize(
-        Quaternion.multiply(h.hand.rotation, h.offset.rotation),
+      AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(h.hand.rotation, h.offset.rotation),
       );
     // Where each socket is on the prop: the hand's origin in the prop's frame.
     const local: (h: IHand) => IAutoMovieVector3 = (
       h: IHand,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.inverse(h.offset.rotation),
-        Vector3.scale(h.offset.position, -1),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(h.offset.rotation),
+        AutoMovieEngineVector3.scale(h.offset.position, -1),
       );
-    const blended: IAutoMovieQuaternion = Quaternion.slerp(
+    const blended: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
       turn(a),
       turn(b),
       0.5,
     );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       blended,
-      Vector3.subtract(local(b), local(a)),
+      AutoMovieEngineVector3.subtract(local(b), local(a)),
     );
-    const between: IAutoMovieVector3 = Vector3.subtract(
+    const between: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       b.hand.position,
       a.hand.position,
     );
-    const axis: IAutoMovieVector3 = Vector3.cross(along, between);
-    const sine: number = Vector3.length(axis);
-    const cosine: number = Vector3.dot(along, between);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(along, between);
+    const sine: number = AutoMovieEngineVector3.length(axis);
+    const cosine: number = AutoMovieEngineVector3.dot(along, between);
     const rotation: IAutoMovieQuaternion =
-      Vector3.length(along) < 1e-9 ||
-      Vector3.length(between) < 1e-9 ||
+      AutoMovieEngineVector3.length(along) < 1e-9 ||
+      AutoMovieEngineVector3.length(between) < 1e-9 ||
       (sine < 1e-9 && cosine > 0)
         ? blended
-        : Quaternion.normalize(
-            Quaternion.multiply(
+        : AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(
               sine < 1e-9
-                ? Quaternion.fromAxisAngle(across(blended, along), 180)
-                : Quaternion.fromAxisAngle(
-                    Vector3.scale(axis, 1 / sine),
+                ? AutoMovieEngineQuaternion.fromAxisAngle(across(blended, along), 180)
+                : AutoMovieEngineQuaternion.fromAxisAngle(
+                    AutoMovieEngineVector3.scale(axis, 1 / sine),
                     (Math.atan2(sine, cosine) * 180) / Math.PI,
                   ),
               blended,
             ),
           );
-    const middle: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(local(a), local(b)),
+    const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.add(local(a), local(b)),
       0.5,
     );
     return {
-      position: Vector3.subtract(
-        Vector3.scale(Vector3.add(a.hand.position, b.hand.position), 0.5),
-        Quaternion.rotateVector(rotation, middle),
+      position: AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(a.hand.position, b.hand.position), 0.5),
+        AutoMovieEngineQuaternion.rotateVector(rotation, middle),
       ),
       rotation,
     };
@@ -132,16 +132,16 @@ export namespace HumanPropHold {
     blended: IAutoMovieQuaternion,
     along: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const unit: IAutoMovieVector3 = Vector3.normalize(along);
+    const unit: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(along);
     const off: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
       local: IAutoMovieVector3,
     ): IAutoMovieVector3 => {
-      const v: IAutoMovieVector3 = Quaternion.rotateVector(blended, local);
-      return Vector3.subtract(v, Vector3.scale(unit, Vector3.dot(v, unit)));
+      const v: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(blended, local);
+      return AutoMovieEngineVector3.subtract(v, AutoMovieEngineVector3.scale(unit, AutoMovieEngineVector3.dot(v, unit)));
     };
     const up: IAutoMovieVector3 = off({ x: 0, y: 1, z: 0 });
-    return Vector3.normalize(
-      Vector3.length(up) < 1e-9 ? off({ x: 1, y: 0, z: 0 }) : up,
+    return AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.length(up) < 1e-9 ? off({ x: 1, y: 0, z: 0 }) : up,
     );
   }
 }

@@ -1,6 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { footStrikeChamber } from "@automovie/motions/internal";
+import {
+  footStrikeChamber
+} from "../../../../../packages/motions/src/striking/internal/footStrikeChamber";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -37,16 +39,16 @@ export function test_motions_striking_foot_strike_chamber(): void {
         1e-12,
       ),
   );
-  const hook: IAutoMovieVector3 = Vector3.subtract(
+  const hook: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     footStrikeChamber({ ...BASE, technique: "hook" }),
     BASE.hip,
   );
   TestValidator.predicate(
     "across",
-    nclose(Vector3.length(hook), 0.8 * Math.sqrt(0.265), 1e-12) &&
+    nclose(AutoMovieEngineVector3.length(hook), 0.8 * Math.sqrt(0.265), 1e-12) &&
       vclose(
-        Vector3.normalize(hook),
-        Vector3.normalize({ x: 0, y: -0.9, z: -0.3 }),
+        AutoMovieEngineVector3.normalize(hook),
+        AutoMovieEngineVector3.normalize({ x: 0, y: -0.9, z: -0.3 }),
         1e-12,
       ),
   );

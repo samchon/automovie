@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -139,11 +139,11 @@ function planWrite(
 
   // The surface frame turns the planar vertices into world targets once.
   const frame: IAutoMovieRigidTransform = support.frame(context.start);
-  const origin: IAutoMovieVector3 = Vector3.add(
+  const origin: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     frame.position,
-    Quaternion.rotateVector(frame.rotation, surface.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(frame.rotation, surface.frame.translation),
   );
-  const facing: IAutoMovieQuaternion = Quaternion.multiply(
+  const facing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     frame.rotation,
     surface.frame.rotation,
   );
@@ -161,16 +161,16 @@ function planWrite(
           "a stroke vertex falls outside the surface's declared rectangle",
         fix: "place the entire stroke inside the surface's width and depth",
       });
-    const point: IAutoMovieVector3 = Vector3.add(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       origin,
-      Quaternion.rotateVector(facing, { x, y: 0, z }),
+      AutoMovieEngineQuaternion.rotateVector(facing, { x, y: 0, z }),
     );
     const previous: IVertex | undefined = vertices.at(-1);
     const length: number =
       previous === undefined
         ? 0
         : previous.length +
-          Vector3.length(Vector3.subtract(point, previous.point));
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, previous.point));
     if (previous !== undefined && !(length > previous.length))
       throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
@@ -187,15 +187,15 @@ function planWrite(
   // A rigid hold composes the wrist rotation before the stored prop turn.
   // The working point is the carried tip, measured from the wrist joint.
   const toolFrame: IAutoMovieRigidTransform = tool.frame(context.entry.seconds);
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
       toolFrame.rotation,
-      Quaternion.inverse(held.frame.rotation),
+      AutoMovieEngineQuaternion.inverse(held.frame.rotation),
     ),
   );
   const tip: IAutoMovieMotionHumanHeld.IPointResult =
     AutoMovieMotionHumanHeld.point(held, p.tip);
-  const contact: IAutoMovieVector3 = Vector3.add(
+  const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     HumanHand.offset(context.body, side, "grip").point,
     tip.point,
   );
@@ -203,9 +203,9 @@ function planWrite(
     (affordance: IAutoMovieAffordance): boolean => affordance.id === p.tip,
   )!;
   writeAdmission.tip(tool.prop, site);
-  const entered: IAutoMovieVector3 = Vector3.add(
+  const entered: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     toolFrame.position,
-    Quaternion.rotateVector(toolFrame.rotation, site.frame.translation),
+    AutoMovieEngineQuaternion.rotateVector(toolFrame.rotation, site.frame.translation),
   );
   const tempo: number = context.tempo ?? 1;
   const writing: number = p.duration * tempo;
@@ -213,13 +213,13 @@ function planWrite(
     prepare:
       tempo *
       AutoMovieMotionHumanTiming.transport(
-        Vector3.length(Vector3.subtract(first.point, entered)),
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(first.point, entered)),
       ),
     attack: writing,
     retract:
       tempo *
       AutoMovieMotionHumanTiming.transport(
-        Vector3.length(Vector3.subtract(last.point, entered)),
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(last.point, entered)),
       ),
   });
   const ready: number = clock.at("strokeStart");
@@ -244,18 +244,18 @@ function planWrite(
           facing,
           {
             point: first.point,
-            lever: Quaternion.rotateVector(rotation, contact),
+            lever: AutoMovieEngineQuaternion.rotateVector(rotation, contact),
           },
           {
             point: aim.target,
-            lever: Quaternion.rotateVector(aim.rotation, aim.contact),
+            lever: AutoMovieEngineQuaternion.rotateVector(aim.rotation, aim.contact),
           },
           vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
         );
   const asked: IAutoMovieQuaternion =
     turns === undefined
       ? rotation
-      : Quaternion.normalize(Quaternion.multiply(turns.stroke, rotation));
+      : AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.multiply(turns.stroke, rotation));
   // A turn of the hand about the line from the wrist to the tip keeps the tip
   // where the stroke puts it, so that turn is the hand's to choose: the one
   // nearest the asked attitude that the forearm's twist and the wrist meet on
@@ -263,7 +263,7 @@ function planWrite(
   // (`AutoMovieMotionHumanArmReach.attitude`; Tolani, Goswami and Badler 2000,
   // section 3.2.4), not the pick-up's attitude carried into a stroke its arm
   // meets only at an arc's edge.
-  const reach: IAutoMovieVector3 = Quaternion.rotateVector(asked, contact);
+  const reach: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(asked, contact);
   const holding: IAutoMovieQuaternion = AutoMovieMotionHumanArmReach.attitude({
     body: context.body,
     posture: context.entry.posture,
@@ -271,10 +271,10 @@ function planWrite(
     bend,
     requested: asked,
     axis: reach,
-    wrist: (): IAutoMovieVector3 => Vector3.subtract(first.point, reach),
+    wrist: (): IAutoMovieVector3 => AutoMovieEngineVector3.subtract(first.point, reach),
     name: "tool",
   }).rotation;
-  const lever: IAutoMovieVector3 = Quaternion.rotateVector(holding, contact);
+  const lever: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(holding, contact);
   writeWith.reach(
     context,
     side,
@@ -316,7 +316,7 @@ function planWrite(
       _posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieHumanLimbGoal => ({
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         strokePoint(vertices, last.length * ((seconds - ready) / writing)),
         lever,
       ),
@@ -426,7 +426,7 @@ function strokePoint(
   }
   const a: IVertex = path[first]!;
   const b: IVertex = path[last]!;
-  return Vector3.lerp(
+  return AutoMovieEngineVector3.lerp(
     a.point,
     b.point,
     AutoMovieMotionInterval.progress(a.length, b.length, distance),

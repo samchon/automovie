@@ -6,7 +6,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 import { rangeSteppingFoot } from "./rangeSteppingFoot";
-import * as JumpGroundPostureData from "./JumpGroundPostureData";
+import { JumpGroundPostureData } from "./JumpGroundPostureData";
 
 /*
  * Fit the reaching foot during push-off and clear the arms against the bent

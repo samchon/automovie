@@ -1,5 +1,5 @@
-export type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
-export * from "./RigidCarrierSample";
+export type * from "./AutoMovieEngineKinematicsTypes";
+export * from "./AutoMovieEngineRigidCarrierSample";
 export * from "./AutoMovieEngineKinematics";
 export * from "./AutoMovieEngineSkeletonPose";
 export * from "./AutoMovieEngineKinematicsChains";
@@ -11,7 +11,6 @@ export * from "./AutoMovieEngineKinematicsJointRotation";
 
 
 
-export * from "./constants";
 
 
 
@@ -20,7 +19,7 @@ export * from "./constants";
 
 
 
-export * from "./hingedArmSwivel";
+export * from "./AutoMovieEngineHingedArmSwivel";
 
 
 
@@ -37,17 +36,17 @@ export * from "./hingedArmSwivel";
 
 
 
-export * from "./AutoMovieHumanoidSurfaceRays";
-export * from "./AutoMovieHumanoidSurfaceRegions";
+export * from "./AutoMovieEngineHumanoidSurfaceRays";
+export * from "./AutoMovieEngineHumanoidSurfaceRegions";
 
 
 
 
 
-export * from "./swingTwistBasis";
-export * from "./swingTwistRange";
-export * from "./swingTwistRegion";
-export * from "./swivelArcs";
+export * from "./AutoMovieEngineSwingTwistBasis";
+export * from "./AutoMovieEngineSwingTwistRange";
+export * from "./AutoMovieEngineSwingTwistRegion";
+export * from "./AutoMovieEngineSwivelArcs";
 
 
 
@@ -55,7 +54,11 @@ export * from "./swivelArcs";
 
 
 
-export * from "./distalEndSwivelReadings";
-export * from "./distalTwistSwivelRange";
+export * from "./AutoMovieEngineDistalEndSwivelReadings";
+export * from "./AutoMovieEngineDistalTwistSwivelRange";
 
-export * from "./swivelJointReadings";
+export * from "./AutoMovieEngineSwivelJointReadings";
+export * from "./AutoMovieEngineDefaultJointAxes";
+export * from "./AutoMovieEngineGazePresetChannels";
+export * from "./AutoMovieEngineHumanoidJointAxes";
+export * from "./AutoMovieEngineSkeletonRootParent";

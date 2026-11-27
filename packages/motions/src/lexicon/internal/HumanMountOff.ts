@@ -1,4 +1,4 @@
-import {Quaternion, Vector3, AutoMovieEngineMotionSampling} from "@automovie/engine";
+import {AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -262,7 +262,7 @@ export namespace HumanMountOff {
         const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           (t - seatOff) / (leanAt - seatOff),
         );
-        const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+        const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
           carriedSeat.end.rotation,
           peakRotation,
           share,
@@ -279,12 +279,12 @@ export namespace HumanMountOff {
           humanPostureHeading.angles(
             moving === undefined
               ? rotation
-              : Quaternion.multiply(moving.rotation, rotation),
+              : AutoMovieEngineQuaternion.multiply(moving.rotation, rotation),
           );
         const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
         for (const { bone, read } of trunk) joints[bone] = read(share);
         return {
-          root: moving === undefined ? root : Vector3.add(root, moving.position),
+          root: moving === undefined ? root : AutoMovieEngineVector3.add(root, moving.position),
           ...heading,
           joints,
         };
@@ -310,8 +310,8 @@ export namespace HumanMountOff {
       ankle: IAutoMovieVector3,
     ): number => {
       const frame: Frame = frameAt(t);
-      return Vector3.length(
-        Vector3.subtract(
+      return AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           ankle,
           hipJoints(
             body,
@@ -528,12 +528,12 @@ export namespace HumanMountOff {
             limbs[limb] = tipped;
             continue;
           }
-          const ankle: IAutoMovieVector3 = Vector3.lerp(
+          const ankle: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
             flightGoal.point,
             tipped.point,
             share,
           );
-          const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+          const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
             carried.end.rotation,
             tipped.rotation!,
             share,
@@ -543,22 +543,22 @@ export namespace HumanMountOff {
           ]?.(t - departs);
           const point: IAutoMovieVector3 = moving === undefined
             ? ankle
-            : Vector3.add(ankle, moving.position);
+            : AutoMovieEngineVector3.add(ankle, moving.position);
           limbs[limb] = {
             ...tipped,
             point,
             rotation:
               moving === undefined
                 ? rotation
-                : Quaternion.multiply(moving.rotation, rotation),
+                : AutoMovieEngineQuaternion.multiply(moving.rotation, rotation),
             bend:
               moving === undefined
                 ? tipped.bend
-                : Vector3.add(
+                : AutoMovieEngineVector3.add(
                     point,
-                    Quaternion.rotateVector(
+                    AutoMovieEngineQuaternion.rotateVector(
                       moving.rotation,
-                      Vector3.subtract(tipped.bend, ankle),
+                      AutoMovieEngineVector3.subtract(tipped.bend, ankle),
                     ),
                   ),
           };

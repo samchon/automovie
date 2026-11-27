@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -122,7 +122,7 @@ export namespace EquineFlightClock {
     const ends: readonly [IAim, IAim] = [aim(lifted, 0), aim(landed, 1)];
     const from: AutoMovieArchetypeQuadrupedFooting.ISurface = floor(ends[0]);
     const to: AutoMovieArchetypeQuadrupedFooting.ISurface = floor(ends[1]);
-    const carried: IAutoMovieVector3 = Vector3.lerp(
+    const carried: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       from.point,
       to.point,
       along,
@@ -133,25 +133,25 @@ export namespace EquineFlightClock {
       state: AutoMovieArchetypeCourse.IState,
       local: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(state.placement.rotation, local);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      AutoMovieEngineQuaternion.rotateVector(state.placement.rotation, local);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       current.placement.rotation,
     );
-    const ground: IAutoMovieVector3 = Quaternion.rotateVector(
+    const ground: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(
-        Vector3.lerp(
-          Vector3.add(lifted.placement.translation, world(lifted, from.point)),
-          Vector3.add(landed.placement.translation, world(landed, to.point)),
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.lerp(
+          AutoMovieEngineVector3.add(lifted.placement.translation, world(lifted, from.point)),
+          AutoMovieEngineVector3.add(landed.placement.translation, world(landed, to.point)),
           along,
         ),
         current.placement.translation,
       ),
     );
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.lerp(
+        AutoMovieEngineVector3.lerp(
           world(lifted, from.normal),
           world(landed, to.normal),
           along,
@@ -159,19 +159,19 @@ export namespace EquineFlightClock {
       ),
     );
     // A contact below that ground is raised onto it along its normal.
-    const contact: IAutoMovieVector3 = Vector3.addScaled(
+    const contact: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       carried,
       normal,
-      Math.max(0, Vector3.dot(Vector3.subtract(ground, carried), normal)),
+      Math.max(0, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(ground, carried), normal)),
     );
     return {
       ...(ends[0].x === undefined || ends[1].x === undefined
         ? {}
         : { x: contact.x }),
       z: contact.z,
-      orientation: Quaternion.slerp(
-        ends[0].orientation ?? Quaternion.identity(),
-        ends[1].orientation ?? Quaternion.identity(),
+      orientation: AutoMovieEngineQuaternion.slerp(
+        ends[0].orientation ?? AutoMovieEngineQuaternion.identity(),
+        ends[1].orientation ?? AutoMovieEngineQuaternion.identity(),
         along,
       ),
       surface: { point: contact, normal },

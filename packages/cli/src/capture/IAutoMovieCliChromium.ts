@@ -1,4 +1,4 @@
-import type { IAutoMovieDrawPage } from "@automovie/render";
+import type { IAutoMovieRenderDrawPage } from "@automovie/render";
 import type { IAutoMovieCliChromiumLaunchOptions } from "./IAutoMovieCliChromiumLaunchOptions";
 
 /**
@@ -23,7 +23,7 @@ export namespace IAutoMovieCliChromium {
 
     /** Open a fresh page. */
     newPage(): Promise<
-      IAutoMovieDrawPage & {
+      IAutoMovieRenderDrawPage & {
         /**
          * Optional browser diagnostics; portable draw-only drivers need not
          * emit browser events.

@@ -1,6 +1,8 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanStrikingStroke } from "@automovie/interface";
-import { StrikingStroke } from "@automovie/motions/internal";
+import {
+  StrikingStroke
+} from "../../../../../packages/motions/src/striking/internal/StrikingStroke";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanCalibrationBone,
@@ -230,7 +230,7 @@ function nearest(
   let best: number = start(chain);
   let least: number = Infinity;
   for (const layer of chain.layers) {
-    const a: [number, number, number] = AutoMovieLoftChain.axis(chain, layer.y);
+    const a: [number, number, number] = AutoMovieEngineLoftChain.axis(chain, layer.y);
     const d: number = Math.hypot(a[0] - p[0], a[1] - p[1], a[2] - p[2]);
     if (d < least) {
       least = d;
@@ -244,7 +244,7 @@ function nearest(
  * Girth radius, perimeter / 2pi, of the section at a station clamped into the chain.
  */
 function girth(chain: IAutoMovieLoftChain, s: number): number {
-  const ring: [number, number, number][] = AutoMovieLoftChain.ring(
+  const ring: [number, number, number][] = AutoMovieEngineLoftChain.ring(
     chain,
     Math.min(stop(chain), Math.max(start(chain), s)),
     PHASES,

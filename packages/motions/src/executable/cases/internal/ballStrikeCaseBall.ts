@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
@@ -23,7 +23,7 @@ export function ballStrikeCaseBall(
       {
         id: "grip",
         kind: "handle",
-        frame: Transform.identity(),
+        frame: AutoMovieEngineTransform.identity(),
         extent: null,
         grip: "power",
         aperture: 2 * radius,

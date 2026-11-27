@@ -1,6 +1,6 @@
 import type { IAutoMovieFilmShading, IAutoMovieIrradianceVolume } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieFilmIndirectRenderer } from "./IAutoMovieFilmIndirectRenderer.js";
+import type { IAutoMovieRenderFilmIndirectRenderer } from "./IAutoMovieRenderFilmIndirectRenderer.js";
 import { bakeAutoMovieFilmProbesImplementation } from "./filmShading/internal/bakeAutoMovieFilmProbesImplementation.js";
 import { applyFilmIndirectPatch as applyFilmIndirectPatchImplementation } from "./filmShading/internal/applyFilmIndirectPatch.js";
 
@@ -31,7 +31,7 @@ export namespace AutoMovieRenderFilmShading {
    */
   export function bakeProbes(props: {
     /** The renderer, with its read-back members. */
-    renderer: IAutoMovieFilmIndirectRenderer;
+    renderer: IAutoMovieRenderFilmIndirectRenderer;
 
     /** The scene placed at the drawn second. */
     scene: THREE.Scene;

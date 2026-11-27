@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryCameraChartCreationOperation } from "@automovie/interface";
 
 /*
@@ -44,11 +44,11 @@ export function createRecoveryCameraChart(
   const tolerance: number =
     256 * Number.EPSILON * Math.max(1, view.width, view.height);
   for (const point of coordinates) {
-    const ray: [number, number, number] = AutoMovieMatrix3.apply(inverse, [
+    const ray: [number, number, number] = AutoMovieEngineMatrix3.apply(inverse, [
       ...point,
       1,
     ]);
-    const back: [number, number, number] = AutoMovieMatrix3.apply(matrix, ray);
+    const back: [number, number, number] = AutoMovieEngineMatrix3.apply(matrix, ray);
     if (
       Math.abs(back[0] - point[0]) > tolerance ||
       Math.abs(back[1] - point[1]) > tolerance ||

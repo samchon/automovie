@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { classifyGrammarShotSize } from "./classifyGrammarShotSize";
-import { GRAMMAR_EPSILON } from "../GRAMMAR_EPSILON";
+import { AutoMovieEngineGrammarEpsilon } from "../AutoMovieEngineGrammarEpsilon";
 import { projectToNdc } from "./projectToNdc";
 
 /*
@@ -48,13 +48,13 @@ export function measureGrammarShotSize(
     halfY,
     camera.aspect,
   );
-  if (base.depth <= GRAMMAR_EPSILON || top.depth <= GRAMMAR_EPSILON)
+  if (base.depth <= AutoMovieEngineGrammarEpsilon || top.depth <= AutoMovieEngineGrammarEpsilon)
     return null;
   const vertical: number = Math.abs(top.ndcY - base.ndcY) / 2;
   const horizontal: number =
     subject.radius / (base.depth * halfY * camera.aspect);
   const occupancy: number = Math.max(vertical, horizontal);
-  return occupancy <= GRAMMAR_EPSILON
+  return occupancy <= AutoMovieEngineGrammarEpsilon
     ? null
     : classifyGrammarShotSize(occupancy);
 }

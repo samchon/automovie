@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeStartingGateData from "./internal/AutoMovieArchetypeStartingGateData";
+import { AutoMovieArchetypeStartingGateData } from "./internal/AutoMovieArchetypeStartingGateData";
 
 /** Constructs the starting gate archetype from its recipe. */
 export namespace AutoMovieArchetypeStartingGate {
@@ -85,7 +85,7 @@ export function create(
     name: `starting gate of ${stalls} stalls`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const width: number = stalls * d.pitch;
   const clear: number = d.pitch - d.partition;
   const leaf: number = clear / 2;

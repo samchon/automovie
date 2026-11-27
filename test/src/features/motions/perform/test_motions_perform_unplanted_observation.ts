@@ -2,7 +2,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
 } from "@automovie/interface";
-import { unplantedHumanObservation } from "@automovie/motions/internal";
+import {
+  unplantedHumanObservation
+} from "../../../../../packages/motions/src/perform/internal/unplantedHumanObservation";
 import { TestValidator } from "@nestia/e2e";
 
 /** A goal at a height, planted or not. */

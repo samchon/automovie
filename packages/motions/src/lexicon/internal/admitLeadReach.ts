@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanMountRider,
@@ -26,16 +26,16 @@ export function admitLeadReach(
   const effector: IAutoMovieVector3 =
     contact === undefined
       ? hand.worldPosition
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           hand.worldPosition,
-          Quaternion.rotateVector(hand.worldRotation, contact),
+          AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, contact),
         );
-  const skin: IAutoMovieVector3 = Vector3.addScaled(
+  const skin: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     lead.point,
     lead.normal,
     lead.radius ?? 0,
   );
-  const distance: number = Vector3.distance(effector, skin);
+  const distance: number = AutoMovieEngineVector3.distance(effector, skin);
   if (!(distance <= LIMIT))
     throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",

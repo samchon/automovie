@@ -8,7 +8,7 @@ import type {
 
 import { parseAutoMovieInspectionRequest } from "../../scene/inspection/internal/parseAutoMovieInspectionRequest.js";
 import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/parseAutoMovieInspectionView.js";
-import { AUTO_MOVIE_CAPTURE_PLAN_KEYS } from "../AUTO_MOVIE_CAPTURE_PLAN_KEYS.js";
+import { AutoMovieRenderCapturePlanKeys } from "../AutoMovieRenderCapturePlanKeys.js";
 
 /*
  * Read a capture plan request from named text values, the one reader every host
@@ -17,7 +17,7 @@ import { AUTO_MOVIE_CAPTURE_PLAN_KEYS } from "../AUTO_MOVIE_CAPTURE_PLAN_KEYS.js
  * passes its props as text.
  *
  * A key given without a value reads as the empty string, which turns a switch
- * on. `AUTO_MOVIE_CAPTURE_PLAN_KEYS` lists every key and
+ * on. `AutoMovieRenderCapturePlanKeys` lists every key and
  * `formatAutoMovieCapturePlanRequest` writes a request back. The inspection
  * keys are read by `parseAutoMovieInspectionRequest`.
  *
@@ -63,7 +63,7 @@ export function parseAutoMovieCapturePlanRequest(
   for (const key of source.keys()) {
     if (!KNOWN.has(key))
       throw new Error(
-        `Capture key "${key}" is not one of ${AUTO_MOVIE_CAPTURE_PLAN_KEYS.join(", ")}`,
+        `Capture key "${key}" is not one of ${AutoMovieRenderCapturePlanKeys.join(", ")}`,
       );
     if (given.has(key)) throw new Error(`Capture key "${key}" is given twice`);
     given.add(key);
@@ -172,7 +172,7 @@ export function parseAutoMovieCapturePlanRequest(
 /*
  * Every key the reader admits, for constant-time lookup.
  */
-const KNOWN: ReadonlySet<string> = new Set(AUTO_MOVIE_CAPTURE_PLAN_KEYS);
+const KNOWN: ReadonlySet<string> = new Set(AutoMovieRenderCapturePlanKeys);
 
 /*
  * Stills per second of an even sampling when none is asked: five, the sparser

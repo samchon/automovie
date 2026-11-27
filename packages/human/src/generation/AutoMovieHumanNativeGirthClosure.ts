@@ -1,5 +1,5 @@
 import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
-import { AutoMovieEnginePlanarHull, AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEnginePlanarHull, AutoMovieEngineViewChain } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicSection,
@@ -56,7 +56,7 @@ export namespace AutoMovieHumanNativeGirthClosure {
     if (section.fault !== null) throw new Error("girth closure: the section is not admitted: " + section.fault);
     const points: AutoMovieVector2Tuple[] = Array.from({ length: PHASES }, (_: unknown, k: number): AutoMovieVector2Tuple => {
       const phi: number = (2 * Math.PI * k) / PHASES;
-      const r: number = AutoMovieViewChain.radius(section, phi);
+      const r: number = AutoMovieEngineViewChain.radius(section, phi);
       return [r * Math.cos(phi), r * Math.sin(phi)];
     });
 

@@ -3,9 +3,11 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  workoutContacts,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  workoutContacts
+} from "../../../../../packages/motions/src/exercise/workout/workoutContacts";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,6 +1,5 @@
-import * as motions from "@automovie/motions";
 import { AutoMovieMotionHumanActions } from "@automovie/motions";
-import * as internal from "@automovie/motions/internal";
+import { MotionInventory } from "../../motions/package/MotionInventory";
 
 import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
 import { ArchetypeRegistry } from "../../archetypes/ArchetypeRegistry";
@@ -14,11 +13,6 @@ import type { ISceneChainNames } from "../structures/ISceneChainNames";
  * imports what it uses without loading the packages in the browser.
  */
 export namespace SceneChainNames {
-  /** The packages' exports by name. */
-  const MOTIONS: Readonly<Record<string, unknown>> = {
-    ...(motions as Readonly<Record<string, unknown>>),
-    ...(internal as Readonly<Record<string, unknown>>),
-  };
 
   /**
    * The names a scene's code needs: every row, law, mutual and variant
@@ -28,36 +22,8 @@ export namespace SceneChainNames {
    * @returns The names; no laws when the installed packages cannot build it.
    */
   export function read(composition: IPlaygroundComposition): ISceneChainNames {
-    const rows: Record<string, string> = {};
-    const mutuals: Record<string, string> = Object.fromEntries(
-      Object.entries(PlaygroundChain.mutualExports()).map(
-        ([name, { expression }]): [string, string] => [name, expression],
-      ),
-    );
-    for (const [key, value] of Object.entries(MOTIONS)) {
-      if (typeof value !== "object" || value === null) continue;
-
-      // A law exported on its own, such as `armWrestle`.
-      if (
-        typeof (value as { plan?: unknown }).plan === "function" &&
-        typeof (value as { name?: unknown }).name === "string"
-      ) {
-        rows[(value as { name: string }).name] ??= key;
-        continue;
-      }
-
-      // A namespace of rows, such as `HumanSocial`.
-      for (const [member, inner] of Object.entries(
-        value as Record<string, unknown>,
-      )) {
-        if (typeof inner !== "object" || inner === null) continue;
-        const name: unknown = (inner as { name?: unknown }).name;
-        if (typeof name !== "string") continue;
-        if (typeof (inner as { plan?: unknown }).plan === "function")
-          rows[name] ??= `${key}.${member}`;
-      }
-    }
-    const frames: string[] = [];
+    const rows: Record<string, string> = MotionInventory.rows();
+    const frames: string[] = [];    const frames: string[] = [];
     const formats: string[] = [];
     for (const name of ArchetypeRegistry.rootIds()) {
       const producer: ArchetypeRegistry.IFactory | undefined =

@@ -1,4 +1,4 @@
-import { SHA256_DIGEST_PATTERN } from "@automovie/engine";
+import { AutoMovieEngineSha256DigestPattern } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -79,7 +79,7 @@ export function adoptAutoMovieExternalMotion(
     throw new Error(
       `External motion source byteLength ${props.source.byteLength} does not match inspected byteLength ${motion.byteLength}.`,
     );
-  if (SHA256_DIGEST_PATTERN.test(props.source.digest) === false)
+  if (AutoMovieEngineSha256DigestPattern.test(props.source.digest) === false)
     throw new Error(
       `External motion source digest "${props.source.digest}" must be a lowercase SHA-256 digest.`,
     );

@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
-import { POSE_OVERLAY_NAME } from "../POSE_OVERLAY_NAME.js";
+import { AutoMovieRenderPoseOverlayName } from "../AutoMovieRenderPoseOverlayName.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
@@ -45,7 +45,7 @@ export const applyPoseMode: (
     );
 
   const overlay: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
-  overlay.name = POSE_OVERLAY_NAME;
+  overlay.name = AutoMovieRenderPoseOverlayName;
   const material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({
     color: 0xffffff,
   });
@@ -57,10 +57,10 @@ export const applyPoseMode: (
     position: THREE.BufferAttribute;
   }[] = [];
   scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if (!AutoMovieThreeKind.isBone(object)) return;
+    if (!AutoMovieRenderThreeKind.isBone(object)) return;
     const bone: THREE.Bone = object;
     const parent: THREE.Object3D | null = bone.parent;
-    if (parent === null || !AutoMovieThreeKind.isBone(parent)) return;
+    if (parent === null || !AutoMovieRenderThreeKind.isBone(parent)) return;
     const position: THREE.BufferAttribute = new THREE.BufferAttribute(
       new Float32Array(6),
       3,
@@ -102,7 +102,7 @@ export const applyPoseMode: (
             ...overlay.children.map(
               (child: THREE.Object3D): (() => void) =>
                 (): void => {
-                  if (AutoMovieThreeKind.isLine(child))
+                  if (AutoMovieRenderThreeKind.isLine(child))
                     child.geometry.dispose();
                 },
             ),

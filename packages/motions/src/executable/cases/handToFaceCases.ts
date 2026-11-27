@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -155,8 +155,8 @@ export function handToFaceCases(
         const at: number = TouchVerdicts.event(performance, "a", "atMouth");
         const hand = performance.bones("a", at).get("rightHand")!;
         // The cup's axis is the axis of the cylinder the fist holds.
-        const cup: IAutoMovieVector3 = Vector3.normalize(
-          Quaternion.rotateVector(
+        const cup: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineQuaternion.rotateVector(
             hand.worldRotation,
             AutoMovieMotionHumanTouchEffector.axis("right", "grasp"),
           ),
@@ -174,8 +174,8 @@ export function handToFaceCases(
       if (task === "read") {
         const at: number = TouchVerdicts.event(performance, "a", "atSheet");
         const bones = performance.bones("a", at);
-        const eyes: IAutoMovieVector3 = Vector3.scale(
-          Vector3.add(
+        const eyes: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
             bones.get("leftEye")!.worldPosition,
             bones.get("rightEye")!.worldPosition,
           ),
@@ -188,7 +188,7 @@ export function handToFaceCases(
             "right",
             row.effector,
           );
-        const distance: number = Vector3.length(Vector3.subtract(sheet, eyes));
+        const distance: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(sheet, eyes));
         verdicts.push({
           name: "sheet 17.5 to 58 cm from the eyes at atSheet",
           passed: distance >= 0.175 && distance <= 0.58,

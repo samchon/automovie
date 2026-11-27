@@ -16,11 +16,11 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
+import { AutoMovieEngineHumanoidJointAxes } from "../../kinematics/AutoMovieEngineHumanoidJointAxes";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { validateJointAxesBasis } from "../../kinematics/internal/validateJointAxesBasis";
-import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
+import { AutoMovieEngineHumanoidRestFrame } from "../../rom/AutoMovieEngineHumanoidRestFrame";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { validateMotion } from "../../validation/internal/validateMotion";
@@ -94,32 +94,32 @@ export function retargetHumanoidMotion(
     Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
   > = skeletonJointAxes(
     props.source,
-    props.sourceJointAxes ?? HUMANOID_JOINT_AXES,
+    props.sourceJointAxes ?? AutoMovieEngineHumanoidJointAxes,
   );
   const targetJointAxes: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
   > = skeletonJointAxes(
     props.target,
-    props.targetJointAxes ?? HUMANOID_JOINT_AXES,
+    props.targetJointAxes ?? AutoMovieEngineHumanoidJointAxes,
   );
   validateAxes(
     "sourceJointAxes",
-    props.sourceJointAxes ?? HUMANOID_JOINT_AXES,
+    props.sourceJointAxes ?? AutoMovieEngineHumanoidJointAxes,
     collector,
   );
   validateAxes(
     "targetJointAxes",
-    props.targetJointAxes ?? HUMANOID_JOINT_AXES,
+    props.targetJointAxes ?? AutoMovieEngineHumanoidJointAxes,
     collector,
   );
   validateRestFrames(
     "sourceRestFrames",
-    props.sourceRestFrames ?? HUMANOID_REST_FRAME,
+    props.sourceRestFrames ?? AutoMovieEngineHumanoidRestFrame,
     collector,
   );
   validateRestFrames(
     "targetRestFrames",
-    props.targetRestFrames ?? HUMANOID_REST_FRAME,
+    props.targetRestFrames ?? AutoMovieEngineHumanoidRestFrame,
     collector,
   );
   validateRetargetContacts(props.contacts, props.motion.duration, collector);
@@ -167,10 +167,10 @@ export function retargetHumanoidMotion(
 
   const sourceRestFrames: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  > = props.sourceRestFrames ?? HUMANOID_REST_FRAME;
+  > = props.sourceRestFrames ?? AutoMovieEngineHumanoidRestFrame;
   const targetRestFrames: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  > = props.targetRestFrames ?? HUMANOID_REST_FRAME;
+  > = props.targetRestFrames ?? AutoMovieEngineHumanoidRestFrame;
 
   const source: IAutoMovieHumanoidRigCharacterization = characterizeRig({
     skeleton: props.source,

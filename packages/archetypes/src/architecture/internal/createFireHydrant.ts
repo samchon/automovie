@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeFireHydrant } from "../AutoMovieArchetypeFireHydrant";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -40,7 +40,7 @@ export function createFireHydrant(
       params,
       seed,
     );
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const height: number = d.height!;
   const radius: number = d.diameter! / 2;
   const y: number = d.nozzleHeight!;

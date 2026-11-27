@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewOutline, AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadBackProfile,
   IAutoMovieHumanHeadLandmarks,
@@ -66,7 +66,7 @@ export namespace AutoMovieHumanHeadMassSource {
       | IAutoMovieViewOutline.IOutline
       | IAutoMovieViewOutline.IFailure
       | null =
-      neck === undefined ? null : AutoMovieViewOutline.create(neck.radius);
+      neck === undefined ? null : AutoMovieEngineViewOutline.create(neck.radius);
     if (preparedRadius !== null && "detail" in preparedRadius)
       throw new Error(`Head neck radius: ${preparedRadius.detail}`);
     const radius: IAutoMovieViewOutline.IOutline | null = preparedRadius;
@@ -194,13 +194,13 @@ export namespace AutoMovieHumanHeadMassSource {
     );
     const preparedFront:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(front, {
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(front, {
       top: last,
     });
     if ("detail" in preparedFront)
       throw new Error(`Head front declaration: ${preparedFront.detail}`);
     const readFront: (y: number) => number = (y: number): number => {
-      const value: number | string = AutoMovieViewOutline.value(
+      const value: number | string = AutoMovieEngineViewOutline.value(
         preparedFront,
         y,
       );
@@ -272,7 +272,7 @@ export namespace AutoMovieHumanHeadMassSource {
       const atPole: boolean = site === "vertex";
       const radial: IAutoMovieViewOutline.IReading | string | null =
         radius !== null && station <= neck!.band[1]
-          ? AutoMovieViewOutline.at(radius, station)
+          ? AutoMovieEngineViewOutline.at(radius, station)
           : null;
       if (typeof radial === "string")
         throw new Error(`Head neck radial source: ${radial}`);
@@ -415,8 +415,8 @@ export namespace AutoMovieHumanHeadMassSource {
                 ? flatAt(vault)
                 : {
                     knots: [
-                      [first, AutoMovieViewSection.ELLIPSE],
-                      [neck.band[1], AutoMovieViewSection.ELLIPSE],
+                      [first, AutoMovieEngineViewSection.ELLIPSE],
+                      [neck.band[1], AutoMovieEngineViewSection.ELLIPSE],
                       [m.gonion[1], vault],
                       [last, vault],
                     ].map(
@@ -435,12 +435,12 @@ export namespace AutoMovieHumanHeadMassSource {
                   knots: [
                     [
                       first,
-                      neck === undefined ? vault : AutoMovieViewSection.ELLIPSE,
+                      neck === undefined ? vault : AutoMovieEngineViewSection.ELLIPSE,
                     ],
                     ...(neck === undefined
                       ? []
                       : [
-                          [neck.band[1], AutoMovieViewSection.ELLIPSE],
+                          [neck.band[1], AutoMovieEngineViewSection.ELLIPSE],
                           [m.gonion[1], vault],
                         ]),
                     [plan.nasion, vault],

@@ -3,12 +3,12 @@ import type {
   IAutoMovieRenderedProductionSound,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_EBU_R128_LOUDNESS } from "../AUTOMOVIE_EBU_R128_LOUDNESS";
+import { AutoMovieEngineEbuR128Loudness } from "../AutoMovieEngineEbuR128Loudness";
 import { AUTOMOVIE_TRUE_PEAK_LIMITER } from "../constants/AUTOMOVIE_TRUE_PEAK_LIMITER";
 
 /*
  * Resolve the loudness targets a mix applies: the production's intent when it
- * declares one, otherwise `AUTOMOVIE_EBU_R128_LOUDNESS`, with the dialogue
+ * declares one, otherwise `AutoMovieEngineEbuR128Loudness`, with the dialogue
  * target and the limiter ceiling they imply.
  *
  * The dialogue target is the intent's `dialogueLufs` when present, otherwise
@@ -26,7 +26,7 @@ export function resolveProductionLoudness(
   "intent" | "source" | "dialogueLufs" | "ceilingDbtp"
 > {
   const applied: IAutoMovieLoudnessIntent = intent ?? {
-    ...AUTOMOVIE_EBU_R128_LOUDNESS,
+    ...AutoMovieEngineEbuR128Loudness,
   };
   for (const field of [
     "integratedLufs",

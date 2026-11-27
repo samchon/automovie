@@ -12,7 +12,7 @@ import type {
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicalCoupledTargetError } from "../AutoMoviePhysicalCoupledTargetError";
+import { AutoMovieEnginePhysicalCoupledTargetError } from "../AutoMovieEnginePhysicalCoupledTargetError";
 import type { IPhysicalCoupledTargetGroup } from "./IPhysicalCoupledTargetGroup";
 import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
 import { fitPhysicalCoupledTargetGroup } from "./fitPhysicalCoupledTargetGroup";
@@ -56,7 +56,7 @@ export function bindPhysicalKinematicFrame(
                 body.targets[step]?.coupledGroup !== group.group,
             )
           )
-            throw new AutoMoviePhysicalCoupledTargetError({
+            throw new AutoMovieEnginePhysicalCoupledTargetError({
               step,
               group: group.group,
               members: group.members,
@@ -112,7 +112,7 @@ export function bindPhysicalKinematicFrame(
       body.targets[step]!;
     const coupled: IAutoMoviePoses | undefined = grouped?.get(body.id);
     if (target.coupledGroup !== undefined && coupled === undefined)
-      throw new AutoMoviePhysicalCoupledTargetError({
+      throw new AutoMovieEnginePhysicalCoupledTargetError({
         step,
         group: target.coupledGroup ?? "",
         members: [body.id],

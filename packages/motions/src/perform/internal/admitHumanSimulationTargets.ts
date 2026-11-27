@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
@@ -45,29 +45,29 @@ export function admitHumanSimulationTargets(
   const walk = (bone: string): void => {
     for (const joint of children.get(bone) ?? []) {
       const parent: IAutoMovieRigidTransform = admitted[joint.parent]!;
-      const relative: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.inverse(
-          Quaternion.multiply(
+      const relative: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(
+          AutoMovieEngineQuaternion.multiply(
             displayed[joint.parent]!.rotation,
             joint.parentFrame.rotation,
           ),
         ),
-        Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           displayed[joint.child]!.rotation,
           joint.childFrame.rotation,
         ),
       );
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
-        Quaternion.multiply(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+        AutoMovieEngineQuaternion.multiply(
           AutoMovieEnginePhysics.projectPhysicalJointRotation(joint, relative),
-          Quaternion.inverse(joint.childFrame.rotation),
+          AutoMovieEngineQuaternion.inverse(joint.childFrame.rotation),
         ),
       );
       admitted[joint.child] = {
-        position: Vector3.subtract(
+        position: AutoMovieEngineVector3.subtract(
           AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
-          Quaternion.rotateVector(rotation, joint.childFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(rotation, joint.childFrame.position),
         ),
         rotation,
       };

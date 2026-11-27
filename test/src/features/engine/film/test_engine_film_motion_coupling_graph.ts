@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, AutoMovieEngineSequence, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineSequence, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAttachJob,
   IAutoMovieClip,
@@ -195,8 +195,8 @@ export function test_engine_film_motion_coupling_graph(): void {
       ...base,
       ...binding,
       motions: { carrier: raised },
-      jointAxes: () => HUMANOID_JOINT_AXES,
-      restFrames: () => HUMANOID_REST_FRAME,
+      jointAxes: () => AutoMovieEngineHumanoidJointAxes,
+      restFrames: () => AutoMovieEngineHumanoidRestFrame,
     });
     assert.deepEqual(clinical.violations, []);
     point(marker(clinical.clips, "marker", 0.5), [0.2, 1.95, 0]);

@@ -8,7 +8,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanRefusal, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
-import { AutoMovieFrameGrid } from "@automovie/render";
+import { AutoMovieRenderFrameGrid } from "@automovie/render";
 
 import { PlaygroundPerformance } from "../../playground/package/PlaygroundPerformance";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
@@ -139,9 +139,9 @@ export namespace TakeCompute {
       const duration: number = built.performance.duration;
       const readers: ((seconds: number) => SceneTrack.IPlacement[])[] =
         objects.map(propReader(built.performance));
-      const lastFrame: number = AutoMovieFrameGrid.last(duration, fps);
+      const lastFrame: number = AutoMovieRenderFrameGrid.last(duration, fps);
       for (let k: number = 0; k <= lastFrame; k++) {
-        const seconds: number = AutoMovieFrameGrid.time(k, duration, fps);
+        const seconds: number = AutoMovieRenderFrameGrid.time(k, duration, fps);
         frames.push([
           ...built.figures.map(
             (figure: PlaygroundPerformance.IFigure): SceneTrack.IPlacement[] =>

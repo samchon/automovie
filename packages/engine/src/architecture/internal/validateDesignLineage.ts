@@ -15,7 +15,7 @@ import {
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
-import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
+import { AutoMovieEngineSha256DigestPattern } from "../../validation/AutoMovieEngineSha256DigestPattern";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
 
@@ -84,7 +84,7 @@ export function validateDesignLineage(
       out.nonEmpty(`${path}.graph`, subject.graph, "lineage subject graph");
       if (
         subject.digest !== null &&
-        !SHA256_DIGEST_PATTERN.test(subject.digest)
+        !AutoMovieEngineSha256DigestPattern.test(subject.digest)
       )
         out.push(
           "type",
@@ -118,7 +118,7 @@ export function validateDesignLineage(
           `design revision parent "${revision.parent}" does not resolve`,
           revision.parent,
         );
-      if (!SHA256_DIGEST_PATTERN.test(revision.digest))
+      if (!AutoMovieEngineSha256DigestPattern.test(revision.digest))
         out.push(
           "type",
           `${path}.digest`,

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSpinningRodData from "./internal/AutoMovieArchetypeSpinningRodData";
+import { AutoMovieArchetypeSpinningRodData } from "./internal/AutoMovieArchetypeSpinningRodData";
 
 /** Constructs the spinning rod archetype from its recipe. */
 export namespace AutoMovieArchetypeSpinningRod {
@@ -61,23 +61,23 @@ export function create(
   builder.rod(
     "rod",
     radius,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, d.length, 0),
+    AutoMovieEngineVector3.create(0, 0, 0),
+    AutoMovieEngineVector3.create(0, d.length, 0),
     { color: "#2c2f33" },
   );
   // The reel under the rod just above the grip, its axis across the rod.
-  const axis: IAutoMovieVector3 = Vector3.create(0, GRIP + 0.05, -0.07);
-  builder.box("reel", Vector3.create(0.045, 0.05, 0.06), axis, {
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, GRIP + 0.05, -0.07);
+  builder.box("reel", AutoMovieEngineVector3.create(0.045, 0.05, 0.06), axis, {
     color: "#7d8288",
   });
-  const hub: IAutoMovieVector3 = Vector3.create(-0.03, axis.y, axis.z);
-  const knob: IAutoMovieVector3 = Vector3.create(
+  const hub: IAutoMovieVector3 = AutoMovieEngineVector3.create(-0.03, axis.y, axis.z);
+  const knob: IAutoMovieVector3 = AutoMovieEngineVector3.create(
     -0.03,
     axis.y - d.crank,
     axis.z,
   );
   builder.rod("arm", 0.004, hub, knob, { color: "#4a4e53" });
-  builder.rod("knob", 0.008, knob, Vector3.create(-0.055, knob.y, knob.z), {
+  builder.rod("knob", 0.008, knob, AutoMovieEngineVector3.create(-0.055, knob.y, knob.z), {
     color: "#1d1f22",
   });
   builder.affordance({
@@ -85,9 +85,9 @@ export function create(
     kind: "handle",
     symmetry: "round",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(0, GRIP / 2, 0),
-      Vector3.create(0, 0, -1),
-      Vector3.create(0, 1, 0),
+      AutoMovieEngineVector3.create(0, GRIP / 2, 0),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(0, 1, 0),
     ),
     extent: null,
     grip: "power",
@@ -98,7 +98,7 @@ export function create(
     id: "tip",
     kind: "surface",
     direction: "along",
-    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.length, 0)),
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, d.length, 0)),
     extent: null,
   });
   builder.affordance({
@@ -108,8 +108,8 @@ export function create(
     parts: ["arm", "knob"],
     frame: AutoMovieArchetypeFrame.facing(
       hub,
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
   });
   builder.affordance({
@@ -117,9 +117,9 @@ export function create(
     kind: "handle",
     rides: "crank",
     frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(-0.045, knob.y, knob.z),
-      Vector3.create(0, 0, -1),
-      Vector3.create(1, 0, 0),
+      AutoMovieEngineVector3.create(-0.045, knob.y, knob.z),
+      AutoMovieEngineVector3.create(0, 0, -1),
+      AutoMovieEngineVector3.create(1, 0, 0),
     ),
     extent: null,
     grip: "precision",

@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import type { AutoMovieEngineXpbdWorld } from "./AutoMovieEngineXpbdWorld";
 
 /** Stable result types for root and support tracking operations. */
 export namespace AutoMovieEnginePhysicsTrackingTypes {
@@ -26,7 +26,7 @@ export namespace AutoMovieEnginePhysicsTrackingTypes {
 
   /** Support transition fields populated on a root task. */
   export type IRootTransitionsResult = Pick<
-    AutoMovieXpbdWorld.IRootTask,
+    AutoMovieEngineXpbdWorld.IRootTask,
     "bounds" | "released" | "stance"
   >;
 }

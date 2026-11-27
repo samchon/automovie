@@ -1,9 +1,9 @@
-import { AutoMovieTextureCache } from "@automovie/render";
+import { AutoMovieRenderTextureCache } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `AutoMovieTextureCache` decodes each primed asset once and issues clones.
+ * `AutoMovieRenderTextureCache` decodes each primed asset once and issues clones.
  *
  * Scenarios:
  *
@@ -19,7 +19,7 @@ import * as THREE from "three";
 export async function test_render_scene_texture_cache(): Promise<void> {
   const loaded: THREE.Texture[] = [];
   const loads: string[] = [];
-  const cache: AutoMovieTextureCache = new AutoMovieTextureCache(
+  const cache: AutoMovieRenderTextureCache = new AutoMovieRenderTextureCache(
     async (asset: string): Promise<THREE.Texture> => {
       loads.push(asset);
       const texture: THREE.Texture = new THREE.Texture();

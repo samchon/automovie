@@ -8,7 +8,7 @@ import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanA
  * A body cannot bend an elbow backward or turn a knee sideways, however smooth
  * and collision-free the result looks. The reading takes the displayed pose's
  * clinical joint angles at each grid instant and measures each joint against
- * the humanoid range table the pose gate enforces (`DEFAULT_HUMANOID_ROM`), by
+ * the humanoid range table the pose gate enforces (`AutoMovieEngineDefaultHumanoidRom`), by
  * the gate's own scan (`scanJointRom`): an angle outside its interval
  * overshoots by its distance to the nearer bound, an angle on an axis the joint
  * does not have by its whole magnitude, and a ball joint's combined flexion and

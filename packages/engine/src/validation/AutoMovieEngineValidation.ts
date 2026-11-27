@@ -580,7 +580,7 @@ export namespace AutoMovieEngineValidation {
    * The header is the IHDR chunk (W3C PNG, 2nd edition, section 11.2.2): a
    * 13-byte body whose bit depth must be 8, colour type 0, 2, 4 or 6,
    * compression, filter and interlace methods 0, and whose edges must be positive
-   * and at most `AUTO_MOVIE_MAX_TEXTURE_EDGE`. Only the first 44 base64
+   * and at most `AutoMovieEngineMaxTextureEdge`. Only the first 44 base64
    * characters are decoded, so a corrupt compressed stream or a wrong checksum
    * after the header passes here and is refused when the viewer decodes the
    * image.

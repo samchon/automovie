@@ -2,12 +2,12 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
-import type { IAutoMovieDrawScene } from "@automovie/render";
+import type { IAutoMovieRenderDrawScene } from "@automovie/render";
 import {
-  AutoMovieInspectorPlayhead,
+  AutoMovieViewerInspectorPlayhead,
   AutoMovieViewerInspector,
-  type IAutoMovieInspectorScene,
-  type IAutoMovieInspectorSceneHost,
+  type IAutoMovieViewerInspectorScene,
+  type IAutoMovieViewerInspectorSceneHost,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -44,7 +44,7 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
   prop.name = "prop";
   scene.add(prop);
   const observedMasks: number[] = [];
-  const subject: IAutoMovieDrawScene = {
+  const subject: IAutoMovieRenderDrawScene = {
     scene,
     camera: new THREE.PerspectiveCamera(50, 16 / 9, 0.1, 50),
     durationSeconds: 1,
@@ -53,7 +53,7 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
     height: 360,
     seek: async (): Promise<void> => {},
     inspectPlaced: (
-      sample: IAutoMovieDrawScene.IPlacedSample,
+      sample: IAutoMovieRenderDrawScene.IPlacedSample,
     ): IAutoMovieInspectionDiagnostics => {
       observedMasks.push(prop.layers.mask);
       return { scope: "s", time: sample.time, findings: [], coverage: [] };
@@ -62,8 +62,8 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
   };
   const rendered: { overlay: THREE.Object3D | undefined; mask: number }[] = [];
   let frame: FrameRequestCallback | undefined;
-  const host: IAutoMovieInspectorSceneHost = {
-    size: (): IAutoMovieInspectorSceneHost.ISize => ({
+  const host: IAutoMovieViewerInspectorSceneHost = {
+    size: (): IAutoMovieViewerInspectorSceneHost.ISize => ({
       width: 320,
       height: 180,
       pixelRatio: 1,
@@ -75,7 +75,7 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
     cancelFrame: (): void => {
       frame = undefined;
     },
-    createRenderer: (): IAutoMovieInspectorSceneHost.ICreated => ({
+    createRenderer: (): IAutoMovieViewerInspectorSceneHost.ICreated => ({
       compositor: null,
       renderer: {
         ...filmResponseRendererFields(),
@@ -92,10 +92,10 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
       },
     }),
   };
-  const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
+  const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
   const failures: string[] = [];
-  const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
-    subject: { create: async (): Promise<IAutoMovieDrawScene> => subject },
+  const mounted: IAutoMovieViewerInspectorScene = AutoMovieViewerInspector.mountScene({
+    subject: { create: async (): Promise<IAutoMovieRenderDrawScene> => subject },
     name: "s",
     request: AutoMovieViewerInspector.readAddress("at=0"),
     playhead,

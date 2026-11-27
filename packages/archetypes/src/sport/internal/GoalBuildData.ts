@@ -1,6 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
-/*
- * Model coordinates in metres.
- */
-export const v: typeof Vector3.create = Vector3.create;
+export namespace GoalBuildData {
+  /*
+   * Model coordinates in metres.
+   */
+  export const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
+}

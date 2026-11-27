@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -124,20 +124,20 @@ export function createOx(
           kind: "surface",
           direction: "normal",
           frame: AutoMovieArchetypeFrame.upright(
-            Vector3.lerp(bases[0]!, bases[1]!, 0.5),
+            AutoMovieEngineVector3.lerp(bases[0]!, bases[1]!, 0.5),
           ),
           extent: null,
-          width: Vector3.distance(bases[0]!, bases[1]!),
+          width: AutoMovieEngineVector3.distance(bases[0]!, bases[1]!),
         });
         builder.affordance({
           id: "hind",
           kind: "surface",
           direction: "normal",
           frame: AutoMovieArchetypeFrame.upright(
-            Vector3.lerp(rig.limbs.leftHind[2]!, rig.limbs.rightHind[2]!, 0.5),
+            AutoMovieEngineVector3.lerp(rig.limbs.leftHind[2]!, rig.limbs.rightHind[2]!, 0.5),
           ),
           extent: null,
-          width: Vector3.distance(
+          width: AutoMovieEngineVector3.distance(
             rig.limbs.leftHind[2]!,
             rig.limbs.rightHind[2]!,
           ),

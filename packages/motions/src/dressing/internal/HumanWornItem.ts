@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -37,9 +37,9 @@ export namespace HumanWornItem {
     frame: IAutoMovieRigidTransform,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, local),
     );
   }
 
@@ -59,18 +59,18 @@ export namespace HumanWornItem {
     frame: IAutoMovieRigidTransform,
     bend: IAutoMovieVector3,
   ): IAutoMovieMotionHumanArmTarget.ITarget {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
         frame.rotation,
-        Quaternion.inverse(held.frame.rotation),
+        AutoMovieEngineQuaternion.inverse(held.frame.rotation),
       ),
     );
     return {
       surface: "grip",
       shape: "relaxed",
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         frame.position,
-        Quaternion.rotateVector(rotation, held.frame.position),
+        AutoMovieEngineQuaternion.rotateVector(rotation, held.frame.position),
       ),
       rotation,
       bend,
@@ -96,7 +96,7 @@ export namespace HumanWornItem {
     handle: IAutoMovieAffordance,
     bend: IAutoMovieVector3,
   ): IAutoMovieMotionHumanArmTarget.ITarget {
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       frame.rotation,
       handle.frame.rotation,
     );
@@ -110,11 +110,11 @@ export namespace HumanWornItem {
       shape: "relaxed",
       point: point(frame, handle.frame.translation),
       rotation: HumanHand.align(rest, {
-        normal: Vector3.scale(
-          Quaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
+        normal: AutoMovieEngineVector3.scale(
+          AutoMovieEngineQuaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
           -1,
         ),
-        forward: Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
+        forward: AutoMovieEngineQuaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
       }),
       bend,
       offset: rest.point,

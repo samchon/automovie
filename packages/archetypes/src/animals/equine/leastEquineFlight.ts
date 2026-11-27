@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -58,7 +58,7 @@ export function leastEquineFlight(
     plan.at(at(candidate.recovery) + shift).speed !== u
   )
     return undefined;
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const limits: ILimit[] = [];
   let launch: number = 0;
   for (const part of midair.parts) {
@@ -161,13 +161,13 @@ export function leastEquineFlight(
     )!;
     const foothold: number =
       plan.at(touch).distance +
-      Vector3.dot(
-        Vector3.subtract(
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(
           AutoMovieArchetypeFrame.compose(landed.placement, hoof.transform!)
             .translation,
           landed.placement.translation,
         ),
-        Quaternion.rotateVector(landed.placement.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(landed.placement.rotation, {
           x: 0,
           y: 0,
           z: 1,
@@ -194,10 +194,10 @@ export function leastEquineFlight(
  * greatest Z.
  */
 const SIDES: readonly IAutoMovieQuaternion[] = [
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
 ];
 
 /*

@@ -4,7 +4,9 @@ import type {
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import { humanSettledJoints } from "@automovie/motions/internal";
+import {
+  humanSettledJoints
+} from "../../../../../packages/motions/src/posture/internal/humanSettledJoints";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

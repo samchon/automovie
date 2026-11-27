@@ -1,4 +1,4 @@
-import { AutoMovieViewCurves, AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieEngineViewCurves, AutoMovieEngineViewLoft } from "@automovie/engine";
 import type {
   IAutoMovieHumanEar,
   IAutoMovieHumanHeadCanonical,
@@ -112,7 +112,7 @@ export namespace AutoMovieHumanHeadCanonical {
       );
     const base: IAutoMovieViewPart = mass(plan.cranialTapePower);
     const curves: IAutoMovieViewCurves.IResult =
-      AutoMovieViewCurves.create(base);
+      AutoMovieEngineViewCurves.create(base);
     const baseMilliseconds: number = performance.now() - attachmentStart;
     let completed: IAutoMovieHumanHeadCanonical.IOutput | undefined;
     let attempt: IAutoMovieHumanHeadCanonical.IClosureAttempt = Object.freeze({
@@ -253,7 +253,7 @@ export namespace AutoMovieHumanHeadCanonical {
         const part: IAutoMovieViewPart = lowerSource(placement);
         const value: IAutoMovieHumanNeckConstruction.IOutput = {
           part,
-          loft: AutoMovieViewLoft.create(part),
+          loft: AutoMovieEngineViewLoft.create(part),
         };
         lower = { placement, value };
         return value;

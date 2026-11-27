@@ -1,7 +1,7 @@
 import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineGravity,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -52,9 +52,9 @@ export function stuntFallStairs(
     .map(
       (item: IAutoMovieAffordance): ITread => ({
         id: item.id,
-        centre: Vector3.add(
+        centre: AutoMovieEngineVector3.add(
           world.position,
-          Quaternion.rotateVector(world.rotation, item.frame.translation),
+          AutoMovieEngineQuaternion.rotateVector(world.rotation, item.frame.translation),
         ),
         depth: item.depth ?? 0,
       }),
@@ -80,7 +80,7 @@ export function stuntFallStairs(
       p.stairs,
       `a ${p.slide === true ? "slide" : "tumble"} needs ${p.slide === true ? "a tread" : "two treads"} below the performer`,
     );
-  const downhill: IAutoMovieVector3 = Vector3.normalize({
+  const downhill: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: steps[0]!.centre.x - steps.at(-1)!.centre.x,
     y: 0,
     z: steps[0]!.centre.z - steps.at(-1)!.centre.z,
@@ -90,7 +90,7 @@ export function stuntFallStairs(
   const nosing: (tread: ITread) => IAutoMovieVector3 = (
     tread: ITread,
   ): IAutoMovieVector3 =>
-    Vector3.add(tread.centre, Vector3.scale(downhill, tread.depth / 2));
+    AutoMovieEngineVector3.add(tread.centre, AutoMovieEngineVector3.scale(downhill, tread.depth / 2));
   const hips0: IAutoMovieVector3 = entry.get("hips")!.worldPosition;
   const path: IAutoMovieVector3[] = [
     { ...hips0, y: sole },
@@ -98,20 +98,20 @@ export function stuntFallStairs(
   ];
   const last: IAutoMovieVector3 = path.at(-1)!;
   path.push({
-    ...Vector3.add(last, Vector3.scale(downhill, RUNOUT)),
+    ...AutoMovieEngineVector3.add(last, AutoMovieEngineVector3.scale(downhill, RUNOUT)),
     y: world.position.y,
   });
 
   // Contact arrivals: constant acceleration along each stretch.
   const mu: number = p.slide === true ? SLIDE : TUMBLE;
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   // The body goes down onto the tread it stood on over `FALL`, then slides.
   const times: number[] = [FALL];
   // The body has come down onto the tread; it slides on from rest.
   let speed: number = 0;
   for (let i: number = 1; i < path.length; i++) {
-    const delta: IAutoMovieVector3 = Vector3.subtract(path[i]!, path[i - 1]!);
-    const length: number = Vector3.length(delta);
+    const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(path[i]!, path[i - 1]!);
+    const length: number = AutoMovieEngineVector3.length(delta);
     const slope: number = Math.atan2(-delta.y, Math.hypot(delta.x, delta.z));
     const accel: number = g * (Math.sin(slope) - mu * Math.cos(slope));
     const reach: number = speed * speed + 2 * accel * length;
@@ -180,7 +180,7 @@ export function stuntFallStairs(
     const span: number = times[k + 1]! - times[k]!;
     const w: number =
       span > 0 ? Math.max(0, Math.min(1, (t - times[k]!) / span)) : 1;
-    return Vector3.lerp(path[k]!, path[k + 1]!, w);
+    return AutoMovieEngineVector3.lerp(path[k]!, path[k + 1]!, w);
   };
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,

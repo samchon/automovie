@@ -1,7 +1,7 @@
 import {
-  AutoMovieConstructionViews,
-  AutoMovieViewOutline,
-  AutoMovieViewParallelAxis,
+  AutoMovieEngineConstructionViews,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParallelAxis,
 } from "@automovie/engine";
 import type {
   IAutoMovieConstruction,
@@ -202,7 +202,7 @@ export namespace AutoMovieHumanHeadTree {
   ): IAutoMovieHumanHeadTree.ISourceResult {
     const declaration: IAutoMovieConstructionView = view(part);
     const evaluated: IAutoMovieViewPart | string =
-      AutoMovieConstructionViews.part(declaration);
+      AutoMovieEngineConstructionViews.part(declaration);
     if (typeof evaluated === "string")
       throw new Error(`Head source ${part.name}: ${evaluated}`);
     return { part: evaluated, view: declaration };
@@ -317,7 +317,7 @@ export namespace AutoMovieHumanHeadTree {
    */
   function axis(part: IAutoMovieViewPart): IAutoMovieConstructionAxis {
     const original: IAutoMovieConstructionAxis | null =
-      AutoMovieViewParallelAxis.source(part.axis);
+      AutoMovieEngineViewParallelAxis.source(part.axis);
     if (original !== null) return original;
     const frames: IAutoMovieLoftSectionFrame[] = part.stations.map(
       (s: number): IAutoMovieLoftSectionFrame => part.axis.at(s),
@@ -403,7 +403,7 @@ export namespace AutoMovieHumanHeadTree {
   function outline(
     o: IAutoMovieViewPart.IOutline,
   ): IAutoMovieConstructionOutline {
-    return AutoMovieViewOutline.scale(o, METRES, METRES);
+    return AutoMovieEngineViewOutline.scale(o, METRES, METRES);
   }
 
   /*
@@ -412,7 +412,7 @@ export namespace AutoMovieHumanHeadTree {
   function shares(
     o: IAutoMovieViewPart.IOutline,
   ): IAutoMovieConstructionOutline {
-    return AutoMovieViewOutline.scale(o, METRES, 1);
+    return AutoMovieEngineViewOutline.scale(o, METRES, 1);
   }
 
   /*

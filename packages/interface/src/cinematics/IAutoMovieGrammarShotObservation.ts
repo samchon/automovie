@@ -55,7 +55,7 @@ export interface IAutoMovieGrammarShotObservation {
 
   /**
    * Deliberate exceptions declared by the shot contract, each at most once.
-   * Each excepts the finding family `GRAMMAR_STYLE_SUPPRESSION` maps it to when
+   * Each excepts the finding family `AutoMovieEngineGrammarStyleSuppression` maps it to when
    * that finding is filed on this shot; `rhythmic-pacing` excepts the film-wide
    * pacing finding from any shot. Absent means none.
    */

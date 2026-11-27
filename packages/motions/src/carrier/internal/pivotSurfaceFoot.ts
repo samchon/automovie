@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieQuaternion,
@@ -20,18 +20,18 @@ export function pivotSurfaceFoot(
   degrees: number,
 ): IAutoMovieHumanLimbGoal {
   const before: IAutoMovieQuaternion = goal.rotation!;
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     before,
-    Quaternion.fromAxisAngle(axis, degrees),
+    AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees),
   );
-  const correction: IAutoMovieVector3 = Vector3.subtract(
-    Quaternion.rotateVector(before, contact),
-    Quaternion.rotateVector(rotation, contact),
+  const correction: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineQuaternion.rotateVector(before, contact),
+    AutoMovieEngineQuaternion.rotateVector(rotation, contact),
   );
   return {
     ...goal,
-    point: Vector3.add(goal.point, correction),
-    bend: Vector3.add(goal.bend, correction),
+    point: AutoMovieEngineVector3.add(goal.point, correction),
+    bend: AutoMovieEngineVector3.add(goal.bend, correction),
     rotation,
     contact,
   };

@@ -1,4 +1,4 @@
-import { AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieEngineViewLoft } from "@automovie/engine";
 import type {
   IAutoMovieHumanSectionSource,
   IAutoMovieHumanSiteControls,
@@ -15,7 +15,7 @@ import { AutoMovieHumanSiteDefinition } from "./AutoMovieHumanSiteDefinition";
 /**
  * A body part lofted from view knots at named sites: the composition every
  * body part shares between its own laws and the view-to-section operator
- * (`AutoMovieViewLoft`), so the trunk, the limbs and the digits differ
+ * (`AutoMovieEngineViewLoft`), so the trunk, the limbs and the digits differ
  * only in their axis and their knots.
  *
  * Knots. Each site stands at a station of the part's axis and gives the four
@@ -28,7 +28,7 @@ import { AutoMovieHumanSiteDefinition } from "./AutoMovieHumanSiteDefinition";
  *
  * Fullness by ownership. A tape's site gets its common conic shoulder solved
  * on that site's box by the Illinois rule on the taut-tape girth
- * (`AutoMovieViewSection.solve`; a tape outside the box's reach keeps the
+ * (`AutoMovieEngineViewSection.solve`; a tape outside the box's reach keeps the
  * reach's end with the operator's diagnostic); an untaped site keeps the
  * caller's sourced shoulder. Both become knots of one shoulder outline
  * (`kind: "shoulder"`), so one owner kind runs along the whole part; the
@@ -84,7 +84,7 @@ export namespace AutoMovieHumanSiteViewPart {
     ];
     if (definition.part === null)
       return { ...definition, loft: null, diagnostics };
-    const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
+    const result: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(
       definition.part,
     );
     diagnostics.push(...result.diagnostics);

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -178,7 +178,7 @@ export function exercisePlan(
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     by: IAutoMovieVector3,
   ): IAutoMovieMotionHumanFoot.IPlacement => ({
-    ankle: Vector3.add(placement.ankle, by),
+    ankle: AutoMovieEngineVector3.add(placement.ankle, by),
     rotation: placement.rotation,
   });
   const root: (
@@ -195,7 +195,7 @@ export function exercisePlan(
       seconds: number,
     ): IAutoMovieMotionHumanPosture => ({
       ...posture,
-      root: Vector3.add(posture.root, offset(seconds)),
+      root: AutoMovieEngineVector3.add(posture.root, offset(seconds)),
     }),
   });
 
@@ -220,10 +220,10 @@ export function exercisePlan(
         humanPostureHeading(entry),
         entry.joints.hips,
       );
-      const offset: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(
-          Vector3.add(hips.left, hips.right),
-          Vector3.add(stance.left.ankle, stance.right.ankle),
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.add(hips.left, hips.right),
+          AutoMovieEngineVector3.add(stance.left.ankle, stance.right.ankle),
         ),
         0.5,
       );
@@ -240,7 +240,7 @@ export function exercisePlan(
         offset.y - bottom.height - (offset.y - m.shank - m.thigh) * remaining,
       );
       const back: number =
-        (1 - remaining) * Vector3.dot(offset, forward) - bottom.forward;
+        (1 - remaining) * AutoMovieEngineVector3.dot(offset, forward) - bottom.forward;
       for (let i: number = 1; i <= reps; i++)
         primitives.push(
           AutoMovieMotionHumanTrunk.crouch(
@@ -286,9 +286,9 @@ export function exercisePlan(
           body.rest.get(`${side}UpperLeg`)!,
         );
         return {
-          ankle: Vector3.add(
+          ankle: AutoMovieEngineVector3.add(
             { x: hip.x, y: hip.y - m.shank, z: hip.z },
-            Vector3.scale(forward, m.thigh * modifiers.extent),
+            AutoMovieEngineVector3.scale(forward, m.thigh * modifiers.extent),
           ),
           rotation: stance[side].rotation,
         };
@@ -306,13 +306,13 @@ export function exercisePlan(
         return w;
       };
       const half: number =
-        Vector3.length(
-          Vector3.subtract(stance.left.ankle, stance.right.ankle),
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(stance.left.ankle, stance.right.ankle),
         ) / 2;
       primitives.push(
         root(
           (s: number): IAutoMovieVector3 =>
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               left,
               half * (lifted("right", s) - lifted("left", s)),
             ),
@@ -364,15 +364,15 @@ export function exercisePlan(
       for (const side of ["left", "right"] as const) {
         const out: IAutoMovieMotionHumanFoot.IPlacement = shifted(
           stance[side],
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             left,
             (side === "left" ? 1 : -1) *
               Math.max(
                 0,
                 width -
                   Math.abs(
-                    Vector3.dot(
-                      Vector3.subtract(stance[side].ankle, entry.root),
+                    AutoMovieEngineVector3.dot(
+                      AutoMovieEngineVector3.subtract(stance[side].ankle, entry.root),
                       left,
                     ),
                   ),

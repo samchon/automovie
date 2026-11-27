@@ -1,14 +1,14 @@
 import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
 
-import type { AutoMovieHumanCartoon } from "../../AutoMovieHumanCartoon.js";
-import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
+import type { AutoMovieRenderHumanCartoon } from "../../AutoMovieRenderHumanCartoon.js";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
 import { buildHumanCartoonFace } from "./buildHumanCartoonFace.js";
 import { buildHumanPolygon } from "./buildHumanPolygon.js";
 
 /*
  * A posed polygon figure with its cartoon face: the original polygon drawing
- * (AutoMovieHumanPolygon.build) built once from the evaluator's neutral output,
- * and a face (AutoMovieHumanCartoon.buildFace) on its actual head front.
+ * (AutoMovieRenderHumanPolygon.build) built once from the evaluator's neutral output,
+ * and a face (AutoMovieRenderHumanCartoon.buildFace) on its actual head front.
  *
  * `place` applies an evaluated pose to the existing groups and rebuilds the
  * face only when the head pose or expression changes by value, disposing the
@@ -33,15 +33,15 @@ export function createAutoMovieHumanPolygonFigure(input: {
    */ partColors?: Readonly<
     Record<string, number>
   >;
-}): AutoMovieHumanPolygon.IFigure {
-  const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(
+}): AutoMovieRenderHumanPolygon.IFigure {
+  const drawing: AutoMovieRenderHumanPolygon.IDrawing = buildHumanPolygon(
     input.evaluate({}),
     input.partColors === undefined ? {} : { partColors: input.partColors },
   );
   let face: ReturnType<typeof buildHumanCartoonFace> | null = null;
   let key: string | null = null;
   let disposed: boolean = false;
-  const figure: AutoMovieHumanPolygon.IFigure = {
+  const figure: AutoMovieRenderHumanPolygon.IFigure = {
     object: drawing.object,
     drawing,
     unsupported: [],
@@ -50,8 +50,8 @@ export function createAutoMovieHumanPolygonFigure(input: {
         Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
         "posed"
       >,
-      head?: AutoMovieHumanCartoon.IHeadPose,
-      expression?: AutoMovieHumanCartoon.IExpression,
+      head?: AutoMovieRenderHumanCartoon.IHeadPose,
+      expression?: AutoMovieRenderHumanCartoon.IExpression,
     ): void => {
       if (disposed) throw new Error("The polygon figure is disposed");
       drawing.setPose(output);

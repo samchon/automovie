@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import { AutoMovieArchetypeQuadrupedBody } from "../../animals/AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedEquipment } from "../../animals/AutoMovieArchetypeQuadrupedEquipment";
@@ -35,8 +35,8 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
     AutoMovieArchetypeQuadrupedBody.rig(buildOxBody(), ox.dimensions);
   const camelRig: AutoMovieArchetypeQuadrupedBody.IRig =
     AutoMovieArchetypeQuadrupedBody.rig(buildCamelBody(), camel.dimensions);
-  const neckLength: number = Vector3.length(
-    Vector3.subtract(oxRig.poll, oxRig.neck),
+  const neckLength: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(oxRig.poll, oxRig.neck),
   );
 
   // Explicit gallery dimensions derived from the rest landmarks, not maker or population data.
@@ -187,7 +187,7 @@ function lead(
   rig: AutoMovieArchetypeQuadrupedBody.IRig,
 ): AutoMovieArchetypeQuadrupedLead.IParams {
   return {
-    width: Vector3.length(Vector3.subtract(rig.poll, rig.neck)) / 8,
+    width: AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(rig.poll, rig.neck)) / 8,
     thickness: rig.neckRadius / 16,
     leadLength: rig.barrel * 2,
     leadRadius: rig.neckRadius / 32,

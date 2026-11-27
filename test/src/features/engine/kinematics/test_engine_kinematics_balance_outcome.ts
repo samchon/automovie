@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieResolveBalanceOutcome,
   IAutoMovieVector3,
@@ -30,7 +30,7 @@ import { throwsError } from "../../internal/throwsError";
  * 5. Zero mass and an empty support are refused.
  */
 export function test_engine_kinematics_balance_outcome(): void {
-  const w0: number = Math.sqrt(AutoMovieGravity.STANDARD);
+  const w0: number = Math.sqrt(AutoMovieEngineGravity.STANDARD);
   const support: IAutoMovieVector3[] = [
     { x: -0.1, y: 0, z: -0.1 },
     { x: 0.1, y: 0, z: -0.1 },

@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -46,7 +46,7 @@ export function test_engine_math_rigid_mesh_transform(): void {
     }: ReturnType<typeof AutoMovieEngineMath.fitRigidMeshTransform> = result;
     return reference.flatMap((_: number, i: number): number[] => {
       if (i % 3 !== 0) return [];
-      const p: IAutoMovieVector3 = Quaternion.rotateVector(result.rotation, {
+      const p: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(result.rotation, {
         x: reference[i] - a.x,
         y: reference[i + 1] - a.y,
         z: reference[i + 2] - a.z,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
@@ -63,16 +63,16 @@ export namespace HumanPhysicalSolePlant {
       lowest(own, { [own[0]!.bone]: pose }, "forefoot")!.local,
     );
     const turned = (degrees: number): IAutoMovieRigidTransform => {
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         axis,
         degrees,
       );
       return {
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           pivot,
-          Quaternion.rotateVector(turn, Vector3.subtract(pose.position, pivot)),
+          AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(pose.position, pivot)),
         ),
-        rotation: Quaternion.multiply(turn, pose.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(turn, pose.rotation),
       };
     };
     const gap = (degrees: number): number => {
@@ -124,12 +124,12 @@ export namespace HumanPhysicalSolePlant {
       { ...poses, [`${side}Foot`]: foot },
       `${side}Foot`,
     );
-    const shank: number = Vector3.length(Vector3.subtract(knee, ankle));
-    const offset: IAutoMovieVector3 = Vector3.subtract(knee, target);
+    const shank: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(knee, ankle));
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(knee, target);
 
     // |offset - drop ŷ| = shank.
     const discriminant: number =
-      offset.y * offset.y - (Vector3.dot(offset, offset) - shank * shank);
+      offset.y * offset.y - (AutoMovieEngineVector3.dot(offset, offset) - shank * shank);
     return discriminant < 0 ? Number.NaN : offset.y - Math.sqrt(discriminant);
   }
 
@@ -159,19 +159,19 @@ export namespace HumanPhysicalSolePlant {
       { ...poses, [ankleBone]: foot },
       ankleBone,
     );
-    const thigh: number = Vector3.length(Vector3.subtract(knee, hip));
-    const shank: number = Vector3.length(Vector3.subtract(ankle, knee));
+    const thigh: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(knee, hip));
+    const shank: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(ankle, knee));
     if (
-      Math.abs(Vector3.length(Vector3.subtract(target, knee)) - shank) >
+      Math.abs(AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(target, knee)) - shank) >
       REACH_ROUNDOFF
     ) {
-      const reach: IAutoMovieVector3 = Vector3.subtract(target, hip);
-      const distance: number = Vector3.length(reach);
+      const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(target, hip);
+      const distance: number = AutoMovieEngineVector3.length(reach);
       if (!(distance > 0) || distance > thigh + shank) return false;
-      const axis: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
-      const bend: IAutoMovieVector3 = Vector3.subtract(knee, hip);
-      const lift: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(bend, Vector3.scale(axis, Vector3.dot(bend, axis))),
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.scale(reach, 1 / distance);
+      const bend: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(knee, hip);
+      const lift: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(bend, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(bend, axis))),
       );
       const angle: number = Math.acos(
         Math.max(
@@ -183,74 +183,74 @@ export namespace HumanPhysicalSolePlant {
           ),
         ),
       );
-      const bent: IAutoMovieVector3 = Vector3.add(
+      const bent: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         hip,
-        Vector3.add(
-          Vector3.scale(axis, thigh * Math.cos(angle)),
-          Vector3.scale(lift, thigh * Math.sin(angle)),
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(axis, thigh * Math.cos(angle)),
+          AutoMovieEngineVector3.scale(lift, thigh * Math.sin(angle)),
         ),
       );
       const turnUpper: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
         bend,
-        Vector3.subtract(bent, hip),
+        AutoMovieEngineVector3.subtract(bent, hip),
       );
       poses[upper] = {
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           hip,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             turnUpper,
-            Vector3.subtract(poses[upper]!.position, hip),
+            AutoMovieEngineVector3.subtract(poses[upper]!.position, hip),
           ),
         ),
-        rotation: Quaternion.multiply(turnUpper, poses[upper]!.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(turnUpper, poses[upper]!.rotation),
       };
       poses[lower] = {
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           bent,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             turnUpper,
-            Vector3.subtract(poses[lower]!.position, knee),
+            AutoMovieEngineVector3.subtract(poses[lower]!.position, knee),
           ),
         ),
-        rotation: Quaternion.multiply(turnUpper, poses[lower]!.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(turnUpper, poses[lower]!.rotation),
       };
-      ankle = Vector3.add(
+      ankle = AutoMovieEngineVector3.add(
         bent,
-        Quaternion.rotateVector(turnUpper, Vector3.subtract(ankle, knee)),
+        AutoMovieEngineQuaternion.rotateVector(turnUpper, AutoMovieEngineVector3.subtract(ankle, knee)),
       );
       knee = bent;
     }
     const turnLower: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
-      Vector3.subtract(ankle, knee),
-      Vector3.subtract(target, knee),
+      AutoMovieEngineVector3.subtract(ankle, knee),
+      AutoMovieEngineVector3.subtract(target, knee),
     );
     const toesLocal: IAutoMovieRigidTransform = {
-      position: Quaternion.rotateVector(
-        Quaternion.inverse(poses[ankleBone]!.rotation),
-        Vector3.subtract(poses[toes]!.position, poses[ankleBone]!.position),
+      position: AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(poses[ankleBone]!.rotation),
+        AutoMovieEngineVector3.subtract(poses[toes]!.position, poses[ankleBone]!.position),
       ),
-      rotation: Quaternion.multiply(
-        Quaternion.inverse(poses[ankleBone]!.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.inverse(poses[ankleBone]!.rotation),
         poses[toes]!.rotation,
       ),
     };
     poses[lower] = {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         knee,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           turnLower,
-          Vector3.subtract(poses[lower]!.position, knee),
+          AutoMovieEngineVector3.subtract(poses[lower]!.position, knee),
         ),
       ),
-      rotation: Quaternion.multiply(turnLower, poses[lower]!.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(turnLower, poses[lower]!.rotation),
     };
     poses[ankleBone] = foot;
     poses[toes] = {
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         foot.position,
-        Quaternion.rotateVector(foot.rotation, toesLocal.position),
+        AutoMovieEngineQuaternion.rotateVector(foot.rotation, toesLocal.position),
       ),
-      rotation: Quaternion.multiply(foot.rotation, toesLocal.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(foot.rotation, toesLocal.rotation),
     };
     return true;
   }
@@ -269,7 +269,7 @@ export namespace HumanPhysicalSolePlant {
       if (point.region !== region) continue;
       const pose: IAutoMovieRigidTransform = poses[point.bone]!;
       const y: number =
-        pose.position.y + Quaternion.rotateVectorY(pose.rotation, point.local);
+        pose.position.y + AutoMovieEngineQuaternion.rotateVectorY(pose.rotation, point.local);
       if (y < height) {
         result = point;
         height = y;

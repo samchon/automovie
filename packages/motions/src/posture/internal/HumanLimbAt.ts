@@ -1,6 +1,6 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
+  AutoMovieEngineHumanoidJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
   AutoMovieEngineMotionKinematics,
 } from "@automovie/engine";
 import type {
@@ -265,7 +265,7 @@ function request(
     bend: goal.bend,
     ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),
     topology: body.topology,
-    jointAxes: HUMANOID_JOINT_AXES,
-    restFrames: HUMANOID_REST_FRAME,
+    jointAxes: AutoMovieEngineHumanoidJointAxes,
+    restFrames: AutoMovieEngineHumanoidRestFrame,
   };
 }

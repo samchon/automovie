@@ -1,7 +1,7 @@
 import { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Apply one TRS transform to a point: scale per axis, then rotate, then
@@ -21,9 +21,9 @@ export function placeTransformedPoint(
   transform: IAutoMovieTransform,
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     transform.translation,
-    Quaternion.rotateVector(transform.rotation, {
+    AutoMovieEngineQuaternion.rotateVector(transform.rotation, {
       x: point.x * transform.scale.x,
       y: point.y * transform.scale.y,
       z: point.z * transform.scale.z,

@@ -1,4 +1,6 @@
-import { ArchetypeBinary64 } from "@automovie/archetypes/internal";
+import {
+  ArchetypeBinary64
+} from "../../../../../packages/archetypes/src/core/internal/ArchetypeBinary64";
 import { TestValidator } from "@nestia/e2e";
 
 /**

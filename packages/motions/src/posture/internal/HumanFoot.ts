@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFootOutline } from "./HumanFootOutline";
@@ -196,8 +196,8 @@ export namespace HumanFoot {
     if (degrees === 0) return foot;
     return {
       ankle: foot.ankle,
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(YAW(degrees), foot.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(YAW(degrees), foot.rotation),
       ),
     };
   }
@@ -236,7 +236,7 @@ export namespace HumanFoot {
    * Returns: Degrees.
    */
   export function roll(rotation: IAutoMovieQuaternion): number {
-    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 1,
       y: 0,
       z: 0,
@@ -252,7 +252,7 @@ export namespace HumanFoot {
    * Returns: Degrees about +Y.
    */
   export function heading(rotation: IAutoMovieQuaternion): number {
-    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const lateral: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 1,
       y: 0,
       z: 0,
@@ -267,7 +267,7 @@ export namespace HumanFoot {
    * Returns: Degrees, positive toes up.
    */
   export function pitch(rotation: IAutoMovieQuaternion): number {
-    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const toes: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
@@ -285,7 +285,7 @@ export namespace HumanFoot {
     rotation: IAutoMovieQuaternion,
   ): IHeadingPitchResult {
     const angle: number = heading(rotation);
-    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const toes: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
@@ -379,7 +379,7 @@ export namespace HumanFoot {
     const local: IAutoMovieVector3 =
       typeof pivot === "string" ? offset(body, side, pivot, toes) : pivot;
     return {
-      ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
+      ankle: AutoMovieEngineVector3.subtract(at, AutoMovieEngineQuaternion.rotateVector(r, local)),
       rotation: r,
     };
   }
@@ -413,9 +413,9 @@ export namespace HumanFoot {
     contact: IAutoMovieVector3,
   ): IAutoMovieMotionHumanFoot.IHeelOffResult {
     return {
-      ankle: Vector3.subtract(
+      ankle: AutoMovieEngineVector3.subtract(
         anchor,
-        Quaternion.rotateVector(reached, contact),
+        AutoMovieEngineQuaternion.rotateVector(reached, contact),
       ),
       toes: Math.max(0, pitch(asked) - pitch(reached)),
     };
@@ -476,5 +476,5 @@ type IHeadingPitchResult = {
 /*
  * The unchanged world-up axis shared only as axis-angle scalar preparation.
  */
-const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> =
-  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+const YAW: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
+  AutoMovieEngineQuaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });

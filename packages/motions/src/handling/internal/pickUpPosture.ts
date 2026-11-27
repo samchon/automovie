@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -198,7 +198,7 @@ export namespace pickUpPosture {
         axis: "prop",
         value: grip.y,
         feasible: error.feasible,
-        reason: `${context.subject}: no stoop or squat brings the ${side} hand to the grip at ${grip.y.toFixed(3)} m high, ${Vector3.length({ ...Vector3.subtract(grip, pickUpPostureShoulder(context, side, entry)), y: 0 }).toFixed(3)} m from the shoulder across the floor (${error.message})`,
+        reason: `${context.subject}: no stoop or squat brings the ${side} hand to the grip at ${grip.y.toFixed(3)} m high, ${AutoMovieEngineVector3.length({ ...AutoMovieEngineVector3.subtract(grip, pickUpPostureShoulder(context, side, entry)), y: 0 }).toFixed(3)} m from the shoulder across the floor (${error.message})`,
         fix: "step closer to the prop first",
       });
     }
@@ -249,7 +249,7 @@ export namespace pickUpPosture {
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;
     return (wrist: IAutoMovieMotionHumanHand.IWrist): boolean =>
-      Vector3.length(Vector3.subtract(wrist.point, from)) <= limit + 1e-6;
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist.point, from)) <= limit + 1e-6;
   }
 
   /*
@@ -268,8 +268,8 @@ export namespace pickUpPosture {
     wrist: IAutoMovieVector3,
     posture: IAutoMovieMotionHumanPosture = context.entry.posture,
   ): void {
-    const distance: number = Vector3.length(
-      Vector3.subtract(wrist, pickUpPostureShoulder(context, side, posture)),
+    const distance: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(wrist, pickUpPostureShoulder(context, side, posture)),
     );
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieTransform,
@@ -50,19 +50,19 @@ export function EquineSwimPose(
     new Map(neutral);
 
   // The neck turns about its root and the head rides it.
-  const raise: IAutoMovieQuaternion = Quaternion.fromAxisAngle(LATERAL, -neck);
+  const raise: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(LATERAL, -neck);
   const root: IAutoMovieVector3 = neutral.get("neck")!.translation;
   for (const bone of ["neck", "head"] as const) {
     const frame: IAutoMovieTransform = neutral.get(bone)!;
     frames.set(bone, {
-      translation: Vector3.add(
+      translation: AutoMovieEngineVector3.add(
         root,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           raise,
-          Vector3.subtract(frame.translation, root),
+          AutoMovieEngineVector3.subtract(frame.translation, root),
         ),
       ),
-      rotation: Quaternion.multiply(raise, frame.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(raise, frame.rotation),
       scale: { ...frame.scale },
     });
   }
@@ -84,26 +84,26 @@ export function EquineSwimPose(
     let origin: IAutoMovieVector3 = neutral.get(chain[0]!)!.translation;
     for (let k: number = 0; k < chain.length; k++) {
       const frame: IAutoMovieTransform = neutral.get(chain[k]!)!;
-      const direction: IAutoMovieVector3 = Quaternion.rotateVector(
+      const direction: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         frame.rotation,
         { x: 0, y: 1, z: 0 },
       );
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         LATERAL,
         (Math.atan2(direction.y, direction.z) * 180) / Math.PI - polar,
       );
       frames.set(chain[k]!, {
         translation: origin,
-        rotation: Quaternion.multiply(turn, frame.rotation),
+        rotation: AutoMovieEngineQuaternion.multiply(turn, frame.rotation),
         scale: { ...frame.scale },
       });
       if (k + 1 < chain.length) {
         const next: IAutoMovieTransform = neutral.get(chain[k + 1]!)!;
-        origin = Vector3.add(
+        origin = AutoMovieEngineVector3.add(
           origin,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             turn,
-            Vector3.subtract(next.translation, frame.translation),
+            AutoMovieEngineVector3.subtract(next.translation, frame.translation),
           ),
         );
         polar += 180 - fronts[k]!;
@@ -119,8 +119,8 @@ export function EquineSwimPose(
     if (parent !== null)
       local.set(
         bone,
-        Quaternion.multiply(
-          Quaternion.inverse(frames.get(parent)!.rotation),
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(frames.get(parent)!.rotation),
           frame.rotation,
         ),
       );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -136,9 +136,9 @@ export namespace KickRedirect {
           );
           const w: number = blend(clock);
           return {
-            ankle: Vector3.lerp(from.ankle, to.ankle, w),
-            hint: Vector3.lerp(from.hint, to.hint, w),
-            rotation: Quaternion.slerp(from.rotation, to.rotation, w),
+            ankle: AutoMovieEngineVector3.lerp(from.ankle, to.ankle, w),
+            hint: AutoMovieEngineVector3.lerp(from.hint, to.hint, w),
+            rotation: AutoMovieEngineQuaternion.slerp(from.rotation, to.rotation, w),
           };
         },
         origin: fresh.origin,

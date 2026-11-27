@@ -1,4 +1,4 @@
-import { type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
+import { type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -82,7 +82,7 @@ export function test_render_scene_apply_inspection_mark_kind_unknown(): void {
 
   // 3. Bare names under the path grammar.
   const drawnBy = (pattern: string): number => {
-    const handle: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+    const handle: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask({ marks: [pattern] }),
       marks,
@@ -100,7 +100,7 @@ export function test_render_scene_apply_inspection_mark_kind_unknown(): void {
   );
 
   // 4. No pattern.
-  const none: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
+  const none: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({}),
     marks,

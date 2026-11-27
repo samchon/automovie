@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSpacecraftData from "./internal/AutoMovieArchetypeSpacecraftData";
+import { AutoMovieArchetypeSpacecraftData } from "./internal/AutoMovieArchetypeSpacecraftData";
 
 /** Constructs the spacecraft archetype from its recipe. */
 export namespace AutoMovieArchetypeSpacecraft {
@@ -53,7 +53,7 @@ export function create(
     material: "aluminium",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const rear: number = -d.length / 2;
   const nose: number = d.length / 2;
   const shoulder: number = nose - 0.3 * d.length;

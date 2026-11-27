@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { crabWalkClock } from "@automovie/motions/internal";
+import {
+  crabWalkClock
+} from "../../../../../packages/motions/src/floor/internal/crabWalkClock";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

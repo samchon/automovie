@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieTransform,
@@ -157,10 +157,10 @@ export namespace QuadrupedHoofTrack {
       distance: last.distance + over,
       placement: {
         ...last.placement,
-        translation: Vector3.add(
+        translation: AutoMovieEngineVector3.add(
           last.placement.translation,
-          Vector3.scale(
-            Quaternion.rotateVector(last.placement.rotation, {
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineQuaternion.rotateVector(last.placement.rotation, {
               x: 0,
               y: 0,
               z: 1,
@@ -220,7 +220,7 @@ export namespace QuadrupedHoofTrack {
         z: z + support.travel / 2,
       });
     const neutral: IAutoMovieVector3 = { x, y: 0, z };
-    const point: IAutoMovieVector3 = Vector3.lerp(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
       AutoMovieArchetypeFrame.point(support.landed.placement, neutral),
       AutoMovieArchetypeFrame.point(support.lifted, neutral),
       0.5,
@@ -360,7 +360,7 @@ export namespace QuadrupedHoofTrack {
     const landed: IAutoMovieQuaternion = from.landed.placement.rotation;
     const oldGround: AutoMovieArchetypeQuadrupedFooting.ILanding | undefined =
       footing?.landing(foot, landed);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       state.placement.rotation,
     );
     const nextFoot: IAutoMovieVector3 | undefined =
@@ -394,12 +394,12 @@ export namespace QuadrupedHoofTrack {
     const world: IAutoMovieVector3 = raised
       ? { ...chord, y: beneath!.point.y }
       : chord;
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(world, state.placement.translation),
+      AutoMovieEngineVector3.subtract(world, state.placement.translation),
     );
     // A body pitched against the ground (a lean or a tilt) sees the level ground as a plane through the hoof's world point.
-    const up: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
+    const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(inverse, {
       x: 0,
       y: 1,
       z: 0,
@@ -407,11 +407,11 @@ export namespace QuadrupedHoofTrack {
     return {
       x: local.x,
       z: local.z,
-      orientation: Quaternion.multiply(
+      orientation: AutoMovieEngineQuaternion.multiply(
         inverse,
         to === undefined
           ? (oldGround?.rotation ?? landed)
-          : Quaternion.slerp(
+          : AutoMovieEngineQuaternion.slerp(
               oldGround?.rotation ?? landed,
               nextGround?.rotation ?? to.landed.placement.rotation,
               amount,
@@ -424,14 +424,14 @@ export namespace QuadrupedHoofTrack {
         : {
             surface: {
               point: local,
-              normal: Quaternion.rotateVector(
+              normal: AutoMovieEngineQuaternion.rotateVector(
                 inverse,
                 raised
                   ? beneath!.normal
                   : nextGround === undefined
                     ? oldGround.normal
-                    : Vector3.normalize(
-                        Vector3.lerp(
+                    : AutoMovieEngineVector3.normalize(
+                        AutoMovieEngineVector3.lerp(
                           oldGround.normal,
                           nextGround.normal,
                           amount,

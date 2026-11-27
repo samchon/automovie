@@ -1,12 +1,19 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGesture,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
-import { FamilyCaseKit } from "@automovie/motions/executable/internal";
-import { HumanHand, gesture } from "@automovie/motions/internal";
+import {
+  FamilyCaseKit
+} from "../../../../../packages/motions/src/executable/cases/FamilyCaseKit";
+import {
+  HumanHand
+} from "../../../../../packages/motions/src/posture/internal/HumanHand";
+import {
+  gesture
+} from "../../../../../packages/motions/src/everyday/internal/gesture";
 import { TestValidator } from "@nestia/e2e";
 
 const ACTOR = "a";
@@ -39,7 +46,7 @@ export function test_motions_everyday_gesture_geometry(): void {
       ] as const) {
         let peak: number = 0;
         for (let t: number = a; t + step <= b + 1e-9; t += step)
-          peak = Math.max(peak, Vector3.distance(at(t), at(t + step)) / step);
+          peak = Math.max(peak, AutoMovieEngineVector3.distance(at(t), at(t + step)) / step);
         TestValidator.predicate(
           `${bone} transport stays within its rate`,
           () => peak <= gesture.WAVE_TRANSPORT_SPEED,

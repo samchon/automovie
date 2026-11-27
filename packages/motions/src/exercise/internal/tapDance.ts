@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -171,7 +171,7 @@ export namespace tapDance {
               ? -reach
               : 0;
         const target: IAutoMovieMotionHumanFoot.IPlacement = {
-          ankle: Vector3.add(home[side].ankle, Vector3.scale(forward, shift)),
+          ankle: AutoMovieEngineVector3.add(home[side].ankle, AutoMovieEngineVector3.scale(forward, shift)),
           rotation: home[side].rotation,
         };
         if (strike.bears) ground[side] = target;
@@ -231,9 +231,9 @@ export namespace tapDance {
       ...flats.map((f: IFlat): number =>
         flat(
           body,
-          Vector3.dot(
-            Vector3.subtract(
-              Vector3.lerp(
+          AutoMovieEngineVector3.dot(
+            AutoMovieEngineVector3.subtract(
+              AutoMovieEngineVector3.lerp(
                 left.placed(f.at).ankle,
                 right.placed(f.at).ankle,
                 0.5,
@@ -264,7 +264,7 @@ export namespace tapDance {
         left: keys.left,
         right: keys.right,
         hips: (t: number): IAutoMovieVector3 => {
-          const mid: IAutoMovieVector3 = Vector3.lerp(
+          const mid: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
             left.placed(t).ankle,
             right.placed(t).ankle,
             0.5,
@@ -301,7 +301,7 @@ export namespace tapDance {
   /*
    * The deepest crouch below straight legs at which a foot set down flat keeps
    * its shank within the unloaded ankle's dorsal range, less the walk's margin
-   * (`ANKLE_DORSIFLEXION.unloaded − walkLeg.ANKLE`), with the hip `ahead` of
+   * (`AutoMovieEngineAnkleDorsiflexion.unloaded − walkLeg.ANKLE`), with the hip `ahead` of
    * the ankle along the heading: the knee `s` from the ankle at that lean φ,
    * the hip `t` from the knee, so the hip stands `H = s·cos φ + √(t² − (ahead −
    * s·sin φ)²)` above the ankle at least (law of cosines on the leg's two
@@ -311,7 +311,7 @@ export namespace tapDance {
     const t: number = body.measure.thigh;
     const s: number = body.measure.shank;
     const lean: number =
-      ((ANKLE_DORSIFLEXION.unloaded - walkLeg.ANKLE) * Math.PI) / 180;
+      ((AutoMovieEngineAnkleDorsiflexion.unloaded - walkLeg.ANKLE) * Math.PI) / 180;
     const across: number = ahead - s * Math.sin(lean);
     const least: number =
       s * Math.cos(lean) + Math.sqrt(Math.max(0, t * t - across * across));

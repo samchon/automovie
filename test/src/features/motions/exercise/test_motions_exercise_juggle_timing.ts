@@ -1,5 +1,7 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { juggleTiming } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  juggleTiming
+} from "../../../../../packages/motions/src/exercise/internal/juggleTiming";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,7 +20,7 @@ import { nclose } from "../../internal/nclose";
  *    flights averaging `2F / 3`.
  */
 export function test_motions_exercise_juggle_timing(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const F: number = Math.sqrt(4.8 / g);
   const cascade: juggleTiming.ITiming = juggleTiming({
     pattern: "cascade",

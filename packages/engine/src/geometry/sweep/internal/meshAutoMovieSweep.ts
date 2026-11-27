@@ -12,7 +12,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 import { emptyMeshTarget } from "../../internal/emptyMeshTarget";
 import { meshOf } from "../../internal/meshOf";
 import { canonicalRegion } from "../../planar-region/internal/canonicalRegion";
@@ -119,11 +119,11 @@ export const meshAutoMovieSweep: (
       plan,
       points: plan.points.map(
         (p: IAutoMovieProfilePoint): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             frame.origin,
-            Vector3.add(
-              Vector3.scale(frame.x, p.x),
-              Vector3.scale(frame.y, p.y),
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.scale(frame.x, p.x),
+              AutoMovieEngineVector3.scale(frame.y, p.y),
             ),
           ),
       ),
@@ -187,8 +187,8 @@ const chordShare = (points: IAutoMovieVector3[], k: number): number => {
   let before: number = 0;
   let total: number = 0;
   for (let i: number = 1; i < points.length; ++i) {
-    const d: number = Vector3.length(
-      Vector3.subtract(points[i]!, points[i - 1]!),
+    const d: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(points[i]!, points[i - 1]!),
     );
     total += d;
     if (i <= k) before += d;

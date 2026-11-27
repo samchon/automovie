@@ -1,7 +1,7 @@
 import {
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  AutoMovieSplineCurve,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftJet,
+  AutoMovieEngineSplineCurve,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -124,8 +124,8 @@ export namespace AutoMovieHumanBodyStrip {
         const e3: AutoMovieVector3Tuple = cross(e1, normal);
         const M: number = row.length / 3;
         const ab: [number, number, number, number] =
-          AutoMovieSplineCurve.evaluate(row.slice(0, 2 * M), M, u);
-        const cc: number = AutoMovieSplineCurve.evaluate(
+          AutoMovieEngineSplineCurve.evaluate(row.slice(0, 2 * M), M, u);
+        const cc: number = AutoMovieEngineSplineCurve.evaluate(
           [...row.slice(2 * M), ...row.slice(2 * M)],
           M,
           u,
@@ -190,8 +190,8 @@ export namespace AutoMovieHumanBodyStrip {
     dt: number,
     ds: number,
   ): IAutoMovieHumanBodyStrip.AcrossResult {
-    if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+    if (AutoMovieEngineLoftJet.carries(chain)) {
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
         chain,
         clamp(chain, s),
         t,
@@ -227,7 +227,7 @@ export namespace AutoMovieHumanBodyStrip {
     s: number,
     t: number,
   ): AutoMovieVector3Tuple {
-    return AutoMovieLoftChain.point(chain, clamp(chain, s), t);
+    return AutoMovieEngineLoftChain.point(chain, clamp(chain, s), t);
   }
 
   /*
@@ -249,7 +249,7 @@ export namespace AutoMovieHumanBodyStrip {
     const outward: number = root.end === "bottom" ? -1 : 1;
     const A: AutoMovieVector3Tuple = surface(appendage, end, u);
     const [a1, a2] = station(appendage, end, u, outward);
-    const [s, remainder, ds, dr] = AutoMovieSplineCurve.evaluate(
+    const [s, remainder, ds, dr] = AutoMovieEngineSplineCurve.evaluate(
       root.root,
       root.root.length / 2,
       u,
@@ -296,8 +296,8 @@ export namespace AutoMovieHumanBodyStrip {
   ): [number, number, number] {
     let Pt: AutoMovieVector3Tuple;
     let Ps: AutoMovieVector3Tuple;
-    if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+    if (AutoMovieEngineLoftJet.carries(chain)) {
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
         chain,
         clamp(chain, s),
         t,
@@ -374,8 +374,8 @@ export namespace AutoMovieHumanBodyStrip {
     u: number,
     outward: number,
   ): [AutoMovieVector3Tuple, AutoMovieVector3Tuple] {
-    if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, end, u);
+    if (AutoMovieEngineLoftJet.carries(chain)) {
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(chain, end, u);
       return arcLength(scale(j.s, outward), j.ss);
     }
     const p0: AutoMovieVector3Tuple = surface(chain, end, u);

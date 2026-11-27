@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeTrack } from "../AutoMovieArchetypeTrack";
@@ -28,7 +28,7 @@ export function ArchetypePendulumFrequency(
           "a pendulum needs finite positive mass, moment and gravity lever",
         fix: "give the physical pendulum's positive SI figures",
       });
-  const weight: number = body.mass * AutoMovieGravity.STANDARD;
+  const weight: number = body.mass * AutoMovieEngineGravity.STANDARD;
   const numerator: number = weight * body.arm;
   const squared: number = numerator / body.moment;
   // The square can overflow even when the frequency itself is representable.
@@ -40,7 +40,7 @@ export function ArchetypePendulumFrequency(
       ? Math.sqrt(squared)
       : Math.exp(
           (Math.log(body.mass) +
-            Math.log(AutoMovieGravity.STANDARD) +
+            Math.log(AutoMovieEngineGravity.STANDARD) +
             Math.log(body.arm) -
             Math.log(body.moment)) /
             2,

@@ -1,5 +1,5 @@
 import {
-  AutoMoviePhysicalProjectile,
+  AutoMovieEnginePhysicalProjectile,
 } from "@automovie/engine";
 import type {
   IAutoMovieHit,
@@ -35,15 +35,15 @@ export function test_engine_physics_projectile_drag_flight(): void {
       gravity: { x: 0, y: -10, z: 0 },
       drag: { coefficient: 1, area: 1, density: 1, mass: 1, [zero]: 0 },
     };
-    const flight: IAutoMovieProjectileFlight = AutoMoviePhysicalProjectile.dragFlight(projectile);
+    const flight: IAutoMovieProjectileFlight = AutoMovieEnginePhysicalProjectile.dragFlight(projectile);
     TestValidator.predicate(
       `${zero}=0 has an unbounded global speed`,
       flight.fastest === Infinity,
     );
-    const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const hit: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       projectile,
       [
-        AutoMoviePhysicalProjectile.shapeCollider(
+        AutoMovieEnginePhysicalProjectile.shapeCollider(
           "sphere",
           {
             id: "sphere",
@@ -91,10 +91,10 @@ export function test_engine_physics_projectile_drag_flight(): void {
   };
   TestValidator.predicate(
     "zero gravity keeps the launch-speed bound",
-    nclose(AutoMoviePhysicalProjectile.dragFlight(constant).fastest, 5),
+    nclose(AutoMovieEnginePhysicalProjectile.dragFlight(constant).fastest, 5),
   );
   assert.throws((): void => {
-    AutoMoviePhysicalProjectile.dragFlight({
+    AutoMovieEnginePhysicalProjectile.dragFlight({
       ...constant,
       drag: {
         coefficient: Number.MAX_VALUE,

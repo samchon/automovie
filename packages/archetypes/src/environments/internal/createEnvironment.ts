@@ -1,4 +1,4 @@
-import { AutoMovieEngineSubjects, Quaternion, Transform, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineSubjects, AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieClip,
@@ -41,7 +41,7 @@ export function createEnvironment(
   recipe: IAutoMovieEnvironmentRecipe,
 ): IAutoMovieEnvironment {
   requirePath(recipe.id, "$input.id");
-  const root: IAutoMovieTransform = recipe.frame ?? Transform.identity();
+  const root: IAutoMovieTransform = recipe.frame ?? AutoMovieEngineTransform.identity();
   requireEnvironmentFrame(root, "$input.frame");
 
   const items: Map<string, IAutoMovieEnvironmentItem> = new Map(
@@ -129,9 +129,9 @@ export function createEnvironment(
           parent = anchor(at.anchor, `${path}.at`);
         } else offset = at;
       }
-      const local: IAutoMovieTransform = Transform.of(
+      const local: IAutoMovieTransform = AutoMovieEngineTransform.of(
         offset,
-        item.rotation ?? Quaternion.identity(),
+        item.rotation ?? AutoMovieEngineQuaternion.identity(),
       );
       requireEnvironmentFrame(local, `${path}.placement`);
       const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(

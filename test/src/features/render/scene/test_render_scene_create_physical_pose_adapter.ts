@@ -1,4 +1,4 @@
-import { type IAutoMovieModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
+import { type IAutoMovieRenderModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -24,7 +24,7 @@ export function test_render_scene_create_physical_pose_adapter(): void {
   object.add(root);
   root.add(head);
   head.add(detail);
-  const model: IAutoMovieModelObject = {
+  const model: IAutoMovieRenderModelObject = {
     object,
     bones: new Map([
       ["hips", root],
@@ -76,7 +76,7 @@ export function test_render_scene_create_physical_pose_adapter(): void {
   scaled.scale.set(2, 1, 1);
   compensated.scale.set(0.5, 1, 1);
   scaled.add(compensated);
-  const scaledModel: IAutoMovieModelObject = {
+  const scaledModel: IAutoMovieRenderModelObject = {
     object: scaled,
     bones: new Map([["head", compensated]]),
     parts: new Map(),

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
-import * as AutoMovieArchetypeMaterialData from "./internal/AutoMovieArchetypeMaterialData";
+import { AutoMovieArchetypeMaterialData } from "./internal/AutoMovieArchetypeMaterialData";
 
 /**
  * Physical materials and their cited contact measurements, independent of the

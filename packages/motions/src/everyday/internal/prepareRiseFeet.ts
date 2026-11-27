@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanPosture,
@@ -23,10 +23,10 @@ export function prepareRiseFeet(
 ) => IAutoMovieMotionHumanPosture["limbs"] {
   const straight: Record<
     AutoMovieHumanSide,
-    ReturnType<typeof Vector3.prepareLerp>
+    ReturnType<typeof AutoMovieEngineVector3.prepareLerp>
   > = {
-    left: Vector3.prepareLerp(props.feet.left, props.drawn.left),
-    right: Vector3.prepareLerp(props.feet.right, props.drawn.right),
+    left: AutoMovieEngineVector3.prepareLerp(props.feet.left, props.drawn.left),
+    right: AutoMovieEngineVector3.prepareLerp(props.feet.right, props.drawn.right),
   };
   /*
    * Read one original foot swing together with its planted endpoint rule.
@@ -37,7 +37,7 @@ export function prepareRiseFeet(
       return { ankle: props.feet[side], planted: true };
     if (t >= swing[1]) return { ankle: props.drawn[side], planted: true };
     const u: number = (t - swing[0]) / props.draw;
-    const line: ReturnType<typeof Vector3.prepareLerp> = straight[side];
+    const line: ReturnType<typeof AutoMovieEngineVector3.prepareLerp> = straight[side];
     const ankle: IAutoMovieVector3 = line(AutoMovieEngineMotionSampling.minimumJerkShare(u));
 
     // This interpolation vector belongs only to this foot read.

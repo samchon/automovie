@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieTransform } from "@automovie/interface";
 
 import {
@@ -10,7 +10,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { rideMovingWalkway } from "./internal/rideMovingWalkway";
-import * as AutoMovieArchetypeMovingWalkwayData from "./internal/AutoMovieArchetypeMovingWalkwayData";
+import { AutoMovieArchetypeMovingWalkwayData } from "./internal/AutoMovieArchetypeMovingWalkwayData";
 
 /** Creates a deterministic moving walkway fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeMovingWalkway {
@@ -63,28 +63,28 @@ export namespace AutoMovieArchetypeMovingWalkway {
       width / 2 + AutoMovieArchetypeMovingWalkway.RAIL_OFFSET;
     builder.box(
       "entryLanding",
-      Vector3.create(2 * rail, PLATE, LANDING),
-      Vector3.create(0, -PLATE / 2, -LANDING / 2),
+      AutoMovieEngineVector3.create(2 * rail, PLATE, LANDING),
+      AutoMovieEngineVector3.create(0, -PLATE / 2, -LANDING / 2),
       { color: "#8a8f96" },
     );
     builder.box(
       "exitLanding",
-      Vector3.create(2 * rail, PLATE, LANDING),
-      Vector3.create(0, -PLATE / 2, length + LANDING / 2),
+      AutoMovieEngineVector3.create(2 * rail, PLATE, LANDING),
+      AutoMovieEngineVector3.create(0, -PLATE / 2, length + LANDING / 2),
       { color: "#8a8f96" },
     );
     builder.box(
       "band",
-      Vector3.create(width, PLATE, length),
-      Vector3.create(0, -PLATE / 2, length / 2),
+      AutoMovieEngineVector3.create(width, PLATE, length),
+      AutoMovieEngineVector3.create(0, -PLATE / 2, length / 2),
       { color: "#4b5058" },
     );
     for (const side of [-1, 1] as const)
       builder.rod(
         side < 0 ? "rightRail" : "leftRail",
         0.04,
-        Vector3.create(side * rail, handrail, 0),
-        Vector3.create(side * rail, handrail, length),
+        AutoMovieEngineVector3.create(side * rail, handrail, 0),
+        AutoMovieEngineVector3.create(side * rail, handrail, length),
         { color: "#111111" },
       );
 
@@ -92,7 +92,7 @@ export namespace AutoMovieArchetypeMovingWalkway {
       id: "entryLanding",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, 0, -LANDING / 2),
+        AutoMovieEngineVector3.create(0, 0, -LANDING / 2),
       ),
       extent: null,
       width,
@@ -102,7 +102,7 @@ export namespace AutoMovieArchetypeMovingWalkway {
       id: "exitLanding",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, 0, length + LANDING / 2),
+        AutoMovieEngineVector3.create(0, 0, length + LANDING / 2),
       ),
       extent: null,
       width,
@@ -111,7 +111,7 @@ export namespace AutoMovieArchetypeMovingWalkway {
     builder.affordance({
       id: "band",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, length / 2)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, length / 2)),
       extent: null,
       width,
       depth: length,
@@ -123,9 +123,9 @@ export namespace AutoMovieArchetypeMovingWalkway {
         symmetry: "round",
         grip: "power",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(side * rail, handrail, length / 2),
-          Vector3.create(0, 1, 0),
-          Vector3.create(0, 0, 1),
+          AutoMovieEngineVector3.create(side * rail, handrail, length / 2),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(0, 0, 1),
         ),
         extent: null,
         length,
@@ -229,14 +229,14 @@ export namespace AutoMovieArchetypeMovingWalkway {
       });
     builder.box(
       "band",
-      Vector3.create(width, PLATE, length),
-      Vector3.create(0, -PLATE / 2, length / 2),
+      AutoMovieEngineVector3.create(width, PLATE, length),
+      AutoMovieEngineVector3.create(0, -PLATE / 2, length / 2),
       { color: "#3a3f46" },
     );
     builder.affordance({
       id: "band",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, length / 2)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, length / 2)),
       extent: null,
       width,
       depth: length,

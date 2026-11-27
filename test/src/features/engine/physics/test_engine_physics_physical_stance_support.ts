@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalStanceSupport, AutoMovieEnginePhysicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalStanceSupport, AutoMovieEnginePhysicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile,
@@ -132,9 +132,9 @@ export function test_engine_physics_physical_stance_support(): void {
     chain: ["upper-0", "lower-0", "support-0"],
   };
   const joint = base.joints.find((j) => j.child === "upper-0")!;
-  const hip: IAutoMovieVector3 = Vector3.add(
+  const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     neutral[joint.parent]!.position,
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       neutral[joint.parent]!.rotation,
       joint.parentFrame.position,
     ),
@@ -144,11 +144,11 @@ export function test_engine_physics_physical_stance_support(): void {
   let mass: number = 0;
   for (const name of leg.chain) {
     const segment = base.segments.find((s) => s.bone === name)!;
-    const center: IAutoMovieVector3 = Vector3.add(
+    const center: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       neutral[name]!.position,
-      Quaternion.rotateVector(neutral[name]!.rotation, segment.centerOfMass),
+      AutoMovieEngineQuaternion.rotateVector(neutral[name]!.rotation, segment.centerOfMass),
     );
-    moment += segment.mass * Vector3.length(Vector3.subtract(center, hip));
+    moment += segment.mass * AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(center, hip));
     mass += segment.mass;
   }
   const effective: number = AutoMovieEnginePhysicalStanceSwing.swingMass(
@@ -167,7 +167,7 @@ export function test_engine_physics_physical_stance_support(): void {
     ),
     leg,
   );
-  const expected: number = moment / Vector3.length(Vector3.subtract(end, hip));
+  const expected: number = moment / AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(end, hip));
   if (
     !(Math.abs(effective - expected) < PhysicalTolerance.ACCUMULATED) ||
     !(effective > 0 && effective <= mass)
@@ -179,7 +179,7 @@ export function test_engine_physics_physical_stance_support(): void {
   // Rolled 10 degrees about z: the corners at x = -WIDTH drop, the others rise.
   const rolled: IAutoMovieVector3[] = at({
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 10),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 10),
   });
   const low: number = -WIDTH * Math.cos((10 * Math.PI) / 180);
   if (

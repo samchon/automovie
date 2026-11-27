@@ -1,5 +1,5 @@
-import { AUTOMOVIE_FILM_GLARE_KERNELS } from "@automovie/engine";
-import type { IAutoMovieFilmGlareKernel } from "../../IAutoMovieFilmGlareKernel.js";
+import { AutoMovieEngineFilmGlareKernels } from "@automovie/engine";
+import type { IAutoMovieRenderFilmGlareKernel } from "../../IAutoMovieRenderFilmGlareKernel.js";
 
 /*
  * Plan how the final pass blurs a linear frame `height` pixels tall by each
@@ -28,19 +28,19 @@ import type { IAutoMovieFilmGlareKernel } from "../../IAutoMovieFilmGlareKernel.
  */
 export function planAutoMovieFilmGlareImplementation(
   height: number,
-): IAutoMovieFilmGlareKernel[] {
+): IAutoMovieRenderFilmGlareKernel[] {
   if (!(height > 0))
     throw new Error(
       `A glare plan needs a positive whole frame height, got ${height}`,
     );
-  return AUTOMOVIE_FILM_GLARE_KERNELS.map(
+  return AutoMovieEngineFilmGlareKernels.map(
     ({
       sigma,
       weight,
     }: {
       sigma: number;
       weight: number;
-    }): IAutoMovieFilmGlareKernel => {
+    }): IAutoMovieRenderFilmGlareKernel => {
       const deviation: number = sigma * height;
       const level: number = Math.max(0, Math.floor(Math.log2(deviation / 2)));
       const area: number = 4 ** level;

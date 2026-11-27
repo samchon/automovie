@@ -1,4 +1,6 @@
-import { validateExpression } from "@automovie/engine/internal";
+import {
+  validateExpression
+} from "../../../../../packages/engine/src/validation/internal/validateExpression";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

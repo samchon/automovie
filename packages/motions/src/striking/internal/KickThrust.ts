@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -44,11 +44,11 @@ export namespace KickThrust {
     forward: IAutoMovieVector3,
   ): ILeg {
     const [upper, lower]: readonly [number, number] = lengths;
-    const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    const distance: number = Vector3.length(reach);
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(ankle, hip);
+    const distance: number = AutoMovieEngineVector3.length(reach);
     const axis: IAutoMovieVector3 =
       distance > 1e-9
-        ? Vector3.scale(reach, 1 / distance)
+        ? AutoMovieEngineVector3.scale(reach, 1 / distance)
         : { x: 0, y: -1, z: 0 };
     const span: number = Math.min(
       upper + lower,
@@ -58,17 +58,17 @@ export namespace KickThrust {
       (upper * upper - lower * lower + span * span) / (2 * span);
     const out: number = Math.sqrt(Math.max(0, upper * upper - along * along));
     const side = (toward: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(toward, Vector3.scale(axis, Vector3.dot(toward, axis)));
-    const read: IAutoMovieVector3 = side(Vector3.subtract(knee, hip));
+      AutoMovieEngineVector3.subtract(toward, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(toward, axis)));
+    const read: IAutoMovieVector3 = side(AutoMovieEngineVector3.subtract(knee, hip));
     const bend: IAutoMovieVector3 =
-      Vector3.length(read) > 1e-6 ? read : side(forward);
-    const thigh: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(axis, along),
-      Vector3.length(bend) > 1e-9
-        ? Vector3.scale(bend, out / Vector3.length(bend))
+      AutoMovieEngineVector3.length(read) > 1e-6 ? read : side(forward);
+    const thigh: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.scale(axis, along),
+      AutoMovieEngineVector3.length(bend) > 1e-9
+        ? AutoMovieEngineVector3.scale(bend, out / AutoMovieEngineVector3.length(bend))
         : { x: 0, y: 0, z: 0 },
     );
-    return { thigh, shank: Vector3.subtract(reach, thigh) };
+    return { thigh, shank: AutoMovieEngineVector3.subtract(reach, thigh) };
   }
 
   /*
@@ -87,26 +87,26 @@ export namespace KickThrust {
     flexion: number,
     up: IAutoMovieVector3,
   ): ILeg {
-    const reach: IAutoMovieVector3 = Vector3.add(reached.thigh, reached.shank);
-    const height: number = Vector3.dot(reach, up);
-    const level: IAutoMovieVector3 = Vector3.subtract(
+    const reach: IAutoMovieVector3 = AutoMovieEngineVector3.add(reached.thigh, reached.shank);
+    const height: number = AutoMovieEngineVector3.dot(reach, up);
+    const level: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       reach,
-      Vector3.scale(up, height),
+      AutoMovieEngineVector3.scale(up, height),
     );
     const ahead: IAutoMovieVector3 =
-      Vector3.length(level) > 1e-9
-        ? Vector3.normalize(level)
-        : Vector3.normalize(Vector3.cross({ x: 1, y: 0, z: 0 }, up));
-    const most: number = KickForm.PUSH_RAISE_MOST * Quaternion.DEG2RAD;
+      AutoMovieEngineVector3.length(level) > 1e-9
+        ? AutoMovieEngineVector3.normalize(level)
+        : AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.cross({ x: 1, y: 0, z: 0 }, up));
+    const most: number = KickForm.PUSH_RAISE_MOST * AutoMovieEngineQuaternion.DEG2RAD;
     const raise: number = Math.min(
       most,
       Math.asin(Math.max(-1, Math.min(1, height / lengths[0]))),
     );
-    const fold: number = raise - flexion * Quaternion.DEG2RAD;
+    const fold: number = raise - flexion * AutoMovieEngineQuaternion.DEG2RAD;
     const segment = (length: number, angle: number): IAutoMovieVector3 =>
-      Vector3.add(
-        Vector3.scale(ahead, length * Math.cos(angle)),
-        Vector3.scale(up, length * Math.sin(angle)),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(ahead, length * Math.cos(angle)),
+        AutoMovieEngineVector3.scale(up, length * Math.sin(angle)),
       );
     return {
       thigh: segment(lengths[0], raise),
@@ -131,15 +131,15 @@ export namespace KickThrust {
     reached: IAutoMovieVector3,
     carried: IAutoMovieVector3,
   ): IAutoMovieQuaternion {
-    const from: IAutoMovieVector3 = Vector3.normalize(reached);
-    const to: IAutoMovieVector3 = Vector3.normalize(carried);
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(reached);
+    const to: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(carried);
     const angle: number =
-      Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, to)))) /
-      Quaternion.DEG2RAD;
+      Math.acos(Math.max(-1, Math.min(1, AutoMovieEngineVector3.dot(from, to)))) /
+      AutoMovieEngineQuaternion.DEG2RAD;
     const none: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
     return angle <= KickForm.PUSH_ANKLE_GIVE
       ? none
-      : Quaternion.slerp(
+      : AutoMovieEngineQuaternion.slerp(
           none,
           AutoMovieEngineMath.rotationBetween(from, to),
           (angle - KickForm.PUSH_ANKLE_GIVE) / angle,
@@ -159,29 +159,29 @@ export namespace KickThrust {
     least: number,
   ): (share: number) => ILeg {
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const start: IAutoMovieVector3 = Vector3.add(from.thigh, from.shank);
-    const travel: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(to.thigh, to.shank),
+    const start: IAutoMovieVector3 = AutoMovieEngineVector3.add(from.thigh, from.shank);
+    const travel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.add(to.thigh, to.shank),
       start,
     );
     const longest: number = Math.sqrt(
       lengths[0] ** 2 +
         lengths[1] ** 2 +
-        2 * lengths[0] * lengths[1] * Math.cos(least * Quaternion.DEG2RAD),
+        2 * lengths[0] * lengths[1] * Math.cos(least * AutoMovieEngineQuaternion.DEG2RAD),
     );
     return (share: number): ILeg => {
-      const at: IAutoMovieVector3 = Vector3.add(
+      const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         start,
-        Vector3.scale(travel, share),
+        AutoMovieEngineVector3.scale(travel, share),
       );
-      const distance: number = Vector3.length(at);
+      const distance: number = AutoMovieEngineVector3.length(at);
       const within: number = Math.min(1, Math.max(0, share));
       return planted(
         origin,
-        distance > longest ? Vector3.scale(at, longest / distance) : at,
-        Vector3.add(
-          Vector3.scale(from.thigh, 1 - within),
-          Vector3.scale(to.thigh, within),
+        distance > longest ? AutoMovieEngineVector3.scale(at, longest / distance) : at,
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(from.thigh, 1 - within),
+          AutoMovieEngineVector3.scale(to.thigh, within),
         ),
         lengths,
         from.thigh,

@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStrikingRecord, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
@@ -241,11 +241,11 @@ export namespace StrikingVerdicts {
         .bones(strike.id, g.entryTime)
         .get(StrikingLimb.root(strike.limb))!.worldPosition;
       const beyond: number =
-        Vector3.length(Vector3.subtract(record.planned, root)) - length;
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(record.planned, root)) - length;
       return {
         name,
         passed: beyond > 0,
-        detail: `declared beyond reach by ${(1000 * Vector3.length(Vector3.subtract(record.planned, record.reached))).toFixed(0)} mm; the target lies ${(1000 * Math.abs(beyond)).toFixed(0)} mm ${beyond > 0 ? "beyond" : "within"} the bare limb's ${(1000 * length).toFixed(0)} mm from its root; bound beyond`,
+        detail: `declared beyond reach by ${(1000 * AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(record.planned, record.reached))).toFixed(0)} mm; the target lies ${(1000 * Math.abs(beyond)).toFixed(0)} mm ${beyond > 0 ? "beyond" : "within"} the bare limb's ${(1000 * length).toFixed(0)} mm from its root; bound beyond`,
       };
     }
     if (strike.stop === undefined)
@@ -302,7 +302,7 @@ export namespace StrikingVerdicts {
       .bones(strike.id, g.entryTime)
       .get(StrikingLimb.root(strike.limb))!.worldPosition;
     const beyond: number =
-      Vector3.length(Vector3.subtract(record.planned, root)) - length;
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(record.planned, root)) - length;
     const bound: number = beyond <= 0 ? TOUCH : beyond + 0.1 * length;
     return {
       name,
@@ -373,7 +373,7 @@ export namespace StrikingVerdicts {
       const origin: IAutoMovieVector3 = ball(from);
       let onset: number | undefined;
       for (let t: number = from; t <= to + 1e-9; t += 1 / 48) {
-        const d: number = Vector3.length(Vector3.subtract(ball(t), origin));
+        const d: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(ball(t), origin));
         if (onset === undefined && d > 0.001) onset = t;
         if (d > worst) {
           worst = d;
@@ -443,8 +443,8 @@ export namespace StrikingVerdicts {
       ).limbs[`${side}Leg`];
       if (asked === undefined) continue;
       samples++;
-      const d: number = Vector3.length(
-        Vector3.subtract(
+      const d: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           strike.performance.bones(strike.id, t).get(`${side}Foot`)!
             .worldPosition,
           asked.point,

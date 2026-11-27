@@ -3,8 +3,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 
 /*
  * Resolve an authored support point from its owning bone, including rigs
@@ -15,9 +15,9 @@ export function physicalSupportPoint(
   localPoint?: IAutoMovieVector3,
 ): IAutoMovieVector3 {
   return localPoint
-    ? Vector3.add(
+    ? AutoMovieEngineVector3.add(
         pose.position,
-        Quaternion.rotateVector(pose.rotation, localPoint),
+        AutoMovieEngineQuaternion.rotateVector(pose.rotation, localPoint),
       )
     : { ...pose.position };
 }

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -143,7 +143,7 @@ export namespace LongGunLock {
    * Parameter d: The gun's dimensions.
    */
   export function musket(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const steel: { color: string } = { color: "#2c2f33" };
     const length: number = d.length!;
@@ -233,7 +233,7 @@ export namespace LongGunLock {
    * Parameter d: The gun's dimensions.
    */
   export function bolt(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const steel: { color: string } = { color: "#2c2f33" };
     const breech: number = d.length! - d.barrel!;
@@ -291,7 +291,7 @@ export namespace LongGunLock {
    * Parameter d: The gun's dimensions.
    */
   export function lever(builder: Builder, d: Drawn): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const steel: { color: string } = { color: "#2c2f33" };
     const pull: number = d.lengthOfPull!;

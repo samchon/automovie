@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -208,7 +208,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
    */
   function raise(parts: readonly IAutoMovieModelPart[], lift: number): number {
     const root: IAutoMovieVector3 = end(parts, "neck");
-    const head: IAutoMovieVector3 = Vector3.subtract(
+    const head: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       centre(parts, "head"),
       root,
     );
@@ -247,9 +247,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
       part.geometry.shape.type !== "plane"
         ? part.geometry.shape.height / 2
         : 0;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       part.transform!.translation,
-      Quaternion.rotateVector(part.transform!.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(part.transform!.rotation, {
         x: 0,
         y: -half,
         z: 0,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineValidation } from "@automovie/engine";
 import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
@@ -258,8 +258,8 @@ function observePhysicalPose(
   for (const joint of profile.joints) {
     const parent: IAutoMovieRigidTransform = poses[joint.parent]!;
     const child: IAutoMovieRigidTransform = poses[joint.child]!;
-    const error: number = Vector3.length(
-      Vector3.subtract(
+    const error: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
         AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
       ),
@@ -317,12 +317,12 @@ function centerOfMass(
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of profile.segments) {
     const pose: IAutoMovieRigidTransform = poses[segment.bone]!;
-    center = Vector3.add(
+    center = AutoMovieEngineVector3.add(
       center,
-      Vector3.scale(
-        Vector3.add(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
           pose.position,
-          Quaternion.rotateVector(pose.rotation, segment.centerOfMass),
+          AutoMovieEngineQuaternion.rotateVector(pose.rotation, segment.centerOfMass),
         ),
         segment.mass / profile.mass,
       ),

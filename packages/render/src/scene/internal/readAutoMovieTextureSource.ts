@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
 
@@ -40,20 +40,20 @@ export function readAutoMovieTextureSource(
     );
   const mipmaps: THREE.Texture["mipmaps"] = texture.mipmaps;
   const manual: boolean = mipmaps.length !== 0;
-  const framebuffer: boolean = AutoMovieThreeKind.isFramebufferTexture(texture);
+  const framebuffer: boolean = AutoMovieRenderThreeKind.isFramebufferTexture(texture);
   const usesManualBase: boolean =
     manual &&
     !framebuffer &&
-    !AutoMovieThreeKind.isDepthTexture(texture) &&
+    !AutoMovieRenderThreeKind.isDepthTexture(texture) &&
     !texture.isRenderTargetTexture;
   const extent: { width: number; height: number } = usesManualBase
     ? (extentOf(mipmaps[0]!) ?? original)
     : original;
   const unsupportedExtent: boolean =
     texture.depth > 1 ||
-    AutoMovieThreeKind.isDataArrayTexture(texture) ||
-    AutoMovieThreeKind.isData3DTexture(texture) ||
-    AutoMovieThreeKind.isCompressedArrayTexture(texture) ||
+    AutoMovieRenderThreeKind.isDataArrayTexture(texture) ||
+    AutoMovieRenderThreeKind.isData3DTexture(texture) ||
+    AutoMovieRenderThreeKind.isCompressedArrayTexture(texture) ||
     texture.isRenderTargetTexture;
   const format: ReturnType<typeof readAutoMovieTextureUploadFormat> =
     unsupportedExtent ? undefined : readAutoMovieTextureUploadFormat(texture);
@@ -148,8 +148,8 @@ export function readAutoMovieTextureSource(
       !manual &&
       !framebuffer &&
       !unsupportedExtent &&
-      !AutoMovieThreeKind.isCompressedTexture(texture) &&
-      !AutoMovieThreeKind.isDepthTexture(texture),
+      !AutoMovieRenderThreeKind.isCompressedTexture(texture) &&
+      !AutoMovieRenderThreeKind.isDepthTexture(texture),
     colorSpace:
       texture.colorSpace === THREE.SRGBColorSpace
         ? "srgb"
@@ -189,9 +189,9 @@ export function readAutoMovieTextureSource(
         texture.premultiplyAlpha,
         texture.unpackAlignment,
         texture.generateMipmaps,
-        AutoMovieThreeKind.isData3DTexture(texture) ||
-        AutoMovieThreeKind.isDataArrayTexture(texture) ||
-        AutoMovieThreeKind.isCompressedArrayTexture(texture)
+        AutoMovieRenderThreeKind.isData3DTexture(texture) ||
+        AutoMovieRenderThreeKind.isDataArrayTexture(texture) ||
+        AutoMovieRenderThreeKind.isCompressedArrayTexture(texture)
           ? texture.wrapR || 0
           : 0,
       ].map((value: unknown): string => (value === null ? "" : String(value))),

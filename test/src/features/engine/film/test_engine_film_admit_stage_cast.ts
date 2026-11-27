@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { admitStageCast } from "@automovie/engine/internal";
+import {
+  admitStageCast
+} from "../../../../../packages/engine/src/film/staging/internal/admitStageCast";
 import type {
   IAutoMovieScript,
   IAutoMovieStageActor,

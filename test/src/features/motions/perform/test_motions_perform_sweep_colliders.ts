@@ -7,7 +7,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPropSweepColliders } from "@automovie/motions/internal";
+import {
+  HumanPropSweepColliders
+} from "../../../../../packages/motions/src/perform/internal/HumanPropSweepColliders";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

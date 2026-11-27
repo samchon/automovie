@@ -3,7 +3,12 @@ import type {
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { StrikingHeldGoal, StrikingRoll } from "@automovie/motions/internal";
+import {
+  StrikingHeldGoal
+} from "../../../../../packages/motions/src/striking/internal/StrikingHeldGoal";
+import {
+  StrikingRoll
+} from "../../../../../packages/motions/src/striking/internal/StrikingRoll";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

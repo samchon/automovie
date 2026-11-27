@@ -1,4 +1,4 @@
-import { AutoMovieSceneRenderMode } from "@automovie/render";
+import { AutoMovieRenderSceneRenderMode } from "@automovie/render";
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 import { createViewerCameraState } from "./createViewerCameraState.js";
 
@@ -43,7 +43,7 @@ export function createViewerFrameControl(
         options.rebase(seconds);
         options.redraw(seconds);
       } catch (error) {
-        AutoMovieSceneRenderMode.restoreState(
+        AutoMovieRenderSceneRenderMode.restoreState(
           [
             (): void => cameraState.restore(previousCamera),
             (): void => options.rebase(previousSeconds),
@@ -60,13 +60,13 @@ export function createViewerFrameControl(
       active();
       if (leases === 0) releaseProducer = options.freezeCompleted?.();
       ++leases;
-      return AutoMovieSceneRenderMode.restoreOnce((): void => {
+      return AutoMovieRenderSceneRenderMode.restoreOnce((): void => {
         if (closed || --leases !== 0) return;
         const release: ((resume: boolean) => void) | undefined =
           releaseProducer;
         releaseProducer = undefined;
         try {
-          AutoMovieSceneRenderMode.restoreState([
+          AutoMovieRenderSceneRenderMode.restoreState([
             (): void => options.rebase(options.currentSeconds()),
             (): void => {
               release?.(true);
@@ -85,7 +85,7 @@ export function createViewerFrameControl(
       active();
       if (leases === 0) produce();
     },
-    dispose: AutoMovieSceneRenderMode.restoreOnce((): void => {
+    dispose: AutoMovieRenderSceneRenderMode.restoreOnce((): void => {
       closed = true;
       leases = 0;
       const release: ((resume: boolean) => void) | undefined = releaseProducer;

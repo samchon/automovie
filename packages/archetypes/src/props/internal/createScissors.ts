@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeScissors } from "../AutoMovieArchetypeScissors";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -24,7 +24,7 @@ import {
 export function createScissors(
   params: AutoMovieArchetypeScissors.IParams = {},
 ): AutoMovieArchetype<AutoMovieArchetypeScissors.Affordance, AutoMovieArchetypeScissors.Dimension> {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const handle: number = SIZE.length - SIZE.blade;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeScissors.Dimension> =
     new AutoMovieArchetypeDrawSession(

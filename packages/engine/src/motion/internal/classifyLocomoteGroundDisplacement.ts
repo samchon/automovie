@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { LOCOMOTE_GROUND_EPSILON } from "../LOCOMOTE_GROUND_EPSILON";
+import { AutoMovieEngineLocomoteGroundEpsilon } from "../AutoMovieEngineLocomoteGroundEpsilon";
 
 /*
  * Classify an admitted finite root displacement in metres into no travel,
@@ -19,12 +19,12 @@ export function classifyLocomoteGroundDisplacement(
     displacement.y,
     displacement.z,
   );
-  const alreadyThere: boolean = travelDistance < LOCOMOTE_GROUND_EPSILON;
+  const alreadyThere: boolean = travelDistance < AutoMovieEngineLocomoteGroundEpsilon;
   return {
     groundDistance,
     travelDistance,
     alreadyThere,
     verticalOnly:
-      alreadyThere === false && groundDistance < LOCOMOTE_GROUND_EPSILON,
+      alreadyThere === false && groundDistance < AutoMovieEngineLocomoteGroundEpsilon,
   };
 }

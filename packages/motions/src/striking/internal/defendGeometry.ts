@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPlacedAction, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { StrikingBody } from "./StrikingBody";
@@ -188,27 +188,27 @@ export namespace defendGeometry {
     let best: number = -Infinity;
     for (const bone of limbs) {
       const at: IAutoMovieVector3 = now.get(bone)!.worldPosition;
-      const velocity: IAutoMovieVector3 = Vector3.subtract(
+      const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         at,
         before.get(bone)!.worldPosition,
       );
-      const toward: number = Vector3.dot(
+      const toward: number = AutoMovieEngineVector3.dot(
         velocity,
-        Vector3.normalize(Vector3.subtract(regionAt.point, at)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(regionAt.point, at)),
       );
       if (toward > best) {
         best = toward;
         weapon = at;
       }
     }
-    const incoming: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(regionAt.point, weapon),
+    const incoming: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(regionAt.point, weapon),
     );
-    const across: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(up, incoming),
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(up, incoming),
     );
     const outside: number =
-      Vector3.dot(Vector3.subtract(weapon, regionAt.point), across) > 0
+      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(weapon, regionAt.point), across) > 0
         ? -1
         : 1;
     const attackedSide: AutoMovieHumanSide = attacked(timing.region, lead);
@@ -235,24 +235,24 @@ export namespace defendGeometry {
     let roll: number = 0;
     let pitch: number = 0;
     if (p.kind === "slip") {
-      shift = Vector3.add(Vector3.scale(across, outside * 0.3 * clear), {
+      shift = AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(across, outside * 0.3 * clear), {
         x: 0,
         y: -0.02 * m.stature,
         z: 0,
       });
       roll =
-        sideRoll(entry.yaw, Vector3.scale(across, outside)) * tilt(0.7 * clear);
+        sideRoll(entry.yaw, AutoMovieEngineVector3.scale(across, outside)) * tilt(0.7 * clear);
     } else if (p.kind === "roll") {
-      shift = Vector3.add(Vector3.scale(across, outside * 0.3 * clear), {
+      shift = AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(across, outside * 0.3 * clear), {
         x: 0,
         y: -2 * m.headRadius,
         z: 0,
       });
       pitch = 15;
       roll =
-        sideRoll(entry.yaw, Vector3.scale(across, outside)) * tilt(0.5 * clear);
+        sideRoll(entry.yaw, AutoMovieEngineVector3.scale(across, outside)) * tilt(0.5 * clear);
     } else if (p.kind === "sway") {
-      shift = Vector3.scale(
+      shift = AutoMovieEngineVector3.scale(
         { x: incoming.x, y: 0, z: incoming.z },
         0.3 * clear,
       );
@@ -269,11 +269,11 @@ export namespace defendGeometry {
     const over: IAutoMovieVector3 =
       support === undefined
         ? { x: 0, y: 0, z: 0 }
-        : Vector3.scale(
+        : AutoMovieEngineVector3.scale(
             { x: support.x - entry.root.x, y: 0, z: support.z - entry.root.z },
             0.6,
           );
-    const movement: IAutoMovieVector3 = Vector3.add(shift, over);
+    const movement: IAutoMovieVector3 = AutoMovieEngineVector3.add(shift, over);
     const shownBones: Set<AutoMovieHumanoidBone> = new Set(
       StrikingGuardBones(body),
     );
@@ -298,7 +298,7 @@ export namespace defendGeometry {
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
       return {
-        root: Vector3.add(entry.root, Vector3.scale(movement, k)),
+        root: AutoMovieEngineVector3.add(entry.root, AutoMovieEngineVector3.scale(movement, k)),
         yaw: entry.yaw,
         pitch: entry.pitch + pitch * k,
         roll: entry.roll + roll * k,
@@ -359,11 +359,11 @@ export namespace defendGeometry {
                 ) - AutoMovieEngineMotionSampling.minimumJerkShare((t - timing.hold) / timing.recovery)
               : k;
           limbs[limb] = {
-            point: Vector3.lerp(from.point, goal.point, share),
-            bend: Vector3.lerp(from.bend, goal.bend, share),
+            point: AutoMovieEngineVector3.lerp(from.point, goal.point, share),
+            bend: AutoMovieEngineVector3.lerp(from.bend, goal.bend, share),
             ...(from.rotation !== undefined && goal.rotation !== undefined
               ? {
-                  rotation: Quaternion.slerp(
+                  rotation: AutoMovieEngineQuaternion.slerp(
                     from.rotation,
                     goal.rotation,
                     share,
@@ -451,7 +451,7 @@ export namespace defendGeometry {
   export function sideRoll(yaw: number, direction: IAutoMovieVector3): number {
     const r: number = (yaw * Math.PI) / 180;
     const left: IAutoMovieVector3 = { x: Math.cos(r), y: 0, z: -Math.sin(r) };
-    return Vector3.dot(direction, left) > 0 ? -1 : 1;
+    return AutoMovieEngineVector3.dot(direction, left) > 0 ? -1 : 1;
   }
 }
 

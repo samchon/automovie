@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
 
 /*
  * Rigid parts of a built runtime model, in the one order instancing indexes.
@@ -14,7 +14,7 @@ export const instancedModelParts: (root: THREE.Object3D) => THREE.Mesh[] = (
 ): THREE.Mesh[] => {
   const parts: THREE.Mesh[] = [];
   root.traverse((object: THREE.Object3D): void => {
-    if (AutoMovieThreeKind.isMesh(object)) parts.push(object);
+    if (AutoMovieRenderThreeKind.isMesh(object)) parts.push(object);
   });
   return parts;
 };

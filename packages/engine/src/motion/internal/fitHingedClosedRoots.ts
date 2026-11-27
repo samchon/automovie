@@ -13,12 +13,12 @@ import type {
 } from "@automovie/interface";
 
 import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
-import { swivelArcs } from "../../kinematics/swivelArcs";
-import { swivelJointReadings } from "../../kinematics/swivelJointReadings";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
-import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
+import { AutoMovieEngineSwivelArcs } from "../../kinematics/AutoMovieEngineSwivelArcs";
+import { AutoMovieEngineSwivelJointReadings } from "../../kinematics/AutoMovieEngineSwivelJointReadings";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineRomTolerance } from "../../rom/AutoMovieEngineRomTolerance";
 import { prepareChainPlant } from "./prepareChainPlant";
 
 /*
@@ -61,8 +61,8 @@ export function fitHingedClosedRoots(
     (constraint.swingDeg !== undefined && constraint.swingDeg !== null)
   )
     return null;
-  const immobile: swivelJointReadings.Axis[] = swivelJointReadings.AXES.filter(
-    (axis: swivelJointReadings.Axis): boolean => constraint[axis] === null,
+  const immobile: AutoMovieEngineSwivelJointReadings.Axis[] = AutoMovieEngineSwivelJointReadings.AXES.filter(
+    (axis: AutoMovieEngineSwivelJointReadings.Axis): boolean => constraint[axis] === null,
   );
   if (immobile.length !== 1) return null;
   const found: IAutoMovieHingedArmSwivel.IStop[] | null =
@@ -72,35 +72,35 @@ export function fitHingedClosedRoots(
   const basis: IAutoMovieJointAxes = props.end.basis;
   const frame: IAutoMovieRestFrame | undefined = props.end.frame;
   const handed: 1 | -1 =
-    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
+    AutoMovieEngineVector3.dot(basis.twist, AutoMovieEngineVector3.cross(basis.flexion, basis.abduction)) >= 0
       ? 1
       : -1;
   const axes: readonly IAutoMovieVector3[] = [
     basis.flexion,
     basis.abduction,
-    Vector3.scale(basis.twist, handed),
+    AutoMovieEngineVector3.scale(basis.twist, handed),
   ];
   const local = (
     above: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion =>
-    Quaternion.normalize(
-      Quaternion.multiply(
+    AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
         props.end.restInverse,
-        Quaternion.multiply(
-          Quaternion.inverse(Quaternion.multiply(above, lower)),
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(AutoMovieEngineQuaternion.multiply(above, lower)),
           props.rotation,
         ),
       ),
     );
-  const roots = (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] => {
+  const roots = (posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>): number[] => {
     const sampled: IAutoMovieQuaternion[] = SAMPLES.map(
       (swivel: number): IAutoMovieQuaternion => {
-        const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+        const at: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
           posed(swivel);
         return local(
-          Quaternion.multiply(
-            Quaternion.multiply(props.prepared.upper.worldRotation, at.upper),
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(props.prepared.upper.worldRotation, at.upper),
             props.prepared.lowerRotation,
           ),
           at.lower,
@@ -108,31 +108,31 @@ export function fitHingedClosedRoots(
       },
     );
     const entry = (i: number, j: number): IAutoMovieSwivelArcs.ISinusoid =>
-      swivelArcs.fitted(
-        Vector3.dot(axes[i]!, Quaternion.rotateVector(sampled[0]!, axes[j]!)),
-        Vector3.dot(axes[i]!, Quaternion.rotateVector(sampled[1]!, axes[j]!)),
-        Vector3.dot(axes[i]!, Quaternion.rotateVector(sampled[2]!, axes[j]!)),
+      AutoMovieEngineSwivelArcs.fitted(
+        AutoMovieEngineVector3.dot(axes[i]!, AutoMovieEngineQuaternion.rotateVector(sampled[0]!, axes[j]!)),
+        AutoMovieEngineVector3.dot(axes[i]!, AutoMovieEngineQuaternion.rotateVector(sampled[1]!, axes[j]!)),
+        AutoMovieEngineVector3.dot(axes[i]!, AutoMovieEngineQuaternion.rotateVector(sampled[2]!, axes[j]!)),
       );
-    const axis: swivelJointReadings.Axis = immobile[0]!;
+    const axis: AutoMovieEngineSwivelJointReadings.Axis = immobile[0]!;
     const distal: boolean = basis.twistPlacement === "distal";
     const neutral: number =
-      swivelJointReadings.rig({ min: 0, max: 0 }, frame?.[axis])[0] *
-      Quaternion.DEG2RAD;
-    // The reading of each clinical axis, as `swivelJointReadings.of` gives it.
+      AutoMovieEngineSwivelJointReadings.rig({ min: 0, max: 0 }, frame?.[axis])[0] *
+      AutoMovieEngineQuaternion.DEG2RAD;
+    // The reading of each clinical axis, as `AutoMovieEngineSwivelJointReadings.of` gives it.
     if (axis === (distal ? "flexion" : "abduction")) {
-      const sine: IAutoMovieSwivelArcs.ISinusoid = swivelArcs.scaled(
+      const sine: IAutoMovieSwivelArcs.ISinusoid = AutoMovieEngineSwivelArcs.scaled(
         distal ? entry(1, 2) : entry(2, 0),
         -1,
       );
-      return swivelArcs.roots({ ...sine, a: sine.a - Math.sin(neutral) });
+      return AutoMovieEngineSwivelArcs.roots({ ...sine, a: sine.a - Math.sin(neutral) });
     }
     const y: IAutoMovieSwivelArcs.ISinusoid =
       axis === "twist" ? entry(1, 0) : distal ? entry(0, 2) : entry(2, 1);
     const x: IAutoMovieSwivelArcs.ISinusoid =
       axis === "twist" ? (distal ? entry(1, 1) : entry(0, 0)) : entry(2, 2);
     const turn: 1 | -1 = axis === "twist" ? handed : 1;
-    return swivelArcs.roots(
-      swivelArcs.combined(
+    return AutoMovieEngineSwivelArcs.roots(
+      AutoMovieEngineSwivelArcs.combined(
         y,
         Math.cos(neutral * turn),
         x,
@@ -144,12 +144,12 @@ export function fitHingedClosedRoots(
   // The candidates, in the order the general search meets them.
   const candidates: ICandidate[] = [];
   const probe = (
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
     stop: IAutoMovieHingedArmSwivel.IStop,
     branch: number,
     swivel: number,
   ): void => {
-    const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+    const at: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> =
       posed(swivel);
     const scored: fitHingedClosedRoots.IScore | null = props.score(
       at.upper,
@@ -161,13 +161,13 @@ export function fitHingedClosedRoots(
       basis,
       frame,
     );
-    const shown: boolean = swivelJointReadings.AXES.every(
-      (axis: swivelJointReadings.Axis): boolean => {
+    const shown: boolean = AutoMovieEngineSwivelJointReadings.AXES.every(
+      (axis: AutoMovieEngineSwivelJointReadings.Axis): boolean => {
         const range: IAutoMovieAngleRange | null = constraint[axis];
         return range === null
           ? Math.abs(read[axis]) <= ADMITTED
-          : read[axis] >= range.min + ROM_TOLERANCE &&
-              read[axis] <= range.max - ROM_TOLERANCE;
+          : read[axis] >= range.min + AutoMovieEngineRomTolerance &&
+              read[axis] <= range.max - AutoMovieEngineRomTolerance;
       },
     );
     candidates.push({
@@ -191,13 +191,13 @@ export function fitHingedClosedRoots(
     if (!(near.tolerance > 0)) return null;
     const branch: number = Math.min(near.branch, found.length - 1);
     const stop: IAutoMovieHingedArmSwivel.IStop = found[branch]!;
-    const posed: ReturnType<typeof hingedArmSwivel.pose> = props.geometry.pose(
+    const posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> = props.geometry.pose(
       stop.theta,
     );
     for (const angle of roots(posed)) {
       const turn: number = angle - near.swivel;
       const delta: number = turn - 360 * Math.round(turn / 360);
-      if (!(Math.abs(delta) < hingedArmSwivel.STEP)) continue;
+      if (!(Math.abs(delta) < AutoMovieEngineHingedArmSwivel.STEP)) continue;
       probe(
         posed,
         stop,
@@ -218,7 +218,7 @@ export function fitHingedClosedRoots(
           ) !== branch
         )
           return;
-        const posed: ReturnType<typeof hingedArmSwivel.pose> =
+        const posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> =
           props.geometry.pose(stop.theta);
         for (const angle of roots(posed)) probe(posed, stop, branch, angle);
       },
@@ -241,7 +241,7 @@ export function fitHingedClosedRoots(
     if (
       other !== best &&
       other.overshoot === 0 &&
-      !(other.least > best.deviation + ROM_TOLERANCE)
+      !(other.least > best.deviation + AutoMovieEngineRomTolerance)
     )
       return null;
   return {
@@ -274,7 +274,7 @@ export namespace fitHingedClosedRoots {
      * The target's prepared swivel geometry: its hinge branches and each
      * branch's upper and lower rotation by swivel.
      */
-    geometry: hingedArmSwivel.IPreparedTarget;
+    geometry: AutoMovieEngineHingedArmSwivel.IPreparedTarget;
 
     /*
      * The continuation seed, when the fit continues one.
@@ -396,7 +396,7 @@ interface ICandidate extends fitHingedClosedRoots.IScore {
 
 /*
  * The swivels, degrees, that fix a sinusoid of the swivel
- * (`swivelJointReadings.of`'s).
+ * (`AutoMovieEngineSwivelJointReadings.of`'s).
  */
 const SAMPLES: readonly number[] = [0, 90, 180];
 

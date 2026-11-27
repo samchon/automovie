@@ -1,4 +1,6 @@
-import { coupleHumanSimulationGrips } from "@automovie/motions/internal";
+import {
+  coupleHumanSimulationGrips
+} from "../../../../../packages/motions/src/perform/internal/coupleHumanSimulationGrips";
 import { TestValidator } from "@nestia/e2e";
 
 /** A grip of one performer on another over steps. */

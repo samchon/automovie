@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { AffordanceArticulation } from "../AffordanceArticulation";
+import { AutoMovieEngineAffordanceArticulation } from "../AutoMovieEngineAffordanceArticulation";
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
 import { affordanceTravelRange } from "./affordanceTravelRange";
@@ -126,7 +126,7 @@ export function validateAffordanceArticulation(
  * The kinds whose travel moves parts and riding affordances.
  */
 const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> =
-  AffordanceArticulation.KINDS;
+  AutoMovieEngineAffordanceArticulation.KINDS;
 
 /*
  * Admit one follower's coupling, its invertibility when requested, and its

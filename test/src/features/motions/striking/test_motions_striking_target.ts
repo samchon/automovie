@@ -2,7 +2,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { StrikingTarget } from "@automovie/motions/internal";
+import {
+  StrikingTarget
+} from "../../../../../packages/motions/src/striking/internal/StrikingTarget";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

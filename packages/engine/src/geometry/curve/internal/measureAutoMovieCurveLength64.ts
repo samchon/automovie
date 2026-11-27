@@ -4,7 +4,7 @@ import type {
   IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
 
-import { AutoMovieCurveLengthQuadrature64 } from "../../AutoMovieCurveLengthQuadrature64";
+import { AutoMovieEngineCurveLengthQuadrature64 } from "../../AutoMovieEngineCurveLengthQuadrature64";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
 /*
@@ -51,7 +51,7 @@ export function measureAutoMovieCurveLength64(
       );
   }
   const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
-    AutoMovieCurveLengthQuadrature64.measure(pieces, subdivisions, true);
+    AutoMovieEngineCurveLengthQuadrature64.measure(pieces, subdivisions, true);
   if (measured.nonfiniteDerivative)
     throw new Error(
       "Curve length needs finite original world derivatives and speed",

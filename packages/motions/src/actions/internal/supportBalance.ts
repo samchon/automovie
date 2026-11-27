@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -69,7 +69,7 @@ export function supportBalance<P extends HumanPhysics.IBalanced>(
       ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
       {
         root: HumanBalance.TOLERANCE,
-        angle: ROM_TOLERANCE,
+        angle: AutoMovieEngineRomTolerance,
         step: AutoMovieMotionHumanArmCourse.STEP,
       },
     );

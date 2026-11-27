@@ -2,7 +2,7 @@ import type {
   IAutoMovieInspectionRequest,
   IAutoMoviePlaybackLayer,
 } from "@automovie/interface";
-import { AutoMovieTransitionDisplays, type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
+import { AutoMovieRenderTransitionDisplays, type IAutoMovieRenderDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import type * as THREE from "three";
 
 /*
@@ -22,7 +22,7 @@ import type * as THREE from "three";
  * is still placed for the frame's records. `finish`, in the mount's paint after
  * the shown layer's records, paints the shown layer when it has weight, holds
  * it, and composites the held layers by their weights through
- * `AutoMovieTransitionDisplays`; a picture none of whose layers has weight, a
+ * `AutoMovieRenderTransitionDisplays`; a picture none of whose layers has weight, a
  * fade's midpoint, is the cleared canvas. The witness cubes then go to
  * `overlay` and `over` draws them over the composite at full strength. Any
  * other picture is painted by the mount as before and `finish` does nothing.
@@ -36,8 +36,8 @@ export class AutoMovieInspectorTransition {
   /*
    * The held layers of the planned picture and its overlay.
    */
-  private readonly displays_: AutoMovieTransitionDisplays =
-    new AutoMovieTransitionDisplays();
+  private readonly displays_: AutoMovieRenderTransitionDisplays =
+    new AutoMovieRenderTransitionDisplays();
 
   /*
    * The layers of the picture being composited, or null for one layer.
@@ -94,7 +94,7 @@ export class AutoMovieInspectorTransition {
     /*
      * The created subject.
      */
-    instance: IAutoMovieDrawScene;
+    instance: IAutoMovieRenderDrawScene;
 
     /*
      * The inspection the picture is drawn with.

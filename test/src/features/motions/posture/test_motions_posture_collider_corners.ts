@@ -3,7 +3,9 @@ import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanColliderCorners } from "@automovie/motions/internal";
+import {
+  HumanColliderCorners
+} from "../../../../../packages/motions/src/posture/internal/HumanColliderCorners";
 import { TestValidator } from "@nestia/e2e";
 
 /** A shape's identity and placement, its kind aside. */

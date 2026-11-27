@@ -8,7 +8,8 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanStrike } from "@automovie/motions";
-import { HumanColliders, HumanFoot } from "@automovie/motions/internal";
+import { HumanColliders } from "../../packages/motions/src/posture/internal/HumanColliders";
+import { HumanFoot } from "../../packages/motions/src/posture/internal/HumanFoot";
 import { strict as assert } from "node:assert";
 import { Group, type Object3D, PointLight } from "three";
 

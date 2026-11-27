@@ -1,8 +1,8 @@
-import { AutoMovieFrameGrid } from "@automovie/render";
+import { AutoMovieRenderFrameGrid } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieFrameGrid` places a film's frames on a fixed-rate grid that ends on
+ * `AutoMovieRenderFrameGrid` places a film's frames on a fixed-rate grid that ends on
  * its duration.
  *
  * Scenarios, at 24 fps:
@@ -16,18 +16,18 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_root_frame_grid(): void {
   TestValidator.equals(
     "last frames",
-    [AutoMovieFrameGrid.last(2, 24), AutoMovieFrameGrid.last(0.1, 24)],
+    [AutoMovieRenderFrameGrid.last(2, 24), AutoMovieRenderFrameGrid.last(0.1, 24)],
     [48, 3],
   );
   TestValidator.equals(
     "frame times",
-    [AutoMovieFrameGrid.time(5, 0.1, 24), AutoMovieFrameGrid.time(1, 0.1, 24)],
+    [AutoMovieRenderFrameGrid.time(5, 0.1, 24), AutoMovieRenderFrameGrid.time(1, 0.1, 24)],
     [0.1, 1 / 24],
   );
   TestValidator.equals(
     "nearest frames",
     [0.05, 0.09, 0.1, 5].map((seconds: number): number =>
-      AutoMovieFrameGrid.nearest(seconds, 0.1, 24, 3),
+      AutoMovieRenderFrameGrid.nearest(seconds, 0.1, 24, 3),
     ),
     [1, 2, 3, 3],
   );

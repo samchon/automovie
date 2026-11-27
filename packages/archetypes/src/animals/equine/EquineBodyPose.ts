@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -195,9 +195,9 @@ export namespace EquineBodyPose {
           (bone: AutoMovieArchetypeQuadrupedBody.Bone): IAutoMovieVector3 =>
             rest.get(bone)!.translation,
         ),
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           last.translation,
-          Quaternion.rotateVector(last.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(last.rotation, {
             x: 0,
             y: lengths.get(bones[3]!)!,
             z: 0,
@@ -240,20 +240,20 @@ export namespace EquineBodyPose {
     ): readonly IAutoMovieVector3[] => {
       const source: readonly IAutoMovieVector3[] = chains[limb];
       if (state.kind === "folded") return fold(state.chain, state.turns);
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(trunk.rotation);
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(trunk.rotation);
       return solvers[limb]
         .oriented(
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             inverse,
-            state.direction ?? Vector3.subtract(source[4]!, source[3]!),
+            state.direction ?? AutoMovieEngineVector3.subtract(source[4]!, source[3]!),
           ),
           true,
         )
         .solve(
           source[0]!,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             inverse,
-            Vector3.subtract(state.anchor, trunk.translation),
+            AutoMovieEngineVector3.subtract(state.anchor, trunk.translation),
           ),
           state.fold,
         );
@@ -289,7 +289,7 @@ export namespace EquineBodyPose {
             geometry.shape.type !== "cylinder")
         )
           throw new RangeError(`The ${limb}'s terminal part is not a bar`);
-        const unit: IAutoMovieVector3 = Vector3.normalize(direction);
+        const unit: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(direction);
         return geometry.shape.type === "capsule"
           ? geometry.shape.radius
           : geometry.shape.radius * Math.hypot(unit.x, unit.z);
@@ -308,8 +308,8 @@ export namespace EquineBodyPose {
         // The tail turns about its dock on the trunk's lateral axis.
         if (goal.tail !== undefined && goal.tail !== 0) {
           const tail: IAutoMovieTransform = posed.get("tail")!;
-          const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-            Quaternion.rotateVector(goal.trunk.rotation, { x: 1, y: 0, z: 0 }),
+          const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+            AutoMovieEngineQuaternion.rotateVector(goal.trunk.rotation, { x: 1, y: 0, z: 0 }),
             goal.tail,
           );
           posed.set(
@@ -317,9 +317,9 @@ export namespace EquineBodyPose {
             AutoMovieArchetypeFrame.move(
               {
                 rotation: turn,
-                translation: Vector3.subtract(
+                translation: AutoMovieEngineVector3.subtract(
                   tail.translation,
-                  Quaternion.rotateVector(turn, tail.translation),
+                  AutoMovieEngineQuaternion.rotateVector(turn, tail.translation),
                 ),
               },
               tail,
@@ -337,16 +337,16 @@ export namespace EquineBodyPose {
             (bone: AutoMovieArchetypeQuadrupedBody.Bone, k: number): void => {
               const frame: IAutoMovieTransform = rest.get(bone)!;
               const turn: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
-                Vector3.subtract(source[k + 1]!, source[k]!),
-                Vector3.subtract(solved[k + 1]!, solved[k]!),
+                AutoMovieEngineVector3.subtract(source[k + 1]!, source[k]!),
+                AutoMovieEngineVector3.subtract(solved[k + 1]!, solved[k]!),
               );
               posed.set(
                 bone,
                 AutoMovieArchetypeFrame.move(goal.trunk, {
                   ...frame,
                   translation: { ...solved[k]! },
-                  rotation: Quaternion.normalize(
-                    Quaternion.multiply(turn, frame.rotation),
+                  rotation: AutoMovieEngineQuaternion.normalize(
+                    AutoMovieEngineQuaternion.multiply(turn, frame.rotation),
                   ),
                 }),
               );
@@ -400,22 +400,22 @@ export namespace EquineBodyPose {
     shift: IAutoMovieVector3,
     heading?: IAutoMovieQuaternion,
   ): AutoMovieArchetypeFrame.IMotion {
-    const local: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
+    const local: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
       heading === undefined
         ? local
-        : Quaternion.multiply(
-            Quaternion.multiply(heading, local),
-            Quaternion.inverse(heading),
+        : AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(heading, local),
+            AutoMovieEngineQuaternion.inverse(heading),
           ),
     );
     return {
       rotation,
-      translation: Vector3.add(
-        Vector3.subtract(pivot, Quaternion.rotateVector(rotation, pivot)),
+      translation: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.subtract(pivot, AutoMovieEngineQuaternion.rotateVector(rotation, pivot)),
         shift,
       ),
     };
@@ -431,8 +431,8 @@ export namespace EquineBodyPose {
     motion: AutoMovieArchetypeFrame.IMotion,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
-      Quaternion.rotateVector(motion.rotation, point),
+    return AutoMovieEngineVector3.add(
+      AutoMovieEngineQuaternion.rotateVector(motion.rotation, point),
       motion.translation,
     );
   }
@@ -450,17 +450,17 @@ export namespace EquineBodyPose {
     );
     turns.forEach((degrees: number, k: number): void => {
       if (degrees === 0) return;
-      const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 1, y: 0, z: 0 },
         degrees,
       );
       const joint: IAutoMovieVector3 = points[k]!;
       for (let j: number = k + 1; j < points.length; j++)
-        points[j] = Vector3.add(
+        points[j] = AutoMovieEngineVector3.add(
           joint,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             rotation,
-            Vector3.subtract(points[j]!, joint),
+            AutoMovieEngineVector3.subtract(points[j]!, joint),
           ),
         );
     });

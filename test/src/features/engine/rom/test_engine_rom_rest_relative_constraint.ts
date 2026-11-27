@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineHumanoidRestFrame, AutoMovieEngineKinematics } from "@automovie/engine";
 import { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,7 +23,7 @@ const CLINICAL: IAutoMovieJointConstraint = {
  *    [-90,120].
  * 3. An axis with no frame entry is untouched (flexion stays [-60,180]); a null
  *    clinical axis stays null (twist).
- * 4. `HUMANOID_REST_FRAME` mirrors the two shoulders' abduction.
+ * 4. `AutoMovieEngineHumanoidRestFrame` mirrors the two shoulders' abduction.
  * 5. The existing rest-relative swingDeg policy carries through unchanged:
  *    numeric, null and absent values retain their meaning. This does not
  *    establish clinical swing-metric invariance under arbitrary neutral
@@ -73,13 +73,13 @@ export function test_engine_rom_rest_relative_constraint(): void {
   // 4. the humanoid table mirrors the shoulders
   TestValidator.predicate(
     "left shoulder frame",
-    HUMANOID_REST_FRAME.leftUpperArm?.abduction?.sign === 1 &&
-      nclose(HUMANOID_REST_FRAME.leftUpperArm.abduction.neutral, 90, 0),
+    AutoMovieEngineHumanoidRestFrame.leftUpperArm?.abduction?.sign === 1 &&
+      nclose(AutoMovieEngineHumanoidRestFrame.leftUpperArm.abduction.neutral, 90, 0),
   );
   TestValidator.predicate(
     "right shoulder mirrored",
-    HUMANOID_REST_FRAME.rightUpperArm?.abduction?.sign === -1 &&
-      nclose(HUMANOID_REST_FRAME.rightUpperArm.abduction.neutral, 90, 0),
+    AutoMovieEngineHumanoidRestFrame.rightUpperArm?.abduction?.sign === -1 &&
+      nclose(AutoMovieEngineHumanoidRestFrame.rightUpperArm.abduction.neutral, 90, 0),
   );
 
   // 5. Preserve the existing rest-relative cap policy without asserting clinical metric invariance.

@@ -6,7 +6,7 @@ import {
 
 import { pointInPolygon } from "../../architecture/internal/pointInPolygon";
 import { closestPointOnSegmentXZ } from "../../math/internal/closestPointOnSegmentXZ";
-import { FOOTPRINT_EPSILON } from "../FOOTPRINT_EPSILON";
+import { AutoMovieEngineFootprintEpsilon } from "../AutoMovieEngineFootprintEpsilon";
 
 /*
  * Classify an XZ query against an authored ring with an explicit rim result.
@@ -28,7 +28,7 @@ export const footprintRingPlacement: (
       ring.points[index]!,
       ring.points[(index + 1) % ring.points.length]!,
     );
-    if (Math.hypot(x - near.x, z - near.z) <= FOOTPRINT_EPSILON)
+    if (Math.hypot(x - near.x, z - near.z) <= AutoMovieEngineFootprintEpsilon)
       return "boundary";
   }
   return pointInPolygon({ x, y: z }, ring.plan) ? "inside" : "outside";

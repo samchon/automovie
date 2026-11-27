@@ -1,4 +1,6 @@
-import { prepareHumanAdaptiveKnots } from "@automovie/motions/internal";
+import {
+  prepareHumanAdaptiveKnots
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanAdaptiveKnots";
 import { TestValidator } from "@nestia/e2e";
 
 /** The sine's requirement, in its own units. */

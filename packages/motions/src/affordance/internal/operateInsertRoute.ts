@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -75,10 +75,10 @@ export function operateInsertRoute(
   // bore at any depth, so only a grip on the line can be met by it.
   const half: number =
     (operateLongInsert.BREADTH * context.body.measure.hand) / 2;
-  const across: number = Vector3.length(
-    Vector3.subtract(
+  const across: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(
       tool.tip,
-      Vector3.scale(tool.axis, Vector3.dot(tool.tip, tool.axis)),
+      AutoMovieEngineVector3.scale(tool.axis, AutoMovieEngineVector3.dot(tool.tip, tool.axis)),
     ),
   );
   if (across > half || depth <= tool.length - half) return { context: routed };

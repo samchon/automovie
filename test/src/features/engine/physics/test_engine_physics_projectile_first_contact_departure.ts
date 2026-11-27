@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalProjectile, AutoMovieAir, AutoMovieEngineCompositionContact } from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile, AutoMovieEngineAir, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMoviePhysicalShape,
@@ -55,7 +55,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const ground: IAutoMovieProjectileFirstContact.ICollider =
-    AutoMoviePhysicalProjectile.planeCollider("ground", zero, up);
+    AutoMovieEnginePhysicalProjectile.planeCollider("ground", zero, up);
   const outgoing: IAutoMovieProjectile = {
     origin: zero,
     velocity: up,
@@ -89,7 +89,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
   };
 
   observe("initial policy", (): void => {
-    const raw: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const raw: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       outgoing,
       [ground],
       span,
@@ -98,11 +98,11 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     check("raw touch remains at zero", raw?.time === 0);
     check(
       "resolved outward flight leaves the floor",
-      AutoMoviePhysicalProjectile.firstContact(outgoing, [ground], span, options) === null,
+      AutoMovieEnginePhysicalProjectile.firstContact(outgoing, [ground], span, options) === null,
     );
     check(
       "accelerating away leaves the floor",
-      AutoMoviePhysicalProjectile.firstContact(
+      AutoMovieEnginePhysicalProjectile.firstContact(
         { ...outgoing, velocity: zero, gravity: up },
         [ground],
         span,
@@ -110,7 +110,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
       ) === null,
     );
     for (const speed of [0, -1]) {
-      const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+      const hit: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
         { ...outgoing, velocity: { x: 0, y: speed, z: 0 } },
         [ground],
         span,
@@ -124,14 +124,14 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     };
     check(
       "unresolved penetration remains at zero",
-      AutoMoviePhysicalProjectile.firstContact(penetrating, [ground], span, {
+      AutoMovieEnginePhysicalProjectile.firstContact(penetrating, [ground], span, {
         radius: 0,
         thickness: options.thickness,
       })?.time === 0,
     );
     check(
       "unrelated id does not suppress penetration",
-      AutoMoviePhysicalProjectile.firstContact(penetrating, [ground], span, {
+      AutoMovieEnginePhysicalProjectile.firstContact(penetrating, [ground], span, {
         ...options,
         departing: "other",
       })?.time === 0,
@@ -146,12 +146,12 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     const tail: IAutoMovieVector3 = { x: 0, y: 0, z: -0.5 };
     check(
       "fixed tail departs",
-      AutoMoviePhysicalProjectile.firstContact(fixed, [ground], span, { ...options, tail }) ===
+      AutoMovieEnginePhysicalProjectile.firstContact(fixed, [ground], span, { ...options, tail }) ===
         null,
     );
     check(
       "unclassified rotating tail keeps its touch",
-      AutoMoviePhysicalProjectile.firstContact(
+      AutoMovieEnginePhysicalProjectile.firstContact(
         { ...outgoing, attitude: { kind: "spin", axis: up, rate: 30 } },
         [ground],
         span,
@@ -165,7 +165,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     gravity: { x: 0, y: -2, z: 0 },
   };
   observe("full-span reentry", (): void => {
-    const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const hit: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       returning,
       [ground],
       span,
@@ -177,7 +177,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
         hit.collider === ground.id &&
         nclose(hit.time, 1, PhysicalTolerance.CONTACT_TIME),
     );
-    const sphere: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const sphere: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       { ...returning, origin: { x: 0, y: 0.1, z: 0 } },
       [ground],
       span,
@@ -191,12 +191,12 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
 
   observe("other initial collider", (): void => {
     const wall: IAutoMovieProjectileFirstContact.ICollider =
-      AutoMoviePhysicalProjectile.planeCollider("wall", zero, { x: 1, y: 0, z: 0 });
+      AutoMovieEnginePhysicalProjectile.planeCollider("wall", zero, { x: 1, y: 0, z: 0 });
     for (const colliders of [
       [ground, wall],
       [wall, ground],
     ]) {
-      const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+      const hit: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
         returning,
         colliders,
         span,
@@ -211,7 +211,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
 
   observe("other earlier collider", (): void => {
     const wall: IAutoMovieProjectileFirstContact.ICollider =
-      AutoMoviePhysicalProjectile.planeCollider(
+      AutoMovieEnginePhysicalProjectile.planeCollider(
         "wall",
         { x: 0.25, y: 0, z: 0 },
         { x: -1, y: 0, z: 0 },
@@ -220,7 +220,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
       [ground, wall],
       [wall, ground],
     ]) {
-      const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+      const hit: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
         { ...returning, velocity: { x: 1, y: 1, z: 0 } },
         colliders,
         span,
@@ -241,7 +241,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
       velocity: zero,
       gravity: { x: 0, y: -1, z: 0 },
     };
-    const first: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const first: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       drop,
       [ground],
       { from: 0, to: 3 },
@@ -253,7 +253,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
         nclose(first.time, Math.sqrt(2), PhysicalTolerance.CONTACT_TIME),
     );
     if (first === null) return;
-    const next: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
+    const next: IAutoMovieProjectileContinue.Segment = AutoMovieEnginePhysicalProjectile.continueFlight(
       drop,
       first,
       {
@@ -264,12 +264,12 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     );
     check("the resolved impact produces flight", next.kind === "flight");
     if (next.kind !== "flight") return;
-    const state: IAutoMovieVector3 = AutoMovieAir.projectileAt(drop, first.time).position;
+    const state: IAutoMovieVector3 = AutoMovieEngineAir.projectileAt(drop, first.time).position;
     check(
       "continuation preserves the actual penetrating impact origin",
       state.y < 0 && Object.is(next.projectile.origin.y, state.y),
     );
-    const again: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const again: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       next.projectile,
       [ground],
       { from: 0, to: 3 },
@@ -290,7 +290,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     };
     const expected: number =
       (Math.atan(1 / Math.sqrt(2)) + Math.acosh(Math.sqrt(1.5))) / Math.sqrt(2);
-    const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const hit: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       drag,
       [ground],
       span,
@@ -317,7 +317,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     };
     check(
       "an id alone cannot classify an opaque moving collider",
-      AutoMoviePhysicalProjectile.firstContact(outgoing, [moving], span, {
+      AutoMovieEnginePhysicalProjectile.firstContact(outgoing, [moving], span, {
         ...options,
         departing: moving.id,
       })?.time === 0,
@@ -343,9 +343,9 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     };
     const fixed: IAutoMovieProjectileFirstContact.ICollider =
-      AutoMoviePhysicalProjectile.shapeCollider("block", block, frame);
+      AutoMovieEnginePhysicalProjectile.shapeCollider("block", block, frame);
     const opaque: IAutoMovieProjectileFirstContact.ICollider =
-      AutoMoviePhysicalProjectile.shapeCollider(
+      AutoMovieEnginePhysicalProjectile.shapeCollider(
         "block",
         block,
         (): IAutoMovieRigidTransform => frame,
@@ -356,18 +356,18 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     };
     check(
       "a fixed box's supporting plane proves an outgoing departure",
-      AutoMoviePhysicalProjectile.firstContact(outgoing, [fixed], span, resolved) === null,
+      AutoMovieEnginePhysicalProjectile.firstContact(outgoing, [fixed], span, resolved) === null,
     );
     check(
       "an opaque pose of the same box keeps its initial contact",
-      AutoMoviePhysicalProjectile.firstContact(outgoing, [opaque], span, resolved)?.time === 0,
+      AutoMovieEnginePhysicalProjectile.firstContact(outgoing, [opaque], span, resolved)?.time === 0,
     );
     const thrown: IAutoMovieProjectile = {
       origin: zero,
       velocity: up,
       gravity: { x: 0, y: -2, z: 0 },
     };
-    const back: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
+    const back: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
       thrown,
       [fixed],
       span,

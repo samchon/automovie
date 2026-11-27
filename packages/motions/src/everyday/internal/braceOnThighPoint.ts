@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -70,7 +70,7 @@ export function braceOnThighPoint(
         body,
         neutral,
         side,
-        Quaternion.identity(),
+        AutoMovieEngineQuaternion.identity(),
         "palm",
         "flat",
       )(palm.normal),
@@ -80,37 +80,37 @@ export function braceOnThighPoint(
   ): IBrace => {
     const thigh: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;
     const knee: IAutoMovieVector3 = bones.get(`${side}LowerLeg`)!.worldPosition;
-    const onThigh: IAutoMovieVector3 = Vector3.add(
+    const onThigh: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       thigh.worldPosition,
-      Quaternion.rotateVector(thigh.worldRotation, region.point),
+      AutoMovieEngineQuaternion.rotateVector(thigh.worldRotation, region.point),
     );
 
-    const along: IAutoMovieVector3 = Vector3.subtract(
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       knee,
       thigh.worldPosition,
     );
-    const axis: IAutoMovieVector3 = Vector3.normalize(along);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(along);
     // A thigh surface can taper toward the knee. Its skin normal then
     // has an axial component; the contact section itself is perpendicular
     // to the line of the femur so a ray through it keeps its height.
-    const skinNormal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const skinNormal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       thigh.worldRotation,
       region.normal,
     );
-    const anterior: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled(skinNormal, axis, -Vector3.dot(skinNormal, axis)),
+    const anterior: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled(skinNormal, axis, -AutoMovieEngineVector3.dot(skinNormal, axis)),
     );
-    const lateral: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(axis, anterior),
+    const lateral: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.cross(axis, anterior),
     );
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const fromKnee: IAutoMovieVector3 = Vector3.subtract(onThigh, knee);
-    const radial: IAutoMovieVector3 = Vector3.addScaled(
+    const fromKnee: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(onThigh, knee);
+    const radial: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       fromKnee,
       axis,
-      -Vector3.dot(fromKnee, axis),
+      -AutoMovieEngineVector3.dot(fromKnee, axis),
     );
     // The arm approaches on the shoulder's side of the front surface.
     // Project its lateral line onto the thigh cross-section so the
@@ -118,36 +118,36 @@ export function braceOnThighPoint(
     const bearing =
       supporting === undefined
         ? undefined
-        : Vector3.addScaled(supporting, axis, -Vector3.dot(supporting, axis));
+        : AutoMovieEngineVector3.addScaled(supporting, axis, -AutoMovieEngineVector3.dot(supporting, axis));
     const normal: IAutoMovieVector3 =
-      bearing !== undefined && Vector3.dot(bearing, bearing) > 0
-        ? Vector3.normalize(bearing)
-        : Vector3.normalize(
-            Vector3.addScaled(
-              Vector3.scale(anterior, Math.abs(Vector3.dot(radial, anterior))),
+      bearing !== undefined && AutoMovieEngineVector3.dot(bearing, bearing) > 0
+        ? AutoMovieEngineVector3.normalize(bearing)
+        : AutoMovieEngineVector3.normalize(
+            AutoMovieEngineVector3.addScaled(
+              AutoMovieEngineVector3.scale(anterior, Math.abs(AutoMovieEngineVector3.dot(radial, anterior))),
               lateral,
-              Vector3.dot(Vector3.subtract(shoulder, knee), lateral),
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(shoulder, knee), lateral),
             ),
           );
-    const front: IAutoMovieVector3 = Vector3.addScaled(
+    const front: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       knee,
       normal,
-      Vector3.length(radial),
+      AutoMovieEngineVector3.length(radial),
     );
     const rotation: IAutoMovieQuaternion = HumanHand.align(palm, {
-      normal: Vector3.scale(normal, -1),
+      normal: AutoMovieEngineVector3.scale(normal, -1),
       forward: along,
     });
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.addScaled(front, normal, depth),
-      Quaternion.rotateVector(rotation, palm.point),
+    const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.addScaled(front, normal, depth),
+      AutoMovieEngineQuaternion.rotateVector(rotation, palm.point),
     );
 
     // The nearer intersection with the shoulder-to-palm reach sphere
     // raises the site on an upright kneeling thigh.
-    const d: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
-    const b: number = Vector3.dot(axis, d);
-    const disc: number = b * b - Vector3.dot(d, d) + reach * reach;
+    const d: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(wrist, shoulder);
+    const b: number = AutoMovieEngineVector3.dot(axis, d);
+    const disc: number = b * b - AutoMovieEngineVector3.dot(d, d) + reach * reach;
     const up: number = Math.max(
       m.hand / 2,
       disc >= 0 ? b - Math.sqrt(disc) : m.hand / 2,
@@ -158,38 +158,38 @@ export function braceOnThighPoint(
     const colliders: ReturnType<typeof HumanColliders.reading> =
       HumanColliders.reading(body, only);
     const padded: (height: number) => IBrace = (height: number): IBrace => {
-      const geometric: IAutoMovieVector3 = Vector3.addScaled(
+      const geometric: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
         front,
         axis,
         -height,
       );
       const hit: ReturnType<typeof HumanColliders.cast> = colliders.cast(
-        Vector3.addScaled(geometric, normal, span),
-        Vector3.scale(normal, -1),
+        AutoMovieEngineVector3.addScaled(geometric, normal, span),
+        AutoMovieEngineVector3.scale(normal, -1),
         2 * span,
       );
       if (hit === undefined)
         return {
-          point: Vector3.addScaled(geometric, normal, depth),
+          point: AutoMovieEngineVector3.addScaled(geometric, normal, depth),
           normal,
           rotation,
         };
       const facing: IAutoMovieVector3 =
-        Vector3.dot(hit.normal, normal) > 0 ? hit.normal : normal;
+        AutoMovieEngineVector3.dot(hit.normal, normal) > 0 ? hit.normal : normal;
       return {
-        point: Vector3.addScaled(hit.point, facing, depth),
+        point: AutoMovieEngineVector3.addScaled(hit.point, facing, depth),
         normal: facing,
         rotation: HumanHand.align(palm, {
-          normal: Vector3.scale(facing, -1),
+          normal: AutoMovieEngineVector3.scale(facing, -1),
           forward: along,
         }),
       };
     };
     const missed: (brace: IBrace) => boolean = (brace: IBrace): boolean =>
-      Vector3.distance(
-        Vector3.subtract(
+      AutoMovieEngineVector3.distance(
+        AutoMovieEngineVector3.subtract(
           brace.point,
-          Quaternion.rotateVector(brace.rotation, palm.point),
+          AutoMovieEngineQuaternion.rotateVector(brace.rotation, palm.point),
         ),
         shoulder,
       ) > reach;
@@ -197,14 +197,14 @@ export function braceOnThighPoint(
     // to its ray. Place the padded palm, not the unpadded skin, above the
     // knee by its half hand length.
     const first: IBrace = padded(up);
-    const height: number = Vector3.dot(
-      Vector3.subtract(knee, first.point),
+    const height: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(knee, first.point),
       axis,
     );
     const station: number = up + Math.max(0, m.hand / 2 - height);
     const nearest: IBrace = station === up ? first : padded(station);
     // Curvature changes both the surface point and its tangent plane.
-    const top: number = Math.max(station, Vector3.length(along) - m.hand / 2);
+    const top: number = Math.max(station, AutoMovieEngineVector3.length(along) - m.hand / 2);
     if (top > station && missed(nearest) && !missed(padded(top)))
       return padded(
         AutoMovieEngineMath.bracketedBisection(

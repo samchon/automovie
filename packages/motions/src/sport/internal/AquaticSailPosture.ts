@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
@@ -117,21 +117,21 @@ export function AquaticSailPosture(
       // passes the standing foot's place: it steps across in front of the
       // standing shank, out by two shank radii and the skin's give at its
       // swing's middle, never through it.
-      const footA: IAutoMovieVector3 = Vector3.add(
+      const footA: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         {
           ...leadBase,
           x: leadBase.x + cross * leadX,
           y: leadBase.y + clearance * leadSwing,
         },
-        Vector3.scale(ahead, passing * leadSwing),
+        AutoMovieEngineVector3.scale(ahead, passing * leadSwing),
       );
-      const footB: IAutoMovieVector3 = Vector3.add(
+      const footB: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         {
           ...trailBase,
           x: trailBase.x + cross * trailX,
           y: trailBase.y + clearance * trailSwing,
         },
-        Vector3.scale(ahead, passing * trailSwing),
+        AutoMovieEngineVector3.scale(ahead, passing * trailSwing),
       );
       const carriedHips: IAutoMovieVector3 = {
         ...hips,
@@ -140,13 +140,13 @@ export function AquaticSailPosture(
       };
       // The pelvis crosses the deck. Counter the offset from rotating the
       // floor-origin rig to duck, so pitch and yaw do not move it off that path.
-      const offset: IAutoMovieVector3 = Vector3.subtract(
+      const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         hipsAt(trunk).get("hips")!.worldPosition,
         trunk.root,
       );
-      const root: IAutoMovieVector3 = Vector3.subtract(
+      const root: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         carriedHips,
-        Quaternion.rotateVector(hull.inverse, offset),
+        AutoMovieEngineQuaternion.rotateVector(hull.inverse, offset),
       );
       let posture: IAutoMovieMotionHumanPosture = AquaticCrew.apply(
         context,
@@ -206,9 +206,9 @@ export function AquaticSailPosture(
           // foot turned, so they stay flat and still on the deck: the
           // forefoot rocker (Perry and Burnfield). The ankle and the
           // knee's hint move instead.
-          const shift: IAutoMovieVector3 = Vector3.subtract(
-            Quaternion.rotateVector(goal.rotation, mtp),
-            Quaternion.rotateVector(turned.rotation!, mtp),
+          const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+            AutoMovieEngineQuaternion.rotateVector(goal.rotation, mtp),
+            AutoMovieEngineQuaternion.rotateVector(turned.rotation!, mtp),
           );
           posture.joints = {
             ...posture.joints,
@@ -224,10 +224,10 @@ export function AquaticSailPosture(
           };
           posture.limbs[leg] = {
             ...turned,
-            point: Vector3.add(turned.point, shift),
+            point: AutoMovieEngineVector3.add(turned.point, shift),
             ...(turned.bend === undefined
               ? {}
-              : { bend: Vector3.add(turned.bend, shift) }),
+              : { bend: AutoMovieEngineVector3.add(turned.bend, shift) }),
           };
         }
         posture = lowerHumanPosture(body, posture);

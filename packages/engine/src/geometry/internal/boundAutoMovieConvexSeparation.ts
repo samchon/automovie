@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
@@ -69,11 +69,11 @@ export function boundAutoMovieConvexSeparation(
       for (let j: number = i + 1; j < vertices.length - 1; j++)
         for (let k: number = j + 1; k < vertices.length; k++) {
           spend?.();
-          const u: IAutoMovieVector3 = Vector3.subtract(
+          const u: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             vertices[j]!,
             vertices[i]!,
           );
-          const v: IAutoMovieVector3 = Vector3.subtract(
+          const v: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             vertices[k]!,
             vertices[i]!,
           );
@@ -92,11 +92,11 @@ export function boundAutoMovieConvexSeparation(
             );
           if (
             scale > 0 &&
-            offer(Vector3.cross(divideVector(u, scale), divideVector(v, scale)))
+            offer(AutoMovieEngineVector3.cross(divideVector(u, scale), divideVector(v, scale)))
           )
             return best;
         }
-  if (offer(Vector3.subtract(a[0]!, b[0]!))) return best;
+  if (offer(AutoMovieEngineVector3.subtract(a[0]!, b[0]!))) return best;
   const aPairs: [number, number][] = vertexPairs(a.length);
   const bPairs: [number, number][] = vertexPairs(b.length);
   for (const [p, q] of aPairs)
@@ -108,7 +108,7 @@ export function boundAutoMovieConvexSeparation(
         b[r]!,
         b[s]!,
       );
-      if (offer(Vector3.subtract(hit.pointA, hit.pointB))) return best;
+      if (offer(AutoMovieEngineVector3.subtract(hit.pointA, hit.pointB))) return best;
     }
   return best;
 }

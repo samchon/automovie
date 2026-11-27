@@ -1,4 +1,6 @@
-import { balletStep } from "@automovie/motions/internal";
+import {
+  balletStep
+} from "../../../../../packages/motions/src/exercise/internal/balletStep";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

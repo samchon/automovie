@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -87,7 +87,7 @@ export namespace crawlFrame {
           "palm",
           {
             point: { x: 0, y: 0, z: 0 },
-            normal: Vector3.scale(Vector3.normalize({ x: 0, y: 1, z: 0 }), -1),
+            normal: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize({ x: 0, y: 1, z: 0 }), -1),
             forward,
           },
           "flat",
@@ -290,7 +290,7 @@ export namespace crawlFrame {
   ): IOverResult {
     const height = (side: AutoMovieHumanSide): number => {
       const along: number =
-        Vector3.dot(Vector3.subtract(knees[side], level), forward) -
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(knees[side], level), forward) -
         ahead[side];
       return (
         knees[side].y + Math.sqrt(Math.max(0, thigh * thigh - along * along))
@@ -328,7 +328,7 @@ export namespace crawlFrame {
       humanPostureHeading(tilted),
       tilted.joints.hips,
     );
-    return Vector3.subtract(hips, Vector3.lerp(joints.left, joints.right, 0.5));
+    return AutoMovieEngineVector3.subtract(hips, AutoMovieEngineVector3.lerp(joints.left, joints.right, 0.5));
   }
   /*
    * Fixed clinical pairs use their numerical owner; changing pairs share one

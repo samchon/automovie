@@ -8,10 +8,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieConstructionBridgeRealize } from "./AutoMovieConstructionBridgeRealize";
-import { AutoMovieConstructionContinuation } from "../../AutoMovieConstructionContinuation";
-import { AutoMovieConstructionRing } from "../../AutoMovieConstructionRing";
-import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
-import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
+import { AutoMovieEngineConstructionContinuation } from "../../AutoMovieEngineConstructionContinuation";
+import { AutoMovieEngineConstructionRing } from "../../AutoMovieEngineConstructionRing";
+import { AutoMovieEngineConstructionState } from "../../AutoMovieEngineConstructionState";
+import { AutoMovieEngineLoftAdmissionError } from "../../AutoMovieEngineLoftAdmissionError";
 
 /*
  * Retain a continuation only while both actual open ends survive its subtree.
@@ -65,7 +65,7 @@ export function AutoMovieConstructionContinuationRealize(
       `the host face's ${node.hostEnd} end is already cut away by a join or a trim`,
     );
   const snapshot: IAutoMovieConstructionState.ISnapshot =
-    AutoMovieConstructionState.snap(body, state);
+    AutoMovieEngineConstructionState.snap(body, state);
   const previous: IAutoMovieConstructionState.IOverride | undefined =
     state.overrides.get(node.partFace);
   const override: IAutoMovieConstructionState.IOverride = {
@@ -79,7 +79,7 @@ export function AutoMovieConstructionContinuationRealize(
         return inherited;
       }
       if (previous !== undefined) previous.applied = true;
-      return AutoMovieConstructionContinuation.apply(
+      return AutoMovieEngineConstructionContinuation.apply(
         hostChain,
         node.hostEnd,
         inherited,
@@ -95,7 +95,7 @@ export function AutoMovieConstructionContinuationRealize(
    */
   const fail: (detail: string) => void = (detail: string): void => {
     report(node.name, "shared end", detail);
-    AutoMovieConstructionState.restore(body, state, snapshot);
+    AutoMovieEngineConstructionState.restore(body, state, snapshot);
   };
   state.overrides.set(node.partFace, override);
   try {
@@ -114,7 +114,7 @@ export function AutoMovieConstructionContinuationRealize(
     if (!(hostChain.samples >= 3))
       return fail("the shared ring needs at least three host phase samples");
     const partChain: IAutoMovieLoftChain = state.chains.get(node.partFace)!;
-    AutoMovieConstructionRing.create(body, {
+    AutoMovieEngineConstructionRing.create(body, {
       host: hostIndex,
       hostStation: end(hostChain, node.hostEnd),
       hostKind,
@@ -122,11 +122,11 @@ export function AutoMovieConstructionContinuationRealize(
       partStation: end(partChain, node.partEnd),
       partKind,
       count: hostChain.samples,
-      sign: AutoMovieConstructionContinuation.sign(node.hostEnd, node.partEnd),
+      sign: AutoMovieEngineConstructionContinuation.sign(node.hostEnd, node.partEnd),
     });
   } catch (error: unknown) {
-    AutoMovieConstructionState.restore(body, state, snapshot);
-    if (!(error instanceof AutoMovieLoftAdmissionError)) throw error;
+    AutoMovieEngineConstructionState.restore(body, state, snapshot);
+    if (!(error instanceof AutoMovieEngineLoftAdmissionError)) throw error;
     report(node.name, "shared end", error.message);
   } finally {
     if (previous === undefined) state.overrides.delete(node.partFace);

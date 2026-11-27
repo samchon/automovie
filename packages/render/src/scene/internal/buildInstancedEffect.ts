@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieEffectViewerObject } from "../IAutoMovieEffectViewerObject.js";
-import type { IAutoMovieEffectViewerStats } from "../IAutoMovieEffectViewerStats.js";
+import type { IAutoMovieRenderEffectViewerObject } from "../IAutoMovieRenderEffectViewerObject.js";
+import type { IAutoMovieRenderEffectViewerStats } from "../IAutoMovieRenderEffectViewerStats.js";
 
 /*
  * Build a compiled effect as fixed-capacity camera-facing billboard instances.
@@ -18,9 +18,9 @@ import type { IAutoMovieEffectViewerStats } from "../IAutoMovieEffectViewerStats
  */
 export const buildInstancedEffect: (
   effect: IAutoMovieCompiledEffect,
-) => IAutoMovieEffectViewerObject = (
+) => IAutoMovieRenderEffectViewerObject = (
   effect: IAutoMovieCompiledEffect,
-): IAutoMovieEffectViewerObject => {
+): IAutoMovieRenderEffectViewerObject => {
   const geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(1, 1);
   const opacity: THREE.InstancedBufferAttribute =
     new THREE.InstancedBufferAttribute(
@@ -78,7 +78,7 @@ export const buildInstancedEffect: (
     kind: effect.kind,
     digest: effect.digest,
   };
-  const stats: IAutoMovieEffectViewerStats = {
+  const stats: IAutoMovieRenderEffectViewerStats = {
     active: false,
     particles: 0,
     cap: effect.recipe.budget.maxParticles,

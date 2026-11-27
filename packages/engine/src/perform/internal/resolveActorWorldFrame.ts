@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { actorContextWorldFrame } from "./actorContextWorldFrame";
 
@@ -27,19 +27,19 @@ export function resolveActorWorldFrame(
   const root: IAutoMovieTransform | null = AutoMovieEngineMotionSampling.sampleRoot(motion, seconds);
   if (root === null) return null;
   const staged: IAutoMovieActorWorldFrame = actorContextWorldFrame(context);
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     staged.rotation,
     root.rotation,
   );
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+  const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
     x: 0,
     y: 0,
     z: 1,
   });
   return {
-    position: Vector3.add(
+    position: AutoMovieEngineVector3.add(
       staged.position,
-      Quaternion.rotateVector(staged.rotation, root.translation),
+      AutoMovieEngineQuaternion.rotateVector(staged.rotation, root.translation),
     ),
     rotation,
     facingDeg: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,

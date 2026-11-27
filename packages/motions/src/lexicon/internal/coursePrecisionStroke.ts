@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -56,8 +56,8 @@ export function coursePrecisionStroke(
     // over the stroke's preparation: its peak is 15/8 of its mean speed.
     ready > 0
       ? (15 / 8) *
-          (Vector3.length(
-            Vector3.subtract(
+          (AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               plan.posture(ready).limbs[`${side}Arm`]?.point ?? hand,
               hand,
             ),
@@ -67,8 +67,8 @@ export function coursePrecisionStroke(
     // The return from the stroke's end to the entry's place, over the
     // stroke's recovery, the same minimum-jerk peak.
     (15 / 8) *
-      (Vector3.length(
-        Vector3.subtract(
+      (AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           plan.posture(relax).limbs[`${side}Arm`]?.point ?? hand,
           hand,
         ),

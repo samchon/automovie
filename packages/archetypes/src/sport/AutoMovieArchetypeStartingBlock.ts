@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -13,7 +13,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeStartingBlockData from "./internal/AutoMovieArchetypeStartingBlockData";
+import { AutoMovieArchetypeStartingBlockData } from "./internal/AutoMovieArchetypeStartingBlockData";
 
 /** Constructs the starting block archetype from its recipe. */
 export namespace AutoMovieArchetypeStartingBlock {
@@ -74,7 +74,7 @@ export function create(
     name: `starting block ${model.name}`,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const rail: number = d.rail;
   const plate: Readonly<{ width: number; height: number; thick: number }> = {
     width: d.plateWidth,
@@ -88,7 +88,7 @@ export function create(
   const tilt: number = d.angle * AutoMovieArchetypeUnits.DEGREE;
   // Turned about -X, the plate's top leans back toward -Z and its face
   // (+Z) looks forward and up.
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     v(1, 0, 0),
     -d.angle,
   );
@@ -121,7 +121,7 @@ export function create(
       id,
       kind: "pedal",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.add(centre, Vector3.scale(normal, plate.thick / 2)),
+        AutoMovieEngineVector3.add(centre, AutoMovieEngineVector3.scale(normal, plate.thick / 2)),
         normal,
         v(1, 0, 0),
       ),

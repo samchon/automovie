@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -95,7 +95,7 @@ export namespace sitPlace {
     for (const side of ["left", "right"] as const) {
       const [shortest, longest]: readonly [number, number] = band(body, side);
       const hip: IAutoMovieVector3 = hips[side];
-      const d: number = Vector3.length(Vector3.subtract(feet[side], hip));
+      const d: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(feet[side], hip));
       if (d > longest || d < shortest) {
         const dy: number = hip.y - feet[side].y;
         const near: number = Math.sqrt(

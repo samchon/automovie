@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { stageDeflectRebound } from "@automovie/motions/internal";
+import {
+  stageDeflectRebound
+} from "../../../../../packages/motions/src/throwing/internal/stageDeflectRebound";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

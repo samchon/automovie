@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalProjectile, Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMoviePhysicalShape,
@@ -32,14 +32,14 @@ export namespace HumanPropSweepColliders {
           : shape.kind === "capsule"
             ? shape.halfLength + shape.radius
             : shape.kind === "box"
-              ? Vector3.length(shape.halfExtents)
+              ? AutoMovieEngineVector3.length(shape.halfExtents)
               : Math.max(
                   0,
                   ...shape.points.map((point: IAutoMovieVector3): number =>
-                    Vector3.length(point),
+                    AutoMovieEngineVector3.length(point),
                   ),
                 );
-      far = Math.max(far, Vector3.length(shape.transform.position) + own);
+      far = Math.max(far, AutoMovieEngineVector3.length(shape.transform.position) + own);
     }
     return far;
   }
@@ -95,28 +95,28 @@ export namespace HumanPropSweepColliders {
     contact: IAutoMovieResolveContactEvents.IInitialContact,
     surface: Surface,
   ): IAutoMovieResolveContactEvents.Departure | undefined {
-    const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(
+    const state: IAutoMovieProjectileState = AutoMovieEngineAir.projectileAt(
       projectile,
       contact.from,
     );
     const end: IAutoMovieVector3 =
       options.tail === undefined || state.rotation === undefined
         ? state.position
-        : Vector3.add(
+        : AutoMovieEngineVector3.add(
             state.position,
-            Quaternion.rotateVector(state.rotation, options.tail),
+            AutoMovieEngineQuaternion.rotateVector(state.rotation, options.tail),
           );
     const at: ISurface = surface(state.position, end, contact.from);
     if (
       !(
-        Vector3.dot(Vector3.subtract(state.velocity, at.velocity), at.normal) >
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(state.velocity, at.velocity), at.normal) >
         0
       )
     )
       return undefined;
     const seconds: number =
       contact.from +
-      AutoMoviePhysicalProjectile.contactStep(
+      AutoMovieEnginePhysicalProjectile.contactStep(
         projectile,
         { from: contact.from, to: contact.to },
         options,
@@ -139,22 +139,22 @@ export namespace HumanPropSweepColliders {
     seconds: number,
   ): IAutoMovieVector3 {
     const now: IAutoMovieRigidTransform = frame(seconds);
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(now.rotation),
-      Vector3.subtract(point, now.position),
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(now.rotation),
+      AutoMovieEngineVector3.subtract(point, now.position),
     );
     const placed: (at: number) => IAutoMovieVector3 = (
       at: number,
     ): IAutoMovieVector3 => {
       const carried: IAutoMovieRigidTransform = frame(at);
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         carried.position,
-        Quaternion.rotateVector(carried.rotation, local),
+        AutoMovieEngineQuaternion.rotateVector(carried.rotation, local),
       );
     };
     const h: number = HumanPropOutcome.CONTACT_SECOND;
-    return Vector3.scale(
-      Vector3.subtract(placed(seconds + h), placed(seconds - h)),
+    return AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(placed(seconds + h), placed(seconds - h)),
       1 / (2 * h),
     );
   }
@@ -214,12 +214,12 @@ export namespace HumanPropSweepColliders {
     let found: number = Infinity;
     if (shape.kind === "hull" && shape.points.length !== 0) {
       let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      for (const point of shape.points) sum = Vector3.add(sum, point);
-      const centre: IAutoMovieVector3 = Vector3.add(
+      for (const point of shape.points) sum = AutoMovieEngineVector3.add(sum, point);
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         shape.transform.position,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           shape.transform.rotation,
-          Vector3.scale(sum, 1 / shape.points.length),
+          AutoMovieEngineVector3.scale(sum, 1 / shape.points.length),
         ),
       );
       const depth: number = -AutoMovieEnginePhysics.physicalShapeNearest(ORIGIN, shape, centre, centre)

@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { prepareHumanShapeBlend } from "@automovie/motions/internal";
+import {
+  prepareHumanShapeBlend
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanShapeBlend";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

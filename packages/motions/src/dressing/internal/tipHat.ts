@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineKinematics,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -38,7 +38,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { requireHatHand } from "./requireHatHand";
-import * as TipHatData from "./TipHatData";
+import { TipHatData } from "./TipHatData";
 
 /*
  * Take a stiff hat by its declared brim grip, lift it briefly and set it back
@@ -97,7 +97,7 @@ function plan(
     seated.frame,
   );
   const rise: number = body.measure.headRadius / 3;
-  const lift: IAutoMovieVector3 = Vector3.scale(crown.normal, rise);
+  const lift: IAutoMovieVector3 = AutoMovieEngineVector3.scale(crown.normal, rise);
 
   const authored: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
     body,
@@ -127,7 +127,7 @@ function plan(
       {
         posture: entry.posture,
         wrist: {
-          point: Vector3.add(shown.point, lift),
+          point: AutoMovieEngineVector3.add(shown.point, lift),
           rotation: shown.rotation,
         },
         bend,
@@ -173,9 +173,9 @@ function plan(
     ): IAutoMovieMotionHumanArmTarget.ITarget => ({
       surface: "wrist",
       shape: "flat",
-      point: Vector3.add(
+      point: AutoMovieEngineVector3.add(
         fit.shown.point,
-        Vector3.scale(
+        AutoMovieEngineVector3.scale(
           lift,
           clock.envelope(
             ["strokeStart", "stroke"],
@@ -185,7 +185,7 @@ function plan(
         ),
       ),
       rotation: fit.shown.rotation,
-      bend: Vector3.lerp(entryElbow, bend, reaching(seconds)),
+      bend: AutoMovieEngineVector3.lerp(entryElbow, bend, reaching(seconds)),
     }),
   });
   const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
@@ -263,16 +263,16 @@ function plan(
     body,
     resolveHumanPosture(body, posture(clock.at("stroke"))),
   ).get(`${side}Hand`)!;
-  const carry: IAutoMovieQuaternion = Quaternion.multiply(
+  const carry: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     peak.worldRotation,
-    Quaternion.inverse(ready.worldRotation),
+    AutoMovieEngineQuaternion.inverse(ready.worldRotation),
   );
   const lifted = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       peak.worldPosition,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         carry,
-        Vector3.subtract(point, ready.worldPosition),
+        AutoMovieEngineVector3.subtract(point, ready.worldPosition),
       ),
     );
   const wearPoint: IAutoMovieVector3 = seated.socket;
@@ -280,11 +280,11 @@ function plan(
   const miss: number = Math.max(
     pinch,
     gap(fit.wrist.point, ready.worldPosition),
-    gap(liftedSocket, Vector3.add(wearPoint, lift)),
-    gap(lifted(grasp.point), Vector3.add(grasp.point, lift)),
+    gap(liftedSocket, AutoMovieEngineVector3.add(wearPoint, lift)),
+    gap(lifted(grasp.point), AutoMovieEngineVector3.add(grasp.point, lift)),
   );
-  const clearance: number = Vector3.dot(
-    Vector3.subtract(liftedSocket, crown.point),
+  const clearance: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(liftedSocket, crown.point),
     crown.normal,
   );
   if (!(miss <= TipHatData.CONTACT && clearance >= rise / 2))
@@ -368,34 +368,34 @@ function wornFrame(
     hold.grip === "precision"
   ) {
     const shown: IAutoMovieRigidTransform = reader.frame(seconds);
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       head.worldRotation,
       worn.offset.rotation,
     );
-    const position: IAutoMovieVector3 = Vector3.add(
+    const position: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       head.worldPosition,
-      Quaternion.rotateVector(head.worldRotation, worn.offset.position),
+      AutoMovieEngineQuaternion.rotateVector(head.worldRotation, worn.offset.position),
     );
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
     const axesAgree: boolean = [up, forward].every(
       (axis: IAutoMovieVector3): boolean =>
-        Vector3.dot(
-          Quaternion.rotateVector(shown.rotation, axis),
-          Quaternion.rotateVector(rotation, axis),
+        AutoMovieEngineVector3.dot(
+          AutoMovieEngineQuaternion.rotateVector(shown.rotation, axis),
+          AutoMovieEngineQuaternion.rotateVector(rotation, axis),
         ) >= 0.999,
     );
     const opposed: boolean =
-      Vector3.dot(
-        Quaternion.rotateVector(wear.frame.rotation, up),
-        Quaternion.rotateVector(hold.frame.rotation, up),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineQuaternion.rotateVector(wear.frame.rotation, up),
+        AutoMovieEngineQuaternion.rotateVector(hold.frame.rotation, up),
       ) <= -0.9;
-    const socket: IAutoMovieVector3 = Vector3.add(
+    const socket: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       shown.position,
-      Quaternion.rotateVector(shown.rotation, wear.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(shown.rotation, wear.frame.translation),
     );
-    const inward: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(shown.rotation, wear.frame.rotation),
+    const inward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(shown.rotation, wear.frame.rotation),
       up,
     );
     if (
@@ -403,7 +403,7 @@ function wornFrame(
       axesAgree &&
       gap(shown.position, position) <= TipHatData.CONTACT &&
       gap(socket, crown.point) <= TipHatData.CONTACT &&
-      Vector3.dot(inward, crown.normal) <= -0.999
+      AutoMovieEngineVector3.dot(inward, crown.normal) <= -0.999
     )
       return { frame: shown, socket };
   }
@@ -420,7 +420,7 @@ function wornFrame(
  * World distance between two points, metres.
  */
 function gap(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
-  return Vector3.length(Vector3.subtract(a, b));
+  return AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, b));
 }
 
 /*

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -60,8 +60,8 @@ export function prepareVaultArmFrames(
         return [
           ...components(wrist.worldPosition),
           ...components(bones.get(`${side}LowerArm`)!.worldPosition),
-          ...components(Quaternion.rotateVector(wrist.worldRotation, X)),
-          ...components(Quaternion.rotateVector(wrist.worldRotation, Y)),
+          ...components(AutoMovieEngineQuaternion.rotateVector(wrist.worldRotation, X)),
+          ...components(AutoMovieEngineQuaternion.rotateVector(wrist.worldRotation, Y)),
         ];
       };
       return [...frame("left"), ...frame("right")];
@@ -75,11 +75,11 @@ export function prepareVaultArmFrames(
     const sample: number[] = read(seconds);
     return (side: AutoMovieHumanSide): prepareVaultArmFrames.IFrame => {
       const index: number = side === "left" ? 0 : 12;
-      const x: IAutoMovieVector3 = Vector3.normalize(at(sample, index + 6));
-      const z: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(x, at(sample, index + 9)),
+      const x: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(at(sample, index + 6));
+      const z: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(x, at(sample, index + 9)),
       );
-      const y: IAutoMovieVector3 = Vector3.cross(z, x);
+      const y: IAutoMovieVector3 = AutoMovieEngineVector3.cross(z, x);
       return {
         wrist: at(sample, index),
         elbow: at(sample, index + 3),

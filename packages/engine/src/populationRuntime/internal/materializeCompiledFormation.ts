@@ -16,13 +16,13 @@ import type {
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Transform } from "../../math/Transform";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
 import { mixSeed } from "../../math/internal/mixSeed";
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
-import { AUTOMOVIE_FORMATION_CHUNK_SIZE } from "../AUTOMOVIE_FORMATION_CHUNK_SIZE";
+import { AutoMovieEngineFormationChunkSize } from "../AutoMovieEngineFormationChunkSize";
 import { formationSlotPosition } from "../formation/internal/formationSlotPosition";
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
 import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
@@ -32,7 +32,7 @@ import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
  *
  * The record stores what regenerates the members rather than the members: the
  * layout, anchor, heading and seed, one bounds and centroid per chunk of
- * AUTOMOVIE_FORMATION_CHUNK_SIZE slots with that chunk's anonymous count
+ * AutoMovieEngineFormationChunkSize slots with that chunk's anonymous count
  * once heroes are excluded, each hero's promoted base transform, the anonymous
  * representation tiers the design declares, a measured or fallback member
  * radius, a domain-separated motion phase seed, and a digest of every other
@@ -70,7 +70,7 @@ export function materializeCompiledFormation(
   const measured: IAutoMovieSummarizeCompiledSlotChunks.IResult =
     summarizeCompiledSlotChunks(
       formation.count,
-      AUTOMOVIE_FORMATION_CHUNK_SIZE,
+      AutoMovieEngineFormationChunkSize,
       position,
     );
   const chunks: {
@@ -182,9 +182,9 @@ export function materializeCompiledFormation(
         } => ({
           slot: hero.slot,
           actor: hero.actor,
-          transform: Transform.of(
+          transform: AutoMovieEngineTransform.of(
             position(hero.slot),
-            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, formation.facingDeg),
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, formation.facingDeg),
           ),
         }),
       ),

@@ -13,8 +13,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
 
@@ -76,12 +76,12 @@ export function lowerBuiltEnvironment(
           position: IAutoMovieVector3;
           rotation: IAutoMovieQuaternion;
           scale: IAutoMovieVector3;
-        } = Matrix4.decompose(matrices.get(element.id)!);
+        } = AutoMovieEngineMatrix4.decompose(matrices.get(element.id)!);
         return {
           node: `${environment.id}/${element.id}`,
           model: element.model!,
           position: world.position,
-          rotation: Quaternion.normalize(world.rotation),
+          rotation: AutoMovieEngineQuaternion.normalize(world.rotation),
           scale: world.scale,
         };
       }),

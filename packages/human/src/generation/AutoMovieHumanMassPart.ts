@@ -1,4 +1,4 @@
-import { AutoMovieSolidVector, AutoMovieEngineConstruction } from "@automovie/engine";
+import { AutoMovieEngineSolidVector, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanMassPart,
@@ -379,6 +379,6 @@ const {
   sub,
   unit,
 }: Pick<
-  typeof AutoMovieSolidVector,
+  typeof AutoMovieEngineSolidVector,
   "add" | "cross" | "dot" | "scale" | "sub" | "unit"
-> = AutoMovieSolidVector;
+> = AutoMovieEngineSolidVector;

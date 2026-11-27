@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -127,7 +127,7 @@ export function touchSide(
 
 /*
  * How far a strain can move while every angle it reads moves within
- * `ROM_TOLERANCE`, the resolution to which the elbow search and the fits
+ * `AutoMovieEngineRomTolerance`, the resolution to which the elbow search and the fits
  * resolve a joint's angle, so two strains closer than the sum of theirs are one
  * strain. Each of the strain's `n` terms is `(d / H)^2`, `d` an angle's
  * distance from the hanging arm's and `H` its axis's half range
@@ -166,7 +166,7 @@ function resolution(
     )
     .map((r: IAutoMovieAngleRange): number => (r.max - r.min) / 2);
   if (halves.length === 0) return 0;
-  const e: number = ROM_TOLERANCE / Math.min(...halves);
+  const e: number = AutoMovieEngineRomTolerance / Math.min(...halves);
   const n: number = halves.length;
   return 2 * Math.sqrt(n * strain) * e + n * e * e;
 }

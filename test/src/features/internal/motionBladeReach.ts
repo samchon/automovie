@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypePell, AutoMovieArchetypeSword } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
@@ -52,8 +52,8 @@ export namespace motionBladeReach {
     const reach: number =
       AutoMovieMotionHumanBlade.HumanSword.REACH *
       (body.measure.upperArm + body.measure.forearm) +
-      Vector3.length(
-        Vector3.subtract(
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           sword.affordance("point").frame.translation,
           sword.affordance("grip").frame.translation,
         ),
@@ -68,20 +68,20 @@ export namespace motionBladeReach {
     const place = (
       distance: number,
     ): { at: IAutoMovieVector3; yaw: number } => ({
-      at: Vector3.scale(line, distance),
+      at: AutoMovieEngineVector3.scale(line, distance),
       yaw: bearing + 180,
     });
-    const carried: IAutoMovieVector3 = Vector3.add(
+    const carried: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       shoulder,
-      Vector3.scale(line, share * 0.55 * 0.45 * stature),
+      AutoMovieEngineVector3.scale(line, share * 0.55 * 0.45 * stature),
     );
     const apart = (distance: number): number => {
       const where: { at: IAutoMovieVector3; yaw: number } = place(distance);
-      return Vector3.length(
-        Vector3.subtract(
-          Vector3.add(
+      return AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.add(
             where.at,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               AutoMovieMotionHumanObject.frame(where).rotation,
               pell.affordance("target").frame.translation,
             ),

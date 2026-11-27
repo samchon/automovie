@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeSnorkelData from "./internal/AutoMovieArchetypeSnorkelData";
+import { AutoMovieArchetypeSnorkelData } from "./internal/AutoMovieArchetypeSnorkelData";
 
 /** Constructs the snorkel archetype from its recipe. */
 export namespace AutoMovieArchetypeSnorkel {
@@ -45,7 +45,7 @@ export function create(
     material: "rubber",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   builder.rod("barrel", 0.011, v(0.04, 0, -0.03), v(0.04, d.length, -0.03), {
     color: "#f2c230",
   });

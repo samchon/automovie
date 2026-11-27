@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieHumanLimbGoal,
@@ -94,7 +94,7 @@ export namespace sitCarried {
     if (seat.carrier === undefined) return (posture) => posture;
     const read: IAutoMovieMotionHumanPropReader = context.prop(seat.carrier);
     const origin: IAutoMovieRigidTransform = read.frame(context.start);
-    const turned: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
+    const turned: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(origin.rotation);
     const named = (
       id: string,
       film: number,
@@ -149,7 +149,7 @@ export namespace sitCarried {
                     part: {
                       id,
                       position: frame.position,
-                      inverse: Quaternion.inverse(frame.rotation),
+                      inverse: AutoMovieEngineQuaternion.inverse(frame.rotation),
                       fromFloor: floor !== undefined,
                       release: (floor?.to ?? 0) * duration,
                       bearing: window.from * duration,
@@ -194,37 +194,37 @@ export namespace sitCarried {
           : AutoMovieEngineMotionSampling.minimumJerkShare(
               (t - part.release) / (part.bearing - part.release),
             );
-        const delta: IAutoMovieQuaternion = Quaternion.multiply(
+        const delta: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           target.rotation,
           part.inverse,
         );
         const place = (value: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             target.position,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               delta,
-              Vector3.subtract(value, part.position),
+              AutoMovieEngineVector3.subtract(value, part.position),
             ),
           );
         const point: IAutoMovieVector3 = place(raw.point);
         const rotation: IAutoMovieQuaternion | undefined =
           raw.rotation === undefined
             ? undefined
-            : Quaternion.multiply(delta, raw.rotation);
+            : AutoMovieEngineQuaternion.multiply(delta, raw.rotation);
         posture.limbs[limb] = {
           ...rigid,
-          point: bearing ? point : Vector3.lerp(approach.point, point, share),
+          point: bearing ? point : AutoMovieEngineVector3.lerp(approach.point, point, share),
           bend: bearing
             ? place(raw.bend)
             : fromWorld
-              ? Vector3.lerp(raw.bend, rigid.bend, share)
+              ? AutoMovieEngineVector3.lerp(raw.bend, rigid.bend, share)
               : rigid.bend,
           ...(rotation === undefined || approach.rotation === undefined
             ? {}
             : {
                 rotation: bearing
                   ? rotation
-                  : Quaternion.slerp(approach.rotation, rotation, share),
+                  : AutoMovieEngineQuaternion.slerp(approach.rotation, rotation, share),
               }),
         };
       }
@@ -233,16 +233,16 @@ export namespace sitCarried {
           ? undefined
           : named(seatId, film, now.rotation)?.position;
       if (began === undefined || moved === undefined) return posture;
-      const carried: IAutoMovieVector3 = Vector3.add(
+      const carried: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         now.position,
-        Quaternion.rotateVector(
-          Quaternion.multiply(now.rotation, turned),
-          Vector3.subtract(began, origin.position),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.multiply(now.rotation, turned),
+          AutoMovieEngineVector3.subtract(began, origin.position),
         ),
       );
       return {
         ...posture,
-        root: Vector3.add(posture.root, Vector3.subtract(moved, carried)),
+        root: AutoMovieEngineVector3.add(posture.root, AutoMovieEngineVector3.subtract(moved, carried)),
       };
     };
   }

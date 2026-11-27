@@ -1,8 +1,8 @@
 import {
-  ANKLE_DORSIFLEXION,
+  AutoMovieEngineAnkleDorsiflexion,
   AutoMovieEngineMotionSampling,
-  ROM_TOLERANCE,
-  Vector3,
+  AutoMovieEngineRomTolerance,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -147,10 +147,10 @@ export namespace rise {
    * Shank angles forward of vertical the feet are drawn back to, tried in
    * order, degrees: from 12 (provisional, Shepherd and Koh 1996) by 2 up to the
    * dorsiflexion of a foot that bears no weight
-   * (`ANKLE_DORSIFLEXION.unloaded`), as the seated foot being drawn does not.
+   * (`AutoMovieEngineAnkleDorsiflexion.unloaded`), as the seated foot being drawn does not.
    */
   export const SHANK: readonly number[] = Array.from(
-    { length: Math.floor((ANKLE_DORSIFLEXION.unloaded - 12) / 2) + 1 },
+    { length: Math.floor((AutoMovieEngineAnkleDorsiflexion.unloaded - 12) / 2) + 1 },
     (_: unknown, i: number): number => 12 + 2 * i,
   );
 
@@ -249,12 +249,12 @@ export namespace rise {
         Math.max(0, along(sat.at) - 0.6 * body.measure.thigh - along(start)),
       );
     const edging: number = scoot > EDGE ? 0.4 + 1.5 * scoot : 0;
-    const begin: IAutoMovieVector3 = Vector3.add(
+    const begin: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       start,
-      Vector3.scale(forwardDir, scoot),
+      AutoMovieEngineVector3.scale(forwardDir, scoot),
     );
-    const edged: ReturnType<typeof Vector3.prepareLerp> | undefined =
-      edging > 0 ? Vector3.prepareLerp(start, begin) : undefined;
+    const edged: ReturnType<typeof AutoMovieEngineVector3.prepareLerp> | undefined =
+      edging > 0 ? AutoMovieEngineVector3.prepareLerp(start, begin) : undefined;
 
     // Then the feet are drawn back, one at a time, until each ankle stands
     // behind its knee with the shank at an angle forward of vertical, and
@@ -285,12 +285,12 @@ export namespace rise {
       for (const side of ["left", "right"] as const) {
         const back: number = along(feet[side]) - behind;
         if (back > NUDGE)
-          out[side] = Vector3.subtract(
+          out[side] = AutoMovieEngineVector3.subtract(
             out[side],
-            Vector3.scale(forwardDir, back),
+            AutoMovieEngineVector3.scale(forwardDir, back),
           );
         if (Math.abs(aside) > NUDGE)
-          out[side] = Vector3.add(out[side], Vector3.scale(leftDir, aside));
+          out[side] = AutoMovieEngineVector3.add(out[side], AutoMovieEngineVector3.scale(leftDir, aside));
       }
       return out;
     };
@@ -474,7 +474,7 @@ export namespace rise {
             ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
             {
               root: HumanBalance.TOLERANCE,
-              angle: ROM_TOLERANCE,
+              angle: AutoMovieEngineRomTolerance,
               step: AutoMovieMotionHumanArmCourse.STEP,
             },
           );

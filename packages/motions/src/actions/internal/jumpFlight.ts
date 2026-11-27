@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
@@ -83,16 +83,16 @@ export namespace jumpFlight {
         reason: `the landing lies ${rise.toFixed(3)} m up and the body's centre must rise ${climb.toFixed(3)} m to reach it, above the ${apex.toFixed(3)} m apex asked`,
         fix: "jump higher, or onto a lower surface",
       });
-    const vy: number = Math.sqrt(2 * AutoMovieGravity.STANDARD * apex);
+    const vy: number = Math.sqrt(2 * AutoMovieEngineGravity.STANDARD * apex);
     const T: number =
       (vy +
         Math.sqrt(
           Math.max(
             0,
-            vy * vy - 2 * AutoMovieGravity.STANDARD * (comL.y - comT.y),
+            vy * vy - 2 * AutoMovieEngineGravity.STANDARD * (comL.y - comT.y),
           ),
         )) /
-      AutoMovieGravity.STANDARD;
+      AutoMovieEngineGravity.STANDARD;
     const launch: IAutoMovieVector3 = {
       x: (comL.x - comT.x) / T,
       y: vy,
@@ -103,7 +103,7 @@ export namespace jumpFlight {
       vy,
       T,
       launch,
-      land: { x: launch.x, y: vy - AutoMovieGravity.STANDARD * T, z: launch.z },
+      land: { x: launch.x, y: vy - AutoMovieEngineGravity.STANDARD * T, z: launch.z },
     };
   }
 }

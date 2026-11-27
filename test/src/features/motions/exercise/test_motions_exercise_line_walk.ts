@@ -1,5 +1,10 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { lineWalk, lineWalkFootprints } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  lineWalk
+} from "../../../../../packages/motions/src/exercise/internal/lineWalk";
+import {
+  lineWalkFootprints
+} from "../../../../../packages/motions/src/exercise/internal/lineWalkFootprints";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -36,7 +41,7 @@ export function test_motions_exercise_line_walk(): void {
   TestValidator.predicate(
     "the working load",
     lineWalk.LOAD === 15000 &&
-      nclose((70 * AutoMovieGravity.STANDARD * 10) / 0.4, 17161.6375, 1e-6) &&
+      nclose((70 * AutoMovieEngineGravity.STANDARD * 10) / 0.4, 17161.6375, 1e-6) &&
       throwsError(() => lineWalkFootprints.sagged(70, 5, 0.1)) &&
       !throwsError(() => lineWalkFootprints.sagged(70, 5, 0.2)) &&
       !throwsError(() => lineWalkFootprints.sagged(70, Infinity, 0.01)) &&

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -39,11 +39,11 @@ export function manipulateShape(
   site: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ): IShape {
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(rotation),
+  const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(rotation),
     normal,
   );
-  const clearance: number = Vector3.dot(Vector3.subtract(wrist, site), normal);
+  const clearance: number = AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(wrist, site), normal);
   const joints: IAutoMovieMotionHumanPosture["joints"] = {};
   const avoid: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {};
   for (const finger of DIGITS) {
@@ -55,7 +55,7 @@ export function manipulateShape(
       for (const shape of FORMS) {
         const height: number =
           clearance +
-          Vector3.dot(
+          AutoMovieEngineVector3.dot(
             HumanHand.offset(body, side, surface, shape).point,
             local,
           );
@@ -75,7 +75,7 @@ export function manipulateShape(
         avoid[prefix as AutoMovieHumanDigit] = {
           on: `${side}Hand`,
           surface: "tip",
-          point: Vector3.addScaled(point, local, typeText.HOVER - best),
+          point: AutoMovieEngineVector3.addScaled(point, local, typeText.HOVER - best),
         };
       }
     }

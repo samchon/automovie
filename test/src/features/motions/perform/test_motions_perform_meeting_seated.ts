@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
-import { HumanPerformanceMeeting } from "@automovie/motions/internal";
+import {
+  HumanPerformanceMeeting
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceMeeting";
 import { TestValidator } from "@nestia/e2e";
 
 import { actingPerformanceState } from "../../internal/fixtures/actingPerformanceState";

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -88,7 +88,7 @@ export namespace SiegeArm {
     d: Drawn,
     counterweight: boolean,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const wood: { color: string } = { color: "#6b5a3e" };
     const axle: number = d.axleHeight!;

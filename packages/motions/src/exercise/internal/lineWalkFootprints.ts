@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -61,10 +61,10 @@ export namespace lineWalkFootprints {
   export function sagged(mass: number, half: number, sag: number): void {
     if (!(sag > 0 && half < Infinity)) return;
     const tension: number =
-      (mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * sag);
+      (mass * AutoMovieEngineGravity.STANDARD * 2 * half) / (4 * sag);
     if (tension > LOAD) {
       const least: number =
-        (mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * LOAD);
+        (mass * AutoMovieEngineGravity.STANDARD * 2 * half) / (4 * LOAD);
       throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "sag",

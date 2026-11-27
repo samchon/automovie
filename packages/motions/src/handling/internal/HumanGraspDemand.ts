@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -106,9 +106,9 @@ export namespace HumanGraspDemand {
     const point: ReturnType<typeof HumanHand.preparePoint> =
       HumanHand.preparePoint(body, side, "grip");
     const wrist: IAutoMovieMotionHumanHand.IWrist = {
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         demand.frame.point,
-        Quaternion.rotateVector(demand.frame.rotation, socket),
+        AutoMovieEngineQuaternion.rotateVector(demand.frame.rotation, socket),
       ),
       rotation: demand.frame.rotation,
     };

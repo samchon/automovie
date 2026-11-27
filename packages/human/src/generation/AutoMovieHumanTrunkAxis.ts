@@ -1,6 +1,6 @@
 import {
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewParameter,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkAxis,
@@ -55,7 +55,7 @@ export namespace AutoMovieHumanTrunkAxis {
   ): IAutoMovieHumanTrunkAxis.IResult | string {
     const radial:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
       radius,
       ends,
     );
@@ -66,8 +66,8 @@ export namespace AutoMovieHumanTrunkAxis {
     )
       return "Trunk back and radius need the same declared station span";
     const span: number =
-      AutoMovieViewParameter.at(radial.parameter, radial.domain[1]) -
-      AutoMovieViewParameter.at(radial.parameter, radial.domain[0]);
+      AutoMovieEngineViewParameter.at(radial.parameter, radial.domain[1]) -
+      AutoMovieEngineViewParameter.at(radial.parameter, radial.domain[0]);
     if (!(Number.isFinite(span) && span > 0))
       return "Trunk source parameter has no positive finite span";
     const world: IAutoMovieViewPart.IOutline = {
@@ -86,7 +86,7 @@ export namespace AutoMovieHumanTrunkAxis {
         (k: IAutoMovieViewPart.IKnot): boolean => k.station === station,
       );
       const reading: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(radial, station);
+        AutoMovieEngineViewOutline.at(radial, station);
       if (knot === undefined || typeof reading === "string")
         return typeof reading === "string"
           ? reading
@@ -99,7 +99,7 @@ export namespace AutoMovieHumanTrunkAxis {
     }
     const prepared:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(world);
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(world);
     if ("detail" in prepared) return prepared.detail;
     const stations: number[] = [
       ...new Set(
@@ -114,9 +114,9 @@ export namespace AutoMovieHumanTrunkAxis {
     };
     for (const station of stations) {
       const a: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(prepared, station);
+        AutoMovieEngineViewOutline.at(prepared, station);
       const b: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(radial, station);
+        AutoMovieEngineViewOutline.at(radial, station);
       if (typeof a === "string") return a;
       if (typeof b === "string") return b;
       const site: string =

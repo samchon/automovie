@@ -1,11 +1,15 @@
-import type { AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import { AutoMovieEngineFilm, Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import { AutoMovieEngineFilm, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -95,18 +99,18 @@ export function test_location_lift(): void {
   // The cab leaves the ground at the schedule's first closed key there,
   // arrives at its first upper key and opens at its first open one; the
   // rider steps out over the exit's 2 s crossing from that opening.
-  const schedule: readonly AutoMovieEnvironment.ILiftKey[] =
+  const schedule: readonly AutoMovieArchetypeEnvironment.ILiftKey[] =
     fixture.schedule;
   const leaves: number = schedule.find(
-    (key: AutoMovieEnvironment.ILiftKey): boolean =>
+    (key: AutoMovieArchetypeEnvironment.ILiftKey): boolean =>
       key.stop === "ground" && key.doors === "closed" && key.seconds > 0,
   )!.seconds;
   const arrives: number = schedule.find(
-    (key: AutoMovieEnvironment.ILiftKey): boolean =>
+    (key: AutoMovieArchetypeEnvironment.ILiftKey): boolean =>
       key.stop === "upper",
   )!.seconds;
   const opens: number = schedule.find(
-    (key: AutoMovieEnvironment.ILiftKey): boolean =>
+    (key: AutoMovieArchetypeEnvironment.ILiftKey): boolean =>
       key.stop === "upper" && key.doors === "open",
   )!.seconds;
   const rideTime: number = leaves + 0.7 * (arrives - leaves);
@@ -149,9 +153,9 @@ export function test_location_lift(): void {
   TestValidator.predicate(
     "the call anchor stays on its fixed plate while the cab moves",
     vclose(
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         plate.position,
-        Quaternion.rotateVector(plate.rotation, button.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(plate.rotation, button.frame.translation),
       ),
       fixture.environment.anchors["lift/ground/call"]!.translation,
     ),

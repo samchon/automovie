@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieBodyMeasure,
@@ -64,7 +64,7 @@ export function stageBladeFootworkSchedule(
   );
   const lead: Side =
     params.lead ??
-    (Vector3.dot(Vector3.subtract(feet.left.ankle, feet.right.ankle), forward) >
+    (AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(feet.left.ankle, feet.right.ankle), forward) >
     0
       ? "left"
       : "right");
@@ -74,7 +74,7 @@ export function stageBladeFootworkSchedule(
       : params.direction === "back"
         ? opposite(lead)
         : params.direction;
-  const travel: IAutoMovieVector3 = Vector3.scale(
+  const travel: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
     HumanFrame.point(heading, DIRECTIONS[params.direction]),
     distance,
   );

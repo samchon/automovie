@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineAir } from "@automovie/engine";
 import type { IAutoMovieProjectileState } from "@automovie/interface";
 
 import {
@@ -41,7 +41,7 @@ export function archetypeCaptureBreakage(): Readonly<
       AutoMovieArchetypeDrinkware.Dimension,
       AutoMovieArchetypeDrinkware.Affordance
     >;
-    flight: Parameters<typeof AutoMovieAir.projectileAt>[0];
+    flight: Parameters<typeof AutoMovieEngineAir.projectileAt>[0];
   }[] = broken.fragments.map(
     (
       piece: AutoMovieArchetypeFracture.IPiece<
@@ -53,13 +53,13 @@ export function archetypeCaptureBreakage(): Readonly<
         AutoMovieArchetypeDrinkware.Dimension,
         AutoMovieArchetypeDrinkware.Affordance
       >;
-      flight: Parameters<typeof AutoMovieAir.projectileAt>[0];
+      flight: Parameters<typeof AutoMovieEngineAir.projectileAt>[0];
     } => ({
       piece,
       flight: {
         origin: { ...placement.translation },
         velocity: { ...piece.velocity },
-        gravity: { x: 0, y: -AutoMovieGravity.STANDARD, z: 0 },
+        gravity: { x: 0, y: -AutoMovieEngineGravity.STANDARD, z: 0 },
       },
     }),
   );
@@ -90,7 +90,7 @@ export function archetypeCaptureBreakage(): Readonly<
             if (broken.remainder !== null)
               members.remainder = { archetype: broken.remainder, placement };
             for (const fragment of fragments) {
-              const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(
+              const state: IAutoMovieProjectileState = AutoMovieEngineAir.projectileAt(
                 fragment.flight,
                 seconds - event,
               );

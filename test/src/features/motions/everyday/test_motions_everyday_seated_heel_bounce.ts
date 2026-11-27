@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanEntryState } from "@automovie/interface";
-import { AutoMovieMotionHumanRefusal, seatedHeelBounce } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  seatedHeelBounce
+} from "../../../../../packages/motions/src/everyday/internal/seatedHeelBounce";
 import { strict as assert } from "node:assert";
 
 /** Four beats at 2 Hz take two seconds and need a seat and two flat feet. */

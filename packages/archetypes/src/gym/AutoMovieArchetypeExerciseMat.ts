@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createExerciseMat as createExerciseMatImplementation } from "./internal/createExerciseMat";
 import { AutoMovieArchetypeDrawSession, AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand } from "../core";
-import * as AutoMovieArchetypeExerciseMatData from "./internal/AutoMovieArchetypeExerciseMatData";
+import { AutoMovieArchetypeExerciseMatData } from "./internal/AutoMovieArchetypeExerciseMatData";
 
 /** Public operations for Auto Movie Archetype Exercise Mat. */
 export namespace AutoMovieArchetypeExerciseMat {

@@ -234,7 +234,7 @@ export function recovery(
         observeWork: true,
         engineOperators: [
           "tessellateAutoMovieContourLoft64",
-          "AutoMovieContourLoftCurves64.tessellate",
+          "AutoMovieEngineContourLoftCurves64.tessellate",
           "tessellateAutoMovieContourStrip64",
         ],
         generatedAt: new Date().toISOString(),

@@ -6,7 +6,7 @@
 // l.185-195, computePreferredSwingTimeForRecovering l.197-220,
 // checkAndUpdateFootstep l.231-281 and reset l.294-301.
 import { AutoMovieEnginePhysicalFootstepAdjustor } from "./AutoMovieEnginePhysicalFootstepAdjustor";
-import { AutoMoviePhysicalGlitchFilter as Glitch } from "./AutoMoviePhysicalGlitchFilter";
+import { AutoMovieEnginePhysicalGlitchFilter as Glitch } from "./AutoMovieEnginePhysicalGlitchFilter";
 import { AutoMovieEnginePhysicalOneStepCaptureRegion } from "./AutoMovieEnginePhysicalOneStepCaptureRegion";
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 
@@ -78,7 +78,7 @@ export namespace AutoMovieEnginePhysicalPushRecovery {
    *   polygon, clockwise, and each foot's centroid by its bone, all in one
    *   horizontal frame, a biped's two feet left first, which wins a tie
    *   (l.180); and this controller's period and the reference controller's,
-   *   seconds, which keep the safe window's time (`AutoMoviePhysicalGlitchFilter
+   *   seconds, which keep the safe window's time (`AutoMovieEnginePhysicalGlitchFilter
    *   .ticks`).
    * @returns The next state and the bone to swing, the foot other than the
    *   closest, if the robot is falling.

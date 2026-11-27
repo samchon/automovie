@@ -11,8 +11,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
@@ -269,10 +269,10 @@ const cannotRepresentWorldTrs: (world: number[]) => boolean = (
   // Composing finite local scales can overflow binary64.
   if (world.some(overflowsBinary64)) return true;
   const decomposed: IAutoMovieMatrix4.IDecomposeResult =
-    Matrix4.decompose(world);
-  const recomposed: number[] = Matrix4.compose(
+    AutoMovieEngineMatrix4.decompose(world);
+  const recomposed: number[] = AutoMovieEngineMatrix4.compose(
     decomposed.position,
-    Quaternion.normalize(decomposed.rotation),
+    AutoMovieEngineQuaternion.normalize(decomposed.rotation),
     decomposed.scale,
   );
   let magnitude: number = 1;

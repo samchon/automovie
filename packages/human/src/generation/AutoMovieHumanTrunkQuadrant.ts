@@ -1,4 +1,4 @@
-import { AutoMovieStationHermite } from "@automovie/engine";
+import { AutoMovieEngineStationHermite } from "@automovie/engine";
 import type {
   AutoMovieScalarJet2,
   IAutoMovieArcLengthJet,
@@ -304,7 +304,7 @@ export namespace AutoMovieHumanTrunkQuadrant {
     // The station rule's quintic weights over a unit interval, ordered
     // [f_a, f'_a, f''_a, f''_b, f'_b, f_b].
     const value = (order: 0 | 1 | 2): number[] => {
-      const w: number[] = AutoMovieStationHermite.weights(u, 1, order, true);
+      const w: number[] = AutoMovieEngineStationHermite.weights(u, 1, order, true);
 
       return [0, 1].map(
         (k: number): number =>

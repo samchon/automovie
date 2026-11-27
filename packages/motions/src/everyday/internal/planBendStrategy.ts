@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -109,7 +109,7 @@ export function planBendStrategy(
     side,
     "palm",
   ).point;
-  const D: number = Vector3.length(Vector3.subtract(target, hand));
+  const D: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(target, hand));
   const speed: number = HumanSkill.quantity(context.skill, "speed", 1.4, 1.0);
   const down: number = speed * AutoMovieMotionHumanTiming.aimed(D, 0);
   const duration: number = 2 * down + hold;
@@ -271,7 +271,7 @@ export function planBendStrategy(
                   body,
                   {
                     ...lowered,
-                    root: Vector3.addScaled(
+                    root: AutoMovieEngineVector3.addScaled(
                       lowered.root,
                       HumanFrame.forward(lowered.yaw),
                       weight * shift,

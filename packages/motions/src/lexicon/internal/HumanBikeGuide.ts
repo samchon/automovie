@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -33,7 +33,7 @@ import { HumanBikeGuidePath } from "./HumanBikeGuidePath";
 import { HumanBikeGuidePlace } from "./HumanBikeGuidePlace";
 import { HumanBikeGuidePrint } from "./HumanBikeGuidePrint";
 import type { IHumanBikeGuidePrint } from "./IHumanBikeGuidePrint";
-import * as HumanBikeGuideData from "./HumanBikeGuideData";
+import { HumanBikeGuideData } from "./HumanBikeGuideData";
 
 /*
  * Wheel a bicycle by hand beside it, as a triathlete does through the
@@ -115,10 +115,10 @@ function planHumanBikeGuide(
 
   // The entered root, held in the bicycle's frame, rides along its path.
   const origin: IAutoMovieRigidTransform = bicycle.frame(start);
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
-  const entered: IAutoMovieVector3 = Quaternion.rotateVector(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(origin.rotation);
+  const entered: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     inverse,
-    Vector3.subtract(entry.posture.root, origin.position),
+    AutoMovieEngineVector3.subtract(entry.posture.root, origin.position),
   );
 
   // The athlete moves from the entered place to the guiding station
@@ -133,7 +133,7 @@ function planHumanBikeGuide(
     z: handle.z - HumanBikeGuideData.BEHIND,
   };
   const held = (t: number): IAutoMovieVector3 =>
-    Vector3.lerp(entered, station, AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / HumanBikeGuideData.ADJUST)));
+    AutoMovieEngineVector3.lerp(entered, station, AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / HumanBikeGuideData.ADJUST)));
   const heading0: number = HumanBikeGuideHeading(origin.rotation);
   const path: HumanBikeGuidePath.IPath = {
     times: [],
@@ -145,9 +145,9 @@ function planHumanBikeGuide(
   for (let i: number = 0; i <= count; ++i) {
     const t: number = (duration * i) / count;
     const frame: IAutoMovieRigidTransform = bicycle.frame(start + t);
-    const point: IAutoMovieVector3 = Vector3.add(
+    const point: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, held(t)),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, held(t)),
     );
     const last: IAutoMovieVector3 | undefined = path.points.at(-1);
     path.times.push(t);
@@ -210,14 +210,14 @@ function planHumanBikeGuide(
       land - HumanBikeGuidePath.SWING,
     );
     const index: number = HumanBikeGuidePath.indexAt(path, step.at);
-    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       UP,
       path.turns[index]!,
     );
     const entered: IAutoMovieVector3 = entry.feet[foot].ankle;
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       turn,
-      Vector3.subtract(entered, entry.posture.root),
+      AutoMovieEngineVector3.subtract(entered, entry.posture.root),
     );
     prints[foot].push(
       HumanBikeGuidePrint(
@@ -227,7 +227,7 @@ function planHumanBikeGuide(
           y: entered.y,
           z: path.points[index]!.z + offset.z,
         },
-        Quaternion.multiply(turn, entry.feet[foot].rotation),
+        AutoMovieEngineQuaternion.multiply(turn, entry.feet[foot].rotation),
       ),
     );
     events.push({ name: `step${k + 1}`, share: land / duration });
@@ -280,22 +280,22 @@ function planHumanBikeGuide(
         AquaticProp.at(bicycle, start + HumanBikeGuideData.REACH).require(grip, "handle").world,
       );
       const pelvis: IAutoMovieResolvedBone = pelvisAt(at).get("hips")!;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
         pelvis.worldRotation,
       );
       const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(point, pelvis.worldPosition),
+          AutoMovieEngineVector3.subtract(point, pelvis.worldPosition),
         );
       return {
         ...world,
         on: "hips",
         point: local(world.point),
         bend: local(world.bend!),
-        rotation: Quaternion.multiply(inverse, world.rotation!),
+        rotation: AutoMovieEngineQuaternion.multiply(inverse, world.rotation!),
       };
     });
   // The body at a second, without the near arm's goal.
@@ -304,9 +304,9 @@ function planHumanBikeGuide(
   ): IAutoMovieMotionHumanPosture => {
     const t: number = Math.max(0, Math.min(duration, seconds));
     const frame: IAutoMovieRigidTransform = bicycle.frame(start + t);
-    const along: IAutoMovieVector3 = Vector3.add(
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, held(t)),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, held(t)),
     );
     const turn: number = HumanBikeGuideHeading(frame.rotation) - heading0;
     const feet: Record<AutoMovieHumanSide, IHumanBikeGuidePrint> = {
@@ -317,14 +317,14 @@ function planHumanBikeGuide(
     // Lower the pelvis only as far as a leg must to reach a foot that
     // has left its place under the hip, no farther than it stood.
     let drop: number = 0;
-    const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, turn);
+    const spin: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(UP, turn);
     for (const foot of ["left", "right"] as const) {
       const ankle: IAutoMovieVector3 = feet[foot].ankle;
-      const under: IAutoMovieVector3 = Vector3.add(
+      const under: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         along,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           spin,
-          Vector3.subtract(entry.feet[foot].ankle, entry.posture.root),
+          AutoMovieEngineVector3.subtract(entry.feet[foot].ankle, entry.posture.root),
         ),
       );
       const across: number = Math.hypot(ankle.x - under.x, ankle.z - under.z);

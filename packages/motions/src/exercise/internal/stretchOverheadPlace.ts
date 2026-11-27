@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -40,7 +40,7 @@ export function stretchOverheadPlace(
      * A second point one unit across toward the other hand.
      */
     const acrossFrom = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         point,
         HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
@@ -60,7 +60,7 @@ export function stretchOverheadPlace(
           );
         return {
           point: ride(point),
-          facing: Vector3.subtract(ride(acrossFrom(point)), ride(point)),
+          facing: AutoMovieEngineVector3.subtract(ride(acrossFrom(point)), ride(point)),
         };
       };
     const point: IAutoMovieVector3 = overhead();
@@ -68,7 +68,7 @@ export function stretchOverheadPlace(
     return (posture, _seconds, resolution) => {
       const ride: ReturnType<typeof carry> = carry(posture, resolution);
       const placed: IAutoMovieVector3 = ride(point);
-      return { point: placed, facing: Vector3.subtract(ride(across), placed) };
+      return { point: placed, facing: AutoMovieEngineVector3.subtract(ride(across), placed) };
     };
   };
 }

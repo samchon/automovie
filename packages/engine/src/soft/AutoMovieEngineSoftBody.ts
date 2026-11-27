@@ -254,7 +254,7 @@ export namespace AutoMovieEngineSoftBody {
    *   not differentiable.
    *
    * Edges are visited in a fixed order (row-major particles, each with the
-   * neighbours that follow it in `SOFT_BODY_NEIGHBOURS`), so a solve is
+   * neighbours that follow it in `AutoMovieEngineSoftBodyNeighbours`), so a solve is
    * deterministic. `lambda` holds one multiplier per particle and neighbour slot
    * and is reset by the caller at the start of each step.
    *

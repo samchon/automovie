@@ -18,7 +18,7 @@ export namespace IAutoMoviePhysicalSimulationInput {
    *
    * Sample k supplies continuous poses at k/rate seconds but its discrete
    * policy owns the preceding interval [(k-1)/rate,k/rate); sample zero
-   * initializes ownership. AutoMoviePhysicalSimulation clones targets before
+   * initializes ownership. AutoMovieEnginePhysicalSimulation clones targets before
    * admission and identity hashing; physical target fitting may derive
    * different motor goals without rewriting these authored samples.
    * admitPhysicalTargets requires complete segment coverage, finite positions,
@@ -281,7 +281,7 @@ export namespace IAutoMoviePhysicalSimulationInput {
    *
    * Rate is cached intervals/s; substeps multiplies it into native ticks/s.
    * Positive duration times rate is an exact safe integer bounded by
-   * maximumSteps. AutoMoviePhysicalSimulation owns a clone with defaults
+   * maximumSteps. AutoMovieEnginePhysicalSimulation owns a clone with defaults
    * applied; settings, profiles, targets and impulses participate in content
    * identity and checkpoint compatibility. admitPhysicalSimulation checks
    * finite scalars, floor dimensions, population and clock budgets before world

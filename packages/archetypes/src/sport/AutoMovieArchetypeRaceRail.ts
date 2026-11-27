@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeOval,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import * as AutoMovieArchetypeRaceRailData from "./internal/AutoMovieArchetypeRaceRailData";
+import { AutoMovieArchetypeRaceRailData } from "./internal/AutoMovieArchetypeRaceRailData";
 
 /** Constructs the race rail archetype from its recipe. */
 export namespace AutoMovieArchetypeRaceRail {
@@ -56,7 +56,7 @@ export function create(
     name: "racecourse inner rail",
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const points: IAutoMovieVector3[] = AutoMovieArchetypeOval.rail(
     oval,
     d.spacing,

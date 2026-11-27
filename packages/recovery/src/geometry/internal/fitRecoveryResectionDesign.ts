@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMatrix3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryCameraMapPolicy,
@@ -45,7 +45,7 @@ export function fitRecoveryResectionDesign(
   const centroid: number[] = [0, 0, 0];
   const rays: [number, number][] = pixels.map(
     (pixel: readonly [number, number]): [number, number] => {
-      const ray: [number, number, number] = AutoMovieMatrix3.apply(inverse, [
+      const ray: [number, number, number] = AutoMovieEngineMatrix3.apply(inverse, [
         ...pixel,
         1,
       ]);

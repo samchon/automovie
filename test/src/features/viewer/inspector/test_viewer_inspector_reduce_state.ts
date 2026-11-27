@@ -1,7 +1,7 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import {
-  type IAutoMovieInspectorAction,
-  type IAutoMovieInspectorState,
+  type IAutoMovieViewerInspectorAction,
+  type IAutoMovieViewerInspectorState,
   AutoMovieViewerInspector,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -27,17 +27,17 @@ import { TestValidator } from "@nestia/e2e";
  *    sets both.
  */
 export function test_viewer_inspector_reduce_state(): void {
-  const start: IAutoMovieInspectorState = {
+  const start: IAutoMovieViewerInspectorState = {
     request: AutoMovieViewerInspector.readAddress(
       "parts=a&from=1&to=2&rate=10&passes=depth",
     ),
     error: null,
   };
   const after: (
-    ...actions: IAutoMovieInspectorAction[]
-  ) => IAutoMovieInspectorState = (
-    ...actions: IAutoMovieInspectorAction[]
-  ): IAutoMovieInspectorState =>
+    ...actions: IAutoMovieViewerInspectorAction[]
+  ) => IAutoMovieViewerInspectorState = (
+    ...actions: IAutoMovieViewerInspectorAction[]
+  ): IAutoMovieViewerInspectorState =>
     actions.reduce(AutoMovieViewerInspector.reduceState, start);
   const read: (text: string) => IAutoMovieCapturePlanRequest = (
     text: string,
@@ -113,7 +113,7 @@ export function test_viewer_inspector_reduce_state(): void {
     ],
     [read(`subject=rook&parts=a&${sampling}&passes=depth`), start.request],
   );
-  const refused: IAutoMovieInspectorState = after({
+  const refused: IAutoMovieViewerInspectorState = after({
     type: "text",
     text: "colour=1",
   });

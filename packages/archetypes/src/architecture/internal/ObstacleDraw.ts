@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type AutoMovieArchetypeMaterial, } from "../../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { OBSTACLE_BANDS } from "../constants/OBSTACLE_BANDS";
@@ -65,7 +65,7 @@ export namespace ObstacleDraw {
      * Parameter centre: The middle of the top along Z, metres.
      */
     export function ledge(builder: FixtureDraw.IContactWriter<LedgeContact>, height: number, length: number, depth: number, centre: number): void {
-        const v: typeof Vector3.create = Vector3.create;
+        const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
         builder.affordance({
             id: "top",
             kind: "surface",

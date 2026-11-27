@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanRefusal, armPhrase } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  armPhrase
+} from "../../../../../packages/motions/src/everyday/internal/armPhrase";
 import { strict as assert } from "node:assert";
 
 /** A free phrase can use either or both hands. A named point needs its prop. */

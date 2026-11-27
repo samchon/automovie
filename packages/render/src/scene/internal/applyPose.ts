@@ -10,8 +10,8 @@ import {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
 import { applyTransform } from "./applyTransform.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
@@ -45,13 +45,13 @@ import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
  * intentional gap instead of both silently not articulating.
  */
 export const applyPose: (
-  target: IAutoMovieModelObject,
+  target: IAutoMovieRenderModelObject,
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
 ) => AutoMovieHumanoidBone[] = (
-  target: IAutoMovieModelObject,
+  target: IAutoMovieRenderModelObject,
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
@@ -76,7 +76,7 @@ export const applyPose: (
     const drivers:
       | readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[]
       | null = morphTargetDriversOf(object);
-    if (drivers === null || !AutoMovieThreeKind.isMesh(object)) return;
+    if (drivers === null || !AutoMovieRenderThreeKind.isMesh(object)) return;
     const mesh: THREE.Mesh = object;
     if (
       mesh.morphTargetDictionary === undefined ||

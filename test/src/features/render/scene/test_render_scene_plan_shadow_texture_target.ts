@@ -1,4 +1,6 @@
-import { planAutoMovieShadowTextureTarget } from "@automovie/render/internal";
+import {
+  planAutoMovieShadowTextureTarget
+} from "../../../../../packages/render/src/scene/internal/planAutoMovieShadowTextureTarget";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

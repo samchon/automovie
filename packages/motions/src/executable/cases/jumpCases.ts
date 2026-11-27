@@ -1,4 +1,4 @@
-import { AutoMovieGravity, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
@@ -286,12 +286,12 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       const fx = fit((s) => s.p.x);
       const fz = fit((s) => s.p.z);
       const fy = fit(
-        (s) => s.p.y + 0.5 * AutoMovieGravity.STANDARD * s.t * s.t,
+        (s) => s.p.y + 0.5 * AutoMovieEngineGravity.STANDARD * s.t * s.t,
       );
       for (const s of samples) {
         const e: number = Math.hypot(
           s.p.x - fx(s.t),
-          s.p.y - (fy(s.t) - 0.5 * AutoMovieGravity.STANDARD * s.t * s.t),
+          s.p.y - (fy(s.t) - 0.5 * AutoMovieEngineGravity.STANDARD * s.t * s.t),
           s.p.z - fz(s.t),
         );
         if (e > flight.value)

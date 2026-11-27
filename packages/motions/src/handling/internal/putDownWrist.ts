@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -56,20 +56,20 @@ export function putDownWrist(
   const prop: IAutoMovieRigidTransform = context
     .prop(context.params.prop)
     .frame(context.start);
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.worldRotation);
   const offset: IAutoMovieRigidTransform = {
-    position: Quaternion.rotateVector(
+    position: AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(prop.position, hand.worldPosition),
+      AutoMovieEngineVector3.subtract(prop.position, hand.worldPosition),
     ),
-    rotation: Quaternion.multiply(inverse, prop.rotation),
+    rotation: AutoMovieEngineQuaternion.multiply(inverse, prop.rotation),
   };
 
   // The prop's resting frame, then the hand that holds it there.
   const heading: (q: IAutoMovieQuaternion) => number = (
     q: IAutoMovieQuaternion,
   ): number => {
-    const f: IAutoMovieVector3 = Quaternion.rotateVector(q, {
+    const f: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(q, {
       x: 0,
       y: 0,
       z: 1,
@@ -80,23 +80,23 @@ export function putDownWrist(
   const authored: IAutoMovieQuaternion = context.prop(context.params.prop).prop
     .frame.rotation;
   const declaredHeading: number = heading(authored);
-  const unhold: IAutoMovieQuaternion = Quaternion.inverse(offset.rotation);
+  const unhold: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(offset.rotation);
   const holding: (yaw: number) => IAutoMovieMotionHumanHand.IWrist = (
     yaw: number,
   ): IAutoMovieMotionHumanHand.IWrist => {
-    const rest: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw - declaredHeading),
+    const rest: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw - declaredHeading),
         authored,
       ),
     );
-    const r: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(rest, unhold),
+    const r: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(rest, unhold),
     );
     return {
-      point: Vector3.subtract(
+      point: AutoMovieEngineVector3.subtract(
         context.params.to!,
-        Quaternion.rotateVector(r, offset.position),
+        AutoMovieEngineQuaternion.rotateVector(r, offset.position),
       ),
       rotation: r,
     };
@@ -132,15 +132,15 @@ export function putDownWrist(
   const chosen: IAutoMovieMotionHumanHand.IWrist =
     attitude !== undefined
       ? ((): IAutoMovieMotionHumanHand.IWrist => {
-          const asked: IAutoMovieQuaternion = Quaternion.normalize(
-            Quaternion.multiply(Quaternion.normalize(attitude), unhold),
+          const asked: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.normalize(attitude), unhold),
           );
           const at: (r: IAutoMovieQuaternion) => IAutoMovieVector3 = (
             r: IAutoMovieQuaternion,
           ): IAutoMovieVector3 =>
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               context.params.to!,
-              Quaternion.rotateVector(r, offset.position),
+              AutoMovieEngineQuaternion.rotateVector(r, offset.position),
             );
           // An authored resting attitude with no authored heading rests
           // alike at any heading about the vertical (a card face up): the
@@ -165,16 +165,16 @@ export function putDownWrist(
         })()
       : wearing !== undefined
         ? ((): IAutoMovieMotionHumanHand.IWrist => {
-            const r: IAutoMovieQuaternion = Quaternion.normalize(
-              Quaternion.multiply(
+            const r: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+              AutoMovieEngineQuaternion.multiply(
                 wearing.rotation,
-                Quaternion.inverse(offset.rotation),
+                AutoMovieEngineQuaternion.inverse(offset.rotation),
               ),
             );
             return {
-              point: Vector3.subtract(
+              point: AutoMovieEngineVector3.subtract(
                 wearing.position,
-                Quaternion.rotateVector(r, offset.position),
+                AutoMovieEngineQuaternion.rotateVector(r, offset.position),
               ),
               rotation: r,
             };

@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
@@ -39,8 +39,8 @@ export function fixedSeatWorkingPostures(
   const supported: Posture = poseAt(cap);
   const designs: readonly Joints[] = fixedSeatTrunk(body, supported, wrists);
   if (!designs.length) return undefined;
-  const neutral: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
-    Quaternion.inverse(origin.rotation),
+  const neutral: ReturnType<typeof AutoMovieEngineQuaternion.multiply> = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(origin.rotation),
     humanPostureHeading(poseAt(0)),
   );
   const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
@@ -51,23 +51,23 @@ export function fixedSeatWorkingPostures(
     raw: Posture,
     frame: IAutoMovieRigidTransform,
   ): Alternatives {
-    const level: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
+    const level: ReturnType<typeof AutoMovieEngineQuaternion.multiply> = AutoMovieEngineQuaternion.multiply(
       frame.rotation,
       neutral,
     );
-    const turn: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
-      Quaternion.inverse(level),
+    const turn: ReturnType<typeof AutoMovieEngineQuaternion.multiply> = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(level),
       humanPostureHeading(raw),
     );
     const sign: number = turn.w < 0 ? -1 : 1;
     const degrees: number =
-      (2 * Math.atan2(sign * turn.x, sign * turn.w)) / Quaternion.DEG2RAD;
+      (2 * Math.atan2(sign * turn.x, sign * turn.w)) / AutoMovieEngineQuaternion.DEG2RAD;
     if (degrees <= cap) return;
     const angles: ReturnType<typeof humanPostureHeading.angles> =
       humanPostureHeading.angles(
-        Quaternion.multiply(
+        AutoMovieEngineQuaternion.multiply(
           level,
-          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, cap),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, cap),
         ),
       );
     const base: Posture = {
@@ -98,7 +98,7 @@ export function fixedSeatWorkingPostures(
       const feedback: Feedback = yield candidate;
       if (!feedback.neck) continue;
       const limit: OptionalLimit =
-        body.bones.get("neck")?.constraint ?? DEFAULT_HUMANOID_ROM.neck;
+        body.bones.get("neck")?.constraint ?? AutoMovieEngineDefaultHumanoidRom.neck;
       if (!limit?.flexion) continue;
       const entry: Angles = candidate.joints.neck ?? ZERO;
       yield {

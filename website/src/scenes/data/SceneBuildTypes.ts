@@ -6,7 +6,8 @@ import type {
   IAutoMovieMotionObstacleAperture,
 } from "@automovie/interface";
 import type { AutoMovieMotionHumanCarryPerson } from "@automovie/motions";
-import type { HumanSocial, shoulderClasp } from "@automovie/motions/internal";
+import type { HumanSocial } from "../../../../packages/motions/src/lexicon/internal/HumanSocial";
+import type { shoulderClasp } from "../../../../packages/motions/src/lexicon/internal/shoulderClasp";
 
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 

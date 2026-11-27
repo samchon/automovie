@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
-  type IAutoMovieDrawScene,
+  type IAutoMovieRenderDrawScene,
   AutoMovieRenderInspectionCamera,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -38,7 +38,7 @@ export function test_render_scene_observe_placed_camera(): void {
   );
   scene.add(camera);
   const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
-  const modes: readonly IAutoMovieDrawScene.IPlacedSample["mode"][] = [
+  const modes: readonly IAutoMovieRenderDrawScene.IPlacedSample["mode"][] = [
     "viewer",
     "capture",
     "delivery",
@@ -49,10 +49,10 @@ export function test_render_scene_observe_placed_camera(): void {
   /** Source requirements active in the sample. */
   type ITargets = Parameters<typeof AutoMovieRenderInspectionCamera.observePlaced>[0]["targets"];
   const observe: (
-    mode: IAutoMovieDrawScene.IPlacedSample["mode"],
+    mode: IAutoMovieRenderDrawScene.IPlacedSample["mode"],
     targets: ITargets,
   ) => IPacket = (
-    mode: IAutoMovieDrawScene.IPlacedSample["mode"],
+    mode: IAutoMovieRenderDrawScene.IPlacedSample["mode"],
     targets: ITargets,
   ): IPacket => {
     scene.updateMatrixWorld(true);
@@ -205,7 +205,7 @@ export function test_render_scene_observe_placed_camera(): void {
   TestValidator.equals(
     "unbounded subject is unsupported in every host",
     modes.map(
-      (mode: IAutoMovieDrawScene.IPlacedSample["mode"]): string | undefined =>
+      (mode: IAutoMovieRenderDrawScene.IPlacedSample["mode"]): string | undefined =>
         status(
           observe(mode, [{ path: "hidden", target: hidden }]),
           "camera-framing",

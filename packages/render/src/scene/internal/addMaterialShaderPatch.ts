@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "../IAutoMovieRenderMaterialShaderPatch.js";
 import { applyMaterialShaderPatches } from "./applyMaterialShaderPatches.js";
 import { readMaterialShaderPatches } from "./readMaterialShaderPatches.js";
 
@@ -19,11 +19,11 @@ import { readMaterialShaderPatches } from "./readMaterialShaderPatches.js";
  */
 export const addMaterialShaderPatch: (
   material: THREE.Material,
-  patch: IMaterialShaderPatch,
-) => void = (material: THREE.Material, patch: IMaterialShaderPatch): void => {
-  const patches: IMaterialShaderPatch[] = [
+  patch: IAutoMovieRenderMaterialShaderPatch,
+) => void = (material: THREE.Material, patch: IAutoMovieRenderMaterialShaderPatch): void => {
+  const patches: IAutoMovieRenderMaterialShaderPatch[] = [
     ...readMaterialShaderPatches(material).filter(
-      (one: IMaterialShaderPatch): boolean => one.key !== patch.key,
+      (one: IAutoMovieRenderMaterialShaderPatch): boolean => one.key !== patch.key,
     ),
     patch,
   ];
@@ -34,5 +34,5 @@ export const addMaterialShaderPatch: (
     applyMaterialShaderPatches(patches, shader);
   };
   material.customProgramCacheKey = (): string =>
-    patches.map((one: IMaterialShaderPatch): string => one.key).join("+");
+    patches.map((one: IAutoMovieRenderMaterialShaderPatch): string => one.key).join("+");
 };

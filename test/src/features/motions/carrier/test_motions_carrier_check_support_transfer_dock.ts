@@ -1,13 +1,15 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanRefusal,
-  checkSupportTransferDock,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  checkSupportTransferDock
+} from "../../../../../packages/motions/src/carrier/internal/checkSupportTransferDock";
 import { TestValidator } from "@nestia/e2e";
 
 /** A support rectangle and its prop's motion (`checkSupportTransferDock`). */
@@ -30,7 +32,7 @@ type Endpoint = Parameters<typeof checkSupportTransferDock>[0];
  * 4. A deck tilted 5 degrees about X is refused on `to`.
  */
 export function test_motions_carrier_check_support_transfer_dock(): void {
-  const up: IAutoMovieQuaternion = Quaternion.identity();
+  const up: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   const endpoint: (
     axis: "from" | "to",
     at: IAutoMovieVector3,
@@ -114,7 +116,7 @@ export function test_motions_carrier_check_support_transfer_dock(): void {
           "to",
           deck,
           still,
-          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 5),
+          AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 5),
         ),
         false,
       ),

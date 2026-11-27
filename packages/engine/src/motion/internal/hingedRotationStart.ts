@@ -1,7 +1,7 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineHingedArmSwivel } from "../../kinematics/AutoMovieEngineHingedArmSwivel";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { prepareChainPlant } from "./prepareChainPlant";
 
 /*
@@ -10,7 +10,7 @@ import { prepareChainPlant } from "./prepareChainPlant";
  *
  * On one bend branch the root's bone-local rotation is a first harmonic of the
  * half swivel, `upper(s) = cos(s/2) C + sin(s/2) S`
- * (`hingedArmSwivel.IHarmonic`), and the mid rotation is fixed. A unit
+ * (`AutoMovieEngineHingedArmSwivel.IHarmonic`), and the mid rotation is fixed. A unit
  * quaternion's inverse is its conjugate, which is linear, so the end joint's
  * required bone-local articulation `restInv (W upper(s) Lr lower)^-1 R` is
  * `cos(s/2) X + sin(s/2) Y`, with `X` and `Y` its values at swivels 0 and 180
@@ -33,22 +33,22 @@ export function hingedRotationStart(
     NonNullable<ReturnType<typeof prepareChainPlant>>,
     "upper" | "lowerRotation" | "effectorBaseRotation"
   >,
-  posed: ReturnType<typeof hingedArmSwivel.pose>,
+  posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>,
   wanted: IAutoMovieQuaternion,
 ): number | null {
-  const zero: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = posed(0);
-  const into: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(prepared.upper.worldRotation),
-    Quaternion.normalize(wanted),
+  const zero: ReturnType<ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose>> = posed(0);
+  const into: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(prepared.upper.worldRotation),
+    AutoMovieEngineQuaternion.normalize(wanted),
   );
-  const out: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(prepared.effectorBaseRotation),
-    Quaternion.inverse(Quaternion.multiply(prepared.lowerRotation, zero.lower)),
+  const out: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.inverse(prepared.effectorBaseRotation),
+    AutoMovieEngineQuaternion.inverse(AutoMovieEngineQuaternion.multiply(prepared.lowerRotation, zero.lower)),
   );
   const local = (upper: IAutoMovieQuaternion): IAutoMovieQuaternion =>
-    Quaternion.multiply(
+    AutoMovieEngineQuaternion.multiply(
       out,
-      Quaternion.multiply(Quaternion.inverse(upper), into),
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(upper), into),
     );
   const a: number = local(zero.upper).w;
   const b: number = local(posed(180).upper).w;

@@ -4,7 +4,12 @@ import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieRandom,
 } from "@automovie/interface";
-import { HumanResponse, HumanSkill } from "@automovie/motions/internal";
+import {
+  HumanResponse
+} from "../../../../../packages/motions/src/skill/internal/HumanResponse";
+import {
+  HumanSkill
+} from "../../../../../packages/motions/src/skill/internal/HumanSkill";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,6 +1,6 @@
 import {
-  Quaternion,
-  Vector3,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -233,9 +233,9 @@ export namespace AutoMovieArchetypeEquineScramble {
     ): AutoMovieArchetypeQuadrupedFooting.ILanding => {
       const placed: IAutoMovieTransform = window.place(at);
       return footing.landing(
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           placed.translation,
-          Quaternion.rotateVector(placed.rotation, neutral),
+          AutoMovieEngineQuaternion.rotateVector(placed.rotation, neutral),
         ),
         placed.rotation,
       );
@@ -254,16 +254,16 @@ export namespace AutoMovieArchetypeEquineScramble {
     const to: AutoMovieArchetypeQuadrupedFooting.ILanding = swinging
       ? foothold(lands)
       : from;
-    const world: IAutoMovieVector3 = Vector3.lerp(from.point, to.point, share);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const world: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(from.point, to.point, share);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       placement.rotation,
     );
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(world, placement.translation),
+      AutoMovieEngineVector3.subtract(world, placement.translation),
     );
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.lerp(from.normal, to.normal, share),
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.lerp(from.normal, to.normal, share),
     );
     const arc: number = Math.sin(Math.PI * Math.min(1, Math.max(0, share)));
     const length: number = attachment.y - neutral.y;
@@ -274,17 +274,17 @@ export namespace AutoMovieArchetypeEquineScramble {
       ...goal,
       x: x + (local.x - x) * amount,
       z: goal.z + (local.z - goal.z) * amount,
-      orientation: Quaternion.slerp(
-        goal.orientation ?? Quaternion.identity(),
-        Quaternion.multiply(
+      orientation: AutoMovieEngineQuaternion.slerp(
+        goal.orientation ?? AutoMovieEngineQuaternion.identity(),
+        AutoMovieEngineQuaternion.multiply(
           inverse,
-          Quaternion.slerp(from.rotation, to.rotation, share),
+          AutoMovieEngineQuaternion.slerp(from.rotation, to.rotation, share),
         ),
         amount,
       ),
       surface: {
         point: local,
-        normal: Quaternion.rotateVector(inverse, normal),
+        normal: AutoMovieEngineQuaternion.rotateVector(inverse, normal),
       },
       lift: goal.lift + (lift - goal.lift) * amount,
       fold: goal.fold + (fold - goal.fold) * amount,

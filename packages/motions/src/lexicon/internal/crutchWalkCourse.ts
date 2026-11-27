@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAidWalk,
   IAutoMovieMotionHumanCrutchWalk,
@@ -157,16 +157,16 @@ export namespace crutchWalkCourse {
     station: IAutoMovieMotionHumanAidWalk.IStation | undefined,
   ): IAutoMovieRigidTransform {
     if (station === undefined) return start;
-    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       UP,
       station.turn ?? 0,
     );
     return {
-      position: Vector3.add(
-        Vector3.add(pivot, { x: station.x, y: 0, z: station.z }),
-        Quaternion.rotateVector(turn, Vector3.subtract(start.position, pivot)),
+      position: AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(pivot, { x: station.x, y: 0, z: station.z }),
+        AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(start.position, pivot)),
       ),
-      rotation: Quaternion.multiply(turn, start.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(turn, start.rotation),
     };
   }
 
@@ -180,9 +180,9 @@ export namespace crutchWalkCourse {
   ): IAutoMovieVector3 {
     return localTip === undefined
       ? frame.position
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, localTip),
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, localTip),
         );
   }
 
@@ -258,7 +258,7 @@ export namespace crutchWalkCourse {
       if (seconds < move.to) {
         const share: number = (seconds - move.from) / (move.to - move.from);
         const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(share);
-        const position: IAutoMovieVector3 = Vector3.lerp(
+        const position: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
           move.floor[0].position,
           move.floor[1].position,
           blend,
@@ -270,7 +270,7 @@ export namespace crutchWalkCourse {
               position.y +
               LIFT * AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(share, 1 - share)),
           },
-          rotation: Quaternion.slerp(
+          rotation: AutoMovieEngineQuaternion.slerp(
             move.floor[0].rotation,
             move.floor[1].rotation,
             blend,

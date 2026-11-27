@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -241,15 +241,15 @@ export namespace AutoMovieArchetypeEquineEncounter {
       AutoMovieArchetypeQuadrupedBody.BONES[limb][0],
     );
     const aimed: ISurface = surface(other, region, from, false);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       me.placement.rotation,
     );
     return {
-      point: Quaternion.rotateVector(
+      point: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(aimed.point, me.placement.translation),
+        AutoMovieEngineVector3.subtract(aimed.point, me.placement.translation),
       ),
-      normal: Quaternion.rotateVector(inverse, aimed.normal),
+      normal: AutoMovieEngineQuaternion.rotateVector(inverse, aimed.normal),
     };
   }
 
@@ -276,8 +276,8 @@ export namespace AutoMovieArchetypeEquineEncounter {
       biter.placement,
       neck.from,
     );
-    const link: number = Vector3.distance(neck.from, neck.to);
-    const muzzle: number = Vector3.distance(head.from, head.to) + head.radius;
+    const link: number = AutoMovieEngineVector3.distance(neck.from, neck.to);
+    const muzzle: number = AutoMovieEngineVector3.distance(head.from, head.to) + head.radius;
     let poll: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(
       biter.placement,
       head.from,
@@ -285,18 +285,18 @@ export namespace AutoMovieArchetypeEquineEncounter {
     let target: IAutoMovieVector3 = poll;
     for (let pass: number = 0; pass < REFINE; pass++) {
       target = surface(other, region, poll, true).point;
-      const span: number = Vector3.distance(root, target);
-      const along: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(target, root),
+      const span: number = AutoMovieEngineVector3.distance(root, target);
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(target, root),
         1 / span,
       );
-      const up: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
+      const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
       );
       const x: number =
         (link * link - muzzle * muzzle + span * span) / (2 * span);
-      poll = Vector3.addScaled(
-        Vector3.addScaled(root, along, x),
+      poll = AutoMovieEngineVector3.addScaled(
+        AutoMovieEngineVector3.addScaled(root, along, x),
         up,
         Math.sqrt(Math.max(0, link * link - x * x)),
       );
@@ -326,26 +326,26 @@ export namespace AutoMovieArchetypeEquineEncounter {
       sample.placement,
       shape.to,
     );
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(end, start),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(end, start),
     );
-    const span: number = Vector3.distance(start, end);
+    const span: number = AutoMovieEngineVector3.distance(start, end);
     const along: number = facing
       ? Math.min(
           0.9,
           Math.max(
             0.1,
-            Vector3.dot(Vector3.subtract(toward, start), axis) / span,
+            AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(toward, start), axis) / span,
           ),
         )
       : where.along;
-    const centre: IAutoMovieVector3 = Vector3.lerp(start, end, along);
-    const out: IAutoMovieVector3 = Vector3.subtract(toward, centre);
-    const radial: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled(out, axis, -Vector3.dot(out, axis)),
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(start, end, along);
+    const out: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(toward, centre);
+    const radial: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled(out, axis, -AutoMovieEngineVector3.dot(out, axis)),
     );
     return {
-      point: Vector3.addScaled(centre, radial, shape.radius),
+      point: AutoMovieEngineVector3.addScaled(centre, radial, shape.radius),
       normal: radial,
     };
   }
@@ -360,7 +360,7 @@ export namespace AutoMovieArchetypeEquineEncounter {
     const shape: IBar = bar(sample.archetype, id);
     return AutoMovieArchetypeFrame.point(
       sample.placement,
-      Vector3.lerp(shape.from, shape.to, 0.5),
+      AutoMovieEngineVector3.lerp(shape.from, shape.to, 0.5),
     );
   }
 
@@ -385,13 +385,13 @@ export namespace AutoMovieArchetypeEquineEncounter {
       (geometry.shape.type === "capsule" || geometry.shape.type === "cylinder")
         ? geometry.shape.radius
         : 0;
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform!.rotation,
       { x: 0, y: height / 2, z: 0 },
     );
     return {
-      from: Vector3.subtract(part.transform!.translation, half),
-      to: Vector3.add(part.transform!.translation, half),
+      from: AutoMovieEngineVector3.subtract(part.transform!.translation, half),
+      to: AutoMovieEngineVector3.add(part.transform!.translation, half),
       radius,
     };
   }

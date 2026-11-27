@@ -1,4 +1,4 @@
-import { AutoMovieLoftSectionNative } from "@automovie/engine";
+import { AutoMovieEngineLoftSectionNative } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBreastConnection,
@@ -53,8 +53,8 @@ export namespace AutoMovieHumanBreastConnection {
       input.footprint[2],
       input.footprint[input.lateral === 1 ? 1 : 3],
     ];
-    const shape: ReturnType<typeof AutoMovieLoftSectionNative.phase> =
-      AutoMovieLoftSectionNative.phase({
+    const shape: ReturnType<typeof AutoMovieEngineLoftSectionNative.phase> =
+      AutoMovieEngineLoftSectionNative.phase({
         extents,
         shoulders: [
           input.shoulder,

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -78,7 +78,7 @@ export function HumanHeldEffector(
     otherwise: IAutoMovieMotionHumanTouchEffector.Axis,
   ): IAutoMovieVector3 =>
     AutoMovieMotionHumanTouchEffector.direction(side, direction ?? otherwise);
-  const at: IAutoMovieVector3 = Vector3.add(socket, named.point);
+  const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(socket, named.point);
   const along: IAutoMovieVector3 = across(
     side,
     normal,
@@ -86,18 +86,18 @@ export function HumanHeldEffector(
   );
   let ring: IGeometry["ring"];
   if (row.upright === true) {
-    const origin: IAutoMovieVector3 = Vector3.add(socket, held.frame.position);
-    const centre: IAutoMovieVector3 = Vector3.add(
+    const origin: IAutoMovieVector3 = AutoMovieEngineVector3.add(socket, held.frame.position);
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       origin,
-      Vector3.scale(normal, Vector3.dot(Vector3.subtract(at, origin), normal)),
+      AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(at, origin), normal)),
     );
-    const radial: IAutoMovieVector3 = Vector3.subtract(at, centre);
-    const radius: number = Vector3.length(radial);
+    const radial: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at, centre);
+    const radius: number = AutoMovieEngineVector3.length(radial);
     const toward: IAutoMovieVector3 =
       namedRim && radius > 0
-        ? Vector3.scale(radial, 1 / radius)
+        ? AutoMovieEngineVector3.scale(radial, 1 / radius)
         : across(side, normal, own(row.effector.facing, "palm"));
-    ring = { centre, radius, toward, across: Vector3.cross(normal, toward) };
+    ring = { centre, radius, toward, across: AutoMovieEngineVector3.cross(normal, toward) };
   }
   const offset: IAutoMovieVector3 = HumanHand.offset(
     context.body,
@@ -218,12 +218,12 @@ function across(
   const flat: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (
     vector: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.subtract(
+    AutoMovieEngineVector3.subtract(
       vector,
-      Vector3.scale(normal, Vector3.dot(vector, normal)),
+      AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(vector, normal)),
     );
   const projected: IAutoMovieVector3 = flat(direction);
-  if (Vector3.length(projected) > ACROSS) return Vector3.normalize(projected);
+  if (AutoMovieEngineVector3.length(projected) > ACROSS) return AutoMovieEngineVector3.normalize(projected);
   const spare: IAutoMovieVector3 = (["fingers", "palm", "thumb"] as const)
     .map(
       (axis: AcrossSpareAxis): IAutoMovieVector3 =>
@@ -231,9 +231,9 @@ function across(
     )
     .sort(
       (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-        Math.abs(Vector3.dot(a, normal)) - Math.abs(Vector3.dot(b, normal)),
+        Math.abs(AutoMovieEngineVector3.dot(a, normal)) - Math.abs(AutoMovieEngineVector3.dot(b, normal)),
     )[0]!;
-  return Vector3.normalize(flat(spare));
+  return AutoMovieEngineVector3.normalize(flat(spare));
 }
 
 /*
@@ -248,20 +248,20 @@ function turning(
     let facing: IAutoMovieVector3 = fixed.normal;
     if (fixed.ring !== undefined) {
       const angle: number = (turn * Math.PI) / 180;
-      facing = Vector3.add(
-        Vector3.scale(fixed.ring.toward, Math.cos(angle)),
-        Vector3.scale(fixed.ring.across, Math.sin(angle)),
+      facing = AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.scale(fixed.ring.toward, Math.cos(angle)),
+        AutoMovieEngineVector3.scale(fixed.ring.across, Math.sin(angle)),
       );
-      at = Vector3.add(
+      at = AutoMovieEngineVector3.add(
         fixed.ring.centre,
-        Vector3.scale(facing, fixed.ring.radius),
+        AutoMovieEngineVector3.scale(facing, fixed.ring.radius),
       );
     }
-    const from: IAutoMovieVector3 = Vector3.subtract(at, fixed.offset);
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(at, fixed.offset);
     return {
       surface: fixed.surface,
       shape: fixed.shape,
-      tool: weights(Vector3.scale(from, fixed.scale), fixed.axes),
+      tool: weights(AutoMovieEngineVector3.scale(from, fixed.scale), fixed.axes),
       facing: weights(facing, fixed.axes),
       along: weights(fixed.along, fixed.axes),
     };
@@ -280,8 +280,8 @@ function weights(
   axes: IGeometry["axes"],
 ): Record<WeightsEntryResult, number> {
   return {
-    fingers: Vector3.dot(vector, axes.fingers),
-    palm: Vector3.dot(vector, axes.palm),
-    thumb: Vector3.dot(vector, axes.thumb),
+    fingers: AutoMovieEngineVector3.dot(vector, axes.fingers),
+    palm: AutoMovieEngineVector3.dot(vector, axes.palm),
+    thumb: AutoMovieEngineVector3.dot(vector, axes.thumb),
   };
 }

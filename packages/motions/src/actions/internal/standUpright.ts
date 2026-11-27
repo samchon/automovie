@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -136,7 +136,7 @@ export namespace standUpright {
     const neck: number = necks.get(trunk)!;
     const head: number = bisect(
       (h: number): number =>
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           bones(
             { spine: trunk, chest: trunk, neck, head: h },
             HumanBoneGroups.HEAD,
@@ -181,7 +181,7 @@ export namespace standUpright {
 
   /*
    * The comfortable cervical flexion range, degrees, either way (provisional,
-   * inside DEFAULT_HUMANOID_ROM).
+   * inside AutoMovieEngineDefaultHumanoidRom).
    */
   const NECK: number = 20;
 

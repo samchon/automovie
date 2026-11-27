@@ -6,7 +6,7 @@ import type {
 import * as THREE from "three";
 
 import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
-import * as FindAutoMovieCollisionWitnessData from "./FindAutoMovieCollisionWitnessData";
+import { FindAutoMovieCollisionWitnessData } from "./FindAutoMovieCollisionWitnessData";
 
 /*
  * Search the drawn surface of each part of a candidate pair for a point inside

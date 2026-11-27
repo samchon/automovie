@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeEasel } from "../AutoMovieArchetypeEasel";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -21,7 +21,7 @@ import {
 export function createEasel(
   params: AutoMovieArchetypeEasel.IParams = {},
 ): AutoMovieArchetype<AutoMovieArchetypeEasel.Affordance, AutoMovieArchetypeEasel.Dimension> {
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeEasel.Dimension> =
     new AutoMovieArchetypeDrawSession(
       "easel",

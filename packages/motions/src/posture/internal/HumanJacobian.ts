@@ -1,8 +1,8 @@
 import {
-  DEFAULT_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
+  AutoMovieEngineDefaultJointAxes,
+  AutoMovieEngineHumanoidRestFrame,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
   AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
@@ -93,13 +93,13 @@ export namespace HumanJacobian {
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
     projection?: (joint: IAutoMovieJointPose) => IAutoMovieJointPose,
   ): IReading {
-    const yawed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const yawed: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       posture.yaw,
     );
-    const pitched: IAutoMovieQuaternion = Quaternion.multiply(
+    const pitched: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       yawed,
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, posture.pitch),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, posture.pitch),
     );
     const heading: IAutoMovieQuaternion = humanPostureHeading(posture);
     let clamp:
@@ -117,7 +117,7 @@ export namespace HumanJacobian {
       moves: ReadonlySet<AutoMovieHumanoidBone> | null,
     ): IAutoMovieMotionHumanJacobian.IMotion => ({
       angular: axis,
-      linear: Vector3.cross(axis, Vector3.scale(pivot, -1)),
+      linear: AutoMovieEngineVector3.cross(axis, AutoMovieEngineVector3.scale(pivot, -1)),
       moves,
     });
     const motions: IAutoMovieMotionHumanJacobian.IMotion[] = variables.map(
@@ -136,12 +136,12 @@ export namespace HumanJacobian {
           };
         if (variable.kind === "heading")
           return turning(
-            Vector3.scale(
+            AutoMovieEngineVector3.scale(
               variable.axis === "yaw"
                 ? { x: 0, y: 1, z: 0 }
                 : variable.axis === "pitch"
-                  ? Quaternion.rotateVector(yawed, { x: 1, y: 0, z: 0 })
-                  : Quaternion.rotateVector(pitched, { x: 0, y: 0, z: 1 }),
+                  ? AutoMovieEngineQuaternion.rotateVector(yawed, { x: 1, y: 0, z: 0 })
+                  : AutoMovieEngineQuaternion.rotateVector(pitched, { x: 0, y: 0, z: 1 }),
               RADIAN,
             ),
             posture.root,
@@ -152,7 +152,7 @@ export namespace HumanJacobian {
         if (reading === undefined) {
           const def: IAutoMovieBone = body.bones.get(bone)!;
           const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
-            body.poseResolution.jointAxes[bone] ?? DEFAULT_JOINT_AXES,
+            body.poseResolution.jointAxes[bone] ?? AutoMovieEngineDefaultJointAxes,
             bone,
           );
           const set: readonly [number, number, number] = posture.joints[
@@ -166,7 +166,7 @@ export namespace HumanJacobian {
             twist: set[2],
           });
           const frame: IAutoMovieRestFrame | undefined =
-            HUMANOID_REST_FRAME[bone];
+            AutoMovieEngineHumanoidRestFrame[bone];
           const parent: IAutoMovieQuaternion =
             def.parent === null
               ? heading
@@ -182,7 +182,7 @@ export namespace HumanJacobian {
             basis,
             frame,
             order,
-            prefix: [Quaternion.multiply(parent, def.rest.rotation)],
+            prefix: [AutoMovieEngineQuaternion.multiply(parent, def.rest.rotation)],
             carried: carriedBy(body, bone),
           };
           clamped.set(bone, joint);
@@ -196,22 +196,22 @@ export namespace HumanJacobian {
         // variable on this unchanged joint reuses the completed same prefix.
         while (reading.prefix.length <= depth) {
           const earlier: Name = reading.order[reading.prefix.length - 1]!;
-          const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          const factor: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
             reading.basis[earlier],
             ((reading.joint[earlier] ?? 0) -
               (reading.frame?.[earlier]?.neutral ?? 0)) /
               (reading.frame?.[earlier]?.sign ?? 1),
           );
           reading.prefix.push(
-            Quaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(
               reading.prefix[reading.prefix.length - 1]!,
               factor,
             ),
           );
         }
         return turning(
-          Vector3.scale(
-            Quaternion.rotateVector(
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineQuaternion.rotateVector(
               reading.prefix[depth]!,
               reading.basis[name],
             ),
@@ -242,7 +242,7 @@ export namespace HumanJacobian {
       return { angular: ZERO, linear: ZERO };
     return {
       angular: motion.angular,
-      linear: Vector3.add(motion.linear, Vector3.cross(motion.angular, origin)),
+      linear: AutoMovieEngineVector3.add(motion.linear, AutoMovieEngineVector3.cross(motion.angular, origin)),
     };
   }
 
@@ -260,7 +260,7 @@ export namespace HumanJacobian {
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     if (motion.moves !== null && !motion.moves.has(bone)) return ZERO;
-    return Vector3.add(motion.linear, Vector3.cross(motion.angular, point));
+    return AutoMovieEngineVector3.add(motion.linear, AutoMovieEngineVector3.cross(motion.angular, point));
   }
 
   /*

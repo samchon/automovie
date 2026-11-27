@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEngineVector3 } from "@automovie/engine";
 
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -14,7 +14,7 @@ import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
 import { irregularRockForm } from "./internal/irregularRockForm";
-import * as AutoMovieArchetypeRockData from "./internal/AutoMovieArchetypeRockData";
+import { AutoMovieArchetypeRockData } from "./internal/AutoMovieArchetypeRockData";
 
 /** Constructs the rock archetype from its recipe. */
 export namespace AutoMovieArchetypeRock {
@@ -113,7 +113,7 @@ export function create(
     name: kind,
     draw,
   });
-  const v: typeof Vector3.create = Vector3.create;
+  const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = d.diameter / 2;
   const look: { color: string; surface: "stone" } = {
     color: "#7d7a74",

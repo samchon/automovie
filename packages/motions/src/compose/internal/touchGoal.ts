@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmCarry,
@@ -61,7 +61,7 @@ export function touchGoal(
   ): IAutoMovieHumanLimbGoal => {
     const place: ReturnType<IAutoMovieMotionHumanTouch.ITouch["region"]> =
       props.region(posture, seconds, resolution, projection);
-    const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(place.normal);
     const along: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
       normal,
       posture.yaw,
@@ -78,9 +78,9 @@ export function touchGoal(
     // the vessel's own tip on the way is the hand's attitude's (`TIP`,
     // `AutoMovieMotionHumanDrinkingArm.carried`).
     const lean: number = props.lean ?? 0;
-    const at: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(place.point, Vector3.scale(normal, standoff + lift)),
-      Vector3.scale(along, travel),
+    const at: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.add(place.point, AutoMovieEngineVector3.scale(normal, standoff + lift)),
+      AutoMovieEngineVector3.scale(along, travel),
     );
     const frame: IAutoMovieMotionHumanFrame = {
       origin: posture.root,
@@ -110,17 +110,17 @@ export function touchGoal(
       );
 
     // A held rotation turns with the heading and leans with the vessel.
-    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       posture.yaw - props.entry.yaw,
     );
     const rotation: IAutoMovieQuaternion | undefined =
       props.held === undefined
         ? undefined
-        : Quaternion.normalize(
-            Quaternion.multiply(
+        : AutoMovieEngineQuaternion.normalize(
+            AutoMovieEngineQuaternion.multiply(
               AutoMovieMotionHumanTouchUpright.tip(normal, lean),
-              Quaternion.multiply(turn, props.held),
+              AutoMovieEngineQuaternion.multiply(turn, props.held),
             ),
           );
     return {
@@ -129,9 +129,9 @@ export function touchGoal(
         ? {}
         : {
             rotation,
-            point: Vector3.subtract(
+            point: AutoMovieEngineVector3.subtract(
               at,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 rotation,
                 laid.contact ?? { x: 0, y: 0, z: 0 },
               ),

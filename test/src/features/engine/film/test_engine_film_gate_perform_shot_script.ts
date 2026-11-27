@@ -1,5 +1,7 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
-import { gatePerformShotScript } from "@automovie/engine/internal";
+import {
+  gatePerformShotScript
+} from "../../../../../packages/engine/src/film/internal/gatePerformShotScript";
 import type { IAutoMovieScript } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

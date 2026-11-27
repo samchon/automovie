@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
@@ -24,13 +24,13 @@ export function everydayTypeCaseBoard(
       {
         id: "homeRow",
         kind: "surface",
-        frame: Transform.identity(),
+        frame: AutoMovieEngineTransform.identity(),
         extent: null,
       },
       {
         id: "keys",
         kind: "surface",
-        frame: Transform.identity(),
+        frame: AutoMovieEngineTransform.identity(),
         extent: null,
         width: typeText.WIDTH,
       },

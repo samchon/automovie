@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -26,7 +26,7 @@ import type { AutoMovieHumanJointStrength } from "./internal/AutoMovieHumanJoint
  * written as canonical clinical poses drives the polygon man exactly as it
  * drives any other VRM humanoid.
  *
- * The canonical rig is the one `HUMANOID_JOINT_AXES` and `HUMANOID_REST_FRAME`
+ * The canonical rig is the one `AutoMovieEngineHumanoidJointAxes` and `AutoMovieEngineHumanoidRestFrame`
  * read: the VRM 1.0 T-pose, right-handed, +Y up, the body facing +Z with its
  * left toward +X, identity rest rotations. Human registers +X forward, +Y up
  * and +Z toward its left-named limbs, a left-handed frame, so every point is
@@ -118,8 +118,8 @@ export namespace AutoMovieHumanCanonicalBody {
       anatomy.bones.map((b) => ({
         bone: b.bone,
         parent: b.parent,
-        position: Vector3.scale(vector(b.position), scale),
-        tip: b.tip === null ? null : Vector3.scale(vector(b.tip), scale),
+        position: AutoMovieEngineVector3.scale(vector(b.position), scale),
+        tip: b.tip === null ? null : AutoMovieEngineVector3.scale(vector(b.tip), scale),
         radius: radius(b.bone),
       })),
       {
@@ -135,7 +135,7 @@ export namespace AutoMovieHumanCanonicalBody {
 
   /**
    * Place every Human joint under a canonical pose: forward kinematics of the
-   * rig with `HUMANOID_JOINT_AXES` and `HUMANOID_REST_FRAME`, each joint
+   * rig with `AutoMovieEngineHumanoidJointAxes` and `AutoMovieEngineHumanoidRestFrame`, each joint
    * carried rigidly by its carrier bone.
    *
    * @param body The canonical body.
@@ -148,8 +148,8 @@ export namespace AutoMovieHumanCanonicalBody {
         AutoMovieEngineKinematics.resolvePose(
           pose,
           body.skeleton,
-          HUMANOID_JOINT_AXES,
-          HUMANOID_REST_FRAME,
+          AutoMovieEngineHumanoidJointAxes,
+          AutoMovieEngineHumanoidRestFrame,
         ).map(
           (
             r: IAutoMovieResolvedBone,
@@ -160,9 +160,9 @@ export namespace AutoMovieHumanCanonicalBody {
     for (const bone of body.skeleton.bones)
       rest.set(
         bone.bone,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           bone.parent === null
-            ? Vector3.create(0, 0, 0)
+            ? AutoMovieEngineVector3.create(0, 0, 0)
             : rest.get(bone.parent)!,
           bone.rest.translation,
         ),
@@ -171,11 +171,11 @@ export namespace AutoMovieHumanCanonicalBody {
       const r: IAutoMovieResolvedBone = resolved.get(joint.carrier)!;
       return {
         bone: joint.bone,
-        position: Vector3.add(
+        position: AutoMovieEngineVector3.add(
           r.worldPosition,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             r.worldRotation,
-            Vector3.subtract(vector(joint.position), rest.get(joint.carrier)!),
+            AutoMovieEngineVector3.subtract(vector(joint.position), rest.get(joint.carrier)!),
           ),
         ),
         rotation: r.worldRotation,
@@ -274,7 +274,7 @@ function canonical(
   for (const bone of bind) {
     position.set(bone.bone, reflect(bone.position));
     tip.set(bone.bone, bone.tip === null ? null : reflect(bone.tip));
-    turnOf.set(bone.bone, Quaternion.identity());
+    turnOf.set(bone.bone, AutoMovieEngineQuaternion.identity());
   }
   const descendants = (root: string): string[] => [
     root,
@@ -286,15 +286,15 @@ function canonical(
     pivot: IAutoMovieVector3,
   ): void => {
     const move = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         pivot,
-        Quaternion.rotateVector(rotation, Vector3.subtract(p, pivot)),
+        AutoMovieEngineQuaternion.rotateVector(rotation, AutoMovieEngineVector3.subtract(p, pivot)),
       );
     for (const bone of bones) {
       position.set(bone, move(position.get(bone)!));
       const end: IAutoMovieVector3 | null = tip.get(bone)!;
       tip.set(bone, end === null ? null : move(end));
-      turnOf.set(bone, Quaternion.multiply(rotation, turnOf.get(bone)!));
+      turnOf.set(bone, AutoMovieEngineQuaternion.multiply(rotation, turnOf.get(bone)!));
     }
   };
   const align = (
@@ -307,7 +307,7 @@ function canonical(
     turn(
       descendants(`${side}${from}`),
       AutoMovieEngineMath.rotationBetween(
-        Vector3.subtract(position.get(`${side}${to}`)!, pivot),
+        AutoMovieEngineVector3.subtract(position.get(`${side}${to}`)!, pivot),
         direction,
       ),
       pivot,
@@ -324,17 +324,17 @@ function canonical(
       if (end === null) return;
       turn(
         descendants(bone),
-        AutoMovieEngineMath.rotationBetween(Vector3.subtract(end, pivot), direction),
+        AutoMovieEngineMath.rotationBetween(AutoMovieEngineVector3.subtract(end, pivot), direction),
         pivot,
       );
     });
   };
-  const down: IAutoMovieVector3 = Vector3.create(0, -1, 0);
+  const down: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, -1, 0);
   for (const [side, sign] of [
     ["left", 1],
     ["right", -1],
   ] as const) {
-    const lateral: IAutoMovieVector3 = Vector3.create(sign, 0, 0);
+    const lateral: IAutoMovieVector3 = AutoMovieEngineVector3.create(sign, 0, 0);
     align(side, "UpperArm", "LowerArm", lateral);
     align(side, "LowerArm", "Hand", lateral);
     align(side, "Hand", "MiddleProximal", lateral);
@@ -342,26 +342,26 @@ function canonical(
     // Pronate about the now-lateral forearm until the volar normal,
     // sign * (along x (index - little)), faces -Y.
     const hand: IAutoMovieVector3 = position.get(`${side}Hand`)!;
-    const along: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(position.get(`${side}MiddleProximal`)!, hand),
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(position.get(`${side}MiddleProximal`)!, hand),
     );
-    const across: IAutoMovieVector3 = Vector3.subtract(
+    const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       position.get(`${side}IndexProximal`)!,
       position.get(`${side}LittleProximal`)!,
     );
-    const volar: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.scale(Vector3.cross(along, across), sign),
+    const volar: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(along, across), sign),
     );
     const angle: number =
       (Math.atan2(
-        Vector3.dot(Vector3.cross(volar, down), lateral),
-        Vector3.dot(volar, down),
+        AutoMovieEngineVector3.dot(AutoMovieEngineVector3.cross(volar, down), lateral),
+        AutoMovieEngineVector3.dot(volar, down),
       ) *
         180) /
       Math.PI;
     turn(
       descendants(`${side}LowerArm`),
-      Quaternion.fromAxisAngle(lateral, angle),
+      AutoMovieEngineQuaternion.fromAxisAngle(lateral, angle),
       position.get(`${side}LowerArm`)!,
     );
 
@@ -370,7 +370,7 @@ function canonical(
     // along its own knuckle line and the thumb's two hinges continue its
     // metacarpal.
     for (const finger of ["Index", "Middle", "Ring", "Little"] as const) {
-      const line: IAutoMovieVector3 = Vector3.subtract(
+      const line: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         position.get(`${side}${finger}Intermediate`)!,
         position.get(`${side}${finger}Proximal`)!,
       );
@@ -380,13 +380,13 @@ function canonical(
           `${side}${finger}Intermediate`,
           `${side}${finger}Distal`,
         ],
-        Vector3.normalize(Vector3.create(line.x, 0, line.z)),
+        AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.create(line.x, 0, line.z)),
       );
     }
     straighten(
       [`${side}ThumbProximal`, `${side}ThumbDistal`],
-      Vector3.normalize(
-        Vector3.subtract(
+      AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(
           position.get(`${side}ThumbProximal`)!,
           position.get(`${side}ThumbMetacarpal`)!,
         ),
@@ -398,7 +398,7 @@ function canonical(
     align(side, "LowerLeg", "Foot", down);
     turn(
       descendants(`${side}Foot`),
-      Quaternion.inverse(turnOf.get(`${side}Foot`)!),
+      AutoMovieEngineQuaternion.inverse(turnOf.get(`${side}Foot`)!),
       position.get(`${side}Foot`)!,
     );
   }
@@ -444,12 +444,12 @@ function canonical(
       bone,
       parent,
       rest: {
-        translation: Vector3.subtract(
+        translation: AutoMovieEngineVector3.subtract(
           at,
-          parent === null ? Vector3.create(0, 0, 0) : placed.get(parent)!,
+          parent === null ? AutoMovieEngineVector3.create(0, 0, 0) : placed.get(parent)!,
         ),
-        rotation: Quaternion.identity(),
-        scale: Vector3.create(1, 1, 1),
+        rotation: AutoMovieEngineQuaternion.identity(),
+        scale: AutoMovieEngineVector3.create(1, 1, 1),
       },
       constraint: null,
     });

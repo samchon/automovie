@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -42,8 +42,8 @@ export function create(
   const { LENGTH, WIDTH, THICKNESS } = AutoMovieArchetypeFootballFlag;
   builder.box(
     "strip",
-    Vector3.create(WIDTH, LENGTH, THICKNESS),
-    Vector3.create(0, -LENGTH / 2, 0),
+    AutoMovieEngineVector3.create(WIDTH, LENGTH, THICKNESS),
+    AutoMovieEngineVector3.create(0, -LENGTH / 2, 0),
     { color: "#e8452c" },
   );
   for (const [id, y] of [
@@ -54,7 +54,7 @@ export function create(
     builder.affordance({
       id,
       kind: id === "grip" ? "handle" : "socket",
-      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, 0)),
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, y, 0)),
       extent: null,
     });
 

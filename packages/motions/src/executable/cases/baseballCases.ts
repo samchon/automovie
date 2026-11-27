@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBaseball,
@@ -121,7 +121,7 @@ export function baseballCases(
           verdicts.push(
             everydayVerdicts.within(
               "fists apart on the handle",
-              Vector3.length(Vector3.subtract(at("leftHand"), at("rightHand"))),
+              AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at("leftHand"), at("rightHand"))),
               m.hand,
               "mm",
             ),

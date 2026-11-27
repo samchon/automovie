@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -202,7 +202,7 @@ export namespace AutoMovieArchetypeSpan {
     );
     const fromOverhang: number = overhang(archetype, span.id, span.from);
     const toOverhang: number = overhang(archetype, span.id, span.to);
-    const offset: IAutoMovieVector3 = Vector3.subtract(end, start);
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(end, start);
     const distance: number = Math.hypot(offset.x, offset.y, offset.z);
     if (
       !(span.radius > 0) ||
@@ -225,9 +225,9 @@ export namespace AutoMovieArchetypeSpan {
         z: offset.z / distance,
       };
       if (fromOverhang > 0)
-        from = Vector3.subtract(start, Vector3.scale(direction, fromOverhang));
+        from = AutoMovieEngineVector3.subtract(start, AutoMovieEngineVector3.scale(direction, fromOverhang));
       if (toOverhang > 0)
-        to = Vector3.add(end, Vector3.scale(direction, toOverhang));
+        to = AutoMovieEngineVector3.add(end, AutoMovieEngineVector3.scale(direction, toOverhang));
       length = Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z);
       if (!(length > 0 && length < Infinity))
         refuse(

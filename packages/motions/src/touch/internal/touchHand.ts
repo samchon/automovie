@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -85,7 +85,7 @@ export function touchHand(
       : Math.max(
           0,
           radius -
-            Vector3.distance(
+            AutoMovieEngineVector3.distance(
               region(target)(entry, 0).point,
               unsited(target, leaning)(entry, 0).point,
             ),

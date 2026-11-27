@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -119,9 +119,9 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
       ? all.join(",")
       : `${all.slice(0, 4).join(",")},...,${all.slice(-3).join(",")} (${all.length} branches)`;
   };
-  const one: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(speed, 0));
-  const late: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.1));
-  const two: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.15));
+  const one: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan(input(speed, 0));
+  const late: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.1));
+  const two: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.15));
   // The farthest a capture point can land inside one step's foot: the reach
   // across the 0.2 m stance width, plus the foot's half-length (Koolen et al.,
   // Eq. 25, the step region dilated by the foot).
@@ -317,7 +317,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
   }
 
   // 8. A small push: no step.
-  const small: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(0.05, 0.1));
+  const small: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan(input(0.05, 0.1));
   check(
     "small push holds",
     small.footstep === undefined &&
@@ -327,7 +327,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
 
   // 9. A fall: a 3 m/s push puts the capture point past any footstep the
   // reach and the quickest swing allow, so the recovery step is not viable.
-  const fall: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(3, 0.1));
+  const fall: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan(input(3, 0.1));
   check(
     "fall premise",
     edge + (3 / omega - edge) * Math.exp(omega * (0.1 + quickest)) > reach,
@@ -378,7 +378,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
 
   // 11. Resume: the span prepared again from its stored input gives the same
   // samples bit for bit.
-  const again: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.15));
+  const again: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.15));
   check(
     "re-prepared span",
     JSON.stringify(times.map((t) => again.sample(t))) ===
@@ -418,7 +418,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
     ] as const) {
       const label: string = `${count} contacts, ${outcome}`;
       try {
-        verifyCase(label, AutoMoviePhysicalBalance.prepareDisturbanceSpan({ ...input(velocity, 0), feet }), outcome);
+        verifyCase(label, AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan({ ...input(velocity, 0), feet }), outcome);
       } catch (error: unknown) {
         failures.push(
           `${label}: ${error instanceof Error ? error.message : String(error)}`,

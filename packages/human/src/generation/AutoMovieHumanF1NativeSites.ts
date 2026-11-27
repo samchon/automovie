@@ -13,12 +13,12 @@ import { AutoMovieHumanF1RootControls } from "./f1/AutoMovieHumanF1RootControls"
 import { AutoMovieHumanF1ToeBig } from "./f1/AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1Trunk } from "./f1/AutoMovieHumanF1Trunk";
 import {
-  AutoMovieConstructionPortCurve,
-  AutoMovieLoftRelief,
-  AutoMovieLoftViewFullSource,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieViewChain,
+  AutoMovieEngineConstructionPortCurve,
+  AutoMovieEngineLoftRelief,
+  AutoMovieEngineLoftViewFullSource,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
+  AutoMovieEngineViewChain,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -31,7 +31,7 @@ import type {
   IAutoMovieViewAxis,
   IAutoMovieViewChain,
 } from "@automovie/interface";
-import * as AutoMovieHumanF1NativeSitesData from "./internal/AutoMovieHumanF1NativeSitesData";
+import { AutoMovieHumanF1NativeSitesData } from "./internal/AutoMovieHumanF1NativeSitesData";
 
 /**
  * The one owner of the native path's measurement sites: where each tissue field is read on its family's course, by the site's published
@@ -271,11 +271,11 @@ export namespace AutoMovieHumanF1NativeSites {
     // ISO 8559-1 5.3.13 hip level, the buttocks' greatest posterior projection: the largest bare posterior reach of the trunk's side
     // outline from its first knot up to midway between the hip centres' midpoint and suprasternale (above it the back's kyphosis and
     // scapulae project farther, outside the pelvis). The bare wall excludes the `trunk.low` net, as the calipers it locates do.
-    const trunkSource: ReturnType<typeof AutoMovieLoftViewSource.create> = AutoMovieLoftViewSource.create(H.source(trunk));
+    const trunkSource: ReturnType<typeof AutoMovieEngineLoftViewSource.create> = AutoMovieEngineLoftViewSource.create(H.source(trunk));
     if (trunkSource === null || trunkSource.source === null) throw new Error("native sites need the trunk's bare source");
     const bare = trunkSource.source;
     const posterior = (s: number): number => {
-      const values = AutoMovieLoftViewRead.values(bare, s);
+      const values = AutoMovieEngineLoftViewRead.values(bare, s);
       return typeof values === "string" ? NaN : values.extents[2]!;
     };
     const hip: number = Runs.extreme(posterior, trunk.knots[0]!, (trunkRuns[1]! + trunkRuns[2]!) / 2, AutoMovieHumanF1NativeSitesData.STEP_MM, 1);
@@ -285,9 +285,9 @@ export namespace AutoMovieHumanF1NativeSites {
     // largest in magnitude. The window's middle is not the navel: the net also carries the skin above and below the pit.
     const navel: IAutoMovieLoftRelief | undefined = (trunk.reliefs ?? []).find((relief: IAutoMovieLoftRelief): boolean => relief.name === "trunk.navel");
     if (navel === undefined) throw new Error("native sites need the trunk's navel net");
-    const median: number = navel.phases.start + AutoMovieLoftRelief.width(navel) / 2;
+    const median: number = navel.phases.start + AutoMovieEngineLoftRelief.width(navel) / 2;
     const omphalion: number = Runs.extreme(
-      (s: number): number => Math.abs(AutoMovieLoftRelief.height(navel, s, median)[0]),
+      (s: number): number => Math.abs(AutoMovieEngineLoftRelief.height(navel, s, median)[0]),
       navel.stations.start,
       navel.stations.end,
       AutoMovieHumanF1NativeSitesData.PIT_STEP_MM,
@@ -298,12 +298,12 @@ export namespace AutoMovieHumanF1NativeSites {
     const loop: IAutoMovieConstructionPortLoop | undefined = input.roots.breast[0];
     if (loop?.shape === undefined) throw new Error("native sites need the mammary loop's column controls");
     const underbust: number = Math.min(
-      ...AutoMovieConstructionPortCurve.chart(loop, loop.shape.length).addresses.map(([s]: [number, number]): number => s),
+      ...AutoMovieEngineConstructionPortCurve.chart(loop, loop.shape.length).addresses.map(([s]: [number, number]): number => s),
     );
 
     // ISO 8559-1 5.3.4 bust point level, the bust's most anterior point (on the bare breast, not in a bra): the breast source's
     // farthest-forward point over 65 stations by 128 phases, on the trunk course.
-    const breastReader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(H.source(breast));
+    const breastReader: IAutoMovieLoftViewFullSource.IReader = AutoMovieEngineLoftViewFullSource.create(H.source(breast));
     let apex: AutoMovieVector3Tuple | null = null;
     for (let i: number = 0; i <= 64; ++i) {
       const s: number = breastReader.domain[0] + ((breastReader.domain[1] - breastReader.domain[0]) * i) / 64;
@@ -325,7 +325,7 @@ export namespace AutoMovieHumanF1NativeSites {
         let first: [number, number] | null = null;
         for (let j: number = 0; j < AutoMovieHumanF1NativeSitesData.GIRTH_PHASES; ++j) {
           const phi: number = (2 * Math.PI * j) / AutoMovieHumanF1NativeSitesData.GIRTH_PHASES;
-          const r: number = AutoMovieViewChain.radius(section, phi);
+          const r: number = AutoMovieEngineViewChain.radius(section, phi);
           const q: [number, number] = [r * Math.cos(phi), r * Math.sin(phi)];
           if (previous !== null) total += Math.hypot(q[0] - previous[0], q[1] - previous[1]);
           first ??= q;

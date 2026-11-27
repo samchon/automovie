@@ -1,5 +1,7 @@
 import type { IAutoMovieHumanLimbGoal } from "@automovie/interface";
-import { orderHumanLimbs } from "@automovie/motions/internal";
+import {
+  orderHumanLimbs
+} from "../../../../../packages/motions/src/posture/internal/orderHumanLimbs";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

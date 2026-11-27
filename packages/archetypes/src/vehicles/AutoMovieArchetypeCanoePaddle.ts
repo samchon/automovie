@@ -9,8 +9,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { PaddleBlade } from "./internal/PaddleBlade";
-import * as AutoMovieArchetypeCanoePaddleData from "./internal/AutoMovieArchetypeCanoePaddleData";
-import { v } from "./internal/AutoMovieArchetypeCanoePaddleData";
+import { AutoMovieArchetypeCanoePaddleData } from "./internal/AutoMovieArchetypeCanoePaddleData";
+
 
 /** Constructs the canoe paddle archetype from its recipe. */
 export namespace AutoMovieArchetypeCanoePaddle {
@@ -55,14 +55,14 @@ export function create(
   const top: number = half - 0.017;
   const handleSpan: number = 0.11;
   const wood: string = "#b7854d";
-  builder.rod("shaft", diameter / 2, v(shoulder, 0, 0), v(top, 0, 0), {
+  builder.rod("shaft", diameter / 2, AutoMovieArchetypeCanoePaddleData.v(shoulder, 0, 0), AutoMovieArchetypeCanoePaddleData.v(top, 0, 0), {
     color: wood,
   });
   builder.rod(
     "top-grip",
     0.017,
-    v(top, 0, -handleSpan / 2),
-    v(top, 0, handleSpan / 2),
+    AutoMovieArchetypeCanoePaddleData.v(top, 0, -handleSpan / 2),
+    AutoMovieArchetypeCanoePaddleData.v(top, 0, handleSpan / 2),
     {
       color: "#5d3c25",
     },
@@ -80,19 +80,19 @@ export function create(
   PaddleBlade.grip(
     builder,
     "shaftGrip",
-    v(shoulder + 0.24, 0, 0),
-    v(1, 0, 0),
+    AutoMovieArchetypeCanoePaddleData.v(shoulder + 0.24, 0, 0),
+    AutoMovieArchetypeCanoePaddleData.v(1, 0, 0),
     diameter,
     0.14,
   );
   PaddleBlade.grip(
     builder,
     "topGrip",
-    v(top, 0, 0),
-    v(0, 0, 1),
+    AutoMovieArchetypeCanoePaddleData.v(top, 0, 0),
+    AutoMovieArchetypeCanoePaddleData.v(0, 0, 1),
     0.034,
     handleSpan,
-    v(1, 0, 0),
+    AutoMovieArchetypeCanoePaddleData.v(1, 0, 0),
   );
   PaddleBlade.tip(builder, "bladeTip", -half, -1, d.bladeWidth);
   return builder.build(d.mass);

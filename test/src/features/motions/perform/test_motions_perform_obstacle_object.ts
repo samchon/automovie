@@ -5,7 +5,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObstacle } from "@automovie/motions/internal";
+import {
+  HumanObstacle
+} from "../../../../../packages/motions/src/perform/internal/HumanObstacle";
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";

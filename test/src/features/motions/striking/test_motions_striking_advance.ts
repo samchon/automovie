@@ -1,8 +1,10 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  StrikingAdvance,
-} from "@automovie/motions/internal";
+  AutoMovieMotionClock
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+import {
+  StrikingAdvance
+} from "../../../../../packages/motions/src/striking/internal/StrikingAdvance";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

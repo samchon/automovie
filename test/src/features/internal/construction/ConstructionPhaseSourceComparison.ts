@@ -1,11 +1,11 @@
 import {
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  AutoMovieLoftPhaseSource,
-  AutoMovieViewAxis,
-  AutoMovieViewCurves,
-  AutoMovieViewLoft,
-  AutoMovieViewSection,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftJet,
+  AutoMovieEngineLoftPhaseSource,
+  AutoMovieEngineViewAxis,
+  AutoMovieEngineViewCurves,
+  AutoMovieEngineViewLoft,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftPhaseSource,
@@ -28,7 +28,7 @@ export namespace ConstructionPhaseSourceComparison {
   export function sources(failures: string[]): void {
     const input: IAutoMovieViewPart = original();
     const prepared: IAutoMovieViewCurves.IResult =
-      AutoMovieViewCurves.create(input);
+      AutoMovieEngineViewCurves.create(input);
     if (prepared.diagnostics.length !== 0)
       failures.push(
         `direct source admission: ${JSON.stringify(prepared.diagnostics)}`,
@@ -36,8 +36,8 @@ export namespace ConstructionPhaseSourceComparison {
     const first: IAutoMovieViewSection.ISection = section(prepared, input, 0);
     const last: IAutoMovieViewSection.ISection = section(prepared, input, 1);
     const principal: IAutoMovieLoftPhaseSource.ISource | string =
-      AutoMovieLoftPhaseSource.prepare([0, 1], [first.conics, last.conics]);
-    const final: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(input);
+      AutoMovieEngineLoftPhaseSource.prepare([0, 1], [first.conics, last.conics]);
+    const final: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(input);
     if (
       typeof principal === "string" ||
       final.chain === null ||
@@ -60,9 +60,9 @@ export namespace ConstructionPhaseSourceComparison {
         s,
       );
       const at: IAutoMovieLoftPhaseSource.IStation =
-        AutoMovieLoftPhaseSource.station(principal, s);
+        AutoMovieEngineLoftPhaseSource.station(principal, s);
       const reading: IAutoMovieViewCurves.IReading | string =
-        AutoMovieViewCurves.at(prepared.curves[0]!, input.axis, s);
+        AutoMovieEngineViewCurves.at(prepared.curves[0]!, input.axis, s);
       if (typeof reading === "string" || reading.scalar.stationJet === null) {
         failures.push(`original scalar jet absent at ${s}`);
         continue;
@@ -75,7 +75,7 @@ export namespace ConstructionPhaseSourceComparison {
       );
       for (let i: number = 0; i < 64; i++) {
         const phi: number = (2 * Math.PI * i) / 64;
-        const radial: readonly number[] = AutoMovieViewSection.radius(
+        const radial: readonly number[] = AutoMovieEngineViewSection.radius(
           native,
           phi,
         );
@@ -101,16 +101,16 @@ export namespace ConstructionPhaseSourceComparison {
             Math.abs(directJet[k]! - expectedJet[k]!) /
               Math.max(1, Math.abs(expectedJet[k]!)),
           );
-        const reinterpolated: [number, number] = AutoMovieLoftPhaseSource.point(
+        const reinterpolated: [number, number] = AutoMovieEngineLoftPhaseSource.point(
           at,
           phi,
         );
-        const point: [number, number, number] = AutoMovieLoftChain.point(
+        const point: [number, number, number] = AutoMovieEngineLoftChain.point(
           final.chain,
           s,
           phi,
         );
-        const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+        const jet: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
           final.chain,
           s,
           phi,
@@ -183,7 +183,7 @@ function original(): IAutoMovieViewPart {
   });
   return {
     name: "phase.quadratic",
-    axis: AutoMovieViewAxis.horizontal(),
+    axis: AutoMovieEngineViewAxis.horizontal(),
     stations: [0, 1],
     front: { positive: quadratic(1), negative: quadratic(-1) },
     side: { positive: constant(2), negative: constant(-2) },
@@ -202,7 +202,7 @@ function section(
   const values: number[] = source.curves.map(
     (curve: IAutoMovieViewCurves.ICurve): number => {
       const reading: IAutoMovieViewCurves.IReading | string =
-        AutoMovieViewCurves.at(curve, input.axis, s);
+        AutoMovieEngineViewCurves.at(curve, input.axis, s);
       if (typeof reading === "string" || reading.scalar.stationJet === null)
         throw new Error(
           `actual scalar 2-jet unavailable at ${s}: ${typeof reading === "string" ? reading : reading.scalar.stationJetStatus}`,
@@ -217,7 +217,7 @@ function section(
 function ellipseBox(
   extents: [number, number, number, number],
 ): IAutoMovieViewSection.ISection {
-  return AutoMovieViewSection.bare({ extents }, [
+  return AutoMovieEngineViewSection.bare({ extents }, [
     Math.SQRT2 - 1,
     Math.SQRT2 - 1,
     Math.SQRT2 - 1,

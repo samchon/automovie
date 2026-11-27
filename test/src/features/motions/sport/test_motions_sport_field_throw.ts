@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanExerciseKey } from "@automovie/interface";
-import { fieldThrowKeys } from "@automovie/motions/internal";
+import {
+  fieldThrowKeys
+} from "../../../../../packages/motions/src/sport/internal/fieldThrowKeys";
 import { TestValidator } from "@nestia/e2e";
 
 /**

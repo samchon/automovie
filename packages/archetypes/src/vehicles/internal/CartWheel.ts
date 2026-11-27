@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -73,7 +73,7 @@ export namespace CartWheel {
     >,
     pair: IPair,
   ): string[] {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const { track, radius, z, prefix } = pair;
     const axle: string = `${prefix}axle`;
     builder.rod(axle, 0.03, v(-track / 2, radius, z), v(track / 2, radius, z), {
@@ -109,8 +109,8 @@ export namespace CartWheel {
         builder.rod(
           spoke,
           0.012,
-          Vector3.subtract(hub, along),
-          Vector3.add(hub, along),
+          AutoMovieEngineVector3.subtract(hub, along),
+          AutoMovieEngineVector3.add(hub, along),
           { color: PAINT },
         );
         parts.push(spoke);

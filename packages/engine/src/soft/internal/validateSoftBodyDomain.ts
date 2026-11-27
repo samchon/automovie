@@ -7,10 +7,10 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { SOFT_MAX_COLLIDERS } from "../SOFT_MAX_COLLIDERS";
-import { SOFT_MAX_ITERATIONS } from "../SOFT_MAX_ITERATIONS";
-import { SOFT_MAX_PARTICLES } from "../SOFT_MAX_PARTICLES";
-import { SOFT_MAX_STEPS } from "../SOFT_MAX_STEPS";
+import { AutoMovieEngineSoftMaxColliders } from "../AutoMovieEngineSoftMaxColliders";
+import { AutoMovieEngineSoftMaxIterations } from "../AutoMovieEngineSoftMaxIterations";
+import { AutoMovieEngineSoftMaxParticles } from "../AutoMovieEngineSoftMaxParticles";
+import { AutoMovieEngineSoftMaxSteps } from "../AutoMovieEngineSoftMaxSteps";
 import { softBodyTravelNumber } from "./softBodyTravelNumber";
 import { validateSoftAnchors } from "./validateSoftAnchors";
 import { validateSoftBounded as bounded } from "./validateSoftBounded";
@@ -66,13 +66,13 @@ export function validateSoftBodyDomain(
   // past the exactly representable integers is the largest lattice anyone can
   // declare, and requiring exactness here let precisely those through the cap
   // that exists to stop them.
-  if (count > SOFT_MAX_PARTICLES)
+  if (count > AutoMovieEngineSoftMaxParticles)
     out.push(
       "range",
       `${root}.lattice`,
-      `a soft body lattice may hold at most ${SOFT_MAX_PARTICLES} particles, but declared ${count}`,
+      `a soft body lattice may hold at most ${AutoMovieEngineSoftMaxParticles} particles, but declared ${count}`,
       count,
-      count - SOFT_MAX_PARTICLES,
+      count - AutoMovieEngineSoftMaxParticles,
     );
   if (count < 2)
     out.push(
@@ -116,7 +116,7 @@ export function validateSoftBodyDomain(
     "relaxation iterations",
     domain.solver.iterations,
     1,
-    SOFT_MAX_ITERATIONS,
+    AutoMovieEngineSoftMaxIterations,
   );
   for (const family of ["structural", "shear", "bend"] as const)
     numeric(
@@ -143,7 +143,7 @@ export function validateSoftBodyDomain(
     "max steps",
     domain.solver.maxSteps,
     1,
-    SOFT_MAX_STEPS,
+    AutoMovieEngineSoftMaxSteps,
   );
 
   length(out, `${root}.rest`, "rest", domain.rest.length, count * 3);
@@ -203,7 +203,7 @@ export function validateSoftBodyDomain(
     `${root}.colliders`,
     "colliders",
     domain.colliders.length,
-    SOFT_MAX_COLLIDERS,
+    AutoMovieEngineSoftMaxColliders,
   );
   const colliderIds: Set<string> = new Set<string>();
   domain.colliders.forEach(

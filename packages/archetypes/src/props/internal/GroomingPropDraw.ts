@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 
 import {
   AutoMovieArchetypeBand,
@@ -9,7 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import { CARE_ITEM_BANDS } from "../constants/CARE_ITEM_BANDS";
-import * as GroomingPropDrawData from "./GroomingPropDrawData";
+import { GroomingPropDrawData } from "./GroomingPropDrawData";
 
 /*
  * The seeded recipes originally published as `createCareItem`.
@@ -363,14 +363,14 @@ export namespace GroomingPropDraw {
     builder.rod(
       "handle",
       width / 2,
-      Vector3.create(0, width / 2, 0),
-      Vector3.create(0, width / 2, length - head),
+      AutoMovieEngineVector3.create(0, width / 2, 0),
+      AutoMovieEngineVector3.create(0, width / 2, length - head),
       { color: colors.handle },
     );
     builder.box(
       "head",
-      Vector3.create(across, width * 1.6, head),
-      Vector3.create(0, width * 0.8, length - head / 2),
+      AutoMovieEngineVector3.create(across, width * 1.6, head),
+      AutoMovieEngineVector3.create(0, width * 0.8, length - head / 2),
       { color: colors.head },
     );
     builder.affordance({
@@ -378,9 +378,9 @@ export namespace GroomingPropDraw {
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        Vector3.create(0, width / 2, (length - head) / 2),
-        Vector3.create(0, 1, 0),
-        Vector3.create(0, 0, 1),
+        AutoMovieEngineVector3.create(0, width / 2, (length - head) / 2),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, 0, 1),
       ),
       extent: null,
       grip: "power",
@@ -392,7 +392,7 @@ export namespace GroomingPropDraw {
       kind: "surface",
       direction: "normal",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, width * 1.6, length - head / 2),
+        AutoMovieEngineVector3.create(0, width * 1.6, length - head / 2),
       ),
       extent: null,
       width: across,

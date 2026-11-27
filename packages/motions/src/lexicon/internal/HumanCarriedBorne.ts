@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -261,8 +261,8 @@ export namespace HumanCarriedBorne {
           // The root that puts the resting region on the carrier's region.
           const posture: IAutoMovieMotionHumanPosture = {
             ...turned,
-            root: Vector3.subtract(
-              Vector3.add(
+            root: AutoMovieEngineVector3.subtract(
+              AutoMovieEngineVector3.add(
                 HumanCarriedCouplingPose.region(
                   carrier.body,
                   theirs,
@@ -277,7 +277,7 @@ export namespace HumanCarriedBorne {
                   z: 0,
                 },
               ),
-              Quaternion.rotateVector(HumanFrame.turn(turned.yaw), ownRegion!),
+              AutoMovieEngineQuaternion.rotateVector(HumanFrame.turn(turned.yaw), ownRegion!),
             ),
           };
           const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};

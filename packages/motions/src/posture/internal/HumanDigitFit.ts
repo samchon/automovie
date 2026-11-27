@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineRomTolerance, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -114,7 +114,7 @@ export namespace HumanDigitFit {
         target: world.point,
         ...(world.normal === undefined
           ? {}
-          : { normal: Vector3.scale(Vector3.normalize(world.normal), -1) }),
+          : { normal: AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize(world.normal), -1) }),
         ...(name === "Thumb" ? {} : { coupling: COUPLING }),
         // A goal in free space is eased short near the digit's full reach,
         // where a joint's rate per millimetre has no bound; a goal on a bone
@@ -122,8 +122,8 @@ export namespace HumanDigitFit {
         ...(goal.on === undefined && goal.contact !== true
           ? { rate: RATE }
           : {}),
-        jointAxes: HUMANOID_JOINT_AXES,
-        restFrames: HUMANOID_REST_FRAME,
+        jointAxes: AutoMovieEngineHumanoidJointAxes,
+        restFrames: AutoMovieEngineHumanoidRestFrame,
       });
       const fitted: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose> =
         new Map(
@@ -290,13 +290,13 @@ export namespace HumanDigitFit {
       }
       const turns: IAutoMovieQuaternion[] = hands.map(
         (hand: IHangingHand): IAutoMovieQuaternion =>
-          Quaternion.multiply(
+          AutoMovieEngineQuaternion.multiply(
             shoulders.get(hand.shoulder.bone)!.worldRotation,
-            Quaternion.inverse(hand.shoulder.worldRotation),
+            AutoMovieEngineQuaternion.inverse(hand.shoulder.worldRotation),
           ),
       );
       for (const [index, hand] of hands.entries()) {
-        const back: IAutoMovieQuaternion = Quaternion.inverse(turns[index]!);
+        const back: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(turns[index]!);
         const origin: IAutoMovieVector3 = hand.shoulder.worldPosition;
         for (const item of hand.shapes) {
           const point: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
@@ -314,21 +314,21 @@ export namespace HumanDigitFit {
             return about(moved, origin, back);
           };
           const centre: IAutoMovieVector3 = point(item.sphere.centre);
-          const distance: number = Vector3.distance(centre, hand.hand);
+          const distance: number = AutoMovieEngineVector3.distance(centre, hand.hand);
           const reach: number = item.sphere.radius + body.measure.hand;
           // A shoulder bin of the original bisection moves a point at radius r
           // by at most 2 r sin(bin/2). Resolve that entire contact neighbourhood
           // with the original world predicate, including frames too distant to
           // represent one such displacement at the running world coordinates.
           const radius: number =
-            Vector3.distance(hand.hand, origin) + body.measure.hand;
+            AutoMovieEngineVector3.distance(hand.hand, origin) + body.measure.hand;
           const roundoff: number =
-            2 * radius * Math.sin((ROM_TOLERANCE * Math.PI) / 360);
+            2 * radius * Math.sin((AutoMovieEngineRomTolerance * Math.PI) / 360);
           if (
             !(
               roundoff >
               Number.EPSILON *
-                Math.max(Vector3.length(origin), Vector3.length(centre))
+                Math.max(AutoMovieEngineVector3.length(origin), AutoMovieEngineVector3.length(centre))
             )
           )
             return undefined;
@@ -339,11 +339,11 @@ export namespace HumanDigitFit {
               ? item.pose
               : {
                   position: point(item.pose.position),
-                  rotation: Quaternion.multiply(
+                  rotation: AutoMovieEngineQuaternion.multiply(
                     back,
                     item.carrier < 0
                       ? item.pose.rotation
-                      : Quaternion.multiply(
+                      : AutoMovieEngineQuaternion.multiply(
                           turns[item.carrier]!,
                           item.pose.rotation,
                         ),
@@ -463,8 +463,8 @@ function about(
   origin: IAutoMovieVector3,
   turn: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
-  return Vector3.add(
+  return AutoMovieEngineVector3.add(
     origin,
-    Quaternion.rotateVector(turn, Vector3.subtract(point, origin)),
+    AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(point, origin)),
   );
 }

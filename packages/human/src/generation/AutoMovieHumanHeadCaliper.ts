@@ -1,4 +1,4 @@
-import { AutoMovieIllinois, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineIllinois, AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionView,
@@ -94,13 +94,13 @@ export namespace AutoMovieHumanHeadCaliper {
     fixed(base.view);
     const front:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
       base.part.front.positive,
       { top: upper },
     );
     if ("detail" in front)
       throw new Error(`Cranial glabella source: ${front.detail}`);
-    const targetValue: number | string = AutoMovieViewOutline.value(
+    const targetValue: number | string = AutoMovieEngineViewOutline.value(
       front,
       glabella,
     );
@@ -114,7 +114,7 @@ export namespace AutoMovieHumanHeadCaliper {
       const share: number = (reach - plan.reach) / plan.reach;
       const curve:
         | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
         {
           ...first,
           knots: first.knots.map(
@@ -150,7 +150,7 @@ export namespace AutoMovieHumanHeadCaliper {
       if ("detail" in curve)
         throw new Error(`Cranial posterior family: ${curve.detail}`);
       const candidates: number[] | string =
-        AutoMovieViewOutline.distanceStations(curve, glabella, targetValue, [
+        AutoMovieEngineViewOutline.distanceStations(curve, glabella, targetValue, [
           lower,
           upper,
         ]);
@@ -158,7 +158,7 @@ export namespace AutoMovieHumanHeadCaliper {
         throw new Error(`Cranial caliper: ${candidates}`);
       let longest: number = 0;
       for (const station of candidates) {
-        const value: number | string = AutoMovieViewOutline.value(
+        const value: number | string = AutoMovieEngineViewOutline.value(
           curve,
           station,
         );
@@ -185,7 +185,7 @@ export namespace AutoMovieHumanHeadCaliper {
       throw new Error(
         "Public cranial caliper has no nonnegative finite reach bracket in the retained family",
       );
-    const reach: number | null = AutoMovieIllinois.root(
+    const reach: number | null = AutoMovieEngineIllinois.root(
       (candidate: number): number => maximum(candidate) - plan.length,
       lo,
       hi,

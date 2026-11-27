@@ -3,8 +3,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 
 
 /** The input and result of {@link AutoMovieEnginePhysicalStanceJointTarget}. */
@@ -63,7 +63,7 @@ export namespace AutoMovieEnginePhysicalStanceJointTarget {
       z: (axis.z * along) / size,
       w: q.w / size,
     };
-    return Quaternion.multiply(q, Quaternion.inverse(twist));
+    return AutoMovieEngineQuaternion.multiply(q, AutoMovieEngineQuaternion.inverse(twist));
   }
 
   /** A joint's rotations and spins, world. */
@@ -164,22 +164,22 @@ function computeJointTarget(
       : input.release === undefined
         ? input.intended
         : {
-            rotation: Quaternion.multiply(
+            rotation: AutoMovieEngineQuaternion.multiply(
               AutoMovieEnginePhysicalStanceJointTarget.swing(
-                Quaternion.multiply(
+                AutoMovieEngineQuaternion.multiply(
                   input.intended.rotation,
-                  Quaternion.inverse(input.actual.parent),
+                  AutoMovieEngineQuaternion.inverse(input.actual.parent),
                 ),
                 input.release,
               ),
               input.actual.parent,
             ),
-            spin: Vector3.add(
+            spin: AutoMovieEngineVector3.add(
               input.intended.spin,
-              Vector3.scale(
+              AutoMovieEngineVector3.scale(
                 input.release,
-                Vector3.dot(input.actual.parentSpin, input.release) -
-                  Vector3.dot(input.intended.spin, input.release),
+                AutoMovieEngineVector3.dot(input.actual.parentSpin, input.release) -
+                  AutoMovieEngineVector3.dot(input.intended.spin, input.release),
               ),
             ),
           };
@@ -195,19 +195,19 @@ function computeJointTarget(
       : input.role === "hip"
         ? input.actual.child
         : input.goal.child;
-  const frame: IAutoMovieQuaternion = Quaternion.multiply(
+  const frame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
     parent,
     input.parentFrame,
   );
   const spin: IAutoMovieVector3 =
     input.role === "hip"
-      ? Vector3.subtract(input.actual.childSpin, intended!.spin)
-      : Vector3.subtract(input.goal.childSpin, input.goal.parentSpin);
+      ? AutoMovieEngineVector3.subtract(input.actual.childSpin, intended!.spin)
+      : AutoMovieEngineVector3.subtract(input.goal.childSpin, input.goal.parentSpin);
   return {
-    target: Quaternion.multiply(
-      Quaternion.inverse(frame),
-      Quaternion.multiply(child, input.childFrame),
+    target: AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(frame),
+      AutoMovieEngineQuaternion.multiply(child, input.childFrame),
     ),
-    velocity: Quaternion.rotateVector(Quaternion.inverse(frame), spin),
+    velocity: AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(frame), spin),
   };
 }

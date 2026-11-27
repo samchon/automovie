@@ -15,10 +15,8 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
-import * as WorkoutEquipmentData from "./internal/WorkoutEquipmentData";
-import {
-  flat as WorkoutEquipmentDataFlat,
-} from "./internal/WorkoutEquipmentData";
+import { WorkoutEquipmentData } from "./internal/WorkoutEquipmentData";
+
 
 /*
  * The exercises of the workout law that are done on a box or a bench the author
@@ -341,7 +339,7 @@ export namespace WorkoutEquipment {
     body: IAutoMovieMotionHumanBody,
     support: number | undefined,
   ): IAutoMovieMotionHumanExerciseKey.IKey[] => {
-    const lying: IAutoMovieMotionHumanPosture = WorkoutEquipmentDataFlat(body);
+    const lying: IAutoMovieMotionHumanPosture = WorkoutEquipmentData.flat(body);
     const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
       body,
       lying,

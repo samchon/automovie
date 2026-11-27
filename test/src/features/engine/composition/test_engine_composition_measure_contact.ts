@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry as Geometry, AutoMovieEngineCompositionOutcome, AutoMovieEngineCompositionContact } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEngineCompositionOutcome, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieAuditOutcome,
   IAutoMovieMeasureContact,

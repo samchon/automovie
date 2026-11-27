@@ -1,8 +1,10 @@
 import type { IAutoMovieMotionHumanProp } from "@automovie/interface";
 import {
-  HumanPerformanceObject,
-  AutoMovieMotionHumanRefusal,
-} from "@automovie/motions/internal";
+  HumanPerformanceObject
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceObject";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { drivenDoorState } from "../../internal/fixtures/drivenDoorState";

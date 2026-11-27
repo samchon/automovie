@@ -1,8 +1,10 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBendSearch,
-  AutoMovieMotionHumanBendSide,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanBendSearch
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBendSearch";
+import {
+  AutoMovieMotionHumanBendSide
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBendSide";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,4 +1,9 @@
-import { perturb, staggerBounds } from "@automovie/motions/internal";
+import {
+  perturb
+} from "../../../../../packages/motions/src/reaction/internal/perturb";
+import {
+  staggerBounds
+} from "../../../../../packages/motions/src/reaction/internal/staggerBounds";
 import { TestValidator } from "@nestia/e2e";
 
 /**

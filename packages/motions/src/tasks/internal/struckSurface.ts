@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPropReader,
@@ -27,8 +27,8 @@ export function struckSurface(
     read.prop.motion !== undefined ||
     read.prop.point !== undefined ||
     (read.prop.hasArticulations ?? read.prop.articulate !== undefined) ||
-    Quaternion.rotateVector(
-      Quaternion.multiply(read.frame(seconds).rotation, surface.frame.rotation),
+    AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.multiply(read.frame(seconds).rotation, surface.frame.rotation),
       { x: 0, y: 1, z: 0 },
     ).y <
       1 - 1e-9

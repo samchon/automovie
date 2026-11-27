@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionCoupling,
   IAutoMovieMotionHumanFrame,
@@ -14,7 +14,7 @@ import type {
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
-import { mean } from "./AutoMovieMotionMeetingData";
+import { AutoMovieMotionMeetingData } from "./AutoMovieMotionMeetingData";
 
 /*
  * The meeting of a mutual action.
@@ -80,7 +80,7 @@ export function AutoMovieMotionMeeting(
       z: r.posture.root.z,
     }),
   );
-  const origin: IAutoMovieVector3 = mean(floors);
+  const origin: IAutoMovieVector3 = AutoMovieMotionMeetingData.mean(floors);
 
   // From the first role toward the others: the second role of two, and
   // the middle of the rest when more meet, so no later role's place alone
@@ -88,11 +88,11 @@ export function AutoMovieMotionMeeting(
   const across: IAutoMovieVector3 =
     ordered.length < 2
       ? { x: 0, y: 0, z: 0 }
-      : Vector3.subtract(mean(floors.slice(1)), floors[0]!);
+      : AutoMovieEngineVector3.subtract(AutoMovieMotionMeetingData.mean(floors.slice(1)), floors[0]!);
   const frame: IAutoMovieMotionHumanFrame = {
     origin,
     yaw:
-      Vector3.length(across) < 1e-9
+      AutoMovieEngineVector3.length(across) < 1e-9
         ? ordered[0]!.posture.yaw
         : (Math.atan2(across.x, across.z) * 180) / Math.PI,
   };
@@ -121,7 +121,7 @@ export function AutoMovieMotionMeeting(
           IAutoMovieVector3,
         ] => [
           name,
-          mean(
+          AutoMovieMotionMeetingData.mean(
             ordered.map(
               (r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
                 AutoMovieMotionHumanTarget.fallback(r.body, r.posture, place)
@@ -256,12 +256,12 @@ export namespace AutoMovieMotionMeeting {
     return {
       point,
       normal:
-        Vector3.length(back) < 1e-9
+        AutoMovieEngineVector3.length(back) < 1e-9
           ? HumanFrame.point(
               { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
               { x: 0, y: 0, z: -1 },
             )
-          : Vector3.normalize(back),
+          : AutoMovieEngineVector3.normalize(back),
       solid: meeting.solid,
     };
   }

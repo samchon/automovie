@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import type { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 
@@ -30,7 +30,7 @@ export function prepareJointRotationFactor(
   let initial: IAutoMovieQuaternion | undefined;
   let previousAngle: number | undefined;
   let previous: IAutoMovieQuaternion | undefined;
-  let reader: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
+  let reader: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> | undefined;
   let rigAngle: ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle> | undefined;
   return (
     axis: IAutoMovieVector3,
@@ -61,10 +61,10 @@ export function prepareJointRotationFactor(
       current = reused;
       return reused;
     }
-    const axisAngle: ReturnType<typeof Quaternion.prepareAxisAngle> =
+    const axisAngle: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle> =
       reader ??
       operation?.axisReaders[key] ??
-      Quaternion.prepareAxisAngle(axis);
+      AutoMovieEngineQuaternion.prepareAxisAngle(axis);
     const quaternion: IAutoMovieQuaternion =
       fixedOperation === undefined
         ? axisAngle(angle)
@@ -109,7 +109,7 @@ export namespace prepareJointRotationFactor {
      */
     readonly axisReaders: Record<
       ClinicalAxis,
-      ReturnType<typeof Quaternion.prepareAxisAngle>
+      ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle>
     >;
     /*
      * The three immutable affine readers.
@@ -145,9 +145,9 @@ export namespace prepareJointRotationFactor {
     fixedAngles?: jointToQuaternionOnBasis.IFixedAngles,
   ): IOperation {
     const axisReaders: IOperation["axisReaders"] = {
-      flexion: Quaternion.prepareAxisAngle(basis.flexion),
-      abduction: Quaternion.prepareAxisAngle(basis.abduction),
-      twist: Quaternion.prepareAxisAngle(basis.twist),
+      flexion: AutoMovieEngineQuaternion.prepareAxisAngle(basis.flexion),
+      abduction: AutoMovieEngineQuaternion.prepareAxisAngle(basis.abduction),
+      twist: AutoMovieEngineQuaternion.prepareAxisAngle(basis.twist),
     };
     const prepared: IOperation = {
       axisReaders,
@@ -195,7 +195,7 @@ export namespace prepareJointRotationFactor {
       for (let l: number = 0; l < 2; ++l)
         for (let r: number = 0; r < 2; ++r)
           if (left[l] !== undefined && right[r] !== undefined)
-            products[l * 2 + r] = Quaternion.multiply(left[l]!, right[r]!);
+            products[l * 2 + r] = AutoMovieEngineQuaternion.multiply(left[l]!, right[r]!);
     prepared.fixedInnerProducts = products;
     return prepared;
   }
@@ -208,7 +208,7 @@ function fixedFactor(
   operation: prepareJointRotationFactor.IOperation,
   key: ClinicalAxis,
   angle: number,
-  read: ReturnType<typeof Quaternion.prepareAxisAngle>,
+  read: ReturnType<typeof AutoMovieEngineQuaternion.prepareAxisAngle>,
 ): IAutoMovieQuaternion {
   const declared: jointToQuaternionOnBasis.IFixedAngles[ClinicalAxis] =
     operation.fixedAngles?.[key];

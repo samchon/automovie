@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieInspectionDiagnostics,
@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanVerdicts } from "@automovie/motions";
-import { type IAutoMovieDrawScene, AutoMovieRenderInspection, AutoMovieRenderInspectionMarks, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawScene, AutoMovieRenderInspection, AutoMovieRenderInspectionMarks, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -106,7 +106,7 @@ export async function test_inspect_film_production(): Promise<void> {
       scene.updateMatrixWorld(true);
     },
     inspectionChecks: (
-      sample: IAutoMovieDrawScene.IPlacedSample,
+      sample: IAutoMovieRenderDrawScene.IPlacedSample,
     ): ReturnType<NonNullable<IFilmProduction["inspectionChecks"]>> => [
       ...AutoMovieRenderInspection.selectPlacedChecks({
         scene: sample.scene,
@@ -142,12 +142,12 @@ export async function test_inspect_film_production(): Promise<void> {
       scene.clear();
     },
   };
-  const geometry: Awaited<ReturnType<typeof AutoMoviePhysicalGeometry.prepare>> =
-    await AutoMoviePhysicalGeometry.prepare();
+  const geometry: Awaited<ReturnType<typeof AutoMovieEnginePhysicalGeometry.prepare>> =
+    await AutoMovieEnginePhysicalGeometry.prepare();
   const verdicts: ReturnType<typeof readFilmVerdicts> =
     readFilmVerdicts(production);
   // Mounted as src/subjects.ts mounts a registered film.
-  const subject: IAutoMovieDrawScene = {
+  const subject: IAutoMovieRenderDrawScene = {
     scene,
     camera,
     durationSeconds: FRAMES / FPS,
@@ -156,7 +156,7 @@ export async function test_inspect_film_production(): Promise<void> {
     height: 720,
     markKinds: [],
     inspectPlaced: (
-      sample: IAutoMovieDrawScene.IPlacedSample,
+      sample: IAutoMovieRenderDrawScene.IPlacedSample,
     ): IAutoMovieInspectionDiagnostics =>
       inspectFilmProduction({
         name: "proof",
@@ -170,7 +170,7 @@ export async function test_inspect_film_production(): Promise<void> {
   };
   const observe = async (
     frame: number,
-    mode: IAutoMovieDrawScene.IPlacedSample["mode"],
+    mode: IAutoMovieRenderDrawScene.IPlacedSample["mode"],
   ): Promise<IAutoMovieInspectionDiagnostics> => {
     await subject.seek(frame / FPS);
     return AutoMovieRenderDraw.observeAutoMoviePlacedInspection(subject, frame / FPS, mode)!;

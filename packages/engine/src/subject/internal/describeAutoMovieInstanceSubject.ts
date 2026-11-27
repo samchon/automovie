@@ -8,7 +8,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { instanceSlot } from "../../populationRuntime/internal/instanceSlot";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
@@ -56,7 +56,7 @@ export const describeAutoMovieInstanceSubject = (
     translation: member.position,
     rotation:
       member.rotation ??
-      Quaternion.normalize(Quaternion.fromAxisAngle(UP, set.facingDeg)),
+      AutoMovieEngineQuaternion.normalize(AutoMovieEngineQuaternion.fromAxisAngle(UP, set.facingDeg)),
     scale: member.scale3 ?? {
       x: member.scale,
       y: member.scale,
