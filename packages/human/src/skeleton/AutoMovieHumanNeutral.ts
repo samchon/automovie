@@ -110,19 +110,6 @@ export namespace AutoMovieHumanNeutral {
     );
   }
 
-  /*
-   * Each calibration's neutral, derived once. The skeleton's pose evaluator and
-   * the rig's binding both stand on the same body's neutral, and each derived
-   * it again: the separating pieces scan the skin's rings, so the second
-   * derivation repeated the whole scan for the same answer. The key is the
-   * calibration object itself, so a body generated again is a new key and an
-   * old body's entry goes with it.
-   */
-  const CACHE: WeakMap<
-    IAutoMovieHumanBodyCalibration,
-    Singleton<IAutoMovieHumanNeutral.IOutput>
-  > = new WeakMap();
-
   /**
    * One calibrated body's neutral, derived at its first request and shared by
    * every later one.
@@ -349,4 +336,17 @@ export namespace AutoMovieHumanNeutral {
       forearms,
     };
   }
+
+  /*
+   * Each calibration's neutral, derived once. The skeleton's pose evaluator and
+   * the rig's binding both stand on the same body's neutral, and each derived
+   * it again: the separating pieces scan the skin's rings, so the second
+   * derivation repeated the whole scan for the same answer. The key is the
+   * calibration object itself, so a body generated again is a new key and an
+   * old body's entry goes with it.
+   */
+  const CACHE: WeakMap<
+    IAutoMovieHumanBodyCalibration,
+    Singleton<IAutoMovieHumanNeutral.IOutput>
+  > = new WeakMap();
 }

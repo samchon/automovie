@@ -8,10 +8,6 @@ import type {
 
 import { selectAutoMovieRenderBudget } from "./selectAutoMovieRenderBudget.js";
 
-const STATUS_ORDER: Readonly<
-  Record<IAutoMovieRenderBudgetAssessment["status"], number>
-> = { within: 0, incomplete: 1, "not-run": 2, over: 3 };
-
 /*
  * Fold caller-supplied assessments into one tier's budget-evidence value. This
  * reducer writes no publication and verifies no report provenance or rendered
@@ -94,3 +90,7 @@ export const autoMovieRenderBudgetEvidence: (
     ),
   };
 };
+
+const STATUS_ORDER: Readonly<
+  Record<IAutoMovieRenderBudgetAssessment["status"], number>
+> = { within: 0, incomplete: 1, "not-run": 2, over: 3 };

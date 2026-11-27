@@ -121,51 +121,6 @@ export namespace sit {
   };
 
   /*
-   * Largest heading difference from the seat's at which a sit starts, degrees
-   * (provisional: a small turn the descent absorbs).
-   */
-  const FACING: number = 20;
-
-  /*
-   * Shares of the descent: the seat takes the body at `CONTACT`, the socket
-   * travels back over `ACROSS`, comes down from `DOWN` and the trunk peaks by
-   * `FLEXED` (provisional, as the namespace states).
-   */
-  const CONTACT: number = 0.75;
-
-  /*
-   * See `CONTACT`.
-   */
-  const ACROSS: number = 0.7;
-
-  /*
-   * See `CONTACT`.
-   */
-  const DOWN: number = 0.1;
-
-  /*
-   * See `CONTACT`.
-   */
-  const FLEXED: number = 0.45;
-
-  /*
-   * The share of the descent at which a hand leaves for its armrest
-   * (provisional).
-   */
-  const REACHING: number = 0.2;
-
-  /*
-   * Where the crossed left foot sets down, by shares of the feet's rest
-   * spacing: `ahead` of the right ankle, `over` across it, and the `lift` of
-   * its swing (provisional).
-   */
-  const CROSSED: Readonly<Record<CROSSEDEntryItem, number>> = {
-    ahead: 0.6,
-    over: 0.4,
-    lift: 0.3,
-  };
-
-  /*
    * Seconds the left foot takes to cross over the right ankle once seated
    * (provisional).
    */
@@ -687,6 +642,51 @@ export namespace sit {
         : prepareSitWorkingFeet.prepend(adjusted.prefix, planned),
     );
   }
+
+  /*
+   * Largest heading difference from the seat's at which a sit starts, degrees
+   * (provisional: a small turn the descent absorbs).
+   */
+  const FACING: number = 20;
+
+  /*
+   * Shares of the descent: the seat takes the body at `CONTACT`, the socket
+   * travels back over `ACROSS`, comes down from `DOWN` and the trunk peaks by
+   * `FLEXED` (provisional, as the namespace states).
+   */
+  const CONTACT: number = 0.75;
+
+  /*
+   * See `CONTACT`.
+   */
+  const ACROSS: number = 0.7;
+
+  /*
+   * See `CONTACT`.
+   */
+  const DOWN: number = 0.1;
+
+  /*
+   * See `CONTACT`.
+   */
+  const FLEXED: number = 0.45;
+
+  /*
+   * The share of the descent at which a hand leaves for its armrest
+   * (provisional).
+   */
+  const REACHING: number = 0.2;
+
+  /*
+   * Where the crossed left foot sets down, by shares of the feet's rest
+   * spacing: `ahead` of the right ankle, `over` across it, and the `lift` of
+   * its swing (provisional).
+   */
+  const CROSSED: Readonly<Record<CROSSEDEntryItem, number>> = {
+    ahead: 0.6,
+    over: 0.4,
+    lift: 0.3,
+  };
 }
 
 /*

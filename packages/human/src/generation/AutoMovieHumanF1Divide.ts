@@ -189,32 +189,6 @@ export namespace AutoMovieHumanF1Divide {
   /** How near the shoulder joint the armscye's surface divides, mm: the reach of the skin its landmarks were read on. */
   export const ARMSCYE_MM: number = 190;
 
-  /*
-   * How far from a row's or the hand's joint its planes divide skin, mm: past the widest hand's and foot's half breadth.
-   */
-  const ROW_MM: number = 60;
-
-  /*
-   * How far from the midpoint of two knuckles their web's plane divides skin, mm: half `ROW_MM`.
-   */
-  const WEB_MM: number = 30;
-
-  const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  const add = (a: V, b: V): V => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-  const dot = (a: V, b: V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  const cross = (a: V, b: V): V => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const unit = (a: V): V => {
-    const l: number = Math.hypot(a[0], a[1], a[2]);
-    if (!(l > 0)) throw new Error("divide: a direction has no length");
-    return [a[0] / l, a[1] / l, a[2] / l];
-  };
-  const middle = (a: V, b: V): V => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
-  const plane = (point: V, normal: V): ((p: V) => number) => {
-    const n: V = unit(normal);
-    return (p: V): number => dot(sub(p, point), n);
-  };
-  const toward = (normal: V, direction: V): V => (dot(normal, direction) > 0 ? normal : [-normal[0], -normal[1], -normal[2]]);
-
   /**
    * Every dividing surface of the stored side.
    *
@@ -292,4 +266,30 @@ export namespace AutoMovieHumanF1Divide {
     const mine: { surface: ISurface; sign: number }[] = surfaces.flatMap((surface: ISurface): { surface: ISurface; sign: number }[] => (surface.near.includes(name) ? [{ surface, sign: 1 }] : surface.far.includes(name) ? [{ surface, sign: -1 }] : []));
     return (p: V): number => Math.max(-Infinity, ...mine.map(({ surface, sign }: { surface: ISurface; sign: number }): number => (surface.within === undefined || surface.within(p) ? sign * surface.side(p) : sign < 0 ? Infinity : -Infinity)));
   }
+
+  /*
+   * How far from a row's or the hand's joint its planes divide skin, mm: past the widest hand's and foot's half breadth.
+   */
+  const ROW_MM: number = 60;
+  /*
+   * How far from the midpoint of two knuckles their web's plane divides skin, mm: half `ROW_MM`.
+   */
+  const WEB_MM: number = 30;
+  const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const add = (a: V, b: V): V => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+  const dot = (a: V, b: V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a: V, b: V): V => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const unit = (a: V): V => {
+    const l: number = Math.hypot(a[0], a[1], a[2]);
+    if (!(l > 0)) throw new Error("divide: a direction has no length");
+    return [a[0] / l, a[1] / l, a[2] / l];
+  };
+  const middle = (a: V, b: V): V => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+
+  const plane = (point: V, normal: V): ((p: V) => number) => {
+    const n: V = unit(normal);
+    return (p: V): number => dot(sub(p, point), n);
+  };
+
+  const toward = (normal: V, direction: V): V => (dot(normal, direction) > 0 ? normal : [-normal[0], -normal[1], -normal[2]]);
 }

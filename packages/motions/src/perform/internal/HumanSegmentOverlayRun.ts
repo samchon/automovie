@@ -49,6 +49,43 @@ export namespace HumanSegmentOverlayRun {
   }
 
   /*
+   * Whether an overlay's hand on a side holds a prop on past the overlay's end:
+   * the overlay drives that hand, and a hold of it began by the end and lasts
+   * beyond it, so the prop stays in the hand after the overlay is gone.
+   */
+  export function holdsOn(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    overlay: IAutoMovieMotionHumanSegment.IOverlay,
+    side: AutoMovieHumanSide,
+  ): boolean {
+    return (
+      HumanSegment.drives(overlay.plan, side) &&
+      person.holds.some(
+        (held: IAutoMovieMotionHumanSegment.IHeld): boolean =>
+          held.side === side &&
+          held.from <= overlay.end + HANDOFF &&
+          held.until > overlay.end + HANDOFF,
+      )
+    );
+  }
+
+  /*
+   * How far an overlay still holds its channels at a second, released to the
+   * carrier over the fade before its end unless it hands them on.
+   */
+  export function released(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    overlay: IAutoMovieMotionHumanSegment.IOverlay,
+    seconds: number,
+  ): number {
+    return handsOn(person, overlay)
+      ? 1
+      : AutoMovieEngineMotionSampling.minimumJerkShare(
+          Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
+        );
+  }
+
+  /*
    * The second an overlay chain's next act enters at, while its entry is read
    * (`HumanSegmentOverlayRun.handing`).
    */
@@ -88,42 +125,5 @@ export namespace HumanSegmentOverlayRun {
         Math.abs(o.entryTime - overlay.end) <= HANDOFF &&
         shares(o, overlay),
     );
-  }
-
-  /*
-   * Whether an overlay's hand on a side holds a prop on past the overlay's end:
-   * the overlay drives that hand, and a hold of it began by the end and lasts
-   * beyond it, so the prop stays in the hand after the overlay is gone.
-   */
-  export function holdsOn(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    overlay: IAutoMovieMotionHumanSegment.IOverlay,
-    side: AutoMovieHumanSide,
-  ): boolean {
-    return (
-      HumanSegment.drives(overlay.plan, side) &&
-      person.holds.some(
-        (held: IAutoMovieMotionHumanSegment.IHeld): boolean =>
-          held.side === side &&
-          held.from <= overlay.end + HANDOFF &&
-          held.until > overlay.end + HANDOFF,
-      )
-    );
-  }
-
-  /*
-   * How far an overlay still holds its channels at a second, released to the
-   * carrier over the fade before its end unless it hands them on.
-   */
-  export function released(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    overlay: IAutoMovieMotionHumanSegment.IOverlay,
-    seconds: number,
-  ): number {
-    return handsOn(person, overlay)
-      ? 1
-      : AutoMovieEngineMotionSampling.minimumJerkShare(
-          Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
-        );
   }
 }

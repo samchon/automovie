@@ -4,6 +4,73 @@ import type {
 } from "@automovie/interface";
 
 /*
+ * A stage prop beat's own blocking (`BEATS`): its fallback mark, its seconds,
+ * its trunk turn, whether the stance steps, and its silhouette sampled over the
+ * beat's normalized span.
+ * Parameter beat: The beat.
+ * Returns: Its table entry.
+ */
+export function humanStagePropBeat(
+  beat: IAutoMovieMotionHumanStageProp["beat"],
+): humanStagePropBeat.IBeat {
+  return BEATS[beat];
+}
+
+/*
+ * The stage prop beats.
+ */
+export namespace humanStagePropBeat {
+  /*
+   * A direction or an arm-length offset in actor-local coordinates.
+   */
+  export type Vector = readonly [x: number, y: number, z: number];
+
+  /*
+   * The silhouette at one time along the beat, in actor-local coordinates.
+   */
+  export interface IPose {
+    /*
+     * The grip relative to the holding shoulder, in arm lengths.
+     */
+    grip: Vector;
+    /*
+     * Model mark direction in the actor's frame.
+     */
+    axis: Vector;
+    /*
+     * Roll reference in the actor's frame.
+     */
+    roll: Vector;
+  }
+
+  /*
+   * One style table entry.
+   */
+  export interface IBeat {
+    /*
+     * Fallback mark on the model.
+     */
+    mark: string;
+    /*
+     * Authored duration, seconds.
+     */
+    seconds: number;
+    /*
+     * Axial trunk travel, degrees in the beat's authoring frame.
+     */
+    turn: number;
+    /*
+     * Whether the shared stance planner moves a foot.
+     */
+    advance: IAutoMovieMotionHumanStrikingAdvance.Advance;
+    /*
+     * Read the scene silhouette through a normalized pose span.
+     */
+    sample(share: number): IPose;
+  }
+}
+
+/*
  * A common carrier pose path for the rigid and linked prop comparison.
  */
 function sampleOffsetDisplay(share: number): humanStagePropBeat.IPose {
@@ -111,70 +178,3 @@ const BEATS: Readonly<
     sample: sampleOffsetDisplay,
   },
 };
-
-/*
- * A stage prop beat's own blocking (`BEATS`): its fallback mark, its seconds,
- * its trunk turn, whether the stance steps, and its silhouette sampled over the
- * beat's normalized span.
- * Parameter beat: The beat.
- * Returns: Its table entry.
- */
-export function humanStagePropBeat(
-  beat: IAutoMovieMotionHumanStageProp["beat"],
-): humanStagePropBeat.IBeat {
-  return BEATS[beat];
-}
-
-/*
- * The stage prop beats.
- */
-export namespace humanStagePropBeat {
-  /*
-   * A direction or an arm-length offset in actor-local coordinates.
-   */
-  export type Vector = readonly [x: number, y: number, z: number];
-
-  /*
-   * The silhouette at one time along the beat, in actor-local coordinates.
-   */
-  export interface IPose {
-    /*
-     * The grip relative to the holding shoulder, in arm lengths.
-     */
-    grip: Vector;
-    /*
-     * Model mark direction in the actor's frame.
-     */
-    axis: Vector;
-    /*
-     * Roll reference in the actor's frame.
-     */
-    roll: Vector;
-  }
-
-  /*
-   * One style table entry.
-   */
-  export interface IBeat {
-    /*
-     * Fallback mark on the model.
-     */
-    mark: string;
-    /*
-     * Authored duration, seconds.
-     */
-    seconds: number;
-    /*
-     * Axial trunk travel, degrees in the beat's authoring frame.
-     */
-    turn: number;
-    /*
-     * Whether the shared stance planner moves a foot.
-     */
-    advance: IAutoMovieMotionHumanStrikingAdvance.Advance;
-    /*
-     * Read the scene silhouette through a normalized pose span.
-     */
-    sample(share: number): IPose;
-  }
-}

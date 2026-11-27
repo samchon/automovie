@@ -14,29 +14,8 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-import { ADA_RANGES } from "./constants/ADA_RANGES";
-
-/*
- * Window sizes, for which no standard was read.
- */
-const SIZE: string = "window opening size, not read at a source";
-
-/*
- * The sill band between the residential and the commercial fall-protection
- * triggers.
- */
-const SILL: string =
-  "sill below the 36 in (914 mm) at which IBC 2021 1015.8 requires fall protection (https://up.codes/s/window-openings) and above the 24 in of IRC R312.2.1, which was not read";
-
-/*
- * Authored sash construction, metres; these are geometry conventions, not
- * measured window specifications.
- */
-const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
-  rail: 0.08,
-  depth: 0.03,
-  pane: 0.003175,
-};
+import "./constants/ADA_RANGES";
+import * as AutoMovieArchetypeWindowData from "./internal/AutoMovieArchetypeWindowData";
 
 /** Constructs the window archetype from its recipe. */
 export namespace AutoMovieArchetypeWindow {
@@ -343,44 +322,13 @@ export function create(
     mass: "kg",
   };
 
-  /*
-   * The bands every window shares.
-   */
-  const SHARED: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> =
-    {
-      width: AutoMovieArchetypeBand.metres(0.6, 1.2, SIZE, true),
-      height: AutoMovieArchetypeBand.metres(0.9, 1.2, SIZE, true),
-      sillHeight: AutoMovieArchetypeBand.metres(
-        24 * AutoMovieArchetypeUnits.INCH,
-        0.914,
-        SILL,
-        true,
-      ),
-      mass: AutoMovieArchetypeBand.of(
-        "kg",
-        40,
-        90,
-        AutoMovieArchetypeBand.TYPICAL_MASS,
-        true,
-      ),
-    };
-
-  /*
-   * The band of a handle that stands at a height of its own, on a stile.
-   */
-  const HANDLE: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
-    0.95,
-    ADA_RANGES.reach.high,
-    `${ADA_RANGES.reach.source}; the part of the range above the sill`,
-  );
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     casement: {
-      ...SHARED,
-      handleHeight: HANDLE,
+      ...AutoMovieArchetypeWindowData.SHARED,
+      handleHeight: AutoMovieArchetypeWindowData.HANDLE,
       swing: AutoMovieArchetypeBand.of(
         "degrees",
         90,
@@ -390,7 +338,7 @@ export function create(
       ),
     },
     hung: {
-      ...SHARED,
+      ...AutoMovieArchetypeWindowData.SHARED,
       travel: AutoMovieArchetypeBand.metres(
         0.4,
         0.45,
@@ -399,8 +347,8 @@ export function create(
       ),
     },
     sliding: {
-      ...SHARED,
-      handleHeight: HANDLE,
+      ...AutoMovieArchetypeWindowData.SHARED,
+      handleHeight: AutoMovieArchetypeWindowData.HANDLE,
       travel: AutoMovieArchetypeBand.metres(
         0.28,
         0.3,
@@ -410,3 +358,13 @@ export function create(
     },
   };
 }
+
+/*
+ * Authored sash construction, metres; these are geometry conventions, not
+ * measured window specifications.
+ */
+const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
+  rail: 0.08,
+  depth: 0.03,
+  pane: 0.003175,
+};

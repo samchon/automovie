@@ -25,23 +25,39 @@ import { embraceFromBehindSolve } from "./embraceFromBehindSolve";
 import { embraceTrunkClear } from "./embraceTrunkClear";
 import { kissBody } from "./kissBody";
 import { touchHoldRests } from "./touchHoldRests";
+import * as EmbraceFromBehindData from "./EmbraceFromBehindData";
 
 /*
- * The share of the body's weight the leaning chest lays on the partner's back
- * (provisional: a light lean).
+ * Embrace a partner from behind. The stance and the head are one problem,
+ * solved once (`solve`): the chin on the partner's shoulder, toward the
+ * shoulder's region, and the chest on the partner's back, each contact collider
+ * on collider as the audit reads two bodies (Mordatch, Todorov and Popović
+ * 2012's contact violation), the bodies kept within the skin by trajopt's
+ * collision term; the stance by the root's advance and shift on the planted
+ * feet (the kiss's lean model, `kissBody`), with the knees' sink (up to
+ * `SINK`), the lean's pitch and roll (the kiss's), the heels' raise (the kiss's
+ * `RAISE`) and the neck's flexion, side bend, turn and protraction (the neck's
+ * and head's ranges), by sco's trust-region SQP (`HumanSequentialConvex`). A
+ * chin left farther than `NEAR` from the shoulder, a chest farther than `NEAR`
+ * from the back, or bodies deeper in each other than the skin through the hold
+ * (`embraceTrunkClear`) is refused with the measure. The hands meet on the
+ * partner's abdomen, one placement for both: each palm on the partner's own
+ * abdominal surface on its side of the midline (a ray from the abdomen's own
+ * station). The flat fingertips turn toward the midline as far as their
+ * actual geometry can go while staying a skin contact short of it. Both
+ * arms are laid as one course (`courseArmGoal`) around every segment of the
+ * partner the audit reads, the palms lying on the abdomen's. The places are
+ * read where the partner stands at the start, the partner's segments the arms
+ * keep clear of at every second the course is planned on. Loaded windows: the
+ * chest on the partner's torso bone it bears on (`LEAN`), the chin on the
+ * shoulder, the palms on the abdomen.
  */
-const LEAN: number = 0.1;
-
-/*
- * The real surface points that may reach the partner's midline.
- */
-const TIPS: readonly IAutoMovieMotionHumanHand.DigitSurface[] = [
-  "thumbTip",
-  "indexTip",
-  "middleTip",
-  "ringTip",
-  "littleTip",
-];
+export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanEmbraceFromBehind> =
+  {
+    name: "embraceFromBehind",
+    interrupts: {},
+    plan: planEmbraceFromBehind,
+  };
 
 /*
  * Embrace a partner from behind. The stance and the head are one problem,
@@ -151,7 +167,7 @@ function planEmbraceFromBehind(
   const digits = (
     side: AutoMovieHumanSide,
   ): IAutoMovieHumanoidSurfaces.IFrame[] =>
-    TIPS.map(
+    EmbraceFromBehindData.TIPS.map(
       (tip: IAutoMovieMotionHumanHand.DigitSurface): IAutoMovieHumanoidSurfaces.IFrame =>
         body.surfaces.regions[`${tip}${side === "left" ? "Left" : "Right"}`],
     );
@@ -454,7 +470,7 @@ function planEmbraceFromBehind(
         part: "chest",
         kind: "bear",
         region: "sternum",
-        load: LEAN,
+        load: EmbraceFromBehindData.LEAN,
         from,
         to,
         support: {
@@ -488,38 +504,6 @@ function planEmbraceFromBehind(
     ],
   };
 }
-
-/*
- * Embrace a partner from behind. The stance and the head are one problem,
- * solved once (`solve`): the chin on the partner's shoulder, toward the
- * shoulder's region, and the chest on the partner's back, each contact collider
- * on collider as the audit reads two bodies (Mordatch, Todorov and Popović
- * 2012's contact violation), the bodies kept within the skin by trajopt's
- * collision term; the stance by the root's advance and shift on the planted
- * feet (the kiss's lean model, `kissBody`), with the knees' sink (up to
- * `SINK`), the lean's pitch and roll (the kiss's), the heels' raise (the kiss's
- * `RAISE`) and the neck's flexion, side bend, turn and protraction (the neck's
- * and head's ranges), by sco's trust-region SQP (`HumanSequentialConvex`). A
- * chin left farther than `NEAR` from the shoulder, a chest farther than `NEAR`
- * from the back, or bodies deeper in each other than the skin through the hold
- * (`embraceTrunkClear`) is refused with the measure. The hands meet on the
- * partner's abdomen, one placement for both: each palm on the partner's own
- * abdominal surface on its side of the midline (a ray from the abdomen's own
- * station). The flat fingertips turn toward the midline as far as their
- * actual geometry can go while staying a skin contact short of it. Both
- * arms are laid as one course (`courseArmGoal`) around every segment of the
- * partner the audit reads, the palms lying on the abdomen's. The places are
- * read where the partner stands at the start, the partner's segments the arms
- * keep clear of at every second the course is planned on. Loaded windows: the
- * chest on the partner's torso bone it bears on (`LEAN`), the chin on the
- * shoulder, the palms on the abdomen.
- */
-export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanEmbraceFromBehind> =
-  {
-    name: "embraceFromBehind",
-    interrupts: {},
-    plan: planEmbraceFromBehind,
-  };
 
 /*
  * The nearest orientation to across the abdomen whose flat fingertips stay

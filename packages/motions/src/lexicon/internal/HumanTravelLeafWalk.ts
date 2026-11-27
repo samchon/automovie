@@ -66,25 +66,6 @@ export namespace HumanTravelLeafWalk {
   }
 
   /*
-   * Readings of the handle's path, seconds apart.
-   */
-  const TICK: number = 1 / 24;
-
-  /*
-   * The spacing of the walk's way points, seconds of the handle's path.
-   */
-  const SPACING: number = 0.2;
-
-  /*
-   * The most the handle may hurry the walk, a multiple of its own cadence: the
-   * walking gait's cadence at the walk-to-run transition, Froude 0.5 (Kram,
-   * Domingo and Ferris 1997, J Exp Biol 200:821), over its normal pace's, since
-   * `walk.walking`'s cadence grows as the fourth root of the Froude number; the
-   * footprints are the walk's own, so only the cadence can rise.
-   */
-  const HURRY: number = (0.5 / walk.FROUDE.normal) ** 0.25;
-
-  /*
    * The walk that keeps the take relation, re-timed to the handle; none when
    * the handle does not move.
    * Parameter props: The context, the timing and the handle's path.
@@ -238,6 +219,25 @@ export namespace HumanTravelLeafWalk {
       clock.push((at = Math.min(walked.duration, at + TICK)));
     return walkPaced(walked, TICK, clock);
   }
+
+  /*
+   * Readings of the handle's path, seconds apart.
+   */
+  const TICK: number = 1 / 24;
+
+  /*
+   * The spacing of the walk's way points, seconds of the handle's path.
+   */
+  const SPACING: number = 0.2;
+
+  /*
+   * The most the handle may hurry the walk, a multiple of its own cadence: the
+   * walking gait's cadence at the walk-to-run transition, Froude 0.5 (Kram,
+   * Domingo and Ferris 1997, J Exp Biol 200:821), over its normal pace's, since
+   * `walk.walking`'s cadence grows as the fourth root of the Froude number; the
+   * footprints are the walk's own, so only the cadence can rise.
+   */
+  const HURRY: number = (0.5 / walk.FROUDE.normal) ** 0.25;
 
   /*
    * Match the walk's level datum to the planted feet's floor and return its

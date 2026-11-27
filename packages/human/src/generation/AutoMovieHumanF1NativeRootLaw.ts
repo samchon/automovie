@@ -35,8 +35,6 @@ export namespace AutoMovieHumanF1NativeRootLaw {
   export const phaseCurve: typeof Clock.phaseCurve = Clock.phaseCurve;
   /** Existing-pole positive radial graph, retaining original target inverse addresses. */
   export const reclock: typeof Clock.reclock = Clock.reclock;
-  const turn: number = 2 * Math.PI;
-
   /** Original source controls and exact existing operator correspondence, prepared once without lofting. */
   export function calibrate(input: IAutoMovieHumanF1NativeRoot.IOriginal): IAutoMovieHumanF1NativeRoot.ICalibration {
     if (
@@ -119,6 +117,8 @@ export namespace AutoMovieHumanF1NativeRootLaw {
         }),
     };
   }
+
+  const turn: number = 2 * Math.PI;
 
   /*
    * Direct complete native source adapter used only by the existing original clock calculation.

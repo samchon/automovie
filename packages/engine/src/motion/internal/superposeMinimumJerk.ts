@@ -7,11 +7,6 @@ import type {
 import { minimumJerk as minimumJerkImplementation } from "./minimumJerk";
 
 /*
- * Original component order shared by both actual result demands.
- */
-const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];
-
-/*
  * Private overlapping minimum-jerk evaluator used by the Trajectory owner.
  */
 export namespace superposeMinimumJerk {
@@ -108,3 +103,8 @@ export namespace superposeMinimumJerk {
       : position;
   }
 }
+
+/*
+ * Original component order shared by both actual result demands.
+ */
+const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];

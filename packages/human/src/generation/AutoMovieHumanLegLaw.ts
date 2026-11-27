@@ -17,8 +17,6 @@ import { AutoMovieHumanLegCrotchRoot } from "./AutoMovieHumanLegCrotchRoot";
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-const { dot, smooth, sub } = AutoMovieHumanLegVector;
-
 /**
  * The former fitted law of the leg's section, kept as it was while the
  * pieces that replace it are built and verified: the prior's area-normalized
@@ -364,3 +362,5 @@ export namespace AutoMovieHumanLegLaw {
     );
   }
 }
+
+const { dot, smooth, sub } = AutoMovieHumanLegVector;

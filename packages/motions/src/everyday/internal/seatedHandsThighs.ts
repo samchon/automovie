@@ -21,11 +21,6 @@ import { prepareThighSkin } from "./prepareThighSkin";
 import { seatedFlatHand } from "./seatedFlatHand";
 
 /*
- * A hand's breadth across the palm as a share of its length (provisional
- * anthropometric ratio).
- */
-const PALM_BREADTH: number = 0.45;
-/*
  * Seated palms on the thighs (`seatedHands`): each palm's goal laid on its own
  * front thigh, fingers along the thigh within the wrist's deviation of the
  * arm's line, met on the thigh's own collider and kept clear of it by the flat
@@ -211,6 +206,12 @@ export namespace seatedHandsThighs {
     return Vector3.addScaled(skin, normal, depth + sagitta);
   }
 }
+
+/*
+ * A hand's breadth across the palm as a share of its length (provisional
+ * anthropometric ratio).
+ */
+const PALM_BREADTH: number = 0.45;
 
 /*
  * The fingers' direction for a palm laid on a surface: the surface's own

@@ -24,6 +24,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { kiss } from "./kiss";
 import { kissPose } from "./kissPose";
+import * as EmbraceFromBehindSolveData from "./EmbraceFromBehindSolveData";
 
 /*
  * The embrace from behind's one solve and what it reads (`embraceFromBehind`):
@@ -158,26 +159,10 @@ export namespace embraceFromBehindSolve {
   export const NEAR: number = 0.01;
 
   /*
-   * The lean's forward range, degrees: the kiss's own.
-   */
-  const PITCH: readonly [number, number] = [-10, 45];
-
-  /*
-   * Radians in a degree.
-   */
-  const RADIAN: number = Math.PI / 180;
-
-  /*
    * The partner's torso bones whose colliders are the back the chest lies on.
    */
   export const TORSO: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
-
-  /*
-   * How far the body may sink on bent knees to bring the chin down, metres
-   * (provisional: a slight knee bend).
-   */
-  const SINK: number = 0.12;
 
   /*
    * The neck's flexion, side bend and turn at a share, added over the posture's
@@ -307,23 +292,23 @@ export namespace embraceFromBehindSolve {
       low:
         (DEFAULT_HUMANOID_ROM.neck![axis]!.min +
           DEFAULT_HUMANOID_ROM.head![axis]!.min) *
-        RADIAN,
+        EmbraceFromBehindSolveData.RADIAN,
       high:
         (DEFAULT_HUMANOID_ROM.neck![axis]!.max +
           DEFAULT_HUMANOID_ROM.head![axis]!.max) *
-        RADIAN,
+        EmbraceFromBehindSolveData.RADIAN,
     });
     const bounds: readonly IRange[] = [
       { low: -Infinity, high: Infinity },
       { low: -Infinity, high: Infinity },
       { low: 0, high: SINK },
-      { low: PITCH[0] * RADIAN, high: PITCH[1] * RADIAN },
-      { low: -kiss.ROLL * RADIAN, high: kiss.ROLL * RADIAN },
+      { low: PITCH[0] * EmbraceFromBehindSolveData.RADIAN, high: PITCH[1] * EmbraceFromBehindSolveData.RADIAN },
+      { low: -kiss.ROLL * EmbraceFromBehindSolveData.RADIAN, high: kiss.ROLL * EmbraceFromBehindSolveData.RADIAN },
       neckRange("flexion"),
       neckRange("abduction"),
       neckRange("twist"),
-      { low: 0, high: DEFAULT_HUMANOID_ROM.neck!.flexion!.max * RADIAN },
-      { low: 0, high: kiss.RAISE * RADIAN },
+      { low: 0, high: DEFAULT_HUMANOID_ROM.neck!.flexion!.max * EmbraceFromBehindSolveData.RADIAN },
+      { low: 0, high: kiss.RAISE * EmbraceFromBehindSolveData.RADIAN },
     ];
     const result: IAutoMovieMotionHumanSequentialConvex.IResult<
       HumanSequentialConvexFunctions.Vector,
@@ -451,7 +436,7 @@ export namespace embraceFromBehindSolve {
    * Degrees of an angle in radians.
    */
   export function degrees(radians: number): number {
-    return radians / RADIAN;
+    return radians / EmbraceFromBehindSolveData.RADIAN;
   }
 
   /*
@@ -470,4 +455,15 @@ export namespace embraceFromBehindSolve {
       fix,
     });
   }
+
+  /*
+   * The lean's forward range, degrees: the kiss's own.
+   */
+  const PITCH: readonly [number, number] = [-10, 45];
+
+  /*
+   * How far the body may sink on bent knees to bring the chin down, metres
+   * (provisional: a slight knee bend).
+   */
+  const SINK: number = 0.12;
 }

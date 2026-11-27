@@ -31,90 +31,10 @@ import { poseBones } from "../../posture/internal/poseBones";
  */
 export namespace ReactionFeet {
   /*
-   * The two feet's contact parts.
-   */
-  const FEET: readonly IAutoMovieMotionHumanContactWindow["part"][] = [
-    "leftFoot",
-    "rightFoot",
-  ];
-
-  /*
    * How long the legs take to leave their planted goals for the fall's shape,
    * seconds: authored.
    */
   export const FADE: number = 0.2;
-
-  /*
-   * A planted foot whose hip has risen past the leg's full length from its
-   * entry ankle, its heel raised about the ball by the least angle that brings
-   * the ankle back within the leg's reach, the toes lifting from the foot by
-   * the same angle so they stay flat, as a heel rises before the foot leaves
-   * the floor. Closed form: the ankle turns on a circle about the ball's
-   * lateral axis, and the circle meets the sphere of the leg's length about the
-   * hip where `A cos θ + B sin θ = c`. Unchanged when the leg reaches it flat;
-   * the angle of greatest reach where none reaches.
-   * Parameter foot: The entry foot: its ankle and rotation.
-   * Parameter ball: The ball's contact point on the floor, world metres.
-   * Parameter hip: The hip joint now, world metres.
-   * Parameter length: The thigh's and the shank's length together, metres.
-   * Returns: The placement and the toes' flexion, degrees.
-   */
-  function heeled(
-    foot: IAutoMovieMotionHumanEntryState.IFoot,
-    ball: IAutoMovieVector3,
-    hip: IAutoMovieVector3,
-    length: number,
-  ): IHeeled {
-    if (Vector3.distance(hip, foot.ankle) <= length)
-      return { ankle: foot.ankle, rotation: foot.rotation, toes: 0 };
-    const k: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(foot.rotation, { x: 1, y: 0, z: 0 }),
-    );
-    const r: IAutoMovieVector3 = Vector3.subtract(foot.ankle, ball);
-    const along: IAutoMovieVector3 = Vector3.scale(k, Vector3.dot(r, k));
-    const across: IAutoMovieVector3 = Vector3.subtract(r, along);
-    const turned: IAutoMovieVector3 = Vector3.cross(k, across);
-    const d: IAutoMovieVector3 = Vector3.subtract(hip, ball);
-    const A: number = Vector3.dot(d, across);
-    const B: number = Vector3.dot(d, turned);
-    const c: number =
-      (Vector3.dot(d, d) + Vector3.dot(r, r) - length * length) / 2 -
-      Vector3.dot(d, along);
-    const rho: number = Math.hypot(A, B);
-    const phi: number = Math.atan2(B, A);
-    const spread: number = Math.acos(Math.max(-1, Math.min(1, c / rho)));
-    const ankle = (theta: number): IAutoMovieVector3 =>
-      Vector3.add(
-        ball,
-        Vector3.add(
-          along,
-          Vector3.add(
-            Vector3.scale(across, Math.cos(theta)),
-            Vector3.scale(turned, Math.sin(theta)),
-          ),
-        ),
-      );
-    // Of the two crossings, the smaller turn that raises the ankle.
-    const candidates: number[] = [phi - spread, phi + spread]
-      .map((theta: number): number =>
-        Math.atan2(Math.sin(theta), Math.cos(theta)),
-      )
-      .filter((theta: number): boolean => ankle(theta).y > foot.ankle.y);
-    const theta: number =
-      candidates.length === 0
-        ? 0
-        : candidates.reduce((a: number, b: number): number =>
-            Math.abs(b) < Math.abs(a) ? b : a,
-          );
-    return {
-      ankle: ankle(theta),
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(k, (theta * 180) / Math.PI),
-        foot.rotation,
-      ),
-      toes: (Math.abs(theta) * 180) / Math.PI,
-    };
-  }
 
   /*
    * A plan whose feet stay planted until a second: its posture with both legs'
@@ -304,6 +224,86 @@ export namespace ReactionFeet {
         support: { kind: "ground" },
       }),
     );
+  }
+
+  /*
+   * The two feet's contact parts.
+   */
+  const FEET: readonly IAutoMovieMotionHumanContactWindow["part"][] = [
+    "leftFoot",
+    "rightFoot",
+  ];
+
+  /*
+   * A planted foot whose hip has risen past the leg's full length from its
+   * entry ankle, its heel raised about the ball by the least angle that brings
+   * the ankle back within the leg's reach, the toes lifting from the foot by
+   * the same angle so they stay flat, as a heel rises before the foot leaves
+   * the floor. Closed form: the ankle turns on a circle about the ball's
+   * lateral axis, and the circle meets the sphere of the leg's length about the
+   * hip where `A cos θ + B sin θ = c`. Unchanged when the leg reaches it flat;
+   * the angle of greatest reach where none reaches.
+   * Parameter foot: The entry foot: its ankle and rotation.
+   * Parameter ball: The ball's contact point on the floor, world metres.
+   * Parameter hip: The hip joint now, world metres.
+   * Parameter length: The thigh's and the shank's length together, metres.
+   * Returns: The placement and the toes' flexion, degrees.
+   */
+  function heeled(
+    foot: IAutoMovieMotionHumanEntryState.IFoot,
+    ball: IAutoMovieVector3,
+    hip: IAutoMovieVector3,
+    length: number,
+  ): IHeeled {
+    if (Vector3.distance(hip, foot.ankle) <= length)
+      return { ankle: foot.ankle, rotation: foot.rotation, toes: 0 };
+    const k: IAutoMovieVector3 = Vector3.normalize(
+      Quaternion.rotateVector(foot.rotation, { x: 1, y: 0, z: 0 }),
+    );
+    const r: IAutoMovieVector3 = Vector3.subtract(foot.ankle, ball);
+    const along: IAutoMovieVector3 = Vector3.scale(k, Vector3.dot(r, k));
+    const across: IAutoMovieVector3 = Vector3.subtract(r, along);
+    const turned: IAutoMovieVector3 = Vector3.cross(k, across);
+    const d: IAutoMovieVector3 = Vector3.subtract(hip, ball);
+    const A: number = Vector3.dot(d, across);
+    const B: number = Vector3.dot(d, turned);
+    const c: number =
+      (Vector3.dot(d, d) + Vector3.dot(r, r) - length * length) / 2 -
+      Vector3.dot(d, along);
+    const rho: number = Math.hypot(A, B);
+    const phi: number = Math.atan2(B, A);
+    const spread: number = Math.acos(Math.max(-1, Math.min(1, c / rho)));
+    const ankle = (theta: number): IAutoMovieVector3 =>
+      Vector3.add(
+        ball,
+        Vector3.add(
+          along,
+          Vector3.add(
+            Vector3.scale(across, Math.cos(theta)),
+            Vector3.scale(turned, Math.sin(theta)),
+          ),
+        ),
+      );
+    // Of the two crossings, the smaller turn that raises the ankle.
+    const candidates: number[] = [phi - spread, phi + spread]
+      .map((theta: number): number =>
+        Math.atan2(Math.sin(theta), Math.cos(theta)),
+      )
+      .filter((theta: number): boolean => ankle(theta).y > foot.ankle.y);
+    const theta: number =
+      candidates.length === 0
+        ? 0
+        : candidates.reduce((a: number, b: number): number =>
+            Math.abs(b) < Math.abs(a) ? b : a,
+          );
+    return {
+      ankle: ankle(theta),
+      rotation: Quaternion.multiply(
+        Quaternion.fromAxisAngle(k, (theta * 180) / Math.PI),
+        foot.rotation,
+      ),
+      toes: (Math.abs(theta) * 180) / Math.PI,
+    };
   }
 
   /*

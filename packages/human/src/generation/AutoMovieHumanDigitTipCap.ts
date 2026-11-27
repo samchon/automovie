@@ -19,11 +19,6 @@ import type {
  * (`AutoMovieHumanHandWindow.PULP`, `AutoMovieHumanNailPlate`).
  */
 export namespace AutoMovieHumanDigitTipCap {
-  /*
-   * Station step of the search, mm.
-   */
-  const STEP: number = 0.05;
-
   /**
    * Arc length where the cap starts; one millimetre before the apex when the
    * radius never reaches the distance left.
@@ -57,4 +52,9 @@ export namespace AutoMovieHumanDigitTipCap {
       at[2] + d * tangent[2],
     ];
   }
+
+  /*
+   * Station step of the search, mm.
+   */
+  const STEP: number = 0.05;
 }

@@ -6,6 +6,68 @@ import type {
 
 import { AutoMovieMotionHumanVerdicts } from "./AutoMovieMotionHumanVerdicts";
 
+/**
+ * The verdict report of a performance as the shared inspection findings and
+ * coverage of a capture or a delivery.
+ *
+ * A finding's identity is its bound (`check` is `human-<bound>` and `code`
+ * `<bound>-exceeded`, `human-timing` and `timing-faulty` for the schedule), the
+ * performer's subject or the pair's `a+b` as its key, and the performer's
+ * entity path or both paths of a pair. The action and its occurrence stay in
+ * the message, so a repair that moves the worst reading into another action
+ * keeps the finding. A bound read once per unsolved span (`skate`, `loose`,
+ * `afloat`, `unloaded`) keeps its worst reading; the `timing` faults of one
+ * performer are one finding whose rank is their count.
+ *
+ * ```ts
+ * const { findings, coverage } = AutoMovieMotionHumanVerdictInspection.read({
+ *   performance,
+ *   paths: { a: "film.performers[0]" },
+ * });
+ * ```
+ */
+export namespace AutoMovieMotionHumanVerdictInspection {
+
+  /**
+   * Map an existing verdict report to shared inspection findings and coverage.
+   *
+   * @param report The report.
+   * @param performers The report's performers in order, with authored paths.
+   * @returns The findings and coverage of one inspection packet.
+   */
+  export function fromReport(
+    report: IAutoMovieMotionHumanVerdicts.IReport,
+    performers: readonly IAutoMovieMotionHumanVerdicts.IPerformer[],
+  ): Packet {
+    return inspectHumanVerdictReport(report, performers);
+  }
+
+  /**
+   * Read a performance and its authored paths as an inspection packet.
+   *
+   * @param source The performance and the film's entity path of each performer.
+   * @returns The findings and coverage rows of one inspection packet.
+   * @throws {Error} When a performer has no path.
+   */
+  export function read(source: IAutoMovieMotionHumanVerdicts.ISource): Packet {
+    return fromReport(
+      AutoMovieMotionHumanVerdicts.read(source.performance),
+      source.performance.performers.map(
+        (
+          person: IAutoMovieMotionHumanPerformer,
+        ): IAutoMovieMotionHumanVerdicts.IPerformer => ({
+          subject: person.subject,
+          path: pathOf(source.paths, person.subject),
+          airborne: AutoMovieMotionHumanVerdicts.airborne(
+            source.performance,
+            person.subject,
+          ),
+        }),
+      ),
+    );
+  }
+}
+
 /*
  * The bounds one performer is read on, in report order.
  */
@@ -42,7 +104,6 @@ const UNREAD: readonly string[] = [
   "unloaded",
   "statics",
 ];
-
 /*
  * Each bound's unit, as its audit owner reads it.
  */
@@ -65,6 +126,7 @@ const UNITS: Readonly<Record<string, string>> = {
   partner: "m",
   timing: "faults",
 };
+
 /*
  * Map a verdict report to shared findings and coverage.
  *
@@ -147,68 +209,6 @@ function inspectHumanVerdictReport(
     findings: [...groups.values()].map(toFinding),
     coverage,
   };
-}
-
-/**
- * The verdict report of a performance as the shared inspection findings and
- * coverage of a capture or a delivery.
- *
- * A finding's identity is its bound (`check` is `human-<bound>` and `code`
- * `<bound>-exceeded`, `human-timing` and `timing-faulty` for the schedule), the
- * performer's subject or the pair's `a+b` as its key, and the performer's
- * entity path or both paths of a pair. The action and its occurrence stay in
- * the message, so a repair that moves the worst reading into another action
- * keeps the finding. A bound read once per unsolved span (`skate`, `loose`,
- * `afloat`, `unloaded`) keeps its worst reading; the `timing` faults of one
- * performer are one finding whose rank is their count.
- *
- * ```ts
- * const { findings, coverage } = AutoMovieMotionHumanVerdictInspection.read({
- *   performance,
- *   paths: { a: "film.performers[0]" },
- * });
- * ```
- */
-export namespace AutoMovieMotionHumanVerdictInspection {
-
-  /**
-   * Map an existing verdict report to shared inspection findings and coverage.
-   *
-   * @param report The report.
-   * @param performers The report's performers in order, with authored paths.
-   * @returns The findings and coverage of one inspection packet.
-   */
-  export function fromReport(
-    report: IAutoMovieMotionHumanVerdicts.IReport,
-    performers: readonly IAutoMovieMotionHumanVerdicts.IPerformer[],
-  ): Packet {
-    return inspectHumanVerdictReport(report, performers);
-  }
-
-  /**
-   * Read a performance and its authored paths as an inspection packet.
-   *
-   * @param source The performance and the film's entity path of each performer.
-   * @returns The findings and coverage rows of one inspection packet.
-   * @throws {Error} When a performer has no path.
-   */
-  export function read(source: IAutoMovieMotionHumanVerdicts.ISource): Packet {
-    return fromReport(
-      AutoMovieMotionHumanVerdicts.read(source.performance),
-      source.performance.performers.map(
-        (
-          person: IAutoMovieMotionHumanPerformer,
-        ): IAutoMovieMotionHumanVerdicts.IPerformer => ({
-          subject: person.subject,
-          path: pathOf(source.paths, person.subject),
-          airborne: AutoMovieMotionHumanVerdicts.airborne(
-            source.performance,
-            person.subject,
-          ),
-        }),
-      ),
-    );
-  }
 }
 
 /*

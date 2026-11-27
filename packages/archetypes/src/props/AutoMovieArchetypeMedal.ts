@@ -8,18 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * A ribbon medal's disc and weight: the recent Olympic medals.
- */
-const MEDAL: string =
-  "Olympic medals: Tokyo 2020 85 mm across and up to 556 g, Paris 2024 85 mm and 529 g (organisers' figures seen in search results); smaller ceremony medals down to 70 mm and 450 g provisional";
-
-/*
- * A medal ribbon's hanging length from the neck to the disc.
- */
-const RIBBON: string =
-  "a neck ribbon hanging about 0.4 to 0.5 m from the nape to the disc's ring (provisional)";
+import * as AutoMovieArchetypeMedalData from "./internal/AutoMovieArchetypeMedalData";
 
 /** Constructs the medal archetype from its recipe. */
 export namespace AutoMovieArchetypeMedal {
@@ -126,8 +115,8 @@ export function create(
 
   /** The sourced bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    diameter: AutoMovieArchetypeBand.metres(0.07, 0.085, MEDAL),
-    ribbon: AutoMovieArchetypeBand.metres(0.4, 0.5, RIBBON),
-    mass: AutoMovieArchetypeBand.of("kg", 0.45, 0.556, MEDAL),
+    diameter: AutoMovieArchetypeBand.metres(0.07, 0.085, AutoMovieArchetypeMedalData.MEDAL),
+    ribbon: AutoMovieArchetypeBand.metres(0.4, 0.5, AutoMovieArchetypeMedalData.RIBBON),
+    mass: AutoMovieArchetypeBand.of("kg", 0.45, 0.556, AutoMovieArchetypeMedalData.MEDAL),
   };
 }

@@ -1,6 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createExerciseMat as createExerciseMatImplementation } from "./internal/createExerciseMat";
 import { AutoMovieArchetypeDrawSession, AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand } from "../core";
+import * as AutoMovieArchetypeExerciseMatData from "./internal/AutoMovieArchetypeExerciseMatData";
 
 /** Public operations for Auto Movie Archetype Exercise Mat. */
 export namespace AutoMovieArchetypeExerciseMat {
@@ -94,47 +95,35 @@ export namespace AutoMovieArchetypeExerciseMat {
     },
   };
 
-  /*
-   * Manduka's PRO mat, read.
-   */
-  const MANDUKA: string =
-    "Manduka PRO yoga mat 6 mm: 68, 71 and 85 in long, 26 in (66 cm) wide, 7.5 lb (3.4 kg) at 71 in and 4.3 kg at 85 in (https://www.manduka.com/products/manduka-pro-yoga-mat, https://eu.manduka.com/blogs/faq/help-center-pro-series-yoga-mats-manduka-eu)";
-
-  /*
-   * A thick exercise mat, read.
-   */
-  const THICK: string =
-    "Amazon Basics 1/2 in extra thick exercise mat, 74 x 24 x 0.5 in and 2.2 lb, its black variant 73.2 x 24.3 x 0.5 in (https://www.desertcart.com.sa/products/47384932-amazon-basics-1-2-inch-extra-thick-exercise-yoga-mat)";
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     yoga: {
-      width: AutoMovieArchetypeBand.metres(0.66, 0.66, MANDUKA),
-      thickness: AutoMovieArchetypeBand.metres(0.006, 0.006, MANDUKA),
+      width: AutoMovieArchetypeBand.metres(0.66, 0.66, AutoMovieArchetypeExerciseMatData.MANDUKA),
+      thickness: AutoMovieArchetypeBand.metres(0.006, 0.006, AutoMovieArchetypeExerciseMatData.MANDUKA),
     },
     gym: {
       length: AutoMovieArchetypeBand.metres(
         73.2 * AutoMovieArchetypeUnits.INCH,
         74 * AutoMovieArchetypeUnits.INCH,
-        THICK,
+        AutoMovieArchetypeExerciseMatData.THICK,
       ),
       width: AutoMovieArchetypeBand.metres(
         24 * AutoMovieArchetypeUnits.INCH,
         24.3 * AutoMovieArchetypeUnits.INCH,
-        THICK,
+        AutoMovieArchetypeExerciseMatData.THICK,
       ),
       thickness: AutoMovieArchetypeBand.metres(
         0.5 * AutoMovieArchetypeUnits.INCH,
         0.5 * AutoMovieArchetypeUnits.INCH,
-        THICK,
+        AutoMovieArchetypeExerciseMatData.THICK,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         2.2 * AutoMovieArchetypeUnits.POUND,
         2.2 * AutoMovieArchetypeUnits.POUND,
-        THICK,
+        AutoMovieArchetypeExerciseMatData.THICK,
       ),
     },
   };}

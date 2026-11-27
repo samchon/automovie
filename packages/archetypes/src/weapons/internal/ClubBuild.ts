@@ -9,18 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeClub } from "../AutoMovieArchetypeClub";
-
-/*
- * The professional rule on a bat's size.
- */
-const RULE: string =
-  "Official Baseball Rules 2024, rule 3.02(a), a bat at most 2.61 in across at its thickest (https://www.baseball.ca/uploads/files/2024%20Rules/2024%20MLB%20Official%20Rules%20-%20EN.pdf)";
-
-/*
- * A maker's straight batons.
- */
-const BATON: string =
-  "Monadnock MP straight polycarbonate batons, 24 and 26 in long and 1.25 in across (https://www.defense-technology.com/?p=2138)";
+import * as ClubBuildData from "./ClubBuildData";
 
 /*
  * The measured club recipes, seed draw and model contacts retained by the bat
@@ -117,7 +106,7 @@ export namespace ClubBuild {
       diameter: AutoMovieArchetypeBand.metres(
         2.5 * AutoMovieArchetypeUnits.INCH,
         2.61 * AutoMovieArchetypeUnits.INCH,
-        `${RULE}; the lower end, 2.5 in, is an estimate`,
+        `${ClubBuildData.RULE}; the lower end, 2.5 in, is an estimate`,
         true,
       ),
       handleDiameter: AutoMovieArchetypeBand.metres(
@@ -131,7 +120,7 @@ export namespace ClubBuild {
       diameter: AutoMovieArchetypeBand.metres(
         1.25 * AutoMovieArchetypeUnits.INCH,
         1.25 * AutoMovieArchetypeUnits.INCH,
-        BATON,
+        ClubBuildData.BATON,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",

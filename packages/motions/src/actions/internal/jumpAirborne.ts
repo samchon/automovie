@@ -18,18 +18,6 @@ import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { walkLeg } from "./walkLeg";
 
 /*
- * How far each free foot lifts above its straight path at mid-flight, hip
- * heights (provisional).
- */
-const ARCH: number = 0.1;
-
-/*
- * The least forward gap between the feet that reads as one foot ahead of the
- * other, metres: a nanometre, the walk's root-solve width (`walkReach`), under
- * which the gap is a rounding of side by side.
- */
-const PASS_GAP: number = 1e-9;
-/*
  * A jump's time in the air: the shape it holds between take-off and touchdown,
  * the knee hint its legs bend toward, and the turns it asks the performance's
  * flight pass for, with the hook that hands the rotation back
@@ -366,6 +354,18 @@ export namespace jumpAirborne {
     return flight.touchdown;
   }
 }
+
+/*
+ * How far each free foot lifts above its straight path at mid-flight, hip
+ * heights (provisional).
+ */
+const ARCH: number = 0.1;
+/*
+ * The least forward gap between the feet that reads as one foot ahead of the
+ * other, metres: a nanometre, the walk's root-solve width (`walkReach`), under
+ * which the gap is a rounding of side by side.
+ */
+const PASS_GAP: number = 1e-9;
 
 /*
  * The record of `IPrepareFixed`'s site.

@@ -27,19 +27,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { humanRideGripTiming } from "./humanRideGripTiming";
-
-/*
- * Tasks whose hand closes on what it holds; the others lay the hand on a
- * surface.
- */
-const GRIPPED: ReadonlySet<IAutoMovieMotionHumanTendHorse.Task> =
-  new Set<IAutoMovieMotionHumanTendHorse.Task>(["lead", "hoof"]);
-
-/*
- * The displayed hand's largest distance from its contact while fully held,
- * metres: the rider attachment contract's 10 mm budget.
- */
-const CONTACT: number = 0.01;
+import * as HumanTendHorseData from "./HumanTendHorseData";
 
 /*
  * A handler's hand on a horse's actual moving contact while the handler stands:
@@ -184,8 +172,8 @@ function planHumanTendHorse(
       {
         part: `${side}Hand`,
         // A care touch (brush, poll, stirrup, hoof) rests the hand on the horse without bearing weight; a held part is gripped.
-        kind: GRIPPED.has(task) ? "grip" : "bear",
-        ...(GRIPPED.has(task) ? {} : { load: 0 }),
+        kind: HumanTendHorseData.GRIPPED.has(task) ? "grip" : "bear",
+        ...(HumanTendHorseData.GRIPPED.has(task) ? {} : { load: 0 }),
         from: onShare,
         to: offShare,
         support: { kind: "prop", subject: on },
@@ -331,7 +319,7 @@ function planHumanTendHorse(
                   read.normal,
                 ),
               );
-        if (!(distance <= CONTACT))
+        if (!(distance <= HumanTendHorseData.CONTACT))
           throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
             axis: "careReach",
@@ -339,7 +327,7 @@ function planHumanTendHorse(
             feasible: {
               kind: "range",
               minimum: 0,
-              maximum: CONTACT,
+              maximum: HumanTendHorseData.CONTACT,
               unit: "m",
             },
             reason: `the displayed ${side} palm at ${JSON.stringify(effector)} misses ${on}.${point} at ${JSON.stringify(skin)} by ${distance} m at film second ${film}`,

@@ -12,11 +12,6 @@ import { HumanCarriedNeckClear } from "./HumanCarriedNeckClear";
 import { HumanCarriedPitch } from "./HumanCarriedPitch";
 
 /*
- * Bearer and borne region pairs follow the row's left-to-right order.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/*
  * The per-pair solve of a named carry's coupling (`HumanCarriedCoupling`): the
  * key pose that rests the borne body on the bearer, the contacts read on both
  * key bodies, the bearing shares and the capacity, in one record. The meeting
@@ -435,6 +430,11 @@ export namespace HumanCarriedCouplingCouple {
     return limb ?? (bone === "hips" ? "seat" : "back");
   };
 }
+
+/*
+ * Bearer and borne region pairs follow the row's left-to-right order.
+ */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /*
  * The borne regions held by the bearer's left and right hands.

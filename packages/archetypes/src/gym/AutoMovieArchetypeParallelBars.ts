@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The norm that sizes gymnastics' parallel bars.
- */
-const FIG: string =
-  "Fédération Internationale de Gymnastique, Apparatus Norms, the parallel bars: the rails 2.0 m above the floor, 3.5 m long and 42 to 52 cm apart";
+import * as AutoMovieArchetypeParallelBarsData from "./internal/AutoMovieArchetypeParallelBarsData";
 
 /** Constructs the parallel bars archetype from its recipe. */
 export namespace AutoMovieArchetypeParallelBars {
@@ -160,17 +155,6 @@ export function create(
     mass: "kg",
   };
 
-  /*
-   * A rail's thickness: the norm's oval rail is about 4 cm wide and 5 cm high,
-   * read from descriptions of the apparatus and not from the norm's text.
-   */
-  const RAIL: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
-    0.04,
-    0.05,
-    "the rail's oval section, about 4 cm by 5 cm, as the apparatus is commonly described; the norm's text was not read for it",
-    true,
-  );
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
@@ -209,10 +193,10 @@ export function create(
       ),
     },
     parallelBars: {
-      height: AutoMovieArchetypeBand.metres(2.0, 2.0, FIG),
-      length: AutoMovieArchetypeBand.metres(3.5, 3.5, FIG),
-      spacing: AutoMovieArchetypeBand.metres(0.42, 0.52, FIG),
-      diameter: RAIL,
+      height: AutoMovieArchetypeBand.metres(2.0, 2.0, AutoMovieArchetypeParallelBarsData.FIG),
+      length: AutoMovieArchetypeBand.metres(3.5, 3.5, AutoMovieArchetypeParallelBarsData.FIG),
+      spacing: AutoMovieArchetypeBand.metres(0.42, 0.52, AutoMovieArchetypeParallelBarsData.FIG),
+      diameter: AutoMovieArchetypeParallelBarsData.RAIL,
       mass: AutoMovieArchetypeBand.of(
         "kg",
         100,

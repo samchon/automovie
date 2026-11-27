@@ -449,47 +449,6 @@ export namespace AutoMovieXpbdArticulation {
     );
   }
 
-  /*
-   * A row-major 6x6 matrix times a 6-vector.
-   */
-  function multiply(matrix: readonly number[], v: readonly number[]): number[] {
-    return SIX.map((r: number): number => {
-      let sum: number = 0;
-      for (let k: number = 0; k < 6; ++k) sum += matrix[r * 6 + k]! * v[k]!;
-      return sum;
-    });
-  }
-
-  /*
-   * The dot product of two equal-length arrays.
-   */
-  function dot(a: readonly number[], b: readonly number[]): number {
-    let sum: number = 0;
-    for (let k: number = 0; k < a.length; ++k) sum += a[k]! * b[k]!;
-    return sum;
-  }
-
-  /*
-   * Three entries of an array from `offset`.
-   */
-  function vector(v: readonly number[], offset: number): IAutoMovieVector3 {
-    return { x: v[offset]!, y: v[offset + 1]!, z: v[offset + 2]! };
-  }
-
-  /*
-   * The spatial coordinates' indices.
-   */
-  const SIX: readonly number[] = [0, 1, 2, 3, 4, 5];
-
-  /*
-   * The zero spatial vector; never mutated, every update builds a new array.
-   */
-  const ZERO: number[] = [0, 0, 0, 0, 0, 0];
-
-  /*
-   * The 3x3 identity's columns, concatenated.
-   */
-  const IDENTITY: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
   /**
    * The normal impulse a bounded support group's rows may still add over a
    * substep, newton seconds: its force bound over the substep less what the
@@ -624,7 +583,6 @@ export namespace AutoMovieXpbdArticulation {
   ): IHeld | null {
     return Task.solveTask(tree, factored, base, set, h, task, warm);
   }
-
   /**
    * Solve every motor-driven tree's motors at once and return the joints
    * outside the forest (closing a loop or with a kinematic child), which the
@@ -701,4 +659,46 @@ export namespace AutoMovieXpbdArticulation {
   ): ITree {
     return Articulation.build(top, joints);
   }
+
+  /*
+   * A row-major 6x6 matrix times a 6-vector.
+   */
+  function multiply(matrix: readonly number[], v: readonly number[]): number[] {
+    return SIX.map((r: number): number => {
+      let sum: number = 0;
+      for (let k: number = 0; k < 6; ++k) sum += matrix[r * 6 + k]! * v[k]!;
+      return sum;
+    });
+  }
+
+  /*
+   * The dot product of two equal-length arrays.
+   */
+  function dot(a: readonly number[], b: readonly number[]): number {
+    let sum: number = 0;
+    for (let k: number = 0; k < a.length; ++k) sum += a[k]! * b[k]!;
+    return sum;
+  }
+
+  /*
+   * Three entries of an array from `offset`.
+   */
+  function vector(v: readonly number[], offset: number): IAutoMovieVector3 {
+    return { x: v[offset]!, y: v[offset + 1]!, z: v[offset + 2]! };
+  }
+
+  /*
+   * The spatial coordinates' indices.
+   */
+  const SIX: readonly number[] = [0, 1, 2, 3, 4, 5];
+
+  /*
+   * The zero spatial vector; never mutated, every update builds a new array.
+   */
+  const ZERO: number[] = [0, 0, 0, 0, 0, 0];
+
+  /*
+   * The 3x3 identity's columns, concatenated.
+   */
+  const IDENTITY: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 }

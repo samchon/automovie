@@ -133,12 +133,6 @@ export namespace AutoMovieMotionHumanPoleVault {
   export const RUN: number = 1;
 
   /*
-   * The most times the plant's wrist goal is corrected by the solved end's
-   * height.
-   */
-  const PLANT: number = 4;
-
-  /*
    * Plan a pole vault.
    * Parameter context: The action's context.
    * Returns: The plan.
@@ -431,4 +425,10 @@ export namespace AutoMovieMotionHumanPoleVault {
    * swing it upright from a run (`poleVaultGrip`).
    */
   export const grip: typeof poleVaultGrip = poleVaultGrip;
+
+  /*
+   * The most times the plant's wrist goal is corrected by the solved end's
+   * height.
+   */
+  const PLANT: number = 4;
 }

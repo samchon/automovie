@@ -25,36 +25,25 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { admitLapSupport } from "./admitLapSupport";
 import { requireOtherPerformer } from "./requireOtherPerformer";
+import * as SitOnLapData from "./SitOnLapData";
 
 /*
- * How far behind the seat's front edge the sit law rests the seat socket, short
- * of the sitter's thigh, metres: `IAutoMovieMotionHumanSeated`'s 0.05 m
- * clearance.
+ * Sit on a seated partner's lap. The lap is the seated partner's thighs where
+ * they are at the start: its height is the top of the two thighs' middles
+ * (`thighFrontLeft` and `thighFrontRight`), its heading the partner's hips to
+ * knees. The sit law (`sit`) sits the body onto it as onto a seat facing that
+ * heading, the seat's front edge set so the sitter's seat socket comes to rest
+ * over the thighs' middles; a lap above the sitter's band is got onto as a high
+ * seat, the feet hanging. The sit's seat window bears instead on the partner:
+ * half on each thigh. A partner whose thighs are not near level is refused as
+ * not seated.
  */
-const CLEARANCE: number = 0.05;
-
-/*
- * Both displayed thighs and their knee endpoints define the receiver frame.
- */
-const LEGS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftUpperLeg",
-  "rightUpperLeg",
-  "leftLowerLeg",
-  "rightLowerLeg",
-]);
-
-/*
- * The two receiving sides of a lap.
- */
-const THIGHS: readonly ["thighFrontLeft", "thighFrontRight"] = [
-  "thighFrontLeft",
-  "thighFrontRight",
-];
-
-/*
- * Contact tolerance for jointed, paired body surfaces, metres.
- */
-const BEARING: number = 0.01;
+export const sitOnLap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSitOnLap> =
+  {
+    name: "sitOnLap",
+    interrupts: sit.interrupts,
+    plan: planSitOnLap,
+  };
 
 /*
  * Sit on a seated partner's lap. The lap is the seated partner's thighs where
@@ -80,7 +69,7 @@ function planSitOnLap(
     p.partner,
   );
   const at = (seconds: number): ILap =>
-    lap(partner, p.partner, partner.bones(context.start + seconds, LEGS));
+    lap(partner, p.partner, partner.bones(context.start + seconds, SitOnLapData.LEGS));
   const start: ILap = at(0);
   const forward: IAutoMovieVector3 = Quaternion.rotateVector(
     start.frame.rotation,
@@ -90,10 +79,10 @@ function planSitOnLap(
   const seat: IAutoMovieMotionHumanSeated.ISeat = {
     at: Vector3.add(
       start.frame.position,
-      Vector3.scale(forward, thigh - CLEARANCE),
+      Vector3.scale(forward, thigh - SitOnLapData.CLEARANCE),
     ),
     yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
-    depth: thigh + CLEARANCE,
+    depth: thigh + SitOnLapData.CLEARANCE,
   };
   const params: IAutoMovieMotionHumanSit.IParams = {
     seat,
@@ -117,7 +106,7 @@ function planSitOnLap(
     context.body,
     new Set([own]),
   );
-  const fit = THIGHS.map(
+  const fit = SitOnLapData.THIGHS.map(
     (
       region: AutoMovieHumanoidRegion,
     ): ReturnType<typeof HumanMaterialContact.preparePair> =>
@@ -166,7 +155,7 @@ function planSitOnLap(
     ): IAutoMovieMotionHumanContactWindow[] =>
       window.part !== "seat"
         ? [window]
-        : THIGHS.map(
+        : SitOnLapData.THIGHS.map(
             (
               region: AutoMovieHumanoidRegion,
             ): IAutoMovieMotionHumanContactWindow => ({
@@ -203,7 +192,7 @@ function planSitOnLap(
             const receiving: IAutoMovieVector3 = StrikingBody.region(
               partner.body,
               receiver.bones,
-              THIGHS[index]!,
+              SitOnLapData.THIGHS[index]!,
             ).normal;
             const found: HumanMaterialContact.IPair | undefined = pair(
               bones,
@@ -242,7 +231,7 @@ function planSitOnLap(
             pair.length !== 2 ||
             pair.some(
               (site: HumanMaterialContact.IPair): boolean =>
-                Math.abs(site.first.clearance) > BEARING,
+                Math.abs(site.first.clearance) > SitOnLapData.BEARING,
             ),
         )
       )
@@ -264,7 +253,7 @@ function planSitOnLap(
             !("region" in window.support)
           )
             return window;
-          const index: number = window.support.region === THIGHS[0] ? 0 : 1;
+          const index: number = window.support.region === SitOnLapData.THIGHS[0] ? 0 : 1;
           return { ...window, material: held[index]!.first };
         },
       );
@@ -295,8 +284,8 @@ function lap(
   );
   admitLapSupport(subject, hips.y - knees.y, partner.body.measure.thigh);
   const top: IAutoMovieVector3 = Vector3.lerp(
-    StrikingBody.region(partner.body, bones, THIGHS[0]).point,
-    StrikingBody.region(partner.body, bones, THIGHS[1]).point,
+    StrikingBody.region(partner.body, bones, SitOnLapData.THIGHS[0]).point,
+    StrikingBody.region(partner.body, bones, SitOnLapData.THIGHS[1]).point,
     0.5,
   );
   const yaw: number =
@@ -309,24 +298,6 @@ function lap(
     },
   };
 }
-
-/*
- * Sit on a seated partner's lap. The lap is the seated partner's thighs where
- * they are at the start: its height is the top of the two thighs' middles
- * (`thighFrontLeft` and `thighFrontRight`), its heading the partner's hips to
- * knees. The sit law (`sit`) sits the body onto it as onto a seat facing that
- * heading, the seat's front edge set so the sitter's seat socket comes to rest
- * over the thighs' middles; a lap above the sitter's band is got onto as a high
- * seat, the feet hanging. The sit's seat window bears instead on the partner:
- * half on each thigh. A partner whose thighs are not near level is refused as
- * not seated.
- */
-export const sitOnLap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSitOnLap> =
-  {
-    name: "sitOnLap",
-    interrupts: sit.interrupts,
-    plan: planSitOnLap,
-  };
 
 /*
  * The same-second thigh placement and the posture reader's yaw carrier.

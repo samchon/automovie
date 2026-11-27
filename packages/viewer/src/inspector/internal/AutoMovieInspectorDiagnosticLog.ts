@@ -3,11 +3,6 @@ import type { IAutoMovieInspectionDiagnostics as Diagnostics } from "@automovie/
 import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
 
 /*
- * Maximum recent ranges retained for replay deduplication per mounted subject.
- */
-const HISTORY_LIMIT: number = 128;
-
-/*
  * Report confirmed problems when first seen and summarize observed multi-sample
  * spans.
  *
@@ -178,6 +173,11 @@ export class AutoMovieInspectorDiagnosticLog {
     return true;
   }
 }
+
+/*
+ * Maximum recent ranges retained for replay deduplication per mounted subject.
+ */
+const HISTORY_LIMIT: number = 128;
 
 /*
  * How the current sample continues the previous one: by uninterrupted playback,

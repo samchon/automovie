@@ -187,12 +187,6 @@ export namespace useTool {
   export const TURN: number = 30;
 
   /*
-   * The hand's palm in its own rest axes, the direction `HumanHand.rotation`
-   * turns onto the asked palm.
-   */
-  const PALM: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-
-  /*
    * Plan a tool's use.
    * Parameter context: The action's context.
    * Returns: The plan with its tool.
@@ -529,6 +523,12 @@ export namespace useTool {
     }
     return plan;
   }
+
+  /*
+   * The hand's palm in its own rest axes, the direction `HumanHand.rotation`
+   * turns onto the asked palm.
+   */
+  const PALM: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 }
 
 /*

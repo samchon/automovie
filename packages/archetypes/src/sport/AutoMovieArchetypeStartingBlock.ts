@@ -13,12 +13,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * What no source read gives.
- */
-const UNREAD: string =
-  "World Athletics Technical Rule 15.2 (2020 edition, https://athletics.lv/file/download/61151) sets no size or setting, and the makers' pages read state none";
+import * as AutoMovieArchetypeStartingBlockData from "./internal/AutoMovieArchetypeStartingBlockData";
 
 /** Constructs the starting block archetype from its recipe. */
 export namespace AutoMovieArchetypeStartingBlock {
@@ -223,8 +218,8 @@ export function create(
 
   /** The band of each setting. */
   export const BANDS: Readonly<Record<Setting, IAutoMovieArchetypeBand>> = {
-    setback: AutoMovieArchetypeBand.metres(0.1, 0.25, UNREAD, true),
-    spacing: AutoMovieArchetypeBand.metres(0.25, 0.45, UNREAD, true),
-    angle: AutoMovieArchetypeBand.of("degrees", 25, 50, UNREAD, true),
+    setback: AutoMovieArchetypeBand.metres(0.1, 0.25, AutoMovieArchetypeStartingBlockData.UNREAD, true),
+    spacing: AutoMovieArchetypeBand.metres(0.25, 0.45, AutoMovieArchetypeStartingBlockData.UNREAD, true),
+    angle: AutoMovieArchetypeBand.of("degrees", 25, 50, AutoMovieArchetypeStartingBlockData.UNREAD, true),
   };
 }

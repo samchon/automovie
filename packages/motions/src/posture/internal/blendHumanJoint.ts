@@ -1,178 +1,9 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, swingTwistRange, AutoMovieEngineKinematics, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointRotationDomain,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedJointAngles,
-  IAutoMovieRestFrame,
-} from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, Quaternion, swingTwistRange, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieResolvedJointAngles } from "@automovie/interface";
 
-import { readHumanBone } from "../../body/internal/readHumanBone";
-
-/*
- * Stateless standalone dispatch preserves targeted lookup without a per-call
- * full index.
- */
-const COLD: ILookup = {
-  constraint: (
-    body: IBlendBody,
-    bone: AutoMovieHumanoidBone,
-  ): IAutoMovieJointConstraint | null =>
-    AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null),
-  frame: (
-    body: IBlendBody,
-    bone: AutoMovieHumanoidBone,
-    constraint: IAutoMovieJointConstraint | null,
-  ): IFrame => frameOf(bone, axesOf(body, bone), constraint),
-};
-
-/*
- * Find one joint's last explicit axes, leaving earlier axes as fallback.
- */
-function axesOf(
-  body: IBlendBody,
-  bone: AutoMovieHumanoidBone,
-): IAutoMovieJointAxes | undefined {
-  const rows: IAutoMovieBone[] = body.skeleton.bones;
-  for (let i: number = rows.length - 1; i >= 0; --i) {
-    const row: IAutoMovieBone | undefined = rows[i];
-    const axes: IAutoMovieJointAxes | undefined =
-      row?.bone === bone ? row.axes : undefined;
-    if (axes !== undefined) return axes;
-  }
-  return HUMANOID_JOINT_AXES[bone];
-}
-
-/*
- * A fixed clinical axis makes interpolation linear in the remaining angles.
- */
-function linear(constraint: IAutoMovieJointConstraint | null): boolean {
-  return (
-    constraint !== null &&
-    (constraint.flexion === null ||
-      constraint.abduction === null ||
-      constraint.twist === null)
-  );
-}
-
-/*
- * One joint's raw axes with their normalized basis and swing-twist chart.
- */
-function frameOf(
-  bone: AutoMovieHumanoidBone,
-  axes: IAutoMovieJointAxes | undefined,
-  constraint: IAutoMovieJointConstraint | null,
-): IFrame {
-  const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
-    axes ?? DEFAULT_JOINT_AXES,
-    "jointToQuaternion axes",
-  );
-  const swing: IAutoMovieJointConstraint["swingTwist"] = constraint?.swingTwist;
-  const bounded: boolean = swing !== undefined && swing !== null;
-  const joint: ReturnType<typeof swingTwistRange.fromAxes> = bounded
-    ? swingTwistRange.fromAxes(bone, axes)
-    : undefined;
-  return {
-    basis,
-    rest: HUMANOID_REST_FRAME[bone],
-    domain: {
-      bone,
-      constraint:
-        constraint === null || swing === null
-          ? constraint
-          : { ...constraint, swingTwist: null },
-    },
-    range:
-      joint === undefined || constraint === null
-        ? undefined
-        : {
-            constraint,
-            joint: swingTwistRange.prepare(bone, joint, constraint),
-          },
-  };
-}
-
-/*
- * Preserve endpoint returns when an interior frame would refuse its axes.
- */
-function preparedFrame(
-  bone: AutoMovieHumanoidBone,
-  axes: IAutoMovieJointAxes | undefined,
-  constraint: IAutoMovieJointConstraint | null,
-): () => IFrame {
-  try {
-    const frame: IFrame = frameOf(bone, axes, constraint);
-    return (): IFrame => frame;
-  } catch (error) {
-    return (): never => {
-      throw error;
-    };
-  }
-}
-
-/*
- * Bind only the caller's selected metadata before its time reader escapes.
- */
-function prepareLookup(
-  body: IBlendBody,
-  needed: ReadonlySet<AutoMovieHumanoidBone>,
-): ILookup {
-  const constraints: Map<
-    AutoMovieHumanoidBone,
-    IAutoMovieJointConstraint | null
-  > = new Map();
-  const axes: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes | undefined> =
-    new Map();
-  for (const bone of needed) {
-    const constraint: IAutoMovieJointConstraint | null = COLD.constraint(
-      body,
-      bone,
-    );
-    constraints.set(bone, constraint);
-    if (!linear(constraint)) axes.set(bone, HUMANOID_JOINT_AXES[bone]);
-  }
-
-  if (axes.size !== 0)
-    for (const row of body.skeleton.bones) {
-      if (!axes.has(row.bone)) continue;
-      const declared: IAutoMovieJointAxes | undefined = row.axes;
-      if (declared !== undefined) axes.set(row.bone, declared);
-    }
-  const joints: ReadonlyMap<AutoMovieHumanoidBone, IPreparedJoint> = new Map(
-    [...constraints].map(
-      ([bone, constraint]): [AutoMovieHumanoidBone, IPreparedJoint] => [
-        bone,
-        {
-          constraint,
-          frame: axes.has(bone)
-            ? preparedFrame(bone, axes.get(bone), constraint)
-            : undefined,
-        },
-      ],
-    ),
-  );
-  return {
-    constraint: (
-      current: IBlendBody,
-      bone: AutoMovieHumanoidBone,
-    ): IAutoMovieJointConstraint | null => {
-      const prepared: IPreparedJoint | undefined = joints.get(bone);
-      return prepared === undefined
-        ? COLD.constraint(current, bone)
-        : prepared.constraint;
-    },
-    frame: (
-      current: IBlendBody,
-      bone: AutoMovieHumanoidBone,
-      constraint: IAutoMovieJointConstraint | null,
-    ): IFrame =>
-      joints.get(bone)?.frame?.() ?? COLD.frame(current, bone, constraint),
-  };
-}
+import "../../body/internal/readHumanBone";
+import * as BlendHumanJointData from "./BlendHumanJointData";
+import { frameOf } from "./BlendHumanJointData";
 
 /*
  * A joint's clinical angles part of the way between two readings of them,
@@ -225,13 +56,13 @@ function prepareLookup(
  * returned as given.
  */
 export function blendHumanJoint(
-  body: IBlendBody,
+  body: BlendHumanJointData.IBlendBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],
   share: number,
 ): readonly [number, number, number] {
-  return blend(body, bone, from, to, share, COLD);
+  return blend(body, bone, from, to, share, BlendHumanJointData.COLD);
 }
 
 /*
@@ -246,7 +77,7 @@ export namespace blendHumanJoint {
    * and every interior share returns a fresh reading.
    */
   export function between(
-    body: IBlendBody,
+    body: BlendHumanJointData.IBlendBody,
     bone: AutoMovieHumanoidBone,
     from: readonly [number, number, number],
     to: readonly [number, number, number],
@@ -256,7 +87,7 @@ export namespace blendHumanJoint {
       bone,
       from,
       to,
-      COLD,
+      BlendHumanJointData.COLD,
     );
     return (share: number): readonly [number, number, number] => {
       const s: number = Math.min(1, Math.max(0, share));
@@ -277,7 +108,7 @@ export namespace blendHumanJoint {
    * tuples.
    */
   export function prepare(
-    body: IBlendBody,
+    body: BlendHumanJointData.IBlendBody,
     needed?: ReadonlySet<AutoMovieHumanoidBone>,
   ): (
     bone: AutoMovieHumanoidBone,
@@ -285,9 +116,9 @@ export namespace blendHumanJoint {
     to: readonly [number, number, number],
     share: number,
   ) => readonly [number, number, number] {
-    const lookup: ILookup =
+    const lookup: BlendHumanJointData.ILookup =
       needed === undefined || needed.size === 0
-        ? COLD
+        ? BlendHumanJointData.COLD
         : prepareLookup(body, needed);
     return (
       bone: AutoMovieHumanoidBone,
@@ -300,16 +131,106 @@ export namespace blendHumanJoint {
 }
 
 /*
+ * A fixed clinical axis makes interpolation linear in the remaining angles.
+ */
+function linear(constraint: IAutoMovieJointConstraint | null): boolean {
+  return (
+    constraint !== null &&
+    (constraint.flexion === null ||
+      constraint.abduction === null ||
+      constraint.twist === null)
+  );
+}
+
+/*
+ * Preserve endpoint returns when an interior frame would refuse its axes.
+ */
+function preparedFrame(
+  bone: AutoMovieHumanoidBone,
+  axes: IAutoMovieJointAxes | undefined,
+  constraint: IAutoMovieJointConstraint | null,
+): () => BlendHumanJointData.IFrame {
+  try {
+    const frame: BlendHumanJointData.IFrame = frameOf(bone, axes, constraint);
+    return (): BlendHumanJointData.IFrame => frame;
+  } catch (error) {
+    return (): never => {
+      throw error;
+    };
+  }
+}
+
+/*
+ * Bind only the caller's selected metadata before its time reader escapes.
+ */
+function prepareLookup(
+  body: BlendHumanJointData.IBlendBody,
+  needed: ReadonlySet<AutoMovieHumanoidBone>,
+): BlendHumanJointData.ILookup {
+  const constraints: Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieJointConstraint | null
+  > = new Map();
+  const axes: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes | undefined> =
+    new Map();
+  for (const bone of needed) {
+    const constraint: IAutoMovieJointConstraint | null = BlendHumanJointData.COLD.constraint(
+      body,
+      bone,
+    );
+    constraints.set(bone, constraint);
+    if (!linear(constraint)) axes.set(bone, HUMANOID_JOINT_AXES[bone]);
+  }
+
+  if (axes.size !== 0)
+    for (const row of body.skeleton.bones) {
+      if (!axes.has(row.bone)) continue;
+      const declared: IAutoMovieJointAxes | undefined = row.axes;
+      if (declared !== undefined) axes.set(row.bone, declared);
+    }
+  const joints: ReadonlyMap<AutoMovieHumanoidBone, IPreparedJoint> = new Map(
+    [...constraints].map(
+      ([bone, constraint]): [AutoMovieHumanoidBone, IPreparedJoint] => [
+        bone,
+        {
+          constraint,
+          frame: axes.has(bone)
+            ? preparedFrame(bone, axes.get(bone), constraint)
+            : undefined,
+        },
+      ],
+    ),
+  );
+  return {
+    constraint: (
+      current: BlendHumanJointData.IBlendBody,
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMovieJointConstraint | null => {
+      const prepared: IPreparedJoint | undefined = joints.get(bone);
+      return prepared === undefined
+        ? BlendHumanJointData.COLD.constraint(current, bone)
+        : prepared.constraint;
+    },
+    frame: (
+      current: BlendHumanJointData.IBlendBody,
+      bone: AutoMovieHumanoidBone,
+      constraint: IAutoMovieJointConstraint | null,
+    ): BlendHumanJointData.IFrame =>
+      joints.get(bone)?.frame?.() ?? BlendHumanJointData.COLD.frame(current, bone, constraint),
+  };
+}
+
+/*
  * One interpolation algorithm, with all original endpoint and hinge gates
  * before frame admission.
  */
 function blend(
-  body: IBlendBody,
+  body: BlendHumanJointData.IBlendBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],
   share: number,
-  lookup: ILookup,
+  lookup: BlendHumanJointData.ILookup,
 ): readonly [number, number, number] {
   const s: number = Math.min(1, Math.max(0, share));
   if (s <= 0) return from;
@@ -324,8 +245,8 @@ function blend(
       from[1] + (to[1] - from[1]) * s,
       from[2] + (to[2] - from[2]) * s,
     ];
-  const rig: IFrame = lookup.frame(body, bone, constraint);
-  const range: IRange | undefined = rig.range;
+  const rig: BlendHumanJointData.IFrame = lookup.frame(body, bone, constraint);
+  const range: BlendHumanJointData.IRange | undefined = rig.range;
   const a: IAutoMovieQuaternion = rotationOf(from, rig);
   const b: IAutoMovieQuaternion = rotationOf(to, rig);
   // A joint ranged by swing and twist is blended inside its range
@@ -343,11 +264,11 @@ function blend(
  * its two rotations, or inside its swing-twist range where it declares one.
  */
 function pair(
-  body: IBlendBody,
+  body: BlendHumanJointData.IBlendBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],
-  lookup: ILookup,
+  lookup: BlendHumanJointData.ILookup,
 ): (share: number) => readonly [number, number, number] {
   const constraint: IAutoMovieJointConstraint | null = lookup.constraint(
     body,
@@ -359,8 +280,8 @@ function pair(
       from[1] + (to[1] - from[1]) * at,
       from[2] + (to[2] - from[2]) * at,
     ];
-  const rig: IFrame = lookup.frame(body, bone, constraint);
-  const range: IRange | undefined = rig.range;
+  const rig: BlendHumanJointData.IFrame = lookup.frame(body, bone, constraint);
+  const range: BlendHumanJointData.IRange | undefined = rig.range;
   const a: IAutoMovieQuaternion = rotationOf(from, rig);
   const b: IAutoMovieQuaternion = rotationOf(to, rig);
   const turn: (share: number) => IAutoMovieQuaternion =
@@ -380,7 +301,7 @@ function pair(
  */
 function rotationOf(
   of: readonly [number, number, number],
-  rig: IFrame,
+  rig: BlendHumanJointData.IFrame,
 ): IAutoMovieQuaternion {
   return Quaternion.normalize(
     AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis(
@@ -396,7 +317,7 @@ function rotationOf(
  */
 function readRotation(
   blended: IAutoMovieQuaternion,
-  rig: IFrame,
+  rig: BlendHumanJointData.IFrame,
 ): readonly [number, number, number] {
   const read: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
     blended,
@@ -405,51 +326,6 @@ function readRotation(
     rig.domain,
   );
   return [read.flexion, read.abduction, read.twist];
-}
-
-/*
- * The existing body records needed to choose a joint's blend.
- */
-type IBlendBody = Pick<IAutoMovieMotionHumanBody, "bones" | "skeleton">;
-
-/*
- * One bone's admitted conversion basis, clinical chart and optional range.
- */
-interface IFrame {
-  /*
-   * The normalized basis the conversions read.
-   */
-  readonly basis: IAutoMovieJointAxes;
-
-  /*
-   * The clinical rest mapping used in both directions.
-   */
-  readonly rest: IAutoMovieRestFrame | undefined;
-
-  /*
-   * The preferred chart's domain for rotation readback.
-   */
-  readonly domain: IAutoMovieJointRotationDomain;
-
-  /*
-   * The prepared swing-twist range when both a range and raw axes exist.
-   */
-  readonly range: IRange | undefined;
-}
-
-/*
- * The constraint and chart a bounded rotation blend uses together.
- */
-interface IRange {
-  /*
-   * The resolved range constraint.
-   */
-  readonly constraint: IAutoMovieJointConstraint;
-
-  /*
-   * Its geometric swing region.
-   */
-  readonly joint: swingTwistRange.IPrepared;
 }
 
 /*
@@ -464,27 +340,5 @@ interface IPreparedJoint {
   /*
    * Its admitted rotation frame or original admission failure.
    */
-  readonly frame: (() => IFrame) | undefined;
-}
-
-/*
- * The two metadata phases: constraint lookup precedes any ball-joint axes work.
- */
-interface ILookup {
-  /*
-   * First-match override/default resolution, without reading clinical axes.
-   */
-  constraint(
-    body: IBlendBody,
-    bone: AutoMovieHumanoidBone,
-  ): IAutoMovieJointConstraint | null;
-
-  /*
-   * Canonical frame metadata, requested only after the hinge branch.
-   */
-  frame(
-    body: IBlendBody,
-    bone: AutoMovieHumanoidBone,
-    constraint: IAutoMovieJointConstraint | null,
-  ): IFrame;
+  readonly frame: (() => BlendHumanJointData.IFrame) | undefined;
 }

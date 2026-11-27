@@ -19,54 +19,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { ropeLine } from "./ropeLine";
 
 /*
- * The locked feet below the lower hand, hip heights (provisional: the hands
- * overhead and the knees drawn up to the lock, the hips well below the hands).
- */
-const LOCK: number = 1.5;
-
-/*
- * The fastest descent when none is asked, metres per second (provisional).
- */
-const SPEED: number = 1;
-
-/*
- * How far behind the rope a descent's feet land, metres (provisional: a
- * forearm's length).
- */
-const STAND_OFF: number = 0.3;
-
-/*
- * The landing feet's half spacing, metres (provisional).
- */
-const STANCE: number = 0.12;
-
-/*
- * The climbing pose: the hands up the rope in front with the elbows bent, the
- * feet drawn up into the lock (provisional angles, degrees).
- */
-const CLIMB: IAutoMovieMotionHumanLieDown.IPose = {
-  pitch: 0,
-  roll: 0,
-  joints: {
-    ...HumanHand.shape("left", "fist"),
-    ...HumanHand.shape("right", "fist"),
-    leftUpperLeg: [60, 5, 0],
-    rightUpperLeg: [60, 5, 0],
-    leftLowerLeg: [90, 0, 0],
-    rightLowerLeg: [90, 0, 0],
-    leftUpperArm: [150, 15, 0],
-    rightUpperArm: [150, 15, 0],
-    leftLowerArm: [50, 0, 0],
-    rightLowerArm: [50, 0, 0],
-  },
-};
-
-/*
- * A foot's offset from the rope in a lock, metres (provisional: the rope
- * between the feet).
- */
-const SPLIT: number = 0.04;
-/*
  * Climbs and descents of an upright rope fitted by the shared support law: a
  * climb moves one hand up a step at a time and re-sets the foot lock below the
  * lower hand one foot after the other; a descent lets the hands and the lock
@@ -422,6 +374,54 @@ export namespace ropeSupport {
     return out;
   }
 }
+
+/*
+ * The locked feet below the lower hand, hip heights (provisional: the hands
+ * overhead and the knees drawn up to the lock, the hips well below the hands).
+ */
+const LOCK: number = 1.5;
+
+/*
+ * The fastest descent when none is asked, metres per second (provisional).
+ */
+const SPEED: number = 1;
+
+/*
+ * How far behind the rope a descent's feet land, metres (provisional: a
+ * forearm's length).
+ */
+const STAND_OFF: number = 0.3;
+
+/*
+ * The landing feet's half spacing, metres (provisional).
+ */
+const STANCE: number = 0.12;
+
+/*
+ * The climbing pose: the hands up the rope in front with the elbows bent, the
+ * feet drawn up into the lock (provisional angles, degrees).
+ */
+const CLIMB: IAutoMovieMotionHumanLieDown.IPose = {
+  pitch: 0,
+  roll: 0,
+  joints: {
+    ...HumanHand.shape("left", "fist"),
+    ...HumanHand.shape("right", "fist"),
+    leftUpperLeg: [60, 5, 0],
+    rightUpperLeg: [60, 5, 0],
+    leftLowerLeg: [90, 0, 0],
+    rightLowerLeg: [90, 0, 0],
+    leftUpperArm: [150, 15, 0],
+    rightUpperArm: [150, 15, 0],
+    leftLowerArm: [50, 0, 0],
+    rightLowerArm: [50, 0, 0],
+  },
+};
+/*
+ * A foot's offset from the rope in a lock, metres (provisional: the rope
+ * between the feet).
+ */
+const SPLIT: number = 0.04;
 
 /*
  * The alternatives of `OneFootAtATimeFootPart`'s site.

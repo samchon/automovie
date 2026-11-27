@@ -35,12 +35,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  */
 export namespace GymnasticsWheel {
   /*
-   * How much lower a later spoke must reach to take the weight from an earlier
-   * one, metres: two spokes level within it keep the earlier.
-   */
-  const LEVEL: number = 1e-3;
-
-  /*
    * Roll a body's shape over its spokes.
    * Parameter props: The body, the shape at an angle (its root at the origin), the
    * spokes in order of preference, the root's floor place at angle 0, the
@@ -246,6 +240,12 @@ export namespace GymnasticsWheel {
       forward: { x: 0, y: 0, z: 1 },
     }).y;
   }
+
+  /*
+   * How much lower a later spoke must reach to take the weight from an earlier
+   * one, metres: two spokes level within it keep the earlier.
+   */
+  const LEVEL: number = 1e-3;
 }
 
 /*

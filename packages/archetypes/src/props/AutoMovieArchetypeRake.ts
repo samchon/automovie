@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No maker's page was read.
- */
-const STAGED: string =
-  "a garden rake: its dimensions and mass are provisional estimates, no maker's page was read";
+import * as AutoMovieArchetypeRakeData from "./internal/AutoMovieArchetypeRakeData";
 
 /** Constructs the rake archetype from its recipe. */
 export namespace AutoMovieArchetypeRake {
@@ -121,8 +116,8 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(1.4, 1.65, STAGED, true),
-    width: AutoMovieArchetypeBand.metres(0.3, 0.42, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.9, 1.6, STAGED, true),
+    length: AutoMovieArchetypeBand.metres(1.4, 1.65, AutoMovieArchetypeRakeData.STAGED, true),
+    width: AutoMovieArchetypeBand.metres(0.3, 0.42, AutoMovieArchetypeRakeData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.9, 1.6, AutoMovieArchetypeRakeData.STAGED, true),
   };
 }

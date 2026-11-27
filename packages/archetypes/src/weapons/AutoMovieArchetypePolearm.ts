@@ -11,55 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The quarterstaff's length, from a secondary source.
- */
-const STAFF: string =
-  "quarterstaff, a hardwood shaft 6 to 9 ft (1.8 to 2.7 m) long (Wikipedia, https://en.wikipedia.org/wiki/Quarterstaff)";
-
-/*
- * The spear's shaft and head, from a secondary source.
- */
-const SPEAR: string =
-  "Viking Age spears, heads of 20 to 60 cm on shafts of 2 to 3 m (Wikipedia, Viking Age arms and armour, https://en.wikipedia.org/wiki/Viking_Age_arms_and_armour)";
-
-/*
- * The cavalry lance, read at the Royal Armouries.
- */
-const LANCE: string =
-  "Royal Armouries, Pattern 1894 Lance: 2.76 m overall, 2.19 kg, a hide sling round the shaft's midpoint giving the hand its grip (https://royalarmouries.org/collection/first-world-war/type/rac-narrative-82.html)";
-
-/*
- * Lance heads, seen only in search results.
- */
-const LANCE_HEADS: string =
-  "the Pattern 1894 lance's head is not stated; the Royal Armouries' lance records VII.2860 (a 207 to 214 mm head) and VII.1433 (a 277 mm head), seen only in search results, give the range applied";
-
-/*
- * Catalogued spearheads' sockets, read in museum records.
- */
-const SOCKETS: string =
-  "a spearhead's socket, the shaft's end, where its record does not state it: the sockets read, Museum Wales' medieval spearhead's 23.5 mm (https://museum.wales/collections/online/object/1b6580d3-f332-34d4-a3e7-5f9b5e6080c7) and the Segontium Roman spearheads' about 19 and 16 mm (https://museum.wales/collections/online/object/06e68587-a7a8-3e9e-876d-c786513a288f, https://museum.wales/collections/online/object/ac74b18f-7c21-3b86-8546-be6de58baffa), applied";
-
-/*
- * Two whole spears, read in museum records: later pieces than the Viking Age
- * spears whose lengths the spear's bands take.
- */
-const SPEAR_MASS: string =
-  "Metropolitan Museum 29.156.36, boar spear, French 1576: 1814.4 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/34315); 14.25.394, spear, Western European 15th century: 2579.8 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/26796); both later than the Viking Age spears the lengths come from";
-
-/*
- * A Pattern 1868 lance head, read at a maker of replicas, not at an original.
- */
-const LANCE_HEAD: string =
-  "A British 1868 Pattern lance head replica, not an original: Iron Gate Armory, blade 1.5 cm wide at its widest, head 180 g (https://irongatearmory.com/product/1868-pattern-lance-head-and-butt-cap/)";
-
-/*
- * The handle diameters hands rated most comfortable in a power grip.
- */
-const POWER: string =
-  "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a lance's shaft at its grip, whose own diameter no record read gives";
+import * as AutoMovieArchetypePolearmData from "./internal/AutoMovieArchetypePolearmData";
 
 /** Constructs the polearm archetype from its recipe. */
 export namespace AutoMovieArchetypePolearm {
@@ -311,7 +263,7 @@ export function create(
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     staff: {
-      length: AutoMovieArchetypeBand.metres(1.8, 2.7, STAFF, true),
+      length: AutoMovieArchetypeBand.metres(1.8, 2.7, AutoMovieArchetypePolearmData.STAFF, true),
       diameter: AutoMovieArchetypeBand.metres(
         0.03,
         0.035,
@@ -327,32 +279,32 @@ export function create(
       ),
     },
     spear: {
-      length: AutoMovieArchetypeBand.metres(2, 3, SPEAR, true),
-      diameter: AutoMovieArchetypeBand.metres(0.016, 0.0235, SOCKETS, true),
-      mass: AutoMovieArchetypeBand.of("kg", 1.8144, 2.5798, SPEAR_MASS),
+      length: AutoMovieArchetypeBand.metres(2, 3, AutoMovieArchetypePolearmData.SPEAR, true),
+      diameter: AutoMovieArchetypeBand.metres(0.016, 0.0235, AutoMovieArchetypePolearmData.SOCKETS, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.8144, 2.5798, AutoMovieArchetypePolearmData.SPEAR_MASS),
     },
     lance: {
       headLength: AutoMovieArchetypeBand.metres(
         0.207,
         0.277,
-        LANCE_HEADS,
+        AutoMovieArchetypePolearmData.LANCE_HEADS,
         true,
       ),
       headWidth: AutoMovieArchetypeBand.metres(
         0.015,
         0.015,
-        `${LANCE_HEAD}, applied to the Pattern 1894`,
+        `${AutoMovieArchetypePolearmData.LANCE_HEAD}, applied to the Pattern 1894`,
         true,
       ),
       headMass: AutoMovieArchetypeBand.of(
         "kg",
         0.18,
         0.18,
-        `${LANCE_HEAD}, applied to the Pattern 1894`,
+        `${AutoMovieArchetypePolearmData.LANCE_HEAD}, applied to the Pattern 1894`,
         true,
       ),
-      diameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: AutoMovieArchetypeBand.of("kg", 2.19, 2.19, LANCE),
+      diameter: AutoMovieArchetypeBand.metres(0.03, 0.04, AutoMovieArchetypePolearmData.POWER, true),
+      mass: AutoMovieArchetypeBand.of("kg", 2.19, 2.19, AutoMovieArchetypePolearmData.LANCE),
     },
   };
 }

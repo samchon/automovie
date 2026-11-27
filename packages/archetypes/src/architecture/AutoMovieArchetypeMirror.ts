@@ -12,34 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The mirror's mounting read.
- */
-const ADA: string =
-  "2010 ADA Standards 603.3: a mirror over a lavatory or countertop with the bottom edge of its reflecting surface 40 inches (1015 mm) maximum above the floor (https://www.access-board.gov/ada/chapter/ch06/); the model takes the limit";
-
-/*
- * The wall mirror read.
- */
-const BOBRICK: string =
-  "Bobrick B-290 technical data: standard sizes 18 x 30, 18 x 36, 24 x 30, 24 x 36, 24 x 48, 24 x 60 and 24 x 72 in (W x H), a 3/4 x 3/4 in angle frame, 1/4 in glass, 3/4 in off the wall (https://www.bobrick.com/wp-content/uploads/B-290_td.pdf)";
-
-/*
- * The standing mirror read.
- */
-const IKORNNES: string =
-  "IKEA IKORNNES standing mirror 302.983.96: width 52 cm, height 167 cm, depth 52 cm (https://www.ikea.com/gb/en/p/ikornnes-standing-mirror-ash-30298396)";
-
-/*
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `panel`, a standing mirror's frame thickness;
- * `foot`, its feet's height.
- */
-const ESTIMATES: Readonly<{ panel: number; foot: number }> = {
-  panel: 0.03,
-  foot: 0.04,
-};
+import * as AutoMovieArchetypeMirrorData from "./internal/AutoMovieArchetypeMirrorData";
 
 /** Constructs the mirror archetype from its recipe. */
 export namespace AutoMovieArchetypeMirror {
@@ -283,17 +256,17 @@ export function create(
       bottom: AutoMovieArchetypeBand.metres(
         40 * AutoMovieArchetypeUnits.INCH,
         40 * AutoMovieArchetypeUnits.INCH,
-        ADA,
+        AutoMovieArchetypeMirrorData.ADA,
       ),
       frame: AutoMovieArchetypeBand.metres(
         0.75 * AutoMovieArchetypeUnits.INCH,
         0.75 * AutoMovieArchetypeUnits.INCH,
-        BOBRICK,
+        AutoMovieArchetypeMirrorData.BOBRICK,
       ),
       offset: AutoMovieArchetypeBand.metres(
         0.75 * AutoMovieArchetypeUnits.INCH,
         0.75 * AutoMovieArchetypeUnits.INCH,
-        BOBRICK,
+        AutoMovieArchetypeMirrorData.BOBRICK,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
@@ -307,17 +280,17 @@ export function create(
       width: AutoMovieArchetypeBand.metres(
         52 * AutoMovieArchetypeUnits.CENTIMETRE,
         52 * AutoMovieArchetypeUnits.CENTIMETRE,
-        IKORNNES,
+        AutoMovieArchetypeMirrorData.IKORNNES,
       ),
       height: AutoMovieArchetypeBand.metres(
         167 * AutoMovieArchetypeUnits.CENTIMETRE,
         167 * AutoMovieArchetypeUnits.CENTIMETRE,
-        IKORNNES,
+        AutoMovieArchetypeMirrorData.IKORNNES,
       ),
       depth: AutoMovieArchetypeBand.metres(
         52 * AutoMovieArchetypeUnits.CENTIMETRE,
         52 * AutoMovieArchetypeUnits.CENTIMETRE,
-        IKORNNES,
+        AutoMovieArchetypeMirrorData.IKORNNES,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
@@ -329,3 +302,13 @@ export function create(
     },
   };
 }
+
+/*
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `panel`, a standing mirror's frame thickness;
+ * `foot`, its feet's height.
+ */
+const ESTIMATES: Readonly<{ panel: number; foot: number }> = {
+  panel: 0.03,
+  foot: 0.04,
+};

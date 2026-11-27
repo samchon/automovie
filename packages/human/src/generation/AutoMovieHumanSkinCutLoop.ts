@@ -47,11 +47,6 @@ export namespace AutoMovieHumanSkinCutLoop {
     reach: number;
   }
 
-  /*
-   * Steps a ray is walked in before the crossing is bracketed.
-   */
-  const STEPS: number = 256;
-
   /**
    * The loop's shares, or the premise that failed: the centre not on the part's side, or a ray that does not cross the surface within
    * reach, named by its clock.
@@ -86,4 +81,9 @@ export namespace AutoMovieHumanSkinCutLoop {
     }
     return out;
   }
+
+  /*
+   * Steps a ray is walked in before the crossing is bracketed.
+   */
+  const STEPS: number = 256;
 }

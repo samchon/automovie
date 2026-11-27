@@ -22,162 +22,9 @@ import { grappleSumo } from "./grappleSumo";
  */
 export namespace grappleStances {
   /*
-   * Illustrative poses separate moving silhouettes within the same rules
-   * family.
-   */
-  const rows: Readonly<
-    Record<Exclude<IAutoMovieMotionHumanGrapple.Kind, grappleSumo.Kind>, IRow>
-  > = {
-    seoiNage: {
-      seconds: 3.5,
-      initiator: { turn: 80, pitch: 25, roll: 0, twist: -15, depth: 34 },
-      receiver: { turn: -16, pitch: 20, roll: -6, twist: 10, depth: 24 },
-      finish: "back",
-      grip: "collarSleeve",
-    },
-    oGoshi: {
-      seconds: 3.8,
-      initiator: { turn: 97, pitch: 15, roll: 12, twist: -16, depth: 30 },
-      receiver: { turn: -24, pitch: 12, roll: 13, twist: 14, depth: 20 },
-      finish: "back",
-      grip: "collarSleeve",
-    },
-    oSotoGari: {
-      seconds: 3.4,
-      initiator: { turn: 27, pitch: 12, roll: -8, twist: 10, depth: 21 },
-      receiver: { turn: -17, pitch: -22, roll: 7, twist: 8, depth: 24 },
-      finish: "back",
-      grip: "collarSleeve",
-    },
-    deAshiHarai: {
-      seconds: 3,
-      initiator: { turn: 39, pitch: 7, roll: -5, twist: -9, depth: 14 },
-      receiver: { turn: -41, pitch: -11, roll: -16, twist: 15, depth: 18 },
-      finish: "back",
-      grip: "collarSleeve",
-    },
-    singleLeg: {
-      seconds: 3.8,
-
-      // The lowered stage picture brings the working shoulder toward the
-      // partner's thigh before the grip closes.
-      initiator: { turn: 23, pitch: 45, roll: 15, twist: 10, depth: 56 },
-      receiver: { turn: -33, pitch: 12, roll: -14, twist: 9, depth: 35 },
-      finish: "back",
-      grip: "oneLeg",
-    },
-    doubleLeg: {
-      seconds: 3.6,
-      initiator: { turn: 9, pitch: 45, roll: 0, twist: 1, depth: 58 },
-      receiver: { turn: -10, pitch: -12, roll: 0, twist: 0, depth: 40 },
-      finish: "back",
-      grip: "bothLegs",
-    },
-    grecoRoman: {
-      seconds: 3.8,
-      initiator: { turn: 54, pitch: 10, roll: 7, twist: -24, depth: 22 },
-      receiver: {
-        turn: -34,
-        pitch: -12,
-        roll: 10,
-        twist: 16,
-        depth: 19,
-        armSpread: 28,
-      },
-      finish: "back",
-      grip: "shoulders",
-    },
-    judoHold: {
-      seconds: 5,
-      initiator: { turn: 24, pitch: 19, roll: 12, twist: -10, depth: 46 },
-      receiver: { turn: -32, pitch: -8, roll: -12, twist: 16, depth: 45 },
-      finish: "hold",
-      grip: "mat",
-    },
-    wrestlingFall: {
-      seconds: 5,
-      initiator: { turn: 38, pitch: 29, roll: -8, twist: -14, depth: 48 },
-      receiver: { turn: -42, pitch: 4, roll: 8, twist: 18, depth: 49 },
-      finish: "hold",
-      grip: "mat",
-    },
-    guardPass: {
-      seconds: 6,
-      initiator: { turn: 47, pitch: 28, roll: 8, twist: -12, depth: 50 },
-      receiver: { turn: -22, pitch: 12, roll: -17, twist: 12, depth: 47 },
-      finish: "hold",
-      grip: "mat",
-    },
-    mmaReset: {
-      seconds: 4.2,
-      initiator: { turn: 19, pitch: 18, roll: 2, twist: -10, depth: 34 },
-      receiver: { turn: -21, pitch: 16, roll: -5, twist: 12, depth: 31 },
-      finish: "reset",
-      grip: "shoulders",
-    },
-  };
-
-  /*
-   * Unscaled shares at which the paired floor keys arrive.
-   */
-  const shares: readonly [number, number, number, number, number] = [
-    0.18, 0.38, 0.61, 0.78, 1,
-  ];
-
-  /*
    * Shared shoulder-exchange entry and release beat, as a share of the take.
    */
   export const SHOULDER_ENTRY: number = 0.34;
-
-  /*
-   * Both feet bearing, with one optionally set down anew by the support law.
-   */
-  function feet(
-    step?: AutoMovieHumanSide,
-  ): readonly IAutoMovieMotionHumanSupport.IContact[] {
-    return ["left", "right"].map(
-      (side: string): IAutoMovieMotionHumanSupport.IContact => ({
-        part: side === "left" ? "leftFoot" : "rightFoot",
-        kind: "bear",
-        ...(side === step ? { step: true } : {}),
-      }),
-    );
-  }
-
-  /*
-   * Switch an authored lead side.
-   */
-  function other(side: AutoMovieHumanSide): AutoMovieHumanSide {
-    return side === "left" ? "right" : "left";
-  }
-
-  /*
-   * Standing stance which lets the pelvis and trunk turn separately.
-   */
-  function stance(
-    entry: IEntry,
-    direction: number,
-    share: number,
-  ): IAutoMovieMotionHumanLieDown.IPose {
-    const depth: number = entry.depth * share;
-    const armSpread: number = 12 + (entry.armSpread ?? 0) * share;
-    return {
-      pitch: entry.pitch * share,
-      roll: direction * entry.roll * share,
-      joints: {
-        spine: [0, 0, direction * entry.twist * share * 0.4],
-        chest: [0, 0, direction * entry.twist * share * 0.6],
-        leftUpperLeg: [depth, 7, 0],
-        rightUpperLeg: [depth, 7, 0],
-        leftLowerLeg: [depth, 0, 0],
-        rightLowerLeg: [depth, 0, 0],
-        leftUpperArm: [16 * share, armSpread, 0],
-        rightUpperArm: [16 * share, armSpread, 0],
-        leftLowerArm: [35 * share, 0, 0],
-        rightLowerArm: [35 * share, 0, 0],
-      },
-    };
-  }
 
   /*
    * Read the default duration for a scene, in seconds.
@@ -339,6 +186,159 @@ export namespace grappleStances {
           },
     ];
     return timed(stances, shares, duration);
+  }
+
+  /*
+   * Illustrative poses separate moving silhouettes within the same rules
+   * family.
+   */
+  const rows: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanGrapple.Kind, grappleSumo.Kind>, IRow>
+  > = {
+    seoiNage: {
+      seconds: 3.5,
+      initiator: { turn: 80, pitch: 25, roll: 0, twist: -15, depth: 34 },
+      receiver: { turn: -16, pitch: 20, roll: -6, twist: 10, depth: 24 },
+      finish: "back",
+      grip: "collarSleeve",
+    },
+    oGoshi: {
+      seconds: 3.8,
+      initiator: { turn: 97, pitch: 15, roll: 12, twist: -16, depth: 30 },
+      receiver: { turn: -24, pitch: 12, roll: 13, twist: 14, depth: 20 },
+      finish: "back",
+      grip: "collarSleeve",
+    },
+    oSotoGari: {
+      seconds: 3.4,
+      initiator: { turn: 27, pitch: 12, roll: -8, twist: 10, depth: 21 },
+      receiver: { turn: -17, pitch: -22, roll: 7, twist: 8, depth: 24 },
+      finish: "back",
+      grip: "collarSleeve",
+    },
+    deAshiHarai: {
+      seconds: 3,
+      initiator: { turn: 39, pitch: 7, roll: -5, twist: -9, depth: 14 },
+      receiver: { turn: -41, pitch: -11, roll: -16, twist: 15, depth: 18 },
+      finish: "back",
+      grip: "collarSleeve",
+    },
+    singleLeg: {
+      seconds: 3.8,
+
+      // The lowered stage picture brings the working shoulder toward the
+      // partner's thigh before the grip closes.
+      initiator: { turn: 23, pitch: 45, roll: 15, twist: 10, depth: 56 },
+      receiver: { turn: -33, pitch: 12, roll: -14, twist: 9, depth: 35 },
+      finish: "back",
+      grip: "oneLeg",
+    },
+    doubleLeg: {
+      seconds: 3.6,
+      initiator: { turn: 9, pitch: 45, roll: 0, twist: 1, depth: 58 },
+      receiver: { turn: -10, pitch: -12, roll: 0, twist: 0, depth: 40 },
+      finish: "back",
+      grip: "bothLegs",
+    },
+    grecoRoman: {
+      seconds: 3.8,
+      initiator: { turn: 54, pitch: 10, roll: 7, twist: -24, depth: 22 },
+      receiver: {
+        turn: -34,
+        pitch: -12,
+        roll: 10,
+        twist: 16,
+        depth: 19,
+        armSpread: 28,
+      },
+      finish: "back",
+      grip: "shoulders",
+    },
+    judoHold: {
+      seconds: 5,
+      initiator: { turn: 24, pitch: 19, roll: 12, twist: -10, depth: 46 },
+      receiver: { turn: -32, pitch: -8, roll: -12, twist: 16, depth: 45 },
+      finish: "hold",
+      grip: "mat",
+    },
+    wrestlingFall: {
+      seconds: 5,
+      initiator: { turn: 38, pitch: 29, roll: -8, twist: -14, depth: 48 },
+      receiver: { turn: -42, pitch: 4, roll: 8, twist: 18, depth: 49 },
+      finish: "hold",
+      grip: "mat",
+    },
+    guardPass: {
+      seconds: 6,
+      initiator: { turn: 47, pitch: 28, roll: 8, twist: -12, depth: 50 },
+      receiver: { turn: -22, pitch: 12, roll: -17, twist: 12, depth: 47 },
+      finish: "hold",
+      grip: "mat",
+    },
+    mmaReset: {
+      seconds: 4.2,
+      initiator: { turn: 19, pitch: 18, roll: 2, twist: -10, depth: 34 },
+      receiver: { turn: -21, pitch: 16, roll: -5, twist: 12, depth: 31 },
+      finish: "reset",
+      grip: "shoulders",
+    },
+  };
+
+  /*
+   * Unscaled shares at which the paired floor keys arrive.
+   */
+  const shares: readonly [number, number, number, number, number] = [
+    0.18, 0.38, 0.61, 0.78, 1,
+  ];
+
+  /*
+   * Both feet bearing, with one optionally set down anew by the support law.
+   */
+  function feet(
+    step?: AutoMovieHumanSide,
+  ): readonly IAutoMovieMotionHumanSupport.IContact[] {
+    return ["left", "right"].map(
+      (side: string): IAutoMovieMotionHumanSupport.IContact => ({
+        part: side === "left" ? "leftFoot" : "rightFoot",
+        kind: "bear",
+        ...(side === step ? { step: true } : {}),
+      }),
+    );
+  }
+
+  /*
+   * Switch an authored lead side.
+   */
+  function other(side: AutoMovieHumanSide): AutoMovieHumanSide {
+    return side === "left" ? "right" : "left";
+  }
+
+  /*
+   * Standing stance which lets the pelvis and trunk turn separately.
+   */
+  function stance(
+    entry: IEntry,
+    direction: number,
+    share: number,
+  ): IAutoMovieMotionHumanLieDown.IPose {
+    const depth: number = entry.depth * share;
+    const armSpread: number = 12 + (entry.armSpread ?? 0) * share;
+    return {
+      pitch: entry.pitch * share,
+      roll: direction * entry.roll * share,
+      joints: {
+        spine: [0, 0, direction * entry.twist * share * 0.4],
+        chest: [0, 0, direction * entry.twist * share * 0.6],
+        leftUpperLeg: [depth, 7, 0],
+        rightUpperLeg: [depth, 7, 0],
+        leftLowerLeg: [depth, 0, 0],
+        rightLowerLeg: [depth, 0, 0],
+        leftUpperArm: [16 * share, armSpread, 0],
+        rightUpperArm: [16 * share, armSpread, 0],
+        leftLowerArm: [35 * share, 0, 0],
+        rightLowerArm: [35 * share, 0, 0],
+      },
+    };
   }
 
   /*

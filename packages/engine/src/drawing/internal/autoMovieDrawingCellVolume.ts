@@ -8,16 +8,6 @@ import { convexHull2D } from "../../math/internal/convexHull2D";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /*
- * Distance in metres within which a corner counts as on or inside a plane.
- */
-const ON_PLANE_TOLERANCE: number = 1e-6;
-
-/*
- * Determinant below which three plane normals do not meet in one corner.
- */
-const SINGULAR_DETERMINANT: number = 1e-9;
-
-/*
  * Volume of one bounded convex cell in cubic metres, from its own half-spaces,
  * or `null` when the cell is unbounded or degenerate.
  *
@@ -134,6 +124,16 @@ export const autoMovieDrawingCellVolume = (
   if (Vector3.length(closure) > facing * ON_PLANE_TOLERANCE) return null;
   return volume;
 };
+
+/*
+ * Distance in metres within which a corner counts as on or inside a plane.
+ */
+const ON_PLANE_TOLERANCE: number = 1e-6;
+
+/*
+ * Determinant below which three plane normals do not meet in one corner.
+ */
+const SINGULAR_DETERMINANT: number = 1e-9;
 
 /*
  * Two unit axes spanning the plane whose unit normal is given.

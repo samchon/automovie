@@ -29,28 +29,6 @@ export function resolvePreparedChainLower(props: IProps): IAutoMovieChainBone {
 }
 
 /*
- * Reuse admitted bases at the same clinical-record sites without a new closure
- * per frame read.
- */
-function rotation(
-  props: IProps,
-  joint: IAutoMovieJointPose,
-  bone: IAutoMovieJointPose["bone"],
-): IAutoMovieQuaternion {
-  return props.rig === undefined
-    ? jointToQuaternion(
-        joint,
-        props.jointAxes?.[bone],
-        props.restFrames?.[bone],
-      )
-    : jointToQuaternionOnBasis.run(
-        joint,
-        props.rig.jointBasis(bone, "jointToQuaternion axes"),
-        props.restFrames?.[bone],
-      );
-}
-
-/*
  * The shared two-joint FK prefix for records or already admitted articulations.
  */
 export namespace resolvePreparedChainLower {
@@ -94,6 +72,28 @@ export namespace resolvePreparedChainLower {
     );
     return { worldPosition: lowerPosition, worldRotation: lowerRotation };
   }
+}
+
+/*
+ * Reuse admitted bases at the same clinical-record sites without a new closure
+ * per frame read.
+ */
+function rotation(
+  props: IProps,
+  joint: IAutoMovieJointPose,
+  bone: IAutoMovieJointPose["bone"],
+): IAutoMovieQuaternion {
+  return props.rig === undefined
+    ? jointToQuaternion(
+        joint,
+        props.jointAxes?.[bone],
+        props.restFrames?.[bone],
+      )
+    : jointToQuaternionOnBasis.run(
+        joint,
+        props.rig.jointBasis(bone, "jointToQuaternion axes"),
+        props.restFrames?.[bone],
+      );
 }
 
 /*

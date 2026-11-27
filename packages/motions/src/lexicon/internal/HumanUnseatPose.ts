@@ -51,15 +51,6 @@ export namespace HumanUnseatPose {
   export const STAND: KnockdownFloor.IFold = { pitch: 0, joints: {} };
 
   /*
-   * The slump's trunk and neck flexion, degrees (provisional).
-   */
-  const FLEX: Readonly<Record<FLEXEntryItem, number>> = {
-    spine: 35,
-    chest: 25,
-    neck: 30,
-  };
-
-  /*
    * The seated posture slumped over the neck by a share.
    * Parameter posture: The carried seat.
    * Parameter share: 0 upright to 1 slumped.
@@ -246,6 +237,7 @@ export namespace HumanUnseatPose {
       },
     };
   }
+
   /*
    * Where the falling side's hand meets the floor: out from the falling side's
    * shoulder by half the upper arm, below it on the floor.
@@ -270,7 +262,6 @@ export namespace HumanUnseatPose {
       y: body.measure.forearmRadius,
     };
   }
-
   /*
    * The root's height standing.
    * Parameter body: The body.
@@ -393,6 +384,15 @@ export namespace HumanUnseatPose {
     }
     return undefined;
   }
+
+  /*
+   * The slump's trunk and neck flexion, degrees (provisional).
+   */
+  const FLEX: Readonly<Record<FLEXEntryItem, number>> = {
+    spine: 35,
+    chest: 25,
+    neck: 30,
+  };
 }
 
 /*

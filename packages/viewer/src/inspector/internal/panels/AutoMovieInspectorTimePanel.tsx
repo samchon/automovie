@@ -5,11 +5,6 @@ import { AutoMovieInspectorTimeReadout } from "../AutoMovieInspectorTimeReadout.
 import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
 
 /*
- * Preview speeds offered, as multiples of real time.
- */
-const RATES: readonly number[] = [0.1, 0.25, 0.5, 1, 2];
-
-/*
  * The transport under the canvas: one play or pause button, the scrubber and clock, and the preview speed.
  *
  * Play, pause and the speed move only the playhead; the readout turns a stop or a seek into a `time` edit, so the request names the picture left on screen. The button reads only whether the playhead plays, so playing frames do not re-render it; its label says what pressing it does, Play or Pause, and it carries no pressed state, since a toggle's label must not change with its state.
@@ -78,3 +73,8 @@ export namespace AutoMovieInspectorTimePanel {
     dispatch: (action: IAutoMovieInspectorAction) => void;
   }
 }
+
+/*
+ * Preview speeds offered, as multiples of real time.
+ */
+const RATES: readonly number[] = [0.1, 0.25, 0.5, 1, 2];

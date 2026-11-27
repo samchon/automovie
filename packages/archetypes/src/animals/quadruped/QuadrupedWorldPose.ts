@@ -14,11 +14,7 @@ import type {
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "../AutoMovieArchetypeQuadrupedSkeleton";
-
-/*
- * World components in their decay order.
- */
-const AXES: readonly QuadrupedWorldPose.Axis[] = ["x", "y", "z"];
+import * as QuadrupedWorldPoseData from "./internal/QuadrupedWorldPoseData";
 
 /*
  * A quadruped's displayed pose as a world root frame and parent-local bone
@@ -461,7 +457,7 @@ function decay(
   elapsed: number,
 ): IAutoMovieVector3 {
   const result: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  for (const axis of AXES)
+  for (const axis of QuadrupedWorldPoseData.AXES)
     result[axis] = AutoMovieEngineMotionSampling.inertializeOffset(
       channel.x[axis],
       channel.v[axis],

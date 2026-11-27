@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,10 +8,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { PaddleBlade } from "./internal/PaddleBlade";
-
-const SOURCE: string =
-  "Werner Skagit FG adjustable straight shaft: https://wernerpaddles.com/products/werner-skagit-fg-adjustable-straight-shaft-kayak-paddle";
-const v: typeof Vector3.create = Vector3.create;
+import * as AutoMovieArchetypeKayakPaddleData from "./internal/AutoMovieArchetypeKayakPaddleData";
+import { v } from "./internal/AutoMovieArchetypeKayakPaddleData";
 
 /** Constructs the kayak paddle archetype from its recipe. */
 export namespace AutoMovieArchetypeKayakPaddle {
@@ -106,9 +104,9 @@ export function create(
   };
   /** Manufacturer figures for the adjustable straight-shaft model. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(2.2, 2.6, SOURCE),
-    bladeLength: AutoMovieArchetypeBand.metres(0.49, 0.49, SOURCE),
-    bladeWidth: AutoMovieArchetypeBand.metres(0.156, 0.156, SOURCE),
-    mass: AutoMovieArchetypeBand.of("kg", 1.042, 1.042, SOURCE),
+    length: AutoMovieArchetypeBand.metres(2.2, 2.6, AutoMovieArchetypeKayakPaddleData.SOURCE),
+    bladeLength: AutoMovieArchetypeBand.metres(0.49, 0.49, AutoMovieArchetypeKayakPaddleData.SOURCE),
+    bladeWidth: AutoMovieArchetypeBand.metres(0.156, 0.156, AutoMovieArchetypeKayakPaddleData.SOURCE),
+    mass: AutoMovieArchetypeBand.of("kg", 1.042, 1.042, AutoMovieArchetypeKayakPaddleData.SOURCE),
   };
 }

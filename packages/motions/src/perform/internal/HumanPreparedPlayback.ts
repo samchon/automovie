@@ -9,14 +9,6 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { PreparedHumanIntervals } from "./PreparedHumanIntervals";
 
 /*
- * The prepared interval index belongs to the attached phase records.
- */
-const PHASE_READERS: WeakMap<
-  readonly IAutoMovieMotionHumanPlayback.IPhase[],
-  (second: number) => IAutoMovieMotionHumanPlayback.IPhase | undefined
-> = new WeakMap();
-
-/*
  * Pass a native action's phase evaluators to its display leaf. Public authoring
  * still reads the plan's posture callback. A law supplies its exact event
  * boundaries and owns the mathematics and validity of each evaluator. Display
@@ -199,6 +191,14 @@ export namespace HumanPreparedPlayback {
       : phase.sample(...args);
   }
 }
+
+/*
+ * The prepared interval index belongs to the attached phase records.
+ */
+const PHASE_READERS: WeakMap<
+  readonly IAutoMovieMotionHumanPlayback.IPhase[],
+  (second: number) => IAutoMovieMotionHumanPlayback.IPhase | undefined
+> = new WeakMap();
 
 /*
  * The plan a playback is bound to.

@@ -14,13 +14,6 @@ import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import { autoMovieVisemeChannelWeights } from "./autoMovieVisemeChannelWeights.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 
-// One list with engine admission, which refuses a pose-driven morph target
-// under any of these names because this reset would overwrite it.
-const EXPRESSION_RESET_NAMES: readonly string[] = [
-  ...AUTOMOVIE_EXPRESSION_PRESETS,
-  ...AUTOMOVIE_ARKIT_CHANNELS,
-];
-
 /*
  * Apply a sampled automovie expression to a viewer model.
  *
@@ -56,6 +49,13 @@ export const applyExpression: (
     for (const [name, weight] of weights) sink.setExpressionValue(name, weight);
   }
 };
+
+// One list with engine admission, which refuses a pose-driven morph target
+// under any of these names because this reset would overwrite it.
+const EXPRESSION_RESET_NAMES: readonly string[] = [
+  ...AUTOMOVIE_EXPRESSION_PRESETS,
+  ...AUTOMOVIE_ARKIT_CHANNELS,
+];
 
 /*
  * Layer viseme weights over an expression's channels: the mouth layer's sums

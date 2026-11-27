@@ -11,16 +11,6 @@ import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import { solveTwoBoneIK } from "./solveTwoBoneIK";
 
 /*
- * World-down, the direction the default bend displaces the mid joint toward.
- */
-const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-
-/*
- * Bend-plane axis used when the reach axis is parallel to `POLE`.
- */
-const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/*
  * The bone-local articulation of a resolved two-segment chain that lands its
  * end effector on `target`: the leg plant's solve.
  *
@@ -120,6 +110,16 @@ export namespace twoBoneChainArticulation {
     };
   }
 }
+
+/*
+ * World-down, the direction the default bend displaces the mid joint toward.
+ */
+const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
+
+/*
+ * Bend-plane axis used when the reach axis is parallel to `POLE`.
+ */
+const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /*
  * Keep length degeneracy before rest directions or any target read, as in the

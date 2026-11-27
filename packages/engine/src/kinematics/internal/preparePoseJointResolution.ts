@@ -11,31 +11,7 @@ import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAn
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import type { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
-
-/*
- * Null clinical rest genuinely resolves to this exact positive-zero rig angle.
- */
-const REST_ANGLE: readonly [number] = [0];
-
-/*
- * Immutable rig declarations share only factors actually requested at exact rig
- * rest.
- */
-const REST_ANGLES: jointToQuaternionOnBasis.IFixedAngles = {
-  flexion: REST_ANGLE,
-  abduction: REST_ANGLE,
-  twist: REST_ANGLE,
-};
-
-/*
- * Write a composed quaternion's components into the sink.
- */
-function store(x: number, y: number, z: number, w: number, sink: ISink): void {
-  sink.x = x;
-  sink.y = y;
-  sink.z = z;
-  sink.w = w;
-}
+import * as PreparePoseJointResolutionData from "./PreparePoseJointResolutionData";
 
 /*
  * Admit changing ordered joint records on one genuine immutable prepared rig.
@@ -429,7 +405,7 @@ export namespace preparePoseJointResolution {
       queries: jointToQuaternionOnBasis.prepareScalarQueries(
         basis,
         frame,
-        REST_ANGLES,
+        PreparePoseJointResolutionData.REST_ANGLES,
       ),
       prechecks: {
         flexion: AutoMovieEngineRigAngle.prepareToRigAngle(),
@@ -490,6 +466,16 @@ export namespace preparePoseJointResolution {
      */
     snapshot(rows: Float64Array): void;
   }
+}
+
+/*
+ * Write a composed quaternion's components into the sink.
+ */
+function store(x: number, y: number, z: number, w: number, sink: ISink): void {
+  sink.x = x;
+  sink.y = y;
+  sink.z = z;
+  sink.w = w;
 }
 
 /*

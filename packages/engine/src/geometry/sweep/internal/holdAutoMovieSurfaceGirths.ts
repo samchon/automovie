@@ -7,28 +7,6 @@ import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
 /*
- * Most rest fits the girth solve runs.
- */
-const MAX_ITERATIONS: number = 24;
-
-/*
- * Largest perimeter error the solve accepts, relative to the perimeter.
- */
-const TOLERANCE: number = 1e-9;
-
-/*
- * Gauss-Legendre nodes on 0 to 1 and their weights, five points: exact for
- * polynomials of degree nine.
- */
-const GAUSS: ReadonlyArray<readonly [number, number]> = [
-  [0.5 - 0.453089922969332, 0.118463442528095],
-  [0.5 - 0.269234655052841, 0.239314335249683],
-  [0.5, 0.284444444444444],
-  [0.5 + 0.269234655052841, 0.239314335249683],
-  [0.5 + 0.453089922969332, 0.118463442528095],
-];
-
-/*
  * Hold the limit perimeter of a surface network's girth rings, the rings that
  * declare `perimeter`, by solving a radial factor along each sweep.
  *
@@ -339,6 +317,28 @@ export const holdAutoMovieSurfaceGirths: (
     `girth rings ${girths.map((g: IGirth): string => g.name).join(", ")} did not converge`,
   );
 };
+
+/*
+ * Most rest fits the girth solve runs.
+ */
+const MAX_ITERATIONS: number = 24;
+
+/*
+ * Largest perimeter error the solve accepts, relative to the perimeter.
+ */
+const TOLERANCE: number = 1e-9;
+
+/*
+ * Gauss-Legendre nodes on 0 to 1 and their weights, five points: exact for
+ * polynomials of degree nine.
+ */
+const GAUSS: ReadonlyArray<readonly [number, number]> = [
+  [0.5 - 0.453089922969332, 0.118463442528095],
+  [0.5 - 0.269234655052841, 0.239314335249683],
+  [0.5, 0.284444444444444],
+  [0.5 + 0.269234655052841, 0.239314335249683],
+  [0.5 + 0.453089922969332, 0.118463442528095],
+];
 
 /*
  * Solve the dense system `a x = b` of order `n` by Gaussian elimination with

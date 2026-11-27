@@ -13,7 +13,6 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidFoot } from "./AutoMovieSolidFoot";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { norm, scale, solve3, sub } = AutoMovieSolidVector;
 /**
  * A join's seed record as the trace's seed
  * (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres.
@@ -33,18 +32,6 @@ export namespace AutoMovieConstructionSeeds {
 
   /** Stations and phases of the coarse grid a step's first foot starts from. */
   export const GRID: [number, number] = [16, 32];
-
-  /*
-   * Twenty trial steps, starting at full weight, bound local safeguarding work;
-   * exhaustion is not a global absence result.
-   */
-  const BACKTRACKINGS: number = 20;
-
-  /*
-   * Conventional Armijo sufficient-decrease factor, matching PETSc
-   * SNESLINESEARCHBT's documented default rather than an anatomical fit.
-   */
-  const DECREASE: number = 1e-4;
 
   /**
    * The trace's seed.
@@ -126,6 +113,18 @@ export namespace AutoMovieConstructionSeeds {
       ? `no admissible meeting converged from ${starts} local starts on the part's station line at phase ${seed.phase} between stations ${a} and ${b} mm; this bounded search does not prove no crossing`
       : `no admissible meeting converged from ${starts} local starts on each of the part's ${lines} station lines at phases ${phases.map((p: number): string => p.toFixed(4)).join(", ")} between stations ${a} and ${b} mm; this bounded search does not prove no crossing`;
   }
+
+  /*
+   * Twenty trial steps, starting at full weight, bound local safeguarding work;
+   * exhaustion is not a global absence result.
+   */
+  const BACKTRACKINGS: number = 20;
+
+  /*
+   * Conventional Armijo sufficient-decrease factor, matching PETSc
+   * SNESLINESEARCHBT's documented default rather than an anatomical fit.
+   */
+  const DECREASE: number = 1e-4;
 
   /*
    * One station line's search: the walk at `phase` from station `a` to station
@@ -408,5 +407,7 @@ export namespace AutoMovieConstructionSeeds {
     return best;
   }
 }
+
+const { norm, scale, solve3, sub } = AutoMovieSolidVector;
 
 type Vec3 = AutoMovieVector3Tuple;

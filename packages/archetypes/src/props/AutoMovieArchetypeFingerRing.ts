@@ -9,28 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The ring sizes: ISO 8653:2016 states a ring's size as its inner circumference
- * in millimetres, its table running from 49 to 72 mm.
- */
-const SIZE: string =
-  "ISO 8653:2016 ring sizes, the inner circumference 49 to 72 mm (Wikipedia, Ring size, ISO size table)";
-
-/*
- * A plain band's wire thickness, provisional.
- */
-const WIRE: string = "a plain band's wire 1.5 to 2.5 mm thick, provisional";
-
-/*
- * A plain band's mass, provisional.
- */
-const MASS: string = "a plain gold band of 2 to 8 g, provisional";
-
-/*
- * How many straight pieces draw the band's circle.
- */
-const PIECES: number = 12;
+import * as AutoMovieArchetypeFingerRingData from "./internal/AutoMovieArchetypeFingerRingData";
 
 /** Constructs the finger ring archetype from its recipe. */
 export namespace AutoMovieArchetypeFingerRing {
@@ -136,8 +115,13 @@ export function create(
 
   /** The sourced bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    circumference: AutoMovieArchetypeBand.metres(0.049, 0.072, SIZE),
-    wire: AutoMovieArchetypeBand.metres(0.0015, 0.0025, WIRE),
-    mass: AutoMovieArchetypeBand.of("kg", 0.002, 0.008, MASS),
+    circumference: AutoMovieArchetypeBand.metres(0.049, 0.072, AutoMovieArchetypeFingerRingData.SIZE),
+    wire: AutoMovieArchetypeBand.metres(0.0015, 0.0025, AutoMovieArchetypeFingerRingData.WIRE),
+    mass: AutoMovieArchetypeBand.of("kg", 0.002, 0.008, AutoMovieArchetypeFingerRingData.MASS),
   };
 }
+
+/*
+ * How many straight pieces draw the band's circle.
+ */
+const PIECES: number = 12;

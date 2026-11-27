@@ -1,23 +1,6 @@
 import type { IAutoMovieApplyInteriorAcousticResponse } from "@automovie/interface";
 
 /*
- * Fixed internal diffuse-response tier: 20 ms taps, at most 32 and 2 s.
- */
-const TAP_INTERVAL_SECONDS: number = 0.02;
-
-/*
- * Maximum delayed contributions in this sparse tier; a module scalar, not a
- * retained impulse-response buffer.
- */
-const MAX_TAPS: number = 32;
-
-/*
- * Tail ceiling in seconds; caller PCM length still controls the main output
- * allocation.
- */
-const MAX_TAIL_SECONDS: number = 2;
-
-/*
  * Apply an available declared room-path response to finite interleaved PCM.
  */
 export const applyAutoMovieInteriorAcousticResponse: (
@@ -83,3 +66,20 @@ export const applyAutoMovieInteriorAcousticResponse: (
   }
   return output;
 };
+
+/*
+ * Fixed internal diffuse-response tier: 20 ms taps, at most 32 and 2 s.
+ */
+const TAP_INTERVAL_SECONDS: number = 0.02;
+
+/*
+ * Maximum delayed contributions in this sparse tier; a module scalar, not a
+ * retained impulse-response buffer.
+ */
+const MAX_TAPS: number = 32;
+
+/*
+ * Tail ceiling in seconds; caller PCM length still controls the main output
+ * allocation.
+ */
+const MAX_TAIL_SECONDS: number = 2;

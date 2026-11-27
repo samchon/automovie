@@ -23,11 +23,6 @@ import { AutoMovieHumanTrunkSolver } from "./AutoMovieHumanTrunkSolver";
  * The section is mirror-symmetric, so the legs part exactly on the midline.
  */
 export namespace AutoMovieHumanTrunkConstruction {
-  /*
-   * Uniform phases of the chains' rings: two per control point of the 256-control section.
-   */
-  const SAMPLES: number = 512;
-
   /**
    * Calibration with the trunk's rows replaced, or added when it holds none.
    *
@@ -132,4 +127,9 @@ export namespace AutoMovieHumanTrunkConstruction {
       ],
     };
   }
+
+  /*
+   * Uniform phases of the chains' rings: two per control point of the 256-control section.
+   */
+  const SAMPLES: number = 512;
 }

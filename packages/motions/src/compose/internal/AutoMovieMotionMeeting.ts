@@ -14,19 +14,7 @@ import type {
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
-
-/*
- * The mean of points.
- */
-const mean = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3 =>
-  Vector3.scale(
-    points.reduce(
-      (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(sum, p),
-      { x: 0, y: 0, z: 0 },
-    ),
-    1 / points.length,
-  );
+import { mean } from "./AutoMovieMotionMeetingData";
 
 /*
  * The meeting of a mutual action.

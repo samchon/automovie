@@ -27,27 +27,7 @@ import { readHumanSegmentAnchors } from "./readHumanSegmentAnchors";
 import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 import { unfollowedHumanChannels } from "./unfollowedHumanChannels";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
-
-/*
- * The arms, placed at the anchor course (`readHumanSegmentAnchors`) where the
- * plan's own course does not place them.
- */
-const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
-
-/*
- * Whether a plan second lies inside the plan's legs-still window
- * (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit.
- */
-function still(
-  plan: IAutoMovieMotionHumanActionPlan,
-  seconds: number,
-): boolean {
-  return (
-    plan.legsStill !== undefined &&
-    seconds >= plan.legsStill[0] &&
-    seconds <= plan.legsStill[1]
-  );
-}
+import * as ReadHumanSegmentLeafData from "./ReadHumanSegmentLeafData";
 
 /*
  * Read the action before its entering offset, including current holds and
@@ -154,7 +134,7 @@ export function readHumanSegmentLeaf(
     (borne.length !== 0 ||
       (person.overlays.length !== 0 &&
         HumanSegmentOverlay.running(person, t).length !== 0) ||
-      ARMS.some(
+      ReadHumanSegmentLeafData.ARMS.some(
         (limb: AutoMovieHumanLimb): boolean =>
           written.limbs[limb] !== undefined && course?.get(limb) === undefined,
       ));
@@ -247,7 +227,7 @@ export namespace readHumanSegmentLeaf {
     entry: IAutoMoviePose,
   ): courseLimbSwivels.Swivels {
     const entered: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
-    for (const limb of ARMS) {
+    for (const limb of ReadHumanSegmentLeafData.ARMS) {
       const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
         body,
         entry,
@@ -264,7 +244,7 @@ export namespace readHumanSegmentLeaf {
       // The legs keep their own fits: a planted foot is held by its plant
       // and transition corrections, which a course of the leaf alone would
       // not see.
-      limbs: ARMS,
+      limbs: ReadHumanSegmentLeafData.ARMS,
       span: { start: 0, end: plan.duration },
       instants: plan.events.map(
         (event: IAutoMovieMotionEvent): number => event.share * plan.duration,
@@ -293,4 +273,19 @@ export namespace readHumanSegmentLeaf {
      */
     seeds: HumanSegmentPose.IFits;
   }
+}
+
+/*
+ * Whether a plan second lies inside the plan's legs-still window
+ * (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit.
+ */
+function still(
+  plan: IAutoMovieMotionHumanActionPlan,
+  seconds: number,
+): boolean {
+  return (
+    plan.legsStill !== undefined &&
+    seconds >= plan.legsStill[0] &&
+    seconds <= plan.legsStill[1]
+  );
 }

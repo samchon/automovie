@@ -1,26 +1,5 @@
 import type { IAutoMovieSpline } from "@automovie/interface";
 
-/*
- * Tension below which a segment is evaluated as the plain cubic, where the
- * hyperbolic form loses precision.
- */
-const CUBIC: number = 1e-4;
-
-/*
- * Largest tension tried by the fixed sampled-search policy.
- */
-const MOST: number = 64;
-
-/*
- * Bisection steps that refine an accepted/rejected sampled-tension bracket.
- */
-const SETTLE: number = 10;
-
-/*
- * Samples per segment when measuring overshoot.
- */
-const SAMPLES: number = 16;
-
 /**
  * The interpolating spline under tension on caller-owned arrays: one shared
  * tension chosen per profile by a sampled overshoot policy, the coefficients
@@ -396,3 +375,24 @@ export namespace AutoMovieSpline {
       : Math.abs(ys[(((k + 1) % n) + n) % n]! - ys[((k % n) + n) % n]!);
   }
 }
+
+/*
+ * Tension below which a segment is evaluated as the plain cubic, where the
+ * hyperbolic form loses precision.
+ */
+const CUBIC: number = 1e-4;
+
+/*
+ * Largest tension tried by the fixed sampled-search policy.
+ */
+const MOST: number = 64;
+
+/*
+ * Bisection steps that refine an accepted/rejected sampled-tension bracket.
+ */
+const SETTLE: number = 10;
+
+/*
+ * Samples per segment when measuring overshoot.
+ */
+const SAMPLES: number = 16;

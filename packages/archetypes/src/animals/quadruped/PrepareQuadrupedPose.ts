@@ -23,6 +23,75 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 
 /*
+ * The private ride owner's achieved-geometry emission surface.
+ */
+export namespace PrepareQuadrupedPose {
+  /*
+   * Prepare one animal for shared solved-world-chain pose emission.
+   * Parameter animal: Source geometry and original contact identities; never
+   * changed.
+   * Parameter parts: Carrier of every non-bone part.
+   * Parameter contacts: Carrier of every source affordance.
+   * Returns: Reusable root/axial preview, exact non-limb floor support and
+   * complete-limb sampling.
+   * For invalid models, non-rigid frames, incomplete
+   * carriers, broken neutral chains or a current solved chain the source
+   * cannot close.
+   */
+  export function ordinary<Id extends string, D extends string>(
+    animal: AutoMovieArchetype<Id, D>,
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+  ): QuadrupedPosePlan.IPrepared<Id, D> {
+    return prepare(animal, parts, contacts);
+  }
+
+  /*
+   * Prepare the same pose with the private native ride emission surface.
+   */
+  export function ride<Id extends string, D extends string>(
+    animal: AutoMovieArchetype<Id, D>,
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+  ): IPrepared<Id, D> {
+    return prepare(animal, parts, contacts, true);
+  }
+
+  /*
+   * The internal ride reader adds achieved geometry to ordinary public
+   * preparation.
+   */
+  export interface IPrepared<
+    Id extends string,
+    Dimension extends string,
+  > extends QuadrupedPosePlan.IPrepared<Id, Dimension> {
+    /*
+     * Admit exact achieved geometry for independent emission by its owning
+     * operation.
+     */
+    position(
+      limbs: ReadonlyMap<
+        AutoMovieArchetypeQuadrupedBody.Limb,
+        readonly IAutoMovieVector3[]
+      >,
+      root?: IAutoMovieTransform,
+      axial?: ReadonlyMap<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
+    ): IPosition<Id, Dimension>;
+  }
+
+  /*
+   * Achieved joint geometry that can emit a fresh model on demand.
+   */
+  export interface IPosition<Id extends string, Dimension extends string>
+    extends QuadrupedPosePlan.IState {
+    /*
+     * Apply admitted frames to parts and contacts in a fresh model.
+     */
+    emit(): AutoMovieArchetype<Id, Dimension>;
+  }
+}
+
+/*
  * Build the owned rig, source, floor and achieved output operations.
  */
 function prepare<Id extends string, Dimension extends string>(
@@ -30,7 +99,6 @@ function prepare<Id extends string, Dimension extends string>(
   parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
   contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
 ): QuadrupedPosePlan.IPrepared<Id, Dimension>;
-
 function prepare<Id extends string, Dimension extends string>(
   animal: AutoMovieArchetype<Id, Dimension>,
   parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
@@ -323,6 +391,7 @@ function prepare<Id extends string, Dimension extends string>(
     };
   }
 }
+
 /*
  * A bone frame sits at its upper joint and its bar runs along local +Y.
  */
@@ -342,75 +411,6 @@ function endpoint(
  */
 function magnitude(point: IAutoMovieVector3): number {
   return Math.hypot(point.x, point.y, point.z);
-}
-
-/*
- * The private ride owner's achieved-geometry emission surface.
- */
-export namespace PrepareQuadrupedPose {
-  /*
-   * Prepare one animal for shared solved-world-chain pose emission.
-   * Parameter animal: Source geometry and original contact identities; never
-   * changed.
-   * Parameter parts: Carrier of every non-bone part.
-   * Parameter contacts: Carrier of every source affordance.
-   * Returns: Reusable root/axial preview, exact non-limb floor support and
-   * complete-limb sampling.
-   * For invalid models, non-rigid frames, incomplete
-   * carriers, broken neutral chains or a current solved chain the source
-   * cannot close.
-   */
-  export function ordinary<Id extends string, D extends string>(
-    animal: AutoMovieArchetype<Id, D>,
-    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
-    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
-  ): QuadrupedPosePlan.IPrepared<Id, D> {
-    return prepare(animal, parts, contacts);
-  }
-
-  /*
-   * Prepare the same pose with the private native ride emission surface.
-   */
-  export function ride<Id extends string, D extends string>(
-    animal: AutoMovieArchetype<Id, D>,
-    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
-    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
-  ): IPrepared<Id, D> {
-    return prepare(animal, parts, contacts, true);
-  }
-
-  /*
-   * The internal ride reader adds achieved geometry to ordinary public
-   * preparation.
-   */
-  export interface IPrepared<
-    Id extends string,
-    Dimension extends string,
-  > extends QuadrupedPosePlan.IPrepared<Id, Dimension> {
-    /*
-     * Admit exact achieved geometry for independent emission by its owning
-     * operation.
-     */
-    position(
-      limbs: ReadonlyMap<
-        AutoMovieArchetypeQuadrupedBody.Limb,
-        readonly IAutoMovieVector3[]
-      >,
-      root?: IAutoMovieTransform,
-      axial?: ReadonlyMap<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
-    ): IPosition<Id, Dimension>;
-  }
-
-  /*
-   * Achieved joint geometry that can emit a fresh model on demand.
-   */
-  export interface IPosition<Id extends string, Dimension extends string>
-    extends QuadrupedPosePlan.IState {
-    /*
-     * Apply admitted frames to parts and contacts in a fresh model.
-     */
-    emit(): AutoMovieArchetype<Id, Dimension>;
-  }
 }
 
 /*

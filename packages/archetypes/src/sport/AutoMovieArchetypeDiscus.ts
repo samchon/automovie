@@ -1,23 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
-import {
-  AutoMovieArchetype,
-  AutoMovieArchetypeBand,
-  type AutoMovieArchetypeBandUnit,
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  type IAutoMovieArchetypeBand,
-} from "../core";
+import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The World Athletics rule as read.
- */
-const RULE: string =
-  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 34.2, the discus";
+import {
+  band as AutoMovieArchetypeDiscusDataBand,
+} from "./internal/AutoMovieArchetypeDiscusData";
 
 /** Canonical producer and authoring contract for Discus. */
 export namespace AutoMovieArchetypeDiscus {
@@ -65,30 +54,19 @@ export namespace AutoMovieArchetypeDiscus {
     mass: "kg",
   };
 
-  /*
-   * A band of the rule.
-   */
-  const band = (
-    unit: AutoMovieArchetypeBandUnit,
-    minimum: number,
-    maximum: number,
-    what: string,
-  ): IAutoMovieArchetypeBand =>
-    AutoMovieArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
-
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      diameter: band("m", 0.219, 0.221, "the men's 219 to 221 mm across"),
-      thickness: band(
+      diameter: AutoMovieArchetypeDiscusDataBand("m", 0.219, 0.221, "the men's 219 to 221 mm across"),
+      thickness: AutoMovieArchetypeDiscusDataBand(
         "m",
         0.044,
         0.046,
         "the men's 44 to 46 mm thick at the centre",
       ),
-      mass: band(
+      mass: AutoMovieArchetypeDiscusDataBand(
         "kg",
         2,
         2,
@@ -96,14 +74,14 @@ export namespace AutoMovieArchetypeDiscus {
       ),
     },
     women: {
-      diameter: band("m", 0.18, 0.182, "the women's 180 to 182 mm across"),
-      thickness: band(
+      diameter: AutoMovieArchetypeDiscusDataBand("m", 0.18, 0.182, "the women's 180 to 182 mm across"),
+      thickness: AutoMovieArchetypeDiscusDataBand(
         "m",
         0.037,
         0.039,
         "the women's 37 to 39 mm thick at the centre",
       ),
-      mass: band(
+      mass: AutoMovieArchetypeDiscusDataBand(
         "kg",
         1,
         1,

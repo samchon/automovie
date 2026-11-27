@@ -27,30 +27,6 @@ import { HumanSurfaceGlide } from "./HumanSurfaceGlide";
 import { pivotSurfaceFoot } from "./pivotSurfaceFoot";
 
 /*
- * Left and right legs fitted against the moving ice plane.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/*
- * Canonical axes before the foot or carrier rotation.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-const CROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/*
- * Share of a curling delivery spent lowering into the slide (provisional
- * staging; the cited study gives the stance, not its timing).
- */
-const CURL_SET: number = 0.3;
-
-/*
- * Share of a curling delivery at which its `delivery` event is named, mid-slide
- * (provisional staging).
- */
-const CURL_DELIVERY: number = 0.5;
-
-/*
  * One ice glide with fitted runner edges, an optional step, or a low curling
  * delivery. The bilateral glide owns path, speed, entry and stopping. Ice
  * footwork owns each foot's support window and the point which a shoe or blade
@@ -316,6 +292,30 @@ export namespace HumanIceGlide {
     };
   }
 }
+
+/*
+ * Left and right legs fitted against the moving ice plane.
+ */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+/*
+ * Canonical axes before the foot or carrier rotation.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+const CROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
+/*
+ * Share of a curling delivery spent lowering into the slide (provisional
+ * staging; the cited study gives the stance, not its timing).
+ */
+const CURL_SET: number = 0.3;
+
+/*
+ * Share of a curling delivery at which its `delivery` event is named, mid-slide
+ * (provisional staging).
+ */
+const CURL_DELIVERY: number = 0.5;
 /*
  * A stepping blade within the dorsal range of the weight it bears
  * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it leaves, its

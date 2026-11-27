@@ -98,45 +98,6 @@ export namespace AutoMovieMotionHumanArmMove {
   }
 
   /*
-   * A point of a path from one point to another that bows out to the arm's own
-   * side: the straight path's point plus a sideways deviation that is greatest
-   * at the middle and none at both ends (EMOTE's indirect Space). The side is
-   * the performer's left for the left arm and right for the right, less its
-   * part along the path; a path that runs sideways bows up.
-   */
-  const bowed = (
-    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">,
-    side: AutoMovieHumanSide,
-    from: IAutoMovieVector3,
-    to: IAutoMovieVector3,
-    share: number,
-    curvature: number,
-  ): IAutoMovieVector3 => {
-    const straight: IAutoMovieVector3 = Vector3.lerp(from, to, share);
-    const path: IAutoMovieVector3 = Vector3.subtract(to, from);
-    const length: number = Vector3.length(path);
-    if (curvature === 0 || length < 1e-9) return straight;
-    const along: IAutoMovieVector3 = Vector3.scale(path, 1 / length);
-    const across = (axis: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(axis, Vector3.scale(along, Vector3.dot(axis, along)));
-    const outward: IAutoMovieVector3 = across(
-      HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-        { x: side === "left" ? 1 : -1, y: 0, z: 0 },
-      ),
-    );
-    const direction: IAutoMovieVector3 =
-      Vector3.length(outward) > 0.1 ? outward : across({ x: 0, y: 1, z: 0 });
-    return Vector3.add(
-      straight,
-      Vector3.scale(
-        Vector3.normalize(direction),
-        curvature * length * Math.sin(Math.PI * share),
-      ),
-    );
-  };
-
-  /*
    * A hand carried from an origin to its target between two instants, on the
    * clock's minimum-jerk progress.
    * Parameter body: The body.
@@ -225,6 +186,45 @@ export namespace AutoMovieMotionHumanArmMove {
       weight: (seconds: number): number => 1 - progress(seconds),
     });
   }
+
+  /*
+   * A point of a path from one point to another that bows out to the arm's own
+   * side: the straight path's point plus a sideways deviation that is greatest
+   * at the middle and none at both ends (EMOTE's indirect Space). The side is
+   * the performer's left for the left arm and right for the right, less its
+   * part along the path; a path that runs sideways bows up.
+   */
+  const bowed = (
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">,
+    side: AutoMovieHumanSide,
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    share: number,
+    curvature: number,
+  ): IAutoMovieVector3 => {
+    const straight: IAutoMovieVector3 = Vector3.lerp(from, to, share);
+    const path: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const length: number = Vector3.length(path);
+    if (curvature === 0 || length < 1e-9) return straight;
+    const along: IAutoMovieVector3 = Vector3.scale(path, 1 / length);
+    const across = (axis: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.subtract(axis, Vector3.scale(along, Vector3.dot(axis, along)));
+    const outward: IAutoMovieVector3 = across(
+      HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+        { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+      ),
+    );
+    const direction: IAutoMovieVector3 =
+      Vector3.length(outward) > 0.1 ? outward : across({ x: 0, y: 1, z: 0 });
+    return Vector3.add(
+      straight,
+      Vector3.scale(
+        Vector3.normalize(direction),
+        curvature * length * Math.sin(Math.PI * share),
+      ),
+    );
+  };
 }
 
 /*

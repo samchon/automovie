@@ -9,9 +9,6 @@ import type {
 import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstructionPortField";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { combine, norm, sub }: typeof AutoMovieSolidVector =
-  AutoMovieSolidVector;
-
 /**
  * A port's band with exact seams (`IAutoMovieConstructionPort`): at every
  * clock, not only at its columns, its start edge is the host's point on the
@@ -550,6 +547,9 @@ export namespace AutoMovieConstructionPortBand {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
 }
+
+const { combine, norm, sub }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;
 
 /** World point or derivative, mm. */
 type Vec3 = AutoMovieVector3Tuple;

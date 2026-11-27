@@ -66,11 +66,6 @@ import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
  * and left unjoined.
  */
 export namespace AutoMovieHumanTrunkBuild {
-  /*
-   * Section controls and ring phases of a mass.
-   */
-  const MASS_ORDER: number = 128;
-
   /**
    * Preserve the existing upper scalar support from the canonical head axis;
    * the regular shared connection excludes that support's dome from the loft
@@ -278,6 +273,11 @@ export namespace AutoMovieHumanTrunkBuild {
     );
     return out(base.view, folds);
   }
+
+  /*
+   * Section controls and ring phases of a mass.
+   */
+  const MASS_ORDER: number = 128;
 
   /*
    * Both sides of every mass on a base.

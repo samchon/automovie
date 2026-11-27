@@ -32,23 +32,6 @@ import { holdInfantEvents } from "./holdInfantEvents";
 import { holdInfantSway } from "./holdInfantSway";
 
 /*
- * Seconds the arms take to bring the infant into the hold: provisional, an
- * unhurried careful move.
- */
-const SETTLE: number = 1;
-
-/*
- * The world up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * How far a back pat lifts the palm off the back between pats, metres:
- * provisional.
- */
-const PAT: number = 0.03;
-
-/*
  * Hold a taken-up infant (`IAutoMovieMotionHumanHoldInfant`). The infant is
  * rigid in the holding hand from its pick-up (`AutoMovieMotionHumanHeld`), so
  * each hold is a world pose of the infant in the body's frame, read from the
@@ -446,3 +429,20 @@ export namespace holdInfant {
     });
   }
 }
+
+/*
+ * Seconds the arms take to bring the infant into the hold: provisional, an
+ * unhurried careful move.
+ */
+const SETTLE: number = 1;
+
+/*
+ * The world up.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * How far a back pat lifts the palm off the back between pats, metres:
+ * provisional.
+ */
+const PAT: number = 0.03;

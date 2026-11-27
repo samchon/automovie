@@ -145,6 +145,37 @@ export function placeOverHeadHandGap(
 }
 
 /*
+ * The two grip poses and the partner at the start of the action.
+ */
+export namespace placeOverHeadHandGap {
+  /*
+   * A grip target on a candidate loop frame.
+   */
+  export type Target = (
+    frame: IAutoMovieRigidTransform,
+  ) => IAutoMovieMotionHumanArmTarget.ITarget;
+
+  /*
+   * The grip witnesses on the dresser and the recipient's authored frame.
+   */
+  export interface IProps {
+    body: IAutoMovieMotionHumanBody;
+    shapes: readonly IAutoMoviePhysicalShape[];
+    wear: IAutoMovieVector3;
+    posture: IAutoMovieMotionHumanPosture;
+    pose: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    side: AutoMovieHumanSide;
+    other: AutoMovieHumanSide;
+    holding: Target;
+    grasping: Target;
+    partner: {
+      body: IAutoMovieMotionHumanBody;
+      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    };
+  }
+}
+
+/*
  * Roundoff in locating the wear socket on an adjoining collider surface.
  */
 const SHAPE_ROUNDING: number = 1e-9;
@@ -223,37 +254,6 @@ function probes(
       );
     },
   );
-}
-
-/*
- * The two grip poses and the partner at the start of the action.
- */
-export namespace placeOverHeadHandGap {
-  /*
-   * A grip target on a candidate loop frame.
-   */
-  export type Target = (
-    frame: IAutoMovieRigidTransform,
-  ) => IAutoMovieMotionHumanArmTarget.ITarget;
-
-  /*
-   * The grip witnesses on the dresser and the recipient's authored frame.
-   */
-  export interface IProps {
-    body: IAutoMovieMotionHumanBody;
-    shapes: readonly IAutoMoviePhysicalShape[];
-    wear: IAutoMovieVector3;
-    posture: IAutoMovieMotionHumanPosture;
-    pose: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    side: AutoMovieHumanSide;
-    other: AutoMovieHumanSide;
-    holding: Target;
-    grasping: Target;
-    partner: {
-      body: IAutoMovieMotionHumanBody;
-      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    };
-  }
 }
 
 /*

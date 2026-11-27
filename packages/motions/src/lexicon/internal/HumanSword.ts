@@ -296,12 +296,6 @@ export namespace HumanSword {
   };
 
   /*
-   * The bisections of an advance's travel down to the least that reaches: the
-   * full travel's 2^-20, under a micrometre.
-   */
-  const TRAVEL_BISECTIONS: number = 20;
-
-  /*
    * The clock of an attack (`HumanSwordTiming.timed`).
    */
   export const timed: typeof HumanSwordTiming.timed = HumanSwordTiming.timed;
@@ -402,6 +396,12 @@ export namespace HumanSword {
    */
   export const cut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> =
     cutAt(SPEED.cut);
+
+  /*
+   * The bisections of an advance's travel down to the least that reaches: the
+   * full travel's 2^-20, under a micrometre.
+   */
+  const TRAVEL_BISECTIONS: number = 20;
 }
 
 /*

@@ -1,9 +1,4 @@
 /*
- * The content-digest grammar; it has no `g` flag, so `test` keeps no state.
- */
-const DIGEST_PATTERN: RegExp = /^sha256:[0-9a-f]{64}$/;
-
-/*
  * Whether a string is one SHA-256 content digest: `sha256:` followed by 64
  * lowercase hexadecimal digits.
  *
@@ -15,3 +10,8 @@ const DIGEST_PATTERN: RegExp = /^sha256:[0-9a-f]{64}$/;
 export const validDigest: (value: string) => boolean = (
   value: string,
 ): boolean => DIGEST_PATTERN.test(value);
+
+/*
+ * The content-digest grammar; it has no `g` flag, so `test` keeps no state.
+ */
+const DIGEST_PATTERN: RegExp = /^sha256:[0-9a-f]{64}$/;

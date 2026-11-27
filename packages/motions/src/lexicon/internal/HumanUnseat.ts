@@ -28,25 +28,7 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatDrag } from "./HumanUnseatDrag";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-
-/*
- * Each fall's push, in the carrier's frame with `+X` toward the falling side
- * (provisional stage readings).
- */
-const PUSHES: Readonly<Record<IAutoMovieMotionHumanUnseat.Fall, IPush>> = {
-  back: { direction: { x: 0, y: 0.3, z: -1 }, speed: 1.5 },
-  side: { direction: { x: 1, y: 0.4, z: 0 }, speed: 1.5 },
-  forward: { direction: { x: 0, y: 0.6, z: 1 }, speed: 2 },
-  pullDown: { direction: { x: 1, y: -0.3, z: 0 }, speed: 2 },
-  drag: { direction: { x: 1, y: 0.2, z: -0.3 }, speed: 1 },
-  clear: { direction: { x: 1, y: 0.5, z: 0 }, speed: 1.5 },
-  slump: { direction: { x: 1, y: 0, z: 0 }, speed: 0.5 },
-};
-
-/*
- * Seconds either side the release velocity is read over.
- */
-const STEP: number = 1 / 240;
+import * as HumanUnseatData from "./HumanUnseatData";
 
 /*
  * A rider leaving a moving saddle (`IAutoMovieMotionHumanUnseat`): carried on
@@ -187,10 +169,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const at: IAutoMovieMotionHumanPosture = seatedAt(leave);
   const velocity: IAutoMovieVector3 = Vector3.scale(
     Vector3.subtract(
-      seatedAt(leave + STEP).root,
-      seatedAt(Math.max(0, leave - STEP)).root,
+      seatedAt(leave + HumanUnseatData.STEP).root,
+      seatedAt(Math.max(0, leave - HumanUnseatData.STEP)).root,
     ),
-    1 / (leave + STEP - Math.max(0, leave - STEP)),
+    1 / (leave + HumanUnseatData.STEP - Math.max(0, leave - HumanUnseatData.STEP)),
   );
   const turn: IAutoMovieRigidTransform = carrier(context.start + leave);
   const sign: number = side === "left" ? 1 : -1;
@@ -198,11 +180,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     Quaternion.rotateVector(
       turn.rotation,
       Vector3.normalize({
-        ...PUSHES[params.fall].direction,
-        x: sign * PUSHES[params.fall].direction.x,
+        ...HumanUnseatData.PUSHES[params.fall].direction,
+        x: sign * HumanUnseatData.PUSHES[params.fall].direction.x,
       }),
     ),
-    params.push ?? PUSHES[params.fall].speed,
+    params.push ?? HumanUnseatData.PUSHES[params.fall].speed,
   );
 
   // The lie it lands into and the height its root lies or stands at.
@@ -463,22 +445,8 @@ function window(
 function other(side: AutoMovieHumanSide): AutoMovieHumanSide {
   return side === "left" ? "right" : "left";
 }
+
 /*
  * The law's context.
  */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
-
-/*
- * A fall's push away from the saddle.
- */
-interface IPush {
-  /*
-   * Its direction in the carrier's frame, `+X` toward the falling side.
-   */
-  direction: IAutoMovieVector3;
-
-  /*
-   * Its speed, metres per second.
-   */
-  speed: number;
-}

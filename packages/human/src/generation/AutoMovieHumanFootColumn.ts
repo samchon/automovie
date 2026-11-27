@@ -35,41 +35,6 @@ import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
  * published value.
  */
 export namespace AutoMovieHumanFootColumn {
-  /*
-   * Each border's knots.
-   */
-  const KNOTS: Readonly<
-    Record<"lateral" | "medial", readonly IAutoMovieHumanFootGuide.IFanKnot[]>
-  > = {
-    lateral: [
-      [0.75, 0.2298, 0.7308, 0.2417, 0.862],
-      [0.8, 0.2146, 0.7366, 0.2731, 0.964],
-      [0.85, 0.2015, 0.73, 0.3106, 1.0962],
-      [0.9, 0.1992, 0.7237, 0.346, 1.2212],
-      [0.95, 0.1965, 0.7067, 0.3802, 1.3424],
-      [1, 0.1935, 0.6933, 0.4142, 1.4621],
-    ],
-    medial: [
-      [0.7, 0.2911, 0.0442, 0.2503, 0.898],
-      [0.75, 0.277, 0.0429, 0.2791, 0.9852],
-      [0.8, 0.2577, 0.0428, 0.3013, 1.0678],
-      [0.85, 0.255, 0.0508, 0.3302, 1.1736],
-      [0.9, 0.2518, 0.0627, 0.3587, 1.2659],
-      [0.95, 0.2527, 0.0782, 0.3864, 1.3638],
-      [1, 0.2438, 0.0927, 0.4142, 1.4621],
-    ],
-  };
-
-  /*
-   * Each border's plan law over its knots' heights in lateral malleolus heights, built once.
-   */
-  const LAWS: Readonly<
-    Record<"lateral" | "medial", Singleton<IAutoMovieHumanFootColumnLaw.IPlan>>
-  > = {
-    lateral: law("lateral"),
-    medial: law("medial"),
-  };
-
   /**
    * A border's knots as world points, front to back, read in the fan's own
    * planes (`AutoMovieHumanFootGuide.fanned`) at their places on the column's
@@ -120,6 +85,41 @@ export namespace AutoMovieHumanFootColumn {
     const plan: IAutoMovieHumanFootColumnLaw.IPlan = LAWS[which].get();
     return frame.at(plan.along(height), plan.across(height), height * frame.H);
   }
+
+  /*
+   * Each border's knots.
+   */
+  const KNOTS: Readonly<
+    Record<"lateral" | "medial", readonly IAutoMovieHumanFootGuide.IFanKnot[]>
+  > = {
+    lateral: [
+      [0.75, 0.2298, 0.7308, 0.2417, 0.862],
+      [0.8, 0.2146, 0.7366, 0.2731, 0.964],
+      [0.85, 0.2015, 0.73, 0.3106, 1.0962],
+      [0.9, 0.1992, 0.7237, 0.346, 1.2212],
+      [0.95, 0.1965, 0.7067, 0.3802, 1.3424],
+      [1, 0.1935, 0.6933, 0.4142, 1.4621],
+    ],
+    medial: [
+      [0.7, 0.2911, 0.0442, 0.2503, 0.898],
+      [0.75, 0.277, 0.0429, 0.2791, 0.9852],
+      [0.8, 0.2577, 0.0428, 0.3013, 1.0678],
+      [0.85, 0.255, 0.0508, 0.3302, 1.1736],
+      [0.9, 0.2518, 0.0627, 0.3587, 1.2659],
+      [0.95, 0.2527, 0.0782, 0.3864, 1.3638],
+      [1, 0.2438, 0.0927, 0.4142, 1.4621],
+    ],
+  };
+
+  /*
+   * Each border's plan law over its knots' heights in lateral malleolus heights, built once.
+   */
+  const LAWS: Readonly<
+    Record<"lateral" | "medial", Singleton<IAutoMovieHumanFootColumnLaw.IPlan>>
+  > = {
+    lateral: law("lateral"),
+    medial: law("medial"),
+  };
 
   /*
    * A border's plan law through its knots.

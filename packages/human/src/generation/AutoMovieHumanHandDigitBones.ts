@@ -22,24 +22,12 @@ import { AutoMovieHumanHandDigitLaw } from "./AutoMovieHumanHandDigitLaw";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanHandWebCrest } from "./AutoMovieHumanHandWebCrest";
 
-const { sub, norm, across, cross }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-const { linePoint }: typeof AutoMovieHumanHandDigitLaw =
-  AutoMovieHumanHandDigitLaw;
-const { at: palmarShare }: typeof AutoMovieHumanDigitPalmarShare =
-  AutoMovieHumanDigitPalmarShare;
-
 /**
  * A digit on its bones: its centre line from its legs, its sections as palmar
  * and dorsal halves on two side points, its tip and its first section clear of
  * the webs.
  */
 export namespace AutoMovieHumanHandDigitBones {
-  /*
-   * Spacing of a finger's centre line along its bones, mm.
-   */
-  const FINGER_STEP: number = 0.25;
-
   /**
    * A digit's line, sections, tip and first section on its legs. A finger's
    * sections follow the phalanx span law from its own root section (the
@@ -243,6 +231,11 @@ export namespace AutoMovieHumanHandDigitBones {
   }
 
   /*
+   * Spacing of a finger's centre line along its bones, mm.
+   */
+  const FINGER_STEP: number = 0.25;
+
+  /*
    * A section's points at its knots: the four-guide ring
    * (`AutoMovieHumanDigitRing`, radial side, palmar, ulnar side and dorsal
    * guides) when the count allows four sectors of at least four spans, else
@@ -271,3 +264,11 @@ export namespace AutoMovieHumanHandDigitBones {
     });
   }
 }
+
+const { sub, norm, across, cross }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+const { linePoint }: typeof AutoMovieHumanHandDigitLaw =
+  AutoMovieHumanHandDigitLaw;
+
+const { at: palmarShare }: typeof AutoMovieHumanDigitPalmarShare =
+  AutoMovieHumanDigitPalmarShare;

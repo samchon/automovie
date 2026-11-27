@@ -41,18 +41,7 @@ import { heldDigits } from "./heldDigits";
 import { pickUp } from "./pickUp";
 import { workHeldPush } from "./workHeldPush";
 import { writeWith } from "./writeWith";
-
-/*
- * A level prop's rim points, metres out from its origin along its own level
- * axes.
- */
-const RIM: number = 0.15;
-
-/*
- * How far a level prop may tilt from level, degrees: provisional, a held tray's
- * small tilt.
- */
-const LEVEL: number = 10;
+import * as WorkHeldData from "./WorkHeldData";
 
 /*
  * Work a prop the hand already holds without letting go: the fingers drive its
@@ -300,17 +289,17 @@ function place(
   const rim: IAutoMovieHumanEffectorPointLimit[] =
     at.level === true
       ? [
-          { x: RIM, y: 0, z: 0 },
-          { x: -RIM, y: 0, z: 0 },
-          { x: 0, y: 0, z: RIM },
-          { x: 0, y: 0, z: -RIM },
+          { x: WorkHeldData.RIM, y: 0, z: 0 },
+          { x: -WorkHeldData.RIM, y: 0, z: 0 },
+          { x: 0, y: 0, z: WorkHeldData.RIM },
+          { x: 0, y: 0, z: -WorkHeldData.RIM },
         ].map(
           (axis: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit => ({
             contact: Vector3.add(
               offset.position,
               Quaternion.rotateVector(offset.rotation, axis),
             ),
-            bound: RIM * Math.sin((LEVEL * Math.PI) / 180),
+            bound: WorkHeldData.RIM * Math.sin((WorkHeldData.LEVEL * Math.PI) / 180),
           }),
         )
       : [];

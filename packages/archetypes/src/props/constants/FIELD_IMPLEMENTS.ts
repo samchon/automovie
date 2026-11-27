@@ -8,12 +8,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
-
-/*
- * The 1862 Ordnance Manual, read at its scan.
- */
-const ORDNANCE: string =
-  "Ordnance Manual for the Use of the Officers of the United States Army, 3rd ed., Lippincott, Philadelphia 1862 (https://archive.org/details/ordnancemanualfo00unitrich)";
+import * as FieldImplementsData from "./internal/FieldImplementsData";
 
 /*
  * The 6-pdr field gun's long implements as the 1862 Ordnance Manual gives them,
@@ -26,7 +21,7 @@ export namespace FIELD_IMPLEMENTS {
    * The manual's table of implements, 6-pdr gun column (pp. 138-140), its
    * handspike table (p. 137) and its descriptions (pp. 128-129).
    */
-  export const SOURCE: string = `${ORDNANCE}: Dimensions and Weights of Implements, pp. 138-139, 6-pdr gun and 12-pdr howitzer column; Worms, p. 140, field; Handspikes, p. 137, trail, for field carriage; implements, pp. 128-129`;
+  export const SOURCE: string = `${FieldImplementsData.ORDNANCE}: Dimensions and Weights of Implements, pp. 138-139, 6-pdr gun and 12-pdr howitzer column; Worms, p. 140, field; Handspikes, p. 137, trail, for field carriage; implements, pp. 128-129`;
 
   /*
    * A sponge and rammer on one ash staff, as field guns carry it (p. 129: "For

@@ -34,11 +34,7 @@ import { fitPianoScoreContact } from "./fitPianoScoreContact";
 import { pianoScoreEvents } from "./pianoScoreEvents";
 import { pianoScoreHand } from "./pianoScoreHand";
 import { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
-
-/*
- * The default entry transition in HumanPerformancePlace, seconds.
- */
-const READY: number = 0.25;
+import * as PianoScoreData from "./PianoScoreData";
 
 /*
  * Play named keys on a fixed upright piano from a seated base. The authored
@@ -80,7 +76,7 @@ function plan(
     );
   if (params.notes.length === 0)
     refuse("notes", 0, "provide at least one scored key");
-  if (params.notes[0]!.from < READY)
+  if (params.notes[0]!.from < PianoScoreData.READY)
     refuse(
       "notes.from",
       params.notes[0]!.from,

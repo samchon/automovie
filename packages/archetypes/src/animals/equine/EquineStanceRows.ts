@@ -18,46 +18,6 @@ import { EquineStanceMoves } from "./EquineStanceMoves";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
 /*
- * The startle's drop and draw over the planted hooves, metres in the stance's
- * frame: authored.
- */
-const STARTLE: IAutoMovieVector3 = { x: 0, y: -0.05, z: -0.06 };
-
-/*
- * The baulk's brace back, metres: authored.
- */
-const BAULK: IAutoMovieVector3 = { x: 0, y: -0.02, z: -0.12 };
-
-/*
- * The haunches' lowering before a rear, and the forehand's before a buck,
- * metres: authored.
- */
-const GATHER: number = 0.06;
-
-/*
- * The share of an entry spent moving the weight before a support is released:
- * authored.
- */
-const LOAD: number = 0.35;
-
-/*
- * A stepping hoof's peak lift, metres: authored.
- */
-const LIFT: number = 0.08;
-
-/*
- * Folded limbs' joint turns, degrees, shoulder or hip first, positive swinging
- * the distal end back: authored poses.
- */
-const FOLDS: Readonly<Record<Fold, readonly [number, number, number, number]>> =
-  {
-    foreLift: [25, 10, 95, 40],
-    hindLift: [-20, 15, -50, 30],
-    rear: [-40, -10, 100, 20],
-    kick: [45, -10, 20, 10],
-  };
-
-/*
  * The rows of the stance: for each response, the whole-body pose at each share
  * of its performance.
  *
@@ -506,6 +466,47 @@ export namespace EquineStanceRows {
     };
   }
 }
+
+
+/*
+ * The startle's drop and draw over the planted hooves, metres in the stance's
+ * frame: authored.
+ */
+const STARTLE: IAutoMovieVector3 = { x: 0, y: -0.05, z: -0.06 };
+
+/*
+ * The baulk's brace back, metres: authored.
+ */
+const BAULK: IAutoMovieVector3 = { x: 0, y: -0.02, z: -0.12 };
+
+/*
+ * The haunches' lowering before a rear, and the forehand's before a buck,
+ * metres: authored.
+ */
+const GATHER: number = 0.06;
+
+/*
+ * The share of an entry spent moving the weight before a support is released:
+ * authored.
+ */
+const LOAD: number = 0.35;
+
+/*
+ * A stepping hoof's peak lift, metres: authored.
+ */
+const LIFT: number = 0.08;
+
+/*
+ * Folded limbs' joint turns, degrees, shoulder or hip first, positive swinging
+ * the distal end back: authored poses.
+ */
+const FOLDS: Readonly<Record<Fold, readonly [number, number, number, number]>> =
+  {
+    foreLift: [25, 10, 95, 40],
+    hindLift: [-20, 15, -50, 30],
+    rear: [-40, -10, 100, 20],
+    kick: [45, -10, 20, 10],
+  };
 
 /*
  * A folded limb pose of the rows.

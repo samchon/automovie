@@ -35,12 +35,6 @@ import { readRideHandles } from "./readRideHandles";
 import { sideRideGrips } from "./sideRideGrips";
 
 /*
- * Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1),
- * degrees.
- */
-const ROWING: readonly [number, number] = [-28, 49];
-
-/*
  * Read the hands of a ride.
  * Parameter context: The ride's context, for the body, the start and the hands
  * asked.
@@ -485,6 +479,12 @@ export namespace HumanRideHands {
    */
   export type IHands = IHumanRideHandsHands;
 }
+
+/*
+ * Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1),
+ * degrees.
+ */
+const ROWING: readonly [number, number] = [-28, 49];
 
 /*
  * The alternatives of `OfBowAngles`'s site.

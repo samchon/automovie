@@ -15,33 +15,6 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { AquaticPosture } from "./AquaticPosture";
 
 /*
- * Seconds from the last stroke to standing: provisional.
- */
-const DURATION: number = 1.8;
-
-/*
- * Share at which the feet bear on the bottom, the load-bearing plant.
- */
-const PLANT: number = 0.45;
-
-/*
- * Share over which the feet settle onto the bottom before they bear.
- */
-const LAND: number = 0.1;
-
-/*
- * How far ahead of the entered root the feet plant, metres over stature:
- * provisional, under the hips as the legs swing down.
- */
-const AHEAD: number = 0.2;
-
-/*
- * The deepest water a swimmer stands up in, over stature: provisional, about
- * chest depth.
- */
-const DEPTH: number = 0.75;
-
-/*
  * Stand up out of the shallows at the end of a swim, as a triathlete or an
  * open-water swimmer does: the legs swing down under the hips as buoyancy is
  * given up, both feet bear on the bottom (`footDown`), and the trunk rises over
@@ -198,3 +171,30 @@ export namespace AquaticExit {
     };
   }
 }
+
+/*
+ * Seconds from the last stroke to standing: provisional.
+ */
+const DURATION: number = 1.8;
+
+/*
+ * Share at which the feet bear on the bottom, the load-bearing plant.
+ */
+const PLANT: number = 0.45;
+
+/*
+ * Share over which the feet settle onto the bottom before they bear.
+ */
+const LAND: number = 0.1;
+
+/*
+ * How far ahead of the entered root the feet plant, metres over stature:
+ * provisional, under the hips as the legs swing down.
+ */
+const AHEAD: number = 0.2;
+
+/*
+ * The deepest water a swimmer stands up in, over stature: provisional, about
+ * chest depth.
+ */
+const DEPTH: number = 0.75;

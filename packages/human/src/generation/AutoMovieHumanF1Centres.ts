@@ -123,27 +123,6 @@ export namespace AutoMovieHumanF1Centres {
     "vault.1": "humerus",
   };
 
-  /*
-   * The bone line of a course: the joint centres its segments run between, by their names in the placing table. The arm's and the hand's
-   * shared course starts at two thorax datums, so its bone line starts at the glenohumeral centre instead.
-   */
-  const BONES: Readonly<Record<string, readonly string[]>> = {
-    arm: ["upperarm", "lowerarm", "hand", "middle1"],
-    hand: ["upperarm", "lowerarm", "hand", "middle1"],
-  };
-
-  const joint = (chain: readonly IAutoMovieHumanSegmentJoint[], name: string): IAutoMovieHumanSegmentJoint => {
-    const found: IAutoMovieHumanSegmentJoint | undefined = chain.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === name);
-    if (found === undefined) throw new Error("the chain has no joint " + name);
-    return found;
-  };
-
-  const placed = (name: string): IAutoMovieHumanF1Placing.IPlaced => {
-    const found: IAutoMovieHumanF1Placing.IPlaced | undefined = T.POINTS[name];
-    if (found === undefined) throw new Error("f1 has no point " + name);
-    return found;
-  };
-
   /**
    * One centre's inventory row: its kind by the placing table, and its generating rule.
    *
@@ -265,19 +244,6 @@ export namespace AutoMovieHumanF1Centres {
     return names.map((name: string): AutoMovieVector3Tuple => F.toWorld(Placement.frame(placed(name).frame, frames), local(name, fields, chain)));
   }
 
-  /*
-   * The mean reach of a section's four guides and their mean point in the chart, from the family's fields at one station.
-   */
-  function section(family: IAutoMovieHumanConicLoft.IFamily, read: (s: number) => number[], station: number): { radius: number; centroid: [number, number] } {
-    const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(station), family.layout);
-    const guides: [number, number][] = chain.guides.map((k: number): [number, number] => [chain.input.points[k]![0], chain.input.points[k]![1]]);
-    if (guides.length !== 4) throw new Error("a section of " + family.name + " has " + guides.length + " guides, four expected");
-    return {
-      radius: guides.reduce((sum: number, p: [number, number]): number => sum + Math.hypot(p[0], p[1]), 0) / 4,
-      centroid: [(guides[0]![0] + guides[1]![0] + guides[2]![0] + guides[3]![0]) / 4, (guides[0]![1] + guides[1]![1] + guides[2]![1] + guides[3]![1]) / 4],
-    };
-  }
-
   /**
    * A family's turns, measured: each interior centre's stored half length beside the turn's angle, set-back, distance from its centre and
    * the section's mean guide reach at the turn's middle.
@@ -349,5 +315,39 @@ export namespace AutoMovieHumanF1Centres {
       }
       return { station, centroid: section(family, read, station).centroid, bone };
     });
+  }
+
+  /*
+   * The bone line of a course: the joint centres its segments run between, by their names in the placing table. The arm's and the hand's
+   * shared course starts at two thorax datums, so its bone line starts at the glenohumeral centre instead.
+   */
+  const BONES: Readonly<Record<string, readonly string[]>> = {
+    arm: ["upperarm", "lowerarm", "hand", "middle1"],
+    hand: ["upperarm", "lowerarm", "hand", "middle1"],
+  };
+
+  const joint = (chain: readonly IAutoMovieHumanSegmentJoint[], name: string): IAutoMovieHumanSegmentJoint => {
+    const found: IAutoMovieHumanSegmentJoint | undefined = chain.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === name);
+    if (found === undefined) throw new Error("the chain has no joint " + name);
+    return found;
+  };
+
+  const placed = (name: string): IAutoMovieHumanF1Placing.IPlaced => {
+    const found: IAutoMovieHumanF1Placing.IPlaced | undefined = T.POINTS[name];
+    if (found === undefined) throw new Error("f1 has no point " + name);
+    return found;
+  };
+
+  /*
+   * The mean reach of a section's four guides and their mean point in the chart, from the family's fields at one station.
+   */
+  function section(family: IAutoMovieHumanConicLoft.IFamily, read: (s: number) => number[], station: number): { radius: number; centroid: [number, number] } {
+    const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(station), family.layout);
+    const guides: [number, number][] = chain.guides.map((k: number): [number, number] => [chain.input.points[k]![0], chain.input.points[k]![1]]);
+    if (guides.length !== 4) throw new Error("a section of " + family.name + " has " + guides.length + " guides, four expected");
+    return {
+      radius: guides.reduce((sum: number, p: [number, number]): number => sum + Math.hypot(p[0], p[1]), 0) / 4,
+      centroid: [(guides[0]![0] + guides[1]![0] + guides[2]![0] + guides[3]![0]) / 4, (guides[0]![1] + guides[1]![1] + guides[2]![1] + guides[3]![1]) / 4],
+    };
   }
 }

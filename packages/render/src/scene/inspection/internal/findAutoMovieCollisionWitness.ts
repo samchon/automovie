@@ -6,11 +6,7 @@ import type {
 import * as THREE from "three";
 
 import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
-
-/*
- * Four pi steradians, the solid angle of a whole sphere.
- */
-const FOUR_PI: number = 4 * Math.PI;
+import * as FindAutoMovieCollisionWitnessData from "./FindAutoMovieCollisionWitnessData";
 
 /*
  * Search the drawn surface of each part of a candidate pair for a point inside
@@ -480,7 +476,7 @@ function closedDistance(
   const joint: string | undefined =
     owner < 0 ? undefined : surface.label?.(owner);
   return {
-    separation: Math.abs(solidAngle / FOUR_PI) > 0.5 ? -nearest : nearest,
+    separation: Math.abs(solidAngle / FindAutoMovieCollisionWitnessData.FOUR_PI) > 0.5 ? -nearest : nearest,
     ...(joint === undefined ? {} : { joint }),
   };
 }

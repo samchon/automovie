@@ -8,13 +8,6 @@ import type {
 import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 
 /*
- * RFC 4648 section 4 base64: the standard alphabet in padded four-character
- * groups.
- */
-const BASE64: RegExp =
-  /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
-
-/*
  * Admit a shot's font sources from what the records state, appending findings
  * to `collector` under `path`.
  *
@@ -139,3 +132,10 @@ export const validateAutoMovieFontSources: (
       );
   });
 };
+
+/*
+ * RFC 4648 section 4 base64: the standard alphabet in padded four-character
+ * groups.
+ */
+const BASE64: RegExp =
+  /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;

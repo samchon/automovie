@@ -125,12 +125,6 @@ export namespace kneel {
   export const REACH: number = 0.98;
 
   /*
-   * Seconds over which a lifted foot's toe-down turn eases in from and out to
-   * its plants (provisional, as the medium walk's).
-   */
-  const EASE: number = 0.1;
-
-  /*
    * Seconds of each phase for the reference hip height
    * (`walkRoot.REFERENCE_HIP`), scaled to a body by the square root of its own
    * hip height (dynamic similarity); the phases themselves have no located
@@ -455,6 +449,12 @@ export namespace kneel {
       yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
     });
   }
+
+  /*
+   * Seconds over which a lifted foot's toe-down turn eases in from and out to
+   * its plants (provisional, as the medium walk's).
+   */
+  const EASE: number = 0.1;
 
   /*
    * A phase between two key states.

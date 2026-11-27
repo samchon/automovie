@@ -1,53 +1,6 @@
 import { AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeTable } from "../AutoMovieArchetypeTable";
-
-/*
- * The UK furniture schedule.
- */
-const ADM: string =
-  "Approved Document M Volume 1, Appendix D furniture schedule (https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/540330/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf)";
-
-/*
- * The kitchen planning guidelines.
- */
-const NKBA: string =
-  "NKBA Kitchen Planning Guidelines with Access Standards (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf)";
-
-/*
- * The kitchen guideline read for a raised counter's seating.
- */
-const SEATING: string =
-  "NKBA Kitchen Planning Guidelines with Access Standards, Guideline 9 Seating Clearance: 42 in (1067 mm) high counters with a 24 in wide by 12 in (305 mm) deep knee space for each seated diner (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf)";
-
-/*
- * The service counter read.
- */
-const SERVICE: string =
-  "Delfield Shelleysteel SCS mobile cashier's counter sheet: 30.00 in (76 cm) deep, 36.00 in (91 cm) high, 30, 36 or 50 in long (https://cdn.restaurantsupply.com/pdf/9/6/4/9644b43a-1127-42c0-87fa-1935fe9071fa.pdf); 2010 ADA Standards 904.4, a service counter's accessible portion at most 36 in (915 mm) high (https://www.access-board.gov/ada/chapter/ch09/)";
-
-/*
- * The workbench read.
- */
-const RIMFORSA: string =
-  "IKEA RIMFORSA work bench 903.992.84: length 120 cm, width 63.5 cm, height 92 cm (min 90, max 94) (https://www.ikea.com/gb/en/p/rimforsa-work-bench-stainless-steel-bamboo-90399284)";
-
-/*
- * The office desk standard.
- */
-const EN527: string =
-  "EN 527-1:2011 Table 1 (https://cdn.standards.iteh.ai/samples/26022/6cc3729a004c4ce9a231c68a38e8620c/SIST-EN-527-1-2012.pdf)";
-
-/*
- * The pupil desk read.
- */
-const SILHOUETTE: string =
-  "Smith System Silhouette student desk #01601 sheet: top 18 x 24 in, 5/8 in thick, height 19 to 31 in in 1 in steps, 33 lb, the optional book box apart (https://smithsystem.com/wp-content/uploads/2017/10/ss_01601_2018.pdf)";
-
-/*
- * The altar read.
- */
-const WOERNER: string =
-  "Woerner Industries Church and Funeral Furniture Catalog 2023, p. 09: 5061 Altar, 72 in wide, 30 in deep, 40 in high (https://store.occatholic.com/Images/Woerner_Catalog.pdf)";
+import * as TableBandsData from "./internal/TableBandsData";
 
 /*
  * The band of each free dimension of `createTable`, by kind, with the sources
@@ -59,17 +12,17 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     height: AutoMovieArchetypeBand.metres(
       0.71,
       30 * AutoMovieArchetypeUnits.INCH,
-      `2010 ADA Standards 902.3, dining surface at least 28 in (710 mm) high (https://www.access-board.gov/ada/), up to the 30 in table of ${NKBA}`,
+      `2010 ADA Standards 902.3, dining surface at least 28 in (710 mm) high (https://www.access-board.gov/ada/), up to the 30 in table of ${TableBandsData.NKBA}`,
     ),
     length: AutoMovieArchetypeBand.metres(
       0.8,
       1.65,
-      `${ADM}: dining table 800 mm deep and 800 to 1650 mm long`,
+      `${TableBandsData.ADM}: dining table 800 mm deep and 800 to 1650 mm long`,
     ),
     depth: AutoMovieArchetypeBand.metres(
       0.8,
       0.8,
-      `${ADM}: dining table 800 mm deep`,
+      `${TableBandsData.ADM}: dining table 800 mm deep`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -83,7 +36,7 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     height: AutoMovieArchetypeBand.metres(
       0.72,
       0.76,
-      `${EN527}: fixed height desk, 740 mm plus or minus 20`,
+      `${TableBandsData.EN527}: fixed height desk, 740 mm plus or minus 20`,
     ),
     length: AutoMovieArchetypeBand.metres(
       46 * AutoMovieArchetypeUnits.INCH,
@@ -94,7 +47,7 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     depth: AutoMovieArchetypeBand.metres(
       0.6,
       0.8,
-      `${EN527}: desk top at least 800 mm deep, 600 mm acceptable in some situations`,
+      `${TableBandsData.EN527}: desk top at least 800 mm deep, 600 mm acceptable in some situations`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -108,7 +61,7 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     height: AutoMovieArchetypeBand.metres(
       0.914,
       0.914,
-      `${NKBA}: 36 in (914 mm) high counters`,
+      `${TableBandsData.NKBA}: 36 in (914 mm) high counters`,
     ),
     length: AutoMovieArchetypeBand.metres(
       1.2,
@@ -119,7 +72,7 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     depth: AutoMovieArchetypeBand.metres(
       0.508,
       0.635,
-      `${NKBA}: 508 to 635 mm deep counter`,
+      `${TableBandsData.NKBA}: 508 to 635 mm deep counter`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -139,12 +92,12 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     length: AutoMovieArchetypeBand.metres(
       1.05,
       1.05,
-      `${ADM}: coffee table 500 x 1050 mm`,
+      `${TableBandsData.ADM}: coffee table 500 x 1050 mm`,
     ),
     depth: AutoMovieArchetypeBand.metres(
       0.5,
       0.5,
-      `${ADM}: coffee table 500 x 1050 mm`,
+      `${TableBandsData.ADM}: coffee table 500 x 1050 mm`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -155,7 +108,7 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     ),
   },
   bar: {
-    height: AutoMovieArchetypeBand.metres(1.067, 1.067, SEATING),
+    height: AutoMovieArchetypeBand.metres(1.067, 1.067, TableBandsData.SEATING),
     length: AutoMovieArchetypeBand.metres(
       1.2,
       2.4,
@@ -165,7 +118,7 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     depth: AutoMovieArchetypeBand.metres(
       0.813,
       0.94,
-      `${NKBA}: a 508 to 635 mm deep counter under the top, the top reaching the 305 mm knee space further over it; ${SEATING}`,
+      `${TableBandsData.NKBA}: a 508 to 635 mm deep counter under the top, the top reaching the 305 mm knee space further over it; ${TableBandsData.SEATING}`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -176,8 +129,8 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     ),
   },
   serviceCounter: {
-    height: AutoMovieArchetypeBand.metres(0.91, 0.91, SERVICE),
-    depth: AutoMovieArchetypeBand.metres(0.76, 0.76, SERVICE),
+    height: AutoMovieArchetypeBand.metres(0.91, 0.91, TableBandsData.SERVICE),
+    depth: AutoMovieArchetypeBand.metres(0.76, 0.76, TableBandsData.SERVICE),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       40,
@@ -190,17 +143,17 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     height: AutoMovieArchetypeBand.metres(
       90 * AutoMovieArchetypeUnits.CENTIMETRE,
       94 * AutoMovieArchetypeUnits.CENTIMETRE,
-      `${RIMFORSA}: its adjustable height`,
+      `${TableBandsData.RIMFORSA}: its adjustable height`,
     ),
     length: AutoMovieArchetypeBand.metres(
       120 * AutoMovieArchetypeUnits.CENTIMETRE,
       120 * AutoMovieArchetypeUnits.CENTIMETRE,
-      RIMFORSA,
+      TableBandsData.RIMFORSA,
     ),
     depth: AutoMovieArchetypeBand.metres(
       63.5 * AutoMovieArchetypeUnits.CENTIMETRE,
       63.5 * AutoMovieArchetypeUnits.CENTIMETRE,
-      RIMFORSA,
+      TableBandsData.RIMFORSA,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -214,35 +167,35 @@ export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
     length: AutoMovieArchetypeBand.metres(
       24 * AutoMovieArchetypeUnits.INCH,
       24 * AutoMovieArchetypeUnits.INCH,
-      SILHOUETTE,
+      TableBandsData.SILHOUETTE,
     ),
     depth: AutoMovieArchetypeBand.metres(
       18 * AutoMovieArchetypeUnits.INCH,
       18 * AutoMovieArchetypeUnits.INCH,
-      SILHOUETTE,
+      TableBandsData.SILHOUETTE,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       33 * AutoMovieArchetypeUnits.POUND,
       33 * AutoMovieArchetypeUnits.POUND,
-      SILHOUETTE,
+      TableBandsData.SILHOUETTE,
     ),
   },
   altar: {
     height: AutoMovieArchetypeBand.metres(
       40 * AutoMovieArchetypeUnits.INCH,
       40 * AutoMovieArchetypeUnits.INCH,
-      WOERNER,
+      TableBandsData.WOERNER,
     ),
     length: AutoMovieArchetypeBand.metres(
       72 * AutoMovieArchetypeUnits.INCH,
       72 * AutoMovieArchetypeUnits.INCH,
-      WOERNER,
+      TableBandsData.WOERNER,
     ),
     depth: AutoMovieArchetypeBand.metres(
       30 * AutoMovieArchetypeUnits.INCH,
       30 * AutoMovieArchetypeUnits.INCH,
-      WOERNER,
+      TableBandsData.WOERNER,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",

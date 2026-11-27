@@ -11,18 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The rule text that names the struck regions, read.
- */
-const FIK: string =
-  "FIK, The Regulations of Kendo Shiai and Shinpan, revision of 26 July 2023: Article 12 scores a strike or thrust on the datotsu-bui of the kendo-gu, and Article 14 with its figure names them the men, the kote, the do and the tsuki (https://www.kendo.or.jp/wp/wp-content/uploads/2025/01/RevisionE-Regulations-of-Kendo-Shiai-and-Shinpan-20230726.pdf)";
-
-/*
- * What no source read gives.
- */
-const UNREAD: string =
-  "an estimate of a coarse figure; no maker's size table was read";
+import * as AutoMovieArchetypeKendoArmourData from "./internal/AutoMovieArchetypeKendoArmourData";
 
 /** Constructs the kendo armour archetype from its recipe. */
 export namespace AutoMovieArchetypeKendoArmour {
@@ -303,33 +292,33 @@ export function create(
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      width: AutoMovieArchetypeBand.metres(0.24, 0.27, UNREAD, true),
-      height: AutoMovieArchetypeBand.metres(0.3, 0.34, UNREAD, true),
-      depth: AutoMovieArchetypeBand.metres(0.26, 0.3, UNREAD, true),
-      mass: AutoMovieArchetypeBand.of("kg", 1.2, 1.8, UNREAD, true),
+      width: AutoMovieArchetypeBand.metres(0.24, 0.27, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      height: AutoMovieArchetypeBand.metres(0.3, 0.34, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      depth: AutoMovieArchetypeBand.metres(0.26, 0.3, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.2, 1.8, AutoMovieArchetypeKendoArmourData.UNREAD, true),
     },
     do: {
-      width: AutoMovieArchetypeBand.metres(0.36, 0.42, UNREAD, true),
-      height: AutoMovieArchetypeBand.metres(0.4, 0.46, UNREAD, true),
-      depth: AutoMovieArchetypeBand.metres(0.06, 0.1, UNREAD, true),
-      mass: AutoMovieArchetypeBand.of("kg", 1.2, 2, UNREAD, true),
+      width: AutoMovieArchetypeBand.metres(0.36, 0.42, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      height: AutoMovieArchetypeBand.metres(0.4, 0.46, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      depth: AutoMovieArchetypeBand.metres(0.06, 0.1, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.2, 2, AutoMovieArchetypeKendoArmourData.UNREAD, true),
     },
     kote: {
-      width: AutoMovieArchetypeBand.metres(0.1, 0.12, UNREAD, true),
-      height: AutoMovieArchetypeBand.metres(0.3, 0.36, UNREAD, true),
-      depth: AutoMovieArchetypeBand.metres(0.09, 0.11, UNREAD, true),
-      mass: AutoMovieArchetypeBand.of("kg", 0.25, 0.4, UNREAD, true),
+      width: AutoMovieArchetypeBand.metres(0.1, 0.12, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      height: AutoMovieArchetypeBand.metres(0.3, 0.36, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      depth: AutoMovieArchetypeBand.metres(0.09, 0.11, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.25, 0.4, AutoMovieArchetypeKendoArmourData.UNREAD, true),
     },
     tare: {
-      width: AutoMovieArchetypeBand.metres(0.4, 0.48, UNREAD, true),
-      height: AutoMovieArchetypeBand.metres(0.22, 0.27, UNREAD, true),
-      depth: AutoMovieArchetypeBand.metres(0.02, 0.04, UNREAD, true),
-      mass: AutoMovieArchetypeBand.of("kg", 0.5, 0.9, UNREAD, true),
+      width: AutoMovieArchetypeBand.metres(0.4, 0.48, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      height: AutoMovieArchetypeBand.metres(0.22, 0.27, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      depth: AutoMovieArchetypeBand.metres(0.02, 0.04, AutoMovieArchetypeKendoArmourData.UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.5, 0.9, AutoMovieArchetypeKendoArmourData.UNREAD, true),
     },
   };
 
   /** The rule source of the struck regions. */
-  export const SOURCE: string = FIK;
+  export const SOURCE: string = AutoMovieArchetypeKendoArmourData.FIK;
 }
 
 /*

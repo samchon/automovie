@@ -6,23 +6,7 @@ import type {
   IAutoMovieMotionHumanHoldInfant,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-/*
- * The world up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * Shoulder flexion of the cradling upper arm, degrees: provisional, the elbow
- * carried forward of the trunk's side.
- */
-const FLEXION: number = 35;
-
-/*
- * How far the cradling forearm turns forward from straight across the front,
- * degrees: provisional, clear of the trunk.
- */
-const ACROSS: number = 25;
+import * as HoldInfantCrookData from "./HoldInfantCrookData";
 
 /*
  * The cradling arm of a hold.
@@ -55,15 +39,15 @@ export function holdInfantCrook(
     shoulder,
     Vector3.scale(
       Vector3.add(
-        Vector3.scale(UP, -Math.cos(radians(FLEXION))),
-        Vector3.scale(forward, Math.sin(radians(FLEXION))),
+        Vector3.scale(HoldInfantCrookData.UP, -Math.cos(radians(HoldInfantCrookData.FLEXION))),
+        Vector3.scale(forward, Math.sin(radians(HoldInfantCrookData.FLEXION))),
       ),
       length(`${side}UpperArm`, `${side}LowerArm`),
     ),
   );
   const across: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(toward, -Math.cos(radians(ACROSS))),
-    Vector3.scale(forward, Math.sin(radians(ACROSS))),
+    Vector3.scale(toward, -Math.cos(radians(HoldInfantCrookData.ACROSS))),
+    Vector3.scale(forward, Math.sin(radians(HoldInfantCrookData.ACROSS))),
   );
   return {
     elbow,
@@ -72,7 +56,7 @@ export function holdInfantCrook(
       Vector3.scale(
         Vector3.add(
           Vector3.scale(across, Math.cos(radians(holdInfantCrook.RISE[hold]))),
-          Vector3.scale(UP, -Math.sin(radians(holdInfantCrook.RISE[hold]))),
+          Vector3.scale(HoldInfantCrookData.UP, -Math.sin(radians(holdInfantCrook.RISE[hold]))),
         ),
         length(`${side}LowerArm`, `${side}Hand`),
       ),

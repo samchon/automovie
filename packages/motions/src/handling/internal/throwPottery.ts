@@ -31,20 +31,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanTrunkLean } from "./HumanTrunkLean";
 import { throwPotteryRise } from "./throwPotteryRise";
-
-/*
- * The outer palm on the outside face, the inner on the inside.
- */
-const PAIRS: readonly IPair[] = [
-  { side: "right", face: "outside" },
-  { side: "left", face: "inside" },
-];
-
-/*
- * The head's speed when none is given, revolutions per minute: a provisional
- * throwing speed.
- */
-const RPM: number = 120;
+import * as ThrowPotteryData from "./ThrowPotteryData";
 
 /*
  * Draw up a clay wall on a turning wheel with both hands. Register as
@@ -167,7 +154,7 @@ function plan(
   // from the wall's start to its top, within the arms.
   const forward: number = HumanTrunkLean.least(
     context,
-    PAIRS.flatMap((pair: IPair): HumanTrunkLean.IWrist[] =>
+    ThrowPotteryData.PAIRS.flatMap((pair: ThrowPotteryData.IPair): HumanTrunkLean.IWrist[] =>
       [0, rise].map(
         (lift: number): HumanTrunkLean.IWrist => ({
           side: pair.side,
@@ -264,7 +251,7 @@ function plan(
       primitives: [arm("right", "outside"), arm("left", "inside")],
       contact: "strokeStart",
     });
-  const spin: number = ((p.rpm ?? RPM) * 360) / 60;
+  const spin: number = ((p.rpm ?? ThrowPotteryData.RPM) * 360) / 60;
   const head: number = wheel.state?.(context.start)?.["head"] ?? 0;
   const drives: IAutoMovieMotionPropDrive[] = [
     {
@@ -288,8 +275,8 @@ function plan(
     drives,
     contacts: [
       ...composed.contacts,
-      ...PAIRS.map(
-        (pair: IPair): IAutoMovieMotionHumanContactWindow => ({
+      ...ThrowPotteryData.PAIRS.map(
+        (pair: ThrowPotteryData.IPair): IAutoMovieMotionHumanContactWindow => ({
           part: pair.side === "left" ? "leftHand" : "rightHand",
           kind: "bear",
           region: pair.side === "left" ? "palmLeft" : "palmRight",
@@ -300,19 +287,4 @@ function plan(
       ),
     ],
   };
-}
-
-/*
- * A palm and the wall face it lies on.
- */
-interface IPair {
-  /*
-   * The hand.
-   */
-  side: AutoMovieHumanSide;
-
-  /*
-   * The wheel's face.
-   */
-  face: string;
 }

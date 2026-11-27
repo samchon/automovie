@@ -165,50 +165,6 @@ export namespace typeText {
   export const HOVER: number = 0.015;
 
   /*
-   * The farthest a home key may lie from its shoulder, as a share of the arm
-   * and hand's length (provisional: short of a fully straight arm).
-   */
-  const REACH: number = 0.95;
-
-  /*
-   * How far the home row may lie above or below the elbows' height, metres
-   * (provisional).
-   */
-  const HEIGHT: number = 0.15;
-
-  /*
-   * Seconds before the first press, the time to reach the first key from where
-   * the hands are (provisional).
-   */
-  const LEAD: number = 0.3;
-
-  /*
-   * Vertical drop per horizontal metre along the typing fingers (provisional).
-   */
-  const FINGER_SLOPE: number = -0.5;
-
-  /*
-   * How far out a typing elbow hangs, as `AutoMovieMotionHumanBend.hang`'s
-   * share (provisional).
-   */
-  const OUT: number = 0.1;
-
-  /*
-   * The slowest and fastest everyday typists' words a minute (Feit, Weir and
-   * Oulasvirta 2016, CHI '16, How We Type, figure 3).
-   */
-  const WPM: Readonly<Record<WPMEntryItem, number>> = {
-    slowest: 34,
-    fastest: 79,
-  };
-
-  /*
-   * Characters a word in a words-a-minute rate, the typing-test convention Feit
-   * et al. 2016 count by.
-   */
-  const CHARACTERS: number = 5;
-
-  /*
    * The QWERTY letter rows from the top, each with its stagger in keys.
    */
   export const ROWS: readonly IROWSItem[] = [
@@ -469,6 +425,50 @@ export namespace typeText {
         typing(seconds),
     };
   }
+
+  /*
+   * The farthest a home key may lie from its shoulder, as a share of the arm
+   * and hand's length (provisional: short of a fully straight arm).
+   */
+  const REACH: number = 0.95;
+
+  /*
+   * How far the home row may lie above or below the elbows' height, metres
+   * (provisional).
+   */
+  const HEIGHT: number = 0.15;
+
+  /*
+   * Seconds before the first press, the time to reach the first key from where
+   * the hands are (provisional).
+   */
+  const LEAD: number = 0.3;
+
+  /*
+   * Vertical drop per horizontal metre along the typing fingers (provisional).
+   */
+  const FINGER_SLOPE: number = -0.5;
+
+  /*
+   * How far out a typing elbow hangs, as `AutoMovieMotionHumanBend.hang`'s
+   * share (provisional).
+   */
+  const OUT: number = 0.1;
+
+  /*
+   * The slowest and fastest everyday typists' words a minute (Feit, Weir and
+   * Oulasvirta 2016, CHI '16, How We Type, figure 3).
+   */
+  const WPM: Readonly<Record<WPMEntryItem, number>> = {
+    slowest: 34,
+    fastest: 79,
+  };
+
+  /*
+   * Characters a word in a words-a-minute rate, the typing-test convention Feit
+   * et al. 2016 count by.
+   */
+  const CHARACTERS: number = 5;
 }
 
 /*

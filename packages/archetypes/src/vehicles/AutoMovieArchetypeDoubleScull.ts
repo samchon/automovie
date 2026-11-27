@@ -9,34 +9,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-const HULL: string =
-  "Filippi F13: https://www.filippiboats.com/eng/boats/competition/double-pair/f13";
-const WEIGHT: string =
-  "World Rowing 2x minimum: https://worldrowing.com/technical/equipment-technology/equipment-compliance/";
-const OARS: string =
-  "Empacher adjustable racing sculls: https://www.empacher.com/en/products/sculls-oars/racing-scull";
-const RIG: string =
-  "Filippi order form, sculling span and height: https://www.filippiboats.com/application/files/1817/5247/9595/order_form_v25_r2.pdf";
-
-const v: typeof Vector3.create = Vector3.create;
-const PAINT: string = "#eeeae0";
-const DECK: string = "#a32725";
-const CARBON: string = "#282d34";
-const WALL: number = 0.009;
-const RIM: number = 0.13;
-const FLOOR: number = -0.14;
-const SEAT: Readonly<{
-  y: number;
-  depth: number;
-  width: number;
-  travel: number;
-}> = { y: 0.16, depth: 0.24, width: 0.29, travel: 0.48 };
-const PLATE: Readonly<{ width: number; depth: number; tilt: number }> = {
-  width: 0.11,
-  depth: 0.26,
-  tilt: 37,
-};
+import * as AutoMovieArchetypeDoubleScullData from "./internal/AutoMovieArchetypeDoubleScullData";
+import { v } from "./internal/AutoMovieArchetypeDoubleScullData";
 
 /** Constructs the double scull archetype from its recipe. */
 export namespace AutoMovieArchetypeDoubleScull {
@@ -110,21 +84,40 @@ export function create(
   };
   /** The reference hull, rig and assembled reference mass. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(9.4, 9.4, HULL),
-    beam: AutoMovieArchetypeBand.metres(0.33, 0.33, HULL),
+    length: AutoMovieArchetypeBand.metres(9.4, 9.4, AutoMovieArchetypeDoubleScullData.HULL),
+    beam: AutoMovieArchetypeBand.metres(0.33, 0.33, AutoMovieArchetypeDoubleScullData.HULL),
     oarLength: AutoMovieArchetypeBand.metres(
       2.9,
       2.9,
-      `${OARS}; rigged to ${RIG}`,
+      `${AutoMovieArchetypeDoubleScullData.OARS}; rigged to ${AutoMovieArchetypeDoubleScullData.RIG}`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       32.64,
       32.64,
-      `${WEIGHT}; plus four 1.41 kg sculls (${OARS})`,
+      `${AutoMovieArchetypeDoubleScullData.WEIGHT}; plus four 1.41 kg sculls (${AutoMovieArchetypeDoubleScullData.OARS})`,
     ),
   };
 }
+
+const PAINT: string = "#eeeae0";
+const DECK: string = "#a32725";
+const CARBON: string = "#282d34";
+
+const WALL: number = 0.009;
+const RIM: number = 0.13;
+const FLOOR: number = -0.14;
+const SEAT: Readonly<{
+  y: number;
+  depth: number;
+  width: number;
+  travel: number;
+}> = { y: 0.16, depth: 0.24, width: 0.29, travel: 0.48 };
+const PLATE: Readonly<{ width: number; depth: number; tilt: number }> = {
+  width: 0.11,
+  depth: 0.26,
+  tilt: 37,
+};
 
 /*
  * Loft thin polygonal walls along one shared section family, with deck caps

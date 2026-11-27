@@ -120,12 +120,6 @@ export namespace kneelKeys {
   export const SIT: number = 145;
 
   /*
-   * How far a toe joint may move between keys and still stand, metres: a
-   * staying foot differs by round-off, a step by centimetres.
-   */
-  const STILL: number = 1e-4;
-
-  /*
    * Whether a foot keeps its floor point from one key to the next.
    * Parameter from: The foot in the first key.
    * Parameter to: The foot in the second key.
@@ -133,19 +127,6 @@ export namespace kneelKeys {
    */
   export function still(from: IFoot, to: IFoot): boolean {
     return Vector3.length(Vector3.subtract(from.at, to.at)) <= STILL;
-  }
-
-  /*
-   * A range-table limit the kneel needs, signed degrees; throws when the table
-   * has none.
-   */
-  function required(
-    bone: Parameters<typeof AutoMovieMotionHumanRange.limit>[0],
-    motion: Parameters<typeof AutoMovieMotionHumanRange.limit>[1],
-  ): number {
-    const end: number | null = AutoMovieMotionHumanRange.limit(bone, motion);
-    if (end === null) throw new Error(`${bone} has no ${motion} limit`);
-    return end;
   }
 
   /*
@@ -276,18 +257,6 @@ export namespace kneelKeys {
         ),
       );
   }
-
-  /*
-   * How far short of the hip's extension range a thigh reaching behind is kept,
-   * degrees (provisional).
-   */
-  const SPARE: number = 5;
-
-  /*
-   * The width over which `lean`'s corner at zero is rounded, degrees
-   * (provisional).
-   */
-  const ROUND: number = 2;
 
   /*
    * The forward tilt of the pelvis that keeps the legs inside the hips'
@@ -499,6 +468,37 @@ export namespace kneelKeys {
       ),
     };
   }
+
+  /*
+   * How far a toe joint may move between keys and still stand, metres: a
+   * staying foot differs by round-off, a step by centimetres.
+   */
+  const STILL: number = 1e-4;
+
+  /*
+   * A range-table limit the kneel needs, signed degrees; throws when the table
+   * has none.
+   */
+  function required(
+    bone: Parameters<typeof AutoMovieMotionHumanRange.limit>[0],
+    motion: Parameters<typeof AutoMovieMotionHumanRange.limit>[1],
+  ): number {
+    const end: number | null = AutoMovieMotionHumanRange.limit(bone, motion);
+    if (end === null) throw new Error(`${bone} has no ${motion} limit`);
+    return end;
+  }
+
+  /*
+   * How far short of the hip's extension range a thigh reaching behind is kept,
+   * degrees (provisional).
+   */
+  const SPARE: number = 5;
+
+  /*
+   * The width over which `lean`'s corner at zero is rounded, degrees
+   * (provisional).
+   */
+  const ROUND: number = 2;
 }
 
 /*

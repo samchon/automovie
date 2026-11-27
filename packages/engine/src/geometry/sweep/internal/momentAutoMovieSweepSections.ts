@@ -1,16 +1,6 @@
 import type { IAutoMovieSweepSurface } from "@automovie/interface";
 
 /*
- * Spine samples of the midpoint rule.
- */
-const STEPS: number = 400;
-
-/*
- * Directions of each section's area.
- */
-const DIRECTIONS: number = 256;
-
-/*
  * Measure the area and first moments of a sweep's sections before its scale
  * profile, at the midpoints of 400 equal steps along the spine.
  *
@@ -55,3 +45,13 @@ export const momentAutoMovieSweepSections: (
   }
   return out;
 };
+
+/*
+ * Spine samples of the midpoint rule.
+ */
+const STEPS: number = 400;
+
+/*
+ * Directions of each section's area.
+ */
+const DIRECTIONS: number = 256;

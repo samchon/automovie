@@ -13,18 +13,6 @@ import { HumanPerformanceRead } from "../../perform/internal/HumanPerformanceRea
 import { HumanPropFlight } from "../../perform/internal/HumanPropFlight";
 
 /*
- * Sampling interval of a gate scan, seconds: 240 Hz, ten times a 24 fps film
- * frame.
- */
-const STEP: number = 1 / 240;
-
-/*
- * Bisection rounds closing a bracketed crossing: 2^-40 of one step, below 1e-14
- * s.
- */
-const ROUNDS: number = 40;
-
-/*
  * Read one ball's play from a placed performance and test it against the gates
  * a sport credits (a hoop, a goal mouth, a cup).
  *
@@ -243,3 +231,15 @@ export namespace HumanBallPlay {
     return event.kind === "hold" ? event.from : event.seconds;
   }
 }
+
+/*
+ * Sampling interval of a gate scan, seconds: 240 Hz, ten times a 24 fps film
+ * frame.
+ */
+const STEP: number = 1 / 240;
+
+/*
+ * Bisection rounds closing a bracketed crossing: 2^-40 of one step, below 1e-14
+ * s.
+ */
+const ROUNDS: number = 40;

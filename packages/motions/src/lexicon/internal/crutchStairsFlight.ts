@@ -9,30 +9,6 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import type { crutchHeldLeg } from "./crutchHeldLeg";
 
 /*
- * World vertical.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * How high a crutch tip clears a nosing as it moves, metres (provisional, as
- * the crutch walk's lift).
- */
-const LIFT: number = 0.04;
-
-/*
- * The first nosing's distance ahead of the toes when the author gives none,
- * metres: the climb's own default (`climbStairsFlight.START`).
- */
-const START: number = 0.05;
-
-/*
- * Where on its tread a foot's ball and a crutch's tip come down, as a share of
- * the tread measured from its front edge back (provisional: the ball over the
- * tread's rear part, the toes inside its front edge).
- */
-const ON: number = 0.7;
-
-/*
  * The crutch stair climb's flight and clock, shared by the law's plan and the
  * track the scene's crutch props read, so both derive every crutch frame and
  * tread from the same flight.
@@ -256,3 +232,27 @@ export namespace crutchStairsFlight {
     return k;
   }
 }
+
+/*
+ * World vertical.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * How high a crutch tip clears a nosing as it moves, metres (provisional, as
+ * the crutch walk's lift).
+ */
+const LIFT: number = 0.04;
+
+/*
+ * The first nosing's distance ahead of the toes when the author gives none,
+ * metres: the climb's own default (`climbStairsFlight.START`).
+ */
+const START: number = 0.05;
+
+/*
+ * Where on its tread a foot's ball and a crutch's tip come down, as a share of
+ * the tread measured from its front edge back (provisional: the ball over the
+ * tread's rear part, the toes inside its front edge).
+ */
+const ON: number = 0.7;

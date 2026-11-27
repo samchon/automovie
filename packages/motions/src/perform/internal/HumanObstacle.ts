@@ -137,14 +137,6 @@ export namespace HumanObstacle {
   }
 
   /*
-   * The least horizontal part of an opening's unit width axis that states a
-   * heading across it: a width axis turned straight up keeps a horizontal part
-   * of the order of the rounding of its turn, about 1e-16, which names no
-   * direction.
-   */
-  const LEVEL: number = 1e-9;
-
-  /*
    * How far the polygon that stands for a round collider's outline on the floor
    * may lie outside it, metres (provisional: a millimetre, under any clearance
    * a passage is judged by).
@@ -235,45 +227,6 @@ export namespace HumanObstacle {
   }
 
   /*
-   * Adds the corners of the regular polygon whose edges touch a ball's disc on
-   * the floor plan, with enough sides that they stand within `ROUND` of it.
-   */
-  const disc = (
-    out: IAutoMovieVector3[],
-    centre: IAutoMovieVector3,
-    radius: number,
-  ): void => {
-    const sides: number = Math.max(
-      3,
-      Math.ceil(Math.PI / Math.acos(radius / (radius + ROUND))),
-    );
-    const reach: number = radius / Math.cos(Math.PI / sides);
-    for (let k: number = 0; k < sides; k++) {
-      const angle: number = (2 * Math.PI * k) / sides;
-      out.push({
-        x: centre.x + reach * Math.cos(angle),
-        y: 0,
-        z: centre.z + reach * Math.sin(angle),
-      });
-    }
-  };
-
-  /*
-   * The convex hull of points on the floor plan, its corners in order with none
-   * on a straight run (Andrew's monotone chain); `y` is 0.
-   */
-  const hull = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] => {
-    if (points.length < 3) return [];
-    return AutoMovieEnginePlanarHull.vertices(points, "x", "z").map(
-      (point: IAutoMovieVector3): IAutoMovieVector3 => ({
-        x: point.x,
-        y: 0,
-        z: point.z,
-      }),
-    );
-  };
-
-  /*
    * The first obstacle a straight stretch of a path cannot pass, if any.
    * Parameter obstacles: The scene's obstacles.
    * Parameter from: Where the stretch starts on the floor, world metres.
@@ -319,6 +272,53 @@ export namespace HumanObstacle {
     }
     return nearest;
   }
+
+  /*
+   * The least horizontal part of an opening's unit width axis that states a
+   * heading across it: a width axis turned straight up keeps a horizontal part
+   * of the order of the rounding of its turn, about 1e-16, which names no
+   * direction.
+   */
+  const LEVEL: number = 1e-9;
+
+  /*
+   * Adds the corners of the regular polygon whose edges touch a ball's disc on
+   * the floor plan, with enough sides that they stand within `ROUND` of it.
+   */
+  const disc = (
+    out: IAutoMovieVector3[],
+    centre: IAutoMovieVector3,
+    radius: number,
+  ): void => {
+    const sides: number = Math.max(
+      3,
+      Math.ceil(Math.PI / Math.acos(radius / (radius + ROUND))),
+    );
+    const reach: number = radius / Math.cos(Math.PI / sides);
+    for (let k: number = 0; k < sides; k++) {
+      const angle: number = (2 * Math.PI * k) / sides;
+      out.push({
+        x: centre.x + reach * Math.cos(angle),
+        y: 0,
+        z: centre.z + reach * Math.sin(angle),
+      });
+    }
+  };
+
+  /*
+   * The convex hull of points on the floor plan, its corners in order with none
+   * on a straight run (Andrew's monotone chain); `y` is 0.
+   */
+  const hull = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] => {
+    if (points.length < 3) return [];
+    return AutoMovieEnginePlanarHull.vertices(points, "x", "z").map(
+      (point: IAutoMovieVector3): IAutoMovieVector3 => ({
+        x: point.x,
+        y: 0,
+        z: point.z,
+      }),
+    );
+  };
 
   /*
    * Why a path that enters an obstacle is blocked by it, or null when it goes

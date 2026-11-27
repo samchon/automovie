@@ -28,11 +28,6 @@ import type {
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed support records and copied coefficient/lift arrays; the receiving definition borrows frame/source records until it is released, without a new global cache.
  */
 export namespace AutoMovieHumanTrunkNeckSeat {
-  /*
-   * Phases the ring is sampled at.
-   */
-  const COUNT: number = 512;
-
   /**
    * Spacing of the heights the lateral outline's derivatives are read over, mm:
    * wide enough to stay clear of the sampling, narrow against the 20 mm flare.
@@ -211,6 +206,11 @@ export namespace AutoMovieHumanTrunkNeckSeat {
     }
     return boundary;
   }
+
+  /*
+   * Phases the ring is sampled at.
+   */
+  const COUNT: number = 512;
 
   /*
    * The ring at a height at uniform phases.

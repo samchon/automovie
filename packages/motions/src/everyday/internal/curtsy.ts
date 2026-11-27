@@ -29,11 +29,7 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { curtsyCross } from "./curtsyCross";
-
-/*
- * Positional tolerance for a solved ankle or sole, in metres.
- */
-const FIT: number = 0.006;
+import * as CurtsyData from "./CurtsyData";
 
 /*
  * A small ceremonial curtsy. The Royal Household describes a small curtsy as a
@@ -134,7 +130,7 @@ function plan(
     ) ||
     sockets.some(
       (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>
-        socket.point.y - floor > FIT,
+        socket.point.y - floor > CurtsyData.FIT,
     )
   )
     throw new AutoMovieMotionHumanRefusal({
@@ -418,11 +414,11 @@ function fitsFoot(
 ): boolean {
   return points.every(
     (point: IAutoMovieVector3, i: number): boolean =>
-      point.y >= floor - FIT &&
+      point.y >= floor - CurtsyData.FIT &&
       (swinging
         ? point.y > floor
-        : i >= HumanFoot.SOCKETS.length || point.y <= floor + FIT) &&
+        : i >= HumanFoot.SOCKETS.length || point.y <= floor + CurtsyData.FIT) &&
       Vector3.length(Vector3.subtract(point, Vector3.add(entry[i]!, offset))) <=
-        FIT,
+        CurtsyData.FIT,
   );
 }

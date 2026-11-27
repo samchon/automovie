@@ -9,40 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The decks read.
- */
-const POWELL: string =
-  'Powell Peralta decks, "7-Ply Maple": Kilian Martin Wolf 4, 7.75 x 31.75 in, 14 in wheelbase (https://powell-peralta.com/powell-peralta-kilian-martin-wolf-4-skateboard-deck-7-75-x-31-75); Chin Mask, 8.5 x 33.5 in, 15 in wheelbase (https://powell-peralta.com/powell-peralta-chin-mask-skateboard-deck-black-8-5-x-33-5)';
-
-/*
- * The veneer read.
- */
-const VENEER: string =
-  'Roarockit Skateboard Co., Understand the Materials: maple veneer "Normally this is 1/16" thick" (https://roa-rockit.squarespace.com/skateboard-building/2015/3/14/understand-the-materials)';
-
-/*
- * The truck read.
- */
-const TRUCK: string =
-  'Independent Trucks, Stage 11 Standard: "55MM HEIGHT." (https://independenttrucks.com/trucks)';
-
-/*
- * The wheel read.
- */
-const WHEEL: string =
-  'Spitfire Formula Four Classic wheels, "52 mm" in the product title (https://www.skatedeluxe.com/en/p/spitfire-formula-four-classic-wheels-white-green-52-mm-99a-4-pack_p123290?cic=GB)';
-
-/*
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `wheel`, a wheel's width; `baseplate`, a truck's
- * block along the deck.
- */
-const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
-  wheel: 0.032,
-  baseplate: 0.08,
-};
+import * as AutoMovieArchetypeSkateboardData from "./internal/AutoMovieArchetypeSkateboardData";
 
 /** Constructs the skateboard archetype from its recipe. */
 export namespace AutoMovieArchetypeSkateboard {
@@ -297,17 +264,17 @@ export function create(
     thickness: AutoMovieArchetypeBand.metres(
       (7 / 16) * AutoMovieArchetypeUnits.INCH,
       (7 / 16) * AutoMovieArchetypeUnits.INCH,
-      `${POWELL}: seven plies, each 1/16 in by ${VENEER}`,
+      `${AutoMovieArchetypeSkateboardData.POWELL}: seven plies, each 1/16 in by ${AutoMovieArchetypeSkateboardData.VENEER}`,
     ),
     truck: AutoMovieArchetypeBand.metres(
       55 * AutoMovieArchetypeUnits.MILLIMETRE,
       55 * AutoMovieArchetypeUnits.MILLIMETRE,
-      TRUCK,
+      AutoMovieArchetypeSkateboardData.TRUCK,
     ),
     wheel: AutoMovieArchetypeBand.metres(
       52 * AutoMovieArchetypeUnits.MILLIMETRE,
       52 * AutoMovieArchetypeUnits.MILLIMETRE,
-      WHEEL,
+      AutoMovieArchetypeSkateboardData.WHEEL,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -318,3 +285,13 @@ export function create(
     ),
   };
 }
+
+/*
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `wheel`, a wheel's width; `baseplate`, a truck's
+ * block along the deck.
+ */
+const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
+  wheel: 0.032,
+  baseplate: 0.08,
+};

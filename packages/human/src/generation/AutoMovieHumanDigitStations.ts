@@ -45,11 +45,6 @@ export namespace AutoMovieHumanDigitStations {
    */
   export const RESOLVE: number = 4;
 
-  /*
-   * Where the first tip rings stand before the cap, mm: the cap's last 1.2, 0.3 and 0.
-   */
-  const TIP_RINGS: readonly number[] = [1.2, 0.3, 0];
-
   /**
    * The stations of one digit, increasing, from its first section to its cap.
    *
@@ -108,4 +103,9 @@ export namespace AutoMovieHumanDigitStations {
       (x: number, i: number): boolean => i === 0 || x > out[i - 1]! + 0.1,
     );
   }
+
+  /*
+   * Where the first tip rings stand before the cap, mm: the cap's last 1.2, 0.3 and 0.
+   */
+  const TIP_RINGS: readonly number[] = [1.2, 0.3, 0];
 }

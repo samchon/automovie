@@ -15,11 +15,6 @@ import type { QuadrupedHoofTrack } from "../quadruped/QuadrupedHoofTrack";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
 /*
- * Degrees per radian.
- */
-const DEGREE: number = 180 / Math.PI;
-
-/*
  * Lateral dressage figures: the body heading turned away from the travel
  * heading on one course leg, entered from and recovered to straight travel.
  *
@@ -350,3 +345,8 @@ export namespace EquineLateral {
     ).s;
   }
 }
+
+/*
+ * Degrees per radian.
+ */
+const DEGREE: number = 180 / Math.PI;

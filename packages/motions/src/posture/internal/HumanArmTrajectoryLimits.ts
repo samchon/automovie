@@ -14,50 +14,6 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /*
- * The closest material point of the union of hand and digit solids to the
- * requested site.
- */
-function skin(
-  frame: IAutoMovieMotionHumanArmGeometry.IFrame,
-  own: IAutoMovieMotionHumanArmGeometry.IPlaced,
-  point: IAutoMovieVector3,
-  bound: number,
-): HumanArmTrajectoryLimits.IRead {
-  const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] =
-    HumanArmShapes.colliders(frame, own);
-  let index: number = 0;
-  let nearest: IAutoMoviePhysicalShapeNearest.IResult | undefined;
-  for (const collider of frame.colliders) {
-    for (const solid of collider.shapes) {
-      const placed: IAutoMovieMotionHumanArmGeometry.IShape = shapes[index++]!;
-      if (collider.owner !== "hand") continue;
-      if (
-        nearest !== undefined &&
-        Vector3.distance(placed.centre, point) - placed.radius >
-          nearest.distance
-      )
-        continue;
-      const read: IAutoMoviePhysicalShapeNearest.IResult = AutoMovieEnginePhysics.physicalShapeNearest(
-        placed.pose,
-        solid,
-        point,
-        point,
-      );
-      if (nearest === undefined || read.distance < nearest.distance)
-        nearest = read;
-    }
-  }
-  if (nearest === undefined)
-    throw new Error("A material hand contact requires a hand collider");
-  return {
-    contact: nearest.point,
-    point,
-    distance: 1000 * Math.abs(nearest.distance),
-    allowance: Math.max(0, 1000 * bound - T.TOLERANCE),
-  };
-}
-
-/*
  * Read each limited point on the actual hand and the site's asked frame.
  * Parameter site: The task and its effector-local point limits.
  * Parameter at: The site's current world frame, including its moving parent.
@@ -216,4 +172,48 @@ export namespace HumanArmTrajectoryLimits {
       },
     );
   }
+}
+
+/*
+ * The closest material point of the union of hand and digit solids to the
+ * requested site.
+ */
+function skin(
+  frame: IAutoMovieMotionHumanArmGeometry.IFrame,
+  own: IAutoMovieMotionHumanArmGeometry.IPlaced,
+  point: IAutoMovieVector3,
+  bound: number,
+): HumanArmTrajectoryLimits.IRead {
+  const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] =
+    HumanArmShapes.colliders(frame, own);
+  let index: number = 0;
+  let nearest: IAutoMoviePhysicalShapeNearest.IResult | undefined;
+  for (const collider of frame.colliders) {
+    for (const solid of collider.shapes) {
+      const placed: IAutoMovieMotionHumanArmGeometry.IShape = shapes[index++]!;
+      if (collider.owner !== "hand") continue;
+      if (
+        nearest !== undefined &&
+        Vector3.distance(placed.centre, point) - placed.radius >
+          nearest.distance
+      )
+        continue;
+      const read: IAutoMoviePhysicalShapeNearest.IResult = AutoMovieEnginePhysics.physicalShapeNearest(
+        placed.pose,
+        solid,
+        point,
+        point,
+      );
+      if (nearest === undefined || read.distance < nearest.distance)
+        nearest = read;
+    }
+  }
+  if (nearest === undefined)
+    throw new Error("A material hand contact requires a hand collider");
+  return {
+    contact: nearest.point,
+    point,
+    distance: 1000 * Math.abs(nearest.distance),
+    allowance: Math.max(0, 1000 * bound - T.TOLERANCE),
+  };
 }

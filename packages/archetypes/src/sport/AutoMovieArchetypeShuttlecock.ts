@@ -9,6 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import * as AutoMovieArchetypeShuttlecockData from "./internal/AutoMovieArchetypeShuttlecockData";
 
 /** Canonical producer and authoring contract for Shuttlecock. */
 export namespace AutoMovieArchetypeShuttlecock {
@@ -38,21 +39,15 @@ export namespace AutoMovieArchetypeShuttlecock {
     mass: "kg",
   };
 
-  /*
-   * BWF Laws of Badminton, §2.2, feathered shuttle.
-   */
-  const BWF: string =
-    "BWF Laws of Badminton, 26 April 2025, 2.2 (https://badminton.dk/wp-content/uploads/2025/11/Section-4.1-Laws-of-Badminton-26-April-2025-V5.0-1-.pdf)";
-
   /** BWF Law 2.2.1's count of feathers fixed in the base. */
   export const FEATHERS: number = 16;
 
   /** BWF Law 2.2's dimensions and mass limits. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    corkDiameter: AutoMovieArchetypeBand.metres(0.025, 0.028, BWF),
-    featherLength: AutoMovieArchetypeBand.metres(0.062, 0.07, BWF),
-    skirtDiameter: AutoMovieArchetypeBand.metres(0.058, 0.068, BWF),
-    mass: AutoMovieArchetypeBand.of("kg", 0.00474, 0.0055, BWF),
+    corkDiameter: AutoMovieArchetypeBand.metres(0.025, 0.028, AutoMovieArchetypeShuttlecockData.BWF),
+    featherLength: AutoMovieArchetypeBand.metres(0.062, 0.07, AutoMovieArchetypeShuttlecockData.BWF),
+    skirtDiameter: AutoMovieArchetypeBand.metres(0.058, 0.068, AutoMovieArchetypeShuttlecockData.BWF),
+    mass: AutoMovieArchetypeBand.of("kg", 0.00474, 0.0055, AutoMovieArchetypeShuttlecockData.BWF),
   };
 
   /**

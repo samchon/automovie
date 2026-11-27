@@ -21,29 +21,6 @@ import { QuadrupedRigDelta } from "../quadruped/QuadrupedRigDelta";
 import { QuadrupedScapula } from "../quadruped/QuadrupedScapula";
 
 /*
- * The rig's own bones, which carry themselves.
- */
-const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
-  "trunk",
-  "hindquarters",
-  "neck",
-  "head",
-  "tail",
-  ...Object.values(QuadrupedScapula.BONES),
-  ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
-    (
-      limb: AutoMovieArchetypeQuadrupedBody.Limb,
-    ): readonly AutoMovieArchetypeQuadrupedBody.Bone[] =>
-      AutoMovieArchetypeQuadrupedBody.BONES[limb],
-  ),
-];
-
-/*
- * The identity turn.
- */
-const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-
-/*
  * Re-pose one sample of an equid's ride through its rig: the neck and head,
  * each ear about its root, the jaw about its hinge, the upper lip about its
  * root and the tail about its dock.
@@ -424,3 +401,26 @@ export namespace EquineExpressionPose {
     );
   }
 }
+
+/*
+ * The rig's own bones, which carry themselves.
+ */
+const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
+  "trunk",
+  "hindquarters",
+  "neck",
+  "head",
+  "tail",
+  ...Object.values(QuadrupedScapula.BONES),
+  ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
+    (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): readonly AutoMovieArchetypeQuadrupedBody.Bone[] =>
+      AutoMovieArchetypeQuadrupedBody.BONES[limb],
+  ),
+];
+
+/*
+ * The identity turn.
+ */
+const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

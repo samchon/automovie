@@ -1,6 +1,60 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 /*
+ * The strength the canonical Human's joints have: a person's peak joint torques
+ * by sex, height and mass at the stated adult age.
+ */
+export namespace AutoMovieHumanJointStrength {
+  /*
+   * The adult age the canonical profile represents, years, stated rather than
+   * measured.
+   */
+  export const AGE: number = 40;
+
+  /** The person the strength is evaluated for. */
+  export interface IPerson {
+    /** True for a man. */
+    male: boolean;
+    /** Stature, metres. */
+    height: number;
+    /** Body mass, kilograms. */
+    mass: number;
+  }
+
+  /*
+   * A clinical channel's peak torques toward its clinical maximum and minimum,
+   * N m: Harbo et al.'s regressions, McNabb et al.'s per-kilogram means for
+   * the hip's abduction, adduction and rotations, or undefined where neither
+   * measured the motions.
+   * Parameter person: The person.
+   * Parameter bone: The bone the joint moves.
+   * Parameter channel: The clinical channel.
+   * Returns: The two peak torques, or undefined.
+   */
+  export function of(
+    person: IPerson,
+    bone: AutoMovieHumanoidBone,
+    channel: "flexion" | "abduction" | "twist",
+  ): { toMaximum: number; toMinimum: number } | undefined {
+    const motions: [string, string] | undefined =
+      COVERED[bone.replace(/^(left|right)/, "")]?.[channel];
+    if (motions === undefined) return undefined;
+    const torque = (name: string): number => {
+      const share: number | undefined = MCNABB[name];
+      if (share !== undefined) return share * person.mass;
+      const [intercept, age, height, mass] = person.male
+        ? HARBO[name]!.male
+        : HARBO[name]!.female;
+      return Math.max(
+        0,
+        intercept + age * AGE + height * person.height + mass * person.mass,
+      );
+    };
+    return { toMaximum: torque(motions[0]), toMinimum: torque(motions[1]) };
+  }
+}
+
+/*
  * Peak joint torque models of Harbo, Brincks and Andersen (2012), "Maximal
  * isokinetic and isometric muscle strength of major muscle groups related to
  * age, body mass, height, and sex in 178 healthy subjects", Eur J Appl Physiol
@@ -117,60 +171,6 @@ const COVERED: Readonly<
   LowerArm: { flexion: ["elbowFlexion", "elbowExtension"] },
   Hand: { flexion: ["wristExtension", "wristFlexion"] },
 };
-
-/*
- * The strength the canonical Human's joints have: a person's peak joint torques
- * by sex, height and mass at the stated adult age.
- */
-export namespace AutoMovieHumanJointStrength {
-  /*
-   * The adult age the canonical profile represents, years, stated rather than
-   * measured.
-   */
-  export const AGE: number = 40;
-
-  /** The person the strength is evaluated for. */
-  export interface IPerson {
-    /** True for a man. */
-    male: boolean;
-    /** Stature, metres. */
-    height: number;
-    /** Body mass, kilograms. */
-    mass: number;
-  }
-
-  /*
-   * A clinical channel's peak torques toward its clinical maximum and minimum,
-   * N m: Harbo et al.'s regressions, McNabb et al.'s per-kilogram means for
-   * the hip's abduction, adduction and rotations, or undefined where neither
-   * measured the motions.
-   * Parameter person: The person.
-   * Parameter bone: The bone the joint moves.
-   * Parameter channel: The clinical channel.
-   * Returns: The two peak torques, or undefined.
-   */
-  export function of(
-    person: IPerson,
-    bone: AutoMovieHumanoidBone,
-    channel: "flexion" | "abduction" | "twist",
-  ): { toMaximum: number; toMinimum: number } | undefined {
-    const motions: [string, string] | undefined =
-      COVERED[bone.replace(/^(left|right)/, "")]?.[channel];
-    if (motions === undefined) return undefined;
-    const torque = (name: string): number => {
-      const share: number | undefined = MCNABB[name];
-      if (share !== undefined) return share * person.mass;
-      const [intercept, age, height, mass] = person.male
-        ? HARBO[name]!.male
-        : HARBO[name]!.female;
-      return Math.max(
-        0,
-        intercept + age * AGE + height * person.height + mass * person.mass,
-      );
-    };
-    return { toMaximum: torque(motions[0]), toMinimum: torque(motions[1]) };
-  }
-}
 
 /*
  * A sex-specific peak-torque regression: intercept, age, height and mass

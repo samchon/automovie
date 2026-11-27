@@ -19,24 +19,35 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { headRestAim } from "./headRestAim";
 import { kissBody } from "./kissBody";
 import { requireOtherPerformer } from "./requireOtherPerformer";
+import * as HeadRestData from "./HeadRestData";
 
 /*
- * How far the hand on the partner's side slides down its thigh toward the knee,
- * metres (provisional: about a hand's length).
+ * Rest the head on a partner. The resting head's own region, the temple on the
+ * side the partner's region lies unless named, is brought to the partner's
+ * region. The body leans from the hips as a kiss does (`kissBody`, seated or on
+ * planted feet), the neck flexes and the head bends to the side
+ * (`headRestAim`): solved once against the region where the performer sees it
+ * at the start, then corrected against the displayed region at the same second
+ * during bearing. Free transport uses the perception delay, eased to zero at
+ * contact. The head goes down in the free transport time of its travel, rests
+ * the authored span on a `head` window on the partner's region loaded with half
+ * the weight of the head and neck segments in the body's own mass model, and
+ * comes up in the same time. A region the lean, the neck and the side bend
+ * cannot bring the head to within `NEAR` is refused with the miss and the
+ * angles, so a much shorter partner's shoulder is out of reach standing.
  */
-const SLIDE: number = 0.12;
+export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadRest> =
+  {
+    name: "headRest",
+    interrupts: AutoMovieMotionHumanInterrupt.table({
+      stand: ["fromRelax", "smooth"],
+      touch: ["fromRelax", "smooth"],
+      walk: ["fromRelax", "smooth"],
+      flinch: ["anytime", "reflex"],
+    }),
+    plan: planHeadRest,
+  };
 
-/*
- * The miss under which the head rests on the region, metres (provisional: a
- * skin contact).
- */
-const NEAR: number = 0.01;
-
-/*
- * The part of the head and neck's weight a resting head lays on the partner
- * (provisional: the other half is held by the neck's own muscles).
- */
-const RESTING: number = 0.5;
 /*
  * Rest the head on a partner. The resting head's own region, the temple on the
  * side the partner's region lies unless named, is brought to the partner's
@@ -95,7 +106,7 @@ function planHeadRest(
     own,
   );
   const solved: headRestAim.ISolved = aim.solve(at);
-  if (solved.miss > NEAR) {
+  if (solved.miss > HeadRestData.NEAR) {
     // Where the region lies from the head's region at entry, in the performer's frame: left, up, ahead.
     const away: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -entry.yaw),
@@ -105,7 +116,7 @@ function planHeadRest(
       kind: "reach",
       axis: "region",
       value: p.region,
-      feasible: { kind: "range", minimum: null, maximum: NEAR, unit: "m" },
+      feasible: { kind: "range", minimum: null, maximum: HeadRestData.NEAR, unit: "m" },
       reason: `the ${own} stays ${(solved.miss * 1000).toFixed(0)} mm from the partner's ${p.region} at a lean of ${solved.pitch.toFixed(0)} degrees forward and ${solved.roll.toFixed(0)} to the side, the neck flexed ${solved.flexion.toFixed(0)} and bent ${solved.tilt.toFixed(0)} to the side; the region lies ${(away.x * 1000).toFixed(0)} mm to the left, ${(away.y * 1000).toFixed(0)} mm up and ${(away.z * 1000).toFixed(0)} mm ahead of the ${own} at entry`,
       fix: "sit or stand nearer, or rest on a region within the lean's reach",
     });
@@ -210,7 +221,7 @@ function planHeadRest(
                 Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
                 { x: 0, y: 0, z: 1 },
               ),
-              SLIDE * share(seconds),
+              HeadRestData.SLIDE * share(seconds),
             );
             return {
               ...posture,
@@ -260,7 +271,7 @@ function planHeadRest(
           b,
           StrikingBody.region(body, a, own).normal,
           StrikingBody.region(partner.body, b, p.region).normal,
-          NEAR,
+          HeadRestData.NEAR,
         )?.first;
       };
       const material: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
@@ -297,33 +308,6 @@ function planHeadRest(
 }
 
 /*
- * Rest the head on a partner. The resting head's own region, the temple on the
- * side the partner's region lies unless named, is brought to the partner's
- * region. The body leans from the hips as a kiss does (`kissBody`, seated or on
- * planted feet), the neck flexes and the head bends to the side
- * (`headRestAim`): solved once against the region where the performer sees it
- * at the start, then corrected against the displayed region at the same second
- * during bearing. Free transport uses the perception delay, eased to zero at
- * contact. The head goes down in the free transport time of its travel, rests
- * the authored span on a `head` window on the partner's region loaded with half
- * the weight of the head and neck segments in the body's own mass model, and
- * comes up in the same time. A region the lean, the neck and the side bend
- * cannot bring the head to within `NEAR` is refused with the miss and the
- * angles, so a much shorter partner's shoulder is out of reach standing.
- */
-export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadRest> =
-  {
-    name: "headRest",
-    interrupts: AutoMovieMotionHumanInterrupt.table({
-      stand: ["fromRelax", "smooth"],
-      touch: ["fromRelax", "smooth"],
-      walk: ["fromRelax", "smooth"],
-      flinch: ["anytime", "reflex"],
-    }),
-    plan: planHeadRest,
-  };
-
-/*
  * The share of the body's weight a resting head lays on the partner: `RESTING`
  * of the head and neck segments' share of the body's own mass model.
  */
@@ -340,7 +324,7 @@ function load(body: IAutoMovieMotionHumanActionContext["body"]): number {
         sum + s.mass,
       0,
     );
-  return (RESTING * head) / model.mass;
+  return (HeadRestData.RESTING * head) / model.mass;
 }
 
 /*

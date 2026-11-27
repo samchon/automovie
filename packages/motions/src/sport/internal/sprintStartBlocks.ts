@@ -15,13 +15,7 @@ import type {
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
-
-/*
- * The largest share of a plate normal's forward component allowed across the
- * lane: about 11 degrees of yaw, the lateral play an athlete accepts before the
- * sole slides on the face (provisional).
- */
-const ACROSS: number = 0.2;
+import * as SprintStartBlocksData from "./SprintStartBlocksData";
 
 /*
  * Fit the set's two foot placements to a starting block's plates.
@@ -77,7 +71,7 @@ export function sprintStartBlocks(
       !(
         up.y > 0 &&
         forward > 0 &&
-        Math.abs(Vector3.dot(up, across)) < forward * ACROSS
+        Math.abs(Vector3.dot(up, across)) < forward * SprintStartBlocksData.ACROSS
       )
     )
       return refuse(`the ${id} plate must face forward and upward in the lane`);

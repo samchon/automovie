@@ -9,22 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-
-/*
- * The amateur boxing body's ring guide, read.
- */
-const AIBA: string =
-  "AIBA Ring Manufacturer Guide, 12 February 2014 (https://www.iba.sport/wp-content/uploads/2019/02/AIBA_RING_MANUFACTURER_GUIDE_12.02.2014.pdf)";
-
-/*
- * The sides of the square, as the ring's own `+Z`, `-Z`, `+X` and `-X`.
- */
-const SIDES: readonly ["north", "south", "east", "west"] = [
-  "north",
-  "south",
-  "east",
-  "west",
-];
+import * as AutoMovieArchetypeRingData from "./internal/AutoMovieArchetypeRingData";
 
 /** A roped training ring with a canvas and named corner contacts. */
 export namespace AutoMovieArchetypeRing {
@@ -225,17 +210,17 @@ export function create(
     size: AutoMovieArchetypeBand.metres(
       6.1,
       6.1,
-      `${AIBA}, canvas: 6.10 m square inside the line of the ropes`,
+      `${AutoMovieArchetypeRingData.AIBA}, canvas: 6.10 m square inside the line of the ropes`,
     ),
     platform: AutoMovieArchetypeBand.metres(
       1,
       1,
-      `${AIBA}, poles: 230 cm in all and 130 cm above the canvas, so the canvas stands 100 cm high`,
+      `${AutoMovieArchetypeRingData.AIBA}, poles: 230 cm in all and 130 cm above the canvas, so the canvas stands 100 cm high`,
     ),
     topRope: AutoMovieArchetypeBand.metres(
       1.3,
       1.3,
-      `${AIBA}, ropes: the four at 40, 70, 100 and 130 cm from the canvas`,
+      `${AutoMovieArchetypeRingData.AIBA}, ropes: the four at 40, 70, 100 and 130 cm from the canvas`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -246,3 +231,14 @@ export function create(
     ),
   };
 }
+
+
+/*
+ * The sides of the square, as the ring's own `+Z`, `-Z`, `+X` and `-X`.
+ */
+const SIDES: readonly ["north", "south", "east", "west"] = [
+  "north",
+  "south",
+  "east",
+  "west",
+];

@@ -1,18 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanLieDown,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanTurnOver,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanTurnOver, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
@@ -26,24 +13,10 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { knockdown } from "../../reaction/internal/knockdown";
-import { lieDownPoses } from "./lieDownPoses";
+import "./lieDownPoses";
 import { lyingTurn } from "./lyingTurn";
 import { turnOverToward } from "./turnOverToward";
-
-/*
- * Seconds of each quarter turn (provisional).
- */
-const QUARTER: number = 1;
-
-/*
- * The limb postures at each quarter turn, from the back over the left side.
- */
-const KEYS: readonly IAutoMovieMotionHumanLieDown.IPose[] = [
-  lieDownPoses.POSES.supine,
-  lieDownPoses.POSES.lateralLeft,
-  lieDownPoses.POSES.prone,
-  lieDownPoses.POSES.lateralRight,
-];
+import * as TurnOverData from "./TurnOverData";
 
 /*
  * Turn over while lying. The body turns about its own long axis (`lyingTurn`)
@@ -107,7 +80,7 @@ function planTurnOver(
   );
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.sequence([
-      { name: "turning", seconds: QUARTER * quarters },
+      { name: "turning", seconds: TurnOverData.QUARTER * quarters },
       { name: p.to, seconds: 0 },
       { name: "settled", seconds: hold },
     ]),
@@ -121,7 +94,7 @@ function planTurnOver(
   const key: (turn: number) => IAutoMovieMotionHumanPosture["joints"] = (
     turn: number,
   ): IAutoMovieMotionHumanPosture["joints"] =>
-    KEYS[((Math.round(turn / 90) % 4) + 4) % 4]!.joints;
+    TurnOverData.KEYS[((Math.round(turn / 90) % 4) + 4) % 4]!.joints;
   const quarterTurn: number = Math.sign(delta) * 90;
   const blends: ReturnType<typeof prepareHumanShapeBlend>[] = Array.from(
     { length: quarters },

@@ -7,28 +7,6 @@ import type {
 import { EquineHeadReach } from "./EquineHeadReach";
 
 /*
- * The neck and head dips a course may pass through, degrees of neck pitch, the
- * head pitching half as far: authored candidates, the direct path first.
- */
-const DIPS: readonly number[] = [15, 30, 45, 60, 75];
-
-/*
- * The shares at which a course is checked for clearance, end shares included.
- */
-const CHECKS: number = 12;
-
-/*
- * The clearance a course may close to at its end, metres: a touching reach
- * meets its target there.
- */
-const TOUCH: number = 1e-3;
-
-/*
- * The unit quaternion.
- */
-const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-
-/*
  * The head channel's course from one carriage of the neck and head to another,
  * planned around another body.
  *
@@ -266,6 +244,28 @@ export namespace EquineHeadCourse {
     );
   }
 }
+
+/*
+ * The neck and head dips a course may pass through, degrees of neck pitch, the
+ * head pitching half as far: authored candidates, the direct path first.
+ */
+const DIPS: readonly number[] = [15, 30, 45, 60, 75];
+
+/*
+ * The shares at which a course is checked for clearance, end shares included.
+ */
+const CHECKS: number = 12;
+
+/*
+ * The clearance a course may close to at its end, metres: a touching reach
+ * meets its target there.
+ */
+const TOUCH: number = 1e-3;
+
+/*
+ * The unit quaternion.
+ */
+const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
 /*
  * A course's least clearance and where it is least.

@@ -7,6 +7,50 @@ import type {
 import { HumanLanceCouchCarriage } from "./HumanLanceCouchCarriage";
 
 /*
+ * Whether a carriage keeps its grip, the middle of its forearm and its elbow
+ * clear of the horse's shapes by `CLEAR`.
+ * Parameter horse: The horse's body.
+ * Parameter laid: The carriage, in the seat frame.
+ * Returns: Whether every point clears.
+ */
+export function HumanLanceCouchClear(
+  horse: HumanLanceCouchClear.IHorseBody,
+  laid: HumanLanceCouchCarriage.ICarriage,
+): boolean {
+  const points: IAutoMovieVector3[] = [
+    laid.hand.point,
+    Vector3.lerp(laid.hand.point, laid.elbow, 0.5),
+    laid.elbow,
+  ];
+  return points.every(
+    (p: IAutoMovieVector3): boolean =>
+      apart(horse.shapes, Vector3.add(horse.seat, p)) >= CLEAR,
+  );
+}
+
+/*
+ * `HumanLanceCouchClear` and its records.
+ */
+export namespace HumanLanceCouchClear {
+  /*
+   * The horse's body as a carriage keeps clear of it: its rest shapes, and
+   * where the seat lies in its model.
+   */
+  export interface IHorseBody {
+    /*
+     * The horse's physical shapes in its model frame.
+     */
+    shapes: readonly IAutoMoviePhysicalShape[];
+
+    /*
+     * The seat contact's point in the horse's model frame, metres; the seat
+     * frame's axes are the model's.
+     */
+    seat: IAutoMovieVector3;
+  }
+}
+
+/*
  * How near the horse's shapes a hand, forearm or elbow may come, metres: half a
  * hand's thickness with the skin (provisional).
  */
@@ -67,48 +111,4 @@ function apart(
     least = Math.min(least, d);
   }
   return least;
-}
-
-/*
- * Whether a carriage keeps its grip, the middle of its forearm and its elbow
- * clear of the horse's shapes by `CLEAR`.
- * Parameter horse: The horse's body.
- * Parameter laid: The carriage, in the seat frame.
- * Returns: Whether every point clears.
- */
-export function HumanLanceCouchClear(
-  horse: HumanLanceCouchClear.IHorseBody,
-  laid: HumanLanceCouchCarriage.ICarriage,
-): boolean {
-  const points: IAutoMovieVector3[] = [
-    laid.hand.point,
-    Vector3.lerp(laid.hand.point, laid.elbow, 0.5),
-    laid.elbow,
-  ];
-  return points.every(
-    (p: IAutoMovieVector3): boolean =>
-      apart(horse.shapes, Vector3.add(horse.seat, p)) >= CLEAR,
-  );
-}
-
-/*
- * `HumanLanceCouchClear` and its records.
- */
-export namespace HumanLanceCouchClear {
-  /*
-   * The horse's body as a carriage keeps clear of it: its rest shapes, and
-   * where the seat lies in its model.
-   */
-  export interface IHorseBody {
-    /*
-     * The horse's physical shapes in its model frame.
-     */
-    shapes: readonly IAutoMoviePhysicalShape[];
-
-    /*
-     * The seat contact's point in the horse's model frame, metres; the seat
-     * frame's axes are the model's.
-     */
-    seat: IAutoMovieVector3;
-  }
 }

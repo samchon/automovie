@@ -70,37 +70,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   /** Authored sika trot and/or rotary gallop; an absent gait stays unsupported. */
   export type IDeer = IDeerTrot | IDeerGallop;
 
-  /*
-   * Coincident lateral pairs, explicitly constructed for running pace.
-   */
-  const PACE: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
-    leftFore: 0,
-    rightFore: 0.5,
-    leftHind: 0,
-    rightHind: 0.5,
-  };
-
-  /*
-   * Coincident diagonals; the other diagonal lands half a stride later.
-   */
-  const TROT: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
-    leftFore: 0,
-    rightFore: 0.5,
-    leftHind: 0.5,
-    rightHind: 0,
-  };
-
-  /*
-   * Constructed LH→RH→RF→LF rotary order: left fore leads, right hind leads.
-   */
-  const ROTARY: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> =
-    {
-      leftFore: 0,
-      rightFore: 0.75,
-      leftHind: 0.25,
-      rightHind: 0.5,
-    };
-
   /**
    * The camel's measured walking point plus the caller's running-pace clocks.
    *
@@ -293,6 +262,37 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
       ...(table.scaling === undefined ? {} : { scaling: table.scaling }),
     };
   }
+
+  /*
+   * Coincident lateral pairs, explicitly constructed for running pace.
+   */
+  const PACE: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
+    leftFore: 0,
+    rightFore: 0.5,
+    leftHind: 0,
+    rightHind: 0.5,
+  };
+
+  /*
+   * Coincident diagonals; the other diagonal lands half a stride later.
+   */
+  const TROT: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
+    leftFore: 0,
+    rightFore: 0.5,
+    leftHind: 0.5,
+    rightHind: 0,
+  };
+
+  /*
+   * Constructed LH→RH→RF→LF rotary order: left fore leads, right hind leads.
+   */
+  const ROTARY: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> =
+    {
+      leftFore: 0,
+      rightFore: 0.75,
+      leftHind: 0.25,
+      rightHind: 0.5,
+    };
 
   /*
    * Convert required authored seconds to common gait rows, retaining named walk

@@ -8,24 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The two body brushes read: Kerbl's Covalliero, 17 x 8 cm with 3 cm bristles
- * (kerbl.com product 13839), and Shires' EZI-Groom Premium, 200 x 85 mm with 25
- * mm bristles (equusnow.com listing).
- */
-const SOURCE: string =
-  "Kerbl Covalliero horse brush 17 x 8 cm, 3 cm bristles; Shires EZI-Groom Premium body brush 200 x 85 mm, 25 mm bristles";
-
-/*
- * The brush's back thickness, metres: authored, neither listing gives it.
- */
-const BACK: number = 0.02;
-
-/*
- * The brush's mass, kilograms: authored, neither listing gives it.
- */
-const MASS: number = 0.2;
+import * as AutoMovieArchetypeGroomingBrushData from "./internal/AutoMovieArchetypeGroomingBrushData";
 
 /**
  * Constructs the grooming brush archetype from its recipe.
@@ -145,8 +128,18 @@ export function create(
 
   /** Each dimension's band, between the two brushes read. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(0.17, 0.2, SOURCE),
-    width: AutoMovieArchetypeBand.metres(0.08, 0.085, SOURCE),
-    bristle: AutoMovieArchetypeBand.metres(0.025, 0.03, SOURCE),
+    length: AutoMovieArchetypeBand.metres(0.17, 0.2, AutoMovieArchetypeGroomingBrushData.SOURCE),
+    width: AutoMovieArchetypeBand.metres(0.08, 0.085, AutoMovieArchetypeGroomingBrushData.SOURCE),
+    bristle: AutoMovieArchetypeBand.metres(0.025, 0.03, AutoMovieArchetypeGroomingBrushData.SOURCE),
   };
 }
+
+/*
+ * The brush's back thickness, metres: authored, neither listing gives it.
+ */
+const BACK: number = 0.02;
+
+/*
+ * The brush's mass, kilograms: authored, neither listing gives it.
+ */
+const MASS: number = 0.2;

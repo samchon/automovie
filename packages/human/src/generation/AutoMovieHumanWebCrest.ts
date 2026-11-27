@@ -10,16 +10,6 @@ import type {
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
-const {
-  sub,
-  plus: add,
-  scale,
-  dot,
-  norm,
-  unit,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { leaving, H }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
-
 /**
  * The first stage of a web's build: every web the parent's ring parts at. A
  * web is the saddle where two children part at a pair of pinches (the ring
@@ -99,5 +89,16 @@ export namespace AutoMovieHumanWebCrest {
     return { webs, webOf, position, outward, parentJet };
   }
 }
+
+const {
+  sub,
+  plus: add,
+  scale,
+  dot,
+  norm,
+  unit,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+
+const { leaving, H }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
 
 type Vec3 = AutoMovieVector3Tuple;

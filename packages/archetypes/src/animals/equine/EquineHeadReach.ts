@@ -7,11 +7,6 @@ import type {
 import { AutoMovieArchetypeRefusal } from "../../core";
 
 /*
- * Degrees per radian.
- */
-const DEGREES: number = 180 / Math.PI;
-
-/*
  * The neck and head turns that face a target or bring the muzzle onto it, in
  * closed form.
  *
@@ -255,3 +250,8 @@ export namespace EquineHeadReach {
     );
   }
 }
+
+/*
+ * Degrees per radian.
+ */
+const DEGREES: number = 180 / Math.PI;

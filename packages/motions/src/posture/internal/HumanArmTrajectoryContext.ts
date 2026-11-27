@@ -15,6 +15,175 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
 
 /*
+ * The context of a problem.
+ * Parameter problem: The problem.
+ * Parameter previous: The context of the same arms on other waypoints, an earlier
+ * reading of the trajectory a refinement splits, whose speed bound and beyond
+ * reading the new context keeps.
+ * Returns: The context.
+ */
+export function HumanArmTrajectoryContext(
+  problem: HumanArmTrajectoryContext.IProblem,
+  previous?: M.IContext,
+): M.IContext {
+  return built(problem, previous);
+}
+
+/*
+ * What an arms' trajectory reads, built once per problem
+ * (`HumanArmTrajectoryModel.IContext`): each arm's setup and frames, its
+ * variables, its hard bounds, every probe's allowance against every shape, and
+ * each site's touched collider and normal.
+ */
+export namespace HumanArmTrajectoryContext {
+  /*
+   * What the context is built from: the trajectory's problem, or a still
+   * configuration of it.
+   */
+  export interface IProblem {
+    /*
+     * The body.
+     */
+    body: IAutoMovieMotionHumanBody;
+
+    /*
+     * The waypoints' seconds.
+     */
+    times: readonly number[];
+
+    /*
+     * What every arm is read against at each waypoint.
+     */
+    bases: readonly G.IBase[];
+    /*
+     * Native body geometry for the authored hand support, when present.
+     */
+    material?: M.IMaterialSource;
+
+    /*
+     * The arms.
+     */
+    arms: readonly IProblemArmsItem[];
+
+    /*
+     * Whether the problem is a still configuration
+     * (`HumanArmTrajectoryModel.IContext.still`).
+     */
+    still?: boolean;
+
+    /*
+     * The share of the reach made at a second, 0 at rest and 1 on the hold
+     * (`HumanArmTrajectory.IProblem.share`); a grasp's closing and parting keep
+     * its depth on the hold by it. Nothing is kept when absent.
+     * Parameter seconds: Seconds of the problem.
+     * Returns: The share, 0 to 1.
+     */
+    share?: (seconds: number) => number;
+  }
+
+  /*
+   * Bind genuine arm setup metadata for one unchanged-body trajectory
+   * operation.
+   */
+  export function prepare(
+    body: IAutoMovieMotionHumanBody,
+    sides: readonly AutoMovieHumanSide[],
+  ): (problem: IProblem, previous?: M.IContext) => M.IContext {
+    const names: readonly AutoMovieHumanSide[] = [...sides];
+    const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = names.map(
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanArmGeometry.ISetup =>
+        G.prepare(body, side),
+    );
+    return (problem: IProblem, previous?: M.IContext): M.IContext =>
+      built(
+        problem,
+        previous,
+        problem.body === body &&
+          problem.arms.length === names.length &&
+          names.every(
+            (side: AutoMovieHumanSide, index: number): boolean =>
+              problem.arms[index]!.side === side,
+          )
+          ? setups
+          : undefined,
+      );
+  }
+
+  /*
+   * Project prepared waypoint geometry and pair allowances onto a window of
+   * the same physical frames. The last fixed waypoint may read the return
+   * arm instead of the rest arm. A window that changes that reference at any
+   * waypoint needs a fresh reading.
+   * Parameter context: The original trajectory's prepared context.
+   * Parameter frames: The window's waypoint indices in that context, in order.
+   * Parameter still: Whether the window omits speeds and sweeps.
+   * Returns: The same geometry on the selected clock, if its references agree.
+   */
+  export function window(
+    context: M.IContext,
+    frames: readonly number[],
+    still: boolean,
+  ): M.IContext | undefined {
+    const last: number = frames.length - 1;
+    const open: boolean =
+      !still &&
+      last > 0 &&
+      context.sites.every(
+        (sites: readonly (M.ISite | undefined)[]): boolean =>
+          sites[frames[last]!] !== undefined,
+      );
+    const back: number = context.open ? -1 : context.n - 1;
+    if (
+      frames.some(
+        (source: number, k: number): boolean =>
+          (source === back) !== (k === last && !open),
+      )
+    )
+      return undefined;
+
+    /*
+     * Read the same waypoint fields in the window's order.
+     */
+    const rows = <T>(fields: readonly (readonly T[])[]): T[][] =>
+      fields.map((field: readonly T[]): T[] =>
+        frames.map((source: number): T => field[source]!),
+      );
+
+    return {
+      ...context,
+      n: frames.length,
+      still,
+      open,
+      times: frames.map((source: number): number => context.times[source]!),
+      frames: rows(context.frames),
+      sites: rows(context.sites),
+      normals: rows(context.normals),
+      touched: rows(context.touched),
+      siteHeights: rows(context.siteHeights),
+      reachable: rows(context.reachable),
+      allowed: (a: number, k: number, probe: number, shape: number): number =>
+        context.allowed(a, frames[k]!, probe, shape),
+      between: (a: number, k: number, probe: number, shape: number): number =>
+        context.between(a, frames[k]!, probe, shape),
+      grasped: (
+        a: number,
+        k: number,
+        own: M.Segment,
+        other: M.Segment,
+        shape: number,
+      ): number | undefined =>
+        context.grasped(a, frames[k]!, own, other, shape),
+      inside: (a: number, k: number, at: number, shape: number): number =>
+        context.inside(a, frames[k]!, at, shape),
+      lying: (a: number, k: number, own: M.Segment, bone: string): boolean =>
+        context.lying(a, frames[k]!, own, bone),
+      rested: (a: number, k: number, probe: number, bone: string): boolean =>
+        context.rested(a, frames[k]!, probe, bone),
+    };
+  }
+}
+
+/*
  * Share only explicitly fixed native setups; all current waypoint geometry
  * remains actual.
  */
@@ -218,175 +387,6 @@ function built(
     rested: readers.rested,
   };
   return context;
-}
-
-/*
- * The context of a problem.
- * Parameter problem: The problem.
- * Parameter previous: The context of the same arms on other waypoints, an earlier
- * reading of the trajectory a refinement splits, whose speed bound and beyond
- * reading the new context keeps.
- * Returns: The context.
- */
-export function HumanArmTrajectoryContext(
-  problem: HumanArmTrajectoryContext.IProblem,
-  previous?: M.IContext,
-): M.IContext {
-  return built(problem, previous);
-}
-
-/*
- * What an arms' trajectory reads, built once per problem
- * (`HumanArmTrajectoryModel.IContext`): each arm's setup and frames, its
- * variables, its hard bounds, every probe's allowance against every shape, and
- * each site's touched collider and normal.
- */
-export namespace HumanArmTrajectoryContext {
-  /*
-   * What the context is built from: the trajectory's problem, or a still
-   * configuration of it.
-   */
-  export interface IProblem {
-    /*
-     * The body.
-     */
-    body: IAutoMovieMotionHumanBody;
-
-    /*
-     * The waypoints' seconds.
-     */
-    times: readonly number[];
-
-    /*
-     * What every arm is read against at each waypoint.
-     */
-    bases: readonly G.IBase[];
-    /*
-     * Native body geometry for the authored hand support, when present.
-     */
-    material?: M.IMaterialSource;
-
-    /*
-     * The arms.
-     */
-    arms: readonly IProblemArmsItem[];
-
-    /*
-     * Whether the problem is a still configuration
-     * (`HumanArmTrajectoryModel.IContext.still`).
-     */
-    still?: boolean;
-
-    /*
-     * The share of the reach made at a second, 0 at rest and 1 on the hold
-     * (`HumanArmTrajectory.IProblem.share`); a grasp's closing and parting keep
-     * its depth on the hold by it. Nothing is kept when absent.
-     * Parameter seconds: Seconds of the problem.
-     * Returns: The share, 0 to 1.
-     */
-    share?: (seconds: number) => number;
-  }
-
-  /*
-   * Bind genuine arm setup metadata for one unchanged-body trajectory
-   * operation.
-   */
-  export function prepare(
-    body: IAutoMovieMotionHumanBody,
-    sides: readonly AutoMovieHumanSide[],
-  ): (problem: IProblem, previous?: M.IContext) => M.IContext {
-    const names: readonly AutoMovieHumanSide[] = [...sides];
-    const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = names.map(
-      (side: AutoMovieHumanSide): IAutoMovieMotionHumanArmGeometry.ISetup =>
-        G.prepare(body, side),
-    );
-    return (problem: IProblem, previous?: M.IContext): M.IContext =>
-      built(
-        problem,
-        previous,
-        problem.body === body &&
-          problem.arms.length === names.length &&
-          names.every(
-            (side: AutoMovieHumanSide, index: number): boolean =>
-              problem.arms[index]!.side === side,
-          )
-          ? setups
-          : undefined,
-      );
-  }
-
-  /*
-   * Project prepared waypoint geometry and pair allowances onto a window of
-   * the same physical frames. The last fixed waypoint may read the return
-   * arm instead of the rest arm. A window that changes that reference at any
-   * waypoint needs a fresh reading.
-   * Parameter context: The original trajectory's prepared context.
-   * Parameter frames: The window's waypoint indices in that context, in order.
-   * Parameter still: Whether the window omits speeds and sweeps.
-   * Returns: The same geometry on the selected clock, if its references agree.
-   */
-  export function window(
-    context: M.IContext,
-    frames: readonly number[],
-    still: boolean,
-  ): M.IContext | undefined {
-    const last: number = frames.length - 1;
-    const open: boolean =
-      !still &&
-      last > 0 &&
-      context.sites.every(
-        (sites: readonly (M.ISite | undefined)[]): boolean =>
-          sites[frames[last]!] !== undefined,
-      );
-    const back: number = context.open ? -1 : context.n - 1;
-    if (
-      frames.some(
-        (source: number, k: number): boolean =>
-          (source === back) !== (k === last && !open),
-      )
-    )
-      return undefined;
-
-    /*
-     * Read the same waypoint fields in the window's order.
-     */
-    const rows = <T>(fields: readonly (readonly T[])[]): T[][] =>
-      fields.map((field: readonly T[]): T[] =>
-        frames.map((source: number): T => field[source]!),
-      );
-
-    return {
-      ...context,
-      n: frames.length,
-      still,
-      open,
-      times: frames.map((source: number): number => context.times[source]!),
-      frames: rows(context.frames),
-      sites: rows(context.sites),
-      normals: rows(context.normals),
-      touched: rows(context.touched),
-      siteHeights: rows(context.siteHeights),
-      reachable: rows(context.reachable),
-      allowed: (a: number, k: number, probe: number, shape: number): number =>
-        context.allowed(a, frames[k]!, probe, shape),
-      between: (a: number, k: number, probe: number, shape: number): number =>
-        context.between(a, frames[k]!, probe, shape),
-      grasped: (
-        a: number,
-        k: number,
-        own: M.Segment,
-        other: M.Segment,
-        shape: number,
-      ): number | undefined =>
-        context.grasped(a, frames[k]!, own, other, shape),
-      inside: (a: number, k: number, at: number, shape: number): number =>
-        context.inside(a, frames[k]!, at, shape),
-      lying: (a: number, k: number, own: M.Segment, bone: string): boolean =>
-        context.lying(a, frames[k]!, own, bone),
-      rested: (a: number, k: number, probe: number, bone: string): boolean =>
-        context.rested(a, frames[k]!, probe, bone),
-    };
-  }
 }
 
 /*

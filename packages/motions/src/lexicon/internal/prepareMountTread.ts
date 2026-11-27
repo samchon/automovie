@@ -11,16 +11,6 @@ import { mountCastObstruction } from "./mountCastObstruction";
 import type { prepareMountSeat } from "./prepareMountSeat";
 
 /*
- * Translation across the named tread.
- */
-const ACROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
-/*
- * From the riding foot towards the plate.
- */
-const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-
-/*
  * Prepare supported placements of a posed foot within a named stirrup. Carry
  * its actual foot and toe shapes about its anatomical ball; their relative
  * articulation stays as displayed. Keep the requested rotation and fixed
@@ -208,102 +198,6 @@ export function prepareMountTread(
 }
 
 /*
- * Exact placed pairs, with native GJK separating the easy ones first.
- */
-function clearsPlaced(
-  actors: readonly ICell[],
-  plate: prepareMountTread.IPlate,
-  iron: readonly prepareMountSeat.ISolid[],
-  precision: number,
-): boolean {
-  for (const obstacle of [plate, ...iron]) {
-    const other: IAutoMoviePhysicalShapeBounds.IResult = AutoMovieEnginePhysics.physicalShapeBounds(
-      obstacle.pose,
-      obstacle.shape,
-    );
-    const near: ICell[] = actors.filter(
-      ({ bounds }: ICell): boolean =>
-        bounds.max.x > other.min.x &&
-        bounds.min.x < other.max.x &&
-        bounds.max.y > other.min.y &&
-        bounds.min.y < other.max.y &&
-        bounds.max.z > other.min.z &&
-        bounds.min.z < other.max.z,
-    );
-    if (near.length === 0) continue;
-    const host: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
-      obstacle.pose,
-      obstacle.shape,
-    );
-    for (const actor of near) {
-      const gap: AutoMovieEnginePhysicsGjkTypes.IBound = AutoMovieEnginePhysics.physicalShapeGjk(
-        AutoMovieEnginePhysics.physicalShapeGjkSolid(actor.pose, actor.shape),
-        host,
-        precision,
-      );
-      if (gap.lower >= 0) continue;
-      if (
-        gap.upper < -precision ||
-        AutoMovieEnginePhysics.physicalShapePairDistance(
-          actor.pose,
-          actor.shape,
-          obstacle.pose,
-          obstacle.shape,
-        ) < -precision
-      )
-        return false;
-    }
-  }
-  return true;
-}
-
-/*
- * The paired witness nearest the ball in this cell's positive top patch.
- */
-function onPlate(
-  actor: prepareMountSeat.ISolid,
-  plate: prepareMountTread.IPlate,
-  ball: IAutoMovieVector3,
-  shift: number,
-  precision: number,
-): AutoMovieEnginePhysicsContactTypes.IPoint | undefined {
-  const pose: IAutoMovieRigidTransform = {
-    ...actor.pose,
-    position: { ...actor.pose.position, x: actor.pose.position.x + shift },
-  };
-  const patch: AutoMovieEnginePhysicalPlanarPolygon.IPoint[] = [];
-  let selected: AutoMovieEnginePhysicsContactTypes.IPoint | undefined;
-  let nearest: number = Infinity;
-  for (const witness of AutoMovieEnginePhysics.physicalShapeContactManifold(
-    pose,
-    actor.shape,
-    plate.pose,
-    plate.shape,
-    DOWN,
-    HumanFoot.BEARING,
-  )) {
-    const { pointA, pointB } = witness;
-    if (
-      !(
-        Math.abs(pointB.y) <= precision &&
-        Vector3.distance(pointA, pointB) <= HumanFoot.BEARING
-      )
-    )
-      continue;
-
-    patch.push({ x: pointB.x, y: pointB.z });
-    const delta: IAutoMovieVector3 = Vector3.subtract(pointB, ball);
-    const squared: number = Vector3.dot(delta, delta);
-    if (squared >= nearest) continue;
-    nearest = squared;
-    selected = witness;
-  }
-  return AutoMovieEnginePhysicalPlanarPolygon.area(AutoMovieEnginePhysicalPlanarPolygon.hull(patch)) > 0
-    ? selected
-    : undefined;
-}
-
-/*
  * Material, source pose and the retained local placement.
  */
 export namespace prepareMountTread {
@@ -416,6 +310,112 @@ export namespace prepareMountTread {
      */
     material: IAutoMovieVector3;
   }
+}
+
+/*
+ * Translation across the named tread.
+ */
+const ACROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+
+/*
+ * From the riding foot towards the plate.
+ */
+const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
+
+/*
+ * Exact placed pairs, with native GJK separating the easy ones first.
+ */
+function clearsPlaced(
+  actors: readonly ICell[],
+  plate: prepareMountTread.IPlate,
+  iron: readonly prepareMountSeat.ISolid[],
+  precision: number,
+): boolean {
+  for (const obstacle of [plate, ...iron]) {
+    const other: IAutoMoviePhysicalShapeBounds.IResult = AutoMovieEnginePhysics.physicalShapeBounds(
+      obstacle.pose,
+      obstacle.shape,
+    );
+    const near: ICell[] = actors.filter(
+      ({ bounds }: ICell): boolean =>
+        bounds.max.x > other.min.x &&
+        bounds.min.x < other.max.x &&
+        bounds.max.y > other.min.y &&
+        bounds.min.y < other.max.y &&
+        bounds.max.z > other.min.z &&
+        bounds.min.z < other.max.z,
+    );
+    if (near.length === 0) continue;
+    const host: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
+      obstacle.pose,
+      obstacle.shape,
+    );
+    for (const actor of near) {
+      const gap: AutoMovieEnginePhysicsGjkTypes.IBound = AutoMovieEnginePhysics.physicalShapeGjk(
+        AutoMovieEnginePhysics.physicalShapeGjkSolid(actor.pose, actor.shape),
+        host,
+        precision,
+      );
+      if (gap.lower >= 0) continue;
+      if (
+        gap.upper < -precision ||
+        AutoMovieEnginePhysics.physicalShapePairDistance(
+          actor.pose,
+          actor.shape,
+          obstacle.pose,
+          obstacle.shape,
+        ) < -precision
+      )
+        return false;
+    }
+  }
+  return true;
+}
+
+/*
+ * The paired witness nearest the ball in this cell's positive top patch.
+ */
+function onPlate(
+  actor: prepareMountSeat.ISolid,
+  plate: prepareMountTread.IPlate,
+  ball: IAutoMovieVector3,
+  shift: number,
+  precision: number,
+): AutoMovieEnginePhysicsContactTypes.IPoint | undefined {
+  const pose: IAutoMovieRigidTransform = {
+    ...actor.pose,
+    position: { ...actor.pose.position, x: actor.pose.position.x + shift },
+  };
+  const patch: AutoMovieEnginePhysicalPlanarPolygon.IPoint[] = [];
+  let selected: AutoMovieEnginePhysicsContactTypes.IPoint | undefined;
+  let nearest: number = Infinity;
+  for (const witness of AutoMovieEnginePhysics.physicalShapeContactManifold(
+    pose,
+    actor.shape,
+    plate.pose,
+    plate.shape,
+    DOWN,
+    HumanFoot.BEARING,
+  )) {
+    const { pointA, pointB } = witness;
+    if (
+      !(
+        Math.abs(pointB.y) <= precision &&
+        Vector3.distance(pointA, pointB) <= HumanFoot.BEARING
+      )
+    )
+      continue;
+
+    patch.push({ x: pointB.x, y: pointB.z });
+    const delta: IAutoMovieVector3 = Vector3.subtract(pointB, ball);
+    const squared: number = Vector3.dot(delta, delta);
+    if (squared >= nearest) continue;
+    nearest = squared;
+    selected = witness;
+  }
+  return AutoMovieEnginePhysicalPlanarPolygon.area(AutoMovieEnginePhysicalPlanarPolygon.hull(patch)) > 0
+    ? selected
+    : undefined;
 }
 
 /*

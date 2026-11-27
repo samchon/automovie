@@ -6,14 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFrame } from "./HumanFrame";
-
-/*
- * The named axes mirror about the performer's centreline.
- */
-const AXES: Readonly<Record<AutoMovieHumanSide, IAxes>> = {
-  left: axes(1),
-  right: axes(-1),
-};
+import * as HumanHandDirectionData from "./HumanHandDirectionData";
 
 /*
  * The world unit vector of a named direction for a hand of a performer heading
@@ -31,7 +24,7 @@ export function HumanHandDirection(
   yaw: number,
   direction: IAutoMovieMotionHumanHand.Direction,
 ): IAutoMovieVector3 {
-  const named: IAxes = side === "left" ? AXES.left : AXES.right;
+  const named: HumanHandDirectionData.IAxes = side === "left" ? HumanHandDirectionData.AXES.left : HumanHandDirectionData.AXES.right;
   let local: IAutoMovieVector3;
   if (typeof direction === "string") local = named[direction];
   else if ("between" in direction) {
@@ -81,7 +74,7 @@ export namespace HumanHandDirection {
     yaw: number,
     direction: IAutoMovieMotionHumanHand.Axis,
   ) => IAutoMovieVector3 {
-    const local: IAxes = side === "left" ? AXES.left : AXES.right;
+    const local: HumanHandDirectionData.IAxes = side === "left" ? HumanHandDirectionData.AXES.left : HumanHandDirectionData.AXES.right;
     return (
       yaw: number,
       direction: IAutoMovieMotionHumanHand.Axis,
@@ -89,24 +82,3 @@ export namespace HumanHandDirection {
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, local[direction]);
   }
 }
-
-/*
- * Bind the six local unit axes for the acting hand's lateral sign.
- */
-function axes(sign: number): IAxes {
-  return {
-    out: { x: sign, y: 0, z: 0 },
-    in: { x: -sign, y: 0, z: 0 },
-    up: { x: 0, y: 1, z: 0 },
-    down: { x: 0, y: -1, z: 0 },
-    forward: { x: 0, y: 0, z: 1 },
-    back: { x: 0, y: 0, z: -1 },
-  };
-}
-
-/*
- * The unchanged floor directions for one side, before turning by yaw.
- */
-type IAxes = Readonly<
-  Record<IAutoMovieMotionHumanHand.Axis, Readonly<IAutoMovieVector3>>
->;

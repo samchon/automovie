@@ -11,11 +11,6 @@ import type {
 } from "@automovie/interface";
 
 /*
- * World up, the axis of an upright pin.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
  * Credit the pinfall of a baked bowling delivery: the pins down at the end of
  * its cache, in rack order.
  *
@@ -103,6 +98,11 @@ export namespace bowlingPinfall {
     };
   }
 }
+
+/*
+ * World up, the axis of an upright pin.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * The tilt, radians, at which a standing pin's centre of mass passes over the

@@ -257,19 +257,6 @@ export namespace walkReach {
   }
 
   /*
-   * The requested toe rotation after consuming the available hip twist.
-   */
-  function pivot(
-    planned: number,
-    direction: ReturnType<typeof HumanFoot.headingPitch>,
-  ): number {
-    const off: number = AutoMovieEngineMath.wrapDegrees(planned - direction.heading);
-    const excess: number =
-      Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
-    return excess * Math.min(1, Math.max(0, -direction.pitch / HEEL_UP));
-  }
-
-  /*
    * Hold a swinging foot inside its leg's ranges under a settled pelvis: the
    * ankle within reach and no further behind the hip than a thigh `EXTENSION`
    * degrees back and the knee's bend carry it (an ankle past that turns forward
@@ -315,11 +302,11 @@ export namespace walkReach {
       fade: FADE,
     });
   }
+
   /*
    * Both feet.
    */
   export const SIDES: readonly ["left", "right"] = ["left", "right"];
-
   /*
    * The largest extension, degrees, of a leg's thigh, swinging or planted: the
    * hip's extension in the range table (`DEFAULT_HUMANOID_ROM`, 30° on either
@@ -343,19 +330,32 @@ export namespace walkReach {
     ) - walkLeg.ANKLE;
 
   /*
-   * The furthest a swinging leg's line leans to the side of its foot, degrees:
-   * the ankle's inversion and eversion (`walkReachStance.SIDE`), the same bound
-   * a stance stands inside, so a swing joins its stances where they are.
-   */
-  const SIDE: number = walkReachStance.SIDE;
-
-  /*
    * The largest heading, degrees, a foot may keep from the pelvis: the hip's
    * own internal and external rotation (`DEFAULT_HUMANOID_ROM`, 45° either way,
    * `walkHipTwist`); a turn that asks more is taken by spinning on the ball of
    * the foot (a spin turn, Hase and Stein 1999).
    */
   export const TWIST: number = walkHipTwist(DEFAULT_HUMANOID_ROM);
+
+  /*
+   * The requested toe rotation after consuming the available hip twist.
+   */
+  function pivot(
+    planned: number,
+    direction: ReturnType<typeof HumanFoot.headingPitch>,
+  ): number {
+    const off: number = AutoMovieEngineMath.wrapDegrees(planned - direction.heading);
+    const excess: number =
+      Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
+    return excess * Math.min(1, Math.max(0, -direction.pitch / HEEL_UP));
+  }
+
+  /*
+   * The furthest a swinging leg's line leans to the side of its foot, degrees:
+   * the ankle's inversion and eversion (`walkReachStance.SIDE`), the same bound
+   * a stance stands inside, so a swing joins its stances where they are.
+   */
+  const SIDE: number = walkReachStance.SIDE;
 
   /*
    * Pitch, degrees toes-down, at which a planted foot's heel is far enough up

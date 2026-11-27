@@ -1,5 +1,5 @@
 import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanWorkout, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanWorkout, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -7,15 +7,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-
-/*
- * The torso bones whose exterior can carry wall reaction.
- */
-const TORSO: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "hips",
-  "spine",
-  "chest",
-]);
+import * as WorkoutWallSitData from "./internal/WorkoutWallSitData";
 
 /*
  * Fit the held wall sit to its named fixed face and verify the floor friction
@@ -56,7 +48,7 @@ export function workoutWallSit(
       "the wall must be upright and face the sitter's back",
     );
   const measure: ReturnType<typeof HumanMaterialContact.preparePosture> =
-    HumanMaterialContact.preparePosture(context.body, TORSO);
+    HumanMaterialContact.preparePosture(context.body, WorkoutWallSitData.TORSO);
   const approach: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
     measure(source, face);
   if (approach === undefined)

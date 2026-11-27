@@ -9,6 +9,11 @@ import type {
   IAutoMovieHumanF1SegmentLengths,
   IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
+import * as AutoMovieHumanF1SegmentLengthsData from "./internal/AutoMovieHumanF1SegmentLengthsData";
+import {
+  joint as AutoMovieHumanF1SegmentLengthsDataJoint,
+  norm as AutoMovieHumanF1SegmentLengthsDataNorm,
+} from "./internal/AutoMovieHumanF1SegmentLengthsData";
 
 /**
  * f1's segment lengths as working fields (#3172) and the chain they make: each length moves the joint at its segment's far end, so the
@@ -24,47 +29,6 @@ import type {
  */
 export namespace AutoMovieHumanF1SegmentLengths {
 
-  /*
-   * The fingers and their segment prefixes; the thumb's bones are its metacarpal's, proximal's and distal's.
-   */
-  const FINGERS: readonly string[] = ["index", "middle", "ring", "pinky", "thumb"];
-
-  /*
-   * The toes, whose later joints follow the foot's length (no source gives a toe's bones).
-   */
-  const TOES: readonly string[] = ["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"];
-
-  const joint = (name: string): IAutoMovieHumanSegmentJoint => {
-    const found: IAutoMovieHumanSegmentJoint | undefined = T.CHAIN.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === name);
-    if (found === undefined) throw new Error("f1's chain has no joint " + name);
-    return found;
-  };
-  const norm = (v: AutoMovieVector3Tuple): number => Math.hypot(v[0], v[1], v[2]);
-
-  /*
-   * The hand's and the foot's axes in their own frames: the hand along the wrist centre's line to the middle finger's first joint, across
-   * from the fifth metacarpal head to the second, square to it; the foot along its course end square to the sole's normal
-   * (`leg.fan.up`), across from the fifth toe's first joint to the first, square to both. The limb law's `extremityAxes`.
-   */
-  function axes(): { hand: [AutoMovieVector3Tuple, AutoMovieVector3Tuple]; foot: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] } {
-    const handAlong: AutoMovieVector3Tuple = F.unit(joint("middle.proximal").offset);
-    const handAcross: AutoMovieVector3Tuple = F.perpendicular(F.sub(joint("index.proximal").offset, joint("pinky.proximal").offset), handAlong);
-    const up: AutoMovieVector3Tuple = F.unit(T.DIRECTIONS["leg.fan.up"]!.local);
-    const footAlong: AutoMovieVector3Tuple = F.perpendicular(T.POINTS["footEnd"]!.local, up);
-    const footAcross: AutoMovieVector3Tuple = F.perpendicular(F.perpendicular(F.sub(joint("bigtoe.proximal").offset, joint("littletoe.proximal").offset), up), footAlong);
-    return { hand: [handAlong, handAcross], foot: [footAlong, footAcross] };
-  }
-
-  /*
-   * The digits' later joints: a finger's middle and distal, the thumb's proximal and distal, by bone index.
-   */
-  const bone = (name: string): [string, number] | null => {
-    const [digit, part] = name.split(".");
-    if (digit === undefined || part === undefined || !FINGERS.includes(digit)) return null;
-    if (digit === "thumb") return part === "proximal" ? [digit, 0] : part === "distal" ? [digit, 1] : null;
-    return part === "middle" ? [digit, 0] : part === "distal" ? [digit, 1] : null;
-  };
-
   /**
    * f1's own lengths, read from her chain and datums.
    *
@@ -78,54 +42,28 @@ export namespace AutoMovieHumanF1SegmentLengths {
   export function reference(): IAutoMovieHumanF1SegmentLengths.IFields {
     const { hand, foot } = axes();
     const phalanges: Record<string, IAutoMovieHumanF1SegmentLengths.IBones> = Object.fromEntries(
-      FINGERS.map((digit: string): [string, IAutoMovieHumanF1SegmentLengths.IBones] => {
+      AutoMovieHumanF1SegmentLengthsData.FINGERS.map((digit: string): [string, IAutoMovieHumanF1SegmentLengths.IBones] => {
         const [a, b] = digit === "thumb" ? ["thumb.proximal", "thumb.distal"] : [digit + ".middle", digit + ".distal"];
-        return [digit, [norm(joint(a!).offset), norm(joint(b!).offset), norm(T.POINTS[digit + "End"]!.local)]];
+        return [digit, [AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint(a!).offset), AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint(b!).offset), AutoMovieHumanF1SegmentLengthsDataNorm(T.POINTS[digit + "End"]!.local)]];
       }),
     );
     return {
-      upperArm: norm(joint("forearm").offset),
-      forearm: norm(joint("hand").offset),
-      thigh: norm(joint("tibia").offset),
-      shank: norm(joint("foot").offset),
-      pelvisToThorax: norm(joint("thorax").offset),
-      thoraxToHead: norm(joint("head").offset),
-      handLength: F.dot(joint("middle.proximal").offset, hand[0]),
-      handBreadth: F.dot(F.sub(joint("index.proximal").offset, joint("pinky.proximal").offset), hand[1]),
+      upperArm: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("forearm").offset),
+      forearm: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("hand").offset),
+      thigh: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("tibia").offset),
+      shank: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("foot").offset),
+      pelvisToThorax: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("thorax").offset),
+      thoraxToHead: AutoMovieHumanF1SegmentLengthsDataNorm(AutoMovieHumanF1SegmentLengthsDataJoint("head").offset),
+      handLength: F.dot(AutoMovieHumanF1SegmentLengthsDataJoint("middle.proximal").offset, hand[0]),
+      handBreadth: F.dot(F.sub(AutoMovieHumanF1SegmentLengthsDataJoint("index.proximal").offset, AutoMovieHumanF1SegmentLengthsDataJoint("pinky.proximal").offset), hand[1]),
       footLength: F.dot(T.POINTS["footEnd"]!.local, foot[0]),
-      footBreadth: F.dot(F.sub(joint("bigtoe.proximal").offset, joint("littletoe.proximal").offset), foot[1]),
+      footBreadth: F.dot(F.sub(AutoMovieHumanF1SegmentLengthsDataJoint("bigtoe.proximal").offset, AutoMovieHumanF1SegmentLengthsDataJoint("littletoe.proximal").offset), foot[1]),
       phalanges,
     };
   }
 
   /** f1's lengths, read once. */
   export const F1: IAutoMovieHumanF1SegmentLengths.IFields = reference();
-
-  /*
-   * The ratios of a person's lengths to f1's; exactly one where they are equal.
-   */
-  function ratios(fields: IAutoMovieHumanF1SegmentLengths.IFields): Record<Exclude<keyof IAutoMovieHumanF1SegmentLengths.IFields, "phalanges">, number> & { phalanges: Record<string, IAutoMovieHumanF1SegmentLengths.IBones> } {
-    const r = (key: Exclude<keyof IAutoMovieHumanF1SegmentLengths.IFields, "phalanges">): number => fields[key] / F1[key];
-    return {
-      upperArm: r("upperArm"),
-      forearm: r("forearm"),
-      thigh: r("thigh"),
-      shank: r("shank"),
-      pelvisToThorax: r("pelvisToThorax"),
-      thoraxToHead: r("thoraxToHead"),
-      handLength: r("handLength"),
-      handBreadth: r("handBreadth"),
-      footLength: r("footLength"),
-      footBreadth: r("footBreadth"),
-      phalanges: Object.fromEntries(
-        FINGERS.map((digit: string): [string, IAutoMovieHumanF1SegmentLengths.IBones] => {
-          const base: IAutoMovieHumanF1SegmentLengths.IBones = F1.phalanges[digit]!;
-          const own: IAutoMovieHumanF1SegmentLengths.IBones = fields.phalanges[digit] ?? base;
-          return [digit, [own[0] / base[0], own[1] / base[1], own[2] / base[2]]];
-        }),
-      ),
-    };
-  }
 
   /**
    * The chain at a person's lengths: each long bone's far joint scaled by its length's ratio, the digits' and toes' first joints and the
@@ -164,7 +102,6 @@ export namespace AutoMovieHumanF1SegmentLengths {
     }
     return Scaling.chain(base, scales);
   }
-
   /**
    * A stored datum's local coordinates at a person's lengths: a datum of the hand or the foot spread with its segment, a digit's end by its
    * last bone's ratio (a toe's by the foot's length); every other datum as stored.
@@ -189,5 +126,60 @@ export namespace AutoMovieHumanF1SegmentLengths {
       return ratio === 1 ? placed.local : F.scale(placed.local, ratio);
     }
     return placed.local;
+  }
+
+  /*
+   * The toes, whose later joints follow the foot's length (no source gives a toe's bones).
+   */
+  const TOES: readonly string[] = ["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"];
+
+  /*
+   * The hand's and the foot's axes in their own frames: the hand along the wrist centre's line to the middle finger's first joint, across
+   * from the fifth metacarpal head to the second, square to it; the foot along its course end square to the sole's normal
+   * (`leg.fan.up`), across from the fifth toe's first joint to the first, square to both. The limb law's `extremityAxes`.
+   */
+  function axes(): { hand: [AutoMovieVector3Tuple, AutoMovieVector3Tuple]; foot: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] } {
+    const handAlong: AutoMovieVector3Tuple = F.unit(AutoMovieHumanF1SegmentLengthsDataJoint("middle.proximal").offset);
+    const handAcross: AutoMovieVector3Tuple = F.perpendicular(F.sub(AutoMovieHumanF1SegmentLengthsDataJoint("index.proximal").offset, AutoMovieHumanF1SegmentLengthsDataJoint("pinky.proximal").offset), handAlong);
+    const up: AutoMovieVector3Tuple = F.unit(T.DIRECTIONS["leg.fan.up"]!.local);
+    const footAlong: AutoMovieVector3Tuple = F.perpendicular(T.POINTS["footEnd"]!.local, up);
+    const footAcross: AutoMovieVector3Tuple = F.perpendicular(F.perpendicular(F.sub(AutoMovieHumanF1SegmentLengthsDataJoint("bigtoe.proximal").offset, AutoMovieHumanF1SegmentLengthsDataJoint("littletoe.proximal").offset), up), footAlong);
+    return { hand: [handAlong, handAcross], foot: [footAlong, footAcross] };
+  }
+
+  /*
+   * The digits' later joints: a finger's middle and distal, the thumb's proximal and distal, by bone index.
+   */
+  const bone = (name: string): [string, number] | null => {
+    const [digit, part] = name.split(".");
+    if (digit === undefined || part === undefined || !AutoMovieHumanF1SegmentLengthsData.FINGERS.includes(digit)) return null;
+    if (digit === "thumb") return part === "proximal" ? [digit, 0] : part === "distal" ? [digit, 1] : null;
+    return part === "middle" ? [digit, 0] : part === "distal" ? [digit, 1] : null;
+  };
+
+  /*
+   * The ratios of a person's lengths to f1's; exactly one where they are equal.
+   */
+  function ratios(fields: IAutoMovieHumanF1SegmentLengths.IFields): Record<Exclude<keyof IAutoMovieHumanF1SegmentLengths.IFields, "phalanges">, number> & { phalanges: Record<string, IAutoMovieHumanF1SegmentLengths.IBones> } {
+    const r = (key: Exclude<keyof IAutoMovieHumanF1SegmentLengths.IFields, "phalanges">): number => fields[key] / F1[key];
+    return {
+      upperArm: r("upperArm"),
+      forearm: r("forearm"),
+      thigh: r("thigh"),
+      shank: r("shank"),
+      pelvisToThorax: r("pelvisToThorax"),
+      thoraxToHead: r("thoraxToHead"),
+      handLength: r("handLength"),
+      handBreadth: r("handBreadth"),
+      footLength: r("footLength"),
+      footBreadth: r("footBreadth"),
+      phalanges: Object.fromEntries(
+        AutoMovieHumanF1SegmentLengthsData.FINGERS.map((digit: string): [string, IAutoMovieHumanF1SegmentLengths.IBones] => {
+          const base: IAutoMovieHumanF1SegmentLengths.IBones = F1.phalanges[digit]!;
+          const own: IAutoMovieHumanF1SegmentLengths.IBones = fields.phalanges[digit] ?? base;
+          return [digit, [own[0] / base[0], own[1] / base[1], own[2] / base[2]]];
+        }),
+      ),
+    };
   }
 }

@@ -17,12 +17,6 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /*
- * The fewest shares of a key-to-key blend read once to find whether any arm
- * leaves its room.
- */
-const SCAN: number = 16;
-
-/*
  * The trunk as a constraint on a floor law's way between two of its postures.
  * Arm angles blended between two postures can carry a forearm through the body
  * deeper than either end holds it: rolling from the back onto a side, the lower
@@ -114,6 +108,12 @@ export namespace floorArmRoom {
     return samples(reaches(body), from, to);
   }
 }
+
+/*
+ * The fewest shares of a key-to-key blend read once to find whether any arm
+ * leaves its room.
+ */
+const SCAN: number = 16;
 /*
  * The shares a blend's scan reads, enough that no arm can sink, between two of
  * them, more than the audit's self-penetration allowance

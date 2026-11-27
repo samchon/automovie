@@ -1,23 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
-import {
-  AutoMovieArchetype,
-  AutoMovieArchetypeBand,
-  type AutoMovieArchetypeBandUnit,
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  type IAutoMovieArchetypeBand,
-} from "../core";
+import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The World Athletics rule as read.
- */
-const RULE: string =
-  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 36.6 and 36.8, the hammer";
+import {
+  band as AutoMovieArchetypeHammerThrowDataBand,
+} from "./internal/AutoMovieArchetypeHammerThrowData";
 
 /** Canonical producer and authoring contract for Hammer Throw. */
 export namespace AutoMovieArchetypeHammerThrow {
@@ -74,30 +63,19 @@ export namespace AutoMovieArchetypeHammerThrow {
     mass: "kg",
   };
 
-  /*
-   * A band of the rule.
-   */
-  const band = (
-    unit: AutoMovieArchetypeBandUnit,
-    minimum: number,
-    maximum: number,
-    what: string,
-  ): IAutoMovieArchetypeBand =>
-    AutoMovieArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
-
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      length: band(
+      length: AutoMovieArchetypeHammerThrowDataBand(
         "m",
         1.215,
         1.215,
         "the men's at most 1215 mm measured from the inside of the handle, the limit the model takes",
       ),
-      diameter: band("m", 0.11, 0.13, "the men's head 110 to 130 mm across"),
-      mass: band(
+      diameter: AutoMovieArchetypeHammerThrowDataBand("m", 0.11, 0.13, "the men's head 110 to 130 mm across"),
+      mass: AutoMovieArchetypeHammerThrowDataBand(
         "kg",
         7.26,
         7.26,
@@ -105,14 +83,14 @@ export namespace AutoMovieArchetypeHammerThrow {
       ),
     },
     women: {
-      length: band(
+      length: AutoMovieArchetypeHammerThrowDataBand(
         "m",
         1.195,
         1.195,
         "the women's at most 1195 mm measured from the inside of the handle, the limit the model takes",
       ),
-      diameter: band("m", 0.095, 0.11, "the women's head 95 to 110 mm across"),
-      mass: band(
+      diameter: AutoMovieArchetypeHammerThrowDataBand("m", 0.095, 0.11, "the women's head 95 to 110 mm across"),
+      mass: AutoMovieArchetypeHammerThrowDataBand(
         "kg",
         4,
         4,

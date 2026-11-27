@@ -17,17 +17,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
 /*
- * World up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * How high a carried crutch's tip lifts as it is moved, metres (provisional, as
- * the crutch walk's).
- */
-const LIFT: number = 0.04;
-
-/*
  * The geometry of sitting and rising with two crutches held in one hand : the
  * crutches' grip and tip, a crutch's frame tilted with its tip on the floor, a
  * carried crutch's lifted path, a hand's grip socket, and a crutch's offset in
@@ -295,3 +284,14 @@ export namespace crutchSitPath {
     };
   }
 }
+
+/*
+ * World up.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * How high a carried crutch's tip lifts as it is moved, metres (provisional, as
+ * the crutch walk's).
+ */
+const LIFT: number = 0.04;

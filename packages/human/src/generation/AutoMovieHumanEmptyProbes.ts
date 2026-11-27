@@ -97,12 +97,6 @@ export namespace AutoMovieHumanEmptyProbes {
     fingers: readonly IAutoMovieHumanConicLoft.IFamily[];
   }
 
-  /*
-   * Station step, mm, at which a gap's walls are first sought along a course
-   * before the qualifying station is bisected.
-   */
-  const STEP_MM: number = 1;
-
   /**
    * Every empty probe of a person: one per cutter and side it is mirrored to,
    * one between the legs, and one between each pair of adjacent fingers on each
@@ -286,6 +280,12 @@ export namespace AutoMovieHumanEmptyProbes {
         }
       : { name, derivation, reason: probe.reason };
   }
+
+  /*
+   * Station step, mm, at which a gap's walls are first sought along a course
+   * before the qualifying station is bisected.
+   */
+  const STEP_MM: number = 1;
 
   /*
    * The length of a family's fields' station domain, mm.

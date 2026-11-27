@@ -4,13 +4,7 @@ import {
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-
-/*
- * Cigarette lengths and the 3R4F reference cigarette, neither read at a primary
- * source.
- */
-const CIGARETTE: string =
-  "regular 70 mm to 100s 100 mm (Wikipedia, Cigarette, https://en.wikipedia.org/wiki/Cigarette); the 3R4F reference cigarette's 24.8 mm circumference and 27 mm filter (Adamson et al. 2012, Chemistry Central Journal 6:98, Table 2, seen only in search results)";
+import * as SmokingPropDrawData from "./SmokingPropDrawData";
 
 /*
  * The seeded recipes originally published as `createSmoking`.
@@ -107,9 +101,9 @@ export namespace SmokingPropDraw {
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     cigarette: {
-      length: AutoMovieArchetypeBand.metres(0.07, 0.1, CIGARETTE, true),
-      diameter: AutoMovieArchetypeBand.metres(0.0079, 0.0079, CIGARETTE, true),
-      filter: AutoMovieArchetypeBand.metres(0.02, 0.027, CIGARETTE, true),
+      length: AutoMovieArchetypeBand.metres(0.07, 0.1, SmokingPropDrawData.CIGARETTE, true),
+      diameter: AutoMovieArchetypeBand.metres(0.0079, 0.0079, SmokingPropDrawData.CIGARETTE, true),
+      filter: AutoMovieArchetypeBand.metres(0.02, 0.027, SmokingPropDrawData.CIGARETTE, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.0008,

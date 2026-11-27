@@ -3,18 +3,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeBinary64 } from "./ArchetypeBinary64";
 
 /*
- * IEEE-754 binary64's least positive normal value; smaller intermediate
- * products lose significand bits.
- */
-const NORMAL: number = 2 ** -1022;
-
-/*
- * The largest finite normal binade begins here; exact fallback protects its
- * overflow-rounding boundary.
- */
-const HIGH: number = 2 ** 1023;
-
-/*
  * Scalar arithmetic shared by archetype mass allocation and weighted centres.
  * Ordinary finite products use binary64 directly; representability boundaries
  * and a scaled mean losing subnormal precision use exact dyadic arithmetic.
@@ -277,6 +265,18 @@ export namespace ArchetypeMassArithmetic {
     };
   }
 }
+
+/*
+ * IEEE-754 binary64's least positive normal value; smaller intermediate
+ * products lose significand bits.
+ */
+const NORMAL: number = 2 ** -1022;
+
+/*
+ * The largest finite normal binade begins here; exact fallback protects its
+ * overflow-rounding boundary.
+ */
+const HIGH: number = 2 ** 1023;
 
 /*
  * Exact fixed-factor product.

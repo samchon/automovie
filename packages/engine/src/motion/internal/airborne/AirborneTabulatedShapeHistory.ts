@@ -12,17 +12,7 @@ import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngineMotionAirborneRotation";
 import { AutoMovieEngineMotionSampling } from "../../AutoMovieEngineMotionSampling";
 import { tabulateAirborneShapeKnots } from "../tabulateAirborneShapeKnots";
-
-/*
- * Scalars tabulated a knot: six of the symmetric tensor, three of the relative
- * momentum.
- */
-const WIDTH: number = 9;
-
-/*
- * Maximum knot count within the portable 32-bit packed array length.
- */
-const MAX_KNOTS: number = Math.floor(0xffff_ffff / WIDTH);
+import * as AirborneTabulatedShapeHistoryData from "./internal/AirborneTabulatedShapeHistoryData";
 
 /*
  * A shape history tabulated once on uniform knots and interpolated: the
@@ -101,7 +91,7 @@ export function AirborneTabulatedShapeHistory(
   // keeps a span that is a whole number of steps, up to the rounding of the
   // division, at that number.
   const intervals: number = Math.max(1, Math.ceil((to - from) / step - 1e-9));
-  if (intervals >= MAX_KNOTS)
+  if (intervals >= AirborneTabulatedShapeHistoryData.MAX_KNOTS)
     throw new Error("A tabulated shape history step needs too many knots");
   const turn: number = span.turn ?? Infinity;
   if (!(turn > 0))
@@ -112,7 +102,7 @@ export function AirborneTabulatedShapeHistory(
     const { times, knots }: ReturnType<typeof tabulateAirborneShapeKnots> =
       tabulateAirborneShapeKnots(
         { from, to, intervals, turn },
-        MAX_KNOTS,
+        AirborneTabulatedShapeHistoryData.MAX_KNOTS,
         (
           seconds: number,
           uniformIndex?: number,
@@ -128,11 +118,11 @@ export function AirborneTabulatedShapeHistory(
       );
     const last: number = knots.length - 1;
 
-    const values: Float64Array = new Float64Array(WIDTH * knots.length);
+    const values: Float64Array = new Float64Array(AirborneTabulatedShapeHistoryData.WIDTH * knots.length);
     for (let k: number = 0; k <= last; ++k) {
       const matrix: number[][] = reduction.tensor(knots[k]!);
       reduction.admit(matrix);
-      const at: number = WIDTH * k;
+      const at: number = AirborneTabulatedShapeHistoryData.WIDTH * k;
       values[at] = matrix[0]![0]!;
       values[at + 1] = matrix[1]![1]!;
       values[at + 2] = matrix[2]![2]!;
@@ -164,7 +154,7 @@ export function AirborneTabulatedShapeHistory(
         last < 4
           ? meanMomentum(mids, k, last)
           : pointMomentum(knots, stencils[k]!, k);
-      const at: number = WIDTH * k + 6;
+      const at: number = AirborneTabulatedShapeHistoryData.WIDTH * k + 6;
       values[at] = momentum.x;
       values[at + 1] = momentum.y;
       values[at + 2] = momentum.z;
@@ -178,16 +168,16 @@ export function AirborneTabulatedShapeHistory(
     const slopes: Float64Array = new Float64Array(values.length);
     for (let k: number = 0; k <= last; ++k) {
       const stencil: IStencil | undefined = stencils[k];
-      for (let i: number = 0; i < WIDTH; ++i) {
-        const y = (knot: number): number => values[WIDTH * knot + i]!;
+      for (let i: number = 0; i < AirborneTabulatedShapeHistoryData.WIDTH; ++i) {
+        const y = (knot: number): number => values[AirborneTabulatedShapeHistoryData.WIDTH * knot + i]!;
         if (stencil !== undefined) {
           let sum: number = 0;
           for (const [knot, weight] of stencil) sum += weight * y(knot);
-          slopes[WIDTH * k + i] = sum;
+          slopes[AirborneTabulatedShapeHistoryData.WIDTH * k + i] = sum;
           continue;
         }
         const h: number = times[1]! - times[0]!;
-        slopes[WIDTH * k + i] =
+        slopes[AirborneTabulatedShapeHistoryData.WIDTH * k + i] =
           last === 1
             ? (y(1) - y(0)) / h
             : k === 0
@@ -200,7 +190,7 @@ export function AirborneTabulatedShapeHistory(
     // Hermite's interior Bézier controls are the endpoint values displaced
     // by one third of the interval times the signed endpoint derivative.
     for (let k: number = 0; k <= last; ++k) {
-      const at: number = WIDTH * k;
+      const at: number = AirborneTabulatedShapeHistoryData.WIDTH * k;
       const before: number = k === 0 ? 0 : (times[k - 1]! - times[k]!) / 3;
       const after: number = k === last ? 0 : (times[k + 1]! - times[k]!) / 3;
       const control = (width: number): number[][] =>
@@ -238,8 +228,8 @@ export function AirborneTabulatedShapeHistory(
     const h10: number = s * (1 - s) * (1 - s);
     const h01: number = s * s * (3 - 2 * s);
     const h11: number = s * s * (s - 1);
-    const a: number = WIDTH * index;
-    const b: number = a + WIDTH;
+    const a: number = AirborneTabulatedShapeHistoryData.WIDTH * index;
+    const b: number = a + AirborneTabulatedShapeHistoryData.WIDTH;
     const y = (i: number): number =>
       h00 * built.values[a + i]! +
       h10 * width * built.slopes[a + i]! +
@@ -334,6 +324,65 @@ export function AirborneTabulatedShapeHistory(
       numerics.clear();
     },
   });
+}
+
+/*
+ * Provenance of the tabulated reader.
+ */
+export namespace AirborneTabulatedShapeHistory {
+  /*
+   * Whether a reader was issued by this producer: a pure function of time whose
+   * instants may be shared between an operation's stages. It proves
+   * construction, not a constant shape.
+   */
+  export function owned(history: IHistory & IReadable): boolean {
+    return history.native === true;
+  }
+
+  /*
+   * An issued history, carrying its numeric reader.
+   */
+  export interface IReadable {
+    /*
+     * Set by the factory.
+     */
+    readonly native?: true;
+
+    /*
+     * The history's numeric reader; absent on any other reader.
+     */
+    readonly numericReading?: (seconds: number) => IReading | IInstant;
+  }
+
+  /*
+   * A second's relative momentum and positive-definite tensor factorisation,
+   * read without issuing an instant.
+   */
+  export interface IReading {
+    /*
+     * The relative angular momentum in the root frame, kg m²/s.
+     */
+    relative: IAutoMovieVector3;
+
+    /*
+     * The tensor's factorisation.
+     */
+    factor: physicalInertiaFactor.IPrepared;
+  }
+
+  /*
+   * The issued reader's numeric reading of a second, for a defect that needs
+   * only the tensor's factorisation and the relative momentum: the issued
+   * instant where the second already has one, otherwise the same numbers and
+   * factorisation without an instant, or a newly issued instant where the
+   * tensor is not positive definite. Counted as the query and factorisation an
+   * instant would make. Undefined for a reader this producer did not issue.
+   */
+  export function reading(
+    history: IHistory & IReadable,
+  ): ((seconds: number) => IReading | IInstant) | undefined {
+    return history.numericReading;
+  }
 }
 
 /*
@@ -486,65 +535,6 @@ function meanMomentum(
     y: near.y + weight * (far.y - near.y),
     z: near.z + weight * (far.z - near.z),
   };
-}
-
-/*
- * Provenance of the tabulated reader.
- */
-export namespace AirborneTabulatedShapeHistory {
-  /*
-   * Whether a reader was issued by this producer: a pure function of time whose
-   * instants may be shared between an operation's stages. It proves
-   * construction, not a constant shape.
-   */
-  export function owned(history: IHistory & IReadable): boolean {
-    return history.native === true;
-  }
-
-  /*
-   * An issued history, carrying its numeric reader.
-   */
-  export interface IReadable {
-    /*
-     * Set by the factory.
-     */
-    readonly native?: true;
-
-    /*
-     * The history's numeric reader; absent on any other reader.
-     */
-    readonly numericReading?: (seconds: number) => IReading | IInstant;
-  }
-
-  /*
-   * A second's relative momentum and positive-definite tensor factorisation,
-   * read without issuing an instant.
-   */
-  export interface IReading {
-    /*
-     * The relative angular momentum in the root frame, kg m²/s.
-     */
-    relative: IAutoMovieVector3;
-
-    /*
-     * The tensor's factorisation.
-     */
-    factor: physicalInertiaFactor.IPrepared;
-  }
-
-  /*
-   * The issued reader's numeric reading of a second, for a defect that needs
-   * only the tensor's factorisation and the relative momentum: the issued
-   * instant where the second already has one, otherwise the same numbers and
-   * factorisation without an instant, or a newly issued instant where the
-   * tensor is not positive definite. Counted as the query and factorisation an
-   * instant would make. Undefined for a reader this producer did not issue.
-   */
-  export function reading(
-    history: IHistory & IReadable,
-  ): ((seconds: number) => IReading | IInstant) | undefined {
-    return history.numericReading;
-  }
 }
 
 /*

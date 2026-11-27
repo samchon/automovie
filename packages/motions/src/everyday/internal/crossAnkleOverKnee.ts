@@ -15,24 +15,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanBound } from "../../law/internal/HumanBound";
 import { crossAnkleEntry } from "./crossAnkleEntry";
 import { fitSeatedAnkleCross } from "./fitSeatedAnkleCross";
-
-/*
- * Provisional seconds for lifting or returning the leg.
- */
-const TRAVEL: number = 0.85;
-
-/*
- * Fitted ankle tolerance, metres, for accepting the staged contact.
- */
-const FIT_GAP: number = 0.01;
-
-/*
- * Make a full-length contact window from the support already under the
- * performer.
- */
-const continueContact = (
-  contact: IAutoMovieMotionHumanEntryState.ISupport,
-): IAutoMovieMotionHumanContactWindow => ({ ...contact, from: 0, to: 1 });
+import * as CrossAnkleOverKneeData from "./CrossAnkleOverKneeData";
 
 /*
  * Cross one ankle over the other knee while seated, hold, and put the foot
@@ -119,7 +102,7 @@ function planCrossAnkleOverKnee(
     0,
     "s",
   );
-  const travel: number = TRAVEL * (context.tempo ?? 1);
+  const travel: number = CrossAnkleOverKneeData.TRAVEL * (context.tempo ?? 1);
   const release: number = travel + hold;
   const duration: number = release + travel;
   if (!(travel > 0 && release < duration))
@@ -136,7 +119,7 @@ function planCrossAnkleOverKnee(
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
     { x: side === "left" ? 1 : -1, y: 0, z: 0 },
   );
-  const path = fitSeatedAnkleCross(body, entry, side, outward, FIT_GAP);
+  const path = fitSeatedAnkleCross(body, entry, side, outward, CrossAnkleOverKneeData.FIT_GAP);
   if (path === undefined)
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
@@ -160,7 +143,7 @@ function planCrossAnkleOverKnee(
 
   const contacts: IAutoMovieMotionHumanContactWindow[] = entry.supports
     .filter((item) => item.part !== lifted)
-    .map(continueContact);
+    .map(CrossAnkleOverKneeData.continueContact);
   const foot: IAutoMovieMotionHumanEntryState.ISupport = ground.find(
     (item) => item.part === lifted,
   )!;

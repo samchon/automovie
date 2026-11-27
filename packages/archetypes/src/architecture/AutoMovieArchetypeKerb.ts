@@ -1,6 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createKerb as createKerbImplementation } from "./internal/createKerb";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand } from "../core";
+import * as AutoMovieArchetypeKerbData from "./internal/AutoMovieArchetypeKerbData";
 
 /** Public operations for Auto Movie Archetype Kerb. */
 export namespace AutoMovieArchetypeKerb {
@@ -71,49 +72,31 @@ export namespace AutoMovieArchetypeKerb {
     mass: "kg",
   };
 
-  /*
-   * A kerb unit, read.
-   */
-  const HB2: string =
-    "Marshalls half battered kerb HB2 to BS EN 1340, 125 x 255 x 915 mm work size (https://media.marshalls.co.uk/image/upload/v1523957771/125_x_255_Half_Battered_Kerb_Datasheet.pdf), 72 kg (https://the-landscape-centre.co.uk/125x255-915mm-hb-straight-kerb-g05080040)";
-
-  /*
-   * A kerb's upstand above the road, read.
-   */
-  const UPSTAND: string =
-    "Wheels for Wellbeing, Common kerb profiles: kerbs of 100 to 150 mm, bus stop kerbs 125 to 140 mm (https://wheelsforwellbeing.org.uk/common-kerb-profiles/)";
-
-  /*
-   * The residential stair code, read.
-   */
-  const IRC: string =
-    "2021 International Residential Code, R311.7.5.1 risers not more than 7 3/4 in (196 mm) and R311.7.5.2 treads not less than 10 in (254 mm) (https://codes.iccsafe.org/s/IRC2021P3/chapter-3-building-planning/IRC2021P3-Pt03-Ch03-SecR311.7.5.1)";
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     kerb: {
-      height: AutoMovieArchetypeBand.metres(0.1, 0.15, UPSTAND),
-      depth: AutoMovieArchetypeBand.metres(0.125, 0.125, HB2),
-      length: AutoMovieArchetypeBand.metres(0.915, 0.915, HB2),
+      height: AutoMovieArchetypeBand.metres(0.1, 0.15, AutoMovieArchetypeKerbData.UPSTAND),
+      depth: AutoMovieArchetypeBand.metres(0.125, 0.125, AutoMovieArchetypeKerbData.HB2),
+      length: AutoMovieArchetypeBand.metres(0.915, 0.915, AutoMovieArchetypeKerbData.HB2),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         72,
         72,
-        `${HB2}: the whole unit, its bedded part below the road not modelled`,
+        `${AutoMovieArchetypeKerbData.HB2}: the whole unit, its bedded part below the road not modelled`,
       ),
     },
     step: {
       height: AutoMovieArchetypeBand.metres(
         0.196,
         0.196,
-        `${IRC}: the riser's limit, which the model takes`,
+        `${AutoMovieArchetypeKerbData.IRC}: the riser's limit, which the model takes`,
       ),
       depth: AutoMovieArchetypeBand.metres(
         0.254,
         0.254,
-        `${IRC}: the tread's limit, which the model takes`,
+        `${AutoMovieArchetypeKerbData.IRC}: the tread's limit, which the model takes`,
       ),
       length: AutoMovieArchetypeBand.metres(
         0.9,

@@ -3,63 +3,7 @@ import type {
   IAutoMovieMotionHumanCollapse,
   IAutoMovieMotionHumanJoints,
 } from "@automovie/interface";
-
-/*
- * Each direction's angles, degrees (provisional stage readings).
- */
-const SHAPES: Readonly<
-  Record<Exclude<IAutoMovieMotionHumanCollapse.Direction, "backward">, IShape>
-> = {
-  forward: {
-    hip: 70,
-    knee: 105,
-    pitch: 15,
-    lyingHip: 5,
-    lyingKnee: 10,
-    lyingPitch: 75,
-    roll: 0,
-  },
-  sideways: {
-    hip: 60,
-    knee: 95,
-    pitch: 10,
-    lyingHip: 10,
-    lyingKnee: 15,
-    lyingPitch: 0,
-    roll: 92,
-  },
-  inPlace: {
-    hip: 95,
-    knee: 130,
-    pitch: 30,
-    lyingHip: 110,
-    lyingKnee: 140,
-    lyingPitch: 25,
-    roll: 0,
-  },
-};
-
-/*
- * The sag's knee softening and trunk sway, degrees (provisional).
- */
-const SAG: Readonly<ISAGItem> = { knee: 15, pitch: 4 };
-
-/*
- * The arms of each tone, degrees (provisional): a protective reach toward the
- * floor and its brace, a limp arm hanging.
- */
-const ARMS: Readonly<IARMSItem> = {
-  reach: 100,
-  ahead: 0,
-  sweep: 90,
-  yield: 10,
-  brace: 50,
-  open: 10,
-  elbow: 15,
-  limp: 5,
-  limpElbow: 10,
-  neck: 30,
-};
+import * as CollapseFoldData from "./CollapseFoldData";
 
 /*
  * Evaluate a collapse's fold.
@@ -80,11 +24,11 @@ export function CollapseFold(
   drop: number,
   lay: number,
 ): CollapseFold.IFold {
-  const soft: number = SAG.knee * sag * (1 - drop);
-  const sway: number = SAG.pitch * sag * (1 - drop);
+  const soft: number = CollapseFoldData.SAG.knee * sag * (1 - drop);
+  const sway: number = CollapseFoldData.SAG.pitch * sag * (1 - drop);
   const held: number = drop * (1 - lay);
   const toward: number = side === "left" ? -1 : 1;
-  const shape: IShape = SHAPES[direction];
+  const shape: CollapseFoldData.IShape = CollapseFoldData.SHAPES[direction];
   const hip: number = shape.hip * held + shape.lyingHip * lay;
   const knee: number = soft + shape.knee * held + shape.lyingKnee * lay;
   const pitch: number = sway + shape.pitch * drop + shape.lyingPitch * lay;
@@ -105,17 +49,17 @@ export function CollapseFold(
           // As far forward as the trunk pitches, so the arm points down to
           // the floor, then swept back along the trunk as the elbow gives.
           direction === "sideways"
-            ? ARMS.reach * drop * 0.5 * (1 - giving)
-            : pitch + ARMS.ahead - ARMS.sweep * giving,
+            ? CollapseFoldData.ARMS.reach * drop * 0.5 * (1 - giving)
+            : pitch + CollapseFoldData.ARMS.ahead - CollapseFoldData.ARMS.sweep * giving,
           direction === "sideways"
-            ? ARMS.brace * drop * (1 - giving) + ARMS.open * giving
-            : ARMS.open,
-          ARMS.elbow + (ARMS.yield - ARMS.elbow) * giving,
+            ? CollapseFoldData.ARMS.brace * drop * (1 - giving) + CollapseFoldData.ARMS.open * giving
+            : CollapseFoldData.ARMS.open,
+          CollapseFoldData.ARMS.elbow + (CollapseFoldData.ARMS.yield - CollapseFoldData.ARMS.elbow) * giving,
         ]
-      : [ARMS.limp, ARMS.open, ARMS.limpElbow];
+      : [CollapseFoldData.ARMS.limp, CollapseFoldData.ARMS.open, CollapseFoldData.ARMS.limpElbow];
   const [leftArm, leftOpen, leftElbow] = bracing("left");
   const [rightArm, rightOpen, rightElbow] = bracing("right");
-  const neck: number = protective ? -ARMS.neck * lay : 0;
+  const neck: number = protective ? -CollapseFoldData.ARMS.neck * lay : 0;
   return {
     pitch,
     roll,
@@ -170,59 +114,4 @@ export namespace CollapseFold {
    * before its trunk: provisional.
    */
   export const HANDS: number = 0.6;
-}
-
-/*
- * The record of `IARMSItem`'s site.
- */
-type IARMSItem = {
-  reach: number;
-  ahead: number;
-  sweep: number;
-  yield: number;
-  brace: number;
-  open: number;
-  elbow: number;
-  limp: number;
-  limpElbow: number;
-  neck: number;
-};
-
-/*
- * The record of `ISAGItem`'s site.
- */
-type ISAGItem = { knee: number; pitch: number };
-
-/*
- * One direction's kneeling and lying angles, degrees.
- */
-interface IShape {
-  /*
-   * Hip flexion on the knees.
-   */
-  hip: number;
-  /*
-   * Knee flexion on the knees.
-   */
-  knee: number;
-  /*
-   * Trunk pitch reached by the drop.
-   */
-  pitch: number;
-  /*
-   * Hip flexion lying.
-   */
-  lyingHip: number;
-  /*
-   * Knee flexion lying.
-   */
-  lyingKnee: number;
-  /*
-   * Trunk pitch added by the lay.
-   */
-  lyingPitch: number;
-  /*
-   * Trunk roll reached by the lay toward the fall's side.
-   */
-  roll: number;
 }

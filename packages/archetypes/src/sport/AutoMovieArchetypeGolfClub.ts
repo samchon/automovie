@@ -1,6 +1,11 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createGolfClub as createGolfClubImplementation } from "./internal/createGolfClub";
-import { AutoMovieArchetypeUnits, AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand } from "../core";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
+import * as AutoMovieArchetypeGolfClubData from "./internal/AutoMovieArchetypeGolfClubData";
+import {
+  m as AutoMovieArchetypeGolfClubDatam,
+  kg as AutoMovieArchetypeGolfClubDataKg,
+} from "./internal/AutoMovieArchetypeGolfClubData";
 
 /** Public operations for Auto Movie Archetype Golf Club. */
 export namespace AutoMovieArchetypeGolfClub {
@@ -94,106 +99,62 @@ export namespace AutoMovieArchetypeGolfClub {
     mass: "kg",
   };
 
-  /*
-   * A band in metres.
-   */
-  const m = (
-    minimum: number,
-    maximum: number,
-    source: string,
-    provisional: boolean = false,
-  ): IAutoMovieArchetypeBand =>
-    AutoMovieArchetypeBand.metres(minimum, maximum, source, provisional);
-
-  /*
-   * A mass band.
-   */
-  const kg = (
-    minimum: number,
-    maximum: number,
-    source: string,
-    provisional: boolean = false,
-  ): IAutoMovieArchetypeBand =>
-    AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
-
-  /*
-   * The R&A Rules of Equipment, Part 2.
-   */
-  const RANDA: string =
-    "R&A Rules of Equipment, Part 2 (https://www.randa.org/roe/the-rules-of-equipment/part-2-conformance-of-clubs)";
-
-  /*
-   * What no source read gives.
-   */
-  const UNREAD: string =
-    "no source read gives it; the makers' pages read do not state it";
-
-  /*
-   * The grip's band, every club alike: under the rule's limit, its size unread.
-   */
-  const GRIP: IAutoMovieArchetypeBand = m(
-    0.02,
-    0.024,
-    `${RANDA}, 2.3b(iii): the grip at most 1.75 in across; the band inside it ${UNREAD}`,
-    true,
-  );
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     driver: {
-      length: m(
+      length: AutoMovieArchetypeGolfClubDatam(
         45.5 * AutoMovieArchetypeUnits.INCH,
         46 * AutoMovieArchetypeUnits.INCH,
         "PING G440 MAX driver, standard 45 1/2 and 46 in by shaft (https://ping.com/clubs/drivers/g440-max), inside the R&A rule 2.1c's 48 in",
       ),
-      headWidth: m(
+      headWidth: AutoMovieArchetypeGolfClubDatam(
         0.11,
         5 * AutoMovieArchetypeUnits.INCH,
-        `${RANDA}, 2.4b(i): a wood's head at most 5 in from heel to toe; the narrower end ${UNREAD}`,
+        `${AutoMovieArchetypeGolfClubData.RANDA}, 2.4b(i): a wood's head at most 5 in from heel to toe; the narrower end ${AutoMovieArchetypeGolfClubData.UNREAD}`,
         true,
       ),
-      headDepth: m(
+      headDepth: AutoMovieArchetypeGolfClubDatam(
         0.1,
         0.12,
-        `${RANDA}, 2.4b(i): less than the heel to toe; the band ${UNREAD}`,
+        `${AutoMovieArchetypeGolfClubData.RANDA}, 2.4b(i): less than the heel to toe; the band ${AutoMovieArchetypeGolfClubData.UNREAD}`,
         true,
       ),
-      gripDiameter: GRIP,
-      mass: kg(
+      gripDiameter: AutoMovieArchetypeGolfClubData.GRIP,
+      mass: AutoMovieArchetypeGolfClubDataKg(
         0.29,
         0.33,
-        `PING G440 head of 203 g (https://ping.com/clubs/drivers/g440-k) with a 50 g class shaft; the grip's mass ${UNREAD}`,
+        `PING G440 head of 203 g (https://ping.com/clubs/drivers/g440-k) with a 50 g class shaft; the grip's mass ${AutoMovieArchetypeGolfClubData.UNREAD}`,
         true,
       ),
     },
     iron: {
-      length: m(
+      length: AutoMovieArchetypeGolfClubDatam(
         37 * AutoMovieArchetypeUnits.INCH,
         37 * AutoMovieArchetypeUnits.INCH,
         "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)",
       ),
-      headWidth: m(0.075, 0.085, UNREAD, true),
-      headDepth: m(0.02, 0.03, UNREAD, true),
-      gripDiameter: GRIP,
-      mass: kg(0.4, 0.45, UNREAD, true),
+      headWidth: AutoMovieArchetypeGolfClubDatam(0.075, 0.085, AutoMovieArchetypeGolfClubData.UNREAD, true),
+      headDepth: AutoMovieArchetypeGolfClubDatam(0.02, 0.03, AutoMovieArchetypeGolfClubData.UNREAD, true),
+      gripDiameter: AutoMovieArchetypeGolfClubData.GRIP,
+      mass: AutoMovieArchetypeGolfClubDataKg(0.4, 0.45, AutoMovieArchetypeGolfClubData.UNREAD, true),
     },
     putter: {
-      length: m(
+      length: AutoMovieArchetypeGolfClubDatam(
         33 * AutoMovieArchetypeUnits.INCH,
         35 * AutoMovieArchetypeUnits.INCH,
         "PING putters, the G Le4 Anser 2D's 33 in and the 2024 Anser D's 35 in standard lengths (https://ping.com/en-us/golf-clubs/womens/g-le4-anser-2d-putter, https://ping.com/en-us/golf-clubs/putters/2024-2023-anser-d-putter)",
       ),
-      headWidth: m(
+      headWidth: AutoMovieArchetypeGolfClubDatam(
         0.1,
         0.12,
-        `${RANDA}, 2.4b(iii): a putter's head at most 7 in from heel to toe; the band ${UNREAD}`,
+        `${AutoMovieArchetypeGolfClubData.RANDA}, 2.4b(iii): a putter's head at most 7 in from heel to toe; the band ${AutoMovieArchetypeGolfClubData.UNREAD}`,
         true,
       ),
-      headDepth: m(0.025, 0.08, UNREAD, true),
-      gripDiameter: GRIP,
-      mass: kg(
+      headDepth: AutoMovieArchetypeGolfClubDatam(0.025, 0.08, AutoMovieArchetypeGolfClubData.UNREAD, true),
+      gripDiameter: AutoMovieArchetypeGolfClubData.GRIP,
+      mass: AutoMovieArchetypeGolfClubDataKg(
         0.5,
         0.52,
         "PING Anser heads of 350 to 365 g (https://ping.com/en-us/golf-clubs/putters/2024-2023-anser-d-putter) with a shaft and a grip whose mass no source read gives",

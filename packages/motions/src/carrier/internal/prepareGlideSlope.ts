@@ -11,21 +11,6 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 
 /*
- * World up for the heading and reference slope.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * Small tolerance for the entering boots' material gap, metres.
- */
-const CONTACT: number = 0.005;
-
-/*
- * Angular agreement required between the material and authored plane.
- */
-const NORMAL: number = Math.cos(0.25 * Quaternion.DEG2RAD);
-
-/*
  * Resolve a fixed finite ski deck and its actual tangent at the entry. The
  * authored heading and grade must describe that same plane.
  */
@@ -212,3 +197,18 @@ export namespace prepareGlideSlope {
     ): void;
   }
 }
+
+/*
+ * World up for the heading and reference slope.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * Small tolerance for the entering boots' material gap, metres.
+ */
+const CONTACT: number = 0.005;
+
+/*
+ * Angular agreement required between the material and authored plane.
+ */
+const NORMAL: number = Math.cos(0.25 * Quaternion.DEG2RAD);

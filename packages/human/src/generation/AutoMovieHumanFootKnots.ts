@@ -81,6 +81,91 @@ export namespace AutoMovieHumanFootKnots {
     medial: ["medialForefoot", "medialNavicular", "medialColumn"],
   };
 
+  /**
+   * A region's knots as world points, front to back.
+   *
+   * @param region The region.
+   * @param frame The foot's frame.
+   * @param line The foot's web line.
+   * @returns The knots.
+   */
+  export function knots(
+    region: IAutoMovieHumanFootKnots.Region,
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+  ): AutoMovieVector3Tuple[] {
+    switch (region) {
+      case "crestForefoot":
+        return AutoMovieHumanFootCrestForefoot.knots(frame);
+      case "crestAnkle":
+        return ANKLE.map(
+          (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
+            frame.at(q[0], q[1], q[2] * frame.H),
+        );
+      case "lateralForefoot":
+        return AutoMovieHumanFootLateralForefoot.knots(frame, line);
+      case "lateralColumn":
+        return AutoMovieHumanFootColumn.knots("lateral", frame, line);
+      case "medialColumn":
+        return AutoMovieHumanFootColumn.knots("medial", frame, line);
+      case "lateralHeel":
+      case "medialForefoot":
+      case "medialNavicular":
+        return AutoMovieHumanFootGuide.fanned(frame, line, FANNED[region]);
+      case "heelCornerLateral":
+        return AutoMovieHumanFootHeelCorner.knots(frame, 1);
+      case "heelCornerMedial":
+        return AutoMovieHumanFootHeelCorner.knots(frame, -1);
+      case "achillesLateral":
+        return AutoMovieHumanFootAchilles.knots(frame, 1);
+      case "achillesMedial":
+        return AutoMovieHumanFootAchilles.knots(frame, -1);
+      case "contactLateralBall":
+      case "contactLateralMidfoot":
+      case "contactLateralHeel":
+      case "contactMedialBall":
+      case "contactMedialMidfoot":
+      case "contactMedialHeel":
+        return FLOOR[region].map(
+          (q: readonly [number, number]): AutoMovieVector3Tuple =>
+            frame.at(q[0], q[1], 0),
+        );
+    }
+  }
+
+  /**
+   * The five guides of a foot, each its regions' knots joined by the guide's
+   * own spline.
+   *
+   * @param frame The foot's frame.
+   * @param line The foot's web line.
+   * @returns The guides.
+   */
+  export function guides(
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+  ): IAutoMovieHumanFootBody.IGuides {
+    const guide = (
+      name: keyof IAutoMovieHumanFootBody.IGuides,
+    ): IAutoMovieHumanFootGuide.IGuide =>
+      AutoMovieHumanFootGuide.of(
+        frame,
+        line,
+        GUIDES[name].flatMap(
+          (r: IAutoMovieHumanFootKnots.Region): AutoMovieVector3Tuple[] =>
+            knots(r, frame, line),
+        ),
+      );
+
+    return {
+      crest: guide("crest"),
+      lateral: guide("lateral"),
+      contactLateral: guide("contactLateral"),
+      contactMedial: guide("contactMedial"),
+      medial: guide("medial"),
+    };
+  }
+
   /*
    * The contact regions' knots on the floor, front first: `[a, u]` in foot lengths and breadths.
    */
@@ -172,89 +257,4 @@ export namespace AutoMovieHumanFootKnots {
       [0.65, 0.298, 0.0484, 0.2203, 0.796],
     ],
   };
-
-  /**
-   * A region's knots as world points, front to back.
-   *
-   * @param region The region.
-   * @param frame The foot's frame.
-   * @param line The foot's web line.
-   * @returns The knots.
-   */
-  export function knots(
-    region: IAutoMovieHumanFootKnots.Region,
-    frame: IAutoMovieHumanFootFrame.IFrame,
-    line: IAutoMovieHumanFootWebLine.IWebLine,
-  ): AutoMovieVector3Tuple[] {
-    switch (region) {
-      case "crestForefoot":
-        return AutoMovieHumanFootCrestForefoot.knots(frame);
-      case "crestAnkle":
-        return ANKLE.map(
-          (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
-            frame.at(q[0], q[1], q[2] * frame.H),
-        );
-      case "lateralForefoot":
-        return AutoMovieHumanFootLateralForefoot.knots(frame, line);
-      case "lateralColumn":
-        return AutoMovieHumanFootColumn.knots("lateral", frame, line);
-      case "medialColumn":
-        return AutoMovieHumanFootColumn.knots("medial", frame, line);
-      case "lateralHeel":
-      case "medialForefoot":
-      case "medialNavicular":
-        return AutoMovieHumanFootGuide.fanned(frame, line, FANNED[region]);
-      case "heelCornerLateral":
-        return AutoMovieHumanFootHeelCorner.knots(frame, 1);
-      case "heelCornerMedial":
-        return AutoMovieHumanFootHeelCorner.knots(frame, -1);
-      case "achillesLateral":
-        return AutoMovieHumanFootAchilles.knots(frame, 1);
-      case "achillesMedial":
-        return AutoMovieHumanFootAchilles.knots(frame, -1);
-      case "contactLateralBall":
-      case "contactLateralMidfoot":
-      case "contactLateralHeel":
-      case "contactMedialBall":
-      case "contactMedialMidfoot":
-      case "contactMedialHeel":
-        return FLOOR[region].map(
-          (q: readonly [number, number]): AutoMovieVector3Tuple =>
-            frame.at(q[0], q[1], 0),
-        );
-    }
-  }
-
-  /**
-   * The five guides of a foot, each its regions' knots joined by the guide's
-   * own spline.
-   *
-   * @param frame The foot's frame.
-   * @param line The foot's web line.
-   * @returns The guides.
-   */
-  export function guides(
-    frame: IAutoMovieHumanFootFrame.IFrame,
-    line: IAutoMovieHumanFootWebLine.IWebLine,
-  ): IAutoMovieHumanFootBody.IGuides {
-    const guide = (
-      name: keyof IAutoMovieHumanFootBody.IGuides,
-    ): IAutoMovieHumanFootGuide.IGuide =>
-      AutoMovieHumanFootGuide.of(
-        frame,
-        line,
-        GUIDES[name].flatMap(
-          (r: IAutoMovieHumanFootKnots.Region): AutoMovieVector3Tuple[] =>
-            knots(r, frame, line),
-        ),
-      );
-
-    return {
-      crest: guide("crest"),
-      lateral: guide("lateral"),
-      contactLateral: guide("contactLateral"),
-      contactMedial: guide("contactMedial"),
-      medial: guide("medial"),
-    };
-  }
 }

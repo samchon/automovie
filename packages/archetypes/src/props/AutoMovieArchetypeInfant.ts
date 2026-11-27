@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * Newborn proportions read from a growth chart are not yet applied.
- */
-const STAGED: string =
-  "a swaddled infant: a coarse newborn-sized bundle, its dimensions and mass provisional estimates";
+import * as AutoMovieArchetypeInfantData from "./internal/AutoMovieArchetypeInfantData";
 
 /** Constructs the infant archetype from its recipe. */
 export namespace AutoMovieArchetypeInfant {
@@ -138,8 +133,8 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(0.42, 0.5, STAGED, true),
-    head: AutoMovieArchetypeBand.metres(0.11, 0.13, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 3, 5, STAGED, true),
+    length: AutoMovieArchetypeBand.metres(0.42, 0.5, AutoMovieArchetypeInfantData.STAGED, true),
+    head: AutoMovieArchetypeBand.metres(0.11, 0.13, AutoMovieArchetypeInfantData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 3, 5, AutoMovieArchetypeInfantData.STAGED, true),
   };
 }

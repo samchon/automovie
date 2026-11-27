@@ -30,47 +30,8 @@ import { crossingClearance } from "./crossingClearance";
 import { crossingSurface } from "./crossingSurface";
 import { prepareVaultArmFrames } from "./prepareVaultArmFrames";
 import { stepVaultSupport } from "./stepVaultSupport";
+import * as PlanNamedVaultData from "./PlanNamedVaultData";
 
-/*
- * Where the palm bears along the top's depth, from its near edge (provisional:
- * behind the knee's path, ahead of the stepping foot).
- */
-const PALM_DEPTH: number = 0.37;
-
-/*
- * Where the opposite foot bears along the top's depth (provisional).
- */
-const FOOT_DEPTH: number = 0.73;
-
-/*
- * The swing waypoints' height above the top, foot lengths (provisional: a toe
- * clearance of about 0.15 m for an average foot).
- */
-const SWING_RISE: number = 0.59;
-
-/*
- * The swing waypoints' distance outside the near and far edges, foot lengths
- * (provisional).
- */
-const SWING_BUFFER: number = 0.58;
-
-/*
- * Seconds over which the vault's arm adjustments fade in at the start and out
- * at the end (provisional).
- */
-const EASE: number = 0.4;
-
-/*
- * Height of the palm's arc over the top on its way to and from it, forearm
- * lengths (provisional).
- */
-const ARC: number = 0.78;
-
-/*
- * Seconds of the lift that takes the palm clear of the top at its release
- * (provisional).
- */
-const PALM_PEEL: number = 0.05;
 /*
  * Cross a raised fixed top with one palm and the opposite foot bearing on it:
  * the step vault (`stepVaultSupport`) staged on the named surface. The stepping
@@ -142,13 +103,13 @@ export function planNamedVault(
   const palm: IAutoMovieVector3 = frame.point({
     x: middle + sign * half,
     y: deck.height,
-    z: deck.near + PALM_DEPTH * (deck.far - deck.near),
+    z: deck.near + PlanNamedVaultData.PALM_DEPTH * (deck.far - deck.near),
   });
   const opposite: AutoMovieHumanSide = hand === "left" ? "right" : "left";
   const step: IAutoMovieVector3 = frame.point({
     x: middle - sign * half,
     y: deck.height + exitToe(opposite).y,
-    z: deck.near + FOOT_DEPTH * (deck.far - deck.near),
+    z: deck.near + PlanNamedVaultData.FOOT_DEPTH * (deck.far - deck.near),
   });
   const palmId: string = ref.point + ":palm";
   const footId: string = ref.point + ":foot";
@@ -180,8 +141,8 @@ export function planNamedVault(
       if (p0 === undefined || p1 === undefined) return undefined;
       const from: IAutoMovieVector3 = frame.local(p0);
       const to: IAutoMovieVector3 = frame.local(p1);
-      const lift: number = deck.height + SWING_RISE * measure.footLength;
-      const buffer: number = SWING_BUFFER * measure.footLength;
+      const lift: number = deck.height + PlanNamedVaultData.SWING_RISE * measure.footLength;
+      const buffer: number = PlanNamedVaultData.SWING_BUFFER * measure.footLength;
       return [
         frame.point({
           x: from.x,
@@ -219,7 +180,7 @@ export function planNamedVault(
   // The palm already touches the top as it settles before its support
   // window and still touches it while it peels off after, so its published
   // contact spans both.
-  const peel: number = PALM_PEEL / supported.duration;
+  const peel: number = PlanNamedVaultData.PALM_PEEL / supported.duration;
   const layer = (): IAutoMovieMotionHumanActionPlan["posture"] =>
     prepareVaultLayer(body, frame, yaw, deck, supported, hand, palm, ref.prop);
   let posed: IAutoMovieMotionHumanActionPlan["posture"] = layer();
@@ -368,7 +329,7 @@ function prepareVaultLayer(
       evaluation,
     );
     const ease: number = AutoMovieEngineMotionSampling.minimumJerkShare(
-      Math.max(0, Math.min(1, seconds / EASE, (duration - seconds) / EASE)),
+      Math.max(0, Math.min(1, seconds / PlanNamedVaultData.EASE, (duration - seconds) / PlanNamedVaultData.EASE)),
     );
     if (
       ease === 0 ||
@@ -425,13 +386,13 @@ function prepareVaultLayer(
           0.16 *
           measure.forearm *
           palmWeight *
-          AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, handGap / PALM_PEEL));
+          AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, handGap / PlanNamedVaultData.PALM_PEEL));
         // On its way to and from the top the palm arcs over the edge: the arc
         // is zero at the displayed wrist and at contact, so it joins both.
         const arc: number =
           ease *
           Math.sin(Math.PI * approach) *
-          Math.max(0, deck.height + ARC * measure.forearm - point.y);
+          Math.max(0, deck.height + PlanNamedVaultData.ARC * measure.forearm - point.y);
         limbs[arm] = {
           point: { ...point, y: point.y + lift + arc },
           rotation: Quaternion.slerp(rotation, goal.rotation, palmWeight),

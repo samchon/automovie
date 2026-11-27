@@ -11,21 +11,6 @@ import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPushRecovery as Recovery } from "./AutoMovieEnginePhysicalPushRecovery";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
-/*
- * The closed forms the response is laid with.
- */
-const {
-  ZULU,
-  add,
-  constant,
-  contact,
-  evaluate,
-  outline,
-  segmented,
-  toLocal,
-  toWorld,
-}: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;
-
 /**
  * A disturbance response while it is laid (`preparePhysicalDisturbanceSpan`):
  * the state every branch point reads and moves, and the support, step and
@@ -425,6 +410,22 @@ export namespace AutoMovieEnginePhysicalDisturbanceResponse {
     };
   }
 }
+
+
+/*
+ * The closed forms the response is laid with.
+ */
+const {
+  ZULU,
+  add,
+  constant,
+  contact,
+  evaluate,
+  outline,
+  segmented,
+  toLocal,
+  toWorld,
+}: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;
 
 /** A planted foot. */
 type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;

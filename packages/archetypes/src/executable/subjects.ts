@@ -14,28 +14,6 @@ import { archetypeCaptureCatalog } from "./internal/archetypeCaptureCatalog";
 import { archetypeQuadrupedMarks } from "./internal/archetypeQuadrupedMarks";
 
 /*
- * Width and height of every picture drawn, pixels: square, because an archetype
- * is read from all sides.
- */
-const RASTER: number = 960;
-
-/*
- * Side in metres of one cell of the floor grid, a scale to judge heights
- * against.
- */
-const GRID_CELL: number = 0.25;
-
-/*
- * Gap in metres between neighbouring members along X and along Z.
- */
-const GAP: number = 0.4;
-
-/*
- * Frames per second of a moving subject's clock.
- */
-const FPS: number = 30;
-
-/*
  * The archetypes as the subjects a draw-only page offers, for `automovie
  * capture --module src/executable/subjects.ts` and the inspector: every subject
  * of `archetypeCaptureCatalog`, by its name.
@@ -79,6 +57,29 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
       ],
     ),
   );
+
+
+/*
+ * Width and height of every picture drawn, pixels: square, because an archetype
+ * is read from all sides.
+ */
+const RASTER: number = 960;
+
+/*
+ * Side in metres of one cell of the floor grid, a scale to judge heights
+ * against.
+ */
+const GRID_CELL: number = 0.25;
+
+/*
+ * Gap in metres between neighbouring members along X and along Z.
+ */
+const GAP: number = 0.4;
+
+/*
+ * Frames per second of a moving subject's clock.
+ */
+const FPS: number = 30;
 
 /*
  * Build one subject's scene.

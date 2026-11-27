@@ -181,6 +181,88 @@ export function resolveFurnishingPieces(
 }
 
 /*
+ * The related pieces the resolver places, the room it places them in and what
+ * it returns.
+ */
+export namespace resolveFurnishingPieces {
+  /*
+   * One related piece with its measured rest box.
+   */
+  export interface IPiece {
+    /*
+     * The piece's model.
+     */
+    model: IAutoMovieModel;
+
+    /*
+     * The model's measured rest box in its own frame, in metres.
+     */
+    bounds: IAutoMoviePropBox;
+
+    /*
+     * How the piece is placed.
+     */
+    place: IAutoMovieFurnishingRelation;
+
+    /*
+     * Floor rectangles the piece keeps clear.
+     */
+    clear?: readonly IAutoMovieFurnishingClearance[];
+  }
+
+  /*
+   * The room, its reservations and the pieces to place.
+   */
+  export interface IProps {
+    /*
+     * Occurrence id that prefixes every refusal.
+     */
+    id: string;
+
+    /*
+     * The usable room in its own frame, centred on the origin.
+     */
+    room: FurnishingRect.IRect;
+
+    /*
+     * The room's aisle in metres, the least default clearance width.
+     */
+    aisle: number;
+
+    /*
+     * Role-keyed absolute placements that replace a piece's relation.
+     */
+    overrides: IAutoMovieFurnishingLayout["overrides"];
+
+    /*
+     * The pieces by role, in resolution order.
+     */
+    pieces: Readonly<Record<string, IPiece>>;
+
+    /*
+     * Rectangles already blocked by label, extended with each piece and
+     * clearance.
+     */
+    blocked: Map<string, FurnishingRect.IRect>;
+  }
+
+  /*
+   * Each piece's placement and the wall each wall piece stands on.
+   */
+  export interface IResult {
+    /*
+     * Placements by role, in record order.
+     */
+    placed: Map<string, FurnishingRect.IPlacement>;
+
+    /*
+     * The wall of each piece a `wall` relation placed, by role.
+     */
+    walls: Map<string, AutoMovieFurnishingWall>;
+  }
+}
+
+/*
  * The heading and run coordinates of one wall of a `width` by `depth` room.
  */
 function wallFrame(
@@ -267,88 +349,6 @@ function reserve(
         throw new Error(`${id} ${other} blocks ${role} ${name} clearance`);
     blocked.set(label, rect);
     clearances.add(label);
-  }
-}
-
-/*
- * The related pieces the resolver places, the room it places them in and what
- * it returns.
- */
-export namespace resolveFurnishingPieces {
-  /*
-   * One related piece with its measured rest box.
-   */
-  export interface IPiece {
-    /*
-     * The piece's model.
-     */
-    model: IAutoMovieModel;
-
-    /*
-     * The model's measured rest box in its own frame, in metres.
-     */
-    bounds: IAutoMoviePropBox;
-
-    /*
-     * How the piece is placed.
-     */
-    place: IAutoMovieFurnishingRelation;
-
-    /*
-     * Floor rectangles the piece keeps clear.
-     */
-    clear?: readonly IAutoMovieFurnishingClearance[];
-  }
-
-  /*
-   * The room, its reservations and the pieces to place.
-   */
-  export interface IProps {
-    /*
-     * Occurrence id that prefixes every refusal.
-     */
-    id: string;
-
-    /*
-     * The usable room in its own frame, centred on the origin.
-     */
-    room: FurnishingRect.IRect;
-
-    /*
-     * The room's aisle in metres, the least default clearance width.
-     */
-    aisle: number;
-
-    /*
-     * Role-keyed absolute placements that replace a piece's relation.
-     */
-    overrides: IAutoMovieFurnishingLayout["overrides"];
-
-    /*
-     * The pieces by role, in resolution order.
-     */
-    pieces: Readonly<Record<string, IPiece>>;
-
-    /*
-     * Rectangles already blocked by label, extended with each piece and
-     * clearance.
-     */
-    blocked: Map<string, FurnishingRect.IRect>;
-  }
-
-  /*
-   * Each piece's placement and the wall each wall piece stands on.
-   */
-  export interface IResult {
-    /*
-     * Placements by role, in record order.
-     */
-    placed: Map<string, FurnishingRect.IPlacement>;
-
-    /*
-     * The wall of each piece a `wall` relation placed, by role.
-     */
-    walls: Map<string, AutoMovieFurnishingWall>;
   }
 }
 

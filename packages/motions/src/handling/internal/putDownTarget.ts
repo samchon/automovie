@@ -20,94 +20,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
 /*
- * The raw rigid socket frame at the prop's displayed articulation state.
- */
-function socketFrame(
-  reader: IAutoMovieMotionHumanPropReader,
-  id: string,
-  seconds: number,
-): IAutoMovieRigidTransform {
-  const prop: string = reader.prop.subject;
-  const contacts: readonly IAutoMovieAffordance[] =
-    reader.prop.articulate === undefined
-      ? (reader.prop.affordances ?? [])
-      : reader.prop.articulate(reader.state?.(seconds) ?? {}).affordances;
-  const found: IAutoMovieAffordance | undefined = contacts.find(
-    (a: IAutoMovieAffordance): boolean => a.id === id,
-  );
-  if (found === undefined)
-    throw new AutoMovieMotionHumanRefusal({
-      kind: "affordance",
-      axis: "onto",
-      value: `${prop}.${id}`,
-      feasible: {
-        kind: "alternatives",
-        values: contacts.map((a: IAutoMovieAffordance): string => a.id),
-      },
-      reason: `${prop} has no socket named ${id}`,
-      fix: "name a socket the prop declares",
-    });
-  const frame: IAutoMovieRigidTransform = {
-    position: found.frame.translation,
-    rotation: found.frame.rotation,
-  };
-  requireRigid(frame, `${prop}.${id}`, seconds);
-  return frame;
-}
-
-/*
- * Read the socket in world metres at a film second. A receiver that publishes
- * its contacts' displayed frames (a horse's head, a carrier on a moving body)
- * is read there, so the socket follows what moves within the prop; otherwise
- * the prop's rigid frame carries its declared socket.
- */
-function worldSocket(
-  reader: IAutoMovieMotionHumanPropReader,
-  id: string,
-  seconds: number,
-): IAutoMovieRigidTransform {
-  const placed: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
-    reader.prop.point?.(id, seconds);
-  if (placed?.rotation !== undefined) {
-    const moving: IAutoMovieRigidTransform = {
-      position: placed.point,
-      rotation: placed.rotation,
-    };
-    requireRigid(moving, `${reader.prop.subject}.${id}`, seconds);
-    return moving;
-  }
-  const world: IAutoMovieRigidTransform = reader.frame(seconds);
-  requireRigid(world, reader.prop.subject, seconds);
-  return HumanPropFrame.compose(world, socketFrame(reader, id, seconds));
-}
-
-/*
- * Refuse malformed frames before rigid composition can normalize them.
- */
-function requireRigid(
-  frame: IAutoMovieRigidTransform,
-  name: string,
-  seconds: number,
-): void {
-  if (!rigid(frame))
-    throw new AutoMovieMotionHumanRefusal({
-      kind: "parameter",
-      axis: "onto",
-      value: name,
-      reason: `${name} has a non-rigid frame at ${seconds} s`,
-      fix: "give the prop or socket a finite position and a unit rotation",
-    });
-}
-
-/*
- * Whether the rotation is already unit length.
- */
-function rigid(frame: IAutoMovieRigidTransform): boolean {
-  const q: IAutoMovieRigidTransform["rotation"] = frame.rotation;
-  return Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6;
-}
-
-/*
  * The prop's fixed placing frame, or undefined for a free world placement.
  * Parameter context: The authored destination, body, props and entry second.
  * Parameter pose: The synchronous supplier of the body at that entry, including a
@@ -424,6 +336,94 @@ export namespace putDownTarget {
      */
     mounts: readonly ITrackMountsItem2[];
   }
+}
+
+/*
+ * The raw rigid socket frame at the prop's displayed articulation state.
+ */
+function socketFrame(
+  reader: IAutoMovieMotionHumanPropReader,
+  id: string,
+  seconds: number,
+): IAutoMovieRigidTransform {
+  const prop: string = reader.prop.subject;
+  const contacts: readonly IAutoMovieAffordance[] =
+    reader.prop.articulate === undefined
+      ? (reader.prop.affordances ?? [])
+      : reader.prop.articulate(reader.state?.(seconds) ?? {}).affordances;
+  const found: IAutoMovieAffordance | undefined = contacts.find(
+    (a: IAutoMovieAffordance): boolean => a.id === id,
+  );
+  if (found === undefined)
+    throw new AutoMovieMotionHumanRefusal({
+      kind: "affordance",
+      axis: "onto",
+      value: `${prop}.${id}`,
+      feasible: {
+        kind: "alternatives",
+        values: contacts.map((a: IAutoMovieAffordance): string => a.id),
+      },
+      reason: `${prop} has no socket named ${id}`,
+      fix: "name a socket the prop declares",
+    });
+  const frame: IAutoMovieRigidTransform = {
+    position: found.frame.translation,
+    rotation: found.frame.rotation,
+  };
+  requireRigid(frame, `${prop}.${id}`, seconds);
+  return frame;
+}
+
+/*
+ * Read the socket in world metres at a film second. A receiver that publishes
+ * its contacts' displayed frames (a horse's head, a carrier on a moving body)
+ * is read there, so the socket follows what moves within the prop; otherwise
+ * the prop's rigid frame carries its declared socket.
+ */
+function worldSocket(
+  reader: IAutoMovieMotionHumanPropReader,
+  id: string,
+  seconds: number,
+): IAutoMovieRigidTransform {
+  const placed: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+    reader.prop.point?.(id, seconds);
+  if (placed?.rotation !== undefined) {
+    const moving: IAutoMovieRigidTransform = {
+      position: placed.point,
+      rotation: placed.rotation,
+    };
+    requireRigid(moving, `${reader.prop.subject}.${id}`, seconds);
+    return moving;
+  }
+  const world: IAutoMovieRigidTransform = reader.frame(seconds);
+  requireRigid(world, reader.prop.subject, seconds);
+  return HumanPropFrame.compose(world, socketFrame(reader, id, seconds));
+}
+
+/*
+ * Refuse malformed frames before rigid composition can normalize them.
+ */
+function requireRigid(
+  frame: IAutoMovieRigidTransform,
+  name: string,
+  seconds: number,
+): void {
+  if (!rigid(frame))
+    throw new AutoMovieMotionHumanRefusal({
+      kind: "parameter",
+      axis: "onto",
+      value: name,
+      reason: `${name} has a non-rigid frame at ${seconds} s`,
+      fix: "give the prop or socket a finite position and a unit rotation",
+    });
+}
+
+/*
+ * Whether the rotation is already unit length.
+ */
+function rigid(frame: IAutoMovieRigidTransform): boolean {
+  const q: IAutoMovieRigidTransform["rotation"] = frame.rotation;
+  return Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6;
 }
 
 /*

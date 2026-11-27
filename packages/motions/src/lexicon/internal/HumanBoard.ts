@@ -27,23 +27,7 @@ import { HumanBoardHandoverStill } from "./HumanBoardHandoverStill";
 import { HumanBoardKey } from "./HumanBoardKey";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-/*
- * Seconds the landed seat takes to settle (provisional).
- */
-const SETTLE: number = 0.3;
-
-/*
- * Seconds the holding hand takes to close on its hold from the take-off
- * (provisional).
- */
-const GRASP: number = 0.15;
-
-/*
- * The share of the flight a held hand keeps its hold for: to the landing, so
- * the support passes from the hold to the seat with no gap.
- */
-const LET_GO: number = 1;
-
+import * as HumanBoardData from "./HumanBoardData";
 /*
  * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat
  * contact's moving frame the root travels from where it takes off to its seated
@@ -103,7 +87,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
   HumanBoardAdmit(context, carrier, from, key);
 
-  const duration: number = flight + SETTLE;
+  const duration: number = flight + HumanBoardData.SETTLE;
   const hand: IAutoMovieMotionHumanBoard.IHand | undefined = params.hand;
   const held = (film: number): IAutoMovieVector3 | undefined => {
     if (hand === undefined) return undefined;
@@ -142,11 +126,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   // let go, never chased past the arm's length.
   const release: number =
     hand === undefined
-      ? LET_GO * flight
+      ? HumanBoardData.LET_GO * flight
       : (HumanUnseatPose.reachable(
           context.body,
           hand.side,
-          LET_GO * flight,
+          HumanBoardData.LET_GO * flight,
           0,
           boarding,
           (t: number) => held(context.start + t)!,
@@ -174,7 +158,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const takes: number | undefined =
     handover === undefined
       ? undefined
-      : Math.min(lets, Math.max(handover.takes, Math.min(GRASP, lets)));
+      : Math.min(lets, Math.max(handover.takes, Math.min(HumanBoardData.GRASP, lets)));
   const holdWindow: IAutoMovieMotionHumanContactWindow[] =
     hand === undefined
       ? []
@@ -196,7 +180,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
                   part: `${handover.side}Hand` as const,
                   kind: "grip" as const,
                   from: takes / duration,
-                  to: (LET_GO * flight) / duration,
+                  to: (HumanBoardData.LET_GO * flight) / duration,
                   support: {
                     kind: "person" as const,
                     subject: hand.partner!,
@@ -296,7 +280,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       // hand-over to the landing: its goal is that hold, as it stands at the
       // hand-over before it, the course reaching it from the rest by then.
       if (handover === undefined || takes === undefined) return reached;
-      const landing: number = LET_GO * flight;
+      const landing: number = HumanBoardData.LET_GO * flight;
       reached = HumanUnseatPose.reach(
         reached,
         handover.side,
@@ -339,7 +323,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     });
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
-    ready: Math.max(Math.min(GRASP, lets), grasped),
+    ready: Math.max(Math.min(HumanBoardData.GRASP, lets), grasped),
     relax: Math.max(lets, grasped),
     end: duration,
   };
@@ -380,7 +364,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
                   span: {
                     start: 0,
                     ready: takes,
-                    relax: LET_GO * flight,
+                    relax: HumanBoardData.LET_GO * flight,
                     end: duration,
                   },
                 },

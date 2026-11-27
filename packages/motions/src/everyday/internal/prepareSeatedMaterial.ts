@@ -15,15 +15,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-
-/*
- * Pelvis and both proximal legs are the regions on the sitting face.
- */
-const SEATED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "hips",
-  "leftUpperLeg",
-  "rightUpperLeg",
-]);
+import * as PrepareSeatedMaterialData from "./PrepareSeatedMaterialData";
 
 /*
  * Bind an ordinary seat's actual receiving face and proximal body geometry.
@@ -47,7 +39,7 @@ export function prepareSeatedMaterial(
         );
   const placed: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
     context.body,
-    SEATED,
+    PrepareSeatedMaterialData.SEATED,
   );
   const pelvis: ReturnType<typeof HumanMaterialContact.prepareBody> =
     HumanMaterialContact.prepareBody(context.body, new Set(["hips"]));

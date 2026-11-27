@@ -2,29 +2,8 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
 } from "@automovie/interface";
+import * as HumanoidJointAxesData from "./internal/HumanoidJointAxesData";
 
-
-/*
- * The hand and every finger and thumb segment, without the side prefix.
- */
-const HAND: readonly string[] = [
-  "Hand",
-  "ThumbMetacarpal",
-  "ThumbProximal",
-  "ThumbDistal",
-  "IndexProximal",
-  "IndexIntermediate",
-  "IndexDistal",
-  "MiddleProximal",
-  "MiddleIntermediate",
-  "MiddleDistal",
-  "RingProximal",
-  "RingIntermediate",
-  "RingDistal",
-  "LittleProximal",
-  "LittleIntermediate",
-  "LittleDistal",
-];
 
 /**
  * Per-bone clinical axes for the **canonical humanoid rest pose** (VRM T-pose:
@@ -118,7 +97,7 @@ export const HUMANOID_JOINT_AXES: Partial<
     abduction: { x: 0, y: -1, z: 0 },
   };
   for (const side of ["left", "right"])
-    for (const s of HAND)
+    for (const s of HumanoidJointAxesData.HAND)
       table[`${side}${s}` as AutoMovieHumanoidBone] =
         s.startsWith("Ring") || s.startsWith("Little") ? ulnar : hand;
   const forwardFlexing: AutoMovieHumanoidBone[] = [

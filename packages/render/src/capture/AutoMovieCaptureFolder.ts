@@ -9,16 +9,6 @@ import type {
 
 import { AutoMovieRenderCaptureRecord } from "./AutoMovieRenderCaptureRecord.js";
 
-/*
- * The record's file name.
- */
-const RECORD: string = "record.json";
-
-/*
- * The folder of kept rounds beneath the root.
- */
-const ROUNDS: string = "rounds";
-
 /**
  * The folder one capture writes, and the rules of which files it owns and in
  * what order it touches them.
@@ -281,6 +271,16 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
     return complete;
   }
 }
+
+/*
+ * The record's file name.
+ */
+const RECORD: string = "record.json";
+
+/*
+ * The folder of kept rounds beneath the root.
+ */
+const ROUNDS: string = "rounds";
 
 /*
  * Read and parse a record, rejecting text that is not one.

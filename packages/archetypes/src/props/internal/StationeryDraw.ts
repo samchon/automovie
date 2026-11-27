@@ -7,50 +7,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-
-/*
- * Book trim sizes: a print service's list, and the UK paperback formats from a
- * secondary source.
- */
-const BOOK: string =
-  "Amazon KDP print options, trim sizes 12.7 x 20.32 cm to 15.6 x 23.39 cm (https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6); the smaller end is the UK A-format paperback, 110 x 178 mm (Wikipedia, Book size, https://en.wikipedia.org/wiki/Book_size)";
-
-/*
- * Book thickness from a page count and a paper caliper, neither read at a
- * primary source.
- */
-const THICKNESS: string =
-  "150 to 650 pages inside the 24 to 828 page range of Amazon KDP (https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6) at about 0.06 mm per page, a printer's spine formula seen only in search results";
-
-/*
- * Office paper sizes from a secondary source.
- */
-const PAPER: string =
-  "ISO 216 A4, 210 x 297 mm, and US Letter, 216 x 279 mm (Wikipedia, Paper size, https://en.wikipedia.org/wiki/Paper_size)";
-
-/*
- * A ballpoint pen from a secondary source, with the precision handle band.
- */
-const PEN: string =
-  "BIC Cristal, 14.45 cm without and 14.9 cm with its cap (Wikipedia, Bic Cristal, https://en.wikipedia.org/wiki/Bic_Cristal); barrel inside the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)";
-
-/*
- * Michelin's folded road map: its folded size read at the maker, its thickness
- * and mass seen only in listings.
- */
-const MAP: string =
-  "Michelin regional map, folded 11 x 25 cm (https://boutique.laventure.michelin.com/en/product/ouest-france-map-of-calvados-michelin/); 0.7 cm thick and 89 to 90 g, Michelin maps 333, 585 and 707 seen only in search results";
-
-/*
- * The readable name of each kind.
- */
-const NAMES: Readonly<Record<StationeryDraw.Kind, string>> = {
-  book: "book",
-  paper: "sheet of paper",
-  pen: "pen",
-  clipboard: "clipboard",
-  map: "folded map",
-};
+import * as StationeryDrawData from "./StationeryDrawData";
 
 /*
  * The seeded recipes originally published as `createStationery`.
@@ -167,9 +124,9 @@ export namespace StationeryDraw {
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     book: {
-      width: AutoMovieArchetypeBand.metres(0.11, 0.156, BOOK, true),
-      length: AutoMovieArchetypeBand.metres(0.178, 0.234, BOOK, true),
-      thickness: AutoMovieArchetypeBand.metres(0.009, 0.039, THICKNESS, true),
+      width: AutoMovieArchetypeBand.metres(0.11, 0.156, StationeryDrawData.BOOK, true),
+      length: AutoMovieArchetypeBand.metres(0.178, 0.234, StationeryDrawData.BOOK, true),
+      thickness: AutoMovieArchetypeBand.metres(0.009, 0.039, StationeryDrawData.THICKNESS, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.17,
@@ -179,8 +136,8 @@ export namespace StationeryDraw {
       ),
     },
     paper: {
-      width: AutoMovieArchetypeBand.metres(0.21, 0.216, PAPER, true),
-      length: AutoMovieArchetypeBand.metres(0.279, 0.297, PAPER, true),
+      width: AutoMovieArchetypeBand.metres(0.21, 0.216, StationeryDrawData.PAPER, true),
+      length: AutoMovieArchetypeBand.metres(0.279, 0.297, StationeryDrawData.PAPER, true),
       thickness: AutoMovieArchetypeBand.metres(
         0.0001,
         0.0001,
@@ -196,8 +153,8 @@ export namespace StationeryDraw {
       ),
     },
     pen: {
-      length: AutoMovieArchetypeBand.metres(0.1445, 0.149, PEN, true),
-      thickness: AutoMovieArchetypeBand.metres(0.006, 0.013, PEN, true),
+      length: AutoMovieArchetypeBand.metres(0.1445, 0.149, StationeryDrawData.PEN, true),
+      thickness: AutoMovieArchetypeBand.metres(0.006, 0.013, StationeryDrawData.PEN, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.005,
@@ -208,10 +165,10 @@ export namespace StationeryDraw {
     },
     clipboard: {},
     map: {
-      width: AutoMovieArchetypeBand.metres(0.11, 0.11, MAP),
-      length: AutoMovieArchetypeBand.metres(0.25, 0.25, MAP),
-      thickness: AutoMovieArchetypeBand.metres(0.007, 0.007, MAP, true),
-      mass: AutoMovieArchetypeBand.of("kg", 0.089, 0.09, MAP, true),
+      width: AutoMovieArchetypeBand.metres(0.11, 0.11, StationeryDrawData.MAP),
+      length: AutoMovieArchetypeBand.metres(0.25, 0.25, StationeryDrawData.MAP),
+      thickness: AutoMovieArchetypeBand.metres(0.007, 0.007, StationeryDrawData.MAP, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.089, 0.09, StationeryDrawData.MAP, true),
     },
   };
 
@@ -338,3 +295,14 @@ export namespace StationeryDraw {
     });
   }
 }
+
+/*
+ * The readable name of each kind.
+ */
+const NAMES: Readonly<Record<StationeryDraw.Kind, string>> = {
+  book: "book",
+  paper: "sheet of paper",
+  pen: "pen",
+  clipboard: "clipboard",
+  map: "folded map",
+};

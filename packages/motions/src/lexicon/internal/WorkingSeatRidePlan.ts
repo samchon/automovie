@@ -1,17 +1,5 @@
 import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPlayback,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanResolveHumanPosture,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPlayback, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanResolveHumanPosture, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanArmTrajectoryModel } from "../../posture/internal/HumanArmTrajectoryModel";
@@ -20,8 +8,8 @@ import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
+import * as WorkingSeatRidePlanData from "./WorkingSeatRidePlanData";
 
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 /*
  * The native working-seat ride. It proposes torso articulation only when
  * keeping the original feet requires it. A complete actual pair judgement and
@@ -194,7 +182,7 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
       undefined,
       HumanBoneGroups.FEET,
     );
-    for (const side of SIDES) {
+    for (const side of WorkingSeatRidePlanData.SIDES) {
       const goal: IAutoMovieHumanLimbGoal | undefined = raw.limbs[`${side}Leg`];
       if (!goal?.planted || !goal.contact || !goal.rotation) return false;
       const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;

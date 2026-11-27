@@ -5,15 +5,6 @@ import {
 } from "@automovie/interface";
 
 /*
- * Even samples of the spine parameter a sign change of the plane distance is
- * bracketed between.
- */
-const SAMPLES: number = 128;
-/*
- * Bisection steps that place the plane on the point; each halves the bracket.
- */
-const BISECTIONS: number = 48;
-/*
  * Locate a point against a direction-correspondence sweep's sampled section
  * planes.
  *
@@ -97,3 +88,13 @@ export const locateAutoMovieSweepPoint: (
   }
   return best!;
 };
+
+/*
+ * Even samples of the spine parameter a sign change of the plane distance is
+ * bracketed between.
+ */
+const SAMPLES: number = 128;
+/*
+ * Bisection steps that place the plane on the point; each halves the bracket.
+ */
+const BISECTIONS: number = 48;

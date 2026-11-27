@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The rules the pit's figures come from.
- */
-const RULES: string =
-  "World Athletics Technical Rules (2020 edition), TR29.2 take-off board 1.21-1.22 m long, 0.20 m wide and 0.10 m deep, flush with the runway; TR29.5 the long jump board 1-3 m from the near end of the landing area; TR29.4 at least 10 m from the take-off line to the far end; TR29.6 a landing area 2.75-3 m wide, its sand level with the board (https://athletics.lv/file/download/61151)";
+import * as AutoMovieArchetypeJumpPitData from "./internal/AutoMovieArchetypeJumpPitData";
 
 /** Constructs the jump pit archetype from its recipe. */
 export namespace AutoMovieArchetypeJumpPit {
@@ -152,11 +147,11 @@ export function create(
 
   /** The band of each figure. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    boardLength: AutoMovieArchetypeBand.metres(1.21, 1.22, RULES),
-    boardWidth: AutoMovieArchetypeBand.metres(0.198, 0.202, RULES),
-    gap: AutoMovieArchetypeBand.metres(1, 3, RULES),
-    reach: AutoMovieArchetypeBand.metres(10, 11, RULES, true),
-    width: AutoMovieArchetypeBand.metres(2.75, 3, RULES),
+    boardLength: AutoMovieArchetypeBand.metres(1.21, 1.22, AutoMovieArchetypeJumpPitData.RULES),
+    boardWidth: AutoMovieArchetypeBand.metres(0.198, 0.202, AutoMovieArchetypeJumpPitData.RULES),
+    gap: AutoMovieArchetypeBand.metres(1, 3, AutoMovieArchetypeJumpPitData.RULES),
+    reach: AutoMovieArchetypeBand.metres(10, 11, AutoMovieArchetypeJumpPitData.RULES, true),
+    width: AutoMovieArchetypeBand.metres(2.75, 3, AutoMovieArchetypeJumpPitData.RULES),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       10,

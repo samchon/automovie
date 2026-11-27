@@ -23,11 +23,6 @@ import { crabWalkBounds } from "./crabWalkBounds";
 import { crabWalkClock } from "./crabWalkClock";
 
 /*
- * The world's down.
- */
-const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-
-/*
  * A supine quadrupedal crawl, the crab walk (`IAutoMovieMotionHumanCrabWalk`).
  * The body settles from where it is onto its hands, planted behind the
  * shoulders, and its feet, planted ahead of the hips, with the pelvis lifted to
@@ -308,6 +303,11 @@ export namespace crabWalk {
     };
   }
 }
+
+/*
+ * The world's down.
+ */
+const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
 /*
  * One limb of the crawl: its channel, its contact part, its diagonal group and

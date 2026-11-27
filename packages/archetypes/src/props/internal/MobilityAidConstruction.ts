@@ -10,87 +10,6 @@ import {
 import { AutoMovieArchetypeMobilityAid } from "../AutoMovieArchetypeMobilityAid";
 
 /*
- * The readable name of each kind.
- */
-const NAMES: Readonly<Record<AutoMovieArchetypeMobilityAid.Kind, string>> = {
-  cane: "walking cane",
-  walker: "walking frame",
-  infusionStand: "infusion stand",
-};
-
-/*
- * Model coordinates in metres.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * The shared painted metal part color.
- */
-const metal: string = "#9aa1a6";
-
-/*
- * Draw the selected stand or aid's admitted dimensions in the historical
- * stream.
- */
-function draw<Id extends AutoMovieArchetypeMobilityAid.Affordance>(
-  kind: AutoMovieArchetypeMobilityAid.Kind,
-  params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
-  seed?: number,
-): IDrawn<Id> {
-  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeMobilityAid.Dimension> =
-    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeMobilityAid.Dimension>(
-      "mobilityAid",
-      AutoMovieArchetypeMobilityAid.UNITS,
-      seed,
-      params,
-    );
-  // A walker is Drive's adult or junior model whole, its handle height drawn in that model's own range.
-  const model: {
-    name: AutoMovieArchetypeMobilityAid.Model | undefined;
-    figures: AutoMovieArchetypeMobilityAid.Figures;
-  } = session.model<AutoMovieArchetypeMobilityAid.Model>(
-    "model",
-    params.model,
-    AutoMovieArchetypeMobilityAid.MODELS[kind],
-  );
-  // The model's own range bands its height, so the author's height is checked in it.
-  const range: IAutoMovieArchetypeBand | undefined =
-    model.name === undefined
-      ? undefined
-      : AutoMovieArchetypeMobilityAid.HANDLE_HEIGHTS[model.name];
-  const d: Partial<Record<AutoMovieArchetypeMobilityAid.Dimension, number>> = {
-    ...session.dimensions(
-      range === undefined
-        ? AutoMovieArchetypeMobilityAid.BANDS[kind]
-        : { ...AutoMovieArchetypeMobilityAid.BANDS[kind], height: range },
-      AutoMovieArchetypeMobilityAid.BANDS,
-    ),
-    ...model.figures,
-  };
-  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw: session,
-  });
-  return { builder, d };
-}
-
-/*
- * Put the downward floor reference under the model origin.
- */
-function tip(builder: {
-  affordance(contact: Parameters<Builder<"tip">["affordance"]>[0]): void;
-}): void {
-  builder.affordance({
-    id: "tip",
-    kind: "surface",
-    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
-    extent: null,
-  });
-}
-
-/*
  * Shared sizing and individual constructions for floor-supported props held
  * beside a person.
  */
@@ -271,6 +190,87 @@ export namespace MobilityAidConstruction {
     tip(builder);
     return builder.build(d.mass!);
   }
+}
+
+/*
+ * The readable name of each kind.
+ */
+const NAMES: Readonly<Record<AutoMovieArchetypeMobilityAid.Kind, string>> = {
+  cane: "walking cane",
+  walker: "walking frame",
+  infusionStand: "infusion stand",
+};
+
+/*
+ * Model coordinates in metres.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * The shared painted metal part color.
+ */
+const metal: string = "#9aa1a6";
+
+/*
+ * Draw the selected stand or aid's admitted dimensions in the historical
+ * stream.
+ */
+function draw<Id extends AutoMovieArchetypeMobilityAid.Affordance>(
+  kind: AutoMovieArchetypeMobilityAid.Kind,
+  params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
+  seed?: number,
+): IDrawn<Id> {
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeMobilityAid.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeMobilityAid.Dimension>(
+      "mobilityAid",
+      AutoMovieArchetypeMobilityAid.UNITS,
+      seed,
+      params,
+    );
+  // A walker is Drive's adult or junior model whole, its handle height drawn in that model's own range.
+  const model: {
+    name: AutoMovieArchetypeMobilityAid.Model | undefined;
+    figures: AutoMovieArchetypeMobilityAid.Figures;
+  } = session.model<AutoMovieArchetypeMobilityAid.Model>(
+    "model",
+    params.model,
+    AutoMovieArchetypeMobilityAid.MODELS[kind],
+  );
+  // The model's own range bands its height, so the author's height is checked in it.
+  const range: IAutoMovieArchetypeBand | undefined =
+    model.name === undefined
+      ? undefined
+      : AutoMovieArchetypeMobilityAid.HANDLE_HEIGHTS[model.name];
+  const d: Partial<Record<AutoMovieArchetypeMobilityAid.Dimension, number>> = {
+    ...session.dimensions(
+      range === undefined
+        ? AutoMovieArchetypeMobilityAid.BANDS[kind]
+        : { ...AutoMovieArchetypeMobilityAid.BANDS[kind], height: range },
+      AutoMovieArchetypeMobilityAid.BANDS,
+    ),
+    ...model.figures,
+  };
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: NAMES[kind],
+    draw: session,
+  });
+  return { builder, d };
+}
+
+/*
+ * Put the downward floor reference under the model origin.
+ */
+function tip(builder: {
+  affordance(contact: Parameters<Builder<"tip">["affordance"]>[0]): void;
+}): void {
+  builder.affordance({
+    id: "tip",
+    kind: "surface",
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+    extent: null,
+  });
 }
 
 /*

@@ -15,11 +15,6 @@ import type {
 
 import { AutoMovieMotionHumanChainStriking } from "./AutoMovieMotionHumanChainStriking";
 
-/*
- * The extinguisher's safety pin's pull, metres: `createFireExtinguisher`'s.
- */
-const PIN: number = 0.04;
-
 /**
  * The chain methods a person performs with a partner or on an object: the
  * handshake, the high five and the kiss, a prop picked up, put down, handed
@@ -232,3 +227,8 @@ export class AutoMovieMotionHumanChainMutual extends AutoMovieMotionHumanChainSt
       .registered("extinguish", drill, anchor);
   }
 }
+
+/*
+ * The extinguisher's safety pin's pull, metres: `createFireExtinguisher`'s.
+ */
+const PIN: number = 0.04;

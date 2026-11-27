@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The World Athletics rule as read.
- */
-const RULE: string =
-  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 24.5, the relay baton";
+import * as AutoMovieArchetypeRelayBatonData from "./internal/AutoMovieArchetypeRelayBatonData";
 
 /** Constructs the relay baton archetype from its recipe. */
 export namespace AutoMovieArchetypeRelayBaton {
@@ -138,18 +133,18 @@ export function create(
     length: AutoMovieArchetypeBand.metres(
       0.28,
       0.3,
-      `${RULE}: 0.28 to 0.30 m long`,
+      `${AutoMovieArchetypeRelayBatonData.RULE}: 0.28 to 0.30 m long`,
     ),
     diameter: AutoMovieArchetypeBand.metres(
       0.038,
       0.042,
-      `${RULE}: an outside diameter of 40 mm +/- 2 mm`,
+      `${AutoMovieArchetypeRelayBatonData.RULE}: an outside diameter of 40 mm +/- 2 mm`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       0.05,
       0.07,
-      `${RULE}: not less than 50 g; the rule sets no upper end, and no maker's weight was read`,
+      `${AutoMovieArchetypeRelayBatonData.RULE}: not less than 50 g; the rule sets no upper end, and no maker's weight was read`,
       true,
     ),
   };

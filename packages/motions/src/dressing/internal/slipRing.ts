@@ -37,38 +37,7 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { HumanWornItem } from "./HumanWornItem";
 import { slipRingLean } from "./slipRingLean";
 import { slipRingSteady } from "./slipRingSteady";
-
-/*
- * Where along the proximal phalanx a ring rests, as a share from its base joint
- * (provisional: a ring sits on the phalanx's proximal third).
- */
-const SEAT: number = 0.35;
-
-/*
- * How far beyond the fingertip the ring lines up before it slides on, metres
- * (provisional: clear of the fingertip by a ring's width).
- */
-const LINE_UP: number = 0.015;
-
-/*
- * The step the band's free roll about the finger is searched by, degrees.
- */
-const ROLL: number = 15;
-
-/*
- * World up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * Capitalized digit names used in the canonical rig's phalanx identifiers.
- */
-const PHALANX_NAME: Readonly<
-  Record<
-    IAutoMovieMotionHumanSlipRing.Finger,
-    Capitalize<IAutoMovieMotionHumanSlipRing.Finger>
-  >
-> = { index: "Index", middle: "Middle", ring: "Ring", little: "Little" };
+import * as SlipRingData from "./SlipRingData";
 
 /*
  * Slip a ring onto a partner's finger. The partner's presented hand is read
@@ -146,7 +115,7 @@ function planSlipRing(
 
   // The finger's axis where the partner presents it at the start.
   const phalanx: Capitalize<IAutoMovieMotionHumanSlipRing.Finger> =
-    PHALANX_NAME[finger];
+    SlipRingData.PHALANX_NAME[finger];
   const base: AutoMovieHumanoidBone = `${hand}${phalanx}Proximal`;
   const middle: AutoMovieHumanoidBone = `${hand}${phalanx}Intermediate`;
   const tipRegion: AutoMovieHumanoidRegion =
@@ -182,7 +151,7 @@ function planSlipRing(
   const seat: IAutoMovieVector3 = Vector3.lerp(
     knuckle.worldPosition,
     joint.worldPosition,
-    SEAT,
+    SlipRingData.SEAT,
   );
   // From the fingertip toward the hand: the way the ring travels.
   const axis: IAutoMovieVector3 = Vector3.normalize(
@@ -203,7 +172,7 @@ function planSlipRing(
     });
   const lined: IAutoMovieQuaternion = HumanHand.align(
     {
-      normal: Quaternion.rotateVector(wear.frame.rotation, UP),
+      normal: Quaternion.rotateVector(wear.frame.rotation, SlipRingData.UP),
       forward: Quaternion.rotateVector(wear.frame.rotation, {
         x: 1,
         y: 0,
@@ -213,7 +182,7 @@ function planSlipRing(
     {
       normal: axis,
       forward:
-        Math.abs(Vector3.dot(axis, UP)) > 0.9 ? { x: 1, y: 0, z: 0 } : UP,
+        Math.abs(Vector3.dot(axis, SlipRingData.UP)) > 0.9 ? { x: 1, y: 0, z: 0 } : SlipRingData.UP,
     },
   );
   // A band is round, so its roll about the finger is free: the roll
@@ -234,7 +203,7 @@ function planSlipRing(
   );
   let turn: IAutoMovieQuaternion = lined;
   let nearest: number = -1;
-  for (let roll: number = 0; roll < 360; roll += ROLL) {
+  for (let roll: number = 0; roll < 360; roll += SlipRingData.ROLL) {
     const candidate: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(Quaternion.fromAxisAngle(axis, roll), lined),
     );
@@ -252,7 +221,7 @@ function planSlipRing(
   }
   const begin: IAutoMovieVector3 = Vector3.add(
     tip,
-    Vector3.scale(axis, -LINE_UP),
+    Vector3.scale(axis, -SlipRingData.LINE_UP),
   );
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(

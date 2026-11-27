@@ -1,6 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createPoloMallet as createPoloMalletImplementation } from "./internal/createPoloMallet";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../core";
+import * as AutoMovieArchetypePoloMalletData from "./internal/AutoMovieArchetypePoloMalletData";
 
 /** Public operations for Auto Movie Archetype Polo Mallet. */
 export namespace AutoMovieArchetypePoloMallet {
@@ -80,21 +81,16 @@ export namespace AutoMovieArchetypePoloMallet {
     mass: "kg",
   };
 
-  /*
-   * What no source read gives.
-   */
-  const UNREAD: string = "no source read gives it; provisional";
-
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(
       48 * AutoMovieArchetypeUnits.INCH,
       54 * AutoMovieArchetypeUnits.INCH,
-      `polo mallets are sold from 48 to 54 in by the pony's height; ${UNREAD}`,
+      `polo mallets are sold from 48 to 54 in by the pony's height; ${AutoMovieArchetypePoloMalletData.UNREAD}`,
       true,
     ),
-    headLength: AutoMovieArchetypeBand.metres(0.21, 0.24, UNREAD, true),
-    headDiameter: AutoMovieArchetypeBand.metres(0.045, 0.055, UNREAD, true),
-    gripDiameter: AutoMovieArchetypeBand.metres(0.025, 0.03, UNREAD, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.45, 0.6, UNREAD, true),
+    headLength: AutoMovieArchetypeBand.metres(0.21, 0.24, AutoMovieArchetypePoloMalletData.UNREAD, true),
+    headDiameter: AutoMovieArchetypeBand.metres(0.045, 0.055, AutoMovieArchetypePoloMalletData.UNREAD, true),
+    gripDiameter: AutoMovieArchetypeBand.metres(0.025, 0.03, AutoMovieArchetypePoloMalletData.UNREAD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.45, 0.6, AutoMovieArchetypePoloMalletData.UNREAD, true),
   };}

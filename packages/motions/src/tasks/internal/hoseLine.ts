@@ -30,11 +30,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { poseBones } from "../../posture/internal/poseBones";
 import { hoseBackup } from "./hoseBackup";
 import { hoseLineReaction } from "./hoseLineReaction";
-
-/*
- * The stream's sweep, degrees in all: provisional.
- */
-const SPAN: number = 30;
+import * as HoseLineData from "./HoseLineData";
 
 /*
  * One member of a two-member hose team holding a charged line against its
@@ -242,7 +238,7 @@ function nozzle(
       1,
       Math.max(0, (seconds - ready) / (done - ready)),
     );
-    return (SPAN / 2) * Math.sin(2 * Math.PI * sweeps * u);
+    return (HoseLineData.SPAN / 2) * Math.sin(2 * Math.PI * sweeps * u);
   };
   // The aim's heading and pitch, degrees, as the line turns from its
   // stream at entry to the target, and how far the hold has carried it in.

@@ -22,11 +22,7 @@ import { prepareSupportLiftCourse } from "./prepareSupportLiftCourse";
 import { prepareSupportPinFloor } from "./prepareSupportPinFloor";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
-
-/*
- * The world-mode interval needs no material frame observations.
- */
-const NO_SITES: readonly IAutoMovieRigidTransform[] = [];
+import * as PrepareSupportIntervalData from "./PrepareSupportIntervalData";
 
 /*
  * Prepare one support interval: the joint blend between its two keys, the root
@@ -301,6 +297,55 @@ export function prepareSupportInterval(
 }
 
 /*
+ * The material used by the support interval and its exact local placement.
+ */
+export namespace prepareSupportInterval {
+  /*
+   * The full named frame at an action second.
+   */
+  export type Site = (seconds: number) => IAutoMovieRigidTransform;
+
+  /*
+   * Bind an explicit retained contact to its material frame.
+   */
+  export type Material = (
+    contact: IAutoMovieMotionHumanSupport.IContact,
+  ) => Site | undefined;
+
+  /*
+   * Carry two achieved endpoint points in their common material frame. Their
+   * residual at each solved key stays the same, while the material carries the
+   * interval point through its actual intermediate translations and turns.
+   * Parameter endpoints: The material's world frames at the two solved keys.
+   * Parameter points: The achieved world points at those same keys.
+   * Returns: The carried point at a full material frame and eased pose share.
+   */
+  export function materialPoint(
+    endpoints: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform],
+    points: readonly [IAutoMovieVector3, IAutoMovieVector3],
+  ): (frame: IAutoMovieRigidTransform, share: number) => IAutoMovieVector3 {
+    const local = (
+      frame: IAutoMovieRigidTransform,
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        Quaternion.inverse(frame.rotation),
+        Vector3.subtract(point, frame.position),
+      );
+    const start: IAutoMovieVector3 = local(endpoints[0], points[0]);
+    const end: IAutoMovieVector3 = local(endpoints[1], points[1]);
+    return (frame, share) =>
+      Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(
+          frame.rotation,
+          Vector3.lerp(start, end, share),
+        ),
+      );
+  }
+}
+
+/*
  * The bounded posture at a share: the blend, the pin carried from where the key
  * before achieved it to where the key after does (so the course meets each
  * key's own posture at its ends), each held hand or foot where the keys hold
@@ -334,7 +379,7 @@ function placed(
       : fused.point;
   const sites: readonly IAutoMovieRigidTransform[] =
     pinned.sites.length === 0
-      ? NO_SITES
+      ? PrepareSupportIntervalData.NO_SITES
       : pinned.sites.map((site) => site(seconds));
   const at: IAutoMovieVector3 = pinned.fixed.point(s, sites);
   const goals: IAutoMovieMotionHumanPosture["limbs"] = { ...blended.limbs };
@@ -462,54 +507,6 @@ function heldGoal(
       planted: true,
     };
   };
-}
-/*
- * The material used by the support interval and its exact local placement.
- */
-export namespace prepareSupportInterval {
-  /*
-   * The full named frame at an action second.
-   */
-  export type Site = (seconds: number) => IAutoMovieRigidTransform;
-
-  /*
-   * Bind an explicit retained contact to its material frame.
-   */
-  export type Material = (
-    contact: IAutoMovieMotionHumanSupport.IContact,
-  ) => Site | undefined;
-
-  /*
-   * Carry two achieved endpoint points in their common material frame. Their
-   * residual at each solved key stays the same, while the material carries the
-   * interval point through its actual intermediate translations and turns.
-   * Parameter endpoints: The material's world frames at the two solved keys.
-   * Parameter points: The achieved world points at those same keys.
-   * Returns: The carried point at a full material frame and eased pose share.
-   */
-  export function materialPoint(
-    endpoints: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform],
-    points: readonly [IAutoMovieVector3, IAutoMovieVector3],
-  ): (frame: IAutoMovieRigidTransform, share: number) => IAutoMovieVector3 {
-    const local = (
-      frame: IAutoMovieRigidTransform,
-      point: IAutoMovieVector3,
-    ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.inverse(frame.rotation),
-        Vector3.subtract(point, frame.position),
-      );
-    const start: IAutoMovieVector3 = local(endpoints[0], points[0]);
-    const end: IAutoMovieVector3 = local(endpoints[1], points[1]);
-    return (frame, share) =>
-      Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(
-          frame.rotation,
-          Vector3.lerp(start, end, share),
-        ),
-      );
-  }
 }
 
 /*

@@ -14,52 +14,6 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /*
- * Append a placed collider's support candidates: the points its lowest point is
- * the least of, each with how far below it the collider reaches. A collider's
- * lowest height is the least of theirs, so each is a smooth function of the
- * posture where their least is not: a shank lying flat has two, its knee end
- * and its ankle end, and the one lowest turns from one to the other as the leg
- * turns. Centre and rotation are the same freshly composed shape frame already
- * consumed by the bounds owner, so no transform is applied twice. Hull vertices
- * are transferred by that owner; this appender visits sphere, capsule and box
- * points in the original end/corner order.
- */
-function candidates(
-  centre: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion,
-  shape: Exclude<Parameters<typeof AutoMovieEnginePhysics.physicalShapeBounds>[1], ICandidatesShape>,
-  out: ICandidate[],
-): void {
-  const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
-    local: IAutoMovieVector3,
-  ): IAutoMovieVector3 =>
-    Vector3.add(centre, Quaternion.rotateVector(rotation, local));
-  if (shape.kind === "sphere") {
-    out.push({ point: centre, lift: shape.radius });
-    return;
-  }
-  if (shape.kind === "capsule") {
-    for (let end: number = -1; end <= 1; end += 2)
-      out.push({
-        point: at({ x: 0, y: end * shape.halfLength, z: 0 }),
-        lift: shape.radius,
-      });
-    return;
-  }
-  for (let x: number = -1; x <= 1; x += 2)
-    for (let y: number = -1; y <= 1; y += 2)
-      for (let z: number = -1; z <= 1; z += 2)
-        out.push({
-          point: at({
-            x: x * shape.halfExtents.x,
-            y: y * shape.halfExtents.y,
-            z: z * shape.halfExtents.z,
-          }),
-          lift: 0,
-        });
-}
-
-/*
  * The reading of a posture.
  * Parameter body: The body.
  * Parameter posture: The posture, written by its joint angles alone.
@@ -232,6 +186,52 @@ export namespace HumanFloorReading {
      */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
+}
+
+/*
+ * Append a placed collider's support candidates: the points its lowest point is
+ * the least of, each with how far below it the collider reaches. A collider's
+ * lowest height is the least of theirs, so each is a smooth function of the
+ * posture where their least is not: a shank lying flat has two, its knee end
+ * and its ankle end, and the one lowest turns from one to the other as the leg
+ * turns. Centre and rotation are the same freshly composed shape frame already
+ * consumed by the bounds owner, so no transform is applied twice. Hull vertices
+ * are transferred by that owner; this appender visits sphere, capsule and box
+ * points in the original end/corner order.
+ */
+function candidates(
+  centre: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  shape: Exclude<Parameters<typeof AutoMovieEnginePhysics.physicalShapeBounds>[1], ICandidatesShape>,
+  out: ICandidate[],
+): void {
+  const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+    local: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    Vector3.add(centre, Quaternion.rotateVector(rotation, local));
+  if (shape.kind === "sphere") {
+    out.push({ point: centre, lift: shape.radius });
+    return;
+  }
+  if (shape.kind === "capsule") {
+    for (let end: number = -1; end <= 1; end += 2)
+      out.push({
+        point: at({ x: 0, y: end * shape.halfLength, z: 0 }),
+        lift: shape.radius,
+      });
+    return;
+  }
+  for (let x: number = -1; x <= 1; x += 2)
+    for (let y: number = -1; y <= 1; y += 2)
+      for (let z: number = -1; z <= 1; z += 2)
+        out.push({
+          point: at({
+            x: x * shape.halfExtents.x,
+            y: y * shape.halfExtents.y,
+            z: z * shape.halfExtents.z,
+          }),
+          lift: 0,
+        });
 }
 
 /*

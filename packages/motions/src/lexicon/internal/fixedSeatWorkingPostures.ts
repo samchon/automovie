@@ -15,29 +15,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { fixedSeatFootSwing } from "./fixedSeatFootSwing";
 import { fixedSeatTrunk } from "./fixedSeatTrunk";
 
-const ZERO: Angles = [0, 0, 0];
-const BONES: readonly AutoMovieHumanoidBone[] = [
-  "spine",
-  "chest",
-  "leftShoulder",
-  "rightShoulder",
-];
-/*
- * Move only the trunk coordinates that the closed bilateral fit supplied.
- */
-function withTrunk(base: Posture, target: Joints, share: number): Posture {
-  const joints: Joints = { ...base.joints };
-  for (const bone of BONES) {
-    const a: Angles = base.joints[bone] ?? ZERO;
-    const b: Angles = target[bone] ?? a;
-    joints[bone] = [
-      a[0] + share * (b[0] - a[0]),
-      a[1] + share * (b[1] - a[1]),
-      a[2] + share * (b[2] - a[2]),
-    ];
-  }
-  return { ...base, joints };
-}
 /*
  * Alternatives to an unsupported pelvic tilt on one working seat. Foot
  * placement is prepared once in the seat's actual frame. At a changing grip the
@@ -145,6 +122,30 @@ export namespace fixedSeatWorkingPostures {
      */
     neck: boolean;
   }
+}
+
+const ZERO: Angles = [0, 0, 0];
+const BONES: readonly AutoMovieHumanoidBone[] = [
+  "spine",
+  "chest",
+  "leftShoulder",
+  "rightShoulder",
+];
+/*
+ * Move only the trunk coordinates that the closed bilateral fit supplied.
+ */
+function withTrunk(base: Posture, target: Joints, share: number): Posture {
+  const joints: Joints = { ...base.joints };
+  for (const bone of BONES) {
+    const a: Angles = base.joints[bone] ?? ZERO;
+    const b: Angles = target[bone] ?? a;
+    joints[bone] = [
+      a[0] + share * (b[0] - a[0]),
+      a[1] + share * (b[1] - a[1]),
+      a[2] + share * (b[2] - a[2]),
+    ];
+  }
+  return { ...base, joints };
 }
 type Posture = IAutoMovieMotionHumanPosture;
 type Joints = Posture["joints"];

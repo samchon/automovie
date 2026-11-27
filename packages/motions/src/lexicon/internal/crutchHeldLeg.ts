@@ -26,34 +26,7 @@ import { HumanSequentialConvexFunctions as F } from "../../posture/internal/Huma
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crutchHeldLegSweptDepth } from "./crutchHeldLegSweptDepth";
-
-/*
- * Trajopt's sco settings for a joint-space course (`OptimizeProblem`,
- * src/trajopt/problem_description.cpp lines 244-257, github.com/joschu/trajopt
- * at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause), the same
- * the arm course is solved at (`HumanArmOptimiser`), its boxes read in this
- * course's degrees.
- */
-const LEG: Readonly<IAutoMovieMotionHumanSequentialConvex.IParameters> = {
-  ...SCO.DEFAULTS,
-  maxIter: 40,
-  minApproxImproveFrac: 0.001,
-  improveRatioThreshold: 0.2,
-  meritErrorCoeff: 20,
-  trustBoxSize: (0.1 * 180) / Math.PI,
-  minTrustBoxSize: (1e-4 * 180) / Math.PI,
-};
-
-/*
- * A knot's variables: the hip's flexion, abduction and twist, the knee's
- * flexion and the ankle's flexion.
- */
-const WIDTH: number = 5;
-
-/*
- * The leg's segments the held leg's course keeps clear, by bone suffix.
- */
-const LEG_BONES: readonly string[] = ["UpperLeg", "LowerLeg", "Foot", "Toes"];
+import * as CrutchHeldLegData from "./CrutchHeldLegData";
 
 /*
  * The injured leg a crutch gait holds off the floor once the hands bear
@@ -96,7 +69,7 @@ export function crutchHeldLeg(
   const model: IAutoMovieMotionHumanAuditTangleModel.IModel = body.tangle;
   const parts: number[] = model.parts.flatMap(
     (part: IAutoMovieMotionHumanAuditTangleModel.IPart, i: number): number[] =>
-      LEG_BONES.some((b: string): boolean => part.bone === `${side}${b}`)
+      CrutchHeldLegData.LEG_BONES.some((b: string): boolean => part.bone === `${side}${b}`)
         ? [i]
         : [],
   );
@@ -251,7 +224,7 @@ export function crutchHeldLeg(
     const angles: (x: F.Vector, j: number) => number[] = (
       x: F.Vector,
       j: number,
-    ): number[] => (j === 0 ? first : [...x.slice(WIDTH * (j - 1), WIDTH * j)]);
+    ): number[] => (j === 0 ? first : [...x.slice(CrutchHeldLegData.WIDTH * (j - 1), CrutchHeldLegData.WIDTH * j)]);
     const at: (
       x: F.Vector,
       j: number,
@@ -288,7 +261,7 @@ export function crutchHeldLeg(
               for (let j: number = 1; j < knots.length; ++j) {
                 const p: number[] = angles(x, j - 1);
                 const q: number[] = angles(x, j);
-                for (let d: number = 0; d < WIDTH; ++d)
+                for (let d: number = 0; d < CrutchHeldLegData.WIDTH; ++d)
                   sum += ((q[d]! - p[d]!) * Quaternion.DEG2RAD) ** 2;
               }
               return sum;
@@ -342,21 +315,21 @@ export function crutchHeldLeg(
             },
             equality: false,
             variables: Array.from(
-              { length: i === 0 ? WIDTH : 2 * WIDTH },
+              { length: i === 0 ? CrutchHeldLegData.WIDTH : 2 * CrutchHeldLegData.WIDTH },
               (_: unknown, v: number): number =>
-                i === 0 ? v : WIDTH * (i - 1) + v,
+                i === 0 ? v : CrutchHeldLegData.WIDTH * (i - 1) + v,
             ),
           }),
         ),
         low: seed.map(
-          (_: number, v: number): number => ranges[v % WIDTH]?.min ?? -Infinity,
+          (_: number, v: number): number => ranges[v % CrutchHeldLegData.WIDTH]?.min ?? -Infinity,
         ),
         high: seed.map(
-          (_: number, v: number): number => ranges[v % WIDTH]?.max ?? Infinity,
+          (_: number, v: number): number => ranges[v % CrutchHeldLegData.WIDTH]?.max ?? Infinity,
         ),
       }),
       seed,
-      LEG,
+      CrutchHeldLegData.LEG,
     );
     return knots.map((_: number, j: number): number[] => angles(solved.x, j));
   };
@@ -388,6 +361,7 @@ export function crutchHeldLeg(
     return posed(base, from, course(seconds).coordinates, s);
   };
 }
+
 /*
  * Companion types of crutchHeldLeg.
  */

@@ -27,22 +27,6 @@ import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
 /*
- * Directions each section is sampled in; the radius between two is linear in
- * angle.
- */
-const DIRECTIONS: number = 512;
-
-/*
- * Cached rows of guided radii before the cache is cleared.
- */
-const CACHE_LIMIT: number = 8192;
-
-/*
- * Parameter step of the central differences for normals and derivatives.
- */
-const STEP: number = 1e-4;
-
-/*
  * Compile a sweep into an evaluable surface.
  *
  * Under direction correspondence, the default, each station's section is
@@ -376,6 +360,22 @@ export const compileAutoMovieSweep: (
     along,
   };
 };
+
+/*
+ * Directions each section is sampled in; the radius between two is linear in
+ * angle.
+ */
+const DIRECTIONS: number = 512;
+
+/*
+ * Cached rows of guided radii before the cache is cleared.
+ */
+const CACHE_LIMIT: number = 8192;
+
+/*
+ * Parameter step of the central differences for normals and derivatives.
+ */
+const STEP: number = 1e-4;
 
 /*
  * Samples of a smooth section under parameter correspondence; a polygon is

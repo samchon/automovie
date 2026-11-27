@@ -1,40 +1,5 @@
 import type { IAutoMovieCaptionLanguageIdentity } from "@automovie/interface";
 
-const GRANDFATHERED_LANGUAGE_TAGS: ReadonlySet<string> = new Set([
-  "art-lojban",
-  "cel-gaulish",
-  "en-gb-oed",
-  "i-ami",
-  "i-bnn",
-  "i-default",
-  "i-enochian",
-  "i-hak",
-  "i-klingon",
-  "i-lux",
-  "i-mingo",
-  "i-navajo",
-  "i-pwn",
-  "i-tao",
-  "i-tay",
-  "i-tsu",
-  "no-bok",
-  "no-nyn",
-  "sgn-be-fr",
-  "sgn-be-nl",
-  "sgn-ch-de",
-  "zh-guoyu",
-  "zh-hakka",
-  "zh-min",
-  "zh-min-nan",
-  "zh-xiang",
-]);
-
-const ALPHA: RegExp = /^[A-Za-z]+$/u;
-
-const ALPHANUMERIC: RegExp = /^[A-Za-z0-9]+$/u;
-
-const DIGIT: RegExp = /^[0-9]+$/u;
-
 /*
  * Parse one RFC 5646 well-formed language tag without registry semantics, or
  * return null for a malformed tag.
@@ -130,6 +95,41 @@ export const parseAutoMovieCaptionLanguage: (
 
   return index === subtags.length ? { display: value, comparisonKey } : null;
 };
+
+const GRANDFATHERED_LANGUAGE_TAGS: ReadonlySet<string> = new Set([
+  "art-lojban",
+  "cel-gaulish",
+  "en-gb-oed",
+  "i-ami",
+  "i-bnn",
+  "i-default",
+  "i-enochian",
+  "i-hak",
+  "i-klingon",
+  "i-lux",
+  "i-mingo",
+  "i-navajo",
+  "i-pwn",
+  "i-tao",
+  "i-tay",
+  "i-tsu",
+  "no-bok",
+  "no-nyn",
+  "sgn-be-fr",
+  "sgn-be-nl",
+  "sgn-ch-de",
+  "zh-guoyu",
+  "zh-hakka",
+  "zh-min",
+  "zh-min-nan",
+  "zh-xiang",
+]);
+
+const ALPHA: RegExp = /^[A-Za-z]+$/u;
+
+const ALPHANUMERIC: RegExp = /^[A-Za-z0-9]+$/u;
+
+const DIGIT: RegExp = /^[0-9]+$/u;
 
 const isVariant: (value: string) => boolean = (value: string): boolean =>
   (value.length >= 5 && value.length <= 8) ||

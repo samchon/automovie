@@ -23,20 +23,6 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
 
 /*
- * The bones under each limb, by the part of the bone's name after its side.
- */
-const LIMBS: Readonly<Record<string, LimbKind>> = {
-  Shoulder: "Arm",
-  UpperArm: "Arm",
-  LowerArm: "Arm",
-  Hand: "Arm",
-  UpperLeg: "Leg",
-  LowerLeg: "Leg",
-  Foot: "Leg",
-  Toes: "Leg",
-};
-
-/*
  * The bindings of a performance: each worn prop whose wear carries a link
  * (`IAutoMovieMotionPropWear.link`) holds the wearer's bound limbs where they
  * were when it went on, within the link's slack, until a later grip, wear or
@@ -87,6 +73,20 @@ export namespace HumanPerformanceBonds {
         }
   }
 }
+
+/*
+ * The bones under each limb, by the part of the bone's name after its side.
+ */
+const LIMBS: Readonly<Record<string, LimbKind>> = {
+  Shoulder: "Arm",
+  UpperArm: "Arm",
+  LowerArm: "Arm",
+  Hand: "Arm",
+  UpperLeg: "Leg",
+  LowerLeg: "Leg",
+  Foot: "Leg",
+  Toes: "Leg",
+};
 
 /*
  * The limbs a link binds, refusing a malformed link.

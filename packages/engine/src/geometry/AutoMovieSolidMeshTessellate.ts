@@ -9,23 +9,6 @@ import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSolidZip } from "./AutoMovieSolidZip";
 
-/*
- * Preserve original jet failures and reject nonfinite source positions before
- * appending them.
- */
-function point(
-  surface: IAutoMovieSolidSurface,
-  u: number,
-  v: number,
-): AutoMovieVector3Tuple {
-  return surface.jet(u, v).p;
-}
-
-/*
- * Existing orientation arithmetic.
- */
-const { dot, norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
-
 /** Published seam strips, pole fans and explicit external-ring bridges. */
 export namespace AutoMovieSolidMeshTessellate {
   /** Evaluate both source rails and the published blend's interior rows. */
@@ -201,3 +184,20 @@ export namespace AutoMovieSolidMeshTessellate {
       : band;
   }
 }
+
+/*
+ * Preserve original jet failures and reject nonfinite source positions before
+ * appending them.
+ */
+function point(
+  surface: IAutoMovieSolidSurface,
+  u: number,
+  v: number,
+): AutoMovieVector3Tuple {
+  return surface.jet(u, v).p;
+}
+
+/*
+ * Existing orientation arithmetic.
+ */
+const { dot, norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;

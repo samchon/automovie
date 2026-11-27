@@ -9,78 +9,6 @@ import {
 import { AutoMovieArchetypeTray } from "../AutoMovieArchetypeTray";
 
 /*
- * Model-space points and dimensions use metres.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * Resolve a recorded carrier and build its common floor and walls.
- */
-function draw<Id extends AutoMovieArchetypeTray.Affordance>(
-  kind: AutoMovieArchetypeTray.Kind,
-  params: Omit<AutoMovieArchetypeTray.IParams, "kind">,
-  seed?: number,
-): IDrawResult<Id> {
-  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeTray.Dimension> =
-    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeTray.Dimension>(
-      "tray",
-      AutoMovieArchetypeTray.UNITS,
-      seed,
-      params,
-    );
-  const drawn: Partial<Record<AutoMovieArchetypeTray.Dimension, number>> =
-    session.dimensions(AutoMovieArchetypeTray.BANDS[kind]);
-  // A tray or a basket is one of IKEA's read models whole.
-  const model: {
-    name: AutoMovieArchetypeTray.Model | undefined;
-    figures: AutoMovieArchetypeTray.Figures;
-  } = session.model<AutoMovieArchetypeTray.Model>(
-    "model",
-    params.model,
-    AutoMovieArchetypeTray.MODELS[kind],
-  );
-  const read: Partial<Record<AutoMovieArchetypeTray.Dimension, number>> = {
-    ...drawn,
-    ...model.figures,
-  };
-  const d: Record<AutoMovieArchetypeTray.Dimension, number> = {
-    width: read.width!,
-    depth: read.depth!,
-    height: read.height!,
-    mass: read.mass!,
-  };
-  const builder: Builder<Id | "inside"> = new AutoMovieArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: kind,
-    draw: session,
-  });
-  const wall: number = AutoMovieArchetypeTray.WALL;
-  const color: string = kind === "tray" ? "#6b4a2f" : "#b08d57";
-  const hx: number = d.width / 2;
-  const hz: number = d.depth / 2;
-  const up: number = (d.height + wall) / 2;
-  const tall: number = d.height - wall;
-  builder.box("floor", v(d.width, wall, d.depth), v(0, wall / 2, 0), { color });
-  for (const [id, size, at] of [
-    ["wallFront", v(d.width, tall, wall), v(0, up, hz - wall / 2)],
-    ["wallBack", v(d.width, tall, wall), v(0, up, -hz + wall / 2)],
-    ["wallLeft", v(wall, tall, d.depth - 2 * wall), v(hx - wall / 2, up, 0)],
-    ["wallRight", v(wall, tall, d.depth - 2 * wall), v(-hx + wall / 2, up, 0)],
-  ] as const)
-    builder.box(id, size, at, { color });
-  builder.affordance({
-    id: "inside",
-    kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
-    extent: null,
-    width: d.width - 2 * wall,
-    depth: d.depth - 2 * wall,
-  });
-  return { builder, d };
-}
-
-/*
  * Open hand carriers with shared floor and wall geometry and separate gripping
  * arrangements.
  */
@@ -203,6 +131,78 @@ export namespace TrayConstruction {
     });
     return builder.build(d.mass);
   }
+}
+
+/*
+ * Model-space points and dimensions use metres.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * Resolve a recorded carrier and build its common floor and walls.
+ */
+function draw<Id extends AutoMovieArchetypeTray.Affordance>(
+  kind: AutoMovieArchetypeTray.Kind,
+  params: Omit<AutoMovieArchetypeTray.IParams, "kind">,
+  seed?: number,
+): IDrawResult<Id> {
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeTray.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeTray.Dimension>(
+      "tray",
+      AutoMovieArchetypeTray.UNITS,
+      seed,
+      params,
+    );
+  const drawn: Partial<Record<AutoMovieArchetypeTray.Dimension, number>> =
+    session.dimensions(AutoMovieArchetypeTray.BANDS[kind]);
+  // A tray or a basket is one of IKEA's read models whole.
+  const model: {
+    name: AutoMovieArchetypeTray.Model | undefined;
+    figures: AutoMovieArchetypeTray.Figures;
+  } = session.model<AutoMovieArchetypeTray.Model>(
+    "model",
+    params.model,
+    AutoMovieArchetypeTray.MODELS[kind],
+  );
+  const read: Partial<Record<AutoMovieArchetypeTray.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
+  const d: Record<AutoMovieArchetypeTray.Dimension, number> = {
+    width: read.width!,
+    depth: read.depth!,
+    height: read.height!,
+    mass: read.mass!,
+  };
+  const builder: Builder<Id | "inside"> = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: kind,
+    draw: session,
+  });
+  const wall: number = AutoMovieArchetypeTray.WALL;
+  const color: string = kind === "tray" ? "#6b4a2f" : "#b08d57";
+  const hx: number = d.width / 2;
+  const hz: number = d.depth / 2;
+  const up: number = (d.height + wall) / 2;
+  const tall: number = d.height - wall;
+  builder.box("floor", v(d.width, wall, d.depth), v(0, wall / 2, 0), { color });
+  for (const [id, size, at] of [
+    ["wallFront", v(d.width, tall, wall), v(0, up, hz - wall / 2)],
+    ["wallBack", v(d.width, tall, wall), v(0, up, -hz + wall / 2)],
+    ["wallLeft", v(wall, tall, d.depth - 2 * wall), v(hx - wall / 2, up, 0)],
+    ["wallRight", v(wall, tall, d.depth - 2 * wall), v(-hx + wall / 2, up, 0)],
+  ] as const)
+    builder.box(id, size, at, { color });
+  builder.affordance({
+    id: "inside",
+    kind: "surface",
+    frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
+    extent: null,
+    width: d.width - 2 * wall,
+    depth: d.depth - 2 * wall,
+  });
+  return { builder, d };
 }
 
 /*

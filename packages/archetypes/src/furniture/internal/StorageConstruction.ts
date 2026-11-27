@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -7,51 +7,8 @@ import {
   AutoMovieArchetypeUnits,
 } from "../../core";
 import type { AutoMovieArchetypeStorage } from "../AutoMovieArchetypeStorage";
-
-/*
- * The shorthand every construction uses.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * Painted steel.
- */
-const STEEL: string = "#8f979e";
-
-/*
- * A wooden carcass.
- */
-const WOOD: string = "#9b7a55";
-
-/*
- * A wooden front.
- */
-const FRONT: string = "#b08a60";
-
-/*
- * Dark metal hardware.
- */
-const HARDWARE: string = "#55595f";
-
-/*
- * White laminate.
- */
-const LAMINATE: string = "#efece6";
-
-/*
- * A rectangle's corners in a stack-top's plane, centred.
- * Parameter width: Along `X`, metres.
- * Parameter depth: Along `Z`, metres.
- * Returns: Four corners.
- */
-function rectangle(width: number, depth: number): IAutoMovieVector3[] {
-  return [
-    v(-width / 2, 0, -depth / 2),
-    v(width / 2, 0, -depth / 2),
-    v(width / 2, 0, depth / 2),
-    v(-width / 2, 0, depth / 2),
-  ];
-}
+import * as StorageConstructionData from "./StorageConstructionData";
+import { v } from "./StorageConstructionData";
 
 /*
  * How createStorage builds each kind of cabinet: a wardrobe, a chest of
@@ -70,8 +27,8 @@ export namespace StorageConstruction {
       Readonly<{ count: number; pulls: boolean; color: string }>
     >
   > = {
-    chest: { count: 3, pulls: true, color: WOOD },
-    filingCabinet: { count: 4, pulls: false, color: STEEL },
+    chest: { count: 3, pulls: true, color: StorageConstructionData.WOOD },
+    filingCabinet: { count: 4, pulls: false, color: StorageConstructionData.STEEL },
   };
 
   /*
@@ -154,7 +111,7 @@ export namespace StorageConstruction {
       "carcass",
       v(width, height, depth - E.panel),
       v(0, height / 2, -E.panel / 2),
-      { color: WOOD, density: 0.3 },
+      { color: StorageConstructionData.WOOD, density: 0.3 },
     );
     faces(builder, width, height, depth);
     for (const [side, sign] of [
@@ -244,7 +201,7 @@ export namespace StorageConstruction {
         `front-${index}`,
         v(width - 0.02, height / count - 0.02, E.panel),
         v(0, y, face - E.panel / 2),
-        { color: make.color === WOOD ? FRONT : make.color },
+        { color: make.color === StorageConstructionData.WOOD ? FRONT : make.color },
       );
       if (make.pulls)
         builder.rod(
@@ -317,21 +274,21 @@ export namespace StorageConstruction {
         id,
         v(0.03, legs, 0.03),
         v(sx * (width / 2 - 0.015), legs / 2, sz * (depth / 2 - 0.015)),
-        { color: STEEL, surface: "steel" },
+        { color: StorageConstructionData.STEEL, surface: "steel" },
       );
     for (const [id, x] of [
       ["side-left", width / 2 - t / 2],
       ["side-right", -width / 2 + t / 2],
     ] as const)
       builder.box(id, v(t, top - legs, body), v(x, mid, back + body / 2), {
-        color: STEEL,
+        color: StorageConstructionData.STEEL,
         surface: "steel",
       });
     builder.box(
       "back",
       v(width - 2 * t, top - legs, t),
       v(0, mid, back + t / 2),
-      { color: STEEL, surface: "steel" },
+      { color: StorageConstructionData.STEEL, surface: "steel" },
     );
     for (const [id, y] of [
       ["bottom", legs + t / 2],
@@ -341,7 +298,7 @@ export namespace StorageConstruction {
         id,
         v(width - 2 * t, t, body - t),
         v(0, y, back + t + (body - t) / 2),
-        { color: STEEL, surface: "steel" },
+        { color: StorageConstructionData.STEEL, surface: "steel" },
       );
     const shelf: number = legs + LOCKER_SHELF;
     const inside: number = back + t + (body - t) / 2;
@@ -349,7 +306,7 @@ export namespace StorageConstruction {
       "shelf",
       v(width - 2 * t, t, body - t),
       v(0, shelf - t / 2, inside),
-      { color: STEEL, surface: "steel" },
+      { color: StorageConstructionData.STEEL, surface: "steel" },
     );
     builder.affordance({
       id: "shelf1",
@@ -425,6 +382,36 @@ export namespace StorageConstruction {
     }
     faces(builder, width, height, depth);
   }
+}
+
+/*
+ * A wooden front.
+ */
+const FRONT: string = "#b08a60";
+
+/*
+ * Dark metal hardware.
+ */
+const HARDWARE: string = "#55595f";
+
+/*
+ * White laminate.
+ */
+const LAMINATE: string = "#efece6";
+
+/*
+ * A rectangle's corners in a stack-top's plane, centred.
+ * Parameter width: Along `X`, metres.
+ * Parameter depth: Along `Z`, metres.
+ * Returns: Four corners.
+ */
+function rectangle(width: number, depth: number): IAutoMovieVector3[] {
+  return [
+    v(-width / 2, 0, -depth / 2),
+    v(width / 2, 0, -depth / 2),
+    v(width / 2, 0, depth / 2),
+    v(-width / 2, 0, depth / 2),
+  ];
 }
 
 /*

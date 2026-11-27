@@ -21,11 +21,6 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import { EquineHarness } from "./equine/EquineHarness";
 import { EquineTeamCourse } from "./equine/EquineTeamCourse";
 
-/*
- * Points a slack trace is laid through, ends included.
- */
-const SAG_POINTS: number = 9;
-
 /** Operations for harnessing a team of equines to one pole vehicle. */
 export namespace AutoMovieArchetypeEquineTeam {
   /**
@@ -486,3 +481,8 @@ export namespace AutoMovieArchetypeEquineTeam {
       .translation;
   }
 }
+
+/*
+ * Points a slack trace is laid through, ends included.
+ */
+const SAG_POINTS: number = 9;

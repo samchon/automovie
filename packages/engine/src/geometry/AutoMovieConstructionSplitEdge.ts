@@ -8,7 +8,6 @@ import type {
 import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstructionPortField";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { combine, sub } = AutoMovieSolidVector;
 /**
  * A split band whose end edge is its child's rail curve at every clock, not
  * only at its columns (`IAutoMovieConstructionSplit.ICut`).
@@ -204,6 +203,8 @@ export namespace AutoMovieConstructionSplitEdge {
     };
   }
 }
+
+const { combine, sub } = AutoMovieSolidVector;
 
 /** World point or derivative, mm. */
 type Vec3 = AutoMovieVector3Tuple;

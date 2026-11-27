@@ -15,21 +15,12 @@ import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanThumbBones } from "./AutoMovieHumanThumbBones";
-const { sub, norm }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
-const { STYLION }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
-
 /**
  * Every digit of a hand on its bones, thumb first, composed from the finger's
  * and the thumb's own pieces: which web each finger parts at and how long it
  * runs past it.
  */
 export namespace AutoMovieHumanHandFingers {
-  /*
-   * Each finger's webs, as indices of the form's crests from the index side, index to little.
-   */
-  const WEBS: readonly (readonly number[])[] = [[0], [0, 1], [1, 2], [2]];
-
   /**
    * Every digit on its bones for a hand's scales and joints, thumb first.
    *
@@ -81,6 +72,16 @@ export namespace AutoMovieHumanHandFingers {
             : own(i, (): number => middle.external * prior.external[i - 1]!),
     );
   }
+
+  /*
+   * Each finger's webs, as indices of the form's crests from the index side, index to little.
+   */
+  const WEBS: readonly (readonly number[])[] = [[0], [0, 1], [1, 2], [2]];
 }
+
+const { sub, norm }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
+
+const { STYLION }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
 
 type Vec3 = AutoMovieVector3Tuple;

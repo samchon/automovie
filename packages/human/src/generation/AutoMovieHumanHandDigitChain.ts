@@ -13,31 +13,11 @@ import { AutoMovieHumanLimbFrame } from "./AutoMovieHumanLimbFrame";
 import { AutoMovieHumanDigitStations } from "./AutoMovieHumanDigitStations";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-const { sub, norm, unit }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide =
-  AutoMovieHumanHandSide;
-
 /**
  * A digit's chain: its sections square to its line and their frames carried
  * along it from the root, from the tip up.
  */
 export namespace AutoMovieHumanHandDigitChain {
-  /*
-   * Station step of a digit's carried frame, mm of the form.
-   */
-  const DIGIT_CARRY: number = 0.25;
-
-  /*
-   * Parameter step of a layer's slopes.
-   */
-  const SLOPE_STEP: number = 0.05;
-
-  /*
-   * Step of a tube's tangent, mm.
-   */
-  const STEP: number = 0.2;
-
   /**
    * A digit's chain, its sections square to its line and their frames
    * carried along it from the root, from the tip up.
@@ -137,6 +117,27 @@ export namespace AutoMovieHumanHandDigitChain {
       layers,
     };
   }
+
+  /*
+   * Station step of a digit's carried frame, mm of the form.
+   */
+  const DIGIT_CARRY: number = 0.25;
+
+  /*
+   * Parameter step of a layer's slopes.
+   */
+  const SLOPE_STEP: number = 0.05;
+
+  /*
+   * Step of a tube's tangent, mm.
+   */
+  const STEP: number = 0.2;
 }
+
+const { sub, norm, unit }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+
+const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide =
+  AutoMovieHumanHandSide;
 
 type Vec3 = AutoMovieVector3Tuple;

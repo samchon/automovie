@@ -26,26 +26,6 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";
 
-const DEFAULT_SAMPLE_RATE: number = 24;
-
-const DEFAULT_HARDNESS: number = 0.5;
-
-const DEFAULT_PENETRABILITY: number = 0.3;
-
-const DEFAULT_GAIN: number = 0.05; // recoil flexion degrees per unit impulse
-
-const FALLBACK_NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-interface IPenetration {
-  frame: number;
-  time: number;
-  from: AutoMovieHumanoidBone;
-  otherFrom: AutoMovieHumanoidBone;
-  depth: number;
-  pointA: IAutoMovieVector3;
-  pointB: IAutoMovieVector3;
-}
-
 /*
  * Sample two capsule-proxy actors and return overlap advice, contact events and
  * an optional response.
@@ -229,6 +209,26 @@ export function detectBodyCollision(
     gain,
   );
   return { validation: collector.toValidation(), events, response };
+}
+
+const DEFAULT_SAMPLE_RATE: number = 24;
+
+const DEFAULT_HARDNESS: number = 0.5;
+
+const DEFAULT_PENETRABILITY: number = 0.3;
+
+const DEFAULT_GAIN: number = 0.05; // recoil flexion degrees per unit impulse
+
+const FALLBACK_NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+interface IPenetration {
+  frame: number;
+  time: number;
+  from: AutoMovieHumanoidBone;
+  otherFrom: AutoMovieHumanoidBone;
+  depth: number;
+  pointA: IAutoMovieVector3;
+  pointB: IAutoMovieVector3;
 }
 
 /*

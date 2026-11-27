@@ -7,14 +7,6 @@ import type {
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const {
-  sub,
-  plus: add,
-  scale,
-  dot,
-  unit,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-
 /**
  * The two curve readings a web's surface needs: a station curve's jet at a
  * chain's end ring by arclength (the jet a column copies from its parent and
@@ -24,21 +16,6 @@ const {
 export namespace AutoMovieHumanWebCurve {
   /** Station step of a surface derivative, mm. */
   export const H: number = 0.05;
-
-  /*
-   * Samples of a column read for its levels.
-   */
-  const LEVEL_SAMPLES: number = 256;
-
-  /*
-   * Most Illinois steps of a level's bracket on the curve's own parameter.
-   */
-  const STEPS: number = 40;
-
-  /*
-   * Depth within which a point lies on its level, mm.
-   */
-  const LEVEL: number = 1e-9;
 
   /**
    * A station curve's jet at a chain's end ring from three samples a step `H`
@@ -146,4 +123,27 @@ export namespace AutoMovieHumanWebCurve {
       return point;
     };
   }
+
+  /*
+   * Samples of a column read for its levels.
+   */
+  const LEVEL_SAMPLES: number = 256;
+
+  /*
+   * Most Illinois steps of a level's bracket on the curve's own parameter.
+   */
+  const STEPS: number = 40;
+
+  /*
+   * Depth within which a point lies on its level, mm.
+   */
+  const LEVEL: number = 1e-9;
 }
+
+const {
+  sub,
+  plus: add,
+  scale,
+  dot,
+  unit,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;

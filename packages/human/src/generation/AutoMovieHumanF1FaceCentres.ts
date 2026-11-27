@@ -37,24 +37,6 @@ export namespace AutoMovieHumanF1FaceCentres {
     half: number;
   }
 
-  const sub = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  const dot = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  const cross = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const along = (o: AutoMovieVector3Tuple, d: AutoMovieVector3Tuple, t: number): AutoMovieVector3Tuple => [o[0] + t * d[0], o[1] + t * d[1], o[2] + t * d[2]];
-  const unit = (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
-    const l: number = Math.hypot(a[0], a[1], a[2]);
-    return [a[0] / l, a[1] / l, a[2] / l];
-  };
-
-  /*
-   * A frame from an exact Z and a hint for X: X is the hint made square to Z, Y = Z x X.
-   */
-  function fromZX(origin: AutoMovieVector3Tuple, z: AutoMovieVector3Tuple, x: AutoMovieVector3Tuple): IAutoMovieHumanSegmentFrame {
-    const Z: AutoMovieVector3Tuple = unit(z);
-    const X: AutoMovieVector3Tuple = unit(along(x, Z, -dot(x, Z)));
-    return { origin, axes: [X, cross(Z, X), Z] };
-  }
-
   /**
    * An eye's frame: origin the globe's centre, Z the canthal line from endocanthion to exocanthion, X the forward direction made square
    * to it, Y = Z x X. The lids' skin is star-shaped about the line through the origin along Z, and a lid's margin is a phase about it.
@@ -62,7 +44,6 @@ export namespace AutoMovieHumanF1FaceCentres {
   export function eye(globe: AutoMovieVector3Tuple, endocanthion: AutoMovieVector3Tuple, exocanthion: AutoMovieVector3Tuple, forward: AutoMovieVector3Tuple): IAutoMovieHumanSegmentFrame {
     return fromZX(globe, sub(exocanthion, endocanthion), forward);
   }
-
   /**
    * The mouth's line: through the incisors' front, which stands the lips' margin tissue (`LIP_MARGIN_TISSUE_MM`) behind stomion along
    * the forward direction, parallel to the lateral direction; it reaches each side to cheilion's station, where the lips' family closes.
@@ -75,7 +56,6 @@ export namespace AutoMovieHumanF1FaceCentres {
     const frame: IAutoMovieHumanSegmentFrame = fromZX(along(stomion, X, -P.LIP_MARGIN_TISSUE_MM), along(lateral, X, -dot(lateral, X)), X);
     return { frame, half: dot(sub(cheilion, stomion), frame.axes[2]) };
   }
-
   /**
    * The ring between the neck and the head: the plane square to the course from the neck's base centre through the head's origin, through
    * the cervical point, the corner between the floor under the jaw and the neck's front. Its station is counted from the head's origin
@@ -86,7 +66,6 @@ export namespace AutoMovieHumanF1FaceCentres {
     const station: number = dot(sub(cervical, headOrigin), normal);
     return { point: along(headOrigin, normal, station), normal, station };
   }
-
   /**
    * The orbit's dividing surface: the elliptic cylinder about an eye's forward axis with semi-axes half the orbit's breadth along Z and
    * half its height along Y, ahead of the globe's centre only: the cylinder runs on through the head, and the skin behind the centre's
@@ -101,7 +80,6 @@ export namespace AutoMovieHumanF1FaceCentres {
       return Math.max((Math.hypot(q[2] / a, q[1] / b) - 1) * Math.sqrt(a * b), -q[0]);
     };
   }
-
   /**
    * The lips' dividing surface: the wedge about the mouth's line between the half plane through sublabiale and the one through subnasale,
    * closed by the planes at the line's two ends. The measure is the greatest of the arc past either half plane at the point's own radius
@@ -138,5 +116,27 @@ export namespace AutoMovieHumanF1FaceCentres {
       const t: number = dot(sub(p, subnasale), axis);
       return Math.max(-dot(sub(p, alarBase), front), t - length, -t);
     };
+  }
+
+  const sub = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+
+  const dot = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+
+  const cross = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+
+  const along = (o: AutoMovieVector3Tuple, d: AutoMovieVector3Tuple, t: number): AutoMovieVector3Tuple => [o[0] + t * d[0], o[1] + t * d[1], o[2] + t * d[2]];
+
+  const unit = (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
+    const l: number = Math.hypot(a[0], a[1], a[2]);
+    return [a[0] / l, a[1] / l, a[2] / l];
+  };
+
+  /*
+   * A frame from an exact Z and a hint for X: X is the hint made square to Z, Y = Z x X.
+   */
+  function fromZX(origin: AutoMovieVector3Tuple, z: AutoMovieVector3Tuple, x: AutoMovieVector3Tuple): IAutoMovieHumanSegmentFrame {
+    const Z: AutoMovieVector3Tuple = unit(z);
+    const X: AutoMovieVector3Tuple = unit(along(x, Z, -dot(x, Z)));
+    return { origin, axes: [X, cross(Z, X), Z] };
   }
 }

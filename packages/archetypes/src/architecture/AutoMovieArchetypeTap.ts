@@ -8,17 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The maker's taps, read.
- */
-const GROHE: string =
-  "GROHE Eurosmart single-lever basin mixers, S-size: 146 to 169 mm high, the outlet 56 to 95 mm high, a projection of 106 to 109 mm (https://weinmann-schanz.de/de/en/Plumbing/Brand-search/Grohe/Bath-fittings/Series/Eurosmart/Grohe-Eurosmart-S-size-washbasin-mixer-sid1384227.html, https://www.galaxus.de/en/s4/product/grohe-eurosmart-single-lever-basin-mixer-s-size-bathroom-fittings-11042650)";
-
-/*
- * What no source read gives.
- */
-const UNREAD: string = "the listings read do not give it";
+import * as AutoMovieArchetypeTapData from "./internal/AutoMovieArchetypeTapData";
 
 /** Constructs the tap archetype from its recipe. */
 export namespace AutoMovieArchetypeTap {
@@ -142,20 +132,20 @@ export function create(
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    height: AutoMovieArchetypeBand.metres(0.146, 0.169, GROHE),
+    height: AutoMovieArchetypeBand.metres(0.146, 0.169, AutoMovieArchetypeTapData.GROHE),
     diameter: AutoMovieArchetypeBand.metres(
       0.035,
       0.05,
-      `the body's diameter: ${UNREAD}`,
+      `the body's diameter: ${AutoMovieArchetypeTapData.UNREAD}`,
       true,
     ),
-    reach: AutoMovieArchetypeBand.metres(0.106, 0.109, GROHE),
-    outlet: AutoMovieArchetypeBand.metres(0.056, 0.095, GROHE),
+    reach: AutoMovieArchetypeBand.metres(0.106, 0.109, AutoMovieArchetypeTapData.GROHE),
+    outlet: AutoMovieArchetypeBand.metres(0.056, 0.095, AutoMovieArchetypeTapData.GROHE),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       0.8,
       2,
-      `the weight: ${UNREAD}`,
+      `the weight: ${AutoMovieArchetypeTapData.UNREAD}`,
       true,
     ),
   };

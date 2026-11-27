@@ -89,6 +89,82 @@ export namespace HumanCarriedCouplingLoad {
   }
 
   /*
+   * Refuse a coupling whose borne mass no lean of the bearer balances.
+   * Parameter bearer: The bearer's body.
+   * Parameter coupling: The coupling.
+   * Parameter role: The bearer's role; the coupling's first bearer when absent.
+   * Parameter bones: The actual fitted key bones for this bearer and coupling, when
+   * available.
+   * A `participant` refusal on `mass` with the feasible
+   * mass.
+   */
+  export function bearable(
+    bearer: IAutoMovieMotionHumanBody,
+    coupling: IAutoMovieMotionCoupling,
+    role: string = coupling.bearer,
+    bones?: Bones,
+  ): void {
+    const props: IAutoMovieMotionHumanLoad.ILeanProps = load(
+      bearer,
+      coupling,
+      role,
+      bones,
+    );
+    if (HumanLoad.lean(props) !== null) return;
+    // The bound is on this bearer's share; the feasible borne mass is that
+    // bound over the share.
+    const share: number = props.load / coupling.mass;
+    const feasible: number =
+      (props.mass * props.height) / Math.abs(props.ahead) / share;
+    throw new AutoMovieMotionHumanRefusal({
+      kind: "participant",
+      axis: "mass",
+      value: coupling.mass,
+      feasible: { kind: "range", minimum: 0, maximum: feasible, unit: "kg" },
+      reason: `a borne mass of ${coupling.mass.toFixed(1)} kg ${Math.abs(props.ahead).toFixed(2)} m from a bearer of ${props.mass.toFixed(1)} kg with its centre ${props.height.toFixed(2)} m high has a moment no lean balances`,
+      fix: `carry at most ${feasible.toFixed(1)} kg in this carry, or choose a carry that holds the body closer`,
+    });
+  }
+
+  /*
+   * The load shares of point supports under a borne centre: the least-norm
+   * shares that sum to one with their weighted centre under the centre, `w =
+   * A^T (A A^T)^+ b` for the rows (1, x, z) in plan. Collinear supports share
+   * by the lever rule along their line, coincident ones equally. A support the
+   * solution would have pull is dropped and the rest solved again, so every
+   * share is a push.
+   * Parameter points: The bearing points, world metres.
+   * Parameter centre: The borne centre of mass, world metres.
+   * Returns: One share per point, none negative, summing to one; none for no
+   * point.
+   */
+  export function shares(
+    points: readonly IAutoMovieVector3[],
+    centre: IAutoMovieVector3,
+  ): number[] {
+    let active: number[] = points.map(
+      (_: IAutoMovieVector3, i: number): number => i,
+    );
+    for (;;) {
+      const w: number[] = leastNorm(
+        active.map((i: number): IAutoMovieVector3 => points[i]!),
+        centre,
+      );
+      let worst: number = -1;
+      for (let k: number = 0; k < w.length; k++)
+        if (w[k]! < 0 && (worst < 0 || w[k]! < w[worst]!)) worst = k;
+      if (worst < 0) {
+        const out: number[] = points.map((): number => 0);
+        active.forEach((i: number, k: number): void => {
+          out[i] = w[k]!;
+        });
+        return out;
+      }
+      active = active.filter((_: number, k: number): boolean => k !== worst);
+    }
+  }
+
+  /*
    * The bearer standing still with its share of the coupled load, read once for
    * the lean and the capacity.
    */
@@ -173,82 +249,6 @@ export namespace HumanCarriedCouplingLoad {
       },
     };
   };
-
-  /*
-   * Refuse a coupling whose borne mass no lean of the bearer balances.
-   * Parameter bearer: The bearer's body.
-   * Parameter coupling: The coupling.
-   * Parameter role: The bearer's role; the coupling's first bearer when absent.
-   * Parameter bones: The actual fitted key bones for this bearer and coupling, when
-   * available.
-   * A `participant` refusal on `mass` with the feasible
-   * mass.
-   */
-  export function bearable(
-    bearer: IAutoMovieMotionHumanBody,
-    coupling: IAutoMovieMotionCoupling,
-    role: string = coupling.bearer,
-    bones?: Bones,
-  ): void {
-    const props: IAutoMovieMotionHumanLoad.ILeanProps = load(
-      bearer,
-      coupling,
-      role,
-      bones,
-    );
-    if (HumanLoad.lean(props) !== null) return;
-    // The bound is on this bearer's share; the feasible borne mass is that
-    // bound over the share.
-    const share: number = props.load / coupling.mass;
-    const feasible: number =
-      (props.mass * props.height) / Math.abs(props.ahead) / share;
-    throw new AutoMovieMotionHumanRefusal({
-      kind: "participant",
-      axis: "mass",
-      value: coupling.mass,
-      feasible: { kind: "range", minimum: 0, maximum: feasible, unit: "kg" },
-      reason: `a borne mass of ${coupling.mass.toFixed(1)} kg ${Math.abs(props.ahead).toFixed(2)} m from a bearer of ${props.mass.toFixed(1)} kg with its centre ${props.height.toFixed(2)} m high has a moment no lean balances`,
-      fix: `carry at most ${feasible.toFixed(1)} kg in this carry, or choose a carry that holds the body closer`,
-    });
-  }
-
-  /*
-   * The load shares of point supports under a borne centre: the least-norm
-   * shares that sum to one with their weighted centre under the centre, `w =
-   * A^T (A A^T)^+ b` for the rows (1, x, z) in plan. Collinear supports share
-   * by the lever rule along their line, coincident ones equally. A support the
-   * solution would have pull is dropped and the rest solved again, so every
-   * share is a push.
-   * Parameter points: The bearing points, world metres.
-   * Parameter centre: The borne centre of mass, world metres.
-   * Returns: One share per point, none negative, summing to one; none for no
-   * point.
-   */
-  export function shares(
-    points: readonly IAutoMovieVector3[],
-    centre: IAutoMovieVector3,
-  ): number[] {
-    let active: number[] = points.map(
-      (_: IAutoMovieVector3, i: number): number => i,
-    );
-    for (;;) {
-      const w: number[] = leastNorm(
-        active.map((i: number): IAutoMovieVector3 => points[i]!),
-        centre,
-      );
-      let worst: number = -1;
-      for (let k: number = 0; k < w.length; k++)
-        if (w[k]! < 0 && (worst < 0 || w[k]! < w[worst]!)) worst = k;
-      if (worst < 0) {
-        const out: number[] = points.map((): number => 0);
-        active.forEach((i: number, k: number): void => {
-          out[i] = w[k]!;
-        });
-        return out;
-      }
-      active = active.filter((_: number, k: number): boolean => k !== worst);
-    }
-  }
 
   /*
    * The least-norm shares of points, summing to one, whose weighted centre lies

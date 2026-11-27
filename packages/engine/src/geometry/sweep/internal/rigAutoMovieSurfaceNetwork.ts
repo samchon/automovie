@@ -30,18 +30,6 @@ import { solveAutoMovieSubdivisionLimit } from "./solveAutoMovieSubdivisionLimit
 import { stencilAutoMovieSubdivisionLimit } from "./stencilAutoMovieSubdivisionLimit";
 
 /*
- * Decimal places domain parameters are rounded to when they name a shared
- * vertex.
- */
-const KEY_DIGITS: number = 9;
-
-/*
- * Fit residual above which the rest cage is refused, relative to the cage's
- * extent.
- */
-const FIT_LIMIT: number = 1e-6;
-
-/*
  * Compile a surface network at one tier into its rest cage and a per-pose
  * update of the cage's control positions.
  *
@@ -536,3 +524,15 @@ export const rigAutoMovieSurfaceNetwork: (
     },
   };
 };
+
+/*
+ * Decimal places domain parameters are rounded to when they name a shared
+ * vertex.
+ */
+const KEY_DIGITS: number = 9;
+
+/*
+ * Fit residual above which the rest cage is refused, relative to the cage's
+ * extent.
+ */
+const FIT_LIMIT: number = 1e-6;

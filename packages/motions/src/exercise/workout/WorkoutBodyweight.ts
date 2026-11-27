@@ -1,12 +1,12 @@
-import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanExerciseKey,
-  IAutoMovieMotionHumanWorkoutBodyweight,
-  IAutoMovieMotionHumanWorkoutKind,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWorkoutBodyweight, IAutoMovieMotionHumanWorkoutKind } from "@automovie/interface";
 
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
+import * as WorkoutBodyweightData from "./internal/WorkoutBodyweightData";
+import {
+  supine as WorkoutBodyweightDataSupine,
+  floor as WorkoutBodyweightDataFloor,
+} from "./internal/WorkoutBodyweightData";
 
 /*
  * The bodyweight movements of the workout law a gym programme names beside the
@@ -26,41 +26,6 @@ import { WorkoutKind } from "./WorkoutKind";
  * kept by the angles alone.
  */
 export namespace WorkoutBodyweight {
-  /*
-   * Lying on the back with the arms by the sides.
-   */
-  const supine = (
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieMotionHumanExerciseKey.IKey =>
-    ExerciseKey.from(body, { pitch: -90 }, { ankle: -20, elbow: 5 });
-
-  /*
-   * A kind done lying or sitting on the floor, the pelvis kept.
-   */
-  const floor = (
-    base: IAutoMovieMotionHumanWorkoutKind["base"],
-    supports: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[],
-    reps: number,
-    route: IAutoMovieMotionHumanWorkoutKind["route"],
-    alternate: boolean = false,
-  ): IAutoMovieMotionHumanWorkoutKind => ({
-    base,
-    anchor: "hips",
-    pin: ["leftUpperLeg", "rightUpperLeg"],
-    supports,
-    alternate,
-    enter: 2.4,
-    count: reps,
-    route,
-  });
-
-  /*
-   * The back bears.
-   */
-  const BACK: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
-    { part: "back", kind: "lie" },
-  ];
-
   /*
    * The exercises.
    */
@@ -117,9 +82,9 @@ export namespace WorkoutBodyweight {
      * A superman: lying face down, the arms ahead and the legs lifted off the
      * floor together.
      */
-    superman: floor(
+    superman: WorkoutBodyweightDataFloor(
       "lying",
-      BACK,
+      WorkoutBodyweightData.BACK,
       5,
       (
         body: IAutoMovieMotionHumanBody,
@@ -202,14 +167,14 @@ export namespace WorkoutBodyweight {
      * A lying leg raise: on the back, both straight legs raised to upright and
      * lowered.
      */
-    lyingLegRaise: floor(
+    lyingLegRaise: WorkoutBodyweightDataFloor(
       "lying",
-      BACK,
+      WorkoutBodyweightData.BACK,
       6,
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(supine(body), 1.5, "lower", "down"),
+        WorkoutKind.step(WorkoutBodyweightDataSupine(body), 1.5, "lower", "down"),
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -227,9 +192,9 @@ export namespace WorkoutBodyweight {
      * A bicycle crunch: on the back, one knee drawn in as the opposite shoulder
      * turns to it, alternating.
      */
-    bicycleCrunch: floor(
+    bicycleCrunch: WorkoutBodyweightDataFloor(
       "lying",
-      BACK,
+      WorkoutBodyweightData.BACK,
       8,
       (
         body: IAutoMovieMotionHumanBody,
@@ -264,7 +229,7 @@ export namespace WorkoutBodyweight {
      * A Russian twist: sitting leaned back with the knees bent, the trunk
      * turned to each side in turn.
      */
-    russianTwist: floor(
+    russianTwist: WorkoutBodyweightDataFloor(
       "seated",
       [{ part: "seat", kind: "seat" }],
       8,
@@ -299,9 +264,9 @@ export namespace WorkoutBodyweight {
      * A dead bug: on the back with the arms up and the hips and knees square,
      * one arm and the opposite leg lowered, alternating.
      */
-    deadBug: floor(
+    deadBug: WorkoutBodyweightDataFloor(
       "lying",
-      BACK,
+      WorkoutBodyweightData.BACK,
       6,
       (
         body: IAutoMovieMotionHumanBody,

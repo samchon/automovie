@@ -13,8 +13,6 @@ import { AutoMovieSolidTraceObservation as Observation } from "./construction/Au
 import { AutoMovieSolidTraceTrial } from "./construction/internal/AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector =
-  AutoMovieSolidVector;
 /**
  * The meeting points of an intersection trace (`AutoMovieSolidIntersection`):
  * Newton's method on the four equations `A(s, phi) = B(y, theta)` and the
@@ -562,6 +560,9 @@ export namespace AutoMovieSolidTraceSolve {
     };
   }
 }
+
+const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;
 type Vec3 = AutoMovieVector3Tuple;
 
 type IJet = IAutoMovieSolidSurface.IJet;

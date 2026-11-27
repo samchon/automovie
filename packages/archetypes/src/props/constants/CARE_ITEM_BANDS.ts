@@ -1,42 +1,7 @@
-import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../../core";
+import { AutoMovieArchetypeBand } from "../../core";
 import type { AutoMovieArchetypeCareItem } from "../AutoMovieArchetypeCareItem";
-
-/*
- * A provisional mass band in kilograms.
- */
-const kg = (minimum: number, maximum: number): IAutoMovieArchetypeBand =>
-  AutoMovieArchetypeBand.of(
-    "kg",
-    minimum,
-    maximum,
-    AutoMovieArchetypeBand.TYPICAL_MASS,
-    true,
-  );
-
-/*
- * A facial tissue sheet, from distributor listings.
- */
-const TISSUE: string =
-  "Kleenex facial tissue sheet, 21.3 x 20.3 cm, Kimberly-Clark Professional distributor listings seen only in search results";
-
-/*
- * Pocket combs, from a maker's pages seen in search results.
- */
-const COMB: string =
-  "Kent Brushes pocket combs, 112 to 154 mm long and 25 to 27 mm wide, product pages seen only in search results";
-
-/*
- * Toothbrush sizes, from a listing and two patents.
- */
-const BRUSH: string =
-  "Curaprox CS 5460, 18 cm (listing seen only in search results); Canadian patent 3058910, about 194 to 197 mm overall; US patent 6353959, handle 1.375 in round";
-
-/*
- * A lipstick case read whole; Ellemental's case gives its height but not its
- * width, so it is not built.
- */
-const LIPSTICK: string =
-  "Quadpack magnetic lipstick case, 21 mm across and 74 mm high (https://americas.quadpack.com/?p=16738)";
+import * as CareItemBandsData from "./internal/CareItemBandsData";
+import { kg } from "./internal/CareItemBandsData";
 
 /*
  * The band of each free dimension of `createCareItem`, by kind, with the
@@ -45,8 +10,8 @@ const LIPSTICK: string =
  */
 export const CARE_ITEM_BANDS: typeof AutoMovieArchetypeCareItem.BANDS = {
   tissue: {
-    length: AutoMovieArchetypeBand.metres(0.198, 0.21, TISSUE, true),
-    width: AutoMovieArchetypeBand.metres(0.203, 0.213, TISSUE, true),
+    length: AutoMovieArchetypeBand.metres(0.198, 0.21, CareItemBandsData.TISSUE, true),
+    width: AutoMovieArchetypeBand.metres(0.203, 0.213, CareItemBandsData.TISSUE, true),
     thickness: AutoMovieArchetypeBand.metres(
       0.0005,
       0.0005,
@@ -56,8 +21,8 @@ export const CARE_ITEM_BANDS: typeof AutoMovieArchetypeCareItem.BANDS = {
     mass: kg(0.001, 0.002),
   },
   comb: {
-    length: AutoMovieArchetypeBand.metres(0.112, 0.154, COMB, true),
-    width: AutoMovieArchetypeBand.metres(0.025, 0.027, COMB, true),
+    length: AutoMovieArchetypeBand.metres(0.112, 0.154, CareItemBandsData.COMB, true),
+    width: AutoMovieArchetypeBand.metres(0.025, 0.027, CareItemBandsData.COMB, true),
     thickness: AutoMovieArchetypeBand.metres(
       0.003,
       0.004,
@@ -67,8 +32,8 @@ export const CARE_ITEM_BANDS: typeof AutoMovieArchetypeCareItem.BANDS = {
     mass: kg(0.01, 0.02),
   },
   toothbrush: {
-    length: AutoMovieArchetypeBand.metres(0.18, 0.197, BRUSH, true),
-    width: AutoMovieArchetypeBand.metres(0.011, 0.011, BRUSH, true),
+    length: AutoMovieArchetypeBand.metres(0.18, 0.197, CareItemBandsData.BRUSH, true),
+    width: AutoMovieArchetypeBand.metres(0.011, 0.011, CareItemBandsData.BRUSH, true),
     mass: kg(0.015, 0.025),
   },
   tube: {
@@ -83,8 +48,8 @@ export const CARE_ITEM_BANDS: typeof AutoMovieArchetypeCareItem.BANDS = {
     ),
   },
   lipstick: {
-    length: AutoMovieArchetypeBand.metres(0.074, 0.074, LIPSTICK),
-    width: AutoMovieArchetypeBand.metres(0.021, 0.021, LIPSTICK),
+    length: AutoMovieArchetypeBand.metres(0.074, 0.074, CareItemBandsData.LIPSTICK),
+    width: AutoMovieArchetypeBand.metres(0.021, 0.021, CareItemBandsData.LIPSTICK),
     mass: kg(0.01, 0.03),
   },
 };

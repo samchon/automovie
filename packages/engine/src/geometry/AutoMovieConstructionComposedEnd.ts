@@ -7,8 +7,6 @@ import type {
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
-
 /**
  * An end composed of its children's sections in one plane
  * (`IAutoMovieConstructionSplit.ICompose`): the closed curves the children's
@@ -462,6 +460,8 @@ export namespace AutoMovieConstructionComposedEnd {
     };
   }
 }
+
+const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 /*
  * World point or direction, mm.
  */

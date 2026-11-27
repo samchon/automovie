@@ -16,18 +16,6 @@ import type {
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
-const {
-  sub,
-  plus: add,
-  scale,
-  dot,
-  norm,
-  unit,
-  TWO_PI,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { sampled, leaving, H }: typeof AutoMovieHumanWebCurve =
-  AutoMovieHumanWebCurve;
-
 /**
  * The second stage of a web's build: every child's columns, and how many rows
  * they are drawn in. A column runs from one vertex of the parent's ring to its
@@ -37,24 +25,6 @@ const { sampled, leaving, H }: typeof AutoMovieHumanWebCurve =
  * margin's radius and the deepest column.
  */
 export namespace AutoMovieHumanWebColumns {
-  /*
-   * Phases of a child's section read for its angles.
-   */
-  const TABLE: number = 2048;
-
-  /*
-   * A cell's side about a crest in margin radii: the dihedral across it is about
-   * as many radians at the saddle's own radius.
-   */
-  const CELL: number = 0.35;
-
-  /*
-   * An angle brought into (-pi, pi].
-   */
-  function wrapPi(a: number): number {
-    return Math.atan2(Math.sin(a), Math.cos(a));
-  }
-
   /** Draw every child's columns and count the rows.
    *
    * @param input What the web needs from the surface being built.
@@ -419,7 +389,38 @@ export namespace AutoMovieHumanWebColumns {
 
     return { children, rows, crestRow };
   }
+
+  /*
+   * Phases of a child's section read for its angles.
+   */
+  const TABLE: number = 2048;
+
+  /*
+   * A cell's side about a crest in margin radii: the dihedral across it is about
+   * as many radians at the saddle's own radius.
+   */
+  const CELL: number = 0.35;
+
+  /*
+   * An angle brought into (-pi, pi].
+   */
+  function wrapPi(a: number): number {
+    return Math.atan2(Math.sin(a), Math.cos(a));
+  }
 }
+
+const {
+  sub,
+  plus: add,
+  scale,
+  dot,
+  norm,
+  unit,
+  TWO_PI,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+
+const { sampled, leaving, H }: typeof AutoMovieHumanWebCurve =
+  AutoMovieHumanWebCurve;
 
 type Vec3 = AutoMovieVector3Tuple;
 

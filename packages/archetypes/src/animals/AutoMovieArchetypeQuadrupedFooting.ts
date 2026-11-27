@@ -21,14 +21,6 @@ import { QuadrupedFootingClip } from "./quadruped/QuadrupedFootingClip";
 import { QuadrupedObstacleShape } from "./quadruped/QuadrupedObstacleShape";
 import { QuadrupedRestFloor } from "./quadruped/QuadrupedRestFloor";
 
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-const SIDES: readonly IAutoMovieQuaternion[] = [
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-];
-
 /** Authored world footing evaluated against emitted rigid parts. */
 export namespace AutoMovieArchetypeQuadrupedFooting {
   /** One bounded world plane, with slopes specified separately along +X and +Z. */
@@ -399,6 +391,15 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     }
   }
 }
+
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+const SIDES: readonly IAutoMovieQuaternion[] = [
+  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
+  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+];
 
 /*
  * Require finite world position coordinates.

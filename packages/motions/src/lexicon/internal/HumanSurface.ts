@@ -18,25 +18,7 @@ import { HumanSwingPump } from "../../carrier/internal/HumanSwingPump";
 import { measureSurfaceGlide } from "../../carrier/internal/measureSurfaceGlide";
 import { planSnowGlide } from "../../carrier/snow/internal/planSnowGlide";
 import { swungArms } from "../../carrier/internal/swungArms";
-
-/*
- * The channels a surface carrier leaves to a tool action or a gaze layer.
- */
-const YIELDS: IAutoMovieMotionHumanActionLaw["yields"] = [
-  "leftArm",
-  "rightArm",
-  "leftHand",
-  "rightHand",
-  "head",
-  "trunkTurn",
-];
-
-/*
- * Preserve the supported feet and inertialize free joints at an end cut.
- */
-const AT_END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-  any: [{ window: { start: 1, end: 1 }, kind: "inertialize", entry: 0 }],
-};
+import * as HumanSurfaceData from "./HumanSurfaceData";
 
 /*
  * Surface travel under the performer. The ice and snow laws own their paths. A
@@ -55,8 +37,8 @@ export namespace HumanSurface {
   export const skate: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISkateParams> =
     {
       name: "skate",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: (context: Parameters<typeof HumanIceGlide.skate>[0]) =>
         swungArms(HumanIceGlide.skate(context), context.body),
     };
@@ -68,8 +50,8 @@ export namespace HumanSurface {
   export const curlDelivery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ICurlDeliveryParams> =
     {
       name: "curlDelivery",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: HumanIceGlide.curl,
     };
 
@@ -79,8 +61,8 @@ export namespace HumanSurface {
   export const snowGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISnowGlideParams> =
     {
       name: "snowGlide",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       // The pole hand is the stroke's planned arm; only the other hangs.
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,
@@ -101,8 +83,8 @@ export namespace HumanSurface {
   export const boardRide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.IBoardRideParams> =
     {
       name: "boardRide",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: (context: Parameters<typeof HumanSurfaceBoard>[0]) =>
         swungArms(HumanSurfaceBoard(context), context.body),
     };
@@ -144,8 +126,8 @@ export namespace HumanSurface {
   export const swingPump: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlayground.ISwingPumpParams> =
     {
       name: "swingPump",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: HumanSwingPump,
     };
 
@@ -155,8 +137,8 @@ export namespace HumanSurface {
   export const seesawRide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlayground.ISeesawRideParams> =
     {
       name: "seesawRide",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: HumanSeesawRide,
     };
 
@@ -166,8 +148,8 @@ export namespace HumanSurface {
   export const roundaboutPush: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlayground.IRoundaboutPushParams> =
     {
       name: "roundaboutPush",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: HumanRoundaboutPush,
     };
 
@@ -177,8 +159,8 @@ export namespace HumanSurface {
   export const swingLeap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlayground.ISwingLeapParams> =
     {
       name: "swingLeap",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: HumanSwingLeap,
     };
 
@@ -188,8 +170,8 @@ export namespace HumanSurface {
   export const supportStep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISupportStepParams> =
     {
       name: "supportStep",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: HumanSupportStep,
     };
 
@@ -199,8 +181,8 @@ export namespace HumanSurface {
   export const mediumWalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanMedium.IWalkParams> =
     {
       name: "mediumWalk",
-      interrupts: AT_END,
-      yields: YIELDS,
+      interrupts: HumanSurfaceData.AT_END,
+      yields: HumanSurfaceData.YIELDS,
       plan: HumanMediumWalk,
     };
 

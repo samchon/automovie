@@ -143,65 +143,6 @@ export namespace Matrix4 {
     z: m[2]! * p.x + m[6]! * p.y + m[10]! * p.z + m[14]!,
   });
 
-  /*
-   * Canonical X, Y and Z axes, the identity basis.
-   */
-  const AXES: readonly IAutoMovieVector3[] = [
-    { x: 1, y: 0, z: 0 },
-    { x: 0, y: 1, z: 0 },
-    { x: 0, y: 0, z: 1 },
-  ];
-
-  /*
-   * Replaces each null (collapsed) column of a unit basis with its orthonormal
-   * completion, leaving every present column unchanged.
-   */
-  const completeBasis: (
-    columns: readonly (IAutoMovieVector3 | null)[],
-  ) => IAutoMovieVector3[] = (
-    columns: readonly (IAutoMovieVector3 | null)[],
-  ): IAutoMovieVector3[] => {
-    const present: number[] = [0, 1, 2].filter(
-      (axis: number): boolean => columns[axis] !== null,
-    );
-    if (present.length === 3) return columns as IAutoMovieVector3[];
-    if (present.length === 2) {
-      const missing: number = 3 - present[0]! - present[1]!;
-      const next: IAutoMovieVector3 = columns[(missing + 1) % 3]!;
-      const after: IAutoMovieVector3 = columns[(missing + 2) % 3]!;
-      const normal: IAutoMovieVector3 = Vector3.cross(next, after);
-      // Parallel survivors span one direction only, like a single survivor.
-      if (Vector3.length(normal) === 0)
-        return alignedBasis((missing + 1) % 3, next);
-      const completed: IAutoMovieVector3[] =
-        columns.slice() as IAutoMovieVector3[];
-      completed[missing] = Vector3.normalize(normal);
-      return completed;
-    }
-    if (present.length === 1)
-      return alignedBasis(present[0]!, columns[present[0]!]!);
-    return AXES.slice();
-  };
-
-  /*
-   * The identity basis turned by the shortest arc that carries canonical axis
-   * `axis` onto the unit vector `direction`, with that column set to
-   * `direction` itself.
-   */
-  const alignedBasis: (
-    axis: number,
-    direction: IAutoMovieVector3,
-  ) => IAutoMovieVector3[] = (
-    axis: number,
-    direction: IAutoMovieVector3,
-  ): IAutoMovieVector3[] => {
-    const turn: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(AXES[axis]!, direction);
-    return AXES.map(
-      (canonical: IAutoMovieVector3, at: number): IAutoMovieVector3 =>
-        at === axis ? direction : Quaternion.rotateVector(turn, canonical),
-    );
-  };
-
   /**
    * Splits an affine matrix into the translation, rotation and scale that
    * {@link compose} would rebuild it from.
@@ -286,5 +227,64 @@ export namespace Matrix4 {
       rotation: { x, y, z, w },
       scale: { x: sx, y: sy, z: sz },
     };
+  };
+
+  /*
+   * Canonical X, Y and Z axes, the identity basis.
+   */
+  const AXES: readonly IAutoMovieVector3[] = [
+    { x: 1, y: 0, z: 0 },
+    { x: 0, y: 1, z: 0 },
+    { x: 0, y: 0, z: 1 },
+  ];
+
+  /*
+   * Replaces each null (collapsed) column of a unit basis with its orthonormal
+   * completion, leaving every present column unchanged.
+   */
+  const completeBasis: (
+    columns: readonly (IAutoMovieVector3 | null)[],
+  ) => IAutoMovieVector3[] = (
+    columns: readonly (IAutoMovieVector3 | null)[],
+  ): IAutoMovieVector3[] => {
+    const present: number[] = [0, 1, 2].filter(
+      (axis: number): boolean => columns[axis] !== null,
+    );
+    if (present.length === 3) return columns as IAutoMovieVector3[];
+    if (present.length === 2) {
+      const missing: number = 3 - present[0]! - present[1]!;
+      const next: IAutoMovieVector3 = columns[(missing + 1) % 3]!;
+      const after: IAutoMovieVector3 = columns[(missing + 2) % 3]!;
+      const normal: IAutoMovieVector3 = Vector3.cross(next, after);
+      // Parallel survivors span one direction only, like a single survivor.
+      if (Vector3.length(normal) === 0)
+        return alignedBasis((missing + 1) % 3, next);
+      const completed: IAutoMovieVector3[] =
+        columns.slice() as IAutoMovieVector3[];
+      completed[missing] = Vector3.normalize(normal);
+      return completed;
+    }
+    if (present.length === 1)
+      return alignedBasis(present[0]!, columns[present[0]!]!);
+    return AXES.slice();
+  };
+
+  /*
+   * The identity basis turned by the shortest arc that carries canonical axis
+   * `axis` onto the unit vector `direction`, with that column set to
+   * `direction` itself.
+   */
+  const alignedBasis: (
+    axis: number,
+    direction: IAutoMovieVector3,
+  ) => IAutoMovieVector3[] = (
+    axis: number,
+    direction: IAutoMovieVector3,
+  ): IAutoMovieVector3[] => {
+    const turn: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(AXES[axis]!, direction);
+    return AXES.map(
+      (canonical: IAutoMovieVector3, at: number): IAutoMovieVector3 =>
+        at === axis ? direction : Quaternion.rotateVector(turn, canonical),
+    );
   };
 }

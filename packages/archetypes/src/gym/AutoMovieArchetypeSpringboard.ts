@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * What the figures come from.
- */
-const FIG: string =
-  "FIG Apparatus Norms (2022), vault springboard: 1.20 m long, 0.60 m wide, its front edge 0.20 m high (https://www.gymnastics.sport/site/pages/education-apparatus.php)";
+import * as AutoMovieArchetypeSpringboardData from "./internal/AutoMovieArchetypeSpringboardData";
 
 /** Constructs the springboard archetype from its recipe. */
 export namespace AutoMovieArchetypeSpringboard {
@@ -105,9 +100,9 @@ export function create(
 
   /** The band of each figure. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(1.2, 1.2, FIG),
-    width: AutoMovieArchetypeBand.metres(0.6, 0.6, FIG),
-    height: AutoMovieArchetypeBand.metres(0.2, 0.2, FIG),
+    length: AutoMovieArchetypeBand.metres(1.2, 1.2, AutoMovieArchetypeSpringboardData.FIG),
+    width: AutoMovieArchetypeBand.metres(0.6, 0.6, AutoMovieArchetypeSpringboardData.FIG),
+    height: AutoMovieArchetypeBand.metres(0.2, 0.2, AutoMovieArchetypeSpringboardData.FIG),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       15,

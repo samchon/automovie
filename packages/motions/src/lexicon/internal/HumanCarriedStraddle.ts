@@ -10,14 +10,7 @@ import type {
 import { AutoMovieMotionHumanVerdicts } from "../../audit/AutoMovieMotionHumanVerdicts";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
-
-/*
- * A knee at either side of the bearer's pelvis, in left-to-right order.
- */
-const KNEES: readonly AutoMovieHumanoidBone[] = [
-  "leftLowerLeg",
-  "rightLowerLeg",
-];
+import * as HumanCarriedStraddleData from "./HumanCarriedStraddleData";
 
 /*
  * A straddling carry wraps the borne knees outside the bearer's thighs. This
@@ -37,7 +30,7 @@ export function HumanCarriedStraddle(
     bearer.measure.hipHalfWidth +
     bearer.measure.thighRadius +
     borne.measure.shankRadius;
-  return KNEES.map((knee: AutoMovieHumanoidBone, index: number): number => {
+  return HumanCarriedStraddleData.KNEES.map((knee: AutoMovieHumanoidBone, index: number): number => {
     const point: IAutoMovieVector3 = reading.fit.place(
       reading.mine.get(knee)!.worldPosition,
     );
@@ -70,7 +63,7 @@ export namespace HumanCarriedStraddle {
     ]);
     const distance: ReturnType<typeof HumanColliders.reading>["segment"] =
       HumanColliders.reading(bearer, shapes).segment;
-    return KNEES.every((knee: AutoMovieHumanoidBone): boolean => {
+    return HumanCarriedStraddleData.KNEES.every((knee: AutoMovieHumanoidBone): boolean => {
       const point: IAutoMovieVector3 = reading.fit.place(
         reading.mine.get(knee)!.worldPosition,
       );

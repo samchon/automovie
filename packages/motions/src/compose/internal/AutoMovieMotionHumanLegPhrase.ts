@@ -21,22 +21,6 @@ import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
  */
 export namespace AutoMovieMotionHumanLegPhrase {
   /*
-   * A placement scaled about another by the phrase's extent; unchanged when the
-   * phrase states a contact, since a manner never moves a goal on a solid
-   * place.
-   */
-  const extended = (
-    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, ExtendedProps>,
-    about: IAutoMovieMotionHumanFoot.IPlacement,
-    target: IAutoMovieMotionHumanFoot.IPlacement,
-  ): IAutoMovieMotionHumanFoot.IPlacement => {
-    const extent: number = props.manner?.extent ?? 1;
-    return props.contact !== undefined || extent === 1
-      ? target
-      : between(about, target, extent);
-  };
-
-  /*
    * The contact window of a foot between two instants.
    * Parameter props: The phrase.
    * Parameter from: The instant the foot comes to bear.
@@ -114,74 +98,6 @@ export namespace AutoMovieMotionHumanLegPhrase {
       };
     };
   }
-
-  /*
-   * The lowest sole point's least height over the floor in mid-swing, metres:
-   * the minimum toe clearance of normal gait, 12.9 mm (Winter 1992, Can J Sport
-   * Sci 17(1):1-6).
-   */
-  const TOE_CLEARANCE: number = 0.0129;
-
-  /*
-   * The share of the stance blend, by the clock's minimum-jerk envelope, under
-   * which a foot moves only vertically: the last third of its transit, terminal
-   * swing in Perry and Burnfield's phases (Gait Analysis, 2nd ed.), in which
-   * the foot is already over its landing place and comes down onto it. On
-   * leaving, the same third lifts it before it travels.
-   */
-  const TERMINAL: number = AutoMovieEngineMotionSampling.minimumJerkShare(1 / 3);
-
-  /*
-   * A foot in transit between its stance and a moving placement at a share of
-   * the stance blend: it lifts off before it travels and is over its landing
-   * place before it sets down (`TERMINAL`), its sole clears the floor its
-   * stance stands on by the minimum toe clearance in between, and no point of
-   * its sole ever lies under that floor. At share 0 it stands on its stance; at
-   * share 1 it is the moving placement itself, so a target on the floor or on a
-   * ball is reached exactly.
-   */
-  const cleared = (
-    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, ClearedProps>,
-    moving: IAutoMovieMotionHumanFoot.IPlacement,
-    share: number,
-  ): IAutoMovieMotionHumanFoot.IPlacement => {
-    const stance: IAutoMovieMotionHumanFoot.IPlacement = props.stance;
-    const lifted: number = Math.min(1, Math.max(0, share));
-    const across: number = AutoMovieEngineMotionSampling.minimumJerkShare(
-      Math.min(1, Math.max(0, (lifted - TERMINAL) / (1 - TERMINAL))),
-    );
-    const placement: IAutoMovieMotionHumanFoot.IPlacement = {
-      ankle: {
-        x: stance.ankle.x + (moving.ankle.x - stance.ankle.x) * across,
-        y: stance.ankle.y + (moving.ankle.y - stance.ankle.y) * share,
-        z: stance.ankle.z + (moving.ankle.z - stance.ankle.z) * across,
-      },
-      rotation: Quaternion.slerp(stance.rotation, moving.rotation, lifted),
-    };
-    const lowest = (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
-      Math.min(
-        ...(["heel", "ball", "toe"] as const).map(
-          (point): number =>
-            HumanFoot.point(props.body, props.side, point, foot).y,
-        ),
-      );
-    const clearance: number =
-      TOE_CLEARANCE * Math.min(1, lifted / TERMINAL, (1 - lifted) / TERMINAL);
-    const under: number = lowest(stance) + clearance - lowest(placement);
-    return under <= 0
-      ? placement
-      : {
-          ankle: { ...placement.ankle, y: placement.ankle.y + under },
-          rotation: placement.rotation,
-        };
-  };
-  /*
-   * Whether a phrase's foot stands on its stance: only at the clock's two ends.
-   */
-  const grounded =
-    (clock: IAutoMovieMotionClock) =>
-    (seconds: number): boolean =>
-      seconds <= 0 || seconds >= clock.duration;
 
   /*
    * A lift: the foot leaves its stance, is held raised and is set back (a knee
@@ -375,6 +291,91 @@ export namespace AutoMovieMotionHumanLegPhrase {
       ),
     };
   }
+
+  /*
+   * A placement scaled about another by the phrase's extent; unchanged when the
+   * phrase states a contact, since a manner never moves a goal on a solid
+   * place.
+   */
+  const extended = (
+    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, ExtendedProps>,
+    about: IAutoMovieMotionHumanFoot.IPlacement,
+    target: IAutoMovieMotionHumanFoot.IPlacement,
+  ): IAutoMovieMotionHumanFoot.IPlacement => {
+    const extent: number = props.manner?.extent ?? 1;
+    return props.contact !== undefined || extent === 1
+      ? target
+      : between(about, target, extent);
+  };
+
+  /*
+   * The lowest sole point's least height over the floor in mid-swing, metres:
+   * the minimum toe clearance of normal gait, 12.9 mm (Winter 1992, Can J Sport
+   * Sci 17(1):1-6).
+   */
+  const TOE_CLEARANCE: number = 0.0129;
+
+  /*
+   * The share of the stance blend, by the clock's minimum-jerk envelope, under
+   * which a foot moves only vertically: the last third of its transit, terminal
+   * swing in Perry and Burnfield's phases (Gait Analysis, 2nd ed.), in which
+   * the foot is already over its landing place and comes down onto it. On
+   * leaving, the same third lifts it before it travels.
+   */
+  const TERMINAL: number = AutoMovieEngineMotionSampling.minimumJerkShare(1 / 3);
+
+  /*
+   * A foot in transit between its stance and a moving placement at a share of
+   * the stance blend: it lifts off before it travels and is over its landing
+   * place before it sets down (`TERMINAL`), its sole clears the floor its
+   * stance stands on by the minimum toe clearance in between, and no point of
+   * its sole ever lies under that floor. At share 0 it stands on its stance; at
+   * share 1 it is the moving placement itself, so a target on the floor or on a
+   * ball is reached exactly.
+   */
+  const cleared = (
+    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, ClearedProps>,
+    moving: IAutoMovieMotionHumanFoot.IPlacement,
+    share: number,
+  ): IAutoMovieMotionHumanFoot.IPlacement => {
+    const stance: IAutoMovieMotionHumanFoot.IPlacement = props.stance;
+    const lifted: number = Math.min(1, Math.max(0, share));
+    const across: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+      Math.min(1, Math.max(0, (lifted - TERMINAL) / (1 - TERMINAL))),
+    );
+    const placement: IAutoMovieMotionHumanFoot.IPlacement = {
+      ankle: {
+        x: stance.ankle.x + (moving.ankle.x - stance.ankle.x) * across,
+        y: stance.ankle.y + (moving.ankle.y - stance.ankle.y) * share,
+        z: stance.ankle.z + (moving.ankle.z - stance.ankle.z) * across,
+      },
+      rotation: Quaternion.slerp(stance.rotation, moving.rotation, lifted),
+    };
+    const lowest = (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
+      Math.min(
+        ...(["heel", "ball", "toe"] as const).map(
+          (point): number =>
+            HumanFoot.point(props.body, props.side, point, foot).y,
+        ),
+      );
+    const clearance: number =
+      TOE_CLEARANCE * Math.min(1, lifted / TERMINAL, (1 - lifted) / TERMINAL);
+    const under: number = lowest(stance) + clearance - lowest(placement);
+    return under <= 0
+      ? placement
+      : {
+          ankle: { ...placement.ankle, y: placement.ankle.y + under },
+          rotation: placement.rotation,
+        };
+  };
+
+  /*
+   * Whether a phrase's foot stands on its stance: only at the clock's two ends.
+   */
+  const grounded =
+    (clock: IAutoMovieMotionClock) =>
+    (seconds: number): boolean =>
+      seconds <= 0 || seconds >= clock.duration;
 }
 
 /*

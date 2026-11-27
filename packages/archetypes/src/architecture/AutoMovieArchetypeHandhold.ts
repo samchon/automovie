@@ -1,44 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import {
-  AutoMovieArchetype,
-  AutoMovieArchetypeBand,
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeUnits,
-  type IAutoMovieArchetypeBand,
-} from "../core/index";
+import { AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core/index";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The federal handrail rule read.
- */
-const CFR: string =
-  "49 CFR 38.29(b): handrails between 1 1/4 and 1 1/2 inches in cross-sectional diameter, with at least 1 1/2 inches of knuckle clearance (https://www.govinfo.gov/content/pkg/CFR-2023-title49-vol1/xml/CFR-2023-title49-vol1-sec38-29.xml)";
-
-/*
- * The bus specification read.
- */
-const DULUTH: string =
-  "Duluth Transit Authority heavy-duty bus technical specifications (28 August 2020), 1.21 Passenger Assists: assists 1 1/4 inch in diameter, the overhead assist no less than 70 inches above the floor (https://www.duluthtransit.com/wp-content/uploads/2020/08/Heavy-Duty-Buses-Technical-Specifications.pdf)";
-
-/*
- * A strap's loop, metres: HAPPICH's 200 mm drawing label, the grip at its foot.
- */
-const LOOP: number = 200 * AutoMovieArchetypeUnits.MILLIMETRE;
-
-/*
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `run`, the overhead rail's length a strap hangs
- * from; `tape`, a strap's tape width and thickness.
- */
-const ESTIMATES: Readonly<{ run: number; tape: number }> = {
-  run: 0.4,
-  tape: 0.02,
-};
+import * as AutoMovieArchetypeHandholdData from "./internal/AutoMovieArchetypeHandholdData";
 
 /** Constructs the handhold archetype from its recipe. */
 export namespace AutoMovieArchetypeHandhold {
@@ -188,8 +154,8 @@ export function create(
     );
     builder.box(
       "strap",
-      v(E.tape, length - LOOP / 2, E.tape),
-      v(0, (height + foot + LOOP / 2) / 2, 0),
+      v(E.tape, length - AutoMovieArchetypeHandholdData.LOOP / 2, E.tape),
+      v(0, (height + foot + AutoMovieArchetypeHandholdData.LOOP / 2) / 2, 0),
       { color: "#1d1d1d" },
     );
     builder.affordance({
@@ -264,29 +230,12 @@ export function create(
     },
   };
 
-  /*
-   * The bands every handhold shares.
-   */
-  const SHARED: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> =
-    {
-      height: AutoMovieArchetypeBand.metres(
-        70 * AutoMovieArchetypeUnits.INCH,
-        70 * AutoMovieArchetypeUnits.INCH,
-        `${DULUTH}; the model takes the least`,
-      ),
-      diameter: AutoMovieArchetypeBand.metres(
-        1.25 * AutoMovieArchetypeUnits.INCH,
-        1.5 * AutoMovieArchetypeUnits.INCH,
-        CFR,
-      ),
-    };
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     pole: {
-      ...SHARED,
+      ...AutoMovieArchetypeHandholdData.SHARED,
       mass: AutoMovieArchetypeBand.of(
         "kg",
         3,
@@ -295,6 +244,16 @@ export function create(
         true,
       ),
     },
-    strap: SHARED,
+    strap: AutoMovieArchetypeHandholdData.SHARED,
   };
 }
+
+/*
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `run`, the overhead rail's length a strap hangs
+ * from; `tape`, a strap's tape width and thickness.
+ */
+const ESTIMATES: Readonly<{ run: number; tape: number }> = {
+  run: 0.4,
+  tape: 0.02,
+};

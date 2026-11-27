@@ -11,12 +11,6 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidTraceTrial } from "./construction/internal/AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/*
- * Existing vector arithmetic shared by both rail equations.
- */
-const { combine, dot, norm, sub }: typeof AutoMovieSolidVector =
-  AutoMovieSolidVector;
-
 /** Local normal-section/chord rail solves on owned surface charts. */
 export namespace AutoMovieSolidRailSolve {
   /**
@@ -445,3 +439,9 @@ export namespace AutoMovieSolidRailSolve {
     return speed > 0 ? [d[0] / speed, d[1] / speed] : null;
   }
 }
+
+/*
+ * Existing vector arithmetic shared by both rail equations.
+ */
+const { combine, dot, norm, sub }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;

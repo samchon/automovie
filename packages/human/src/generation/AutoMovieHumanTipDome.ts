@@ -25,11 +25,6 @@ export namespace AutoMovieHumanTipDome {
     held: boolean;
   }
 
-  /*
-   * Halvings of the bracket: sixty take a bracket of a hundred millimetres under one unit of a double.
-   */
-  const HALVINGS: number = 60;
-
   /**
    * The station `from` with `pole - from = share x reach(from)`, between `least` and the pole.
    *
@@ -63,4 +58,9 @@ export namespace AutoMovieHumanTipDome {
     }
     return { from: (low + high) / 2, held: false };
   }
+
+  /*
+   * Halvings of the bracket: sixty take a bracket of a hundred millimetres under one unit of a double.
+   */
+  const HALVINGS: number = 60;
 }

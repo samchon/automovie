@@ -14,10 +14,6 @@ import type { AutoMovieSolidTraceObservation } from "./construction/AutoMovieSol
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/*
- * Original world-vector norm used by closure observations.
- */
-const { norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 /**
  * Existing trace orchestration and public host/domain adapters behind the
  * original API.
@@ -444,6 +440,11 @@ export namespace AutoMovieSolidIntersectionTrace {
     };
   }
 }
+
+/*
+ * Original world-vector norm used by closure observations.
+ */
+const { norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 /*
  * Original surface jet used by the closure measurement.
  */

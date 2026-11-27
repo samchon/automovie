@@ -12,13 +12,6 @@ import type {
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-const {
-  sub,
-  plus: add,
-  scale,
-  smooth,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-
 /**
  * The last stage of a web's build: the surface's vertices and cells in the
  * body's mesh. The lips and crest of every web are vertices shared by its two
@@ -29,11 +22,6 @@ const {
  * one below it.
  */
 export namespace AutoMovieHumanWebMesh {
-  /*
-   * Margin radii from a pinch over which a column leaves the saddle's chart.
-   */
-  const FADE: number = 3;
-
   /** Write the vertices and cells into the body's mesh.
    *
    * @param input What the web needs from the surface being built.
@@ -222,6 +210,18 @@ export namespace AutoMovieHumanWebMesh {
     }
     return { rings, construction };
   }
+
+  /*
+   * Margin radii from a pinch over which a column leaves the saddle's chart.
+   */
+  const FADE: number = 3;
 }
+
+const {
+  sub,
+  plus: add,
+  scale,
+  smooth,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 
 type Vec3 = AutoMovieVector3Tuple;

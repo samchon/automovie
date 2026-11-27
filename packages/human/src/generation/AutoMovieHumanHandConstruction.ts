@@ -85,11 +85,6 @@ export namespace AutoMovieHumanHandConstruction {
     };
   }
 
-  /*
-   * Points of a digit's centre line per point handed to the skeleton.
-   */
-  const LINE_EVERY: number = 8;
-
   /**
    * Build one side's hand.
    *
@@ -223,4 +218,9 @@ export namespace AutoMovieHumanHandConstruction {
       ),
     };
   }
+
+  /*
+   * Points of a digit's centre line per point handed to the skeleton.
+   */
+  const LINE_EVERY: number = 8;
 }

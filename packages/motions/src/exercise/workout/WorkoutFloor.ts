@@ -11,6 +11,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { prepareWorkoutKeyFrames } from "../internal/prepareWorkoutKeyFrames";
+import * as WorkoutFloorData from "./internal/WorkoutFloorData";
 
 /*
  * The exercises of the workout law done on the hands and the toes or feet : the
@@ -63,7 +64,7 @@ export namespace WorkoutFloor {
     key: (pitch: number) => IAutoMovieMotionHumanExerciseKey.IKey,
   ): IAutoMovieMotionHumanExerciseKey.IKey {
     const read: ReturnType<typeof prepareWorkoutKeyFrames> =
-      prepareWorkoutKeyFrames(body, PITCHED);
+      prepareWorkoutKeyFrames(body, WorkoutFloorData.PITCHED);
     const above = (pitch: number): number => {
       const {
         posture: posed,
@@ -85,16 +86,6 @@ export namespace WorkoutFloor {
     }
     return key((steep + level) / 2);
   }
-
-  /*
-   * Only shoulder and toe positions determine the pitch residual.
-   */
-  const PITCHED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-    "leftUpperArm",
-    "rightUpperArm",
-    "leftToes",
-    "rightToes",
-  ]);
 
   /*
    * The key of a family of keys by roll that rests on its side on two supports
@@ -145,57 +136,6 @@ export namespace WorkoutFloor {
   }
 
   /*
-   * The top of a push-up: a straight body on the toes and the straight arms;
-   * the hands `raise` degrees out, the relaxed arm's abduction when unstated
-   * (`stand.abduction`).
-   */
-  const top = (
-    body: IAutoMovieMotionHumanBody,
-    raise: number = stand.abduction(body),
-  ): IAutoMovieMotionHumanExerciseKey.IKey =>
-    pitched(
-      body,
-      REACH * (body.measure.upperArm + body.measure.forearm),
-      (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
-        ExerciseKey.from(
-          body,
-          { pitch, neck: -20 },
-          { toes: 70, shoulder: pitch, raise, elbow: 5, wrist: -90 },
-        ),
-    );
-
-  /*
-   * The bottom of a push-up: the same line lowered until the upper arms are
-   * level, the shoulders at the elbows' height over upright forearms (NSCA's
-   * description of the bottom position); the hands `raise` degrees out as at
-   * the top.
-   */
-  const bottom = (
-    body: IAutoMovieMotionHumanBody,
-    raise: number = stand.abduction(body),
-  ): IAutoMovieMotionHumanExerciseKey.IKey =>
-    pitched(
-      body,
-      body.measure.forearm,
-      (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
-        ExerciseKey.from(
-          body,
-          { pitch, neck: -25 },
-          { toes: 70, shoulder: pitch - 60, raise, elbow: 100, wrist: -90 },
-        ),
-    );
-
-  /*
-   * The hands and the toes bear.
-   */
-  const PRONE: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
-    { part: "leftHand", kind: "plant" },
-    { part: "rightHand", kind: "plant" },
-    { part: "leftFoot", kind: "plant" },
-    { part: "rightFoot", kind: "plant" },
-  ];
-
-  /*
    * The exercises.
    */
   export const KINDS: Readonly<
@@ -212,7 +152,7 @@ export namespace WorkoutFloor {
       anchor: "hips",
       pin: ["leftToes", "rightToes"],
       hands: true,
-      supports: PRONE,
+      supports: WorkoutFloorData.PRONE,
       enter: 1.5,
       count: 5,
       route: (
@@ -231,7 +171,7 @@ export namespace WorkoutFloor {
       anchor: "hips",
       pin: ["leftToes", "rightToes"],
       hands: true,
-      supports: PRONE,
+      supports: WorkoutFloorData.PRONE,
       enter: 1.5,
       count: 5,
       route: (
@@ -250,7 +190,7 @@ export namespace WorkoutFloor {
       anchor: "hips",
       pin: ["leftToes", "rightToes"],
       hands: true,
-      supports: PRONE,
+      supports: WorkoutFloorData.PRONE,
       enter: 1.5,
       count: 1,
       route: (
@@ -358,7 +298,7 @@ export namespace WorkoutFloor {
       anchor: "hips",
       pin: ["leftFoot", "rightFoot"],
       hands: true,
-      supports: PRONE,
+      supports: WorkoutFloorData.PRONE,
       enter: 2,
       count: 1,
       route: (
@@ -423,4 +363,45 @@ export namespace WorkoutFloor {
       ],
     },
   };
+
+  /*
+   * The top of a push-up: a straight body on the toes and the straight arms;
+   * the hands `raise` degrees out, the relaxed arm's abduction when unstated
+   * (`stand.abduction`).
+   */
+  const top = (
+    body: IAutoMovieMotionHumanBody,
+    raise: number = stand.abduction(body),
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
+    pitched(
+      body,
+      REACH * (body.measure.upperArm + body.measure.forearm),
+      (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
+        ExerciseKey.from(
+          body,
+          { pitch, neck: -20 },
+          { toes: 70, shoulder: pitch, raise, elbow: 5, wrist: -90 },
+        ),
+    );
+
+  /*
+   * The bottom of a push-up: the same line lowered until the upper arms are
+   * level, the shoulders at the elbows' height over upright forearms (NSCA's
+   * description of the bottom position); the hands `raise` degrees out as at
+   * the top.
+   */
+  const bottom = (
+    body: IAutoMovieMotionHumanBody,
+    raise: number = stand.abduction(body),
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
+    pitched(
+      body,
+      body.measure.forearm,
+      (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
+        ExerciseKey.from(
+          body,
+          { pitch, neck: -25 },
+          { toes: 70, shoulder: pitch - 60, raise, elbow: 100, wrist: -90 },
+        ),
+    );
 }

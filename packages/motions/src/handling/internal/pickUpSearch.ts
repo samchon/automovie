@@ -21,17 +21,7 @@ import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { pickUpPosture } from "./pickUpPosture";
-
-/*
- * The digit tips a grip keeps above the floor.
- */
-const TIPS: readonly IAutoMovieMotionHumanHand.DigitSurface[] = [
-  "thumbTip",
-  "indexTip",
-  "middleTip",
-  "ringTip",
-  "littleTip",
-];
+import * as PickUpSearchData from "./PickUpSearchData";
 
 /*
  * The grasp the arm reaches best from a stance's posture, the lifted pose and
@@ -202,7 +192,7 @@ export function pickUpSearch(
     .map((s: IAutoMovieMotionHumanEntryState.ISupport): number =>
       s.support.kind === "ground" ? (s.support.height ?? 0) : 0,
     );
-  const tips: readonly IAutoMovieVector3[] = TIPS.map(
+  const tips: readonly IAutoMovieVector3[] = PickUpSearchData.TIPS.map(
     (surface: IAutoMovieMotionHumanHand.DigitSurface): IAutoMovieVector3 =>
       HumanHand.offset(body, side, surface).point,
   );

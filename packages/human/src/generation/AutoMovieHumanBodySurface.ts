@@ -21,12 +21,6 @@ import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
 
-const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
-const { contact, held, WEBS } = AutoMovieHumanBodySurfaceContact;
-const { join, loft, LOOP } = AutoMovieHumanBodySurfaceLoft;
-const { chain } = AutoMovieHumanBodySurfaceRead;
-const { domed } = AutoMovieHumanBodySurfacePoles;
-
 /**
  * Whole-body skin assembled from the calibrated chains and their events.
  *
@@ -41,11 +35,6 @@ const { domed } = AutoMovieHumanBodySurfacePoles;
  * Triangle groups are named `<chain>/<k>` by their principal interval.
  */
 export namespace AutoMovieHumanBodySurface {
-  /*
-   * Chord tolerance of the station bisection in mm.
-   */
-  const TOLERANCE: number = 0.5;
-
   /**
    * Loft the whole calibrated body.
    *
@@ -205,4 +194,16 @@ export namespace AutoMovieHumanBodySurface {
       ],
     };
   }
+
+  /*
+   * Chord tolerance of the station bisection in mm.
+   */
+  const TOLERANCE: number = 0.5;
 }
+
+const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
+const { contact, held, WEBS } = AutoMovieHumanBodySurfaceContact;
+const { join, loft, LOOP } = AutoMovieHumanBodySurfaceLoft;
+const { chain } = AutoMovieHumanBodySurfaceRead;
+
+const { domed } = AutoMovieHumanBodySurfacePoles;

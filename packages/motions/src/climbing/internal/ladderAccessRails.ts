@@ -9,12 +9,6 @@ import type {
 import type { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /*
- * The least vertical component of a side rail's unit axis (provisional: within
- * about 8 degrees of upright).
- */
-const UPRIGHT: number = 0.99;
-
-/*
  * The two upright side rails of a fixed ladder, which the hands take before the
  * feet cross between the rungs and the landing: the ladder's `bar` affordances
  * whose ids end in `Rail`, sorted to the climber's left and right by their
@@ -115,3 +109,9 @@ export namespace ladderAccessRails {
       : { left, right };
   }
 }
+
+/*
+ * The least vertical component of a side rail's unit axis (provisional: within
+ * about 8 degrees of upright).
+ */
+const UPRIGHT: number = 0.99;

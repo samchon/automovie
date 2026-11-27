@@ -25,11 +25,7 @@ import { composeAutoMovieMotionHumanAction } from "../../compose/internal/compos
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { beatFlamesBeats } from "./beatFlamesBeats";
-
-/*
- * Seconds of one beat, raised and brought down: provisional.
- */
-const BEAT: number = 0.6;
+import * as BeatFlamesData from "./BeatFlamesData";
 
 /*
  * Beat flames on a lying partner with a held cloth: a wet sack or a flapper
@@ -133,7 +129,7 @@ function plan(
       AutoMovieMotionHumanTiming.transport(
         Vector3.distance(up, frame.position),
       ),
-    attack: tempo * BEAT * count,
+    attack: tempo * BeatFlamesData.BEAT * count,
     retract:
       tempo *
       AutoMovieMotionHumanTiming.transport(

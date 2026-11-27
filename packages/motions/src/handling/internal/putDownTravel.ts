@@ -137,40 +137,6 @@ export function putDownTravel(
 }
 
 /*
- * Read the active minimum-jerk span on the local clock of the whole path.
- */
-function joinRoute(
-  spans: readonly IAutoMovieMotionHumanPrehension.ITransport[],
-): IAutoMovieMotionHumanPrehension.ITransport {
-  const duration: number = spans.reduce(
-    (sum: number, span: IAutoMovieMotionHumanPrehension.ITransport): number =>
-      sum + span.duration,
-    0,
-  );
-  const active = (seconds: number): IActiveSpan => {
-    let local: number = seconds;
-    for (const span of spans) {
-      if (local <= span.duration) return { span, local };
-      local -= span.duration;
-    }
-    const last: IAutoMovieMotionHumanPrehension.ITransport =
-      spans[spans.length - 1]!;
-    return { span: last, local: last.duration };
-  };
-  return {
-    duration,
-    wrist: (seconds: number): IAutoMovieVector3 => {
-      const { span, local }: IActiveSpan = active(seconds);
-      return span.wrist(local);
-    },
-    turn: (seconds: number): IAutoMovieRigidTransform["rotation"] => {
-      const { span, local }: IActiveSpan = active(seconds);
-      return span.turn(local);
-    },
-  };
-}
-
-/*
  * The loaded and unloaded transports and the aperture's clock.
  */
 export namespace putDownTravel {
@@ -205,6 +171,40 @@ export namespace putDownTravel {
      */
     aperture?: number;
   }
+}
+
+/*
+ * Read the active minimum-jerk span on the local clock of the whole path.
+ */
+function joinRoute(
+  spans: readonly IAutoMovieMotionHumanPrehension.ITransport[],
+): IAutoMovieMotionHumanPrehension.ITransport {
+  const duration: number = spans.reduce(
+    (sum: number, span: IAutoMovieMotionHumanPrehension.ITransport): number =>
+      sum + span.duration,
+    0,
+  );
+  const active = (seconds: number): IActiveSpan => {
+    let local: number = seconds;
+    for (const span of spans) {
+      if (local <= span.duration) return { span, local };
+      local -= span.duration;
+    }
+    const last: IAutoMovieMotionHumanPrehension.ITransport =
+      spans[spans.length - 1]!;
+    return { span: last, local: last.duration };
+  };
+  return {
+    duration,
+    wrist: (seconds: number): IAutoMovieVector3 => {
+      const { span, local }: IActiveSpan = active(seconds);
+      return span.wrist(local);
+    },
+    turn: (seconds: number): IAutoMovieRigidTransform["rotation"] => {
+      const { span, local }: IActiveSpan = active(seconds);
+      return span.turn(local);
+    },
+  };
 }
 
 /*

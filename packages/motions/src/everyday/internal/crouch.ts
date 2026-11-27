@@ -137,19 +137,6 @@ export namespace crouch {
   };
 
   /*
-   * Forward inclination at the lowest pose, degrees from standing. The parallel
-   * squat takes the measured 34.7° mean at 107.2° knee flexion (Kasahara et al.
-   * 2024, doi:10.5114/jhk/183066). The deep squat takes the 33.2° and 32.6°
-   * bilateral means of the C7–L5 segment (Endo, Miura and Sakamoto 2020, Table
-   * 1, doi:10.1589/jpts.32.391), used as a key for the rig's deeper heels-up
-   * squat.
-   */
-  const INCLINE: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
-    partial: 34.7,
-    full: (33.2 + 32.6) / 2,
-  };
-
-  /*
    * The ankle's dorsiflexion in a crouch, degrees: `bendLower.ANKLE`, the most
    * measured while crouching (Hyodo et al. 2017).
    */
@@ -364,4 +351,17 @@ export namespace crouch {
       yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
     };
   }
+
+  /*
+   * Forward inclination at the lowest pose, degrees from standing. The parallel
+   * squat takes the measured 34.7° mean at 107.2° knee flexion (Kasahara et al.
+   * 2024, doi:10.5114/jhk/183066). The deep squat takes the 33.2° and 32.6°
+   * bilateral means of the C7–L5 segment (Endo, Miura and Sakamoto 2020, Table
+   * 1, doi:10.1589/jpts.32.391), used as a key for the rig's deeper heels-up
+   * squat.
+   */
+  const INCLINE: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
+    partial: 34.7,
+    full: (33.2 + 32.6) / 2,
+  };
 }

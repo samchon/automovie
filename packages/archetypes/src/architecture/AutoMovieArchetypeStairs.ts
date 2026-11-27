@@ -14,19 +14,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The building code's stair clauses, read in a state adoption of the model
- * code.
- */
-const IBC: string =
-  "IBC 2021, read in its Illinois adoption (https://up.codes/viewer/illinois/ibc-2021/chapter/10/means-of-egress)";
-
-/*
- * The accessibility standard's handrail clauses.
- */
-const ADA: string =
-  "2010 ADA Standards (https://www.access-board.gov/ada/chapter/ch05/)";
+import * as AutoMovieArchetypeStairsData from "./internal/AutoMovieArchetypeStairsData";
 
 /** Constructs the stairs archetype from its recipe. */
 export namespace AutoMovieArchetypeStairs {
@@ -326,23 +314,23 @@ export function create(
     riser: AutoMovieArchetypeBand.metres(
       0.102,
       0.178,
-      `${IBC} 1011.5.2, risers 4 to 7 in (102 to 178 mm); ${ADA} 504.2 agrees`,
+      `${AutoMovieArchetypeStairsData.IBC} 1011.5.2, risers 4 to 7 in (102 to 178 mm); ${AutoMovieArchetypeStairsData.ADA} 504.2 agrees`,
     ),
     tread: AutoMovieArchetypeBand.metres(
       0.279,
       13 * AutoMovieArchetypeUnits.INCH,
-      `${IBC} 1011.5.2, treads at least 11 in (279 mm); the upper end, 13 in, is an estimate`,
+      `${AutoMovieArchetypeStairsData.IBC} 1011.5.2, treads at least 11 in (279 mm); the upper end, 13 in, is an estimate`,
       true,
     ),
     railHeight: AutoMovieArchetypeBand.metres(
       0.865,
       0.965,
-      `${ADA} 505.4, gripping surface 34 to 38 in (865 to 965 mm) above the nosings; ${IBC} 1014.2 agrees`,
+      `${AutoMovieArchetypeStairsData.ADA} 505.4, gripping surface 34 to 38 in (865 to 965 mm) above the nosings; ${AutoMovieArchetypeStairsData.IBC} 1014.2 agrees`,
     ),
     railDiameter: AutoMovieArchetypeBand.metres(
       0.032,
       0.051,
-      `${ADA} 505.7.1, circular gripping surface 1-1/4 to 2 in (32 to 51 mm)`,
+      `${AutoMovieArchetypeStairsData.ADA} 505.7.1, circular gripping surface 1-1/4 to 2 in (32 to 51 mm)`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",

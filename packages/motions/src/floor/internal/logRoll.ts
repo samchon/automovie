@@ -23,30 +23,10 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { knockdown } from "../../reaction/internal/knockdown";
 import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
-import { lieDownPoses } from "./lieDownPoses";
+import "./lieDownPoses";
 import { logRollTurns } from "./logRollTurns";
 import { lyingTurn } from "./lyingTurn";
-
-/*
- * Seconds of each half turn (provisional).
- */
-const HALF: number = 0.7;
-
-/*
- * The straight log: legs extended, arms overhead along the long axis
- * (provisional angles).
- */
-const LOG: IAutoMovieMotionHumanPosture["joints"] = {
-  ...lieDownPoses.POSES.supine.joints,
-  leftUpperLeg: [0, 3, 0],
-  rightUpperLeg: [0, 3, 0],
-  leftLowerLeg: [3, 0, 0],
-  rightLowerLeg: [3, 0, 0],
-  leftUpperArm: [160, 5, 0],
-  rightUpperArm: [160, 5, 0],
-  leftLowerArm: [10, 0, 0],
-  rightLowerArm: [10, 0, 0],
-};
+import * as LogRollData from "./LogRollData";
 
 /*
  * Log-roll across the floor. The lying body straightens into a log, legs
@@ -121,7 +101,7 @@ function planLogRoll(
   const target: number = from.turn + sign * 180 * halves;
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.sequence([
-      { name: "rolling", seconds: HALF * halves },
+      { name: "rolling", seconds: LogRollData.HALF * halves },
       { name: "rolled", seconds: 0 },
       { name: "settled", seconds: 0 },
     ]),
@@ -131,7 +111,7 @@ function planLogRoll(
   const progress: ReturnType<typeof AutoMovieMotionClock.prepare> =
     AutoMovieMotionClock.prepare(clock, "rolling", "rolled");
   const straighten: (w: number) => IAutoMovieMotionHumanPosture["joints"] =
-    prepareHumanShapeBlend(entry.joints, LOG);
+    prepareHumanShapeBlend(entry.joints, LogRollData.LOG);
   const rest: ReturnType<typeof knockdown.prepareRest> =
     knockdown.prepareRest(body);
   const straight: IAutoMovieMotionHumanPosture["joints"] = straighten(1);

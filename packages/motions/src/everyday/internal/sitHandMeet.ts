@@ -94,6 +94,42 @@ export function sitHandMeet(
 }
 
 /*
+ * The companion types of a hand's meeting with its thigh.
+ */
+export namespace sitHandMeet {
+  /*
+   * What a hand's meeting with its thigh is read from.
+   */
+  export interface IProps {
+    /*
+     * The body.
+     */
+    body: IAutoMovieMotionHumanBody;
+
+    /*
+     * The sit's posture at a second since its start, its legs, root and trunk
+     * as it lowers them; its arm goal on the side read is not read.
+     */
+    posture(seconds: number): IAutoMovieMotionHumanPosture;
+
+    /*
+     * The displayed pose the sit is entered with, whose arm hangs.
+     */
+    entry: IAutoMoviePose;
+
+    /*
+     * The hand's side.
+     */
+    side: AutoMovieHumanSide;
+
+    /*
+     * The last second read, from the sit's start.
+     */
+    until: number;
+  }
+}
+
+/*
  * Read the original grid once, checking each hand until its first meeting.
  */
 function firstMeets(
@@ -172,42 +208,6 @@ function firstMeets(
  */
 function angles(joint: IAutoMovieJointPose): readonly [number, number, number] {
   return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
-}
-
-/*
- * The companion types of a hand's meeting with its thigh.
- */
-export namespace sitHandMeet {
-  /*
-   * What a hand's meeting with its thigh is read from.
-   */
-  export interface IProps {
-    /*
-     * The body.
-     */
-    body: IAutoMovieMotionHumanBody;
-
-    /*
-     * The sit's posture at a second since its start, its legs, root and trunk
-     * as it lowers them; its arm goal on the side read is not read.
-     */
-    posture(seconds: number): IAutoMovieMotionHumanPosture;
-
-    /*
-     * The displayed pose the sit is entered with, whose arm hangs.
-     */
-    entry: IAutoMoviePose;
-
-    /*
-     * The hand's side.
-     */
-    side: AutoMovieHumanSide;
-
-    /*
-     * The last second read, from the sit's start.
-     */
-    until: number;
-  }
 }
 
 /*

@@ -11,11 +11,6 @@ import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBuffer
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
 
 /*
- * Texels per row of the feature edge texture.
- */
-const ROW: number = 1024;
-
-/*
  * Wear one geometry and material pair: measure the geometry's feature edges at
  * bind pose, store them in a float data texture, and patch the material so each
  * fragment mixes its base colour and roughness toward the edge and grime layers
@@ -252,3 +247,8 @@ export const applyMaterialWear: (
   });
   return { geometry: worn, texture };
 };
+
+/*
+ * Texels per row of the feature edge texture.
+ */
+const ROW: number = 1024;

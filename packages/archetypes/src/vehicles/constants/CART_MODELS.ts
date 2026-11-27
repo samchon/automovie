@@ -1,20 +1,7 @@
 import { HORSE_BANDS } from "../../animals/equine/HORSE_BANDS";
-import {
-  AutoMovieArchetypeBand,
-  AutoMovieArchetypeUnits,
-  type IAutoMovieArchetypeBand,
-} from "../../core";
+import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../../core";
 import type { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
-
-/*
- * Inches.
- */
-const IN: number = AutoMovieArchetypeUnits.INCH;
-
-/*
- * Centimetres.
- */
-const CM: number = AutoMovieArchetypeUnits.CENTIMETRE;
+import * as CartModelsData from "./internal/CartModelsData";
 
 /*
  * The read carriers by kind, each whole, with the options picked on their own
@@ -92,74 +79,74 @@ export const CART_MODELS: Readonly<{
 }> = {
   figures: {
     cart: {
-      multiUse: { wheelDiameter: 43 * IN, track: 57 * IN },
-      dennettGig: { wheelDiameter: 53 * IN },
+      multiUse: { wheelDiameter: 43 * CartModelsData.IN, track: 57 * CartModelsData.IN },
+      dennettGig: { wheelDiameter: 53 * CartModelsData.IN },
     },
     rickshaw: {
       edo89210382: {
-        length: 213 * CM,
-        width: 102 * CM,
-        wheelDiameter: 108 * CM,
+        length: 213 * CartModelsData.CM,
+        width: 102 * CartModelsData.CM,
+        wheelDiameter: 108 * CartModelsData.CM,
       },
-      edo90360001: { length: 198 * CM, width: 107 * CM },
+      edo90360001: { length: 198 * CartModelsData.CM, width: 107 * CartModelsData.CM },
       powerhouse245268: { length: 2.15, width: 0.9 },
     },
     chariot: {
       carter120: {
-        floorWidth: 105 * CM,
-        railHeight: 78 * CM,
-        floorDepth: 46 * CM,
-        wheelDiameter: 93 * CM,
+        floorWidth: 105 * CartModelsData.CM,
+        railHeight: 78 * CartModelsData.CM,
+        floorDepth: 46 * CartModelsData.CM,
+        wheelDiameter: 93 * CartModelsData.CM,
       },
       carter121: {
-        floorWidth: 100 * CM,
-        poleLength: 243 * CM,
-        wheelDiameter: 94 * CM,
+        floorWidth: 100 * CartModelsData.CM,
+        poleLength: 243 * CartModelsData.CM,
+        wheelDiameter: 94 * CartModelsData.CM,
       },
       carter122: {
-        floorWidth: 102 * CM,
-        railHeight: 75 * CM,
-        floorDepth: 44 * CM,
-        poleLength: 256 * CM,
-        wheelDiameter: 92 * CM,
+        floorWidth: 102 * CartModelsData.CM,
+        railHeight: 75 * CartModelsData.CM,
+        floorDepth: 44 * CartModelsData.CM,
+        poleLength: 256 * CartModelsData.CM,
+        wheelDiameter: 92 * CartModelsData.CM,
       },
       carter161: {
-        floorWidth: 107 * CM,
-        railHeight: 71 * CM,
-        floorDepth: 50 * CM,
-        poleLength: 250 * CM,
-        wheelDiameter: 97 * CM,
+        floorWidth: 107 * CartModelsData.CM,
+        railHeight: 71 * CartModelsData.CM,
+        floorDepth: 50 * CartModelsData.CM,
+        poleLength: 250 * CartModelsData.CM,
+        wheelDiameter: 97 * CartModelsData.CM,
       },
-      carter332: { poleLength: 260 * CM, wheelDiameter: 84 * CM },
+      carter332: { poleLength: 260 * CartModelsData.CM, wheelDiameter: 84 * CartModelsData.CM },
       carter333: {
-        floorWidth: 96 * CM,
-        floorDepth: 38.5 * CM,
-        wheelDiameter: 80 * CM,
+        floorWidth: 96 * CartModelsData.CM,
+        floorDepth: 38.5 * CartModelsData.CM,
+        wheelDiameter: 80 * CartModelsData.CM,
       },
     },
     carriage: {
       brewster: {
-        height: 78.5 * IN,
-        width: 68 * IN,
-        length: 145.5 * IN,
-        wheelbase: 91.5 * IN,
-        frontWheelDiameter: 36.5 * IN,
-        wheelDiameter: 48.25 * IN,
+        height: 78.5 * CartModelsData.IN,
+        width: 68 * CartModelsData.IN,
+        length: 145.5 * CartModelsData.IN,
+        wheelbase: 91.5 * CartModelsData.IN,
+        frontWheelDiameter: 36.5 * CartModelsData.IN,
+        wheelDiameter: 48.25 * CartModelsData.IN,
       },
       minerStevens: {
-        height: 79 * IN,
-        width: 69 * IN,
-        length: 153 * IN,
-        wheelbase: 105 * IN,
-        frontWheelDiameter: 42 * IN,
-        wheelDiameter: 50 * IN,
+        height: 79 * CartModelsData.IN,
+        width: 69 * CartModelsData.IN,
+        length: 153 * CartModelsData.IN,
+        wheelbase: 105 * CartModelsData.IN,
+        frontWheelDiameter: 42 * CartModelsData.IN,
+        wheelDiameter: 50 * CartModelsData.IN,
       },
       peters: {
-        height: 74 * IN,
-        width: 65 * IN,
-        length: 139 * IN,
-        frontWheelDiameter: 36 * IN,
-        wheelDiameter: 44 * IN,
+        height: 74 * CartModelsData.IN,
+        width: 65 * CartModelsData.IN,
+        length: 139 * CartModelsData.IN,
+        frontWheelDiameter: 36 * CartModelsData.IN,
+        wheelDiameter: 44 * CartModelsData.IN,
       },
     },
   },
@@ -171,15 +158,15 @@ export const CART_MODELS: Readonly<{
   },
   shafts: {
     multiUse: {
-      in89: { shaftLength: 89.5 * IN },
-      in93: { shaftLength: 93.5 * IN },
+      in89: { shaftLength: 89.5 * CartModelsData.IN },
+      in93: { shaftLength: 93.5 * CartModelsData.IN },
     },
   },
   ranges: {
     multiUse: {
       withersHeight: AutoMovieArchetypeBand.metres(
-        Math.max(HORSE_BANDS.withersHeight.minimum, 58 * IN),
-        Math.min(HORSE_BANDS.withersHeight.maximum, 67 * IN),
+        Math.max(HORSE_BANDS.withersHeight.minimum, 58 * CartModelsData.IN),
+        Math.min(HORSE_BANDS.withersHeight.maximum, 67 * CartModelsData.IN),
         `the multi-use cart's 14.2 to 16.3 hh horses, 58 to 67 in at four inches to the hand (https://www.gypsyhorses.com/sales/cart.htm) inside the horse's own band (${HORSE_BANDS.withersHeight.source})`,
       ),
     },

@@ -16,40 +16,6 @@ import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
 /*
- * A rearing strike's trunk pitch about the hips, degrees: authored.
- */
-const STRIKE_PITCH: number = 30;
-
-/*
- * A double-barrel kick's trunk pitch down about the shoulders, degrees:
- * authored.
- */
-const KICK_PITCH: number = 15;
-
-/*
- * The folded foreleg's joint turns in a strike, degrees, shoulder first: the
- * stance rows' rear fold.
- */
-const TUCK: readonly [number, number, number, number] = [-40, -10, 100, 20];
-
-/*
- * A moving hoof's path height, metres: authored.
- */
-const LIFT: number = 0.08;
-
-/*
- * The zero vector.
- */
-const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-/*
- * The kinds of the encounter rows.
- */
-const KINDS: ReadonlySet<string> = new Set<
-  AutoMovieArchetypeEquineEncounterCue.Row["kind"]
->(["strike", "kick"]);
-
-/*
  * The encounter's stance rows: a rearing foreleg strike and a double-barrel
  * kick, each bringing hooves onto a point on the other horse.
  *
@@ -185,6 +151,41 @@ export namespace EquineEncounterRows {
     };
   }
 }
+
+
+/*
+ * A rearing strike's trunk pitch about the hips, degrees: authored.
+ */
+const STRIKE_PITCH: number = 30;
+
+/*
+ * A double-barrel kick's trunk pitch down about the shoulders, degrees:
+ * authored.
+ */
+const KICK_PITCH: number = 15;
+
+/*
+ * The folded foreleg's joint turns in a strike, degrees, shoulder first: the
+ * stance rows' rear fold.
+ */
+const TUCK: readonly [number, number, number, number] = [-40, -10, 100, 20];
+
+/*
+ * A moving hoof's path height, metres: authored.
+ */
+const LIFT: number = 0.08;
+
+/*
+ * The zero vector.
+ */
+const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/*
+ * The kinds of the encounter rows.
+ */
+const KINDS: ReadonlySet<string> = new Set<
+  AutoMovieArchetypeEquineEncounterCue.Row["kind"]
+>(["strike", "kick"]);
 
 /*
  * A limb end of the body.

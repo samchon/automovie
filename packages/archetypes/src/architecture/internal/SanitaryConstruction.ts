@@ -8,21 +8,6 @@ import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 import { AutoMovieArchetypeTap } from "../AutoMovieArchetypeTap";
 
 /*
- * White vitreous china and enamel.
- */
-const CHINA: string = "#eef0ee";
-
-/*
- * Chrome fittings.
- */
-const CHROME: string = "#c9ccd1";
-
-/*
- * The shorthand every construction below uses.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
  * The parts and contacts the named plumbing fixture producers build from their
  * drawn dimensions, with the estimated construction sizes.
  *
@@ -470,6 +455,21 @@ export namespace SanitaryConstruction {
     });
   }
 }
+
+/*
+ * White vitreous china and enamel.
+ */
+const CHINA: string = "#eef0ee";
+
+/*
+ * Chrome fittings.
+ */
+const CHROME: string = "#c9ccd1";
+
+/*
+ * The shorthand every construction below uses.
+ */
+const v: typeof Vector3.create = Vector3.create;
 
 /*
  * The builder every kind's construction fills.

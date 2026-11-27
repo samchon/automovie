@@ -10,13 +10,6 @@ import type {
   IAutoMoviePolylineFitInput,
 } from "@automovie/interface";
 
-/*
- * Shared engine vector arithmetic retains the physical coefficient chart.
- */
-const add: typeof M.add = M.add,
-  sub: typeof M.sub = M.sub,
-  scale: typeof M.scale = M.scale;
-
 /**
  * Fits physical ordered observations with adaptive tangent-constrained cubics.
  * Schneider's original Graphics Gems implementation is the algorithmic
@@ -372,3 +365,10 @@ export namespace RecoveryBezierFit {
     return scale(a, 1 / length);
   }
 }
+
+/*
+ * Shared engine vector arithmetic retains the physical coefficient chart.
+ */
+const add: typeof M.add = M.add,
+  sub: typeof M.sub = M.sub,
+  scale: typeof M.scale = M.scale;

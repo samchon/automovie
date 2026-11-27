@@ -10,11 +10,6 @@ import type {
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
- * World vertical.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
  * The crutch walk's clock and each crutch's course over its stations, shared by
  * the law's plan and the track the scene's crutch props read, so both derive
  * every crutch frame from the same stations.
@@ -287,3 +282,8 @@ export namespace crutchWalkCourse {
     return stable;
   }
 }
+
+/*
+ * World vertical.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

@@ -12,26 +12,6 @@ import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
  * jets.
  */
 export namespace AutoMovieHumanEyelidProfile {
-  /*
-   * Depth of the lid's tuck inside the globe's surface behind the posterior
-   * edge, mm. The tuck stands for the conjunctiva lining the lid; any line of
-   * sight past the posterior edge meets the globe first, so the tuck only has
-   * to reach inside it.
-   */
-  const TUCK: number = 1.5;
-
-  /*
-   * Anterior-surface rows of the lid band, as fractions of the way from the
-   * band's outer edge to the start of the rim's rounding.
-   */
-  const ROWS: readonly number[] = [0.18, 0.36, 0.52, 0.66, 0.78, 0.88, 1];
-
-  /*
-   * Radius of the anterior edge's rounding as a fraction of the margin depth: a
-   * rounded lid edge, not a knife cut.
-   */
-  const ROUNDING: number = 0.4;
-
   /**
    * One column of the lid band, outer edge excluded: anterior surface, rounded
    * anterior edge, margin face, posterior edge and tuck.
@@ -189,6 +169,26 @@ export namespace AutoMovieHumanEyelidProfile {
     );
     return points;
   }
+
+  /*
+   * Depth of the lid's tuck inside the globe's surface behind the posterior
+   * edge, mm. The tuck stands for the conjunctiva lining the lid; any line of
+   * sight past the posterior edge meets the globe first, so the tuck only has
+   * to reach inside it.
+   */
+  const TUCK: number = 1.5;
+
+  /*
+   * Anterior-surface rows of the lid band, as fractions of the way from the
+   * band's outer edge to the start of the rim's rounding.
+   */
+  const ROWS: readonly number[] = [0.18, 0.36, 0.52, 0.66, 0.78, 0.88, 1];
+
+  /*
+   * Radius of the anterior edge's rounding as a fraction of the margin depth: a
+   * rounded lid edge, not a knife cut.
+   */
+  const ROUNDING: number = 0.4;
 
   /*
    * C1 nonnegative obstacle correction, exactly zero on a clear profile. Unlike

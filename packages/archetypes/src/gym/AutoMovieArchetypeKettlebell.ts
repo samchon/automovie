@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * What a competition kettlebell is commonly stated to measure.
- */
-const BELL: string =
-  "competition kettlebells as commonly stated for the sport (one size for every mass: 280 mm tall, a 210 mm body, a 35 mm handle); the rule's own text was not read, so the band is marked provisional";
+import * as AutoMovieArchetypeKettlebellData from "./internal/AutoMovieArchetypeKettlebellData";
 
 /** Constructs the kettlebell archetype from its recipe. */
 export namespace AutoMovieArchetypeKettlebell {
@@ -149,9 +144,9 @@ export function create(
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     competition: {
-      height: AutoMovieArchetypeBand.metres(0.28, 0.28, BELL, true),
-      diameter: AutoMovieArchetypeBand.metres(0.21, 0.21, BELL, true),
-      handleDiameter: AutoMovieArchetypeBand.metres(0.033, 0.035, BELL, true),
+      height: AutoMovieArchetypeBand.metres(0.28, 0.28, AutoMovieArchetypeKettlebellData.BELL, true),
+      diameter: AutoMovieArchetypeBand.metres(0.21, 0.21, AutoMovieArchetypeKettlebellData.BELL, true),
+      handleDiameter: AutoMovieArchetypeBand.metres(0.033, 0.035, AutoMovieArchetypeKettlebellData.BELL, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         8,

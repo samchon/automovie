@@ -1,17 +1,6 @@
 import type { IAutoMovieSolveSubdivisionLimit } from "@automovie/interface";
 
 /*
- * Most Jacobi sweeps one solve runs.
- */
-const MAX_ITERATIONS: number = 2000;
-
-/*
- * Convergence threshold on the largest residual, relative to the targets'
- * extent.
- */
-const TOLERANCE: number = 1e-10;
-
-/*
  * Solve, in place, the control positions whose Catmull-Clark limit points are
  * the targets.
  *
@@ -95,3 +84,14 @@ export const solveAutoMovieSubdivisionLimit: (
       props.positions[k] = positions[k]!;
   return residual;
 };
+
+/*
+ * Most Jacobi sweeps one solve runs.
+ */
+const MAX_ITERATIONS: number = 2000;
+
+/*
+ * Convergence threshold on the largest residual, relative to the targets'
+ * extent.
+ */
+const TOLERANCE: number = 1e-10;

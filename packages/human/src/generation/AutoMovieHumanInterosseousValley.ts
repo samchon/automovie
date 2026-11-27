@@ -2,8 +2,6 @@ import type { IAutoMovieHumanInterosseousValley } from "@automovie/interface";
 
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 
-const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;
-
 /**
  * The interosseous valley: the groove on the back of the hand between two
  * neighbouring metacarpals, where the dorsal interosseous muscles lie
@@ -51,3 +49,5 @@ export namespace AutoMovieHumanInterosseousValley {
     );
   }
 }
+
+const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;

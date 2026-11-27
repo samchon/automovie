@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The accessibility standard's ramp clauses.
- */
-const ADA: string =
-  "2010 ADA Standards (https://www.access-board.gov/ada/chapter/ch04/)";
+import * as AutoMovieArchetypeRampData from "./internal/AutoMovieArchetypeRampData";
 
 /** Constructs the ramp archetype from its recipe. */
 export namespace AutoMovieArchetypeRamp {
@@ -182,19 +177,19 @@ export function create(
       "",
       1 / 20,
       1 / 12,
-      `${ADA} 405.2, a ramp run no steeper than 1:12; a surface no steeper than 1:20 is a walk, not a ramp (106.5, the definition of a ramp, not re-read)`,
+      `${AutoMovieArchetypeRampData.ADA} 405.2, a ramp run no steeper than 1:12; a surface no steeper than 1:20 is a walk, not a ramp (106.5, the definition of a ramp, not re-read)`,
     ),
     rise: AutoMovieArchetypeBand.of(
       "m",
       0.15,
       0.76,
-      `${ADA} 405.6, a run rises at most 30 in (760 mm); 405.8 requires handrails above 6 in (150 mm), taken as the least rise worth a ramp`,
+      `${AutoMovieArchetypeRampData.ADA} 405.6, a run rises at most 30 in (760 mm); 405.8 requires handrails above 6 in (150 mm), taken as the least rise worth a ramp`,
     ),
     width: AutoMovieArchetypeBand.of(
       "m",
       0.915,
       1.2,
-      `${ADA} 405.5, clear width at least 36 in (915 mm); the upper end is an estimate`,
+      `${AutoMovieArchetypeRampData.ADA} 405.5, clear width at least 36 in (915 mm); the upper end is an estimate`,
       true,
     ),
     mass: AutoMovieArchetypeBand.of(

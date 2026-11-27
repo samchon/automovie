@@ -1,13 +1,4 @@
 /*
- * Cartesian inner product of the iteration's equal-length work vectors.
- */
-function dot(a: Float64Array, b: Float64Array): number {
-  let out: number = 0;
-  for (let i: number = 0; i < a.length; i++) out += a[i]! * b[i]!;
-  return out;
-}
-
-/*
  * Solve the linear Newton equation with diagonal preconditioning, keeping only
  * the row-local nonzero entries of the projected Hessian.
  * Parameter size: The Cartesian dimension.
@@ -148,4 +139,13 @@ export namespace HumanInteractionMeshStep {
     const squared: number = dot(barrier, barrier);
     return squared === 0 ? 0 : -dot(barrier, elastic) / squared;
   }
+}
+
+/*
+ * Cartesian inner product of the iteration's equal-length work vectors.
+ */
+function dot(a: Float64Array, b: Float64Array): number {
+  let out: number = 0;
+  for (let i: number = 0; i < a.length; i++) out += a[i]! * b[i]!;
+  return out;
 }

@@ -1,52 +1,11 @@
 import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  AutoMovieFurnishingWall,
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
-  IAutoMovieModel,
-  IAutoMoviePropBox,
-  IAutoMoviePropSpec,
-  IAutoMovieStageSetPiece,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-  IAutoMovieWallMount,
-} from "@automovie/interface";
+import type { AutoMovieFurnishingWall, IAutoMovieEnvironmentContribution, IAutoMovieEnvironmentModule, IAutoMovieFurnishingLayout, IAutoMovieModel, IAutoMoviePropBox, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieTransform, IAutoMovieWallMount } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { FurnishingRect } from "./FurnishingRect";
 import { createEnvironmentProp } from "./internal/createEnvironmentProp";
 import { resolveFurnishingPieces } from "./resolveFurnishingPieces";
-
-/*
- * Room-frame point on each wall's inner face and its unit normal into the room.
- */
-const WALL_FACES: Readonly<
-  Record<
-    AutoMovieFurnishingWall,
-    (
-      width: number,
-      depth: number,
-    ) => readonly [point: IAutoMovieVector3, normal: IAutoMovieVector3]
-  >
-> = {
-  "-z": (_w: number, d: number) => [
-    { x: 0, y: 0, z: -d / 2 },
-    { x: 0, y: 0, z: 1 },
-  ],
-  "+z": (_w: number, d: number) => [
-    { x: 0, y: 0, z: d / 2 },
-    { x: 0, y: 0, z: -1 },
-  ],
-  "-x": (w: number) => [
-    { x: -w / 2, y: 0, z: 0 },
-    { x: 1, y: 0, z: 0 },
-  ],
-  "+x": (w: number) => [
-    { x: w / 2, y: 0, z: 0 },
-    { x: -1, y: 0, z: 0 },
-  ],
-};
+import * as FurnishRoomData from "./internal/FurnishRoomData";
 
 /*
  * Furnish a rectangular room with related pieces and a grid of repeated prop
@@ -196,7 +155,7 @@ export function furnishRoom(
       anchors[`${role}/${name}`] = target;
     const wall: AutoMovieFurnishingWall | undefined = related.walls.get(role);
     if (wall !== undefined) {
-      const [point, normal] = WALL_FACES[wall](width, depth);
+      const [point, normal] = FurnishRoomData.WALL_FACES[wall](width, depth);
       mounts.push({
         node: `${context.id}/${role}`,
         wall: `${context.id}/walls/${wall}`,
@@ -212,115 +171,6 @@ export function furnishRoom(
     props,
     ...(mounts.length !== 0 ? { mounts } : {}),
   };
-}
-
-/*
- * Fill the grid's missing roles slot by slot: a slot is taken when the whole
- * group box fits the room and every missing member's box enters no blocked
- * rectangle.
- */
-function placeGrid(
-  id: string,
-  grid: furnishRoom.IGrid,
-  prototype: readonly IGroupPart[],
-  room: FurnishingRect.IRect,
-  aisle: number,
-  blocked: ReadonlyMap<string, FurnishingRect.IRect>,
-  placed: Map<string, FurnishingRect.IPlacement>,
-): void {
-  const group: FurnishingRect.IRect = {
-    minX: Math.min(
-      ...prototype.map((p: IGroupPart): number => p.placement.rect.minX),
-    ),
-    maxX: Math.max(
-      ...prototype.map((p: IGroupPart): number => p.placement.rect.maxX),
-    ),
-    minZ: Math.min(
-      ...prototype.map((p: IGroupPart): number => p.placement.rect.minZ),
-    ),
-    maxZ: Math.max(
-      ...prototype.map((p: IGroupPart): number => p.placement.rect.maxZ),
-    ),
-  };
-  const width: number = room.maxX - room.minX;
-  const depth: number = room.maxZ - room.minZ;
-  const groupWidth: number = group.maxX - group.minX;
-  const groupDepth: number = group.maxZ - group.minZ;
-  const pitchX: number = groupWidth + aisle;
-  const pitchZ: number = groupDepth + aisle;
-  const columns: number = Math.max(
-    0,
-    1 + Math.floor((width - 2 * aisle - groupWidth) / pitchX),
-  );
-  const rows: number = Math.max(
-    0,
-    1 + Math.floor((depth - 2 * aisle - groupDepth) / pitchZ),
-  );
-  const capacity: number = columns * rows;
-  if (capacity < grid.count)
-    throw capacityError(id, grid.capacity, grid.count, capacity);
-
-  let slot: number = 0;
-  for (let index: number = 1; index <= grid.count; ++index) {
-    const missing: IGroupPart[] = prototype.filter(
-      (p: IGroupPart): boolean =>
-        !placed.has(roleAt(grid.prefix, index, p.role)),
-    );
-    if (missing.length === 0) continue;
-
-    let offset: readonly [number, number] | null = null;
-    for (; slot < capacity && offset === null; ++slot) {
-      const x: number =
-        room.minX + aisle + (slot % columns) * pitchX - group.minX;
-      const z: number =
-        room.minZ + aisle + Math.floor(slot / columns) * pitchZ - group.minZ;
-      const occupied: FurnishingRect.IRect = FurnishingRect.shift(group, x, z);
-      if (
-        FurnishingRect.within(occupied, room) &&
-        missing.every(
-          (p: IGroupPart): boolean =>
-            FurnishingRect.obstruction(
-              FurnishingRect.shift(p.placement.rect, x, z),
-              blocked,
-            ) === undefined,
-        )
-      )
-        offset = [x, z];
-    }
-    if (offset === null)
-      throw capacityError(id, grid.capacity, grid.count, index - 1);
-    const [x, z] = offset;
-    for (const part of missing)
-      placed.set(roleAt(grid.prefix, index, part.role), {
-        ...part.placement,
-        x: part.placement.x + x,
-        z: part.placement.z + z,
-        rect: FurnishingRect.shift(part.placement.rect, x, z),
-      });
-  }
-}
-
-/*
- * Build the role of one occurrence from its group's stable ordinal and the
- * part's local suffix.
- */
-function roleAt(prefix: string, index: number, part: string): string {
-  return part === "" ? `${prefix}-${index}` : `${prefix}-${index}/${part}`;
-}
-
-/*
- * Name the failing count and the capacity already available when grid placement
- * stops.
- */
-function capacityError(
-  id: string,
-  key: string,
-  count: number,
-  fits: number,
-): Error {
-  return new Error(
-    `${id} ${key} cannot fit ${count} groups (${fits} available). Widen the room, reduce the count or review the reserved areas.`,
-  );
 }
 
 /*
@@ -434,6 +284,115 @@ export namespace furnishRoom {
       throw new Error(`${model.id} has no measurable furniture geometry`);
     return result;
   }
+}
+
+/*
+ * Fill the grid's missing roles slot by slot: a slot is taken when the whole
+ * group box fits the room and every missing member's box enters no blocked
+ * rectangle.
+ */
+function placeGrid(
+  id: string,
+  grid: furnishRoom.IGrid,
+  prototype: readonly IGroupPart[],
+  room: FurnishingRect.IRect,
+  aisle: number,
+  blocked: ReadonlyMap<string, FurnishingRect.IRect>,
+  placed: Map<string, FurnishingRect.IPlacement>,
+): void {
+  const group: FurnishingRect.IRect = {
+    minX: Math.min(
+      ...prototype.map((p: IGroupPart): number => p.placement.rect.minX),
+    ),
+    maxX: Math.max(
+      ...prototype.map((p: IGroupPart): number => p.placement.rect.maxX),
+    ),
+    minZ: Math.min(
+      ...prototype.map((p: IGroupPart): number => p.placement.rect.minZ),
+    ),
+    maxZ: Math.max(
+      ...prototype.map((p: IGroupPart): number => p.placement.rect.maxZ),
+    ),
+  };
+  const width: number = room.maxX - room.minX;
+  const depth: number = room.maxZ - room.minZ;
+  const groupWidth: number = group.maxX - group.minX;
+  const groupDepth: number = group.maxZ - group.minZ;
+  const pitchX: number = groupWidth + aisle;
+  const pitchZ: number = groupDepth + aisle;
+  const columns: number = Math.max(
+    0,
+    1 + Math.floor((width - 2 * aisle - groupWidth) / pitchX),
+  );
+  const rows: number = Math.max(
+    0,
+    1 + Math.floor((depth - 2 * aisle - groupDepth) / pitchZ),
+  );
+  const capacity: number = columns * rows;
+  if (capacity < grid.count)
+    throw capacityError(id, grid.capacity, grid.count, capacity);
+
+  let slot: number = 0;
+  for (let index: number = 1; index <= grid.count; ++index) {
+    const missing: IGroupPart[] = prototype.filter(
+      (p: IGroupPart): boolean =>
+        !placed.has(roleAt(grid.prefix, index, p.role)),
+    );
+    if (missing.length === 0) continue;
+
+    let offset: readonly [number, number] | null = null;
+    for (; slot < capacity && offset === null; ++slot) {
+      const x: number =
+        room.minX + aisle + (slot % columns) * pitchX - group.minX;
+      const z: number =
+        room.minZ + aisle + Math.floor(slot / columns) * pitchZ - group.minZ;
+      const occupied: FurnishingRect.IRect = FurnishingRect.shift(group, x, z);
+      if (
+        FurnishingRect.within(occupied, room) &&
+        missing.every(
+          (p: IGroupPart): boolean =>
+            FurnishingRect.obstruction(
+              FurnishingRect.shift(p.placement.rect, x, z),
+              blocked,
+            ) === undefined,
+        )
+      )
+        offset = [x, z];
+    }
+    if (offset === null)
+      throw capacityError(id, grid.capacity, grid.count, index - 1);
+    const [x, z] = offset;
+    for (const part of missing)
+      placed.set(roleAt(grid.prefix, index, part.role), {
+        ...part.placement,
+        x: part.placement.x + x,
+        z: part.placement.z + z,
+        rect: FurnishingRect.shift(part.placement.rect, x, z),
+      });
+  }
+}
+
+/*
+ * Build the role of one occurrence from its group's stable ordinal and the
+ * part's local suffix.
+ */
+function roleAt(prefix: string, index: number, part: string): string {
+  return part === "" ? `${prefix}-${index}` : `${prefix}-${index}/${part}`;
+}
+
+/*
+ * Name the failing count and the capacity already available when grid placement
+ * stops.
+ */
+function capacityError(
+  id: string,
+  key: string,
+  count: number,
+  fits: number,
+): Error {
+  return new Error(
+    `${id} ${key} cannot fit ${count} groups (${fits} available). Widen the room, reduce the count or review the reserved areas.`,
+  );
 }
 
 /*

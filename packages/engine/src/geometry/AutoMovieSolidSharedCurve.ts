@@ -11,17 +11,6 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const {
-  combine,
-  cross,
-  dot,
-  norm,
-  scale,
-  solve2,
-  sub,
-  unit,
-}: typeof AutoMovieSolidVector = AutoMovieSolidVector;
-
 /**
  * A join's contact as a declared closed loop on the host that both surfaces
  * share, in place of a traced intersection: the curve of a mixed join, along
@@ -419,6 +408,17 @@ export namespace AutoMovieSolidSharedCurve {
     };
   }
 }
+
+const {
+  combine,
+  cross,
+  dot,
+  norm,
+  scale,
+  solve2,
+  sub,
+  unit,
+}: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /*
  * World point or derivative, mm.

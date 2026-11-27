@@ -12,12 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * A maker's saucer, read.
- */
-const SAUCER: string =
-  "Rosenthal Sonetto espresso saucer 12 cm: 1.4 cm high, 106 g (https://www.rosenthal.de/en-gb/espresso-saucer-12-cm/10600-405234-14716.html)";
+import * as AutoMovieArchetypeTablewareData from "./internal/AutoMovieArchetypeTablewareData";
 
 /** Constructs the tableware archetype from its recipe. */
 export namespace AutoMovieArchetypeTableware {
@@ -274,9 +269,9 @@ export function create(
     plate: {},
     platter: {},
     saucer: {
-      diameter: AutoMovieArchetypeBand.metres(0.12, 0.12, SAUCER),
-      height: AutoMovieArchetypeBand.metres(0.014, 0.014, SAUCER),
-      mass: AutoMovieArchetypeBand.of("kg", 0.106, 0.106, SAUCER),
+      diameter: AutoMovieArchetypeBand.metres(0.12, 0.12, AutoMovieArchetypeTablewareData.SAUCER),
+      height: AutoMovieArchetypeBand.metres(0.014, 0.014, AutoMovieArchetypeTablewareData.SAUCER),
+      mass: AutoMovieArchetypeBand.of("kg", 0.106, 0.106, AutoMovieArchetypeTablewareData.SAUCER),
     },
   };
 }

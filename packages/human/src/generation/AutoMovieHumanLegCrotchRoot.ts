@@ -16,8 +16,6 @@ import { AutoMovieHumanLegCrotchFillet } from "./AutoMovieHumanLegCrotchFillet";
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-const { fifth, norm, sub } = AutoMovieHumanLegVector;
-
 /**
  * The crotch ring a leg takes: the trunk owns the bottom ring, and the leg
  * takes the arc of it that is its own, with the trunk's jet down across it,
@@ -221,3 +219,5 @@ export namespace AutoMovieHumanLegCrotchRoot {
     );
   }
 }
+
+const { fifth, norm, sub } = AutoMovieHumanLegVector;

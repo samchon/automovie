@@ -8,39 +8,12 @@ import type {
 import { AutoMovieHumanHandDigitLaw } from "./AutoMovieHumanHandDigitLaw";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const {
-  sub,
-  plus,
-  scale,
-  dot,
-  norm,
-  unit,
-  TWO_PI,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { linePoint, lineTangent }: typeof AutoMovieHumanHandDigitLaw =
-  AutoMovieHumanHandDigitLaw;
-
 /**
  * The form's web geometry: each digit's root ring from its arcs of its
  * parent's ring, each web's crest, and the first section of a digit that
  * stands clear of its arcs and crests.
  */
 export namespace AutoMovieHumanHandWeb {
-  /*
-   * How far a part's first own section stands past its webs' crests, beyond the margin's radius, mm of the form.
-   */
-  const CREST_CLEARANCE: number = 2;
-
-  /*
-   * How far it stands past every point of its arcs, mm of the form.
-   */
-  const ARC_CLEARANCE: number = 2;
-
-  /*
-   * Samples of each arc read for that clearance.
-   */
-  const ARC_SAMPLES: number = 32;
-
   /** A digit's first ring at its web: its arcs of the parent's ring, closed by bridges. */
   export function rootOf(
     order: number,
@@ -132,4 +105,32 @@ export namespace AutoMovieHumanHandWeb {
     }
     return d.cap - 3;
   }
+
+  /*
+   * How far a part's first own section stands past its webs' crests, beyond the margin's radius, mm of the form.
+   */
+  const CREST_CLEARANCE: number = 2;
+
+  /*
+   * How far it stands past every point of its arcs, mm of the form.
+   */
+  const ARC_CLEARANCE: number = 2;
+
+  /*
+   * Samples of each arc read for that clearance.
+   */
+  const ARC_SAMPLES: number = 32;
 }
+
+const {
+  sub,
+  plus,
+  scale,
+  dot,
+  norm,
+  unit,
+  TWO_PI,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+
+const { linePoint, lineTangent }: typeof AutoMovieHumanHandDigitLaw =
+  AutoMovieHumanHandDigitLaw;

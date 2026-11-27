@@ -5,18 +5,6 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
- * The default apex's part independent of the jump's length, hip heights
- * (provisional).
- */
-const APEX_BASE: number = 0.06;
-
-/*
- * The default apex's rise per metre of the jump's horizontal length, metres per
- * metre (provisional).
- */
-const APEX_PER_LENGTH: number = 0.1;
-
-/*
  * A jump's ballistic flight of the centre of mass, the one point gravity alone
  * moves while airborne: from the apex height above take-off (0.06 hip heights
  * plus a tenth of the jump's length when absent, provisional, plus the climb to
@@ -119,3 +107,15 @@ export namespace jumpFlight {
     };
   }
 }
+
+/*
+ * The default apex's part independent of the jump's length, hip heights
+ * (provisional).
+ */
+const APEX_BASE: number = 0.06;
+
+/*
+ * The default apex's rise per metre of the jump's horizontal length, metres per
+ * metre (provisional).
+ */
+const APEX_PER_LENGTH: number = 0.1;

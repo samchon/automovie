@@ -14,11 +14,6 @@ import { AutoMovieSolidTraceObservation as Observation } from "./construction/Au
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/*
- * World-vector operations for the original tangent and predictor equations.
- */
-const { add, cross, dot, norm, scale, sub }: typeof AutoMovieSolidVector =
-  AutoMovieSolidVector;
 /**
  * Original arc-mode loop preparation, separate from parameterized trace
  * publication.
@@ -550,6 +545,12 @@ export namespace AutoMovieSolidIntersectionWalk {
     };
   }
 }
+
+/*
+ * World-vector operations for the original tangent and predictor equations.
+ */
+const { add, cross, dot, norm, scale, sub }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;
 /*
  * World point or direction used by the original predictor.
  */

@@ -1,18 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSittingVolley,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSittingVolley, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
@@ -27,49 +14,7 @@ import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { humanSittingVolleyPhases } from "./humanSittingVolleyPhases";
-
-/*
- * Arm sides used in the forearm platform.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/*
- * The shares at the authored palm plant, release and receive.
- */
-const PLANT: number = humanSittingVolleyPhases.PLANT;
-const RELEASE: number = humanSittingVolleyPhases.RELEASE;
-const RECEIVE: number = humanSittingVolleyPhases.RECEIVE;
-
-/*
- * Maximum free scoot, in thigh lengths, and maximum trunk inclination, in
- * degrees.
- */
-const SHIFT: number = 0.5;
-const LEAN: number = 50;
-
-/*
- * Forward wrist clearance from the pressing shoulder's shadow, in hand lengths.
- */
-const PRESS_AHEAD: number = 0.5;
-
-/*
- * Same-side clearance from the pressing shoulder's shadow, in hand lengths.
- */
-const PRESS_OUT: number = 0.1;
-
-/*
- * World-space wrist fit tolerance in metres.
- */
-const FIT: number = 0.01;
-
-/*
- * Ground and seated rest frame used to carry the low-body and recovered arm
- * goals.
- */
-const ORIGIN: IAutoMovieRigidTransform = {
-  position: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-};
+import * as HumanSittingVolleyData from "./HumanSittingVolleyData";
 
 /*
  * Shift a court-supported seat by pressing on one stationary palm, then release
@@ -111,8 +56,8 @@ function planHumanSittingVolley(
   HumanBound.within(
     "lateral",
     lateral,
-    -SHIFT * body.measure.thigh,
-    SHIFT * body.measure.thigh,
+    -HumanSittingVolleyData.SHIFT * body.measure.thigh,
+    HumanSittingVolleyData.SHIFT * body.measure.thigh,
     "m",
   );
   for (const coordinate of [target.x, target.y, target.z])
@@ -192,15 +137,15 @@ function planHumanSittingVolley(
   ): IAutoMovieMotionHumanPosture => {
     const bodyPose: IAutoMovieMotionHumanPosture = carryHumanPosture(
       low,
-      ORIGIN,
+      HumanSittingVolleyData.ORIGIN,
       {
-        ...ORIGIN,
+        ...HumanSittingVolleyData.ORIGIN,
         position: moved,
       },
     );
     const incline: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
       bodyPose.joints,
-      LEAN * (reaching + 0.4 * platform),
+      HumanSittingVolleyData.LEAN * (reaching + 0.4 * platform),
     );
     const tilted: IAutoMovieMotionHumanPosture = {
       ...bodyPose,
@@ -227,17 +172,17 @@ function planHumanSittingVolley(
     resolveHumanPosture(body, pressing),
   ).get(`${hand}UpperArm`)!.worldPosition;
   const wristAtOrigin: IAutoMovieVector3 = palmFrame(pressing).place(
-    ORIGIN.position,
+    HumanSittingVolleyData.ORIGIN.position,
   ).point;
   const floorPoint: IAutoMovieVector3 = {
     ...Vector3.subtract(
       Vector3.add(
         shoulder,
         Vector3.add(
-          Vector3.scale(forward, PRESS_AHEAD * body.measure.hand),
+          Vector3.scale(forward, HumanSittingVolleyData.PRESS_AHEAD * body.measure.hand),
           Vector3.scale(
             left,
-            (hand === "left" ? 1 : -1) * PRESS_OUT * body.measure.hand,
+            (hand === "left" ? 1 : -1) * HumanSittingVolleyData.PRESS_OUT * body.measure.hand,
           ),
         ),
       ),
@@ -281,14 +226,14 @@ function planHumanSittingVolley(
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
       ...supported.limbs,
     };
-    for (const side of SIDES) {
+    for (const side of HumanSittingVolleyData.SIDES) {
       const resting: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       const restingPoint: IAutoMovieVector3 = Vector3.add(
         resting.worldPosition,
         moved,
       );
       const bend = AutoMovieMotionHumanBend.hang(body, supported, side, 0.2);
-      if (side === hand && reaching > 0 && share <= RELEASE) {
+      if (side === hand && reaching > 0 && share <= HumanSittingVolleyData.RELEASE) {
         const wrist: ReturnType<ReturnType<typeof palmFrame>["place"]> =
           palmFrame(supported).place(floorPoint);
         const held: IAutoMovieHumanLimbGoal =
@@ -316,7 +261,7 @@ function planHumanSittingVolley(
             fallback: "hang",
           }),
           elbow: "placed",
-          planted: share >= PLANT,
+          planted: share >= HumanSittingVolleyData.PLANT,
         };
         continue;
       }
@@ -335,7 +280,7 @@ function planHumanSittingVolley(
         palm: Vector3.scale(left, -split),
       });
       const returningHand: boolean =
-        side === hand && share > RELEASE && share < RECEIVE;
+        side === hand && share > HumanSittingVolleyData.RELEASE && share < HumanSittingVolleyData.RECEIVE;
       const released:
         | ReturnType<ReturnType<typeof palmFrame>["place"]>
         | undefined = returningHand
@@ -386,10 +331,10 @@ function planHumanSittingVolley(
   // refusal cannot hide a second problem with the receive target.
   const misses: IPlanHumanSittingVolleyMissesItem[] = [];
   for (const [phase, when, sides] of [
-    ["palm plant", PLANT, [hand]],
-    ["palm push", (PLANT + RELEASE) / 2, [hand]],
-    ["palm release", RELEASE, [hand]],
-    ["forearm receive", RECEIVE, SIDES],
+    ["palm plant", HumanSittingVolleyData.PLANT, [hand]],
+    ["palm push", (HumanSittingVolleyData.PLANT + HumanSittingVolleyData.RELEASE) / 2, [hand]],
+    ["palm release", HumanSittingVolleyData.RELEASE, [hand]],
+    ["forearm receive", HumanSittingVolleyData.RECEIVE, HumanSittingVolleyData.SIDES],
   ] as const) {
     const sample: IAutoMovieMotionHumanPosture = posture(when * seconds);
     const displayed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -398,7 +343,7 @@ function planHumanSittingVolley(
       const handBone: IAutoMovieResolvedBone = displayed.get(`${side}Hand`)!;
       const goal: IAutoMovieHumanLimbGoal = sample.limbs[`${side}Arm`]!;
       const gap: number = Vector3.distance(handBone.worldPosition, goal.point);
-      if (!(gap <= FIT)) misses.push({ phase, side, gap });
+      if (!(gap <= HumanSittingVolleyData.FIT)) misses.push({ phase, side, gap });
     }
   }
   if (misses.length > 0)
@@ -408,7 +353,7 @@ function planHumanSittingVolley(
         ? "lateral"
         : "target",
       value: Math.max(...misses.map((miss): number => miss.gap)),
-      feasible: { kind: "range", minimum: 0, maximum: FIT, unit: "m" },
+      feasible: { kind: "range", minimum: 0, maximum: HumanSittingVolleyData.FIT, unit: "m" },
       reason: `the seated wrists miss their targets (${misses
         .map(
           (miss): string =>
@@ -422,11 +367,11 @@ function planHumanSittingVolley(
     duration: seconds,
     base: entry.base,
     events: [
-      { name: "palmPlant", share: PLANT },
-      { name: "palmRelease", share: RELEASE },
-      { name: "receive", share: RECEIVE },
+      { name: "palmPlant", share: HumanSittingVolleyData.PLANT },
+      { name: "palmRelease", share: HumanSittingVolleyData.RELEASE },
+      { name: "receive", share: HumanSittingVolleyData.RECEIVE },
     ],
-    contact: RECEIVE * seconds,
+    contact: HumanSittingVolleyData.RECEIVE * seconds,
     contacts: [
       {
         part: "seat",
@@ -438,8 +383,8 @@ function planHumanSittingVolley(
       {
         part: `${hand}Hand`,
         kind: "plant",
-        from: PLANT,
-        to: RELEASE,
+        from: HumanSittingVolleyData.PLANT,
+        to: HumanSittingVolleyData.RELEASE,
         support: { kind: "ground" },
       },
     ],

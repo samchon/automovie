@@ -7,16 +7,6 @@ import {
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
 
 /*
- * The shorthand every construction uses.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * Brass.
- */
-const BRASS: string = "#c9a227";
-
-/*
  * How createInstrument builds the instruments a marching column carries:
  * a side drum and a bugle.
  */
@@ -125,6 +115,16 @@ export namespace MarchingConstruction {
     });
   }
 }
+
+/*
+ * The shorthand every construction uses.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * Brass.
+ */
+const BRASS: string = "#c9a227";
 
 /*
  * The builder every construction fills.

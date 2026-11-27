@@ -4,13 +4,8 @@ import type {
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
 
-import {
-  AutoMovieArchetype,
-  AutoMovieArchetypeBand,
-  type AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeUnits,
-  type IAutoMovieArchetypeBand,
-} from "../core/index";
+import "../core/index";
+import type { AutoMovieArchetype, AutoMovieArchetypeDrawSession, IAutoMovieArchetypeBand } from "../core/index";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
@@ -22,6 +17,10 @@ import { AutoMovieArchetypeCostumeMail } from "./AutoMovieArchetypeCostumeMail";
 import { AutoMovieArchetypeCostumeVambrace } from "./AutoMovieArchetypeCostumeVambrace";
 import { armourBone } from "./internal/armourBone";
 import { assembleCostumeArmour as assembleCostumeArmourImplementation } from "./internal/assembleCostumeArmour";
+import * as AutoMovieArchetypeArmourData from "./internal/AutoMovieArchetypeArmourData";
+import {
+  read as AutoMovieArchetypeArmourDataRead,
+} from "./internal/AutoMovieArchetypeArmourData";
 
 /**
  * Constructs the armour archetype from its recipe.
@@ -359,18 +358,6 @@ export namespace AutoMovieArchetypeArmour {
     return assembleCostumeArmourImplementation(params);
   }
 
-  /*
-   * The plate thickness read.
-   */
-  const PLATE: string =
-    "Alan Williams, What can scientific analysis tell us about the effectiveness of medieval arms and armour?, p. 172: comfortable-weight breastplates between 1.5 and 3 mm, limb armour thinner; the breastplate range remains a provisional limb transfer (https://wratislavia.antiqua.uwr.edu.pl/wp-content/uploads/sites/573/2025/02/10-What-can-scientific-analysis-tell-us-about-the-effectiveness-of-medieval-arms-and-armour.pdf)";
-
-  /*
-   * The helmet padding read.
-   */
-  const PAD: string =
-    'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275/combat-helmet-continues-to-evolve-step-by-step/), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
-
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get openHelmet(): typeof AutoMovieArchetypeCostumeHelmet.create {
@@ -423,21 +410,6 @@ export namespace AutoMovieArchetypeArmour {
     mass: "kg",
   };
 
-  /*
-   * A record's height, width, depth and mass, centimetres and grams.
-   */
-  const read = (
-    height: number,
-    width: number,
-    depth: number,
-    grams: number,
-  ): Readonly<Partial<Record<Dimension, number>>> => ({
-    height: height * AutoMovieArchetypeUnits.CENTIMETRE,
-    width: width * AutoMovieArchetypeUnits.CENTIMETRE,
-    depth: depth * AutoMovieArchetypeUnits.CENTIMETRE,
-    mass: grams / 1000,
-  });
-
   /**
    * Each kind's read pieces whole, the default first, as the Metropolitan
    * Museum's records give them (H, W, D, Wt.;
@@ -471,39 +443,39 @@ export namespace AutoMovieArchetypeArmour {
     >
   > = {
     openHelmet: {
-      met26453: read(24.1, 28.6, 33.7, 2984),
-      met25388: read(26.7, 23.5, 39.37, 2769),
+      met26453: AutoMovieArchetypeArmourDataRead(24.1, 28.6, 33.7, 2984),
+      met25388: AutoMovieArchetypeArmourDataRead(26.7, 23.5, 39.37, 2769),
     },
     closedHelmet: {
-      met23232: read(29.2, 21.6, 28.6, 2749),
-      met26508: read(29.8, 22.2, 33.7, 2656),
+      met23232: AutoMovieArchetypeArmourDataRead(29.2, 21.6, 28.6, 2749),
+      met26508: AutoMovieArchetypeArmourDataRead(29.8, 22.2, 33.7, 2656),
     },
     brimmedHelmet: {
-      met26512: read(27, 23.81, 34.3, 1449),
-      met21972: read(25.4, 23.2, 33.5, 1701),
+      met26512: AutoMovieArchetypeArmourDataRead(27, 23.81, 34.3, 1449),
+      met21972: AutoMovieArchetypeArmourDataRead(25.4, 23.2, 33.5, 1701),
     },
     cuirass: {
-      met22359: read(36.2, 30.5, 30.5, 4536),
-      met23084: read(37.5, 37.5, 19.5, 3112 + 2340),
+      met22359: AutoMovieArchetypeArmourDataRead(36.2, 30.5, 30.5, 4536),
+      met23084: AutoMovieArchetypeArmourDataRead(37.5, 37.5, 19.5, 3112 + 2340),
     },
     mail: {
-      met34324: read(91.5, 143, 62, 9071.9),
-      met22415: read(84, 132, 62, 9869),
-      met633538: read(86.4, 144.8, 62, 7520.6),
-      met27635: read(81, 137, 62, 5562),
+      met34324: AutoMovieArchetypeArmourDataRead(91.5, 143, 62, 9071.9),
+      met22415: AutoMovieArchetypeArmourDataRead(84, 132, 62, 9869),
+      met633538: AutoMovieArchetypeArmourDataRead(86.4, 144.8, 62, 7520.6),
+      met27635: AutoMovieArchetypeArmourDataRead(81, 137, 62, 5562),
     },
     gauntlet: {
-      met23255: read(29.4, 14.6, 15.9, 793.8),
-      met23256: read(21, 12.7, 12.4, 300.5),
-      met23199: read(26.7, 12.7, 11.1, 581.2),
+      met23255: AutoMovieArchetypeArmourDataRead(29.4, 14.6, 15.9, 793.8),
+      met23256: AutoMovieArchetypeArmourDataRead(21, 12.7, 12.4, 300.5),
+      met23199: AutoMovieArchetypeArmourDataRead(26.7, 12.7, 11.1, 581.2),
     },
     vambrace: {
-      met24896: read(21, 11.4, 8.9, 351),
-      met35850: read(46.1, 16.8, 13.2, 1089),
+      met24896: AutoMovieArchetypeArmourDataRead(21, 11.4, 8.9, 351),
+      met35850: AutoMovieArchetypeArmourDataRead(46.1, 16.8, 13.2, 1089),
     },
     greave: {
-      met22970: read(35.3, 12.7, 11.4, 669),
-      met22276: read(38.3, 11.7, 14.3, 854),
+      met22970: AutoMovieArchetypeArmourDataRead(35.3, 12.7, 11.4, 669),
+      met22276: AutoMovieArchetypeArmourDataRead(38.3, 11.7, 14.3, 854),
     },
   };
 
@@ -530,25 +502,6 @@ export namespace AutoMovieArchetypeArmour {
    */
   export const GLANCE: number = 60;
 
-  /*
-   * The plate's thickness band.
-   */
-  const thickness: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
-    0.0015,
-    0.003,
-    PLATE,
-  );
-
-  /*
-   * A helmet's padding.
-   */
-  const pad: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
-    0.75 * AutoMovieArchetypeUnits.INCH,
-    0.75 * AutoMovieArchetypeUnits.INCH,
-    PAD,
-    true,
-  );
-
   /**
    * The band of each free dimension a piece's record leaves, by kind: the
    * plate's thickness, a breastplate's band applied to the thinner limb plates,
@@ -557,14 +510,14 @@ export namespace AutoMovieArchetypeArmour {
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
-    openHelmet: { thickness, pad },
-    closedHelmet: { thickness, pad },
-    brimmedHelmet: { thickness, pad },
-    cuirass: { thickness },
+    openHelmet: { thickness: AutoMovieArchetypeArmourData.thickness, pad: AutoMovieArchetypeArmourData.pad },
+    closedHelmet: { thickness: AutoMovieArchetypeArmourData.thickness, pad: AutoMovieArchetypeArmourData.pad },
+    brimmedHelmet: { thickness: AutoMovieArchetypeArmourData.thickness, pad: AutoMovieArchetypeArmourData.pad },
+    cuirass: { thickness: AutoMovieArchetypeArmourData.thickness },
     mail: {},
-    gauntlet: { thickness: { ...thickness, provisional: true } },
-    vambrace: { thickness: { ...thickness, provisional: true } },
-    greave: { thickness: { ...thickness, provisional: true } },
+    gauntlet: { thickness: { ...AutoMovieArchetypeArmourData.thickness, provisional: true } },
+    vambrace: { thickness: { ...AutoMovieArchetypeArmourData.thickness, provisional: true } },
+    greave: { thickness: { ...AutoMovieArchetypeArmourData.thickness, provisional: true } },
   };
 
   /** The bone a piece rides, by its kind and a limb piece's side: `armourBone`. */

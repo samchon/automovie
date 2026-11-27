@@ -6,25 +6,6 @@ import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedB
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /*
- * The closed rigid vocabulary; no body or species is reconstructed.
- */
-const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
-  "trunk",
-  "hindquarters",
-  "neck",
-  "head",
-  "tail",
-  ...Object.values(QuadrupedScapula.BONES),
-  ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
-    (
-      limb: AutoMovieArchetypeQuadrupedBody.Limb,
-    ): AutoMovieArchetypeQuadrupedBody.Bone[] => [
-      ...AutoMovieArchetypeQuadrupedBody.BONES[limb],
-    ],
-  ),
-];
-
-/*
  * Internal shared rigid-frame admission and carrier delta arithmetic.
  */
 export namespace QuadrupedRigDelta {
@@ -135,3 +116,22 @@ export namespace QuadrupedRigDelta {
       throw new RangeError(`Quadruped ${id} requires a unit rotation`);
   }
 }
+
+/*
+ * The closed rigid vocabulary; no body or species is reconstructed.
+ */
+const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
+  "trunk",
+  "hindquarters",
+  "neck",
+  "head",
+  "tail",
+  ...Object.values(QuadrupedScapula.BONES),
+  ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
+    (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): AutoMovieArchetypeQuadrupedBody.Bone[] => [
+      ...AutoMovieArchetypeQuadrupedBody.BONES[limb],
+    ],
+  ),
+];

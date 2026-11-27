@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The rule that sizes a competition bench.
- */
-const IPF: string =
-  "International Powerlifting Federation, Technical Rules, the bench: not less than 1.22 m long, 29 to 32 cm wide, 42 to 45 cm from the floor to the top of its pad";
+import * as AutoMovieArchetypeBenchData from "./internal/AutoMovieArchetypeBenchData";
 
 /** Constructs the bench archetype from its recipe. */
 export namespace AutoMovieArchetypeBench {
@@ -192,11 +187,11 @@ export function create(
       length: AutoMovieArchetypeBand.metres(
         1.22,
         1.3,
-        `${IPF}; the upper end is an estimate`,
+        `${AutoMovieArchetypeBenchData.IPF}; the upper end is an estimate`,
         true,
       ),
-      width: AutoMovieArchetypeBand.metres(0.29, 0.32, IPF),
-      height: AutoMovieArchetypeBand.metres(0.42, 0.45, IPF),
+      width: AutoMovieArchetypeBand.metres(0.29, 0.32, AutoMovieArchetypeBenchData.IPF),
+      height: AutoMovieArchetypeBand.metres(0.42, 0.45, AutoMovieArchetypeBenchData.IPF),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         20,

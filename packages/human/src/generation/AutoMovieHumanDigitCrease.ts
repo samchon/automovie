@@ -2,8 +2,6 @@ import type { IAutoMovieHumanDigitCrease } from "@automovie/interface";
 
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 
-const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;
-
 /**
  * The digital flexion creases: the grooves across the palmar side of a
  * finger where the skin folds when the joints bend, each its own window along
@@ -60,3 +58,5 @@ export namespace AutoMovieHumanDigitCrease {
     );
   }
 }
+
+const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;

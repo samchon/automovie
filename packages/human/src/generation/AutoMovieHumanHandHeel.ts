@@ -11,11 +11,6 @@ import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
 import { AutoMovieHumanHandStar } from "./AutoMovieHumanHandStar";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { smooth, smoother }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-const { omega }: typeof AutoMovieHumanHandForm = AutoMovieHumanHandForm;
-const { wholeSkin }: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;
-
 /**
  * The wrist heel: the hand's skin from the wrist crease to the thumb's
  * branch, where the forearm's bone tube hands over to the hand, its own
@@ -44,11 +39,6 @@ const { wholeSkin }: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;
  * hand's skin untouched.
  */
 export namespace AutoMovieHumanHandHeel {
-  /*
-   * Step of the phase for the crease jet's derivatives, radians.
-   */
-  const PHASE_STEP: number = 1e-3;
-
   /**
    * The heel's point at a station and phase.
    *
@@ -117,4 +107,15 @@ export namespace AutoMovieHumanHandHeel {
 
     return AutoMovieHumanSeam.publish(at, d1, d2);
   }
+
+  /*
+   * Step of the phase for the crease jet's derivatives, radians.
+   */
+  const PHASE_STEP: number = 1e-3;
 }
+
+const { smooth, smoother }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+const { omega }: typeof AutoMovieHumanHandForm = AutoMovieHumanHandForm;
+
+const { wholeSkin }: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;

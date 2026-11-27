@@ -1,11 +1,6 @@
 import { hingedArmSwivel } from "../hingedArmSwivel";
 
 /*
- * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
- */
-const STEP: number = hingedArmSwivel.STEP;
-
-/*
  * The full cold swivel sweep of `hingedArmArticulation`: every step a certified
  * refusal does not spare is scored, every local minimum refined, and the first
  * of the best kept; and the sweep's first-candidate certificate, which
@@ -144,3 +139,8 @@ export namespace hingedSwivelSwept {
     return { chosen, skipped };
   }
 }
+
+/*
+ * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
+ */
+const STEP: number = hingedArmSwivel.STEP;

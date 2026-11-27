@@ -21,16 +21,6 @@ import { clipAutoMoviePatternPolygon } from "./clipAutoMoviePatternPolygon";
 import { AUTOMOVIE_MAX_PATTERN_CELLS } from "../AUTOMOVIE_MAX_PATTERN_CELLS";
 
 /*
- * Domain constant separating variant draws from every other seeded decision.
- */
-const VARIANT_DOMAIN: number = 0x7061_7474;
-
-/*
- * Smallest square metre area counted as real coverage.
- */
-const AREA_EPSILON: number = 1e-12;
-
-/*
  * Lay one pattern and measure exactly what was laid.
  *
  * With stable input and a pure generator, the fixed sequence is repeatable in
@@ -115,6 +105,16 @@ export const generateAutoMovieSurfacePattern: (
     findings: autoMoviePatternFindings(pattern, placements),
   };
 };
+
+/*
+ * Domain constant separating variant draws from every other seeded decision.
+ */
+const VARIANT_DOMAIN: number = 0x7061_7474;
+
+/*
+ * Smallest square metre area counted as real coverage.
+ */
+const AREA_EPSILON: number = 1e-12;
 
 /*
  * Enumerate one zone's lattice and append every surviving piece.

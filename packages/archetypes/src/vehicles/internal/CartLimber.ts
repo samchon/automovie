@@ -8,21 +8,6 @@ import { CartWheel } from "./CartWheel";
 import { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
 /*
- * The body's paint.
- */
-const BODY: string = "#2f4f3f";
-
-/*
- * Bare wood.
- */
-const WOOD: string = "#8b6a43";
-
-/*
- * Iron.
- */
-const METAL: string = "#55595f";
-
-/*
  * The artillery limber among the drawn carriers, on one axle with its pole
  * ahead and its pintle behind, kept apart from `CartDrawn` so each file stays
  * within its size.
@@ -123,3 +108,18 @@ export namespace CartLimber {
     });
   }
 }
+
+/*
+ * The body's paint.
+ */
+const BODY: string = "#2f4f3f";
+
+/*
+ * Bare wood.
+ */
+const WOOD: string = "#8b6a43";
+
+/*
+ * Iron.
+ */
+const METAL: string = "#55595f";

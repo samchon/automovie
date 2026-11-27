@@ -12,29 +12,7 @@ import { AutoMovieArchetypeAshtray } from "./AutoMovieArchetypeAshtray";
 import { AutoMovieArchetypeBowl } from "./AutoMovieArchetypeBowl";
 import { AutoMovieArchetypeCookingPot } from "./AutoMovieArchetypeCookingPot";
 import { AutoMovieArchetypeVase } from "./AutoMovieArchetypeVase";
-
-/*
- * IKEA's saucepan, read.
- */
-const SAUCEPAN: string =
-  "IKEA 365+ saucepan 2.0 l, 17 cm across, 10 cm high, 35 cm long with its handle (https://www.ikea.com/gb/en/p/ikea-365-saucepan-with-lid-stainless-steel-40484232/)";
-
-/*
- * IKEA's pot, read.
- */
-const POT: string =
-  "IKEA 365+ pot 5 qt, 9 in across, 6 in high, 12 in long with its handles (https://www.ikea.com/us/en/p/ikea-365-pot-with-lid-stainless-steel-50577914/)";
-
-/*
- * IKEA's vases: one read, two seen only in search results.
- */
-const VASE: string =
-  "IKEA BERÄKNA vase, 30 cm high and 16 cm across, packed at 1.35 kg (https://www.ikea.com/nl/en/p/beraekna-vase-clear-glass-20406297); TIDVATTEN, 30 cm by 11.5 cm, and OMTÄNKSAM, 30 cm by 15.5 cm, seen only in search results";
-
-/*
- * What no source read gives.
- */
-const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
+import * as AutoMovieArchetypeVesselData from "./internal/AutoMovieArchetypeVesselData";
 
 /** Constructs the vessel archetype from its recipe. */
 export namespace AutoMovieArchetypeVessel {
@@ -257,31 +235,31 @@ export function create(
     bowl: {},
     ashtray: {},
     saucepan: {
-      diameter: AutoMovieArchetypeBand.metres(0.17, 0.17, SAUCEPAN),
-      height: AutoMovieArchetypeBand.metres(0.1, 0.1, SAUCEPAN),
-      mass: AutoMovieArchetypeBand.of("kg", 0.8, 1.4, UNREAD, true),
+      diameter: AutoMovieArchetypeBand.metres(0.17, 0.17, AutoMovieArchetypeVesselData.SAUCEPAN),
+      height: AutoMovieArchetypeBand.metres(0.1, 0.1, AutoMovieArchetypeVesselData.SAUCEPAN),
+      mass: AutoMovieArchetypeBand.of("kg", 0.8, 1.4, AutoMovieArchetypeVesselData.UNREAD, true),
     },
     stockpot: {
       diameter: AutoMovieArchetypeBand.metres(
         9 * AutoMovieArchetypeUnits.INCH,
         9 * AutoMovieArchetypeUnits.INCH,
-        POT,
+        AutoMovieArchetypeVesselData.POT,
       ),
       height: AutoMovieArchetypeBand.metres(
         6 * AutoMovieArchetypeUnits.INCH,
         6 * AutoMovieArchetypeUnits.INCH,
-        POT,
+        AutoMovieArchetypeVesselData.POT,
       ),
-      mass: AutoMovieArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.8, 3, AutoMovieArchetypeVesselData.UNREAD, true),
     },
     vase: {
-      diameter: AutoMovieArchetypeBand.metres(0.115, 0.16, VASE, true),
-      height: AutoMovieArchetypeBand.metres(0.3, 0.3, VASE),
+      diameter: AutoMovieArchetypeBand.metres(0.115, 0.16, AutoMovieArchetypeVesselData.VASE, true),
+      height: AutoMovieArchetypeBand.metres(0.3, 0.3, AutoMovieArchetypeVesselData.VASE),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         1.35,
         1.35,
-        `${VASE}; the packed weight, which the vase alone is lighter than by an amount no page gives`,
+        `${AutoMovieArchetypeVesselData.VASE}; the packed weight, which the vase alone is lighter than by an amount no page gives`,
         true,
       ),
     },

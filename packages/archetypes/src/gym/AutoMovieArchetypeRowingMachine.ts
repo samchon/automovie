@@ -10,12 +10,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * Concept2's published RowErg figures, read.
- */
-const CONCEPT2: string =
-  "Concept2 RowErg (https://www.concept2.com/ergs/rowerg)";
+import * as AutoMovieArchetypeRowingMachineData from "./internal/AutoMovieArchetypeRowingMachineData";
 
 /** Constructs the rowing machine archetype from its recipe. */
 export namespace AutoMovieArchetypeRowingMachine {
@@ -300,12 +295,12 @@ export function create(
     length: AutoMovieArchetypeBand.metres(
       96 * AutoMovieArchetypeUnits.INCH,
       96 * AutoMovieArchetypeUnits.INCH,
-      `${CONCEPT2}: 96 in long`,
+      `${AutoMovieArchetypeRowingMachineData.CONCEPT2}: 96 in long`,
     ),
     width: AutoMovieArchetypeBand.metres(
       24 * AutoMovieArchetypeUnits.INCH,
       24 * AutoMovieArchetypeUnits.INCH,
-      `${CONCEPT2}: 2 ft wide`,
+      `${AutoMovieArchetypeRowingMachineData.CONCEPT2}: 2 ft wide`,
     ),
     handleWidth: AutoMovieArchetypeBand.metres(
       0.45,

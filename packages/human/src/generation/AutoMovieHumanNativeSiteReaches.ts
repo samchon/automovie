@@ -40,10 +40,6 @@ export namespace AutoMovieHumanNativeSiteReaches {
     lateral: number;
   }
 
-  const positive = (what: string, x: number): void => {
-    if (!(Number.isFinite(x) && x > 0)) throw new Error("site reaches: " + what + " must be finite and positive");
-  };
-
   /**
    * The four reaches of a published depth and breadth, mm, split by the site's shares.
    *
@@ -117,4 +113,8 @@ export namespace AutoMovieHumanNativeSiteReaches {
     const meanAcross: number = (to.lateral / from.lateral + to.medial / from.medial) / 2;
     return kind === "u" ? [centre[0] + du * along, centre[1] + dv * meanAcross] : [centre[0] + du * meanAlong, centre[1] + dv * across];
   }
+
+  const positive = (what: string, x: number): void => {
+    if (!(Number.isFinite(x) && x > 0)) throw new Error("site reaches: " + what + " must be finite and positive");
+  };
 }

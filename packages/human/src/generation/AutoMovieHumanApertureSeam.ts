@@ -22,16 +22,6 @@ import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
  * one-sided at its ends.
  */
 export namespace AutoMovieHumanApertureSeam {
-  /*
-   * Newton steps of a point's station onto its line.
-   */
-  const STEPS: number = 12;
-
-  /*
-   * Station step of the height's derivative, mm.
-   */
-  const STEP: number = 0.01;
-
   /**
    * The trim loop of a slit with its points on the closing line.
    *
@@ -116,4 +106,14 @@ export namespace AutoMovieHumanApertureSeam {
       },
     );
   }
+
+  /*
+   * Newton steps of a point's station onto its line.
+   */
+  const STEPS: number = 12;
+
+  /*
+   * Station step of the height's derivative, mm.
+   */
+  const STEP: number = 0.01;
 }

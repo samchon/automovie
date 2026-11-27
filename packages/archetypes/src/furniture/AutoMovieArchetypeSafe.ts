@@ -12,12 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The safe read.
- */
-const AMSEC: string =
-  'AMSEC 2022 gun safe catalog, BFX6030: outside 59 1/4" x 30" x 26", "Door Clearance 51 3/4" x 22 5/16"", "Door Thickness 4 3/4"", 1,081 lb (https://s3.amazonaws.com/s3-absupply-net/pdf/amsec/amsec-gs-catalog-2022.pdf)';
+import * as AutoMovieArchetypeSafeData from "./internal/AutoMovieArchetypeSafeData";
 
 /** Constructs the safe archetype from its recipe. */
 export namespace AutoMovieArchetypeSafe {
@@ -183,38 +178,38 @@ export function create(
     height: AutoMovieArchetypeBand.metres(
       59.25 * AutoMovieArchetypeUnits.INCH,
       59.25 * AutoMovieArchetypeUnits.INCH,
-      AMSEC,
+      AutoMovieArchetypeSafeData.AMSEC,
     ),
     width: AutoMovieArchetypeBand.metres(
       30 * AutoMovieArchetypeUnits.INCH,
       30 * AutoMovieArchetypeUnits.INCH,
-      AMSEC,
+      AutoMovieArchetypeSafeData.AMSEC,
     ),
     depth: AutoMovieArchetypeBand.metres(
       26 * AutoMovieArchetypeUnits.INCH,
       26 * AutoMovieArchetypeUnits.INCH,
-      AMSEC,
+      AutoMovieArchetypeSafeData.AMSEC,
     ),
     clearHeight: AutoMovieArchetypeBand.metres(
       51.75 * AutoMovieArchetypeUnits.INCH,
       51.75 * AutoMovieArchetypeUnits.INCH,
-      AMSEC,
+      AutoMovieArchetypeSafeData.AMSEC,
     ),
     clearWidth: AutoMovieArchetypeBand.metres(
       (22 + 5 / 16) * AutoMovieArchetypeUnits.INCH,
       (22 + 5 / 16) * AutoMovieArchetypeUnits.INCH,
-      AMSEC,
+      AutoMovieArchetypeSafeData.AMSEC,
     ),
     door: AutoMovieArchetypeBand.metres(
       4.75 * AutoMovieArchetypeUnits.INCH,
       4.75 * AutoMovieArchetypeUnits.INCH,
-      AMSEC,
+      AutoMovieArchetypeSafeData.AMSEC,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       1081 * AutoMovieArchetypeUnits.POUND,
       1081 * AutoMovieArchetypeUnits.POUND,
-      AMSEC,
+      AutoMovieArchetypeSafeData.AMSEC,
     ),
   };
 }

@@ -21,7 +21,7 @@ import type {
 import { operate } from "../../affordance/internal/operate";
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { pickUp } from "../../handling/internal/pickUp";
-import { putDown } from "../../handling/internal/putDown";
+import "../../handling/internal/putDown";
 import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanActionRow";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HUMAN_ARCHERY_PRESENT_BOW } from "../../next/presets/HUMAN_ARCHERY_PRESENT_BOW";
@@ -29,6 +29,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { release } from "../../throwing/internal/release";
 import { HumanArcheryCue } from "./HumanArcheryCue";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
+import * as HumanArcheryData from "./HumanArcheryData";
 
 /*
  * Archery under its own names. Shared grasp and placement laws take the same
@@ -82,13 +83,6 @@ export namespace HumanArchery {
   });
 
   /*
-   * The nocking as a plain put-down row, before the arrow's own nock is named.
-   */
-  const nockRow: IAutoMovieMotionHumanActionLaw<
-    IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
-  > = AutoMovieMotionHumanActionRow.of("nockArrow", putDown, {});
-
-  /*
    * Set the arrow's nock on the bow's string: the arrow's own `nock` socket is
    * the one laid on the receiver when the composition names no other, so the
    * placement holds that socket on the string (a contact task) where the wrist
@@ -97,20 +91,20 @@ export namespace HumanArchery {
   export const nockArrow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
   > = {
-    ...nockRow,
+    ...HumanArcheryData.nockRow,
     plan: (
       context: IAutoMovieMotionHumanActionContext<
         IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
       >,
     ): IAutoMovieMotionHumanActionPlan =>
-      nockRow.plan({ ...context, params: byNock(context.params) }),
+      HumanArcheryData.nockRow.plan({ ...context, params: byNock(context.params) }),
     // The grasp that takes the arrow is weighed for the same socket.
     demands: (
       ahead: IAutoMovieMotionHumanActionLaw.IAhead<
         IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
       >,
     ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] =>
-      nockRow.demands?.({ ...ahead, params: byNock(ahead.params) }) ?? [],
+      HumanArcheryData.nockRow.demands?.({ ...ahead, params: byNock(ahead.params) }) ?? [],
   };
 
   /*
@@ -125,26 +119,19 @@ export namespace HumanArchery {
   );
 
   /*
-   * The draw as a plain operation row, before the bow is read off the bow arm.
-   */
-  const drawRow: IAutoMovieMotionHumanActionLaw<
-    IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
-  > = AutoMovieMotionHumanActionRow.of("drawBow", operate, {});
-
-  /*
    * Draw the string back to the anchor, over `presentBow`: the string is read
    * where the bow arm carries the bow (`onBowArm`).
    */
   export const drawBow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
   > = {
-    ...drawRow,
+    ...HumanArcheryData.drawRow,
     plan: (
       context: IAutoMovieMotionHumanActionContext<
         IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
       >,
     ): IAutoMovieMotionHumanActionPlan =>
-      drawRow.plan(toAnchor(onBowArm(context))),
+      HumanArcheryData.drawRow.plan(toAnchor(onBowArm(context))),
   };
 
   /*

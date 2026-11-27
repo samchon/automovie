@@ -8,16 +8,7 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
-
-/*
- * Mean contact time in seconds for a single-finger swipe (Jeong, Table 2.6).
- */
-const SWIPE_SECONDS: number = 0.2851;
-
-/*
- * Normalized endpoint tolerance used by `HumanSegmentEntry` and `HumanSegmentCut`.
- */
-const CONTACT_SHARE_TOLERANCE: number = 1e-9;
+import * as SwipeTouchscreenStrokeData from "./SwipeTouchscreenStrokeData";
 
 /*
  * Prepare the touchscreen stroke's clock and its straight path. The hand
@@ -61,7 +52,7 @@ export function swipeTouchscreenStroke(
       moves("start", "ready") &&
       moves("strokeStart", "strokeEnd") &&
       moves("relax", "end") &&
-      touchOut / clock.duration < 1 - CONTACT_SHARE_TOLERANCE
+      touchOut / clock.duration < 1 - SwipeTouchscreenStrokeData.CONTACT_SHARE_TOLERANCE
     )
   )
     throw new AutoMovieMotionHumanRefusal({
@@ -152,3 +143,8 @@ export namespace swipeTouchscreenStroke {
     return HumanBound.above("duration", duration ?? SWIPE_SECONDS, 0, "s");
   }
 }
+
+/*
+ * Mean contact time in seconds for a single-finger swipe (Jeong, Table 2.6).
+ */
+const SWIPE_SECONDS: number = 0.2851;

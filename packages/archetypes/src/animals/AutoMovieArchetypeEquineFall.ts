@@ -23,12 +23,6 @@ import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArch
 import { EquineBlend } from "./equine/EquineBlend";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/*
- * The fastest a trained fall is staged from, metres per second: an authored
- * bound at a canter or slow gallop.
- */
-const FALL_SPEED: number = 7;
-
 /**
  * A trained fall from a canter or gallop onto prepared ground: the horse goes
  * down on one side, slides to a stop, lies still and rises.
@@ -286,6 +280,13 @@ export namespace AutoMovieArchetypeEquineFall {
     );
   }
 }
+
+
+/*
+ * The fastest a trained fall is staged from, metres per second: an authored
+ * bound at a canter or slow gallop.
+ */
+const FALL_SPEED: number = 7;
 
 /*
  * A named instant of a ride.

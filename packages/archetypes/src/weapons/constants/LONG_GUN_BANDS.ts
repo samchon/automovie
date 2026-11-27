@@ -6,55 +6,7 @@ import {
 import { AutoMovieArchetypeFirearm } from "../internal/AutoMovieArchetypeFirearm";
 import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
 import type { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
-
-/*
- * A carbine's published data, from its maker.
- */
-const CARBINE: string =
-  "Colt M4 Carbine specification sheet 2020, R0977HB, R0979 and CR6921 (https://media.shootingsportsmedia.com/downloads/colt-2020-m4-specsheet-rnd7-web.pdf)";
-
-/*
- * A pump shotgun's published data.
- */
-const SHOTGUN: string =
-  "Mossberg 590A1 7-shot, product page (https://www.mossberg.com/590a1-m-lok-50765.html)";
-
-/*
- * A lever action's published data, from its maker.
- */
-const LEVER: string =
-  "Marlin 336 Classic 70504, product page: .30-30 Win, 20.25 in barrel, 38.625 in overall, 13.38 in length of pull, 7.5 lb, 6-round tube magazine (https://www.marlinfirearms.com/s/model_70504)";
-
-/*
- * The Graz firing tests of historic flintlocks.
- */
-const GRAZ: string =
-  "Krenn, Kalaus and Hall, Material History Review 42 (1995), pp. 102-107, Table 1: five flintlock muskets fired at their muzzles 451 to 494 m/s, electrically ignited (https://journals.lib.unb.ca/index.php/MCR/article/download/17669/18944)";
-
-/*
- * The two pulls read on the gun pages here, which a gun whose pull no record
- * gives borrows.
- */
-const PULLS: Readonly<{ shotgun: number; lever: number }> = {
-  shotgun: 13.87 * AutoMovieArchetypeUnits.INCH,
-  lever: 13.38 * AutoMovieArchetypeUnits.INCH,
-};
-
-/*
- * A bead's or a front sight's height above the barrel's line, which no maker or
- * record publishes: an estimate.
- */
-const BEAD: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
-  0.015,
-  0.025,
-  "a bead's or a front sight's height above the barrel's line, an estimate: no maker or record publishes it (searched: Mossberg's, Marlin's and Ruger's pages, TM 9-1270, FM 23-10, Museums Victoria's musket record; records-firearms-rifles.md, records-firearms-flintlock.md)",
-  true,
-);
-
-/*
- * Positions along the gun no maker publishes.
- */
-const UNPUBLISHED: string = "not published by the maker; an estimate";
+import * as LongGunBandsData from "./internal/LongGunBandsData";
 
 /*
  * The band of each free dimension of `createLongGun` a model leaves, by kind,
@@ -71,23 +23,23 @@ export const LONG_GUN_BANDS: Readonly<
     length: AutoMovieArchetypeBand.metres(
       30.5 * AutoMovieArchetypeUnits.INCH,
       30.5 * AutoMovieArchetypeUnits.INCH,
-      `${CARBINE}: 30.5 in with the stock retracted, all three`,
+      `${LongGunBandsData.CARBINE}: 30.5 in with the stock retracted, all three`,
     ),
     barrel: AutoMovieArchetypeBand.metres(
       14.5 * AutoMovieArchetypeUnits.INCH,
       14.5 * AutoMovieArchetypeUnits.INCH,
-      `${CARBINE}: 14.5 in`,
+      `${LongGunBandsData.CARBINE}: 14.5 in`,
     ),
     lengthOfPull: AutoMovieArchetypeBand.metres(
       10.75 * AutoMovieArchetypeUnits.INCH,
       0.29,
-      `a collapsed adjustable stock's 10.75 in pull, seen only in retailer listings; ${UNPUBLISHED} for this carbine`,
+      `a collapsed adjustable stock's 10.75 in pull, seen only in retailer listings; ${LongGunBandsData.UNPUBLISHED} for this carbine`,
       true,
     ),
     travel: AutoMovieArchetypeBand.metres(
       (33.75 - 30.5) * AutoMovieArchetypeUnits.INCH,
       (33.75 - 30.5) * AutoMovieArchetypeUnits.INCH,
-      `${CARBINE}: 33.75 in extended less 30.5 in retracted`,
+      `${LongGunBandsData.CARBINE}: 33.75 in extended less 30.5 in retracted`,
     ),
     sightHeight: AutoMovieArchetypeBand.metres(
       2.6 * AutoMovieArchetypeUnits.INCH,
@@ -113,17 +65,17 @@ export const LONG_GUN_BANDS: Readonly<
     length: AutoMovieArchetypeBand.metres(
       39.5 * AutoMovieArchetypeUnits.INCH,
       39.5 * AutoMovieArchetypeUnits.INCH,
-      `${SHOTGUN}: 39.5 in`,
+      `${LongGunBandsData.SHOTGUN}: 39.5 in`,
     ),
     barrel: AutoMovieArchetypeBand.metres(
       18.5 * AutoMovieArchetypeUnits.INCH,
       18.5 * AutoMovieArchetypeUnits.INCH,
-      `${SHOTGUN}: 18.5 in`,
+      `${LongGunBandsData.SHOTGUN}: 18.5 in`,
     ),
     lengthOfPull: AutoMovieArchetypeBand.metres(
       13.87 * AutoMovieArchetypeUnits.INCH,
       13.87 * AutoMovieArchetypeUnits.INCH,
-      `${SHOTGUN}: 13.87 in`,
+      `${LongGunBandsData.SHOTGUN}: 13.87 in`,
     ),
     muzzleVelocity: AutoMovieArchetypeBand.of(
       "m/s",
@@ -136,26 +88,26 @@ export const LONG_GUN_BANDS: Readonly<
     travel: AutoMovieArchetypeBand.metres(
       0.08,
       0.1,
-      `pump stroke, ${UNPUBLISHED}`,
+      `pump stroke, ${LongGunBandsData.UNPUBLISHED}`,
       true,
     ),
-    sightHeight: BEAD,
+    sightHeight: LongGunBandsData.BEAD,
     mass: AutoMovieArchetypeBand.of(
       "kg",
       3.18,
       3.18,
-      `${SHOTGUN}: 7, the unit not stated on the page and taken as pounds`,
+      `${LongGunBandsData.SHOTGUN}: 7, the unit not stated on the page and taken as pounds`,
       true,
     ),
   },
   musket: {
     lengthOfPull: AutoMovieArchetypeBand.metres(
-      PULLS.lever,
-      PULLS.shotgun,
+      LongGunBandsData.PULLS.lever,
+      LongGunBandsData.PULLS.shotgun,
       "borrowed from the Marlin 336's and the Mossberg 590A1's read pulls because no record gives the Short Land's length of pull (searched: Museums Victoria, the London Museum, Colonial Williamsburg, Griffiths 1856; records-firearms-flintlock.md)",
       true,
     ),
-    sightHeight: BEAD,
+    sightHeight: LongGunBandsData.BEAD,
     mass: AutoMovieArchetypeBand.of(
       "kg",
       10 * AutoMovieArchetypeUnits.POUND,
@@ -167,7 +119,7 @@ export const LONG_GUN_BANDS: Readonly<
       "m/s",
       451,
       494,
-      `borrowed from ${GRAZ}, because no measured velocity of a British service musket at its service charge was found (searched: Robins 1805, Griffiths 1856, Graz 1995; records-firearms-flintlock.md)`,
+      `borrowed from ${LongGunBandsData.GRAZ}, because no measured velocity of a British service musket at its service charge was found (searched: Robins 1805, Griffiths 1856, Graz 1995; records-firearms-flintlock.md)`,
       true,
     ),
     lockTime: AutoMovieArchetypeFirearm.FLINTLOCK_TIME,
@@ -191,7 +143,7 @@ export const LONG_GUN_BANDS: Readonly<
       "borrowed from Ruger's American Gen II 46902's 12 to 13.75 in pull (https://ruger.com/products/americanRifleGenII/specSheets/46902.html), because neither service rifle's manual gives its pull (searched: TM 9-1270, FM 23-10, German Infantry Weapons 1943; records-firearms-rifles.md)",
       true,
     ),
-    sightHeight: BEAD,
+    sightHeight: LongGunBandsData.BEAD,
     lockTime: AutoMovieArchetypeBand.of(
       "s",
       AutoMovieArchetypeFirearm.M1903,
@@ -204,24 +156,24 @@ export const LONG_GUN_BANDS: Readonly<
     length: AutoMovieArchetypeBand.metres(
       38.625 * AutoMovieArchetypeUnits.INCH,
       38.625 * AutoMovieArchetypeUnits.INCH,
-      LEVER,
+      LongGunBandsData.LEVER,
     ),
     barrel: AutoMovieArchetypeBand.metres(
       20.25 * AutoMovieArchetypeUnits.INCH,
       20.25 * AutoMovieArchetypeUnits.INCH,
-      LEVER,
+      LongGunBandsData.LEVER,
     ),
     lengthOfPull: AutoMovieArchetypeBand.metres(
-      PULLS.lever,
-      PULLS.lever,
-      LEVER,
+      LongGunBandsData.PULLS.lever,
+      LongGunBandsData.PULLS.lever,
+      LongGunBandsData.LEVER,
     ),
-    sightHeight: BEAD,
+    sightHeight: LongGunBandsData.BEAD,
     mass: AutoMovieArchetypeBand.of(
       "kg",
       7.5 * AutoMovieArchetypeUnits.POUND,
       7.5 * AutoMovieArchetypeUnits.POUND,
-      LEVER,
+      LongGunBandsData.LEVER,
     ),
     muzzleVelocity: AutoMovieArchetypeBand.of(
       "m/s",

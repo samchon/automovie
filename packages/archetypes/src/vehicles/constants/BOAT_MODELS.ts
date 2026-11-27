@@ -1,15 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
-
-/*
- * Inches.
- */
-const IN: number = AutoMovieArchetypeUnits.INCH;
-
-/*
- * Pounds.
- */
-const LB: number = AutoMovieArchetypeUnits.POUND;
+import * as BoatModelsData from "./internal/BoatModelsData";
 
 /*
  * The read boats by kind, each whole, and the options a canoe is built in and
@@ -66,76 +57,76 @@ export const BOAT_MODELS: Readonly<{
   hulls: {
     rowboat: {
       thamesSkiff: {
-        length: 168 * IN,
-        beam: 50 * IN,
-        depth: 18 * IN,
-        draft: 5 * IN,
-        mass: 85 * LB,
+        length: 168 * BoatModelsData.IN,
+        beam: 50 * BoatModelsData.IN,
+        depth: 18 * BoatModelsData.IN,
+        draft: 5 * BoatModelsData.IN,
+        mass: 85 * BoatModelsData.LB,
       },
       whitehallSkiff: {
-        length: 186 * IN,
-        beam: 53.5 * IN,
-        depth: 18.5 * IN,
-        draft: 7 * IN,
-        mass: 95 * LB,
+        length: 186 * BoatModelsData.IN,
+        beam: 53.5 * BoatModelsData.IN,
+        depth: 18.5 * BoatModelsData.IN,
+        draft: 7 * BoatModelsData.IN,
+        mass: 95 * BoatModelsData.LB,
       },
       whitehall17: {
-        length: 203 * IN,
-        beam: 54 * IN,
-        depth: 22 * IN,
-        mass: 350 * LB,
+        length: 203 * BoatModelsData.IN,
+        beam: 54 * BoatModelsData.IN,
+        depth: 22 * BoatModelsData.IN,
+        mass: 350 * BoatModelsData.LB,
       },
     },
     canoe: {
       prospector16: {
-        length: 192 * IN,
-        beam: 36 * IN,
-        depth: 15 * IN,
-        endHeight: 23 * IN,
+        length: 192 * BoatModelsData.IN,
+        beam: 36 * BoatModelsData.IN,
+        depth: 15 * BoatModelsData.IN,
+        endHeight: 23 * BoatModelsData.IN,
       },
       discovery169: {
-        length: 201 * IN,
-        beam: 37 * IN,
-        depth: 15 * IN,
-        endHeight: 23 * IN,
+        length: 201 * BoatModelsData.IN,
+        beam: 37 * BoatModelsData.IN,
+        depth: 15 * BoatModelsData.IN,
+        endHeight: 23 * BoatModelsData.IN,
       },
       spiritII: {
-        length: 204 * IN,
-        beam: 35 * IN,
-        depth: 14 * IN,
-        endHeight: 22 * IN,
+        length: 204 * BoatModelsData.IN,
+        beam: 35 * BoatModelsData.IN,
+        depth: 14 * BoatModelsData.IN,
+        endHeight: 22 * BoatModelsData.IN,
       },
       minnesotaII: {
-        length: 222 * IN,
-        beam: 33.5 * IN,
-        depth: 13.5 * IN,
-        endHeight: 20.5 * IN,
+        length: 222 * BoatModelsData.IN,
+        beam: 33.5 * BoatModelsData.IN,
+        depth: 13.5 * BoatModelsData.IN,
+        endHeight: 20.5 * BoatModelsData.IN,
       },
     },
     launch: {},
   },
   layups: {
     prospector16: {
-      fiberglass: { mass: 64 * LB },
-      tuffStuff: { mass: 54 * LB },
-      tuffStuffExpedition: { mass: 60 * LB },
-      aramidLite: { mass: 44 * LB },
-      blueSteel: { mass: 47 * LB },
+      fiberglass: { mass: 64 * BoatModelsData.LB },
+      tuffStuff: { mass: 54 * BoatModelsData.LB },
+      tuffStuffExpedition: { mass: 60 * BoatModelsData.LB },
+      aramidLite: { mass: 44 * BoatModelsData.LB },
+      blueSteel: { mass: 47 * BoatModelsData.LB },
     },
-    discovery169: { polyethylene: { mass: 91 * LB } },
+    discovery169: { polyethylene: { mass: 91 * BoatModelsData.LB } },
     spiritII: {
-      flexCore: { mass: 58 * LB },
-      aramidUltraLight: { mass: 42 * LB },
-      superLite: { mass: 36.5 * LB },
-      intekPolyester: { mass: 44 * LB },
-      intekCarbon: { mass: 44 * LB },
+      flexCore: { mass: 58 * BoatModelsData.LB },
+      aramidUltraLight: { mass: 42 * BoatModelsData.LB },
+      superLite: { mass: 36.5 * BoatModelsData.LB },
+      intekPolyester: { mass: 44 * BoatModelsData.LB },
+      intekCarbon: { mass: 44 * BoatModelsData.LB },
     },
     minnesotaII: {
-      flexCore: { mass: 58 * LB },
-      aramidUltraLight: { mass: 42 * LB },
-      superLite: { mass: 36.5 * LB },
-      intek: { mass: 44 * LB },
-      intekCarbon: { mass: 42 * LB },
+      flexCore: { mass: 58 * BoatModelsData.LB },
+      aramidUltraLight: { mass: 42 * BoatModelsData.LB },
+      superLite: { mass: 36.5 * BoatModelsData.LB },
+      intek: { mass: 44 * BoatModelsData.LB },
+      intekCarbon: { mass: 42 * BoatModelsData.LB },
     },
   },
   oars: [

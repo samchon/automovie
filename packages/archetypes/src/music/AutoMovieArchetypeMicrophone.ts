@@ -12,19 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The handheld microphone read: the one whose length, head, tail and mass were
- * all read, so it is built whole.
- */
-const HANDHELD: string =
-  "Sennheiser e 835, 180.5 mm long, 49.2 mm head and 25.08 mm tail, 330 g (https://www.sennheiser.com/globalassets/digizuite/41678-en-sp_1209_v1.0_e_835_e_835-s_product_specification_en.pdf)";
-
-/*
- * The stand read.
- */
-const AURAY: string =
-  "Auray MS-5230F tripod boom stand: 36 to 36.2 in (91.4 to 91.9 cm) to 63 in (160 cm) high, a 31 to 31.5 in (80 cm) boom, legs spread 26 in (65 cm), 2 kg (https://www.bhphotovideo.com/c/product/755877-REG/auray_ms_5230f_tripod_microphone_stand.html)";
+import * as AutoMovieArchetypeMicrophoneData from "./internal/AutoMovieArchetypeMicrophoneData";
 
 /** Constructs the microphone archetype from its recipe. */
 export namespace AutoMovieArchetypeMicrophone {
@@ -262,21 +250,21 @@ export function create(
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     handheld: {
-      length: AutoMovieArchetypeBand.metres(0.1805, 0.1805, HANDHELD),
-      head: AutoMovieArchetypeBand.metres(0.0492, 0.0492, HANDHELD),
-      tail: AutoMovieArchetypeBand.metres(0.02508, 0.02508, HANDHELD),
-      mass: AutoMovieArchetypeBand.of("kg", 0.33, 0.33, HANDHELD),
+      length: AutoMovieArchetypeBand.metres(0.1805, 0.1805, AutoMovieArchetypeMicrophoneData.HANDHELD),
+      head: AutoMovieArchetypeBand.metres(0.0492, 0.0492, AutoMovieArchetypeMicrophoneData.HANDHELD),
+      tail: AutoMovieArchetypeBand.metres(0.02508, 0.02508, AutoMovieArchetypeMicrophoneData.HANDHELD),
+      mass: AutoMovieArchetypeBand.of("kg", 0.33, 0.33, AutoMovieArchetypeMicrophoneData.HANDHELD),
     },
     boomStand: {
-      minHeight: AutoMovieArchetypeBand.metres(0.914, 0.919, AURAY),
-      maxHeight: AutoMovieArchetypeBand.metres(1.6, 1.6, AURAY),
+      minHeight: AutoMovieArchetypeBand.metres(0.914, 0.919, AutoMovieArchetypeMicrophoneData.AURAY),
+      maxHeight: AutoMovieArchetypeBand.metres(1.6, 1.6, AutoMovieArchetypeMicrophoneData.AURAY),
       boom: AutoMovieArchetypeBand.metres(
         31 * AutoMovieArchetypeUnits.INCH,
         0.8,
-        AURAY,
+        AutoMovieArchetypeMicrophoneData.AURAY,
       ),
-      spread: AutoMovieArchetypeBand.metres(0.65, 0.65, AURAY),
-      mass: AutoMovieArchetypeBand.of("kg", 2, 2, AURAY),
+      spread: AutoMovieArchetypeBand.metres(0.65, 0.65, AutoMovieArchetypeMicrophoneData.AURAY),
+      mass: AutoMovieArchetypeBand.of("kg", 2, 2, AutoMovieArchetypeMicrophoneData.AURAY),
     },
   };
 }

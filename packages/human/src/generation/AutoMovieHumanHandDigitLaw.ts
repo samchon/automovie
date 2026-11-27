@@ -9,9 +9,6 @@ import type {
 
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { sub, dot, norm, unit, cross, TWO_PI }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-
 /**
  * A digit's law in the hand form's axes: the centre line through its anchors,
  * the width and depth of its sections along it, and the rounded tip's apex,
@@ -180,3 +177,6 @@ export namespace AutoMovieHumanHandDigitLaw {
     return tube;
   }
 }
+
+const { sub, dot, norm, unit, cross, TWO_PI }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;

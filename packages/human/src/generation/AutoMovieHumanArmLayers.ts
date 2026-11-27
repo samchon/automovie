@@ -11,9 +11,6 @@ import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanLimbFrame } from "./AutoMovieHumanLimbFrame";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-const { dot, mean, norm, scale, sub, TWO_PI }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-
 /**
  * The arm's chain `arm.<side>` from its law: one layer per parameter of the
  * law, each the ring its plane cuts at the chain's uniform phases, in a frame
@@ -24,16 +21,6 @@ const { dot, mean, norm, scale, sub, TWO_PI }: typeof AutoMovieHumanHandVector =
  * left's mirror, its phase reversed.
  */
 export namespace AutoMovieHumanArmLayers {
-  /*
-   * Parameter step of the carried frame.
-   */
-  const CARRY: number = 0.5;
-
-  /*
-   * Parameter step of a layer's slopes.
-   */
-  const SLOPE_STEP: number = 0.05;
-
   /**
    * The chain of a side.
    *
@@ -137,6 +124,19 @@ export namespace AutoMovieHumanArmLayers {
       layers: made,
     };
   }
+
+  /*
+   * Parameter step of the carried frame.
+   */
+  const CARRY: number = 0.5;
+
+  /*
+   * Parameter step of a layer's slopes.
+   */
+  const SLOPE_STEP: number = 0.05;
 }
+
+const { dot, mean, norm, scale, sub, TWO_PI }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
 
 type Vec3 = AutoMovieVector3Tuple;

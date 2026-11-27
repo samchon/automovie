@@ -25,14 +25,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /*
- * Zero displacement before a rounded grip starts to roll.
- */
-const STILL: IAutoMovieRigidTransform = {
-  position: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-};
-
-/*
  * World hand placements shared by wearable prop actions.
  */
 export namespace wardrobeHands {
@@ -574,6 +566,14 @@ export namespace wardrobeHands {
     return answer;
   }
 }
+
+/*
+ * Zero displacement before a rounded grip starts to roll.
+ */
+const STILL: IAutoMovieRigidTransform = {
+  position: { x: 0, y: 0, z: 0 },
+  rotation: { x: 0, y: 0, z: 0, w: 1 },
+};
 
 /*
  * Merge a grip's exact wrist and prepared bend into a posture.

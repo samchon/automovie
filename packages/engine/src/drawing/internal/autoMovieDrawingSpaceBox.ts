@@ -9,18 +9,6 @@ import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
 
 /*
- * How far a plane normal's off-axis components may reach and still face one
- * axis: float noise in a hand-written or transformed unit normal, far below
- * anything a reader would call a chamfer.
- */
-const PLANE_AXIS_EPSILON: number = 1e-9;
-
-/*
- * The three world axes, in the order a box's components are stated.
- */
-const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
-
-/*
  * The world box a space's own declared volume fills, on the drawing grid, or
  * `null` when it declares none this can state exactly.
  *
@@ -49,6 +37,18 @@ export const autoMovieDrawingSpaceBox = (
   }
   return boxOf(corners);
 };
+
+/*
+ * How far a plane normal's off-axis components may reach and still face one
+ * axis: float noise in a hand-written or transformed unit normal, far below
+ * anything a reader would call a chamfer.
+ */
+const PLANE_AXIS_EPSILON: number = 1e-9;
+
+/*
+ * The three world axes, in the order a box's components are stated.
+ */
+const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
 /*
  * The box a cell's half-spaces close, when they are axis-aligned and closed.

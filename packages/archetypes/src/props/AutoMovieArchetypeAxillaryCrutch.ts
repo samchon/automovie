@@ -9,24 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The adult and tall-adult lengths of a maker's aluminium axillary crutch, read
- * at retailers.
- */
-const LENGTH: string =
-  "Drive Medical aluminium crutches (10400-1): adult 45 to 53 in, tall adult 53 to 61 in (https://carewell.com/product/drive-aluminum-crutch-underarm-pad-handgrip; https://www.vitalitymedical.com/adjustable-aluminum-crutches-knock-down.html), adjustable";
-
-/*
- * A crutch tube's diameter, provisional: a common 7/8 in aluminium tube.
- */
-const TUBE: string = "a 7/8 in (22 mm) aluminium tube, provisional";
-
-/*
- * An axillary crutch's mass, provisional.
- */
-const MASS: string =
-  "about 1 kg for one aluminium axillary crutch, provisional";
+import * as AutoMovieArchetypeAxillaryCrutchData from "./internal/AutoMovieArchetypeAxillaryCrutchData";
 
 /** Constructs the axillary crutch archetype from its recipe. */
 export namespace AutoMovieArchetypeAxillaryCrutch {
@@ -188,9 +171,9 @@ export function create(
     length: AutoMovieArchetypeBand.metres(
       45 * AutoMovieArchetypeUnits.INCH,
       61 * AutoMovieArchetypeUnits.INCH,
-      LENGTH,
+      AutoMovieArchetypeAxillaryCrutchData.LENGTH,
     ),
-    diameter: AutoMovieArchetypeBand.metres(0.022, 0.022, TUBE),
-    mass: AutoMovieArchetypeBand.of("kg", 1, 1, MASS),
+    diameter: AutoMovieArchetypeBand.metres(0.022, 0.022, AutoMovieArchetypeAxillaryCrutchData.TUBE),
+    mass: AutoMovieArchetypeBand.of("kg", 1, 1, AutoMovieArchetypeAxillaryCrutchData.MASS),
   };
 }

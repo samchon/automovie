@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -8,35 +8,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-/*
- * The wrist's extension limit, degrees: the hand's flexion range's far end
- * (`DEFAULT_HUMANOID_ROM`, flexion negative toward the back of the hand).
- */
-const WRIST: number = -DEFAULT_HUMANOID_ROM.leftHand!.flexion!.min;
-
-/*
- * The knuckles' hyperextension limit, degrees (`DEFAULT_HUMANOID_ROM`, the
- * fingers' proximal joints).
- */
-const KNUCKLE: number = -DEFAULT_HUMANOID_ROM.leftIndexProximal!.flexion!.min;
-
-/*
- * The thumb's interphalangeal extension limit, degrees
- * (`DEFAULT_HUMANOID_ROM`).
- */
-const THUMB_IP: number = -DEFAULT_HUMANOID_ROM.leftThumbDistal!.flexion!.min;
-
-/*
- * Degrees the wrist is kept inside its limit.
- */
-const MARGIN: number = 5;
-
-/*
- * The fingers' proximal joints, whose extension keeps the fingers flat as the
- * palm rises.
- */
-const FINGERS: readonly string[] = ["Index", "Middle", "Ring", "Little"];
+import * as GymnasticsPalmRiseData from "./GymnasticsPalmRiseData";
 
 /*
  * A palm laid flat on the floor whose wrist would have to extend past its range
@@ -75,8 +47,8 @@ export function GymnasticsPalmRise(
       180) /
     Math.PI;
   const rise: number = Math.min(
-    KNUCKLE,
-    Math.max(0, extension - (WRIST - MARGIN)),
+    GymnasticsPalmRiseData.KNUCKLE,
+    Math.max(0, extension - (GymnasticsPalmRiseData.WRIST - GymnasticsPalmRiseData.MARGIN)),
   );
   if (!(rise > 0)) return { goal, joints: {} };
   const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -88,13 +60,13 @@ export function GymnasticsPalmRise(
     Quaternion.rotateVector(goal.rotation, knuckle),
   );
   const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-  for (const finger of FINGERS)
+  for (const finger of GymnasticsPalmRiseData.FINGERS)
     joints[`${side}${finger}Proximal` as AutoMovieHumanoidBone] = [-rise, 0, 0];
   // The thumb's tip lies ahead of the knuckle line too; its only joint
   // that extends is the interphalangeal, which takes back what of the rise
   // its range allows.
   joints[`${side}ThumbDistal` as AutoMovieHumanoidBone] = [
-    -Math.min(rise, THUMB_IP),
+    -Math.min(rise, GymnasticsPalmRiseData.THUMB_IP),
     0,
     0,
   ];

@@ -100,161 +100,6 @@ export namespace HumanSwordParry {
   export const LEAN: number = (Math.atan(0.57) * 180) / Math.PI;
 
   /*
-   * Where the parry meets: the drill's line, or the attacker's stopped blade
-   * read through the attack's anchor, `weak` of its length back from its point;
-   * `hand` is the parrying hand's grip in its entry hold, which divides the
-   * high lines from the low.
-   */
-  const meet = (
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
-    s: IAutoMovieMotionHumanSword.ISetup,
-    weak: number,
-    hand: IAutoMovieVector3,
-  ): IMeet => {
-    const p: IAutoMovieMotionHumanSwordParry.IParry = context.params;
-    const forward: IAutoMovieVector3 = s.world({ out: 0, up: 0, forward: 1 });
-    if (p.against === undefined) {
-      // A drilled parry closes its line as the fencing masters teach it: the
-      // lines are the target's quarters about the sword hand in guard (the
-      // upper arm hanging, the forearm square to it toward the opponent), so
-      // the hand keeps the guard's height and distance and carries the blade
-      // sideways to the edge of the trunk on the line's side, point up for a
-      // high line and down for a low one, meeting the attacking blade on its
-      // forte.
-      const line: IAutoMovieMotionHumanSwordParry.Opening =
-        p.line ?? "highOutside";
-      const high: boolean = line.startsWith("high");
-      const outside: number = line.endsWith("Outside") ? 1 : -1;
-      const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
-        context.body.measure;
-      const point: IAutoMovieVector3 = { x: 0, y: high ? 1 : -1, z: 0 };
-      const edge: number = (outside * m.chestBreadth) / 2 - m.shoulderHalfWidth;
-      return {
-        at: Vector3.add(
-          Vector3.add(
-            s.shoulder,
-            s.world({ out: edge, up: -m.upperArm, forward: m.forearm }),
-          ),
-          Vector3.scale(point, HumanSword.LANDS.parry * s.tool.length),
-        ),
-        point,
-        edge: s.world({ out: outside, up: 0, forward: 0 }),
-        lead: null,
-        stays: 0,
-        aside: { x: 0, y: 0, z: 0 },
-        sweep: 0,
-      };
-    }
-
-    // The attacker's blade where the attack is stopped, at its decisive instant.
-    const attack: IAutoMovieMotionHumanPlacedAction = context.action(p.against);
-    const theirs: string | undefined = attack.plan.wields?.prop;
-    if (theirs === undefined)
-      throw new AutoMovieMotionHumanRefusal({
-        kind: "participant",
-        axis: "against",
-        value: p.against,
-        reason: `${p.against} wields no blade for a parry to meet`,
-        fix: "parry the anchor of a cut or a thrust made with a blade, or leave `against` out to drill the parry",
-      });
-    const decisive: number = attack.plan.contact ?? attack.plan.duration;
-    const seconds: number = attack.start + decisive;
-
-    // The stopped attack stays where it was met until it turns back.
-    const relax: number | undefined = attack.plan.events.find(
-      (e: IAutoMovieMotionEvent): boolean => e.name === "relax",
-    )?.share;
-    const stays: number =
-      relax === undefined
-        ? 0
-        : Math.max(0, relax * attack.plan.duration - decisive);
-    const held: IAutoMovieMotionHumanPropReader = context.prop(theirs);
-    const tip: IAutoMovieMotionHumanProp["points"][string] | undefined =
-      held.prop.points.point;
-    if (tip === undefined)
-      throw new AutoMovieMotionHumanRefusal({
-        kind: "affordance",
-        axis: "against",
-        value: `${theirs}.point`,
-        feasible: {
-          kind: "alternatives",
-          values: Object.keys(held.prop.points),
-        },
-        reason: `${theirs} declares no point, so its blade's line is unknown`,
-        fix: "parry an attack made with a prop that declares its point",
-      });
-    const frame: IAutoMovieRigidTransform = held.frame(seconds);
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(
-      frame.rotation,
-      tip.normal,
-    );
-    const length: number = Vector3.dot(tip.point, tip.normal);
-    const end: IAutoMovieVector3 = Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, tip.point),
-    );
-    const middle: IAutoMovieVector3 = Vector3.subtract(
-      end,
-      Vector3.scale(along, weak * length),
-    );
-
-    // A taken blade is carried aside from the end of the attack's
-    // follow-through, where it stops waiting on the parry.
-    const taken: boolean = HumanSword.taken(
-      attack.params as IAutoMovieMotionHumanSword.IAttack,
-    );
-    const through: number | undefined = attack.plan.events.find(
-      (e: IAutoMovieMotionEvent): boolean => e.name === "strokeEnd",
-    )?.share;
-
-    // The parrying blade crosses the attacker's, point up for a high line
-    // and down for a low one, and sits on the defender's side of it; the
-    // high lines are those above the sword hand, as fencing divides them.
-    // Of the lines square to the attacker's blade it takes the most upright,
-    // so the hand stays under a high parry and over a low one; an attacking
-    // blade within the parry's own `LEAN` of upright is crossed level,
-    // across the defender's front.
-    const lifted: IAutoMovieVector3 = Vector3.subtract(
-      { x: 0, y: 1, z: 0 },
-      Vector3.scale(along, along.y),
-    );
-    const high: boolean = middle.y >= hand.y;
-    const upright: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.length(lifted) < Math.sin((LEAN * Math.PI) / 180)
-        ? Vector3.cross(along, forward)
-        : lifted,
-    );
-    const point: IAutoMovieVector3 = Vector3.scale(
-      upright,
-      upright.y >= 0 === high ? 1 : -1,
-    );
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(along, point),
-    );
-    const mine: number =
-      Vector3.dot(normal, Vector3.subtract(s.shoulder, middle)) >= 0 ? 1 : -1;
-    return {
-      at: Vector3.add(middle, Vector3.scale(normal, mine * HumanSword.GAP)),
-      point,
-      edge: Vector3.scale(normal, -mine),
-      lead: seconds - context.start,
-      stays,
-      aside: taken
-        ? HumanSwordParryAside(
-            context,
-            s,
-            [end, Vector3.subtract(end, Vector3.scale(along, length))],
-            middle,
-          )
-        : { x: 0, y: 0, z: 0 },
-      sweep:
-        attack.start +
-        (through === undefined ? decisive : through * attack.plan.duration) -
-        context.start,
-    };
-  };
-
-  /*
    * Parry: the strong of the blade brought across an incoming blade where its
    * attack is stopped, meeting it at `stroke`, or to a line as a drill. A
    * meeting beyond the arm is refused on `target`; an attack without a blade on
@@ -436,6 +281,161 @@ export namespace HumanSwordParry {
         });
       },
     };
+
+  /*
+   * Where the parry meets: the drill's line, or the attacker's stopped blade
+   * read through the attack's anchor, `weak` of its length back from its point;
+   * `hand` is the parrying hand's grip in its entry hold, which divides the
+   * high lines from the low.
+   */
+  const meet = (
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
+    s: IAutoMovieMotionHumanSword.ISetup,
+    weak: number,
+    hand: IAutoMovieVector3,
+  ): IMeet => {
+    const p: IAutoMovieMotionHumanSwordParry.IParry = context.params;
+    const forward: IAutoMovieVector3 = s.world({ out: 0, up: 0, forward: 1 });
+    if (p.against === undefined) {
+      // A drilled parry closes its line as the fencing masters teach it: the
+      // lines are the target's quarters about the sword hand in guard (the
+      // upper arm hanging, the forearm square to it toward the opponent), so
+      // the hand keeps the guard's height and distance and carries the blade
+      // sideways to the edge of the trunk on the line's side, point up for a
+      // high line and down for a low one, meeting the attacking blade on its
+      // forte.
+      const line: IAutoMovieMotionHumanSwordParry.Opening =
+        p.line ?? "highOutside";
+      const high: boolean = line.startsWith("high");
+      const outside: number = line.endsWith("Outside") ? 1 : -1;
+      const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+        context.body.measure;
+      const point: IAutoMovieVector3 = { x: 0, y: high ? 1 : -1, z: 0 };
+      const edge: number = (outside * m.chestBreadth) / 2 - m.shoulderHalfWidth;
+      return {
+        at: Vector3.add(
+          Vector3.add(
+            s.shoulder,
+            s.world({ out: edge, up: -m.upperArm, forward: m.forearm }),
+          ),
+          Vector3.scale(point, HumanSword.LANDS.parry * s.tool.length),
+        ),
+        point,
+        edge: s.world({ out: outside, up: 0, forward: 0 }),
+        lead: null,
+        stays: 0,
+        aside: { x: 0, y: 0, z: 0 },
+        sweep: 0,
+      };
+    }
+
+    // The attacker's blade where the attack is stopped, at its decisive instant.
+    const attack: IAutoMovieMotionHumanPlacedAction = context.action(p.against);
+    const theirs: string | undefined = attack.plan.wields?.prop;
+    if (theirs === undefined)
+      throw new AutoMovieMotionHumanRefusal({
+        kind: "participant",
+        axis: "against",
+        value: p.against,
+        reason: `${p.against} wields no blade for a parry to meet`,
+        fix: "parry the anchor of a cut or a thrust made with a blade, or leave `against` out to drill the parry",
+      });
+    const decisive: number = attack.plan.contact ?? attack.plan.duration;
+    const seconds: number = attack.start + decisive;
+
+    // The stopped attack stays where it was met until it turns back.
+    const relax: number | undefined = attack.plan.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === "relax",
+    )?.share;
+    const stays: number =
+      relax === undefined
+        ? 0
+        : Math.max(0, relax * attack.plan.duration - decisive);
+    const held: IAutoMovieMotionHumanPropReader = context.prop(theirs);
+    const tip: IAutoMovieMotionHumanProp["points"][string] | undefined =
+      held.prop.points.point;
+    if (tip === undefined)
+      throw new AutoMovieMotionHumanRefusal({
+        kind: "affordance",
+        axis: "against",
+        value: `${theirs}.point`,
+        feasible: {
+          kind: "alternatives",
+          values: Object.keys(held.prop.points),
+        },
+        reason: `${theirs} declares no point, so its blade's line is unknown`,
+        fix: "parry an attack made with a prop that declares its point",
+      });
+    const frame: IAutoMovieRigidTransform = held.frame(seconds);
+    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+      frame.rotation,
+      tip.normal,
+    );
+    const length: number = Vector3.dot(tip.point, tip.normal);
+    const end: IAutoMovieVector3 = Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, tip.point),
+    );
+    const middle: IAutoMovieVector3 = Vector3.subtract(
+      end,
+      Vector3.scale(along, weak * length),
+    );
+
+    // A taken blade is carried aside from the end of the attack's
+    // follow-through, where it stops waiting on the parry.
+    const taken: boolean = HumanSword.taken(
+      attack.params as IAutoMovieMotionHumanSword.IAttack,
+    );
+    const through: number | undefined = attack.plan.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === "strokeEnd",
+    )?.share;
+
+    // The parrying blade crosses the attacker's, point up for a high line
+    // and down for a low one, and sits on the defender's side of it; the
+    // high lines are those above the sword hand, as fencing divides them.
+    // Of the lines square to the attacker's blade it takes the most upright,
+    // so the hand stays under a high parry and over a low one; an attacking
+    // blade within the parry's own `LEAN` of upright is crossed level,
+    // across the defender's front.
+    const lifted: IAutoMovieVector3 = Vector3.subtract(
+      { x: 0, y: 1, z: 0 },
+      Vector3.scale(along, along.y),
+    );
+    const high: boolean = middle.y >= hand.y;
+    const upright: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.length(lifted) < Math.sin((LEAN * Math.PI) / 180)
+        ? Vector3.cross(along, forward)
+        : lifted,
+    );
+    const point: IAutoMovieVector3 = Vector3.scale(
+      upright,
+      upright.y >= 0 === high ? 1 : -1,
+    );
+    const normal: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.cross(along, point),
+    );
+    const mine: number =
+      Vector3.dot(normal, Vector3.subtract(s.shoulder, middle)) >= 0 ? 1 : -1;
+    return {
+      at: Vector3.add(middle, Vector3.scale(normal, mine * HumanSword.GAP)),
+      point,
+      edge: Vector3.scale(normal, -mine),
+      lead: seconds - context.start,
+      stays,
+      aside: taken
+        ? HumanSwordParryAside(
+            context,
+            s,
+            [end, Vector3.subtract(end, Vector3.scale(along, length))],
+            middle,
+          )
+        : { x: 0, y: 0, z: 0 },
+      sweep:
+        attack.start +
+        (through === undefined ? decisive : through * attack.plan.duration) -
+        context.start,
+    };
+  };
 
   /*
    * Where a parry's blade goes: the point its strong meets, the way it points,

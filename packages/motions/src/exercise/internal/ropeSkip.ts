@@ -17,11 +17,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { ropeSkipHop } from "./ropeSkipHop";
 
 /*
- * The two sides that share each support and flight phase.
- */
-const SIDES = ["left", "right"] as const;
-
-/*
  * One low two-foot hop in place, designed to accompany a single rope turn.
  * Register with `AutoMovieMotionHumanChain.extend({ ropeSkip })` and the performance's laws.
  *
@@ -144,3 +139,8 @@ export const ropeSkip = {
     };
   },
 } satisfies IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRopeSkip.IParams>;
+
+/*
+ * The two sides that share each support and flight phase.
+ */
+const SIDES = ["left", "right"] as const;

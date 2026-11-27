@@ -1,16 +1,5 @@
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
-
-/*
- * The College Physics textbook's table of measured pairs.
- */
-const OPENSTAX: string =
-  "OpenStax, College Physics 2e (2022), Table 5.1, Coefficients of Static and Kinetic Friction (https://openstax.org/books/college-physics-2e/pages/5-1-friction)";
-
-/*
- * The Physics Hypertextbook's table, each row with its primary source.
- */
-const ELERT: string =
-  "G. Elert, The Physics Hypertextbook, Friction, coefficient table (https://physics.info/friction/)";
+import * as AutoMovieArchetypeMaterialData from "./internal/AutoMovieArchetypeMaterialData";
 
 /**
  * Physical materials and their cited contact measurements, independent of the
@@ -63,38 +52,6 @@ export namespace AutoMovieArchetypeMaterial {
     readonly source: string;
   }
 
-  /*
-   * The admitted names, kept private so callers cannot edit the catalogue.
-   */
-  const KINDS: readonly Kind[] = Object.freeze([
-    "rubber",
-    "wood",
-    "steel",
-    "leather",
-    "teflon",
-    "sole",
-    "hoof",
-    "ice",
-    "concrete",
-    "asphalt",
-    "stone",
-    "brick",
-    "glass",
-    "ceramic",
-    "plastic",
-    "paper",
-    "fabric",
-    "foam",
-    "skin",
-    "wax",
-    "food",
-    "aluminium",
-    "lead",
-    "iron",
-    "composite",
-    "felt",
-  ]);
-
   /** Cited friction pairs, keyed by alphabetically ordered material names. */
   export const FRICTION: Readonly<Record<string, IFriction>> = {
     "concrete/felt": {
@@ -106,92 +63,92 @@ export namespace AutoMovieArchetypeMaterial {
     "concrete/rubber": {
       static: 1,
       kinetic: 0.7,
-      source: `${OPENSTAX}: rubber on dry concrete`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: rubber on dry concrete`,
     },
     "wood/wood": {
       static: 0.5,
       kinetic: 0.3,
-      source: `${OPENSTAX}: wood on wood`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: wood on wood`,
     },
     "steel/wood": {
       static: 0.5,
       kinetic: 0.3,
-      source: `${OPENSTAX}: metal on wood`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: metal on wood`,
     },
     "steel/steel": {
       static: 0.6,
       kinetic: 0.3,
-      source: `${OPENSTAX}: steel on steel, dry`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: steel on steel, dry`,
     },
     "steel/teflon": {
       static: 0.04,
       kinetic: 0.04,
-      source: `${OPENSTAX}: Teflon on steel`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: Teflon on steel`,
     },
     "sole/wood": {
       static: 0.9,
       kinetic: 0.7,
-      source: `${OPENSTAX}: shoes on wood`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: shoes on wood`,
     },
     "ice/sole": {
       static: 0.1,
       kinetic: 0.05,
-      source: `${OPENSTAX}: shoes on ice`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: shoes on ice`,
     },
     "ice/ice": {
       static: 0.1,
       kinetic: 0.03,
-      source: `${OPENSTAX}: ice on ice`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: ice on ice`,
     },
     "ice/steel": {
       static: 0.04,
       kinetic: 0.02,
-      source: `${OPENSTAX}: steel on ice`,
+      source: `${AutoMovieArchetypeMaterialData.OPENSTAX}: steel on ice`,
     },
     "asphalt/rubber": {
       static: [0.84, 0.98],
       kinetic: 0.72,
-      source: `${ELERT}: car tyre on asphalt, after the American Journal of Physics (https://doi.org/10.1119/1.1321812)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: car tyre on asphalt, after the American Journal of Physics (https://doi.org/10.1119/1.1321812)`,
     },
     "concrete/hoof": {
       static: 0.48,
       kinetic: 0.47,
-      source: `${ELERT}: horseshoe on concrete (https://doi.org/10.1017/S1478061506617234)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: horseshoe on concrete (https://doi.org/10.1017/S1478061506617234)`,
     },
     "asphalt/hoof": {
       static: 0.44,
       kinetic: 0.42,
-      source: `${ELERT}: horseshoe on asphalt (https://doi.org/10.1017/S1478061506617234)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: horseshoe on asphalt (https://doi.org/10.1017/S1478061506617234)`,
     },
     "hoof/stone": {
       static: 0.42,
       kinetic: 0.38,
-      source: `${ELERT}: horseshoe on cobblestone (https://doi.org/10.1017/S1478061506617234)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: horseshoe on cobblestone (https://doi.org/10.1017/S1478061506617234)`,
     },
     "hoof/rubber": {
       static: 0.68,
       kinetic: 0.67,
-      source: `${ELERT}: horseshoe on rubber (https://doi.org/10.1017/S1478061506617234)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: horseshoe on rubber (https://doi.org/10.1017/S1478061506617234)`,
     },
     "steel/stone": {
       static: [0.3, 0.7],
       kinetic: null,
-      source: `${ELERT}: iron on stone, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: iron on stone, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
     },
     "brick/wood": {
       static: 0.6,
       kinetic: null,
-      source: `${ELERT}: wood on brick, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: wood on brick, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
     },
     "stone/wood": {
       static: 0.4,
       kinetic: null,
-      source: `${ELERT}: wood on stone, after W. J. M. Rankine, A Manual of Applied Mechanics (1858)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: wood on stone, after W. J. M. Rankine, A Manual of Applied Mechanics (1858)`,
     },
     "leather/steel": {
       static: 0.56,
       kinetic: null,
-      source: `${ELERT}: leather on metals, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: leather on metals, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
     },
     "concrete/wood": {
       static: [0.61, 0.88],
@@ -214,7 +171,7 @@ export namespace AutoMovieArchetypeMaterial {
     "leather/wood": {
       static: [0.27, 0.38],
       kinetic: null,
-      source: `${ELERT}: leather on wood, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
+      source: `${AutoMovieArchetypeMaterialData.ELERT}: leather on wood, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
     },
   };
 
@@ -226,6 +183,7 @@ export namespace AutoMovieArchetypeMaterial {
     if (row.kinetic !== null) Object.freeze(row.kinetic);
     Object.freeze(row);
   }
+
   Object.freeze(FRICTION);
 
   /**
@@ -237,13 +195,13 @@ export namespace AutoMovieArchetypeMaterial {
    * @throws {AutoMovieArchetypeRefusal} When no known material was declared.
    */
   export function admit(material: Kind | undefined, archetype: string): Kind {
-    if (material !== undefined && KINDS.includes(material)) return material;
+    if (material !== undefined && AutoMovieArchetypeMaterialData.KINDS.includes(material)) return material;
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis: "material",
       value: material,
-      feasible: { kind: "alternatives", values: [...KINDS] },
+      feasible: { kind: "alternatives", values: [...AutoMovieArchetypeMaterialData.KINDS] },
       reason: "a body needs an explicitly declared physical material",
       fix: "declare the body's physical material; use composite for an actually mixed construction",
     });

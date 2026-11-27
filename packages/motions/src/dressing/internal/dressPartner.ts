@@ -18,12 +18,7 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { armPhrase } from "../../everyday/internal/armPhrase";
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
-
-/*
- * How far up a region's normal must point for the item to be set down onto it
- * from above: within 45 degrees of up.
- */
-const UP: number = Math.SQRT1_2;
+import * as DressPartnerData from "./DressPartnerData";
 
 /*
  * Dress another performer. The dresser's hand carries the held item to the
@@ -76,7 +71,7 @@ function planDressPartner(
     context.aim(
       { kind: "person", subject: params.partner, region: params.region },
       context.start,
-    ).normal.y > UP;
+    ).normal.y > DressPartnerData.UP;
   const phrase: IAutoMovieMotionHumanActionPlan = armPhrase.plan({
     ...context,
     params: {

@@ -25,17 +25,30 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { humanRideGripTiming } from "./humanRideGripTiming";
+import * as HumanHoldHandlesData from "./HumanHoldHandlesData";
 
 /*
- * The two hands, left first.
+ * Keep both of a walker's hands on a moving implement's two handles, as a
+ * ploughman holds a walking plough.
+ *
+ * The base walk owns the steps and the handles stay on the posed implement. The
+ * overlay acquires both handles and releases them over equal authored
+ * intervals, each hand's goal on its handle's actual moving frame by the shared
+ * rider hold (`HumanMountRider.hold`, `HumanRideHands`), the same fit the lead
+ * and the driving lines use, and both arms laid on one planned course
+ * (`courseArmGoal`) so neither changes branch as the handles move.
+ *
+ * The author gives the total `seconds`; the hands take the handles and let go
+ * in `transition` seconds each, together less than `seconds`; no natural value
+ * is defined (provisional).
  */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/*
- * The displayed hand's largest admitted miss of its handle's skin, metres: the
- * contact tolerance of the towed driver and the lead.
- */
-const REACH: number = 0.01;
+export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHoldHandles> =
+  {
+    name: "holdHandles",
+    overlay: true,
+    interrupts: {},
+    plan: planHumanHoldHandles,
+  };
 
 /*
  * Fit and verify both displayed hands against two actual moving handles.
@@ -70,7 +83,7 @@ function planHumanHoldHandles(
     });
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
   const ids: Readonly<Record<AutoMovieHumanSide, string>> = { left, right };
-  for (const side of SIDES) {
+  for (const side of HumanHoldHandlesData.SIDES) {
     const handle: IAutoMovieAffordance | undefined =
       support.prop.affordances?.find(
         (contact: IAutoMovieAffordance): boolean => contact.id === ids[side],
@@ -101,7 +114,7 @@ function planHumanHoldHandles(
   const channels = ["leftArm", "leftHand", "rightArm", "rightHand"] as const;
   const requested: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>(
-      SIDES.flatMap((side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
+      HumanHoldHandlesData.SIDES.flatMap((side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
         `${side}Hand`,
         ...HumanHand.frameBones(context.body, side, "palm"),
       ]),
@@ -118,12 +131,12 @@ function planHumanHoldHandles(
     duration: seconds,
     channels,
     enteredChannels: channels,
-    hands: [...SIDES],
+    hands: [...HumanHoldHandlesData.SIDES],
     events: [
       { name: "handlesOn", share: onShare },
       { name: "handlesOff", share: offShare },
     ],
-    contacts: SIDES.map(
+    contacts: HumanHoldHandlesData.SIDES.map(
       (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
         part: `${side}Hand`,
         kind: "grip",
@@ -155,7 +168,7 @@ function planHumanHoldHandles(
       const held: Partial<
         Record<AutoMovieHumanSide, ReturnType<typeof HumanMountRider.hold>>
       > = {};
-      for (const side of SIDES) {
+      for (const side of HumanHoldHandlesData.SIDES) {
         const hand: ReturnType<typeof HumanMountRider.hold> =
           HumanMountRider.hold(
             context.body,
@@ -201,7 +214,7 @@ function planHumanHoldHandles(
           );
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           poseBones(context.body, pose.pose, read(), requested);
-        for (const side of SIDES) {
+        for (const side of HumanHoldHandlesData.SIDES) {
           const actual: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
           const contact: IAutoMovieVector3 | undefined =
             held[side]!.arm.contact;
@@ -224,7 +237,7 @@ function planHumanHoldHandles(
                   effector,
                   Vector3.addScaled(grip.point, grip.normal, grip.radius ?? 0),
                 );
-          if (!(distance <= REACH))
+          if (!(distance <= HumanHoldHandlesData.REACH))
             throw new AutoMovieMotionHumanRefusal({
               kind: "affordance",
               axis: "handleReach",
@@ -232,7 +245,7 @@ function planHumanHoldHandles(
               feasible: {
                 kind: "range",
                 minimum: 0,
-                maximum: REACH,
+                maximum: HumanHoldHandlesData.REACH,
                 unit: "m",
               },
               reason: `the displayed ${side} hand misses ${on}.${ids[side]} by ${distance} m at film second ${film}`,
@@ -263,26 +276,3 @@ function planHumanHoldHandles(
     ],
   });
 }
-
-/*
- * Keep both of a walker's hands on a moving implement's two handles, as a
- * ploughman holds a walking plough.
- *
- * The base walk owns the steps and the handles stay on the posed implement. The
- * overlay acquires both handles and releases them over equal authored
- * intervals, each hand's goal on its handle's actual moving frame by the shared
- * rider hold (`HumanMountRider.hold`, `HumanRideHands`), the same fit the lead
- * and the driving lines use, and both arms laid on one planned course
- * (`courseArmGoal`) so neither changes branch as the handles move.
- *
- * The author gives the total `seconds`; the hands take the handles and let go
- * in `transition` seconds each, together less than `seconds`; no natural value
- * is defined (provisional).
- */
-export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHoldHandles> =
-  {
-    name: "holdHandles",
-    overlay: true,
-    interrupts: {},
-    plan: planHumanHoldHandles,
-  };

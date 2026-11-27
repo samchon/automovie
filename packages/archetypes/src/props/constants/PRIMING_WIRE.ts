@@ -1,20 +1,5 @@
-import { AutoMovieArchetypeUnits } from "../../core";
-
-/*
- * The read wire, ring and stems, metres, and the garrison wire's weight,
- * kilograms.
- */
-const WIRE: number = 0.175 * AutoMovieArchetypeUnits.INCH;
-const RING: number = 2 * AutoMovieArchetypeUnits.INCH;
-const FIELD: number = 8 * AutoMovieArchetypeUnits.INCH;
-const GARRISON: number = 14 * AutoMovieArchetypeUnits.INCH;
-const GARRISON_MASS: number = 0.08 * AutoMovieArchetypeUnits.POUND;
-
-/*
- * The length of wire in the ring, metres: its circumference at the wire's
- * centre line.
- */
-const RING_WIRE: number = Math.PI * (RING - WIRE);
+import "../../core";
+import * as PrimingWireData from "./internal/PrimingWireData";
 
 /*
  * A field gun's priming wire as the 1862 Ordnance Manual gives it (p. 134,
@@ -29,8 +14,8 @@ const RING_WIRE: number = Math.PI * (RING - WIRE);
 export const PRIMING_WIRE: Readonly<
   Record<"wire" | "ring" | "field" | "mass", number>
 > = {
-  wire: WIRE,
-  ring: RING,
-  field: FIELD,
-  mass: (GARRISON_MASS * (FIELD + RING_WIRE)) / (GARRISON + RING_WIRE),
+  wire: PrimingWireData.WIRE,
+  ring: PrimingWireData.RING,
+  field: PrimingWireData.FIELD,
+  mass: (PrimingWireData.GARRISON_MASS * (PrimingWireData.FIELD + PrimingWireData.RING_WIRE)) / (PrimingWireData.GARRISON + PrimingWireData.RING_WIRE),
 };

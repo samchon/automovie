@@ -1,14 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeDoor } from "../AutoMovieArchetypeDoor";
-
-/*
- * A cylindrical lock's backsets, the Schlage ND's, which a lever and a knob
- * share and a sliding door's pull is set at.
- */
-const BACKSETS: Readonly<Record<AutoMovieArchetypeDoor.Backset, Figures>> = {
-  "2-3/8in": { backset: (2 + 3 / 8) * AutoMovieArchetypeUnits.INCH },
-  "2-3/4in": { backset: (2 + 3 / 4) * AutoMovieArchetypeUnits.INCH },
-};
+import * as DoorSizesData from "./internal/DoorSizesData";
 
 /*
  * The door sizes read, metres, each a standard's or a maker's closed list: the
@@ -24,14 +16,14 @@ const BACKSETS: Readonly<Record<AutoMovieArchetypeDoor.Backset, Figures>> = {
  * (https://cdn.shopify.com/s/files/1/0610/8813/7372/files/Schlage_ND_Series_Cut_Sheet.pdf?v=1717757895).
  */
 export const DOOR_SIZES: Readonly<{
-  width: Readonly<Record<AutoMovieArchetypeDoor.Width, Figures>>;
-  height: Readonly<Record<AutoMovieArchetypeDoor.Height, Figures>>;
-  thickness: Readonly<Record<AutoMovieArchetypeDoor.Thickness, Figures>>;
+  width: Readonly<Record<AutoMovieArchetypeDoor.Width, DoorSizesData.Figures>>;
+  height: Readonly<Record<AutoMovieArchetypeDoor.Height, DoorSizesData.Figures>>;
+  thickness: Readonly<Record<AutoMovieArchetypeDoor.Thickness, DoorSizesData.Figures>>;
   backset: Readonly<
     Partial<
       Record<
         AutoMovieArchetypeDoor.Hardware | "sliding",
-        Readonly<Record<AutoMovieArchetypeDoor.Backset, Figures>>
+        Readonly<Record<AutoMovieArchetypeDoor.Backset, DoorSizesData.Figures>>
       >
     >
   >;
@@ -39,7 +31,7 @@ export const DOOR_SIZES: Readonly<{
     Partial<
       Record<
         AutoMovieArchetypeDoor.Hardware | "sliding",
-        Readonly<Record<AutoMovieArchetypeDoor.Lever, Figures>>
+        Readonly<Record<AutoMovieArchetypeDoor.Lever, DoorSizesData.Figures>>
       >
     >
   >;
@@ -62,7 +54,7 @@ export const DOOR_SIZES: Readonly<{
     "1-3/8in": { thickness: (1 + 3 / 8) * AutoMovieArchetypeUnits.INCH },
     "1-3/4in": { thickness: (1 + 3 / 4) * AutoMovieArchetypeUnits.INCH },
   },
-  backset: { lever: BACKSETS, knob: BACKSETS, sliding: BACKSETS },
+  backset: { lever: DoorSizesData.BACKSETS, knob: DoorSizesData.BACKSETS, sliding: DoorSizesData.BACKSETS },
   lever: {
     lever: {
       ATH: {
@@ -104,8 +96,3 @@ export const DOOR_SIZES: Readonly<{
     },
   },
 };
-
-/*
- * One read size's figures, metres.
- */
-type Figures = Readonly<Partial<Record<AutoMovieArchetypeDoor.Dimension, number>>>;

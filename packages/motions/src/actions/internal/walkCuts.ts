@@ -1,34 +1,7 @@
-import type {
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanInterruptRow,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-
-/*
- * Seconds over which a cut into a walk inertializes the outgoing pose (a
- * deliberate change of the whole body's action,
- * `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`).
- */
-const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
-
-/*
- * Seconds over which a jump's cut into a walk inertializes (provisional: half
- * the walk's `BLEND`; no measured value was read).
- */
-const JUMP_BLEND: number = 0.15;
-
-/*
- * The cut a standing action makes into a walk: only once both feet are down.
- */
-const SETTLED: readonly IAutoMovieMotionHumanInterruptRow[] = [
-  {
-    window: { start: "lastFootfall", end: 1 },
-    kind: "inertialize",
-    entry: 0,
-    blend: BLEND,
-  },
-];
+import "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import * as WalkCutsData from "./WalkCutsData";
 
 /*
  * The walk's cancel table (`walk.interrupts`). Another walk, a run, an
@@ -43,7 +16,7 @@ export const walkCuts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
       window: { start: 0, end: 1 },
       kind: "inertialize",
       entry: 0,
-      blend: BLEND,
+      blend: WalkCutsData.BLEND,
     },
   ],
   walk: [
@@ -51,7 +24,7 @@ export const walkCuts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
       window: { start: 0, end: 1 },
       kind: "inertialize",
       entry: 0,
-      blend: BLEND,
+      blend: WalkCutsData.BLEND,
     },
   ],
   jump: [
@@ -59,7 +32,7 @@ export const walkCuts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
       window: { start: 0, end: 1 },
       kind: "inertialize",
       entry: 0,
-      blend: JUMP_BLEND,
+      blend: WalkCutsData.JUMP_BLEND,
     },
   ],
   run: [
@@ -67,7 +40,7 @@ export const walkCuts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
       window: { start: 0, end: 1 },
       kind: "inertialize",
       entry: 0,
-      blend: BLEND,
+      blend: WalkCutsData.BLEND,
     },
   ],
   approach: [
@@ -75,11 +48,11 @@ export const walkCuts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
       window: { start: 0, end: 1 },
       kind: "inertialize",
       entry: 0,
-      blend: BLEND,
+      blend: WalkCutsData.BLEND,
     },
   ],
-  look: SETTLED,
-  gesture: SETTLED,
-  rest: SETTLED,
-  sit: SETTLED,
+  look: WalkCutsData.SETTLED,
+  gesture: WalkCutsData.SETTLED,
+  rest: WalkCutsData.SETTLED,
+  sit: WalkCutsData.SETTLED,
 };

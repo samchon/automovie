@@ -6,23 +6,6 @@ import { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
-/*
- * The closed forms the response follows and samples.
- */
-const {
-  ZULU,
-  add,
-  capture,
-  center,
-  decompose,
-  formAt,
-  scaled,
-  shift,
-  toLocal,
-  toWorld,
-  value,
-}: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;
-
 /**
  * A disturbance response followed piece by piece
  * (`preparePhysicalDisturbanceSpan`): the ICP controller's error and
@@ -369,6 +352,24 @@ export namespace AutoMovieEnginePhysicalDisturbanceFollow {
     };
   }
 }
+
+
+/*
+ * The closed forms the response follows and samples.
+ */
+const {
+  ZULU,
+  add,
+  capture,
+  center,
+  decompose,
+  formAt,
+  scaled,
+  shift,
+  toLocal,
+  toWorld,
+  value,
+}: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;
 
 /** One closed form of a plan's capture point (`AutoMovieEnginePhysicalDisturbanceForm`). */
 type IForm = AutoMovieEnginePhysicalDisturbanceForm.IForm;

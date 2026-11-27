@@ -83,27 +83,6 @@ export function prepareJointRotationFactor(
 }
 
 /*
- * Share only an exact actual match to a finite rig-declared constant.
- */
-function fixedFactor(
-  operation: prepareJointRotationFactor.IOperation,
-  key: ClinicalAxis,
-  angle: number,
-  read: ReturnType<typeof Quaternion.prepareAxisAngle>,
-): IAutoMovieQuaternion {
-  const declared: jointToQuaternionOnBasis.IFixedAngles[ClinicalAxis] =
-    operation.fixedAngles?.[key];
-  if (declared === undefined) return read(angle);
-  const index: 0 | 1 | null = Object.is(angle, declared[0])
-    ? 0
-    : declared.length === 2 && Object.is(angle, declared[1])
-      ? 1
-      : null;
-  if (index === null) return read(angle);
-  return operation.fixedFactors?.[key]?.[index] ?? read(angle);
-}
-
-/*
  * Bounded fixed-rig preparation shared by independent actual query readers.
  */
 export namespace prepareJointRotationFactor {
@@ -220,6 +199,27 @@ export namespace prepareJointRotationFactor {
     prepared.fixedInnerProducts = products;
     return prepared;
   }
+}
+
+/*
+ * Share only an exact actual match to a finite rig-declared constant.
+ */
+function fixedFactor(
+  operation: prepareJointRotationFactor.IOperation,
+  key: ClinicalAxis,
+  angle: number,
+  read: ReturnType<typeof Quaternion.prepareAxisAngle>,
+): IAutoMovieQuaternion {
+  const declared: jointToQuaternionOnBasis.IFixedAngles[ClinicalAxis] =
+    operation.fixedAngles?.[key];
+  if (declared === undefined) return read(angle);
+  const index: 0 | 1 | null = Object.is(angle, declared[0])
+    ? 0
+    : declared.length === 2 && Object.is(angle, declared[1])
+      ? 1
+      : null;
+  if (index === null) return read(angle);
+  return operation.fixedFactors?.[key]?.[index] ?? read(angle);
 }
 
 /*

@@ -14,9 +14,33 @@ import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { EquineFordConstants } from "./equine/EquineFordConstants";
 import { EquineFordBarReads } from "./equine/EquineFordBarReads";
 
-const { STEP, SWEEP } = EquineFordConstants;
-const { part, top, shape } = EquineFordBarReads;
+/** Operations for an equid crossing authored water and banks. */
+export namespace AutoMovieArchetypeEquineFord {
+  /**
+   * Build the wading, swimming and climbing take on one film clock.
+   *
+   * @param animal The equid, in its neutral pose.
+   * @param params The water, footing, three courses and authored swim.
+   * @returns The crossing, sampled by film second.
+   * @throws {AutoMovieArchetypeRefusal} For invalid water or swim conditions, unreachable banks, collision with the bed or water, and refusals from the grounded rides.
+   */
+  export function create<Id extends string, D extends string>(
+    animal: AutoMovieArchetype<
+      Id,
+      D | AutoMovieArchetypeQuadrupedBody.Dimension
+    >,
+    params: AutoMovieArchetypeEquineFordPlan.IParams,
+  ): AutoMovieArchetypeEquineFordPlan.IClip<
+    Id,
+    D | AutoMovieArchetypeQuadrupedBody.Dimension
+  > {
+    return equineFord(animal, params);
+  }
+}
 
+const { STEP, SWEEP } = EquineFordConstants;
+
+const { part, top, shape } = EquineFordBarReads;
 /*
  * An equid crossing water on one film clock: it wades down a ford on its own
  * legs, floats free and swims with its measured fore and hind strokes, then
@@ -496,28 +520,5 @@ function equineFord<
         swim.neck,
         `the head's lowest surface at ${lowest} m does not clear the water at ${water} m`,
       );
-  }
-}
-/** Operations for an equid crossing authored water and banks. */
-export namespace AutoMovieArchetypeEquineFord {
-  /**
-   * Build the wading, swimming and climbing take on one film clock.
-   *
-   * @param animal The equid, in its neutral pose.
-   * @param params The water, footing, three courses and authored swim.
-   * @returns The crossing, sampled by film second.
-   * @throws {AutoMovieArchetypeRefusal} For invalid water or swim conditions, unreachable banks, collision with the bed or water, and refusals from the grounded rides.
-   */
-  export function create<Id extends string, D extends string>(
-    animal: AutoMovieArchetype<
-      Id,
-      D | AutoMovieArchetypeQuadrupedBody.Dimension
-    >,
-    params: AutoMovieArchetypeEquineFordPlan.IParams,
-  ): AutoMovieArchetypeEquineFordPlan.IClip<
-    Id,
-    D | AutoMovieArchetypeQuadrupedBody.Dimension
-  > {
-    return equineFord(animal, params);
   }
 }

@@ -9,14 +9,7 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No source read gives a stall's depth, height or doors: estimates that hold a
- * saddle horse of 1.58 to 1.80 m at the withers standing in the stall with its
- * head over the front doors and a seated rider above.
- */
-const ESTIMATE: string =
-  "an estimate sized to a saddle horse in the stall, no source read gives it";
+import * as AutoMovieArchetypeStartingGateData from "./internal/AutoMovieArchetypeStartingGateData";
 
 /** Constructs the starting gate archetype from its recipe. */
 export namespace AutoMovieArchetypeStartingGate {
@@ -292,12 +285,12 @@ export function create(
   export const BANDS: Readonly<
     Record<Exclude<Dimension, "pitch">, IAutoMovieArchetypeBand>
   > = {
-    depth: AutoMovieArchetypeBand.metres(2.6, 3, ESTIMATE, true),
-    height: AutoMovieArchetypeBand.metres(2.6, 3, ESTIMATE, true),
-    doorHeight: AutoMovieArchetypeBand.metres(1.2, 1.5, ESTIMATE, true),
-    doorFoot: AutoMovieArchetypeBand.metres(0.3, 0.45, ESTIMATE, true),
-    partition: AutoMovieArchetypeBand.metres(0.08, 0.12, ESTIMATE, true),
-    leafThickness: AutoMovieArchetypeBand.metres(0.03, 0.05, ESTIMATE, true),
+    depth: AutoMovieArchetypeBand.metres(2.6, 3, AutoMovieArchetypeStartingGateData.ESTIMATE, true),
+    height: AutoMovieArchetypeBand.metres(2.6, 3, AutoMovieArchetypeStartingGateData.ESTIMATE, true),
+    doorHeight: AutoMovieArchetypeBand.metres(1.2, 1.5, AutoMovieArchetypeStartingGateData.ESTIMATE, true),
+    doorFoot: AutoMovieArchetypeBand.metres(0.3, 0.45, AutoMovieArchetypeStartingGateData.ESTIMATE, true),
+    partition: AutoMovieArchetypeBand.metres(0.08, 0.12, AutoMovieArchetypeStartingGateData.ESTIMATE, true),
+    leafThickness: AutoMovieArchetypeBand.metres(0.03, 0.05, AutoMovieArchetypeStartingGateData.ESTIMATE, true),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       250,

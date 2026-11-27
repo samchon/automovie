@@ -20,9 +20,6 @@ import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { add, combine, cross, dot, norm, scale, sub, unit } =
-  AutoMovieSolidVector;
-
 /**
  * One band of a split (`IAutoMovieConstructionSplit`): the join strip between a
  * child's loop on the host's end and the child's rail, published as a two-layer
@@ -103,249 +100,6 @@ export namespace AutoMovieConstructionSplitBand {
       loop: every(made.loop),
       childPhases: every(made.childPhases),
     };
-  }
-
-  /*
-   * The strip's columns per mesh column for a curved seam: at a fork the clock
-   * spline's tangent mixes the one-sided chords to its neighbours, and a chord
-   * deviates from its side's tangent by half that side's turn per column, out
-   * of the host's tangent plane where the ring curves out of it (O(h kappa),
-   * test_construction_split_seam: 7.0 deg at 11.25 deg per column). The strip
-   * is therefore built on `F` times the columns, `F` the largest turn between
-   * adjacent chords next to either fork, on the arc and on the seam, in
-   * degrees, rounded up, so each one-sided chord deviates by at most half a
-   * degree; the mesh columns are every `F`-th strip column, at the same clocks,
-   * so the shared vertices are the strip's own knots. At most 16; 1 for the
-   * straight chord, whose corners are declared creases.
-   */
-  function refine(input: IAutoMovieConstructionSplitBand.IInput): number {
-    const seam: IAutoMovieConstructionSplitBand.IInput["seam"] = input.seam;
-    if (seam === undefined) return 1;
-    const n: number = input.count;
-    const m: number = n / 2;
-    const [alpha, beta]: [number, number] = input.arc;
-    const ring: (k: number) => AutoMovieVector3Tuple = (
-      k: number,
-    ): AutoMovieVector3Tuple =>
-      input.host.surface.jet(
-        input.host.station,
-        alpha + ((beta - alpha) * k) / m,
-      ).p;
-    const start: AutoMovieVector3Tuple = ring(0);
-    const finish: AutoMovieVector3Tuple = ring(m);
-    const reversed: boolean =
-      norm(sub(seam.curve.ends[0], finish)) >
-      norm(sub(seam.curve.ends[0], start));
-    const onSeam: (k: number) => AutoMovieVector3Tuple = (
-      k: number,
-    ): AutoMovieVector3Tuple =>
-      seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m).point;
-    const turn: (
-      a: AutoMovieVector3Tuple,
-      b: AutoMovieVector3Tuple,
-      c: AutoMovieVector3Tuple,
-    ) => number = (
-      a: AutoMovieVector3Tuple,
-      b: AutoMovieVector3Tuple,
-      c: AutoMovieVector3Tuple,
-    ): number => {
-      const u: AutoMovieVector3Tuple | null = unit(sub(b, a));
-      const v: AutoMovieVector3Tuple | null = unit(sub(c, b));
-      return u === null || v === null
-        ? 0
-        : (Math.acos(Math.max(-1, Math.min(1, dot(u, v)))) * 180) / Math.PI;
-    };
-    const turns: number[] = [
-      turn(ring(0), ring(1), ring(2)),
-      turn(ring(m - 2), ring(m - 1), ring(m)),
-      turn(finish, onSeam(m + 1), onSeam(m + 2)),
-      turn(onSeam(n - 2), onSeam(n - 1), start),
-    ];
-    return Math.min(16, Math.max(1, Math.ceil(Math.max(...turns))));
-  }
-
-  /*
-   * One band on exactly `input.count` columns.
-   */
-  function build(
-    input: IAutoMovieConstructionSplitBand.IInput,
-    trace?: IAutoMovieConstructionSplitBandTrace.Sink,
-  ): IAutoMovieConstructionSplitBand.IBand | string {
-    const n: number = input.count;
-    const m: number = n / 2;
-    const [alpha, beta]: [number, number] = input.arc;
-    const hostPhases: number[] = Array.from(
-      { length: m + 1 },
-      (_: unknown, k: number): number => alpha + ((beta - alpha) * k) / m,
-    );
-    const ring: IAutoMovieSolidSurface.IJet[] = hostPhases.map(
-      (phi: number): IAutoMovieSolidSurface.IJet =>
-        input.host.surface.jet(input.host.station, phi),
-    );
-    const start: AutoMovieVector3Tuple = ring[0]!.p;
-    const finish: AutoMovieVector3Tuple = ring[m]!.p;
-    // A curved seam: chord column k stands at the share `(k - m) / m` of the
-    // seam's length from `finish`; the seam's own share runs from its first
-    // end, which is this band's `start` for the band whose arc leaves it
-    // (child 0) and its `finish` for the other, so both bands read the same
-    // points (band 0's column k is band 1's `3 m - k`).
-    const seam: IAutoMovieConstructionSplitBand.IInput["seam"] = input.seam;
-    const reversed: boolean =
-      seam !== undefined &&
-      norm(sub(seam.curve.ends[0], finish)) >
-        norm(sub(seam.curve.ends[0], start));
-    const seamAt: (IAutoMovieConstructionSplitSeam.IPoint | null)[] =
-      Array.from(
-        { length: n },
-        (
-          _: unknown,
-          k: number,
-        ): IAutoMovieConstructionSplitSeam.IPoint | null =>
-          seam === undefined || k <= m
-            ? null
-            : seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m),
-      );
-    const loop: AutoMovieVector3Tuple[] = Array.from(
-      { length: n },
-      (_: unknown, k: number): AutoMovieVector3Tuple =>
-        k <= m
-          ? [...ring[k]!.p]
-          : (seamAt[k]?.point ??
-            add(finish, scale(sub(start, finish), (k - m) / m))),
-    );
-    // The start ribbon: the host's 2-jet leaving its end on the arc; on the
-    // chord the declared ruling in the end section's plane, square to the
-    // chord, toward this band's own arc. The two bands then leave their
-    // shared chord in opposite directions with the end plane as their common
-    // tangent plane, G1 across the seam (the crotch's underside a saddle
-    // facing out along the end normal). A ruling along the end normal would
-    // send both bands off the chord in the same direction: two sheets
-    // tangent back to back, a tent along the seam.
-    const along: AutoMovieVector3Tuple | null = unit(sub(start, finish));
-    const toward: AutoMovieVector3Tuple = sub(
-      ring[Math.floor(m / 2)]!.p,
-      scale(add(start, finish), 0.5),
-    );
-    // A curved seam's ruling: the seam plane's normal toward this band's arc.
-    const lateral: AutoMovieVector3Tuple | null =
-      seam !== undefined
-        ? dot(seam.curve.normal, toward) === 0
-          ? null
-          : scale(seam.curve.normal, Math.sign(dot(seam.curve.normal, toward)))
-        : along === null
-          ? null
-          : unit(
-              sub(
-                sub(toward, scale(along, dot(toward, along))),
-                scale(input.normal, dot(toward, input.normal)),
-              ),
-            );
-    if (lateral === null)
-      return seam === undefined
-        ? "the chord gives no direction square to it in the end plane toward the arc"
-        : "the seam plane holds the direction toward the band's arc";
-    // The ribbons' turn at the forks (`IAutoMovieConstructionSplit.IProfile`):
-    // `pi / 4` at a fork, falling by the quintic smoothstep to 0 at `corner`
-    // of clock from it, so the ribbon fields stay C2 along the loop.
-    const step: number = (2 * Math.PI) / n;
-    const share: (d: number) => number = (d: number): number => {
-      if (seam === undefined || !(d < seam.corner)) return 0;
-      const x: number = d / seam.corner;
-      return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
-    };
-    const near: (k: number, L: number) => IAutoMovieBlendCrossJet | string = (
-      k: number,
-      L: number,
-    ): IAutoMovieBlendCrossJet | string => {
-      if (k > m) {
-        const reading: IAutoMovieConstructionSplitSeam.IPoint | null =
-          seamAt[k] ?? null;
-        if (reading === null)
-          return {
-            point: loop[k]!,
-            first: scale(lateral, L),
-            second: [0, 0, 0],
-          };
-        // On the seam: from the ruling toward the seam's direction away from
-        // the nearer fork. Rising share from `finish` is the seam's tangent
-        // unless the seam runs the other way.
-        const fromFinish: number = (k - m) * step;
-        const fromStart: number = (n - k) * step;
-        const angle: number =
-          (Math.PI / 4) * share(Math.min(fromFinish, fromStart));
-        const away: AutoMovieVector3Tuple = scale(
-          reading.tangent,
-          (fromFinish <= fromStart ? 1 : -1) * (reversed ? -1 : 1),
-        );
-        return {
-          point: loop[k]!,
-          first: scale(
-            add(scale(lateral, Math.cos(angle)), scale(away, Math.sin(angle))),
-            L,
-          ),
-          second: [0, 0, 0],
-        };
-      }
-      const hostSpeed: number = norm(ring[k]!.u);
-      if (!(hostSpeed > 0))
-        return `column ${k}: the host's station speed vanishes at its end`;
-      const own: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.of(
-        input.host.surface,
-        input.host.station,
-        hostPhases[k]!,
-        input.host.into,
-        0,
-        L / hostSpeed,
-      );
-      const w: number = share(Math.min(k, m - k) * step);
-      if (w === 0) return own;
-      // On the arc: from the host's own ribbon toward the ruling, inside the
-      // host's tangent plane (the ruling's part square to the host normal and
-      // to the ribbon), so the band stays G1 to the host; its second
-      // derivative falls with the turn's share.
-      const ahead: AutoMovieVector3Tuple | null = unit(own.first);
-      const normal: AutoMovieVector3Tuple | null = unit(
-        cross(ring[k]!.u, ring[k]!.v),
-      );
-      if (ahead === null || normal === null)
-        return `column ${k}: the host's tangent plane is degenerate`;
-      const side: AutoMovieVector3Tuple | null = unit(
-        sub(
-          sub(lateral, scale(normal, dot(lateral, normal))),
-          scale(ahead, dot(lateral, ahead)),
-        ),
-      );
-      if (side === null)
-        return `column ${k}: the seam's ruling has no direction in the host's tangent plane square to its ribbon`;
-      const angle: number = (Math.PI / 4) * w;
-      return {
-        point: own.point,
-        first: scale(
-          add(scale(ahead, Math.cos(angle)), scale(side, Math.sin(angle))),
-          L,
-        ),
-        second: scale(own.second, 1 - w),
-      };
-    };
-    // The outward side: the host's outward normal at column 0.
-    const outward: AutoMovieVector3Tuple | null = unit(
-      scale(cross(ring[0]!.u, ring[0]!.v), input.host.surface.orientation),
-    );
-    if (outward === null)
-      return "the host's tangent plane at the arc's start is degenerate";
-    const made: IAutoMovieConstructionSplitBand.IStrip | string = strip(
-      input.name,
-      loop,
-      near,
-      outward,
-      input.child,
-      input.crease,
-      input.correspondence ?? "angle",
-      "common",
-      [],
-      trace,
-    );
-    return typeof made === "string" ? made : { ...made, hostPhases };
   }
 
   /**
@@ -921,6 +675,304 @@ export namespace AutoMovieConstructionSplitBand {
     return { chain: made.chain, surface };
   }
 
+  /**
+   * A crease window's weight at a clock: 1 inside `[start, end]`, falling to 0
+   * over `transition` on each side by `1 - (10 x^3 - 15 x^4 + 6 x^5)`, `x` the
+   * clock distance from the window over the transition, so the weight is C2 in
+   * the clock; 0 without a crease.
+   *
+   * @param c The clock, radians.
+   * @param crease The window, or absent.
+   * @returns The weight in `[0, 1]`.
+   */
+  export function weight(
+    c: number,
+    crease: IAutoMovieConstructionSplit.ICrease | undefined,
+  ): number {
+    if (crease === undefined) return 0;
+    const turn: number = 2 * Math.PI;
+    const x: number = (((c - crease.start) % turn) + turn) % turn;
+    const span: number = crease.end - crease.start;
+    if (x <= span) return 1;
+    const d: number = Math.min(x - span, turn - x);
+    if (d >= crease.transition) return 0;
+    const t: number = d / crease.transition;
+    return 1 - t * t * t * (10 - 15 * t + 6 * t * t);
+  }
+
+  /**
+   * A column's largest monotone scale found at or below `from`: `from` itself
+   * when it holds, else halving until it holds (a ribbon pointing along its
+   * chord holds at small enough scales), then 40 bisection steps between the
+   * last failing and the first holding value; null when even `1e-9` fails.
+   *
+   * @param column The column's ribbons.
+   * @param from The largest scale to try.
+   * @returns The scale found, or null.
+   */
+  export function largest(
+    column: IAutoMovieBlendColumn,
+    from: number,
+  ): number | null {
+    if (monotone(column, from)) return from;
+    let hi: number = from;
+    let lo: number = from / 2;
+    while (!monotone(column, lo)) {
+      hi = lo;
+      lo /= 2;
+      if (!(lo > 1e-9)) return null;
+    }
+    for (let step: number = 0; step < 40; ++step) {
+      const mid: number = (lo + hi) / 2;
+      if (monotone(column, mid)) lo = mid;
+      else hi = mid;
+    }
+    return lo;
+  }
+
+  /*
+   * The strip's columns per mesh column for a curved seam: at a fork the clock
+   * spline's tangent mixes the one-sided chords to its neighbours, and a chord
+   * deviates from its side's tangent by half that side's turn per column, out
+   * of the host's tangent plane where the ring curves out of it (O(h kappa),
+   * test_construction_split_seam: 7.0 deg at 11.25 deg per column). The strip
+   * is therefore built on `F` times the columns, `F` the largest turn between
+   * adjacent chords next to either fork, on the arc and on the seam, in
+   * degrees, rounded up, so each one-sided chord deviates by at most half a
+   * degree; the mesh columns are every `F`-th strip column, at the same clocks,
+   * so the shared vertices are the strip's own knots. At most 16; 1 for the
+   * straight chord, whose corners are declared creases.
+   */
+  function refine(input: IAutoMovieConstructionSplitBand.IInput): number {
+    const seam: IAutoMovieConstructionSplitBand.IInput["seam"] = input.seam;
+    if (seam === undefined) return 1;
+    const n: number = input.count;
+    const m: number = n / 2;
+    const [alpha, beta]: [number, number] = input.arc;
+    const ring: (k: number) => AutoMovieVector3Tuple = (
+      k: number,
+    ): AutoMovieVector3Tuple =>
+      input.host.surface.jet(
+        input.host.station,
+        alpha + ((beta - alpha) * k) / m,
+      ).p;
+    const start: AutoMovieVector3Tuple = ring(0);
+    const finish: AutoMovieVector3Tuple = ring(m);
+    const reversed: boolean =
+      norm(sub(seam.curve.ends[0], finish)) >
+      norm(sub(seam.curve.ends[0], start));
+    const onSeam: (k: number) => AutoMovieVector3Tuple = (
+      k: number,
+    ): AutoMovieVector3Tuple =>
+      seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m).point;
+    const turn: (
+      a: AutoMovieVector3Tuple,
+      b: AutoMovieVector3Tuple,
+      c: AutoMovieVector3Tuple,
+    ) => number = (
+      a: AutoMovieVector3Tuple,
+      b: AutoMovieVector3Tuple,
+      c: AutoMovieVector3Tuple,
+    ): number => {
+      const u: AutoMovieVector3Tuple | null = unit(sub(b, a));
+      const v: AutoMovieVector3Tuple | null = unit(sub(c, b));
+      return u === null || v === null
+        ? 0
+        : (Math.acos(Math.max(-1, Math.min(1, dot(u, v)))) * 180) / Math.PI;
+    };
+    const turns: number[] = [
+      turn(ring(0), ring(1), ring(2)),
+      turn(ring(m - 2), ring(m - 1), ring(m)),
+      turn(finish, onSeam(m + 1), onSeam(m + 2)),
+      turn(onSeam(n - 2), onSeam(n - 1), start),
+    ];
+    return Math.min(16, Math.max(1, Math.ceil(Math.max(...turns))));
+  }
+
+  /*
+   * One band on exactly `input.count` columns.
+   */
+  function build(
+    input: IAutoMovieConstructionSplitBand.IInput,
+    trace?: IAutoMovieConstructionSplitBandTrace.Sink,
+  ): IAutoMovieConstructionSplitBand.IBand | string {
+    const n: number = input.count;
+    const m: number = n / 2;
+    const [alpha, beta]: [number, number] = input.arc;
+    const hostPhases: number[] = Array.from(
+      { length: m + 1 },
+      (_: unknown, k: number): number => alpha + ((beta - alpha) * k) / m,
+    );
+    const ring: IAutoMovieSolidSurface.IJet[] = hostPhases.map(
+      (phi: number): IAutoMovieSolidSurface.IJet =>
+        input.host.surface.jet(input.host.station, phi),
+    );
+    const start: AutoMovieVector3Tuple = ring[0]!.p;
+    const finish: AutoMovieVector3Tuple = ring[m]!.p;
+    // A curved seam: chord column k stands at the share `(k - m) / m` of the
+    // seam's length from `finish`; the seam's own share runs from its first
+    // end, which is this band's `start` for the band whose arc leaves it
+    // (child 0) and its `finish` for the other, so both bands read the same
+    // points (band 0's column k is band 1's `3 m - k`).
+    const seam: IAutoMovieConstructionSplitBand.IInput["seam"] = input.seam;
+    const reversed: boolean =
+      seam !== undefined &&
+      norm(sub(seam.curve.ends[0], finish)) >
+        norm(sub(seam.curve.ends[0], start));
+    const seamAt: (IAutoMovieConstructionSplitSeam.IPoint | null)[] =
+      Array.from(
+        { length: n },
+        (
+          _: unknown,
+          k: number,
+        ): IAutoMovieConstructionSplitSeam.IPoint | null =>
+          seam === undefined || k <= m
+            ? null
+            : seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m),
+      );
+    const loop: AutoMovieVector3Tuple[] = Array.from(
+      { length: n },
+      (_: unknown, k: number): AutoMovieVector3Tuple =>
+        k <= m
+          ? [...ring[k]!.p]
+          : (seamAt[k]?.point ??
+            add(finish, scale(sub(start, finish), (k - m) / m))),
+    );
+    // The start ribbon: the host's 2-jet leaving its end on the arc; on the
+    // chord the declared ruling in the end section's plane, square to the
+    // chord, toward this band's own arc. The two bands then leave their
+    // shared chord in opposite directions with the end plane as their common
+    // tangent plane, G1 across the seam (the crotch's underside a saddle
+    // facing out along the end normal). A ruling along the end normal would
+    // send both bands off the chord in the same direction: two sheets
+    // tangent back to back, a tent along the seam.
+    const along: AutoMovieVector3Tuple | null = unit(sub(start, finish));
+    const toward: AutoMovieVector3Tuple = sub(
+      ring[Math.floor(m / 2)]!.p,
+      scale(add(start, finish), 0.5),
+    );
+    // A curved seam's ruling: the seam plane's normal toward this band's arc.
+    const lateral: AutoMovieVector3Tuple | null =
+      seam !== undefined
+        ? dot(seam.curve.normal, toward) === 0
+          ? null
+          : scale(seam.curve.normal, Math.sign(dot(seam.curve.normal, toward)))
+        : along === null
+          ? null
+          : unit(
+              sub(
+                sub(toward, scale(along, dot(toward, along))),
+                scale(input.normal, dot(toward, input.normal)),
+              ),
+            );
+    if (lateral === null)
+      return seam === undefined
+        ? "the chord gives no direction square to it in the end plane toward the arc"
+        : "the seam plane holds the direction toward the band's arc";
+    // The ribbons' turn at the forks (`IAutoMovieConstructionSplit.IProfile`):
+    // `pi / 4` at a fork, falling by the quintic smoothstep to 0 at `corner`
+    // of clock from it, so the ribbon fields stay C2 along the loop.
+    const step: number = (2 * Math.PI) / n;
+    const share: (d: number) => number = (d: number): number => {
+      if (seam === undefined || !(d < seam.corner)) return 0;
+      const x: number = d / seam.corner;
+      return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
+    };
+    const near: (k: number, L: number) => IAutoMovieBlendCrossJet | string = (
+      k: number,
+      L: number,
+    ): IAutoMovieBlendCrossJet | string => {
+      if (k > m) {
+        const reading: IAutoMovieConstructionSplitSeam.IPoint | null =
+          seamAt[k] ?? null;
+        if (reading === null)
+          return {
+            point: loop[k]!,
+            first: scale(lateral, L),
+            second: [0, 0, 0],
+          };
+        // On the seam: from the ruling toward the seam's direction away from
+        // the nearer fork. Rising share from `finish` is the seam's tangent
+        // unless the seam runs the other way.
+        const fromFinish: number = (k - m) * step;
+        const fromStart: number = (n - k) * step;
+        const angle: number =
+          (Math.PI / 4) * share(Math.min(fromFinish, fromStart));
+        const away: AutoMovieVector3Tuple = scale(
+          reading.tangent,
+          (fromFinish <= fromStart ? 1 : -1) * (reversed ? -1 : 1),
+        );
+        return {
+          point: loop[k]!,
+          first: scale(
+            add(scale(lateral, Math.cos(angle)), scale(away, Math.sin(angle))),
+            L,
+          ),
+          second: [0, 0, 0],
+        };
+      }
+      const hostSpeed: number = norm(ring[k]!.u);
+      if (!(hostSpeed > 0))
+        return `column ${k}: the host's station speed vanishes at its end`;
+      const own: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.of(
+        input.host.surface,
+        input.host.station,
+        hostPhases[k]!,
+        input.host.into,
+        0,
+        L / hostSpeed,
+      );
+      const w: number = share(Math.min(k, m - k) * step);
+      if (w === 0) return own;
+      // On the arc: from the host's own ribbon toward the ruling, inside the
+      // host's tangent plane (the ruling's part square to the host normal and
+      // to the ribbon), so the band stays G1 to the host; its second
+      // derivative falls with the turn's share.
+      const ahead: AutoMovieVector3Tuple | null = unit(own.first);
+      const normal: AutoMovieVector3Tuple | null = unit(
+        cross(ring[k]!.u, ring[k]!.v),
+      );
+      if (ahead === null || normal === null)
+        return `column ${k}: the host's tangent plane is degenerate`;
+      const side: AutoMovieVector3Tuple | null = unit(
+        sub(
+          sub(lateral, scale(normal, dot(lateral, normal))),
+          scale(ahead, dot(lateral, ahead)),
+        ),
+      );
+      if (side === null)
+        return `column ${k}: the seam's ruling has no direction in the host's tangent plane square to its ribbon`;
+      const angle: number = (Math.PI / 4) * w;
+      return {
+        point: own.point,
+        first: scale(
+          add(scale(ahead, Math.cos(angle)), scale(side, Math.sin(angle))),
+          L,
+        ),
+        second: scale(own.second, 1 - w),
+      };
+    };
+    // The outward side: the host's outward normal at column 0.
+    const outward: AutoMovieVector3Tuple | null = unit(
+      scale(cross(ring[0]!.u, ring[0]!.v), input.host.surface.orientation),
+    );
+    if (outward === null)
+      return "the host's tangent plane at the arc's start is degenerate";
+    const made: IAutoMovieConstructionSplitBand.IStrip | string = strip(
+      input.name,
+      loop,
+      near,
+      outward,
+      input.child,
+      input.crease,
+      input.correspondence ?? "angle",
+      "common",
+      [],
+      trace,
+    );
+    return typeof made === "string" ? made : { ...made, hostPhases };
+  }
+
   /*
    * A profiled band's interior cross sections
    * (`IAutoMovieConstructionBandProfile64`): at every share any profile names,
@@ -1085,31 +1137,6 @@ export namespace AutoMovieConstructionSplitBand {
         ((-(3 * A * A - 1) * M[i]! + (3 * B * B - 1) * M[i + 1]!) * hi) / 6;
       return [value, slope, A * M[i]! + B * M[i + 1]!];
     };
-  }
-
-  /**
-   * A crease window's weight at a clock: 1 inside `[start, end]`, falling to 0
-   * over `transition` on each side by `1 - (10 x^3 - 15 x^4 + 6 x^5)`, `x` the
-   * clock distance from the window over the transition, so the weight is C2 in
-   * the clock; 0 without a crease.
-   *
-   * @param c The clock, radians.
-   * @param crease The window, or absent.
-   * @returns The weight in `[0, 1]`.
-   */
-  export function weight(
-    c: number,
-    crease: IAutoMovieConstructionSplit.ICrease | undefined,
-  ): number {
-    if (crease === undefined) return 0;
-    const turn: number = 2 * Math.PI;
-    const x: number = (((c - crease.start) % turn) + turn) % turn;
-    const span: number = crease.end - crease.start;
-    if (x <= span) return 1;
-    const d: number = Math.min(x - span, turn - x);
-    if (d >= crease.transition) return 0;
-    const t: number = d / crease.transition;
-    return 1 - t * t * t * (10 - 15 * t + 6 * t * t);
   }
 
   /*
@@ -1392,34 +1419,7 @@ export namespace AutoMovieConstructionSplitBand {
       Trace.emit(trace, { kind: "refusal", stage: "local", reason, pass: 63 });
     return reason;
   }
-
-  /**
-   * A column's largest monotone scale found at or below `from`: `from` itself
-   * when it holds, else halving until it holds (a ribbon pointing along its
-   * chord holds at small enough scales), then 40 bisection steps between the
-   * last failing and the first holding value; null when even `1e-9` fails.
-   *
-   * @param column The column's ribbons.
-   * @param from The largest scale to try.
-   * @returns The scale found, or null.
-   */
-  export function largest(
-    column: IAutoMovieBlendColumn,
-    from: number,
-  ): number | null {
-    if (monotone(column, from)) return from;
-    let hi: number = from;
-    let lo: number = from / 2;
-    while (!monotone(column, lo)) {
-      hi = lo;
-      lo /= 2;
-      if (!(lo > 1e-9)) return null;
-    }
-    for (let step: number = 0; step < 40; ++step) {
-      const mid: number = (lo + hi) / 2;
-      if (monotone(column, mid)) lo = mid;
-      else hi = mid;
-    }
-    return lo;
-  }
 }
+
+const { add, combine, cross, dot, norm, scale, sub, unit } =
+  AutoMovieSolidVector;

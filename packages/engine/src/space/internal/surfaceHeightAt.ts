@@ -7,11 +7,6 @@ import {
 import { lerp } from "../../math/internal/lerp";
 
 /*
- * Squared XZ ramp span below this square-metre threshold reads as flat.
- */
-const MIN_RAMP_AXIS: number = 1e-9;
-
-/*
  * Evaluate the canonical surface height at XZ without checking footprint
  * membership.
  */
@@ -54,6 +49,11 @@ export const surfaceHeightAt: (
   );
   return mix(near, far, row.fraction);
 };
+
+/*
+ * Squared XZ ramp span below this square-metre threshold reads as flat.
+ */
+const MIN_RAMP_AXIS: number = 1e-9;
 
 /*
  * The two-anchor spelling of a level or single-plane patch.

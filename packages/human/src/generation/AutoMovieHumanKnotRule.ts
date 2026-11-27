@@ -41,13 +41,6 @@ export namespace AutoMovieHumanKnotRule {
     basis: "run" | "site" | "extremum";
   }
 
-  /*
-   * Thirds taken off an extremum's bracket: forty take a bracket of a few millimetres under 1e-6 mm. The search cannot place it finer
-   * than the outline lets it: beside an extremum the values within `sqrt(2 eps f / |f''|)` of it are one double, a few thousandths of a
-   * micrometre to a few micrometres for a body's outline, far under any knot's use.
-   */
-  const HALVINGS: number = 40;
-
   /**
    * The knots of a family: its run ends, its sites and its outlines' extrema, thinned so no two stand closer than the form's scale.
    *
@@ -100,4 +93,11 @@ export namespace AutoMovieHumanKnotRule {
     for (const s of extrema.sort((a: number, b: number): number => a - b)) offer(s, "extremum", false);
     return kept.sort((a: IKnot, b: IKnot): number => a.station - b.station);
   }
+
+  /*
+   * Thirds taken off an extremum's bracket: forty take a bracket of a few millimetres under 1e-6 mm. The search cannot place it finer
+   * than the outline lets it: beside an extremum the values within `sqrt(2 eps f / |f''|)` of it are one double, a few thousandths of a
+   * micrometre to a few micrometres for a body's outline, far under any knot's use.
+   */
+  const HALVINGS: number = 40;
 }

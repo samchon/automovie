@@ -15,38 +15,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
 /*
- * How far above the crown the loop's plane passes, metres (provisional: clear
- * of the hair).
- */
-const CLEAR: number = 0.06;
-
-/*
- * How far off the chest the loop's front rests beyond the holding hands'
- * clearance (`IProps.clearance`), metres: half a pendant's thickness.
- */
-const REST: number = 0.003;
-
-/*
- * How finely the front's fall is searched, degrees.
- */
-const STEP: number = 1;
-
-/*
- * Refuse an unresolved sweep within one hundredth of the skin distance.
- */
-const SWEEP_RESOLUTION: number = AutoMovieMotionHumanAuditSkin.BUILT / 100;
-
-/*
- * The model's up, along which a loop's normal lies.
- */
-const NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * The model's forward, from a loop's back toward its front.
- */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/*
  * The path of a neck loop set over a partner's head, as frames of the loop,
  * from where the hand holds it to where it is worn.
  *
@@ -498,6 +466,38 @@ export namespace placeOverHeadPath {
     );
   }
 }
+
+/*
+ * How far above the crown the loop's plane passes, metres (provisional: clear
+ * of the hair).
+ */
+const CLEAR: number = 0.06;
+
+/*
+ * How far off the chest the loop's front rests beyond the holding hands'
+ * clearance (`IProps.clearance`), metres: half a pendant's thickness.
+ */
+const REST: number = 0.003;
+
+/*
+ * How finely the front's fall is searched, degrees.
+ */
+const STEP: number = 1;
+
+/*
+ * Refuse an unresolved sweep within one hundredth of the skin distance.
+ */
+const SWEEP_RESOLUTION: number = AutoMovieMotionHumanAuditSkin.BUILT / 100;
+
+/*
+ * The model's up, along which a loop's normal lies.
+ */
+const NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * The model's forward, from a loop's back toward its front.
+ */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /*
  * Put a loop's local pivot on the world anchor under the chosen rotation.

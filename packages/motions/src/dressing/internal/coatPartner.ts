@@ -1,20 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanCoatPartner,
-  IAutoMovieMotionHumanHeld,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanCoatPartner, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieResolvedBone, IAutoMovieRigidTransform } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
@@ -24,18 +9,7 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
 import { wardrobeHands } from "./wardrobeHands";
-
-/*
- * The wearer's collar below and before the shoulder line, metres: the
- * `wardrobe` jacket's own collar offset.
- */
-const COLLAR: IAutoMovieVector3 = { x: 0, y: -0.085, z: 0.1 };
-
-/*
- * How long the hand stays on the jacket once it rests on the shoulders,
- * seconds: a beat to settle it.
- */
-const SETTLE: number = 0.28;
+import * as CoatPartnerData from "./CoatPartnerData";
 
 /*
  * Help a partner into a coat. The dresser's holding hand carries the jacket's
@@ -113,7 +87,7 @@ function planCoatPartner(
     hand,
   );
   const arrival: number = wardrobeHands.duration(carrying, kept);
-  const release: number = arrival + params.hold + SETTLE;
+  const release: number = arrival + params.hold + CoatPartnerData.SETTLE;
   const duration: number = release + wardrobeHands.duration(kept, carrying);
   const posture: (
     t: number,
@@ -234,7 +208,7 @@ function collar(
         bones.get("rightUpperArm")!.worldPosition,
         0.5,
       ),
-      Quaternion.rotateVector(rotation, COLLAR),
+      Quaternion.rotateVector(rotation, CoatPartnerData.COLLAR),
     ),
     rotation,
   };

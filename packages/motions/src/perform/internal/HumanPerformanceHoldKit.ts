@@ -193,6 +193,47 @@ export function HumanPerformanceHoldKit(
 }
 
 /*
+ * The readers of HumanPerformanceHoldKit.
+ */
+export namespace HumanPerformanceHoldKit {
+  /*
+   * Active samples on one socket path. Each subject is indexed by film second.
+   */
+  export type IMountPath = Map<string, Set<number>>;
+
+  /*
+   * A read's carrier, offset and in-hand readers.
+   */
+  export interface IKit {
+    /*
+     * A span's carrier frame at a film second: the hand's grip socket, the bone
+     * it is worn on or the other prop's socket it is mounted on.
+     */
+    carrier(
+      w: IAutoMovieMotionHumanPerformanceState.IGrip,
+      at: number,
+      supplied?: IAutoMovieMotionHumanPerformanceHold.IPropOwn,
+    ): IAutoMovieRigidTransform;
+
+    /*
+     * The offset a span keeps its prop at from its carrier.
+     */
+    seat(
+      w: IAutoMovieMotionHumanPerformanceState.IGrip,
+    ): IAutoMovieRigidTransform;
+
+    /*
+     * The span's offset at a film second, its in-hand motion composed.
+     */
+    moved(
+      w: IAutoMovieMotionHumanPerformanceState.IGrip,
+      at: number,
+      displayed: IAutoMovieRigidTransform,
+    ): IAutoMovieRigidTransform;
+  }
+}
+
+/*
  * A prop's socket in the world at a film second: the prop's own frame and the
  * socket as the prop's articulations pose it then (a bow's nocking point drawn
  * back with its string). The performer's supplied bones stay the source of
@@ -248,47 +289,6 @@ function socket(
       Quaternion.multiply(frame.rotation, at.frame.rotation),
     ),
   };
-}
-
-/*
- * The readers of HumanPerformanceHoldKit.
- */
-export namespace HumanPerformanceHoldKit {
-  /*
-   * Active samples on one socket path. Each subject is indexed by film second.
-   */
-  export type IMountPath = Map<string, Set<number>>;
-
-  /*
-   * A read's carrier, offset and in-hand readers.
-   */
-  export interface IKit {
-    /*
-     * A span's carrier frame at a film second: the hand's grip socket, the bone
-     * it is worn on or the other prop's socket it is mounted on.
-     */
-    carrier(
-      w: IAutoMovieMotionHumanPerformanceState.IGrip,
-      at: number,
-      supplied?: IAutoMovieMotionHumanPerformanceHold.IPropOwn,
-    ): IAutoMovieRigidTransform;
-
-    /*
-     * The offset a span keeps its prop at from its carrier.
-     */
-    seat(
-      w: IAutoMovieMotionHumanPerformanceState.IGrip,
-    ): IAutoMovieRigidTransform;
-
-    /*
-     * The span's offset at a film second, its in-hand motion composed.
-     */
-    moved(
-      w: IAutoMovieMotionHumanPerformanceState.IGrip,
-      at: number,
-      displayed: IAutoMovieRigidTransform,
-    ): IAutoMovieRigidTransform;
-  }
 }
 
 /*

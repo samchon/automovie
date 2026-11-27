@@ -56,23 +56,6 @@ import type {
  * authored numbers and the generated surface read one curve.
  */
 export namespace AutoMovieHumanConicSection {
-  /*
-   * Bound of every share inside the model: a share at 0 or 1 is a degenerate conic the engine refuses.
-   */
-  const EDGE: number = 0.03;
-
-  /*
-   * Largest shoulder an arc takes. A shoulder near 1 hugs its two tangent lines and turns at their meeting within a millimetre: f1's trunk
-   * fitted the tape's straight run between the thighs with shoulders of 0.91 to 0.96, and those arcs drew a crease up the front of each thigh
-   * that no net over the wall could take out. Held at this the wall stays fair, and what it leaves the net carries.
-   */
-  const FAIR: number = 0.85;
-
-  /*
-   * Largest share of the way to a box corner that a guide's touch offset may take.
-   */
-  const CORNER: number = 0.92;
-
   /** The limb layout: four extremes, each quarter halved `depth` times by nested medians (4, 8 or 16 conics). */
   export function limb(depth: number): IAutoMovieHumanConicSection.ILayout {
     let layout: IAutoMovieHumanConicSection.ILayout = {
@@ -642,6 +625,7 @@ export namespace AutoMovieHumanConicSection {
       t,
     };
   }
+
   /** The nearest resolved anchors before and after anchor `k`, each direction reading every anchor at most once; throws when none is resolved. */
   export function neighbours(
     k: number,
@@ -692,7 +676,6 @@ export namespace AutoMovieHumanConicSection {
       );
     return own;
   }
-
   /** Confine a share to the model's bounds. */
   export function clamp(share: number): number {
     return Math.min(1 - EDGE, Math.max(EDGE, share));
@@ -942,6 +925,23 @@ export namespace AutoMovieHumanConicSection {
   ): IAutoMovieViewChain.ISection {
     return AutoMovieViewChain.of(resolve(values, layout).input);
   }
+
+  /*
+   * Bound of every share inside the model: a share at 0 or 1 is a degenerate conic the engine refuses.
+   */
+  const EDGE: number = 0.03;
+
+  /*
+   * Largest shoulder an arc takes. A shoulder near 1 hugs its two tangent lines and turns at their meeting within a millimetre: f1's trunk
+   * fitted the tape's straight run between the thighs with shoulders of 0.91 to 0.96, and those arcs drew a crease up the front of each thigh
+   * that no net over the wall could take out. Held at this the wall stays fair, and what it leaves the net carries.
+   */
+  const FAIR: number = 0.85;
+
+  /*
+   * Largest share of the way to a box corner that a guide's touch offset may take.
+   */
+  const CORNER: number = 0.92;
 }
 
 /*

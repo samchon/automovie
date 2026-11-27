@@ -7,8 +7,6 @@ import type {
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 
-const { add, cross, dot, scale, sub } = AutoMovieSolidVector;
-
 /**
  * The parameter laws of an intersection trace (`AutoMovieSolidIntersection`):
  * the fourth equation `g(P, phi, t) = 0` that fixes which point of the curve a
@@ -175,3 +173,5 @@ export namespace AutoMovieSolidTraceLaw {
     };
   }
 }
+
+const { add, cross, dot, scale, sub } = AutoMovieSolidVector;

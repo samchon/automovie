@@ -7,8 +7,6 @@ import type {
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { dot, norm, sub } = AutoMovieSolidVector;
-
 /**
  * A stationary surface foot of a world point, found locally by Newton on
  * squared distance from the supplied chart guess. A converged stationary point
@@ -114,3 +112,5 @@ export namespace AutoMovieSolidFoot {
     return null;
   }
 }
+
+const { dot, norm, sub } = AutoMovieSolidVector;

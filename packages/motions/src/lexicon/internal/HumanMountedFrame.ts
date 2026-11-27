@@ -22,24 +22,6 @@ import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
 /*
- * A point given in a frame, in the world.
- */
-function carryHumanPoint(
-  frame: IAutoMovieRigidTransform,
-  point: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  const turned: IAutoMovieVector3 = Quaternion.rotateVector(
-    frame.rotation,
-    point,
-  );
-  return {
-    x: frame.position.x + turned.x,
-    y: frame.position.y + turned.y,
-    z: frame.position.z + turned.z,
-  };
-}
-
-/*
  * The model-aligned frame of a carrier's contact at each film second.
  * Parameter support: The carrier.
  * Parameter on: The carrier's subject id, for refusals.
@@ -334,6 +316,24 @@ export namespace HumanMountedFrame {
           ),
         );
   }
+}
+
+/*
+ * A point given in a frame, in the world.
+ */
+function carryHumanPoint(
+  frame: IAutoMovieRigidTransform,
+  point: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+    frame.rotation,
+    point,
+  );
+  return {
+    x: frame.position.x + turned.x,
+    y: frame.position.y + turned.y,
+    z: frame.position.z + turned.z,
+  };
 }
 
 /*

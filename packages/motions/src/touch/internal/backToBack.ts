@@ -35,20 +35,32 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { backToBackLoad } from "./backToBackLoad";
 import { backToBackTogether } from "./backToBackTogether";
 import { kissBody } from "./kissBody";
+import * as BackToBackData from "./BackToBackData";
 
 /*
- * The most a seated trunk leans back, degrees: the normal thoracolumbar
- * extension, 25 degrees (Physiopedia, Range of Motion Normative Values,
- * https://www.physio-pedia.com/Range_of_Motion_Normative_Values), as
- * `headRestAim.SEATED` bounds its side lean.
+ * Lean back against a seated partner's back. Each of the two reads its own and
+ * the other's upper back on the displayed bodies at the start and leans its
+ * trunk back from the hips over the seat (the kiss's lean, `kissBody`, seated)
+ * by the least pitch that moves its own upper back (by the lean model's change
+ * from upright) to half a skin contact short of the upright plane halfway
+ * between the two across the floor, each back at its own height, so the two
+ * backs rest a skin contact apart and neither presses into the other; the neck
+ * flexes by the lean so the head stays upright and does not pass that plane
+ * first. The trunk's weight leans onto the partner: the window's load is the
+ * trunk's share of the body's mass times the tangent of the lean (moments about
+ * the hips with the contact taken at the trunk's mass centre, provisional). A
+ * standing performer, or a meeting point beyond `BACK`, is refused. Given the
+ * partner's own lean (`with`), the two must lean and sit up together within a
+ * frame: one that sits up or leaves while the other still leans is refused,
+ * naming who would be left leaning on nothing.
  */
-const BACK: number = 25;
+export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBackToBack> =
+  {
+    name: "backToBack",
+    interrupts: {},
+    plan: planBackToBack,
+  };
 
-/*
- * How near the upper back comes to the meeting point, metres (provisional: a
- * skin contact, as `headRest`'s).
- */
-const NEAR: number = 0.01;
 /*
  * Lean back against a seated partner's back. Each of the two reads its own and
  * the other's upper back on the displayed bodies at the start and leans its
@@ -153,7 +165,7 @@ function planBackToBack(
     );
 
   // The least backward lean that reaches the halfway point.
-  if (gap(-BACK) > NEAR)
+  if (gap(-BackToBackData.BACK) > BackToBackData.NEAR)
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "partner",
@@ -161,18 +173,18 @@ function planBackToBack(
       feasible: {
         kind: "range",
         minimum: null,
-        maximum: BACK,
+        maximum: BackToBackData.BACK,
         unit: "deg",
       },
-      reason: `the upper back stays ${(gap(-BACK) * 1000).toFixed(0)} mm short of the halfway point at a ${BACK} degree lean, the point ${(half * 1000).toFixed(0)} mm off the upright back across the floor`,
+      reason: `the upper back stays ${(gap(-BackToBackData.BACK) * 1000).toFixed(0)} mm short of the halfway point at a ${BackToBackData.BACK} degree lean, the point ${(half * 1000).toFixed(0)} mm off the upright back across the floor`,
       fix: "sit nearer back to back",
     });
   // Each back stops half a skin contact short of the plane, so the two
   // rest a skin contact apart: backs of unequal heights meet obliquely,
   // and reaching the plane itself pressed one trunk into the other.
-  const short: number = NEAR / 2;
+  const short: number = BackToBackData.NEAR / 2;
   let lo: number = 0;
-  let hi: number = -BACK;
+  let hi: number = -BackToBackData.BACK;
   for (let i: number = 0; i < 30; ++i) {
     const mid: number = (lo + hi) / 2;
     if (gap(mid) > short) lo = mid;
@@ -313,7 +325,7 @@ function planBackToBack(
           b,
           StrikingBody.region(body, a, "upperBack").normal,
           StrikingBody.region(partner.body, b, "upperBack").normal,
-          NEAR,
+          BackToBackData.NEAR,
         )?.first;
       };
       const material: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
@@ -344,30 +356,6 @@ function planBackToBack(
   };
   return result;
 }
-
-/*
- * Lean back against a seated partner's back. Each of the two reads its own and
- * the other's upper back on the displayed bodies at the start and leans its
- * trunk back from the hips over the seat (the kiss's lean, `kissBody`, seated)
- * by the least pitch that moves its own upper back (by the lean model's change
- * from upright) to half a skin contact short of the upright plane halfway
- * between the two across the floor, each back at its own height, so the two
- * backs rest a skin contact apart and neither presses into the other; the neck
- * flexes by the lean so the head stays upright and does not pass that plane
- * first. The trunk's weight leans onto the partner: the window's load is the
- * trunk's share of the body's mass times the tangent of the lean (moments about
- * the hips with the contact taken at the trunk's mass centre, provisional). A
- * standing performer, or a meeting point beyond `BACK`, is refused. Given the
- * partner's own lean (`with`), the two must lean and sit up together within a
- * frame: one that sits up or leaves while the other still leans is refused,
- * naming who would be left leaning on nothing.
- */
-export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBackToBack> =
-  {
-    name: "backToBack",
-    interrupts: {},
-    plan: planBackToBack,
-  };
 
 /*
  * The alternatives of `PlanAddedBone`'s site.

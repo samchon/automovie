@@ -1,6 +1,14 @@
 import * as THREE from "three";
 
 /*
+ * The module's one flat normal texel, so normal overlays have a tangent frame
+ * to bend.
+ * Returns: The shared texture; consumers borrow it and never dispose it.
+ */
+export const getOverlayFlatNormal: () => THREE.DataTexture =
+  (): THREE.DataTexture => FLAT;
+
+/*
  * The one flat normal texel, made when the module loads.
  */
 const FLAT: THREE.DataTexture = ((): THREE.DataTexture => {
@@ -13,11 +21,3 @@ const FLAT: THREE.DataTexture = ((): THREE.DataTexture => {
   texture.needsUpdate = true;
   return texture;
 })();
-
-/*
- * The module's one flat normal texel, so normal overlays have a tangent frame
- * to bend.
- * Returns: The shared texture; consumers borrow it and never dispose it.
- */
-export const getOverlayFlatNormal: () => THREE.DataTexture =
-  (): THREE.DataTexture => FLAT;

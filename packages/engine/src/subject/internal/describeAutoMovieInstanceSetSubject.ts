@@ -14,11 +14,6 @@ import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 
 /*
- * World up, the axis an instance set's heading turns about.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
  * Describe one compiled instance set as a subject.
  *
  * The set's model is the first tier of its own LOD list, its transform is the
@@ -89,3 +84,8 @@ export const describeAutoMovieInstanceSetSubject = (
     },
   };
 };
+
+/*
+ * World up, the axis an instance set's heading turns about.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

@@ -11,18 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The high jump's landing area in the rules' comparison sheet.
- */
-const HIGH: string =
-  "2025 High Jump Rules Comparison, Pacific Association USATF, World Athletics column: landing surface 6 m by 4 m by 0.7 m (https://pausatf.org/wp-content/uploads/2025/01/High-Jump-Rules-Comparison-Color-2025.pdf), the least the rule allows, which the model takes";
-
-/*
- * The pole vault's landing area in the rules' comparison sheet.
- */
-const POLE: string =
-  "2025 Pole Vault Rules Comparison, Pacific Association USATF, World Athletics column: landing area 6 m by 6 m by 0.8 m behind the box, 8 m with the front pads (https://pausatf.org/wp-content/uploads/2025/01/Pole-Vault-Rules-Comparison-Color-2025.pdf), the least the rule allows, which the model takes";
+import * as AutoMovieArchetypeLandingMatData from "./internal/AutoMovieArchetypeLandingMatData";
 
 /** Constructs the landing mat archetype from its recipe. */
 export namespace AutoMovieArchetypeLandingMat {
@@ -176,9 +165,9 @@ export function create(
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     highJump: {
-      length: AutoMovieArchetypeBand.metres(4, 4, HIGH),
-      width: AutoMovieArchetypeBand.metres(6, 6, HIGH),
-      height: AutoMovieArchetypeBand.metres(0.7, 0.7, HIGH),
+      length: AutoMovieArchetypeBand.metres(4, 4, AutoMovieArchetypeLandingMatData.HIGH),
+      width: AutoMovieArchetypeBand.metres(6, 6, AutoMovieArchetypeLandingMatData.HIGH),
+      height: AutoMovieArchetypeBand.metres(0.7, 0.7, AutoMovieArchetypeLandingMatData.HIGH),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         250,
@@ -188,8 +177,8 @@ export function create(
       ),
     },
     poleVault: {
-      width: AutoMovieArchetypeBand.metres(6, 6, POLE),
-      height: AutoMovieArchetypeBand.metres(0.8, 0.8, POLE),
+      width: AutoMovieArchetypeBand.metres(6, 6, AutoMovieArchetypeLandingMatData.POLE),
+      height: AutoMovieArchetypeBand.metres(0.8, 0.8, AutoMovieArchetypeLandingMatData.POLE),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         450,

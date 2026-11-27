@@ -8,7 +8,7 @@ import { AutoMovieHumanF1FingerMiddle } from "./f1/AutoMovieHumanF1FingerMiddle"
 import { AutoMovieHumanF1Hand } from "./f1/AutoMovieHumanF1Hand";
 import { AutoMovieHumanF1Leg } from "./f1/AutoMovieHumanF1Leg";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
-import { AutoMovieHumanF1Placing as T } from "./AutoMovieHumanF1Placing";
+import "./AutoMovieHumanF1Placing";
 import { AutoMovieHumanF1RootControls } from "./f1/AutoMovieHumanF1RootControls";
 import { AutoMovieHumanF1ToeBig } from "./f1/AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1Trunk } from "./f1/AutoMovieHumanF1Trunk";
@@ -31,6 +31,7 @@ import type {
   IAutoMovieViewAxis,
   IAutoMovieViewChain,
 } from "@automovie/interface";
+import * as AutoMovieHumanF1NativeSitesData from "./internal/AutoMovieHumanF1NativeSitesData";
 
 /**
  * The one owner of the native path's measurement sites: where each tissue field is read on its family's course, by the site's published
@@ -152,60 +153,6 @@ export namespace AutoMovieHumanF1NativeSites {
   /** The roots object of {@link IInput}. */
   export type IInputRoots = { breast: readonly IAutoMovieConstructionPortLoop[] };
 
-  /*
-   * Angular samples of a section's girth: the limb law's 360, under 0.1 % short of the curve for a 100 mm limb.
-   */
-  const GIRTH_PHASES: number = 360;
-
-  /*
-   * Grid of the extreme scans, mm: the limb law's 1 mm from the run's start, so f1's argmax sites are reproduced.
-   */
-  const STEP_MM: number = 1;
-
-  /*
-   * Grid of the navel pit's scan, mm: the navel net's control rows stand 2 mm apart (a 32 mm window over 16 spans), so a hundredth of a
-   * millimetre resolves the pit of its cubic field two hundred times finer than the field can turn.
-   */
-  const PIT_STEP_MM: number = 0.01;
-
-  /*
-   * The names of each course's run ends: the trunk's two course centres around the three segment origins that divide it, and each limb's
-   * course centres as `AutoMovieHumanF1Placing.COURSES` names them (the arm and the hand share one course).
-   */
-  const ENDS: Record<ISite["family"], readonly string[]> = {
-    trunk: [T.COURSES["trunk"]![0]!, "pelvis", "thorax", "head", T.COURSES["trunk"]![1]!],
-    arm: T.COURSES["arm"]!,
-    hand: T.COURSES["hand"]!,
-    leg: T.COURSES["leg"]!,
-  };
-
-  /*
-   * The bind segment that carries each run of each course, by run index: the segment whose length moves the run's far end, or, for a run
-   * between two datums of one segment, that segment. The trunk's runs lie between the segment origins of the chain's pelvis, thorax and
-   * head, whose offsets are the trunk lengths (`AutoMovieHumanF1SegmentLengths`); the limbs' between the course centres of
-   * `AutoMovieHumanF1Placing.COURSES`: the arm leaves the thorax (its first two centres are thorax datums), then follows the humerus, the
-   * forearm and the hand; the leg follows the femur, the tibia and the foot.
-   */
-  const SEGMENTS: Record<ISite["family"], readonly string[]> = {
-    trunk: ["pelvis", "pelvis", "thorax", "head"],
-    arm: ["thorax", "humerus", "forearm", "hand", "hand"],
-    hand: ["thorax", "humerus", "forearm", "hand", "hand"],
-    leg: ["femur", "tibia", "foot", "foot"],
-  };
-
-  /*
-   * f1's authored neck-skin site on the trunk course, mm: the native path's tape proxy for ISO 8559-1 5.3.2 neck girth ("just below the
-   * bulge at the thyroid cartilage, perpendicular to the longitudinal axis of the neck"). The thyroid cartilage does not show on f1's skin,
-   * so the definition is unreadable; the station is carried by its tau in the suprasternale-to-bitragion run. Provisional, f1 only.
-   */
-  const NECK_F1_MM: number = 690.26;
-
-  /*
-   * f1's authored head-skin site, mm: the trunk knot where the head's own sections begin, 9 mm above the bitragion midpoint (the head
-   * frame's origin). No published measure names this boundary; carried by its tau in the bitragion-to-crown run. Provisional, f1 only.
-   */
-  const HEAD_F1_MM: number = 792;
-
   /**
    * The run ends of a person's four courses, mm. The trunk's course is straight, so its run ends are the projections of the pelvis's, the
    * thorax's and the head's frame origins on it, between 0 and its length; a limb's are its course's nearest approaches to its centres.
@@ -316,9 +263,9 @@ export namespace AutoMovieHumanF1NativeSites {
     const legAxis: IAutoMovieViewAxis.IAxis = H.axis(leg);
     const site = (family: ISite["family"], station: number, definition: string, basis: ISite["basis"]): ISite => {
       const ends: number[] = courses[family];
-      const names: readonly string[] = ENDS[family];
+      const names: readonly string[] = AutoMovieHumanF1NativeSitesData.ENDS[family];
       const { run, tau } = Runs.place(station, ends);
-      return { family, station, definition, basis, run: { from: names[run]!, to: names[run + 1]!, index: run, tau }, segment: SEGMENTS[family][run]! };
+      return { family, station, definition, basis, run: { from: names[run]!, to: names[run + 1]!, index: run, tau }, segment: AutoMovieHumanF1NativeSitesData.SEGMENTS[family][run]! };
     };
 
     // ISO 8559-1 5.3.13 hip level, the buttocks' greatest posterior projection: the largest bare posterior reach of the trunk's side
@@ -331,7 +278,7 @@ export namespace AutoMovieHumanF1NativeSites {
       const values = AutoMovieLoftViewRead.values(bare, s);
       return typeof values === "string" ? NaN : values.extents[2]!;
     };
-    const hip: number = Runs.extreme(posterior, trunk.knots[0]!, (trunkRuns[1]! + trunkRuns[2]!) / 2, STEP_MM, 1);
+    const hip: number = Runs.extreme(posterior, trunk.knots[0]!, (trunkRuns[1]! + trunkRuns[2]!) / 2, AutoMovieHumanF1NativeSitesData.STEP_MM, 1);
 
     // ANSUR II omphalion, the centre of the navel: the pit of the `trunk.navel` net, the net that draws the umbilicus. The net is its own
     // mirror image about its middle phase (the median line), so the pit lies on that phase, at the station where the net's height is
@@ -343,7 +290,7 @@ export namespace AutoMovieHumanF1NativeSites {
       (s: number): number => Math.abs(AutoMovieLoftRelief.height(navel, s, median)[0]),
       navel.stations.start,
       navel.stations.end,
-      PIT_STEP_MM,
+      AutoMovieHumanF1NativeSitesData.PIT_STEP_MM,
       1,
     );
 
@@ -376,8 +323,8 @@ export namespace AutoMovieHumanF1NativeSites {
         let total: number = 0;
         let previous: [number, number] | null = null;
         let first: [number, number] | null = null;
-        for (let j: number = 0; j < GIRTH_PHASES; ++j) {
-          const phi: number = (2 * Math.PI * j) / GIRTH_PHASES;
+        for (let j: number = 0; j < AutoMovieHumanF1NativeSitesData.GIRTH_PHASES; ++j) {
+          const phi: number = (2 * Math.PI * j) / AutoMovieHumanF1NativeSitesData.GIRTH_PHASES;
           const r: number = AutoMovieViewChain.radius(section, phi);
           const q: [number, number] = [r * Math.cos(phi), r * Math.sin(phi)];
           if (previous !== null) total += Math.hypot(q[0] - previous[0], q[1] - previous[1]);
@@ -418,20 +365,20 @@ export namespace AutoMovieHumanF1NativeSites {
         omphalion: site("trunk", omphalion, "ANSUR II omphalion: the centre of the navel, the pit of the `trunk.navel` net on the median line", "definition"),
         underbust: site("trunk", underbust, "ISO 8559-1 5.3.8 under bust level, directly below the breast: the lowest trunk station of the mammary landmark loop", "definition"),
         bust: site("trunk", bust, "ISO 8559-1 5.3.4 bust point level: the bare breast's most anterior point", "definition"),
-        neck: site("trunk", NECK_F1_MM, "ISO 8559-1 5.3.2 neck girth just below the thyroid cartilage: unreadable on f1's skin; f1's authored neck-skin station, carried in the suprasternale-to-bitragion run", "provisional"),
-        head: site("trunk", HEAD_F1_MM, "the head's own sections: no published measure; f1's authored head knot, 9 mm above the bitragion midpoint, carried in the bitragion-to-crown run", "provisional"),
+        neck: site("trunk", AutoMovieHumanF1NativeSitesData.NECK_F1_MM, "ISO 8559-1 5.3.2 neck girth just below the thyroid cartilage: unreadable on f1's skin; f1's authored neck-skin station, carried in the suprasternale-to-bitragion run", "provisional"),
+        head: site("trunk", AutoMovieHumanF1NativeSitesData.HEAD_F1_MM, "the head's own sections: no published measure; f1's authored head knot, 9 mm above the bitragion midpoint, carried in the bitragion-to-crown run", "provisional"),
       },
       arm: {
         upperArm: site("arm", Runs.nearest(armAxis, armLength, F.mid(point("upperarm"), point("lowerarm"))), "ISO 8559-1 upper arm girth at mid upper arm, midway between the acromion and the olecranon (ISAK mid-acromiale-radiale); the shoulder and elbow joint centres stand in for the acromion and olecranon", "definition"),
         elbow: site("arm", Runs.nearest(armAxis, armLength, point("lowerarm")), "elbow girth at the elbow joint centre, the epicondyles' level (ISO 7250-1 elbow breadth's landmarks)", "definition"),
-        forearm: site("arm", Runs.extreme(armGirth, armRuns[2]!, (armRuns[2]! + armRuns[3]!) / 2, STEP_MM, 1), "ISO 8559-1 forearm girth, the forearm's maximum relaxed girth: the largest wall girth in the forearm run's proximal half", "definition"),
+        forearm: site("arm", Runs.extreme(armGirth, armRuns[2]!, (armRuns[2]! + armRuns[3]!) / 2, AutoMovieHumanF1NativeSitesData.STEP_MM, 1), "ISO 8559-1 forearm girth, the forearm's maximum relaxed girth: the largest wall girth in the forearm run's proximal half", "definition"),
         wrist: site("hand", Runs.nearest(handAxis, handLength, F.mid(point("styloidRadial"), point("styloidUlnar"))), "ANSUR II wrist circumference over stylion: the station nearest the radial and ulnar styloids' midpoint", "definition"),
       },
       leg: {
         thigh: site("leg", thigh, "ANSUR II thigh circumference at the gluteal furrow, perpendicular to the thigh: the furrow does not show on f1, so the crotch's height (the trunk's first knot) stands in for it", "definition"),
         knee: site("leg", Runs.nearest(legAxis, legLength, point("calf")), "knee girth at the knee joint centre, the femoral epicondyles' level (ISO 8559-1 5.3.22 takes the patella's centre)", "definition"),
-        calf: site("leg", Runs.extreme(legGirth, legRuns[1]!, legRuns[2]!, STEP_MM, 1), "ISO 8559-1 5.3.24 and ANSUR II calf circumference: the widest girth of the shank run", "definition"),
-        ankle: site("leg", Runs.extreme(legGirth, (legRuns[1]! + legRuns[2]!) / 2, legRuns[2]!, STEP_MM, -1), "ANSUR II ankle circumference, the minimum: the least girth of the shank run's distal half", "definition"),
+        calf: site("leg", Runs.extreme(legGirth, legRuns[1]!, legRuns[2]!, AutoMovieHumanF1NativeSitesData.STEP_MM, 1), "ISO 8559-1 5.3.24 and ANSUR II calf circumference: the widest girth of the shank run", "definition"),
+        ankle: site("leg", Runs.extreme(legGirth, (legRuns[1]! + legRuns[2]!) / 2, legRuns[2]!, AutoMovieHumanF1NativeSitesData.STEP_MM, -1), "ANSUR II ankle circumference, the minimum: the least girth of the shank run's distal half", "definition"),
       },
       extremities: {
         hand: site("hand", Runs.nearest(handAxis, handLength, F.mid(point("index1"), point("pinky1"))), "ISO 7250-1 6.3.3 hand breadth at the metacarpals and ANSUR hand circumference at metacarpale: the station nearest the second and fifth metacarpal heads' midpoint", "definition"),

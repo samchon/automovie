@@ -12,14 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * A maker's campground fire ring, read.
- */
-const RING: string =
-  'Belson FR-30-GNG fire ring: "3/16" steel plate, 8"H x 30" Diameter", 42 lbs without the grill grate (https://belson.com/Fire-Ring-with-Flip-Back-Campfire-Grill); the diameter, which the page does not call inside or outside, taken as the ring\'s outside';
-
-
+import * as AutoMovieArchetypeFireRingData from "./internal/AutoMovieArchetypeFireRingData";
 
 /** Companion types, constants and bands of {@link AutoMovieArchetypeFireRing}. */
 export namespace AutoMovieArchetypeFireRing {
@@ -168,24 +161,24 @@ export namespace AutoMovieArchetypeFireRing {
       diameter: AutoMovieArchetypeBand.metres(
         30 * AutoMovieArchetypeUnits.INCH,
         30 * AutoMovieArchetypeUnits.INCH,
-        `${RING}: taking it as the outside is a choice, not a reading, and the rim reads it; the inside reading differs by twice the plate, about 9.5 mm`,
+        `${AutoMovieArchetypeFireRingData.RING}: taking it as the outside is a choice, not a reading, and the rim reads it; the inside reading differs by twice the plate, about 9.5 mm`,
         true,
       ),
       height: AutoMovieArchetypeBand.metres(
         8 * AutoMovieArchetypeUnits.INCH,
         8 * AutoMovieArchetypeUnits.INCH,
-        RING,
+        AutoMovieArchetypeFireRingData.RING,
       ),
       wall: AutoMovieArchetypeBand.metres(
         (3 / 16) * AutoMovieArchetypeUnits.INCH,
         (3 / 16) * AutoMovieArchetypeUnits.INCH,
-        RING,
+        AutoMovieArchetypeFireRingData.RING,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         42 * AutoMovieArchetypeUnits.POUND,
         42 * AutoMovieArchetypeUnits.POUND,
-        RING,
+        AutoMovieArchetypeFireRingData.RING,
       ),
     },
   };

@@ -7,16 +7,6 @@ import type {
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 
 /*
- * Dense samples per curve segment that seed the nearest-point search.
- */
-const DENSITY: number = 16;
-
-/*
- * Newton steps that refine the nearest point on the curve.
- */
-const NEWTON: number = 4;
-
-/*
  * Compile one feature curve of a sweep into the radius change it makes at a
  * point of the sweep's domain.
  *
@@ -267,3 +257,13 @@ export const compileAutoMovieSweepFeature: (
     },
   };
 };
+
+/*
+ * Dense samples per curve segment that seed the nearest-point search.
+ */
+const DENSITY: number = 16;
+
+/*
+ * Newton steps that refine the nearest point on the curve.
+ */
+const NEWTON: number = 4;

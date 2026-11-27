@@ -12,11 +12,6 @@ import type {
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
- * The axis a handle is wrapped about: its affordance frame's local +X.
- */
-const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
-/*
  * A named point of a prop as a hand's grip at a film second: the displayed
  * point and normal, the handle's wrapped axis carried by the prop's frame, and
  * half its stated aperture as the radius, as a rider's hands read a carried
@@ -108,3 +103,8 @@ export namespace readPropGrip {
     frame(seconds: number): Pick<IAutoMovieRigidTransform, "rotation">;
   }
 }
+
+/*
+ * The axis a handle is wrapped about: its affordance frame's local +X.
+ */
+const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

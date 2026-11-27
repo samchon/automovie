@@ -40,6 +40,119 @@ export function bilinearAngleBoxCandidates(
 }
 
 /*
+ * Fixed-box preparation with query-local matrices, references and candidates.
+ */
+export namespace bilinearAngleBoxCandidates {
+  /*
+   * A fresh candidate list or refusal for each matrix/reference on this box.
+   */
+  export interface IPrepared {
+    /*
+     * Preserve direct enumeration, candidate order and query-local alias
+     * ownership.
+     */
+    (
+      matrix: Parameters<typeof bilinearAngleBoxCandidates>[0],
+      reference: Parameters<typeof bilinearAngleBoxCandidates>[2],
+    ): ReturnType<typeof bilinearAngleBoxCandidates>;
+
+    /*
+     * Completed [x0,y0,x1,y1,...] list in the same order, without per-pair
+     * tuples.
+     */
+    fromScalarsFlat(
+      m00: number,
+      m01: number,
+      m10: number,
+      m11: number,
+      referenceX: number,
+      referenceY: number,
+    ): number[] | null;
+
+    /*
+     * Same row-major objective and reference, without allocating argument
+     * tuples.
+     */
+    fromScalars(
+      m00: number,
+      m01: number,
+      m10: number,
+      m11: number,
+      referenceX: number,
+      referenceY: number,
+    ): ReturnType<typeof bilinearAngleBoxCandidates>;
+  }
+
+  /*
+   * Borrow an unchanged rig-angle box for one operation's repeated queries.
+   * Retains one range-admission flag, two bounded-index facts, two endpoint
+   * arrays, four lazy half-angle readings, four raw endpoint lift bounds and
+   * two family intercept intervals; every target owns matrix/reference and
+   * turn/alias admission and pairs. Standalone direct calls retain no
+   * preparation. A one-query preparation pays fixed metadata wrappers; runtime
+   * improvement remains unmeasured.
+   */
+  export function prepare(
+    ranges: Parameters<typeof bilinearAngleBoxCandidates>[1],
+  ): IPrepared {
+    const prepared: IBoxState = {
+      admitted: admitRanges(ranges, undefined),
+      bounded: [
+        Math.abs(ranges[0].min) <= Number.MAX_SAFE_INTEGER &&
+          Math.abs(ranges[0].max) <= Number.MAX_SAFE_INTEGER,
+        Math.abs(ranges[1].min) <= Number.MAX_SAFE_INTEGER &&
+          Math.abs(ranges[1].max) <= Number.MAX_SAFE_INTEGER,
+      ],
+      tight: [narrow(ranges[0]), narrow(ranges[1])],
+      ends: [endpoints(ranges[0]), endpoints(ranges[1])],
+      trigonometry: [[], []],
+      aliasBounds: [[], []],
+      familyIntervals: {},
+    };
+    const scalar: IPrepared["fromScalarsFlat"] = (
+      m00: number,
+      m01: number,
+      m10: number,
+      m11: number,
+      referenceX: number,
+      referenceY: number,
+    ): number[] | null => {
+      if (!admitRanges(ranges, prepared))
+        throw new Error("Bilinear angle boxes require finite ordered inputs.");
+      return enumerateBox(
+        m00,
+        m01,
+        m10,
+        m11,
+        ranges,
+        referenceX,
+        referenceY,
+        prepared,
+      );
+    };
+    return Object.assign(
+      (
+        matrix: Parameters<typeof bilinearAngleBoxCandidates>[0],
+        reference: Parameters<typeof bilinearAngleBoxCandidates>[2],
+      ): ReturnType<typeof bilinearAngleBoxCandidates> =>
+        evaluateBox(matrix, ranges, reference, prepared),
+      {
+        fromScalars: (
+          m00: number,
+          m01: number,
+          m10: number,
+          m11: number,
+          referenceX: number,
+          referenceY: number,
+        ): ReturnType<typeof bilinearAngleBoxCandidates> =>
+          pairsOf(scalar(m00, m01, m10, m11, referenceX, referenceY)),
+        fromScalarsFlat: scalar,
+      },
+    );
+  }
+}
+
+/*
  * One enumeration owner; optional metadata contains only unchanged box data.
  */
 function evaluateBox(
@@ -369,119 +482,6 @@ function boundary(
   };
   if (prepared !== undefined) prepared.trigonometry[axis][index] = result;
   return result;
-}
-
-/*
- * Fixed-box preparation with query-local matrices, references and candidates.
- */
-export namespace bilinearAngleBoxCandidates {
-  /*
-   * A fresh candidate list or refusal for each matrix/reference on this box.
-   */
-  export interface IPrepared {
-    /*
-     * Preserve direct enumeration, candidate order and query-local alias
-     * ownership.
-     */
-    (
-      matrix: Parameters<typeof bilinearAngleBoxCandidates>[0],
-      reference: Parameters<typeof bilinearAngleBoxCandidates>[2],
-    ): ReturnType<typeof bilinearAngleBoxCandidates>;
-
-    /*
-     * Completed [x0,y0,x1,y1,...] list in the same order, without per-pair
-     * tuples.
-     */
-    fromScalarsFlat(
-      m00: number,
-      m01: number,
-      m10: number,
-      m11: number,
-      referenceX: number,
-      referenceY: number,
-    ): number[] | null;
-
-    /*
-     * Same row-major objective and reference, without allocating argument
-     * tuples.
-     */
-    fromScalars(
-      m00: number,
-      m01: number,
-      m10: number,
-      m11: number,
-      referenceX: number,
-      referenceY: number,
-    ): ReturnType<typeof bilinearAngleBoxCandidates>;
-  }
-
-  /*
-   * Borrow an unchanged rig-angle box for one operation's repeated queries.
-   * Retains one range-admission flag, two bounded-index facts, two endpoint
-   * arrays, four lazy half-angle readings, four raw endpoint lift bounds and
-   * two family intercept intervals; every target owns matrix/reference and
-   * turn/alias admission and pairs. Standalone direct calls retain no
-   * preparation. A one-query preparation pays fixed metadata wrappers; runtime
-   * improvement remains unmeasured.
-   */
-  export function prepare(
-    ranges: Parameters<typeof bilinearAngleBoxCandidates>[1],
-  ): IPrepared {
-    const prepared: IBoxState = {
-      admitted: admitRanges(ranges, undefined),
-      bounded: [
-        Math.abs(ranges[0].min) <= Number.MAX_SAFE_INTEGER &&
-          Math.abs(ranges[0].max) <= Number.MAX_SAFE_INTEGER,
-        Math.abs(ranges[1].min) <= Number.MAX_SAFE_INTEGER &&
-          Math.abs(ranges[1].max) <= Number.MAX_SAFE_INTEGER,
-      ],
-      tight: [narrow(ranges[0]), narrow(ranges[1])],
-      ends: [endpoints(ranges[0]), endpoints(ranges[1])],
-      trigonometry: [[], []],
-      aliasBounds: [[], []],
-      familyIntervals: {},
-    };
-    const scalar: IPrepared["fromScalarsFlat"] = (
-      m00: number,
-      m01: number,
-      m10: number,
-      m11: number,
-      referenceX: number,
-      referenceY: number,
-    ): number[] | null => {
-      if (!admitRanges(ranges, prepared))
-        throw new Error("Bilinear angle boxes require finite ordered inputs.");
-      return enumerateBox(
-        m00,
-        m01,
-        m10,
-        m11,
-        ranges,
-        referenceX,
-        referenceY,
-        prepared,
-      );
-    };
-    return Object.assign(
-      (
-        matrix: Parameters<typeof bilinearAngleBoxCandidates>[0],
-        reference: Parameters<typeof bilinearAngleBoxCandidates>[2],
-      ): ReturnType<typeof bilinearAngleBoxCandidates> =>
-        evaluateBox(matrix, ranges, reference, prepared),
-      {
-        fromScalars: (
-          m00: number,
-          m01: number,
-          m10: number,
-          m11: number,
-          referenceX: number,
-          referenceY: number,
-        ): ReturnType<typeof bilinearAngleBoxCandidates> =>
-          pairsOf(scalar(m00, m01, m10, m11, referenceX, referenceY)),
-        fromScalarsFlat: scalar,
-      },
-    );
-  }
 }
 
 /*

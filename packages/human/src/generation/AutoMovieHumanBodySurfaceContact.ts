@@ -9,12 +9,16 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
-import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
+import "./AutoMovieHumanBodySurfacePhases";
+import "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodyWeb } from "./AutoMovieHumanBodyWeb";
-
-const { chain, endHeight, ringVertices } = AutoMovieHumanBodySurfaceRead;
-const { arcVertices, ownPhases } = AutoMovieHumanBodySurfacePhases;
+import {
+  chain,
+  endHeight,
+  ringVertices,
+  arcVertices,
+  ownPhases,
+} from "./internal/AutoMovieHumanBodySurfaceContactData";
 
 /** Each parent's contact rings, evaluated once with their pinch phases and shared with the children by vertex index, the webs they carry and the vertices they pin. */
 export namespace AutoMovieHumanBodySurfaceContact {

@@ -17,15 +17,6 @@ import { abductionRange } from "./abductionRange";
 import { swingConeAngle } from "./swingConeAngle";
 
 /*
- * Clinical axes in the scanner's existing report and finite-check order.
- */
-const AXES: readonly ["flexion", "abduction", "twist"] = [
-  "flexion",
-  "abduction",
-  "twist",
-] as const;
-
-/*
  * Own joint ROM scanning, overshoot scoring and prepared scan readers.
  */
 export namespace AutoMovieEngineJointRomScan {
@@ -351,3 +342,12 @@ export namespace AutoMovieEngineJointRomScan {
     return total + (overshoot ?? Number.POSITIVE_INFINITY);
   }
 }
+
+/*
+ * Clinical axes in the scanner's existing report and finite-check order.
+ */
+const AXES: readonly ["flexion", "abduction", "twist"] = [
+  "flexion",
+  "abduction",
+  "twist",
+] as const;

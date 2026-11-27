@@ -1,68 +1,8 @@
-import {
-  AutoMovieArchetypeBand,
-  AutoMovieArchetypeUnits,
-  type IAutoMovieArchetypeBand,
-} from "../../core";
+import { AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand } from "../../core";
 import type { AutoMovieArchetypeSeat } from "../AutoMovieArchetypeSeat";
 import { AutoMovieArchetypeTable } from "../AutoMovieArchetypeTable";
-
-/*
- * A band in metres.
- */
-const band = (
-  minimum: number,
-  maximum: number,
-  source: string,
-  provisional?: boolean,
-): IAutoMovieArchetypeBand =>
-  AutoMovieArchetypeBand.of("m", minimum, maximum, source, provisional);
-
-/*
- * A provisional mass band in kilograms per place.
- */
-const mass = (minimum: number, maximum: number): IAutoMovieArchetypeBand =>
-  AutoMovieArchetypeBand.of(
-    "kg",
-    minimum,
-    maximum,
-    AutoMovieArchetypeBand.TYPICAL_MASS,
-    true,
-  );
-
-/*
- * Seat heights of chairs and lounge chairs reviewed by Blackler et al. 2018.
- */
-const LOUNGE: string =
-  "Blackler et al. 2018, Seating in aged care, SAGE Open Medicine: an optimal chair seat height of 430 mm and lounge seat heights of 380 to 457 mm (Christenson 1990) (https://pmc.ncbi.nlm.nih.gov/articles/PMC5758957)";
-
-/*
- * Seat depth reviewed by Blackler et al. 2018.
- */
-const DEPTH: string =
-  "AS/NZS 4688.1:2000 effective seat depth 380 to 480 mm, as cited by Blackler et al. 2018 (https://pmc.ncbi.nlm.nih.gov/articles/PMC5758957)";
-
-/*
- * Seat width between a recommended chair width and the office minimum.
- */
-const WIDTH: string =
-  "409 mm recommended by Kothiyal and Tettey 2001, as cited by Blackler et al. 2018 (https://pmc.ncbi.nlm.nih.gov/articles/PMC5758957), up to the 17.7 in minimum of ANSI/HFES 100-2007 p. 87 (https://uhs.berkeley.edu/sites/default/files/uc_task_chair_requirements_1.pdf)";
-
-/*
- * Back height between the office chair minimum and the bench back support.
- */
-const BACK: string =
-  "EN 1335-1:2020 Table 2, backrest at least 360 mm high (https://www.bureaustoel.nl/wp-content/uploads/2022/01/NEN-EN-1335-1-april-2020.pdf), up to the 18 in (455 mm) back support of 2010 ADA Standards 903.4 (https://www.access-board.gov/ada/)";
-
-/*
- * Fixed armrest height of an office chair, applied to upholstered arms.
- */
-const ARMS: string =
-  "EN 1335-1:2020 Table 2, fixed armrest height above the seat of type B, 225 to 275 mm (https://www.bureaustoel.nl/wp-content/uploads/2022/01/NEN-EN-1335-1-april-2020.pdf); Holden and Fernie 1989 give 250 mm (https://pmc.ncbi.nlm.nih.gov/articles/PMC5758957)";
-
-/*
- * A stool's seat diameter, for which no standard was found.
- */
-const STOOL: string = "typical round stool seat, not read at a source";
+import * as SeatBandsData from "./internal/SeatBandsData";
+import { band, mass } from "./internal/SeatBandsData";
 
 /*
  * The band of each free dimension of a seat, by kind, with the source it was
@@ -75,10 +15,10 @@ export const SEAT_BANDS: Readonly<
   >
 > = {
   dining: {
-    seatHeight: band(0.43, 0.457, LOUNGE),
-    seatDepth: band(0.38, 0.48, DEPTH),
-    seatWidth: band(0.409, 17.7 * AutoMovieArchetypeUnits.INCH, WIDTH),
-    backHeight: band(0.36, 0.455, BACK),
+    seatHeight: band(0.43, 0.457, SeatBandsData.LOUNGE),
+    seatDepth: band(0.38, 0.48, SeatBandsData.DEPTH),
+    seatWidth: band(0.409, 17.7 * AutoMovieArchetypeUnits.INCH, SeatBandsData.WIDTH),
+    backHeight: band(0.36, 0.455, SeatBandsData.BACK),
     mass: mass(4, 7),
   },
   office: {
@@ -98,7 +38,7 @@ export const SEAT_BANDS: Readonly<
       "ANSI/HFES 100-2007 p. 87, seat at least 17.7 in wide, as quoted by the UC task chair checklist (https://uhs.berkeley.edu/sites/default/files/uc_task_chair_requirements_1.pdf), up to EN 1335-1:2020 Table 2's 510 mm clear distance between armrests",
       true,
     ),
-    backHeight: band(0.36, 0.455, BACK),
+    backHeight: band(0.36, 0.455, SeatBandsData.BACK),
     armHeight: band(
       0.2,
       0.25,
@@ -107,21 +47,21 @@ export const SEAT_BANDS: Readonly<
     mass: mass(10, 20),
   },
   armchair: {
-    seatHeight: band(0.38, 0.457, LOUNGE),
-    seatDepth: band(0.38, 0.48, DEPTH),
+    seatHeight: band(0.38, 0.457, SeatBandsData.LOUNGE),
+    seatDepth: band(0.38, 0.48, SeatBandsData.DEPTH),
     seatWidth: band(
       0.46,
       0.51,
       "EN 1335-1:2020 Table 2, clear distance between armrests 460 to 510 mm (https://www.bureaustoel.nl/wp-content/uploads/2022/01/NEN-EN-1335-1-april-2020.pdf), applied to an armchair",
       true,
     ),
-    backHeight: band(0.36, 0.455, BACK),
-    armHeight: band(0.225, 0.275, ARMS),
+    backHeight: band(0.36, 0.455, SeatBandsData.BACK),
+    armHeight: band(0.225, 0.275, SeatBandsData.ARMS),
     mass: mass(15, 30),
   },
   stool: {
-    seatHeight: band(0.43, 0.457, LOUNGE, true),
-    seatWidth: band(0.3, 0.35, STOOL, true),
+    seatHeight: band(0.43, 0.457, SeatBandsData.LOUNGE, true),
+    seatWidth: band(0.3, 0.35, SeatBandsData.STOOL, true),
     mass: mass(2, 4),
   },
   barStool: {
@@ -131,7 +71,7 @@ export const SEAT_BANDS: Readonly<
       "a seat 10 to 12 in below the 42 in (1067 mm) bar counter of NKBA Kitchen Planning Guideline 9 (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf); the gap is trade convention, not read at a source",
       true,
     ),
-    seatWidth: band(0.3, 0.35, STOOL, true),
+    seatWidth: band(0.3, 0.35, SeatBandsData.STOOL, true),
     footrestDrop: band(
       0.43,
       0.457,
@@ -164,7 +104,7 @@ export const SEAT_BANDS: Readonly<
     mass: mass(6, 12),
   },
   sofa: {
-    seatHeight: band(0.38, 0.457, LOUNGE),
+    seatHeight: band(0.38, 0.457, SeatBandsData.LOUNGE),
     seatDepth: band(
       0.5,
       0.6,
@@ -176,8 +116,8 @@ export const SEAT_BANDS: Readonly<
       0.55,
       "Approved Document M Appendix D, a 3 seat settee is 550 mm longer than a 2 seat one (1850 against 1300 mm) (https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/540330/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf)",
     ),
-    backHeight: band(0.36, 0.455, BACK, true),
-    armHeight: band(0.225, 0.275, ARMS, true),
+    backHeight: band(0.36, 0.455, SeatBandsData.BACK, true),
+    armHeight: band(0.225, 0.275, SeatBandsData.ARMS, true),
     mass: mass(15, 25),
   },
 };

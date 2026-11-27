@@ -20,53 +20,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
-
-/*
- * The four lower tyre sites in a level board frame.
- */
-const WHEELS: readonly string[] = [
-  "wheel-front-left",
-  "wheel-front-right",
-  "wheel-back-left",
-  "wheel-back-right",
-];
-
-// The staging coefficients below are provisional. The cited studies time
-// the launch, landing and foot separation but give no posture heights, so
-// each value is an authored staging choice that the board-sport test
-// bounds through its deck, street and clearance checks, not a measurement.
-
-/*
- * Push-foot clearance outside the deck's edge, in foot lengths (provisional).
- */
-const PUSH_MARGIN: number = 1 / 4;
-
-/*
- * Toe lift over the deck while a foot travels or the board rises, in foot
- * lengths (provisional).
- */
-const TOE_CLEARANCE: number = 1 / 3;
-
-/*
- * Extra push-foot lift at take-off, in toe clearances (provisional).
- */
-const TAKEOFF_TOE_LIFT: number = 1.5;
-
-/*
- * Pelvis drop loading the pop, in thigh lengths (provisional).
- */
-const LOAD_DROP: number = 0.18;
-
-/*
- * Pelvis drop absorbing the landing, in thigh lengths (provisional).
- */
-const ABSORB_DROP: number = 0.24;
-
-/*
- * Pelvis drop toward a street push, in thigh lengths, before the push fit
- * lowers it to reach (provisional).
- */
-const PUSH_DROP: number = 0.17;
+import * as PrepareSkateboardPhraseData from "./PrepareSkateboardPhraseData";
 
 /*
  * Transfer the entered stance between street and deck, then follow the authored
@@ -153,7 +107,7 @@ export function prepareSkateboardPhrase(
   const rear: IAutoMovieVector3 = board.site("rearStance", "surface");
   const tail: IAutoMovieVector3 = board.site("tailStance", "surface");
   const strike: IAutoMovieVector3 = board.site("tailStrike", "ledge");
-  const wheels: readonly IAutoMovieVector3[] = WHEELS.map(
+  const wheels: readonly IAutoMovieVector3[] = PrepareSkateboardPhraseData.WHEELS.map(
     (wheel: string): IAutoMovieVector3 => board.site(wheel, "ledge"),
   );
   board.plant(rear, "rearStance");
@@ -200,7 +154,7 @@ export function prepareSkateboardPhrase(
     HumanFoot.offset(body, other, "toe"),
   );
   const pushDeck: IAutoMovieVector3 = {
-    x: board.centre.x + outside * (board.width / 2 + PUSH_MARGIN * footLength),
+    x: board.centre.x + outside * (board.width / 2 + PrepareSkateboardPhraseData.PUSH_MARGIN * footLength),
     y: rear.y,
     z: rear.z,
   };
@@ -263,7 +217,7 @@ export function prepareSkateboardPhrase(
     const takeoff: number =
       fade(phases.lift, phases.apex) - fade(phases.apex, phases.land);
     const settled: number = fade(0, phases.settle);
-    const toeClearance: number = TOE_CLEARANCE * footLength;
+    const toeClearance: number = PrepareSkateboardPhraseData.TOE_CLEARANCE * footLength;
     const tailFoot: IAutoMovieVector3 = Vector3.lerp(
       rear,
       tail,
@@ -303,7 +257,7 @@ export function prepareSkateboardPhrase(
         toeClearance *
           (Math.sin(Math.PI * departure) +
             Math.sin(Math.PI * recovery) +
-            TAKEOFF_TOE_LIFT * takeoff),
+            PrepareSkateboardPhraseData.TAKEOFF_TOE_LIFT * takeoff),
     };
     const footRotations: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: boardRotation(placed, "left"),
@@ -331,9 +285,9 @@ export function prepareSkateboardPhrase(
       y:
         moving.root.y -
         body.measure.thigh *
-          (LOAD_DROP * compression +
-            ABSORB_DROP * absorption +
-            PUSH_DROP * inStreet) +
+          (PrepareSkateboardPhraseData.LOAD_DROP * compression +
+            PrepareSkateboardPhraseData.ABSORB_DROP * absorption +
+            PrepareSkateboardPhraseData.PUSH_DROP * inStreet) +
         toeClearance * takeoff,
     };
     const goals: Record<

@@ -33,25 +33,7 @@ import { HumanLanceCouchPick } from "./HumanLanceCouchPick";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-
-/*
- * The carried shaft's direction in the seat frame: along the travel, the point
- * a little down and in, so the butt behind the grip rises clear of the horse's
- * croup and passes outside the rider's arm (provisional).
- */
-const LEVEL: Readonly<IAutoMovieVector3> = { x: 0.05, y: -0.2, z: 1 };
-
-/*
- * The step the strike is first sought at, seconds: a film frame at 60 per
- * second.
- */
-const FRAME: number = 1 / 60;
-
-/*
- * Seconds the arms take from the entry to the couch and the bridle
- * (provisional).
- */
-const REACH: number = 0.5;
+import * as HumanLanceCouchData from "./HumanLanceCouchData";
 
 /*
  * A lance couched and lowered to a skill-at-arms target from the saddle
@@ -140,7 +122,7 @@ function planHumanLanceCouch(
     context.body,
     local,
   ).get("rightUpperArm")!.worldPosition;
-  const level: IAutoMovieVector3 = Vector3.normalize(LEVEL);
+  const level: IAutoMovieVector3 = Vector3.normalize(HumanLanceCouchData.LEVEL);
   // The hand the rider enters with, in the seat frame: the carry turns from it as little as it can.
   const holding: IAutoMovieQuaternion = Quaternion.multiply(
     Quaternion.inverse(carrier(context.start).rotation),
@@ -203,7 +185,7 @@ function planHumanLanceCouch(
   let lowering: HumanLanceCouchCarriage.ICarriage | undefined;
   let nearest: number = Infinity;
   let closest: number = 0;
-  for (let t: number = 0; t <= params.duration; t += FRAME) {
+  for (let t: number = 0; t <= params.duration; t += HumanLanceCouchData.FRAME) {
     const apart: number =
       Vector3.distance(seen(t), shoulder) - (tool.length + armReach);
     if (apart < nearest) {
@@ -346,7 +328,7 @@ function planHumanLanceCouch(
   // Both arms are laid as planned courses on these goals, so no instant refits them afresh: the lance arm clear of the horse's body, then the bridle arm on its own, whose hand holds the reins over the horse's tack.
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
-    ready: Math.min(REACH, duration),
+    ready: Math.min(HumanLanceCouchData.REACH, duration),
     relax: duration,
     end: duration,
   };

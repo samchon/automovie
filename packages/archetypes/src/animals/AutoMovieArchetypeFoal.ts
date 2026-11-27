@@ -7,31 +7,6 @@ import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { HORSE_BANDS } from "./equine/HORSE_BANDS";
 import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 
-/*
- * Withers height over mature height at birth, about 60% (Horse & Hound, a
- * secondary estimate), and at weaning, 84% at six months (Lawrence 2003, as
- * Kentucky Equine Research reports it).
- */
-const HEIGHT: Readonly<IEnds> = { birth: 0.6, weaning: 0.84 };
-
-/*
- * Distal limb length over mature length: an authored, provisional 0.85 at
- * birth, and 1 / 1.06 at weaning (Anderson and McIlwraith 2004: 5 to 7% more
- * growth from weaning to three years, the middle taken).
- */
-const DISTAL: Readonly<IEnds> = { birth: 0.85, weaning: 1 / 1.06 };
-
-/*
- * The trunk's growth over the height's: authored and provisional.
- */
-const TRUNK: number = 0.9;
-
-/*
- * Heart girth over withers height: the horse producer's default figures' ratio,
- * 2.04 m over 1.72 m.
- */
-const GIRTH: number = 2.04 / 1.72;
-
 /**
  * Constructs the foal archetype from its recipe.
  *
@@ -205,6 +180,31 @@ export function create(
     };
   }
 }
+
+/*
+ * Withers height over mature height at birth, about 60% (Horse & Hound, a
+ * secondary estimate), and at weaning, 84% at six months (Lawrence 2003, as
+ * Kentucky Equine Research reports it).
+ */
+const HEIGHT: Readonly<IEnds> = { birth: 0.6, weaning: 0.84 };
+
+/*
+ * Distal limb length over mature length: an authored, provisional 0.85 at
+ * birth, and 1 / 1.06 at weaning (Anderson and McIlwraith 2004: 5 to 7% more
+ * growth from weaning to three years, the middle taken).
+ */
+const DISTAL: Readonly<IEnds> = { birth: 0.85, weaning: 1 / 1.06 };
+
+/*
+ * The trunk's growth over the height's: authored and provisional.
+ */
+const TRUNK: number = 0.9;
+
+/*
+ * Heart girth over withers height: the horse producer's default figures' ratio,
+ * 2.04 m over 1.72 m.
+ */
+const GIRTH: number = 2.04 / 1.72;
 
 /*
  * A growth fraction at birth and at weaning.

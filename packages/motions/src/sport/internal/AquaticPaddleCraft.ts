@@ -11,9 +11,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
 
-const SIDES = ["left", "right"] as const;
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
 /*
  * The native canoe and kayak stance and its independently moving handheld
  * paddle.
@@ -93,6 +90,10 @@ export namespace AquaticPaddleCraft {
     };
   }
 }
+
+const SIDES = ["left", "right"] as const;
+
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * Carry the actual entered half-kneel and change only the stroke's upper-body

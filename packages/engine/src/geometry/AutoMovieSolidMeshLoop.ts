@@ -8,7 +8,6 @@ import type {
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { dot, norm, sub } = AutoMovieSolidVector;
 /**
  * The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`):
  * which grid vertices a loop keeps with a local metric margin, how
@@ -365,5 +364,7 @@ export namespace AutoMovieSolidMeshLoop {
     return Math.sqrt(Math.max(0, E * x * x + 2 * F * x * y + G * y * y));
   }
 }
+
+const { dot, norm, sub } = AutoMovieSolidVector;
 
 type Vec3 = AutoMovieVector3Tuple;

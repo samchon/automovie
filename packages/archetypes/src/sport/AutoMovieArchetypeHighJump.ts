@@ -13,23 +13,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The rules' comparison sheet, read for the World Athletics column.
- */
-const RULES: string =
-  "2025 High Jump Rules Comparison, Pacific Association USATF, World Athletics column: uprights 4.00 to 4.04 m apart, crossbar 3.98 to 4.02 m long (https://pausatf.org/wp-content/uploads/2025/01/High-Jump-Rules-Comparison-Color-2025.pdf)";
-
-/*
- * The World Athletics rules, read.
- */
-const WA: string =
-  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151)";
-
-/*
- * The crossbar's section, read in the World Athletics rule.
- */
-const BAR: string = `${WA}, Technical Rule 26.7: the circular part of the crossbar 30 mm +/- 1 mm across, the bar at most 2 kg`;
+import * as AutoMovieArchetypeHighJumpData from "./internal/AutoMovieArchetypeHighJumpData";
 
 /** Constructs the high jump archetype from its recipe. */
 export namespace AutoMovieArchetypeHighJump {
@@ -233,11 +217,6 @@ export function create(
     mass: "kg",
   };
 
-  /*
-   * The pole vault box, read.
-   */
-  const BOX: string = `${WA}, Technical Rule 28.8 and Figure (a) TR28: 1.00 m along the inside of the bottom, 1.08 m at runway level, 0.60 m wide at the front tapering to 0.15 m at the bottom of the stop board, its foot 0.20 m below the runway`;
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
@@ -249,9 +228,9 @@ export function create(
         "the height the competition sets, from a beginner's 1 m to the 2.45 m men's world record (World Athletics records); a setting, not a measurement",
         true,
       ),
-      length: AutoMovieArchetypeBand.metres(3.98, 4.02, RULES),
-      diameter: AutoMovieArchetypeBand.metres(0.029, 0.031, BAR),
-      span: AutoMovieArchetypeBand.metres(4, 4.04, RULES),
+      length: AutoMovieArchetypeBand.metres(3.98, 4.02, AutoMovieArchetypeHighJumpData.RULES),
+      diameter: AutoMovieArchetypeBand.metres(0.029, 0.031, AutoMovieArchetypeHighJumpData.BAR),
+      span: AutoMovieArchetypeBand.metres(4, 4.04, AutoMovieArchetypeHighJumpData.RULES),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         20,
@@ -270,24 +249,24 @@ export function create(
       length: AutoMovieArchetypeBand.metres(
         4.48,
         4.52,
-        `${WA}, Technical Rule 26.7: the crossbar 4.50 m +/- 0.02 m long in the pole vault`,
+        `${AutoMovieArchetypeHighJumpData.WA}, Technical Rule 26.7: the crossbar 4.50 m +/- 0.02 m long in the pole vault`,
       ),
-      diameter: AutoMovieArchetypeBand.metres(0.029, 0.031, BAR),
+      diameter: AutoMovieArchetypeBand.metres(0.029, 0.031, AutoMovieArchetypeHighJumpData.BAR),
       span: AutoMovieArchetypeBand.metres(
         4.28,
         4.37,
-        `${WA}, Technical Rule 28.10: the pegs 4.28 to 4.37 m apart`,
+        `${AutoMovieArchetypeHighJumpData.WA}, Technical Rule 28.10: the pegs 4.28 to 4.37 m apart`,
       ),
       setback: AutoMovieArchetypeBand.metres(
         0,
         0.8,
-        `${WA}, Figure (c) TR28: the standards from the zero line to 0.80 m beyond it`,
+        `${AutoMovieArchetypeHighJumpData.WA}, Figure (c) TR28: the standards from the zero line to 0.80 m beyond it`,
       ),
-      boxLength: AutoMovieArchetypeBand.metres(1.08, 1.08, BOX),
-      boxFloor: AutoMovieArchetypeBand.metres(1, 1, BOX),
-      boxDepth: AutoMovieArchetypeBand.metres(0.2, 0.2, BOX),
-      boxWidth: AutoMovieArchetypeBand.metres(0.6, 0.6, BOX),
-      boxEnd: AutoMovieArchetypeBand.metres(0.15, 0.15, BOX),
+      boxLength: AutoMovieArchetypeBand.metres(1.08, 1.08, AutoMovieArchetypeHighJumpData.BOX),
+      boxFloor: AutoMovieArchetypeBand.metres(1, 1, AutoMovieArchetypeHighJumpData.BOX),
+      boxDepth: AutoMovieArchetypeBand.metres(0.2, 0.2, AutoMovieArchetypeHighJumpData.BOX),
+      boxWidth: AutoMovieArchetypeBand.metres(0.6, 0.6, AutoMovieArchetypeHighJumpData.BOX),
+      boxEnd: AutoMovieArchetypeBand.metres(0.15, 0.15, AutoMovieArchetypeHighJumpData.BOX),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         60,

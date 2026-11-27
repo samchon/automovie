@@ -4,12 +4,6 @@ import type { AutoMovieArchetypeQuadrupedLimb } from "../AutoMovieArchetypeQuadr
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /*
- * Halvings of a search over the pelvis's turn: far below a micro-radian over
- * its range.
- */
-const STEPS: number = 60;
-
-/*
  * The pelvis turning in the sagittal plane at the lumbosacral joint, carrying
  * both hip joints fore and aft so the hind limbs follow a planted hoof's reach,
  * as the shoulder blade does for a fore (`QuadrupedScapula`).
@@ -146,3 +140,9 @@ export namespace QuadrupedPelvis {
     return low;
   }
 }
+
+/*
+ * Halvings of a search over the pelvis's turn: far below a micro-radian over
+ * its range.
+ */
+const STEPS: number = 60;

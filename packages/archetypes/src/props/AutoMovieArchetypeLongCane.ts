@@ -9,23 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * A rigid long cane's lengths, read at a maker's listing.
- */
-const LENGTH: string =
-  "Ambutech rigid fiberglass long cane with a pencil tip, available in lengths from 36 to 60 in (Maxi Aids listing); fitted to the sternum (Kim, Wall Emerson and Naghshineh 2017's standard length)";
-
-/*
- * The shaft's diameter, provisional.
- */
-const SHAFT: string = "a 13 mm fiberglass shaft, provisional";
-
-/*
- * A long cane's mass, provisional.
- */
-const MASS: string =
-  "about 0.2 kg for a rigid fiberglass long cane, provisional";
+import * as AutoMovieArchetypeLongCaneData from "./internal/AutoMovieArchetypeLongCaneData";
 
 /** Constructs the long cane archetype from its recipe. */
 export namespace AutoMovieArchetypeLongCane {
@@ -143,9 +127,9 @@ export function create(
     length: AutoMovieArchetypeBand.metres(
       36 * AutoMovieArchetypeUnits.INCH,
       60 * AutoMovieArchetypeUnits.INCH,
-      LENGTH,
+      AutoMovieArchetypeLongCaneData.LENGTH,
     ),
-    diameter: AutoMovieArchetypeBand.metres(0.013, 0.013, SHAFT),
-    mass: AutoMovieArchetypeBand.of("kg", 0.2, 0.2, MASS),
+    diameter: AutoMovieArchetypeBand.metres(0.013, 0.013, AutoMovieArchetypeLongCaneData.SHAFT),
+    mass: AutoMovieArchetypeBand.of("kg", 0.2, 0.2, AutoMovieArchetypeLongCaneData.MASS),
   };
 }

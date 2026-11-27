@@ -4,34 +4,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
- * The most strokes, regrips and steps one insertion plans before it refuses as
- * a staff that makes no headway.
- */
-const MOST: number = 64;
-
-/*
- * Metres below which a stroke, a slide or a step is no movement.
- */
-const EPSILON: number = 1e-4;
-
-/*
- * A place moved from where it is toward a goal, as far as a range allows, never
- * back past where it started.
- * Parameter from: Where it is.
- * Parameter goal: Where it goes.
- * Parameter range: The places it may take.
- * Returns: The place it reaches.
- */
-function clampToward(
-  from: number,
-  goal: number,
-  range: operateLongInsertCourse.IRange,
-): number {
-  const reach: number = Math.min(range.hi, Math.max(range.lo, goal));
-  return goal >= from ? Math.max(from, reach) : Math.min(from, reach);
-}
-
-/*
  * The course of a long insertion (`operateLongInsert`): a staff driven down a
  * bore farther than one grip reaches, hand over hand, with steps where the
  * stance runs out, then drawn out the same way when asked. Every place is read
@@ -479,4 +451,32 @@ export namespace operateLongInsertCourse {
      */
     segments: ISegment[];
   }
+}
+
+/*
+ * The most strokes, regrips and steps one insertion plans before it refuses as
+ * a staff that makes no headway.
+ */
+const MOST: number = 64;
+
+/*
+ * Metres below which a stroke, a slide or a step is no movement.
+ */
+const EPSILON: number = 1e-4;
+
+/*
+ * A place moved from where it is toward a goal, as far as a range allows, never
+ * back past where it started.
+ * Parameter from: Where it is.
+ * Parameter goal: Where it goes.
+ * Parameter range: The places it may take.
+ * Returns: The place it reaches.
+ */
+function clampToward(
+  from: number,
+  goal: number,
+  range: operateLongInsertCourse.IRange,
+): number {
+  const reach: number = Math.min(range.hi, Math.max(range.lo, goal));
+  return goal >= from ? Math.max(from, reach) : Math.min(from, reach);
 }

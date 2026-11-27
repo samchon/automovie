@@ -68,11 +68,6 @@ export namespace AutoMovieHumanF1TrunkCentre {
    */
   export const SCALE_SHARE: number = 0.5;
 
-  /*
-   * Phases a section's area is integrated over.
-   */
-  const ROUND: number = 1440;
-
   /**
    * The centroid of a section's area in its chart, `[u, v]` mm about the point the section is charted about.
    *
@@ -158,4 +153,9 @@ export namespace AutoMovieHumanF1TrunkCentre {
   export function recentre(family: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Trunk, origin: IAutoMovieHumanConicRecentre.ILine = line(family)): IRecentred {
     return { line: origin, knots: family.knots, layout: family.layout, values: Recentre.shift(family, origin), axis: Recentre.axis(H.axis(family), family.knots, origin) };
   }
+
+  /*
+   * Phases a section's area is integrated over.
+   */
+  const ROUND: number = 1440;
 }

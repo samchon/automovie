@@ -12,61 +12,12 @@ import { AutoMovieHumanHandDigitLaw } from "./AutoMovieHumanHandDigitLaw";
 import { AutoMovieHumanHandStar } from "./AutoMovieHumanHandStar";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanHandWeb } from "./AutoMovieHumanHandWeb";
-const {
-  sub,
-  dot,
-  norm,
-  unit,
-  smooth,
-  softMax,
-  TWO_PI,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const {
-  star,
-  starPoint,
-  wholeSkin,
-  palmSkin,
-  knuckle,
-  palmPoint,
-}: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;
-const { digit, lineTangent }: typeof AutoMovieHumanHandDigitLaw =
-  AutoMovieHumanHandDigitLaw;
-const { rootOf, crestOf, arcPoints, firstOf }: typeof AutoMovieHumanHandWeb =
-  AutoMovieHumanHandWeb;
-
 /**
  * The hand as one form in its own axes, shared by every person and mapped to
  * each by `AutoMovieHumanHandMap`: the heel and palm skin, the thenar joined
  * to the palm's last ring, the digits' laws and the webs that part them.
  */
 export namespace AutoMovieHumanHandForm {
-  /*
-   * Phase over which the heel's target hands from the palm's run to the thumb's.
-   */
-  const OWN_FADE: number = 0.6;
-
-  /*
-   * Angles at which the arm's last ring holds its radius.
-   */
-  const RADII: number = 720;
-
-  /*
-   * Phases averaged for the centre of the section at the wrist crease.
-   */
-  const CREASE_PHASES: number = 256;
-
-  /*
-   * Station step of a parent's outward direction at its ring, mm of the form.
-   */
-  const OUTWARD_STEP: number = 0.05;
-
-  /*
-   * Spacing of the palm's sections, mm of the form.
-   */
-  const PALM_STEP: number = 4;
-
-  let built: IAutoMovieHumanHandForm | null = null;
-
   /** The hand's form, made once: no person enters it. */
   export function form(): IAutoMovieHumanHandForm {
     built ??= make();
@@ -98,6 +49,33 @@ export namespace AutoMovieHumanHandForm {
       ) - prior.arm.phase
     );
   }
+
+  /*
+   * Phase over which the heel's target hands from the palm's run to the thumb's.
+   */
+  const OWN_FADE: number = 0.6;
+
+  /*
+   * Angles at which the arm's last ring holds its radius.
+   */
+  const RADII: number = 720;
+
+  /*
+   * Phases averaged for the centre of the section at the wrist crease.
+   */
+  const CREASE_PHASES: number = 256;
+
+  /*
+   * Station step of a parent's outward direction at its ring, mm of the form.
+   */
+  const OUTWARD_STEP: number = 0.05;
+
+  /*
+   * Spacing of the palm's sections, mm of the form.
+   */
+  const PALM_STEP: number = 4;
+
+  let built: IAutoMovieHumanHandForm | null = null;
 
   /*
    * The hand.
@@ -465,5 +443,28 @@ export namespace AutoMovieHumanHandForm {
     };
   }
 }
+
+const {
+  sub,
+  dot,
+  norm,
+  unit,
+  smooth,
+  softMax,
+  TWO_PI,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const {
+  star,
+  starPoint,
+  wholeSkin,
+  palmSkin,
+  knuckle,
+  palmPoint,
+}: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;
+const { digit, lineTangent }: typeof AutoMovieHumanHandDigitLaw =
+  AutoMovieHumanHandDigitLaw;
+
+const { rootOf, crestOf, arcPoints, firstOf }: typeof AutoMovieHumanHandWeb =
+  AutoMovieHumanHandWeb;
 
 type Vec3 = AutoMovieVector3Tuple;

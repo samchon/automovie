@@ -14,17 +14,6 @@ import { AutoMovieArchetypeQuadrupedMotion } from "../AutoMovieArchetypeQuadrupe
 import type { EquineFlightClock } from "../equine/EquineFlightClock";
 
 /*
- * Shares of a swing read for its pole crossings: about two per centimetre of a
- * metre-long swing's arc.
- */
-const SHARES: number = 48;
-
-/*
- * Points read along the terminal bar's axis at each share, its ends included.
- */
-const BAR: number = 4;
-
-/*
  * A swing's lift over the authored poles its hoof crosses: the arc's apex that
  * keeps the terminal bar clear of each pole where the hoof's path passes over
  * it.
@@ -258,3 +247,14 @@ export namespace QuadrupedPoleSwing {
     );
   }
 }
+
+/*
+ * Shares of a swing read for its pole crossings: about two per centimetre of a
+ * metre-long swing's arc.
+ */
+const SHARES: number = 48;
+
+/*
+ * Points read along the terminal bar's axis at each share, its ends included.
+ */
+const BAR: number = 4;

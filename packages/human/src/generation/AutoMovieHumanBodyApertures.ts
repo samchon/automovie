@@ -16,16 +16,6 @@ import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
  * refined near them.
  */
 export namespace AutoMovieHumanBodyApertures {
-  /*
-   * Station spacing where a chain's rings pass near an opening, mm.
-   */
-  const SPACING: number = 0.5;
-
-  /*
-   * Distance around an opening's outline that still counts as near, mm.
-   */
-  const REACH: number = 2;
-
   /**
    * Evaluate each aperture's margin once and find the globe behind it.
    *
@@ -172,6 +162,16 @@ export namespace AutoMovieHumanBodyApertures {
     // the rows near it without bound.
     return split(heights, near);
   }
+
+  /*
+   * Station spacing where a chain's rings pass near an opening, mm.
+   */
+  const SPACING: number = 0.5;
+
+  /*
+   * Distance around an opening's outline that still counts as near, mm.
+   */
+  const REACH: number = 2;
 
   /*
    * Split every interval whose end or middle ring is near into SPACING mm

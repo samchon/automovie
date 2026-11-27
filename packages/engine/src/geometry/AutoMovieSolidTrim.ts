@@ -14,8 +14,6 @@ import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 
-const { dot } = AutoMovieSolidVector;
-
 /**
  * A through-cut: an opening in the skin (the palpebral fissure, the oral
  * fissure) as a closed trim loop in the skin's own chart.
@@ -255,3 +253,5 @@ export namespace AutoMovieSolidTrim {
     return -1;
   }
 }
+
+const { dot } = AutoMovieSolidVector;

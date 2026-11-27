@@ -17,18 +17,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { bowlingSlideSchedule } from "./bowlingSlideSchedule";
-
-/*
- * The swinging toe's least clearance over the floor, metres: the minimum toe
- * clearance of gait, 12.9 mm (Winter 1992).
- */
-const TOE_CLEARANCE: number = 0.0129;
-
-/*
- * The share of the leg's length the trailing leg reaches behind, its knee just
- * short of straight (provisional, the stroke address's leg reach).
- */
-const REACH: number = 0.98;
+import * as BowlingSlideData from "./BowlingSlideData";
 
 /*
  * Carry the body on the sliding foot opposite the delivery hand.
@@ -198,7 +187,7 @@ function plan(
       const back: number = Math.sqrt(
         Math.max(
           0,
-          (REACH * leg) ** 2 -
+          (BowlingSlideData.REACH * leg) ** 2 -
             (reached.y - (time <= to ? height : stoppedHeight)) ** 2,
         ),
       );
@@ -264,7 +253,7 @@ function plan(
           Math.PI * Math.min(1, Math.max(0, (time - to) / (settle - to))),
         ) ** 2;
       const under: number =
-        lowest(feet[trail]) + TOE_CLEARANCE * lifted - lowest(pitched);
+        lowest(feet[trail]) + BowlingSlideData.TOE_CLEARANCE * lifted - lowest(pitched);
       const trailingFoot: IAutoMovieMotionHumanFoot.IPlacement =
         under <= 0
           ? pitched

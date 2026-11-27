@@ -1,43 +1,3 @@
-const LIMITS: readonly (readonly [number, number])[] = [
-  [-33, 42],
-  [-26.5, 26.5],
-  [-8.5, 8.5],
-  [0, 55],
-  [-5, 90],
-  [-25, 90],
-  [-30, 30],
-  [0, 115],
-  [-20, 90],
-];
-
-const clamp = (x: number, a: number, b: number): number =>
-  Math.min(b, Math.max(a, x));
-
-const dot = (a: readonly number[], b: readonly number[]): number =>
-  a.reduce((sum, value, i) => sum + value * b[i]!, 0);
-
-function solve(input: number[][], values: number[]): number[] {
-  const size = values.length;
-  const rows = input.map((row, i) => [...row, values[i]!]);
-  for (let k = 0; k < size; ++k) {
-    let pivot = k;
-    for (let i = k + 1; i < size; ++i)
-      if (Math.abs(rows[i]![k]!) > Math.abs(rows[pivot]![k]!)) pivot = i;
-    [rows[k], rows[pivot]] = [rows[pivot]!, rows[k]!];
-    const row = rows[k]!;
-    const scale = row[k]!;
-    for (let j = k; j <= size; ++j) row[j] = row[j]! / scale;
-    for (let i = 0; i < size; ++i) {
-      if (i === k) continue;
-      const other = rows[i]!;
-      const weight = other[k]!;
-      for (let j = k; j <= size; ++j)
-        other[j] = other[j]! - weight * row[j]!;
-    }
-  }
-  return rows.map((row) => row[size]!);
-}
-
 /*
  * Fit the two gripping digits in the clinical joint chart at one prepared instant.
  */
@@ -109,4 +69,44 @@ export namespace pickUpDigitProjection {
     angles: number[];
     error: number;
   }
+}
+
+const LIMITS: readonly (readonly [number, number])[] = [
+  [-33, 42],
+  [-26.5, 26.5],
+  [-8.5, 8.5],
+  [0, 55],
+  [-5, 90],
+  [-25, 90],
+  [-30, 30],
+  [0, 115],
+  [-20, 90],
+];
+
+const clamp = (x: number, a: number, b: number): number =>
+  Math.min(b, Math.max(a, x));
+
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((sum, value, i) => sum + value * b[i]!, 0);
+
+function solve(input: number[][], values: number[]): number[] {
+  const size = values.length;
+  const rows = input.map((row, i) => [...row, values[i]!]);
+  for (let k = 0; k < size; ++k) {
+    let pivot = k;
+    for (let i = k + 1; i < size; ++i)
+      if (Math.abs(rows[i]![k]!) > Math.abs(rows[pivot]![k]!)) pivot = i;
+    [rows[k], rows[pivot]] = [rows[pivot]!, rows[k]!];
+    const row = rows[k]!;
+    const scale = row[k]!;
+    for (let j = k; j <= size; ++j) row[j] = row[j]! / scale;
+    for (let i = 0; i < size; ++i) {
+      if (i === k) continue;
+      const other = rows[i]!;
+      const weight = other[k]!;
+      for (let j = k; j <= size; ++j)
+        other[j] = other[j]! - weight * row[j]!;
+    }
+  }
+  return rows.map((row) => row[size]!);
 }

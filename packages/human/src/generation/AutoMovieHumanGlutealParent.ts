@@ -21,16 +21,6 @@ import type {
 
 import { AutoMovieHumanGlutealCut } from "./AutoMovieHumanGlutealCut";
 
-/*
- * Existing scalar meeting accuracy, in calibration millimetres.
- */
-const TOLERANCE: number = 1e-9;
-
-/*
- * Bounded discovery subdivisions; absence of a bracket is not an absence proof.
- */
-const BRACKETS: number = 16;
-
 /** Source-native parent chords for a gluteal footprint; no emitted skin is read. */
 export namespace AutoMovieHumanGlutealParent {
   /**
@@ -121,6 +111,16 @@ export namespace AutoMovieHumanGlutealParent {
     };
   }
 }
+
+/*
+ * Existing scalar meeting accuracy, in calibration millimetres.
+ */
+const TOLERANCE: number = 1e-9;
+
+/*
+ * Bounded discovery subdivisions; absence of a bracket is not an absence proof.
+ */
+const BRACKETS: number = 16;
 
 /*
  * Retain the full original source, refusing unavailable direct fullness

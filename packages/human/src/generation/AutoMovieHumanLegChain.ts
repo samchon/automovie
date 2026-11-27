@@ -29,9 +29,8 @@ import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import { AutoMovieHumanLegSection } from "./AutoMovieHumanLegSection";
 import { AutoMovieHumanLegSectionLaw } from "./AutoMovieHumanLegSectionLaw";
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
-import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
-const { lerp, norm, sub } = AutoMovieHumanLegVector;
-
+import "./AutoMovieHumanLegVector";
+import { lerp, norm, sub } from "./internal/AutoMovieHumanLegChainData";
 /**
  * One leg's chain `leg.<side>`: the layers between the ankle ring and the
  * crotch ring, each the section of {@link AutoMovieHumanLegSection} at its

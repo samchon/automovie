@@ -10,17 +10,6 @@ import { AquaticTeamBase } from "./AquaticTeamBase";
 import { aquaticArtisticSchedule } from "./aquaticArtisticSchedule";
 
 /*
- * Seconds a support contact blends in before its grip and out after its
- * release.
- */
-const CONTACT_BLEND: number = 0.22;
-
-/*
- * Seconds a base's support arm takes to reach into its palm offer and back out:
- * provisional, an unhurried sculling arm.
- */
-const BASE_REACH: number = 0.5;
-/*
  * An artistic figure with optional team support. Flat and vertical sculls
  * follow the form distinctions measured by Homma et al. (PMID 31718520). The
  * supported figure uses the separate support and featured roles of the World
@@ -314,6 +303,17 @@ export namespace AquaticTeam {
     );
   }
 }
+
+/*
+ * Seconds a support contact blends in before its grip and out after its
+ * release.
+ */
+const CONTACT_BLEND: number = 0.22;
+/*
+ * Seconds a base's support arm takes to reach into its palm offer and back out:
+ * provisional, an unhurried sculling arm.
+ */
+const BASE_REACH: number = 0.5;
 
 /*
  * A provisional cos(36.9°) minimum for a submerged palm bearing upward.

@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The rules the figures come from.
- */
-const RULES: string =
-  "World Athletics Technical Rules (2020 edition), TR32.6: a throwing circle's inside diameter 2.135 m for the shot and the hammer and 2.50 m for the discus, each within 5 mm; TR32.9 and TR33: the javelin runway 4 m wide ending in an arc of 8 m radius (https://athletics.lv/file/download/61151)";
+import * as AutoMovieArchetypeThrowingCircleData from "./internal/AutoMovieArchetypeThrowingCircleData";
 
 /** Constructs the throwing circle archetype from its recipe. */
 export namespace AutoMovieArchetypeThrowingCircle {
@@ -161,38 +156,26 @@ export function create(
     mass: "kg",
   };
 
-  /*
-   * The mass band shared by every event: an estimate of a painted or metal
-   * marking.
-   */
-  const MASS: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
-    "kg",
-    5,
-    20,
-    "an estimate of the marking alone",
-    true,
-  );
-
   /** The bands of each event. */
   export const BANDS: Readonly<
     Record<Event, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     shot: {
-      diameter: AutoMovieArchetypeBand.metres(2.13, 2.14, RULES),
-      mass: MASS,
+      diameter: AutoMovieArchetypeBand.metres(2.13, 2.14, AutoMovieArchetypeThrowingCircleData.RULES),
+      mass: AutoMovieArchetypeThrowingCircleData.MASS,
     },
     hammer: {
-      diameter: AutoMovieArchetypeBand.metres(2.13, 2.14, RULES),
-      mass: MASS,
+      diameter: AutoMovieArchetypeBand.metres(2.13, 2.14, AutoMovieArchetypeThrowingCircleData.RULES),
+      mass: AutoMovieArchetypeThrowingCircleData.MASS,
     },
     discus: {
-      diameter: AutoMovieArchetypeBand.metres(2.495, 2.505, RULES),
-      mass: MASS,
+      diameter: AutoMovieArchetypeBand.metres(2.495, 2.505, AutoMovieArchetypeThrowingCircleData.RULES),
+      mass: AutoMovieArchetypeThrowingCircleData.MASS,
     },
     javelin: {
-      width: AutoMovieArchetypeBand.metres(4, 4, RULES),
-      radius: AutoMovieArchetypeBand.metres(8, 8, RULES),
-      mass: MASS,
+      width: AutoMovieArchetypeBand.metres(4, 4, AutoMovieArchetypeThrowingCircleData.RULES),
+      radius: AutoMovieArchetypeBand.metres(8, 8, AutoMovieArchetypeThrowingCircleData.RULES),
+      mass: AutoMovieArchetypeThrowingCircleData.MASS,
     },
   };
 }

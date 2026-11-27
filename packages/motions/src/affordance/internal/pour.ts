@@ -34,18 +34,6 @@ import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 import { pourClock } from "./pourClock";
 
 /*
- * Upright admission allows five degrees of staged placement error.
- */
-const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
-/*
- * Minimum axis alignment at the sampled tilted poses, within 10 degrees.
- */
-const TIP_ALIGNMENT: number = Math.cos((10 * Math.PI) / 180);
-/*
- * World vertical for the stationary vessel and the gravity cue.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-/*
  * A registered, stationary-base pour. Bring the held source above a fixed
  * recipient, tip about its rim lip, transfer, right it and retreat. Register
  * `pour` in `AutoMovieMotionHumanPerformance` and call `registered(pour.name, params)`.
@@ -353,6 +341,19 @@ export namespace pour {
     };
   }
 }
+
+/*
+ * Upright admission allows five degrees of staged placement error.
+ */
+const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
+/*
+ * Minimum axis alignment at the sampled tilted poses, within 10 degrees.
+ */
+const TIP_ALIGNMENT: number = Math.cos((10 * Math.PI) / 180);
+/*
+ * World vertical for the stationary vessel and the gravity cue.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * Admit finite quantities before arithmetic or planning.

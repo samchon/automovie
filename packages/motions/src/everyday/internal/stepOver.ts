@@ -137,18 +137,6 @@ export namespace stepOver {
   export const TRAIL: number = 0.146;
 
   /*
-   * Onset and duration of the first half of forward transfer, shares of the
-   * crossing.
-   */
-  const TRANSFER: readonly [number, number] = [0.12, 0.38];
-
-  /*
-   * Seconds before the trail's contact at which its landing pitch is read: a
-   * microsecond, inside the swing's last instant.
-   */
-  const CONTACT: number = 1e-6;
-
-  /*
    * Plan a step over.
    * Parameter context: The action's context.
    * Returns: The plan.
@@ -443,4 +431,16 @@ export namespace stepOver {
     );
     return result;
   }
+
+  /*
+   * Onset and duration of the first half of forward transfer, shares of the
+   * crossing.
+   */
+  const TRANSFER: readonly [number, number] = [0.12, 0.38];
+
+  /*
+   * Seconds before the trail's contact at which its landing pitch is read: a
+   * microsecond, inside the swing's last instant.
+   */
+  const CONTACT: number = 1e-6;
 }

@@ -33,24 +33,6 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned source records and retains fixed immutable diameter data, without a global person, source image or prepared callback.
  */
 export namespace AutoMovieHumanHeadEyeParts {
-  /*
-   * External radii [AP, superior-inferior, lateral], world mm, from Bekerman
-   * 2014 Table 1: axial Group II and sclera-to-sclera rows. The small observed
-   * side difference is not a significant population rule.
-   */
-  const RADII: Readonly<
-    Record<"left" | "right", readonly [number, number, number]>
-  > = {
-    left: [23.562 / 2, 23.752 / 2, 24.324 / 2],
-    right: [23.422 / 2, 23.799 / 2, 24.156 / 2],
-  };
-
-  /*
-   * Angular intervals of each ellipse; the engine owns the C2 interpolation
-   * between these sites.
-   */
-  const INTERVALS: number = 12;
-
   /**
    * Draw both external globes and fissures in their shared pupil frames,
    * calibration mm.
@@ -143,6 +125,24 @@ export namespace AutoMovieHumanHeadEyeParts {
       ),
     ];
   }
+
+  /*
+   * External radii [AP, superior-inferior, lateral], world mm, from Bekerman
+   * 2014 Table 1: axial Group II and sclera-to-sclera rows. The small observed
+   * side difference is not a significant population rule.
+   */
+  const RADII: Readonly<
+    Record<"left" | "right", readonly [number, number, number]>
+  > = {
+    left: [23.562 / 2, 23.752 / 2, 24.324 / 2],
+    right: [23.422 / 2, 23.799 / 2, 24.156 / 2],
+  };
+
+  /*
+   * Angular intervals of each ellipse; the engine owns the C2 interpolation
+   * between these sites.
+   */
+  const INTERVALS: number = 12;
 
   /*
    * Source fissure volumes, for curve inspection before any lid trim is wired.

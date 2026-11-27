@@ -114,16 +114,6 @@ export namespace lieDown {
   export const POSES: typeof lieDownPoses.POSES = lieDownPoses.POSES;
 
   /*
-   * The sittings whose legs `floorSeat` folds.
-   */
-  const FOLDED: Readonly<
-    Partial<Record<IAutoMovieMotionHumanLieDown.Position, floorSeat.Kind>>
-  > = {
-    sitCrossed: "crossed",
-    sitSide: "side",
-  };
-
-  /*
    * The route of postures to each position, after standing, with each arrival's
    * event.
    */
@@ -503,4 +493,14 @@ export namespace lieDown {
     };
     return lain;
   }
+
+  /*
+   * The sittings whose legs `floorSeat` folds.
+   */
+  const FOLDED: Readonly<
+    Partial<Record<IAutoMovieMotionHumanLieDown.Position, floorSeat.Kind>>
+  > = {
+    sitCrossed: "crossed",
+    sitSide: "side",
+  };
 }

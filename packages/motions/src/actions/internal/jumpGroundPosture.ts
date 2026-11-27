@@ -1,8 +1,4 @@
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 import type { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
@@ -10,11 +6,8 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 import { rangeSteppingFoot } from "./rangeSteppingFoot";
+import * as JumpGroundPostureData from "./JumpGroundPostureData";
 
-/*
- * The rotating push and landing have two direct arms to clear, in this order.
- */
-const ARMS: readonly AutoMovieHumanSide[] = ["left", "right"];
 /*
  * Fit the reaching foot during push-off and clear the arms against the bent
  * legs.
@@ -41,7 +34,7 @@ export function jumpGroundPosture(
   return HumanArmSwing(
     body,
     lowered,
-    ARMS,
+    JumpGroundPostureData.ARMS,
     read,
     undefined,
     undefined,
@@ -49,7 +42,6 @@ export function jumpGroundPosture(
     hinted,
   );
 }
-
 /*
  * Native observation of the ground writer and its same-instant leg fit.
  */
@@ -84,7 +76,7 @@ export namespace jumpGroundPosture {
               pitch?.(seconds),
             );
       },
-      ARMS,
+      JumpGroundPostureData.ARMS,
     );
   }
 
@@ -119,7 +111,7 @@ export namespace jumpGroundPosture {
     const cleared: IAutoMovieMotionHumanPosture = HumanArmSwing(
       body,
       lowered,
-      ARMS,
+      JumpGroundPostureData.ARMS,
       read,
       projection,
       seeded.pose,

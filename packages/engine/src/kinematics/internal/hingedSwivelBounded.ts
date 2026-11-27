@@ -2,11 +2,6 @@ import { hingedArmSwivel } from "../hingedArmSwivel";
 import { hingedSwivelAhead } from "./hingedSwivelAhead";
 
 /*
- * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
- */
-const STEP: number = hingedArmSwivel.STEP;
-
-/*
  * The cold swivel sweep of `hingedArmArticulation` decided by branch and bound
  * (Land and Doig 1960): the same candidates, local minima, refinements and
  * choice as the full sweep, with a step scored only when its value can still
@@ -242,3 +237,8 @@ export namespace hingedSwivelBounded {
     return { chosen, skipped };
   }
 }
+
+/*
+ * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
+ */
+const STEP: number = hingedArmSwivel.STEP;

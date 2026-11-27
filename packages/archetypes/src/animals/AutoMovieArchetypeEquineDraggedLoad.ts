@@ -24,16 +24,6 @@ import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped"
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { EquineHarness } from "./equine/EquineHarness";
 
-/*
- * World up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * Half the central-difference interval of the pull point's velocity, seconds.
- */
-const HALF: number = 5e-4;
-
 /** Operations and parameter types for a load dragged by a harnessed equine. */
 export namespace AutoMovieArchetypeEquineDraggedLoad {
   /**
@@ -409,6 +399,16 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
     ) => readonly AutoMovieArchetypeRide.ILineState[];
   }
 }
+
+/*
+ * World up.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * Half the central-difference interval of the pull point's velocity, seconds.
+ */
+const HALF: number = 5e-4;
 
 /*
  * The rotation taking one unit direction to another.

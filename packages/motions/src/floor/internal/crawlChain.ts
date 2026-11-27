@@ -15,18 +15,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
-
-/*
- * Upright lengths and lateral places read by this chain's preparation.
- */
-const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftUpperArm",
-  "rightUpperArm",
-  "leftUpperLeg",
-  "rightUpperLeg",
-  "leftLowerLeg",
-  "rightLowerLeg",
-]);
+import * as CrawlChainData from "./CrawlChainData";
 
 /*
  * Build the chain for a body.
@@ -51,7 +40,7 @@ export function crawlChain(
       root: standing.root,
     }),
     undefined,
-    MEASURED,
+    CrawlChainData.MEASURED,
   );
   const floor: ReturnType<typeof HumanFrame.prepare> =
     HumanFrame.prepare(frame);

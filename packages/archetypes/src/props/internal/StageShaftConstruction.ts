@@ -11,39 +11,6 @@ import {
 import type { AutoMovieArchetypeStageWeaponProp } from "../AutoMovieArchetypeStageWeaponProp";
 
 /*
- * The size axis measures from the base plane to the uppermost visible part.
- */
-const UNITS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Dimension, "m">> = {
-  height: "m",
-};
-
-/*
- * A shared set scale for staging families of different apparent heights.
- */
-const HEIGHT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
-  0.55,
-  2.4,
-  "Authored digital stage prop scale.",
-  true,
-);
-
-/*
- * The standard display heights in metres.
- */
-const DISPLAY_HEIGHTS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Kind, number>> = {
-  mace: 0.7,
-  pike: 1.95,
-  shuo: 1.65,
-  halberd: 1.55,
-  longBlade: 1.75,
-  crescentBlade: 1.85,
-  sideBlade: 1.7,
-  serpentBlade: 1.8,
-  offsetHammer: 0.85,
-  linked: 0.95,
-};
-
-/*
  * Build a padded stage form around its hand-held base.
  *
  * A display height sets the base shape, while the supplied decoration records
@@ -134,3 +101,36 @@ export namespace StageShaftConstruction {
     shaftRadius: number,
   ) => void;
 }
+
+/*
+ * The size axis measures from the base plane to the uppermost visible part.
+ */
+const UNITS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Dimension, "m">> = {
+  height: "m",
+};
+
+/*
+ * A shared set scale for staging families of different apparent heights.
+ */
+const HEIGHT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
+  0.55,
+  2.4,
+  "Authored digital stage prop scale.",
+  true,
+);
+
+/*
+ * The standard display heights in metres.
+ */
+const DISPLAY_HEIGHTS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Kind, number>> = {
+  mace: 0.7,
+  pike: 1.95,
+  shuo: 1.65,
+  halberd: 1.55,
+  longBlade: 1.75,
+  crescentBlade: 1.85,
+  sideBlade: 1.7,
+  serpentBlade: 1.8,
+  offsetHammer: 0.85,
+  linked: 0.95,
+};

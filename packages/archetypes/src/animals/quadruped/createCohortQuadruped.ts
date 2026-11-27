@@ -17,17 +17,6 @@ import { QuadrupedAnimal } from "./QuadrupedAnimal";
 import { QuadrupedLeadPlan } from "./QuadrupedLeadPlan";
 
 /*
- * Coordinate of the table's declared spread; no unreported animal SD is
- * inferred.
- */
-const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
-  "",
-  -1,
-  1,
-  "authored coordinate of the species table's declared timing spread; deterministic point rows have zero authored spread without claiming a measured standard deviation",
-);
-
-/*
  * Select and build one whole non-equid reference without an equine mass law.
  * Parameter props: Closed whole-reference data, authored selection palette, body
  * constructor and additions.
@@ -324,6 +313,17 @@ export namespace createCohortQuadruped {
     ) => Addition | undefined;
   }
 }
+
+/*
+ * Coordinate of the table's declared spread; no unreported animal SD is
+ * inferred.
+ */
+const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
+  "",
+  -1,
+  1,
+  "authored coordinate of the species table's declared timing spread; deterministic point rows have zero authored spread without claiming a measured standard deviation",
+);
 
 /*
  * One admitted profile and its fixed-size physical addition plans.

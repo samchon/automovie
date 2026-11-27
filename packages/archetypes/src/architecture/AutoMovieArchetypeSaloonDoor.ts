@@ -9,25 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The café doors read.
- */
-const DOORS: string =
-  'Swinging Cafe Doors, Timeless Craftsman Beadboard saloon doors: "Doors Measure 40" in Height", "3/4" Thick", for "30",32",36" Door Opening Sizes", hardware "double action" (https://swingingcafedoors.com/timeless-craftsman-beadboard-saloon-doors)';
-
-/*
- * The floor gap, from an unbranded sheet.
- */
-const GAP: string =
-  'an unbranded café doors installation sheet hosted by Home Depot: "a measurement of 18" to 24" from the finished floor to the bottom edge of finished doors is recommended" (https://images.homedepot-static.com/catalog/pdfImages/42/428f879b-22b1-4888-9933-013639f2e559.pdf); its maker is not named';
-
-/*
- * A leaf's opening on its gravity hinge, degrees: Swinging Cafe Doors' standard
- * gravity hinge, which "can be locked open in either direction" at 125 degrees
- * (https://swingingcafedoors.com/hardware-info).
- */
-const SWING: number = 125;
+import * as AutoMovieArchetypeSaloonDoorData from "./internal/AutoMovieArchetypeSaloonDoorData";
 
 /** Constructs the saloon door archetype from its recipe. */
 export namespace AutoMovieArchetypeSaloonDoor {
@@ -215,17 +197,17 @@ export function create(
     height: AutoMovieArchetypeBand.metres(
       40 * AutoMovieArchetypeUnits.INCH,
       40 * AutoMovieArchetypeUnits.INCH,
-      DOORS,
+      AutoMovieArchetypeSaloonDoorData.DOORS,
     ),
     thickness: AutoMovieArchetypeBand.metres(
       0.75 * AutoMovieArchetypeUnits.INCH,
       0.75 * AutoMovieArchetypeUnits.INCH,
-      DOORS,
+      AutoMovieArchetypeSaloonDoorData.DOORS,
     ),
     gap: AutoMovieArchetypeBand.metres(
       18 * AutoMovieArchetypeUnits.INCH,
       24 * AutoMovieArchetypeUnits.INCH,
-      GAP,
+      AutoMovieArchetypeSaloonDoorData.GAP,
       true,
     ),
     mass: AutoMovieArchetypeBand.of(
@@ -237,3 +219,10 @@ export function create(
     ),
   };
 }
+
+/*
+ * A leaf's opening on its gravity hinge, degrees: Swinging Cafe Doors' standard
+ * gravity hinge, which "can be locked open in either direction" at 125 degrees
+ * (https://swingingcafedoors.com/hardware-info).
+ */
+const SWING: number = 125;

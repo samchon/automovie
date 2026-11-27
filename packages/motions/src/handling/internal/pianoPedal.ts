@@ -23,11 +23,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { pianoPedalStroke } from "./pianoPedalStroke";
 import { readPianoPedal } from "./readPianoPedal";
-
-/*
- * Extra swing clearance in metres for the seated foot's short transfer.
- */
-const SWING_CLEARANCE: number = 0.025;
+import * as PianoPedalData from "./PianoPedalData";
 
 /*
  * Stage the right forefoot on an upright piano's damper pedal, depress and
@@ -199,7 +195,7 @@ function plan(
     return {
       ankle: {
         ...ankle,
-        y: ankle.y + SWING_CLEARANCE * 4 * blend * (1 - blend),
+        y: ankle.y + PianoPedalData.SWING_CLEARANCE * 4 * blend * (1 - blend),
       },
       rotation: Quaternion.slerp(foot.worldRotation, staged.rotation, blend),
     };

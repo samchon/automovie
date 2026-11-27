@@ -22,11 +22,6 @@ import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
  * velocity here is millimetres per radian.
  */
 export namespace AutoMovieHumanDigitSector {
-  /*
-   * Central difference step in the unit parameter.
-   */
-  const H: number = 1e-3;
-
   /**
    * The sector's jet at a phase.
    *
@@ -77,4 +72,9 @@ export namespace AutoMovieHumanDigitSector {
       return [p, d1, d2];
     };
   }
+
+  /*
+   * Central difference step in the unit parameter.
+   */
+  const H: number = 1e-3;
 }

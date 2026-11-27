@@ -65,11 +65,6 @@ export namespace HumanMountOffSupports {
   export type Offset = (elapsed: number) => IAutoMovieRigidTransform;
 
   /*
-   * A stationary frame has neither linear nor angular motion.
-   */
-  const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-  /*
    * Prepare a named entry plant from its displayed ankle and knee. The raw
    * goal supplies the material ball socket, and the displayed joints supply
    * the branch the solver actually chose.
@@ -302,6 +297,11 @@ export namespace HumanMountOffSupports {
       };
     };
   }
+
+  /*
+   * A stationary frame has neither linear nor angular motion.
+   */
+  const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
   /*
    * A measured world twist at the exact outgoing support boundary.

@@ -14,39 +14,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanRide } from "../../lexicon/internal/HumanRide";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-
-/*
- * World vertical.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-/*
- * Seconds each change of posture takes, centred on the seat's turning point
- * (provisional staging).
- */
-const TURN: number = 0.3;
-/*
- * Sampling step that locates the seat's turning points, seconds: finer than any
- * swing's half period.
- */
-const STEP: number = 1 / 120;
-
-/*
- * How far past the straightened arm's reach a shoulder may lie from the wrist
- * its chain grip takes at full lean, metres: the 10 mm skin a held site allows
- * its hand.
- */
-const SLIP: number = 0.01;
-
-/*
- * Knee flexion of the tucked and of the extended seated posture, degrees
- * (provisional staging).
- */
-const TUCKED: number = 90;
-
-/*
- * Knee flexion with the legs extended forward, degrees (provisional staging).
- */
-const EXTENDED: number = 15;
+import * as HumanSwingPumpData from "./HumanSwingPumpData";
 
 /*
  * Pump a swing from the seat: the seated ride with the hands on the chains
@@ -91,7 +59,7 @@ export function HumanSwingPump(
     params: { on, duration: seconds, seat, hands },
   });
   const facing: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle(UP, context.entry.posture.yaw),
+    Quaternion.fromAxisAngle(HumanSwingPumpData.UP, context.entry.posture.yaw),
     { x: 0, y: 0, z: 1 },
   );
   const seatAt = (at: number): IAutoMovieVector3 =>
@@ -99,27 +67,27 @@ export function HumanSwingPump(
       .point;
   const forward = (at: number): number =>
     Vector3.dot(
-      Vector3.subtract(seatAt(at + STEP / 2), seatAt(at - STEP / 2)),
+      Vector3.subtract(seatAt(at + HumanSwingPumpData.STEP / 2), seatAt(at - HumanSwingPumpData.STEP / 2)),
       facing,
     );
 
   // The turning points: where the seat's velocity along the facing changes sign.
   const turns: number[] = [];
   let previous: number = forward(0);
-  for (let at: number = STEP; at <= ride.duration; at += STEP) {
+  for (let at: number = HumanSwingPumpData.STEP; at <= ride.duration; at += HumanSwingPumpData.STEP) {
     const now: number = forward(at);
     if (now !== 0 && previous !== 0 && Math.sign(now) !== Math.sign(previous))
-      turns.push(at - STEP / 2);
+      turns.push(at - HumanSwingPumpData.STEP / 2);
     if (now !== 0) previous = now;
   }
-  const first: number = forward(STEP) > 0 ? 1 : 0;
+  const first: number = forward(HumanSwingPumpData.STEP) > 0 ? 1 : 0;
 
   // 1 leaning back with the legs extended, 0 sitting up tucked.
   const pumped = (at: number): number => {
     let share: number = first;
     for (const turn of turns) {
       const progress: number = AutoMovieEngineMotionSampling.minimumJerkShare(
-        (at - (turn - TURN / 2)) / TURN,
+        (at - (turn - HumanSwingPumpData.TURN / 2)) / HumanSwingPumpData.TURN,
       );
       if (progress <= 0) break;
       share = share + (1 - 2 * share) * progress;
@@ -136,7 +104,7 @@ export function HumanSwingPump(
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];
-    const knee: number = TUCKED + (EXTENDED - TUCKED) * share;
+    const knee: number = HumanSwingPumpData.TUCKED + (HumanSwingPumpData.EXTENDED - HumanSwingPumpData.TUCKED) * share;
     const left: readonly [number, number, number] = posture.joints
       .leftLowerLeg ?? [0, 0, 0];
     const right: readonly [number, number, number] = posture.joints
@@ -180,7 +148,7 @@ export function HumanSwingPump(
       const slip: number =
         Vector3.distance(bones.get(`${side}UpperArm`)!.worldPosition, wrist) -
         (context.body.measure.upperArm + context.body.measure.forearm);
-      if (slip > SLIP)
+      if (slip > HumanSwingPumpData.SLIP)
         throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "lean",
@@ -193,7 +161,6 @@ export function HumanSwingPump(
   }
   return { ...ride, posture: pumping };
 }
-
 /*
  * The swing angle a seated rider's change of posture adds at a turning point.
  */

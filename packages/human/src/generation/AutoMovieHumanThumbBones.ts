@@ -14,11 +14,6 @@ import { AutoMovieHumanHandDigitBones } from "./AutoMovieHumanHandDigitBones";
 import { AutoMovieHumanHandPosture } from "./AutoMovieHumanHandPosture";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { sub, plus, scale, norm, unit, dot }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-const { onBones }: typeof AutoMovieHumanHandDigitBones =
-  AutoMovieHumanHandDigitBones;
-
 /**
  * The thumb on its bones, the fingers' structure with the thumb's own
  * joints: from its root at the web along its metacarpal to its
@@ -97,3 +92,9 @@ export namespace AutoMovieHumanThumbBones {
     return unit(plus(scale(dir, Math.cos(r)), scale(n, Math.sin(r))));
   }
 }
+
+const { sub, plus, scale, norm, unit, dot }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+
+const { onBones }: typeof AutoMovieHumanHandDigitBones =
+  AutoMovieHumanHandDigitBones;

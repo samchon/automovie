@@ -250,6 +250,19 @@ export namespace AutoMovieArchetypeEquineGait {
     hind: 0.05,
   };
 
+  /**
+   * The horse's gait table: walk to trot at `FROUDE`, trot to canter at
+   * `GALLOP` for the horse's mass, and canter to gallop at the middle of the
+   * two gaits' overlapping measured ranges, provisional for want of a measured
+   * change. Passage and piaffe are explicit-only and collected out of the trot.
+   * Passage lands each hind 0.03 of a stride before its diagonal fore, the 30
+   * ms positive diagonal advanced placement over a stride near one second
+   * (Weishaupt et al. 2009 and Holmström et al. 1994, as Clayton and Hobbs 2019
+   * report them); piaffe lands the diagonals together, the limb phase 0.5 of
+   * the Olympic horses in Clayton 1997.
+   */
+  export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = createTable();
+
   /*
    * One of the horse's gaits gathered from the measured tables: its rows,
    * phases, bob and nod range, the walk's fold and lift or the trot's for the
@@ -278,96 +291,87 @@ export namespace AutoMovieArchetypeEquineGait {
     };
   }
 
-  /*
-   * Reduction of the dressage horses' clocks to `REFERENCE` by the table's own
-   * dynamic similarity: their heights are not reported, so the warmblood
-   * `WARMBLOOD` height stands for them, provisional.
-   */
-  const DRESSAGE: number = Math.sqrt(WARMBLOOD / REFERENCE);
+  function createTable(): AutoMovieArchetypeQuadrupedGait.ITable {
+    /*
+     * Reduction of the dressage horses' clocks to `REFERENCE` by the table's own
+     * dynamic similarity: their heights are not reported, so the warmblood
+     * `WARMBLOOD` height stands for them, provisional.
+     */
+    const DRESSAGE: number = Math.sqrt(WARMBLOOD / REFERENCE);
 
-  /*
-   * The collected diagonal gaits' shared clock rows, reduced to `REFERENCE` by
-   * `DRESSAGE`. Piaffe: stride 1.11 s (SD 0.10) and stride length 0.37 m, so
-   * 0.333 m/s; passage: stride 1.09 s (SD 0.14) and 1.67 m, so 1.532 m/s; both
-   * the means of four Grand Prix horses (Andersson 2020, Kinematic gait
-   * analysis of horses performing piaffe, passage and extended trot, SLU, Table
-   * 1, https://stud.epsilon.slu.se/15818/). Piaffe stance 0.60 s fore and 0.65
-   * s hind (Clayton and Hobbs 2021, Animals 11:436, Table 1, seven horses).
-   * Passage stance is derived from its 52 ms aerial phase (Clayton 1997, as
-   * Clayton and Hobbs 2019 report it, Animals 9:763,
-   * https://doi.org/10.3390/ani9100763): two equal diagonal stances fill the
-   * stride less two suspensions, (1.09 - 2 × 0.052) / 2 = 0.493 s. The speeds
-   * between the two rows interpolate the measured piaffe and passage, the
-   * continuum a horse passes through in their transitions.
-   */
-  const COLLECTED: readonly AutoMovieArchetypeQuadrupedGait.IRow[] = [
-    {
-      speed: 0.37 / 1.11 / DRESSAGE,
-      stride: 1.11 / DRESSAGE,
-      deviation: 0.1 / DRESSAGE,
-      stance: 0.6 / DRESSAGE,
-      hindStance: 0.65 / DRESSAGE,
-    },
-    {
-      speed: 1.67 / 1.09 / DRESSAGE,
-      stride: 1.09 / DRESSAGE,
-      deviation: 0.14 / DRESSAGE,
-      stance: 0.493 / DRESSAGE,
-      hindStance: 0.493 / DRESSAGE,
-    },
-  ];
+    /*
+     * The collected diagonal gaits' shared clock rows, reduced to `REFERENCE` by
+     * `DRESSAGE`. Piaffe: stride 1.11 s (SD 0.10) and stride length 0.37 m, so
+     * 0.333 m/s; passage: stride 1.09 s (SD 0.14) and 1.67 m, so 1.532 m/s; both
+     * the means of four Grand Prix horses (Andersson 2020, Kinematic gait
+     * analysis of horses performing piaffe, passage and extended trot, SLU, Table
+     * 1, https://stud.epsilon.slu.se/15818/). Piaffe stance 0.60 s fore and 0.65
+     * s hind (Clayton and Hobbs 2021, Animals 11:436, Table 1, seven horses).
+     * Passage stance is derived from its 52 ms aerial phase (Clayton 1997, as
+     * Clayton and Hobbs 2019 report it, Animals 9:763,
+     * https://doi.org/10.3390/ani9100763): two equal diagonal stances fill the
+     * stride less two suspensions, (1.09 - 2 × 0.052) / 2 = 0.493 s. The speeds
+     * between the two rows interpolate the measured piaffe and passage, the
+     * continuum a horse passes through in their transitions.
+     */
+    const COLLECTED: readonly AutoMovieArchetypeQuadrupedGait.IRow[] = [
+      {
+        speed: 0.37 / 1.11 / DRESSAGE,
+        stride: 1.11 / DRESSAGE,
+        deviation: 0.1 / DRESSAGE,
+        stance: 0.6 / DRESSAGE,
+        hindStance: 0.65 / DRESSAGE,
+      },
+      {
+        speed: 1.67 / 1.09 / DRESSAGE,
+        stride: 1.09 / DRESSAGE,
+        deviation: 0.14 / DRESSAGE,
+        stance: 0.493 / DRESSAGE,
+        hindStance: 0.493 / DRESSAGE,
+      },
+    ];
 
-  /*
-   * One collected diagonal gait: the shared `COLLECTED` clock, the trot's
-   * carriage, fold and lift ranges, and the FEI hoof heights. The FEI's
-   * guideline (as Clayton and Hobbs 2019 quote it) raises the fore toe level
-   * with the middle of the supporting fore cannon and the hind toe just above
-   * the fetlock in both passage and piaffe, so the elevation is 0.5 fore and 0
-   * hind along the cannon.
-   * Parameter phases: When each hoof lands, from the left fore's landing.
-   * Returns: The gait.
-   */
-  function collected(
-    phases: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>>,
-  ): AutoMovieArchetypeQuadrupedGait.IGait {
+    /*
+     * One collected diagonal gait: the shared `COLLECTED` clock, the trot's
+     * carriage, fold and lift ranges, and the FEI hoof heights. The FEI's
+     * guideline (as Clayton and Hobbs 2019 quote it) raises the fore toe level
+     * with the middle of the supporting fore cannon and the hind toe just above
+     * the fetlock in both passage and piaffe, so the elevation is 0.5 fore and 0
+     * hind along the cannon.
+     * Parameter phases: When each hoof lands, from the left fore's landing.
+     * Returns: The gait.
+     */
+    function collected(
+      phases: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>>,
+    ): AutoMovieArchetypeQuadrupedGait.IGait {
+      return {
+        ...gathered("trot", "bob"),
+        rows: COLLECTED,
+        phases,
+        elevation: { fore: 0.5, hind: 0 },
+      };
+    }
+
     return {
-      ...gathered("trot", "bob"),
-      rows: COLLECTED,
-      phases,
-      elevation: { fore: 0.5, hind: 0 },
+      order: GAITS,
+      explicit: ["passage", "piaffe"],
+      collected: { passage: "trot", piaffe: "trot" },
+      gaits: {
+        walk: gathered("walk", "support"),
+        trot: gathered("trot", "bob", { kind: "froude", froude: FROUDE }),
+        canter: gathered("canter", "lead", { kind: "mass", ...GALLOP }),
+        gallop: gathered("gallop", "lead", { kind: "overlap" }),
+        passage: collected({
+          leftFore: 0,
+          rightFore: 0.5,
+          leftHind: 0.47,
+          rightHind: 0.97,
+        }),
+        piaffe: collected(PHASES.trot),
+      },
+      reference: REFERENCE,
+      hysteresis: HYSTERESIS,
+      follow: FOLLOW,
     };
   }
-
-  /**
-   * The horse's gait table: walk to trot at `FROUDE`, trot to canter at
-   * `GALLOP` for the horse's mass, and canter to gallop at the middle of the
-   * two gaits' overlapping measured ranges, provisional for want of a measured
-   * change. Passage and piaffe are explicit-only and collected out of the trot.
-   * Passage lands each hind 0.03 of a stride before its diagonal fore, the 30
-   * ms positive diagonal advanced placement over a stride near one second
-   * (Weishaupt et al. 2009 and Holmström et al. 1994, as Clayton and Hobbs 2019
-   * report them); piaffe lands the diagonals together, the limb phase 0.5 of
-   * the Olympic horses in Clayton 1997.
-   */
-  export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
-    order: GAITS,
-    explicit: ["passage", "piaffe"],
-    collected: { passage: "trot", piaffe: "trot" },
-    gaits: {
-      walk: gathered("walk", "support"),
-      trot: gathered("trot", "bob", { kind: "froude", froude: FROUDE }),
-      canter: gathered("canter", "lead", { kind: "mass", ...GALLOP }),
-      gallop: gathered("gallop", "lead", { kind: "overlap" }),
-      passage: collected({
-        leftFore: 0,
-        rightFore: 0.5,
-        leftHind: 0.47,
-        rightHind: 0.97,
-      }),
-      piaffe: collected(PHASES.trot),
-    },
-    reference: REFERENCE,
-    hysteresis: HYSTERESIS,
-    follow: FOLLOW,
-  };
 }

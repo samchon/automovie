@@ -18,78 +18,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
 
 /*
- * Seconds the faller hangs when the scene states none.
- */
-const HOLD: number = 1.2;
-
-/*
- * The least hang, seconds, the rescuer needs to get down at the lip
- * (provisional: a drop to prone).
- */
-const DROP: number = 0.8;
-
-/*
- * The rescuer's shoulder past the lip when the scene states none, metres.
- */
-const REACH: number = 0.1;
-
-/*
- * The share of the arm's length the hanging grip lies below the shoulders
- * (provisional: the arm reached down nearly straight).
- */
-const HANG: number = 0.95;
-
-/*
- * Seconds the catch takes to stop the fall in the grip (provisional).
- */
-const ARREST: number = 0.3;
-
-/*
- * Seconds of the haul to above the lip (provisional).
- */
-const HAUL: number = 2;
-
-/*
- * Seconds the faller takes to get a knee over and kneel up (provisional).
- */
-const KNEEL: number = 1.2;
-
-/*
- * How far above the lip the grip is hauled, metres (provisional: chest height
- * of a kneeling rescuer).
- */
-const LIFT: number = 0.35;
-
-/*
- * How far back from the lip the haul ends, metres (provisional).
- */
-const BACK: number = 0.5;
-
-/*
- * Static friction of the rescuer's clothing and skin on the top, dimensionless
- * (provisional).
- */
-const GROUND_FRICTION: number = 0.6;
-
-/*
- * Friction of the arm over the lip, dimensionless, wrapped through a quarter
- * turn (provisional).
- */
-const LIP_FRICTION: number = 0.5;
-
-/*
- * The rescuer's centre of mass behind the shoulders lying prone, hip heights
- * (provisional: about the navel).
- */
-const COM_BEHIND: number = 0.45;
-
-/*
- * The least margin the rescuer's centre of mass keeps behind the lip, metres
- * (provisional).
- */
-const MARGIN: number = 0.15;
-
-/*
  * The edge rescue's shared scene, the same for both roles: the lip and the
  * edge's frame, the timeline (the hang, the release, the catch, the haul and
  * the kneel) and the grip's path. The faller's hands hang on the lip; at
@@ -365,3 +293,75 @@ export namespace edgeRescueScene {
     });
   }
 }
+
+/*
+ * Seconds the faller hangs when the scene states none.
+ */
+const HOLD: number = 1.2;
+
+/*
+ * The least hang, seconds, the rescuer needs to get down at the lip
+ * (provisional: a drop to prone).
+ */
+const DROP: number = 0.8;
+
+/*
+ * The rescuer's shoulder past the lip when the scene states none, metres.
+ */
+const REACH: number = 0.1;
+
+/*
+ * The share of the arm's length the hanging grip lies below the shoulders
+ * (provisional: the arm reached down nearly straight).
+ */
+const HANG: number = 0.95;
+
+/*
+ * Seconds the catch takes to stop the fall in the grip (provisional).
+ */
+const ARREST: number = 0.3;
+
+/*
+ * Seconds of the haul to above the lip (provisional).
+ */
+const HAUL: number = 2;
+
+/*
+ * Seconds the faller takes to get a knee over and kneel up (provisional).
+ */
+const KNEEL: number = 1.2;
+
+/*
+ * How far above the lip the grip is hauled, metres (provisional: chest height
+ * of a kneeling rescuer).
+ */
+const LIFT: number = 0.35;
+
+/*
+ * How far back from the lip the haul ends, metres (provisional).
+ */
+const BACK: number = 0.5;
+
+/*
+ * Static friction of the rescuer's clothing and skin on the top, dimensionless
+ * (provisional).
+ */
+const GROUND_FRICTION: number = 0.6;
+
+/*
+ * Friction of the arm over the lip, dimensionless, wrapped through a quarter
+ * turn (provisional).
+ */
+const LIP_FRICTION: number = 0.5;
+
+/*
+ * The rescuer's centre of mass behind the shoulders lying prone, hip heights
+ * (provisional: about the navel).
+ */
+const COM_BEHIND: number = 0.45;
+
+/*
+ * The least margin the rescuer's centre of mass keeps behind the lip, metres
+ * (provisional).
+ */
+const MARGIN: number = 0.15;

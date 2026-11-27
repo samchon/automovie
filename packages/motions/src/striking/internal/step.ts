@@ -26,11 +26,6 @@ import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
 /*
- * Both canonical feet, in contact publication order.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/*
  * Fighting-stance footwork: steps that keep the stance, the foot on the side of
  * travel moving first and the other following to restore the stance without
  * crossing (IBA coaching manual pp. 36 to 39: forward, the lead foot then the
@@ -393,6 +388,11 @@ export namespace step {
     return { windows, opening, contacts };
   }
 }
+
+/*
+ * Both canonical feet, in contact publication order.
+ */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /*
  * The record of `IPlanProgressResult`'s site.

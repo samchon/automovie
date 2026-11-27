@@ -54,28 +54,155 @@ export namespace AutoMovieEngineAnalysis {
     return autoMovieAnalysisMetricImplementation(props);
   }
 
-  /** Solve one acoustic request and return its sealed analysis run. */
+  /**
+   * Solve one room for reverberation, equipment noise and partition performance.
+   *
+   * Three closed forms, each stated so a reader can check the arithmetic:
+   *
+   * - The Sabine absorption `A = sum(S * alpha)` and `T60 = 0.161 * V / A`;
+   * - The room constant `R = A / (1 - alpha_mean)`, and at each receiver `Lp = 10 *
+   *   log10(sum over sources of 10^(Lw/10) * (Q / (4*pi*r^2) + 4/R))`, the direct
+   *   field plus the diffuse field;
+   * - The composite transmission loss `R_c = -10 * log10(sum(tau * S) / sum(S))`
+   *   with `tau = 10^(-R/10)`, which is why one weak panel dominates a strong
+   *   wall.
+   *
+   * The exclusions are stated as loudly as the results. A single broadband
+   * absorption coefficient cannot produce a speech transmission index, which
+   * needs a modulation transfer function over an impulse response, so that metric
+   * is `unsupported` rather than estimated.
+   *
+   * The reverberation time, the room constant and the receiver level are all
+   * statements about a diffuse field, so all three gap wherever there is none: a
+   * room that absorbs nothing rings forever, and a room that absorbs everything
+   * never rings at all. Neither extreme is reported as a number. The second is
+   * the one worth naming, because Sabine does not diverge there but keeps
+   * returning `0.161 * V / A`, a positive decay time for an anechoic chamber,
+   * which is the arithmetic of the model rather than a property of the room.
+   *
+   * A receiver whose energy underflows to zero or overflows to infinity in double
+   * precision has no level, so the level metrics gap with a reason naming which
+   * bound was crossed.
+   *
+   * Throws on a malformed request (see {@link IAutoMovieAcousticRequest}), on a
+   * receiver within `1e-12` m of a source, and when the sealed run would fail
+   * validation; otherwise the run is always `solved`, with one sound-pressure
+   * sample per receiver when a level exists.
+   */
   export function acoustics(
     props: IAutoMovieAnalyzeAcoustics.IProps,
   ): IAutoMovieAnalysisRun {
     return analyzeAutoMovieAcoustics(props);
   }
 
-  /** Measure one daylight workplane and return its sealed analysis run. */
+  /**
+   * Measure one workplane under one declared instant, one set of shades and one
+   * set of luminaires.
+   *
+   * The governing model is stated and bounded rather than implied:
+   *
+   * - Beam illuminance is `DNI * max(0, dot(n, s))`, zeroed when any solid stops
+   *   the ray to the sun;
+   * - Sky illuminance is the isotropic vault `DHI * V`, where `V` is the fraction
+   *   of a cosine-weighted hemisphere that reaches the sky unobstructed and above
+   *   the reference ground. An unobstructed ground-facing-up plane has V=1;
+   *   tilted or shaded planes retain sampling error;
+   * - Each luminaire contributes `I * max(0, dot(n, d)) / r^2`, zeroed when a solid
+   *   stands between the fitting and the point;
+   * - Ground-reflected light is **not** modelled, and says so as an `unsupported`
+   *   metric rather than being quietly folded into the sky term.
+   *
+   * Anything the solver cannot answer is reported rather than approximated. A sky
+   * model it does not implement returns an `unsupported` run; a study with
+   * neither a sun nor a fitting returns `not-run`; a contrast ratio over a plane
+   * with a dark point returns a gap, because `max / 0` is not a large number, it
+   * is not a number.
+   *
+   * Settings text covers the declared study fields and preserves list order;
+   * equivalent covered JSON values repeat the digest, while ignored fields,
+   * signed zero and possible hash collisions limit identity claims.
+   *
+   * The cosine-weighted sky estimate is exact only for an unobstructed plane
+   * whose hemisphere lies wholly above the reference ground; a tilted or shaded
+   * plane's sky term depends on `diffuseSamples`. This identity is mathematical:
+   * binary64 light products and summation can overflow, and nonfinite computed
+   * metrics throw even when scalar inputs were admitted.
+   */
   export function daylight(
     props: IAutoMovieAnalyzeDaylight.IProps,
   ): IAutoMovieAnalysisRun {
     return analyzeAutoMovieDaylight(props);
   }
 
-  /** Solve one envelope request as paired thermal and moisture runs. */
+  /**
+   * Solve one envelope for heat and for surface condensation, as two runs.
+   *
+   * Two runs rather than one because heat and moisture are two domains a report
+   * rolls up separately: a wall may be warm enough and still wet, and one merged
+   * verdict would let either fact hide the other. Both read the same inputs and
+   * carry the same settings digest, so they are provably about the same
+   * envelope.
+   *
+   * The governing model is the one-dimensional steady-state network, stated
+   * exactly:
+   *
+   * - `R = Rsi + sum(t / lambda) + Rse`, and `U = 1 / R`;
+   * - The interior surface sits at `Tsi = Ti - U * Rsi * (Ti - Te)`, so the
+   *   temperature factor `fRsi = (Tsi - Te) / (Ti - Te)` reduces exactly to `1 -
+   *   U*Rsi` and needs no temperatures at all;
+   * - Fabric loss is `sum(U * A) * dT` and linear bridges add `sum(psi * L) * dT`;
+   * - The dew point comes from `autoMovieDewPoint`, the Magnus form, and surface
+   *   condensation is `Tsi <= Td`.
+   *
+   * What it does not do, it says. Condensation inside the build-up, which needs
+   * vapour diffusion, and solar gain through glazing each appear as an
+   * `unsupported` metric with the exact reason, because an envelope study that
+   * quietly omitted them would read as a complete answer. Transient storage is
+   * excluded by the steady-state model itself, which the solver's model text
+   * states.
+   *
+   * Without an exterior boundary condition there is no answer at all, and both
+   * runs come back `not-run` naming the missing input rather than assuming a
+   * temperature nobody declared.
+   *
+   * The Magnus coefficients are fitted over roughly -45 to 60 degC, and an indoor
+   * temperature outside that range is not refused. Throws on malformed requests
+   * or a nonfinite computed metric; finite positive fields alone do not prevent
+   * resistance/temperature overflow, underflow or dew-point singularities.
+   */
   export function envelope(
     props: IAutoMovieAnalyzeEnvelope.IProps,
   ): IAutoMovieAnalyzeEnvelope.IResult {
     return analyzeAutoMovieEnvelope(props);
   }
 
-  /** Solve one well-mixed space-air request and return its sealed run. */
+  /**
+   * Solve one space for ventilation, and refuse to pretend it solved the air.
+   *
+   * What a well-mixed zone model can answer, it answers exactly: the air change
+   * rate `n = 3600 * Q / V`, the outdoor air per person `1000 * Q / N`, and the
+   * steady-state contaminant balance `C = Co + 1e6 * N * G / Q`. Those are
+   * closed-form and are checked against hand arithmetic.
+   *
+   * What it cannot answer, it refuses to. Air stagnation and a velocity field are
+   * properties of a flow solution, and no amount of zone arithmetic produces one,
+   * so both are `unsupported` metrics naming exactly what is missing. This is the
+   * whole point of the contract: the honest answer to "where does the air sit
+   * still" is that this host does not know, and a number invented here would be
+   * indistinguishable from one that was computed.
+   *
+   * A zero supply flow leaves the steady-state concentration a gap whose reason
+   * depends on the generation `N * G`: with occupants generating carbon dioxide
+   * it rises without bound, and with none it stays wherever it starts, so no
+   * steady state is unique either way.
+   *
+   * Throws on a malformed request (see {@link IAutoMovieSpaceAirRequest}). The
+   * returned run is always `solved` and carries no spatial samples.
+   *
+   * Finite admitted inputs can still overflow or underflow intermediate
+   * arithmetic; a nonfinite metric throws through the shared builder instead of
+   * becoming a fabricated measurement.
+   */
   export function spaceAir(
     props: IAutoMovieAnalyzeSpaceAir.IProps,
   ): IAutoMovieAnalysisRun {

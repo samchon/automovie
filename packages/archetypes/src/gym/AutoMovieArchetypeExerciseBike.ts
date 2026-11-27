@@ -9,18 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The maker's bike read.
- */
-const PELOTON: string =
-  "Peloton Bike user manual, specifications: 135 lb (61 kg), a 4 x 2 ft (120 x 60 cm) footprint (https://manualshive.com/en/manual/peloton/pl-01/1523449?page=7)";
-
-/*
- * What no source read gives.
- */
-const UNREAD: string =
-  "the Peloton manual read lists the saddle and the handlebar as adjustable but gives no figure";
+import * as AutoMovieArchetypeExerciseBikeData from "./internal/AutoMovieArchetypeExerciseBikeData";
 
 /** Constructs the exercise bike archetype from its recipe. */
 export namespace AutoMovieArchetypeExerciseBike {
@@ -298,16 +287,16 @@ export function create(
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    saddleHeight: AutoMovieArchetypeBand.metres(0.8, 1.05, UNREAD, true),
-    handlebarHeight: AutoMovieArchetypeBand.metres(0.95, 1.2, UNREAD, true),
-    handlebarWidth: AutoMovieArchetypeBand.metres(0.45, 0.55, UNREAD, true),
-    saddleWidth: AutoMovieArchetypeBand.metres(0.14, 0.18, UNREAD, true),
+    saddleHeight: AutoMovieArchetypeBand.metres(0.8, 1.05, AutoMovieArchetypeExerciseBikeData.UNREAD, true),
+    handlebarHeight: AutoMovieArchetypeBand.metres(0.95, 1.2, AutoMovieArchetypeExerciseBikeData.UNREAD, true),
+    handlebarWidth: AutoMovieArchetypeBand.metres(0.45, 0.55, AutoMovieArchetypeExerciseBikeData.UNREAD, true),
+    saddleWidth: AutoMovieArchetypeBand.metres(0.14, 0.18, AutoMovieArchetypeExerciseBikeData.UNREAD, true),
     crank: AutoMovieArchetypeBand.metres(
       0.165,
       0.175,
       "the common 165 to 175 mm crank arms; the Peloton manual read gives no crank length",
       true,
     ),
-    mass: AutoMovieArchetypeBand.of("kg", 61, 61, PELOTON),
+    mass: AutoMovieArchetypeBand.of("kg", 61, 61, AutoMovieArchetypeExerciseBikeData.PELOTON),
   };
 }

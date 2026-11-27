@@ -143,15 +143,6 @@ export namespace KickChain {
   }
 
   /*
-   * How many times a fit is repeated from its own answer. Each round moves the
-   * ankle's goal by the weapon's remaining error, which shrinks geometrically
-   * when the leg can reach the point; provisional, chosen so a first error of a
-   * tenth of a metre halving each round ends under the contact tolerance
-   * (KickForm.TOLERANCE).
-   */
-  const REFITS: number = 8;
-
-  /*
    * How far short of a weightless ankle's dorsiflexion
    * (`ANKLE_DORSIFLEXION.unloaded`) the push foot is asked to stay, degrees:
    * the fitted foot turns a little from the asked one (provisional, as
@@ -427,6 +418,15 @@ export namespace KickChain {
       ? Vector3.add(props.direction, Vector3.scale(up, KickForm.BEND_RISE))
       : Vector3.add(up, props.line);
   }
+
+  /*
+   * How many times a fit is repeated from its own answer. Each round moves the
+   * ankle's goal by the weapon's remaining error, which shrinks geometrically
+   * when the leg can reach the point; provisional, chosen so a first error of a
+   * tenth of a metre halving each round ends under the contact tolerance
+   * (KickForm.TOLERANCE).
+   */
+  const REFITS: number = 8;
 
   /*
    * The ball of the kicking foot from its ankle under the push kick's rotation,

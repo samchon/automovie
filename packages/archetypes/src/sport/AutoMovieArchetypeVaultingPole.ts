@@ -9,12 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The rule that leaves the pole's size free.
- */
-const RULE: string =
-  "World Athletics Competition Rules, Book C2.1, Rule 28.8 (pole vault): the pole may be of any material or combination of materials and of any length or diameter, the basic surface smooth (https://worldathletics.org/about-iaaf/documents/book-of-rules)";
+import * as AutoMovieArchetypeVaultingPoleData from "./internal/AutoMovieArchetypeVaultingPoleData";
 
 /** Constructs the vaulting pole archetype from its recipe. */
 export namespace AutoMovieArchetypeVaultingPole {
@@ -326,7 +321,7 @@ export function create(
     diameter: AutoMovieArchetypeBand.metres(
       0.03,
       0.045,
-      `${RULE}; an estimate of a fibreglass pole's outer diameter; the UCS Spirit pages read give no diameter`,
+      `${AutoMovieArchetypeVaultingPoleData.RULE}; an estimate of a fibreglass pole's outer diameter; the UCS Spirit pages read give no diameter`,
       true,
     ),
     hold: AutoMovieArchetypeBand.metres(

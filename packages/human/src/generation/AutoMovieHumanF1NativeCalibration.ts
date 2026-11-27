@@ -15,9 +15,11 @@ import { AutoMovieHumanNativeCalipers as Calipers } from "./AutoMovieHumanNative
 import { AutoMovieHumanNativeProjectionCourse as Course } from "./AutoMovieHumanNativeProjectionCourse";
 import { AutoMovieHumanNativeScaleProfile as Profile } from "./AutoMovieHumanNativeScaleProfile";
 import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
-import { AutoMovieHumanF1NativeSites as Sites } from "./AutoMovieHumanF1NativeSites";
+import "./AutoMovieHumanF1NativeSites";
+import type { AutoMovieHumanF1NativeSites as Sites } from "./AutoMovieHumanF1NativeSites";
 import { AutoMovieHumanF1RootRails } from "./AutoMovieHumanF1RootRails";
 import { AutoMovieHumanF1SegmentLengths as Lengths } from "./AutoMovieHumanF1SegmentLengths";
+import * as AutoMovieHumanF1NativeCalibrationData from "./internal/AutoMovieHumanF1NativeCalibrationData";
 
 /**
  * F1's native calibration: the calipers of her stored families at the
@@ -41,11 +43,6 @@ export namespace AutoMovieHumanF1NativeCalibration {
     projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner;
   }
 
-  /*
-   * F1's sites by their definitions, from their one owner.
-   */
-  const SITES: Sites.ISites = Sites.REFERENCE;
-
   /**
    * The trunk wall's caliper sites on the trunk course, mm, from the site owner
    * (`AutoMovieHumanF1NativeSites`): ISO 8559-1 5.3.13 hip level, ANSUR II
@@ -55,12 +52,12 @@ export namespace AutoMovieHumanF1NativeCalibration {
    * (`AutoMovieHumanF1NativeFieldTypes.IFields.wall`).
    */
   export const WALL: readonly [keyof IFields["wall"], number][] = [
-    ["hipSkin", SITES.wall.hip.station],
-    ["omphalionWall", SITES.wall.omphalion.station],
-    ["underbustWall", SITES.wall.underbust.station],
-    ["bustWall", SITES.wall.bust.station],
-    ["neckSkin", SITES.wall.neck.station],
-    ["headSkin", SITES.wall.head.station],
+    ["hipSkin", AutoMovieHumanF1NativeCalibrationData.SITES.wall.hip.station],
+    ["omphalionWall", AutoMovieHumanF1NativeCalibrationData.SITES.wall.omphalion.station],
+    ["underbustWall", AutoMovieHumanF1NativeCalibrationData.SITES.wall.underbust.station],
+    ["bustWall", AutoMovieHumanF1NativeCalibrationData.SITES.wall.bust.station],
+    ["neckSkin", AutoMovieHumanF1NativeCalibrationData.SITES.wall.neck.station],
+    ["headSkin", AutoMovieHumanF1NativeCalibrationData.SITES.wall.head.station],
   ];
 
   /**
@@ -68,10 +65,10 @@ export namespace AutoMovieHumanF1NativeCalibration {
    * arm, elbow, maximum forearm girth and wrist over stylion.
    */
   export const ARM: readonly [keyof IFields["arm"], number][] = [
-    ["upperArm", SITES.arm.upperArm.station],
-    ["elbow", SITES.arm.elbow.station],
-    ["forearm", SITES.arm.forearm.station],
-    ["wrist", SITES.arm.wrist.station],
+    ["upperArm", AutoMovieHumanF1NativeCalibrationData.SITES.arm.upperArm.station],
+    ["elbow", AutoMovieHumanF1NativeCalibrationData.SITES.arm.elbow.station],
+    ["forearm", AutoMovieHumanF1NativeCalibrationData.SITES.arm.forearm.station],
+    ["wrist", AutoMovieHumanF1NativeCalibrationData.SITES.arm.wrist.station],
   ];
 
   /**
@@ -79,9 +76,9 @@ export namespace AutoMovieHumanF1NativeCalibration {
    * centre, widest calf and least ankle girth.
    */
   export const LEG: readonly [keyof IFields["leg"], number][] = [
-    ["knee", SITES.leg.knee.station],
-    ["calf", SITES.leg.calf.station],
-    ["ankle", SITES.leg.ankle.station],
+    ["knee", AutoMovieHumanF1NativeCalibrationData.SITES.leg.knee.station],
+    ["calf", AutoMovieHumanF1NativeCalibrationData.SITES.leg.calf.station],
+    ["ankle", AutoMovieHumanF1NativeCalibrationData.SITES.leg.ankle.station],
   ];
 
   /**
@@ -102,8 +99,8 @@ export namespace AutoMovieHumanF1NativeCalibration {
    * of foot circumference).
    */
   export const EXTREMITIES: Record<"hand" | "foot", number> = {
-    hand: SITES.extremities.hand.station,
-    foot: SITES.extremities.foot.station,
+    hand: AutoMovieHumanF1NativeCalibrationData.SITES.extremities.hand.station,
+    foot: AutoMovieHumanF1NativeCalibrationData.SITES.extremities.foot.station,
   };
 
   /**
@@ -248,7 +245,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
       kind: "finger" | "toe",
       family: IAutoMovieHumanF1.IDigit["family"],
     ): number => {
-      const site: Sites.IDigitSite = SITES.digits[kind];
+      const site: Sites.IDigitSite = AutoMovieHumanF1NativeCalibrationData.SITES.digits[kind];
       if (site.family !== family.name)
         throw new Error(
           "the " +

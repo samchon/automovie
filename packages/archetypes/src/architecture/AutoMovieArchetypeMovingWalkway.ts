@@ -10,30 +10,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { rideMovingWalkway } from "./internal/rideMovingWalkway";
+import * as AutoMovieArchetypeMovingWalkwayData from "./internal/AutoMovieArchetypeMovingWalkwayData";
 
-/*
- * The planning guide read for every autowalk figure below.
- */
-const KONE: string =
-  "KONE Planning Guide for Escalators & Autowalks, sections 5.3, 5.4, 5.8 and 5.12 (https://www.kone.co.uk/Images/Escalator%20planning%20guide%20GBIR_tcm45-86614.pdf)";
-
-/*
- * Construction sizes the guide does not give, provisional.
- */
-const ESTIMATE: string =
-  "Coarse film-set construction estimate; no source read gives it";
-
-/*
- * Thickness drawn for landing plates and the pallet band, metres (provisional
- * construction estimate).
- */
-const PLATE: number = 0.05;
-
-/*
- * Depth of each fixed landing plate drawn beyond a comb, metres (provisional
- * construction estimate).
- */
-const LANDING: number = 1;
 /** Creates a deterministic moving walkway fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeMovingWalkway {
   /**
@@ -204,19 +182,19 @@ export namespace AutoMovieArchetypeMovingWalkway {
     length: AutoMovieArchetypeBand.metres(
       10,
       250,
-      `${KONE}, 5.8 horizontal autowalk lengths`,
+      `${AutoMovieArchetypeMovingWalkwayData.KONE}, 5.8 horizontal autowalk lengths`,
     ),
     width: AutoMovieArchetypeBand.metres(
       1,
       1.4,
-      `${KONE}, 5.3 horizontal autowalk pallet widths`,
+      `${AutoMovieArchetypeMovingWalkwayData.KONE}, 5.3 horizontal autowalk pallet widths`,
     ),
     handrail: AutoMovieArchetypeBand.metres(
       0.9,
       1.1,
-      `${KONE}, 5.12 balustrade heights`,
+      `${AutoMovieArchetypeMovingWalkwayData.KONE}, 5.12 balustrade heights`,
     ),
-    mass: AutoMovieArchetypeBand.of("kg", 3000, 30000, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 3000, 30000, AutoMovieArchetypeMovingWalkwayData.ESTIMATE, true),
   };
 
   /**
@@ -331,3 +309,15 @@ export namespace AutoMovieArchetypeMovingWalkway {
     ): IAutoMovieTransform;
   }
 }
+
+/*
+ * Thickness drawn for landing plates and the pallet band, metres (provisional
+ * construction estimate).
+ */
+const PLATE: number = 0.05;
+
+/*
+ * Depth of each fixed landing plate drawn beyond a comb, metres (provisional
+ * construction estimate).
+ */
+const LANDING: number = 1;

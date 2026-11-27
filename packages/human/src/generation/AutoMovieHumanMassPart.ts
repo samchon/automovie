@@ -14,18 +14,6 @@ import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView
 import { AutoMovieHumanMassSource } from "./AutoMovieHumanMassSource";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 
-const {
-  add,
-  cross,
-  dot,
-  scale,
-  sub,
-  unit,
-}: Pick<
-  typeof AutoMovieSolidVector,
-  "add" | "cross" | "dot" | "scale" | "sub" | "unit"
-> = AutoMovieSolidVector;
-
 /**
  * A mass that rises from its host along the host's outward normal (a breast on
  * the chest wall, a gluteal mass on the pelvis, the patella on the knee, the
@@ -382,3 +370,15 @@ export namespace AutoMovieHumanMassPart {
     return { top: jets.at(-1)! };
   }
 }
+
+const {
+  add,
+  cross,
+  dot,
+  scale,
+  sub,
+  unit,
+}: Pick<
+  typeof AutoMovieSolidVector,
+  "add" | "cross" | "dot" | "scale" | "sub" | "unit"
+> = AutoMovieSolidVector;

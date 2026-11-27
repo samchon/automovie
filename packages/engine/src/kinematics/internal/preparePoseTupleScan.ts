@@ -7,11 +7,6 @@ import type {
 import type { preparePoseJointResolution } from "./preparePoseJointResolution";
 
 /*
- * An actually empty entry snapshot has no admission events or scalar storage.
- */
-const EMPTY_SCAN: preparePoseTupleScan.IScan = (): void => undefined;
-
-/*
  * Snapshot an authored tuple map before any root work or joint admission.
  * Object.entries captures every enumerable value first. All tuple components
  * then read in F/A/T order before numerical admission can start, preserving a
@@ -80,6 +75,11 @@ export namespace preparePoseTupleScan {
     >,
   ) => void;
 }
+
+/*
+ * An actually empty entry snapshot has no admission events or scalar storage.
+ */
+const EMPTY_SCAN: preparePoseTupleScan.IScan = (): void => undefined;
 
 /*
  * Clinical F/A/T values in degrees or null rest, in their original tuple order.

@@ -39,15 +39,6 @@ export namespace AutoMovieHumanDigitSpan {
     { width: 0.6, palmar: 0.58, dorsal: 0.35 },
   ];
 
-  /*
-   * The knot index at each phalanx's start.
-   */
-  const START: Record<IAutoMovieHumanDigitSpan.Phalanx, number> = {
-    proximal: 0,
-    middle: 1,
-    distal: 2,
-  };
-
   /**
    * The section shape at a share along a phalanx.
    *
@@ -91,4 +82,13 @@ export namespace AutoMovieHumanDigitSpan {
       dorsalApex: input.apex,
     };
   }
+
+  /*
+   * The knot index at each phalanx's start.
+   */
+  const START: Record<IAutoMovieHumanDigitSpan.Phalanx, number> = {
+    proximal: 0,
+    middle: 1,
+    distal: 2,
+  };
 }

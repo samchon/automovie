@@ -7,18 +7,6 @@ import type {
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
-/*
- * Maximum requested rectangular cells per original loop; exceeding it refuses
- * instead of coarsening.
- */
-const CELLS: number = 1_000_000;
-
-/*
- * Maximum dyadic refinement levels; an unresolved criterion remains a named
- * refusal.
- */
-const DEPTH: number = 16;
-
 /**
  * Source-owned piece grids for the existing mesh consumer, without a fitted
  * curve.
@@ -53,6 +41,18 @@ export namespace AutoMovieConstructionProfileGrid {
     return result;
   }
 }
+
+/*
+ * Maximum requested rectangular cells per original loop; exceeding it refuses
+ * instead of coarsening.
+ */
+const CELLS: number = 1_000_000;
+
+/*
+ * Maximum dyadic refinement levels; an unresolved criterion remains a named
+ * refusal.
+ */
+const DEPTH: number = 16;
 
 /*
  * Prepare one loop independently, so scratch dies before the next component.

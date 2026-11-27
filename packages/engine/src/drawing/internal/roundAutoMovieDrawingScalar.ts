@@ -1,11 +1,6 @@
 import { AUTOMOVIE_DRAWING_DECIMALS } from "../AUTOMOVIE_DRAWING_DECIMALS";
 
 /*
- * `10 ^ AUTOMOVIE_DRAWING_DECIMALS`, the grid's steps per metre.
- */
-const FACTOR: number = 10 ** AUTOMOVIE_DRAWING_DECIMALS;
-
-/*
  * Round one drawing scalar onto the fixed output grid of
  * AUTOMOVIE_DRAWING_DECIMALS decimal places.
  *
@@ -20,3 +15,8 @@ export const roundAutoMovieDrawingScalar = (value: number): number => {
   const rounded: number = Math.round(value * FACTOR) / FACTOR;
   return Object.is(rounded, -0) ? 0 : rounded;
 };
+
+/*
+ * `10 ^ AUTOMOVIE_DRAWING_DECIMALS`, the grid's steps per metre.
+ */
+const FACTOR: number = 10 ** AUTOMOVIE_DRAWING_DECIMALS;

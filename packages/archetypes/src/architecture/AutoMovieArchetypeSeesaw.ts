@@ -10,30 +10,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { rideSeesaw } from "./internal/rideSeesaw";
-
-/*
- * Construction sizes no source read gives, provisional.
- */
-const ESTIMATE: string =
-  "Coarse playground construction estimate; no source read gives it";
-
-/*
- * Seat height above the beam's axis, metres (provisional construction
- * estimate).
- */
-const SEAT: number = 0.08;
-
-/*
- * A handle's distance inboard of its seat, metres (provisional construction
- * estimate).
- */
-const HANDLE: number = 0.3;
-
-/*
- * A handle's height above its seat, metres: above a seated rider's thighs, so
- * the forearms reach it clear of them (provisional construction estimate).
- */
-const RISE: number = 0.45;
+import * as AutoMovieArchetypeSeesawData from "./internal/AutoMovieArchetypeSeesawData";
 
 /** Constructs the seesaw archetype from its recipe. */
 export namespace AutoMovieArchetypeSeesaw {
@@ -127,9 +104,9 @@ export function create(
 
   /** The dimensions' bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    pivot: AutoMovieArchetypeBand.metres(0.45, 0.65, ESTIMATE, true),
-    length: AutoMovieArchetypeBand.metres(2.8, 3.8, ESTIMATE, true),
-    mass: AutoMovieArchetypeBand.of("kg", 20, 60, ESTIMATE, true),
+    pivot: AutoMovieArchetypeBand.metres(0.45, 0.65, AutoMovieArchetypeSeesawData.ESTIMATE, true),
+    length: AutoMovieArchetypeBand.metres(2.8, 3.8, AutoMovieArchetypeSeesawData.ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 20, 60, AutoMovieArchetypeSeesawData.ESTIMATE, true),
   };
 
   /**
@@ -285,6 +262,24 @@ export function create(
     beam(seconds: number): IAutoMovieTransform;
   }
 }
+
+/*
+ * Seat height above the beam's axis, metres (provisional construction
+ * estimate).
+ */
+const SEAT: number = 0.08;
+
+/*
+ * A handle's distance inboard of its seat, metres (provisional construction
+ * estimate).
+ */
+const HANDLE: number = 0.3;
+
+/*
+ * A handle's height above its seat, metres: above a seated rider's thighs, so
+ * the forearms reach it clear of them (provisional construction estimate).
+ */
+const RISE: number = 0.45;
 
 /*
  * The handle id at one end of the beam for one of its rider's hands.

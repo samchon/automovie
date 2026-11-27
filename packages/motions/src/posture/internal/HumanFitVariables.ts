@@ -1,12 +1,6 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieAngleRange,
-  IAutoMovieMotionHumanJacobian,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanQuadraticProgram,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+import * as HumanFitVariablesData from "./HumanFitVariablesData";
 
 /*
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
@@ -21,43 +15,6 @@ import type {
  */
 export namespace HumanFitVariables {
   /*
-   * The joint angles of the whole body a fit moves: the trunk, the neck, the
-   * head and the four limbs, each a bone and its axis (flexion, abduction,
-   * twist). The trunk is the spine and the chest: the polygon man's rig carries
-   * spine, chest and neck and no `upperChest`, which the range table lists for
-   * rigs that have one, so it is not a variable here.
-   */
-  const ANGLES: readonly (readonly [AutoMovieHumanoidBone, ANGLESItem])[] = [
-    ["spine", 0],
-    ["spine", 1],
-    ["spine", 2],
-    ["chest", 0],
-    ["chest", 1],
-    ["neck", 0],
-    ["neck", 1],
-    ["head", 0],
-    ...(["left", "right"] as const).flatMap(
-      (
-        side: AutoMovieHumanSide,
-      ): (readonly [AutoMovieHumanoidBone, ANGLESItemResult])[] => [
-        [`${side}UpperLeg`, 0],
-        [`${side}UpperLeg`, 1],
-        [`${side}UpperLeg`, 2],
-        [`${side}LowerLeg`, 0],
-        [`${side}Foot`, 0],
-        [`${side}Foot`, 1],
-        [`${side}Toes`, 0],
-        [`${side}UpperArm`, 0],
-        [`${side}UpperArm`, 1],
-        [`${side}UpperArm`, 2],
-        [`${side}LowerArm`, 0],
-        [`${side}Hand`, 0],
-        [`${side}Hand`, 1],
-      ],
-    ),
-  ];
-
-  /*
    * The whole body's variables, the set a fit moves when none is given: the
    * root's place, its pitch and roll (the heading the law faces kept), then the
    * angles.
@@ -68,7 +25,7 @@ export namespace HumanFitVariables {
     { kind: "place", axis: "z" },
     { kind: "heading", axis: "pitch" },
     { kind: "heading", axis: "roll" },
-    ...ANGLES.map(
+    ...HumanFitVariablesData.ANGLES.map(
       ([bone, axis]: readonly [
         AutoMovieHumanoidBone,
         BODY2,
@@ -79,36 +36,6 @@ export namespace HumanFitVariables {
       }),
     ),
   ];
-
-  /*
-   * How far one step may move a variable, metres or degrees: the
-   * linearisation's widest trust region.
-   */
-  const STEP: readonly [number, number] = [0.08, 12];
-
-  /*
-   * A variable's resolution, metres or degrees: a change under it is no change
-   * of the posture a film shows.
-   */
-  const RESOLUTION: readonly [number, number] = [0.002, 0.25];
-
-  /*
-   * The unit a variable is solved in, in its own: a place in centimetres, an
-   * angle in degrees.
-   */
-  const UNIT: readonly [number, number] = [0.01, 1];
-
-  /*
-   * A place's weight per square metre, a heading's per square degree and a
-   * joint's per square degree.
-   */
-  const WEIGHT: readonly [number, number, number] = [1e4, 2, 1];
-
-  /*
-   * The existing absent-joint clinical zero, borrowed only while constructing a
-   * fresh owned tuple.
-   */
-  const ZERO_JOINT: readonly [number, number, number] = [0, 0, 0];
 
   /*
    * A posture's variables.
@@ -272,6 +199,36 @@ export namespace HumanFitVariables {
   }
 
   /*
+   * How far one step may move a variable, metres or degrees: the
+   * linearisation's widest trust region.
+   */
+  const STEP: readonly [number, number] = [0.08, 12];
+
+  /*
+   * A variable's resolution, metres or degrees: a change under it is no change
+   * of the posture a film shows.
+   */
+  const RESOLUTION: readonly [number, number] = [0.002, 0.25];
+
+  /*
+   * The unit a variable is solved in, in its own: a place in centimetres, an
+   * angle in degrees.
+   */
+  const UNIT: readonly [number, number] = [0.01, 1];
+
+  /*
+   * A place's weight per square metre, a heading's per square degree and a
+   * joint's per square degree.
+   */
+  const WEIGHT: readonly [number, number, number] = [1e4, 2, 1];
+
+  /*
+   * The existing absent-joint clinical zero, borrowed only while constructing a
+   * fresh owned tuple.
+   */
+  const ZERO_JOINT: readonly [number, number, number] = [0, 0, 0];
+
+  /*
    * A variable's range: unbounded for the root, the table's for a joint, null
    * for an axis the table locks.
    */
@@ -316,13 +273,3 @@ type IWrittenRoot = { x: number; y: number; z: number };
  * The alternatives of `BODY2`'s site.
  */
 type BODY2 = 0 | 1 | 2;
-
-/*
- * The alternatives of `ANGLESItemResult`'s site.
- */
-type ANGLESItemResult = 0 | 1 | 2;
-
-/*
- * The alternatives of `ANGLESItem`'s site.
- */
-type ANGLESItem = 0 | 1 | 2;

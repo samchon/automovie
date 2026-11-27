@@ -33,11 +33,6 @@ import type {
  */
 export namespace AutoMovieHumanConicPose {
 
-  /*
-   * Twists under this many radians are none: far above the rounding of an angle between unit vectors (1e-16), far below any joint's motion.
-   */
-  const NO_TWIST: number = 1e-12;
-
   /**
    * A turn's set-back as a share of its half arclength, by its angle: the engine's own preparation of a made corner of that angle with a
    * half of 1 mm between two segments of 1 km (the set-back is linear in the half and does not read the lengths). A straight joint has
@@ -139,20 +134,6 @@ export namespace AutoMovieHumanConicPose {
       starts,
       total: s + lengths.at(-1)! - (setbacks.at(-1) ?? 0),
     };
-  }
-
-  /*
-   * The stations where a course's law changes: its start, each turn's start and end, and its end.
-   */
-  function breaks(c: IAutoMovieHumanConicPose.ICourse): number[] {
-    return [
-      0,
-      ...c.starts.flatMap((start: number, i: number): number[] => [
-        start,
-        start + 2 * c.halves[i]!,
-      ]),
-      c.total,
-    ];
   }
 
   /**
@@ -288,5 +269,24 @@ export namespace AutoMovieHumanConicPose {
             }),
       },
     };
+  }
+
+  /*
+   * Twists under this many radians are none: far above the rounding of an angle between unit vectors (1e-16), far below any joint's motion.
+   */
+  const NO_TWIST: number = 1e-12;
+
+  /*
+   * The stations where a course's law changes: its start, each turn's start and end, and its end.
+   */
+  function breaks(c: IAutoMovieHumanConicPose.ICourse): number[] {
+    return [
+      0,
+      ...c.starts.flatMap((start: number, i: number): number[] => [
+        start,
+        start + 2 * c.halves[i]!,
+      ]),
+      c.total,
+    ];
   }
 }

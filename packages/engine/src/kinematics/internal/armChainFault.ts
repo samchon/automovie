@@ -12,14 +12,6 @@ import { HUMANOID_JOINT_AXES } from "../HUMANOID_JOINT_AXES";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
 /*
- * Sine of the angle below which a hinge counts as parallel to the segment it
- * drives. It is the same `1e-6` the engine's other degeneracy guards use for a
- * length, asked of an angle. A hinge merely close to parallel still bends the
- * arm, weakly, so it is not refused.
- */
-const PARALLEL_SINE: number = 1e-6;
-
-/*
  * Why the analytic arm IK cannot articulate one arm chain of `skeleton`, or
  * `null` when it can.
  *
@@ -99,6 +91,14 @@ export const armChainFault: (
       `has no reach shell, only a fixed radius, so no arm IK pose can be solved for it.`,
   };
 };
+
+/*
+ * Sine of the angle below which a hinge counts as parallel to the segment it
+ * drives. It is the same `1e-6` the engine's other degeneracy guards use for a
+ * length, asked of an angle. A hinge merely close to parallel still bends the
+ * arm, weakly, so it is not refused.
+ */
+const PARALLEL_SINE: number = 1e-6;
 
 const axisText: (axis: IAutoMovieVector3) => string = (
   axis: IAutoMovieVector3,

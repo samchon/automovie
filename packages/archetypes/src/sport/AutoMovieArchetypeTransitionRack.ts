@@ -8,17 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No rack maker's page was read.
- */
-const STAGED: string =
-  "a triathlon transition rack bay: bar height and bay length are provisional staging estimates, no maker's page was read";
-
-/*
- * Frame colour.
- */
-const STEEL: string = "#9aa1a6";
+import * as AutoMovieArchetypeTransitionRackData from "./internal/AutoMovieArchetypeTransitionRackData";
 
 /** Constructs the transition rack archetype from its recipe. */
 export namespace AutoMovieArchetypeTransitionRack {
@@ -119,8 +109,13 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(1.5, 3, STAGED, true),
-    height: AutoMovieArchetypeBand.metres(0.8, 1.3, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 15, 30, STAGED, true),
+    length: AutoMovieArchetypeBand.metres(1.5, 3, AutoMovieArchetypeTransitionRackData.STAGED, true),
+    height: AutoMovieArchetypeBand.metres(0.8, 1.3, AutoMovieArchetypeTransitionRackData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 15, 30, AutoMovieArchetypeTransitionRackData.STAGED, true),
   };
 }
+
+/*
+ * Frame colour.
+ */
+const STEEL: string = "#9aa1a6";

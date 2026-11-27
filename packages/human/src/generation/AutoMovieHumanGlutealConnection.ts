@@ -7,16 +7,6 @@ import type {
 
 import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
 
-/*
- * Numerical convergence budget for the internal root plane, one micrometre.
- */
-const ROOT_ACCURACY: number = 1e-3;
-
-/*
- * Bounded phase refinements are independent of rendering resolution.
- */
-const MAX_PHASES: number = 1024;
-
 /** A gluteal root/contact derived from its actual composite original parent. */
 export namespace AutoMovieHumanGlutealConnection {
   /**
@@ -177,6 +167,16 @@ export namespace AutoMovieHumanGlutealConnection {
     )}`;
   }
 }
+
+/*
+ * Numerical convergence budget for the internal root plane, one micrometre.
+ */
+const ROOT_ACCURACY: number = 1e-3;
+
+/*
+ * Bounded phase refinements are independent of rendering resolution.
+ */
+const MAX_PHASES: number = 1024;
 
 /*
  * Own footprint coordinates with the actual parent contact interval.

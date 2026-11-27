@@ -7,33 +7,6 @@ import type {
 import type { workoutSpans } from "./workoutSpans";
 
 /*
- * Each contact part's mirror across the body's midline.
- */
-const MIRROR: Readonly<
-  Record<
-    IAutoMovieMotionHumanContactWindow["part"],
-    IAutoMovieMotionHumanContactWindow["part"]
-  >
-> = {
-  leftFoot: "rightFoot",
-  rightFoot: "leftFoot",
-  leftHand: "rightHand",
-  rightHand: "leftHand",
-  seat: "seat",
-  back: "back",
-  leftUpperArm: "rightUpperArm",
-  rightUpperArm: "leftUpperArm",
-  leftLowerArm: "rightLowerArm",
-  rightLowerArm: "leftLowerArm",
-  leftUpperLeg: "rightUpperLeg",
-  rightUpperLeg: "leftUpperLeg",
-  leftLowerLeg: "rightLowerLeg",
-  rightLowerLeg: "leftLowerLeg",
-  head: "head",
-  chest: "chest",
-};
-
-/*
  * Build the windows.
  * Parameter props: What the windows are built from.
  * Returns: The contact windows.
@@ -165,3 +138,30 @@ export namespace workoutContacts {
     recovers: boolean;
   }
 }
+
+/*
+ * Each contact part's mirror across the body's midline.
+ */
+const MIRROR: Readonly<
+  Record<
+    IAutoMovieMotionHumanContactWindow["part"],
+    IAutoMovieMotionHumanContactWindow["part"]
+  >
+> = {
+  leftFoot: "rightFoot",
+  rightFoot: "leftFoot",
+  leftHand: "rightHand",
+  rightHand: "leftHand",
+  seat: "seat",
+  back: "back",
+  leftUpperArm: "rightUpperArm",
+  rightUpperArm: "leftUpperArm",
+  leftLowerArm: "rightLowerArm",
+  rightLowerArm: "leftLowerArm",
+  leftUpperLeg: "rightUpperLeg",
+  rightUpperLeg: "leftUpperLeg",
+  leftLowerLeg: "rightLowerLeg",
+  rightLowerLeg: "leftLowerLeg",
+  head: "head",
+  chest: "chest",
+};

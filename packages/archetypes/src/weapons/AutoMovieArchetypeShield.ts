@@ -13,12 +13,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The round shield's size, from a secondary source.
- */
-const ROUND: string =
-  "Viking Age round shields, 75 to 90 cm across by far the most common (Wikipedia, Viking Age arms and armour, https://en.wikipedia.org/wiki/Viking_Age_arms_and_armour)";
+import * as AutoMovieArchetypeShieldData from "./internal/AutoMovieArchetypeShieldData";
 
 /** Constructs the shield archetype from its recipe. */
 export namespace AutoMovieArchetypeShield {
@@ -340,7 +335,7 @@ export function create(
   > = {
     buckler: {},
     round: {
-      diameter: AutoMovieArchetypeBand.metres(0.75, 0.9, ROUND, true),
+      diameter: AutoMovieArchetypeBand.metres(0.75, 0.9, AutoMovieArchetypeShieldData.ROUND, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         3.5,

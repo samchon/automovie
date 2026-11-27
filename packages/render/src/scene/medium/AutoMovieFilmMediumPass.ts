@@ -8,11 +8,7 @@ import type { IAutoMovieFilmResponseRenderer } from "../IAutoMovieFilmResponseRe
 import { buildAutoMovieMediumShader } from "./internal/buildAutoMovieMediumShader.js";
 import { collectAutoMovieMediumLights } from "./internal/collectAutoMovieMediumLights.js";
 import { readAutoMovieSceneMedium } from "./internal/readAutoMovieSceneMedium.js";
-
-/*
- * The golden ratio's conjugate, the step of the dither shift per sample.
- */
-const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
+import * as AutoMovieFilmMediumPassData from "./internal/AutoMovieFilmMediumPassData";
 
 /*
  * The film response stage's participating-medium pass: march the scene's
@@ -151,7 +147,7 @@ export class AutoMovieFilmMediumPass {
       uScattering: { value: medium.scattering },
       uExtinction: { value: medium.scattering + medium.absorption },
       uAnisotropy: { value: medium.anisotropy },
-      uShift: { value: (props.index * GOLDEN) % 1 },
+      uShift: { value: (props.index * AutoMovieFilmMediumPassData.GOLDEN) % 1 },
       uMatte: { value: props.alpha === "coverage" ? 1 : 0 },
     };
     lights.forEach(

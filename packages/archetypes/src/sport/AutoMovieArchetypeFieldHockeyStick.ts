@@ -5,16 +5,6 @@ import type { AutoMovieArchetype } from "../core";
 import { StickBuild } from "./internal/StickBuild";
 import type { AutoMovieArchetypeStick } from "./AutoMovieArchetypeStick";
 
-/*
- * Points in the local model frame, in metres.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * The retained field hockey toe length along X, metres. A shape estimate.
- */
-const TOE: number = 0.1;
-
 /** Canonical producer and authoring contract for FieldHockeyStick. */
 export namespace AutoMovieArchetypeFieldHockeyStick {
   /**
@@ -86,3 +76,13 @@ export namespace AutoMovieArchetypeFieldHockeyStick {
     "id" | "length" | "head" | "width" | "mass"
   >;
 }
+
+/*
+ * Points in the local model frame, in metres.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * The retained field hockey toe length along X, metres. A shape estimate.
+ */
+const TOE: number = 0.1;

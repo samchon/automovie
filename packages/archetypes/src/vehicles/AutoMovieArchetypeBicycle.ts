@@ -14,22 +14,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { rideBicycle } from "./internal/rideBicycle";
-
-/*
- * A provisional band in metres from a secondary source.
- */
-const m = (
-  minimum: number,
-  maximum: number,
-  source: string,
-): IAutoMovieArchetypeBand =>
-  AutoMovieArchetypeBand.of("m", minimum, maximum, source, true);
-
-/*
- * Frame geometry no source gave.
- */
-const GEOMETRY: string =
-  "typical road frame geometry; maker geometry charts could not be opened";
+import * as AutoMovieArchetypeBicycleData from "./internal/AutoMovieArchetypeBicycleData";
+import { m } from "./internal/AutoMovieArchetypeBicycleData";
 
 /** The canonical producer and authoring contract. */
 export namespace AutoMovieArchetypeBicycle {
@@ -346,8 +332,8 @@ export namespace AutoMovieArchetypeBicycle {
       0.702,
       "ISO 5775 622 mm bead seat plus twice a 25 to 40 mm tyre (Wikipedia, ISO 5775, https://en.wikipedia.org/wiki/ISO_5775)",
     ),
-    wheelbase: m(0.97, 1.05, GEOMETRY),
-    bottomBracket: m(0.26, 0.29, GEOMETRY),
+    wheelbase: m(0.97, 1.05, AutoMovieArchetypeBicycleData.GEOMETRY),
+    bottomBracket: m(0.26, 0.29, AutoMovieArchetypeBicycleData.GEOMETRY),
     crank: m(
       0.165,
       0.18,
@@ -359,9 +345,9 @@ export namespace AutoMovieArchetypeBicycle {
       0.8,
       "0.883 of an inseam of about 0.70 to 0.90 m, LeMond's rule as given by Bini, Hume and Croft 2011, Sports Med 41:463 (https://paulogentil.com/pdf/Effects%20of%20Bicycle%20Saddle%20Height%20on%20Knee%20Injury%20Risk%20and%20Cycling%20Performance.pdf); the inseam range is an estimate",
     ),
-    seatAngle: AutoMovieArchetypeBand.of("degrees", 72, 74, GEOMETRY, true),
+    seatAngle: AutoMovieArchetypeBand.of("degrees", 72, 74, AutoMovieArchetypeBicycleData.GEOMETRY, true),
     saddleWidth: m(0.13, 0.16, "saddle width, not read at a source"),
-    reach: m(0.48, 0.56, GEOMETRY),
+    reach: m(0.48, 0.56, AutoMovieArchetypeBicycleData.GEOMETRY),
     handlebarWidth: m(
       0.34,
       0.5,

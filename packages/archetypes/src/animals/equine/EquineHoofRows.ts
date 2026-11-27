@@ -12,34 +12,6 @@ import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
 /*
- * The share of a lifting row's entry spent moving the weight off the hoof
- * before it leaves the floor: authored, as the stance rows' own.
- */
-const LOAD: number = 0.35;
-
-/*
- * A pawing stroke's reach ahead of and drag behind the hoof's place and its
- * swing's height, metres; the trunk's settle while pawing: authored.
- */
-const PAW: Readonly<IPawShape> = {
-  reach: 0.12,
-  drag: 0.08,
-  lift: 0.12,
-  settle: 0.02,
-};
-
-/*
- * A stamp's lift, metres: authored.
- */
-const STAMP: number = 0.12;
-
-/*
- * A cow-kick's joint turns, degrees, hip first, negative swinging the hoof
- * forward: an authored pose.
- */
-const COW_KICK: readonly [number, number, number, number] = [-45, 30, -60, 30];
-
-/*
  * The comfort rows that move one hoof: pawing, stamping and the cow-kick.
  *
  * Each first moves the weight inside the other three hooves
@@ -263,6 +235,35 @@ export namespace EquineHoofRows {
     };
   }
 }
+
+
+/*
+ * The share of a lifting row's entry spent moving the weight off the hoof
+ * before it leaves the floor: authored, as the stance rows' own.
+ */
+const LOAD: number = 0.35;
+
+/*
+ * A pawing stroke's reach ahead of and drag behind the hoof's place and its
+ * swing's height, metres; the trunk's settle while pawing: authored.
+ */
+const PAW: Readonly<IPawShape> = {
+  reach: 0.12,
+  drag: 0.08,
+  lift: 0.12,
+  settle: 0.02,
+};
+
+/*
+ * A stamp's lift, metres: authored.
+ */
+const STAMP: number = 0.12;
+
+/*
+ * A cow-kick's joint turns, degrees, hip first, negative swinging the hoof
+ * forward: an authored pose.
+ */
+const COW_KICK: readonly [number, number, number, number] = [-45, 30, -60, 30];
 
 /*
  * The pawing stroke's authored shape.

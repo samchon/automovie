@@ -12,11 +12,7 @@ import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
 import { ADA_RANGES } from "./constants/ADA_RANGES";
-
-/*
- * The travel of a switch or a button, for which no specification was read.
- */
-const TRAVEL: string = "switch travel, not read at a source";
+import * as AutoMovieArchetypeSwitchData from "./internal/AutoMovieArchetypeSwitchData";
 
 /** Constructs the switch archetype from its recipe. */
 export namespace AutoMovieArchetypeSwitch {
@@ -166,7 +162,7 @@ export function create(
         "Leviton Decora rocker face, retailer listings seen only in search results",
         true,
       ),
-      travel: AutoMovieArchetypeBand.metres(0.002, 0.004, TRAVEL, true),
+      travel: AutoMovieArchetypeBand.metres(0.002, 0.004, AutoMovieArchetypeSwitchData.TRAVEL, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.05,
@@ -193,7 +189,7 @@ export function create(
         "2010 ADA Standards 407.2.1.2, as for the size",
         true,
       ),
-      travel: AutoMovieArchetypeBand.metres(0.001, 0.003, TRAVEL, true),
+      travel: AutoMovieArchetypeBand.metres(0.001, 0.003, AutoMovieArchetypeSwitchData.TRAVEL, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.05,

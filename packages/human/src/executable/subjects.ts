@@ -10,11 +10,6 @@ import { AutoMovieHumanCaptureFigure } from "../capture/AutoMovieHumanCaptureFig
 import { AutoMovieHumanCaptureSubjects } from "../capture/AutoMovieHumanCaptureSubjects";
 
 /*
- * Width and height of every picture drawn, pixels: square, because a standing figure is read from all sides.
- */
-const RASTER: number = 960;
-
-/*
  * The Human figure as the subjects a draw-only page offers: every person the package defines, by name, in each pose it is drawn in, for `automovie capture --module src/executable/subjects.ts` and the inspector.
  *
  * Each subject is the person's figure from `AutoMovieHumanCaptureFigure.build`, its sewn skin as the piece `body` and its construction curves as marks named by its families, on a light background under an ambient light and one key light. The figure stands still, so the subject lasts one frame and seeking does nothing. The delivery camera stands three-quarters to the figure's front at eye height and looks at its middle; the instrument's named views, fitted to what is drawn, are how it is read. The props are not read.
@@ -34,6 +29,11 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
       ],
     ),
   );
+
+/*
+ * Width and height of every picture drawn, pixels: square, because a standing figure is read from all sides.
+ */
+const RASTER: number = 960;
 
 /*
  * Build one subject's scene.

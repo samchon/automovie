@@ -8,11 +8,6 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanCrowd } from "./HumanCrowd";
 
 /*
- * World-metre tolerance for floating-point projection onto the queue line.
- */
-const LINE_TOLERANCE: number = 1e-8;
-
-/*
  * Admit a single-file service queue's release (`humanQueueAdvance`): the queue
  * is ordered head first on one level, straight line toward the head's exit,
  * every rank fully performed, the wait nonnegative, and each pair of neighbours
@@ -133,3 +128,8 @@ export namespace humanQueueMarks {
       >,
       HumanCrowd.IHalfMember {}
 }
+
+/*
+ * World-metre tolerance for floating-point projection onto the queue line.
+ */
+const LINE_TOLERANCE: number = 1e-8;

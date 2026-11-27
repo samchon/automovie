@@ -10,8 +10,6 @@ import type {
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 
-const { circular, forward } = AutoMovieHumanBodySurfaceRead;
-
 /** The phases a chain's rings are sampled at: its own rings' phases, refined beside a web, and the phases a child inherits from its parent's contact ring, with the arc vertices they share. */
 export namespace AutoMovieHumanBodySurfacePhases {
   /**
@@ -264,3 +262,5 @@ export namespace AutoMovieHumanBodySurfacePhases {
     return out;
   }
 }
+
+const { circular, forward } = AutoMovieHumanBodySurfaceRead;

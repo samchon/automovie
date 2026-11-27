@@ -24,37 +24,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
-
-/*
- * The step that reads the seat's velocity at release, seconds.
- */
-const RATE: number = 1e-3;
-/*
- * The landing's knee give: the pelvis lands this share of its standing height
- * (provisional staging).
- */
-const LAND: number = 0.8;
-/*
- * Seconds from touchdown to standing still (provisional staging).
- */
-const SETTLE: number = 0.4;
-
-/*
- * How far each upper arm abducts for the landing, degrees (provisional
- * staging).
- */
-const OPEN: number = 35;
-
-/*
- * World vertical.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * The bones of an arm and its hand, either side.
- */
-const ARM: RegExp =
-  /^(left|right)(Shoulder|UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
+import * as HumanSwingLeapData from "./HumanSwingLeapData";
 
 /*
  * Leap off a moving swing seat: the pelvis leaves with the velocity of the
@@ -103,17 +73,17 @@ export function HumanSwingLeap(
     );
   };
   const velocity: IAutoMovieVector3 = Vector3.scale(
-    Vector3.subtract(seat(context.start), seat(context.start - RATE)),
-    1 / RATE,
+    Vector3.subtract(seat(context.start), seat(context.start - HumanSwingLeapData.RATE)),
+    1 / HumanSwingLeapData.RATE,
   );
-  const landing: number = ground + LAND * standing;
+  const landing: number = ground + HumanSwingLeapData.LAND * standing;
   const flight: number = HumanSwingLeap.flight(
     pelvis.y,
     velocity.y,
     landing,
     context.params.on,
   );
-  const duration: number = flight + SETTLE;
+  const duration: number = flight + HumanSwingLeapData.SETTLE;
   const flown = (t: number): IAutoMovieVector3 => ({
     x: pelvis.x + velocity.x * t,
     y: pelvis.y + velocity.y * t - (AutoMovieGravity.STANDARD * t * t) / 2,
@@ -124,7 +94,7 @@ export function HumanSwingLeap(
   // Each ankle's place from the pelvis: as the seat held it, and at
   // touchdown on the ground under its knee, so the shank stands upright as
   // the foot lands flat and the knee gives above it.
-  const heading: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, start.yaw);
+  const heading: IAutoMovieQuaternion = Quaternion.fromAxisAngle(HumanSwingLeapData.UP, start.yaw);
   const facing: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
     x: 0,
     y: 0,
@@ -150,7 +120,7 @@ export function HumanSwingLeap(
       },
       Vector3.scale(facing, ahead),
     );
-  const left: IAutoMovieVector3 = Vector3.cross(UP, facing);
+  const left: IAutoMovieVector3 = Vector3.cross(HumanSwingLeapData.UP, facing);
   const hipAt = (
     pelvisAt: IAutoMovieVector3,
     side: AutoMovieHumanSide,
@@ -175,7 +145,7 @@ export function HumanSwingLeap(
   // them from the displayed angles, not from the posture's.
   const released: Posture["joints"] = { ...start.joints };
   for (const joint of context.entry.pose.joints)
-    if (ARM.test(joint.bone))
+    if (HumanSwingLeapData.ARM.test(joint.bone))
       released[joint.bone] = [
         joint.flexion ?? 0,
         joint.abduction ?? 0,
@@ -219,10 +189,10 @@ export function HumanSwingLeap(
         const arm: readonly [number, number, number] = joints[
           `${side}UpperArm`
         ] ?? [0, 0, 0];
-        joints[`${side}UpperArm`] = [arm[0], arm[1] + OPEN * unfold, arm[2]];
+        joints[`${side}UpperArm`] = [arm[0], arm[1] + HumanSwingLeapData.OPEN * unfold, arm[2]];
       }
       // Settling, the pelvis rises to standing over the feet.
-      const settled: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - flight) / SETTLE);
+      const settled: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - flight) / HumanSwingLeapData.SETTLE);
       const hips: IAutoMovieVector3 =
         t <= flight
           ? flown(t)
@@ -297,7 +267,6 @@ export function HumanSwingLeap(
     },
   };
 }
-
 /*
  * Vertical flight admission and timing for the displayed swing release.
  */

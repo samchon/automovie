@@ -18,11 +18,41 @@ import { EquineHarness } from "./equine/EquineHarness";
 import { AutoMovieArchetypeHorseRide } from "./AutoMovieArchetypeHorseRide";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
+/** Operations for putting a harnessed horse to a fitted cart. */
+export namespace AutoMovieArchetypeEquineDraft {
+  /**
+   * Build the coupled take and its authored trace states.
+   *
+   * @param horse A horse in harness tack.
+   * @param cart A cart built for that horse.
+   * @param params The course stages, durations, trace sag and optional footing.
+   * @returns The take.
+   * @throws {AutoMovieArchetypeRefusal} For incompatible harness/cart fit, invalid stage values, and refusals from the ride or towing contracts.
+   */
+  export function create(
+    horse: AutoMovieArchetype<
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
+    >,
+    cart: AutoMovieArchetype<
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
+    >,
+    params: AutoMovieArchetypeEquineDraftPlan.IParams,
+  ): AutoMovieArchetypeEquineDraftPlan.ITake<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension,
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
+  > {
+    return equineDraft(horse, cart, params);
+  }
+}
+
 /*
  * Points a slack trace is laid through, ends included.
  */
 const SAG_POINTS: number = 9;
-
 /*
  * A harnessed horse put to a two-wheeled cart, drawing it and taken out again,
  * on one film clock: it backs between the parked cart's shafts, stands while
@@ -346,35 +376,5 @@ function equineDraft(
         spread,
         `the cart's single tree and shafts were fitted to a horse ${spread} m at the withers, not ${horse.dimensions.withersHeight} m`,
       );
-  }
-}
-/** Operations for putting a harnessed horse to a fitted cart. */
-export namespace AutoMovieArchetypeEquineDraft {
-  /**
-   * Build the coupled take and its authored trace states.
-   *
-   * @param horse A horse in harness tack.
-   * @param cart A cart built for that horse.
-   * @param params The course stages, durations, trace sag and optional footing.
-   * @returns The take.
-   * @throws {AutoMovieArchetypeRefusal} For incompatible harness/cart fit, invalid stage values, and refusals from the ride or towing contracts.
-   */
-  export function create(
-    horse: AutoMovieArchetype<
-      AutoMovieArchetypeEquine.Affordance,
-      AutoMovieArchetypeEquine.Dimension
-    >,
-    cart: AutoMovieArchetype<
-      AutoMovieArchetypeCart.Affordance,
-      AutoMovieArchetypeCart.Dimension
-    >,
-    params: AutoMovieArchetypeEquineDraftPlan.IParams,
-  ): AutoMovieArchetypeEquineDraftPlan.ITake<
-    AutoMovieArchetypeEquine.Affordance,
-    AutoMovieArchetypeEquine.Dimension,
-    AutoMovieArchetypeCart.Affordance,
-    AutoMovieArchetypeCart.Dimension
-  > {
-    return equineDraft(horse, cart, params);
   }
 }

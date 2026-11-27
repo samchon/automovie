@@ -6,8 +6,6 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core";
 
-const v: typeof Vector3.create = Vector3.create;
-
 /*
  * A hand paddle's repeated blade panels, handle frame and blade-tip face.
  */
@@ -102,3 +100,5 @@ export namespace PaddleBlade {
     });
   }
 }
+
+const v: typeof Vector3.create = Vector3.create;

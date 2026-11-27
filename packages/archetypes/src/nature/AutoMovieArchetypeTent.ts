@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * UNHCR's family tent, read in its specification.
- */
-const UNHCR: string =
-  'UNHCR Family Tent, eco-design (SH-TE-10028), specification (https://www.unhcr.org/sites/default/files/2025-02/family-tent-eco-design.pdf): outer frame "Centre height: 2.2 m / Width: 4 m / Ridge length: 4 m / Side wall height: 1.25 - 1.40 m / Door height: 1.4 m / Centre base length: 6.6 m" (p. 9), its drawing\'s 1.40 m end width (p. 5); outer "Door size: W 1.3 x H 1.4 m" (p. 10); inner doors "1 m wide and 1.75 m high from the floor" (p. 12); "approximately 49-53 kg" packed (p. 6)';
+import * as AutoMovieArchetypeTentData from "./internal/AutoMovieArchetypeTentData";
 
 /** Constructs the tent archetype from its recipe. */
 export namespace AutoMovieArchetypeTent {
@@ -219,17 +214,17 @@ export function create(
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     reliefFamily: {
-      width: AutoMovieArchetypeBand.metres(4, 4, UNHCR),
-      ridge: AutoMovieArchetypeBand.metres(4, 4, UNHCR),
-      centre: AutoMovieArchetypeBand.metres(2.2, 2.2, UNHCR),
-      wall: AutoMovieArchetypeBand.metres(1.25, 1.4, UNHCR),
-      base: AutoMovieArchetypeBand.metres(6.6, 6.6, UNHCR),
-      endWidth: AutoMovieArchetypeBand.metres(1.4, 1.4, UNHCR),
-      door: AutoMovieArchetypeBand.metres(1.4, 1.4, UNHCR),
-      doorWidth: AutoMovieArchetypeBand.metres(1.3, 1.3, UNHCR),
-      innerWidth: AutoMovieArchetypeBand.metres(1, 1, UNHCR),
-      innerHeight: AutoMovieArchetypeBand.metres(1.75, 1.75, UNHCR),
-      mass: AutoMovieArchetypeBand.of("kg", 49, 53, UNHCR),
+      width: AutoMovieArchetypeBand.metres(4, 4, AutoMovieArchetypeTentData.UNHCR),
+      ridge: AutoMovieArchetypeBand.metres(4, 4, AutoMovieArchetypeTentData.UNHCR),
+      centre: AutoMovieArchetypeBand.metres(2.2, 2.2, AutoMovieArchetypeTentData.UNHCR),
+      wall: AutoMovieArchetypeBand.metres(1.25, 1.4, AutoMovieArchetypeTentData.UNHCR),
+      base: AutoMovieArchetypeBand.metres(6.6, 6.6, AutoMovieArchetypeTentData.UNHCR),
+      endWidth: AutoMovieArchetypeBand.metres(1.4, 1.4, AutoMovieArchetypeTentData.UNHCR),
+      door: AutoMovieArchetypeBand.metres(1.4, 1.4, AutoMovieArchetypeTentData.UNHCR),
+      doorWidth: AutoMovieArchetypeBand.metres(1.3, 1.3, AutoMovieArchetypeTentData.UNHCR),
+      innerWidth: AutoMovieArchetypeBand.metres(1, 1, AutoMovieArchetypeTentData.UNHCR),
+      innerHeight: AutoMovieArchetypeBand.metres(1.75, 1.75, AutoMovieArchetypeTentData.UNHCR),
+      mass: AutoMovieArchetypeBand.of("kg", 49, 53, AutoMovieArchetypeTentData.UNHCR),
     },
   };
 }

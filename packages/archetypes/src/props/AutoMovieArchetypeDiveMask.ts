@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No maker's page was read.
- */
-const STAGED: string =
-  "a diving mask: its dimensions and mass are provisional estimates, no maker's page was read";
+import * as AutoMovieArchetypeDiveMaskData from "./internal/AutoMovieArchetypeDiveMaskData";
 
 /** Constructs the dive mask archetype from its recipe. */
 export namespace AutoMovieArchetypeDiveMask {
@@ -100,8 +95,8 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    width: AutoMovieArchetypeBand.metres(0.14, 0.17, STAGED, true),
-    height: AutoMovieArchetypeBand.metres(0.07, 0.09, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.15, 0.25, STAGED, true),
+    width: AutoMovieArchetypeBand.metres(0.14, 0.17, AutoMovieArchetypeDiveMaskData.STAGED, true),
+    height: AutoMovieArchetypeBand.metres(0.07, 0.09, AutoMovieArchetypeDiveMaskData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.15, 0.25, AutoMovieArchetypeDiveMaskData.STAGED, true),
   };
 }

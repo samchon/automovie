@@ -16,12 +16,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * Rider-triangle positions no maker publishes.
- */
-const TRIANGLE: string =
-  "the footrest's place under the seat is not published by either maker; a typical rider triangle, not read at a source";
+import * as AutoMovieArchetypeMotorcycleData from "./internal/AutoMovieArchetypeMotorcycleData";
 
 /** The canonical producer and authoring contract. */
 export namespace AutoMovieArchetypeMotorcycle {
@@ -426,7 +421,7 @@ export namespace AutoMovieArchetypeMotorcycle {
         "the 7/8 in handlebar, not read at a source",
         true,
       ),
-      footrestHeight: AutoMovieArchetypeBand.metres(0.3, 0.38, TRIANGLE, true),
+      footrestHeight: AutoMovieArchetypeBand.metres(0.3, 0.38, AutoMovieArchetypeMotorcycleData.TRIANGLE, true),
     },
     scooter: {
       gripDiameter: AutoMovieArchetypeBand.metres(
@@ -435,7 +430,7 @@ export namespace AutoMovieArchetypeMotorcycle {
         "the 7/8 in handlebar, not read at a source",
         true,
       ),
-      footrestHeight: AutoMovieArchetypeBand.metres(0.25, 0.3, TRIANGLE, true),
+      footrestHeight: AutoMovieArchetypeBand.metres(0.25, 0.3, AutoMovieArchetypeMotorcycleData.TRIANGLE, true),
     },
   };
 

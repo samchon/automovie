@@ -45,15 +45,6 @@ import { touchReach } from "./touchReach";
  */
 export namespace kissHandMeeting {
   /*
-   * The back of the hand faces the kisser, with fingers across the mouth's
-   * approach.
-   */
-  const hand: IAutoMovieMotionHumanTouchEffector.IEffector = {
-    surface: "handBack",
-    shape: "flat",
-  };
-
-  /*
    * Build the hand kiss's meeting for one hand and hold.
    * Parameter side: Which of the presenter's hands is kissed.
    * Parameter hold: Seconds of lip contact.
@@ -165,6 +156,15 @@ export namespace kissHandMeeting {
       contact: "contact",
     });
   }
+
+  /*
+   * The back of the hand faces the kisser, with fingers across the mouth's
+   * approach.
+   */
+  const hand: IAutoMovieMotionHumanTouchEffector.IEffector = {
+    surface: "handBack",
+    shape: "flat",
+  };
 
   /*
    * The displayed mouth on the role's unbowed entry.

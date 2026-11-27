@@ -172,29 +172,6 @@ export function prepareSupportHeldFrames(
 }
 
 /*
- * A limb's upper and lower bone angles in a key posture, degrees.
- */
-function angles(
-  posture: IAutoMovieMotionHumanPosture,
-  limb: prepareSupportHeldFrames.IHeld,
-): IAutoMovieHumanLimbReference {
-  const side: AutoMovieHumanSide = limb.limb.startsWith("left")
-    ? "left"
-    : "right";
-  const arm: boolean = limb.limb.endsWith("Arm");
-  const zero: readonly [number, number, number] = [0, 0, 0];
-  const upper: AutoMovieHumanoidBone = arm
-    ? `${side}UpperArm`
-    : `${side}UpperLeg`;
-  const lower: AutoMovieHumanoidBone = arm
-    ? `${side}LowerArm`
-    : `${side}LowerLeg`;
-  return {
-    upper: posture.joints[upper] ?? zero,
-    lower: posture.joints[lower] ?? zero,
-  };
-}
-/*
  * The retained contact selection and the solved frames used by support
  * playback.
  */
@@ -292,6 +269,30 @@ export namespace prepareSupportHeldFrames {
      * The socket's world place at the key before, then after.
      */
     at: readonly [IAutoMovieVector3, IAutoMovieVector3];
+  };
+}
+
+/*
+ * A limb's upper and lower bone angles in a key posture, degrees.
+ */
+function angles(
+  posture: IAutoMovieMotionHumanPosture,
+  limb: prepareSupportHeldFrames.IHeld,
+): IAutoMovieHumanLimbReference {
+  const side: AutoMovieHumanSide = limb.limb.startsWith("left")
+    ? "left"
+    : "right";
+  const arm: boolean = limb.limb.endsWith("Arm");
+  const zero: readonly [number, number, number] = [0, 0, 0];
+  const upper: AutoMovieHumanoidBone = arm
+    ? `${side}UpperArm`
+    : `${side}UpperLeg`;
+  const lower: AutoMovieHumanoidBone = arm
+    ? `${side}LowerArm`
+    : `${side}LowerLeg`;
+  return {
+    upper: posture.joints[upper] ?? zero,
+    lower: posture.joints[lower] ?? zero,
   };
 }
 

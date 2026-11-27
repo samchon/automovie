@@ -3,8 +3,6 @@ import type { IAutoMovieHumanArmPrior } from "@automovie/interface";
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { smooth }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-
 /**
  * The palmar half's depth over the dorsal half's along a digit: how the
  * section's depth is shared between the pad and the back.
@@ -56,3 +54,5 @@ export namespace AutoMovieHumanDigitPalmarShare {
             smooth((u - shares.nailAt) / (1 - shares.nailAt));
   }
 }
+
+const { smooth }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;

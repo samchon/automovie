@@ -15,21 +15,6 @@ import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-const {
-  sub,
-  plus,
-  scale,
-  dot,
-  unit,
-  cross,
-  hull,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
-const { jointsOf, STYLION }: typeof AutoMovieHumanHandJoints =
-  AutoMovieHumanHandJoints;
-const { digitsOf }: typeof AutoMovieHumanHandFingers =
-  AutoMovieHumanHandFingers;
-
 /**
  * The hand's three scales and the wrist's circle, each solved at its measure's
  * site (ANSUR II and ISO 7250-1 definitions): along the hand so the middle
@@ -39,18 +24,6 @@ const { digitsOf }: typeof AutoMovieHumanHandFingers =
  * measures the wrist tape.
  */
 export namespace AutoMovieHumanHandSolve {
-  /*
-   * Rounds of the hand's and wrist's solve: each scale moves by its measure's
-   * ratio to its input, and the measures barely couple, so each round shrinks
-   * every miss severalfold.
-   */
-  const SOLVE_ROUNDS: number = 5;
-
-  /*
-   * The solve's construction level: the hand's landmarks and scales (`construction-levels.md`, level 1).
-   */
-  const SOLVE_LEVEL: number = 1;
-
   /**
    * Solve the hand's scales and the wrist's circle at their measurement sites
    * (ANSUR II and ISO 7250-1 definitions), in rounds: each scale moves by its
@@ -140,6 +113,18 @@ export namespace AutoMovieHumanHandSolve {
   }
 
   /*
+   * Rounds of the hand's and wrist's solve: each scale moves by its measure's
+   * ratio to its input, and the measures barely couple, so each round shrinks
+   * every miss severalfold.
+   */
+  const SOLVE_ROUNDS: number = 5;
+
+  /*
+   * The solve's construction level: the hand's landmarks and scales (`construction-levels.md`, level 1).
+   */
+  const SOLVE_LEVEL: number = 1;
+
+  /*
    * The palm's section through knuckles II and V as ANSUR II measures the
    * hand's breadth and circumference: the plane through the knuckles'
    * midpoint that holds the line from II to V and stands square to the hand's
@@ -213,5 +198,21 @@ export namespace AutoMovieHumanHandSolve {
     };
   }
 }
+
+const {
+  sub,
+  plus,
+  scale,
+  dot,
+  unit,
+  cross,
+  hull,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
+const { jointsOf, STYLION }: typeof AutoMovieHumanHandJoints =
+  AutoMovieHumanHandJoints;
+
+const { digitsOf }: typeof AutoMovieHumanHandFingers =
+  AutoMovieHumanHandFingers;
 
 type Vec3 = AutoMovieVector3Tuple;

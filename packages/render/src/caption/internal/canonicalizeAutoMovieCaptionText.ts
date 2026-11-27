@@ -1,6 +1,3 @@
-const PROHIBITED_CAPTION_CONTROLS: RegExp =
-  /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/gu;
-
 /*
  * Normalize one authored caption into the presentation shared by readability
  * measurement and WebVTT delivery.
@@ -14,3 +11,6 @@ export const canonicalizeAutoMovieCaptionText: (value: string) => string = (
   value: string,
 ): string =>
   value.replace(/\r\n?/gu, "\n").replace(PROHIBITED_CAPTION_CONTROLS, " ");
+
+const PROHIBITED_CAPTION_CONTROLS: RegExp =
+  /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/gu;

@@ -12,18 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * An aftermarket magazine for that pistol, read at a retailer.
- */
-const STRIKE: string =
-  "Strike Industries SI-G-MAG-17, 17 rounds: 125.55 mm long, 28.50 mm wide, 41.88 mm high, 1.4 oz (https://www.at3tactical.com/products/strike-industries-9mm-translucent-magazine-for-glock-17-17-round)";
-
-/*
- * The rifle magazine's maker and a retailer's table, read.
- */
-const PMAG: string =
-  "Magpul PMAG 30 AR/M4 GEN M3, 7.5 in long and 5 oz (https://magpul.com/firearm-accessories/pmag-30-ar-m4-gen-m3.html); T.REX Arms' table, 7.5 by 2.6 by 0.87 in, 146 g unloaded and 503 g loaded (https://www.trex-arms.com/store/magpul-ar-m4-pmag-336599)";
+import * as AutoMovieArchetypeMagazineData from "./internal/AutoMovieArchetypeMagazineData";
 
 /** Constructs the magazine archetype from its recipe. */
 export namespace AutoMovieArchetypeMagazine {
@@ -185,41 +174,41 @@ export function create(
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     pistol: {
-      length: AutoMovieArchetypeBand.metres(0.12555, 0.12555, STRIKE),
-      width: AutoMovieArchetypeBand.metres(0.0285, 0.0285, STRIKE),
+      length: AutoMovieArchetypeBand.metres(0.12555, 0.12555, AutoMovieArchetypeMagazineData.STRIKE),
+      width: AutoMovieArchetypeBand.metres(0.0285, 0.0285, AutoMovieArchetypeMagazineData.STRIKE),
       depth: AutoMovieArchetypeBand.metres(
         0.04188,
         0.04188,
-        `${STRIKE}; its 41.88 mm height is taken as front to back, the other two being the length and the double stack's width`,
+        `${AutoMovieArchetypeMagazineData.STRIKE}; its 41.88 mm height is taken as front to back, the other two being the length and the double stack's width`,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         1.4 * AutoMovieArchetypeUnits.OUNCE,
         1.4 * AutoMovieArchetypeUnits.OUNCE,
-        STRIKE,
+        AutoMovieArchetypeMagazineData.STRIKE,
       ),
     },
     rifle: {
       length: AutoMovieArchetypeBand.metres(
         7.5 * AutoMovieArchetypeUnits.INCH,
         7.5 * AutoMovieArchetypeUnits.INCH,
-        PMAG,
+        AutoMovieArchetypeMagazineData.PMAG,
       ),
       width: AutoMovieArchetypeBand.metres(
         0.87 * AutoMovieArchetypeUnits.INCH,
         0.87 * AutoMovieArchetypeUnits.INCH,
-        PMAG,
+        AutoMovieArchetypeMagazineData.PMAG,
       ),
       depth: AutoMovieArchetypeBand.metres(
         2.6 * AutoMovieArchetypeUnits.INCH,
         2.6 * AutoMovieArchetypeUnits.INCH,
-        PMAG,
+        AutoMovieArchetypeMagazineData.PMAG,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         5 * AutoMovieArchetypeUnits.OUNCE,
         0.146,
-        PMAG,
+        AutoMovieArchetypeMagazineData.PMAG,
       ),
     },
   };

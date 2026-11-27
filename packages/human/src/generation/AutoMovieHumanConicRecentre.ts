@@ -40,8 +40,6 @@ import type {
  */
 export namespace AutoMovieHumanConicRecentre {
 
-  const spline = (knots: readonly number[], values: readonly number[]): IAutoMovieNaturalCubicSpline => AutoMovieNaturalSpline.create(knots, values);
-
   /**
    * The family's knot values about the new origin line: every extreme's `u` less the line's `u` and its `v` less the line's `v`; shares,
    * turns and shoulders as given.
@@ -163,4 +161,6 @@ export namespace AutoMovieHumanConicRecentre {
     const angle: number = Math.atan2(r * Math.sin(phase) - cv, r * Math.cos(phase) - cu);
     return angle < 0 ? angle + 2 * Math.PI : angle;
   }
+
+  const spline = (knots: readonly number[], values: readonly number[]): IAutoMovieNaturalCubicSpline => AutoMovieNaturalSpline.create(knots, values);
 }

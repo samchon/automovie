@@ -50,13 +50,6 @@ export namespace AutoMovieHumanMoundLaw {
    */
   export const BASE_EXPONENT: number = 0.17;
 
-  /*
-   * Halvings of the projection's bracket: sixty take a bracket of a few hundred millimetres under one unit of a double.
-   */
-  const HALVINGS: number = 60;
-
-  const sum = (radii: IRadii): number => radii.medial + radii.lateral + radii.inferior;
-
   /**
    * A mound's volume, mm^3, by Qiao's formula.
    *
@@ -132,4 +125,11 @@ export namespace AutoMovieHumanMoundLaw {
     const radii: IRadii = { medial: bounded("medial"), lateral: bounded("lateral"), inferior: bounded("inferior") };
     return { radii, projection: projection(target, radii) };
   }
+
+  /*
+   * Halvings of the projection's bracket: sixty take a bracket of a few hundred millimetres under one unit of a double.
+   */
+  const HALVINGS: number = 60;
+
+  const sum = (radii: IRadii): number => radii.medial + radii.lateral + radii.inferior;
 }

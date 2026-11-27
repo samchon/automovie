@@ -11,17 +11,8 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
+import * as AutoMovieArchetypeBarData from "./internal/AutoMovieArchetypeBarData";
 
-/*
- * The gymnastics apparatus norms.
- */
-const FIG: string =
-  "FIG Apparatus Norms (March 2021), MAG 6 section 2.1 (https://www.gymnasticsontario.ca/download/523/fig-technical-documents-resources/49077/fig-apparatus-norms-en-march-2021.pdf)";
-
-/*
- * The accessibility standard's grab bar and handrail clauses.
- */
-const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
 /** Creates a deterministic bar fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeBar {
   /**
@@ -204,17 +195,17 @@ export namespace AutoMovieArchetypeBar {
       height: AutoMovieArchetypeBand.metres(
         2.8,
         2.9,
-        `${FIG}: upper edge 280 cm from the floor, adjustable to 290 cm`,
+        `${AutoMovieArchetypeBarData.FIG}: upper edge 280 cm from the floor, adjustable to 290 cm`,
       ),
       diameter: AutoMovieArchetypeBand.metres(
         0.028,
         0.028,
-        `${FIG}: diameter 2.8 cm`,
+        `${AutoMovieArchetypeBarData.FIG}: diameter 2.8 cm`,
       ),
       length: AutoMovieArchetypeBand.metres(
         2.4,
         2.4,
-        `${FIG}: 240 cm between the attachments`,
+        `${AutoMovieArchetypeBarData.FIG}: 240 cm between the attachments`,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
@@ -228,12 +219,12 @@ export namespace AutoMovieArchetypeBar {
       height: AutoMovieArchetypeBand.metres(
         0.84,
         0.915,
-        `${ADA} 609.4, top of the gripping surface 33 to 36 in (840 to 915 mm) above the floor`,
+        `${AutoMovieArchetypeBarData.ADA} 609.4, top of the gripping surface 33 to 36 in (840 to 915 mm) above the floor`,
       ),
       diameter: AutoMovieArchetypeBand.metres(
         0.032,
         0.051,
-        `${ADA} 609.2.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
+        `${AutoMovieArchetypeBarData.ADA} 609.2.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
@@ -247,12 +238,12 @@ export namespace AutoMovieArchetypeBar {
       height: AutoMovieArchetypeBand.metres(
         0.865,
         0.965,
-        `${ADA} 505.4, top of the gripping surface 34 to 38 in (865 to 965 mm) above the walking surface`,
+        `${AutoMovieArchetypeBarData.ADA} 505.4, top of the gripping surface 34 to 38 in (865 to 965 mm) above the walking surface`,
       ),
       diameter: AutoMovieArchetypeBand.metres(
         0.032,
         0.051,
-        `${ADA} 505.7.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
+        `${AutoMovieArchetypeBarData.ADA} 505.7.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
       ),
       length: AutoMovieArchetypeBand.metres(
         1.2,

@@ -4,12 +4,6 @@ import type {
 } from "@automovie/interface";
 
 /*
- * The three vector-component labels in the Hamilton product's right-handed
- * order.
- */
-const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];
-
-/*
  * Write the original Hamilton product a*b into one caller-owned quaternion.
  * Compute X/Y/Z/W before publishing any field, so target may alias an input. No
  * normalization or unit premise changes the raw product's rounding.
@@ -160,6 +154,12 @@ export namespace multiplyQuaternionInto {
     };
   }
 }
+
+/*
+ * The three vector-component labels in the Hamilton product's right-handed
+ * order.
+ */
+const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
 /*
  * Exact finite single-component support; no magnitude normalization or axis

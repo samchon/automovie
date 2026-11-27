@@ -6,17 +6,6 @@ import type {
 
 import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
-const {
-  combine,
-  cross,
-  dot,
-  norm,
-  scale,
-  solve2,
-  sub,
-  unit,
-}: typeof AutoMovieSolidVector = AutoMovieSolidVector;
-
 /*
  * Where a ball rolling in a fold touches its two walls, read in the plane
  * square to the fold's curve with each wall as its circle of curvature across
@@ -186,6 +175,17 @@ export namespace AutoMovieSolidFoldContact {
       : null;
   }
 }
+
+const {
+  combine,
+  cross,
+  dot,
+  norm,
+  scale,
+  solve2,
+  sub,
+  unit,
+}: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 /*
  * World vector, mm.
  */

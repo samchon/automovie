@@ -15,18 +15,6 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSolidJoinCrossing } from "./construction/internal/AutoMovieSolidJoinCrossing";
 import { AutoMovieSolidJoinNormalCheck } from "./construction/internal/AutoMovieSolidJoinNormalCheck";
 
-/*
- * Shared vector operations preserve the existing arithmetic and allocation
- * owners.
- */
-const {
-  combine,
-  cross,
-  norm,
-  sub,
-}: Pick<typeof AutoMovieSolidVector, "combine" | "cross" | "norm" | "sub"> =
-  AutoMovieSolidVector;
-
 /**
  * Compose merge or diff from an intersection, kept-side rails and analytic
  * ribbons. At parameter t in radians, the host ribbon starts a column at w=0
@@ -330,3 +318,15 @@ export namespace AutoMovieSolidJoin {
     };
   }
 }
+
+/*
+ * Shared vector operations preserve the existing arithmetic and allocation
+ * owners.
+ */
+const {
+  combine,
+  cross,
+  norm,
+  sub,
+}: Pick<typeof AutoMovieSolidVector, "combine" | "cross" | "norm" | "sub"> =
+  AutoMovieSolidVector;

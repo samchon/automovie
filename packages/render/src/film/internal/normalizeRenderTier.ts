@@ -1,15 +1,6 @@
 import type { IAutoMovieProductionRenderTier } from "@automovie/interface";
 
 /*
- * The tier an omitted declaration means: exact final output.
- */
-const FINAL_TIER: Readonly<IAutoMovieProductionRenderTier> = {
-  kind: "final",
-  resolutionScale: 1,
-  frameStep: 1,
-};
-
-/*
  * Return a copy of the declared render tier, or the final tier when none is
  * declared, refusing any other shape.
  *
@@ -39,4 +30,13 @@ export const normalizeRenderTier: (
       "Render tier must be exact final (scale 1, step 1) or a bounded cheaper proxy (scale in (0, 1], integer step 1..16, with at least one reduction).",
     );
   return structuredClone(value);
+};
+
+/*
+ * The tier an omitted declaration means: exact final output.
+ */
+const FINAL_TIER: Readonly<IAutoMovieProductionRenderTier> = {
+  kind: "final",
+  resolutionScale: 1,
+  frameStep: 1,
 };

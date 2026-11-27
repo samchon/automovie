@@ -8,24 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * Construction sizes no source read gives, provisional.
- */
-const ESTIMATE: string =
-  "Coarse playground construction estimate; no source read gives it";
-
-/*
- * Grab bar height above the platform and its distance inboard of the rim,
- * metres (provisional construction estimate).
- */
-const BAR: number = 0.7;
-
-/*
- * The grab bar's distance inboard of the rim, metres (provisional construction
- * estimate).
- */
-const INBOARD: number = 0.1;
+import * as AutoMovieArchetypeRoundaboutData from "./internal/AutoMovieArchetypeRoundaboutData";
 
 /** Constructs the roundabout archetype from its recipe. */
 export namespace AutoMovieArchetypeRoundabout {
@@ -112,9 +95,9 @@ export function create(
 
   /** The dimensions' bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    radius: AutoMovieArchetypeBand.metres(0.8, 1.5, ESTIMATE, true),
-    height: AutoMovieArchetypeBand.metres(0.1, 0.2, ESTIMATE, true),
-    mass: AutoMovieArchetypeBand.of("kg", 30, 80, ESTIMATE, true),
+    radius: AutoMovieArchetypeBand.metres(0.8, 1.5, AutoMovieArchetypeRoundaboutData.ESTIMATE, true),
+    height: AutoMovieArchetypeBand.metres(0.1, 0.2, AutoMovieArchetypeRoundaboutData.ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 30, 80, AutoMovieArchetypeRoundaboutData.ESTIMATE, true),
   };
 
   /**
@@ -193,3 +176,15 @@ export function create(
     return builder.build(mass);
   }
 }
+
+/*
+ * Grab bar height above the platform and its distance inboard of the rim,
+ * metres (provisional construction estimate).
+ */
+const BAR: number = 0.7;
+
+/*
+ * The grab bar's distance inboard of the rim, metres (provisional construction
+ * estimate).
+ */
+const INBOARD: number = 0.1;

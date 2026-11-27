@@ -16,109 +16,6 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /*
- * The closed set of authored horizontal stage directions.
- */
-const DIRECTIONS: Readonly<
-  Record<IAutoMovieMotionHumanStageBladeFootwork.Direction, IAutoMovieVector3>
-> = {
-  forward: { x: 0, y: 0, z: 1 },
-  back: { x: 0, y: 0, z: -1 },
-  left: { x: 1, y: 0, z: 0 },
-  right: { x: -1, y: 0, z: 0 },
-};
-
-/*
- * The AJKF descriptions of sliding footwork inform ground clearance in the
- * kendo profile. Foil studies distinguish foot travel and whole-body carry by
- * measure. The foil profile is the general fencing step; the epee step is
- * shorter and more measured, as a weapon whose whole body is target keeps its
- * distance, and the sabre step longer and quicker, as the fastest of the three
- * weapons. All numbers here are provisional film timings and scales, including
- * the deliberate cast timing for the armoured profile.
- * ://www.kendo.or.jp/knowledge/books/kendogijutsu_01/
- * ://pmc.ncbi.nlm.nih.gov/articles/PMC13050851/
- * @see https://www.kendo.or.jp/knowledge/books/kendogijutsu_01/
- * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC13050851/
- */
-const PROFILES: Readonly<
-  Record<
-    IAutoMovieMotionHumanStageBladeFootwork.Style,
-    stageBladeFootworkSchedule.IProfile
-  >
-> = {
-  fencing: {
-    windows: [
-      [0.06, 0.4],
-      [0.49, 0.82],
-    ],
-    travel: 0.14,
-    lift: 0.014,
-    follow: 3,
-    seconds: 0.55,
-  },
-  foil: {
-    windows: [
-      [0.06, 0.4],
-      [0.49, 0.82],
-    ],
-    travel: 0.14,
-    lift: 0.014,
-    follow: 3,
-    seconds: 0.55,
-  },
-  epee: {
-    windows: [
-      [0.08, 0.44],
-      [0.53, 0.86],
-    ],
-    travel: 0.12,
-    lift: 0.012,
-    follow: 2,
-    seconds: 0.65,
-  },
-  sabre: {
-    windows: [
-      [0.05, 0.36],
-      [0.42, 0.76],
-    ],
-    travel: 0.15,
-    lift: 0.016,
-    follow: 4,
-    seconds: 0.45,
-  },
-  kendo: {
-    windows: [
-      [0.05, 0.43],
-      [0.47, 0.85],
-    ],
-    travel: 0.12,
-    lift: 0,
-    follow: 1,
-    seconds: 0.62,
-  },
-  armoured: {
-    windows: [
-      [0.12, 0.51],
-      [0.6, 0.91],
-    ],
-    travel: 0.11,
-    lift: 0.025,
-    follow: 4,
-    seconds: 0.85,
-  },
-};
-
-/*
- * Reference hip height in metres for the profile's body-scaled edit length.
- */
-const REFERENCE_HIP: number = 0.93;
-
-/*
- * The longest authored mark shift in shares of actor stature.
- */
-const MAX_TRAVEL: number = 0.23;
-
-/*
  * A blade set's footwork schedule between two floor marks: the style's profile
  * (`PROFILES`), the mark shift (the profile's share of stature unless authored,
  * at most `MAX_TRAVEL` of it) and the duration (the profile's at the reference
@@ -275,6 +172,109 @@ export namespace stageBladeFootworkSchedule {
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 }
+
+/*
+ * The closed set of authored horizontal stage directions.
+ */
+const DIRECTIONS: Readonly<
+  Record<IAutoMovieMotionHumanStageBladeFootwork.Direction, IAutoMovieVector3>
+> = {
+  forward: { x: 0, y: 0, z: 1 },
+  back: { x: 0, y: 0, z: -1 },
+  left: { x: 1, y: 0, z: 0 },
+  right: { x: -1, y: 0, z: 0 },
+};
+
+/*
+ * The AJKF descriptions of sliding footwork inform ground clearance in the
+ * kendo profile. Foil studies distinguish foot travel and whole-body carry by
+ * measure. The foil profile is the general fencing step; the epee step is
+ * shorter and more measured, as a weapon whose whole body is target keeps its
+ * distance, and the sabre step longer and quicker, as the fastest of the three
+ * weapons. All numbers here are provisional film timings and scales, including
+ * the deliberate cast timing for the armoured profile.
+ * ://www.kendo.or.jp/knowledge/books/kendogijutsu_01/
+ * ://pmc.ncbi.nlm.nih.gov/articles/PMC13050851/
+ * @see https://www.kendo.or.jp/knowledge/books/kendogijutsu_01/
+ * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC13050851/
+ */
+const PROFILES: Readonly<
+  Record<
+    IAutoMovieMotionHumanStageBladeFootwork.Style,
+    stageBladeFootworkSchedule.IProfile
+  >
+> = {
+  fencing: {
+    windows: [
+      [0.06, 0.4],
+      [0.49, 0.82],
+    ],
+    travel: 0.14,
+    lift: 0.014,
+    follow: 3,
+    seconds: 0.55,
+  },
+  foil: {
+    windows: [
+      [0.06, 0.4],
+      [0.49, 0.82],
+    ],
+    travel: 0.14,
+    lift: 0.014,
+    follow: 3,
+    seconds: 0.55,
+  },
+  epee: {
+    windows: [
+      [0.08, 0.44],
+      [0.53, 0.86],
+    ],
+    travel: 0.12,
+    lift: 0.012,
+    follow: 2,
+    seconds: 0.65,
+  },
+  sabre: {
+    windows: [
+      [0.05, 0.36],
+      [0.42, 0.76],
+    ],
+    travel: 0.15,
+    lift: 0.016,
+    follow: 4,
+    seconds: 0.45,
+  },
+  kendo: {
+    windows: [
+      [0.05, 0.43],
+      [0.47, 0.85],
+    ],
+    travel: 0.12,
+    lift: 0,
+    follow: 1,
+    seconds: 0.62,
+  },
+  armoured: {
+    windows: [
+      [0.12, 0.51],
+      [0.6, 0.91],
+    ],
+    travel: 0.11,
+    lift: 0.025,
+    follow: 4,
+    seconds: 0.85,
+  },
+};
+
+/*
+ * Reference hip height in metres for the profile's body-scaled edit length.
+ */
+const REFERENCE_HIP: number = 0.93;
+
+/*
+ * The longest authored mark shift in shares of actor stature.
+ */
+const MAX_TRAVEL: number = 0.23;
 
 /*
  * Both fixed intervals of a foot's ground contact outside its travel window.

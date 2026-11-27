@@ -38,8 +38,6 @@ export namespace AutoMovieHumanF1NativeRootClock {
      */
     clocks: number[];
   }
-  const turn: number = 2 * Math.PI;
-
   /*
    * One unwrapped branch under the original increasing/decreasing winding.
    */
@@ -233,6 +231,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
       return [p[0], p[1], Spline.jet(zz, values.length, c)[0]];
     };
   }
+
   /*
    * New periodic target clock2, in mm per radian and per squared radian of
    * original target clock.
@@ -256,6 +255,8 @@ export namespace AutoMovieHumanF1NativeRootClock {
       };
     };
   }
+
+  const turn: number = 2 * Math.PI;
 }
 
 /*

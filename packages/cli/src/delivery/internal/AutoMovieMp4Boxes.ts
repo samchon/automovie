@@ -76,12 +76,6 @@ export namespace AutoMovieMp4Boxes {
   }
 
   /*
-   * Largest top-level box read into memory; a sample table beyond it is
-   * refused.
-   */
-  const MAXIMUM_BOX: number = 64 * 1024 * 1024;
-
-  /*
    * Read the payloads of the top-level `ftyp` and `moov` boxes by walking the
    * box headers, never the media data.
    * Parameter path: The MP4 file.
@@ -115,29 +109,6 @@ export namespace AutoMovieMp4Boxes {
     } finally {
       await handle.close();
     }
-  }
-
-  /*
-   * Decode one box header given the bytes available after its first byte: a
-   * 32-bit size, a 64-bit size when the 32-bit one is 1, or the rest of the
-   * parent when it is 0.
-   */
-  function boxHeader(bytes: Buffer, available: number): IBox {
-    if (bytes.length < 8) throw new Error("a box header is truncated");
-    const type: string = bytes.toString("latin1", 4, 8);
-    let length: number = bytes.readUInt32BE(0);
-    let start: number = 8;
-    if (length === 1) {
-      if (bytes.length < 16) throw new Error("a large box header is truncated");
-      const large: bigint = bytes.readBigUInt64BE(8);
-      if (large > BigInt(Number.MAX_SAFE_INTEGER))
-        throw new Error("a box is too large");
-      length = Number(large);
-      start = 16;
-    } else if (length === 0) length = available;
-    if (length < start || length > available)
-      throw new Error("the " + type + " box overruns its parent");
-    return { type, start, end: length };
   }
 
   /*
@@ -271,6 +242,35 @@ export namespace AutoMovieMp4Boxes {
   export function handler(buffer: Buffer, track: IBox): string {
     const box: IBox = only(buffer, only(buffer, track, "mdia"), "hdlr");
     return buffer.toString("latin1", field(box, 8, 4), box.start + 12);
+  }
+
+  /*
+   * Largest top-level box read into memory; a sample table beyond it is
+   * refused.
+   */
+  const MAXIMUM_BOX: number = 64 * 1024 * 1024;
+
+  /*
+   * Decode one box header given the bytes available after its first byte: a
+   * 32-bit size, a 64-bit size when the 32-bit one is 1, or the rest of the
+   * parent when it is 0.
+   */
+  function boxHeader(bytes: Buffer, available: number): IBox {
+    if (bytes.length < 8) throw new Error("a box header is truncated");
+    const type: string = bytes.toString("latin1", 4, 8);
+    let length: number = bytes.readUInt32BE(0);
+    let start: number = 8;
+    if (length === 1) {
+      if (bytes.length < 16) throw new Error("a large box header is truncated");
+      const large: bigint = bytes.readBigUInt64BE(8);
+      if (large > BigInt(Number.MAX_SAFE_INTEGER))
+        throw new Error("a box is too large");
+      length = Number(large);
+      start = 16;
+    } else if (length === 0) length = available;
+    if (length < start || length > available)
+      throw new Error("the " + type + " box overruns its parent");
+    return { type, start, end: length };
   }
 
   /*

@@ -9,10 +9,11 @@ import type {
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
-import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-
-const { endHeight, capHeight }: typeof AutoMovieHumanBodySurfaceRead =
-  AutoMovieHumanBodySurfaceRead;
+import "./AutoMovieHumanBodySurfaceRead";
+import {
+  endHeight,
+  capHeight,
+} from "./internal/AutoMovieHumanBodySurfacePolesData";
 
 /**
  * A chain's closed ends: the pole caps and domes, their base rings, and the

@@ -11,8 +11,6 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidRailSolve } from "./AutoMovieSolidRailSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
-  AutoMovieSolidVector;
 /**
  * The two rails at one intersection point, where each surface is trimmed back
  * on its kept side.
@@ -433,5 +431,8 @@ export namespace AutoMovieSolidRail {
     );
   }
 }
+
+const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;
 
 type IJet = IAutoMovieSolidSurface.IJet;

@@ -5,12 +5,6 @@ import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
 import type { AutoMovieEnvironment } from "../../AutoMovieEnvironment";
 
 /*
- * Metre or unit-axis proximity used only to recognize equivalent authoring
- * frames.
- */
-const ALIGNMENT: number = 1e-6;
-
-/*
  * Resolve named stops on an upright shaft, in increasing local height. A
  * referenced sill must coincide with the local vertical axis and its +Z
  * direction must face the same landing as the lift. A numeric stop gives its
@@ -100,3 +94,9 @@ export namespace liftStopHeights {
     height: number;
   }
 }
+
+/*
+ * Metre or unit-axis proximity used only to recognize equivalent authoring
+ * frames.
+ */
+const ALIGNMENT: number = 1e-6;

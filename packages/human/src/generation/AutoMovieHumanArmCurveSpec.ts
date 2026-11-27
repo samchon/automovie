@@ -223,15 +223,15 @@ export namespace AutoMovieHumanArmCurveSpec {
     ) as AutoMovieVector3Tuple;
   }
 
-  /*
-   * Binomial coefficients C(5, j).
-   */
-  const BINOMIAL5: number[] = [1, 5, 10, 10, 5, 1];
-
   /** Unit vector; throws on a zero vector instead of substituting one. */
   export function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const n: number = Math.hypot(a[0], a[1], a[2]);
     if (!(n > 0)) throw new Error("Zero direction in an arm frame");
     return [a[0] / n, a[1] / n, a[2] / n];
   }
+
+  /*
+   * Binomial coefficients C(5, j).
+   */
+  const BINOMIAL5: number[] = [1, 5, 10, 10, 5, 1];
 }

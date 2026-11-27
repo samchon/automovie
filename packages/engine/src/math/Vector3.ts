@@ -226,32 +226,6 @@ export namespace Vector3 {
     return [result.x, result.y, result.z];
   }
 
-  /*
-   * The largest component magnitude when it lies outside `[2^-511, 2^511]`, or
-   * zero otherwise. Inside that range the largest square is a normal binary64
-   * number and the sum of three squares cannot overflow, so the plain formula
-   * is safe; zero and non-finite vectors also return zero and take it.
-   */
-  const normalizationScale: (a: IAutoMovieVector3) => number = (
-    a: IAutoMovieVector3,
-  ): number => {
-    const largest: number = Math.max(
-      Math.abs(a.x),
-      Math.abs(a.y),
-      Math.abs(a.z),
-    );
-    return extremeScale(largest);
-  };
-
-  /*
-   * Shared binary64 magnitude gate; zero and nonfinite inputs retain the
-   * ordinary norm path.
-   */
-  const extremeScale: (largest: number) => number = (
-    largest: number,
-  ): number =>
-    largest > 0 && (largest < 2 ** -511 || largest > 2 ** 511) ? largest : 0;
-
   /**
    * The component-wise linear interpolation `a + (b - a) · t`, giving `a` at `t
    * = 0` and `b`, up to rounding, at `t = 1`; a `t` outside `[0, 1]`
@@ -295,4 +269,30 @@ export namespace Vector3 {
       z: z + dz * t,
     });
   }
+
+  /*
+   * The largest component magnitude when it lies outside `[2^-511, 2^511]`, or
+   * zero otherwise. Inside that range the largest square is a normal binary64
+   * number and the sum of three squares cannot overflow, so the plain formula
+   * is safe; zero and non-finite vectors also return zero and take it.
+   */
+  const normalizationScale: (a: IAutoMovieVector3) => number = (
+    a: IAutoMovieVector3,
+  ): number => {
+    const largest: number = Math.max(
+      Math.abs(a.x),
+      Math.abs(a.y),
+      Math.abs(a.z),
+    );
+    return extremeScale(largest);
+  };
+
+  /*
+   * Shared binary64 magnitude gate; zero and nonfinite inputs retain the
+   * ordinary norm path.
+   */
+  const extremeScale: (largest: number) => number = (
+    largest: number,
+  ): number =>
+    largest > 0 && (largest < 2 ** -511 || largest > 2 ** 511) ? largest : 0;
 }

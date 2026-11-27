@@ -9,6 +9,7 @@ import type {
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
+import * as WorkoutLyingData from "./internal/WorkoutLyingData";
 
 /*
  * The exercises of the workout law done lying, sitting on the floor or on
@@ -27,41 +28,6 @@ import { WorkoutKind } from "./WorkoutKind";
  * the body so its forearm rests on the floor level with its feet.
  */
 export namespace WorkoutLying {
-  /*
-   * Hook lying: on the back, the knees bent and the feet flat.
-   */
-  const hook = (
-    body: IAutoMovieMotionHumanBody,
-    arms: IAutoMovieMotionHumanExerciseKey.ILimb,
-  ): IAutoMovieMotionHumanExerciseKey.IKey =>
-    ExerciseKey.from(
-      body,
-      { pitch: -90 },
-      { hip: 45, knee: 90, ankle: -45, ...arms },
-    );
-
-  /*
-   * Sitting on the floor with the legs straight ahead.
-   */
-  const longSit = (
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieMotionHumanExerciseKey.IKey =>
-    ExerciseKey.from(body, {}, { hip: 90, shoulder: 30, elbow: 20 });
-
-  /*
-   * The back bears.
-   */
-  const SUPINE: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
-    { part: "back", kind: "lie" },
-  ];
-
-  /*
-   * The seat bears.
-   */
-  const SEATED: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
-    { part: "seat", kind: "seat" },
-  ];
-
   /*
    * The exercises.
    */
@@ -82,7 +48,7 @@ export namespace WorkoutLying {
       // The seat and the hooked feet bear throughout; the back lies on the
       // floor at the bottom and leaves it as the trunk curls up.
       supports: [
-        ...SEATED,
+        ...WorkoutLyingData.SEATED,
         { part: "leftFoot", kind: "plant" },
         { part: "rightFoot", kind: "plant" },
         { part: "back", kind: "lie", at: ["down"] },
@@ -118,7 +84,7 @@ export namespace WorkoutLying {
       base: "lying",
       anchor: "hips",
       pin: ["leftUpperLeg", "rightUpperLeg"],
-      supports: SUPINE,
+      supports: WorkoutLyingData.SUPINE,
       enter: 2.4,
       count: 8,
       route: (
@@ -185,7 +151,7 @@ export namespace WorkoutLying {
       base: "lying",
       anchor: "hips",
       pin: ["leftUpperLeg", "rightUpperLeg"],
-      supports: SUPINE,
+      supports: WorkoutLyingData.SUPINE,
       enter: 2.4,
       count: 1,
       route: (
@@ -260,7 +226,7 @@ export namespace WorkoutLying {
       base: "seated",
       anchor: "hips",
       pin: ["leftUpperLeg", "rightUpperLeg"],
-      supports: SEATED,
+      supports: WorkoutLyingData.SEATED,
       enter: 2,
       count: 1,
       route: (
@@ -287,7 +253,7 @@ export namespace WorkoutLying {
       base: "seated",
       anchor: "hips",
       pin: ["leftUpperLeg", "rightUpperLeg"],
-      supports: SEATED,
+      supports: WorkoutLyingData.SEATED,
       enter: 2,
       count: 1,
       route: (
@@ -319,7 +285,7 @@ export namespace WorkoutLying {
         body.measure.shank + body.measure.ankleHeight,
       // On the back on the bench, the feet on the floor.
       supports: [
-        ...SUPINE,
+        ...WorkoutLyingData.SUPINE,
         { part: "leftFoot", kind: "plant" },
         { part: "rightFoot", kind: "plant" },
       ],
@@ -404,7 +370,7 @@ export namespace WorkoutLying {
       pin: ["leftUpperLeg", "rightUpperLeg"],
       raise: (body: IAutoMovieMotionHumanBody): number =>
         0.9 * (body.measure.thigh + body.measure.shank),
-      supports: SEATED,
+      supports: WorkoutLyingData.SEATED,
       enter: 2,
       count: 8,
       route: (
@@ -436,4 +402,25 @@ export namespace WorkoutLying {
       },
     },
   };
+
+  /*
+   * Hook lying: on the back, the knees bent and the feet flat.
+   */
+  const hook = (
+    body: IAutoMovieMotionHumanBody,
+    arms: IAutoMovieMotionHumanExerciseKey.ILimb,
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
+    ExerciseKey.from(
+      body,
+      { pitch: -90 },
+      { hip: 45, knee: 90, ankle: -45, ...arms },
+    );
+
+  /*
+   * Sitting on the floor with the legs straight ahead.
+   */
+  const longSit = (
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
+    ExerciseKey.from(body, {}, { hip: 90, shoulder: 30, elbow: 20 });
 }

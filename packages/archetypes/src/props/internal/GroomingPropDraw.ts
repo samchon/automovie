@@ -9,23 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import { CARE_ITEM_BANDS } from "../constants/CARE_ITEM_BANDS";
-
-/*
- * Alltub's laminate tubes data sheet.
- */
-const ALLTUB: string =
-  "Alltub laminate tubes data sheet (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf)";
-/*
- * The readable name of each kind.
- */
-const NAMES: Readonly<Record<GroomingPropDraw.Kind, string>> = {
-  tissue: "tissue",
-  comb: "comb",
-  toothbrush: "toothbrush",
-  tube: "cream tube",
-  razor: "razor",
-  lipstick: "lipstick",
-};
+import * as GroomingPropDrawData from "./GroomingPropDrawData";
 
 /*
  * The seeded recipes originally published as `createCareItem`.
@@ -199,52 +183,52 @@ export namespace GroomingPropDraw {
     alltub13_5: AutoMovieArchetypeBand.metres(
       0.045,
       0.16,
-      `${ALLTUB}: the 13.5 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 13.5 mm tube's lengths`,
     ),
     alltub19: AutoMovieArchetypeBand.metres(
       0.045,
       0.16,
-      `${ALLTUB}: the 19 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 19 mm tube's lengths`,
     ),
     alltub22: AutoMovieArchetypeBand.metres(
       0.075,
       0.125,
-      `${ALLTUB}: the 22 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 22 mm tube's lengths`,
     ),
     alltub25: AutoMovieArchetypeBand.metres(
       0.075,
       0.16,
-      `${ALLTUB}: the 25 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 25 mm tube's lengths`,
     ),
     alltub28: AutoMovieArchetypeBand.metres(
       0.075,
       0.19,
-      `${ALLTUB}: the 28 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 28 mm tube's lengths`,
     ),
     alltub30: AutoMovieArchetypeBand.metres(
       0.075,
       0.19,
-      `${ALLTUB}: the 30 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 30 mm tube's lengths`,
     ),
     alltub35: AutoMovieArchetypeBand.metres(
       0.075,
       0.181,
-      `${ALLTUB}: the 35 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 35 mm tube's lengths`,
     ),
     alltub38: AutoMovieArchetypeBand.metres(
       0.075,
       0.205,
-      `${ALLTUB}: the 38 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 38 mm tube's lengths`,
     ),
     alltub40: AutoMovieArchetypeBand.metres(
       0.06,
       0.2,
-      `${ALLTUB}: the 40 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 40 mm tube's lengths`,
     ),
     alltub50: AutoMovieArchetypeBand.metres(
       0.06,
       0.2,
-      `${ALLTUB}: the 50 mm tube's lengths`,
+      `${GroomingPropDrawData.ALLTUB}: the 50 mm tube's lengths`,
     ),
   };
 
@@ -416,3 +400,15 @@ export namespace GroomingPropDraw {
     });
   }
 }
+
+/*
+ * The readable name of each kind.
+ */
+const NAMES: Readonly<Record<GroomingPropDraw.Kind, string>> = {
+  tissue: "tissue",
+  comb: "comb",
+  toothbrush: "toothbrush",
+  tube: "cream tube",
+  razor: "razor",
+  lipstick: "lipstick",
+};

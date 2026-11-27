@@ -9,12 +9,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import * as AutoMovieArchetypeBellFrameData from "./internal/AutoMovieArchetypeBellFrameData";
 
-/*
- * Visual reference for the flared bell and its raised bands.
- */
-const BELL: string =
-  "The Met, Refectory Bell (https://www.metmuseum.org/art/collection/search/640179)";
 /** Creates a deterministic bell frame fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeBellFrame {
   /**
@@ -189,7 +185,7 @@ export namespace AutoMovieArchetypeBellFrame {
       "m",
       1.3,
       1.8,
-      `Fictional frame width. Bell outline reference: ${BELL}`,
+      `Fictional frame width. Bell outline reference: ${AutoMovieArchetypeBellFrameData.BELL}`,
       true,
     ),
     depth: AutoMovieArchetypeBand.of(

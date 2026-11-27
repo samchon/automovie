@@ -11,18 +11,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { rideSwing } from "./internal/rideSwing";
-
-/*
- * The seat clearance read for a single-user swing at rest.
- */
-const EN1176: string =
-  "EN 1176-2 single-user swing seat clearance at rest, 350 mm, as a third-party summary states it (https://www.scribd.com/document/521625147/BS-EN-1176-2-2017); not read in the standard itself";
-
-/*
- * Construction sizes no source read gives, provisional.
- */
-const ESTIMATE: string =
-  "Coarse playground construction estimate; no source read gives it";
+import * as AutoMovieArchetypeSwingData from "./internal/AutoMovieArchetypeSwingData";
 
 /** Constructs the swing archetype from its recipe. */
 export namespace AutoMovieArchetypeSwing {
@@ -151,14 +140,14 @@ export function create(
 
   /** The dimensions' bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    pivot: AutoMovieArchetypeBand.metres(2, 2.6, ESTIMATE, true),
-    clearance: AutoMovieArchetypeBand.metres(0.35, 0.45, EN1176, true),
-    seatWidth: AutoMovieArchetypeBand.metres(0.28, 0.5, ESTIMATE, true),
-    seatDepth: AutoMovieArchetypeBand.metres(0.15, 0.22, ESTIMATE, true),
+    pivot: AutoMovieArchetypeBand.metres(2, 2.6, AutoMovieArchetypeSwingData.ESTIMATE, true),
+    clearance: AutoMovieArchetypeBand.metres(0.35, 0.45, AutoMovieArchetypeSwingData.EN1176, true),
+    seatWidth: AutoMovieArchetypeBand.metres(0.28, 0.5, AutoMovieArchetypeSwingData.ESTIMATE, true),
+    seatDepth: AutoMovieArchetypeBand.metres(0.15, 0.22, AutoMovieArchetypeSwingData.ESTIMATE, true),
     // Where a seated rider holds the chains: from just over the thighs to
     // an adult's seated overhead reach.
-    grip: AutoMovieArchetypeBand.metres(0.3, 1.2, ESTIMATE, true),
-    mass: AutoMovieArchetypeBand.of("kg", 60, 150, ESTIMATE, true),
+    grip: AutoMovieArchetypeBand.metres(0.3, 1.2, AutoMovieArchetypeSwingData.ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 60, 150, AutoMovieArchetypeSwingData.ESTIMATE, true),
   };
 
   /**

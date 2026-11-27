@@ -1,6 +1,7 @@
 import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { CamelCohorts } from "./CamelCohorts";
+import * as CamelGaitData from "./internal/CamelGaitData";
 
 /*
  * A provisional dromedary walk from an observed Bactrian walking point.
@@ -32,34 +33,6 @@ import { CamelCohorts } from "./CamelCohorts";
  */
 export namespace CamelGait {
   /*
-   * Figure 2 supplement 2D, Camelusbactrianus row: observed mean period,
-   * seconds.
-   */
-  const STRIDE: number = 1.7333333333333336;
-
-  /*
-   * Figure 2 supplement 2C, fore stance percentage divided by 100.
-   */
-  const FORE_DUTY: number = 0.7194109095774127;
-
-  /*
-   * Figure 2 supplement 2C, hind stance percentage divided by 100.
-   */
-  const HIND_DUTY: number = 0.66768111169193;
-
-  /*
-   * Figure 2 supplement 2B, camera-facing fore onset as a fraction after its
-   * ipsilateral hind.
-   */
-  const FORE_PHASE: number = 14.293928555816956 / 100;
-
-  /*
-   * Figure 2 supplement 2B, opposite fore onset on the same hind-referenced
-   * clock.
-   */
-  const OPPOSITE_FORE_PHASE: number = 0.6425789503922897;
-
-  /*
    * One measured walking point; the remaining camel gait clocks are not
    * measured here.
    */
@@ -71,17 +44,17 @@ export namespace CamelGait {
         nod: { range: 0, timing: "support" },
         phases: {
           leftFore: 0,
-          rightFore: OPPOSITE_FORE_PHASE - FORE_PHASE,
-          leftHind: 1 - FORE_PHASE,
-          rightHind: 0.5 - FORE_PHASE,
+          rightFore: CamelGaitData.OPPOSITE_FORE_PHASE - CamelGaitData.FORE_PHASE,
+          leftHind: 1 - CamelGaitData.FORE_PHASE,
+          rightHind: 0.5 - CamelGaitData.FORE_PHASE,
         },
         rows: [
           {
             speed: 1.08,
-            stride: STRIDE,
+            stride: CamelGaitData.STRIDE,
             deviation: 0,
-            stance: STRIDE * FORE_DUTY,
-            hindStance: STRIDE * HIND_DUTY,
+            stance: CamelGaitData.STRIDE * CamelGaitData.FORE_DUTY,
+            hindStance: CamelGaitData.STRIDE * CamelGaitData.HIND_DUTY,
           },
         ],
       },

@@ -176,45 +176,10 @@ export namespace HumanStagePiste {
   }
 
   /*
-   * Explicit weapon names admitted at the SDK boundary.
-   */
-  const KINDS: readonly Kind[] = ["foil", "epee", "sabre", "kendo"];
-
-  /*
    * The longest gap between two touches the epee scores as a double touch,
    * seconds: the lower end of the 40 to 50 ms the FIE sets for its apparatus.
    */
   export const DOUBLE: number = 0.04;
-
-  /*
-   * The weapon's attack: a thrust lunged for the point weapons, a cut
-   * otherwise.
-   */
-  const ATTACK: Readonly<Record<Kind, string>> = {
-    foil: HumanBlade.lunge.name,
-    epee: HumanBlade.lunge.name,
-    sabre: HumanBlade.cut.name,
-    kendo: HumanBlade.cut.name,
-  };
-
-  /*
-   * The weapon's answer out of a parry: a riposte for the point weapons, a cut
-   * otherwise.
-   */
-  const REPLY: Readonly<Record<Kind, string>> = {
-    foil: HumanBlade.riposte.name,
-    epee: HumanBlade.riposte.name,
-    sabre: HumanBlade.cut.name,
-    kendo: HumanBlade.cut.name,
-  };
-
-  /*
-   * The advance a cut is carried by: the sabre's lunge, kendo's stepping
-   * strike.
-   */
-  const CARRY: Readonly<
-    Partial<Record<Kind, IAutoMovieMotionHumanSword.IAttack["advance"]>>
-  > = { sabre: "lunge", kendo: "step" };
 
   /*
    * The longest single advance of the approach, metres: about one foot's
@@ -222,28 +187,6 @@ export namespace HumanStagePiste {
    * longest mark shift for every canonical body.
    */
   export const ADVANCE: number = 0.3;
-
-  /*
-   * Each advance shifts both performers on one clock, each its share of its
-   * approach.
-   */
-  const SHIFT: IAutoMovieMotionHumanMutual<IAdvance, Role> = {
-    name: "stagePiste",
-    roles: ["first", "second"],
-    act: (role, advance): IAutoMovieMotionHumanMutual.IAct => {
-      const { take, index, count }: IAdvance = advance;
-      const { direction, distance, lead }: IActor = take[role];
-      const params: IAutoMovieMotionHumanStageBladeFootwork.IParams = {
-        style: take.kind,
-        direction,
-        distance: distance / count,
-        duration: take.duration,
-        ...(take.cue === undefined || index > 0 ? {} : { propCue: take.cue }),
-        ...(lead === undefined ? {} : { lead }),
-      };
-      return { name: stageBladeFootwork.name, params };
-    },
-  };
 
   /*
    * Check the take against the weapon's rules, then close each performer's
@@ -331,6 +274,63 @@ export namespace HumanStagePiste {
       },
     };
   }
+
+  /*
+   * Explicit weapon names admitted at the SDK boundary.
+   */
+  const KINDS: readonly Kind[] = ["foil", "epee", "sabre", "kendo"];
+
+  /*
+   * The weapon's attack: a thrust lunged for the point weapons, a cut
+   * otherwise.
+   */
+  const ATTACK: Readonly<Record<Kind, string>> = {
+    foil: HumanBlade.lunge.name,
+    epee: HumanBlade.lunge.name,
+    sabre: HumanBlade.cut.name,
+    kendo: HumanBlade.cut.name,
+  };
+
+  /*
+   * The weapon's answer out of a parry: a riposte for the point weapons, a cut
+   * otherwise.
+   */
+  const REPLY: Readonly<Record<Kind, string>> = {
+    foil: HumanBlade.riposte.name,
+    epee: HumanBlade.riposte.name,
+    sabre: HumanBlade.cut.name,
+    kendo: HumanBlade.cut.name,
+  };
+
+  /*
+   * The advance a cut is carried by: the sabre's lunge, kendo's stepping
+   * strike.
+   */
+  const CARRY: Readonly<
+    Partial<Record<Kind, IAutoMovieMotionHumanSword.IAttack["advance"]>>
+  > = { sabre: "lunge", kendo: "step" };
+
+  /*
+   * Each advance shifts both performers on one clock, each its share of its
+   * approach.
+   */
+  const SHIFT: IAutoMovieMotionHumanMutual<IAdvance, Role> = {
+    name: "stagePiste",
+    roles: ["first", "second"],
+    act: (role, advance): IAutoMovieMotionHumanMutual.IAct => {
+      const { take, index, count }: IAdvance = advance;
+      const { direction, distance, lead }: IActor = take[role];
+      const params: IAutoMovieMotionHumanStageBladeFootwork.IParams = {
+        style: take.kind,
+        direction,
+        distance: distance / count,
+        duration: take.duration,
+        ...(take.cue === undefined || index > 0 ? {} : { propCue: take.cue }),
+        ...(lead === undefined ? {} : { lead }),
+      };
+      return { name: stageBladeFootwork.name, params };
+    },
+  };
 
   /*
    * The anchors of the deciding actions of a take.

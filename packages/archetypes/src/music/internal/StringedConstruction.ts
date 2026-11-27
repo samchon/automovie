@@ -8,63 +8,6 @@ import {
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
 
 /*
- * The shorthand every construction uses.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * Varnished wood.
- */
-const WOOD: string = "#8a5a2b";
-
-/*
- * An ebony fingerboard.
- */
-const EBONY: string = "#1f1a17";
-
-/*
- * Lay the strings from the nut to the bridge, each a `bar` named `string<n>`,
- * `string1` on the `-Z` edge.
- * Parameter builder: The builder to fill.
- * Parameter count: How many strings.
- * Parameter nut: The nut's middle, where the strings leave it, metres.
- * Parameter bridge: The bridge's middle, where the strings meet it, metres.
- * Parameter atNut: The outer strings' span at the nut, metres.
- * Parameter atBridge: Their span at the bridge, metres.
- */
-function strings(
-  builder: Builder,
-  count: number,
-  nut: IAutoMovieVector3,
-  bridge: IAutoMovieVector3,
-  atNut: number,
-  atBridge: number,
-): void {
-  for (let k: number = 1; k <= count; k++) {
-    const share: number = (k - 1) / (count - 1) - 0.5;
-    const from: IAutoMovieVector3 = v(nut.x, nut.y, nut.z + share * atNut);
-    const to: IAutoMovieVector3 = v(
-      bridge.x,
-      bridge.y,
-      bridge.z + share * atBridge,
-    );
-    const along: IAutoMovieVector3 = Vector3.subtract(from, to);
-    builder.affordance({
-      id: `string${k}`,
-      kind: "bar",
-      symmetry: "round",
-      frame: AutoMovieArchetypeFrame.facing(
-        Vector3.scale(Vector3.add(from, to), 0.5),
-        v(0, 1, 0),
-        along,
-      ),
-      extent: null,
-      length: Vector3.length(along),
-    });
-  }
-}
-
-/*
  * How createInstrument builds its stringed instruments: a steel-string
  * guitar and a violin, each lying on its back with its neck toward `+X`.
  *
@@ -273,6 +216,63 @@ export namespace StringedConstruction {
       grip: "power",
       aperture: thick,
       length: nutX,
+    });
+  }
+}
+
+/*
+ * The shorthand every construction uses.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * Varnished wood.
+ */
+const WOOD: string = "#8a5a2b";
+
+/*
+ * An ebony fingerboard.
+ */
+const EBONY: string = "#1f1a17";
+
+/*
+ * Lay the strings from the nut to the bridge, each a `bar` named `string<n>`,
+ * `string1` on the `-Z` edge.
+ * Parameter builder: The builder to fill.
+ * Parameter count: How many strings.
+ * Parameter nut: The nut's middle, where the strings leave it, metres.
+ * Parameter bridge: The bridge's middle, where the strings meet it, metres.
+ * Parameter atNut: The outer strings' span at the nut, metres.
+ * Parameter atBridge: Their span at the bridge, metres.
+ */
+function strings(
+  builder: Builder,
+  count: number,
+  nut: IAutoMovieVector3,
+  bridge: IAutoMovieVector3,
+  atNut: number,
+  atBridge: number,
+): void {
+  for (let k: number = 1; k <= count; k++) {
+    const share: number = (k - 1) / (count - 1) - 0.5;
+    const from: IAutoMovieVector3 = v(nut.x, nut.y, nut.z + share * atNut);
+    const to: IAutoMovieVector3 = v(
+      bridge.x,
+      bridge.y,
+      bridge.z + share * atBridge,
+    );
+    const along: IAutoMovieVector3 = Vector3.subtract(from, to);
+    builder.affordance({
+      id: `string${k}`,
+      kind: "bar",
+      symmetry: "round",
+      frame: AutoMovieArchetypeFrame.facing(
+        Vector3.scale(Vector3.add(from, to), 0.5),
+        v(0, 1, 0),
+        along,
+      ),
+      extent: null,
+      length: Vector3.length(along),
     });
   }
 }

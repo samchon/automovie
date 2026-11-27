@@ -11,18 +11,7 @@ import {
 import { FIELD_IMPLEMENTS } from "../constants/FIELD_IMPLEMENTS";
 import { ForestAxe } from "./ForestAxe";
 import { Throwers } from "./Throwers";
-
-/*
- * Broom and mop handles from a maker's listings seen in search results.
- */
-const HANDLES: string =
-  "Rubbermaid Commercial broom handle, 60 in by 15/16 in, and mop handles, 54 in by 1 in, listings seen only in search results";
-
-/*
- * D-handle shovels from retailer listings seen in search results.
- */
-const SHOVEL: string =
-  "Bully Tools 82510, 41.5 in and 4.5 lb, and Fiskars D-handle shovels, 44.75 to 46 in and 4.85 to 5.6 lb, retailer listings seen only in search results";
+import * as LongImplementDrawData from "./LongImplementDrawData";
 
 /*
  * The seeded recipes originally published as `createLongTool`.
@@ -245,13 +234,13 @@ export namespace LongImplementDraw {
       length: AutoMovieArchetypeBand.metres(
         60 * AutoMovieArchetypeUnits.INCH,
         60 * AutoMovieArchetypeUnits.INCH + 0.08,
-        `${HANDLES}; the head adds 8 cm`,
+        `${LongImplementDrawData.HANDLES}; the head adds 8 cm`,
         true,
       ),
       shaftDiameter: AutoMovieArchetypeBand.metres(
         (15 / 16) * AutoMovieArchetypeUnits.INCH,
         AutoMovieArchetypeUnits.INCH,
-        HANDLES,
+        LongImplementDrawData.HANDLES,
         true,
       ),
       mass: AutoMovieArchetypeBand.of(
@@ -266,13 +255,13 @@ export namespace LongImplementDraw {
       length: AutoMovieArchetypeBand.metres(
         54 * AutoMovieArchetypeUnits.INCH,
         54 * AutoMovieArchetypeUnits.INCH + 0.03,
-        `${HANDLES}; the head adds 3 cm`,
+        `${LongImplementDrawData.HANDLES}; the head adds 3 cm`,
         true,
       ),
       shaftDiameter: AutoMovieArchetypeBand.metres(
         (15 / 16) * AutoMovieArchetypeUnits.INCH,
         AutoMovieArchetypeUnits.INCH,
-        HANDLES,
+        LongImplementDrawData.HANDLES,
         true,
       ),
       mass: AutoMovieArchetypeBand.of(
@@ -287,7 +276,7 @@ export namespace LongImplementDraw {
       length: AutoMovieArchetypeBand.metres(
         41.5 * AutoMovieArchetypeUnits.INCH,
         46 * AutoMovieArchetypeUnits.INCH,
-        SHOVEL,
+        LongImplementDrawData.SHOVEL,
         true,
       ),
       shaftDiameter: AutoMovieArchetypeBand.metres(
@@ -300,7 +289,7 @@ export namespace LongImplementDraw {
         "kg",
         4.5 * AutoMovieArchetypeUnits.POUND,
         5.6 * AutoMovieArchetypeUnits.POUND,
-        SHOVEL,
+        LongImplementDrawData.SHOVEL,
         true,
       ),
     },

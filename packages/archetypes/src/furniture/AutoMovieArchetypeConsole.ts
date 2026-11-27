@@ -9,31 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The control console read.
- */
-const WINSTED: string =
-  'Winsted E-SOC Control Station specification sheet: "Base Consoles shall be 34-5/8" (880mm) deep, 29" (736mm) high" in 48, 60 and 72 in widths (5.1); "a 20" (508mm) deep 1-1/8" (32mm) thick" work surface (1.6); the side profile\'s work surface at 28-7/8 in (733 mm) and the ergonomic page\'s 28-9/16 in (726 mm) (https://www.winsted.com/media/25vlxeet/e-soc-specsheet.pdf)';
-
-/*
- * A Winsted E-SOC base console's fixed sizes, metres, from the maker's sheet:
- * its overall `depth`, 34-5/8 in, and its work surface's `surface` depth, 20
- * in, and `thickness`, 1-1/8 in.
- */
-const CONSOLE: Readonly<{ depth: number; surface: number; thickness: number }> =
-  {
-    depth: 34.625 * AutoMovieArchetypeUnits.INCH,
-    surface: 20 * AutoMovieArchetypeUnits.INCH,
-    thickness: 1.125 * AutoMovieArchetypeUnits.INCH,
-  };
-
-/*
- * The construction size no source read gives, metres, an estimate no act reads
- * and no band declares: `panel`, an end panel's thickness under the work
- * surface.
- */
-const ESTIMATES: Readonly<{ panel: number }> = { panel: 0.03 };
+import * as AutoMovieArchetypeConsoleData from "./internal/AutoMovieArchetypeConsoleData";
 
 /** Constructs the console archetype from its recipe. */
 export namespace AutoMovieArchetypeConsole {
@@ -86,7 +62,7 @@ export function create(
     draw,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const { depth, surface, thickness } = CONSOLE;
+  const { depth, surface, thickness } = AutoMovieArchetypeConsoleData.CONSOLE;
   const panel: number = ESTIMATES.panel;
   const rear: number = depth - surface;
   const front: number = rear + surface / 2;
@@ -203,7 +179,7 @@ export function create(
     height: AutoMovieArchetypeBand.metres(
       (28 + 9 / 16) * AutoMovieArchetypeUnits.INCH,
       29 * AutoMovieArchetypeUnits.INCH,
-      WINSTED,
+      AutoMovieArchetypeConsoleData.WINSTED,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
@@ -214,3 +190,10 @@ export function create(
     ),
   };
 }
+
+/*
+ * The construction size no source read gives, metres, an estimate no act reads
+ * and no band declares: `panel`, an end panel's thickness under the work
+ * surface.
+ */
+const ESTIMATES: Readonly<{ panel: number }> = { panel: 0.03 };

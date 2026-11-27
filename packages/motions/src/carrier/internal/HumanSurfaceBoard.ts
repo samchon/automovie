@@ -34,29 +34,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { prepareSkateboardPhrase } from "./prepareSkateboardPhrase";
 import { prepareSurfboardPhrase } from "./prepareSurfboardPhrase";
-
-/*
- * Vertical in the deck frame.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * The axis a handle is wrapped about: its affordance frame's local +X.
- */
-const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
-/*
- * Seconds over which a riding hand reaches its grip on the support (provisional
- * staging).
- */
-const REACH: number = 0.4;
-
-/*
- * Hand subsequent actions a settled stance after the board transfer.
- */
-const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-  any: [{ window: { start: 1, end: 1 }, kind: "inertialize", entry: 0 }],
-};
+import * as HumanSurfaceBoardData from "./HumanSurfaceBoardData";
 
 /*
  * Carry a two-foot stance on the actual board's film-clock trajectory. Either
@@ -144,7 +122,7 @@ export function HumanSurfaceBoard(
             radius: (affordance?.aperture ?? 0) / 2,
             ...(rotation === undefined
               ? {}
-              : { axis: Quaternion.rotateVector(rotation, HANDLE) }),
+              : { axis: Quaternion.rotateVector(rotation, HumanSurfaceBoardData.HANDLE) }),
           },
         },
       ];
@@ -179,7 +157,7 @@ export function HumanSurfaceBoard(
       support: { kind: "ground" },
     }),
   );
-  const reach: number = Math.min(REACH, duration);
+  const reach: number = Math.min(HumanSurfaceBoardData.REACH, duration);
   for (const { side } of grips)
     contacts.push({
       part: `${side}Hand`,
@@ -275,7 +253,7 @@ export namespace HumanSurfaceBoard {
   export const skateboardPhrase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISkateboardPhraseParams> =
     {
       name: "skateboardPhrase",
-      interrupts: END,
+      interrupts: HumanSurfaceBoardData.END,
       yields: ["head"],
       plan: prepareSkateboardPhrase,
     };
@@ -287,7 +265,7 @@ export namespace HumanSurfaceBoard {
   export const surfboardPhrase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISurfboardPhraseParams> =
     {
       name: "surfboardPhrase",
-      interrupts: END,
+      interrupts: HumanSurfaceBoardData.END,
       yields: ["head"],
       plan: prepareSurfboardPhrase,
     };
@@ -506,6 +484,11 @@ export namespace HumanSurfaceBoard {
     return { part, from, to, support, kind };
   }
 }
+
+/*
+ * Vertical in the deck frame.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * One riding hand and where it holds the support as the ride starts.

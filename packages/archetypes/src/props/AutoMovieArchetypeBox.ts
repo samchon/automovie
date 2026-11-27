@@ -10,12 +10,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * Moving carton sizes from a supplier's guide seen in search results.
- */
-const CARTON: string =
-  "U-Haul moving cartons, small 16-3/8 x 12-5/8 x 12-5/8 in to large 18 x 18 x 24 in, packing guide seen only in search results";
+import * as AutoMovieArchetypeBoxData from "./internal/AutoMovieArchetypeBoxData";
 
 /** Constructs the box archetype from its recipe. */
 export namespace AutoMovieArchetypeBox {
@@ -177,21 +172,21 @@ export function create(
       "m",
       (16 + 3 / 8) * AutoMovieArchetypeUnits.INCH,
       18 * AutoMovieArchetypeUnits.INCH,
-      CARTON,
+      AutoMovieArchetypeBoxData.CARTON,
       true,
     ),
     height: AutoMovieArchetypeBand.of(
       "m",
       (12 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
       24 * AutoMovieArchetypeUnits.INCH,
-      CARTON,
+      AutoMovieArchetypeBoxData.CARTON,
       true,
     ),
     depth: AutoMovieArchetypeBand.of(
       "m",
       (12 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
       18 * AutoMovieArchetypeUnits.INCH,
-      CARTON,
+      AutoMovieArchetypeBoxData.CARTON,
       true,
     ),
     mass: AutoMovieArchetypeBand.of(

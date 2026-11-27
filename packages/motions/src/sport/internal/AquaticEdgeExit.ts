@@ -21,46 +21,6 @@ import { AquaticEdge } from "./AquaticEdge";
 import { AquaticPosture } from "./AquaticPosture";
 
 /*
- * Seconds of the whole exit: provisional.
- */
-const DURATION: number = 3.2;
-
-/*
- * Shares of the phases: hands placed, pressed up, knee on the deck, standing.
- */
-const PLACE: number = 0.2;
-const PRESS: number = 0.5;
-const KNEE: number = 0.75;
-
-/*
- * The share by which the hands have left the deck for the rising key's arms.
- */
-const LET_GO: number = 0.88;
-
-/*
- * The highest deck above the water a swimmer presses out over unaided, metres:
- * provisional, about a forearm.
- */
-const FREEBOARD: number = 0.5;
-
-/*
- * Palms this far behind the edge on the deck and this far either side, metres:
- * provisional.
- */
-const PALM_BACK: number = 0.12;
-const PALM_SIDE: number = 0.25;
-
-/*
- * The palm comes down onto the deck from this high, metres: provisional.
- */
-const LIFT: number = 0.15;
-
-/*
- * The swimmer stands this far behind the edge, metres: provisional.
- */
-const STAND_BACK: number = 0.45;
-
-/*
  * Climb out over a pool's edge unaided, as a swimmer does at a deck a forearm
  * or less above the water: both palms go onto the deck behind the edge
  * (`hands`), the arms press the body up until the hips clear the deck
@@ -334,3 +294,43 @@ export namespace AquaticEdgeExit {
     };
   }
 }
+
+/*
+ * Seconds of the whole exit: provisional.
+ */
+const DURATION: number = 3.2;
+/*
+ * Shares of the phases: hands placed, pressed up, knee on the deck, standing.
+ */
+const PLACE: number = 0.2;
+const PRESS: number = 0.5;
+
+const KNEE: number = 0.75;
+
+/*
+ * The share by which the hands have left the deck for the rising key's arms.
+ */
+const LET_GO: number = 0.88;
+
+/*
+ * The highest deck above the water a swimmer presses out over unaided, metres:
+ * provisional, about a forearm.
+ */
+const FREEBOARD: number = 0.5;
+/*
+ * Palms this far behind the edge on the deck and this far either side, metres:
+ * provisional.
+ */
+const PALM_BACK: number = 0.12;
+
+const PALM_SIDE: number = 0.25;
+
+/*
+ * The palm comes down onto the deck from this high, metres: provisional.
+ */
+const LIFT: number = 0.15;
+
+/*
+ * The swimmer stands this far behind the edge, metres: provisional.
+ */
+const STAND_BACK: number = 0.45;

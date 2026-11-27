@@ -10,9 +10,6 @@ import { MotionTrajectoryRead } from "./trajectory/MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./trajectory/MotionTrajectoryRotation";
 import { MotionTrajectoryStepper } from "./trajectory/MotionTrajectoryStepper";
 
-const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
-  MotionTrajectoryRotation;
-
 /*
  * Private integration implementation used by the Motion Trajectory owner.
  */
@@ -258,3 +255,6 @@ export namespace integrateMotionTrajectory {
    */
   export const STEP: number = 1 / 60;
 }
+
+const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
+  MotionTrajectoryRotation;

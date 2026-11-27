@@ -22,11 +22,6 @@ export namespace QuadrupedCorner {
   ) => IAutoMovieVector3;
 
   /*
-   * Both axes, in the order a foothold is cleared along them.
-   */
-  const AXES: readonly Axis[] = ["x", "z"];
-
-  /*
    * The foothold mover for a footing scene.
    * Parameter scene: The authored footing, absent for level ground.
    * Returns: The mover; the identity without footing.
@@ -103,6 +98,11 @@ export namespace QuadrupedCorner {
       return moved;
     };
   }
+
+  /*
+   * Both axes, in the order a foothold is cleared along them.
+   */
+  const AXES: readonly Axis[] = ["x", "z"];
 
   /*
    * The two horizontal axes a plane bounds.

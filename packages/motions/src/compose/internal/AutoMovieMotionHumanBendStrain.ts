@@ -13,60 +13,6 @@ import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendCh
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 
 /*
- * Half the width of a range, degrees, or null for an axis that does not move.
- * Parameter range: The axis's range.
- * Returns: Half its width, or null.
- */
-function half(range: IHalfRange | null): number | null {
-  return range === null || range.max <= range.min
-    ? null
-    : (range.max - range.min) / 2;
-}
-
-/*
- * Original shortest normalized quaternion angle from rest, in degrees.
- */
-function degrees(q: IAutoMovieQuaternion): number {
-  return (
-    (Quaternion.angle(Quaternion.normalize(q), Quaternion.identity()) * 180) /
-    Math.PI
-  );
-}
-
-/*
- * Original signed turn about the rig axis, preserving the near-zero branch.
- */
-function about(
-  q: IAutoMovieQuaternion,
-  axis: IAutoMovieVector3 | undefined,
-): number {
-  const n: IAutoMovieQuaternion = Quaternion.normalize(q);
-  const sign: number = n.w < 0 ? -1 : 1;
-  const sine: number = Math.hypot(n.x, n.y, n.z);
-  return axis === undefined || sine < 1e-9
-    ? 0
-    : ((Vector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
-        ((2 * Math.atan2(sine, Math.abs(n.w)) * 180) / Math.PI);
-}
-
-/*
- * Original degree excess beyond the clinical range's reserved interior.
- */
-function past(value: number, range: IPastRange | null | undefined): number {
-  return range === null || range === undefined
-    ? 0
-    : Math.max(
-        0,
-        range.min +
-          AutoMovieMotionHumanBendStrain.RESERVE * (range.max - range.min) -
-          value,
-        value -
-          range.max +
-          AutoMovieMotionHumanBendStrain.RESERVE * (range.max - range.min),
-      );
-}
-
-/*
  * The strain of an elbow place on a prepared chain.
  * Parameter chain: The prepared chain.
  * Parameter body: The body, for the hand's range.
@@ -283,6 +229,60 @@ export namespace AutoMovieMotionHumanBendStrain {
   export function share(value: number, of: number | null): number {
     return of === null ? 0 : (value / of) ** 2;
   }
+}
+
+/*
+ * Half the width of a range, degrees, or null for an axis that does not move.
+ * Parameter range: The axis's range.
+ * Returns: Half its width, or null.
+ */
+function half(range: IHalfRange | null): number | null {
+  return range === null || range.max <= range.min
+    ? null
+    : (range.max - range.min) / 2;
+}
+
+/*
+ * Original shortest normalized quaternion angle from rest, in degrees.
+ */
+function degrees(q: IAutoMovieQuaternion): number {
+  return (
+    (Quaternion.angle(Quaternion.normalize(q), Quaternion.identity()) * 180) /
+    Math.PI
+  );
+}
+
+/*
+ * Original signed turn about the rig axis, preserving the near-zero branch.
+ */
+function about(
+  q: IAutoMovieQuaternion,
+  axis: IAutoMovieVector3 | undefined,
+): number {
+  const n: IAutoMovieQuaternion = Quaternion.normalize(q);
+  const sign: number = n.w < 0 ? -1 : 1;
+  const sine: number = Math.hypot(n.x, n.y, n.z);
+  return axis === undefined || sine < 1e-9
+    ? 0
+    : ((Vector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
+        ((2 * Math.atan2(sine, Math.abs(n.w)) * 180) / Math.PI);
+}
+
+/*
+ * Original degree excess beyond the clinical range's reserved interior.
+ */
+function past(value: number, range: IPastRange | null | undefined): number {
+  return range === null || range === undefined
+    ? 0
+    : Math.max(
+        0,
+        range.min +
+          AutoMovieMotionHumanBendStrain.RESERVE * (range.max - range.min) -
+          value,
+        value -
+          range.max +
+          AutoMovieMotionHumanBendStrain.RESERVE * (range.max - range.min),
+      );
 }
 
 /*

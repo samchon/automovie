@@ -58,12 +58,6 @@ export namespace steerAutoMovieCrowdNeighbours {
   export type Query = (k: number, into: Int32Array) => number;
 
   /*
-   * Cell coordinates within this offset of zero key uniquely: a crowd spans far
-   * fewer cells.
-   */
-  const OFFSET: number = 1 << 20;
-
-  /*
    * One cell's integer key, unique while both coordinates lie within `OFFSET`
    * of zero; the product stays below 2^42, inside the exact integers.
    * Parameter ix: The cell's x coordinate.
@@ -73,4 +67,10 @@ export namespace steerAutoMovieCrowdNeighbours {
   export function key(ix: number, iz: number): number {
     return (ix + OFFSET) * (2 * OFFSET) + (iz + OFFSET);
   }
+
+  /*
+   * Cell coordinates within this offset of zero key uniquely: a crowd spans far
+   * fewer cells.
+   */
+  const OFFSET: number = 1 << 20;
 }

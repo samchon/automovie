@@ -48,8 +48,6 @@ export namespace AutoMovieHumanNativeRadialContact {
     target: V;
   }
 
-  const turn: number = 2 * Math.PI;
-
   /**
    * The seed of a cutter line `line(s)`, s from `from` to `to` in material mm, entering `host`, scanned at `samples` equal steps.
    *
@@ -101,4 +99,6 @@ export namespace AutoMovieHumanNativeRadialContact {
     const h: readonly number[] = host.point(c.station, phase);
     return { part: at, host: [c.station, phase], point: [p[0]!, p[1]!, p[2]!], target: [h[0]!, h[1]!, h[2]!] };
   }
+
+  const turn: number = 2 * Math.PI;
 }

@@ -9,12 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The boxing rules, read.
- */
-const IBA: string =
-  "IBA Technical and Competition Rules, 15 April 2026 (https://www.iba.sport/wp-content/uploads/2026/06/20260415-IBA-Technical-Competition-Rules.pdf)";
+import * as AutoMovieArchetypeBoxingGloveData from "./internal/AutoMovieArchetypeBoxingGloveData";
 
 /** Constructs the boxing glove archetype from its recipe. */
 export namespace AutoMovieArchetypeBoxingGlove {
@@ -185,12 +180,12 @@ export function create(
     length: AutoMovieArchetypeBand.metres(
       0.2,
       0.2,
-      `${IBA}, Appendix 11: the glove 20 cm long`,
+      `${AutoMovieArchetypeBoxingGloveData.IBA}, Appendix 11: the glove 20 cm long`,
     ),
     height: AutoMovieArchetypeBand.metres(
       0.14,
       0.16,
-      `${IBA}, Appendix 11: 14 to 16 cm`,
+      `${AutoMovieArchetypeBoxingGloveData.IBA}, Appendix 11: 14 to 16 cm`,
     ),
     width: AutoMovieArchetypeBand.metres(
       0.125,
@@ -201,7 +196,7 @@ export function create(
     cuff: AutoMovieArchetypeBand.metres(
       0.08,
       0.1,
-      `${IBA}, Appendix 11: the cuff 8 to 10 cm`,
+      `${AutoMovieArchetypeBoxingGloveData.IBA}, Appendix 11: the cuff 8 to 10 cm`,
     ),
   };
 }

@@ -10,20 +10,6 @@ import type { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "./AutoMovi
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysicalPushRecovery as Recovery } from "./AutoMovieEnginePhysicalPushRecovery";
 
-/*
- * The closed forms the branch points lay.
- */
-const {
-  ZULU,
-  add,
-  constant,
-  evaluate,
-  segmented,
-  toLocal,
-  toWorld,
-  transfer,
-}: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;
-
 /**
  * The branch points of a disturbance response being laid
  * (`preparePhysicalDisturbanceSpan`): each moves the response on from the
@@ -348,6 +334,21 @@ export namespace AutoMovieEnginePhysicalDisturbanceBranches {
     Response.test(scope);
   }
 }
+
+
+/*
+ * The closed forms the branch points lay.
+ */
+const {
+  ZULU,
+  add,
+  constant,
+  evaluate,
+  segmented,
+  toLocal,
+  toWorld,
+  transfer,
+}: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;
 
 /*
  * A planted foot.

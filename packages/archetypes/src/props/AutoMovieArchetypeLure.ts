@@ -8,13 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * A spinning lure's size and weight, from a maker's catalogue seen in search
- * results.
- */
-const LURE: string =
-  "Mepps Aglia spinners, sizes 0 to 5: blade lengths about 2 to 5 cm and weights 2.5 to 13 g, catalogue figures seen only in search results; a lure's body drawn as one block (provisional)";
+import * as AutoMovieArchetypeLureData from "./internal/AutoMovieArchetypeLureData";
 
 /** Constructs the lure archetype from its recipe. */
 export namespace AutoMovieArchetypeLure {
@@ -96,7 +90,7 @@ export function create(
 
   /** The sourced bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(0.02, 0.05, LURE),
-    mass: AutoMovieArchetypeBand.of("kg", 0.0025, 0.013, LURE),
+    length: AutoMovieArchetypeBand.metres(0.02, 0.05, AutoMovieArchetypeLureData.LURE),
+    mass: AutoMovieArchetypeBand.of("kg", 0.0025, 0.013, AutoMovieArchetypeLureData.LURE),
   };
 }

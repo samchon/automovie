@@ -15,31 +15,6 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
 
 /*
- * The offered palm's depth below the surface at the apex, and how much deeper
- * it waits before it, over stature: provisional, submerged under the flyer's
- * foot.
- */
-const DEPTH: number = 0.235;
-const RISE: number = 0.04;
-
-/*
- * The offered palm outside the shoulder, over the shoulder's half-width, and
- * the share of the arm's length it extends to: provisional, a pressing arm
- * short of straight.
- */
-const OUTSIDE: number = 0.25;
-const EXTENSION: number = 0.95;
-
-/*
- * A supporting base's elbow out from, below and behind its offered palm, over
- * stature: provisional, a forearm's length behind it and nearly level, so the
- * forearm lies flat and the palm faces up by supination alone.
- */
-const ELBOW_OUT: number = 0.08;
-const ELBOW_DOWN: number = 0.03;
-const ELBOW_BACK: number = 0.13;
-
-/*
  * An artistic base's support: its palm offered under a flyer's foot, and the
  * turn of a limb onto or off a supporting palm or sole.
  */
@@ -200,6 +175,32 @@ export namespace AquaticTeamBase {
     };
   }
 }
+
+/*
+ * The offered palm's depth below the surface at the apex, and how much deeper
+ * it waits before it, over stature: provisional, submerged under the flyer's
+ * foot.
+ */
+const DEPTH: number = 0.235;
+
+const RISE: number = 0.04;
+/*
+ * The offered palm outside the shoulder, over the shoulder's half-width, and
+ * the share of the arm's length it extends to: provisional, a pressing arm
+ * short of straight.
+ */
+const OUTSIDE: number = 0.25;
+
+const EXTENSION: number = 0.95;
+/*
+ * A supporting base's elbow out from, below and behind its offered palm, over
+ * stature: provisional, a forearm's length behind it and nearly level, so the
+ * forearm lies flat and the palm faces up by supination alone.
+ */
+const ELBOW_OUT: number = 0.08;
+const ELBOW_DOWN: number = 0.03;
+
+const ELBOW_BACK: number = 0.13;
 
 /*
  * Fixed plan-time placement and pose offer of one supporting hand.

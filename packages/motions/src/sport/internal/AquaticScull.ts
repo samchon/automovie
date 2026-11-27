@@ -28,14 +28,6 @@ import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
 
-const PERIOD: number = 60 / 26;
-const EXTRACTION: number = 0.44;
-const SIDES = [
-  ["left", "Left"],
-  ["right", "Right"],
-] as const;
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
 /*
  * A rower at a named racing-shell station. The rower's cycle drives its actual
  * oar swivels, dips and seat carriage. Crew phase is an authored film offset.
@@ -250,6 +242,15 @@ export namespace AquaticScull {
     });
   }
 }
+
+const PERIOD: number = 60 / 26;
+const EXTRACTION: number = 0.44;
+const SIDES = [
+  ["left", "Left"],
+  ["right", "Right"],
+] as const;
+
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * One complete periodic drive with lift and an unloaded return.

@@ -31,23 +31,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { pullCoverWay } from "./pullCoverWay";
-
-/*
- * How far above the skin the gripping hand's grip socket rides, metres
- * (provisional: the closed fist's half depth over a blanket's thickness).
- */
-const OVER: number = 0.05;
-
-/*
- * Each hand's way up the body, its own side's regions from the thigh to the
- * chest.
- */
-const WAY: Readonly<
-  Record<AutoMovieHumanSide, readonly AutoMovieHumanoidRegion[]>
-> = {
-  left: ["thighFrontLeft", "spleen", "chestLeft"],
-  right: ["thighFrontRight", "liver", "chestRight"],
-};
+import * as PullCoverData from "./PullCoverData";
 
 /*
  * Pull a cover up while lying, or push it off. Each hand's way runs over its
@@ -123,7 +107,7 @@ function planPullCover(
     right: points("right"),
   };
   function points(side: AutoMovieHumanSide): IAutoMovieVector3[] {
-    const placed: IAutoMovieVector3[] = WAY[side].map(
+    const placed: IAutoMovieVector3[] = PullCoverData.WAY[side].map(
       (name: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
         const frame: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.regions[name];
@@ -135,7 +119,7 @@ function planPullCover(
           ),
           Vector3.scale(
             Quaternion.rotateVector(bone.worldRotation, frame.normal),
-            OVER,
+            PullCoverData.OVER,
           ),
         );
       },

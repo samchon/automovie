@@ -9,51 +9,6 @@ import {
 import { AutoMovieArchetypeLight } from "../AutoMovieArchetypeLight";
 
 /*
- * The readable name of each kind.
- */
-const NAMES: Readonly<Record<AutoMovieArchetypeLight.Kind, string>> = {
-  candle: "candle",
-  fireTorch: "fire torch",
-  pendant: "pendant",
-  tableLamp: "table lamp",
-  floorLamp: "floor lamp",
-  lantern: "lantern",
-};
-
-/*
- * Practical-light geometry in metres and model-space coordinates.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * Open the saved draw stream for the light's particular body and mounting form.
- */
-function draw<Id extends AutoMovieArchetypeLight.Affordance>(
-  kind: AutoMovieArchetypeLight.Kind,
-  params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
-  seed?: number,
-): IDrawn<Id> {
-  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeLight.Dimension> =
-    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeLight.Dimension>(
-      "light",
-      AutoMovieArchetypeLight.UNITS,
-      seed,
-      params,
-    );
-  const d: Partial<Record<AutoMovieArchetypeLight.Dimension, number>> = session.dimensions(
-    AutoMovieArchetypeLight.BANDS[kind],
-    AutoMovieArchetypeLight.BANDS,
-  );
-  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
-    material: kind === "candle" ? "wax" : "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw: session,
-  });
-  return { builder, d };
-}
-
-/*
  * Static practical-light bodies with authored grip, hanging and render-light
  * bindings.
  */
@@ -316,6 +271,51 @@ export namespace PracticalLightConstruction {
     });
     return builder.build(d.mass!);
   }
+}
+
+/*
+ * The readable name of each kind.
+ */
+const NAMES: Readonly<Record<AutoMovieArchetypeLight.Kind, string>> = {
+  candle: "candle",
+  fireTorch: "fire torch",
+  pendant: "pendant",
+  tableLamp: "table lamp",
+  floorLamp: "floor lamp",
+  lantern: "lantern",
+};
+
+/*
+ * Practical-light geometry in metres and model-space coordinates.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * Open the saved draw stream for the light's particular body and mounting form.
+ */
+function draw<Id extends AutoMovieArchetypeLight.Affordance>(
+  kind: AutoMovieArchetypeLight.Kind,
+  params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
+  seed?: number,
+): IDrawn<Id> {
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeLight.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeLight.Dimension>(
+      "light",
+      AutoMovieArchetypeLight.UNITS,
+      seed,
+      params,
+    );
+  const d: Partial<Record<AutoMovieArchetypeLight.Dimension, number>> = session.dimensions(
+    AutoMovieArchetypeLight.BANDS[kind],
+    AutoMovieArchetypeLight.BANDS,
+  );
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
+    material: kind === "candle" ? "wax" : "composite",
+    id: params.id,
+    name: NAMES[kind],
+    draw: session,
+  });
+  return { builder, d };
 }
 
 /*

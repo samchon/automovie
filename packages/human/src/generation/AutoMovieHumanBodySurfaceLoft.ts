@@ -15,23 +15,6 @@ import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhas
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 
-const {
-  chain,
-  endHeight,
-  capHeight,
-  interval,
-  ringVertices,
-}: typeof AutoMovieHumanBodySurfaceRead = AutoMovieHumanBodySurfaceRead;
-const {
-  boundary,
-  cells,
-  domeBase,
-  pole,
-  zipped,
-}: typeof AutoMovieHumanBodySurfacePoles = AutoMovieHumanBodySurfacePoles;
-const { inheritedPhases, ownPhases }: typeof AutoMovieHumanBodySurfacePhases =
-  AutoMovieHumanBodySurfacePhases;
-
 /**
  * A chain lofted between its owned and inherited rings and poles, its holes,
  * and the zipper that joins it to its neighbours.
@@ -373,3 +356,21 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     );
   }
 }
+
+const {
+  chain,
+  endHeight,
+  capHeight,
+  interval,
+  ringVertices,
+}: typeof AutoMovieHumanBodySurfaceRead = AutoMovieHumanBodySurfaceRead;
+const {
+  boundary,
+  cells,
+  domeBase,
+  pole,
+  zipped,
+}: typeof AutoMovieHumanBodySurfacePoles = AutoMovieHumanBodySurfacePoles;
+
+const { inheritedPhases, ownPhases }: typeof AutoMovieHumanBodySurfacePhases =
+  AutoMovieHumanBodySurfacePhases;

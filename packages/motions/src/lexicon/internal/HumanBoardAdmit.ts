@@ -9,18 +9,7 @@ import type {
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanMountedFrame } from "./HumanMountedFrame";
-
-/*
- * Bounds of an admitted boarding, in the seat's moving frame (provisional): the
- * most the performer moves relative to the seat at the take-off, metres per
- * second; the farthest level way; the most it rises and drops.
- */
-const BOUNDS: Readonly<Record<BOUNDSEntryItem, number>> = {
-  speed: 1.5,
-  reach: 2.5,
-  rise: 1.5,
-  drop: 3,
-};
+import * as HumanBoardAdmitData from "./HumanBoardAdmitData";
 
 /*
  * Admit a boarding: the performer's take-off velocity against the seat (the
@@ -114,10 +103,10 @@ export namespace HumanBoardAdmit {
   ): void {
     const way: IAutoMovieVector3 = Vector3.subtract(key.root, from.root);
     const checks: readonly [string, number, number][] = [
-      ["speed", slip, BOUNDS.speed],
-      ["reach", Math.hypot(way.x, way.z), BOUNDS.reach],
-      ["rise", way.y, BOUNDS.rise],
-      ["drop", -way.y, BOUNDS.drop],
+      ["speed", slip, HumanBoardAdmitData.BOUNDS.speed],
+      ["reach", Math.hypot(way.x, way.z), HumanBoardAdmitData.BOUNDS.reach],
+      ["rise", way.y, HumanBoardAdmitData.BOUNDS.rise],
+      ["drop", -way.y, HumanBoardAdmitData.BOUNDS.drop],
     ];
     for (const [axis, value, most] of checks)
       if (value > most)
@@ -136,8 +125,3 @@ export namespace HumanBoardAdmit {
         });
   }
 }
-
-/*
- * The alternatives of `BOUNDSEntryItem`'s site.
- */
-type BOUNDSEntryItem = "speed" | "reach" | "rise" | "drop";

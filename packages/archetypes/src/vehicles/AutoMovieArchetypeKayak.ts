@@ -12,14 +12,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-
-const SOURCE: string =
-  "Wilderness Systems Pungo 120, 2014–15 catalogue: https://media.pelicaninternational.com/m/71514c2752446fc2/original/WS_14_15_Product_Catalog_Mobile_Version.pdf";
-const PAINT: string = "#e67e28";
-const POLYMER: string = "#353b40";
-const v: typeof Vector3.create = Vector3.create;
-const WALL: number = 0.012;
-const FLOOR: number = -0.14;
+import * as AutoMovieArchetypeKayakData from "./internal/AutoMovieArchetypeKayakData";
+import { v } from "./internal/AutoMovieArchetypeKayakData";
 
 /** The canonical producer and authoring contract for a kayak. */
 export namespace AutoMovieArchetypeKayak {
@@ -125,14 +119,19 @@ export namespace AutoMovieArchetypeKayak {
   };
   /** Published envelope, cockpit at the coaming and bare hull mass. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(3.66, 3.66, SOURCE),
-    beam: AutoMovieArchetypeBand.metres(0.74, 0.74, SOURCE),
-    depth: AutoMovieArchetypeBand.metres(0.33, 0.33, SOURCE),
-    cockpitLength: AutoMovieArchetypeBand.metres(1.45, 1.45, SOURCE),
-    cockpitWidth: AutoMovieArchetypeBand.metres(0.56, 0.56, SOURCE),
-    mass: AutoMovieArchetypeBand.of("kg", 22, 22, SOURCE),
+    length: AutoMovieArchetypeBand.metres(3.66, 3.66, AutoMovieArchetypeKayakData.SOURCE),
+    beam: AutoMovieArchetypeBand.metres(0.74, 0.74, AutoMovieArchetypeKayakData.SOURCE),
+    depth: AutoMovieArchetypeBand.metres(0.33, 0.33, AutoMovieArchetypeKayakData.SOURCE),
+    cockpitLength: AutoMovieArchetypeBand.metres(1.45, 1.45, AutoMovieArchetypeKayakData.SOURCE),
+    cockpitWidth: AutoMovieArchetypeBand.metres(0.56, 0.56, AutoMovieArchetypeKayakData.SOURCE),
+    mass: AutoMovieArchetypeBand.of("kg", 22, 22, AutoMovieArchetypeKayakData.SOURCE),
   };
 }
+
+const PAINT: string = "#e67e28";
+const POLYMER: string = "#353b40";
+const WALL: number = 0.012;
+const FLOOR: number = -0.14;
 
 /*
  * One longitudinal family with an unobstructed cockpit inside its deck strips.

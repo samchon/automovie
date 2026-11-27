@@ -20,41 +20,6 @@ import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
 /*
- * The zero vector.
- */
-const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-/*
- * The share of a lifting row's entry spent moving the weight off the hoof
- * before it leaves the floor: authored.
- */
-const LOAD: number = 0.35;
-
-/*
- * A resting hind hoof's tip onto its toe, its terminal bar's lower end turned
- * this many degrees behind vertical so the rim's front is lowest; its forward
- * set and lift, metres; the hips' tilt, degrees: authored.
- */
-const REST: Readonly<IRestShape> = {
-  tip: 20,
-  forward: 0.05,
-  tilt: 3,
-  arc: 0.04,
-};
-
-/*
- * A trunk shake's roll, degrees, and rate, Hz: authored.
- */
-const SHAKE: Readonly<IShakeShape> = { roll: 6, hertz: 3 };
-
-/*
- * The comfort rows' kinds.
- */
-const KINDS: ReadonlySet<string> = new Set<
-  AutoMovieArchetypeEquineComfortCue.Row["kind"]
->(["rest", "paw", "stamp", "cowKick", "shake", "camp"]);
-
-/*
  * The comfort rows of the stance: the standing rest on a tipped hind hoof,
  * pawing, stamping, the cow-kick, the trunk shake and the camped-out stance.
  *
@@ -255,6 +220,42 @@ export namespace EquineComfortRows {
     };
   }
 }
+
+
+/*
+ * The zero vector.
+ */
+const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/*
+ * The share of a lifting row's entry spent moving the weight off the hoof
+ * before it leaves the floor: authored.
+ */
+const LOAD: number = 0.35;
+
+/*
+ * A resting hind hoof's tip onto its toe, its terminal bar's lower end turned
+ * this many degrees behind vertical so the rim's front is lowest; its forward
+ * set and lift, metres; the hips' tilt, degrees: authored.
+ */
+const REST: Readonly<IRestShape> = {
+  tip: 20,
+  forward: 0.05,
+  tilt: 3,
+  arc: 0.04,
+};
+
+/*
+ * A trunk shake's roll, degrees, and rate, Hz: authored.
+ */
+const SHAKE: Readonly<IShakeShape> = { roll: 6, hertz: 3 };
+
+/*
+ * The comfort rows' kinds.
+ */
+const KINDS: ReadonlySet<string> = new Set<
+  AutoMovieArchetypeEquineComfortCue.Row["kind"]
+>(["rest", "paw", "stamp", "cowKick", "shake", "camp"]);
 
 /*
  * The standing rest's authored shape.

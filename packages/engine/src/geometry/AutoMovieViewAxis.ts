@@ -15,33 +15,6 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import { AutoMovieViewJointedCourse } from "./AutoMovieViewJointedCourse";
 
-/*
- * Shared scale-safe vector operations used by every axis builder.
- */
-const { add, cross, dot, scale, sub }: typeof AutoMovieSolidVector =
-  AutoMovieSolidVector;
-
-/*
- * A vector scaled to length 1; a zero vector stays zero, which no regular axis
- * meets.
- */
-function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
-  return AutoMovieAxisDirection.unit(a);
-}
-
-/*
- * Unit projection in an admitted tangent's normal plane, with shared scale-safe
- * numeric ownership.
- */
-function projectUnitDirection(
-  a: AutoMovieVector3Tuple,
-  tangent: AutoMovieVector3Tuple,
-): AutoMovieVector3Tuple {
-  const projected: IAutoMovieAxisDirection.IProjection =
-    AutoMovieAxisDirection.project(a, tangent);
-  return AutoMovieAxisDirection.unit(projected.vector, projected.normalNorm);
-}
-
 /**
  * Source section planes of the view-to-section operator (`AutoMovieViewLoft`).
  * Straight/horizontal axes have fixed chart directions; level planes remain
@@ -369,4 +342,31 @@ export namespace AutoMovieViewAxis {
   ): AutoMovieVector3Tuple {
     return cross(frame.v, frame.u);
   }
+}
+
+/*
+ * Shared scale-safe vector operations used by every axis builder.
+ */
+const { add, cross, dot, scale, sub }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;
+
+/*
+ * A vector scaled to length 1; a zero vector stays zero, which no regular axis
+ * meets.
+ */
+function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  return AutoMovieAxisDirection.unit(a);
+}
+
+/*
+ * Unit projection in an admitted tangent's normal plane, with shared scale-safe
+ * numeric ownership.
+ */
+function projectUnitDirection(
+  a: AutoMovieVector3Tuple,
+  tangent: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
+  const projected: IAutoMovieAxisDirection.IProjection =
+    AutoMovieAxisDirection.project(a, tangent);
+  return AutoMovieAxisDirection.unit(projected.vector, projected.normalNorm);
 }

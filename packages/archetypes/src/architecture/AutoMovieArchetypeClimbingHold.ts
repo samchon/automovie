@@ -8,11 +8,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import * as AutoMovieArchetypeClimbingHoldData from "./internal/AutoMovieArchetypeClimbingHoldData";
 
-/*
- * The provisional size range of a coarse ledge in an authored film set.
- */
-const PROFILE: string = "Coarse wall-mounted climbing ledge for a film set";
 /** Creates a deterministic climbing hold fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeClimbingHold {
   /**
@@ -118,9 +115,9 @@ export namespace AutoMovieArchetypeClimbingHold {
 
   /** Authored size limits for the coarse set geometry. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    width: AutoMovieArchetypeBand.metres(0.05, 0.28, PROFILE, true),
-    rise: AutoMovieArchetypeBand.metres(0.02, 0.08, PROFILE, true),
-    depth: AutoMovieArchetypeBand.metres(0.04, 0.24, PROFILE, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.1, 2, PROFILE, true),
+    width: AutoMovieArchetypeBand.metres(0.05, 0.28, AutoMovieArchetypeClimbingHoldData.PROFILE, true),
+    rise: AutoMovieArchetypeBand.metres(0.02, 0.08, AutoMovieArchetypeClimbingHoldData.PROFILE, true),
+    depth: AutoMovieArchetypeBand.metres(0.04, 0.24, AutoMovieArchetypeClimbingHoldData.PROFILE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.1, 2, AutoMovieArchetypeClimbingHoldData.PROFILE, true),
   };
 }

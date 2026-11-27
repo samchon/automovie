@@ -74,43 +74,6 @@ export namespace AutoMovieHumanConicLoft {
     };
   }
 
-  /*
-   * Share of a cap's first section's size under which a coordinate keeps the shared factor (`ITip.own`).
-   */
-  const OWN_LEAST: number = 0.05;
-
-  /*
-   * Knots of a cap between its end section and its tip, besides those two. Where the tube's taper meets the cap's law the outlines' natural
-   * cubics ripple, and the ripple falls by about 0.27 per knot; twelve leave 1e-7 of it at the pole, where a section is small enough for any
-   * coordinate out of proportion to break its chain.
-   */
-  const CAP_KNOTS: number = 12;
-
-  /*
-   * Bounds of a cap's taper `q` (`ITip`): below 1 the tip stands upright, and at 0 the cap leaves a wall that still widens toward its tip
-   * level instead of widening on. Allowed to widen on (to -0.5), the nose's cap swelled 14 % past its bulb and the nostrils' cuts came out
-   * through its sides: a cap that widens on extrapolates past the skin the wall was fitted to.
-   */
-  const TAPER: { least: number; most: number } = { least: 0, most: 0.95 };
-
-  /*
-   * When a station is added midway between two: the model's section there stands off the mean of the two by more than `length` mm in a point's
-   * coordinate or by more than `share` in a tangent's angle, rad, or a shoulder. No interval is cut below `least` mm. At a tenth of these
-   * tolerances nearly every interval was cut whatever spacing was asked for, and the body's skin held 580,000 triangles at any setting.
-   */
-  const REFINE: { length: number; share: number; least: number } = {
-    length: 0.5,
-    share: 0.05,
-    least: 0.25,
-  };
-
-  /*
-   * Largest distance between two neighbouring phases of a part's rings at its widest section, mm; a part has at least 48 phases. With 128
-   * phases for every part the trunk's stood 4 mm apart at the head and 9 mm at the hips, wider than its relief nets' 2.5 to 3 mm, which showed
-   * as steps, while a finger's stood half a millimetre apart.
-   */
-  const PHASE_MM: number = 4;
-
   /**
    * The part's course as the engine reads it, its chart turned by the part's roll and its origin on the part's origin line.
    *
@@ -133,95 +96,6 @@ export namespace AutoMovieHumanConicLoft {
     if (family.knots === undefined)
       throw new Error("course: an origin line needs the family's knots");
     return AutoMovieHumanConicRecentre.axis(base, family.knots, line);
-  }
-
-  /*
-   * The course through the centres with its chart turned by the roll: the line the origin line is measured from.
-   */
-  function carried(
-    family: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up" | "roll">,
-  ): IAutoMovieViewAxis.IAxis {
-    const made: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
-      family.centres,
-      family.halves,
-      family.up,
-    );
-    if (typeof made === "string") throw new Error("course: " + made);
-    if (family.roll === undefined) return made;
-    const base: IAutoMovieViewAxis.IAxis = made;
-    const read: (station: number) => [number, number, number] =
-      family.roll.eases !== undefined
-        ? eased(family.roll)
-        : ((spline: IAutoMovieNaturalCubicSpline) =>
-            (station: number): [number, number, number] =>
-              AutoMovieNaturalSpline.read(spline, station))(
-            AutoMovieNaturalSpline.create(family.roll.knots, family.roll.values),
-          );
-    // With c = cos(a) and s = sin(a): u' = c u + s v and v' = c v - s u, so with the angle's derivatives a' and a'' along the station,
-    // u'_1 = c u_1 + s v_1 + a' v', v'_1 = c v_1 - s u_1 - a' u', and
-    // u'_2 = c u_2 + s v_2 + 2 a' (c v_1 - s u_1) + a'' v' - a'^2 u', v'_2 = c v_2 - s u_2 - 2 a' (c u_1 + s v_1) - a'' u' - a'^2 v'.
-    const turn = (
-      u: readonly number[],
-      v: readonly number[],
-      c: number,
-      s: number,
-    ): [AutoMovieVector3Tuple, AutoMovieVector3Tuple] => [
-      [0, 1, 2].map((k: number): number => c * u[k]! + s * v[k]!) as AutoMovieVector3Tuple,
-      [0, 1, 2].map((k: number): number => c * v[k]! - s * u[k]!) as AutoMovieVector3Tuple,
-    ];
-    return {
-      at: (station: number): IAutoMovieLoftSectionFrame => {
-        const frame: IAutoMovieLoftSectionFrame = base.at(station);
-        const angle: number = read(station)[0];
-        const [u, v]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(
-          frame.u,
-          frame.v,
-          Math.cos(angle),
-          Math.sin(angle),
-        );
-        return { origin: frame.origin, u, v };
-      },
-      ...(base.jet === undefined
-        ? {}
-        : {
-            jet: (
-              station: number,
-              parameter?: IAutoMovieConstructionOutlineParameter,
-            ): IAutoMovieViewAxisJet.IJet | null => {
-              const jet: IAutoMovieViewAxisJet.IJet | null = base.jet!(station);
-              if (jet === null) return null;
-              const [a, a1, a2]: [number, number, number] = read(station);
-              const [c, s]: [number, number] = [Math.cos(a), Math.sin(a)];
-              const [u, v]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.value.u, jet.value.v, c, s);
-              const [u1, v1]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.first.u, jet.first.v, c, s);
-              const [u2, v2]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.second.u, jet.second.v, c, s);
-              const rolled: IAutoMovieViewAxisJet.IJet = {
-                value: { origin: jet.value.origin, u, v },
-                first: {
-                  origin: jet.first.origin,
-                  u: [0, 1, 2].map(
-                    (k: number): number => u1[k]! + a1 * v[k]!,
-                  ) as AutoMovieVector3Tuple,
-                  v: [0, 1, 2].map(
-                    (k: number): number => v1[k]! - a1 * u[k]!,
-                  ) as AutoMovieVector3Tuple,
-                },
-                second: {
-                  origin: jet.second.origin,
-                  u: [0, 1, 2].map(
-                    (k: number): number =>
-                      u2[k]! + 2 * a1 * v1[k]! + a2 * v[k]! - a1 * a1 * u[k]!,
-                  ) as AutoMovieVector3Tuple,
-                  v: [0, 1, 2].map(
-                    (k: number): number =>
-                      v2[k]! - 2 * a1 * u1[k]! - a2 * u[k]! - a1 * a1 * v[k]!,
-                  ) as AutoMovieVector3Tuple,
-                },
-              };
-              return AutoMovieViewAxisJet.parameter(rolled, parameter, station);
-            },
-          }),
-    };
   }
 
   /** The family's field vector at one station. */
@@ -252,6 +126,7 @@ export namespace AutoMovieHumanConicLoft {
       ? part({ ...family, turn: undefined }, requested)
       : family.native.source(family);
   }
+
   /**
    * The engine's view part of a family.
    *
@@ -680,92 +555,6 @@ export namespace AutoMovieHumanConicLoft {
     return { ...made, samples: phases.length, phases };
   }
 
-  /*
-   * Phases round a ring that `spaced` reads its length and turn on.
-   */
-  const SPACING_SAMPLES: number = 1024;
-
-  /*
-   * A part's ring phases spaced by its rings' length and turn (`IFamily.turn`).
-   *
-   * Every station's ring of the lofted chain is read at `SPACING_SAMPLES` phases. Over each step between two of them the density is the
-   * largest any ring asks for: its chord over `pitch`, its turn there over `turn`, or the step over `finest`, the finest relief net's
-   * column. The phases stand at equal shares of that density's integral from phase 0, a multiple of 8 of them and at least 48, as the
-   * uniform rule's count is.
-   * Parameter chain: The part lofted on uniform phases.
-   * Parameter stations: The stations its fields own, mm.
-   * Parameter pitch: Largest distance between neighbouring phases, mm.
-   * Parameter turn: Largest turn between neighbouring phases, radians.
-   * Parameter finest: Finest relief net's column, radians.
-   */
-  function spaced(
-    chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]>,
-    stations: readonly number[],
-    pitch: number,
-    turn: number,
-    finest: number,
-  ): number[] {
-    const M: number = SPACING_SAMPLES;
-    const step: number = (2 * Math.PI) / M;
-    const density: number[] = new Array<number>(M).fill(step / finest);
-    const unit = (a: readonly number[], b: readonly number[]): number[] => {
-      const d: number[] = [b[0]! - a[0]!, b[1]! - a[1]!, b[2]! - a[2]!];
-      const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
-      return d.map((x: number): number => x / l);
-    };
-    for (const s of stations) {
-      const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
-      const ring: number[][] = Array.from(
-        { length: M },
-        (_: unknown, j: number): number[] => at(j * step),
-      );
-      if (ring.some((p: number[]): boolean => !p.every(Number.isFinite)))
-        continue;
-      // Over the step from sample j to j + 1: its chord, and the larger of the turns at its two ends.
-      const turns: number[] = ring.map((b: number[], j: number): number => {
-        const [u, w]: number[][] = [
-          unit(ring[(j + M - 1) % M]!, b),
-          unit(b, ring[(j + 1) % M]!),
-        ];
-        return Math.acos(
-          Math.max(
-            -1,
-            Math.min(1, u[0]! * w[0]! + u[1]! * w[1]! + u[2]! * w[2]!),
-          ),
-        );
-      });
-      for (let j: number = 0; j < M; ++j) {
-        const [b, c]: number[][] = [ring[j]!, ring[(j + 1) % M]!];
-        const chord: number = Math.hypot(
-          c[0]! - b[0]!,
-          c[1]! - b[1]!,
-          c[2]! - b[2]!,
-        );
-        density[j] = Math.max(
-          density[j]!,
-          chord / pitch,
-          Math.max(turns[j]!, turns[(j + 1) % M]!) / turn,
-        );
-      }
-    }
-    const total: number = density.reduce(
-      (sum: number, x: number): number => sum + x,
-      0,
-    );
-    const count: number = Math.max(48, 8 * Math.ceil(total / 8));
-    const phases: number[] = [];
-    let below: number = 0;
-    for (let j: number = 0, k: number = 0; j < M && k < count; ++j) {
-      // The phases whose share of the integral falls in this step, read linearly within it.
-      while (k < count && (total * k) / count <= below + density[j]! + 1e-12) {
-        phases.push((j + ((total * k) / count - below) / density[j]!) * step);
-        ++k;
-      }
-      below += density[j]!;
-    }
-    return phases;
-  }
-
   /**
    * The family's twin across the median plane `z = 0`, as a family of its own.
    *
@@ -1007,5 +796,216 @@ export namespace AutoMovieHumanConicLoft {
     stations: number[],
   ): IAutoMovieViewLoft.IResult {
     return AutoMovieViewLoft.create(part(family, stations));
+  }
+
+  /*
+   * Share of a cap's first section's size under which a coordinate keeps the shared factor (`ITip.own`).
+   */
+  const OWN_LEAST: number = 0.05;
+  /*
+   * Knots of a cap between its end section and its tip, besides those two. Where the tube's taper meets the cap's law the outlines' natural
+   * cubics ripple, and the ripple falls by about 0.27 per knot; twelve leave 1e-7 of it at the pole, where a section is small enough for any
+   * coordinate out of proportion to break its chain.
+   */
+  const CAP_KNOTS: number = 12;
+
+  /*
+   * Bounds of a cap's taper `q` (`ITip`): below 1 the tip stands upright, and at 0 the cap leaves a wall that still widens toward its tip
+   * level instead of widening on. Allowed to widen on (to -0.5), the nose's cap swelled 14 % past its bulb and the nostrils' cuts came out
+   * through its sides: a cap that widens on extrapolates past the skin the wall was fitted to.
+   */
+  const TAPER: { least: number; most: number } = { least: 0, most: 0.95 };
+
+  /*
+   * When a station is added midway between two: the model's section there stands off the mean of the two by more than `length` mm in a point's
+   * coordinate or by more than `share` in a tangent's angle, rad, or a shoulder. No interval is cut below `least` mm. At a tenth of these
+   * tolerances nearly every interval was cut whatever spacing was asked for, and the body's skin held 580,000 triangles at any setting.
+   */
+  const REFINE: { length: number; share: number; least: number } = {
+    length: 0.5,
+    share: 0.05,
+    least: 0.25,
+  };
+
+  /*
+   * Largest distance between two neighbouring phases of a part's rings at its widest section, mm; a part has at least 48 phases. With 128
+   * phases for every part the trunk's stood 4 mm apart at the head and 9 mm at the hips, wider than its relief nets' 2.5 to 3 mm, which showed
+   * as steps, while a finger's stood half a millimetre apart.
+   */
+  const PHASE_MM: number = 4;
+
+  /*
+   * The course through the centres with its chart turned by the roll: the line the origin line is measured from.
+   */
+  function carried(
+    family: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up" | "roll">,
+  ): IAutoMovieViewAxis.IAxis {
+    const made: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
+      family.centres,
+      family.halves,
+      family.up,
+    );
+    if (typeof made === "string") throw new Error("course: " + made);
+    if (family.roll === undefined) return made;
+    const base: IAutoMovieViewAxis.IAxis = made;
+    const read: (station: number) => [number, number, number] =
+      family.roll.eases !== undefined
+        ? eased(family.roll)
+        : ((spline: IAutoMovieNaturalCubicSpline) =>
+            (station: number): [number, number, number] =>
+              AutoMovieNaturalSpline.read(spline, station))(
+            AutoMovieNaturalSpline.create(family.roll.knots, family.roll.values),
+          );
+    // With c = cos(a) and s = sin(a): u' = c u + s v and v' = c v - s u, so with the angle's derivatives a' and a'' along the station,
+    // u'_1 = c u_1 + s v_1 + a' v', v'_1 = c v_1 - s u_1 - a' u', and
+    // u'_2 = c u_2 + s v_2 + 2 a' (c v_1 - s u_1) + a'' v' - a'^2 u', v'_2 = c v_2 - s u_2 - 2 a' (c u_1 + s v_1) - a'' u' - a'^2 v'.
+    const turn = (
+      u: readonly number[],
+      v: readonly number[],
+      c: number,
+      s: number,
+    ): [AutoMovieVector3Tuple, AutoMovieVector3Tuple] => [
+      [0, 1, 2].map((k: number): number => c * u[k]! + s * v[k]!) as AutoMovieVector3Tuple,
+      [0, 1, 2].map((k: number): number => c * v[k]! - s * u[k]!) as AutoMovieVector3Tuple,
+    ];
+    return {
+      at: (station: number): IAutoMovieLoftSectionFrame => {
+        const frame: IAutoMovieLoftSectionFrame = base.at(station);
+        const angle: number = read(station)[0];
+        const [u, v]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(
+          frame.u,
+          frame.v,
+          Math.cos(angle),
+          Math.sin(angle),
+        );
+        return { origin: frame.origin, u, v };
+      },
+      ...(base.jet === undefined
+        ? {}
+        : {
+            jet: (
+              station: number,
+              parameter?: IAutoMovieConstructionOutlineParameter,
+            ): IAutoMovieViewAxisJet.IJet | null => {
+              const jet: IAutoMovieViewAxisJet.IJet | null = base.jet!(station);
+              if (jet === null) return null;
+              const [a, a1, a2]: [number, number, number] = read(station);
+              const [c, s]: [number, number] = [Math.cos(a), Math.sin(a)];
+              const [u, v]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.value.u, jet.value.v, c, s);
+              const [u1, v1]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.first.u, jet.first.v, c, s);
+              const [u2, v2]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.second.u, jet.second.v, c, s);
+              const rolled: IAutoMovieViewAxisJet.IJet = {
+                value: { origin: jet.value.origin, u, v },
+                first: {
+                  origin: jet.first.origin,
+                  u: [0, 1, 2].map(
+                    (k: number): number => u1[k]! + a1 * v[k]!,
+                  ) as AutoMovieVector3Tuple,
+                  v: [0, 1, 2].map(
+                    (k: number): number => v1[k]! - a1 * u[k]!,
+                  ) as AutoMovieVector3Tuple,
+                },
+                second: {
+                  origin: jet.second.origin,
+                  u: [0, 1, 2].map(
+                    (k: number): number =>
+                      u2[k]! + 2 * a1 * v1[k]! + a2 * v[k]! - a1 * a1 * u[k]!,
+                  ) as AutoMovieVector3Tuple,
+                  v: [0, 1, 2].map(
+                    (k: number): number =>
+                      v2[k]! - 2 * a1 * u1[k]! - a2 * u[k]! - a1 * a1 * v[k]!,
+                  ) as AutoMovieVector3Tuple,
+                },
+              };
+              return AutoMovieViewAxisJet.parameter(rolled, parameter, station);
+            },
+          }),
+    };
+  }
+
+  /*
+   * Phases round a ring that `spaced` reads its length and turn on.
+   */
+  const SPACING_SAMPLES: number = 1024;
+
+  /*
+   * A part's ring phases spaced by its rings' length and turn (`IFamily.turn`).
+   *
+   * Every station's ring of the lofted chain is read at `SPACING_SAMPLES` phases. Over each step between two of them the density is the
+   * largest any ring asks for: its chord over `pitch`, its turn there over `turn`, or the step over `finest`, the finest relief net's
+   * column. The phases stand at equal shares of that density's integral from phase 0, a multiple of 8 of them and at least 48, as the
+   * uniform rule's count is.
+   * Parameter chain: The part lofted on uniform phases.
+   * Parameter stations: The stations its fields own, mm.
+   * Parameter pitch: Largest distance between neighbouring phases, mm.
+   * Parameter turn: Largest turn between neighbouring phases, radians.
+   * Parameter finest: Finest relief net's column, radians.
+   */
+  function spaced(
+    chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]>,
+    stations: readonly number[],
+    pitch: number,
+    turn: number,
+    finest: number,
+  ): number[] {
+    const M: number = SPACING_SAMPLES;
+    const step: number = (2 * Math.PI) / M;
+    const density: number[] = new Array<number>(M).fill(step / finest);
+    const unit = (a: readonly number[], b: readonly number[]): number[] => {
+      const d: number[] = [b[0]! - a[0]!, b[1]! - a[1]!, b[2]! - a[2]!];
+      const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
+      return d.map((x: number): number => x / l);
+    };
+    for (const s of stations) {
+      const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
+      const ring: number[][] = Array.from(
+        { length: M },
+        (_: unknown, j: number): number[] => at(j * step),
+      );
+      if (ring.some((p: number[]): boolean => !p.every(Number.isFinite)))
+        continue;
+      // Over the step from sample j to j + 1: its chord, and the larger of the turns at its two ends.
+      const turns: number[] = ring.map((b: number[], j: number): number => {
+        const [u, w]: number[][] = [
+          unit(ring[(j + M - 1) % M]!, b),
+          unit(b, ring[(j + 1) % M]!),
+        ];
+        return Math.acos(
+          Math.max(
+            -1,
+            Math.min(1, u[0]! * w[0]! + u[1]! * w[1]! + u[2]! * w[2]!),
+          ),
+        );
+      });
+      for (let j: number = 0; j < M; ++j) {
+        const [b, c]: number[][] = [ring[j]!, ring[(j + 1) % M]!];
+        const chord: number = Math.hypot(
+          c[0]! - b[0]!,
+          c[1]! - b[1]!,
+          c[2]! - b[2]!,
+        );
+        density[j] = Math.max(
+          density[j]!,
+          chord / pitch,
+          Math.max(turns[j]!, turns[(j + 1) % M]!) / turn,
+        );
+      }
+    }
+    const total: number = density.reduce(
+      (sum: number, x: number): number => sum + x,
+      0,
+    );
+    const count: number = Math.max(48, 8 * Math.ceil(total / 8));
+    const phases: number[] = [];
+    let below: number = 0;
+    for (let j: number = 0, k: number = 0; j < M && k < count; ++j) {
+      // The phases whose share of the integral falls in this step, read linearly within it.
+      while (k < count && (total * k) / count <= below + density[j]! + 1e-12) {
+        phases.push((j + ((total * k) / count - below) / density[j]!) * step);
+        ++k;
+      }
+      below += density[j]!;
+    }
+    return phases;
   }
 }

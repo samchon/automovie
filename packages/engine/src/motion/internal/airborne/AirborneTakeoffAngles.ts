@@ -7,21 +7,7 @@ import type {
 
 import { Quaternion } from "../../../math/Quaternion";
 import { AutoMovieEngineMotionTrajectory } from "../../AutoMovieEngineMotionTrajectory";
-
-/*
- * The lateral unit axis, read without mutation by quaternion operations.
- */
-const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
-/*
- * The longitudinal unit axis in the shooting attitude convention.
- */
-const LONGITUDINAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * The forward unit axis in the shooting attitude convention.
- */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+import * as AirborneTakeoffAnglesData from "./internal/AirborneTakeoffAnglesData";
 
 /*
  * The shooting attitude angles from an already inverted reference frame.
@@ -40,19 +26,19 @@ export function AirborneTakeoffAngles(
   q: IAutoMovieQuaternion,
 ): IAutoMovieSolveAirborneTakeoff.IAngles {
   const m: IAutoMovieQuaternion = Quaternion.multiply(into, q);
-  const long: IAutoMovieVector3 = Quaternion.rotateVector(m, LONGITUDINAL);
+  const long: IAutoMovieVector3 = Quaternion.rotateVector(m, AirborneTakeoffAnglesData.LONGITUDINAL);
   const tilt: number = -Math.asin(Math.max(-1, Math.min(1, long.x)));
   const somersault: number = Math.atan2(long.z, long.y);
   const degrees: number = 180 / Math.PI;
   const back: IAutoMovieQuaternion = Quaternion.inverse(
     Quaternion.multiply(
-      Quaternion.fromAxisAngle(LATERAL, somersault * degrees),
-      Quaternion.fromAxisAngle(FORWARD, tilt * degrees),
+      Quaternion.fromAxisAngle(AirborneTakeoffAnglesData.LATERAL, somersault * degrees),
+      Quaternion.fromAxisAngle(AirborneTakeoffAnglesData.FORWARD, tilt * degrees),
     ),
   );
   const lateral: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.multiply(back, m),
-    LATERAL,
+    AirborneTakeoffAnglesData.LATERAL,
   );
   return { somersault, tilt, twist: Math.atan2(-lateral.z, lateral.x) };
 }

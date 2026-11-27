@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No maker's page was read.
- */
-const STAGED: string =
-  "a feeding bottle: its dimensions and mass are provisional estimates, no maker's page was read";
+import * as AutoMovieArchetypeFeedingBottleData from "./internal/AutoMovieArchetypeFeedingBottleData";
 
 /** Constructs the feeding bottle archetype from its recipe. */
 export namespace AutoMovieArchetypeFeedingBottle {
@@ -108,7 +103,7 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    height: AutoMovieArchetypeBand.metres(0.16, 0.2, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.15, 0.3, STAGED, true),
+    height: AutoMovieArchetypeBand.metres(0.16, 0.2, AutoMovieArchetypeFeedingBottleData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.15, 0.3, AutoMovieArchetypeFeedingBottleData.STAGED, true),
   };
 }

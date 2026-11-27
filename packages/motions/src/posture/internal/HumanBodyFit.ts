@@ -71,27 +71,6 @@ export namespace HumanBodyFit {
   export const TOLERANCE: number = HumanBodyFitMerit.TOLERANCE;
 
   /*
-   * How far a row may miss unpriced, metres, in each step's rows and in the
-   * merit alike; half the tolerance, so a step that meets its rows holds.
-   */
-  const BAND: number = HumanBodyFitRows.BAND;
-
-  /*
-   * The rows are written in millimetres.
-   */
-  const MM: number = HumanBodyFitRows.MM;
-
-  /*
-   * A collider or a pair farther than this beyond contact is left out of a
-   * step's rows, metres: trajopt's contact distance, the largest safety
-   * distance plus 0.04 m (`problem_description.cpp` line 549 at commit
-   * 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause; Schulman et al.
-   * 2014, section IV-A, `d_check > d_safe`), these rows' safety distance being
-   * contact itself.
-   */
-  const NEAR: number = 0.04;
-
-  /*
    * The fit and what it misses by.
    * Parameter props: The fit.
    * Returns: The fitted posture, its constraint residuals and feasibility,
@@ -396,6 +375,27 @@ export namespace HumanBodyFit {
       reason: solved.status,
     };
   }
+
+  /*
+   * How far a row may miss unpriced, metres, in each step's rows and in the
+   * merit alike; half the tolerance, so a step that meets its rows holds.
+   */
+  const BAND: number = HumanBodyFitRows.BAND;
+
+  /*
+   * The rows are written in millimetres.
+   */
+  const MM: number = HumanBodyFitRows.MM;
+
+  /*
+   * A collider or a pair farther than this beyond contact is left out of a
+   * step's rows, metres: trajopt's contact distance, the largest safety
+   * distance plus 0.04 m (`problem_description.cpp` line 549 at commit
+   * 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause; Schulman et al.
+   * 2014, section IV-A, `d_check > d_safe`), these rows' safety distance being
+   * contact itself.
+   */
+  const NEAR: number = 0.04;
 
   /*
    * A posture's reading for the fit.

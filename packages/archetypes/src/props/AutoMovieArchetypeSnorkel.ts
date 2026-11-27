@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No maker's page was read.
- */
-const STAGED: string =
-  "a snorkel: its dimensions and mass are provisional estimates, no maker's page was read";
+import * as AutoMovieArchetypeSnorkelData from "./internal/AutoMovieArchetypeSnorkelData";
 
 /** Constructs the snorkel archetype from its recipe. */
 export namespace AutoMovieArchetypeSnorkel {
@@ -95,7 +90,7 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(0.32, 0.4, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.1, 0.2, STAGED, true),
+    length: AutoMovieArchetypeBand.metres(0.32, 0.4, AutoMovieArchetypeSnorkelData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.1, 0.2, AutoMovieArchetypeSnorkelData.STAGED, true),
   };
 }

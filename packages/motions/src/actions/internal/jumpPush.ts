@@ -20,20 +20,7 @@ import { jumpPushArms } from "./jumpPushArms";
 import { jumpPushEnd } from "./jumpPushEnd";
 import { jumpPushPassing } from "./jumpPushPassing";
 import { jumpPushRocker } from "./jumpPushRocker";
-
-/*
- * The slowest descent of a reaching-foot sole point that counts as falling,
- * metres per second: slower, the foot is turning about that point
- * (provisional).
- */
-const PIVOTING: number = 0.01;
-
-/*
- * The shortest carry, seconds, whose carried-rate term is evaluated: a
- * microsecond carry adds nothing a frame shows, and the term divides by its
- * duration.
- */
-const CARRY: number = 1e-6;
+import * as JumpPushData from "./JumpPushData";
 
 /*
  * Build a jump's push-off.
@@ -91,7 +78,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
       HumanFoot.offset(body, reaching, point),
     );
     const falling: number = -(stride.y + spin.z * arm.x - spin.x * arm.z);
-    if (falling > PIVOTING)
+    if (falling > JumpPushData.PIVOTING)
       reachingCarry = Math.min(
         reachingCarry,
         Math.max(0, entry.feet[reaching].ankle.y + arm.y) /
@@ -102,7 +89,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
   // the leg continues what the root's carried acceleration asks of it.
   const surge: IAutoMovieVector3 = entry.feet[reaching].acceleration;
   const reachBend: (t: number) => number = (t: number): number =>
-    reachingCarry > CARRY ? AutoMovieEngineMotionSampling.carriedAcceleration(reachingCarry, t) : 0;
+    reachingCarry > JumpPushData.CARRY ? AutoMovieEngineMotionSampling.carriedAcceleration(reachingCarry, t) : 0;
   // The take-off foot's pitch rate about its lateral axis, degrees per
   // second, positive lifting the toes.
   const lateral: IAutoMovieVector3 = Quaternion.rotateVector(support.rotation, {
@@ -184,7 +171,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
     P,
     rolling,
     sample,
-    CARRY,
+    CARRY: JumpPushData.CARRY,
   });
 
   const passing: jumpPushPassing.Passing = jumpPushPassing({
@@ -233,7 +220,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
       // the velocity and the spin it was entered with.
       const s: number = phase.progress;
       const k: number =
-        reachingCarry > CARRY
+        reachingCarry > JumpPushData.CARRY
           ? reachingCarry === P
             ? phase.carry
             : AutoMovieEngineMotionSampling.carriedRate(reachingCarry, t)

@@ -87,26 +87,6 @@ export function precisionStrokeTool(
 }
 
 /*
- * The palm's normal in the hand bone's frame at the entry pose.
- */
-function palm(
-  body: IAutoMovieMotionHumanBody,
-  side: AutoMovieHumanSide,
-  entry: IAutoMoviePose,
-): IAutoMovieVector3 {
-  const bones: ReturnType<typeof poseBones> = poseBones(
-    body,
-    entry,
-    undefined,
-    new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
-  );
-  return Quaternion.rotateVector(
-    Quaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
-    HumanHand.frame(body, bones, side, "palm").normal,
-  );
-}
-
-/*
  * Companion types of `precisionStrokeTool`.
  */
 export namespace precisionStrokeTool {
@@ -129,4 +109,24 @@ export namespace precisionStrokeTool {
      */
     support: IAutoMovieMotionHumanStrikingBlade.ISupport | null;
   }
+}
+
+/*
+ * The palm's normal in the hand bone's frame at the entry pose.
+ */
+function palm(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  entry: IAutoMoviePose,
+): IAutoMovieVector3 {
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body,
+    entry,
+    undefined,
+    new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
+  );
+  return Quaternion.rotateVector(
+    Quaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
+    HumanHand.frame(body, bones, side, "palm").normal,
+  );
 }

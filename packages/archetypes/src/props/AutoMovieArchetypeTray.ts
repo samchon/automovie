@@ -9,11 +9,7 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeCarryBasket } from "./AutoMovieArchetypeCarryBasket";
 import { AutoMovieArchetypeServingTray } from "./AutoMovieArchetypeServingTray";
-
-/*
- * What no source read gives.
- */
-const UNREAD: string = "the IKEA pages read give no weight of the item alone";
+import * as AutoMovieArchetypeTrayData from "./internal/AutoMovieArchetypeTrayData";
 
 /** Constructs the tray archetype from its recipe. */
 export namespace AutoMovieArchetypeTray {
@@ -192,10 +188,10 @@ export function create(
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     tray: {
-      mass: AutoMovieArchetypeBand.of("kg", 0.4, 1, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.4, 1, AutoMovieArchetypeTrayData.UNREAD, true),
     },
     basket: {
-      mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.8, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.8, AutoMovieArchetypeTrayData.UNREAD, true),
     },
   };
 }

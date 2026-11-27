@@ -22,26 +22,6 @@ import { StrikingTwist } from "./StrikingTwist";
 import type { strikingStepSupport } from "./strikingStepSupport";
 
 /*
- * Each moving foot gets its own support interval, with both down between lifts.
- */
-const FIRST: Window = [0, 0.45];
-
-/*
- * The following foot has planted before the action cut.
- */
-const SECOND: Window = [0.5, 0.95];
-
-/*
- * The lead ball stays in place while the other foot takes one swing.
- */
-const PIVOT: Window = [0, 0.95];
-
-/*
- * Axis of a positive turn in the world frame.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
  * The angled and lead-changing footwork planned by `step`. A stationary turn
  * pivots the lead shoe around its ball and moves the root and rear shoe around
  * that anchor. A traveling turn takes two steps on a new line. A lead exchange
@@ -395,6 +375,26 @@ export namespace StrikingStepTransition {
     }
   }
 }
+
+/*
+ * Each moving foot gets its own support interval, with both down between lifts.
+ */
+const FIRST: Window = [0, 0.45];
+
+/*
+ * The following foot has planted before the action cut.
+ */
+const SECOND: Window = [0.5, 0.95];
+
+/*
+ * The lead ball stays in place while the other foot takes one swing.
+ */
+const PIVOT: Window = [0, 0.95];
+
+/*
+ * Axis of a positive turn in the world frame.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * Evaluate the pivot or swing of one foot on its own clock.

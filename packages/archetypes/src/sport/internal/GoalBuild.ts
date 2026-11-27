@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import "@automovie/engine";
 
 import {
   AutoMovieArchetypeBuilder,
@@ -7,11 +7,7 @@ import {
 } from "../../core";
 import { GOAL_BANDS } from "../constants/GOAL_BANDS";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
-
-/*
- * Model coordinates in metres.
- */
-const v: typeof Vector3.create = Vector3.create;
+import { v } from "./GoalBuildData";
 
 /*
  * The recorded profiles, draw and shared post contacts for goal and net

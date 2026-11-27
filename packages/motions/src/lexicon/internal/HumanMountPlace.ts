@@ -18,59 +18,6 @@ import { HumanMount } from "./HumanMount";
 import { HumanMountPush } from "./HumanMountPush";
 
 /*
- * A seated thigh's flexion off its pelvis, degrees: the two-link knee
- * (`HumanMountPush.knee`) read in the pelvis's sagittal plane, forward of its
- * downward axis.
- */
-function hipFlexion(
-  body: IAutoMovieMotionHumanBody,
-  hip: IAutoMovieVector3,
-  ankle: IAutoMovieVector3,
-  pole: IAutoMovieVector3,
-  yaw: number,
-  pitch: number,
-): number {
-  const knee: IAutoMovieVector3 | null = HumanMountPush.knee(
-    body,
-    hip,
-    ankle,
-    pole,
-  );
-  if (knee === null) return 0;
-  const pelvis: IAutoMovieQuaternion = humanPostureHeading({
-    yaw,
-    pitch,
-    roll: 0,
-  });
-  const thigh: IAutoMovieVector3 = Vector3.subtract(knee, hip);
-  return (
-    Math.atan2(
-      Vector3.dot(thigh, Quaternion.rotateVector(pelvis, { x: 0, y: 0, z: 1 })),
-      -Vector3.dot(
-        thigh,
-        Quaternion.rotateVector(pelvis, { x: 0, y: 1, z: 0 }),
-      ),
-    ) / Quaternion.DEG2RAD
-  );
-}
-
-/*
- * The hip's flexion range's upper bound, degrees: the range table's for the
- * body's thigh.
- */
-function hipRange(
-  body: IAutoMovieMotionHumanBody,
-  side: AutoMovieHumanSide,
-): number {
-  const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
-  const constraint: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
-    bone,
-    readHumanBone(body, bone)?.constraint ?? null,
-  );
-  return constraint?.flexion?.max ?? Infinity;
-}
-
-/*
  * A foot's end on a high seat.
  * Parameter body: The body.
  * Parameter side: The foot.
@@ -195,4 +142,57 @@ export namespace HumanMountPlace {
      */
     height: number;
   }
+}
+
+/*
+ * A seated thigh's flexion off its pelvis, degrees: the two-link knee
+ * (`HumanMountPush.knee`) read in the pelvis's sagittal plane, forward of its
+ * downward axis.
+ */
+function hipFlexion(
+  body: IAutoMovieMotionHumanBody,
+  hip: IAutoMovieVector3,
+  ankle: IAutoMovieVector3,
+  pole: IAutoMovieVector3,
+  yaw: number,
+  pitch: number,
+): number {
+  const knee: IAutoMovieVector3 | null = HumanMountPush.knee(
+    body,
+    hip,
+    ankle,
+    pole,
+  );
+  if (knee === null) return 0;
+  const pelvis: IAutoMovieQuaternion = humanPostureHeading({
+    yaw,
+    pitch,
+    roll: 0,
+  });
+  const thigh: IAutoMovieVector3 = Vector3.subtract(knee, hip);
+  return (
+    Math.atan2(
+      Vector3.dot(thigh, Quaternion.rotateVector(pelvis, { x: 0, y: 0, z: 1 })),
+      -Vector3.dot(
+        thigh,
+        Quaternion.rotateVector(pelvis, { x: 0, y: 1, z: 0 }),
+      ),
+    ) / Quaternion.DEG2RAD
+  );
+}
+
+/*
+ * The hip's flexion range's upper bound, degrees: the range table's for the
+ * body's thigh.
+ */
+function hipRange(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+): number {
+  const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
+  const constraint: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
+    bone,
+    readHumanBone(body, bone)?.constraint ?? null,
+  );
+  return constraint?.flexion?.max ?? Infinity;
 }

@@ -12,33 +12,7 @@ import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { humanBicycleEffortTimeline } from "./humanBicycleEffortTimeline";
-
-/*
- * Sides of the bicycle contact pairs.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/*
- * Forward pelvic transfer as a share of vertical effort, provisional for film
- * blocking.
- */
-const FORWARD: number = 0.35;
-
-/*
- * Additional trunk inclination over the flying saddle, in provisional staging
- * degrees.
- */
-const INCLINE: number = 7;
-
-/*
- * Metres permitted between declared placement and the displayed contact.
- */
-const FIT: number = 0.01;
-
-/*
- * Intervals checked in each rising, standing and lowering phase.
- */
-const INTERVALS: number = 8;
+import * as HumanBicycleEffortData from "./HumanBicycleEffortData";
 
 /*
  * Rise from the saddle while both feet follow their pedals and both hands
@@ -118,7 +92,7 @@ function planHumanBicycleEffort(
     rightPedal === undefined ||
     point(hands.left) === undefined ||
     point(hands.right) === undefined ||
-    SIDES.some(
+    HumanBicycleEffortData.SIDES.some(
       (side: AutoMovieHumanSide): boolean => !entry.feet[side].planted,
     ) ||
     entry.supports.some(
@@ -190,12 +164,12 @@ function planHumanBicycleEffort(
       const displayed: IAutoMovieVector3 =
         AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(socket, bones.get(socket.bone)!);
       const gap: number = Vector3.distance(displayed, expected);
-      if (gap <= FIT) return;
+      if (gap <= HumanBicycleEffortData.FIT) return;
       throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis,
         value: gap,
-        feasible: { kind: "range", minimum: 0, maximum: FIT, unit: "m" },
+        feasible: { kind: "range", minimum: 0, maximum: HumanBicycleEffortData.FIT, unit: "m" },
         reason:
           "the entered rider's contact is out of alignment with the named bicycle point",
         fix: "seat the rider on the named saddle and both pedals before beginning the effort",
@@ -226,7 +200,7 @@ function planHumanBicycleEffort(
     const height: number = share * lift;
     const incline: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
       seated.joints,
-      INCLINE * share,
+      HumanBicycleEffortData.INCLINE * share,
       0,
     );
     const out: IAutoMovieMotionHumanPosture = {
@@ -236,7 +210,7 @@ function planHumanBicycleEffort(
         Quaternion.rotateVector(frame.rotation, {
           x: 0,
           y: height,
-          z: FORWARD * height,
+          z: HumanBicycleEffortData.FORWARD * height,
         }),
       ),
       joints: incline.joints,
@@ -254,7 +228,7 @@ function planHumanBicycleEffort(
       y: 0,
       z: body.measure.thigh,
     });
-    for (const side of SIDES) {
+    for (const side of HumanBicycleEffortData.SIDES) {
       const goal: IAutoMovieHumanLimbGoal = seated.limbs[`${side}Leg`]!;
       out.limbs[`${side}Leg`] = HumanMountRider.ankled(
         body,
@@ -274,12 +248,12 @@ function planHumanBicycleEffort(
     [lower, seatOn],
   ];
   for (const [from, to] of phases) {
-    for (let index: number = 0; index <= INTERVALS; ++index) {
-      const at: number = from + ((to - from) * index) / INTERVALS;
+    for (let index: number = 0; index <= HumanBicycleEffortData.INTERVALS; ++index) {
+      const at: number = from + ((to - from) * index) / HumanBicycleEffortData.INTERVALS;
       const sample: IAutoMovieMotionHumanPosture = posture(at);
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, resolveHumanPosture(body, sample));
-      for (const side of SIDES) {
+      for (const side of HumanBicycleEffortData.SIDES) {
         for (const [bone, limb] of [
           [`${side}Hand`, `${side}Arm`],
           [`${side}Foot`, `${side}Leg`],
@@ -289,7 +263,7 @@ function planHumanBicycleEffort(
           if (
             goal !== undefined &&
             Vector3.length(Vector3.subtract(joint.worldPosition, goal.point)) <=
-              FIT
+              HumanBicycleEffortData.FIT
           )
             continue;
           throw new AutoMovieMotionHumanRefusal({
@@ -309,7 +283,7 @@ function planHumanBicycleEffort(
     (window: IAutoMovieMotionHumanContactWindow): boolean =>
       window.part === "seat",
   )!;
-  const barContacts: IAutoMovieMotionHumanContactWindow[] = SIDES.map(
+  const barContacts: IAutoMovieMotionHumanContactWindow[] = HumanBicycleEffortData.SIDES.map(
     (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
       part: `${side}Hand`,
       kind: "grip",

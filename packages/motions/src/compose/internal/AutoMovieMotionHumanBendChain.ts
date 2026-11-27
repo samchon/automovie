@@ -15,32 +15,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
 /*
- * Keep the source's placement independent of every returned chain's mutation.
- */
-function copyShapes(
-  shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-): IAutoMovieMotionHumanColliders.IPlaced[] {
-  return shapes.map(copyShape);
-}
-
-/*
- * One fresh outward collider frame; only the original immutable shape geometry
- * is shared.
- */
-function copyShape(
-  shape: IAutoMovieMotionHumanColliders.IPlaced,
-): IAutoMovieMotionHumanColliders.IPlaced {
-  return {
-    bone: shape.bone,
-    pose: {
-      position: { ...shape.pose.position },
-      rotation: { ...shape.pose.rotation },
-    },
-    shapes: shape.shapes,
-  };
-}
-
-/*
  * An arm chain on a posture's trunk, or null when the rig has no such chain.
  * Parameter body: The body.
  * Parameter posture: The root and the heading; an absent pitch or roll is 0.
@@ -208,4 +182,30 @@ export namespace AutoMovieMotionHumanBendChain {
       sides: new Set(),
     };
   }
+}
+
+/*
+ * Keep the source's placement independent of every returned chain's mutation.
+ */
+function copyShapes(
+  shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+): IAutoMovieMotionHumanColliders.IPlaced[] {
+  return shapes.map(copyShape);
+}
+
+/*
+ * One fresh outward collider frame; only the original immutable shape geometry
+ * is shared.
+ */
+function copyShape(
+  shape: IAutoMovieMotionHumanColliders.IPlaced,
+): IAutoMovieMotionHumanColliders.IPlaced {
+  return {
+    bone: shape.bone,
+    pose: {
+      position: { ...shape.pose.position },
+      rotation: { ...shape.pose.rotation },
+    },
+    shapes: shape.shapes,
+  };
 }

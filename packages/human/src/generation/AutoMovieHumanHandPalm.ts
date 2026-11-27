@@ -21,11 +21,6 @@ import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanPalmRelief } from "./AutoMovieHumanPalmRelief";
 
-const { scale, dot, mean }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide =
-  AutoMovieHumanHandSide;
-
 /**
  * The palm's chain, its sections square to the hand's axis, each carrying the
  * palm's reliefs (`AutoMovieHumanPalmRelief`).
@@ -697,3 +692,9 @@ export namespace AutoMovieHumanHandPalm {
     normal: AutoMovieVector3Tuple;
   }
 }
+
+const { scale, dot, mean }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+
+const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide =
+  AutoMovieHumanHandSide;

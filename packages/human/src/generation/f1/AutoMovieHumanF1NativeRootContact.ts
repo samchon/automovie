@@ -37,26 +37,6 @@ export namespace AutoMovieHumanF1NativeRootContact {
   }
 
   /*
-   * PENDING the armpit worker's report on the slit's trace failure, which decides this seed: f1's operator contact observations for the
-   * armpit's slit on its band, copied from human/.shots/native-round-20261117-0404/f1.json, operators.rows[owner,kind=diff-seed].actual
-   * (SHA256 68f77cc5a906ecbc4641c39c162a10fef162310633a7952973a16ef25f4659f3; also in f1.operator-inputs.json meet-end events, SHA256
-   * f6a58805543598b1e7894da4221543ee8d0ca3cf040e3dc4b6ede602af506c61). Coordinates read from an output, kept unchanged on purpose until
-   * that report; not a law.
-   */
-  const priors: Readonly<Record<string, IPrior>> = {
-    axilla: {
-      host: "band.arm",
-      part: [60.08331920799109, 4.6173],
-      hostAt: [4.765832185216082, 2.624174206673892],
-    },
-    "axilla.mirror": {
-      host: "band.arm.mirror",
-      part: [60.22930831330246, 1.665885307179586],
-      hostAt: [4.725353630062723, 2.621805885270596],
-    },
-  };
-
-  /*
    * The seed of a changed or unchanged dependent cutter. `host`, the host's own source, is present exactly when the host face is a source
    * (the nose for the nostrils): its seed is derived. Absent, the host is a band and the stored chart applies (the armpit's slit, pending).
    */
@@ -113,6 +93,26 @@ export namespace AutoMovieHumanF1NativeRootContact {
       },
     };
   }
+
+  /*
+   * PENDING the armpit worker's report on the slit's trace failure, which decides this seed: f1's operator contact observations for the
+   * armpit's slit on its band, copied from human/.shots/native-round-20261117-0404/f1.json, operators.rows[owner,kind=diff-seed].actual
+   * (SHA256 68f77cc5a906ecbc4641c39c162a10fef162310633a7952973a16ef25f4659f3; also in f1.operator-inputs.json meet-end events, SHA256
+   * f6a58805543598b1e7894da4221543ee8d0ca3cf040e3dc4b6ede602af506c61). Coordinates read from an output, kept unchanged on purpose until
+   * that report; not a law.
+   */
+  const priors: Readonly<Record<string, IPrior>> = {
+    axilla: {
+      host: "band.arm",
+      part: [60.08331920799109, 4.6173],
+      hostAt: [4.765832185216082, 2.624174206673892],
+    },
+    "axilla.mirror": {
+      host: "band.arm.mirror",
+      part: [60.22930831330246, 1.665885307179586],
+      hostAt: [4.725353630062723, 2.621805885270596],
+    },
+  };
 
   /*
    * The seed where the cutter's declared seed line, its phase over its material window shares, enters the host source.

@@ -137,17 +137,6 @@ export namespace StrikingRoom {
   }
 
   /*
-   * The original proximal/midpoint/distal sample order, shared as immutable
-   * geometry.
-   */
-  const SHARES: readonly number[] = [0, 0.5, 1];
-
-  /*
-   * The bisection's halvings: a 0.4 m stance step over 2^14 is under 0.03 mm.
-   */
-  const HALVINGS: number = 14;
-
-  /*
    * How far the striker may travel along the line before an arm meets the other
    * body, at most the limit.
    * Parameter props: The two bodies, the line and the limit.
@@ -334,6 +323,7 @@ export namespace StrikingRoom {
       context.body.measure.forearmRadius + other.body.measure.forearmRadius,
     );
   }
+
   /*
    * How far a feint may run before it meets the guard: the share of its whole
    * way out that stays clear of the farthest guarding hand or forearm by the
@@ -357,6 +347,16 @@ export namespace StrikingRoom {
       girth;
     return Math.min(feint.declared, Math.max(0, clear / whole));
   }
+
+  /*
+   * The original proximal/midpoint/distal sample order, shared as immutable
+   * geometry.
+   */
+  const SHARES: readonly number[] = [0, 0.5, 1];
+  /*
+   * The bisection's halvings: a 0.4 m stance step over 2^14 is under 0.03 mm.
+   */
+  const HALVINGS: number = 14;
 }
 
 /*

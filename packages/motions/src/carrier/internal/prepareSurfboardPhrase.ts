@@ -8,38 +8,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 import { prepareSurfboardPosture } from "./prepareSurfboardPosture";
-
-/*
- * The two sides are fitted independently.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-// The staging coefficients below are provisional. The cited study orders
-// the palm and foot supports but measures no posture angles or heights, so
-// each value is an authored staging choice that the board-sport test
-// bounds through its support and clearance checks, not a measurement.
-
-/*
- * Least entry pitch, degrees, that reads as lying prone in the water
- * (provisional).
- */
-const PRONE_ENTRY_PITCH: number = 50;
-
-/*
- * Greatest entry hip distance from the waterline, in leg lengths (provisional).
- */
-const PRONE_ENTRY_DEPTH: number = 0.4;
-
-/*
- * Highest deck above the water at the mount, in leg lengths, that a prone
- * paddler climbs onto (provisional).
- */
-const MOUNT_REACH: number = 1 / 3;
-
-/*
- * Pitch of the prone paddling posture, degrees from upright (provisional).
- */
-const PRONE_PITCH: number = 86;
+import * as PrepareSurfboardPhraseData from "./PrepareSurfboardPhraseData";
 
 /*
  * Mount a staged surfboard, paddle and transfer from the palms to the feet.
@@ -90,7 +59,7 @@ export function prepareSurfboardPhrase(
   board.plant(prone, "prone");
   board.plant(front, "frontStance");
   board.plant(rear, "rearStance");
-  for (const side of SIDES) board.plant(palms[side], side + "Palm");
+  for (const side of PrepareSurfboardPhraseData.SIDES) board.plant(palms[side], side + "Palm");
 
   const hips: IAutoMovieVector3 = body.rest.get("hips")!;
   const leg: number = body.measure.thigh + body.measure.shank;
@@ -101,8 +70,8 @@ export function prepareSurfboardPhrase(
   )!.worldPosition;
   const localHip: IAutoMovieVector3 = HumanSurfaceBoard.local(origin, entryHip);
   if (
-    start.pitch < PRONE_ENTRY_PITCH ||
-    Math.abs(entryHip.y - water) > PRONE_ENTRY_DEPTH * leg ||
+    start.pitch < PrepareSurfboardPhraseData.PRONE_ENTRY_PITCH ||
+    Math.abs(entryHip.y - water) > PrepareSurfboardPhraseData.PRONE_ENTRY_DEPTH * leg ||
     Vector3.distance(localHip, prone) > leg
   )
     HumanSurfaceBoard.refuseBoard(
@@ -115,7 +84,7 @@ export function prepareSurfboardPhrase(
   ).y;
   if (
     deckAtMount < water - HumanSurfaceBoard.GAP ||
-    deckAtMount > water + MOUNT_REACH * leg
+    deckAtMount > water + PrepareSurfboardPhraseData.MOUNT_REACH * leg
   )
     HumanSurfaceBoard.refuseBoard(
       params.on,
@@ -129,7 +98,7 @@ export function prepareSurfboardPhrase(
   const pronePose: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 180,
-    pitch: PRONE_PITCH,
+    pitch: PrepareSurfboardPhraseData.PRONE_PITCH,
     roll: 0,
     joints: lieDown.POSES.prone.joints,
     limbs: {},
@@ -215,7 +184,7 @@ export function prepareSurfboardPhrase(
       rear,
       stanceMid,
       palms,
-      SIDES,
+      SIDES: PrepareSurfboardPhraseData.SIDES,
     });
   return {
     duration,

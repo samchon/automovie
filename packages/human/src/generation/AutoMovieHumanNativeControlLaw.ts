@@ -13,19 +13,6 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/*
- * Share of an outline's extent E (its largest knot magnitude) within which a junction's bound value, station slope (per mm) and station
- * second derivative (per mm squared) must equal the changed source's: E·1e-9, E·1e-9 /mm and E·1e-9 /mm².
- *
- * Basis. The bound jet is written into a knot whose neighbours stand about 1 mm away (f1's source stations), and a value step δ blended
- * over a gap g by the quintic bends the wall by at most (10/√3)·δ/g². At 1e-9 of a 166 mm half-breadth every order adds under 1e-6 /mm,
- * 1e-4 of the wall's own 0.012 to 0.023 /mm (its 43 to 86 mm radii). Both readings are one law read by two owners, so coordinates agree
- * to binary64 rounding, about 1e-13 of E, and an anisotropic tangent angle to its two quintics' truncation between source knots, sixth
- * order in their spacing; the 0.064 mm step (4e-4 of E) that made a -3.9 /mm ridge at f1's underbust site under knot-sampled scaling
- * stands 4e5 above.
- */
-const JUNCTION_AGREEMENT: number = 1e-9;
-
 /** Native control operations in physical millimetres, before any loft. */
 export namespace AutoMovieHumanNativeControlLaw {
   /**
@@ -380,3 +367,16 @@ export namespace AutoMovieHumanNativeControlLaw {
     };
   }
 }
+
+/*
+ * Share of an outline's extent E (its largest knot magnitude) within which a junction's bound value, station slope (per mm) and station
+ * second derivative (per mm squared) must equal the changed source's: E·1e-9, E·1e-9 /mm and E·1e-9 /mm².
+ *
+ * Basis. The bound jet is written into a knot whose neighbours stand about 1 mm away (f1's source stations), and a value step δ blended
+ * over a gap g by the quintic bends the wall by at most (10/√3)·δ/g². At 1e-9 of a 166 mm half-breadth every order adds under 1e-6 /mm,
+ * 1e-4 of the wall's own 0.012 to 0.023 /mm (its 43 to 86 mm radii). Both readings are one law read by two owners, so coordinates agree
+ * to binary64 rounding, about 1e-13 of E, and an anisotropic tangent angle to its two quintics' truncation between source knots, sixth
+ * order in their spacing; the 0.064 mm step (4e-4 of E) that made a -3.9 /mm ridge at f1's underbust site under knot-sampled scaling
+ * stands 4e5 above.
+ */
+const JUNCTION_AGREEMENT: number = 1e-9;

@@ -87,31 +87,9 @@ export namespace selfAction {
   export const YAWN: number = 6;
 
   /*
-   * Each arm action's place for the right hand (the left mirrors).
-   */
-  const PLACES: Readonly<
-    Record<PLACESEntryItem, IAutoMovieMotionHumanTargetGrid.IGrid>
-  > = {
-    stretch: { height: "overhead", lateral: "shoulder", distance: "close" },
-    victory: { height: "overhead", lateral: "outside", distance: "close" },
-    fistPump: { height: "eye", lateral: "outside", distance: "mid" },
-  };
-
-  /*
    * May be performed over a carrier: it claims only the parts it moves.
    */
   export const overlay: boolean = true;
-
-  /*
-   * Where the pumping arm's elbow hangs, which the fist's forearm rises from:
-   * the knuckles face away from it. With the fist a forearm ahead of the
-   * shoulder, the whole drop stays within the elbow's flexion range.
-   */
-  const ELBOW: IAutoMovieMotionHumanTargetGrid.IGrid = {
-    height: "shoulder",
-    lateral: "outside",
-    distance: "near",
-  };
 
   /*
    * Plan a self action.
@@ -392,6 +370,28 @@ export namespace selfAction {
       contact: "stroke",
     });
   }
+
+  /*
+   * Each arm action's place for the right hand (the left mirrors).
+   */
+  const PLACES: Readonly<
+    Record<PLACESEntryItem, IAutoMovieMotionHumanTargetGrid.IGrid>
+  > = {
+    stretch: { height: "overhead", lateral: "shoulder", distance: "close" },
+    victory: { height: "overhead", lateral: "outside", distance: "close" },
+    fistPump: { height: "eye", lateral: "outside", distance: "mid" },
+  };
+
+  /*
+   * Where the pumping arm's elbow hangs, which the fist's forearm rises from:
+   * the knuckles face away from it. With the fist a forearm ahead of the
+   * shoulder, the whole drop stays within the elbow's flexion range.
+   */
+  const ELBOW: IAutoMovieMotionHumanTargetGrid.IGrid = {
+    height: "shoulder",
+    lateral: "outside",
+    distance: "near",
+  };
 
   /*
    * An arm a kind raises: its side, its place, the hand's shape and whether its

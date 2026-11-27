@@ -26,11 +26,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
 /*
- * The world's up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
  * Wing chun's rolling chi sau (`IAutoMovieMotionHumanChiSau`): both wrists held
  * on the two contacts between the partners, each partner's left wrist over the
  * partner's right, the contacts rolling a small vertical circle in the line
@@ -322,6 +317,11 @@ export namespace chiSau {
     };
   }
 }
+
+/*
+ * The world's up.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * The shared geometry of the two rolling contacts.

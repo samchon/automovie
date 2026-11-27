@@ -64,12 +64,6 @@ export namespace AutoMovieArchetypeEquineGaitedProfile {
     };
   }
 
-  /*
-   * The band's provenance.
-   */
-  const BAND: string =
-    "the usual 1.42 to 1.63 m of the Tennessee Walking Horse, racking horse, Missouri Fox Trotter, Peruvian Paso and Paso Fino registries, provisional";
-
   /**
    * The gaited cohorts' height at the withers, metres: 1.52 m (15 hands), the
    * middle of these breeds' usual 1.42 to 1.63 m, standing for the unreported
@@ -78,6 +72,27 @@ export namespace AutoMovieArchetypeEquineGaitedProfile {
    * similarity.
    */
   export const COHORT: number = 1.52;
+
+  /**
+   * A breed's table: the ordinary horse's, with its ambling gait explicit-only.
+   *
+   * @param breed The breed.
+   * @returns The table.
+   */
+  export function table(breed: Breed): AutoMovieArchetypeQuadrupedGait.ITable {
+    const [name, entry] = GAITS[breed];
+    return {
+      ...AutoMovieArchetypeEquineGait.TABLE,
+      explicit: [...(AutoMovieArchetypeEquineGait.TABLE.explicit ?? []), name],
+      gaits: { ...AutoMovieArchetypeEquineGait.TABLE.gaits, [name]: entry },
+    };
+  }
+
+  /*
+   * The band's provenance.
+   */
+  const BAND: string =
+    "the usual 1.42 to 1.63 m of the Tennessee Walking Horse, racking horse, Missouri Fox Trotter, Peruvian Paso and Paso Fino registries, provisional";
 
   /*
    * The reduction of the cohort's clocks to the table's reference height.
@@ -159,21 +174,6 @@ export namespace AutoMovieArchetypeEquineGaitedProfile {
     peruvian: ["pasoLlano", PASO_LLANO],
     pasoFino: ["pasoCorto", PASO_CORTO],
   };
-
-  /**
-   * A breed's table: the ordinary horse's, with its ambling gait explicit-only.
-   *
-   * @param breed The breed.
-   * @returns The table.
-   */
-  export function table(breed: Breed): AutoMovieArchetypeQuadrupedGait.ITable {
-    const [name, entry] = GAITS[breed];
-    return {
-      ...AutoMovieArchetypeEquineGait.TABLE,
-      explicit: [...(AutoMovieArchetypeEquineGait.TABLE.explicit ?? []), name],
-      gaits: { ...AutoMovieArchetypeEquineGait.TABLE.gaits, [name]: entry },
-    };
-  }
 
   /*
    * A lateral-sequence stepping gait with the walk's carriage, from its lateral

@@ -8,52 +8,6 @@ import { StorageConstruction } from "./StorageConstruction";
 import { AutoMovieArchetypeStorage } from "../AutoMovieArchetypeStorage";
 
 /*
- * The name each kind's model carries.
- */
-const NAMES: Readonly<Record<AutoMovieArchetypeStorage.Kind, string>> = {
-  wardrobe: "wardrobe",
-  chest: "chest of drawers",
-  filingCabinet: "filing cabinet",
-  locker: "locker",
-  bookcase: "bookcase",
-};
-
-/*
- * Pick the recorded hinge or slide model and use its figures in the saved
- * dimension stream.
- */
-function draw<Id extends AutoMovieArchetypeStorage.Affordance>(
-  kind: AutoMovieArchetypeStorage.Kind,
-  params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
-  seed?: number,
-): IDrawn<Id> {
-  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStorage.Dimension> =
-    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeStorage.Dimension>(
-      "storage",
-      AutoMovieArchetypeStorage.UNITS,
-      seed,
-      params,
-    );
-  const model: Readonly<Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>> =
-    session.model<AutoMovieArchetypeStorage.Model>(
-      "model",
-      params.model,
-      STORAGE_MODELS[kind],
-    ).figures;
-  const d: Partial<Record<AutoMovieArchetypeStorage.Dimension, number>> = {
-    ...session.dimensions(AutoMovieArchetypeStorage.BANDS[kind], AutoMovieArchetypeStorage.BANDS),
-    ...model,
-  };
-  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw: session,
-  });
-  return { builder, d };
-}
-
-/*
  * Furniture construction selections with hinged, sliding and open storage
  * mechanisms.
  */
@@ -135,6 +89,52 @@ export namespace StorageMechanisms {
     StorageConstruction.bookcase(builder, d);
     return builder.build(d.mass!);
   }
+}
+
+/*
+ * The name each kind's model carries.
+ */
+const NAMES: Readonly<Record<AutoMovieArchetypeStorage.Kind, string>> = {
+  wardrobe: "wardrobe",
+  chest: "chest of drawers",
+  filingCabinet: "filing cabinet",
+  locker: "locker",
+  bookcase: "bookcase",
+};
+
+/*
+ * Pick the recorded hinge or slide model and use its figures in the saved
+ * dimension stream.
+ */
+function draw<Id extends AutoMovieArchetypeStorage.Affordance>(
+  kind: AutoMovieArchetypeStorage.Kind,
+  params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
+  seed?: number,
+): IDrawn<Id> {
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStorage.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeStorage.Dimension>(
+      "storage",
+      AutoMovieArchetypeStorage.UNITS,
+      seed,
+      params,
+    );
+  const model: Readonly<Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>> =
+    session.model<AutoMovieArchetypeStorage.Model>(
+      "model",
+      params.model,
+      STORAGE_MODELS[kind],
+    ).figures;
+  const d: Partial<Record<AutoMovieArchetypeStorage.Dimension, number>> = {
+    ...session.dimensions(AutoMovieArchetypeStorage.BANDS[kind], AutoMovieArchetypeStorage.BANDS),
+    ...model,
+  };
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: NAMES[kind],
+    draw: session,
+  });
+  return { builder, d };
 }
 
 /*

@@ -26,19 +26,6 @@ import { AutoMovieHumanArmInterim } from "./AutoMovieHumanArmInterim";
  * The toes take theirs from the forefoot (`AutoMovieHumanFootInterim.toes`).
  */
 export namespace AutoMovieHumanDigitInterim {
-  /*
-   * The sites of a three-bone digit walk, by the joint law each takes.
-   */
-  const SITES: Readonly<Record<string, "near" | "mean" | "far">> = {
-    base: "near",
-    "shaft 0": "near",
-    "joint 1": "near",
-    "shaft 1": "mean",
-    "joint 2": "far",
-    "shaft 2": "far",
-    end: "far",
-  };
-
   /**
    * A finger's or the thumb's walk.
    *
@@ -138,4 +125,17 @@ export namespace AutoMovieHumanDigitInterim {
       gap: 1,
     };
   }
+
+  /*
+   * The sites of a three-bone digit walk, by the joint law each takes.
+   */
+  const SITES: Readonly<Record<string, "near" | "mean" | "far">> = {
+    base: "near",
+    "shaft 0": "near",
+    "joint 1": "near",
+    "shaft 1": "mean",
+    "joint 2": "far",
+    "shaft 2": "far",
+    end: "far",
+  };
 }

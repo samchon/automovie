@@ -23,11 +23,7 @@ import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
 import { guitarNoteEntry } from "./guitarNoteEntry";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
-
-/*
- * Tolerance for a usable projected shoulder direction, metres.
- */
-const COINCIDENCE: number = 1e-6;
+import * as GuitarNoteData from "./GuitarNoteData";
 
 /*
  * A left index stops one string while the right index crosses it on a
@@ -188,7 +184,7 @@ function handPath(
   const along: IAutoMovieVector3 = reject(toward, normal);
   const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
     fingers:
-      Vector3.length(along) > COINCIDENCE
+      Vector3.length(along) > GuitarNoteData.COINCIDENCE
         ? along
         : Vector3.normalize(
             Vector3.cross(

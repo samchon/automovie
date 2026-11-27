@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No maker's page was read.
- */
-const STAGED: string =
-  "a scuba set: its dimensions and mass are provisional estimates, no maker's page was read";
+import * as AutoMovieArchetypeScubaSetData from "./internal/AutoMovieArchetypeScubaSetData";
 
 /** Constructs the scuba set archetype from its recipe. */
 export namespace AutoMovieArchetypeScubaSet {
@@ -112,8 +107,8 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(0.6, 0.7, STAGED, true),
-    diameter: AutoMovieArchetypeBand.metres(0.17, 0.19, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 15, 20, STAGED, true),
+    length: AutoMovieArchetypeBand.metres(0.6, 0.7, AutoMovieArchetypeScubaSetData.STAGED, true),
+    diameter: AutoMovieArchetypeBand.metres(0.17, 0.19, AutoMovieArchetypeScubaSetData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 15, 20, AutoMovieArchetypeScubaSetData.STAGED, true),
   };
 }

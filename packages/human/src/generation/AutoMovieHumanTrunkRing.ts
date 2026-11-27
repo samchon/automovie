@@ -19,24 +19,6 @@ import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
  * sectors and the guide's control points run at one speed through each guide.
  */
 export namespace AutoMovieHumanTrunkRing {
-  /*
-   * The left side's guides in knot order, front midline to back midline.
-   */
-  const GUIDES: readonly IAutoMovieHumanTrunkGuides.Guide[] =
-    AutoMovieHumanTrunkGuides.ORDER;
-
-  /*
-   * The left side's sectors, each after the guide of the same index.
-   */
-  const SECTORS: readonly IAutoMovieHumanTrunkGuides.ISector[] =
-    AutoMovieHumanTrunkGuides.SECTORS;
-
-  /*
-   * Each guide's knot.
-   */
-  const KNOT: Readonly<Record<IAutoMovieHumanTrunkGuides.Guide, number>> =
-    AutoMovieHumanTrunkGuides.KNOT;
-
   /**
    * The speed of every guide of the left side, mm per radian.
    *
@@ -130,4 +112,22 @@ export namespace AutoMovieHumanTrunkRing {
 
     return AutoMovieHumanTrunkAssembly.controls(guides, sectors);
   }
+
+  /*
+   * The left side's guides in knot order, front midline to back midline.
+   */
+  const GUIDES: readonly IAutoMovieHumanTrunkGuides.Guide[] =
+    AutoMovieHumanTrunkGuides.ORDER;
+
+  /*
+   * The left side's sectors, each after the guide of the same index.
+   */
+  const SECTORS: readonly IAutoMovieHumanTrunkGuides.ISector[] =
+    AutoMovieHumanTrunkGuides.SECTORS;
+
+  /*
+   * Each guide's knot.
+   */
+  const KNOT: Readonly<Record<IAutoMovieHumanTrunkGuides.Guide, number>> =
+    AutoMovieHumanTrunkGuides.KNOT;
 }

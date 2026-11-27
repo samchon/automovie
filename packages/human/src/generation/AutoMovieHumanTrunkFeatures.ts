@@ -40,16 +40,6 @@ import { AutoMovieHumanUmbilicus } from "./AutoMovieHumanUmbilicus";
  * body.
  */
 export namespace AutoMovieHumanTrunkFeatures {
-  /*
-   * Construction level of an additive piece (`construction-levels.md`, Levels).
-   */
-  const ADDITIVE: number = 3;
-
-  /*
-   * Construction level of a subtractive piece.
-   */
-  const SUBTRACTIVE: number = 4;
-
   /**
    * The phase of a side's section at a lateral place: the bisection of the
    * section's spline over the quadrant's phases.
@@ -246,6 +236,7 @@ export namespace AutoMovieHumanTrunkFeatures {
         phaseAt(controls, "back", Math.min(0.97 * s.width, Math.max(0, z))),
     });
   }
+
   /**
    * The scapular masses standing on the back's envelope at the axilla's height.
    *
@@ -363,7 +354,6 @@ export namespace AutoMovieHumanTrunkFeatures {
       ),
     ];
   }
-
   /**
    * Every feature of the trunk. Each is an optional piece: one that cannot
    * keep its contract is left out, the base keeps its place there, and the
@@ -432,4 +422,14 @@ export namespace AutoMovieHumanTrunkFeatures {
       return [];
     }
   }
+
+  /*
+   * Construction level of an additive piece (`construction-levels.md`, Levels).
+   */
+  const ADDITIVE: number = 3;
+
+  /*
+   * Construction level of a subtractive piece.
+   */
+  const SUBTRACTIVE: number = 4;
 }

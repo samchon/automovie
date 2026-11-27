@@ -22,23 +22,6 @@ import { AutoMovieHumanReferenceOutlines } from "./AutoMovieHumanReferenceOutlin
  * local projection, and the old relief's displaced X/Z is not reused.
  */
 export namespace AutoMovieHumanMassInterim {
-  /*
-   * The profile of today's trunk masses as the mass part's knots: today's
-   * domes rise as the bump `h = A (1 - rho^2)^3` over their footprint
-   * (`AutoMovieHumanTrunkFeatureProfile.bump`), so at the share `a` of the
-   * amplitude the footprint's radius has shrunk to `rho = sqrt(1 - a^(1/3))`,
-   * the same share on every edge. These named samples are the current source
-   * constraints. MassPart's bounded C2 interpolation is not exact analytic
-   * bump replay: the inverse radius has an infinite AP derivative at a=0,
-   * whereas this finite regular-wall construction holds its internal section.
-   */
-  const DOME: IAutoMovieHumanTrunkBuild.IMassLaw["profile"] = [
-    0.25, 0.5, 0.75, 0.95,
-  ].map((a: number): IAutoMovieHumanTrunkBuild.IMassLaw["profile"][number] => {
-    const rho: number = Math.sqrt(1 - a ** (1 / 3));
-    return { at: a, shares: [rho, rho, rho, rho] };
-  });
-
   /**
    * The breast's retained bare-wall setback, calibration mm: the reference set's projection
    * of the bust point over the chest wall's line, per stature; none for a
@@ -167,6 +150,23 @@ export namespace AutoMovieHumanMassInterim {
       fold,
     };
   }
+
+  /*
+   * The profile of today's trunk masses as the mass part's knots: today's
+   * domes rise as the bump `h = A (1 - rho^2)^3` over their footprint
+   * (`AutoMovieHumanTrunkFeatureProfile.bump`), so at the share `a` of the
+   * amplitude the footprint's radius has shrunk to `rho = sqrt(1 - a^(1/3))`,
+   * the same share on every edge. These named samples are the current source
+   * constraints. MassPart's bounded C2 interpolation is not exact analytic
+   * bump replay: the inverse radius has an infinite AP derivative at a=0,
+   * whereas this finite regular-wall construction holds its internal section.
+   */
+  const DOME: IAutoMovieHumanTrunkBuild.IMassLaw["profile"] = [
+    0.25, 0.5, 0.75, 0.95,
+  ].map((a: number): IAutoMovieHumanTrunkBuild.IMassLaw["profile"][number] => {
+    const rho: number = Math.sqrt(1 - a ** (1 / 3));
+    return { at: a, shares: [rho, rho, rho, rho] };
+  });
 
   /*
    * The gluteal footprint for the person's sex.

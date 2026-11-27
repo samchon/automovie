@@ -9,24 +9,7 @@ import {
 } from "../../core";
 import { FixtureDraw } from "./FixtureDraw";
 import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
-
-/*
- * The vending machines read.
- */
-const MERCHANT: string =
-  "Crane Merchant brochure: Merchant 4 1830 mm high, 813 mm deep, 895 mm wide; Merchant 6 1830 mm high, 813 mm deep, 1180 mm wide (https://vendtrade.co.uk/wp-content/uploads/2024/08/Crane_Merchant_Brochure.pdf)";
-
-/*
- * The pay station read.
- */
-const STRADA: string =
-  "Parkeon/Flowbird StradaPAL installation manual, p. 11: body 290 mm wide, 328 mm deep, 1488 mm high, on it a 90 mm spacer and a 226 mm top 475 mm wide and 379 mm deep (https://us.support.flowbird.group/hc/en-us/article_attachments/13368519985939)";
-
-/*
- * The ATM read.
- */
-const NCR: string =
-  "NCR SelfServ 32 Site Preparation B006-6585-B000 (https://tranact.com/pdf/NCR-SS32-Site-Prep.pdf): p. 9, fascia 770 mm wide, 1575 mm high, 800 mm deep, shelf 763 mm high protruding 174 mm; pp. 14-15, heights from the base and depths from the shelf's front; pp. 17-18, each item's distance from the No. 5 key, drawn as a straight arrow on the fascia's front elevation, and its clock position, which gives only its side; the keypad on the centre line as drawn, not dimensioned";
+import * as ServiceCabinetData from "./ServiceCabinetData";
 
 /*
  * The shared measured rectangular cabinet and its two exterior contact frames.
@@ -70,8 +53,8 @@ export namespace ServiceCabinet {
     >
   > = {
     vendingMachine: {
-      height: AutoMovieArchetypeBand.metres(1.83, 1.83, MERCHANT),
-      depth: AutoMovieArchetypeBand.metres(0.813, 0.813, MERCHANT),
+      height: AutoMovieArchetypeBand.metres(1.83, 1.83, ServiceCabinetData.MERCHANT),
+      depth: AutoMovieArchetypeBand.metres(0.813, 0.813, ServiceCabinetData.MERCHANT),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         250,
@@ -81,9 +64,9 @@ export namespace ServiceCabinet {
       ),
     },
     atm: {
-      width: AutoMovieArchetypeBand.metres(0.77, 0.77, `${NCR}: the fascia`),
-      height: AutoMovieArchetypeBand.metres(1.575, 1.575, NCR),
-      depth: AutoMovieArchetypeBand.metres(0.8, 0.8, NCR),
+      width: AutoMovieArchetypeBand.metres(0.77, 0.77, `${ServiceCabinetData.NCR}: the fascia`),
+      height: AutoMovieArchetypeBand.metres(1.575, 1.575, ServiceCabinetData.NCR),
+      depth: AutoMovieArchetypeBand.metres(0.8, 0.8, ServiceCabinetData.NCR),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         250,
@@ -93,13 +76,13 @@ export namespace ServiceCabinet {
       ),
     },
     payStation: {
-      width: AutoMovieArchetypeBand.metres(0.29, 0.29, `${STRADA}: the body`),
+      width: AutoMovieArchetypeBand.metres(0.29, 0.29, `${ServiceCabinetData.STRADA}: the body`),
       height: AutoMovieArchetypeBand.metres(
         1.488,
         1.488,
-        `${STRADA}: the body`,
+        `${ServiceCabinetData.STRADA}: the body`,
       ),
-      depth: AutoMovieArchetypeBand.metres(0.328, 0.328, `${STRADA}: the body`),
+      depth: AutoMovieArchetypeBand.metres(0.328, 0.328, `${ServiceCabinetData.STRADA}: the body`),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         60,

@@ -269,13 +269,6 @@ export class AutoMovieDrawFilm<
   }
 }
 
-/*
- * The slot a transition layer is held in: the outgoing 0, the live 1.
- */
-function slotOf(layer: IAutoMoviePlaybackLayer): number {
-  return layer.live ? 1 : 0;
-}
-
 /** Types of `AutoMovieDrawFilm`. */
 export namespace AutoMovieDrawFilm {
   /**
@@ -342,4 +335,11 @@ export namespace AutoMovieDrawFilm {
     /** End the current inspection before the picture places the subject. */
     restore: () => void;
   }
+}
+
+/*
+ * The slot a transition layer is held in: the outgoing 0, the live 1.
+ */
+function slotOf(layer: IAutoMoviePlaybackLayer): number {
+  return layer.live ? 1 : 0;
 }

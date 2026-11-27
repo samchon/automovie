@@ -11,12 +11,10 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The World Athletics rule as read.
- */
-const RULE: string =
-  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 38.8 and 38.10, the javelin";
+import * as AutoMovieArchetypeJavelinData from "./internal/AutoMovieArchetypeJavelinData";
+import {
+  m as AutoMovieArchetypeJavelinDatam,
+} from "./internal/AutoMovieArchetypeJavelinData";
 
 /** Canonical producer and authoring contract for Javelin. */
 export namespace AutoMovieArchetypeJavelin {
@@ -81,28 +79,18 @@ export namespace AutoMovieArchetypeJavelin {
     mass: "kg",
   };
 
-  /*
-   * A band in metres of the rule.
-   */
-  const m = (
-    minimum: number,
-    maximum: number,
-    what: string,
-  ): IAutoMovieArchetypeBand =>
-    AutoMovieArchetypeBand.metres(minimum, maximum, `${RULE}: ${what}`);
-
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      length: m(2.6, 2.7, "the men's 2.60 to 2.70 m long"),
-      diameter: m(
+      length: AutoMovieArchetypeJavelinDatam(2.6, 2.7, "the men's 2.60 to 2.70 m long"),
+      diameter: AutoMovieArchetypeJavelinDatam(
         0.025,
         0.03,
         "the men's shaft 25 to 30 mm across at its thickest",
       ),
-      balance: m(
+      balance: AutoMovieArchetypeJavelinDatam(
         0.9,
         1.06,
         "the men's centre of gravity 0.90 to 1.06 m from the point",
@@ -111,17 +99,17 @@ export namespace AutoMovieArchetypeJavelin {
         "kg",
         0.8,
         0.8,
-        `${RULE}: the men's at least 800 g for admission, the minimum the model takes`,
+        `${AutoMovieArchetypeJavelinData.RULE}: the men's at least 800 g for admission, the minimum the model takes`,
       ),
     },
     women: {
-      length: m(2.2, 2.3, "the women's 2.20 to 2.30 m long"),
-      diameter: m(
+      length: AutoMovieArchetypeJavelinDatam(2.2, 2.3, "the women's 2.20 to 2.30 m long"),
+      diameter: AutoMovieArchetypeJavelinDatam(
         0.02,
         0.025,
         "the women's shaft 20 to 25 mm across at its thickest",
       ),
-      balance: m(
+      balance: AutoMovieArchetypeJavelinDatam(
         0.8,
         0.92,
         "the women's centre of gravity 0.80 to 0.92 m from the point",
@@ -130,7 +118,7 @@ export namespace AutoMovieArchetypeJavelin {
         "kg",
         0.6,
         0.6,
-        `${RULE}: the women's at least 600 g for admission, the minimum the model takes`,
+        `${AutoMovieArchetypeJavelinData.RULE}: the women's at least 600 g for admission, the minimum the model takes`,
       ),
     },
   };

@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No maker's page was read.
- */
-const STAGED: string =
-  "a full-foot swimming fin: blade length and width and the mass are provisional estimates, no maker's page was read";
+import * as AutoMovieArchetypeSwimFinData from "./internal/AutoMovieArchetypeSwimFinData";
 
 /** Constructs the swim fin archetype from its recipe. */
 export namespace AutoMovieArchetypeSwimFin {
@@ -108,8 +103,8 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(0.3, 0.45, STAGED, true),
-    width: AutoMovieArchetypeBand.metres(0.18, 0.22, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.6, 1, STAGED, true),
+    length: AutoMovieArchetypeBand.metres(0.3, 0.45, AutoMovieArchetypeSwimFinData.STAGED, true),
+    width: AutoMovieArchetypeBand.metres(0.18, 0.22, AutoMovieArchetypeSwimFinData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.6, 1, AutoMovieArchetypeSwimFinData.STAGED, true),
   };
 }

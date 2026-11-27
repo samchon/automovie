@@ -7,8 +7,6 @@ import type {
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-const { lerp, normalize, plus, scale, sub } = AutoMovieHumanLegVector;
-
 /**
  * The crotch ring the leg starts on, rounded.
  *
@@ -280,3 +278,5 @@ export namespace AutoMovieHumanLegCrotchFillet {
     edges: number[];
   }
 }
+
+const { lerp, normalize, plus, scale, sub } = AutoMovieHumanLegVector;

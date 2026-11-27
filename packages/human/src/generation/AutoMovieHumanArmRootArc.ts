@@ -44,11 +44,6 @@ export namespace AutoMovieHumanArmRootArc {
   /** A quarter turn's arc over its chord: `pi / (2 sqrt 2)`. Derived. */
   export const QUARTER: number = Math.PI / (2 * Math.SQRT2);
 
-  /*
-   * The largest lateral share a crossing takes: the quadrant's slope runs to infinity at the widest point.
-   */
-  const LIMIT: number = 0.985;
-
   /**
    * The arc at a height.
    *
@@ -123,6 +118,11 @@ export namespace AutoMovieHumanArmRootArc {
         ),
     };
   }
+
+  /*
+   * The largest lateral share a crossing takes: the quadrant's slope runs to infinity at the widest point.
+   */
+  const LIMIT: number = 0.985;
 
   /*
    * The lateral share of a torso quadrant at a forward place: the share at

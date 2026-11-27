@@ -12,53 +12,6 @@ import { WasherDrum } from "./WasherDrum";
 import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
 
 /*
- * White enamelled steel.
- */
-const WHITE: string = "#e9eae6";
-
-/*
- * Dark glass and plastic.
- */
-const DARK: string = "#3a3d42";
-
-/*
- * Brushed handles and buttons.
- */
-const METAL: string = "#b9bcc0";
-
-/*
- * The shorthand every construction below uses.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * A rectangle's corners in a stack-top's plane, centred.
- * Parameter width: Along `X`, metres.
- * Parameter depth: Along `Z`, metres.
- * Returns: Four corners.
- */
-function rectangle(width: number, depth: number): IAutoMovieVector3[] {
-  return [
-    v(-width / 2, 0, -depth / 2),
-    v(width / 2, 0, -depth / 2),
-    v(width / 2, 0, depth / 2),
-    v(-width / 2, 0, depth / 2),
-  ];
-}
-
-/*
- * A hinge on a door's vertical edge whose positive travel swings the door out
- * toward `+Z`.
- * Parameter at: A point of the hinge line, metres.
- * Parameter side: `+1` for a hinge on the `+X` edge, the door reaching toward `-X`;
- * `-1` for the mirror.
- * Returns: The hinge frame, `+Y` along the line and `+X` toward the door.
- */
-function sideHinge(at: IAutoMovieVector3, side: 1 | -1): IAutoMovieTransform {
-  return AutoMovieArchetypeFrame.facing(at, v(0, side, 0), v(-side, 0, 0));
-}
-
-/*
  * The parts and contacts the named appliance producers build from their drawn
  * dimensions, with the makers' measured counts and openings and the estimated
  * construction sizes.
@@ -474,6 +427,53 @@ export namespace ApplianceConstruction {
       extent: rectangle(width, depth),
     });
   }
+}
+
+/*
+ * White enamelled steel.
+ */
+const WHITE: string = "#e9eae6";
+
+/*
+ * Dark glass and plastic.
+ */
+const DARK: string = "#3a3d42";
+
+/*
+ * Brushed handles and buttons.
+ */
+const METAL: string = "#b9bcc0";
+
+/*
+ * The shorthand every construction below uses.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * A rectangle's corners in a stack-top's plane, centred.
+ * Parameter width: Along `X`, metres.
+ * Parameter depth: Along `Z`, metres.
+ * Returns: Four corners.
+ */
+function rectangle(width: number, depth: number): IAutoMovieVector3[] {
+  return [
+    v(-width / 2, 0, -depth / 2),
+    v(width / 2, 0, -depth / 2),
+    v(width / 2, 0, depth / 2),
+    v(-width / 2, 0, depth / 2),
+  ];
+}
+
+/*
+ * A hinge on a door's vertical edge whose positive travel swings the door out
+ * toward `+Z`.
+ * Parameter at: A point of the hinge line, metres.
+ * Parameter side: `+1` for a hinge on the `+X` edge, the door reaching toward `-X`;
+ * `-1` for the mirror.
+ * Returns: The hinge frame, `+Y` along the line and `+X` toward the door.
+ */
+function sideHinge(at: IAutoMovieVector3, side: 1 | -1): IAutoMovieTransform {
+  return AutoMovieArchetypeFrame.facing(at, v(0, side, 0), v(-side, 0, 0));
 }
 
 /*

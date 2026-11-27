@@ -5,18 +5,6 @@ import type {
 
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
-const add: typeof M.add = M.add,
-  sub: typeof M.sub = M.sub,
-  mul: typeof M.scale = M.scale;
-const dot: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
-  a: AutoMovieVector3Tuple,
-  b: AutoMovieVector3Tuple,
-): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
-  a: AutoMovieVector3Tuple,
-  b: AutoMovieVector3Tuple,
-): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-
 /** Continuous closest-segment slit construction for declared contour walks. */
 export namespace AutoMovieContourSlit64 {
   /** Open oriented loops along one closest continuous segment-to-segment slit. */
@@ -115,3 +103,16 @@ export namespace AutoMovieContourSlit64 {
     return { p: q, t, distance: dist(p, q) };
   }
 }
+
+const add: typeof M.add = M.add,
+  sub: typeof M.sub = M.sub,
+  mul: typeof M.scale = M.scale;
+const dot: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+
+const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);

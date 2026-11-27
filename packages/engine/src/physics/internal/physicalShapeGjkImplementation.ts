@@ -8,6 +8,26 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
+import * as PhysicalShapeGjkImplementationData from "./PhysicalShapeGjkImplementationData";
+
+/*
+ * Internal implementations shared by the one-function entry modules.
+ */
+/*
+ * Internal typed runtime implementations shared by the query entry modules.
+ */
+export const physicalShapeGjkImplementation: {
+  physicalShapeGjk: typeof physicalShapeGjk;
+  physicalShapeGjkWitness: typeof physicalShapeGjkWitness;
+  physicalShapeGjkSolid: typeof physicalShapeGjkSolid;
+  physicalShapeGjkCast: typeof physicalShapeGjkCast;
+} = {
+  physicalShapeGjk,
+  physicalShapeGjkWitness,
+  physicalShapeGjkSolid,
+  physicalShapeGjkCast,
+};
+
 
 /*
  * Closest distance and a witness on the second support-mapped solid. Uses the
@@ -165,14 +185,14 @@ function physicalShapeGjk(
   let squared: number = Vector3.dot(v, v);
   for (;;) {
     const upper: number = Math.sqrt(squared);
-    if (upper <= ZERO) return { lower: -Infinity, upper: -radius };
+    if (upper <= PhysicalShapeGjkImplementationData.ZERO) return { lower: -Infinity, upper: -radius };
     const w: IAutoMovieVector3 = Vector3.subtract(
       support(a.points, -v.x, -v.y, -v.z),
       support(b.points, v.x, v.y, v.z),
     );
     lower = Math.max(lower, Vector3.dot(v, w) / upper);
     if (
-      upper - lower <= GAP ||
+      upper - lower <= PhysicalShapeGjkImplementationData.GAP ||
       lower - radius >= floor ||
       upper - radius < floor
     )
@@ -235,19 +255,6 @@ function witnessPoint(
     ),
   );
 }
-
-/*
- * The bounds' gap under which the iteration has converged, metres: a nanometre,
- * the depth below which the penetration audits record nothing
- * (`AutoMovieMotionHumanAuditTangleMargin.NANOMETRE`).
- */
-const GAP: number = 1e-9;
-
-/*
- * A distance under which the cores' difference is taken to hold the origin,
- * metres: far below the gap, far above a metre's rounding (about 1e-16 m).
- */
-const ZERO: number = 1e-12;
 
 /*
  * The bounds of a finished iteration.
@@ -451,24 +458,6 @@ function outside(
   const fourth: number = Vector3.dot(Vector3.subtract(d, a), n);
   return fourth === 0 || origin * fourth < 0;
 }
-
-/*
- * Internal implementations shared by the one-function entry modules.
- */
-/*
- * Internal typed runtime implementations shared by the query entry modules.
- */
-export const physicalShapeGjkImplementation: {
-  physicalShapeGjk: typeof physicalShapeGjk;
-  physicalShapeGjkWitness: typeof physicalShapeGjkWitness;
-  physicalShapeGjkSolid: typeof physicalShapeGjkSolid;
-  physicalShapeGjkCast: typeof physicalShapeGjkCast;
-} = {
-  physicalShapeGjk,
-  physicalShapeGjkWitness,
-  physicalShapeGjkSolid,
-  physicalShapeGjkCast,
-};
 /*
  * A triangle's point nearest the origin and the points whose hull holds it.
  */

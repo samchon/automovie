@@ -9,15 +9,6 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /*
- * The clinical turn that tilts the upper body without moving the planted feet.
- */
-const FLEXION: IAutoMovieMotionHumanJacobian.IVariable = {
-  kind: "angle",
-  bone: "spine",
-  axis: 0,
-};
-
-/*
  * Tilt a supported trunk only enough to put its centre over its actual foot
  * support (Hof, Gazendam and Sinke 2005), by the spine's flexion axis. The body
  * below the spine is fixed. Rodrigues' formula gives the moved mass centre at
@@ -160,6 +151,32 @@ export function prepareHumanTrunkBalance(
 }
 
 /*
+ * Additional contacts used by a trunk correction during a mixed-support action.
+ */
+export namespace prepareHumanTrunkBalance {
+  /*
+   * The fixed frame demand and the actual support points placed on those frames
+   * at an action share.
+   */
+  export interface ISupport {
+    bones: ReadonlySet<AutoMovieHumanoidBone>;
+    points(
+      frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      share: number,
+    ): IAutoMovieVector3[];
+  }
+}
+
+/*
+ * The clinical turn that tilts the upper body without moving the planted feet.
+ */
+const FLEXION: IAutoMovieMotionHumanJacobian.IVariable = {
+  kind: "angle",
+  bone: "spine",
+  axis: 0,
+};
+
+/*
  * Angles in radians where the moving mass centre meets a hull edge's supporting
  * line.
  */
@@ -182,23 +199,6 @@ function* crossings(
     const angle: number = Math.acos(c / radius);
     for (const solution of [phase - angle, phase + angle])
       yield (AutoMovieEngineMath.wrapDegrees((solution * 180) / Math.PI) * Math.PI) / 180;
-  }
-}
-
-/*
- * Additional contacts used by a trunk correction during a mixed-support action.
- */
-export namespace prepareHumanTrunkBalance {
-  /*
-   * The fixed frame demand and the actual support points placed on those frames
-   * at an action share.
-   */
-  export interface ISupport {
-    bones: ReadonlySet<AutoMovieHumanoidBone>;
-    points(
-      frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      share: number,
-    ): IAutoMovieVector3[];
   }
 }
 

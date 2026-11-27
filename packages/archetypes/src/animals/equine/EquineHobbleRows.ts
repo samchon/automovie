@@ -14,36 +14,6 @@ import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
 /*
- * The trunk's nose-up pitch about the hind hooves at the top of a hop, degrees:
- * authored, enough to unload the forehand.
- */
-const PITCH: number = 6;
-
-/*
- * A hopping or stepping hoof's peak lift, metres: authored, the stance's step.
- */
-const LIFT: number = 0.08;
-
-/*
- * The share of a hind's step spent moving the weight before it lifts: authored,
- * the stance's step.
- */
-const LOAD: number = 0.35;
-
-/*
- * The pieces of one hop: the fores together, then each hind.
- */
-const PIECES: number = 3;
-
-/*
- * The hinds in the order they step up.
- */
-const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
-  "leftHind",
-  "rightHind",
-];
-
-/*
  * The hobbled equid's hops (`EquineHobbleCue.IHops`): in each hop the trunk
  * pitches nose-up about the hind hooves to unload the forehand and carries both
  * fores forward together on one path that rises with the pitched shoulders and
@@ -318,3 +288,34 @@ export namespace EquineHobbleRows {
     };
   }
 }
+
+
+/*
+ * The trunk's nose-up pitch about the hind hooves at the top of a hop, degrees:
+ * authored, enough to unload the forehand.
+ */
+const PITCH: number = 6;
+
+/*
+ * A hopping or stepping hoof's peak lift, metres: authored, the stance's step.
+ */
+const LIFT: number = 0.08;
+
+/*
+ * The share of a hind's step spent moving the weight before it lifts: authored,
+ * the stance's step.
+ */
+const LOAD: number = 0.35;
+
+/*
+ * The pieces of one hop: the fores together, then each hind.
+ */
+const PIECES: number = 3;
+
+/*
+ * The hinds in the order they step up.
+ */
+const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
+  "leftHind",
+  "rightHind",
+];

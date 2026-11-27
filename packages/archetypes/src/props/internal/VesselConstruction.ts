@@ -9,129 +9,6 @@ import {
 import { AutoMovieArchetypeVessel } from "../AutoMovieArchetypeVessel";
 
 /*
- * Create a model-space point in metres.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * Resolve recorded sizing, then lay out the shared open floor, walls and
- * surfaces.
- */
-function draw<Id extends AutoMovieArchetypeVessel.Affordance>(
-  kind: AutoMovieArchetypeVessel.Kind,
-  params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
-  seed?: number,
-): IDrawResult<Id> {
-  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeVessel.Dimension> =
-    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeVessel.Dimension>(
-      "vessel",
-      AutoMovieArchetypeVessel.UNITS,
-      seed,
-      params,
-    );
-  const drawn: Partial<Record<AutoMovieArchetypeVessel.Dimension, number>> =
-    session.dimensions(AutoMovieArchetypeVessel.BANDS[kind]);
-  // A bowl or an ashtray is one of the read models whole.
-  const model: {
-    name: AutoMovieArchetypeVessel.Model | undefined;
-    figures: AutoMovieArchetypeVessel.Figures;
-  } = session.model<AutoMovieArchetypeVessel.Model>(
-    "model",
-    params.model,
-    AutoMovieArchetypeVessel.MODELS[kind],
-  );
-  const read: Partial<Record<AutoMovieArchetypeVessel.Dimension, number>> = {
-    ...drawn,
-    ...model.figures,
-  };
-  const d: Record<AutoMovieArchetypeVessel.Dimension, number> = {
-    diameter: read.diameter!,
-    height: read.height!,
-    mass: read.mass!,
-  };
-  const builder: Builder<Id | DrawContact> = new AutoMovieArchetypeBuilder({
-    material:
-      kind === "bowl"
-        ? "ceramic"
-        : kind === "ashtray" || kind === "vase"
-          ? "glass"
-          : "steel",
-    id: params.id,
-    name: kind,
-    draw: session,
-  });
-  const wall: number = AutoMovieArchetypeVessel.WALL;
-  const r: number = d.diameter / 2;
-  const color: string = AutoMovieArchetypeVessel.COLORS[kind];
-  builder.rod("floor", r, v(0, 0, 0), v(0, wall, 0), { color });
-  for (const [id, size, at] of [
-    [
-      "wallFront",
-      v(d.diameter, d.height - wall, wall),
-      v(0, (d.height + wall) / 2, r - wall / 2),
-    ],
-    [
-      "wallBack",
-      v(d.diameter, d.height - wall, wall),
-      v(0, (d.height + wall) / 2, -r + wall / 2),
-    ],
-    [
-      "wallLeft",
-      v(wall, d.height - wall, d.diameter - 2 * wall),
-      v(r - wall / 2, (d.height + wall) / 2, 0),
-    ],
-    [
-      "wallRight",
-      v(wall, d.height - wall, d.diameter - 2 * wall),
-      v(-r + wall / 2, (d.height + wall) / 2, 0),
-    ],
-  ] as const)
-    builder.box(id, size, at, { color });
-  builder.affordance({
-    id: "rim",
-    kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, 0)),
-    extent: null,
-    width: d.diameter,
-    depth: d.diameter,
-  });
-  builder.affordance({
-    id: "inside",
-    kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
-    extent: null,
-    width: d.diameter - 2 * wall,
-    depth: d.diameter - 2 * wall,
-  });
-  return { builder, d };
-}
-
-/*
- * Define a grip from below the bottom floor of a shallow vessel.
- */
-function dishGrip(
-  builder: {
-    affordance(contact: Parameters<Builder<"body">["affordance"]>[0]): void;
-  },
-  grip: DishGripGrip,
-): void {
-  const wall: number = AutoMovieArchetypeVessel.WALL;
-  builder.affordance({
-    id: "body",
-    kind: "handle",
-    symmetry: "round",
-    frame: AutoMovieArchetypeFrame.facing(
-      v(0, wall / 2, 0),
-      v(0, -1, 0),
-      v(1, 0, 0),
-    ),
-    extent: null,
-    grip,
-    aperture: wall,
-  });
-}
-
-/*
  * Shared floor and wall geometry with distinct food, ash and display grips.
  */
 export namespace VesselConstruction {
@@ -286,6 +163,129 @@ export namespace VesselConstruction {
     }
     return builder.build(d.mass);
   }
+}
+
+/*
+ * Create a model-space point in metres.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * Resolve recorded sizing, then lay out the shared open floor, walls and
+ * surfaces.
+ */
+function draw<Id extends AutoMovieArchetypeVessel.Affordance>(
+  kind: AutoMovieArchetypeVessel.Kind,
+  params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
+  seed?: number,
+): IDrawResult<Id> {
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeVessel.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeVessel.Dimension>(
+      "vessel",
+      AutoMovieArchetypeVessel.UNITS,
+      seed,
+      params,
+    );
+  const drawn: Partial<Record<AutoMovieArchetypeVessel.Dimension, number>> =
+    session.dimensions(AutoMovieArchetypeVessel.BANDS[kind]);
+  // A bowl or an ashtray is one of the read models whole.
+  const model: {
+    name: AutoMovieArchetypeVessel.Model | undefined;
+    figures: AutoMovieArchetypeVessel.Figures;
+  } = session.model<AutoMovieArchetypeVessel.Model>(
+    "model",
+    params.model,
+    AutoMovieArchetypeVessel.MODELS[kind],
+  );
+  const read: Partial<Record<AutoMovieArchetypeVessel.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
+  const d: Record<AutoMovieArchetypeVessel.Dimension, number> = {
+    diameter: read.diameter!,
+    height: read.height!,
+    mass: read.mass!,
+  };
+  const builder: Builder<Id | DrawContact> = new AutoMovieArchetypeBuilder({
+    material:
+      kind === "bowl"
+        ? "ceramic"
+        : kind === "ashtray" || kind === "vase"
+          ? "glass"
+          : "steel",
+    id: params.id,
+    name: kind,
+    draw: session,
+  });
+  const wall: number = AutoMovieArchetypeVessel.WALL;
+  const r: number = d.diameter / 2;
+  const color: string = AutoMovieArchetypeVessel.COLORS[kind];
+  builder.rod("floor", r, v(0, 0, 0), v(0, wall, 0), { color });
+  for (const [id, size, at] of [
+    [
+      "wallFront",
+      v(d.diameter, d.height - wall, wall),
+      v(0, (d.height + wall) / 2, r - wall / 2),
+    ],
+    [
+      "wallBack",
+      v(d.diameter, d.height - wall, wall),
+      v(0, (d.height + wall) / 2, -r + wall / 2),
+    ],
+    [
+      "wallLeft",
+      v(wall, d.height - wall, d.diameter - 2 * wall),
+      v(r - wall / 2, (d.height + wall) / 2, 0),
+    ],
+    [
+      "wallRight",
+      v(wall, d.height - wall, d.diameter - 2 * wall),
+      v(-r + wall / 2, (d.height + wall) / 2, 0),
+    ],
+  ] as const)
+    builder.box(id, size, at, { color });
+  builder.affordance({
+    id: "rim",
+    kind: "surface",
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, 0)),
+    extent: null,
+    width: d.diameter,
+    depth: d.diameter,
+  });
+  builder.affordance({
+    id: "inside",
+    kind: "surface",
+    frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
+    extent: null,
+    width: d.diameter - 2 * wall,
+    depth: d.diameter - 2 * wall,
+  });
+  return { builder, d };
+}
+
+/*
+ * Define a grip from below the bottom floor of a shallow vessel.
+ */
+function dishGrip(
+  builder: {
+    affordance(contact: Parameters<Builder<"body">["affordance"]>[0]): void;
+  },
+  grip: DishGripGrip,
+): void {
+  const wall: number = AutoMovieArchetypeVessel.WALL;
+  builder.affordance({
+    id: "body",
+    kind: "handle",
+    symmetry: "round",
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, wall / 2, 0),
+      v(0, -1, 0),
+      v(1, 0, 0),
+    ),
+    extent: null,
+    grip,
+    aperture: wall,
+  });
 }
 
 /*

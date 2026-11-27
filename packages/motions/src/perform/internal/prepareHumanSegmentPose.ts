@@ -21,22 +21,6 @@ export function prepareHumanSegmentPose(
 }
 
 /*
- * One independent FK workspace paired only with an owner-issued ROM mapper.
- */
-function fresh(
-  body: IAutoMovieMotionHumanBody,
-  clamp: ReturnType<typeof prepareHumanPostureProjection>,
-): prepareHumanSegmentPose.IPrepared {
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-    prepareHumanPoseResolution();
-  return {
-    body,
-    clamp,
-    resolution,
-  };
-}
-
-/*
  * Operation-owned preparation borrowed by displayed-pose stages.
  */
 export namespace prepareHumanSegmentPose {
@@ -76,4 +60,20 @@ export namespace prepareHumanSegmentPose {
      */
     resolution(): ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>;
   }
+}
+
+/*
+ * One independent FK workspace paired only with an owner-issued ROM mapper.
+ */
+function fresh(
+  body: IAutoMovieMotionHumanBody,
+  clamp: ReturnType<typeof prepareHumanPostureProjection>,
+): prepareHumanSegmentPose.IPrepared {
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
+  return {
+    body,
+    clamp,
+    resolution,
+  };
 }

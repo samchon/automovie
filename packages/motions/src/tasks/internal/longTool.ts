@@ -30,30 +30,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { LongToolStroke } from "./LongToolStroke";
 
 /*
- * Seconds the hands take to bring the tool from where it is held to the
- * stroke's start, and back after: provisional.
- */
-const REACH: number = 0.6;
-
-/*
- * The farthest a trailing hand's grip reaches from its shoulder at a stroke's
- * contact, over the arm's length to the grip: provisional, a straight arm with
- * the shoulder drawn forward.
- */
-const REACH_LIMIT: number = 1.05;
-
-/*
- * The deepest a trunk bows toward a low work point, degrees: provisional.
- */
-const BOW: number = 45;
-
-/*
- * How far the pelvis sinks for work at the ground, over stature: provisional, a
- * wide working stance.
- */
-const SINK: number = 0.06;
-
-/*
  * Work with a long tool in two hands, standing, in cycles at a work point
  * (`IAutoMovieMotionHumanLongTool`): the trailing hand holds the tool rigid
  * near the shaft's end, so the face is a fixed offset in that hand's frame
@@ -363,3 +339,27 @@ export namespace longTool {
     );
   }
 }
+
+/*
+ * Seconds the hands take to bring the tool from where it is held to the
+ * stroke's start, and back after: provisional.
+ */
+const REACH: number = 0.6;
+
+/*
+ * The farthest a trailing hand's grip reaches from its shoulder at a stroke's
+ * contact, over the arm's length to the grip: provisional, a straight arm with
+ * the shoulder drawn forward.
+ */
+const REACH_LIMIT: number = 1.05;
+
+/*
+ * The deepest a trunk bows toward a low work point, degrees: provisional.
+ */
+const BOW: number = 45;
+
+/*
+ * How far the pelvis sinks for work at the ground, over stature: provisional, a
+ * wide working stance.
+ */
+const SINK: number = 0.06;

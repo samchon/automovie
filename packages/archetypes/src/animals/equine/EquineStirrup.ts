@@ -10,29 +10,6 @@ import type { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import type { QuadrupedAttachments } from "../quadruped/QuadrupedAttachments";
 
 /*
- * The existing rectangular tread's depth and thickness, in metres.
- */
-const TREAD = { depth: 0.05, thickness: 0.01 };
-
-/*
- * One coarse round stock section with the thickness of the existing tread.
- */
-const STEEL_RADIUS: number = TREAD.thickness / 2;
-
-/*
- * The existing coarse leather's round radius, metres.
- */
-const LEATHER_RADIUS: number = 0.008;
-
-/*
- * Traditional Fillis overall height and clear eye width, from AJ Tack.
- */
-const FILLIS = {
-  height: 4.5 * AutoMovieArchetypeUnits.INCH,
-  eye: 1.25 * AutoMovieArchetypeUnits.INCH,
-};
-
-/*
  * Lay the physical tread, arch, eye and leather of one conventional stirrup.
  * WO2007052127A1, figures 1 and 2, shows the tread at the bases of the arch and
  * opening 301 for the leather above the foot. AJ Tack's Fillis iron gives the
@@ -246,6 +223,29 @@ export namespace EquineStirrup {
     color: string;
   }
 }
+
+/*
+ * The existing rectangular tread's depth and thickness, in metres.
+ */
+const TREAD = { depth: 0.05, thickness: 0.01 };
+
+/*
+ * One coarse round stock section with the thickness of the existing tread.
+ */
+const STEEL_RADIUS: number = TREAD.thickness / 2;
+
+/*
+ * The existing coarse leather's round radius, metres.
+ */
+const LEATHER_RADIUS: number = 0.008;
+
+/*
+ * Traditional Fillis overall height and clear eye width, from AJ Tack.
+ */
+const FILLIS = {
+  height: 4.5 * AutoMovieArchetypeUnits.INCH,
+  eye: 1.25 * AutoMovieArchetypeUnits.INCH,
+};
 
 /*
  * An exterior strap route from the saddle bar to the lower eye rail.

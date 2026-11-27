@@ -9,12 +9,7 @@ import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineE
 import { EquineSegments } from "./equine/EquineSegments";
 import { HORSE_BANDS } from "./equine/HORSE_BANDS";
 import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
-
-/*
- * The weighed Veracruz donkeys.
- */
-const VERACRUZ: string =
-  "López-Yáñez et al. 2025, Rev Mex Cienc Pecu 16 (Supl 4):11, p. 15 and Table 1: 200 working donkeys, height 112.62 ± 5.63 cm, minimum 93, maximum 127, thoracic perimeter 121.2 cm, live weight on a portable large-animal scale 151.4 kg (https://www.scielo.org.mx/pdf/rmcp/v16s4/2448-6698-rmcp-16-s4-11-en.pdf)";
+import * as AutoMovieArchetypeDonkeyData from "./internal/AutoMovieArchetypeDonkeyData";
 
 /**
  * Constructs the donkey archetype from its recipe.
@@ -84,7 +79,7 @@ export function create(
   export const BANDS: Readonly<
     Partial<Record<AutoMovieArchetypeEquine.Free, IAutoMovieArchetypeBand>>
   > = {
-    withersHeight: AutoMovieArchetypeBand.metres(0.93, 1.27, VERACRUZ),
+    withersHeight: AutoMovieArchetypeBand.metres(0.93, 1.27, AutoMovieArchetypeDonkeyData.VERACRUZ),
     stirrupDrop: HORSE_BANDS.stirrupDrop,
     stirrupWidth: HORSE_BANDS.stirrupWidth,
     tempo: HORSE_BANDS.tempo,

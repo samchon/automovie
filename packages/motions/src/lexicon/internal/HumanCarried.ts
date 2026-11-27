@@ -15,13 +15,7 @@ import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { HumanCarriedBearing } from "./HumanCarriedBearing";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
-
-/*
- * A shoulder ride's legs: hip flexion, knee flexion and hip abduction, degrees
- * (provisional, the thighs forward over the shoulders, the shins hanging before
- * the chest).
- */
-const SHOULDER_LEGS: readonly [number, number, number] = [70, 90, 30];
+import * as HumanCarriedData from "./HumanCarriedData";
 
 /*
  * Being carried by another person: on the back, in the arms or over a shoulder.
@@ -244,7 +238,7 @@ export namespace HumanCarried {
       theirs: "yoke",
       turn: 0,
       pitch: 0,
-      legs: SHOULDER_LEGS,
+      legs: HumanCarriedData.SHOULDER_LEGS,
       straddles: true,
       clings: ["templeLeft", "templeRight"],
       // The hands go to the rider's shins (`HumanCarriedCoupling.HOLDS`).
@@ -252,8 +246,8 @@ export namespace HumanCarried {
       // hang from the seat at the carry's own legs (`straddled`), so the
       // registration that turns the rider to its holds leaves it upright.
       holds: [
-        { region: "yoke", offset: straddled(SHOULDER_LEGS) },
-        { region: "yoke", offset: straddled(SHOULDER_LEGS) },
+        { region: "yoke", offset: straddled(HumanCarriedData.SHOULDER_LEGS) },
+        { region: "yoke", offset: straddled(HumanCarriedData.SHOULDER_LEGS) },
       ],
     },
     ...HumanCarriedDrag.CARRIES,

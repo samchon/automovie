@@ -10,6 +10,138 @@ import {
 import { createScenicContainer } from "./createScenicContainer";
 
 /*
+ * Scenic container shells and their supported placement surfaces or cargo
+ * mounting frame.
+ */
+export namespace ScenicContainerConstruction {
+  /*
+   * The values baskets accepts at this place in its signature.
+   */
+  export type BasketsKind = "coilBasket" | "woodenFishBasket";
+
+  /*
+   * The contact ids baskets builds or reads.
+   */
+  export type BasketsContact = "top" | "inside";
+
+  /*
+   * Build a lidded coil basket or an open fish basket.
+   */
+  export function baskets(
+    kind: BasketsKind,
+    params: Omit<createScenicContainer.IParams, "kind">,
+    seed?: number,
+  ): AutoMovieArchetype<BasketsContact, createScenicContainer.Dimension> {
+    const { builder, dimensions }: ReturnType<typeof draw<BasketsContact>> =
+      draw<BasketsContact>(kind, params, seed);
+    const {
+      width,
+      depth,
+      height,
+      mass,
+    }: Record<createScenicContainer.Dimension, number> = dimensions;
+    if (kind === "coilBasket") coilBasket(builder, width, depth, height);
+    else fishBasket(builder, width, depth, height);
+    return builder.build(mass);
+  }
+
+  /*
+   * Build a closed plank coffer with a stacking footprint on its lid.
+   */
+  export function closedCoffer(
+    params: Omit<createScenicContainer.IParams, "kind">,
+    seed?: number,
+  ): AutoMovieArchetype<"top", createScenicContainer.Dimension> {
+    const { builder, dimensions }: ReturnType<typeof draw<"top">> = draw<"top">(
+      "plankCoffer",
+      params,
+      seed,
+    );
+    const {
+      width,
+      depth,
+      height,
+      mass,
+    }: Record<createScenicContainer.Dimension, number> = dimensions;
+    coffer(builder, width, depth, height);
+    return builder.build(mass);
+  }
+
+  /*
+   * Build an open molded crate with a stacking footprint inside the rim.
+   */
+  export function openCrate(
+    params: Omit<createScenicContainer.IParams, "kind">,
+    seed?: number,
+  ): AutoMovieArchetype<"inside", createScenicContainer.Dimension> {
+    const { builder, dimensions }: ReturnType<typeof draw<"inside">> =
+      draw<"inside">("moldedCrate", params, seed);
+    const {
+      width,
+      depth,
+      height,
+      mass,
+    }: Record<createScenicContainer.Dimension, number> = dimensions;
+    crate(builder, width, depth, height);
+    return builder.build(mass);
+  }
+
+  /*
+   * Replay the scenic cargo pod with its cap stacking footprint.
+   */
+  export function scenicPod(
+    params: Omit<createScenicContainer.IParams, "kind">,
+    seed?: number,
+  ): AutoMovieArchetype<"top", createScenicContainer.Dimension> {
+    const { builder, dimensions }: ReturnType<typeof draw<"top">> = draw<"top">(
+      "cargoPod",
+      params,
+      seed,
+    );
+    const {
+      width,
+      depth,
+      height,
+      mass,
+    }: Record<createScenicContainer.Dimension, number> = dimensions;
+    pod(builder, width, depth, height);
+    return builder.build(mass);
+  }
+
+  /*
+   * The contact ids mountedPod builds or reads.
+   */
+  export type MountedPodContact = "top" | "mount";
+
+  /*
+   * Build a cargo pod with both a stacking cap and a lower mounting socket.
+   */
+  export function mountedPod(
+    params: Omit<createScenicContainer.IParams, "kind">,
+    seed?: number,
+  ): AutoMovieArchetype<MountedPodContact, createScenicContainer.Dimension> {
+    const { builder, dimensions }: ReturnType<typeof draw<MountedPodContact>> =
+      draw<MountedPodContact>("cargoPod", params, seed);
+    const {
+      width,
+      depth,
+      height,
+      mass,
+    }: Record<createScenicContainer.Dimension, number> = dimensions;
+    pod(builder, width, depth, height);
+
+    builder.affordance({
+      id: "mount",
+      kind: "socket",
+      direction: "along",
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
+      extent: null,
+    });
+    return builder.build(mass);
+  }
+}
+
+/*
  * Readable names for the five scene props.
  */
 const NAMES: Readonly<Record<createScenicContainer.Kind, string>> = {
@@ -328,138 +460,6 @@ function pod(
     width * capScale * Math.SQRT1_2,
     depth * capScale * Math.SQRT1_2,
   );
-}
-
-/*
- * Scenic container shells and their supported placement surfaces or cargo
- * mounting frame.
- */
-export namespace ScenicContainerConstruction {
-  /*
-   * The values baskets accepts at this place in its signature.
-   */
-  export type BasketsKind = "coilBasket" | "woodenFishBasket";
-
-  /*
-   * The contact ids baskets builds or reads.
-   */
-  export type BasketsContact = "top" | "inside";
-
-  /*
-   * Build a lidded coil basket or an open fish basket.
-   */
-  export function baskets(
-    kind: BasketsKind,
-    params: Omit<createScenicContainer.IParams, "kind">,
-    seed?: number,
-  ): AutoMovieArchetype<BasketsContact, createScenicContainer.Dimension> {
-    const { builder, dimensions }: ReturnType<typeof draw<BasketsContact>> =
-      draw<BasketsContact>(kind, params, seed);
-    const {
-      width,
-      depth,
-      height,
-      mass,
-    }: Record<createScenicContainer.Dimension, number> = dimensions;
-    if (kind === "coilBasket") coilBasket(builder, width, depth, height);
-    else fishBasket(builder, width, depth, height);
-    return builder.build(mass);
-  }
-
-  /*
-   * Build a closed plank coffer with a stacking footprint on its lid.
-   */
-  export function closedCoffer(
-    params: Omit<createScenicContainer.IParams, "kind">,
-    seed?: number,
-  ): AutoMovieArchetype<"top", createScenicContainer.Dimension> {
-    const { builder, dimensions }: ReturnType<typeof draw<"top">> = draw<"top">(
-      "plankCoffer",
-      params,
-      seed,
-    );
-    const {
-      width,
-      depth,
-      height,
-      mass,
-    }: Record<createScenicContainer.Dimension, number> = dimensions;
-    coffer(builder, width, depth, height);
-    return builder.build(mass);
-  }
-
-  /*
-   * Build an open molded crate with a stacking footprint inside the rim.
-   */
-  export function openCrate(
-    params: Omit<createScenicContainer.IParams, "kind">,
-    seed?: number,
-  ): AutoMovieArchetype<"inside", createScenicContainer.Dimension> {
-    const { builder, dimensions }: ReturnType<typeof draw<"inside">> =
-      draw<"inside">("moldedCrate", params, seed);
-    const {
-      width,
-      depth,
-      height,
-      mass,
-    }: Record<createScenicContainer.Dimension, number> = dimensions;
-    crate(builder, width, depth, height);
-    return builder.build(mass);
-  }
-
-  /*
-   * Replay the scenic cargo pod with its cap stacking footprint.
-   */
-  export function scenicPod(
-    params: Omit<createScenicContainer.IParams, "kind">,
-    seed?: number,
-  ): AutoMovieArchetype<"top", createScenicContainer.Dimension> {
-    const { builder, dimensions }: ReturnType<typeof draw<"top">> = draw<"top">(
-      "cargoPod",
-      params,
-      seed,
-    );
-    const {
-      width,
-      depth,
-      height,
-      mass,
-    }: Record<createScenicContainer.Dimension, number> = dimensions;
-    pod(builder, width, depth, height);
-    return builder.build(mass);
-  }
-
-  /*
-   * The contact ids mountedPod builds or reads.
-   */
-  export type MountedPodContact = "top" | "mount";
-
-  /*
-   * Build a cargo pod with both a stacking cap and a lower mounting socket.
-   */
-  export function mountedPod(
-    params: Omit<createScenicContainer.IParams, "kind">,
-    seed?: number,
-  ): AutoMovieArchetype<MountedPodContact, createScenicContainer.Dimension> {
-    const { builder, dimensions }: ReturnType<typeof draw<MountedPodContact>> =
-      draw<MountedPodContact>("cargoPod", params, seed);
-    const {
-      width,
-      depth,
-      height,
-      mass,
-    }: Record<createScenicContainer.Dimension, number> = dimensions;
-    pod(builder, width, depth, height);
-
-    builder.affordance({
-      id: "mount",
-      kind: "socket",
-      direction: "along",
-      frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
-      extent: null,
-    });
-    return builder.build(mass);
-  }
 }
 
 /*

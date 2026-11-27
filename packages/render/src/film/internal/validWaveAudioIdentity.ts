@@ -9,21 +9,6 @@ import { equalOrderedScalarRows } from "./equalOrderedScalarRows.js";
 import { equalOrderedScalars } from "./equalOrderedScalars.js";
 
 /*
- * Rate the decoder resamples to: the sound plan's fixed mix rate.
- */
-const MIX_SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
-
-/*
- * KSDATAFORMAT_SUBTYPE_PCM, the SubFormat GUID of integer PCM.
- */
-const PCM_SUBFORMAT: string = "00000001-0000-0010-8000-00aa00389b71";
-
-/*
- * KSDATAFORMAT_SUBTYPE_IEEE_FLOAT, the SubFormat GUID of IEEE float.
- */
-const FLOAT_SUBFORMAT: string = "00000003-0000-0010-8000-00aa00389b71";
-
-/*
  * Whether a WAVE asset's source format and processing record are exactly what
  * `AutoMovieIngestAudio.decodeAsset` reports for a file of the asset's own rate and
  * channel count, decoded for the 48 kHz mix.
@@ -85,3 +70,18 @@ export const validWaveAudioIdentity: (
     equalOrderedScalarRows(processing.matrix, expectedMatrix)
   );
 };
+
+/*
+ * Rate the decoder resamples to: the sound plan's fixed mix rate.
+ */
+const MIX_SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
+
+/*
+ * KSDATAFORMAT_SUBTYPE_PCM, the SubFormat GUID of integer PCM.
+ */
+const PCM_SUBFORMAT: string = "00000001-0000-0010-8000-00aa00389b71";
+
+/*
+ * KSDATAFORMAT_SUBTYPE_IEEE_FLOAT, the SubFormat GUID of IEEE float.
+ */
+const FLOAT_SUBFORMAT: string = "00000003-0000-0010-8000-00aa00389b71";

@@ -24,17 +24,6 @@ import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned fixed-size sites survive the call; the sampled curve points are local.
  */
 export namespace AutoMovieHumanHeadAnchors {
-  /*
-   * Profile pitch in world mm, converted once per offset to calibration mm.
-   */
-  const PITCH: number = 0.25;
-
-  /*
-   * Phases per complete planned margin, preserving its existing observation
-   * convention.
-   */
-  const PHASES: number = 720;
-
   /**
    * Publish the head's attachment sites in calibration millimetres.
    *
@@ -142,4 +131,15 @@ export namespace AutoMovieHumanHeadAnchors {
       },
     };
   }
+
+  /*
+   * Profile pitch in world mm, converted once per offset to calibration mm.
+   */
+  const PITCH: number = 0.25;
+
+  /*
+   * Phases per complete planned margin, preserving its existing observation
+   * convention.
+   */
+  const PHASES: number = 720;
 }

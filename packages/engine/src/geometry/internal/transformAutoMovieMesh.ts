@@ -12,11 +12,6 @@ import { resolveAutoMovieMeshPhysicalVertices } from "../../math/internal/resolv
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /*
- * Largest admitted distance of a placement rotation's norm from one.
- */
-const UNIT_QUATERNION_EPSILON: number = 1e-6;
-
-/*
  * Place a rigid mesh by translation, unit quaternion, and per-axis scale.
  *
  * Positions take the full placement, normals take the inverse transpose (so a
@@ -156,3 +151,8 @@ export const transformAutoMovieMesh: (
     resolveAutoMovieMeshPhysicalVertices(result);
   return result;
 };
+
+/*
+ * Largest admitted distance of a placement rotation's norm from one.
+ */
+const UNIT_QUATERNION_EPSILON: number = 1e-6;

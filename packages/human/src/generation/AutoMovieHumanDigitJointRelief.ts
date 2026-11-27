@@ -2,8 +2,6 @@ import type { IAutoMovieHumanDigitJointRelief } from "@automovie/interface";
 
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 
-const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;
-
 /**
  * The swelling of a digit's section at an interphalangeal or
  * metacarpophalangeal joint: the joint's skin stands proud of the shafts it
@@ -58,3 +56,5 @@ export namespace AutoMovieHumanDigitJointRelief {
     );
   }
 }
+
+const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;

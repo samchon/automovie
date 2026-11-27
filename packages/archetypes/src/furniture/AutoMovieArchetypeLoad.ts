@@ -12,18 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The Euro container, from a secondary source.
- */
-const EURO: string =
-  "Euro container after VDA 4500, 600 x 400 mm base, 147.5 or 280 mm high, grip holes about 12 x 4 cm in the middle of the top lips (Wikipedia, Euro container, https://en.wikipedia.org/wiki/Euro_container)";
-
-/*
- * A 25 kg cement bag, from listings seen in search results.
- */
-const SACK: string =
-  "25 kg cement bag, 410 x 413 x 150 mm (Cork Builders Providers listing) and Heidelberg Materials' 25 kg bags, both seen only in search results";
+import * as AutoMovieArchetypeLoadData from "./internal/AutoMovieArchetypeLoadData";
 
 /** Constructs the load archetype from its recipe. */
 export namespace AutoMovieArchetypeLoad {
@@ -202,9 +191,9 @@ export function create(
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     crate: {
-      length: AutoMovieArchetypeBand.metres(0.6, 0.6, EURO, true),
-      depth: AutoMovieArchetypeBand.metres(0.4, 0.4, EURO, true),
-      height: AutoMovieArchetypeBand.metres(0.1475, 0.28, EURO, true),
+      length: AutoMovieArchetypeBand.metres(0.6, 0.6, AutoMovieArchetypeLoadData.EURO, true),
+      depth: AutoMovieArchetypeBand.metres(0.4, 0.4, AutoMovieArchetypeLoadData.EURO, true),
+      height: AutoMovieArchetypeBand.metres(0.1475, 0.28, AutoMovieArchetypeLoadData.EURO, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         1.5,
@@ -214,10 +203,10 @@ export function create(
       ),
     },
     sack: {
-      length: AutoMovieArchetypeBand.metres(0.41, 0.413, SACK, true),
-      depth: AutoMovieArchetypeBand.metres(0.41, 0.413, SACK, true),
-      height: AutoMovieArchetypeBand.metres(0.15, 0.15, SACK, true),
-      mass: AutoMovieArchetypeBand.of("kg", 25, 25, SACK, true),
+      length: AutoMovieArchetypeBand.metres(0.41, 0.413, AutoMovieArchetypeLoadData.SACK, true),
+      depth: AutoMovieArchetypeBand.metres(0.41, 0.413, AutoMovieArchetypeLoadData.SACK, true),
+      height: AutoMovieArchetypeBand.metres(0.15, 0.15, AutoMovieArchetypeLoadData.SACK, true),
+      mass: AutoMovieArchetypeBand.of("kg", 25, 25, AutoMovieArchetypeLoadData.SACK, true),
     },
   };
 }

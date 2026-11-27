@@ -12,7 +12,6 @@ import { AutoMovieConstructionSkinCut as SkinCut } from "./AutoMovieConstruction
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { add, dot, scale, sub, unit } = AutoMovieSolidVector;
 /**
  * What a split derives from its declared planes
  * (`IAutoMovieConstructionSplit.ICut`, `ICompose`): a child's rail as its skin
@@ -414,6 +413,8 @@ export namespace AutoMovieConstructionSplitCompose {
     };
   }
 }
+
+const { add, dot, scale, sub, unit } = AutoMovieSolidVector;
 
 /*
  * World point or direction, mm.

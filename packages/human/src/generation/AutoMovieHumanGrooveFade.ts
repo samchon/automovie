@@ -48,10 +48,6 @@ export namespace AutoMovieHumanGrooveFade {
     floor: AutoMovieVector2Tuple;
   }
 
-  const admit = (groove: IGroove): void => {
-    if (!(groove.half > 0 && groove.depth > 0 && groove.turn > 0 && groove.turn < Math.PI / 2)) throw new Error("groove fade: a groove needs a positive half width and depth and a turn inside (0, pi / 2)");
-  };
-
   /**
    * The groove at a width share: its half width by `q`, its depth by `q^2`, its turn by `q`.
    *
@@ -155,4 +151,8 @@ export namespace AutoMovieHumanGrooveFade {
     const t: number = Math.min(1, Math.max(0, (station - from) / (to - from)));
     return 1 - (1 - least) * (10 * t ** 3 - 15 * t ** 4 + 6 * t ** 5);
   }
+
+  const admit = (groove: IGroove): void => {
+    if (!(groove.half > 0 && groove.depth > 0 && groove.turn > 0 && groove.turn < Math.PI / 2)) throw new Error("groove fade: a groove needs a positive half width and depth and a turn inside (0, pi / 2)");
+  };
 }

@@ -142,6 +142,18 @@ export function fitHumanLimbContact(
 }
 
 /*
+ * The reading offered by a native ordinary fit during this operation.
+ */
+export namespace fitHumanLimbContact {
+  /*
+   * The solver may supply the final prefix for the exact requested fit.
+   */
+  export type ICapture = NonNullable<
+    Parameters<ReturnType<typeof prepareHumanLimbFit>["fit"]>[3]
+  >;
+}
+
+/*
  * The next target of the re-aim's fixed point `p = g(p)`, `g` the aim a fit at
  * `p` gives, by Anderson acceleration over the iterations kept, most recent
  * first (Walker and Ni 2011, "Anderson acceleration for fixed-point
@@ -248,18 +260,6 @@ const REAIM_TOLERANCE: number = 2e-5;
  * up to eleven orientation fits.
  */
 const REAIM_PASSES: number = 16;
-
-/*
- * The reading offered by a native ordinary fit during this operation.
- */
-export namespace fitHumanLimbContact {
-  /*
-   * The solver may supply the final prefix for the exact requested fit.
-   */
-  export type ICapture = NonNullable<
-    Parameters<ReturnType<typeof prepareHumanLimbFit>["fit"]>[3]
-  >;
-}
 
 /*
  * A preceding target image and its fixed-point residual for Anderson mixing.

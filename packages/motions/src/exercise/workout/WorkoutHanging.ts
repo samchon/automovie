@@ -1,12 +1,11 @@
-import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanExerciseKey,
-  IAutoMovieMotionHumanWorkoutHanging,
-  IAutoMovieMotionHumanWorkoutKind,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWorkoutHanging, IAutoMovieMotionHumanWorkoutKind } from "@automovie/interface";
 
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
+import {
+  hang as WorkoutHangingDataHang,
+  kind as WorkoutHangingDataKind,
+} from "./internal/WorkoutHangingData";
 
 /*
  * The exercises of the workout law done hanging from a bar by both hands (bars,
@@ -26,33 +25,6 @@ import { WorkoutKind } from "./WorkoutKind";
  */
 export namespace WorkoutHanging {
   /*
-   * Hanging at the arms' length.
-   */
-  const hang = (
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieMotionHumanExerciseKey.IKey =>
-    ExerciseKey.from(body, {}, { shoulder: 178, raise: 10, elbow: 3 });
-
-  /*
-   * A hanging kind: both hands grip the bar.
-   */
-  const kind = (
-    reps: number,
-    route: IAutoMovieMotionHumanWorkoutKind["route"],
-  ): IAutoMovieMotionHumanWorkoutKind => ({
-    base: "hanging",
-    anchor: "bar",
-    pin: ["gripLeft", "gripRight"],
-    supports: [
-      { part: "leftHand", kind: "grip", prop: true },
-      { part: "rightHand", kind: "grip", prop: true },
-    ],
-    enter: 1,
-    count: reps,
-    route,
-  });
-
-  /*
    * The exercises.
    */
   export const KINDS: Readonly<
@@ -64,24 +36,24 @@ export namespace WorkoutHanging {
     /*
      * A dead hang, held 10 s.
      */
-    deadHang: kind(
+    deadHang: WorkoutHangingDataKind(
       1,
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.pose(hang(body), 0, 10),
+        WorkoutKind.pose(WorkoutHangingDataHang(body), 0, 10),
       ],
     ),
 
     /*
      * A pull-up: 1 s up, 1.5 s down (provisional).
      */
-    pullUp: kind(
+    pullUp: WorkoutHangingDataKind(
       3,
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(hang(body), 1.5, "lower", "hang"),
+        WorkoutKind.step(WorkoutHangingDataHang(body), 1.5, "lower", "hang"),
         WorkoutKind.step(
           ExerciseKey.from(body, {}, { shoulder: 60, raise: 60, elbow: 140 }),
           1,
@@ -94,12 +66,12 @@ export namespace WorkoutHanging {
     /*
      * A chin-up: the elbows kept ahead of the trunk.
      */
-    chinUp: kind(
+    chinUp: WorkoutHangingDataKind(
       3,
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(hang(body), 1.5, "lower", "hang"),
+        WorkoutKind.step(WorkoutHangingDataHang(body), 1.5, "lower", "hang"),
         WorkoutKind.step(
           ExerciseKey.from(body, {}, { shoulder: 100, raise: 5, elbow: 145 }),
           1,
@@ -112,12 +84,12 @@ export namespace WorkoutHanging {
     /*
      * A hanging knee raise: the thighs brought level.
      */
-    kneeRaise: kind(
+    kneeRaise: WorkoutHangingDataKind(
       5,
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(hang(body), 1, "lower", "hang"),
+        WorkoutKind.step(WorkoutHangingDataHang(body), 1, "lower", "hang"),
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -135,12 +107,12 @@ export namespace WorkoutHanging {
      * A swing on the bar: the body pitched 25 degrees behind and ahead of the
      * hands (provisional).
      */
-    barSwing: kind(
+    barSwing: WorkoutHangingDataKind(
       3,
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(hang(body), 0.5, "pass", "under"),
+        WorkoutKind.step(WorkoutHangingDataHang(body), 0.5, "pass", "under"),
         WorkoutKind.step(
           ExerciseKey.from(
             body,

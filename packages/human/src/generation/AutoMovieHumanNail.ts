@@ -58,94 +58,6 @@ export namespace AutoMovieHumanNail {
     return Math.abs(z) <= tabled(plan.edges, x);
   }
 
-  /*
-   * A table `[at, value][]` with `at` increasing, read at a place: straight between its rows and held past its ends.
-   */
-  function tabled(table: readonly [number, number][], at: number): number {
-    let i: number = 0;
-    while (i < table.length - 2 && at >= table[i + 1]![0]) i += 1;
-    const [a, b]: [[number, number], [number, number]] = [table[i]!, table[i + 1]!];
-    return a[1] + (b[1] - a[1]) * Math.max(0, Math.min(1, (at - a[0]) / (b[0] - a[0])));
-  }
-
-  /*
-   * The bed's net spacing over the ramp's half width: a roll is resolved by samplings a quarter of it apart (the lofting skill's fitting rule).
-   */
-  const NET: number = 0.5;
-
-  /*
-   * The bed's depth under the plate's upper face over the fold's depth: the skin under the plate only has to stay inside the plate's body.
-   */
-  const UNDER: number = 0;
-
-  /*
-   * The ramp's half width over the fold's depth.
-   */
-  const RAMP: number = 2;
-
-  /*
-   * Phases a ring of the skin is read at before a point on it is refined: a digit's section turns by 2 degrees between two of them.
-   */
-  const RING: number = 180;
-
-  /*
-   * The ellipse's shoulder: `sqrt(2) - 1`, the conic through the middle of a quarter ellipse.
-   */
-  const ELLIPSE: number = Math.SQRT2 - 1;
-
-  const sub = (a: readonly number[], b: readonly number[]): AutoMovieVector3Tuple => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
-  const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
-  const cross = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const mix = (a: AutoMovieVector3Tuple, p: number, b: AutoMovieVector3Tuple, q: number): AutoMovieVector3Tuple => [a[0] * p + b[0] * q, a[1] * p + b[1] * q, a[2] * p + b[2] * q];
-  const unit = (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
-    const n: number = Math.hypot(a[0], a[1], a[2]);
-    return [a[0] / n, a[1] / n, a[2] / n];
-  };
-
-  /*
-   * Stations along the bed the nail's frame is fitted over.
-   */
-  const BED: number = 9;
-
-  /*
-   * How far the fitted skin may stand off the digit across the plate, mm: the greatest rms of f1's fitted tip sections (0.08 to
-   * 0.17 mm, the body note's dome table). Over the plate's half width it is the angle a level roll read on that skin can be off by.
-   */
-  const FIT_RMS: number = 0.17;
-
-  /*
-   * The golden section's share, `(sqrt(5) - 1) / 2`.
-   */
-  const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
-
-  /*
-   * The vector a 3 by 3 matrix takes to a given one, by determinants; `null` where the matrix has none.
-   */
-  function solved(matrix: readonly number[][], vector: readonly number[]): number[] | null {
-    const det = (m: readonly number[][]): number => m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) - m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) + m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
-    const whole: number = det(matrix);
-    if (whole === 0 || !Number.isFinite(whole)) return null;
-    return [0, 1, 2].map((k: number): number => det(matrix.map((row: number[], a: number): number[] => row.map((x: number, b: number): number => (b === k ? vector[a]! : x)))) / whole);
-  }
-
-  /*
-   * The middle weight of the conic from a level crown to an upright side extreme that turns on `radius` at the crown, where a conic of
-   * weight `w` and depth `drop` turns on `2 w^2 side^2 / drop`, and has fallen `sagitta` at the edge. By bisection between the section
-   * model's bounds of a shoulder `w / (1 + w)`, 0.03 and 0.85; where no weight between them passes through the edge, the ellipse's.
-   */
-  function weight(side: number, radius: number, edge: number, sagitta: number): number {
-    const miss = (w: number): number => sink(side, (2 * w * w * side * side) / radius, w, edge) - sagitta;
-    let [a, b]: [number, number] = [0.03 / 0.97, 0.85 / 0.15];
-    if (miss(a) * miss(b) > 0) return Math.SQRT1_2;
-    const rising: boolean = miss(b) > 0;
-    for (let i: number = 0; i < 48; ++i) {
-      const w: number = (a + b) / 2;
-      if (miss(w) > 0 === rising) b = w;
-      else a = w;
-    }
-    return (a + b) / 2;
-  }
-
   /**
    * How far the conic from a level crown to an upright side extreme has fallen a distance from the median line. The conic is the rational
    * quadratic on the crown `(0, 0)`, the corner `(side, 0)` and the side extreme `(side, drop)` with the middle weight `w`: at parameter
@@ -166,72 +78,6 @@ export namespace AutoMovieHumanNail {
   export function step(t: number): number {
     const x: number = Math.max(0, Math.min(1, t));
     return x * x * x * (10 + x * (-15 + 6 * x));
-  }
-
-  /*
-   * Read a skin in a frame.
-   */
-  function reader(skin: IAutoMovieHumanNail.ISkin, frame: IAutoMovieHumanNail.IFrame): IReader {
-    const lateral: AutoMovieVector3Tuple = cross(frame.distal, frame.dorsal);
-    const at = (station: number, phase: number): AutoMovieVector3Tuple => {
-      const d: AutoMovieVector3Tuple = sub(skin.point(station, phase), frame.origin);
-      return [dot(d, frame.distal), dot(d, frame.dorsal), dot(d, lateral)];
-    };
-    // The distance along grows with the station on the distal segment, so a bisection finds the station. Twenty-four halvings take a
-    // distal segment of 30 mm under 2e-6 mm, the chord error of the net a digit's skin is read on (`AutoMovieHumanF1Nails`).
-    const station = (x: number, phase: number): number => {
-      let [low, high]: [number, number] = [skin.first, skin.tip];
-      for (let i: number = 0; i < 24; ++i) {
-        const middle: number = (low + high) / 2;
-        if (at(middle, phase)[0] < x) low = middle;
-        else high = middle;
-      }
-      return (low + high) / 2;
-    };
-    const lateralAt = (x: number, phase: number): AutoMovieVector3Tuple => at(station(x, phase), phase);
-    // The skin's ring a distance along, read once at `RING` phases: every question about that distance starts from it.
-    const rings: Map<number, AutoMovieVector3Tuple[]> = new Map();
-    const ring = (x: number): AutoMovieVector3Tuple[] => {
-      let made: AutoMovieVector3Tuple[] | undefined = rings.get(x);
-      if (made === undefined) rings.set(x, (made = Array.from({ length: RING }, (_: unknown, k: number): AutoMovieVector3Tuple => lateralAt(x, (2 * Math.PI * k) / RING))));
-      return made;
-    };
-    // The dorsal phase: where the skin crosses the median plane on the dorsal side, found once on a scan and refined by bisection.
-    const crossing = (x: number, z: number, from: number, to: number): number => {
-      let [a, b]: [number, number] = [from, to];
-      const sign: number = Math.sign(lateralAt(x, a)[2] - z);
-      for (let i: number = 0; i < 48; ++i) {
-        const middle: number = (a + b) / 2;
-        if (Math.sign(lateralAt(x, middle)[2] - z) === sign) a = middle;
-        else b = middle;
-      }
-      return (a + b) / 2;
-    };
-    const find = (x: number, z: number): { station: number; phase: number; height: number } => {
-      const count: number = RING;
-      const around: AutoMovieVector3Tuple[] = ring(x);
-      let best: { phase: number; height: number } | null = null;
-      for (let k: number = 0; k < count; ++k) {
-        const [a, b]: [number, number] = [(2 * Math.PI * k) / count, (2 * Math.PI * (k + 1)) / count];
-        const [p, q]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = [around[k]!, around[(k + 1) % count]!];
-        if (p[2] - z === 0 || (p[2] - z) * (q[2] - z) < 0) {
-          const phase: number = crossing(x, z, a, b);
-          const height: number = lateralAt(x, phase)[1];
-          if (best === null || height > best.height) best = { phase, height };
-        }
-      }
-      if (best === null) throw new Error("nail: the skin has no dorsal point " + x.toFixed(2) + " mm along and " + z.toFixed(2) + " mm aside; it spans " + Math.min(...around.map((p: AutoMovieVector3Tuple): number => p[2])).toFixed(2) + " to " + Math.max(...around.map((p: AutoMovieVector3Tuple): number => p[2])).toFixed(2) + " mm there");
-      return { station: station(x, best.phase), phase: best.phase, height: best.height };
-    };
-    const extent = (x: number): [number, number] => {
-      let [least, greatest]: [number, number] = [Infinity, -Infinity];
-      for (const p of ring(x)) {
-        least = Math.min(least, p[2]);
-        greatest = Math.max(greatest, p[2]);
-      }
-      return [least, greatest];
-    };
-    return { lateral, at, station, ring, find, extent };
   }
 
   /**
@@ -787,6 +633,160 @@ export namespace AutoMovieHumanNail {
         levelling,
       },
     };
+  }
+
+  /*
+   * A table `[at, value][]` with `at` increasing, read at a place: straight between its rows and held past its ends.
+   */
+  function tabled(table: readonly [number, number][], at: number): number {
+    let i: number = 0;
+    while (i < table.length - 2 && at >= table[i + 1]![0]) i += 1;
+    const [a, b]: [[number, number], [number, number]] = [table[i]!, table[i + 1]!];
+    return a[1] + (b[1] - a[1]) * Math.max(0, Math.min(1, (at - a[0]) / (b[0] - a[0])));
+  }
+
+  /*
+   * The bed's net spacing over the ramp's half width: a roll is resolved by samplings a quarter of it apart (the lofting skill's fitting rule).
+   */
+  const NET: number = 0.5;
+
+  /*
+   * The bed's depth under the plate's upper face over the fold's depth: the skin under the plate only has to stay inside the plate's body.
+   */
+  const UNDER: number = 0;
+
+  /*
+   * The ramp's half width over the fold's depth.
+   */
+  const RAMP: number = 2;
+  /*
+   * Phases a ring of the skin is read at before a point on it is refined: a digit's section turns by 2 degrees between two of them.
+   */
+  const RING: number = 180;
+  /*
+   * The ellipse's shoulder: `sqrt(2) - 1`, the conic through the middle of a quarter ellipse.
+   */
+  const ELLIPSE: number = Math.SQRT2 - 1;
+  const sub = (a: readonly number[], b: readonly number[]): AutoMovieVector3Tuple => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+  const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
+
+  const cross = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+
+  const mix = (a: AutoMovieVector3Tuple, p: number, b: AutoMovieVector3Tuple, q: number): AutoMovieVector3Tuple => [a[0] * p + b[0] * q, a[1] * p + b[1] * q, a[2] * p + b[2] * q];
+
+  const unit = (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
+    const n: number = Math.hypot(a[0], a[1], a[2]);
+    return [a[0] / n, a[1] / n, a[2] / n];
+  };
+
+  /*
+   * Stations along the bed the nail's frame is fitted over.
+   */
+  const BED: number = 9;
+
+  /*
+   * How far the fitted skin may stand off the digit across the plate, mm: the greatest rms of f1's fitted tip sections (0.08 to
+   * 0.17 mm, the body note's dome table). Over the plate's half width it is the angle a level roll read on that skin can be off by.
+   */
+  const FIT_RMS: number = 0.17;
+
+  /*
+   * The golden section's share, `(sqrt(5) - 1) / 2`.
+   */
+  const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
+
+  /*
+   * The vector a 3 by 3 matrix takes to a given one, by determinants; `null` where the matrix has none.
+   */
+  function solved(matrix: readonly number[][], vector: readonly number[]): number[] | null {
+    const det = (m: readonly number[][]): number => m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) - m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) + m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
+    const whole: number = det(matrix);
+    if (whole === 0 || !Number.isFinite(whole)) return null;
+    return [0, 1, 2].map((k: number): number => det(matrix.map((row: number[], a: number): number[] => row.map((x: number, b: number): number => (b === k ? vector[a]! : x)))) / whole);
+  }
+
+  /*
+   * The middle weight of the conic from a level crown to an upright side extreme that turns on `radius` at the crown, where a conic of
+   * weight `w` and depth `drop` turns on `2 w^2 side^2 / drop`, and has fallen `sagitta` at the edge. By bisection between the section
+   * model's bounds of a shoulder `w / (1 + w)`, 0.03 and 0.85; where no weight between them passes through the edge, the ellipse's.
+   */
+  function weight(side: number, radius: number, edge: number, sagitta: number): number {
+    const miss = (w: number): number => sink(side, (2 * w * w * side * side) / radius, w, edge) - sagitta;
+    let [a, b]: [number, number] = [0.03 / 0.97, 0.85 / 0.15];
+    if (miss(a) * miss(b) > 0) return Math.SQRT1_2;
+    const rising: boolean = miss(b) > 0;
+    for (let i: number = 0; i < 48; ++i) {
+      const w: number = (a + b) / 2;
+      if (miss(w) > 0 === rising) b = w;
+      else a = w;
+    }
+    return (a + b) / 2;
+  }
+
+  /*
+   * Read a skin in a frame.
+   */
+  function reader(skin: IAutoMovieHumanNail.ISkin, frame: IAutoMovieHumanNail.IFrame): IReader {
+    const lateral: AutoMovieVector3Tuple = cross(frame.distal, frame.dorsal);
+    const at = (station: number, phase: number): AutoMovieVector3Tuple => {
+      const d: AutoMovieVector3Tuple = sub(skin.point(station, phase), frame.origin);
+      return [dot(d, frame.distal), dot(d, frame.dorsal), dot(d, lateral)];
+    };
+    // The distance along grows with the station on the distal segment, so a bisection finds the station. Twenty-four halvings take a
+    // distal segment of 30 mm under 2e-6 mm, the chord error of the net a digit's skin is read on (`AutoMovieHumanF1Nails`).
+    const station = (x: number, phase: number): number => {
+      let [low, high]: [number, number] = [skin.first, skin.tip];
+      for (let i: number = 0; i < 24; ++i) {
+        const middle: number = (low + high) / 2;
+        if (at(middle, phase)[0] < x) low = middle;
+        else high = middle;
+      }
+      return (low + high) / 2;
+    };
+    const lateralAt = (x: number, phase: number): AutoMovieVector3Tuple => at(station(x, phase), phase);
+    // The skin's ring a distance along, read once at `RING` phases: every question about that distance starts from it.
+    const rings: Map<number, AutoMovieVector3Tuple[]> = new Map();
+    const ring = (x: number): AutoMovieVector3Tuple[] => {
+      let made: AutoMovieVector3Tuple[] | undefined = rings.get(x);
+      if (made === undefined) rings.set(x, (made = Array.from({ length: RING }, (_: unknown, k: number): AutoMovieVector3Tuple => lateralAt(x, (2 * Math.PI * k) / RING))));
+      return made;
+    };
+    // The dorsal phase: where the skin crosses the median plane on the dorsal side, found once on a scan and refined by bisection.
+    const crossing = (x: number, z: number, from: number, to: number): number => {
+      let [a, b]: [number, number] = [from, to];
+      const sign: number = Math.sign(lateralAt(x, a)[2] - z);
+      for (let i: number = 0; i < 48; ++i) {
+        const middle: number = (a + b) / 2;
+        if (Math.sign(lateralAt(x, middle)[2] - z) === sign) a = middle;
+        else b = middle;
+      }
+      return (a + b) / 2;
+    };
+    const find = (x: number, z: number): { station: number; phase: number; height: number } => {
+      const count: number = RING;
+      const around: AutoMovieVector3Tuple[] = ring(x);
+      let best: { phase: number; height: number } | null = null;
+      for (let k: number = 0; k < count; ++k) {
+        const [a, b]: [number, number] = [(2 * Math.PI * k) / count, (2 * Math.PI * (k + 1)) / count];
+        const [p, q]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = [around[k]!, around[(k + 1) % count]!];
+        if (p[2] - z === 0 || (p[2] - z) * (q[2] - z) < 0) {
+          const phase: number = crossing(x, z, a, b);
+          const height: number = lateralAt(x, phase)[1];
+          if (best === null || height > best.height) best = { phase, height };
+        }
+      }
+      if (best === null) throw new Error("nail: the skin has no dorsal point " + x.toFixed(2) + " mm along and " + z.toFixed(2) + " mm aside; it spans " + Math.min(...around.map((p: AutoMovieVector3Tuple): number => p[2])).toFixed(2) + " to " + Math.max(...around.map((p: AutoMovieVector3Tuple): number => p[2])).toFixed(2) + " mm there");
+      return { station: station(x, best.phase), phase: best.phase, height: best.height };
+    };
+    const extent = (x: number): [number, number] => {
+      let [least, greatest]: [number, number] = [Infinity, -Infinity];
+      for (const p of ring(x)) {
+        least = Math.min(least, p[2]);
+        greatest = Math.max(greatest, p[2]);
+      }
+      return [least, greatest];
+    };
+    return { lateral, at, station, ring, find, extent };
   }
 
   /*

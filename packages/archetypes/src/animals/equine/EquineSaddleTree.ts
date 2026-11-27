@@ -6,29 +6,6 @@ import type { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import type { QuadrupedAttachments } from "../quadruped/QuadrupedAttachments";
 
 /*
- * Broad and waist widths shared by the French maker's jumping/dressage trees.
- */
-const TREE: Readonly<{ broad: number; twist: number }> = {
-  broad: 0.26,
-  twist: 0.125,
-};
-
-/*
- * Factory jumping saddle's panel gap (Stübben), in metres.
- */
-const CHANNEL: number = 0.05;
-
-/*
- * The original saddle shell and its two grip bounds, in metres.
- */
-const STOCK: Readonly<{ deck: number; gripRadius: number; gripHalf: number; gripRise: number }> = {
-  deck: 0.04,
-  gripRadius: 0.015,
-  gripHalf: 0.06,
-  gripRise: 0.03,
-};
-
-/*
  * Lay one coarse connected riding saddle on the actual trunk capsule. The
  * bearing deck spans a flat sit-bone region and meets a narrowing forward
  * twist and raised end sections (EP2275382A2, description of the saddle tree).
@@ -212,6 +189,29 @@ export namespace EquineSaddleTree {
     y: number;
   }
 }
+
+/*
+ * Broad and waist widths shared by the French maker's jumping/dressage trees.
+ */
+const TREE: Readonly<{ broad: number; twist: number }> = {
+  broad: 0.26,
+  twist: 0.125,
+};
+
+/*
+ * Factory jumping saddle's panel gap (Stübben), in metres.
+ */
+const CHANNEL: number = 0.05;
+
+/*
+ * The original saddle shell and its two grip bounds, in metres.
+ */
+const STOCK: Readonly<{ deck: number; gripRadius: number; gripHalf: number; gripRise: number }> = {
+  deck: 0.04,
+  gripRadius: 0.015,
+  gripHalf: 0.06,
+  gripRise: 0.03,
+};
 
 /*
  * A transverse tree section, at its own longitudinal plane.

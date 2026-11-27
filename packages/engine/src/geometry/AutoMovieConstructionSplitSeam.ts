@@ -6,8 +6,6 @@ import type {
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
-
 /**
  * A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve
  * both bands start from in place of the straight chord, in the seam plane that
@@ -333,3 +331,5 @@ export namespace AutoMovieConstructionSplitSeam {
     [0.9602898564975363, 0.1012285362903763],
   ];
 }
+
+const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;

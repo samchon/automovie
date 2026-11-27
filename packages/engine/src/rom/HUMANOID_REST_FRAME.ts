@@ -3,49 +3,8 @@ import {
   type IAutoMovieAxisFrame,
   type IAutoMovieRestFrame,
 } from "@automovie/interface";
+import * as HumanoidRestFrameData from "./internal/HumanoidRestFrameData";
 
-
-/*
- * Bones of each arm from the clavicle to the fingertips, without the side
- * prefix.
- */
-const ARM: readonly string[] = [
-  "Shoulder",
-  "UpperArm",
-  "LowerArm",
-  "Hand",
-  "ThumbMetacarpal",
-  "ThumbProximal",
-  "ThumbDistal",
-  "IndexProximal",
-  "IndexIntermediate",
-  "IndexDistal",
-  "MiddleProximal",
-  "MiddleIntermediate",
-  "MiddleDistal",
-  "RingProximal",
-  "RingIntermediate",
-  "RingDistal",
-  "LittleProximal",
-  "LittleIntermediate",
-  "LittleDistal",
-];
-
-/*
- * Bones of each leg from the hip to the toes, without the side prefix.
- */
-const LEG: readonly string[] = ["UpperLeg", "LowerLeg", "Foot", "Toes"];
-
-/*
- * Bones whose fingertip-ward motions read on the hand's basis, without the side
- * prefix.
- */
-const HAND: readonly string[] = ARM.slice(3);
-
-/*
- * A reversed axis at the rig's own rest.
- */
-const REVERSED: IAutoMovieAxisFrame = { sign: -1, neutral: 0 };
 
 /**
  * Rest frames for the **canonical T-pose humanoid**: one clinical convention on
@@ -109,21 +68,21 @@ export const HUMANOID_REST_FRAME: Partial<
   };
   // arms: flexion about Y and abduction about Z, except on the hand's basis
   for (const bone of ["Shoulder", "UpperArm", "LowerArm"]) {
-    set(`left${bone}`, "flexion", REVERSED);
-    set(`right${bone}`, "abduction", REVERSED);
+    set(`left${bone}`, "flexion", HumanoidRestFrameData.REVERSED);
+    set(`right${bone}`, "abduction", HumanoidRestFrameData.REVERSED);
   }
   // upper arm twist about X turns the front of either arm downward: internal
-  set("leftUpperArm", "twist", REVERSED);
-  set("rightUpperArm", "twist", REVERSED);
+  set("leftUpperArm", "twist", HumanoidRestFrameData.REVERSED);
+  set("rightUpperArm", "twist", HumanoidRestFrameData.REVERSED);
   // hand and fingers: flexion about Z, abduction about Y
-  for (const bone of HAND) {
-    set(`left${bone}`, "flexion", REVERSED);
-    set(`left${bone}`, "abduction", REVERSED);
+  for (const bone of HumanoidRestFrameData.HAND) {
+    set(`left${bone}`, "flexion", HumanoidRestFrameData.REVERSED);
+    set(`left${bone}`, "abduction", HumanoidRestFrameData.REVERSED);
   }
   // legs: abduction about Z and twist about Y
-  for (const bone of LEG) {
-    set(`right${bone}`, "abduction", REVERSED);
-    set(`right${bone}`, "twist", REVERSED);
+  for (const bone of HumanoidRestFrameData.LEG) {
+    set(`right${bone}`, "abduction", HumanoidRestFrameData.REVERSED);
+    set(`right${bone}`, "twist", HumanoidRestFrameData.REVERSED);
   }
   set("leftUpperArm", "abduction", { sign: 1, neutral: 90 });
   set("rightUpperArm", "abduction", { sign: -1, neutral: 90 });

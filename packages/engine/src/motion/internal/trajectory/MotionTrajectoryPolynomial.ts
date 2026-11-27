@@ -13,21 +13,6 @@ export namespace MotionTrajectoryPolynomial {
   export const NODES: readonly [number, number] = [43 / 50, 93 / 100];
 
   /*
-   * Derivative weights of u²(1-u)² and u³(1-u)² at the first node.
-   */
-  const first: readonly [number, number] = weights(NODES[0]);
-
-  /*
-   * The same derivative weights at the second node.
-   */
-  const second: readonly [number, number] = weights(NODES[1]);
-
-  /*
-   * Nonzero determinant of the two distinct interior derivative constraints.
-   */
-  const determinant: number = first[0] * second[1] - first[1] * second[0];
-
-  /*
    * Read an increment at share u, preserving the original quartic association.
    */
   export function value(
@@ -85,6 +70,21 @@ export namespace MotionTrajectoryPolynomial {
       (first[0] * right - second[0] * left) / determinant,
     ];
   }
+
+  /*
+   * Derivative weights of u²(1-u)² and u³(1-u)² at the first node.
+   */
+  const first: readonly [number, number] = weights(NODES[0]);
+
+  /*
+   * The same derivative weights at the second node.
+   */
+  const second: readonly [number, number] = weights(NODES[1]);
+
+  /*
+   * Nonzero determinant of the two distinct interior derivative constraints.
+   */
+  const determinant: number = first[0] * second[1] - first[1] * second[0];
 
   /*
    * The two endpoint-vanishing basis functions' derivative weights.

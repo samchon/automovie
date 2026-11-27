@@ -37,18 +37,6 @@ export namespace AutoMovieHumanNativeGirthClosure {
     tape: number;
   }
 
-  /*
-   * Phases a section is sampled at for its tape. A chord of an inscribed polygon falls short of its arc by the arc's length times
-   * `(length x curvature)^2 / 24`; at 1,440 phases a trunk section of 200 mm reach is sampled every 0.9 mm, under 1e-5 of its girth
-   * short wherever its radius of curvature is over 10 mm.
-   */
-  const PHASES: number = 1440;
-
-  /*
-   * Halvings of the bracket: each halves the fullness interval, so sixty take a bracket of 14 to 1e-17, under one unit of a double.
-   */
-  const HALVINGS: number = 60;
-
   /**
    * The taut tape of a section, mm: the perimeter of the convex hull of its outline about its course point.
    *
@@ -142,4 +130,16 @@ export namespace AutoMovieHumanNativeGirthClosure {
     const closed: number[] = shift(values, layout, fullness);
     return { fullness, values: closed, tape: tape(closed, layout) };
   }
+
+  /*
+   * Phases a section is sampled at for its tape. A chord of an inscribed polygon falls short of its arc by the arc's length times
+   * `(length x curvature)^2 / 24`; at 1,440 phases a trunk section of 200 mm reach is sampled every 0.9 mm, under 1e-5 of its girth
+   * short wherever its radius of curvature is over 10 mm.
+   */
+  const PHASES: number = 1440;
+
+  /*
+   * Halvings of the bracket: each halves the fullness interval, so sixty take a bracket of 14 to 1e-17, under one unit of a double.
+   */
+  const HALVINGS: number = 60;
 }

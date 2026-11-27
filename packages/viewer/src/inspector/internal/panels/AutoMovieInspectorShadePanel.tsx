@@ -7,27 +7,6 @@ import type { ChangeEvent, JSX } from "react";
 import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
 
 /*
- * Every shade offered.
- */
-const SHADES: IShadeIndex = {
-  beauty: "beauty",
-  depth: "depth",
-  mask: "mask",
-  normal: "normal",
-  outline: "outline",
-  pose: "pose",
-  albedo: "albedo",
-  graphics: "graphics",
-  clay: "clay",
-  faces: "faces",
-};
-
-/*
- * The shades in option order.
- */
-const OPTIONS: AutoMovieInspectionShade[] = Object.values(SHADES);
-
-/*
  * Shade and surface: how surfaces are coloured and whether they are drawn.
  *
  * The page draws the request's first pass, so the shade shown is `passes[0]`;
@@ -98,6 +77,27 @@ export namespace AutoMovieInspectorShadePanel {
     dispatch: (action: IAutoMovieInspectorAction) => void;
   }
 }
+
+/*
+ * Every shade offered.
+ */
+const SHADES: IShadeIndex = {
+  beauty: "beauty",
+  depth: "depth",
+  mask: "mask",
+  normal: "normal",
+  outline: "outline",
+  pose: "pose",
+  albedo: "albedo",
+  graphics: "graphics",
+  clay: "clay",
+  faces: "faces",
+};
+
+/*
+ * The shades in option order.
+ */
+const OPTIONS: AutoMovieInspectionShade[] = Object.values(SHADES);
 
 /*
  * Each shade keyed by itself, so the compiler refuses a list that misses one.

@@ -20,19 +20,7 @@ import { AutoMovieMotionHumanArmPlannedProblem } from "./AutoMovieMotionHumanArm
 import { AutoMovieMotionHumanArmPlannedReads } from "./AutoMovieMotionHumanArmPlannedReads";
 import { AutoMovieMotionHumanArmPlannedSolve } from "./AutoMovieMotionHumanArmPlannedSolve";
 import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
-
-/*
- * The farthest probe's travel between two waypoints of a reach first cut,
- * metres (provisional: a sampling density, not a bound; the solve splits any
- * interval its frame-grid reading fails in).
- */
-const SPACING: number = 0.08;
-
-/*
- * A daily reach's peak hand speed, metres a second (J NeuroEng Rehabil 2006
- * 3:18).
- */
-const PEAK: number = 0.55;
+import * as AutoMovieMotionHumanArmPlannedData from "./AutoMovieMotionHumanArmPlannedData";
 
 /*
  * An arm's whole action planned as one trajectory (`HumanArmTrajectory`): its
@@ -83,7 +71,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * as fast as a daily reach's peak travels at most `SPACING` between two of
    * them.
    */
-  export const LEAST: number = Math.ceil(PEAK / SPACING);
+  export const LEAST: number = Math.ceil(AutoMovieMotionHumanArmPlannedData.PEAK / AutoMovieMotionHumanArmPlannedData.SPACING);
 
   /*
    * A group for arms moved together.
@@ -156,11 +144,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
   }
 
   /*
-   * The plan in scope, while one runs (`within`).
-   */
-  let scope: IScope | undefined;
-
-  /*
    * The span a carry's weight states, its four instants read off the weight's
    * crossings of 0 and 1 (`AutoMovieMotionHumanArmStated`, which states the
    * precision and the weights that state no span). The alias transforms no
@@ -178,6 +161,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export const reaching: typeof AutoMovieMotionHumanArmObservation.reaching =
     AutoMovieMotionHumanArmObservation.reaching;
+
   /*
    * Whether the arms can hold at one instant: the course's own still problem
    * there (`HumanArmSeed.held`), on the bases, sites and starts the course
@@ -221,7 +205,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
       throw error;
     }
   }
-
   /*
    * Arms solved as one trajectory problem over their span
    * (`HumanArmTrajectory`), against the posture so far with every one of them
@@ -312,7 +295,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
         travel,
         resolution,
         least: LEAST,
-        spacing: SPACING,
+        spacing: AutoMovieMotionHumanArmPlannedData.SPACING,
       });
     // A still check (`stands`) solves the hold's one instant as the course's
     // own still problem (`HumanArmSeed.held`), on the course's own bases and
@@ -394,6 +377,11 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export const moved: typeof AutoMovieMotionHumanArmObservation.moved =
     AutoMovieMotionHumanArmObservation.moved;
+
+  /*
+   * The plan in scope, while one runs (`within`).
+   */
+  let scope: IScope | undefined;
 
   /*
    * The plan in scope (`within`): its action's handover, how many groups it has

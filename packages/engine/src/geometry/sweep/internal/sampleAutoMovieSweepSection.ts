@@ -7,19 +7,6 @@ import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 
 /*
- * Curve samples per segment when bracketing a polar angle.
- */
-const DENSITY: number = 64;
-/*
- * Fewest curve samples whatever the segment count.
- */
-const MINIMUM_SAMPLES: number = 1024;
-/*
- * Bisection steps that place a radius on the curve, each halving the parameter
- * interval.
- */
-const BISECTIONS: number = 40;
-/*
  * Sample a section's radius from its origin at evenly spaced polar angles.
  *
  * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise from
@@ -172,3 +159,17 @@ export const sampleAutoMovieSweepSection: (
     return Math.hypot(p.x, p.y);
   });
 };
+
+/*
+ * Curve samples per segment when bracketing a polar angle.
+ */
+const DENSITY: number = 64;
+/*
+ * Fewest curve samples whatever the segment count.
+ */
+const MINIMUM_SAMPLES: number = 1024;
+/*
+ * Bisection steps that place a radius on the curve, each halving the parameter
+ * interval.
+ */
+const BISECTIONS: number = 40;

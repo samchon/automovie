@@ -9,37 +9,6 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/*
- * The parade contract establishes the shared carry. Dimensions are authored for
- * staging.
- */
-const SCENIC: string =
-  "Authored set dimensions for one banner shared by two carriers, as described in the Arlington Patriots Day Parade contract (https://www.arlingtonma.gov/home/showpublisheddocument/33593/636227460660770000).";
-
-/*
- * Units paired with the banner's authorable dimensions for draw provenance.
- */
-const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
-  width: "m",
-  panelHeight: "m",
-  depth: "m",
-  poleHeight: "m",
-  poleDiameter: "m",
-  mass: "kg",
-};
-
-/*
- * Independent set dimensions keep the panel above an exposed grip on each pole.
- */
-const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-  width: AutoMovieArchetypeBand.metres(1.2, 2.2, SCENIC, true),
-  panelHeight: AutoMovieArchetypeBand.metres(0.35, 0.7, SCENIC, true),
-  depth: AutoMovieArchetypeBand.metres(0.008, 0.02, SCENIC, true),
-  poleHeight: AutoMovieArchetypeBand.metres(1.1, 1.6, SCENIC, true),
-  poleDiameter: AutoMovieArchetypeBand.metres(0.026, 0.048, SCENIC, true),
-  mass: AutoMovieArchetypeBand.of("kg", 0.6, 1.8, SCENIC, true),
-};
-
 /** Constructs the scenic parade banner archetype from its recipe. */
 export namespace AutoMovieArchetypeScenicParadeBanner {
 /**
@@ -144,6 +113,37 @@ export function create(
     id?: string;
   }
 }
+
+/*
+ * The parade contract establishes the shared carry. Dimensions are authored for
+ * staging.
+ */
+const SCENIC: string =
+  "Authored set dimensions for one banner shared by two carriers, as described in the Arlington Patriots Day Parade contract (https://www.arlingtonma.gov/home/showpublisheddocument/33593/636227460660770000).";
+
+/*
+ * Units paired with the banner's authorable dimensions for draw provenance.
+ */
+const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
+  width: "m",
+  panelHeight: "m",
+  depth: "m",
+  poleHeight: "m",
+  poleDiameter: "m",
+  mass: "kg",
+};
+
+/*
+ * Independent set dimensions keep the panel above an exposed grip on each pole.
+ */
+const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+  width: AutoMovieArchetypeBand.metres(1.2, 2.2, SCENIC, true),
+  panelHeight: AutoMovieArchetypeBand.metres(0.35, 0.7, SCENIC, true),
+  depth: AutoMovieArchetypeBand.metres(0.008, 0.02, SCENIC, true),
+  poleHeight: AutoMovieArchetypeBand.metres(1.1, 1.6, SCENIC, true),
+  poleDiameter: AutoMovieArchetypeBand.metres(0.026, 0.048, SCENIC, true),
+  mass: AutoMovieArchetypeBand.of("kg", 0.6, 1.8, SCENIC, true),
+};
 
 /**
  * The panel measures and pole diameter use metres. The prop mass uses

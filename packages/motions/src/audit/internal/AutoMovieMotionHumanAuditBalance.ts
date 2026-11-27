@@ -170,25 +170,6 @@ export namespace AutoMovieMotionHumanAuditBalance {
   }
 
   /*
-   * Locate the first sample at (or strictly after) a second on the film grid.
-   */
-  function locate(
-    times: HumanAuditMotion.IGrid,
-    seconds: number,
-    strict: boolean,
-  ): number {
-    let from: number = 0;
-    let to: number = times.length;
-    while (from < to) {
-      const middle: number = from + Math.floor((to - from) / 2);
-      const at: number = times.at(middle);
-      if (at < seconds || (strict && at === seconds)) from = middle + 1;
-      else to = middle;
-    }
-    return from;
-  }
-
-  /*
    * The margin of stability at one instant, whatever the contacts.
    * Parameter motion: The motion.
    * Parameter subject: The person.
@@ -223,6 +204,113 @@ export namespace AutoMovieMotionHumanAuditBalance {
       before,
       after,
     );
+  }
+
+  /*
+   * Whether both feet alone bear the body at an instant: each foot inside a
+   * plant window on the ground, and no other contact window open.
+   * Parameter windows: The person's contact windows, film seconds.
+   * Parameter seconds: Film seconds.
+   * Parameter until: The second both feet must stay planted to, without a gap;
+   * `seconds` itself when absent.
+   * Returns: Whether the instant is read.
+   */
+  export function standing(
+    windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
+    seconds: number,
+    until: number = seconds,
+  ): boolean {
+    // A part bearing on the ground besides the feet (a knee, a palm): the
+    // body is read while every open window bears on the ground and one of
+    // them is such a part, its base those contacts and the planted feet.
+    const open: IAutoMovieMotionHumanAuditMotion.IWindow[] = windows.filter(
+      (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+        seconds >= w.from && seconds <= w.to,
+    );
+    if (
+      open.some(
+        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+          w.contact.kind === "bear",
+      )
+    )
+      return (
+        open.every(
+          (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+            w.contact.support.kind === "ground" &&
+            (w.contact.kind === "bear" || w.contact.kind === "plant") &&
+            (until <= seconds || w.to >= until - 1e-9),
+        ) &&
+        !arriving(
+          windows,
+          seconds,
+          until,
+          new Set<IAutoMovieMotionHumanContactWindow["part"]>(
+            open.map(
+              (
+                w: IAutoMovieMotionHumanAuditMotion.IWindow,
+              ): IAutoMovieMotionHumanContactWindow["part"] => w.contact.part,
+            ),
+          ),
+        )
+      );
+    if (until > seconds) {
+      if (arriving(windows, seconds, until, FEET)) return false;
+      for (const part of ["leftFoot", "rightFoot"] as const) {
+        // How long this foot stays planted from the instant on, through
+        // plant windows that follow one another without a gap.
+        let kept: number = seconds;
+        for (let grown: boolean = true; grown && kept < until; ) {
+          grown = false;
+          for (const window of windows)
+            if (
+              window.contact.part === part &&
+              window.contact.kind === "plant" &&
+              window.from <= kept + 1e-9 &&
+              window.to > kept + 1e-9
+            ) {
+              kept = window.to;
+              grown = true;
+            }
+        }
+        if (kept < until - 1e-9) return false;
+      }
+    }
+    let left: boolean = false;
+    let right: boolean = false;
+    for (const window of windows) {
+      if (seconds < window.from || seconds > window.to) continue;
+      const foot: boolean =
+        window.contact.part === "leftFoot" ||
+        window.contact.part === "rightFoot";
+      if (
+        !foot ||
+        window.contact.kind !== "plant" ||
+        window.contact.support.kind !== "ground"
+      )
+        return false;
+      if (window.contact.part === "leftFoot") left = true;
+      else right = true;
+    }
+    return left && right;
+  }
+
+  /*
+   * Locate the first sample at (or strictly after) a second on the film grid.
+   */
+  function locate(
+    times: HumanAuditMotion.IGrid,
+    seconds: number,
+    strict: boolean,
+  ): number {
+    let from: number = 0;
+    let to: number = times.length;
+    while (from < to) {
+      const middle: number = from + Math.floor((to - from) / 2);
+      const at: number = times.at(middle);
+      if (at < seconds || (strict && at === seconds)) from = middle + 1;
+      else to = middle;
+    }
+    return from;
   }
 
   /*
@@ -336,94 +424,6 @@ export namespace AutoMovieMotionHumanAuditBalance {
           w.from <= until + 1e-9,
       )
     );
-  }
-
-  /*
-   * Whether both feet alone bear the body at an instant: each foot inside a
-   * plant window on the ground, and no other contact window open.
-   * Parameter windows: The person's contact windows, film seconds.
-   * Parameter seconds: Film seconds.
-   * Parameter until: The second both feet must stay planted to, without a gap;
-   * `seconds` itself when absent.
-   * Returns: Whether the instant is read.
-   */
-  export function standing(
-    windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
-    seconds: number,
-    until: number = seconds,
-  ): boolean {
-    // A part bearing on the ground besides the feet (a knee, a palm): the
-    // body is read while every open window bears on the ground and one of
-    // them is such a part, its base those contacts and the planted feet.
-    const open: IAutoMovieMotionHumanAuditMotion.IWindow[] = windows.filter(
-      (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-        seconds >= w.from && seconds <= w.to,
-    );
-    if (
-      open.some(
-        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-          w.contact.kind === "bear",
-      )
-    )
-      return (
-        open.every(
-          (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-            w.contact.support.kind === "ground" &&
-            (w.contact.kind === "bear" || w.contact.kind === "plant") &&
-            (until <= seconds || w.to >= until - 1e-9),
-        ) &&
-        !arriving(
-          windows,
-          seconds,
-          until,
-          new Set<IAutoMovieMotionHumanContactWindow["part"]>(
-            open.map(
-              (
-                w: IAutoMovieMotionHumanAuditMotion.IWindow,
-              ): IAutoMovieMotionHumanContactWindow["part"] => w.contact.part,
-            ),
-          ),
-        )
-      );
-    if (until > seconds) {
-      if (arriving(windows, seconds, until, FEET)) return false;
-      for (const part of ["leftFoot", "rightFoot"] as const) {
-        // How long this foot stays planted from the instant on, through
-        // plant windows that follow one another without a gap.
-        let kept: number = seconds;
-        for (let grown: boolean = true; grown && kept < until; ) {
-          grown = false;
-          for (const window of windows)
-            if (
-              window.contact.part === part &&
-              window.contact.kind === "plant" &&
-              window.from <= kept + 1e-9 &&
-              window.to > kept + 1e-9
-            ) {
-              kept = window.to;
-              grown = true;
-            }
-        }
-        if (kept < until - 1e-9) return false;
-      }
-    }
-    let left: boolean = false;
-    let right: boolean = false;
-    for (const window of windows) {
-      if (seconds < window.from || seconds > window.to) continue;
-      const foot: boolean =
-        window.contact.part === "leftFoot" ||
-        window.contact.part === "rightFoot";
-      if (
-        !foot ||
-        window.contact.kind !== "plant" ||
-        window.contact.support.kind !== "ground"
-      )
-        return false;
-      if (window.contact.part === "leftFoot") left = true;
-      else right = true;
-    }
-    return left && right;
   }
 
   /*

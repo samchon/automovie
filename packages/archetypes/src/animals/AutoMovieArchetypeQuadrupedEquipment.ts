@@ -140,16 +140,6 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     hook: IHook;
   }
 
-  /*
-   * Authored coarse wood/pad color, not a physical material declaration.
-   */
-  const WOOD: string = "#70543b";
-
-  /*
-   * Metal display color; no friction/restitution is inferred from it.
-   */
-  const METAL: string = "#575851";
-
   /**
    * Add admitted yoke/pack geometry and their three possible real hook sites.
    *
@@ -211,6 +201,16 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     if (params.pack !== undefined) planPack(plan, rig, params.pack);
     return plan;
   }
+
+  /*
+   * Authored coarse wood/pad color, not a physical material declaration.
+   */
+  const WOOD: string = "#70543b";
+
+  /*
+   * Metal display color; no friction/restitution is inferred from it.
+   */
+  const METAL: string = "#575851";
 
   /*
    * Plan the beam above the neck/trunk envelope and connect its forward U

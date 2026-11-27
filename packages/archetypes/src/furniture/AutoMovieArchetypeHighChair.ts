@@ -8,22 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The high chair read.
- */
-const ANTILOP: string =
-  "IKEA ANTILOP high chair: width 56 cm, depth 59 cm, height 90 cm, seat height 54 cm, seat width 25 cm and depth 22 cm (https://www.ikea.com.tr/en/p89041709)";
-
-/*
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `leg`, a leg's diameter; `shell`, the seat
- * shell's thickness.
- */
-const ESTIMATES: Readonly<{ leg: number; shell: number }> = {
-  leg: 0.025,
-  shell: 0.02,
-};
+import * as AutoMovieArchetypeHighChairData from "./internal/AutoMovieArchetypeHighChairData";
 
 /** Constructs the high chair archetype from its recipe. */
 export namespace AutoMovieArchetypeHighChair {
@@ -160,12 +145,12 @@ export function create(
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    width: AutoMovieArchetypeBand.metres(0.56, 0.56, ANTILOP),
-    depth: AutoMovieArchetypeBand.metres(0.59, 0.59, ANTILOP),
-    height: AutoMovieArchetypeBand.metres(0.9, 0.9, ANTILOP),
-    seatHeight: AutoMovieArchetypeBand.metres(0.54, 0.54, ANTILOP),
-    seatWidth: AutoMovieArchetypeBand.metres(0.25, 0.25, ANTILOP),
-    seatDepth: AutoMovieArchetypeBand.metres(0.22, 0.22, ANTILOP),
+    width: AutoMovieArchetypeBand.metres(0.56, 0.56, AutoMovieArchetypeHighChairData.ANTILOP),
+    depth: AutoMovieArchetypeBand.metres(0.59, 0.59, AutoMovieArchetypeHighChairData.ANTILOP),
+    height: AutoMovieArchetypeBand.metres(0.9, 0.9, AutoMovieArchetypeHighChairData.ANTILOP),
+    seatHeight: AutoMovieArchetypeBand.metres(0.54, 0.54, AutoMovieArchetypeHighChairData.ANTILOP),
+    seatWidth: AutoMovieArchetypeBand.metres(0.25, 0.25, AutoMovieArchetypeHighChairData.ANTILOP),
+    seatDepth: AutoMovieArchetypeBand.metres(0.22, 0.22, AutoMovieArchetypeHighChairData.ANTILOP),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       2.5,
@@ -175,3 +160,13 @@ export function create(
     ),
   };
 }
+
+/*
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `leg`, a leg's diameter; `shell`, the seat
+ * shell's thickness.
+ */
+const ESTIMATES: Readonly<{ leg: number; shell: number }> = {
+  leg: 0.025,
+  shell: 0.02,
+};

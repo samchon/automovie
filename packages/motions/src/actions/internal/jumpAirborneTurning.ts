@@ -13,15 +13,6 @@ import { createHumanPostureRotation } from "../../posture/internal/createHumanPo
 import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 
 /*
- * An upright touchdown has no attitude offset.
- */
-const STILL: ITouchdown = {
-  about: { x: 0, y: 0, z: 0 },
-  axis: { x: 0, y: 1, z: 0 },
-  angle: 0,
-};
-
-/*
  * A flight's turns as plan members: the somersault signed by its way, a side
  * salto's somersault frame turned a quarter about the long axis, and the
  * rotation kept once the pass hands it back.
@@ -227,6 +218,15 @@ export namespace jumpAirborneTurning {
     ): IAutoMovieMotionHumanPosture;
   }
 }
+
+/*
+ * An upright touchdown has no attitude offset.
+ */
+const STILL: ITouchdown = {
+  about: { x: 0, y: 0, z: 0 },
+  axis: { x: 0, y: 1, z: 0 },
+  angle: 0,
+};
 
 /*
  * Action-plan members supplied for an authored turning flight.

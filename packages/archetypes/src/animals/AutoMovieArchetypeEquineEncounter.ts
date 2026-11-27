@@ -18,31 +18,6 @@ import { AutoMovieArchetypeEquineStance } from "./AutoMovieArchetypeEquineStance
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/*
- * How long a struck horse's response lasts, seconds, and its ease: authored.
- */
-const RESPONSE: Readonly<IResponse> = { seconds: 1.2, ease: 0.2 };
-
-/*
- * Each region's bar and the share along it, from the bar's start, of its aimed
- * point.
- */
-const REGIONS: Readonly<
-  Record<AutoMovieArchetypeEquineEncounterCue.Region, IRegion>
-> = {
-  neck: { bar: "neck", along: 0.5 },
-  head: { bar: "head", along: 0.4 },
-  shoulder: { bar: "trunk", along: 0.85 },
-  barrel: { bar: "trunk", along: 0.5 },
-  hindquarters: { bar: "hindquarters", along: 0.5 },
-};
-
-/*
- * Closed-form passes refining a bite's target and the poll the reach will put
- * above it: authored.
- */
-const REFINE: number = 4;
-
 /**
  * Two horses' agonistic encounter on one scene clock: threats, bites, rearing
  * strikes and double-barrel kicks aimed at named regions of the other horse,
@@ -421,6 +396,31 @@ export namespace AutoMovieArchetypeEquineEncounter {
     };
   }
 }
+
+/*
+ * How long a struck horse's response lasts, seconds, and its ease: authored.
+ */
+const RESPONSE: Readonly<IResponse> = { seconds: 1.2, ease: 0.2 };
+
+/*
+ * Each region's bar and the share along it, from the bar's start, of its aimed
+ * point.
+ */
+const REGIONS: Readonly<
+  Record<AutoMovieArchetypeEquineEncounterCue.Region, IRegion>
+> = {
+  neck: { bar: "neck", along: 0.5 },
+  head: { bar: "head", along: 0.4 },
+  shoulder: { bar: "trunk", along: 0.85 },
+  barrel: { bar: "trunk", along: 0.5 },
+  hindquarters: { bar: "hindquarters", along: 0.5 },
+};
+
+/*
+ * Closed-form passes refining a bite's target and the poll the reach will put
+ * above it: authored.
+ */
+const REFINE: number = 4;
 
 /*
  * A struck horse's authored response.

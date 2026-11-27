@@ -8,12 +8,6 @@ import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPushRecovery as Recovery } from "./AutoMovieEnginePhysicalPushRecovery";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
-/*
- * The closed forms a placement reads.
- */
-const { ZULU, add, outline, toLocal, toWorld }: typeof AutoMovieEnginePhysicalDisturbanceForm =
-  AutoMovieEnginePhysicalDisturbanceForm;
-
 /**
  * Where a disturbance response's swinging limb can step
  * (`preparePhysicalDisturbanceSpan`): the capture region it can reach, the
@@ -151,6 +145,13 @@ export namespace AutoMovieEnginePhysicalDisturbancePlacement {
     });
   }
 }
+
+
+/*
+ * The closed forms a placement reads.
+ */
+const { ZULU, add, outline, toLocal, toWorld }: typeof AutoMovieEnginePhysicalDisturbanceForm =
+  AutoMovieEnginePhysicalDisturbanceForm;
 
 /** A planted foot. */
 type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;

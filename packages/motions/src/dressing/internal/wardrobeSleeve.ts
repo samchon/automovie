@@ -15,11 +15,6 @@ import { wardrobeHands } from "./wardrobeHands";
 import type { wardrobeModes } from "./wardrobeModes";
 
 /*
- * How far a hand clears the physical sleeve plane on each side, metres.
- */
-const CLEAR: number = 0.034;
-
-/*
  * Fit a real path down the named sleeve axis, leaving positive radial
  * clearance.
  */
@@ -154,6 +149,11 @@ export namespace wardrobeSleeve {
     passage: number;
   }
 }
+
+/*
+ * How far a hand clears the physical sleeve plane on each side, metres.
+ */
+const CLEAR: number = 0.034;
 
 /*
  * The installed wardrobe actions and their requested direction and side.

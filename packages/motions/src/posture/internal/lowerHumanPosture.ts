@@ -10,11 +10,7 @@ import { AutoMovieMotionHumanAuditLimits } from "../../audit/internal/AutoMovieM
 import { hipJoints } from "./hipJoints";
 import { humanPostureHeading } from "./humanPostureHeading";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-
-/*
- * An absent plant, distinct from an invalid point on a present plant.
- */
-const NO_PLANT: unique symbol = Symbol();
+import * as LowerHumanPostureData from "./LowerHumanPostureData";
 
 /*
  * A posture with its root lowered along gravity to the highest height at which
@@ -46,62 +42,6 @@ export function lowerHumanPosture(
   step?: number,
 ): IAutoMovieMotionHumanPosture {
   return lower(body, posture, knee, resolution, undefined, step);
-}
-/*
- * One current-goal/hip/drop law; the optional scalar reader belongs only to
- * this producer.
- */
-function lower(
-  body: IAutoMovieMotionHumanBody,
-  posture: IAutoMovieMotionHumanPosture,
-  knee: number,
-  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  readShort?: ReturnType<typeof lowerHumanPosture.prepareShort>,
-  step?: number,
-): IAutoMovieMotionHumanPosture {
-  // Only world-anchored plants are lowered for: a leg goal attached to a
-  // bone moves with that bone, so the root cannot be solved against it here.
-  const left: LowerLeft = worldPlant(posture.limbs.leftLeg);
-  const right: LowerRight = worldPlant(posture.limbs.rightLeg);
-  if (left === NO_PLANT && right === NO_PLANT) return posture;
-  const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
-    body,
-    posture.root,
-    humanPostureHeading(posture),
-    posture.joints.hips,
-    resolution === undefined
-      ? undefined
-      : prepareHumanPoseResolution.read(resolution),
-  );
-  let drop: number = 0;
-  if (left !== NO_PLANT)
-    drop = Math.max(
-      drop,
-      readShort === undefined
-        ? lowerHumanPosture.short(body, hips.left, left, knee, step)
-        : readShort(hips.left, left),
-    );
-  if (right !== NO_PLANT)
-    drop = Math.max(
-      drop,
-      readShort === undefined
-        ? lowerHumanPosture.short(body, hips.right, right, knee, step)
-        : readShort(hips.right, right),
-    );
-  return drop === 0
-    ? posture
-    : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
-}
-
-/*
- * Read an actual world-anchored plant before hip FK.
- */
-function worldPlant(
-  goal: IAutoMovieHumanLimbGoal | undefined,
-): WorldPlantResult {
-  return goal?.planted === true && goal.on === undefined
-    ? goal.point
-    : NO_PLANT;
 }
 
 /*
@@ -203,6 +143,63 @@ export namespace lowerHumanPosture {
     return reachDrop(reachLimit(body, knee, step), hip, ankle);
   }
 }
+
+/*
+ * One current-goal/hip/drop law; the optional scalar reader belongs only to
+ * this producer.
+ */
+function lower(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  knee: number,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  readShort?: ReturnType<typeof lowerHumanPosture.prepareShort>,
+  step?: number,
+): IAutoMovieMotionHumanPosture {
+  // Only world-anchored plants are lowered for: a leg goal attached to a
+  // bone moves with that bone, so the root cannot be solved against it here.
+  const left: LowerLeft = worldPlant(posture.limbs.leftLeg);
+  const right: LowerRight = worldPlant(posture.limbs.rightLeg);
+  if (left === LowerHumanPostureData.NO_PLANT && right === LowerHumanPostureData.NO_PLANT) return posture;
+  const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
+    body,
+    posture.root,
+    humanPostureHeading(posture),
+    posture.joints.hips,
+    resolution === undefined
+      ? undefined
+      : prepareHumanPoseResolution.read(resolution),
+  );
+  let drop: number = 0;
+  if (left !== LowerHumanPostureData.NO_PLANT)
+    drop = Math.max(
+      drop,
+      readShort === undefined
+        ? lowerHumanPosture.short(body, hips.left, left, knee, step)
+        : readShort(hips.left, left),
+    );
+  if (right !== LowerHumanPostureData.NO_PLANT)
+    drop = Math.max(
+      drop,
+      readShort === undefined
+        ? lowerHumanPosture.short(body, hips.right, right, knee, step)
+        : readShort(hips.right, right),
+    );
+  return drop === 0
+    ? posture
+    : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
+}
+
+/*
+ * Read an actual world-anchored plant before hip FK.
+ */
+function worldPlant(
+  goal: IAutoMovieHumanLimbGoal | undefined,
+): WorldPlantResult {
+  return goal?.planted === true && goal.on === undefined
+    ? goal.point
+    : LowerHumanPostureData.NO_PLANT;
+}
 /*
  * The leg's reach at `knee` degrees, with the soft band a hip moving `step`
  * metres a frame asks (`soft`).
@@ -279,17 +276,17 @@ function reachDrop(
 /*
  * The alternatives of `LowerRight`'s site.
  */
-type LowerRight = IAutoMovieVector3 | typeof NO_PLANT;
+type LowerRight = IAutoMovieVector3 | typeof LowerHumanPostureData.NO_PLANT;
 
 /*
  * The alternatives of `LowerLeft`'s site.
  */
-type LowerLeft = IAutoMovieVector3 | typeof NO_PLANT;
+type LowerLeft = IAutoMovieVector3 | typeof LowerHumanPostureData.NO_PLANT;
 
 /*
  * The alternatives of `WorldPlantResult`'s site.
  */
-type WorldPlantResult = IAutoMovieVector3 | typeof NO_PLANT;
+type WorldPlantResult = IAutoMovieVector3 | typeof LowerHumanPostureData.NO_PLANT;
 
 /*
  * A leg's fixed reach: the two-segment cosine-law length at the least knee

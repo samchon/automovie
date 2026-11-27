@@ -9,19 +9,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { humanAssistedTransferSeat } from "./humanAssistedTransferSeat";
 
 /*
- * The bearing parts of the transfer are not constrained to the chair's base.
- */
-const FEET: readonly IAutoMovieMotionHumanSupport.IContact[] = [
-  { part: "leftFoot", kind: "bear" },
-  { part: "rightFoot", kind: "bear" },
-];
-
-/*
- * Acquire, rise, step, align, settle, and release.
- */
-const PHASE: number = 0.55;
-
-/*
  * Stage one actor's role in a paired chair-to-care-seat transfer.
  *
  * The phases share the same explicit hand target and seconds. The occupant
@@ -194,6 +181,19 @@ export const HumanAssistedTransfer: IAutoMovieMotionHumanAssistedTransfer.ILaw =
       }),
     },
   };
+
+/*
+ * The bearing parts of the transfer are not constrained to the chair's base.
+ */
+const FEET: readonly IAutoMovieMotionHumanSupport.IContact[] = [
+  { part: "leftFoot", kind: "bear" },
+  { part: "rightFoot", kind: "bear" },
+];
+
+/*
+ * Acquire, rise, step, align, settle, and release.
+ */
+const PHASE: number = 0.55;
 
 /*
  * Attach the actual displayed palm to the shared clasp over its nominated span.

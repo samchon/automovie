@@ -20,8 +20,6 @@ import { normalizeClipTime } from "../../math/internal/normalizeClipTime";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
 
-const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
-
 /*
  * Pose and root projections for geometry and world placement.
  */
@@ -62,6 +60,8 @@ export namespace sampleMotion {
     return readAt(motion, seconds, rootAtKey, rootBetween);
   }
 }
+
+const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 
 /*
  * Select the clamped or wrapped key or eased segment for the requested

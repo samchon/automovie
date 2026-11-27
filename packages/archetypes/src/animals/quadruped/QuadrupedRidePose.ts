@@ -19,7 +19,6 @@ import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped
 import { QuadrupedRidePoseTypes } from "./QuadrupedRidePoseTypes";
 import type { QuadrupedRidePoseGoals } from "./QuadrupedRidePoseGoals";
 
-const { HINDS } = QuadrupedRidePoseTypes;
 /*
  * Fixed-attachment locomotion lowered through the animal's shared rig.
  */
@@ -508,6 +507,8 @@ export namespace QuadrupedRidePose {
     }
   }
 }
+
+const { HINDS } = QuadrupedRidePoseTypes;
 type Target = QuadrupedRidePoseTypes.Target;
 type ICarried = QuadrupedRidePoseTypes.ICarried;
 

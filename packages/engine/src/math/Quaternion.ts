@@ -33,28 +33,6 @@ export namespace Quaternion {
   /** Radians per degree, `π / 180`. */
   export const DEG2RAD: number = Math.PI / 180;
 
-  /*
-   * The canonical axes `fromEuler` turns about, keyed by order letter.
-   */
-  const EULER_AXES: Readonly<Record<string, IAutoMovieVector3>> = {
-    X: { x: 1, y: 0, z: 0 },
-    Y: { x: 0, y: 1, z: 0 },
-    Z: { x: 0, y: 0, z: 1 },
-  };
-
-  /*
-   * Private unchanged axes share their prepared direction and length.
-   */
-  const eulerX: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(
-    EULER_AXES.X!,
-  );
-  const eulerY: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(
-    EULER_AXES.Y!,
-  );
-  const eulerZ: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(
-    EULER_AXES.Z!,
-  );
-
   /**
    * The Hamilton product `a * b`, the rotation that applies `b` first and then
    * `a`.
@@ -92,19 +70,6 @@ export namespace Quaternion {
     q: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion =>
     readNormalizedQuaternion(q, normalizedRecord, undefined);
-
-  /*
-   * Fresh public normalization output from the completed scalar computation.
-   */
-  function normalizedRecord(
-    x: number,
-    y: number,
-    z: number,
-    w: number,
-  ): IAutoMovieQuaternion {
-    return { x, y, z, w };
-  }
-
   /**
    * The inverse rotation of `q`, its conjugate normalized.
    *
@@ -127,7 +92,6 @@ export namespace Quaternion {
       normalizedRecord,
       undefined,
     );
-
   /**
    * The rotation of `angleDeg` degrees about `axis`, positive by the right-hand
    * rule.
@@ -171,51 +135,6 @@ export namespace Quaternion {
     const length: number = axisLength(direction);
     return (angleDeg: number): IAutoMovieQuaternion =>
       angleOnAxis(direction, length, angleDeg);
-  }
-
-  /*
-   * Scale before squaring so finite extreme coordinates retain their direction.
-   */
-  function axisAngle(
-    axis: IAutoMovieVector3,
-    angleDeg: number,
-  ): IAutoMovieQuaternion {
-    const divisor: number = normalizationDivisor(axis.x, axis.y, axis.z);
-    const value: IAutoMovieVector3 =
-      divisor === 1
-        ? axis
-        : {
-            x: axis.x / divisor,
-            y: axis.y / divisor,
-            z: axis.z / divisor,
-          };
-    return angleOnAxis(value, axisLength(value), angleDeg);
-  }
-
-  /*
-   * Length of an axis already scaled to keep its squares representable.
-   */
-  function axisLength(axis: IAutoMovieVector3): number {
-    return Math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
-  }
-
-  /*
-   * Original half-angle formula after fixed direction/length preparation.
-   */
-  function angleOnAxis(
-    value: IAutoMovieVector3,
-    len: number,
-    angleDeg: number,
-  ): IAutoMovieQuaternion {
-    if (len === 0) return identity();
-    const half: number = (angleDeg * DEG2RAD) / 2;
-    const s: number = Math.sin(half) / len;
-    return {
-      x: value.x * s,
-      y: value.y * s,
-      z: value.z * s,
-      w: Math.cos(half),
-    };
   }
 
   /**
@@ -264,13 +183,6 @@ export namespace Quaternion {
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 => readRotatedVector(q, v, rotatedRecord, undefined);
 
-  /*
-   * Fresh public vector after the original completed rotation expressions.
-   */
-  function rotatedRecord(x: number, y: number, z: number): IAutoMovieVector3 {
-    return { x, y, z };
-  }
-
   /**
    * The Y component of rotateVector(q,v). The ordinary read skips the vector
    * record and unused X/Z output expressions.
@@ -286,13 +198,6 @@ export namespace Quaternion {
     return Math.abs(y) < Infinity
       ? y
       : readRotatedVector(q, v, rotatedY, undefined);
-  }
-
-  /*
-   * Read only Y after recovering an overflowing rotation.
-   */
-  function rotatedY(_x: number, y: number): number {
-    return y;
   }
 
   /**
@@ -350,6 +255,138 @@ export namespace Quaternion {
     const sine: number = Math.sin(theta);
     return (t: number): IAutoMovieQuaternion =>
       slerpAngular(first, x, y, z, w, t, theta, sine);
+  }
+
+  /**
+   * The angle of the rotation that takes `a` to `b`, in radians within `[0,
+   * π]`: the geodesic distance between the two rotations. `q` and `-q` are the
+   * same rotation, so negating either argument changes nothing.
+   *
+   * The angle is `2 atan2(|v|, |w|)` of `inverse(a) * b`. The shorter `2 acos
+   *
+   * |a · b|` reads an angle from a cosine's deficit from 1, which binary64
+   *
+   * Resolves only to about 1.1e-16: angles below about 3e-8 radian collapse to
+   * 0 or a few steps that size. The relative vector part keeps full relative
+   * precision, which candidate ranking needs for mirrored inputs.
+   *
+   * @param a Unit rotation.
+   * @param b Unit rotation.
+   * @returns The angle in radians.
+   */
+  export const angle: (
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+  ) => number = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number => {
+    return readQuaternionAngle(a, b);
+  };
+
+  /**
+   * Read angle(normalize(a), b), in radians, without a normalized output
+   * record. Both the initial normalize and inverse's conjugate normalization
+   * execute exactly as in that expression; zero/nonfinite behavior remains
+   * arithmetic.
+   */
+  export function angleAfterNormalize(
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+  ): number {
+    return readQuaternionAngle.afterNormalization(a, b);
+  }
+
+  /*
+   * The canonical axes `fromEuler` turns about, keyed by order letter.
+   */
+  const EULER_AXES: Readonly<Record<string, IAutoMovieVector3>> = {
+    X: { x: 1, y: 0, z: 0 },
+    Y: { x: 0, y: 1, z: 0 },
+    Z: { x: 0, y: 0, z: 1 },
+  };
+
+  /*
+   * Private unchanged axes share their prepared direction and length.
+   */
+  const eulerX: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(
+    EULER_AXES.X!,
+  );
+
+  const eulerY: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(
+    EULER_AXES.Y!,
+  );
+
+  const eulerZ: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(
+    EULER_AXES.Z!,
+  );
+
+  /*
+   * Fresh public normalization output from the completed scalar computation.
+   */
+  function normalizedRecord(
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+  ): IAutoMovieQuaternion {
+    return { x, y, z, w };
+  }
+
+  /*
+   * Scale before squaring so finite extreme coordinates retain their direction.
+   */
+  function axisAngle(
+    axis: IAutoMovieVector3,
+    angleDeg: number,
+  ): IAutoMovieQuaternion {
+    const divisor: number = normalizationDivisor(axis.x, axis.y, axis.z);
+    const value: IAutoMovieVector3 =
+      divisor === 1
+        ? axis
+        : {
+            x: axis.x / divisor,
+            y: axis.y / divisor,
+            z: axis.z / divisor,
+          };
+    return angleOnAxis(value, axisLength(value), angleDeg);
+  }
+
+  /*
+   * Length of an axis already scaled to keep its squares representable.
+   */
+  function axisLength(axis: IAutoMovieVector3): number {
+    return Math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
+  }
+
+  /*
+   * Original half-angle formula after fixed direction/length preparation.
+   */
+  function angleOnAxis(
+    value: IAutoMovieVector3,
+    len: number,
+    angleDeg: number,
+  ): IAutoMovieQuaternion {
+    if (len === 0) return identity();
+    const half: number = (angleDeg * DEG2RAD) / 2;
+    const s: number = Math.sin(half) / len;
+    return {
+      x: value.x * s,
+      y: value.y * s,
+      z: value.z * s,
+      w: Math.cos(half),
+    };
+  }
+
+  /*
+   * Fresh public vector after the original completed rotation expressions.
+   */
+  function rotatedRecord(x: number, y: number, z: number): IAutoMovieVector3 {
+    return { x, y, z };
+  }
+
+  /*
+   * Read only Y after recovering an overflowing rotation.
+   */
+  function rotatedY(_x: number, y: number): number {
+    return y;
   }
 
   /*
@@ -425,42 +462,5 @@ export namespace Quaternion {
       normalizedRecord,
       undefined,
     );
-  }
-
-  /**
-   * The angle of the rotation that takes `a` to `b`, in radians within `[0,
-   * π]`: the geodesic distance between the two rotations. `q` and `-q` are the
-   * same rotation, so negating either argument changes nothing.
-   *
-   * The angle is `2 atan2(|v|, |w|)` of `inverse(a) * b`. The shorter `2 acos
-   *
-   * |a · b|` reads an angle from a cosine's deficit from 1, which binary64
-   *
-   * Resolves only to about 1.1e-16: angles below about 3e-8 radian collapse to
-   * 0 or a few steps that size. The relative vector part keeps full relative
-   * precision, which candidate ranking needs for mirrored inputs.
-   *
-   * @param a Unit rotation.
-   * @param b Unit rotation.
-   * @returns The angle in radians.
-   */
-  export const angle: (
-    a: IAutoMovieQuaternion,
-    b: IAutoMovieQuaternion,
-  ) => number = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number => {
-    return readQuaternionAngle(a, b);
-  };
-
-  /**
-   * Read angle(normalize(a), b), in radians, without a normalized output
-   * record. Both the initial normalize and inverse's conjugate normalization
-   * execute exactly as in that expression; zero/nonfinite behavior remains
-   * arithmetic.
-   */
-  export function angleAfterNormalize(
-    a: IAutoMovieQuaternion,
-    b: IAutoMovieQuaternion,
-  ): number {
-    return readQuaternionAngle.afterNormalization(a, b);
   }
 }

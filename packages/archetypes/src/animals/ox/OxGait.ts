@@ -1,6 +1,7 @@
 import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { OX_BODY_MEASURES } from "./constants/OX_BODY_MEASURES";
+import * as OxGaitData from "./internal/OxGaitData";
 
 /*
  * An ox walk with one observed species-specific speed and clock.
@@ -32,33 +33,6 @@ import { OX_BODY_MEASURES } from "./constants/OX_BODY_MEASURES";
  */
 export namespace OxGait {
   /*
-   * Figure 2 supplement 2D, Bostaurus row: mean stride period, seconds.
-   */
-  const STRIDE: number = 1.3083333333333333;
-
-  /*
-   * Figure 2 supplement 2C, FLstanceduration percentage divided by 100.
-   */
-  const FORE_DUTY: number = 0.7410615271441992;
-
-  /*
-   * Figure 2 supplement 2C, HLstanceduration percentage divided by 100.
-   */
-  const HIND_DUTY: number = 0.6880389797326112;
-
-  /*
-   * Figure 2 supplement 2B, tFL percentage divided by 100, relative to
-   * ipsilateral hind touchdown.
-   */
-  const FORE_PHASE: number = 22.450064886615763 / 100;
-
-  /*
-   * Figure 2 supplement 2B, tFLcontr percentage divided by 100, on the same
-   * hind-referenced clock.
-   */
-  const OPPOSITE_FORE_PHASE: number = 0.7169512028591289;
-
-  /*
    * The observed walk point; zero timing spread is an authored deterministic
    * choice.
    */
@@ -70,17 +44,17 @@ export namespace OxGait {
         nod: { range: 0, timing: "support" },
         phases: {
           leftFore: 0,
-          rightFore: OPPOSITE_FORE_PHASE - FORE_PHASE,
-          leftHind: 1 - FORE_PHASE,
-          rightHind: 0.5 - FORE_PHASE,
+          rightFore: OxGaitData.OPPOSITE_FORE_PHASE - OxGaitData.FORE_PHASE,
+          leftHind: 1 - OxGaitData.FORE_PHASE,
+          rightHind: 0.5 - OxGaitData.FORE_PHASE,
         },
         rows: [
           {
             speed: 0.71,
-            stride: STRIDE,
+            stride: OxGaitData.STRIDE,
             deviation: 0,
-            stance: STRIDE * FORE_DUTY,
-            hindStance: STRIDE * HIND_DUTY,
+            stance: OxGaitData.STRIDE * OxGaitData.FORE_DUTY,
+            hindStance: OxGaitData.STRIDE * OxGaitData.HIND_DUTY,
           },
         ],
       },

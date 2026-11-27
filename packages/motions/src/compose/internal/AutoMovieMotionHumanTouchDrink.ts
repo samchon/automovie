@@ -41,13 +41,6 @@ export namespace AutoMovieMotionHumanTouchDrink {
   export const LEAN_STEP: number = AutoMovieMotionHumanDrinkingLean.STEP;
 
   /*
-   * The most a held vessel is leaned toward the face, degrees: the lean that
-   * lays its wall level (`AutoMovieMotionHumanDrinkingLean.MOST` states the
-   * basis).
-   */
-  const LEAN: number = AutoMovieMotionHumanDrinkingLean.MOST;
-
-  /*
    * The facing and the lean the arm brings the vessel at: the least lean toward
    * the face, in `LEAN_STEP` degrees up to `LEAN`, at which a candidate
    * facing's fitted arm drinks (`admitted`), with the facing whose hand meets
@@ -179,6 +172,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       after,
     );
   }
+
   /*
    * The least lean toward the face at which a vessel the hand holds by a kept
    * grasp is brought to the region by a drinking arm, and the wrist's goal
@@ -317,6 +311,13 @@ export namespace AutoMovieMotionHumanTouchDrink {
       nearest!,
     );
   }
+
+  /*
+   * The most a held vessel is leaned toward the face, degrees: the lean that
+   * lays its wall level (`AutoMovieMotionHumanDrinkingLean.MOST` states the
+   * basis).
+   */
+  const LEAN: number = AutoMovieMotionHumanDrinkingLean.MOST;
 
   /*
    * One lean of `drinking`'s search (`admitted`), each screened arm shown to

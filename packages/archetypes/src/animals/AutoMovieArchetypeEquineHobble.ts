@@ -13,15 +13,6 @@ import {
 import { AnnularFitting } from "./fittings/AnnularFitting";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/*
- * The pose's frame: the hobble is posed in world coordinates.
- */
-const WORLD: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
-  x: 0,
-  y: 0,
-  z: 0,
-});
-
 /**
  * A fore hobble (`createHobble`) worn by a moving equid: at each film second
  * each cuff closes round its foreleg's cannon a little above the fetlock, along
@@ -119,3 +110,12 @@ export namespace AutoMovieArchetypeEquineHobble {
     };
   }
 }
+
+/*
+ * The pose's frame: the hobble is posed in world coordinates.
+ */
+const WORLD: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
+  x: 0,
+  y: 0,
+  z: 0,
+});

@@ -8,12 +8,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import * as AutoMovieArchetypeLoadingTowerData from "./internal/AutoMovieArchetypeLoadingTowerData";
 
-/*
- * Colour and banding references for the fictional scenery.
- */
-const OAK_AND_IRON: string =
-  "The Met, Chest with Iron Banding (https://www.metmuseum.org/art/collection/search/463632)";
 /** Creates a deterministic loading tower fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeLoadingTower {
   /**
@@ -240,7 +236,7 @@ export namespace AutoMovieArchetypeLoadingTower {
       "m",
       1.8,
       2.6,
-      `Fictional scene footprint. Finish reference: ${OAK_AND_IRON}`,
+      `Fictional scene footprint. Finish reference: ${AutoMovieArchetypeLoadingTowerData.OAK_AND_IRON}`,
       true,
     ),
     depth: AutoMovieArchetypeBand.of(

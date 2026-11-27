@@ -21,44 +21,6 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
 import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/*
- * A resting adult horse's breathing rate, breaths per minute: the middle of the
- * 8 to 16 the MSD Veterinary Manual gives as normal at rest.
- */
-const REST_RATE: number = 12;
-
-/*
- * The barrel's girth swing at rest, metres of radius: authored.
- */
-const REST_DEPTH: number = 0.004;
-
-/*
- * The barrel's girth swing in a stride-locked breath, metres of radius:
- * authored.
- */
-const STRIDE_DEPTH: number = 0.012;
-
-/*
- * The gaits whose breaths lock 1:1 to the stride (Attenburrow 1982; Lafortuna
- * et al. 1996, J Exp Biol 166:19 on 1:1 coupling at the canter and gallop).
- */
-const LOCKED: ReadonlySet<string> = new Set<string>(["canter", "gallop"]);
-
-/*
- * The rate at which the nostrils flare fully on each breath, breaths per
- * minute, and how much a full flare widens them, a fraction of their radius:
- * authored.
- */
-const FLARE: Readonly<IFlare> = { rate: 90, widen: 0.6 };
-
-/*
- * The nostrils' part ids.
- */
-const NOSTRILS: ReadonlySet<string> = new Set<string>([
-  "leftNostril",
-  "rightNostril",
-]);
-
 /**
  * An equid's breathing, a layer over any of its rides: the barrel's displayed
  * girth swells and shrinks with each breath and the nostrils flare, the rider's
@@ -361,6 +323,45 @@ export namespace AutoMovieArchetypeEquineBreathing {
     return sorted;
   }
 }
+
+
+/*
+ * A resting adult horse's breathing rate, breaths per minute: the middle of the
+ * 8 to 16 the MSD Veterinary Manual gives as normal at rest.
+ */
+const REST_RATE: number = 12;
+
+/*
+ * The barrel's girth swing at rest, metres of radius: authored.
+ */
+const REST_DEPTH: number = 0.004;
+
+/*
+ * The barrel's girth swing in a stride-locked breath, metres of radius:
+ * authored.
+ */
+const STRIDE_DEPTH: number = 0.012;
+
+/*
+ * The gaits whose breaths lock 1:1 to the stride (Attenburrow 1982; Lafortuna
+ * et al. 1996, J Exp Biol 166:19 on 1:1 coupling at the canter and gallop).
+ */
+const LOCKED: ReadonlySet<string> = new Set<string>(["canter", "gallop"]);
+
+/*
+ * The rate at which the nostrils flare fully on each breath, breaths per
+ * minute, and how much a full flare widens them, a fraction of their radius:
+ * authored.
+ */
+const FLARE: Readonly<IFlare> = { rate: 90, widen: 0.6 };
+
+/*
+ * The nostrils' part ids.
+ */
+const NOSTRILS: ReadonlySet<string> = new Set<string>([
+  "leftNostril",
+  "rightNostril",
+]);
 
 /*
  * The nostril flare's authored shape.

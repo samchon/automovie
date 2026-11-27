@@ -15,21 +15,20 @@ import type {
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanBodySurface } from "./AutoMovieHumanBodySurface";
 import { AutoMovieHumanKnuckleSection } from "./AutoMovieHumanKnuckleSection";
-import { AutoMovieHumanHandDigitChain } from "./AutoMovieHumanHandDigitChain";
-import { AutoMovieHumanHandEvents } from "./AutoMovieHumanHandEvents";
-import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
-import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
-import { AutoMovieHumanHandPalm } from "./AutoMovieHumanHandPalm";
-import { AutoMovieHumanHandSolve } from "./AutoMovieHumanHandSolve";
-const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
-const { digitsOf }: typeof AutoMovieHumanHandFingers =
-  AutoMovieHumanHandFingers;
-const { palmOf }: typeof AutoMovieHumanHandPalm = AutoMovieHumanHandPalm;
-const { fingerOf }: typeof AutoMovieHumanHandDigitChain =
-  AutoMovieHumanHandDigitChain;
-const { events }: typeof AutoMovieHumanHandEvents = AutoMovieHumanHandEvents;
-const { solve }: typeof AutoMovieHumanHandSolve = AutoMovieHumanHandSolve;
-
+import "./AutoMovieHumanHandDigitChain";
+import "./AutoMovieHumanHandEvents";
+import "./AutoMovieHumanHandFingers";
+import "./AutoMovieHumanHandMap";
+import "./AutoMovieHumanHandPalm";
+import "./AutoMovieHumanHandSolve";
+import {
+  handPoint,
+  digitsOf,
+  palmOf,
+  fingerOf,
+  events,
+  solve,
+} from "./internal/AutoMovieHumanHandSkinTargetsData";
 /**
  * What the solve's knuckle section, read on the chains, must measure for the
  * meshed skin to measure the hand's breadth and circumference: the hand is
@@ -38,18 +37,6 @@ const { solve }: typeof AutoMovieHumanHandSolve = AutoMovieHumanHandSolve;
  * inputs.
  */
 export namespace AutoMovieHumanHandSkinTargets {
-  /*
-   * Rounds in which the solve's knuckle targets follow the meshed skin's
-   * section: the skin's ratio to the chains' reading barely moves with the
-   * scales, so two rounds leave a small fraction of the first miss.
-   */
-  const SKIN_ROUNDS: number = 2;
-
-  /*
-   * Knuckle targets already solved, by side and hand inputs.
-   */
-  const TARGETS: Map<string, { breadth: number; girth: number }> = new Map();
-
   /**
    * What the solve's knuckle section, read on the palm's rings and the border
    * fingers' roots, must measure for the meshed skin to measure the breadth
@@ -148,6 +135,18 @@ export namespace AutoMovieHumanHandSkinTargets {
     TARGETS.set(key, targets);
     return targets;
   }
+
+  /*
+   * Rounds in which the solve's knuckle targets follow the meshed skin's
+   * section: the skin's ratio to the chains' reading barely moves with the
+   * scales, so two rounds leave a small fraction of the first miss.
+   */
+  const SKIN_ROUNDS: number = 2;
+
+  /*
+   * Knuckle targets already solved, by side and hand inputs.
+   */
+  const TARGETS: Map<string, { breadth: number; girth: number }> = new Map();
 }
 
 type Vec3 = AutoMovieVector3Tuple;

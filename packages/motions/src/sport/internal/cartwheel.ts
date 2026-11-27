@@ -101,26 +101,6 @@ export namespace cartwheel {
   }
 
   /*
-   * The joints a wheel to the left bears on, the leading side first.
-   */
-  const SPOKES: readonly Spoke[] = [
-    "leftFoot",
-    "rightFoot",
-    "leftHand",
-    "rightHand",
-  ];
-
-  /*
-   * The joints a wheel to the right bears on, the leading side first.
-   */
-  const SPOKES_RIGHT: readonly Spoke[] = [
-    "rightFoot",
-    "leftFoot",
-    "rightHand",
-    "leftHand",
-  ];
-
-  /*
    * How far the body has taken the wheel's shape at an angle of the turn: a
    * minimum-jerk share over the first `SHAPE` degrees, and back over the last.
    * Parameter angle: The wheel's turn, degrees, 0 to 360.
@@ -335,6 +315,26 @@ export namespace cartwheel {
     });
     return result;
   }
+
+  /*
+   * The joints a wheel to the left bears on, the leading side first.
+   */
+  const SPOKES: readonly Spoke[] = [
+    "leftFoot",
+    "rightFoot",
+    "leftHand",
+    "rightHand",
+  ];
+
+  /*
+   * The joints a wheel to the right bears on, the leading side first.
+   */
+  const SPOKES_RIGHT: readonly Spoke[] = [
+    "rightFoot",
+    "leftFoot",
+    "rightHand",
+    "leftHand",
+  ];
   /*
    * A joint a wheel may bear on.
    */

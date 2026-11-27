@@ -123,31 +123,6 @@ export function kickChainRead(
 }
 
 /*
- * How far the fitted support foot's ball is from where its planted goal puts
- * it, metres.
- */
-function slip(
-  body: IAutoMovieMotionHumanBody,
-  support: AutoMovieHumanSide,
-  base: IAutoMovieMotionHumanPosture,
-  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-): number {
-  const goal: IAutoMovieHumanLimbGoal | undefined = base.limbs[`${support}Leg`];
-  if (goal === undefined || goal.rotation === undefined) return 0;
-  const offset: IAutoMovieVector3 = HumanFoot.offset(body, support, "ball");
-  const foot: IAutoMovieResolvedBone = bones.get(
-    `${support}Foot` as AutoMovieHumanoidBone,
-  )!;
-  return Vector3.distance(
-    Vector3.add(
-      foot.worldPosition,
-      Quaternion.rotateVector(foot.worldRotation, offset),
-    ),
-    Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, offset)),
-  );
-}
-
-/*
  * Reading a solved kick chain back.
  */
 export namespace kickChainRead {
@@ -172,4 +147,29 @@ export namespace kickChainRead {
         ? "jammed"
         : "reached";
   }
+}
+
+/*
+ * How far the fitted support foot's ball is from where its planted goal puts
+ * it, metres.
+ */
+function slip(
+  body: IAutoMovieMotionHumanBody,
+  support: AutoMovieHumanSide,
+  base: IAutoMovieMotionHumanPosture,
+  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+): number {
+  const goal: IAutoMovieHumanLimbGoal | undefined = base.limbs[`${support}Leg`];
+  if (goal === undefined || goal.rotation === undefined) return 0;
+  const offset: IAutoMovieVector3 = HumanFoot.offset(body, support, "ball");
+  const foot: IAutoMovieResolvedBone = bones.get(
+    `${support}Foot` as AutoMovieHumanoidBone,
+  )!;
+  return Vector3.distance(
+    Vector3.add(
+      foot.worldPosition,
+      Quaternion.rotateVector(foot.worldRotation, offset),
+    ),
+    Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, offset)),
+  );
 }

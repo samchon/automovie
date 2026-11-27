@@ -9,12 +9,6 @@ import {
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
 /*
- * Shortest tangent part a curve keeps in a sweep's tangent plane before it is
- * refused as meeting the sweep along its normal.
- */
-const FLAT: number = 1e-9;
-
-/*
  * Compile a network curve for per-pose evaluation.
  *
  * The curve is the centripetal Catmull-Rom spline through its start node, its
@@ -148,3 +142,9 @@ export const rigAutoMovieSurfaceCurve: (
     direction,
   };
 };
+
+/*
+ * Shortest tangent part a curve keeps in a sweep's tangent plane before it is
+ * refused as meeting the sweep along its normal.
+ */
+const FLAT: number = 1e-9;

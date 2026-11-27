@@ -1,6 +1,7 @@
 import {AutoMovieEngineMotionSampling} from "@automovie/engine";
 
 import { walkLegLow } from "./walkLegLow";
+import * as WalkLegRiseData from "./WalkLegRiseData";
 
 /*
  * The pitch a planted foot's heel rises to so that a room it must keep, which
@@ -62,13 +63,13 @@ export function walkLegRise(
   if (asked === -Infinity) {
     const unreachable =
       beyond ?? ((degrees: number): boolean => room(degrees) === -Infinity);
-    if (unreachable(-STEEPEST)) return -STEEPEST;
+    if (unreachable(-WalkLegRiseData.STEEPEST)) return -WalkLegRiseData.STEEPEST;
     pitch =
-      boundary?.(-STEEPEST, pitch) ??
-      reachBracket(-STEEPEST, pitch, unreachable);
+      boundary?.(-WalkLegRiseData.STEEPEST, pitch) ??
+      reachBracket(-WalkLegRiseData.STEEPEST, pitch, unreachable);
     asked = room(pitch);
   }
-  if (asked >= width || pitch <= -STEEPEST) return pitch;
+  if (asked >= width || pitch <= -WalkLegRiseData.STEEPEST) return pitch;
   const kept: number =
     width > 0 ? -AutoMovieEngineMotionSampling.smoothMinimum(-asked, 0, width) : Math.max(asked, 0);
   // The dip is the first low of the room as the heel rises from the asked
@@ -78,20 +79,20 @@ export function walkLegRise(
   // room grew is when its room is under the kept one: the room has one low
   // between the steps around it (`SCAN`), so it stays under that step's up
   // to the low. Any other walk has its low narrowed by golden section.
-  let low: number = -STEEPEST;
+  let low: number = -WalkLegRiseData.STEEPEST;
   let high: number = pitch;
   if (folds) {
-    let far: number = -STEEPEST;
+    let far: number = -WalkLegRiseData.STEEPEST;
     let near: number = pitch;
     let before: number = asked;
     let lowest: number = pitch;
     let grew: boolean = false;
-    for (let at: number = pitch - SCAN; at > -STEEPEST; at -= SCAN) {
+    for (let at: number = pitch - WalkLegRiseData.SCAN; at > -WalkLegRiseData.STEEPEST; at -= WalkLegRiseData.SCAN) {
       const value: number = room(at);
       // Pitches the leg cannot stand on lie before the dip, not in it.
       if (value > before && before > -Infinity) {
-        far = Math.max(-STEEPEST, at);
-        near = Math.min(pitch, at + 2 * SCAN);
+        far = Math.max(-WalkLegRiseData.STEEPEST, at);
+        near = Math.min(pitch, at + 2 * WalkLegRiseData.SCAN);
         grew = true;
         break;
       }
@@ -115,7 +116,7 @@ export function walkLegRise(
   if (above >= 0) {
     let below: number = -Infinity;
     let stale: RiseStale = 0;
-    for (let k: number = 0; k < 2 * HALVINGS && high - low > RESOLVED; k++) {
+    for (let k: number = 0; k < 2 * WalkLegRiseData.HALVINGS && high - low > WalkLegRiseData.RESOLVED; k++) {
       const secant: number =
         above < Infinity && below > -Infinity
           ? low + ((high - low) * above) / (above - below)
@@ -137,7 +138,7 @@ export function walkLegRise(
     }
 
     // A room with a kink can hold one end still; halves close what is left.
-    for (let k: number = 0; k < HALVINGS && high - low > RESOLVED; k++) {
+    for (let k: number = 0; k < WalkLegRiseData.HALVINGS && high - low > WalkLegRiseData.RESOLVED; k++) {
       const middle: number = (low + high) / 2;
       if (room(middle) < kept) high = middle;
       else low = middle;
@@ -148,35 +149,6 @@ export function walkLegRise(
     width > 0 ? Math.min(1, Math.max(0, (width - asked) / width)) : 1;
   return pitch + (low - pitch) * AutoMovieEngineMotionSampling.minimumJerkShare(share);
 }
-
-/*
- * The width, degrees, a kept room's pitch is bracketed to: under a hundred
- * nanometres of any point of a foot, the resolution thirty halvings of the
- * widest bracket gave.
- */
-const RESOLVED: number = 1e-7;
-
-/*
- * The step, degrees, in which the rise walks the room down from the asked pitch
- * to find its first low: half a degree, under which the room of a leg near
- * straight has no second low.
- */
-const SCAN: number = 0.5;
-
-/*
- * The steepest heel rise of a planted foot, degrees toes-down (provisional):
- * past it the foot would stand on its toe tips.
- */
-const STEEPEST: number = 75;
-
-/*
- * The halvings that take the widest bracket, `STEEPEST` degrees, under
- * `RESOLVED`: ⌈log₂(75 / 1e-7)⌉ = 30. The Illinois steps are allowed twice as
- * many, since a stale end is halved at least every second step (Dowell and
- * Jarratt 1971), and the bisection that follows closes whatever a kink left in
- * as many again.
- */
-const HALVINGS: number = Math.ceil(Math.log2(STEEPEST / RESOLVED));
 
 /*
  * The heel rise's bracketing resolutions shared with its callers.

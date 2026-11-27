@@ -1,9 +1,4 @@
-import {
-  ANKLE_DORSIFLEXION,
-  DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -18,53 +13,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-
-/*
- * How far a foot must roll past the roll asked of it so the ankle stays within
- * its range: the shank's lean across the foot from the vertical, the hip over
- * the ankle, less the ankle's own roll range (`DEFAULT_HUMANOID_ROM`'s foot
- * abduction), signed as `HumanFoot.roll`.
- * Parameter hip: The hip joint, world metres.
- * Parameter ankle: The ankle joint, world metres.
- * Parameter heading: The foot's heading, degrees.
- * Parameter asked: The roll the placement asks, degrees.
- * Returns: Degrees to add to the roll; zero within the range.
- */
-function sideways(
-  hip: IAutoMovieVector3,
-  ankle: IAutoMovieVector3,
-  heading: number,
-  asked: number,
-): number {
-  const yaw: number = (heading * Math.PI) / 180;
-  // The foot's lateral axis on the floor (`HumanFoot.heading` reads its
-  // heading off that axis: +X at rest).
-  const across: number =
-    (hip.x - ankle.x) * Math.cos(yaw) - (hip.z - ankle.z) * Math.sin(yaw);
-  const up: number = hip.y - ankle.y;
-  if (!(up > 1e-9)) return 0;
-  // A shank leaning toward +X asks the foot's -X border up: the roll that
-  // lays the sole square to the shank is minus the lean.
-  const square: number = -(Math.atan2(across, up) * 180) / Math.PI;
-  const demand: number = square - asked;
-  return demand > ROLL_MOST
-    ? demand - ROLL_MOST
-    : demand < ROLL_LEAST
-      ? demand - ROLL_LEAST
-      : 0;
-}
-
-/*
- * The ankle's least roll, degrees: the foot's abduction range's low end
- * (`DEFAULT_HUMANOID_ROM`).
- */
-const ROLL_LEAST: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.min;
-
-/*
- * The ankle's greatest roll, degrees: the foot's abduction range's high end
- * (`DEFAULT_HUMANOID_ROM`).
- */
-const ROLL_MOST: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.max;
+import * as AutoMovieMotionHumanFootRelaxData from "./AutoMovieMotionHumanFootRelaxData";
 
 /*
  * The placement a foot bearing a share of the weight can hold.
@@ -211,4 +160,39 @@ export namespace AutoMovieMotionHumanFootRelax {
   ): number {
     return at < seconds && seconds < leave ? 1 : 0;
   }
+}
+
+/*
+ * How far a foot must roll past the roll asked of it so the ankle stays within
+ * its range: the shank's lean across the foot from the vertical, the hip over
+ * the ankle, less the ankle's own roll range (`DEFAULT_HUMANOID_ROM`'s foot
+ * abduction), signed as `HumanFoot.roll`.
+ * Parameter hip: The hip joint, world metres.
+ * Parameter ankle: The ankle joint, world metres.
+ * Parameter heading: The foot's heading, degrees.
+ * Parameter asked: The roll the placement asks, degrees.
+ * Returns: Degrees to add to the roll; zero within the range.
+ */
+function sideways(
+  hip: IAutoMovieVector3,
+  ankle: IAutoMovieVector3,
+  heading: number,
+  asked: number,
+): number {
+  const yaw: number = (heading * Math.PI) / 180;
+  // The foot's lateral axis on the floor (`HumanFoot.heading` reads its
+  // heading off that axis: +X at rest).
+  const across: number =
+    (hip.x - ankle.x) * Math.cos(yaw) - (hip.z - ankle.z) * Math.sin(yaw);
+  const up: number = hip.y - ankle.y;
+  if (!(up > 1e-9)) return 0;
+  // A shank leaning toward +X asks the foot's -X border up: the roll that
+  // lays the sole square to the shank is minus the lean.
+  const square: number = -(Math.atan2(across, up) * 180) / Math.PI;
+  const demand: number = square - asked;
+  return demand > AutoMovieMotionHumanFootRelaxData.ROLL_MOST
+    ? demand - AutoMovieMotionHumanFootRelaxData.ROLL_MOST
+    : demand < AutoMovieMotionHumanFootRelaxData.ROLL_LEAST
+      ? demand - AutoMovieMotionHumanFootRelaxData.ROLL_LEAST
+      : 0;
 }

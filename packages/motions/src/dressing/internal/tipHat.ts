@@ -38,12 +38,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { requireHatHand } from "./requireHatHand";
-
-/*
- * A shared fit and seating tolerance, metres, from the motion campaign's 15 mm
- * contact bound.
- */
-const CONTACT: number = 0.015;
+import * as TipHatData from "./TipHatData";
 
 /*
  * Take a stiff hat by its declared brim grip, lift it briefly and set it back
@@ -292,7 +287,7 @@ function plan(
     Vector3.subtract(liftedSocket, crown.point),
     crown.normal,
   );
-  if (!(miss <= CONTACT && clearance >= rise / 2))
+  if (!(miss <= TipHatData.CONTACT && clearance >= rise / 2))
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "hand",
@@ -406,8 +401,8 @@ function wornFrame(
     if (
       opposed &&
       axesAgree &&
-      gap(shown.position, position) <= CONTACT &&
-      gap(socket, crown.point) <= CONTACT &&
+      gap(shown.position, position) <= TipHatData.CONTACT &&
+      gap(socket, crown.point) <= TipHatData.CONTACT &&
       Vector3.dot(inward, crown.normal) <= -0.999
     )
       return { frame: shown, socket };

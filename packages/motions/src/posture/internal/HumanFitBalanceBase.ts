@@ -2,6 +2,103 @@ import { AutoMovieEnginePlanarHull } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
+ * The hull of floor points and its half-planes.
+ * Parameter points: The bearing points, world metres; their heights are not read.
+ * Returns: The hull's corners, each with the index of the point it is, in hull
+ * order, and the half-planes over them.
+ */
+export function HumanFitBalanceBase(
+  points: readonly IAutoMovieVector3[],
+): HumanFitBalanceBase.IPlanes & IOfResult {
+  const corners: HumanFitBalanceBase.ICorner[] =
+    AutoMovieEnginePlanarHull.vertices(
+      points.map(
+        (p: IAutoMovieVector3, i: number): HumanFitBalanceBase.ICorner => ({
+          x: p.x,
+          z: p.z,
+          i,
+        }),
+      ),
+      "x",
+      "z",
+    );
+  return { ...halfPlanes(corners), corners };
+}
+
+/*
+ * The base of support of a balance (`HumanFitBalance`) as half-planes: the
+ * convex hull of the bearing points on the floor (Andrew's monotone chain), and
+ * the half-planes whose intersection it is, each with the corners it passes
+ * through, so a row can move the base with the corners' bones.
+ */
+export namespace HumanFitBalanceBase {
+  /*
+   * Which corners a half-plane passes through: a side of the base (a polygon's
+   * edge or a segment's side) the line through `p` and `q`, a cap the line
+   * across the segment at its end `p` with `q` its other end, a point's axis
+   * half-plane its one corner `p`.
+   */
+  export interface IThrough {
+    /*
+     * The half-plane's kind.
+     */
+    kind: ThroughKind;
+
+    /*
+     * Its first corner; a cap's own end.
+     */
+    p: number;
+
+    /*
+     * Its second corner; a cap's other end; `p` for a point.
+     */
+    q: number;
+  }
+
+  /*
+   * A corner of the hull: a floor point and the index of the bearing point it
+   * projects.
+   */
+  export interface ICorner {
+    /*
+     * The floor point's x, world metres.
+     */
+    x: number;
+
+    /*
+     * The floor point's z, world metres.
+     */
+    z: number;
+
+    /*
+     * The index of the bearing point it projects.
+     */
+    i: number;
+  }
+
+  /*
+   * A base's half-planes, in one order: each its anchor, its inward normal and
+   * the corners it passes through.
+   */
+  export interface IPlanes {
+    /*
+     * A floor point each half-plane passes through, world metres.
+     */
+    anchors: IPlanesAnchorsItem[];
+
+    /*
+     * Each half-plane's unit inward direction.
+     */
+    normals: IPlanesNormalsItem[];
+
+    /*
+     * Each half-plane's corners among the hull's.
+     */
+    through: IThrough[];
+  }
+}
+
+/*
  * The unit inward normal of a convex polygon's edge from corner `k` to the
  * next; the monotone chain leaves no edge of zero length.
  */
@@ -101,103 +198,6 @@ function halfPlanes(
       }),
     ),
   };
-}
-
-/*
- * The hull of floor points and its half-planes.
- * Parameter points: The bearing points, world metres; their heights are not read.
- * Returns: The hull's corners, each with the index of the point it is, in hull
- * order, and the half-planes over them.
- */
-export function HumanFitBalanceBase(
-  points: readonly IAutoMovieVector3[],
-): HumanFitBalanceBase.IPlanes & IOfResult {
-  const corners: HumanFitBalanceBase.ICorner[] =
-    AutoMovieEnginePlanarHull.vertices(
-      points.map(
-        (p: IAutoMovieVector3, i: number): HumanFitBalanceBase.ICorner => ({
-          x: p.x,
-          z: p.z,
-          i,
-        }),
-      ),
-      "x",
-      "z",
-    );
-  return { ...halfPlanes(corners), corners };
-}
-
-/*
- * The base of support of a balance (`HumanFitBalance`) as half-planes: the
- * convex hull of the bearing points on the floor (Andrew's monotone chain), and
- * the half-planes whose intersection it is, each with the corners it passes
- * through, so a row can move the base with the corners' bones.
- */
-export namespace HumanFitBalanceBase {
-  /*
-   * Which corners a half-plane passes through: a side of the base (a polygon's
-   * edge or a segment's side) the line through `p` and `q`, a cap the line
-   * across the segment at its end `p` with `q` its other end, a point's axis
-   * half-plane its one corner `p`.
-   */
-  export interface IThrough {
-    /*
-     * The half-plane's kind.
-     */
-    kind: ThroughKind;
-
-    /*
-     * Its first corner; a cap's own end.
-     */
-    p: number;
-
-    /*
-     * Its second corner; a cap's other end; `p` for a point.
-     */
-    q: number;
-  }
-
-  /*
-   * A corner of the hull: a floor point and the index of the bearing point it
-   * projects.
-   */
-  export interface ICorner {
-    /*
-     * The floor point's x, world metres.
-     */
-    x: number;
-
-    /*
-     * The floor point's z, world metres.
-     */
-    z: number;
-
-    /*
-     * The index of the bearing point it projects.
-     */
-    i: number;
-  }
-
-  /*
-   * A base's half-planes, in one order: each its anchor, its inward normal and
-   * the corners it passes through.
-   */
-  export interface IPlanes {
-    /*
-     * A floor point each half-plane passes through, world metres.
-     */
-    anchors: IPlanesAnchorsItem[];
-
-    /*
-     * Each half-plane's unit inward direction.
-     */
-    normals: IPlanesNormalsItem[];
-
-    /*
-     * Each half-plane's corners among the hull's.
-     */
-    through: IThrough[];
-  }
 }
 
 /*

@@ -21,44 +21,6 @@ import { stepOverLanding } from "./stepOverLanding";
 import { stepOverPathSwing } from "./stepOverPathSwing";
 
 /*
- * The swings' windows as shares of the action: the lead from 8 % to 42 %, the
- * trail from 50 % to 82 % (provisional, as `stepOver` states).
- */
-const WINDOWS: readonly [number, number, number, number] = [
-  0.08, 0.42, 0.5, 0.82,
-];
-
-/*
- * How far beyond the far side the lead heel lands, as a share of the foot's
- * length (provisional, as `stepOver` states).
- */
-const BEYOND: number = 0.1;
-
-/*
- * The highest obstacle a standing step clears, as a share of the hip height
- * (provisional, as `stepOver` states).
- */
-const HIGH: number = 0.55;
-
-/*
- * A step's longest stride as a share of twice the leg's horizontal reach at a
- * hip lowered to `LOW` of its height (provisional).
- */
-const STRIDE: number = 0.95;
-
-/*
- * The hip's height over the stride's widest step, as a share of its standing
- * height (provisional).
- */
-const LOW: number = 0.9;
-
-/*
- * How far into the lead swing the trail heel has risen, as a share of the swing
- * (provisional).
- */
-const RISE: number = 0.4;
-
-/*
  * The footprints, timing and swings of a step over.
  * Parameter context: The action's context.
  * Returns: What the plan's pelvis and postures read: the body, the feet's
@@ -453,6 +415,44 @@ export namespace stepOverPath {
     ) => number;
   }
 }
+
+/*
+ * The swings' windows as shares of the action: the lead from 8 % to 42 %, the
+ * trail from 50 % to 82 % (provisional, as `stepOver` states).
+ */
+const WINDOWS: readonly [number, number, number, number] = [
+  0.08, 0.42, 0.5, 0.82,
+];
+
+/*
+ * How far beyond the far side the lead heel lands, as a share of the foot's
+ * length (provisional, as `stepOver` states).
+ */
+const BEYOND: number = 0.1;
+
+/*
+ * The highest obstacle a standing step clears, as a share of the hip height
+ * (provisional, as `stepOver` states).
+ */
+const HIGH: number = 0.55;
+
+/*
+ * A step's longest stride as a share of twice the leg's horizontal reach at a
+ * hip lowered to `LOW` of its height (provisional).
+ */
+const STRIDE: number = 0.95;
+
+/*
+ * The hip's height over the stride's widest step, as a share of its standing
+ * height (provisional).
+ */
+const LOW: number = 0.9;
+
+/*
+ * How far into the lead swing the trail heel has risen, as a share of the swing
+ * (provisional).
+ */
+const RISE: number = 0.4;
 
 /*
  * The record of `IOfFootAtResult`'s site.

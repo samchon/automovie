@@ -1,12 +1,6 @@
 import type { IAutoMovieSweepTransport } from "@automovie/interface";
 
 /*
- * Transport samples per spine segment; the frame between samples takes one more
- * reflection step.
- */
-const DENSITY: number = 64;
-
-/*
  * Create the buffers of a spine of `count` points and the in-place compiler of
  * its curve, tangent and rotation-minimizing frames.
  *
@@ -303,3 +297,9 @@ export const transportAutoMovieSweepSpine: (
     frame,
   };
 };
+
+/*
+ * Transport samples per spine segment; the frame between samples takes one more
+ * reflection step.
+ */
+const DENSITY: number = 64;

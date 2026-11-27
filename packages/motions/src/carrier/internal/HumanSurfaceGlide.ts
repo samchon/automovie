@@ -21,25 +21,6 @@ import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { prepareGlideSlope } from "./prepareGlideSlope";
 
 /*
- * Fixed traversal order of the two independently fitted feet.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/*
- * Up and right of the tangent-plane frame before it is turned to the entry.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * Right of the tangent-plane frame before it is turned to the entry.
- */
-const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
-/*
- * Forward of the tangent-plane frame before it is turned to the entry.
- */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-/*
  * One continuous bilateral glide for ice and snow. An authored arc travels in a
  * level or inclined plane and the two ankles travel with that frame. The loaded
  * stance lowers and the trunk leans into the turn. The speed profile, crouch
@@ -451,6 +432,25 @@ export namespace HumanSurfaceGlide {
     };
   }
 }
+
+/*
+ * Fixed traversal order of the two independently fitted feet.
+ */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+
+/*
+ * Up and right of the tangent-plane frame before it is turned to the entry.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * Right of the tangent-plane frame before it is turned to the entry.
+ */
+const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+/*
+ * Forward of the tangent-plane frame before it is turned to the entry.
+ */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /*
  * Integral on [0, u] of the cubic speed ramp with zero endpoint slopes.

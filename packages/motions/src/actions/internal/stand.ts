@@ -25,6 +25,7 @@ import { standRelaxed } from "./standRelaxed";
 import { standRoot } from "./standRoot";
 import { standUpright } from "./standUpright";
 import { standingLegs } from "./standingLegs";
+import * as StandData from "./StandData";
 
 /*
  * Quiet standing: both feet planted where they are (or under the hips when
@@ -197,12 +198,6 @@ export namespace stand {
   }
 
   /*
-   * The bodiless relaxed table's shoulder abduction, degrees (provisional;
-   * `relaxed` measures each body's).
-   */
-  const RELAXED_ABDUCTION: number = 5;
-
-  /*
    * Relaxed hanging arms with no body, clinical degrees: 5 degrees of shoulder
    * abduction, 12 of elbow flexion and the hands at rest. Kept only for the
    * laws whose key tables do not yet take the body; each is moving to
@@ -217,7 +212,7 @@ export namespace stand {
     > = {};
     for (const side of ["left", "right"] as const) {
       Object.assign(out, HumanHand.shape(side, "relaxed"));
-      out[`${side}UpperArm`] = [0, RELAXED_ABDUCTION, 0];
+      out[`${side}UpperArm`] = [0, StandData.RELAXED_ABDUCTION, 0];
       out[`${side}LowerArm`] = [ELBOW, 0, 0];
     }
     return out;

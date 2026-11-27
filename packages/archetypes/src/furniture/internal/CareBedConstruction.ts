@@ -8,58 +8,6 @@ import { BED_BANDS } from "../constants/BED_BANDS";
 import type { AutoMovieArchetypeBed } from "../AutoMovieArchetypeBed";
 
 /*
- * The shorthand every construction uses.
- */
-const v: typeof Vector3.create = Vector3.create;
-
-/*
- * Bed linen.
- */
-const LINEN: string = "#e7e3da";
-
-/*
- * Painted steel.
- */
-const FRAME: string = "#c9cdd2";
-
-/*
- * Pine.
- */
-const PINE: string = "#c8a77a";
-
-/*
- * Lay the two long edges of a lying surface as seats facing out, as a plain bed
- * has them.
- * Parameter builder: The builder to fill.
- * Parameter width: The surface's width along `X`, metres.
- * Parameter length: Its length along `Z`, metres.
- * Parameter height: Its height, metres.
- */
-function sides(
-  builder: Builder,
-  width: number,
-  length: number,
-  height: number,
-): void {
-  for (const [id, sign] of [
-    ["leftSide", 1],
-    ["rightSide", -1],
-  ] as const)
-    builder.affordance({
-      id,
-      kind: "seat",
-      frame: AutoMovieArchetypeFrame.facing(
-        v((sign * width) / 2, height, 0),
-        v(0, 1, 0),
-        v(0, 0, -sign),
-      ),
-      extent: null,
-      width: length,
-      depth: width / 2,
-    });
-}
-
-/*
  * How createBed builds the beds of care and of children: a hospital bed,
  * a crib and a bunk bed, each with its head toward `-Z` as every bed of the
  * producer has it.
@@ -450,6 +398,58 @@ export namespace CareBedConstruction {
     });
     sides(builder, width, length, lower + thick);
   }
+}
+
+/*
+ * The shorthand every construction uses.
+ */
+const v: typeof Vector3.create = Vector3.create;
+
+/*
+ * Bed linen.
+ */
+const LINEN: string = "#e7e3da";
+
+/*
+ * Painted steel.
+ */
+const FRAME: string = "#c9cdd2";
+
+/*
+ * Pine.
+ */
+const PINE: string = "#c8a77a";
+
+/*
+ * Lay the two long edges of a lying surface as seats facing out, as a plain bed
+ * has them.
+ * Parameter builder: The builder to fill.
+ * Parameter width: The surface's width along `X`, metres.
+ * Parameter length: Its length along `Z`, metres.
+ * Parameter height: Its height, metres.
+ */
+function sides(
+  builder: Builder,
+  width: number,
+  length: number,
+  height: number,
+): void {
+  for (const [id, sign] of [
+    ["leftSide", 1],
+    ["rightSide", -1],
+  ] as const)
+    builder.affordance({
+      id,
+      kind: "seat",
+      frame: AutoMovieArchetypeFrame.facing(
+        v((sign * width) / 2, height, 0),
+        v(0, 1, 0),
+        v(0, 0, -sign),
+      ),
+      extent: null,
+      width: length,
+      depth: width / 2,
+    });
 }
 
 /*

@@ -1,14 +1,4 @@
 /*
- * Secant steps that settle the joint scale of volume preservation.
- */
-const ROUNDS: number = 8;
-
-/*
- * Relative volume error at which volume preservation stops.
- */
-const TOLERANCE: number = 1e-6;
-
-/*
  * Find the factor on a posed sweep's joint sections that restores its rest
  * volume, by secant steps.
  *
@@ -40,3 +30,13 @@ export const settleAutoMovieSweepVolume: (
   }
   return b;
 };
+
+/*
+ * Secant steps that settle the joint scale of volume preservation.
+ */
+const ROUNDS: number = 8;
+
+/*
+ * Relative volume error at which volume preservation stops.
+ */
+const TOLERANCE: number = 1e-6;

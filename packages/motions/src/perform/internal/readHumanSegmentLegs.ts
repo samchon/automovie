@@ -16,18 +16,6 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 
 /*
- * Whether a leg goal is free: given, neither planted nor in contact, so the leg
- * continues the chain's seed.
- */
-function free(
-  goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb],
-): boolean {
-  return (
-    goal !== undefined && goal.planted !== true && goal.contact === undefined
-  );
-}
-
-/*
  * The legs' continuation seeds of a displayed second, under every name the
  * read's leaf fits a leg by: the plain leaf's (`leaf::<leg>`) and each leaf
  * under the running overlays, named by their ordinals in placement order
@@ -284,6 +272,18 @@ export namespace readHumanSegmentLegs {
     "leftLeg",
     "rightLeg",
   ];
+}
+
+/*
+ * Whether a leg goal is free: given, neither planted nor in contact, so the leg
+ * continues the chain's seed.
+ */
+function free(
+  goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb],
+): boolean {
+  return (
+    goal !== undefined && goal.planted !== true && goal.contact === undefined
+  );
 }
 
 /*

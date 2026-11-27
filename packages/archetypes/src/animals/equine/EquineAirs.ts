@@ -9,31 +9,6 @@ import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
 /*
- * Standard gravity, m/s².
- */
-const GRAVITY: number = 9.80665;
-
-/*
- * Each courbette leap's forward travel, metres: authored.
- */
-const LEAP: number = 0.35;
-
-/*
- * The capriole's gathering drop before take-off, metres: authored.
- */
-const GATHER: number = 0.06;
-
-/*
- * Folded limbs' joint turns in the air, degrees, shoulder or hip first,
- * positive swinging the distal end back: authored poses.
- */
-const TUCK: Readonly<Record<Tuck, Turns>> = {
-  fore: [-40, -10, 100, 20],
-  hind: [-25, 20, -60, 30],
-  kick: [45, -10, 20, 10],
-};
-
-/*
  * The school airs above the ground, as stance rows: the held pesade and levade,
  * the courbette's hind-leg leaps and the capriole's leap with its hind kick.
  *
@@ -284,6 +259,31 @@ export namespace EquineAirs {
     };
   }
 }
+
+/*
+ * Standard gravity, m/s².
+ */
+const GRAVITY: number = 9.80665;
+
+/*
+ * Each courbette leap's forward travel, metres: authored.
+ */
+const LEAP: number = 0.35;
+
+/*
+ * The capriole's gathering drop before take-off, metres: authored.
+ */
+const GATHER: number = 0.06;
+
+/*
+ * Folded limbs' joint turns in the air, degrees, shoulder or hip first,
+ * positive swinging the distal end back: authored poses.
+ */
+const TUCK: Readonly<Record<Tuck, Turns>> = {
+  fore: [-40, -10, 100, 20],
+  hind: [-25, 20, -60, 30],
+  kick: [45, -10, 20, 10],
+};
 
 /*
  * A tucked limb in the air.

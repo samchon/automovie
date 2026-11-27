@@ -96,6 +96,79 @@ export namespace HumanArmMirror {
   }
 
   /*
+   * Another body's placed colliders reflected, by a reflector of their own.
+   * Parameter placed: The colliders.
+   * Returns: Their mirror image.
+   */
+  export function reflected(
+    placed: IAutoMovieMotionHumanColliders.IPlaced,
+  ): IAutoMovieMotionHumanColliders.IPlaced {
+    return reflector().reflected(placed);
+  }
+
+  /*
+   * A collider segment's frame and shapes reflected, whatever carries it (a
+   * prop's or an animal's segment, `IAutoMovieMotionHumanColliders.IExternal`),
+   * by a reflector of its own.
+   * Parameter placed: The segment.
+   * Returns: Its mirror image, its other members unchanged.
+   */
+  export function framed<T extends IAutoMovieMotionHumanColliders.IFramed>(
+    placed: T,
+  ): T {
+    return reflector().framed(placed);
+  }
+
+  /*
+   * A hull's points mirrored.
+   * Parameter points: The points.
+   * Returns: Their mirror images, a fresh array.
+   */
+  export function flipped(
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3[] {
+    return points.map(flip);
+  }
+
+  /*
+   * A point's mirror image.
+   * Parameter p: The point.
+   * Returns: Its image.
+   */
+  export function flip(p: IAutoMovieVector3): IAutoMovieVector3 {
+    return { x: -p.x, y: p.y, z: p.z };
+  }
+
+  /*
+   * A rotation's mirror image, M R M.
+   * Parameter q: The rotation.
+   * Returns: Its image.
+   */
+  export function turn(q: IAutoMovieQuaternion): IAutoMovieQuaternion {
+    return { x: q.x, y: -q.y, z: -q.z, w: q.w };
+  }
+
+  /*
+   * A bone's name on the other side.
+   * Parameter bone: The bone.
+   * Returns: The other side's, or the bone itself on the midline.
+   */
+  export function opposite(bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone;
+
+  /*
+   * Mirror a bone name carried by a custom rig.
+   */
+  export function opposite(bone: string): string;
+
+  export function opposite(bone: string): string {
+    return bone.startsWith("left")
+      ? `right${bone.slice(4)}`
+      : bone.startsWith("right")
+        ? `left${bone.slice(5)}`
+        : bone;
+  }
+
+  /*
    * A base's mirror image, its colliders reflected by one reflector.
    */
   function mirroredWith(
@@ -195,31 +268,6 @@ export namespace HumanArmMirror {
           }),
     };
   }
-
-  /*
-   * Another body's placed colliders reflected, by a reflector of their own.
-   * Parameter placed: The colliders.
-   * Returns: Their mirror image.
-   */
-  export function reflected(
-    placed: IAutoMovieMotionHumanColliders.IPlaced,
-  ): IAutoMovieMotionHumanColliders.IPlaced {
-    return reflector().reflected(placed);
-  }
-
-  /*
-   * A collider segment's frame and shapes reflected, whatever carries it (a
-   * prop's or an animal's segment, `IAutoMovieMotionHumanColliders.IExternal`),
-   * by a reflector of its own.
-   * Parameter placed: The segment.
-   * Returns: Its mirror image, its other members unchanged.
-   */
-  export function framed<T extends IAutoMovieMotionHumanColliders.IFramed>(
-    placed: T,
-  ): T {
-    return reflector().framed(placed);
-  }
-
   /*
    * A segment's shape list reflected, a fresh list.
    */
@@ -235,7 +283,6 @@ export namespace HumanArmMirror {
         : { ...shape, transform };
     });
   }
-
   /*
    * A hull shape's points mirrored with its hull, which is mirrored too.
    */
@@ -247,53 +294,6 @@ export namespace HumanArmMirror {
     return shape.hull === undefined
       ? { points }
       : { points, hull: AutoMoviePhysicalHullFaces.mirrorHull(points, shape.hull) };
-  }
-
-  /*
-   * A hull's points mirrored.
-   * Parameter points: The points.
-   * Returns: Their mirror images, a fresh array.
-   */
-  export function flipped(
-    points: readonly IAutoMovieVector3[],
-  ): IAutoMovieVector3[] {
-    return points.map(flip);
-  }
-
-  /*
-   * A point's mirror image.
-   * Parameter p: The point.
-   * Returns: Its image.
-   */
-  export function flip(p: IAutoMovieVector3): IAutoMovieVector3 {
-    return { x: -p.x, y: p.y, z: p.z };
-  }
-
-  /*
-   * A rotation's mirror image, M R M.
-   * Parameter q: The rotation.
-   * Returns: Its image.
-   */
-  export function turn(q: IAutoMovieQuaternion): IAutoMovieQuaternion {
-    return { x: q.x, y: -q.y, z: -q.z, w: q.w };
-  }
-
-  /*
-   * A bone's name on the other side.
-   * Parameter bone: The bone.
-   * Returns: The other side's, or the bone itself on the midline.
-   */
-  export function opposite(bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone;
-  /*
-   * Mirror a bone name carried by a custom rig.
-   */
-  export function opposite(bone: string): string;
-  export function opposite(bone: string): string {
-    return bone.startsWith("left")
-      ? `right${bone.slice(4)}`
-      : bone.startsWith("right")
-        ? `left${bone.slice(5)}`
-        : bone;
   }
 }
 

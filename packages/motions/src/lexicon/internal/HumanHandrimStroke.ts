@@ -1,5 +1,5 @@
 import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
-import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHandrimStroke, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHandrimStroke, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { seated } from "../../everyday/internal/seated";
@@ -14,32 +14,8 @@ import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { humanHandrimStrokePhases } from "./humanHandrimStrokePhases";
-
-/*
- * Carry a sampled grip from one chair placement into another.
- */
-const carry = (
-  grip: Grip,
-  from: IAutoMovieRigidTransform,
-  to: IAutoMovieRigidTransform,
-): Grip => {
-  const swing: IAutoMovieQuaternion = Quaternion.multiply(
-    to.rotation,
-    Quaternion.inverse(from.rotation),
-  );
-  return {
-    ...grip,
-    point: Vector3.add(
-      to.position,
-      Quaternion.rotateVector(
-        swing,
-        Vector3.subtract(grip.point, from.position),
-      ),
-    ),
-    normal: Quaternion.rotateVector(swing, grip.normal),
-    axis: Quaternion.rotateVector(swing, grip.axis!),
-  };
-};
+import type * as HumanHandrimStrokeData from "./HumanHandrimStrokeData";
+import { carry } from "./HumanHandrimStrokeData";
 
 /*
  * One single-handed or bilateral handrim engagement over a seated ride.
@@ -209,7 +185,7 @@ function planHumanHandrimStroke(
      * Read the point supplied by the rotating part and its tangent in world
      * metres.
      */
-    const gripAt = (at: number, frame: IAutoMovieRigidTransform): Grip => {
+    const gripAt = (at: number, frame: IAutoMovieRigidTransform): HumanHandrimStrokeData.Grip => {
       const hit: ReturnType<NonNullable<typeof chair.prop.point>> =
         chair.prop.point?.(rim, context.start + at);
       if (hit === undefined) return HumanHandrimStrokeRefuseRim(on, rim, side);
@@ -238,8 +214,8 @@ function planHumanHandrimStroke(
         across: -1,
       };
     };
-    const caught: Grip = gripAt(approach, catchFrame);
-    const released: Grip = gripAt(release, releaseFrame);
+    const caught: HumanHandrimStrokeData.Grip = gripAt(approach, catchFrame);
+    const released: HumanHandrimStrokeData.Grip = gripAt(release, releaseFrame);
     const rates: IHand["rates"] = {
       catch: HandrimMaterialTransfer.rate(
         caught,
@@ -297,7 +273,7 @@ function planHumanHandrimStroke(
       ...seated.joints,
     };
     for (const hand of hands) {
-      const grip: Grip =
+      const grip: HumanHandrimStrokeData.Grip =
         at < approach
           ? HandrimMaterialTransfer.advance(
               carry(hand.caught, catchFrame, chairFrame),
@@ -398,11 +374,6 @@ function planHumanHandrimStroke(
 }
 
 /*
- * The point and directions a rider uses to take the rim.
- */
-type Grip = Parameters<typeof HumanMountRider.hold>[3];
-
-/*
  * The phase endpoints and live reader for one of the riding hands.
  */
 interface IHand {
@@ -413,15 +384,15 @@ interface IHand {
   /*
    * Read the rim's material point at an action second.
    */
-  gripAt: (at: number, frame: IAutoMovieRigidTransform) => Grip;
+  gripAt: (at: number, frame: IAutoMovieRigidTransform) => HumanHandrimStrokeData.Grip;
   /*
    * The catch grip in the chair's catch placement, solved with the plan.
    */
-  caught: Grip;
+  caught: HumanHandrimStrokeData.Grip;
   /*
    * The release grip in the chair's release placement, solved with the plan.
    */
-  released: Grip;
+  released: HumanHandrimStrokeData.Grip;
   /*
    * The radius of the declared rim in metres.
    */

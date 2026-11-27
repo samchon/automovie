@@ -6,18 +6,6 @@ import type {
 } from "@automovie/interface";
 
 /*
- * Private unchanged +Y axis; its original magnitude is prepared on the first
- * turn.
- */
-const TURN: (yaw: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle(
-  {
-    x: 0,
-    y: 1,
-    z: 0,
-  },
-);
-
-/*
  * A performer's own horizontal frame: an origin on the floor and a heading.
  *
  * Local coordinates follow the canonical body: `x` toward the performer's left,
@@ -221,6 +209,18 @@ export namespace HumanFrame {
     return (Math.atan2(f.x, f.z) * 180) / Math.PI;
   }
 }
+
+/*
+ * Private unchanged +Y axis; its original magnitude is prepared on the first
+ * turn.
+ */
+const TURN: (yaw: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle(
+  {
+    x: 0,
+    y: 1,
+    z: 0,
+  },
+);
 
 /*
  * Apply the original forward expression with a supplied origin and yaw

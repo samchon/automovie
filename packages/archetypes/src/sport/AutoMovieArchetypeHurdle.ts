@@ -11,12 +11,10 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The World Athletics rule as read.
- */
-const RULE: string =
-  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 22.3 and 22.4, the hurdles";
+import * as AutoMovieArchetypeHurdleData from "./internal/AutoMovieArchetypeHurdleData";
+import {
+  height as AutoMovieArchetypeHurdleDataHeight,
+} from "./internal/AutoMovieArchetypeHurdleData";
 
 /** Constructs the hurdle archetype from its recipe. */
 export namespace AutoMovieArchetypeHurdle {
@@ -190,22 +188,12 @@ export function create(
     mass: "kg",
   };
 
-  /*
-   * A height band: the rule's height to 3 mm either way.
-   */
-  const height = (metres: number, race: string): IAutoMovieArchetypeBand =>
-    AutoMovieArchetypeBand.metres(
-      metres - 0.003,
-      metres + 0.003,
-      `${RULE}: the ${race} ${metres.toFixed(3)} m, with a 3 mm tolerance above and below`,
-    );
-
   /** The height band of each race. */
   export const HEIGHTS: Readonly<Record<Kind, IAutoMovieArchetypeBand>> = {
-    men110: height(1.067, "men's 110 m"),
-    women100: height(0.838, "women's 100 m"),
-    men400: height(0.914, "men's 400 m"),
-    women400: height(0.762, "women's 400 m"),
+    men110: AutoMovieArchetypeHurdleDataHeight(1.067, "men's 110 m"),
+    women100: AutoMovieArchetypeHurdleDataHeight(0.838, "women's 100 m"),
+    men400: AutoMovieArchetypeHurdleDataHeight(0.914, "men's 400 m"),
+    women400: AutoMovieArchetypeHurdleDataHeight(0.762, "women's 400 m"),
   };
 
   /** The bands every race shares. */
@@ -215,13 +203,13 @@ export function create(
     width: AutoMovieArchetypeBand.metres(
       1.18,
       1.2,
-      `${RULE}: 1.18 to 1.20 m wide`,
+      `${AutoMovieArchetypeHurdleData.RULE}: 1.18 to 1.20 m wide`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       10,
       12,
-      `${RULE}: not less than 10 kg; the rule sets no upper end, and no maker's weight was read`,
+      `${AutoMovieArchetypeHurdleData.RULE}: not less than 10 kg; the rule sets no upper end, and no maker's weight was read`,
       true,
     ),
   };

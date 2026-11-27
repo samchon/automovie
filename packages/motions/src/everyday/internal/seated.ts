@@ -70,24 +70,6 @@ export namespace seated {
   export const RATIO: readonly [number, number] = [0.8, 1.2];
 
   /*
-   * How far the knee stands ahead of the front edge with a level thigh, metres
-   * (provisional clearance, as the namespace states).
-   */
-  const KNEE_CLEAR: number = 0.05;
-
-  /*
-   * How far inside a shallow seat's depth the socket stays, metres
-   * (provisional, as the namespace states).
-   */
-  const DEPTH_CLEAR: number = 0.02;
-
-  /*
-   * How far above its standing height an ankle stands off the floor: half the
-   * thigh's radius, as a share of it (provisional).
-   */
-  const OFF_FLOOR: number = 0.5;
-
-  /*
    * Whether a seated entry sits on a high seat with a foot off the floor, as a
    * bar stool or a saddle is sat on: the socket stands above the band and a
    * foot is unplanted or its ankle stands more than half the thigh's radius
@@ -444,6 +426,24 @@ export namespace seated {
       body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius
     );
   }
+
+  /*
+   * How far the knee stands ahead of the front edge with a level thigh, metres
+   * (provisional clearance, as the namespace states).
+   */
+  const KNEE_CLEAR: number = 0.05;
+
+  /*
+   * How far inside a shallow seat's depth the socket stays, metres
+   * (provisional, as the namespace states).
+   */
+  const DEPTH_CLEAR: number = 0.02;
+
+  /*
+   * How far above its standing height an ankle stands off the floor: half the
+   * thigh's radius, as a share of it (provisional).
+   */
+  const OFF_FLOOR: number = 0.5;
 }
 
 /*

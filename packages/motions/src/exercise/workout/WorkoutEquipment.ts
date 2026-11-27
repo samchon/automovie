@@ -15,6 +15,10 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
+import * as WorkoutEquipmentData from "./internal/WorkoutEquipmentData";
+import {
+  flat as WorkoutEquipmentDataFlat,
+} from "./internal/WorkoutEquipmentData";
 
 /*
  * The exercises of the workout law that are done on a box or a bench the author
@@ -61,40 +65,6 @@ export namespace WorkoutEquipment {
   export const STEP: number = 120;
 
   /*
-   * The support's height above the floor.
-   */
-  const high = (
-    body: IAutoMovieMotionHumanBody,
-    support: number | undefined,
-  ): number => support ?? DEFAULT * body.measure.stature;
-
-  /*
-   * A straight body on its hands and toes at a pitch, the arms hanging to the
-   * hands.
-   */
-  const prone =
-    (body: IAutoMovieMotionHumanBody, elbow: number, drop: number) =>
-    (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
-      ExerciseKey.from(
-        body,
-        { pitch, neck: -20 },
-        { toes: 70, shoulder: pitch - drop, elbow, wrist: -90 },
-      );
-
-  /*
-   * The joint a hip thrust's back turns about.
-   */
-  const BACK: readonly AutoMovieHumanoidBone[] = ["chest"];
-
-  /*
-   * The hip joints.
-   */
-  const HIPS: readonly AutoMovieHumanoidBone[] = [
-    "leftUpperLeg",
-    "rightUpperLeg",
-  ];
-
-  /*
    * The most a hip thrust's lockout raises the hips above the line level with
    * the back's joint, degrees (provisional): a lower edge is refused.
    */
@@ -111,145 +81,6 @@ export namespace WorkoutEquipment {
    * degrees (provisional), less where the hips would reach the floor.
    */
   export const DROP: number = 30;
-
-  /*
-   * The body lying flat on its back, its root at the origin, heading along
-   * `+Z`.
-   */
-  const flat = (
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieMotionHumanPosture =>
-    ExerciseKey.posed(ExerciseKey.from(body, { pitch: -90 }, {}), 0);
-
-  /*
-   * Height of the keyed back above its floor support, used by raised equipment.
-   */
-  const backed = (body: IAutoMovieMotionHumanBody): number => {
-    const lying: IAutoMovieMotionHumanPosture = flat(body);
-    return knockdown.rest(body, lying) + ExerciseKey.mean(body, lying, BACK).y;
-  };
-
-  /*
-   * Degrees to radians.
-   */
-  const rad = (degrees: number): number => (degrees * Math.PI) / 180;
-
-  /*
-   * Radians to degrees.
-   */
-  const deg = (radians: number): number => (radians * 180) / Math.PI;
-
-  /*
-   * A hip thrust's two postures on a body and an edge: the bottom, then the
-   * lockout.
-   *
-   * In the sagittal plane, from the back's joint toward the feet: the hip
-   * joints are the lying body's own offset turned down by the trunk's angle; at
-   * the lockout the thighs continue the trunk and the shanks are upright, so
-   * the angle is the one that puts the ankles at their standing height; at the
-   * bottom the trunk is turned further down and the two-link leg is solved from
-   * the hip joints onto the lockout's ankles.
-   */
-  const thrust = (
-    body: IAutoMovieMotionHumanBody,
-    support: number | undefined,
-  ): IAutoMovieMotionHumanExerciseKey.IKey[] => {
-    const lying: IAutoMovieMotionHumanPosture = flat(body);
-    const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
-      body,
-      lying,
-      undefined,
-      new Set<AutoMovieHumanoidBone>([...BACK, ...HIPS]),
-    );
-    const pivot: IAutoMovieVector3 = ExerciseKey.mean(body, lying, BACK, bones);
-    const hip: IAutoMovieVector3 = ExerciseKey.mean(body, lying, HIPS, bones);
-    const along: number = Math.abs(hip.z - pivot.z);
-    const up: number = hip.y - pivot.y;
-    const thigh: number = body.measure.thigh;
-    const shank: number = body.measure.shank;
-    const edge: number = high(body, support);
-    const backed: number = knockdown.rest(body, lying) + pivot.y;
-    const top: number = edge + backed;
-    // The hip joints from the back's joint with the trunk turned down.
-    const hips = (angle: number): IThrustHipsResult => ({
-      forth: along * Math.cos(rad(angle)) + up * Math.sin(rad(angle)),
-      up: -along * Math.sin(rad(angle)) + up * Math.cos(rad(angle)),
-    });
-    // The ankles above their standing height at a lockout of that angle.
-    const over = (angle: number): number =>
-      top +
-      hips(angle).up -
-      thigh * Math.sin(rad(angle)) -
-      shank -
-      body.measure.ankleHeight;
-    if (over(-RISEN) < 0 || over(SUNK) > 0)
-      throw new AutoMovieMotionHumanRefusal({
-        kind: "reach",
-        axis: "on",
-        value: edge,
-        feasible: {
-          kind: "range",
-          minimum: edge - over(-RISEN),
-          maximum: edge - over(SUNK),
-          unit: "m",
-        },
-        reason: `the edge is ${edge.toFixed(3)} m high, and this body's lockout over upright shanks needs one between ${(edge - over(-RISEN)).toFixed(3)} m and ${(edge - over(SUNK)).toFixed(3)} m`,
-        fix: "lean on a bench or a box whose top is about as high as this body's knee",
-      });
-    let low: number = -RISEN;
-    let highest: number = SUNK;
-    for (let i: number = 0; i < 40; i++) {
-      const middle: number = (low + highest) / 2;
-      if (over(middle) > 0) low = middle;
-      else highest = middle;
-    }
-    const locked: number = (low + highest) / 2;
-    const feet: IThrustFeet = {
-      forth: hips(locked).forth + thigh * Math.cos(rad(locked)),
-      up: hips(locked).up - thigh * Math.sin(rad(locked)) - shank,
-    };
-
-    // The bottom: the trunk turned further down, the hip joints kept as
-    // high above the floor as when the body lies on it.
-    let sunk: number = locked + DROP;
-    while (sunk > locked && top + hips(sunk).up < backed + up) sunk -= 1;
-    const from: IThrustFrom = hips(sunk);
-    const reach: number = Math.min(
-      thigh + shank,
-      Math.hypot(feet.forth - from.forth, feet.up - from.up),
-    );
-    const raised: number =
-      deg(Math.atan2(feet.up - from.up, feet.forth - from.forth)) +
-      deg(
-        Math.acos(
-          (thigh * thigh + reach * reach - shank * shank) / (2 * thigh * reach),
-        ),
-      );
-    const knee: number =
-      180 -
-      deg(
-        Math.acos(
-          (thigh * thigh + shank * shank - reach * reach) / (2 * thigh * shank),
-        ),
-      );
-    return [
-      ExerciseKey.from(
-        body,
-        { pitch: -90 + sunk },
-        {
-          hip: raised + sunk,
-          knee,
-          ankle: -(raised - knee + 90),
-          elbow: 30,
-        },
-      ),
-      ExerciseKey.from(
-        body,
-        { pitch: -90 + locked },
-        { knee: 90 - locked, elbow: 30 },
-      ),
-    ];
-  };
 
   /*
    * The exercises.
@@ -431,8 +262,8 @@ export namespace WorkoutEquipment {
     hipThrust: {
       base: "lying",
       anchor: "bar",
-      pin: BACK,
-      rise: backed,
+      pin: WorkoutEquipmentData.BACK,
+      rise: WorkoutEquipmentData.backed,
       supports: [
         { part: "back", kind: "lie", prop: true },
         { part: "leftFoot", kind: "plant" },
@@ -454,6 +285,157 @@ export namespace WorkoutEquipment {
         ];
       },
     },
+  };
+
+  /*
+   * The support's height above the floor.
+   */
+  const high = (
+    body: IAutoMovieMotionHumanBody,
+    support: number | undefined,
+  ): number => support ?? DEFAULT * body.measure.stature;
+
+  /*
+   * A straight body on its hands and toes at a pitch, the arms hanging to the
+   * hands.
+   */
+  const prone =
+    (body: IAutoMovieMotionHumanBody, elbow: number, drop: number) =>
+    (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
+      ExerciseKey.from(
+        body,
+        { pitch, neck: -20 },
+        { toes: 70, shoulder: pitch - drop, elbow, wrist: -90 },
+      );
+
+  /*
+   * The hip joints.
+   */
+  const HIPS: readonly AutoMovieHumanoidBone[] = [
+    "leftUpperLeg",
+    "rightUpperLeg",
+  ];
+
+  /*
+   * Degrees to radians.
+   */
+  const rad = (degrees: number): number => (degrees * Math.PI) / 180;
+
+  /*
+   * Radians to degrees.
+   */
+  const deg = (radians: number): number => (radians * 180) / Math.PI;
+
+  /*
+   * A hip thrust's two postures on a body and an edge: the bottom, then the
+   * lockout.
+   *
+   * In the sagittal plane, from the back's joint toward the feet: the hip
+   * joints are the lying body's own offset turned down by the trunk's angle; at
+   * the lockout the thighs continue the trunk and the shanks are upright, so
+   * the angle is the one that puts the ankles at their standing height; at the
+   * bottom the trunk is turned further down and the two-link leg is solved from
+   * the hip joints onto the lockout's ankles.
+   */
+  const thrust = (
+    body: IAutoMovieMotionHumanBody,
+    support: number | undefined,
+  ): IAutoMovieMotionHumanExerciseKey.IKey[] => {
+    const lying: IAutoMovieMotionHumanPosture = WorkoutEquipmentDataFlat(body);
+    const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
+      body,
+      lying,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([...WorkoutEquipmentData.BACK, ...HIPS]),
+    );
+    const pivot: IAutoMovieVector3 = ExerciseKey.mean(body, lying, WorkoutEquipmentData.BACK, bones);
+    const hip: IAutoMovieVector3 = ExerciseKey.mean(body, lying, HIPS, bones);
+    const along: number = Math.abs(hip.z - pivot.z);
+    const up: number = hip.y - pivot.y;
+    const thigh: number = body.measure.thigh;
+    const shank: number = body.measure.shank;
+    const edge: number = high(body, support);
+    const backed: number = knockdown.rest(body, lying) + pivot.y;
+    const top: number = edge + backed;
+    // The hip joints from the back's joint with the trunk turned down.
+    const hips = (angle: number): IThrustHipsResult => ({
+      forth: along * Math.cos(rad(angle)) + up * Math.sin(rad(angle)),
+      up: -along * Math.sin(rad(angle)) + up * Math.cos(rad(angle)),
+    });
+    // The ankles above their standing height at a lockout of that angle.
+    const over = (angle: number): number =>
+      top +
+      hips(angle).up -
+      thigh * Math.sin(rad(angle)) -
+      shank -
+      body.measure.ankleHeight;
+    if (over(-RISEN) < 0 || over(SUNK) > 0)
+      throw new AutoMovieMotionHumanRefusal({
+        kind: "reach",
+        axis: "on",
+        value: edge,
+        feasible: {
+          kind: "range",
+          minimum: edge - over(-RISEN),
+          maximum: edge - over(SUNK),
+          unit: "m",
+        },
+        reason: `the edge is ${edge.toFixed(3)} m high, and this body's lockout over upright shanks needs one between ${(edge - over(-RISEN)).toFixed(3)} m and ${(edge - over(SUNK)).toFixed(3)} m`,
+        fix: "lean on a bench or a box whose top is about as high as this body's knee",
+      });
+    let low: number = -RISEN;
+    let highest: number = SUNK;
+    for (let i: number = 0; i < 40; i++) {
+      const middle: number = (low + highest) / 2;
+      if (over(middle) > 0) low = middle;
+      else highest = middle;
+    }
+    const locked: number = (low + highest) / 2;
+    const feet: IThrustFeet = {
+      forth: hips(locked).forth + thigh * Math.cos(rad(locked)),
+      up: hips(locked).up - thigh * Math.sin(rad(locked)) - shank,
+    };
+
+    // The bottom: the trunk turned further down, the hip joints kept as
+    // high above the floor as when the body lies on it.
+    let sunk: number = locked + DROP;
+    while (sunk > locked && top + hips(sunk).up < backed + up) sunk -= 1;
+    const from: IThrustFrom = hips(sunk);
+    const reach: number = Math.min(
+      thigh + shank,
+      Math.hypot(feet.forth - from.forth, feet.up - from.up),
+    );
+    const raised: number =
+      deg(Math.atan2(feet.up - from.up, feet.forth - from.forth)) +
+      deg(
+        Math.acos(
+          (thigh * thigh + reach * reach - shank * shank) / (2 * thigh * reach),
+        ),
+      );
+    const knee: number =
+      180 -
+      deg(
+        Math.acos(
+          (thigh * thigh + shank * shank - reach * reach) / (2 * thigh * shank),
+        ),
+      );
+    return [
+      ExerciseKey.from(
+        body,
+        { pitch: -90 + sunk },
+        {
+          hip: raised + sunk,
+          knee,
+          ankle: -(raised - knee + 90),
+          elbow: 30,
+        },
+      ),
+      ExerciseKey.from(
+        body,
+        { pitch: -90 + locked },
+        { knee: 90 - locked, elbow: 30 },
+      ),
+    ];
   };
 }
 

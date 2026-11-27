@@ -12,24 +12,6 @@ import type { IMotionCaptureProps } from "./internal/IMotionCaptureProps";
 import { MotionCaptureFigure } from "./internal/MotionCaptureFigure";
 
 /*
- * Steps per second of the key that matches an asked second to a sampled
- * instant: microseconds, far finer than any two instants of a case and far
- * coarser than float error.
- */
-const MICRO: number = 1_000_000;
-
-/*
- * Margin in metres around everything a case draws, which the ground grid
- * covers.
- */
-const MARGIN: number = 0.18;
-
-/*
- * Side in metres of one cell of the ground grid.
- */
-const GRID_CELL: number = 0.25;
-
-/*
  * The draw page's subjects for the motion capture harness: one subject, named
  * by the case, built from the case's props.
  *
@@ -63,6 +45,24 @@ export const subjects: AutoMovieDrawSubjects<IMotionCaptureProps | null> = (
     },
   };
 };
+
+/*
+ * Steps per second of the key that matches an asked second to a sampled
+ * instant: microseconds, far finer than any two instants of a case and far
+ * coarser than float error.
+ */
+const MICRO: number = 1_000_000;
+
+/*
+ * Margin in metres around everything a case draws, which the ground grid
+ * covers.
+ */
+const MARGIN: number = 0.18;
+
+/*
+ * Side in metres of one cell of the ground grid.
+ */
+const GRID_CELL: number = 0.25;
 /*
  * Build the case's scene.
  */

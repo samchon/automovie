@@ -8,32 +8,6 @@ import type {
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
- * The least rotation taking one unit direction onto another.
- */
-function between(
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-): IAutoMovieQuaternion {
-  const u: IAutoMovieVector3 = Vector3.normalize(from);
-  const v: IAutoMovieVector3 = Vector3.normalize(to);
-  const dot: number = Math.max(-1, Math.min(1, Vector3.dot(u, v)));
-  const axis: IAutoMovieVector3 = Vector3.cross(u, v);
-  if (Vector3.length(axis) < 1e-9) {
-    if (dot > 0) return Quaternion.identity();
-    const side: IAutoMovieVector3 =
-      Math.abs(u.x) < 0.9 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
-    return Quaternion.fromAxisAngle(
-      Vector3.normalize(Vector3.cross(u, side)),
-      180,
-    );
-  }
-  return Quaternion.fromAxisAngle(
-    Vector3.normalize(axis),
-    (Math.acos(dot) * 180) / Math.PI,
-  );
-}
-
-/*
  * The carriage that holds the lance along a direction with its grip at a
  * station, from the arm's own line: the hand's line continues the forearm, so
  * the shaft keeps the angle to the forearm that the hand's grasp of it holds,
@@ -189,4 +163,30 @@ export namespace HumanLanceCouchCarriage {
      */
     line: IAutoMovieVector3;
   }
+}
+
+/*
+ * The least rotation taking one unit direction onto another.
+ */
+function between(
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+): IAutoMovieQuaternion {
+  const u: IAutoMovieVector3 = Vector3.normalize(from);
+  const v: IAutoMovieVector3 = Vector3.normalize(to);
+  const dot: number = Math.max(-1, Math.min(1, Vector3.dot(u, v)));
+  const axis: IAutoMovieVector3 = Vector3.cross(u, v);
+  if (Vector3.length(axis) < 1e-9) {
+    if (dot > 0) return Quaternion.identity();
+    const side: IAutoMovieVector3 =
+      Math.abs(u.x) < 0.9 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 };
+    return Quaternion.fromAxisAngle(
+      Vector3.normalize(Vector3.cross(u, side)),
+      180,
+    );
+  }
+  return Quaternion.fromAxisAngle(
+    Vector3.normalize(axis),
+    (Math.acos(dot) * 180) / Math.PI,
+  );
 }

@@ -15,11 +15,6 @@ import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 import { autoMovieSubjectPlacedBounds } from "./autoMovieSubjectPlacedBounds";
 
 /*
- * World up, the axis an instance set's heading turns about.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
  * Describe one compact instance-set member as a subject, regenerating it.
  *
  * The member is regenerated through instanceSlot, so it cannot drift
@@ -96,3 +91,8 @@ export const describeAutoMovieInstanceSubject = (
     members: { total: 0, offset: 0, items: [], omitted: 0 },
   };
 };
+
+/*
+ * World up, the axis an instance set's heading turns about.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

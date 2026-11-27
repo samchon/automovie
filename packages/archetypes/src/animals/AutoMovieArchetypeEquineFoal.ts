@@ -22,38 +22,6 @@ import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQu
 import { EquineRecumbency } from "./equine/EquineRecumbency";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/*
- * How often the mare's path is read for a following foal's course, seconds:
- * authored.
- */
-const STEP: number = 0.25;
-
-/*
- * Where a suckling foal stands, facing in at the udder: its centre's distance
- * from the udder, metres, the degrees and radius of its turn in; its walking
- * speed and its pause before reaching: authored.
- */
-const NURSE: Readonly<INurseShape> = {
-  out: 1.12,
-  turn: 90,
-  radius: 0.4,
-  speed: 1,
-  settle: 0.3,
-  ease: 1,
-};
-
-/*
- * The udder's place along the mare's trunk bar from its rear end, a share of
- * the bar: authored.
- */
-const UDDER: number = 0.3;
-
-/*
- * How far the udder hangs below the barrel's underside, metres: authored, the
- * coarse body draws no udder.
- */
-const HANG: number = 0.15;
-
 /**
  * A mare and her foal: following at her flank, suckling, and the foaling.
  *
@@ -470,6 +438,38 @@ export namespace AutoMovieArchetypeEquineFoal {
     ]);
   }
 }
+
+/*
+ * How often the mare's path is read for a following foal's course, seconds:
+ * authored.
+ */
+const STEP: number = 0.25;
+
+/*
+ * Where a suckling foal stands, facing in at the udder: its centre's distance
+ * from the udder, metres, the degrees and radius of its turn in; its walking
+ * speed and its pause before reaching: authored.
+ */
+const NURSE: Readonly<INurseShape> = {
+  out: 1.12,
+  turn: 90,
+  radius: 0.4,
+  speed: 1,
+  settle: 0.3,
+  ease: 1,
+};
+
+/*
+ * The udder's place along the mare's trunk bar from its rear end, a share of
+ * the bar: authored.
+ */
+const UDDER: number = 0.3;
+
+/*
+ * How far the udder hangs below the barrel's underside, metres: authored, the
+ * coarse body draws no udder.
+ */
+const HANG: number = 0.15;
 
 /*
  * A suckling foal's authored place.

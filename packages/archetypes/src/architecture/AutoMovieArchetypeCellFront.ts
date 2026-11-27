@@ -10,25 +10,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The bar grille read.
- */
-const GRILLE: string =
-  'American Jail Products, security doors and wall systems: grate walls of "7/8 inch diameter double ribbed round bars spaced 4 inches on center" with "horizontal intermediate interlocking flat bars spaced 12 inches on center" (http://www.americanjailproducts.com/security-doors---wall-systems.html); within 20 Ill. Adm. Code 720.160(b)(3)(B), bars no less than 7/8 inch with at most 5 inches clear between them (https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-20-SS-720.160)';
-
-/*
- * The cell's height read.
- */
-const CEILING: string =
-  '6VAC15-81-660: cells with "a ceiling height no less than eight feet" (https://law.lis.virginia.gov/admincode/title6/agency15/chapter81/section660/); the model takes the least, the grille floor to ceiling';
-
-/*
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `flat`, a horizontal flat bar's width across the
- * grille; the grip contacts are the round bars only.
- */
-const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
+import * as AutoMovieArchetypeCellFrontData from "./internal/AutoMovieArchetypeCellFrontData";
 
 /** Constructs the cell front archetype from its recipe. */
 export namespace AutoMovieArchetypeCellFront {
@@ -189,22 +171,22 @@ export function create(
     height: AutoMovieArchetypeBand.metres(
       8 * AutoMovieArchetypeUnits.FOOT,
       8 * AutoMovieArchetypeUnits.FOOT,
-      CEILING,
+      AutoMovieArchetypeCellFrontData.CEILING,
     ),
     diameter: AutoMovieArchetypeBand.metres(
       (7 / 8) * AutoMovieArchetypeUnits.INCH,
       (7 / 8) * AutoMovieArchetypeUnits.INCH,
-      GRILLE,
+      AutoMovieArchetypeCellFrontData.GRILLE,
     ),
     spacing: AutoMovieArchetypeBand.metres(
       4 * AutoMovieArchetypeUnits.INCH,
       4 * AutoMovieArchetypeUnits.INCH,
-      GRILLE,
+      AutoMovieArchetypeCellFrontData.GRILLE,
     ),
     brace: AutoMovieArchetypeBand.metres(
       12 * AutoMovieArchetypeUnits.INCH,
       12 * AutoMovieArchetypeUnits.INCH,
-      GRILLE,
+      AutoMovieArchetypeCellFrontData.GRILLE,
     ),
     flat: AutoMovieArchetypeBand.metres(
       (3 / 16) * AutoMovieArchetypeUnits.INCH,
@@ -220,3 +202,10 @@ export function create(
     ),
   };
 }
+
+/*
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `flat`, a horizontal flat bar's width across the
+ * grille; the grip contacts are the round bars only.
+ */
+const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };

@@ -1,20 +1,5 @@
 import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
-import type {
-  AutoMovieHumanLimb,
-  AutoMovieHumanSide,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanSupportCarry,
-  IAutoMovieMotionHumanSurface,
-  IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanSide, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSupportCarry, IAutoMovieMotionHumanSurface, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -24,42 +9,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 import { HumanSupportStepPlants } from "./HumanSupportStepPlants";
-
-/*
- * The two feet.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-/*
- * Goals carried by either the individual foot's support or by the body.
- */
-const LIMBS: readonly AutoMovieHumanLimb[] = [
-  "leftArm",
-  "rightArm",
-  "leftLeg",
-  "rightLeg",
-];
-/*
- * Seconds over which a foot's share of the body eases from its plant into its
- * swing (provisional staging).
- */
-const EASE: number = 0.1;
-/*
- * World vertical.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * A vertical translation of a plan.
- * Parameter dy: The rise, metres.
- * Returns: The carry.
- */
-function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
-  return {
-    point: (p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p, y: p.y + dy }),
-    turn: { x: 0, y: 0, z: 0, w: 1 },
-    yaw: 0,
-  };
-}
+import * as HumanSupportStepData from "./HumanSupportStepData";
 
 /*
  * Step from one support to another, either of which may move: from a fixed
@@ -250,7 +200,7 @@ export function HumanSupportStep(
   ): number =>
     Math.min(
       land,
-      ...SIDES.flatMap((side: AutoMovieHumanSide): number[] =>
+      ...HumanSupportStepData.SIDES.flatMap((side: AutoMovieHumanSide): number[] =>
         plants[side]
           .filter((plant: IPlant): boolean => plant.arrived)
           .map((plant: IPlant): number => plant.down),
@@ -346,7 +296,7 @@ export function HumanSupportStep(
       if (at >= from && at <= to) return 1;
       nearest = Math.min(nearest, Math.abs(at - from), Math.abs(at - to));
     }
-    return Math.max(0, 1 - nearest / EASE);
+    return Math.max(0, 1 - nearest / HumanSupportStepData.EASE);
   };
   // The body goes with the feet that bear it: the stance foot's support in
   // single support, both shares in double support, so a stance leg is never
@@ -430,7 +380,7 @@ export function HumanSupportStep(
         };
   };
   const byWindow: Map<Window, IPlant> = new Map(
-    SIDES.flatMap((side: AutoMovieHumanSide): WindowPlant[] =>
+    HumanSupportStepData.SIDES.flatMap((side: AutoMovieHumanSide): WindowPlant[] =>
       plants[side].map((plant: IPlant): WindowPlant => [plant.window, plant]),
     ),
   );
@@ -445,7 +395,7 @@ export function HumanSupportStep(
     posture: (at: number): Posture => {
       const posture: Posture = walked.posture(at);
       const limbs: Posture["limbs"] = {};
-      for (const name of LIMBS) {
+      for (const name of HumanSupportStepData.LIMBS) {
         const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[name];
         if (goal === undefined) continue;
         const side: AutoMovieHumanSide | undefined =
@@ -464,7 +414,7 @@ export function HumanSupportStep(
             ? {}
             : {
                 rotation: Quaternion.multiply(
-                  Quaternion.fromAxisAngle(UP, spin(side, at)),
+                  Quaternion.fromAxisAngle(HumanSupportStepData.UP, spin(side, at)),
                   goal.rotation,
                 ),
               }),
@@ -486,7 +436,7 @@ export function HumanSupportStep(
         humanPostureHeading(out),
         out.joints.hips,
       );
-      for (const side of SIDES) {
+      for (const side of HumanSupportStepData.SIDES) {
         const leg: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
         const free: number = 1 - bearing(side, at);
         if (leg !== undefined && free > 0)
@@ -502,7 +452,6 @@ export function HumanSupportStep(
     },
   };
 }
-
 /*
  * Admission of the height between two nominally level supports.
  */
@@ -526,6 +475,19 @@ export namespace HumanSupportStep {
         fix: `walk to the support's edge, then climb onto it with climbStairs: count 1, riser ${Math.abs(rise).toFixed(3)}, direction ${rise > 0 ? "up" : "down"}${onto === undefined ? "" : `, on ${onto}`}`,
       });
   }
+}
+
+/*
+ * A vertical translation of a plan.
+ * Parameter dy: The rise, metres.
+ * Returns: The carry.
+ */
+function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
+  return {
+    point: (p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p, y: p.y + dy }),
+    turn: { x: 0, y: 0, z: 0, w: 1 },
+    yaw: 0,
+  };
 }
 
 type Params = IAutoMovieMotionHumanSurface.ISupportStepParams;

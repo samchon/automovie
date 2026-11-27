@@ -8,20 +8,6 @@ import { HumanArmConnect } from "../../posture/internal/HumanArmConnect";
 import { turnOver } from "./turnOver";
 
 /*
- * The share of time in bed spent in each lying position, Skarpsno et al. 2017
- * (BMJ Open 7:e015618): side 54.1 %, back 37.5 %, front 7.3 %; the side split
- * evenly.
- */
-const PREVALENCE: Readonly<
-  Record<IAutoMovieMotionHumanTurnOver.Position, number>
-> = {
-  lateralLeft: 0.541 / 2,
-  lateralRight: 0.541 / 2,
-  supine: 0.375,
-  prone: 0.073,
-};
-
-/*
  * Sleep with seeded position changes: over a long lie, the lying performer
  * turns over `changes` times into positions drawn by how much of the night
  * people spend in each (Skarpsno et al. 2017), never the one it lies in, at
@@ -87,16 +73,6 @@ export function sleep<Chain extends sleep.IChain<Chain>>(
 }
 
 /*
- * The positions a sleeper lies in, as `PREVALENCE` weighs them.
- */
-const POSITIONS: readonly IAutoMovieMotionHumanTurnOver.Position[] = [
-  "lateralLeft",
-  "lateralRight",
-  "supine",
-  "prone",
-];
-
-/*
  * What a sleep appends its turns to.
  */
 export namespace sleep {
@@ -111,6 +87,30 @@ export namespace sleep {
     registered(name: string, params: IAutoMovieMotionHumanTurnOver): Chain;
   }
 }
+
+/*
+ * The share of time in bed spent in each lying position, Skarpsno et al. 2017
+ * (BMJ Open 7:e015618): side 54.1 %, back 37.5 %, front 7.3 %; the side split
+ * evenly.
+ */
+const PREVALENCE: Readonly<
+  Record<IAutoMovieMotionHumanTurnOver.Position, number>
+> = {
+  lateralLeft: 0.541 / 2,
+  lateralRight: 0.541 / 2,
+  supine: 0.375,
+  prone: 0.073,
+};
+
+/*
+ * The positions a sleeper lies in, as `PREVALENCE` weighs them.
+ */
+const POSITIONS: readonly IAutoMovieMotionHumanTurnOver.Position[] = [
+  "lateralLeft",
+  "lateralRight",
+  "supine",
+  "prone",
+];
 
 /*
  * A position drawn by prevalence, excluding the current one.

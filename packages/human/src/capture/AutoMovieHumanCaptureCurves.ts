@@ -8,18 +8,6 @@ import type {
 
 import { AutoMovieHumanConicLoft } from "../generation/AutoMovieHumanConicLoft";
 
-/*
- * Samples round a section ring; a multiple of four, so the guides' quarter
- * phases are ring samples.
- */
-const PHASES: number = 48;
-
-/*
- * Largest gap in millimetres between two stations a guide and the axis pass
- * through.
- */
-const STEP: number = 4;
-
 /** Builds construction-curve inspection marks for a Human capture figure. */
 export namespace AutoMovieHumanCaptureCurves {
   /** The authored figure data used to build the construction marks. */
@@ -167,3 +155,16 @@ export namespace AutoMovieHumanCaptureCurves {
     return AutoMovieEngineConstruction.markConstructionCurves(curves, person);
   }
 }
+
+
+/*
+ * Samples round a section ring; a multiple of four, so the guides' quarter
+ * phases are ring samples.
+ */
+const PHASES: number = 48;
+
+/*
+ * Largest gap in millimetres between two stations a guide and the axis pass
+ * through.
+ */
+const STEP: number = 4;

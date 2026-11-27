@@ -1,128 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanLieDown,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanSupport,
-  IAutoMovieMotionHumanWallRun,
-  IAutoMovieMotionTarget,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanSide, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSupport, IAutoMovieMotionHumanWallRun, IAutoMovieMotionTarget, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { support } from "../../actions/internal/support";
 import { coverWall } from "../../cover/internal/coverWall";
 import { getUp } from "../../floor/internal/getUp";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
-import { HumanHand } from "../../posture/internal/HumanHand";
+import "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { planWallRunFlight } from "./planWallRunFlight";
-
-/*
- * How far from the wall's face the take-off foot plants, hip heights
- * (provisional: a step in, under half a leg).
- */
-const STEP_IN: number = 0.45;
-
-/*
- * The first wall step's toe height, hip heights (provisional: a running step
- * planted about knee high).
- */
-const FIRST: number = 0.55;
-
-/*
- * The second wall step's toe height, hip heights (provisional).
- */
-const SECOND: number = 1.05;
-
-/*
- * The toe joint's distance off the face, metres (provisional: the sole's
- * thickness ahead of the joint).
- */
-const SOLE: number = 0.03;
-
-/*
- * The toes' depth below the hands that grip the top in a hang on the face,
- * statures (provisional: the body near straight along the wall, its arms
- * bent).
- */
-const HANG: number = 0.95;
-
-/*
- * Stepping in and onto the wall: the arms carried forward and out from the
- * hips, clear of the thigh the stepping leg raises and of each other
- * (provisional angles, degrees).
- */
-const STEPPING: IAutoMovieMotionHumanLieDown.IPose = {
-  pitch: 0,
-  roll: 0,
-  joints: {
-    leftUpperArm: [30, 25, 0],
-    rightUpperArm: [30, 25, 0],
-    leftLowerArm: [40, 0, 0],
-    rightLowerArm: [40, 0, 0],
-  },
-};
-
-/*
- * Hanging from the top: the arms up and out over the head, the elbows a little
- * bent and clear of it, the fists closed on the edge and the legs hanging
- * (provisional angles, degrees).
- */
-const HANGING: IAutoMovieMotionHumanLieDown.IPose = {
-  pitch: 0,
-  roll: 0,
-  joints: {
-    ...HumanHand.shape("left", "fist"),
-    ...HumanHand.shape("right", "fist"),
-    leftUpperArm: [160, 30, 0],
-    rightUpperArm: [160, 30, 0],
-    leftLowerArm: [20, 0, 0],
-    rightLowerArm: [20, 0, 0],
-    leftUpperLeg: [15, 5, 0],
-    rightUpperLeg: [15, 5, 0],
-    leftLowerLeg: [20, 0, 0],
-    rightLowerLeg: [20, 0, 0],
-  },
-};
-
-/*
- * The cat hang: hanging from the top with both feet drawn up onto the face
- * (provisional angles, degrees).
- */
-const CAT: IAutoMovieMotionHumanLieDown.IPose = {
-  ...HANGING,
-  joints: {
-    ...HANGING.joints,
-    leftUpperLeg: [70, 10, 0],
-    rightUpperLeg: [70, 10, 0],
-    leftLowerLeg: [90, 0, 0],
-    rightLowerLeg: [90, 0, 0],
-  },
-};
-
-/*
- * Static friction of a shoe sole on a wall, dimensionless (provisional: rubber
- * on concrete).
- */
-const FRICTION: number = 0.8;
-
-/*
- * Seconds per support change (provisional: a running wall step).
- */
-const BEAT: number = 0.35;
-
-/*
- * Seconds the opening stance holds both feet where they stand (provisional: the
- * edge rescue's own opening stance).
- */
-const SET: number = 0.3;
+import * as PlanWallRunData from "./PlanWallRunData";
 
 /*
  * Use a wall's face as a brief foot support: a wall step plants one foot on the
@@ -167,7 +54,7 @@ export function planWallRun(
     );
     return Vector3.add(
       Vector3.add(face.center, Vector3.scale(face.axis, along)),
-      Vector3.add(Vector3.scale(face.normal, SOLE), { x: 0, y: height, z: 0 }),
+      Vector3.add(Vector3.scale(face.normal, PlanWallRunData.SOLE), { x: 0, y: height, z: 0 }),
     );
   };
   const staged: Map<string, IAutoMovieVector3> = new Map();
@@ -208,7 +95,7 @@ export function planWallRun(
       at: {
         ...Vector3.add(
           onFace(trail, 0),
-          Vector3.scale(face.normal, STEP_IN * measure.hipHeight),
+          Vector3.scale(face.normal, PlanWallRunData.STEP_IN * measure.hipHeight),
         ),
         y: floor,
       },
@@ -219,22 +106,22 @@ export function planWallRun(
     // Both feet where they stand, so the step in is a swing, not a slide.
     {
       contacts: [foot(lead), foot(trail)],
-      seconds: SET,
+      seconds: PlanWallRunData.SET,
       event: "set",
       prefer: getUp.POSES.stood,
     },
     // The take-off foot steps in to the wall, where the wall step reaches.
     {
       contacts: [foot(lead), takeOff],
-      seconds: BEAT,
+      seconds: PlanWallRunData.BEAT,
       event: "approach",
-      prefer: STEPPING,
+      prefer: PlanWallRunData.STEPPING,
     },
     {
-      contacts: [foot(lead, FIRST * measure.hipHeight), takeOff],
-      seconds: BEAT,
+      contacts: [foot(lead, PlanWallRunData.FIRST * measure.hipHeight), takeOff],
+      seconds: PlanWallRunData.BEAT,
       event: "wallStep",
-      prefer: STEPPING,
+      prefer: PlanWallRunData.STEPPING,
     },
   ];
   if (p.kind === "run") {
@@ -267,8 +154,8 @@ export function planWallRun(
     // the top and it hangs from them; the feet then walk onto the face as far
     // below the top as the body hangs from its hands.
     const hang: number = Math.max(
-      SECOND * measure.hipHeight,
-      top.y - HANG * measure.stature,
+      PlanWallRunData.SECOND * measure.hipHeight,
+      top.y - PlanWallRunData.HANG * measure.stature,
     );
     stances.push(
       // The push off lets both feet go before the hands catch the top: the
@@ -276,9 +163,9 @@ export function planWallRun(
       // wall step (`IStance.free`).
       {
         contacts: [hand("left"), hand("right")],
-        seconds: BEAT,
+        seconds: PlanWallRunData.BEAT,
         event: "catch",
-        prefer: HANGING,
+        prefer: PlanWallRunData.HANGING,
         free: ["leftFoot", "rightFoot"],
       },
       {
@@ -288,9 +175,9 @@ export function planWallRun(
           hand("left"),
           hand("right"),
         ],
-        seconds: BEAT,
+        seconds: PlanWallRunData.BEAT,
         event: "catHang",
-        prefer: CAT,
+        prefer: PlanWallRunData.CAT,
       },
     );
   }
@@ -357,7 +244,7 @@ export function planWallRun(
     const tangent: number = Vector3.length(
       Vector3.subtract(line, Vector3.scale(face.normal, normal)),
     );
-    if (!(normal > 0) || tangent / normal > FRICTION)
+    if (!(normal > 0) || tangent / normal > PlanWallRunData.FRICTION)
       throw coverWall.refusal(
         "face",
         p.face,
@@ -389,7 +276,7 @@ export namespace planWallRun {
     id: string,
   ): void {
     const reach: number =
-      FIRST * measure.hipHeight +
+      PlanWallRunData.FIRST * measure.hipHeight +
       measure.shoulderHeight +
       measure.upperArm +
       measure.forearm;

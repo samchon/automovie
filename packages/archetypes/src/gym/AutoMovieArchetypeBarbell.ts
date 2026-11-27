@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The rule that fixes a competition barbell.
- */
-const IWF: string =
-  "International Weightlifting Federation, Technical and Competition Rules and Regulations, the rules on the barbell: the men's bar 20 kg, 2200 mm long, 28 mm across its grip; the women's bar 15 kg, 2010 mm long, 25 mm across its grip; both 1310 mm between the inner collars with sleeves 50 mm across; the largest discs 450 mm across";
+import * as AutoMovieArchetypeBarbellData from "./internal/AutoMovieArchetypeBarbellData";
 
 /** Constructs the barbell archetype from its recipe. */
 export namespace AutoMovieArchetypeBarbell {
@@ -219,45 +214,23 @@ export function create(
     load: "kg",
   };
 
-  /*
-   * The hands' spacing: from a clean's grip to a snatch's. An estimate, not
-   * read at a source.
-   */
-  const GRIP: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
-    0.4,
-    1.2,
-    "an estimate: from a grip a little wider than the shoulders to a snatch grip near the collars",
-    true,
-  );
-
-  /*
-   * The load on each side. An estimate of the range a film stages, not a rule.
-   */
-  const LOAD: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
-    "kg",
-    0,
-    100,
-    "an estimate of the range a scene loads; the rule's heaviest disc is 25 kg and a side takes several",
-    true,
-  );
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     mens: {
-      length: AutoMovieArchetypeBand.metres(2.2, 2.2, IWF),
-      diameter: AutoMovieArchetypeBand.metres(0.028, 0.028, IWF),
-      mass: AutoMovieArchetypeBand.of("kg", 20, 20, IWF),
-      grip: GRIP,
-      load: LOAD,
+      length: AutoMovieArchetypeBand.metres(2.2, 2.2, AutoMovieArchetypeBarbellData.IWF),
+      diameter: AutoMovieArchetypeBand.metres(0.028, 0.028, AutoMovieArchetypeBarbellData.IWF),
+      mass: AutoMovieArchetypeBand.of("kg", 20, 20, AutoMovieArchetypeBarbellData.IWF),
+      grip: AutoMovieArchetypeBarbellData.GRIP,
+      load: AutoMovieArchetypeBarbellData.LOAD,
     },
     womens: {
-      length: AutoMovieArchetypeBand.metres(2.01, 2.01, IWF),
-      diameter: AutoMovieArchetypeBand.metres(0.025, 0.025, IWF),
-      mass: AutoMovieArchetypeBand.of("kg", 15, 15, IWF),
-      grip: GRIP,
-      load: LOAD,
+      length: AutoMovieArchetypeBand.metres(2.01, 2.01, AutoMovieArchetypeBarbellData.IWF),
+      diameter: AutoMovieArchetypeBand.metres(0.025, 0.025, AutoMovieArchetypeBarbellData.IWF),
+      mass: AutoMovieArchetypeBand.of("kg", 15, 15, AutoMovieArchetypeBarbellData.IWF),
+      grip: AutoMovieArchetypeBarbellData.GRIP,
+      load: AutoMovieArchetypeBarbellData.LOAD,
     },
   };
 }

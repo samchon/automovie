@@ -9,46 +9,9 @@ import type {
   IAutoMovieMotionHumanWalkGait,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { walk } from "./walk";
-
-/*
- * Offset decay time of a cut out of a run into another locomotion or a stand,
- * seconds (a deliberate change of the whole body's action,
- * `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`).
- */
-const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
-
-/*
- * Offset decay time of a cut from a run into a jump, seconds (provisional).
- */
-const TAKEOFF_BLEND: number = 0.15;
-
-/*
- * The elbows' mean flexion while running, degrees: 1.61 ± 0.10 rad in natural
- * running (Yegian et al. 2019, J Exp Biol 222:jeb197228).
- */
-const ELBOW: number = (1.61 * 180) / Math.PI;
-
-/*
- * The elbows' flexion swing amplitude about that mean, degrees: half the 38.8 ±
- * 12.6 degree range distance runners show (Tartaruga et al. 2012, Res Q Exerc
- * Sport 83:367).
- */
-const ELBOW_SWING: number = 38.8 / 2;
-
-/*
- * The step frequency in pendulum units at a Froude number of zero (provisional
- * fit: 170 steps a minute at 2.9 m/s on the reference hip,
- * `walkRoot.REFERENCE_HIP`, Heiderscheit et al. 2011).
- */
-const CADENCE_BASE: number = 0.8;
-
-/*
- * The step frequency's rise in pendulum units per unit Froude number
- * (provisional fit, rising toward a sprint, Cavagna et al. 1988).
- */
-const CADENCE_PER_FROUDE: number = 0.08;
+import * as RunData from "./RunData";
 
 /*
  * Running to a floor point, at a jog, a run or a sprint: the walk's footprint
@@ -98,7 +61,7 @@ export namespace run {
         window: { start: "lastFootfall", end: 1 },
         kind: "inertialize",
         entry: 0,
-        blend: BLEND,
+        blend: RunData.BLEND,
       },
     ],
     walk: [
@@ -106,7 +69,7 @@ export namespace run {
         window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
-        blend: BLEND,
+        blend: RunData.BLEND,
       },
     ],
     run: [
@@ -114,7 +77,7 @@ export namespace run {
         window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
-        blend: BLEND,
+        blend: RunData.BLEND,
       },
     ],
     jump: [
@@ -122,7 +85,7 @@ export namespace run {
         window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
-        blend: TAKEOFF_BLEND,
+        blend: RunData.TAKEOFF_BLEND,
       },
     ],
   };
@@ -220,11 +183,11 @@ export namespace run {
     return {
       froude,
       step: (fr: number): number =>
-        Math.sqrt(fr) / (CADENCE_BASE + CADENCE_PER_FROUDE * fr),
+        Math.sqrt(fr) / (RunData.CADENCE_BASE + RunData.CADENCE_PER_FROUDE * fr),
       swing: 2 * (1 - duty),
       heels: FOREFOOT,
       lift,
-      arms: { shoulder, elbow: ELBOW, swing: ELBOW_SWING },
+      arms: { shoulder, elbow: RunData.ELBOW, swing: RunData.ELBOW_SWING },
       lean,
     };
   }

@@ -5,9 +5,6 @@ import type {
 
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-const { cross, dot, norm, normalize, plus, rotate, scale, sub, fifth } =
-  AutoMovieHumanLegVector;
-
 /**
  * The leg's axis and its section planes, in the left leg's canonical frame.
  *
@@ -248,3 +245,6 @@ export namespace AutoMovieHumanLegAxis {
   /** Station step of the frame differences, mm. */
   export const FRAME_STEP: number = 0.01;
 }
+
+const { cross, dot, norm, normalize, plus, rotate, scale, sub, fifth } =
+  AutoMovieHumanLegVector;

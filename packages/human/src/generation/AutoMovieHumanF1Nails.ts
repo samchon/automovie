@@ -11,6 +11,11 @@ import type {
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
+import * as AutoMovieHumanF1NailsData from "./internal/AutoMovieHumanF1NailsData";
+import {
+  finger as AutoMovieHumanF1NailsDataFinger,
+  toe as AutoMovieHumanF1NailsDataToe,
+} from "./internal/AutoMovieHumanF1NailsData";
 
 /**
  * f1's twenty nails: which distal segment each digit's nail stands on, how that segment's axes read as distal and dorsal, and the
@@ -48,53 +53,22 @@ import type {
  */
 export namespace AutoMovieHumanF1Nails {
 
-  // A toe's row has no crown radius, so its plate is its bed's own arc (`AutoMovieHumanNail.IProportions.radius`). None was found
-  // for a lesser toe; the mean of the fingers' shares, tried as an estimate, set the plate's edges up to 1.3 mm under a back that
-  // falls 0.9 mm over the same chord. For the hallux, Jung DJ 2015 (read as extracted text) gives a nail height of 3.3 mm at its tip
-  // on a width of 13.8 to 16.1 mm, 0.21 to 0.24 of the width: a height at the free edge, where the law gives every plate its bed's
-  // arc, and not a radius midway. Taken as one (0.7 of the width) it left the plate 1.1 mm flatter than its bed midway, its edges
-  // that far over the skin (run 15-45-18). It stays as a check of the bed at the free edge.
-
-  /*
-   * The fold's depth and the fingernails' mean thickness, mm (Bellinato 2023).
-   */
-  const PLATE: number = 0.46;
-
-  const finger = (digit: string, segment: string, width: number, radius: number, thickness: number): IAutoMovieHumanF1Nails.IRow => ({
-    digit,
-    segment,
-    hand: true,
-    proportions: { width, aspect: 0.91, radius, thickness, fold: PLATE, lunula: 1, wrap: 0.4 },
-  });
-  const toe = (digit: string, segment: string, aspect: number, radius: number | null, thickness: number, wrap: number): IAutoMovieHumanF1Nails.IRow => ({
-    digit,
-    segment,
-    hand: false,
-    proportions: { width: 0.65, aspect, radius, thickness, fold: PLATE, lunula: 1, wrap },
-  });
-
   /** The rows, one per digit of a side. */
   export const ROWS: readonly IAutoMovieHumanF1Nails.IRow[] = [
-    finger("finger.thumb", "thumb.distal", 13.2 / 18.8, 9.6 / 13.2, 0.48),
-    finger("finger.index", "index.distal", 11.1 / 15.4, 7.4 / 11.1, 0.47),
-    finger("finger.middle", "middle.distal", 11.5 / 15.1, 7.3 / 11.5, 0.47),
-    finger("finger.ring", "ring.distal", 10.7 / 14.4, 6.8 / 10.7, 0.45),
-    finger("finger.pinky", "pinky.distal", 8.8 / 12.0, 5.2 / 8.8, 0.42),
-    toe("toe.big", "bigtoe.distal", 1.1, null, 1.38, 0.343),
-    toe("toe.index", "indextoe.distal", 8.8 / 5.68, null, PLATE, 0.317),
-    toe("toe.middle", "middletoe.distal", 8.8 / 5.68, null, PLATE, 0.317),
-    toe("toe.ring", "ringtoe.distal", 8.8 / 5.68, null, PLATE, 0.317),
-    toe("toe.little", "littletoe.distal", 8.8 / 5.68, null, PLATE, 0.317),
+    AutoMovieHumanF1NailsDataFinger("finger.thumb", "thumb.distal", 13.2 / 18.8, 9.6 / 13.2, 0.48),
+    AutoMovieHumanF1NailsDataFinger("finger.index", "index.distal", 11.1 / 15.4, 7.4 / 11.1, 0.47),
+    AutoMovieHumanF1NailsDataFinger("finger.middle", "middle.distal", 11.5 / 15.1, 7.3 / 11.5, 0.47),
+    AutoMovieHumanF1NailsDataFinger("finger.ring", "ring.distal", 10.7 / 14.4, 6.8 / 10.7, 0.45),
+    AutoMovieHumanF1NailsDataFinger("finger.pinky", "pinky.distal", 8.8 / 12.0, 5.2 / 8.8, 0.42),
+    AutoMovieHumanF1NailsDataToe("toe.big", "bigtoe.distal", 1.1, null, 1.38, 0.343),
+    AutoMovieHumanF1NailsDataToe("toe.index", "indextoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
+    AutoMovieHumanF1NailsDataToe("toe.middle", "middletoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
+    AutoMovieHumanF1NailsDataToe("toe.ring", "ringtoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
+    AutoMovieHumanF1NailsDataToe("toe.little", "littletoe.distal", 8.8 / 5.68, null, AutoMovieHumanF1NailsData.PLATE, 0.317),
   ];
 
   /** The chord of the merge's blend either side of the fold's curve, mm: the fold's rounding, a quarter of the bed's ramp. */
   export const CHORD_MM: number = 0.23;
-
-  /*
-   * The net a digit's skin is read on for its nail: its station step, mm, its phases round, and how far before the last joint it starts, mm.
-   */
-  const SKIN: { station: number; phases: number; before: number } = { station: 0.25, phases: 360, before: 3 };
-
   /** The plate's and the bed's names for a digit. */
   export function names(digit: string): { plate: string; bed: string } {
     return { plate: "nail." + digit, bed: "nailbed." + digit };
@@ -144,18 +118,6 @@ export namespace AutoMovieHumanF1Nails {
     };
     return { row, nail: AutoMovieHumanNail.create(plate, bed, segment, { point, first, tip: end }, row.proportions, 3 * CHORD_MM, TURN) };
   }
-  /*
-   * How far a digit's nail may turn about its long axis from its distal segment's frame, rad: the spread of the prior the skin's
-   * levelling is weighed against (`AutoMovieHumanNail.create`).
-   *
-   * A nail's roll is the distal bone's, and the skin tells it only as far as the digit's back is flat across. No normal axial
-   * rotation by ray was found published. This is the root mean square of seven nail tilts against their segments' frames read on
-   * one person, f1's reference: 10 degrees on the index finger, 6 on the thumb, 16.5 on the little finger, 8 on the third toe, 1.8
-   * on the ring finger, 1.4 on the middle finger and 2 on the big toe, which is 8.3 degrees. It is an estimate from one person, this
-   * hand's little finger among the seven. It is a spread only: no digit's own tilt places that digit's nail. A digit whose back is
-   * round keeps its segment's frame, which is known to miss by the digit's own axial turn until the frames carry it.
-   */
-  const TURN: number = 0.145;
 
   /**
    * The nails of one side's digits, each from its own digit and the frames, made once.
@@ -239,4 +201,22 @@ export namespace AutoMovieHumanF1Nails {
       }
     return node;
   }
+
+  /*
+   * The net a digit's skin is read on for its nail: its station step, mm, its phases round, and how far before the last joint it starts, mm.
+   */
+  const SKIN: { station: number; phases: number; before: number } = { station: 0.25, phases: 360, before: 3 };
+
+  /*
+   * How far a digit's nail may turn about its long axis from its distal segment's frame, rad: the spread of the prior the skin's
+   * levelling is weighed against (`AutoMovieHumanNail.create`).
+   *
+   * A nail's roll is the distal bone's, and the skin tells it only as far as the digit's back is flat across. No normal axial
+   * rotation by ray was found published. This is the root mean square of seven nail tilts against their segments' frames read on
+   * one person, f1's reference: 10 degrees on the index finger, 6 on the thumb, 16.5 on the little finger, 8 on the third toe, 1.8
+   * on the ring finger, 1.4 on the middle finger and 2 on the big toe, which is 8.3 degrees. It is an estimate from one person, this
+   * hand's little finger among the seven. It is a spread only: no digit's own tilt places that digit's nail. A digit whose back is
+   * round keeps its segment's frame, which is known to miss by the digit's own axial turn until the frames carry it.
+   */
+  const TURN: number = 0.145;
 }

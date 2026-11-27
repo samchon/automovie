@@ -136,21 +136,6 @@ export function slipRingSteady(
 }
 
 /*
- * Project the approach onto the contact plane by subtracting its component
- * along the unit normal `n`, giving `v - n (v · n)`.
- * See Gilbert Strang, MIT 18.06 Lecture 15, Projections onto Subspaces.
- */
-function across(
-  vector: IAutoMovieVector3,
-  axis: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return Vector3.subtract(
-    vector,
-    Vector3.scale(axis, Vector3.dot(vector, axis)),
-  );
-}
-
-/*
  * What a ring dresser's steadying palm reads.
  */
 export namespace slipRingSteady {
@@ -198,4 +183,19 @@ export namespace slipRingSteady {
      */
     bend: IAutoMovieVector3;
   }
+}
+
+/*
+ * Project the approach onto the contact plane by subtracting its component
+ * along the unit normal `n`, giving `v - n (v · n)`.
+ * See Gilbert Strang, MIT 18.06 Lecture 15, Projections onto Subspaces.
+ */
+function across(
+  vector: IAutoMovieVector3,
+  axis: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  return Vector3.subtract(
+    vector,
+    Vector3.scale(axis, Vector3.dot(vector, axis)),
+  );
 }

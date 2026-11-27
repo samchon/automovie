@@ -2,41 +2,6 @@ import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /*
- * The projectile with a push built over `TAKE`, at `t` seconds.
- */
-function position(
-  origin: IAutoMovieVector3,
-  velocity: IAutoMovieVector3,
-  push: IAutoMovieVector3,
-  t: number,
-): IAutoMovieVector3 {
-  const g: number = AutoMovieGravity.STANDARD;
-  const built: number = Math.min(t, HumanUnseatFlight.TAKE);
-  const after: number = Math.max(0, t - HumanUnseatFlight.TAKE);
-  // The push's displacement: t^2 / (2 TAKE) while it builds, then its full velocity.
-  const pushed: number = (built * built) / (2 * HumanUnseatFlight.TAKE) + after;
-  return {
-    x: origin.x + velocity.x * t + push.x * pushed,
-    y: origin.y + velocity.y * t + push.y * pushed - 0.5 * g * t * t,
-    z: origin.z + velocity.z * t + push.z * pushed,
-  };
-}
-
-/*
- * The least positive root of a t^2 + b t + c = 0, if any.
- */
-function first(a: number, b: number, c: number): number | undefined {
-  if (Math.abs(a) < 1e-12) return b < 0 ? -c / b : undefined;
-  const d: number = b * b - 4 * a * c;
-  if (d < 0) return undefined;
-  const roots: number[] = [
-    (-b + Math.sqrt(d)) / (2 * a),
-    (-b - Math.sqrt(d)) / (2 * a),
-  ].filter((t: number): boolean => t > 0);
-  return roots.length === 0 ? undefined : Math.min(...roots);
-}
-
-/*
  * Solve a flight from its release to the height `floor`.
  * Parameter origin: The root at the release.
  * Parameter velocity: Its velocity then.
@@ -170,4 +135,39 @@ export namespace HumanUnseatFlight {
       speed * s - 0.5 * FRICTION * AutoMovieGravity.STANDARD * s * s;
     return Vector3.add(flight.landed, Vector3.scale(flight.slide, run / speed));
   }
+}
+
+/*
+ * The projectile with a push built over `TAKE`, at `t` seconds.
+ */
+function position(
+  origin: IAutoMovieVector3,
+  velocity: IAutoMovieVector3,
+  push: IAutoMovieVector3,
+  t: number,
+): IAutoMovieVector3 {
+  const g: number = AutoMovieGravity.STANDARD;
+  const built: number = Math.min(t, HumanUnseatFlight.TAKE);
+  const after: number = Math.max(0, t - HumanUnseatFlight.TAKE);
+  // The push's displacement: t^2 / (2 TAKE) while it builds, then its full velocity.
+  const pushed: number = (built * built) / (2 * HumanUnseatFlight.TAKE) + after;
+  return {
+    x: origin.x + velocity.x * t + push.x * pushed,
+    y: origin.y + velocity.y * t + push.y * pushed - 0.5 * g * t * t,
+    z: origin.z + velocity.z * t + push.z * pushed,
+  };
+}
+
+/*
+ * The least positive root of a t^2 + b t + c = 0, if any.
+ */
+function first(a: number, b: number, c: number): number | undefined {
+  if (Math.abs(a) < 1e-12) return b < 0 ? -c / b : undefined;
+  const d: number = b * b - 4 * a * c;
+  if (d < 0) return undefined;
+  const roots: number[] = [
+    (-b + Math.sqrt(d)) / (2 * a),
+    (-b - Math.sqrt(d)) / (2 * a),
+  ].filter((t: number): boolean => t > 0);
+  return roots.length === 0 ? undefined : Math.min(...roots);
 }

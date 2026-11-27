@@ -10,23 +10,6 @@ import type {
 import { AutoMovieArchetypeFrame, type AutoMovieArchetypeRide } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/*
- * The forelimb's peak forward swing about the shoulder at mid-swing, degrees:
- * authored.
- */
-const RAISE: number = 60;
-
-/*
- * The fore limbs.
- */
-const FORES: readonly Fore[] = ["leftFore", "rightFore"];
-
-/*
- * A sole this far above the floor, metres, is in its swing; below it the hoof
- * bears on the floor.
- */
-const OFF: number = 1e-6;
-
 /**
  * The Spanish walk, a layer over an equid's walk: each forelimb, while it
  * swings, is carried straight up and forward from the shoulder and set down on
@@ -259,6 +242,23 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     return Math.min(top.y, bottom.y) - radius * Math.hypot(axis.x, axis.z);
   }
 }
+
+/*
+ * The forelimb's peak forward swing about the shoulder at mid-swing, degrees:
+ * authored.
+ */
+const RAISE: number = 60;
+
+/*
+ * The fore limbs.
+ */
+const FORES: readonly Fore[] = ["leftFore", "rightFore"];
+
+/*
+ * A sole this far above the floor, metres, is in its swing; below it the hoof
+ * bears on the floor.
+ */
+const OFF: number = 1e-6;
 
 /*
  * A fore limb.

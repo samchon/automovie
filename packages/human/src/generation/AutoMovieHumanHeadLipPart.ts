@@ -43,18 +43,6 @@ import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned view and its call-owned spline/axis closure survive.
  */
 export namespace AutoMovieHumanHeadLipPart {
-  /*
-   * Hidden depth inside the face, mm; the existing lip-root construction
-   * allowance.
-   */
-  const INSET: number = 3;
-
-  /*
-   * Angular intervals in the pole parameter; the named peaks and centre are
-   * included independently.
-   */
-  const INTERVALS: number = 24;
-
   /**
    * Draw one lip; its planes remain parallel while their centres follow the
    * contact and border. The tree must preserve these actual planes, rather than
@@ -309,4 +297,16 @@ export namespace AutoMovieHumanHeadLipPart {
       : plan.landmarks.labraleInferius;
     return [point[0], point[1], 0];
   }
+
+  /*
+   * Hidden depth inside the face, mm; the existing lip-root construction
+   * allowance.
+   */
+  const INSET: number = 3;
+
+  /*
+   * Angular intervals in the pole parameter; the named peaks and centre are
+   * included independently.
+   */
+  const INTERVALS: number = 24;
 }

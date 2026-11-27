@@ -23,12 +23,10 @@ import { AutoMovieHumanArmLayers } from "./AutoMovieHumanArmLayers";
 import { AutoMovieHumanArmScye } from "./AutoMovieHumanArmScye";
 import { AutoMovieHumanArmShoulder } from "./AutoMovieHumanArmShoulder";
 import { AutoMovieHumanHandConstruction } from "./AutoMovieHumanHandConstruction";
-import { AutoMovieHumanHandEvents } from "./AutoMovieHumanHandEvents";
+import "./AutoMovieHumanHandEvents";
 import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
-import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
-
-const { events }: typeof AutoMovieHumanHandEvents = AutoMovieHumanHandEvents;
-const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
+import "./AutoMovieHumanHandSide";
+import { events, sided } from "./internal/AutoMovieHumanArmConstructionData";
 
 /**
  * Both arms and hands composed from their pieces, by one construction on the
@@ -53,26 +51,6 @@ const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
  * left's with `v` turned over.
  */
 export namespace AutoMovieHumanArmConstruction {
-  /*
-   * Chains an arm owns.
-   */
-  const OWNED: RegExp = /^(arm|hand|thumb|finger)\./;
-
-  /*
-   * The latest hand builds by the arm's placement: the skeleton reads the
-   * bones and the arms are lofted on the skeleton's elbow, which is the bones'
-   * own, so both read one solve of the hand.
-   */
-  const BUILT: Map<
-    string,
-    IAutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw>
-  > = new Map();
-
-  /*
-   * Builds kept: both sides of one person.
-   */
-  const KEPT: number = 2;
-
   /**
    * Calibration with both arms and hands, their events and poles added.
    *
@@ -166,6 +144,26 @@ export namespace AutoMovieHumanArmConstruction {
       right: limb(calibration, inputs, "right", undefined, false).bones,
     };
   }
+
+  /*
+   * Chains an arm owns.
+   */
+  const OWNED: RegExp = /^(arm|hand|thumb|finger)\./;
+
+  /*
+   * The latest hand builds by the arm's placement: the skeleton reads the
+   * bones and the arms are lofted on the skeleton's elbow, which is the bones'
+   * own, so both read one solve of the hand.
+   */
+  const BUILT: Map<
+    string,
+    IAutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw>
+  > = new Map();
+
+  /*
+   * Builds kept: both sides of one person.
+   */
+  const KEPT: number = 2;
 
   /*
    * One side: the law and the hand in the left frame, and from them the

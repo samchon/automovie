@@ -122,11 +122,6 @@ export namespace handspring {
   export const arched: typeof handspringKeys.arched = handspringKeys.arched;
 
   /*
-   * The angle between two rows of the wheel's table, degrees.
-   */
-  const STEP: number = 5;
-
-  /*
    * Plan a front handspring on the floor.
    * Parameter context: The action's context.
    * Returns: The plan.
@@ -481,6 +476,11 @@ export namespace handspring {
     });
     return result;
   }
+
+  /*
+   * The angle between two rows of the wheel's table, degrees.
+   */
+  const STEP: number = 5;
 }
 
 /*

@@ -8,18 +8,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
-
-/*
- * Gränsfors Bruk's Scandinavian Forest Axe, read at the maker.
- */
-const FOREST_AXE: string =
-  "Gränsfors Bruk Scandinavian Forest Axe 430, 64 cm and 1,2 kg (https://www.gransforsbruk.com/en/p/scandinavian-forest-axe); The Axe Book (Gränsfors Bruks AB 2005, ISBN 91-975532-5-5, p. 9, https://www.canadianoutdoorequipment.com/downloads/TheAxeBook.pdf): a 3 1/2 in face, a 25 in hickory handle and a 2 lb head";
-
-/*
- * The same axe as a retailer measures it.
- */
-const FOREST_AXE_SHOP: string =
-  "Knives and Tools, Gränsfors Bruk Scandinavian Forest Axe 430 (GS430): 65 cm overall, head 16.3 cm long, 9 cm high and 2.6 cm thick, sharpened length 9 cm, head 900 g, 1,200 g (https://knivesandtools.co.uk/en/pt/-gransfors-bruk-scandinavian-forest-axe-430.htm), a retailer's measurement";
+import * as ForestAxeData from "./ForestAxeData";
 
 /*
  * The forest axe among the long tools: Gränsfors Bruk's Scandinavian Forest Axe
@@ -55,30 +44,30 @@ export namespace ForestAxe {
     length: AutoMovieArchetypeBand.metres(
       25 * AutoMovieArchetypeUnits.INCH,
       0.65,
-      `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      `${ForestAxeData.FOREST_AXE}; ${ForestAxeData.FOREST_AXE_SHOP}`,
     ),
     edge: AutoMovieArchetypeBand.metres(
       3.5 * AutoMovieArchetypeUnits.INCH,
       0.09,
-      `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      `${ForestAxeData.FOREST_AXE}; ${ForestAxeData.FOREST_AXE_SHOP}`,
     ),
     headLength: AutoMovieArchetypeBand.metres(
       0.163,
       0.163,
-      `${FOREST_AXE_SHOP}; where the handle sits in the head no maker's page, the Axe Book or a retailer gives, and no drawing was found, so the handle's back stands flush with the poll, a provisional construction from which the edge's reach ahead of the handle follows`,
+      `${ForestAxeData.FOREST_AXE_SHOP}; where the handle sits in the head no maker's page, the Axe Book or a retailer gives, and no drawing was found, so the handle's back stands flush with the poll, a provisional construction from which the edge's reach ahead of the handle follows`,
       true,
     ),
     headMass: AutoMovieArchetypeBand.of(
       "kg",
       0.9,
       2 * AutoMovieArchetypeUnits.POUND,
-      `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      `${ForestAxeData.FOREST_AXE}; ${ForestAxeData.FOREST_AXE_SHOP}`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       1.2,
       1.2,
-      `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      `${ForestAxeData.FOREST_AXE}; ${ForestAxeData.FOREST_AXE_SHOP}`,
     ),
   };
 

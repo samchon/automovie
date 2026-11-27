@@ -22,16 +22,6 @@ import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
 /*
- * Goals that can be carried through a prop's world motion.
- */
-const LIMBS: readonly AutoMovieHumanLimb[] = [
-  "leftArm",
-  "rightArm",
-  "leftLeg",
-  "rightLeg",
-];
-
-/*
  * The carry from a start to a second of a support whose frame a function gives.
  * Parameter frame: The support's world frame at a film second.
  * Parameter start: The film second the posture was planned at.
@@ -373,6 +363,16 @@ export namespace HumanSupportCarry {
     };
   }
 }
+
+/*
+ * Goals that can be carried through a prop's world motion.
+ */
+const LIMBS: readonly AutoMovieHumanLimb[] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];
 
 /*
  * Read the turn's heading in degrees around world up.

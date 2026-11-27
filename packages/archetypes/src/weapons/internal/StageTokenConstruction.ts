@@ -6,19 +6,6 @@ import {
 import { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
 
 /*
- * The readable name of each kind.
- */
-const NAMES: Readonly<Record<AutoMovieArchetypeProjectile.Kind, string>> = {
-  ball: "musket ball",
-  arrow: "arrow",
-  bolt: "crossbow bolt",
-  roundShot: "round shot",
-  grenade: "hand grenade",
-  cartridge: "musket cartridge",
-  stone: "throwing stone",
-};
-
-/*
  * Resolve an inert digital display token.
  *
  * The stored model record and original draw session preserve the silhouette's
@@ -104,3 +91,16 @@ export namespace StageTokenConstruction {
     AutoMovieArchetypeProjectile.Dimension
   >;
 }
+
+/*
+ * The readable name of each kind.
+ */
+const NAMES: Readonly<Record<AutoMovieArchetypeProjectile.Kind, string>> = {
+  ball: "musket ball",
+  arrow: "arrow",
+  bolt: "crossbow bolt",
+  roundShot: "round shot",
+  grenade: "hand grenade",
+  cartridge: "musket cartridge",
+  stone: "throwing stone",
+};

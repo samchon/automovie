@@ -37,23 +37,7 @@ import { lieDownPoses } from "./lieDownPoses";
 import { lieOnSurfaceFits } from "./lieOnSurfaceFits";
 import { lieOnSurfaceSeat } from "./lieOnSurfaceSeat";
 import { lieOnSurfaceSite } from "./lieOnSurfaceSite";
-
-/*
- * Seconds of each phase (provisional: `lieDown`'s phase).
- */
-const PHASE: number = 1.2;
-
-/*
- * The free room beyond the head and beside each shoulder on the surface, metres
- * (provisional).
- */
-const MARGIN: number = 0.05;
-
-/*
- * How far behind the edge the seated hips sit, metres (provisional: the thighs
- * resting over the edge).
- */
-const BEHIND: number = 0.15;
+import * as LieOnSurfaceData from "./LieOnSurfaceData";
 
 /*
  * Lie on a raised support. Entered seated on a bed's or a sofa's long edge, the
@@ -135,7 +119,7 @@ function planLieOnSurface(
     reader.frame(context.start),
     frame(edge),
   );
-  lieOnSurfaceFits(body, surface, MARGIN);
+  lieOnSurfaceFits(body, surface, LieOnSurfaceData.MARGIN);
 
   // The head end lies along the surface's -Z; the body lies onto the side that turns toward it.
   const head: IAutoMovieVector3 = Quaternion.rotateVector(bed.rotation, {
@@ -167,7 +151,7 @@ function planLieOnSurface(
   const reach: number = body.measure.stature - body.rest.get("hips")!.y;
   const lyingHips: IAutoMovieVector3 = Vector3.add(
     bed.position,
-    Vector3.scale(head, surface.depth! / 2 - MARGIN - reach),
+    Vector3.scale(head, surface.depth! / 2 - LieOnSurfaceData.MARGIN - reach),
   );
   const entryHips: IAutoMovieVector3 = Vector3.add(entry.root, offset(entry));
   const along: number = Vector3.dot(
@@ -176,7 +160,7 @@ function planLieOnSurface(
   );
   const seatedHips: IAutoMovieVector3 = rise
     ? Vector3.add(Vector3.add(seat.position, Vector3.scale(head, along)), {
-        ...Vector3.scale(out, -BEHIND),
+        ...Vector3.scale(out, -LieOnSurfaceData.BEHIND),
         y: entryHips.y - bed.position.y,
       })
     : entryHips;
@@ -235,11 +219,11 @@ function planLieOnSurface(
       ? [seated, lateral, supine]
       : [seated, lateral];
   const phases: IAutoMovieMotionClockPhase[] = [
-    { name: rise ? "sitUp" : "lowering", seconds: PHASE },
+    { name: rise ? "sitUp" : "lowering", seconds: LieOnSurfaceData.PHASE },
     ...keys.slice(1, -1).map(
       (k: IKey): IAutoMovieMotionClockPhase => ({
         name: k.event,
-        seconds: PHASE,
+        seconds: LieOnSurfaceData.PHASE,
       }),
     ),
     { name: keys.at(-1)!.event, seconds: 0 },

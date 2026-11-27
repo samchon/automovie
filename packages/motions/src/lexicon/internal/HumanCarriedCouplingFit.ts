@@ -23,11 +23,6 @@ import { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
 
 /*
- * Grip indices follow the carry row's left-to-right order.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/*
  * The key pose of a coupled carry placed on its bearer: the bearer's stance and
  * the borne legs changed least from the upright bearer and the carry's own legs
  * so every hold's wrist goal lies within its arm, the borne resting region
@@ -439,6 +434,11 @@ export namespace HumanCarriedCouplingFit {
     state?: IAutoMovieMotionHumanQuadraticProgram.IState;
   }
 }
+
+/*
+ * Grip indices follow the carry row's left-to-right order.
+ */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /*
  * A borne region a hand holds, or no grip for that hand.

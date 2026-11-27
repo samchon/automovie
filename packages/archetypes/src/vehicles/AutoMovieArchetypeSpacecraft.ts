@@ -10,38 +10,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The capsule's blunt taper and distinct hatch inform the silhouette.
- */
-const CAPSULE: string =
-  "Smithsonian National Air and Space Museum, Apollo 11 Command Module Columbia (https://airandspace.si.edu/collection-media/NASM-A19700102000-NASM2016-04272)";
-/*
- * The crew entrance and flight deck give the set two distinct staging
- * destinations.
- */
-const CREW_COMPARTMENT: string =
-  "NASA, The Space Shuttle, Flight Deck and Middeck (https://www.nasa.gov/reference/the-space-shuttle/)";
-/*
- * The connecting passage informs the route between the outer walkway and cabin.
- */
-const PASSAGE: string =
-  "Smithsonian National Air and Space Museum, Airlock Module, Skylab (https://airandspace.si.edu/collection-objects/airlock-module-skylab/nasm_A19761035000)";
-/*
- * Identifiable handholds give crew contact points to start and stop
- * translating.
- */
-const MOBILITY_AIDS: string =
-  "NASA-STD-3001 Volume 2, sections 8.5.2 and 8.5.5 (https://www.nasa.gov/reference/8-0-architecture-vol-2/#8.5)";
-
-/*
- * Panel thickness in metres for this scenic construction.
- */
-const PANEL: number = 0.08;
-/*
- * Nominal aluminium density, kilograms per cubic metre, for the scenic solids.
- */
-const ALUMINIUM_DENSITY: number = 2700;
+import * as AutoMovieArchetypeSpacecraftData from "./internal/AutoMovieArchetypeSpacecraftData";
 
 /** Constructs the spacecraft archetype from its recipe. */
 export namespace AutoMovieArchetypeSpacecraft {
@@ -472,32 +441,47 @@ export function create(
     length: AutoMovieArchetypeBand.metres(
       6,
       9,
-      `Fictional set length for a blunt tapered silhouette. Analogy: ${CAPSULE}`,
+      `Fictional set length for a blunt tapered silhouette. Analogy: ${AutoMovieArchetypeSpacecraftData.CAPSULE}`,
     ),
     width: AutoMovieArchetypeBand.metres(
       3.4,
       5,
-      `Fictional cabin width for the central route beside the crew station. Analogy: ${CREW_COMPARTMENT}`,
+      `Fictional cabin width for the central route beside the crew station. Analogy: ${AutoMovieArchetypeSpacecraftData.CREW_COMPARTMENT}`,
     ),
     cabinHeight: AutoMovieArchetypeBand.metres(
       2.45,
       3.25,
-      `Fictional standing floor-to-ceiling height for cabin scenes. Analogy: ${CREW_COMPARTMENT}`,
+      `Fictional standing floor-to-ceiling height for cabin scenes. Analogy: ${AutoMovieArchetypeSpacecraftData.CREW_COMPARTMENT}`,
     ),
     hatchWidth: AutoMovieArchetypeBand.metres(
       1.25,
       1.6,
-      `Fictional clear opening sized for an upright performer. Analogy: ${CAPSULE}`,
+      `Fictional clear opening sized for an upright performer. Analogy: ${AutoMovieArchetypeSpacecraftData.CAPSULE}`,
     ),
     hatchHeight: AutoMovieArchetypeBand.metres(
       1.95,
       2.2,
-      `Fictional clearance for the boarding performer. Analogy: ${CAPSULE}`,
+      `Fictional clearance for the boarding performer. Analogy: ${AutoMovieArchetypeSpacecraftData.CAPSULE}`,
     ),
     walkwayLength: AutoMovieArchetypeBand.metres(
       2,
       4,
-      `Fictional run for a full boarding stride before the threshold. Analogy: ${PASSAGE}`,
+      `Fictional run for a full boarding stride before the threshold. Analogy: ${AutoMovieArchetypeSpacecraftData.PASSAGE}`,
     ),
   };
 }
+
+/*
+ * Identifiable handholds give crew contact points to start and stop
+ * translating.
+ */
+const MOBILITY_AIDS: string =
+  "NASA-STD-3001 Volume 2, sections 8.5.2 and 8.5.5 (https://www.nasa.gov/reference/8-0-architecture-vol-2/#8.5)";
+/*
+ * Panel thickness in metres for this scenic construction.
+ */
+const PANEL: number = 0.08;
+/*
+ * Nominal aluminium density, kilograms per cubic metre, for the scenic solids.
+ */
+const ALUMINIUM_DENSITY: number = 2700;

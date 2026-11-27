@@ -10,12 +10,7 @@ import {
   AutoMovieArchetypeOval,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No source read gives the rail's height, its posts' spacing or a turn's
- * radius: estimates.
- */
-const ESTIMATE: string = "an estimate, no source read gives it";
+import * as AutoMovieArchetypeRaceRailData from "./internal/AutoMovieArchetypeRaceRailData";
 
 /** Constructs the race rail archetype from its recipe. */
 export namespace AutoMovieArchetypeRaceRail {
@@ -133,10 +128,10 @@ export function create(
 
   /** The band of each free dimension, every one an estimate. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    radius: AutoMovieArchetypeBand.metres(140, 160, ESTIMATE, true),
-    height: AutoMovieArchetypeBand.metres(1, 1.1, ESTIMATE, true),
-    post: AutoMovieArchetypeBand.metres(0.04, 0.05, ESTIMATE, true),
-    spacing: AutoMovieArchetypeBand.metres(8, 8, ESTIMATE, true),
+    radius: AutoMovieArchetypeBand.metres(140, 160, AutoMovieArchetypeRaceRailData.ESTIMATE, true),
+    height: AutoMovieArchetypeBand.metres(1, 1.1, AutoMovieArchetypeRaceRailData.ESTIMATE, true),
+    post: AutoMovieArchetypeBand.metres(0.04, 0.05, AutoMovieArchetypeRaceRailData.ESTIMATE, true),
+    spacing: AutoMovieArchetypeBand.metres(8, 8, AutoMovieArchetypeRaceRailData.ESTIMATE, true),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       15,

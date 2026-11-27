@@ -6,207 +6,6 @@ import type {
 /** Shared source-field conversion for the campaign's explicit engineering falsifiers. */
 export namespace AutoMovieHumanF1Engineering {
 
-  const ONE: IAutoMovieHumanF1Engineering.IRatios = { hip: 1, omphalion: 1, underbust: 1, bust: 1, neck: 1 };
-  const KEYS: readonly (keyof IAutoMovieHumanF1Engineering.IRatios)[] = [
-    "hip",
-    "omphalion",
-    "underbust",
-    "bust",
-    "neck",
-  ];
-  // Existing ANSUR engineering response, four-decimal coefficients:
-  // packages/human/docs/work/provisional-statistical-response-priors.md
-  // traces the exact SURVEY.female ANSUR1988 n2208 re-solve/rounding.
-  // End-driver widths use ANSUR II n1986 except underbust1988; response
-  // CV/beta use1988. rho .8483 is a delta-method ratio approximation,
-  // not the observed chest-omphalion correlation or a held-all inverse.
-  // test/src/reference-conics/FamilyConicLimbLaw.ts (survey correlations,
-  // population/site tables and its step2/2.5 report), and the discarded
-  // 042ffc7dec FamilyConicTrunkLaw.ts conditional-response record. Primary
-  // survey definitions remain packages/human/docs/sources/ansur-ii.md and
-  // ansur-1988-boundary-people.md; the mixed source protocols are qualified P.
-  // Flexed
-  // biceps/forearm and skin source sites have different protocols: P, not a
-  // newly validated clinical regression or individual population inference.
-  const CVS: readonly number[] = [0.0622, 0.1045, 0.0662, 0.07, 0.0484];
-  const RESPONSES: readonly {
-    name:
-      | "upperArm"
-      | "elbow"
-      | "forearm"
-      | "wrist"
-      | "rootLeg"
-      | "knee"
-      | "calf";
-    cv: number;
-    beta: readonly number[];
-  }[] = [
-    {
-      name: "upperArm",
-      cv: 0.0807,
-      beta: [0.361, 0.0439, 0.133, 0.1551, 0.2062],
-    },
-    {
-      name: "elbow",
-      cv: 0.0562,
-      beta: [0.398, -0.0476, 0.1685, 0.0874, 0.3217],
-    },
-    {
-      name: "forearm",
-      cv: 0.0594,
-      beta: [0.3054, -0.1302, 0.1306, 0.1383, 0.4021],
-    },
-    {
-      name: "wrist",
-      cv: 0.0455,
-      beta: [0.315, -0.2287, 0.2412, -0.0013, 0.388],
-    },
-    {
-      name: "rootLeg",
-      cv: 0.0776,
-      beta: [0.8463, -0.0043, -0.0401, 0.08, 0.066],
-    },
-    {
-      name: "knee",
-      cv: 0.0638,
-      beta: [0.7491, -0.0481, 0.0622, -0.0935, 0.1568],
-    },
-    {
-      name: "calf",
-      cv: 0.0657,
-      beta: [0.6549, -0.2382, 0.1821, 0.0033, 0.1226],
-    },
-  ];
-  const scale = (size: IAutoMovieHumanF1NativeLaw.ISize, k: number): IAutoMovieHumanF1NativeLaw.ISize => ({
-    depth: size.depth * k,
-    breadth: size.breadth * k,
-  });
-  const copy = (f: IAutoMovieHumanF1NativeLaw.IFields): IAutoMovieHumanF1NativeLaw.IFields => ({
-    ...f,
-    wall: { ...f.wall },
-    roots: { ...f.roots },
-    arm: { ...f.arm },
-    leg: { ...f.leg },
-    extremities: { ...f.extremities },
-    lengths: {
-      ...f.lengths,
-      phalanges: Object.fromEntries(
-        Object.entries(f.lengths.phalanges).map(
-          ([digit, bones]): [string, [number, number, number]] => [
-            digit,
-            [...bones],
-          ],
-        ),
-      ),
-    },
-  });
-
-  /*
-   * Segment-length falsifiers: each long bone, the hand, the foot and the fingers' bones at 0.9 and 1.1 of F1's own
-   * joint-centre length, one at a time and every limb length together. They are engineering ends of the length law
-   * (`AutoMovieHumanF1NativeCourse`), not percentiles: ANSUR II women's acromion-radiale length is 311.2 mm with a
-   * standard deviation of 17.2 and radiale-stylion 241.3 with 15.2 (`docs/sources/ansur-ii.md`), coefficients of
-   * variation of 0.055 and 0.063, so a tenth is 1.6 to 1.8 standard deviations of a limb segment taken alone. Trunk
-   * lengths are left out: the builder refuses them.
-   */
-  const LENGTH_RATIOS: readonly number[] = [0.9, 1.1];
-  const LIMB_LENGTHS: readonly (
-    | "upperArm"
-    | "forearm"
-    | "thigh"
-    | "shank"
-    | "handLength"
-    | "handBreadth"
-    | "footLength"
-    | "footBreadth"
-  )[] = [
-    "upperArm",
-    "forearm",
-    "thigh",
-    "shank",
-    "handLength",
-    "handBreadth",
-    "footLength",
-    "footBreadth",
-  ];
-
-  /*
-   * The length cases' fields by case id, each a copy of the base with the named lengths scaled.
-   */
-  function lengthCases(base: IAutoMovieHumanF1NativeLaw.IFields): [string, IAutoMovieHumanF1NativeLaw.IFields][] {
-    const out: [string, IAutoMovieHumanF1NativeLaw.IFields][] = [];
-    for (const k of LENGTH_RATIOS) {
-      for (const key of LIMB_LENGTHS) {
-        const f: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
-        f.lengths[key] = base.lengths[key] * k;
-        out.push(["length-" + key + "-" + k, f]);
-      }
-      const fingers: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
-      for (const bones of Object.values(fingers.lengths.phalanges))
-        for (let b: number = 0; b < 3; ++b) bones[b] = bones[b]! * k;
-      out.push(["length-phalanges-" + k, fingers]);
-      const all: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
-      for (const key of LIMB_LENGTHS)
-        if (key !== "handBreadth" && key !== "footBreadth")
-          all.lengths[key] = base.lengths[key] * k;
-      for (const bones of Object.values(all.lengths.phalanges))
-        for (let b: number = 0; b < 3; ++b) bones[b] = bones[b]! * k;
-      out.push(["length-limbs-" + k, all]);
-    }
-    return out;
-  }
-
-  /*
-   * One explicitly selected converter response, before any part or loft.
-   */
-  function fieldsAt(
-    base: IAutoMovieHumanF1NativeLaw.IFields,
-    r: IAutoMovieHumanF1Engineering.IRatios,
-    mode: "bust-only" | "all-site",
-  ): IAutoMovieHumanF1NativeLaw.IFields {
-    const f: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
-    if (mode === "all-site") {
-      f.wall.hipSkin = scale(base.wall.hipSkin, r.hip);
-      f.wall.omphalionWall = scale(base.wall.omphalionWall, r.omphalion);
-      f.wall.underbustWall = scale(base.wall.underbustWall, r.underbust);
-      f.wall.bustWall = scale(base.wall.bustWall, r.bust);
-      f.wall.neckSkin = scale(base.wall.neckSkin, r.neck);
-      f.roots.breast = scale(base.roots.breast, r.underbust);
-    }
-    for (const row of RESPONSES) {
-      const k: number =
-        1 +
-        row.cv *
-          row.beta.reduce(
-            (sum: number, beta: number, j: number): number =>
-              sum + (beta * (r[KEYS[j]!] - 1)) / CVS[j]!,
-            0,
-          );
-      if (!(Number.isFinite(k) && k > 0))
-        throw new Error(
-          "conditional source response is nonpositive: " + row.name,
-        );
-      if (row.name === "rootLeg") f.roots.leg = scale(base.roots.leg, k);
-      else if (row.name === "knee" || row.name === "calf")
-        f.leg[row.name] = scale(base.leg[row.name], k);
-      else f.arm[row.name] = scale(base.arm[row.name], k);
-    }
-    f.roots.arm = scale(
-      base.roots.arm,
-      f.arm.upperArm.depth / base.arm.upperArm.depth,
-    );
-    const wrist: number = f.arm.wrist.depth / base.arm.wrist.depth;
-    f.extremities.hand = {
-      ...base.extremities.hand,
-      depth: base.extremities.hand.depth * wrist,
-    };
-    f.extremities.finger = {
-      ...base.extremities.finger,
-      depth: base.extremities.finger.depth * wrist,
-    };
-    return f;
-  }
-
   /**
    * Resolve the original five tape-driven engineering cases and distinct direct-field falsifiers.
    *
@@ -400,5 +199,207 @@ export namespace AutoMovieHumanF1Engineering {
     for (const [id, fields] of lengthCases(base))
       direct(id, fields, "full-field");
     return out;
+  }
+
+  const ONE: IAutoMovieHumanF1Engineering.IRatios = { hip: 1, omphalion: 1, underbust: 1, bust: 1, neck: 1 };
+  const KEYS: readonly (keyof IAutoMovieHumanF1Engineering.IRatios)[] = [
+    "hip",
+    "omphalion",
+    "underbust",
+    "bust",
+    "neck",
+  ];
+  // Existing ANSUR engineering response, four-decimal coefficients:
+  // packages/human/docs/work/provisional-statistical-response-priors.md
+  // traces the exact SURVEY.female ANSUR1988 n2208 re-solve/rounding.
+  // End-driver widths use ANSUR II n1986 except underbust1988; response
+  // CV/beta use1988. rho .8483 is a delta-method ratio approximation,
+  // not the observed chest-omphalion correlation or a held-all inverse.
+  // test/src/reference-conics/FamilyConicLimbLaw.ts (survey correlations,
+  // population/site tables and its step2/2.5 report), and the discarded
+  // 042ffc7dec FamilyConicTrunkLaw.ts conditional-response record. Primary
+  // survey definitions remain packages/human/docs/sources/ansur-ii.md and
+  // ansur-1988-boundary-people.md; the mixed source protocols are qualified P.
+  // Flexed
+  // biceps/forearm and skin source sites have different protocols: P, not a
+  // newly validated clinical regression or individual population inference.
+  const CVS: readonly number[] = [0.0622, 0.1045, 0.0662, 0.07, 0.0484];
+  const RESPONSES: readonly {
+    name:
+      | "upperArm"
+      | "elbow"
+      | "forearm"
+      | "wrist"
+      | "rootLeg"
+      | "knee"
+      | "calf";
+    cv: number;
+    beta: readonly number[];
+  }[] = [
+    {
+      name: "upperArm",
+      cv: 0.0807,
+      beta: [0.361, 0.0439, 0.133, 0.1551, 0.2062],
+    },
+    {
+      name: "elbow",
+      cv: 0.0562,
+      beta: [0.398, -0.0476, 0.1685, 0.0874, 0.3217],
+    },
+    {
+      name: "forearm",
+      cv: 0.0594,
+      beta: [0.3054, -0.1302, 0.1306, 0.1383, 0.4021],
+    },
+    {
+      name: "wrist",
+      cv: 0.0455,
+      beta: [0.315, -0.2287, 0.2412, -0.0013, 0.388],
+    },
+    {
+      name: "rootLeg",
+      cv: 0.0776,
+      beta: [0.8463, -0.0043, -0.0401, 0.08, 0.066],
+    },
+    {
+      name: "knee",
+      cv: 0.0638,
+      beta: [0.7491, -0.0481, 0.0622, -0.0935, 0.1568],
+    },
+    {
+      name: "calf",
+      cv: 0.0657,
+      beta: [0.6549, -0.2382, 0.1821, 0.0033, 0.1226],
+    },
+  ];
+  const scale = (size: IAutoMovieHumanF1NativeLaw.ISize, k: number): IAutoMovieHumanF1NativeLaw.ISize => ({
+    depth: size.depth * k,
+    breadth: size.breadth * k,
+  });
+
+  const copy = (f: IAutoMovieHumanF1NativeLaw.IFields): IAutoMovieHumanF1NativeLaw.IFields => ({
+    ...f,
+    wall: { ...f.wall },
+    roots: { ...f.roots },
+    arm: { ...f.arm },
+    leg: { ...f.leg },
+    extremities: { ...f.extremities },
+    lengths: {
+      ...f.lengths,
+      phalanges: Object.fromEntries(
+        Object.entries(f.lengths.phalanges).map(
+          ([digit, bones]): [string, [number, number, number]] => [
+            digit,
+            [...bones],
+          ],
+        ),
+      ),
+    },
+  });
+  /*
+   * Segment-length falsifiers: each long bone, the hand, the foot and the fingers' bones at 0.9 and 1.1 of F1's own
+   * joint-centre length, one at a time and every limb length together. They are engineering ends of the length law
+   * (`AutoMovieHumanF1NativeCourse`), not percentiles: ANSUR II women's acromion-radiale length is 311.2 mm with a
+   * standard deviation of 17.2 and radiale-stylion 241.3 with 15.2 (`docs/sources/ansur-ii.md`), coefficients of
+   * variation of 0.055 and 0.063, so a tenth is 1.6 to 1.8 standard deviations of a limb segment taken alone. Trunk
+   * lengths are left out: the builder refuses them.
+   */
+  const LENGTH_RATIOS: readonly number[] = [0.9, 1.1];
+
+  const LIMB_LENGTHS: readonly (
+    | "upperArm"
+    | "forearm"
+    | "thigh"
+    | "shank"
+    | "handLength"
+    | "handBreadth"
+    | "footLength"
+    | "footBreadth"
+  )[] = [
+    "upperArm",
+    "forearm",
+    "thigh",
+    "shank",
+    "handLength",
+    "handBreadth",
+    "footLength",
+    "footBreadth",
+  ];
+
+  /*
+   * The length cases' fields by case id, each a copy of the base with the named lengths scaled.
+   */
+  function lengthCases(base: IAutoMovieHumanF1NativeLaw.IFields): [string, IAutoMovieHumanF1NativeLaw.IFields][] {
+    const out: [string, IAutoMovieHumanF1NativeLaw.IFields][] = [];
+    for (const k of LENGTH_RATIOS) {
+      for (const key of LIMB_LENGTHS) {
+        const f: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
+        f.lengths[key] = base.lengths[key] * k;
+        out.push(["length-" + key + "-" + k, f]);
+      }
+      const fingers: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
+      for (const bones of Object.values(fingers.lengths.phalanges))
+        for (let b: number = 0; b < 3; ++b) bones[b] = bones[b]! * k;
+      out.push(["length-phalanges-" + k, fingers]);
+      const all: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
+      for (const key of LIMB_LENGTHS)
+        if (key !== "handBreadth" && key !== "footBreadth")
+          all.lengths[key] = base.lengths[key] * k;
+      for (const bones of Object.values(all.lengths.phalanges))
+        for (let b: number = 0; b < 3; ++b) bones[b] = bones[b]! * k;
+      out.push(["length-limbs-" + k, all]);
+    }
+    return out;
+  }
+
+  /*
+   * One explicitly selected converter response, before any part or loft.
+   */
+  function fieldsAt(
+    base: IAutoMovieHumanF1NativeLaw.IFields,
+    r: IAutoMovieHumanF1Engineering.IRatios,
+    mode: "bust-only" | "all-site",
+  ): IAutoMovieHumanF1NativeLaw.IFields {
+    const f: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
+    if (mode === "all-site") {
+      f.wall.hipSkin = scale(base.wall.hipSkin, r.hip);
+      f.wall.omphalionWall = scale(base.wall.omphalionWall, r.omphalion);
+      f.wall.underbustWall = scale(base.wall.underbustWall, r.underbust);
+      f.wall.bustWall = scale(base.wall.bustWall, r.bust);
+      f.wall.neckSkin = scale(base.wall.neckSkin, r.neck);
+      f.roots.breast = scale(base.roots.breast, r.underbust);
+    }
+    for (const row of RESPONSES) {
+      const k: number =
+        1 +
+        row.cv *
+          row.beta.reduce(
+            (sum: number, beta: number, j: number): number =>
+              sum + (beta * (r[KEYS[j]!] - 1)) / CVS[j]!,
+            0,
+          );
+      if (!(Number.isFinite(k) && k > 0))
+        throw new Error(
+          "conditional source response is nonpositive: " + row.name,
+        );
+      if (row.name === "rootLeg") f.roots.leg = scale(base.roots.leg, k);
+      else if (row.name === "knee" || row.name === "calf")
+        f.leg[row.name] = scale(base.leg[row.name], k);
+      else f.arm[row.name] = scale(base.arm[row.name], k);
+    }
+    f.roots.arm = scale(
+      base.roots.arm,
+      f.arm.upperArm.depth / base.arm.upperArm.depth,
+    );
+    const wrist: number = f.arm.wrist.depth / base.arm.wrist.depth;
+    f.extremities.hand = {
+      ...base.extremities.hand,
+      depth: base.extremities.hand.depth * wrist,
+    };
+    f.extremities.finger = {
+      ...base.extremities.finger,
+      depth: base.extremities.finger.depth * wrist,
+    };
+    return f;
   }
 }

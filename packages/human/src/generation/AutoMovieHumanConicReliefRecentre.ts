@@ -110,6 +110,165 @@ export namespace AutoMovieHumanConicReliefRecentre {
   /** The rows object of {@link INet}. */
   export type INetRows = { observed: number; unobserved: number; first: number; last: number };
 
+  /**
+   * A stored net's window and directions in the made chart, its heights zero: the window is the range of the made chart's angle that
+   * the stored window's edges take on the stored skin before the net, over the sampled stations, widened outward to four decimals
+   * (about its stored middle when the edges stay mirror images about it, so a net stored as its own mirror image keeps its form); a
+   * window that goes once round is kept; a turning direction keeps its law in the chart's angle, turned to the new middle.
+   *
+   * @param props The conversion's inputs.
+   * @param index The net's place in the stored order.
+   * @evidence contracts/development/implementation.md#principled-implementation A window's edge is a line of zero height, so it lies on the skin before the net, and its new chart angle is that point's polar angle about the new origin; `cos(t - c) a + sin(t - c) b` equals `cos(t - c') a' + sin(t - c') b'` for `(a', b')` the pair turned by `c' - c`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the window's stations for both edges, then the middle and the pair.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A window with no station on the wall, a station map, and a whole turn whose edge does not map to itself are refused; an edge is never clipped inward.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the sampled stations times the nets before.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One net's two edges coordinate no shared work beyond the pass they share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh net of zero heights.
+   */
+  export function lay(props: IProps, index: number): IAutoMovieLoftRelief {
+    const net: IAutoMovieLoftRelief = props.reliefs[index]!;
+    if (net.shift !== undefined) throw new Error("relief recentre: " + net.name + " carries a station map, which is not re-expressed");
+    const stations: number[] = rows(props, net).stations;
+    if (stations.length === 0) throw new Error("relief recentre: " + net.name + " has no station on the wall");
+    const whole: boolean = net.phases.end - net.phases.start >= 2 * Math.PI - 1e-9;
+    let [low, high]: [number, number] = [Infinity, -Infinity];
+    for (const s of stations)
+      [net.phases.start, net.phases.end].forEach((edge: number, side: number): void => {
+        const mapped: number = angle(props.made.axis, s, composed(props.stored, props.reliefs, index, s, edge));
+        const near: number = mapped + 2 * Math.PI * Math.round((edge - mapped) / (2 * Math.PI));
+        if (whole && Math.abs(near - edge) > 1e-6) throw new Error("relief recentre: " + net.name + " goes once round and its edge moves in the new chart");
+        if (side === 0) low = Math.min(low, near);
+        else high = Math.max(high, near);
+      });
+    const scale: number = 10 ** WINDOW_DECIMALS;
+    const stored: number = (net.phases.start + net.phases.end) / 2;
+    let phases: [number, number];
+    // How far the window's middle, the phase a turning direction is laid about, moves: nothing where the middle is kept.
+    let turned: number = 0;
+    if (whole) phases = [net.phases.start, net.phases.end];
+    else if (Math.abs((low + high) / 2 - stored) < 1 / scale) {
+      const half: number = Math.ceil(Math.max(stored - low, high - stored) * scale - 1e-9) / scale;
+      phases = [stored - half, stored + half];
+    } else {
+      phases = [Math.floor(low * scale + 1e-9) / scale, Math.ceil(high * scale - 1e-9) / scale];
+      turned = (phases[0] + phases[1]) / 2 - stored;
+    }
+    const [c, s]: [number, number] = [Math.cos(turned), Math.sin(turned)];
+    const [a, b]: [readonly number[], readonly number[] | undefined] = [net.axis, net.turn];
+    return {
+      name: net.name,
+      stations: { start: net.stations.start, end: net.stations.end },
+      phases: { start: phases[0], end: phases[1] },
+      axis: b === undefined || turned === 0 ? [net.axis[0], net.axis[1], net.axis[2]] : mix([c * a[0]!, c * a[1]!, c * a[2]!], s, b),
+      ...(b === undefined ? {} : { turn: turned === 0 ? ([b[0]!, b[1]!, b[2]!] as V3) : mix([c * b[0]!, c * b[1]!, c * b[2]!], -s, a) }),
+      rows: net.rows,
+      columns: net.columns,
+      heights: new Array<number>(net.rows * net.columns).fill(0),
+    };
+  }
+
+  /**
+   * Every stored net re-expressed on the made wall, in the stored order (the namespace's text).
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Each target is the one height that puts the new figure's point on the stored skin (or, for a kept axis, the stored height of the same skin point); the net is the least squares of a tensor spline on a tensor grid, which separates into one solve per direction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Per net: lay the window, read the targets row by row, solve along the phases and along the stations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A row without a target is left out and counted; a kept axis on skin that left its section plane is refused; no height is clamped and no residual hidden.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the samples times the nets before, with two dense solves of at most a net's columns.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A net's two normal matrices are factored once and serve every row and column; each target reads the nets already converted.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One target grid lives per net; the result holds the nets alone.
+   */
+  export function convert(props: IProps): INet[] {
+    const samples: number = props.samples ?? 4;
+    if (!(Number.isInteger(samples) && samples >= 2)) throw new Error("relief recentre: at least two samples per span are needed");
+    const out: INet[] = [];
+    const made: IAutoMovieLoftRelief[] = [];
+    props.reliefs.forEach((stored: IAutoMovieLoftRelief, index: number): void => {
+      const laid: IAutoMovieLoftRelief = props.lay === undefined ? lay(props, index) : props.lay(lay(props, index), stored);
+      const kept: boolean =
+        stored.turn === undefined && laid.turn === undefined && laid.axis.every((x: number, c: number): boolean => x === stored.axis[c]);
+      const sampled: { stations: number[]; parameters: number[]; skipped: number } = rows(props, laid);
+      const columns: number = samples * (laid.columns - 3);
+      const width: number = laid.phases.end - laid.phases.start;
+      const phases: number[] = Array.from({ length: columns }, (_: unknown, j: number): number => laid.phases.start + (width * (j + 0.5)) / columns);
+      let mode: INet["mode"] = kept ? "carried" : "cast";
+      const targets: number[][] = [];
+      const observed: number[] = [];
+      let unobserved: number = sampled.skipped;
+      sampled.stations.forEach((s: number, i: number): void => {
+        const frame = props.stored.axis.at(s);
+        const normal: V3 = unit(cross(frame.u, frame.v));
+        const flat: boolean = planar(props.reliefs, index, s, normal);
+        const row: number[] = [];
+        for (const t of phases) {
+          const q: V3 = composed(props.made, made, index, s, t);
+          const start: number = angle(props.stored.axis, s, q);
+          let height: number | null = null;
+          if (kept) {
+            // The stored address of the same skin point: the nearest point of the stored skin before this net, in the section plane.
+            if (!flat) throw new Error("relief recentre: " + stored.name + " keeps its axis on skin that left its section plane at station " + s);
+            const offset = (tau: number): number => {
+              const [p0, p1]: V3[] = [composed(props.stored, props.reliefs, index, s, tau - 1e-6), composed(props.stored, props.reliefs, index, s, tau + 1e-6)];
+              return dot(sub(composed(props.stored, props.reliefs, index, s, tau), q), unit(sub(p1!, p0!)));
+            };
+            const tau: number | null = root(offset, start, 1e-5);
+            if (tau !== null) height = AutoMovieLoftRelief.height(stored, s, tau)[0];
+          } else {
+            const e: V3 = AutoMovieLoftRelief.direction(laid, t)[0];
+            if (flat && Math.abs(dot(e, normal)) <= PLANAR && Math.abs(dot(stored.axis, normal)) <= PLANAR && (stored.turn === undefined || Math.abs(dot(stored.turn, normal)) <= PLANAR)) {
+              // Within the section plane: the stored phase at which the stored skin with this net crosses the line through `q` along `e`.
+              const across: V3 = unit(cross(normal, e));
+              const tau: number | null = root((x: number): number => dot(sub(composed(props.stored, props.reliefs, index + 1, s, x), q), across), start, 1e-6);
+              if (tau !== null) height = dot(sub(composed(props.stored, props.reliefs, index + 1, s, tau), q), e);
+            } else {
+              mode = "skew";
+              height = skew(props, index, s, start, q, e);
+            }
+          }
+          if (height === null) break;
+          row.push(height);
+        }
+        if (row.length === columns) {
+          targets.push(row);
+          observed.push(i);
+        } else ++unobserved;
+      });
+      if (observed.length === 0) throw new Error("relief recentre: " + stored.name + " has no observed row");
+
+      // The least squares, one direction at a time: along the phases for every observed row, then along the stations for every column.
+      const across = design(phases.map((_: number, j: number): number => ((j + 0.5) / columns) * (laid.columns - 3)), laid.columns);
+      const along = design(observed.map((i: number): number => sampled.parameters[i]!), laid.rows);
+      const [freeRows, freeColumns]: [number, number] = [laid.rows - 6, laid.columns - 6];
+      const reduced: number[][] = targets.map((row: number[]): number[] =>
+        across.solve(Array.from({ length: freeColumns }, (_: unknown, b: number): number => across.matrix.reduce((sum: number, weight: number[], j: number): number => sum + weight[b]! * row[j]!, 0))),
+      );
+      const heights: number[] = new Array<number>(laid.rows * laid.columns).fill(0);
+      for (let b: number = 0; b < freeColumns; ++b) {
+        const column: number[] = along.solve(
+          Array.from({ length: freeRows }, (_: unknown, a: number): number => along.matrix.reduce((sum: number, weight: number[], i: number): number => sum + weight[a]! * reduced[i]![b]!, 0)),
+        );
+        for (let a: number = 0; a < freeRows; ++a) heights[(a + 3) * laid.columns + b + 3] = column[a]!;
+      }
+      const fitted: IAutoMovieLoftRelief = { ...laid, heights };
+      const finished: IAutoMovieLoftRelief = props.store === undefined ? fitted : props.store(fitted, stored);
+      let [sum, worst]: [number, number] = [0, 0];
+      observed.forEach((i: number, r: number): void =>
+        phases.forEach((t: number, j: number): void => {
+          const d: number = Math.abs(targets[r]![j]! - AutoMovieLoftRelief.height(finished, sampled.stations[i]!, t)[0]);
+          sum += d;
+          worst = Math.max(worst, d);
+        }),
+      );
+      made.push(finished);
+      out.push({
+        relief: finished,
+        mode,
+        rows: { observed: observed.length, unobserved, first: sampled.stations[observed[0]!]!, last: sampled.stations[observed.at(-1)!]! },
+        residual: { mean: sum / (observed.length * columns), max: worst },
+      });
+    });
+    return out;
+  }
+
   /*
    * Decimals a window's edge is stored at, radians.
    */
@@ -119,16 +278,16 @@ export namespace AutoMovieHumanConicReliefRecentre {
    * Largest share of a direction along the course for it to count as lying in the section plane.
    */
   const PLANAR: number = 1e-9;
-
   /*
    * Weight of the second-difference fairness beside the data, relative to the data's own scale: it decides only what no sample sees.
    */
   const FAIR: number = 1e-9;
-
   const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
   const cross = (a: readonly number[], b: readonly number[]): V3 => [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!];
   const mix = (a: readonly number[], k: number, b: readonly number[]): V3 => [a[0]! + k * b[0]!, a[1]! + k * b[1]!, a[2]! + k * b[2]!];
+
   const sub = (a: readonly number[], b: readonly number[]): V3 => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+
   const unit = (a: readonly number[]): V3 => {
     const n: number = Math.hypot(a[0]!, a[1]!, a[2]!);
     return [a[0]! / n, a[1]! / n, a[2]! / n];
@@ -254,63 +413,6 @@ export namespace AutoMovieHumanConicReliefRecentre {
     return { matrix, solve };
   }
 
-  /**
-   * A stored net's window and directions in the made chart, its heights zero: the window is the range of the made chart's angle that
-   * the stored window's edges take on the stored skin before the net, over the sampled stations, widened outward to four decimals
-   * (about its stored middle when the edges stay mirror images about it, so a net stored as its own mirror image keeps its form); a
-   * window that goes once round is kept; a turning direction keeps its law in the chart's angle, turned to the new middle.
-   *
-   * @param props The conversion's inputs.
-   * @param index The net's place in the stored order.
-   * @evidence contracts/development/implementation.md#principled-implementation A window's edge is a line of zero height, so it lies on the skin before the net, and its new chart angle is that point's polar angle about the new origin; `cos(t - c) a + sin(t - c) b` equals `cos(t - c') a' + sin(t - c') b'` for `(a', b')` the pair turned by `c' - c`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the window's stations for both edges, then the middle and the pair.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A window with no station on the wall, a station map, and a whole turn whose edge does not map to itself are refused; an edge is never clipped inward.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the sampled stations times the nets before.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One net's two edges coordinate no shared work beyond the pass they share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh net of zero heights.
-   */
-  export function lay(props: IProps, index: number): IAutoMovieLoftRelief {
-    const net: IAutoMovieLoftRelief = props.reliefs[index]!;
-    if (net.shift !== undefined) throw new Error("relief recentre: " + net.name + " carries a station map, which is not re-expressed");
-    const stations: number[] = rows(props, net).stations;
-    if (stations.length === 0) throw new Error("relief recentre: " + net.name + " has no station on the wall");
-    const whole: boolean = net.phases.end - net.phases.start >= 2 * Math.PI - 1e-9;
-    let [low, high]: [number, number] = [Infinity, -Infinity];
-    for (const s of stations)
-      [net.phases.start, net.phases.end].forEach((edge: number, side: number): void => {
-        const mapped: number = angle(props.made.axis, s, composed(props.stored, props.reliefs, index, s, edge));
-        const near: number = mapped + 2 * Math.PI * Math.round((edge - mapped) / (2 * Math.PI));
-        if (whole && Math.abs(near - edge) > 1e-6) throw new Error("relief recentre: " + net.name + " goes once round and its edge moves in the new chart");
-        if (side === 0) low = Math.min(low, near);
-        else high = Math.max(high, near);
-      });
-    const scale: number = 10 ** WINDOW_DECIMALS;
-    const stored: number = (net.phases.start + net.phases.end) / 2;
-    let phases: [number, number];
-    // How far the window's middle, the phase a turning direction is laid about, moves: nothing where the middle is kept.
-    let turned: number = 0;
-    if (whole) phases = [net.phases.start, net.phases.end];
-    else if (Math.abs((low + high) / 2 - stored) < 1 / scale) {
-      const half: number = Math.ceil(Math.max(stored - low, high - stored) * scale - 1e-9) / scale;
-      phases = [stored - half, stored + half];
-    } else {
-      phases = [Math.floor(low * scale + 1e-9) / scale, Math.ceil(high * scale - 1e-9) / scale];
-      turned = (phases[0] + phases[1]) / 2 - stored;
-    }
-    const [c, s]: [number, number] = [Math.cos(turned), Math.sin(turned)];
-    const [a, b]: [readonly number[], readonly number[] | undefined] = [net.axis, net.turn];
-    return {
-      name: net.name,
-      stations: { start: net.stations.start, end: net.stations.end },
-      phases: { start: phases[0], end: phases[1] },
-      axis: b === undefined || turned === 0 ? [net.axis[0], net.axis[1], net.axis[2]] : mix([c * a[0]!, c * a[1]!, c * a[2]!], s, b),
-      ...(b === undefined ? {} : { turn: turned === 0 ? ([b[0]!, b[1]!, b[2]!] as V3) : mix([c * b[0]!, c * b[1]!, c * b[2]!], -s, a) }),
-      rows: net.rows,
-      columns: net.columns,
-      heights: new Array<number>(net.rows * net.columns).fill(0),
-    };
-  }
-
   /*
    * The stations a net's targets are sampled at: `samples` per span, at the spans' interior, kept where both walls stand.
    */
@@ -326,108 +428,6 @@ export namespace AutoMovieHumanConicReliefRecentre {
       parameters.push(share * (net.rows - 3));
     }
     return { stations, parameters, skipped: count - stations.length };
-  }
-
-  /**
-   * Every stored net re-expressed on the made wall, in the stored order (the namespace's text).
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Each target is the one height that puts the new figure's point on the stored skin (or, for a kept axis, the stored height of the same skin point); the net is the least squares of a tensor spline on a tensor grid, which separates into one solve per direction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Per net: lay the window, read the targets row by row, solve along the phases and along the stations.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A row without a target is left out and counted; a kept axis on skin that left its section plane is refused; no height is clamped and no residual hidden.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the samples times the nets before, with two dense solves of at most a net's columns.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A net's two normal matrices are factored once and serve every row and column; each target reads the nets already converted.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One target grid lives per net; the result holds the nets alone.
-   */
-  export function convert(props: IProps): INet[] {
-    const samples: number = props.samples ?? 4;
-    if (!(Number.isInteger(samples) && samples >= 2)) throw new Error("relief recentre: at least two samples per span are needed");
-    const out: INet[] = [];
-    const made: IAutoMovieLoftRelief[] = [];
-    props.reliefs.forEach((stored: IAutoMovieLoftRelief, index: number): void => {
-      const laid: IAutoMovieLoftRelief = props.lay === undefined ? lay(props, index) : props.lay(lay(props, index), stored);
-      const kept: boolean =
-        stored.turn === undefined && laid.turn === undefined && laid.axis.every((x: number, c: number): boolean => x === stored.axis[c]);
-      const sampled: { stations: number[]; parameters: number[]; skipped: number } = rows(props, laid);
-      const columns: number = samples * (laid.columns - 3);
-      const width: number = laid.phases.end - laid.phases.start;
-      const phases: number[] = Array.from({ length: columns }, (_: unknown, j: number): number => laid.phases.start + (width * (j + 0.5)) / columns);
-      let mode: INet["mode"] = kept ? "carried" : "cast";
-      const targets: number[][] = [];
-      const observed: number[] = [];
-      let unobserved: number = sampled.skipped;
-      sampled.stations.forEach((s: number, i: number): void => {
-        const frame = props.stored.axis.at(s);
-        const normal: V3 = unit(cross(frame.u, frame.v));
-        const flat: boolean = planar(props.reliefs, index, s, normal);
-        const row: number[] = [];
-        for (const t of phases) {
-          const q: V3 = composed(props.made, made, index, s, t);
-          const start: number = angle(props.stored.axis, s, q);
-          let height: number | null = null;
-          if (kept) {
-            // The stored address of the same skin point: the nearest point of the stored skin before this net, in the section plane.
-            if (!flat) throw new Error("relief recentre: " + stored.name + " keeps its axis on skin that left its section plane at station " + s);
-            const offset = (tau: number): number => {
-              const [p0, p1]: V3[] = [composed(props.stored, props.reliefs, index, s, tau - 1e-6), composed(props.stored, props.reliefs, index, s, tau + 1e-6)];
-              return dot(sub(composed(props.stored, props.reliefs, index, s, tau), q), unit(sub(p1!, p0!)));
-            };
-            const tau: number | null = root(offset, start, 1e-5);
-            if (tau !== null) height = AutoMovieLoftRelief.height(stored, s, tau)[0];
-          } else {
-            const e: V3 = AutoMovieLoftRelief.direction(laid, t)[0];
-            if (flat && Math.abs(dot(e, normal)) <= PLANAR && Math.abs(dot(stored.axis, normal)) <= PLANAR && (stored.turn === undefined || Math.abs(dot(stored.turn, normal)) <= PLANAR)) {
-              // Within the section plane: the stored phase at which the stored skin with this net crosses the line through `q` along `e`.
-              const across: V3 = unit(cross(normal, e));
-              const tau: number | null = root((x: number): number => dot(sub(composed(props.stored, props.reliefs, index + 1, s, x), q), across), start, 1e-6);
-              if (tau !== null) height = dot(sub(composed(props.stored, props.reliefs, index + 1, s, tau), q), e);
-            } else {
-              mode = "skew";
-              height = skew(props, index, s, start, q, e);
-            }
-          }
-          if (height === null) break;
-          row.push(height);
-        }
-        if (row.length === columns) {
-          targets.push(row);
-          observed.push(i);
-        } else ++unobserved;
-      });
-      if (observed.length === 0) throw new Error("relief recentre: " + stored.name + " has no observed row");
-
-      // The least squares, one direction at a time: along the phases for every observed row, then along the stations for every column.
-      const across = design(phases.map((_: number, j: number): number => ((j + 0.5) / columns) * (laid.columns - 3)), laid.columns);
-      const along = design(observed.map((i: number): number => sampled.parameters[i]!), laid.rows);
-      const [freeRows, freeColumns]: [number, number] = [laid.rows - 6, laid.columns - 6];
-      const reduced: number[][] = targets.map((row: number[]): number[] =>
-        across.solve(Array.from({ length: freeColumns }, (_: unknown, b: number): number => across.matrix.reduce((sum: number, weight: number[], j: number): number => sum + weight[b]! * row[j]!, 0))),
-      );
-      const heights: number[] = new Array<number>(laid.rows * laid.columns).fill(0);
-      for (let b: number = 0; b < freeColumns; ++b) {
-        const column: number[] = along.solve(
-          Array.from({ length: freeRows }, (_: unknown, a: number): number => along.matrix.reduce((sum: number, weight: number[], i: number): number => sum + weight[a]! * reduced[i]![b]!, 0)),
-        );
-        for (let a: number = 0; a < freeRows; ++a) heights[(a + 3) * laid.columns + b + 3] = column[a]!;
-      }
-      const fitted: IAutoMovieLoftRelief = { ...laid, heights };
-      const finished: IAutoMovieLoftRelief = props.store === undefined ? fitted : props.store(fitted, stored);
-      let [sum, worst]: [number, number] = [0, 0];
-      observed.forEach((i: number, r: number): void =>
-        phases.forEach((t: number, j: number): void => {
-          const d: number = Math.abs(targets[r]![j]! - AutoMovieLoftRelief.height(finished, sampled.stations[i]!, t)[0]);
-          sum += d;
-          worst = Math.max(worst, d);
-        }),
-      );
-      made.push(finished);
-      out.push({
-        relief: finished,
-        mode,
-        rows: { observed: observed.length, unobserved, first: sampled.stations[observed[0]!]!, last: sampled.stations[observed.at(-1)!]! },
-        residual: { mean: sum / (observed.length * columns), max: worst },
-      });
-    });
-    return out;
   }
 
   /*

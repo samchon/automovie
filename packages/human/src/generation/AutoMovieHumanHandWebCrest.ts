@@ -2,9 +2,6 @@ import type { IAutoMovieHumanHandWebCrest } from "@automovie/interface";
 
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { sub, plus, scale, dot }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-
 /**
  * A hand web's two crests: the dorsal crest, where neighbouring fingers part
  * on the back of the hand, and the palmar crest, where they part on the palm,
@@ -44,3 +41,6 @@ export namespace AutoMovieHumanHandWebCrest {
     };
   }
 }
+
+const { sub, plus, scale, dot }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;

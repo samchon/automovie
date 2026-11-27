@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import "../../math/Quaternion";
+import "../../math/Vector3";
 import { composePoseFrames } from "./composePoseFrames";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
 import { preparePoseJointResolution } from "./preparePoseJointResolution";
@@ -17,16 +17,7 @@ import { preparePosePlacement } from "./preparePosePlacement";
 import { preparePoseReading } from "./preparePoseReading";
 import { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 import type { preparePoseTupleScan } from "./preparePoseTupleScan";
-
-/*
- * Private identity operands; no returned transform aliases them.
- */
-const IDENTITY: IAutoMovieQuaternion = Quaternion.identity();
-
-/*
- * Private root-relative origin.
- */
-const ORIGIN: IAutoMovieVector3 = Vector3.create();
+import * as PreparePoseResolutionStateData from "./PreparePoseResolutionStateData";
 
 /*
  * Own the dynamic FK rows of one operation on one immutable prepared rig.
@@ -109,7 +100,7 @@ export function preparePoseResolutionState(
       state.joints.begin();
       scan(state.joints);
       state.changes.complete();
-      preparePosePlacement(state, pose, IDENTITY, ORIGIN);
+      preparePosePlacement(state, pose, PreparePoseResolutionStateData.IDENTITY, PreparePoseResolutionStateData.ORIGIN);
       return readFrames(
         tables,
         indices,
@@ -278,7 +269,7 @@ export namespace preparePoseResolutionState {
       fallback,
       rows,
     );
-    preparePosePlacement(state, source, IDENTITY, ORIGIN);
+    preparePosePlacement(state, source, PreparePoseResolutionStateData.IDENTITY, PreparePoseResolutionStateData.ORIGIN);
     const demanded: readonly number[] | undefined =
       requested === undefined
         ? undefined
@@ -338,8 +329,8 @@ function createState(
     placed: -1,
     rows: new Uint8Array(tables.count),
     completed: 0,
-    rootRotation: IDENTITY,
-    rootTranslation: ORIGIN,
+    rootRotation: PreparePoseResolutionStateData.IDENTITY,
+    rootTranslation: PreparePoseResolutionStateData.ORIGIN,
     rootRevision: 0,
   };
 }
@@ -350,7 +341,7 @@ function createState(
  */
 function admitPose(state: IState, pose: IAutoMoviePose): IState {
   admitEdits(state, pose.joints);
-  preparePosePlacement(state, pose, IDENTITY, ORIGIN);
+  preparePosePlacement(state, pose, PreparePoseResolutionStateData.IDENTITY, PreparePoseResolutionStateData.ORIGIN);
   return state;
 }
 

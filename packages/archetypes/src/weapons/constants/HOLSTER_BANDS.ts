@@ -4,25 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import type { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
-
-/*
- * What no scabbard maker read gives.
- */
-const UNREAD: string =
-  "no scabbard's thickness or weight was found in the makers' pages read";
-
-/*
- * Back quivers, seen only in search results.
- */
-const QUIVER: string =
-  "back quivers 18 to 22.5 in deep (Bear Archery, Martin Flint, Vista Honcho) and 3.5 in across (Dark Knight Armoury), capacities to 50 arrows (TOPARCHERY), and 20 in quivers weighing 0.62 kg (MAYARMS) and 1.5 lb (CH Narchery), seen only in search results";
-
-/*
- * The US infantry cartridge box of 1841, read at the Ordnance Manual's page
- * images.
- */
-const BOX: string =
-  "the 1841 Ordnance Manual, the infantry cartridge box: 7.7 in long, 1.6 in wide, 5.8 in deep at the front, its flap 8.5 in wide at the bottom; two tins, each with a lower part 3 x 3.3 in for a bundle of 10 cartridges and two upper parts 2.7 in deep, 2 x 1.35 in for 6 and 1.35 in square for 4, 40 rounds in all, p. 140 (https://archive.org/details/vol1841ordnancem00unit)";
+import * as HolsterBandsData from "./internal/HolsterBandsData";
 
 /*
  * The band of each free dimension of `createHolster` a ride or a blade leaves,
@@ -53,31 +35,31 @@ export const HOLSTER_BANDS: Readonly<
     ),
   },
   scabbard: {
-    thickness: AutoMovieArchetypeBand.metres(0.015, 0.025, UNREAD, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.6, UNREAD, true),
+    thickness: AutoMovieArchetypeBand.metres(0.015, 0.025, HolsterBandsData.UNREAD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.6, HolsterBandsData.UNREAD, true),
   },
   sheath: {
-    thickness: AutoMovieArchetypeBand.metres(0.012, 0.02, UNREAD, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
+    thickness: AutoMovieArchetypeBand.metres(0.012, 0.02, HolsterBandsData.UNREAD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.05, 0.15, HolsterBandsData.UNREAD, true),
   },
   quiver: {
     length: AutoMovieArchetypeBand.metres(
       18 * AutoMovieArchetypeUnits.INCH,
       22.5 * AutoMovieArchetypeUnits.INCH,
-      QUIVER,
+      HolsterBandsData.QUIVER,
       true,
     ),
     diameter: AutoMovieArchetypeBand.metres(
       3.5 * AutoMovieArchetypeUnits.INCH,
       3.5 * AutoMovieArchetypeUnits.INCH,
-      QUIVER,
+      HolsterBandsData.QUIVER,
       true,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       0.62,
       1.5 * AutoMovieArchetypeUnits.POUND,
-      QUIVER,
+      HolsterBandsData.QUIVER,
       true,
     ),
   },
@@ -85,22 +67,22 @@ export const HOLSTER_BANDS: Readonly<
     length: AutoMovieArchetypeBand.metres(
       7.7 * AutoMovieArchetypeUnits.INCH,
       7.7 * AutoMovieArchetypeUnits.INCH,
-      BOX,
+      HolsterBandsData.BOX,
     ),
     thickness: AutoMovieArchetypeBand.metres(
       1.6 * AutoMovieArchetypeUnits.INCH,
       1.6 * AutoMovieArchetypeUnits.INCH,
-      BOX,
+      HolsterBandsData.BOX,
     ),
     depth: AutoMovieArchetypeBand.metres(
       5.8 * AutoMovieArchetypeUnits.INCH,
       5.8 * AutoMovieArchetypeUnits.INCH,
-      BOX,
+      HolsterBandsData.BOX,
     ),
     width: AutoMovieArchetypeBand.metres(
       8.5 * AutoMovieArchetypeUnits.INCH,
       8.5 * AutoMovieArchetypeUnits.INCH,
-      `${BOX}: the flap's width at its bottom`,
+      `${HolsterBandsData.BOX}: the flap's width at its bottom`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",

@@ -9,12 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * World Gymnastics Apparatus Norms, WAG 3, balance beam measurements.
- */
-const NORMS: string =
-  "World Gymnastics Apparatus Norms, WAG 3 §2.1 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
+import * as AutoMovieArchetypeBalanceBeamData from "./internal/AutoMovieArchetypeBalanceBeamData";
 
 /** Constructs the balance beam archetype from its recipe. */
 export namespace AutoMovieArchetypeBalanceBeam {
@@ -151,11 +146,11 @@ export function create(
 
   /** Competition tolerances and a provisional mass for the coarse model. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(4.99, 5.01, NORMS),
-    height: AutoMovieArchetypeBand.metres(1.24, 1.26, NORMS),
-    width: AutoMovieArchetypeBand.metres(0.095, 0.105, NORMS),
-    sectionWidth: AutoMovieArchetypeBand.metres(0.125, 0.135, NORMS),
-    sectionDepth: AutoMovieArchetypeBand.metres(0.155, 0.165, NORMS),
+    length: AutoMovieArchetypeBand.metres(4.99, 5.01, AutoMovieArchetypeBalanceBeamData.NORMS),
+    height: AutoMovieArchetypeBand.metres(1.24, 1.26, AutoMovieArchetypeBalanceBeamData.NORMS),
+    width: AutoMovieArchetypeBand.metres(0.095, 0.105, AutoMovieArchetypeBalanceBeamData.NORMS),
+    sectionWidth: AutoMovieArchetypeBand.metres(0.125, 0.135, AutoMovieArchetypeBalanceBeamData.NORMS),
+    sectionDepth: AutoMovieArchetypeBand.metres(0.155, 0.165, AutoMovieArchetypeBalanceBeamData.NORMS),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       75,

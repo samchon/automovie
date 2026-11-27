@@ -14,12 +14,6 @@ import {
   type AutoMovieArchetypeSpan,
 } from "../core";
 
-/*
- * The riding saddle's mass when it travels alone, kilograms: authored, as the
- * horse producer carries none for its tack parts either.
- */
-const MASS: number = 7;
-
 /**
  * A horse's riding saddle as a prop a handler can carry, made of the saddle
  * parts of the same horse saddled.
@@ -163,3 +157,9 @@ export namespace AutoMovieArchetypeEquineSaddleProp {
     return builder.build(MASS);
   }
 }
+
+/*
+ * The riding saddle's mass when it travels alone, kilograms: authored, as the
+ * horse producer carries none for its tack parts either.
+ */
+const MASS: number = 7;

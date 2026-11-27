@@ -10,12 +10,6 @@ import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 
 /*
- * The proxy centre of mass's least distance inside the remaining supports
- * before a hoof leaves the floor, metres: authored.
- */
-const MARGIN: number = 0.03;
-
-/*
  * The support rules every stance row shares: hooves on their anchors, a limb
  * folded by a share of its turns, trunk shifts, and the weight transfer that
  * must precede releasing a hoof.
@@ -228,3 +222,9 @@ export namespace EquineStanceSupport {
     };
   }
 }
+
+/*
+ * The proxy centre of mass's least distance inside the remaining supports
+ * before a hoof leaves the floor, metres: authored.
+ */
+const MARGIN: number = 0.03;

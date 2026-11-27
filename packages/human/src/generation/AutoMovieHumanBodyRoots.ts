@@ -246,11 +246,6 @@ export namespace AutoMovieHumanBodyRoots {
     );
   }
 
-  /*
-   * Rings of the strip between its edges, plus one.
-   */
-  const STEPS: number = 8;
-
   /**
    * Chart points of a chain whose surface points project along an
    * opening's forward axis onto each point of its projected outline: the
@@ -343,6 +338,11 @@ export namespace AutoMovieHumanBodyRoots {
 
   /** Outward first and second derivatives of a chain across a loop, by arc length. */
   export const across = AutoMovieHumanBodyStrip.across;
+
+  /*
+   * Rings of the strip between its edges, plus one.
+   */
+  const STEPS: number = 8;
 }
 
 const dot = (a: V, b: readonly number[]): number =>

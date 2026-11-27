@@ -14,11 +14,6 @@ import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
  * at the point where both stand at the same lateral place.
  */
 export namespace AutoMovieHumanDeltoidCap {
-  /*
-   * Smallest lateral half size kept, mm: under it the cap is the girdle's.
-   */
-  const MINIMUM: number = 0.5;
-
   /**
    * The cap's ellipse at a height above the glenohumeral centre.
    *
@@ -39,4 +34,9 @@ export namespace AutoMovieHumanDeltoidCap {
 
     return { x, z: gz, rx: rz / AutoMovieHumanShoulderCap.STRETCH, rz };
   }
+
+  /*
+   * Smallest lateral half size kept, mm: under it the cap is the girdle's.
+   */
+  const MINIMUM: number = 0.5;
 }

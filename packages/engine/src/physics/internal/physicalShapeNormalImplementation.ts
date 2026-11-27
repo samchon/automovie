@@ -8,6 +8,22 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { physicalShapeHull } from "./physicalShapeHull";
+import * as PhysicalShapeNormalImplementationData from "./PhysicalShapeNormalImplementationData";
+
+
+/*
+ * Internal implementations shared by the one-function entry modules.
+ */
+/*
+ * Internal typed runtime implementations shared by the query entry modules.
+ */
+export const physicalShapeNormalImplementation: {
+  physicalShapeNormal: typeof physicalShapeNormal;
+  physicalShapeNormalPrepare: typeof physicalShapeNormalPrepare;
+} = {
+  physicalShapeNormal,
+  physicalShapeNormalPrepare,
+};
 
 
 /*
@@ -55,32 +71,6 @@ function physicalShapeNormal(
 }
 
 /*
- * Canonical face order: negative then positive X, Y and Z, as in the original
- * plane construction.
- */
-const BOX: readonly IBoxPlane[] = [
-  { axis: "x", normal: { x: -1, y: 0, z: 0 } },
-  { axis: "x", normal: { x: 1, y: 0, z: 0 } },
-  { axis: "y", normal: { x: 0, y: -1, z: 0 } },
-  { axis: "y", normal: { x: 0, y: 1, z: 0 } },
-  { axis: "z", normal: { x: 0, y: 0, z: -1 } },
-  { axis: "z", normal: { x: 0, y: 0, z: 1 } },
-];
-
-/*
- * How wide, metres, a box's or a hull's normal blends across an edge
- * (`physicalShapeNormal`), provisional: half the 10 mm a pressed skin gives, so
- * a face's middle keeps its own normal (a face 30 mm off weighs e^-6 of it) and
- * an edge turns within a fingertip's breadth.
- */
-const SMOOTH: number = 0.005;
-
-/*
- * Metres under which a radius or a normal has no direction.
- */
-const BOUNDARY: number = 1e-9;
-
-/*
  * Prepare one framed collider's centre, orientation and planes.
  */
 function prepareNormal(
@@ -100,9 +90,9 @@ function prepareNormal(
       shape.kind === "hull"
         ? physicalShapeHull(shape).faces
         : shape.kind === "box"
-          ? BOX.map(
+          ? PhysicalShapeNormalImplementationData.BOX.map(
               (
-                plane: IBoxPlane,
+                plane: PhysicalShapeNormalImplementationData.IBoxPlane,
               ): { normal: IAutoMovieVector3; offset: number } => ({
                 normal: plane.normal,
                 offset: shape.halfExtents[plane.axis],
@@ -152,13 +142,13 @@ function normal(
   let z: number = 0;
   for (let k: number = 0; k < planes.length; k++) {
     const plane: { normal: IAutoMovieVector3; offset: number } = planes[k]!;
-    const weight: number = Math.exp((heights[k]! - top) / SMOOTH);
+    const weight: number = Math.exp((heights[k]! - top) / PhysicalShapeNormalImplementationData.SMOOTH);
     x += plane.normal.x * weight;
     y += plane.normal.y * weight;
     z += plane.normal.z * weight;
   }
   const sum: IAutoMovieVector3 = { x, y, z };
-  return Vector3.length(sum) > BOUNDARY
+  return Vector3.length(sum) > PhysicalShapeNormalImplementationData.BOUNDARY
     ? Vector3.normalize(Quaternion.rotateVector(rotation, sum))
     : fallback;
 }
@@ -173,7 +163,7 @@ function radial(
   fallback: IAutoMovieVector3,
 ): IAutoMovieVector3 {
   const r: IAutoMovieVector3 = Vector3.subtract(point, from);
-  return Vector3.length(r) > BOUNDARY ? Vector3.normalize(r) : fallback;
+  return Vector3.length(r) > PhysicalShapeNormalImplementationData.BOUNDARY ? Vector3.normalize(r) : fallback;
 }
 
 /*
@@ -193,40 +183,6 @@ function centreOfShape(
   centre.y = origin.y + centre.y;
   centre.z = origin.z + centre.z;
   return centre;
-}
-
-/*
- * Internal implementations shared by the one-function entry modules.
- */
-/*
- * Internal typed runtime implementations shared by the query entry modules.
- */
-export const physicalShapeNormalImplementation: {
-  physicalShapeNormal: typeof physicalShapeNormal;
-  physicalShapeNormalPrepare: typeof physicalShapeNormalPrepare;
-} = {
-  physicalShapeNormal,
-  physicalShapeNormalPrepare,
-};
-
-/*
- * Fixed collider geometry can lend only its invariant normal prerequisites.
- */
-
-/*
- * One fixed box face's unit normal and the half-extent axis that gives its
- * offset.
- */
-interface IBoxPlane {
-  /*
-   * The face's outward unit normal in box-local coordinates.
-   */
-  normal: IAutoMovieVector3;
-
-  /*
-   * Which current half extent supplies the plane's offset, metres.
-   */
-  axis: "x" | "y" | "z";
 }
 /*
  * Fixed metadata of one framed collider; no query point is retained.

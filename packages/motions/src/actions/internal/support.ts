@@ -25,12 +25,7 @@ import { supportCourse } from "./supportCourse";
 import { supportKey } from "./supportKey";
 import { supportPlan } from "./supportPlan";
 import { supportStep } from "./supportStep";
-
-/*
- * Offset decay time of a cut from a support sequence into standing, seconds
- * (provisional: no study of the transition was located).
- */
-const BLEND: number = 0.3;
+import * as SupportData from "./SupportData";
 
 /*
  * Moving the body's weight across a sequence of supports: each stance's
@@ -99,7 +94,7 @@ export namespace support {
         window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
-        blend: BLEND,
+        blend: SupportData.BLEND,
       },
     ],
   };

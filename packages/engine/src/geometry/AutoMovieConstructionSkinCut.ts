@@ -7,7 +7,6 @@ import type {
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { dot } = AutoMovieSolidVector;
 /**
  * A face's skin cut by a surface fixed in space: the curve `u = rho(v)` on the
  * face's chart along which the skin enters the region a set of planes keeps,
@@ -225,6 +224,8 @@ export namespace AutoMovieConstructionSkinCut {
     };
   }
 }
+
+const { dot } = AutoMovieSolidVector;
 
 /*
  * World point or direction, mm.

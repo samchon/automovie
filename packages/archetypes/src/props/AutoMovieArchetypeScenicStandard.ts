@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The size bands describe plausible set props rather than measured artifacts.
- */
-const SCENIC: string =
-  "Authored set size. Staff and panel silhouettes draw on the Met standard bearer (https://www.metmuseum.org/art/collection/search/546175) and the British Museum textile banner (https://islamicworld.britishmuseum.org/collection/RRM186437).";
+import * as AutoMovieArchetypeScenicStandardData from "./internal/AutoMovieArchetypeScenicStandardData";
 
 /** Constructs the scenic standard archetype from its recipe. */
 export namespace AutoMovieArchetypeScenicStandard {
@@ -164,11 +159,11 @@ export function create(
 
   /** Set dimensions sized for a hand-carried silhouette with an exposed shaft. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(1.2, 2.1, SCENIC, true),
-    shaftDiameter: AutoMovieArchetypeBand.metres(0.026, 0.048, SCENIC, true),
-    headSpan: AutoMovieArchetypeBand.metres(0.3, 0.7, SCENIC, true),
-    faceDepth: AutoMovieArchetypeBand.metres(0.008, 0.028, SCENIC, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.3, 1.5, SCENIC, true),
+    length: AutoMovieArchetypeBand.metres(1.2, 2.1, AutoMovieArchetypeScenicStandardData.SCENIC, true),
+    shaftDiameter: AutoMovieArchetypeBand.metres(0.026, 0.048, AutoMovieArchetypeScenicStandardData.SCENIC, true),
+    headSpan: AutoMovieArchetypeBand.metres(0.3, 0.7, AutoMovieArchetypeScenicStandardData.SCENIC, true),
+    faceDepth: AutoMovieArchetypeBand.metres(0.008, 0.028, AutoMovieArchetypeScenicStandardData.SCENIC, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.3, 1.5, AutoMovieArchetypeScenicStandardData.SCENIC, true),
   };
 
   /** The named silhouette and optional fixed dimensions of the standard. */

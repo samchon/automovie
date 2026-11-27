@@ -5,45 +5,7 @@ import {
 } from "../../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 import type { AutoMovieArchetypeDoor } from "../AutoMovieArchetypeDoor";
-
-/*
- * The accessibility standard's door clauses.
- */
-const ADA: string =
-  "2010 ADA Standards (https://www.access-board.gov/ada/chapter/ch04/)";
-
-/*
- * The bands every door shares.
- */
-const LEAF: Readonly<
-  Partial<Record<AutoMovieArchetypeDoor.Dimension, IAutoMovieArchetypeBand>>
-> = {
-  force: AutoMovieArchetypeBand.of(
-    "N",
-    11,
-    22.2,
-    `${ADA} 404.2.9, interior hinged and sliding doors open with at most 5 lbf (22.2 N); the lower end is half of it, an estimate`,
-    true,
-  ),
-  mass: AutoMovieArchetypeBand.of(
-    "kg",
-    25,
-    45,
-    AutoMovieArchetypeBand.TYPICAL_MASS,
-    true,
-  ),
-};
-
-/*
- * The bands of a hinged door's swing.
- */
-const SWING: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
-  "degrees",
-  90,
-  90,
-  `${ADA} 404.2.3 measures the clear width with the door open 90 degrees; no greater opening was found at a source`,
-  true,
-);
+import * as DoorBandsData from "./internal/DoorBandsData";
 
 /*
  * The band of each free dimension of a door, by hardware and for a sliding
@@ -56,8 +18,8 @@ export const DOOR_BANDS: Readonly<
   >
 > = {
   lever: {
-    ...LEAF,
-    swing: SWING,
+    ...DoorBandsData.LEAF,
+    swing: DoorBandsData.SWING,
     hardwareHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
@@ -71,8 +33,8 @@ export const DOOR_BANDS: Readonly<
     ),
   },
   knob: {
-    ...LEAF,
-    swing: SWING,
+    ...DoorBandsData.LEAF,
+    swing: DoorBandsData.SWING,
     hardwareHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
@@ -99,8 +61,8 @@ export const DOOR_BANDS: Readonly<
     ),
   },
   plate: {
-    ...LEAF,
-    swing: SWING,
+    ...DoorBandsData.LEAF,
+    swing: DoorBandsData.SWING,
     backset: AutoMovieArchetypeBand.metres(
       0.1,
       0.15,
@@ -109,7 +71,7 @@ export const DOOR_BANDS: Readonly<
     ),
   },
   sliding: {
-    ...LEAF,
+    ...DoorBandsData.LEAF,
     hardwareHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,

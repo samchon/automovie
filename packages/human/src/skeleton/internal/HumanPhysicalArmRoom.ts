@@ -10,16 +10,6 @@ import type {
 } from "@automovie/interface";
 
 /*
- * The arm opening's resolution, degrees.
- */
-const RESOLUTION: number = 1e-9;
-
-/*
- * A probe turn that tells outward from inward, degrees.
- */
-const PROBE: number = 1;
-
-/*
  * Opening a standing Human's arms at the physics handoff
  * (`AutoMovieHumanPhysicalStandingPose.fit`) so no arm collider starts inside the body.
  *
@@ -55,6 +45,16 @@ export namespace HumanPhysicalArmRoom {
     return true;
   }
 }
+
+/*
+ * The arm opening's resolution, degrees.
+ */
+const RESOLUTION: number = 1e-9;
+
+/*
+ * A probe turn that tells outward from inward, degrees.
+ */
+const PROBE: number = 1;
 
 /*
  * Open one arm; false when no abduction in range clears it.

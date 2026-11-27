@@ -47,18 +47,6 @@ import { AutoMovieHumanTrunkBuild } from "./AutoMovieHumanTrunkBuild";
  * and its rollback. A source tree is not a completed skin.
  */
 export namespace AutoMovieHumanBodyLane {
-  /*
-   * The joins' trace limits: 64 traced points and blend columns per fold; a
-   * curve gap far under the sections' own representation error (about 0.01 mm);
-   * and the least angle between the two skins, asin(0.01), under which that
-   * error `e` moves the curve by `e / sin(alpha)` past 1 mm.
-   */
-  const LIMITS: Omit<IAutoMovieHumanBodyTree.ILimits, "gap"> = {
-    count: 64,
-    tolerance: 1e-6,
-    grazing: Math.asin(0.01),
-  };
-
   /**
    * Assemble and fully realize the body lane through its shared definition.
    *
@@ -349,6 +337,18 @@ export namespace AutoMovieHumanBodyLane {
     root = AutoMovieHumanBodyTree.sources(root, sourceParts, diagnostics);
     return { root, limits, diagnostics, sources, handAttachments, sourceParts };
   }
+
+  /*
+   * The joins' trace limits: 64 traced points and blend columns per fold; a
+   * curve gap far under the sections' own representation error (about 0.01 mm);
+   * and the least angle between the two skins, asin(0.01), under which that
+   * error `e` moves the curve by `e / sin(alpha)` past 1 mm.
+   */
+  const LIMITS: Omit<IAutoMovieHumanBodyTree.ILimits, "gap"> = {
+    count: 64,
+    tolerance: 1e-6,
+    grazing: Math.asin(0.01),
+  };
 
   /*
    * The distance of two points, mm.

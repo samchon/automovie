@@ -10,11 +10,6 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/*
- * Nominal concrete density for the schematic slab, kilograms per cubic metre.
- */
-const CONCRETE_DENSITY: number = 2_400;
-
 /** Constructs the rail carriage archetype from its recipe. */
 export namespace AutoMovieArchetypeRailCarriage {
   /**
@@ -421,22 +416,6 @@ export namespace AutoMovieArchetypeRailCarriage {
     return builder.build(65_000 * AutoMovieArchetypeUnits.POUND);
   }
 
-  /*
-   * All slider pairs from negative to positive Z on the two sides.
-   */
-  const DOORS = {
-    far: [
-      ["farDoor0", "farDoor0Follower"],
-      ["farDoor1", "farDoor1Follower"],
-      ["farDoor2", "farDoor2Follower"],
-    ],
-    platform: [
-      ["rearDoor", "rearDoorFollower"],
-      ["door", "doorFollower"],
-      ["frontDoor", "frontDoorFollower"],
-    ],
-  } as const;
-
   /** Outside width and floor height above rail in metres, reference §II.C.3. */
   export const REFERENCE: Readonly<{ width: number; floor: number }> = {
     width: 126 * AutoMovieArchetypeUnits.INCH,
@@ -522,6 +501,22 @@ export namespace AutoMovieArchetypeRailCarriage {
   }
 
   /*
+   * All slider pairs from negative to positive Z on the two sides.
+   */
+  const DOORS = {
+    far: [
+      ["farDoor0", "farDoor0Follower"],
+      ["farDoor1", "farDoor1Follower"],
+      ["farDoor2", "farDoor2Follower"],
+    ],
+    platform: [
+      ["rearDoor", "rearDoorFollower"],
+      ["door", "doorFollower"],
+      ["frontDoor", "frontDoorFollower"],
+    ],
+  } as const;
+
+  /*
    * Unit shared by the seat-height input, band and record.
    */
   const UNITS: Readonly<
@@ -599,3 +594,8 @@ export namespace AutoMovieArchetypeRailCarriage {
   /** The six independently controlled pairs' leaf ids. */
   type DoorId = DoorPair[number];
 }
+
+/*
+ * Nominal concrete density for the schematic slab, kilograms per cubic metre.
+ */
+const CONCRETE_DENSITY: number = 2_400;

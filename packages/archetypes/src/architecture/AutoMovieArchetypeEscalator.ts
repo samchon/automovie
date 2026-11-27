@@ -14,10 +14,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { rideEscalator } from "./internal/rideEscalator";
-import { createEscalatorConstants } from "./internal/createEscalatorConstants";
+import "./internal/createEscalatorConstants";
+import * as AutoMovieArchetypeEscalatorData from "./internal/AutoMovieArchetypeEscalatorData";
 
-const { KONE, ESTIMATE, PITCH, RAIL_OFFSET, PLATE, LANDING } =
-  createEscalatorConstants;
 /** Creates a deterministic escalator fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeEscalator {
   /**
@@ -129,14 +128,14 @@ export namespace AutoMovieArchetypeEscalator {
     // Fixed landings before each comb and the step band's coarse top surface.
     builder.box(
       "lowerLanding",
-      Vector3.create(width + 2 * RAIL_OFFSET, PLATE, LANDING),
-      Vector3.create(0, -PLATE / 2, -LANDING / 2),
+      Vector3.create(width + 2 * AutoMovieArchetypeEscalatorData.RAIL_OFFSET, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.LANDING),
+      Vector3.create(0, -AutoMovieArchetypeEscalatorData.PLATE / 2, -AutoMovieArchetypeEscalatorData.LANDING / 2),
       { color: "#8a8f96" },
     );
     builder.box(
       "upperLanding",
-      Vector3.create(width + 2 * RAIL_OFFSET, PLATE, LANDING),
-      Vector3.create(0, rise - PLATE / 2, top.z + LANDING / 2),
+      Vector3.create(width + 2 * AutoMovieArchetypeEscalatorData.RAIL_OFFSET, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.LANDING),
+      Vector3.create(0, rise - AutoMovieArchetypeEscalatorData.PLATE / 2, top.z + AutoMovieArchetypeEscalatorData.LANDING / 2),
       { color: "#8a8f96" },
     );
     const ends: readonly IAutoMovieVector3[] = [
@@ -154,10 +153,10 @@ export namespace AutoMovieArchetypeEscalator {
       const slope: number = Math.atan2(span.y, span.z) / Quaternion.DEG2RAD;
       builder.box(
         id,
-        Vector3.create(width, PLATE, Vector3.length(span)),
+        Vector3.create(width, AutoMovieArchetypeEscalatorData.PLATE, Vector3.length(span)),
         Vector3.add(Vector3.scale(Vector3.add(from, to), 0.5), {
           x: 0,
-          y: -PLATE / 2,
+          y: -AutoMovieArchetypeEscalatorData.PLATE / 2,
           z: 0,
         }),
         {
@@ -171,10 +170,10 @@ export namespace AutoMovieArchetypeEscalator {
           0.04,
           {
             ...from,
-            x: side * (width / 2 + RAIL_OFFSET),
+            x: side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET),
             y: from.y + handrail,
           },
-          { ...to, x: side * (width / 2 + RAIL_OFFSET), y: to.y + handrail },
+          { ...to, x: side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET), y: to.y + handrail },
           { color: "#111111" },
         );
     }
@@ -183,21 +182,21 @@ export namespace AutoMovieArchetypeEscalator {
       id: "lowerLanding",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, 0, -LANDING / 2),
+        Vector3.create(0, 0, -AutoMovieArchetypeEscalatorData.LANDING / 2),
       ),
       extent: null,
       width,
-      depth: LANDING,
+      depth: AutoMovieArchetypeEscalatorData.LANDING,
     });
     builder.affordance({
       id: "upperLanding",
       kind: "surface",
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, rise, top.z + LANDING / 2),
+        Vector3.create(0, rise, top.z + AutoMovieArchetypeEscalatorData.LANDING / 2),
       ),
       extent: null,
       width,
-      depth: LANDING,
+      depth: AutoMovieArchetypeEscalatorData.LANDING,
     });
     for (const side of [-1, 1] as const)
       builder.affordance({
@@ -207,7 +206,7 @@ export namespace AutoMovieArchetypeEscalator {
         grip: "power",
         frame: AutoMovieArchetypeFrame.facing(
           Vector3.create(
-            side * (width / 2 + RAIL_OFFSET),
+            side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET),
             handrail,
             profile.flat / 2,
           ),
@@ -288,19 +287,19 @@ export namespace AutoMovieArchetypeEscalator {
     rise: AutoMovieArchetypeBand.metres(
       2,
       12,
-      `${KONE}, Table 5.2 retail, office and airport rises`,
+      `${AutoMovieArchetypeEscalatorData.KONE}, Table 5.2 retail, office and airport rises`,
     ),
     width: AutoMovieArchetypeBand.metres(
       0.58,
       1.1,
-      `${KONE}, 5.3 EN 115-1 step widths`,
+      `${AutoMovieArchetypeEscalatorData.KONE}, 5.3 EN 115-1 step widths`,
     ),
     handrail: AutoMovieArchetypeBand.metres(
       0.9,
       1.1,
-      `${KONE}, 5.12 balustrade heights`,
+      `${AutoMovieArchetypeEscalatorData.KONE}, 5.12 balustrade heights`,
     ),
-    mass: AutoMovieArchetypeBand.of("kg", 4000, 12000, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 4000, 12000, AutoMovieArchetypeEscalatorData.ESTIMATE, true),
   };
 
   /**
@@ -373,9 +372,9 @@ export namespace AutoMovieArchetypeEscalator {
           "the rise does not leave a straight run between the transition curves",
         fix: "give a rise above the two transitions' combined height",
       });
-    const flat: number = d.level! * PITCH;
+    const flat: number = d.level! * AutoMovieArchetypeEscalatorData.PITCH;
     return {
-      pitch: PITCH,
+      pitch: AutoMovieArchetypeEscalatorData.PITCH,
       angle,
       flat,
       lower: d.lowerRadius!,
@@ -385,7 +384,7 @@ export namespace AutoMovieArchetypeEscalator {
       rise: d.rise!,
       speed: d.speed!,
       handrail: d.handrail!,
-      rail: d.width! / 2 + RAIL_OFFSET,
+      rail: d.width! / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET,
     };
   }
 
@@ -462,7 +461,7 @@ export namespace AutoMovieArchetypeEscalator {
         {},
       );
     draw.derive("width", width);
-    draw.derive("depth", PITCH);
+    draw.derive("depth", AutoMovieArchetypeEscalatorData.PITCH);
     draw.derive("mass", 15);
     const builder: AutoMovieArchetypeBuilder<TreadAffordance, TreadDimension> =
       new AutoMovieArchetypeBuilder({
@@ -472,8 +471,8 @@ export namespace AutoMovieArchetypeEscalator {
       });
     builder.box(
       "tread",
-      Vector3.create(width, PLATE, PITCH),
-      Vector3.create(0, -PLATE / 2, 0),
+      Vector3.create(width, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.PITCH),
+      Vector3.create(0, -AutoMovieArchetypeEscalatorData.PLATE / 2, 0),
       { color: "#3a3f46" },
     );
     builder.affordance({
@@ -482,7 +481,7 @@ export namespace AutoMovieArchetypeEscalator {
       frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
       extent: null,
       width,
-      depth: PITCH,
+      depth: AutoMovieArchetypeEscalatorData.PITCH,
     });
 
     // The handrails run at the step band's speed (EN 115-1), so the grip
@@ -494,12 +493,12 @@ export namespace AutoMovieArchetypeEscalator {
         symmetry: "round",
         grip: "power",
         frame: AutoMovieArchetypeFrame.facing(
-          Vector3.create(side * (width / 2 + RAIL_OFFSET), handrail, 0),
+          Vector3.create(side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET), handrail, 0),
           Vector3.create(0, 1, 0),
           Vector3.create(0, 0, 1),
         ),
         extent: null,
-        length: PITCH,
+        length: AutoMovieArchetypeEscalatorData.PITCH,
         aperture: 0.08,
       });
     return builder.build(15);

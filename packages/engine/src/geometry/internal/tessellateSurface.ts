@@ -11,12 +11,6 @@ import { AutoMovieEngineSpace } from "../../space/index";
 import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
 
 /*
- * Plan distance, in metres, within which a point counts as on a clip edge or a
- * lattice cut as on the footprint's edge.
- */
-const CLIP_EPSILON: number = 1e-10;
-
-/*
  * Tessellate exactly the support surface that engine height queries read.
  *
  * The footprint is taken as the convex pieces whose union is the region itself,
@@ -85,6 +79,12 @@ export const tessellateSurface: (
   }
   return tessellatePolygons(surface, cells);
 };
+
+/*
+ * Plan distance, in metres, within which a point counts as on a clip edge or a
+ * lattice cut as on the footprint's edge.
+ */
+const CLIP_EPSILON: number = 1e-10;
 
 /*
  * Ascending cut coordinates: the span's two ends and every lattice line

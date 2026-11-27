@@ -6,15 +6,6 @@ import type {
 import * as THREE from "three";
 
 /*
- * The group node's own origin, which every local offset is measured about.
- *
- * Frozen because one object stands in two of the engine's parameter slots at
- * once, and every unit in the scene shares it: a caller that ever wrote through
- * either slot would move the origin of every crowd at the same time.
- */
-const ROOT_ORIGIN: IAutoMovieVector3 = Object.freeze({ x: 0, y: 0, z: 0 });
-
-/*
  * Where one designed point stands inside the group node, once the unit's own
  * heading and the current spacing have opened or closed the arrangement.
  *
@@ -55,3 +46,12 @@ export const formationSpacingOffset: (
   );
   return new THREE.Vector3(placed.x, placed.y, placed.z);
 };
+
+/*
+ * The group node's own origin, which every local offset is measured about.
+ *
+ * Frozen because one object stands in two of the engine's parameter slots at
+ * once, and every unit in the scene shares it: a caller that ever wrote through
+ * either slot would move the origin of every crowd at the same time.
+ */
+const ROOT_ORIGIN: IAutoMovieVector3 = Object.freeze({ x: 0, y: 0, z: 0 });

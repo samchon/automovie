@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No maker's page was read.
- */
-const STAGED: string =
-  "a long-handled striking tool: its dimensions and mass are provisional estimates, no maker's page was read";
+import * as AutoMovieArchetypeSledgehammerData from "./internal/AutoMovieArchetypeSledgehammerData";
 
 /** Constructs the sledgehammer archetype from its recipe. */
 export namespace AutoMovieArchetypeSledgehammer {
@@ -127,9 +122,9 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(0.8, 0.95, STAGED, true),
-    head: AutoMovieArchetypeBand.metres(0.16, 0.22, STAGED, true),
-    headMass: AutoMovieArchetypeBand.of("kg", 2.5, 4.5, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 3.5, 5.5, STAGED, true),
+    length: AutoMovieArchetypeBand.metres(0.8, 0.95, AutoMovieArchetypeSledgehammerData.STAGED, true),
+    head: AutoMovieArchetypeBand.metres(0.16, 0.22, AutoMovieArchetypeSledgehammerData.STAGED, true),
+    headMass: AutoMovieArchetypeBand.of("kg", 2.5, 4.5, AutoMovieArchetypeSledgehammerData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 3.5, 5.5, AutoMovieArchetypeSledgehammerData.STAGED, true),
   };
 }

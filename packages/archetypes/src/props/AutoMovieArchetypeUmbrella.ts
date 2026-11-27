@@ -9,12 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { AutoMovieArchetypeUmbrellaRunner } from "./AutoMovieArchetypeUmbrellaRunner";
-
-/*
- * The handle diameters hands rated most comfortable in a power grip.
- */
-const POWER: string =
-  "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to an umbrella's handle, whose own diameter no maker read states";
+import * as AutoMovieArchetypeUmbrellaData from "./internal/AutoMovieArchetypeUmbrellaData";
 
 /** Constructs the umbrella archetype from its recipe. */
 export namespace AutoMovieArchetypeUmbrella {
@@ -216,6 +211,6 @@ export function create(
   export const BANDS: Readonly<
     Partial<Record<Dimension, IAutoMovieArchetypeBand>>
   > = {
-    gripDiameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
+    gripDiameter: AutoMovieArchetypeBand.metres(0.03, 0.04, AutoMovieArchetypeUmbrellaData.POWER, true),
   };
 }

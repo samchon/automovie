@@ -239,151 +239,6 @@ export function workHeldPush(
 }
 
 /*
- * The free hand's grip of the contact on the held prop at a frame: it closes
- * round the contact's line (its `+X`) as a power grip takes any handle
- * (`HumanGrasp.hand`), arriving along the contact's own `-Y`, then rolls about
- * that line until its wrist lies nearest the shoulder (`HumanGraspRoll`), and
- * keeps that attitude as the contact moves.
- */
-function grasp(
-  context: IAutoMovieMotionHumanActionContext<object>,
-  other: AutoMovieHumanSide,
-  joint: IAutoMovieAffordance,
-  contact: IAutoMovieAffordance,
-  frame: IAutoMovieRigidTransform,
-  start: number,
-  shoulder: IAutoMovieVector3,
-): workHeldPush.IGrasp {
-  const place: (travel: number) => IAutoMovieVector3 = (
-    travel: number,
-  ): IAutoMovieVector3 =>
-    Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(
-        frame.rotation,
-        heldDigits.posed(joint, contact, travel),
-      ),
-    );
-  const turned: IAutoMovieQuaternion = Quaternion.multiply(
-    frame.rotation,
-    contact.frame.rotation,
-  );
-  const line: IAutoMovieVector3 = Vector3.normalize(
-    Quaternion.rotateVector(turned, { x: 1, y: 0, z: 0 }),
-  );
-  const grasped: IAutoMovieMotionHumanHand.IWrist = HumanGraspRoll(
-    HumanGrasp.hand(context.body, other, {
-      point: place(start),
-      approach: Vector3.normalize(
-        Quaternion.rotateVector(turned, { x: 0, y: -1, z: 0 }),
-      ),
-      axis: line,
-      width: contact.aperture ?? 0,
-    }),
-    place(start),
-    line,
-    shoulder,
-  );
-  return {
-    place,
-    wrist: (travel: number): IAutoMovieVector3 =>
-      Vector3.add(grasped.point, Vector3.subtract(place(travel), place(start))),
-    turn: grasped.rotation,
-  };
-}
-
-/*
- * How a prop whose contact the free arm cannot reach is brought before the
- * body: the contact's start goes onto the performer's midline at the free
- * elbow's height when the upper arm hangs, a forearm ahead of the shoulder,
- * where the forearm lies level from an elbow at the side, the neutral working
- * posture; and the prop turns about the vertical through it, the least way,
- * until the contact's travel leads toward the free hand's side, away from the
- * hand that holds it, as a pin is pulled out sideways.
- * Returns: The contact's new start, world metres, and the turn about it.
- */
-function presentation(
-  context: IAutoMovieMotionHumanActionContext<object>,
-  other: AutoMovieHumanSide,
-  shoulder: IAutoMovieVector3,
-  still: workHeldPush.IGrasp,
-  start: number,
-  end: number,
-): IAutoMovieRigidTransform {
-  const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const floor: IAutoMovieMotionHumanFrame = {
-    origin: { x: posture.root.x, y: 0, z: posture.root.z },
-    yaw: posture.yaw,
-  };
-  const ahead: number = HumanFrame.local(floor, shoulder).z;
-  const point: IAutoMovieVector3 = HumanFrame.point(floor, {
-    x: 0,
-    y: shoulder.y - context.body.measure.upperArm,
-    z: ahead + context.body.measure.forearm,
-  });
-  // World +X is the performer's left at heading 0.
-  const away: IAutoMovieVector3 = Vector3.subtract(
-    HumanFrame.point(floor, { x: other === "left" ? 1 : -1, y: 0, z: 0 }),
-    HumanFrame.point(floor, { x: 0, y: 0, z: 0 }),
-  );
-  const along: IAutoMovieVector3 = Vector3.subtract(
-    still.place(end),
-    still.place(start),
-  );
-  const level: IAutoMovieVector3 = { x: along.x, y: 0, z: along.z };
-  const degrees: number =
-    Vector3.length(level) === 0
-      ? 0
-      : (Math.atan2(
-          level.z * away.x - level.x * away.z,
-          level.x * away.x + level.z * away.z,
-        ) *
-          180) /
-        Math.PI;
-  return {
-    position: point,
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
-  };
-}
-/*
- * The holding arm bringing the prop before the body and keeping it there.
- */
-function present(
-  context: IAutoMovieMotionHumanActionContext<object>,
-  side: AutoMovieHumanSide,
-  clock: IAutoMovieMotionClock,
-  wrist: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion,
-  offset: IAutoMovieVector3,
-): IAutoMovieMotionHumanPrimitive {
-  const ready: number = clock.at("strokeStart");
-  const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-    context.body,
-    context.entry.posture,
-    side,
-  );
-  return AutoMovieMotionHumanArm.carried({
-    body: context.body,
-    side,
-    from: 0,
-    to: clock.duration,
-    span: { start: 0, ready, relax: clock.duration, end: clock.duration },
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    weight: (seconds: number): number => {
-      const u: number =
-        ready > 0 ? Math.min(1, Math.max(0, seconds / ready)) : 1;
-      return u * u * (3 - 2 * u);
-    },
-    goal: (): IAutoMovieHumanLimbGoal => ({
-      point: wrist,
-      rotation,
-      contact: offset,
-      bend,
-    }),
-  });
-}
-
-/*
  * The parts workHeldPush hands its caller.
  */
 export namespace workHeldPush {
@@ -442,4 +297,149 @@ export namespace workHeldPush {
      */
     turn: IAutoMovieQuaternion;
   }
+}
+
+/*
+ * The free hand's grip of the contact on the held prop at a frame: it closes
+ * round the contact's line (its `+X`) as a power grip takes any handle
+ * (`HumanGrasp.hand`), arriving along the contact's own `-Y`, then rolls about
+ * that line until its wrist lies nearest the shoulder (`HumanGraspRoll`), and
+ * keeps that attitude as the contact moves.
+ */
+function grasp(
+  context: IAutoMovieMotionHumanActionContext<object>,
+  other: AutoMovieHumanSide,
+  joint: IAutoMovieAffordance,
+  contact: IAutoMovieAffordance,
+  frame: IAutoMovieRigidTransform,
+  start: number,
+  shoulder: IAutoMovieVector3,
+): workHeldPush.IGrasp {
+  const place: (travel: number) => IAutoMovieVector3 = (
+    travel: number,
+  ): IAutoMovieVector3 =>
+    Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(
+        frame.rotation,
+        heldDigits.posed(joint, contact, travel),
+      ),
+    );
+  const turned: IAutoMovieQuaternion = Quaternion.multiply(
+    frame.rotation,
+    contact.frame.rotation,
+  );
+  const line: IAutoMovieVector3 = Vector3.normalize(
+    Quaternion.rotateVector(turned, { x: 1, y: 0, z: 0 }),
+  );
+  const grasped: IAutoMovieMotionHumanHand.IWrist = HumanGraspRoll(
+    HumanGrasp.hand(context.body, other, {
+      point: place(start),
+      approach: Vector3.normalize(
+        Quaternion.rotateVector(turned, { x: 0, y: -1, z: 0 }),
+      ),
+      axis: line,
+      width: contact.aperture ?? 0,
+    }),
+    place(start),
+    line,
+    shoulder,
+  );
+  return {
+    place,
+    wrist: (travel: number): IAutoMovieVector3 =>
+      Vector3.add(grasped.point, Vector3.subtract(place(travel), place(start))),
+    turn: grasped.rotation,
+  };
+}
+/*
+ * How a prop whose contact the free arm cannot reach is brought before the
+ * body: the contact's start goes onto the performer's midline at the free
+ * elbow's height when the upper arm hangs, a forearm ahead of the shoulder,
+ * where the forearm lies level from an elbow at the side, the neutral working
+ * posture; and the prop turns about the vertical through it, the least way,
+ * until the contact's travel leads toward the free hand's side, away from the
+ * hand that holds it, as a pin is pulled out sideways.
+ * Returns: The contact's new start, world metres, and the turn about it.
+ */
+function presentation(
+  context: IAutoMovieMotionHumanActionContext<object>,
+  other: AutoMovieHumanSide,
+  shoulder: IAutoMovieVector3,
+  still: workHeldPush.IGrasp,
+  start: number,
+  end: number,
+): IAutoMovieRigidTransform {
+  const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const floor: IAutoMovieMotionHumanFrame = {
+    origin: { x: posture.root.x, y: 0, z: posture.root.z },
+    yaw: posture.yaw,
+  };
+  const ahead: number = HumanFrame.local(floor, shoulder).z;
+  const point: IAutoMovieVector3 = HumanFrame.point(floor, {
+    x: 0,
+    y: shoulder.y - context.body.measure.upperArm,
+    z: ahead + context.body.measure.forearm,
+  });
+  // World +X is the performer's left at heading 0.
+  const away: IAutoMovieVector3 = Vector3.subtract(
+    HumanFrame.point(floor, { x: other === "left" ? 1 : -1, y: 0, z: 0 }),
+    HumanFrame.point(floor, { x: 0, y: 0, z: 0 }),
+  );
+  const along: IAutoMovieVector3 = Vector3.subtract(
+    still.place(end),
+    still.place(start),
+  );
+  const level: IAutoMovieVector3 = { x: along.x, y: 0, z: along.z };
+  const degrees: number =
+    Vector3.length(level) === 0
+      ? 0
+      : (Math.atan2(
+          level.z * away.x - level.x * away.z,
+          level.x * away.x + level.z * away.z,
+        ) *
+          180) /
+        Math.PI;
+  return {
+    position: point,
+    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
+  };
+}
+
+/*
+ * The holding arm bringing the prop before the body and keeping it there.
+ */
+function present(
+  context: IAutoMovieMotionHumanActionContext<object>,
+  side: AutoMovieHumanSide,
+  clock: IAutoMovieMotionClock,
+  wrist: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  offset: IAutoMovieVector3,
+): IAutoMovieMotionHumanPrimitive {
+  const ready: number = clock.at("strokeStart");
+  const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+    context.body,
+    context.entry.posture,
+    side,
+  );
+  return AutoMovieMotionHumanArm.carried({
+    body: context.body,
+    side,
+    from: 0,
+    to: clock.duration,
+    span: { start: 0, ready, relax: clock.duration, end: clock.duration },
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+    weight: (seconds: number): number => {
+      const u: number =
+        ready > 0 ? Math.min(1, Math.max(0, seconds / ready)) : 1;
+      return u * u * (3 - 2 * u);
+    },
+    goal: (): IAutoMovieHumanLimbGoal => ({
+      point: wrist,
+      rotation,
+      contact: offset,
+      bend,
+    }),
+  });
 }

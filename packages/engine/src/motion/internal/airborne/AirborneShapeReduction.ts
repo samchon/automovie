@@ -59,17 +59,6 @@ export function AirborneShapeReduction(
 }
 
 /*
- * Refuse a tensor with no positive finite scale, before any rate or stencil
- * work reads it.
- */
-function admit(matrix: number[][]): void {
-  let scale: number = Number.NEGATIVE_INFINITY;
-  for (const row of matrix)
-    for (const value of row) scale = Math.max(scale, Math.abs(value));
-  if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
-}
-
-/*
  * The reductions of one mass model and the bone map they read.
  */
 export namespace AirborneShapeReduction {
@@ -113,4 +102,15 @@ export namespace AirborneShapeReduction {
      */
     admit(matrix: number[][]): void;
   }
+}
+
+/*
+ * Refuse a tensor with no positive finite scale, before any rate or stencil
+ * work reads it.
+ */
+function admit(matrix: number[][]): void {
+  let scale: number = Number.NEGATIVE_INFINITY;
+  for (const row of matrix)
+    for (const value of row) scale = Math.max(scale, Math.abs(value));
+  if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
 }

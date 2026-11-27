@@ -13,37 +13,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The steel drums read.
- */
-const DRUM: string =
-  "Pipeline Packaging 55 gallon steel drums: DWG20459 tight head, diameter 22.5 in, outside height 34.75 in, 38.4 lb (https://images.salsify.com/image/upload/s--qux83p23--/qul3km981gfsrgolci19.pdf); DWG20443 open head, diameter 22 1/2 in, outside height 35 1/4 in, 43 lb (https://images.salsify.com/image/upload/s--Va7JVN6o--/zemdshut43rl5xcftlfj.pdf)";
-
-/*
- * The keg read.
- */
-const KEG: string =
-  "KegLand 50 L DIN keg drawing KL09485: 381 +/- 2 mm across the rolling rings, 600 +/- 3 mm high (https://www.kegland.com.au/cdn/shop/files/KL09485_-_50L_DIN_KegLand_1.8mm.pdf)";
-
-/*
- * The keg's empty mass, from a search only.
- */
-const KEG_MASS: string =
-  "50 L DIN kegs 11.2 to 12.1 kg empty (Czech Mini Breweries, Rotzmeier), as search results give the makers' listings; not read";
-
-/*
- * How many sides the top's outline has.
- */
-const SIDES: number = 16;
-
-/*
- * The readable name of each kind.
- */
-const NAMES: Readonly<Record<AutoMovieArchetypeBarrel.Kind, string>> = {
-  steelDrum: "steel drum",
-  keg: "keg",
-};
+import * as AutoMovieArchetypeBarrelData from "./internal/AutoMovieArchetypeBarrelData";
 
 /** Constructs the barrel archetype from its recipe. */
 export namespace AutoMovieArchetypeBarrel {
@@ -234,13 +204,26 @@ export function create(
       diameter: AutoMovieArchetypeBand.metres(
         22.5 * AutoMovieArchetypeUnits.INCH,
         22.5 * AutoMovieArchetypeUnits.INCH,
-        DRUM,
+        AutoMovieArchetypeBarrelData.DRUM,
       ),
     },
     keg: {
-      diameter: AutoMovieArchetypeBand.metres(0.379, 0.383, KEG),
-      height: AutoMovieArchetypeBand.metres(0.597, 0.603, KEG),
-      mass: AutoMovieArchetypeBand.of("kg", 11.2, 12.1, KEG_MASS, true),
+      diameter: AutoMovieArchetypeBand.metres(0.379, 0.383, AutoMovieArchetypeBarrelData.KEG),
+      height: AutoMovieArchetypeBand.metres(0.597, 0.603, AutoMovieArchetypeBarrelData.KEG),
+      mass: AutoMovieArchetypeBand.of("kg", 11.2, 12.1, AutoMovieArchetypeBarrelData.KEG_MASS, true),
     },
   };
 }
+
+/*
+ * How many sides the top's outline has.
+ */
+const SIDES: number = 16;
+
+/*
+ * The readable name of each kind.
+ */
+const NAMES: Readonly<Record<AutoMovieArchetypeBarrel.Kind, string>> = {
+  steelDrum: "steel drum",
+  keg: "keg",
+};

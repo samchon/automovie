@@ -11,7 +11,6 @@ import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstruction
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 /** The existing radial port chart and angle/length clock correspondence. */
 export namespace AutoMovieConstructionPortCurve {
   /**
@@ -391,6 +390,8 @@ export namespace AutoMovieConstructionPortCurve {
     return out;
   }
 }
+
+const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 /** Physical point/vector, mm. */
 type Vec3 = AutoMovieVector3Tuple;
 

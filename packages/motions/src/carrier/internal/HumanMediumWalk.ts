@@ -22,60 +22,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { poseBones } from "../../posture/internal/poseBones";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
-
-/*
- * World vertical.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-/*
- * The wading measurement: walking speed in water 1.2 m deep, as a share of the
- * land speed (Fantozzi et al. 2015,
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC4569370/: 40 % slower).
- */
-const WADE_SHARE: number = 0.6;
-/*
- * The water depth of that measurement, metres.
- */
-const WADE_DEPTH: number = 1.2;
-
-/*
- * How far a swinging foot clears the medium's surface, metres (provisional
- * staging).
- */
-const CLEARANCE: number = 0.05;
-
-/*
- * Hands held above the water's surface at hip depth or deeper, metres
- * (provisional staging).
- */
-const ARMS_ABOVE: number = 0.15;
-
-/*
- * Seconds over which a lifted foot's toe-down turn eases in from and out to its
- * plants (provisional staging).
- */
-const EASE: number = 0.1;
-
-/*
- * The trunk's forward lean while wading, degrees (provisional staging).
- */
-const WADE_LEAN: number = 10;
-
-/*
- * Terrain factors of the walking-energy equation (Pandolf, Givoni and Goldman
- * 1977, after Soule and Goldman 1972): loose sand 2.1 and a swampy bog, taken
- * for mud, 1.8. Soft snow's factor rises with depth; 1.3 a decimetre of sinking
- * is a provisional reading.
- */
-const TERRAIN: Readonly<Record<TERRAINEntryItem, number>> = {
-  sand: 2.1,
-  mud: 1.8,
-};
-
-/*
- * Soft snow's terrain factor per metre of sinking (provisional).
- */
-const SNOW_PER_METRE: number = 13;
+import * as HumanMediumWalkData from "./HumanMediumWalkData";
 
 /*
  * Walk through a medium or into a wind: the walk (`walk`) at the speed the
@@ -129,8 +76,8 @@ export function HumanMediumWalk(
     sink = depth;
     const eta: number =
       medium.kind === "snow"
-        ? 1 + SNOW_PER_METRE * depth
-        : TERRAIN[medium.kind];
+        ? 1 + HumanMediumWalkData.SNOW_PER_METRE * depth
+        : HumanMediumWalkData.TERRAIN[medium.kind];
     pace = 1 / Math.sqrt(eta);
   }
   const hold: number = medium?.kind === "mud" ? (medium.hold ?? 0) : 0;
@@ -223,10 +170,10 @@ export function HumanMediumWalk(
       const share: number = time / walked.duration;
       const limbs: Posture["limbs"] = { ...posture.limbs };
       const facing: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(UP, posture.yaw),
+        Quaternion.fromAxisAngle(HumanMediumWalkData.UP, posture.yaw),
         { x: 0, y: 0, z: 1 },
       );
-      const left: IAutoMovieVector3 = Vector3.cross(UP, facing);
+      const left: IAutoMovieVector3 = Vector3.cross(HumanMediumWalkData.UP, facing);
       const pelvis: IAutoMovieVector3 = Vector3.add(
         posture.root,
         // As the wind leans the body.
@@ -239,7 +186,7 @@ export function HumanMediumWalk(
             roll:
               posture.roll -
               (lean / Quaternion.DEG2RAD) *
-                Vector3.dot(into, Vector3.cross(UP, facing)),
+                Vector3.dot(into, Vector3.cross(HumanMediumWalkData.UP, facing)),
           }),
           body.rest.get("hips")!,
         ),
@@ -248,7 +195,7 @@ export function HumanMediumWalk(
         const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
         if (goal === undefined) continue;
         const swing: number = sink === 0 ? 0 : swingShare(windows[side], share);
-        const rise: number = (sink + CLEARANCE) * Math.sin(Math.PI * swing);
+        const rise: number = (sink + HumanMediumWalkData.CLEARANCE) * Math.sin(Math.PI * swing);
         const point: IAutoMovieVector3 = {
           ...goal.point,
           y: goal.point.y + rise,
@@ -300,7 +247,7 @@ export function HumanMediumWalk(
               body,
               hip,
               lifted,
-              Math.min(1, (edge * walked.duration) / EASE),
+              Math.min(1, (edge * walked.duration) / HumanMediumWalkData.EASE),
             );
       }
       if (
@@ -310,24 +257,24 @@ export function HumanMediumWalk(
         for (const side of ["left", "right"] as const) {
           const out: number =
             (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth;
-          const across: IAutoMovieVector3 = Vector3.cross(UP, facing);
+          const across: IAutoMovieVector3 = Vector3.cross(HumanMediumWalkData.UP, facing);
           // Held forward of the chest the trunk's wading lean carries
           // forward at the hands' height, clear of it by an upper arm.
           const hips: number = posture.root.y + body.rest.get("hips")!.y;
           const ahead: number =
             body.measure.chestDepth / 2 +
             body.measure.upperArm +
-            Math.max(0, surface + ARMS_ABOVE - hips) *
-              Math.tan(WADE_LEAN * Quaternion.DEG2RAD);
+            Math.max(0, surface + HumanMediumWalkData.ARMS_ABOVE - hips) *
+              Math.tan(HumanMediumWalkData.WADE_LEAN * Quaternion.DEG2RAD);
           const hand: IAutoMovieVector3 = Vector3.add(
             Vector3.add(posture.root, Vector3.scale(facing, ahead)),
             Vector3.scale(across, 1.5 * out),
           );
           limbs[`${side}Arm`] = {
-            point: { ...hand, y: surface + ARMS_ABOVE },
+            point: { ...hand, y: surface + HumanMediumWalkData.ARMS_ABOVE },
             bend: {
               ...Vector3.add(hand, Vector3.scale(across, out)),
-              y: surface + ARMS_ABOVE,
+              y: surface + HumanMediumWalkData.ARMS_ABOVE,
             },
           };
         }
@@ -340,7 +287,7 @@ export function HumanMediumWalk(
       const windward: number = lean / Quaternion.DEG2RAD;
       const joints: Posture["joints"] = { ...posture.joints };
       if (medium?.kind === "water")
-        joints.spine = [spine[0] + WADE_LEAN, spine[1], spine[2]];
+        joints.spine = [spine[0] + HumanMediumWalkData.WADE_LEAN, spine[1], spine[2]];
       // The arm on the windward side, which the lean brings in over its
       // thigh, abducts by the lean, so it hangs plumb clear of the leg.
       if (force > 0)
@@ -349,7 +296,7 @@ export function HumanMediumWalk(
             joints[`${side}UpperArm`];
           if (arm === undefined) continue;
           const outward: IAutoMovieVector3 = Vector3.scale(
-            Vector3.cross(UP, facing),
+            Vector3.cross(HumanMediumWalkData.UP, facing),
             side === "left" ? 1 : -1,
           );
           joints[`${side}UpperArm`] = [
@@ -364,7 +311,7 @@ export function HumanMediumWalk(
         pitch: posture.pitch + windward * Vector3.dot(into, facing),
         roll:
           posture.roll -
-          windward * Vector3.dot(into, Vector3.cross(UP, facing)),
+          windward * Vector3.dot(into, Vector3.cross(HumanMediumWalkData.UP, facing)),
         limbs,
       };
     },
@@ -432,7 +379,7 @@ function wading(
     );
   const here: number = drag(depth);
   if (here === 0) return 1;
-  return Math.min(1, WADE_SHARE * Math.sqrt(drag(WADE_DEPTH) / here));
+  return Math.min(1, HumanMediumWalkData.WADE_SHARE * Math.sqrt(drag(HumanMediumWalkData.WADE_DEPTH) / here));
 }
 
 /*
@@ -456,8 +403,3 @@ type Params = IAutoMovieMotionHumanMedium.IWalkParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
 
 type Posture = IAutoMovieMotionHumanPosture;
-
-/*
- * The alternatives of `TERRAINEntryItem`'s site.
- */
-type TERRAINEntryItem = "sand" | "mud";

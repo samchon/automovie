@@ -17,14 +17,6 @@ import { walkLeg } from "./walkLeg";
 import type { walkReach } from "./walkReach";
 
 /*
- * How far under the floor, metres, a swinging foot's lowest point may stay once
- * its lift is settled, and the width the lift's bisection stops at: a
- * micrometre, a numeric tolerance far under the toe's 15 mm clearance
- * (`walkFoot.CLEARANCE`).
- */
-const SETTLED: number = 1e-6;
-
-/*
  * Prepare one body's swing reach bounds and heel socket for changing feet.
  * Parameter body: The fixed body and leg lengths.
  * Parameter side: The swinging foot.
@@ -333,6 +325,30 @@ export function prepareWalkReachSwing(
     return best;
   }
 }
+
+/*
+ * The reader's result.
+ */
+export namespace prepareWalkReachSwing {
+  /*
+   * A foot as reached, with the lift its search found or was given.
+   */
+  export interface IReached extends walkFoot.IEnd {
+    /*
+     * How far the ankle was lifted to clear the floor, metres.
+     */
+    lift: number;
+  }
+}
+
+/*
+ * How far under the floor, metres, a swinging foot's lowest point may stay once
+ * its lift is settled, and the width the lift's bisection stops at: a
+ * micrometre, a numeric tolerance far under the toe's 15 mm clearance
+ * (`walkFoot.CLEARANCE`).
+ */
+const SETTLED: number = 1e-6;
+
 /*
  * The lift that puts a ranged foot's lowest point on its target: lift by each
  * pass's penetration while a pass at least halves it, as fast as a bisection
@@ -395,21 +411,6 @@ function raise(read: IPlacedFoot, target: number): IPlacedFoot {
         ankle: { ...read.ankle, y: read.ankle.y + target - read.low },
         low: target,
       };
-}
-
-/*
- * The reader's result.
- */
-export namespace prepareWalkReachSwing {
-  /*
-   * A foot as reached, with the lift its search found or was given.
-   */
-  export interface IReached extends walkFoot.IEnd {
-    /*
-     * How far the ankle was lifted to clear the floor, metres.
-     */
-    lift: number;
-  }
 }
 
 /*

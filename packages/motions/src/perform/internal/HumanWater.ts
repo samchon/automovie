@@ -18,18 +18,6 @@ import type {
 } from "@automovie/interface";
 
 /*
- * Fresh water's density, kg/m^3: the engine's default when the water states
- * none.
- */
-const FRESH: number = 1000;
-
-/*
- * Drag coefficient of a flat plate across the flow (Hoerner, Fluid-Dynamic
- * Drag, 1965).
- */
-const PLATE: number = 1.17;
-
-/*
  * A body the water carries: the water's forces on every segment
  * (`AutoMovieEngineMotionHydrodynamics`) summed over the posed body, the height at which
  * a still body floats, and a glide slowed by drag, integrated at plan time by
@@ -369,3 +357,15 @@ export namespace HumanWater {
     return out;
   }
 }
+
+/*
+ * Fresh water's density, kg/m^3: the engine's default when the water states
+ * none.
+ */
+const FRESH: number = 1000;
+
+/*
+ * Drag coefficient of a flat plate across the flow (Hoerner, Fluid-Dynamic
+ * Drag, 1965).
+ */
+const PLATE: number = 1.17;

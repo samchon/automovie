@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -29,37 +29,7 @@ import type { jumpPushEnd } from "./jumpPushEnd";
 import type { jumpState } from "./jumpState";
 import { jumpTakeoff } from "./jumpTakeoff";
 import { standUpright } from "./standUpright";
-
-/*
- * Offset decay time of a cut out of the settled jump, seconds (a deliberate
- * change of the whole body's action,
- * `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`).
- */
-const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
-
-/*
- * How far the take-off root rises above the entry root, hip heights
- * (provisional).
- */
-const TAKEOFF_RISE: number = 0.03;
-
-/*
- * How far the take-off root lies ahead of the pushing ball, hip heights
- * (provisional).
- */
-const TAKEOFF_AHEAD: number = 0.25;
-
-/*
- * The withdrawn free ankle's height above the rig origin, hip heights
- * (provisional).
- */
-const TUCK_HEIGHT: number = 0.3;
-
-/*
- * The withdrawn free ankle's distance ahead of the rig origin, hip heights
- * (provisional).
- */
-const TUCK_AHEAD: number = 0.1;
+import * as JumpData from "./JumpData";
 
 /*
  * A jump to a floor point: a push-off from a planted foot, a ballistic flight
@@ -141,7 +111,7 @@ export namespace jump {
         window: { start: "settled", end: 1 },
         kind: "inertialize",
         entry: 0,
-        blend: BLEND,
+        blend: JumpData.BLEND,
       },
     ],
     walk: [
@@ -149,7 +119,7 @@ export namespace jump {
         window: { start: "settled", end: 1 },
         kind: "inertialize",
         entry: 0,
-        blend: BLEND,
+        blend: JumpData.BLEND,
       },
     ],
   };
@@ -416,3 +386,27 @@ export namespace jump {
     });
   }
 }
+
+/*
+ * How far the take-off root rises above the entry root, hip heights
+ * (provisional).
+ */
+const TAKEOFF_RISE: number = 0.03;
+
+/*
+ * How far the take-off root lies ahead of the pushing ball, hip heights
+ * (provisional).
+ */
+const TAKEOFF_AHEAD: number = 0.25;
+
+/*
+ * The withdrawn free ankle's height above the rig origin, hip heights
+ * (provisional).
+ */
+const TUCK_HEIGHT: number = 0.3;
+
+/*
+ * The withdrawn free ankle's distance ahead of the rig origin, hip heights
+ * (provisional).
+ */
+const TUCK_AHEAD: number = 0.1;

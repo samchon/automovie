@@ -1,6 +1,7 @@
 import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { DeerCohorts } from "./DeerCohorts";
+import * as DeerGaitData from "./internal/DeerGaitData";
 
 /*
  * An observed sika walking clock, with explicit construction-only pose data.
@@ -32,33 +33,6 @@ import { DeerCohorts } from "./DeerCohorts";
  */
 export namespace DeerGait {
   /*
-   * Figure 2 supplement 2D, Cervusnippon row: mean stride period, seconds.
-   */
-  const STRIDE: number = 1.136111111111111;
-
-  /*
-   * Figure 2 supplement 2C, fore stance percentage divided by 100.
-   */
-  const FORE_DUTY: number = 0.7704956892177161;
-
-  /*
-   * Figure 2 supplement 2C, hind stance percentage divided by 100.
-   */
-  const HIND_DUTY: number = 0.7239413565500523;
-
-  /*
-   * Figure 2 supplement 2B, camera-facing fore onset relative to ipsilateral
-   * hind touchdown.
-   */
-  const FORE_PHASE: number = 0.2589911698607351;
-
-  /*
-   * Figure 2 supplement 2B, opposite fore onset on the same hind-referenced
-   * clock.
-   */
-  const OPPOSITE_FORE_PHASE: number = 0.7700624657146398;
-
-  /*
    * One measured walking point with no invented faster-gait clock or stride
    * spread.
    */
@@ -70,17 +44,17 @@ export namespace DeerGait {
         nod: { range: 0, timing: "support" },
         phases: {
           leftFore: 0,
-          rightFore: OPPOSITE_FORE_PHASE - FORE_PHASE,
-          leftHind: 1 - FORE_PHASE,
-          rightHind: 0.5 - FORE_PHASE,
+          rightFore: DeerGaitData.OPPOSITE_FORE_PHASE - DeerGaitData.FORE_PHASE,
+          leftHind: 1 - DeerGaitData.FORE_PHASE,
+          rightHind: 0.5 - DeerGaitData.FORE_PHASE,
         },
         rows: [
           {
             speed: 0.78,
-            stride: STRIDE,
+            stride: DeerGaitData.STRIDE,
             deviation: 0,
-            stance: STRIDE * FORE_DUTY,
-            hindStance: STRIDE * HIND_DUTY,
+            stance: DeerGaitData.STRIDE * DeerGaitData.FORE_DUTY,
+            hindStance: DeerGaitData.STRIDE * DeerGaitData.HIND_DUTY,
           },
         ],
       },

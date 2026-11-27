@@ -14,11 +14,7 @@ import { jump } from "../../actions/internal/jump";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
-
-/*
- * How many times the landing place is corrected.
- */
-const PASSES: number = 3;
+import * as GymnasticsTakeoffData from "./GymnasticsTakeoffData";
 
 /*
  * Plan a take-off at the velocity a law asks for.
@@ -78,7 +74,7 @@ export function GymnasticsTakeoff(
       ?.share ?? 0) * plan.duration;
 
   let taken: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff | undefined;
-  for (let pass: number = 0; pass <= PASSES; pass++) {
+  for (let pass: number = 0; pass <= GymnasticsTakeoffData.PASSES; pass++) {
     const plan: IAutoMovieMotionHumanActionPlan = jump.plan(
       {
         ...context,
@@ -89,7 +85,7 @@ export function GymnasticsTakeoff(
     const seconds: number = at(plan, "takeoff");
     const read: IOfRead = launch(plan, seconds);
     taken = { plan, seconds, ...read };
-    if (pass === PASSES) break;
+    if (pass === GymnasticsTakeoffData.PASSES) break;
 
     // Correct the landing place by what the horizontal launch still
     // misses, over the jump's own flight time.

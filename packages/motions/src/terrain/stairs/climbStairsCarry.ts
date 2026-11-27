@@ -1,43 +1,10 @@
 import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
-import type {
-  AutoMovieHumanLimb,
-  AutoMovieHumanSide,
-  AutoMovieMotionHumanChannel,
-  IAutoMovieBodyMeasure,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanSupportCarry,
-  IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanSide, AutoMovieMotionHumanChannel, IAutoMovieBodyMeasure, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSupportCarry, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-
-/*
- * Each world goal that can follow the stair body or a held foot.
- */
-const LIMBS: readonly AutoMovieHumanLimb[] = [
-  "leftArm",
-  "rightArm",
-  "leftLeg",
-  "rightLeg",
-];
-
-/*
- * A carry that leaves everything where it is.
- */
-const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
-  point: (p: IAutoMovieVector3): IAutoMovieVector3 => p,
-  turn: { x: 0, y: 0, z: 0, w: 1 },
-  yaw: 0,
-};
+import * as ClimbStairsCarryData from "./internal/ClimbStairsCarryData";
 
 /*
  * A flight climbed onto a moving prop, carried footprint by footprint: the
@@ -102,7 +69,7 @@ export function climbStairsCarry(
     w: IAutoMovieMotionHumanContactWindow,
     at: number,
   ): IAutoMovieMotionHumanSupportCarry.ICarry =>
-    onProp(w) ? carried(at, w.from * duration) : STILL;
+    onProp(w) ? carried(at, w.from * duration) : ClimbStairsCarryData.STILL;
   const footCarry: (
     side: AutoMovieHumanSide,
     at: number,
@@ -113,7 +80,7 @@ export function climbStairsCarry(
     anchor: IAutoMovieVector3,
   ): IAutoMovieMotionHumanSupportCarry.ICarry => {
     const list: IAutoMovieMotionHumanContactWindow[] = plants[side];
-    if (list.length === 0) return STILL;
+    if (list.length === 0) return ClimbStairsCarryData.STILL;
     const share: number = at / duration;
     const end: number[] = endings[side];
     const k: number = PreparedHumanIntervals.lowerBound(
@@ -205,9 +172,9 @@ export function climbStairsCarry(
       );
       const now: IAutoMovieMotionHumanSupportCarry.ICarry = carried(at, 0);
       const moved: IAutoMovieMotionHumanSupportCarry.ICarry =
-        HumanSupportCarry.blend(STILL, now, made.root, weight);
+        HumanSupportCarry.blend(ClimbStairsCarryData.STILL, now, made.root, weight);
       const turned: IAutoMovieMotionHumanSupportCarry.ICarry =
-        HumanSupportCarry.blend(STILL, now, made.root, turning);
+        HumanSupportCarry.blend(ClimbStairsCarryData.STILL, now, made.root, turning);
       const anchor: IAutoMovieVector3 = moved.point(made.root);
       const body: IAutoMovieMotionHumanSupportCarry.ICarry = {
         point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -222,7 +189,7 @@ export function climbStairsCarry(
         yaw: turned.yaw,
       };
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-      for (const limb of LIMBS) {
+      for (const limb of ClimbStairsCarryData.LIMBS) {
         const goal: IAutoMovieHumanLimbGoal | undefined = made.limbs[limb];
         if (goal === undefined) continue;
         limbs[limb] =
@@ -291,12 +258,6 @@ export namespace climbStairsCarry {
   }
 
   /*
-   * How far above the world floor a standing ankle's own height may lie and
-   * still stand on it, metres (provisional: a sole's give).
-   */
-  const FLOOR: number = 0.02;
-
-  /*
    * Whether the body already stands on the moving prop at the climb's start, a
    * rider on an escalator's steps rather than one boarding from the floor: its
    * feet stand raised off the world floor, which only the prop beneath them
@@ -311,6 +272,12 @@ export namespace climbStairsCarry {
         context.body.measure.ankleHeight + FLOOR,
     );
   }
+
+  /*
+   * How far above the world floor a standing ankle's own height may lie and
+   * still stand on it, metres (provisional: a sole's give).
+   */
+  const FLOOR: number = 0.02;
 }
 
 /*

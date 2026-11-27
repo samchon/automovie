@@ -18,11 +18,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { spacecraftGlideClock } from "./spacecraftGlideClock";
-
-/*
- * Alignment tolerance for directions represented by unit quaternions.
- */
-const ALIGNMENT: number = 1e-6;
+import * as SpacecraftGlideData from "./SpacecraftGlideData";
 
 /*
  * An opt-in law for one coast inside a stationary spacecraft. NASA-STD-3001
@@ -97,11 +93,11 @@ function plan(
     z: 0,
   });
   if (
-    !(distance > ALIGNMENT) ||
-    Math.abs(direction.y) > ALIGNMENT ||
-    Math.abs(Vector3.dot(direction, along)) < 1 - ALIGNMENT ||
-    Vector3.dot(inward, arrivalInward) < 1 - ALIGNMENT ||
-    Math.abs(Vector3.dot(arrivalAlong, along)) < 1 - ALIGNMENT
+    !(distance > SpacecraftGlideData.ALIGNMENT) ||
+    Math.abs(direction.y) > SpacecraftGlideData.ALIGNMENT ||
+    Math.abs(Vector3.dot(direction, along)) < 1 - SpacecraftGlideData.ALIGNMENT ||
+    Vector3.dot(inward, arrivalInward) < 1 - SpacecraftGlideData.ALIGNMENT ||
+    Math.abs(Vector3.dot(arrivalAlong, along)) < 1 - SpacecraftGlideData.ALIGNMENT
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
@@ -115,10 +111,10 @@ function plan(
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   if (
     entry.rotation !== undefined ||
-    Math.abs(entry.pitch) > ALIGNMENT ||
-    Math.abs(entry.roll) > ALIGNMENT ||
-    Vector3.length(context.entry.velocity.linear) > ALIGNMENT ||
-    Vector3.length(context.entry.velocity.angular) > ALIGNMENT
+    Math.abs(entry.pitch) > SpacecraftGlideData.ALIGNMENT ||
+    Math.abs(entry.roll) > SpacecraftGlideData.ALIGNMENT ||
+    Vector3.length(context.entry.velocity.linear) > SpacecraftGlideData.ALIGNMENT ||
+    Vector3.length(context.entry.velocity.angular) > SpacecraftGlideData.ALIGNMENT
   )
     throw new AutoMovieMotionHumanRefusal({
       kind: "base",
@@ -161,7 +157,7 @@ function plan(
   );
   const armLength: number =
     context.body.measure.upperArm + context.body.measure.forearm;
-  if (reach > armLength + ALIGNMENT)
+  if (reach > armLength + SpacecraftGlideData.ALIGNMENT)
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "entry",

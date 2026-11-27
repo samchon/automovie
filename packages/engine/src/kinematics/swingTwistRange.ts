@@ -30,47 +30,6 @@ import { skeletonJointAxes } from "./internal/skeletonJointAxes";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRegion } from "./swingTwistRegion";
 
-const DEG: number = swingTwistBasis.DEG;
-
-/*
- * The twist `swingTwist` gives where the projection vanishes: the identity.
- */
-const IDENTITY_TWIST: IAutoMovieQuaternion = Quaternion.identity();
-
-/*
- * The humanoid tables' own frame of every bone whose default constraint gates
- * it by swing and twist, prepared once with its region.
- */
-const HUMANOID_RANGES: ReadonlyMap<string, swingTwistRange.IPrepared> = new Map(
-  Object.entries(DEFAULT_HUMANOID_ROM).flatMap(
-    ([bone, constraint]: [string, IAutoMovieJointConstraint | undefined]): [
-      string,
-      swingTwistRange.IPrepared,
-    ][] => {
-      const axes: IAutoMovieJointAxes | undefined = new Map(
-        Object.entries(HUMANOID_JOINT_AXES),
-      ).get(bone);
-      const frame: IAutoMovieRestFrame | undefined = new Map(
-        Object.entries(HUMANOID_REST_FRAME),
-      ).get(bone);
-      if (
-        axes === undefined ||
-        constraint === undefined ||
-        constraint.swingTwist === undefined ||
-        constraint.swingTwist === null
-      )
-        return [];
-      const joint: IAutoMovieJointRotationFrame = { axes, frame };
-      return [
-        [
-          bone,
-          { ...joint, region: swingTwistRegion.prepare(constraint, joint) },
-        ],
-      ];
-    },
-  ),
-);
-
 /**
  * The range of a ball joint read by swing and twist: where the limb's long axis
  * may point, and how far the limb may turn about it.
@@ -440,5 +399,46 @@ export namespace swingTwistRange {
     return read === undefined ? placed(coordinate, joint) : read(coordinate);
   }
 }
+
+const DEG: number = swingTwistBasis.DEG;
+
+/*
+ * The twist `swingTwist` gives where the projection vanishes: the identity.
+ */
+const IDENTITY_TWIST: IAutoMovieQuaternion = Quaternion.identity();
+
+/*
+ * The humanoid tables' own frame of every bone whose default constraint gates
+ * it by swing and twist, prepared once with its region.
+ */
+const HUMANOID_RANGES: ReadonlyMap<string, swingTwistRange.IPrepared> = new Map(
+  Object.entries(DEFAULT_HUMANOID_ROM).flatMap(
+    ([bone, constraint]: [string, IAutoMovieJointConstraint | undefined]): [
+      string,
+      swingTwistRange.IPrepared,
+    ][] => {
+      const axes: IAutoMovieJointAxes | undefined = new Map(
+        Object.entries(HUMANOID_JOINT_AXES),
+      ).get(bone);
+      const frame: IAutoMovieRestFrame | undefined = new Map(
+        Object.entries(HUMANOID_REST_FRAME),
+      ).get(bone);
+      if (
+        axes === undefined ||
+        constraint === undefined ||
+        constraint.swingTwist === undefined ||
+        constraint.swingTwist === null
+      )
+        return [];
+      const joint: IAutoMovieJointRotationFrame = { axes, frame };
+      return [
+        [
+          bone,
+          { ...joint, region: swingTwistRegion.prepare(constraint, joint) },
+        ],
+      ];
+    },
+  ),
+);
 /** Original dimensionless disc coordinates and clinical-degree twist. */
 type IChart = ReturnType<typeof swingTwistRange.chart>;

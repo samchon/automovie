@@ -78,12 +78,6 @@ export namespace shift {
   export const name: AutoMovieMotionHumanActionName = "shift";
 
   /*
-   * The share of the slide over which the buttocks unweight at its start, and
-   * bear fully again before its end (provisional).
-   */
-  const UNWEIGHT: number = 0.15;
-
-  /*
    * Cancel table: after setting down a shift may continue sitting.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
@@ -323,4 +317,10 @@ export namespace shift {
       );
     }
   }
+
+  /*
+   * The share of the slide over which the buttocks unweight at its start, and
+   * bear fully again before its end (provisional).
+   */
+  const UNWEIGHT: number = 0.15;
 }

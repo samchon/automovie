@@ -1,24 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import {
-  AutoMovieArchetype,
-  AutoMovieArchetypeBand,
-  type AutoMovieArchetypeBandUnit,
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  type IAutoMovieArchetypeBand,
-} from "../core";
+import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core";
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The World Athletics rule as read.
- */
-const RULE: string =
-  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 33.5, the shot";
+import {
+  band as AutoMovieArchetypeShotDataBand,
+} from "./internal/AutoMovieArchetypeShotData";
 
 /** Canonical producer and authoring contract for Shot. */
 export namespace AutoMovieArchetypeShot {
@@ -59,24 +48,13 @@ export namespace AutoMovieArchetypeShot {
     mass: "kg",
   };
 
-  /*
-   * A band of the rule.
-   */
-  const band = (
-    unit: AutoMovieArchetypeBandUnit,
-    minimum: number,
-    maximum: number,
-    what: string,
-  ): IAutoMovieArchetypeBand =>
-    AutoMovieArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
-
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      diameter: band("m", 0.11, 0.13, "the men's 110 to 130 mm across"),
-      mass: band(
+      diameter: AutoMovieArchetypeShotDataBand("m", 0.11, 0.13, "the men's 110 to 130 mm across"),
+      mass: AutoMovieArchetypeShotDataBand(
         "kg",
         7.26,
         7.26,
@@ -84,8 +62,8 @@ export namespace AutoMovieArchetypeShot {
       ),
     },
     women: {
-      diameter: band("m", 0.095, 0.11, "the women's 95 to 110 mm across"),
-      mass: band(
+      diameter: AutoMovieArchetypeShotDataBand("m", 0.095, 0.11, "the women's 95 to 110 mm across"),
+      mass: AutoMovieArchetypeShotDataBand(
         "kg",
         4,
         4,

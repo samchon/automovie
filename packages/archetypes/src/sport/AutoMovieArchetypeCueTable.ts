@@ -9,25 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-
-/*
- * The pool table read.
- */
-const WPA: string =
-  "WPA Recommended Equipment Specifications: a 9 ft table's playing surface 100 (+1/8) x 50 (+1/8) in (5); the bed 29 1/4 to 31 in above the floor (2); the cushion's nose 62 1/2 to 64 1/2% of the ball's diameter above the bed (7); rails 4 to 7 1/2 in wide with the cushions (6); balls 2 1/4 in across (16) (https://wpapool.com/wp-content/uploads/2024/01/RECOMMENDED-EQUIPMENT-SPECIFICATIONS.pdf)";
-
-/*
- * The ball's diameter, metres: WPA 16, 2 1/4 in.
- */
-const BALL: number = 2.25 * AutoMovieArchetypeUnits.INCH;
-
-/*
- * Mouth widths at the lower end of WPA §9, metres.
- */
-const MOUTH = {
-  corner: 4.5 * AutoMovieArchetypeUnits.INCH,
-  side: 5 * AutoMovieArchetypeUnits.INCH,
-} as const;
+import * as AutoMovieArchetypeCueTableData from "./internal/AutoMovieArchetypeCueTableData";
 
 /** Canonical producer and authoring contract for CueTable. */
 export namespace AutoMovieArchetypeCueTable {
@@ -75,16 +57,16 @@ export namespace AutoMovieArchetypeCueTable {
     const width: number = d.width;
     const length: number = d.length;
     const bed: number = d.height;
-    const nose: number = bed + d.nose * BALL;
+    const nose: number = bed + d.nose * AutoMovieArchetypeCueTableData.BALL;
     const rail: number = d.rail;
-    const corner: number = MOUTH.corner / Math.SQRT2;
+    const corner: number = AutoMovieArchetypeCueTableData.MOUTH.corner / Math.SQRT2;
 
     // The cabinet's top 9 cm below the bed is authored; no rule states it.
     const drop: number = 0.09;
     const tray: number = bed - drop;
     const edge: number = length / 2 - corner;
-    const sideSpan: number = edge - MOUTH.side / 2;
-    const sideCenter: number = (edge + MOUTH.side / 2) / 2;
+    const sideSpan: number = edge - AutoMovieArchetypeCueTableData.MOUTH.side / 2;
+    const sideCenter: number = (edge + AutoMovieArchetypeCueTableData.MOUTH.side / 2) / 2;
     builder.box(
       "cabinet",
       v(width + 2 * rail, tray, length + 2 * rail),
@@ -225,23 +207,23 @@ export namespace AutoMovieArchetypeCueTable {
     width: AutoMovieArchetypeBand.metres(
       50 * AutoMovieArchetypeUnits.INCH,
       50.125 * AutoMovieArchetypeUnits.INCH,
-      WPA,
+      AutoMovieArchetypeCueTableData.WPA,
     ),
     length: AutoMovieArchetypeBand.metres(
       100 * AutoMovieArchetypeUnits.INCH,
       100.125 * AutoMovieArchetypeUnits.INCH,
-      WPA,
+      AutoMovieArchetypeCueTableData.WPA,
     ),
     height: AutoMovieArchetypeBand.metres(
       29.25 * AutoMovieArchetypeUnits.INCH,
       31 * AutoMovieArchetypeUnits.INCH,
-      WPA,
+      AutoMovieArchetypeCueTableData.WPA,
     ),
-    nose: AutoMovieArchetypeBand.of("", 0.625, 0.645, WPA),
+    nose: AutoMovieArchetypeBand.of("", 0.625, 0.645, AutoMovieArchetypeCueTableData.WPA),
     rail: AutoMovieArchetypeBand.metres(
       4 * AutoMovieArchetypeUnits.INCH,
       7.5 * AutoMovieArchetypeUnits.INCH,
-      WPA,
+      AutoMovieArchetypeCueTableData.WPA,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",

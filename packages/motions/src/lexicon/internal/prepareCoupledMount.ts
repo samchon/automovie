@@ -262,6 +262,34 @@ export function prepareCoupledMount(
 }
 
 /*
+ * Prepared mounted pose and its associated contact goals.
+ */
+export namespace prepareCoupledMount {
+  /*
+   * Positional tolerance for PolygonMan's mounted surface fit, metres.
+   */
+  export const PRECISION: number = HumanFitVariables.resolution({
+    kind: "place",
+    axis: "y",
+  });
+
+  /*
+   * Whether the posed body meets the material requirements of the key.
+   */
+  export type IResult =
+    | { key: IKey; reason?: never }
+    | { reason: string; key?: never };
+
+  /*
+   * The seated posture and the verified world goals carried by both treads.
+   */
+  export interface IKey {
+    posture: IAutoMovieMotionHumanPosture;
+    feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>;
+  }
+}
+
+/*
  * The current polygon rider accepts millimetre-scale surface error.
  */
 function admittedFit(
@@ -622,34 +650,6 @@ function admitted(
       ...(seed === null ? {} : { seed }),
     },
   };
-}
-
-/*
- * Prepared mounted pose and its associated contact goals.
- */
-export namespace prepareCoupledMount {
-  /*
-   * Positional tolerance for PolygonMan's mounted surface fit, metres.
-   */
-  export const PRECISION: number = HumanFitVariables.resolution({
-    kind: "place",
-    axis: "y",
-  });
-
-  /*
-   * Whether the posed body meets the material requirements of the key.
-   */
-  export type IResult =
-    | { key: IKey; reason?: never }
-    | { reason: string; key?: never };
-
-  /*
-   * The seated posture and the verified world goals carried by both treads.
-   */
-  export interface IKey {
-    posture: IAutoMovieMotionHumanPosture;
-    feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>;
-  }
 }
 
 /*

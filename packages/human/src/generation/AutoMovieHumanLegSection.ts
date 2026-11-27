@@ -9,8 +9,6 @@ import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 import { AutoMovieHumanLegSectionLaw } from "./AutoMovieHumanLegSectionLaw";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-const { dot, sub } = AutoMovieHumanLegVector;
-
 /**
  * One station's section: its plane and its points in it, `[x, z, lift]`, in
  * the canonical (left) frame.
@@ -69,3 +67,5 @@ export namespace AutoMovieHumanLegSection {
     return { frame, local };
   }
 }
+
+const { dot, sub } = AutoMovieHumanLegVector;

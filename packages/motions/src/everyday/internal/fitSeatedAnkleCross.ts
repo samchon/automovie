@@ -20,45 +20,7 @@ import type {
 import { poseBones } from "../../posture/internal/poseBones";
 import { fitSeatedAnkleCrossShape } from "./fitSeatedAnkleCrossShape";
 import { fitSeatedAnkleCrossSweep } from "./fitSeatedAnkleCrossSweep";
-
-const RAD = Math.PI / 180;
-
-/*
- * Surface convergence, metres, within the existing one-centimetre placement
- * fit.
- */
-const SURFACE_PRECISION = 0.00005;
-
-const ANGLES = ["flexion", "abduction", "twist"] as const;
-
-function angleTravel(a: IAutoMovieJointPose, b: IAutoMovieJointPose): number {
-  return ANGLES.reduce(
-    (total, angle) => total + Math.abs((a[angle] ?? 0) - (b[angle] ?? 0)),
-    0,
-  );
-}
-
-/*
- * Timing is a separate concern from the certified segment's angle curve.
- */
-function interpolateSeatedAnkleCross(
-  a: ILegPose,
-  b: ILegPose,
-  t: number,
-): ILegPose {
-  const angle = (a: number | null, b: number | null): number =>
-    (a ?? 0) + ((b ?? 0) - (a ?? 0)) * t;
-  const between = (
-    from: IAutoMovieJointPose,
-    to: IAutoMovieJointPose,
-  ): IAutoMovieJointPose => ({
-    bone: from.bone,
-    flexion: angle(from.flexion, to.flexion),
-    abduction: angle(from.abduction, to.abduction),
-    twist: angle(from.twist, to.twist),
-  });
-  return { hip: between(a.hip, b.hip), knee: between(a.knee, b.knee) };
-}
+import * as FitSeatedAnkleCrossData from "./FitSeatedAnkleCrossData";
 
 /*
  * Fit the ankle against the carrying leg's posed body; first travel outside
@@ -153,7 +115,7 @@ export function fitSeatedAnkleCross(
   const admits = (leg: ILegPose): boolean =>
     [leg.hip, leg.knee].every((joint) => {
       const accepted = check(joint);
-      return ANGLES.every(
+      return FitSeatedAnkleCrossData.ANGLES.every(
         (angle) =>
           Math.abs((joint[angle] ?? 0) - (accepted[angle] ?? 0)) < 1e-8,
       );
@@ -209,7 +171,7 @@ export function fitSeatedAnkleCross(
       chain.hinge,
     ),
     target: { ...bearing, y: surface.y + outlineHeight / 2 },
-    range: { min: hinge.min * RAD, max: hinge.max * RAD },
+    range: { min: hinge.min * FitSeatedAnkleCrossData.RAD, max: hinge.max * FitSeatedAnkleCrossData.RAD },
   };
   const at = (
     target: IAutoMovieVector3,
@@ -280,7 +242,7 @@ export function fitSeatedAnkleCross(
   // endpoints therefore stay inside ROM.
   const certify = (a: ILegPose, b: ILegPose): boolean => {
     const bound =
-      RAD *
+      FitSeatedAnkleCrossData.RAD *
       (hipRadius * angleTravel(a.hip, b.hip) +
         kneeRadius * angleTravel(a.knee, b.knee));
     const visit = (from: number, to: number): boolean => {
@@ -291,7 +253,7 @@ export function fitSeatedAnkleCross(
       const gap = clearance(read(placed), allowance);
       if (gap <= 0) return false;
       if (gap > (bound * (to - from)) / 2) return true;
-      if (bound * (to - from) < SURFACE_PRECISION / 8) return false;
+      if (bound * (to - from) < FitSeatedAnkleCrossData.SURFACE_PRECISION / 8) return false;
       return visit(from, middle) && visit(middle, to);
     };
     return visit(0, 1);
@@ -323,7 +285,7 @@ export function fitSeatedAnkleCross(
               ),
           ),
       );
-      if (contact >= SURFACE_PRECISION / 2 && contact <= SURFACE_PRECISION) {
+      if (contact >= FitSeatedAnkleCrossData.SURFACE_PRECISION / 2 && contact <= FitSeatedAnkleCrossData.SURFACE_PRECISION) {
         const over = liftedAbove(end, positioned, outlineHeight, admits, read);
         if (!over || !certify(over, end)) break;
         for (const abduction of [range.abduction.max, range.abduction.min]) {
@@ -349,7 +311,7 @@ export function fitSeatedAnkleCross(
       }
       target = {
         ...target,
-        y: target.y + (SURFACE_PRECISION * 0.75 - contact) / surface.normal.y,
+        y: target.y + (FitSeatedAnkleCrossData.SURFACE_PRECISION * 0.75 - contact) / surface.normal.y,
       };
     }
   }
@@ -364,6 +326,35 @@ export namespace fitSeatedAnkleCross {
    * Sample one fitted segment independently of its downstream timing.
    */
   export const interpolate = interpolateSeatedAnkleCross;
+}
+
+function angleTravel(a: IAutoMovieJointPose, b: IAutoMovieJointPose): number {
+  return FitSeatedAnkleCrossData.ANGLES.reduce(
+    (total, angle) => total + Math.abs((a[angle] ?? 0) - (b[angle] ?? 0)),
+    0,
+  );
+}
+
+/*
+ * Timing is a separate concern from the certified segment's angle curve.
+ */
+function interpolateSeatedAnkleCross(
+  a: ILegPose,
+  b: ILegPose,
+  t: number,
+): ILegPose {
+  const angle = (a: number | null, b: number | null): number =>
+    (a ?? 0) + ((b ?? 0) - (a ?? 0)) * t;
+  const between = (
+    from: IAutoMovieJointPose,
+    to: IAutoMovieJointPose,
+  ): IAutoMovieJointPose => ({
+    bone: from.bone,
+    flexion: angle(from.flexion, to.flexion),
+    abduction: angle(from.abduction, to.abduction),
+    twist: angle(from.twist, to.twist),
+  });
+  return { hip: between(a.hip, b.hip), knee: between(a.knee, b.knee) };
 }
 
 function upperSurface(
@@ -382,10 +373,10 @@ function upperSurface(
       )
     )
       continue;
-    for (let y = max.y + SURFACE_PRECISION; y >= min.y; ) {
+    for (let y = max.y + FitSeatedAnkleCrossData.SURFACE_PRECISION; y >= min.y; ) {
       const point = { ...station, y };
       const result = AutoMovieEnginePhysics.physicalShapeNearest(pose, shape, point, point);
-      if (result.distance <= SURFACE_PRECISION) {
+      if (result.distance <= FitSeatedAnkleCrossData.SURFACE_PRECISION) {
         if (result.normal.y > 0 && (top === undefined || y > top.y))
           top = { y, normal: result.normal };
         break;

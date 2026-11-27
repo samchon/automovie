@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * Competition uneven bars dimensions.
- */
-const NORMS: string =
-  "World Gymnastics Apparatus Norms, WAG 2 §2 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
+import * as AutoMovieArchetypeUnevenBarsData from "./internal/AutoMovieArchetypeUnevenBarsData";
 
 /** Constructs the uneven bars archetype from its recipe. */
 export namespace AutoMovieArchetypeUnevenBars {
@@ -148,11 +143,11 @@ export function create(
 
   /** The standard-height competition setup and a provisional model mass. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(2.39, 2.41, NORMS),
-    diameter: AutoMovieArchetypeBand.metres(0.0392, 0.0404, NORMS),
-    lowHeight: AutoMovieArchetypeBand.metres(1.74, 1.76, NORMS),
-    highHeight: AutoMovieArchetypeBand.metres(2.54, 2.56, NORMS),
-    diagonal: AutoMovieArchetypeBand.metres(1.3, 1.81, NORMS),
+    length: AutoMovieArchetypeBand.metres(2.39, 2.41, AutoMovieArchetypeUnevenBarsData.NORMS),
+    diameter: AutoMovieArchetypeBand.metres(0.0392, 0.0404, AutoMovieArchetypeUnevenBarsData.NORMS),
+    lowHeight: AutoMovieArchetypeBand.metres(1.74, 1.76, AutoMovieArchetypeUnevenBarsData.NORMS),
+    highHeight: AutoMovieArchetypeBand.metres(2.54, 2.56, AutoMovieArchetypeUnevenBarsData.NORMS),
+    diagonal: AutoMovieArchetypeBand.metres(1.3, 1.81, AutoMovieArchetypeUnevenBarsData.NORMS),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       100,

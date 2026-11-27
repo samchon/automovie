@@ -9,17 +9,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-
-const HULL: string =
-  "RS Sailing Feva Mk2 specifications: https://www.rssailing.com/project/rs-feva/";
-const RIG: string =
-  "RS Sailing Feva Mk2 rigging guide §§3.14–3.18: https://www.rssailing.com/wp-content/uploads/guides/RSFevaRiggingGuideMk2.pdf";
-const v: typeof Vector3.create = Vector3.create;
-const PAINT: string = "#1c668e";
-const DECK: string = "#dfebee";
-const SPARS: string = "#989c9e";
-const FLOOR: number = 0.02;
-const MAIN_AREA: number = 5.5;
+import * as AutoMovieArchetypeDinghyData from "./internal/AutoMovieArchetypeDinghyData";
+import { v } from "./internal/AutoMovieArchetypeDinghyData";
 
 /** The canonical producer and authoring contract for a sailing dinghy. */
 export namespace AutoMovieArchetypeDinghy {
@@ -105,17 +96,23 @@ export namespace AutoMovieArchetypeDinghy {
   };
   /** Published hull and mainsail, plus an estimated complete mass. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(3.64, 3.64, HULL),
-    beam: AutoMovieArchetypeBand.metres(1.42, 1.42, HULL),
+    length: AutoMovieArchetypeBand.metres(3.64, 3.64, AutoMovieArchetypeDinghyData.HULL),
+    beam: AutoMovieArchetypeBand.metres(1.42, 1.42, AutoMovieArchetypeDinghyData.HULL),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       82,
       82,
-      `${HULL}. Published hull 73 kg with provisional 9 kg rig (${RIG}).`,
+      `${AutoMovieArchetypeDinghyData.HULL}. Published hull 73 kg with provisional 9 kg rig (${AutoMovieArchetypeDinghyData.RIG}).`,
       true,
     ),
   };
 }
+
+const PAINT: string = "#1c668e";
+const DECK: string = "#dfebee";
+const SPARS: string = "#989c9e";
+const FLOOR: number = 0.02;
+const MAIN_AREA: number = 5.5;
 
 /*
  * Thin hull cells on one longitudinal section family beneath the common cockpit

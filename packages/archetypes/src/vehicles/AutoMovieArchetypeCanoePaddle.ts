@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -9,10 +9,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { PaddleBlade } from "./internal/PaddleBlade";
-
-const SOURCE: string =
-  "Bending Branches Expedition Plus product specifications: https://www.bendingbranches.com/products/expedition-plus";
-const v: typeof Vector3.create = Vector3.create;
+import * as AutoMovieArchetypeCanoePaddleData from "./internal/AutoMovieArchetypeCanoePaddleData";
+import { v } from "./internal/AutoMovieArchetypeCanoePaddleData";
 
 /** Constructs the canoe paddle archetype from its recipe. */
 export namespace AutoMovieArchetypeCanoePaddle {
@@ -124,18 +122,18 @@ export function create(
     length: AutoMovieArchetypeBand.metres(
       56 * AutoMovieArchetypeUnits.INCH,
       56 * AutoMovieArchetypeUnits.INCH,
-      SOURCE,
+      AutoMovieArchetypeCanoePaddleData.SOURCE,
     ),
     bladeLength: AutoMovieArchetypeBand.metres(
       19 * AutoMovieArchetypeUnits.INCH,
       19 * AutoMovieArchetypeUnits.INCH,
-      SOURCE,
+      AutoMovieArchetypeCanoePaddleData.SOURCE,
     ),
     bladeWidth: AutoMovieArchetypeBand.metres(
       8.2 * AutoMovieArchetypeUnits.INCH,
       8.2 * AutoMovieArchetypeUnits.INCH,
-      SOURCE,
+      AutoMovieArchetypeCanoePaddleData.SOURCE,
     ),
-    mass: AutoMovieArchetypeBand.of("kg", 0.68, 0.68, SOURCE),
+    mass: AutoMovieArchetypeBand.of("kg", 0.68, 0.68, AutoMovieArchetypeCanoePaddleData.SOURCE),
   };
 }

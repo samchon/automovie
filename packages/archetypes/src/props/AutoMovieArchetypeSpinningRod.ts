@@ -9,29 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * A spinning rod's length and the rod and reel's weight.
- */
-const ROD: string =
-  "spinning rods of 5 to 8 ft (1.5 to 2.4 m) with a 2500-size reel, about 0.3 to 0.5 kg together (retail listings seen in search results; provisional)";
-
-/*
- * A spinning reel's line retrieved per handle turn.
- */
-const RETRIEVE: string =
-  "spinning reels' line retrieved per handle turn, about 24 to 37 in (0.6 to 0.95 m) over gear ratios of 5:1 to 6.2:1 (makers' listings seen in search results; provisional)";
-
-/*
- * A reel handle's crank radius.
- */
-const CRANK: string =
-  "a 2500-size reel's handle arm, about 45 to 55 mm from the spool axis to the knob (provisional)";
-
-/*
- * How far the grip runs up from the butt, metres: the rod family's own grip.
- */
-const GRIP: number = 0.12;
+import * as AutoMovieArchetypeSpinningRodData from "./internal/AutoMovieArchetypeSpinningRodData";
 
 /** Constructs the spinning rod archetype from its recipe. */
 export namespace AutoMovieArchetypeSpinningRod {
@@ -175,9 +153,14 @@ export function create(
 
   /** The sourced bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    length: AutoMovieArchetypeBand.metres(1.5, 2.4, ROD),
-    mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.5, ROD),
-    retrieve: AutoMovieArchetypeBand.metres(0.6, 0.95, RETRIEVE),
-    crank: AutoMovieArchetypeBand.metres(0.045, 0.055, CRANK),
+    length: AutoMovieArchetypeBand.metres(1.5, 2.4, AutoMovieArchetypeSpinningRodData.ROD),
+    mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.5, AutoMovieArchetypeSpinningRodData.ROD),
+    retrieve: AutoMovieArchetypeBand.metres(0.6, 0.95, AutoMovieArchetypeSpinningRodData.RETRIEVE),
+    crank: AutoMovieArchetypeBand.metres(0.045, 0.055, AutoMovieArchetypeSpinningRodData.CRANK),
   };
 }
+
+/*
+ * How far the grip runs up from the butt, metres: the rod family's own grip.
+ */
+const GRIP: number = 0.12;

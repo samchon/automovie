@@ -18,16 +18,6 @@ import { step } from "../../striking/internal/step";
 import { HumanLungePivot } from "./HumanLungePivot";
 
 /*
- * Up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * A swinging foot's peak lift, a share of stature: the step law's.
- */
-const LIFT: number = 0.015;
-
-/*
  * The lunging handler's stance: the horse's bearing from the circle's centre,
  * read on a grid of half swings and unwrapped from the entry's heading, the
  * pivot steps planned on it (`HumanLungePivot`), and the posture at a second,
@@ -187,6 +177,16 @@ export namespace HumanLungeStance {
     at: (time: number) => IAutoMovieMotionHumanPosture;
   }
 }
+
+/*
+ * Up.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * A swinging foot's peak lift, a share of stature: the step law's.
+ */
+const LIFT: number = 0.015;
 
 /*
  * The lunge's context.

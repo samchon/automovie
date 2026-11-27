@@ -36,6 +36,207 @@ export function HumanPerformanceSoft(
 }
 
 /*
+ * A performance's soft props: each solved once from the displayed poses of the
+ * people who hold it or whose bodies it lies on, at its domain's own fixed
+ * step, and read by film seconds.
+ *
+ * The pass runs after every action is placed. For each step k of the domain's
+ * `fixedStepSeconds` from film second 0 to the performance's end, it reads the
+ * displayed bones at second k dt and builds that step's boundary: the world
+ * point of every moving anchor (an `actor-bone` binding on its person's bone, a
+ * `node` binding on a rigid prop of that subject) and the world segment of
+ * every body capsule. A hand's grip on the prop (any grip window or hold on it,
+ * as `HumanPerformanceRead.grips` lists them) binds the particle nearest the
+ * hand's grip socket when the grip closes, read from the solve as it stands
+ * then, to that socket for the window, and releases it after, so the particle
+ * falls with the velocity the hand gave it. On a cord attached at both ends to
+ * a model span, only the interior particles are available to the grip. Two
+ * hands on one particle (a handover's shared window) bind it to the hand that
+ * closed last, as a rigid prop rides the last grip. The engine solves the whole
+ * span once (`simulateSoftBodyWithBoundaries` with an observer that keeps every
+ * step), replaying from step 0 once per grip that picks its particle from the
+ * solve, so W grips cost W + 1 solves.
+ *
+ * A read at a film second interpolates linearly between the two steps around
+ * it, so a seek costs no solve and two frame rates read the same state at a
+ * shared second. The coupling is one-way: the cloth never moves the body
+ * (tension enters the hand as a load through `load`, read from the compliant
+ * solver's multipliers).
+ */
+export namespace HumanPerformanceSoft {
+  /*
+   * Solve a soft prop over the placed performance: what the performance
+   * prepares once every action, stop and flight is resolved.
+   * Parameter state: The performance.
+   * Parameter subject: The soft prop.
+   * Returns: The solve.
+   * When the prop is not soft.
+   */
+  export function prepare(
+    state: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+  ): IAutoMovieMotionHumanPerformanceSoft.ISolved {
+    return solve(state, subject);
+  }
+
+  /*
+   * The particles a soft domain anchors to a hand bone (`actor-bone` on
+   * `leftHand` or `rightHand`): a lanyard or a cord the hand holds from the
+   * start, whose pull is that hand's load as a grip's is.
+   * Parameter domain: The domain, with any grips' anchors already swapped in.
+   * Returns: The hand anchors, in the domain's order.
+   */
+  export function held(
+    domain: IAutoMovieSoftBodyDomain,
+  ): IAutoMovieMotionHumanPerformanceSoft.IHandAnchor[] {
+    return domain.anchors.flatMap(
+      (
+        a: IAutoMovieSoftAnchor,
+      ): IAutoMovieMotionHumanPerformanceSoft.IHandAnchor[] =>
+        a.binding?.kind === "actor-bone" &&
+        (a.binding.bone === "leftHand" || a.binding.bone === "rightHand")
+          ? [
+              {
+                particle: a.particle,
+                person: a.binding.actor,
+                side: a.binding.bone === "leftHand" ? "left" : "right",
+              },
+            ]
+          : [],
+    );
+  }
+
+  /*
+   * A soft prop's particle positions at a film second.
+   * Parameter state: The performance.
+   * Parameter subject: The soft prop.
+   * Parameter seconds: Film seconds, clamped to the performance.
+   * Returns: World metres, row-major `[x, y, z, ...]`.
+   * When the prop is not soft or its span exceeds its
+   * domain's step budget.
+   */
+  export function at(
+    state: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    seconds: number,
+  ): number[] {
+    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved =
+      HumanPerformanceSoft(state, subject);
+    const last: number = solved.steps.length - 1;
+    const t: number = Math.max(0, Math.min(last, seconds / solved.dt));
+    const k: number = Math.min(last, Math.floor(t));
+    const share: number = t - k;
+    const a: Float64Array = solved.steps[k]!;
+    const b: Float64Array = solved.steps[Math.min(last, k + 1)]!;
+    return Array.from(a, (v: number, i: number): number =>
+      share === 0 ? v : v + (b[i]! - v) * share,
+    );
+  }
+
+  /*
+   * The force a soft prop pulls a gripping hand with at a film second: the
+   * step's anchor force from the compliant solver, the step before the second's
+   * (a force is held over its step, not interpolated).
+   * Parameter state: The performance.
+   * Parameter subject: The soft prop.
+   * Parameter person: The gripping person.
+   * Parameter side: The hand.
+   * Parameter seconds: Film seconds.
+   * Returns: Newtons, world frame; zero when the hand does not hold it or the
+   * domain declares no compliance.
+   */
+  export function load(
+    state: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    person: string,
+    side: AutoMovieHumanSide,
+    seconds: number,
+  ): IAutoMovieVector3 {
+    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved =
+      HumanPerformanceSoft(state, subject);
+    const k: number = Math.max(
+      0,
+      Math.min(solved.loads.length - 1, Math.floor(seconds / solved.dt)),
+    );
+    return solved.loads[k]?.get(`${person}:${side}`) ?? { x: 0, y: 0, z: 0 };
+  }
+
+  /*
+   * Every soft prop's pull on the hands that grip it, as sustained forces for
+   * the display-time load and balance: one record per grip window on a soft
+   * prop, on the gripping person's palm of that side, over the window, and one
+   * per hand the domain itself anchors to (`held`), over the whole performance,
+   * its force the compliant solver's anchor force at the step before each
+   * second (`load`). The coupling is one-way per solve: the cloth is solved
+   * from the displayed body, and the body's lean is then read from these
+   * forces, never fed back into the solve or into a law's plan.
+   * Parameter state: The performance.
+   * Returns: The forces, in prop and grip order.
+   */
+  export function sustained(
+    state: IAutoMovieMotionHumanPerformanceState,
+  ): IAutoMovieMotionHumanSustainedForce[] {
+    const out: IAutoMovieMotionHumanSustainedForce[] = [];
+    for (const prop of state.props.values()) {
+      if (prop.soft === undefined) continue;
+      // A hand the domain itself anchors to bears the prop over the whole
+      // performance; its record reads every particle that hand bears, so a
+      // grip of the same hand adds no record of its own.
+      const subject: string = prop.subject;
+      const anchored: Map<
+        string,
+        IAutoMovieMotionHumanPerformanceSoft.IHandAnchor
+      > = new Map(
+        HumanPerformanceSoft.held(prop.soft).map(
+          (
+            h: IAutoMovieMotionHumanPerformanceSoft.IHandAnchor,
+          ): [string, IAutoMovieMotionHumanPerformanceSoft.IHandAnchor] => [
+            `${h.person}:${h.side}`,
+            h,
+          ],
+        ),
+      );
+      for (const h of anchored.values())
+        out.push({
+          kind: "sustained",
+          subject: h.person,
+          at: h.side === "left" ? "palmLeft" : "palmRight",
+          from: 0,
+          to: state.duration,
+          force: (seconds: number): IAutoMovieVector3 =>
+            HumanPerformanceSoft.load(
+              state,
+              subject,
+              h.person,
+              h.side,
+              seconds,
+            ),
+        });
+      for (const g of HumanPerformanceRead.grips(state, prop.subject)) {
+        if (g.bone !== undefined || anchored.has(`${g.subject}:${g.side}`))
+          continue;
+        out.push({
+          kind: "sustained",
+          subject: g.subject,
+          at: g.side === "left" ? "palmLeft" : "palmRight",
+          from: g.from,
+          to: g.to,
+          force: (seconds: number): IAutoMovieVector3 =>
+            HumanPerformanceSoft.load(
+              state,
+              subject,
+              g.subject,
+              g.side,
+              seconds,
+            ),
+        });
+      }
+    }
+    return out;
+  }
+}
+
+/*
  * Read a declared soft domain or report the available soft props.
  */
 function domainOf(
@@ -245,207 +446,6 @@ function solve(
     steps: whole.steps,
     loads: whole.loads,
   };
-}
-
-/*
- * A performance's soft props: each solved once from the displayed poses of the
- * people who hold it or whose bodies it lies on, at its domain's own fixed
- * step, and read by film seconds.
- *
- * The pass runs after every action is placed. For each step k of the domain's
- * `fixedStepSeconds` from film second 0 to the performance's end, it reads the
- * displayed bones at second k dt and builds that step's boundary: the world
- * point of every moving anchor (an `actor-bone` binding on its person's bone, a
- * `node` binding on a rigid prop of that subject) and the world segment of
- * every body capsule. A hand's grip on the prop (any grip window or hold on it,
- * as `HumanPerformanceRead.grips` lists them) binds the particle nearest the
- * hand's grip socket when the grip closes, read from the solve as it stands
- * then, to that socket for the window, and releases it after, so the particle
- * falls with the velocity the hand gave it. On a cord attached at both ends to
- * a model span, only the interior particles are available to the grip. Two
- * hands on one particle (a handover's shared window) bind it to the hand that
- * closed last, as a rigid prop rides the last grip. The engine solves the whole
- * span once (`simulateSoftBodyWithBoundaries` with an observer that keeps every
- * step), replaying from step 0 once per grip that picks its particle from the
- * solve, so W grips cost W + 1 solves.
- *
- * A read at a film second interpolates linearly between the two steps around
- * it, so a seek costs no solve and two frame rates read the same state at a
- * shared second. The coupling is one-way: the cloth never moves the body
- * (tension enters the hand as a load through `load`, read from the compliant
- * solver's multipliers).
- */
-export namespace HumanPerformanceSoft {
-  /*
-   * Solve a soft prop over the placed performance: what the performance
-   * prepares once every action, stop and flight is resolved.
-   * Parameter state: The performance.
-   * Parameter subject: The soft prop.
-   * Returns: The solve.
-   * When the prop is not soft.
-   */
-  export function prepare(
-    state: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-  ): IAutoMovieMotionHumanPerformanceSoft.ISolved {
-    return solve(state, subject);
-  }
-
-  /*
-   * The particles a soft domain anchors to a hand bone (`actor-bone` on
-   * `leftHand` or `rightHand`): a lanyard or a cord the hand holds from the
-   * start, whose pull is that hand's load as a grip's is.
-   * Parameter domain: The domain, with any grips' anchors already swapped in.
-   * Returns: The hand anchors, in the domain's order.
-   */
-  export function held(
-    domain: IAutoMovieSoftBodyDomain,
-  ): IAutoMovieMotionHumanPerformanceSoft.IHandAnchor[] {
-    return domain.anchors.flatMap(
-      (
-        a: IAutoMovieSoftAnchor,
-      ): IAutoMovieMotionHumanPerformanceSoft.IHandAnchor[] =>
-        a.binding?.kind === "actor-bone" &&
-        (a.binding.bone === "leftHand" || a.binding.bone === "rightHand")
-          ? [
-              {
-                particle: a.particle,
-                person: a.binding.actor,
-                side: a.binding.bone === "leftHand" ? "left" : "right",
-              },
-            ]
-          : [],
-    );
-  }
-
-  /*
-   * A soft prop's particle positions at a film second.
-   * Parameter state: The performance.
-   * Parameter subject: The soft prop.
-   * Parameter seconds: Film seconds, clamped to the performance.
-   * Returns: World metres, row-major `[x, y, z, ...]`.
-   * When the prop is not soft or its span exceeds its
-   * domain's step budget.
-   */
-  export function at(
-    state: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-    seconds: number,
-  ): number[] {
-    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved =
-      HumanPerformanceSoft(state, subject);
-    const last: number = solved.steps.length - 1;
-    const t: number = Math.max(0, Math.min(last, seconds / solved.dt));
-    const k: number = Math.min(last, Math.floor(t));
-    const share: number = t - k;
-    const a: Float64Array = solved.steps[k]!;
-    const b: Float64Array = solved.steps[Math.min(last, k + 1)]!;
-    return Array.from(a, (v: number, i: number): number =>
-      share === 0 ? v : v + (b[i]! - v) * share,
-    );
-  }
-
-  /*
-   * The force a soft prop pulls a gripping hand with at a film second: the
-   * step's anchor force from the compliant solver, the step before the second's
-   * (a force is held over its step, not interpolated).
-   * Parameter state: The performance.
-   * Parameter subject: The soft prop.
-   * Parameter person: The gripping person.
-   * Parameter side: The hand.
-   * Parameter seconds: Film seconds.
-   * Returns: Newtons, world frame; zero when the hand does not hold it or the
-   * domain declares no compliance.
-   */
-  export function load(
-    state: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-    person: string,
-    side: AutoMovieHumanSide,
-    seconds: number,
-  ): IAutoMovieVector3 {
-    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved =
-      HumanPerformanceSoft(state, subject);
-    const k: number = Math.max(
-      0,
-      Math.min(solved.loads.length - 1, Math.floor(seconds / solved.dt)),
-    );
-    return solved.loads[k]?.get(`${person}:${side}`) ?? { x: 0, y: 0, z: 0 };
-  }
-
-  /*
-   * Every soft prop's pull on the hands that grip it, as sustained forces for
-   * the display-time load and balance: one record per grip window on a soft
-   * prop, on the gripping person's palm of that side, over the window, and one
-   * per hand the domain itself anchors to (`held`), over the whole performance,
-   * its force the compliant solver's anchor force at the step before each
-   * second (`load`). The coupling is one-way per solve: the cloth is solved
-   * from the displayed body, and the body's lean is then read from these
-   * forces, never fed back into the solve or into a law's plan.
-   * Parameter state: The performance.
-   * Returns: The forces, in prop and grip order.
-   */
-  export function sustained(
-    state: IAutoMovieMotionHumanPerformanceState,
-  ): IAutoMovieMotionHumanSustainedForce[] {
-    const out: IAutoMovieMotionHumanSustainedForce[] = [];
-    for (const prop of state.props.values()) {
-      if (prop.soft === undefined) continue;
-      // A hand the domain itself anchors to bears the prop over the whole
-      // performance; its record reads every particle that hand bears, so a
-      // grip of the same hand adds no record of its own.
-      const subject: string = prop.subject;
-      const anchored: Map<
-        string,
-        IAutoMovieMotionHumanPerformanceSoft.IHandAnchor
-      > = new Map(
-        HumanPerformanceSoft.held(prop.soft).map(
-          (
-            h: IAutoMovieMotionHumanPerformanceSoft.IHandAnchor,
-          ): [string, IAutoMovieMotionHumanPerformanceSoft.IHandAnchor] => [
-            `${h.person}:${h.side}`,
-            h,
-          ],
-        ),
-      );
-      for (const h of anchored.values())
-        out.push({
-          kind: "sustained",
-          subject: h.person,
-          at: h.side === "left" ? "palmLeft" : "palmRight",
-          from: 0,
-          to: state.duration,
-          force: (seconds: number): IAutoMovieVector3 =>
-            HumanPerformanceSoft.load(
-              state,
-              subject,
-              h.person,
-              h.side,
-              seconds,
-            ),
-        });
-      for (const g of HumanPerformanceRead.grips(state, prop.subject)) {
-        if (g.bone !== undefined || anchored.has(`${g.subject}:${g.side}`))
-          continue;
-        out.push({
-          kind: "sustained",
-          subject: g.subject,
-          at: g.side === "left" ? "palmLeft" : "palmRight",
-          from: g.from,
-          to: g.to,
-          force: (seconds: number): IAutoMovieVector3 =>
-            HumanPerformanceSoft.load(
-              state,
-              subject,
-              g.subject,
-              g.side,
-              seconds,
-            ),
-        });
-      }
-    }
-    return out;
-  }
 }
 
 /*

@@ -1,26 +1,5 @@
 import { AutoMovieArchetypeUnits } from "../../core";
-
-/*
- * The 1862 Ordnance Manual, read at its scan.
- */
-const ORDNANCE: string =
-  "Ordnance Manual for the Use of the Officers of the United States Army, 3rd ed., Lippincott, Philadelphia 1862 (https://archive.org/details/ordnancemanualfo00unitrich)";
-
-/*
- * Gibbon's manual, read at its scan.
- */
-const GIBBON: string =
-  "John Gibbon, The Artillerist's Manual, Van Nostrand, New York 1860 (https://archive.org/details/bub_gb_8FEkwTZd9FMC)";
-
-/*
- * An inch, metres.
- */
-const IN: number = AutoMovieArchetypeUnits.INCH;
-
-/*
- * A yard, metres: three feet.
- */
-const YARD: number = 3 * AutoMovieArchetypeUnits.FOOT;
+import * as FieldGunData from "./internal/FieldGunData";
 
 /*
  * The 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the
@@ -39,7 +18,7 @@ export namespace FIELD_GUN {
    * The tube's table (p. 19), the carriage's (p. 74), the wheel's and axle's
    * (p. 68), the vent (p. 16), Plate 2, and Gibbon's vent and trunnions.
    */
-  export const SOURCE: string = `${ORDNANCE}: Principal Dimensions and Weights of Guns, Model 1839-1844, brass field 6-pdr, p. 19; Principal Dimensions and Weights of Field-Gun Carriages and Limbers, 6-pdr gun, p. 74; Wheels No. 1 and Axle-Trees No. 1, p. 68; the vent, p. 16; Plate 2, Field Carriage, undimensioned; ${GIBBON}, pp. 60, 62 and 306`;
+  export const SOURCE: string = `${FieldGunData.ORDNANCE}: Principal Dimensions and Weights of Guns, Model 1839-1844, brass field 6-pdr, p. 19; Principal Dimensions and Weights of Field-Gun Carriages and Limbers, 6-pdr gun, p. 74; Wheels No. 1 and Axle-Trees No. 1, p. 68; the vent, p. 16; Plate 2, Field Carriage, undimensioned; ${FieldGunData.GIBBON}, pp. 60, 62 and 306`;
 
   /*
    * The tube (p. 19).
@@ -64,44 +43,44 @@ export namespace FIELD_GUN {
     /*
      * The bore's diameter, 3.67 in.
      */
-    bore: 3.67 * IN,
+    bore: 3.67 * FieldGunData.IN,
     /*
      * The bore's length, 57.5 in.
      */
-    boreLength: 57.5 * IN,
+    boreLength: 57.5 * FieldGunData.IN,
     /*
      * From the rear of the base-ring to the face of the muzzle, 60 in.
      */
-    baseRing: 60 * IN,
+    baseRing: 60 * FieldGunData.IN,
     /*
      * The whole length of the piece, 65.6 in; the cascabel is the rest behind
      * the base-ring.
      */
-    whole: 65.6 * IN,
+    whole: 65.6 * FieldGunData.IN,
     /*
      * The base-ring's diameter, 10.3 in.
      */
-    breech: 10.3 * IN,
+    breech: 10.3 * FieldGunData.IN,
     /*
      * The swell of the muzzle's diameter, twice its 4.125 in semi-diameter.
      */
-    swell: 2 * 4.125 * IN,
+    swell: 2 * 4.125 * FieldGunData.IN,
     /*
      * The trunnions' diameter, 3.67 in.
      */
-    trunnion: 3.67 * IN,
+    trunnion: 3.67 * FieldGunData.IN,
     /*
      * Each trunnion's length, 2.8 in.
      */
-    trunnionLength: 2.8 * IN,
+    trunnionLength: 2.8 * FieldGunData.IN,
     /*
      * Between the rimbases, 9.5 in.
      */
-    rimbases: 9.5 * IN,
+    rimbases: 9.5 * FieldGunData.IN,
     /*
      * From the trunnions' axis to the face of the muzzle, 34.91 in.
      */
-    trunnionToFace: 34.91 * IN,
+    trunnionToFace: 34.91 * FieldGunData.IN,
     /*
      * The piece's weight, 884 lb.
      */
@@ -140,26 +119,26 @@ export namespace FIELD_GUN {
     /*
      * The trunnions' axis above the ground, 43.1 in.
      */
-    trunnionHeight: 43.1 * IN,
+    trunnionHeight: 43.1 * FieldGunData.IN,
     /*
      * The trunnions' axis behind the axle-tree's, the piece in battery on level
      * ground, 0.5 in.
      */
-    trunnionBehind: 0.5 * IN,
+    trunnionBehind: 0.5 * FieldGunData.IN,
     /*
      * Between the points where the trail and the wheels touch the ground, 74.4
      * in.
      */
-    trailContact: 74.4 * IN,
+    trailContact: 74.4 * FieldGunData.IN,
     /*
      * From the front of the wheels to the end of the trail, the piece in
      * battery, 116.6 in.
      */
-    trailEnd: 116.6 * IN,
+    trailEnd: 116.6 * FieldGunData.IN,
     /*
      * Between the insides of the trunnion-plates, 9.6 in.
      */
-    plates: 9.6 * IN,
+    plates: 9.6 * FieldGunData.IN,
     /*
      * The gun's vertical field of fire above the horizontal, 12 degrees.
      */
@@ -171,23 +150,23 @@ export namespace FIELD_GUN {
     /*
      * The wheel's height, 57 in.
      */
-    wheel: 57 * IN,
+    wheel: 57 * FieldGunData.IN,
     /*
      * The track of the wheels, 60 in.
      */
-    track: 60 * IN,
+    track: 60 * FieldGunData.IN,
     /*
      * The axle-tree's whole length, 78.84 in.
      */
-    axle: 78.84 * IN,
+    axle: 78.84 * FieldGunData.IN,
     /*
      * The axle-tree's arm at the shoulder, 3 in across.
      */
-    arm: 3 * IN,
+    arm: 3 * FieldGunData.IN,
     /*
      * Wheel No. 1's tire, 2.75 in wide.
      */
-    tyre: 2.75 * IN,
+    tyre: 2.75 * FieldGunData.IN,
     /*
      * Wheel No. 1's spokes, 14.
      */
@@ -230,8 +209,8 @@ export namespace FIELD_GUN {
    * for Field Artillery, Roberts 1861; records/elevating-screw.md).
    */
   export const SCREW: Readonly<{ bar: number; pitch: number }> = {
-    bar: 2 * IN,
-    pitch: IN / 10,
+    bar: 2 * FieldGunData.IN,
+    pitch: FieldGunData.IN / 10,
   };
 
   /*
@@ -258,16 +237,16 @@ export namespace FIELD_GUN {
     wire: number;
     handspike: number;
   }> = {
-    shot: 3.58 * IN,
+    shot: 3.58 * FieldGunData.IN,
     shotMass: 6.1 * AutoMovieArchetypeUnits.POUND,
     velocity: 1439 * AutoMovieArchetypeUnits.FOOT,
-    recoil: { least: 1.5 * YARD, most: 2 * YARD },
+    recoil: { least: 1.5 * FieldGunData.YARD, most: 2 * FieldGunData.YARD },
     lanyard: 12 * AutoMovieArchetypeUnits.FOOT,
-    line: 0.2 * IN,
-    toggle: { diameter: 0.75 * IN, length: 4 * IN },
-    tube: 1.75 * IN,
-    wire: 3.4 * IN,
-    handspike: 53 * IN,
+    line: 0.2 * FieldGunData.IN,
+    toggle: { diameter: 0.75 * FieldGunData.IN, length: 4 * FieldGunData.IN },
+    tube: 1.75 * FieldGunData.IN,
+    wire: 3.4 * FieldGunData.IN,
+    handspike: 53 * FieldGunData.IN,
   };
 
   /*

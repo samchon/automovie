@@ -13,23 +13,6 @@ import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAn
 import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
 
 /*
- * Preserve null rest, angle admission and the caller's clinical frame map.
- */
-const readAngle: (
-  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  axis: AutoMovieClinicalAxis,
-  frame: IAutoMovieAxisFrame | undefined,
-) => number = (
-  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  axis: AutoMovieClinicalAxis,
-  frame: IAutoMovieRestFrame[AutoMovieClinicalAxis] | undefined,
-): number => {
-  const value: number | null = joint[axis];
-
-  return AutoMovieEngineRigAngle.toRigAngle(value, frame) ?? 0;
-};
-
-/*
  * jointToQuaternion on a basis its caller already admitted and
  * normalized through normalizeJointAxes: the composition itself, with no
  * validation of the basis.
@@ -178,6 +161,23 @@ export namespace jointToQuaternionOnBasis {
     return (): IRawReader => scalarComposition(basis, frame, operation);
   }
 }
+
+/*
+ * Preserve null rest, angle admission and the caller's clinical frame map.
+ */
+const readAngle: (
+  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
+  axis: AutoMovieClinicalAxis,
+  frame: IAutoMovieAxisFrame | undefined,
+) => number = (
+  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
+  axis: AutoMovieClinicalAxis,
+  frame: IAutoMovieRestFrame[AutoMovieClinicalAxis] | undefined,
+): number => {
+  const value: number | null = joint[axis];
+
+  return AutoMovieEngineRigAngle.toRigAngle(value, frame) ?? 0;
+};
 
 /*
  * Fresh query state, optionally borrowing operation-owned rig arithmetic.

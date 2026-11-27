@@ -32,6 +32,20 @@ import type {
  * table owns what the rows say.
  */
 export namespace AutoMovieHumanArmRows {
+  /**
+   * The row at a landmark station.
+   *
+   * @param station The landmark station.
+   * @param s Walk length of the station, mm.
+   * @returns The row, its channels in the order `IAutoMovieHumanArmPiece.IRow` states.
+   */
+  export function row(
+    station: AutoMovieHumanArmStation,
+    s: number,
+  ): IAutoMovieHumanArmPiece.IRow {
+    return { s, channels: [...ROWS[station]] };
+  }
+
   /*
    * The channels at each landmark station: the four lines' three numbers each, then the four sectors' one.
    */
@@ -85,18 +99,4 @@ export namespace AutoMovieHumanArmRows {
       0.7396, 0.1188, 0.388, -0.051, 0.0107, 0.0199, 0.0344,
     ],
   };
-
-  /**
-   * The row at a landmark station.
-   *
-   * @param station The landmark station.
-   * @param s Walk length of the station, mm.
-   * @returns The row, its channels in the order `IAutoMovieHumanArmPiece.IRow` states.
-   */
-  export function row(
-    station: AutoMovieHumanArmStation,
-    s: number,
-  ): IAutoMovieHumanArmPiece.IRow {
-    return { s, channels: [...ROWS[station]] };
-  }
 }

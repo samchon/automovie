@@ -13,10 +13,6 @@ import { AutoMovieHumanLimbRootStrip } from "./AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { mean, TWO_PI }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
-
 /**
  * The arm's scye: its arc of the shoulder ring, the bottom layer of the
  * shoulders' chain `upper` between the anterior and posterior axillary guides,
@@ -25,11 +21,6 @@ const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
  * across the ring, which the arm's root strip copies.
  */
 export namespace AutoMovieHumanArmScye {
-  /*
-   * Samples of the arc.
-   */
-  const SAMPLES: number = 128;
-
   /**
    * Step of the one-sided differences of the shoulders' chain at its bottom
    * ring, calibration mm: three steps span under a millimetre, well inside the
@@ -127,4 +118,14 @@ export namespace AutoMovieHumanArmScye {
       jets,
     };
   }
+
+  /*
+   * Samples of the arc.
+   */
+  const SAMPLES: number = 128;
 }
+
+const { mean, TWO_PI }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+
+const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;

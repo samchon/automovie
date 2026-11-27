@@ -1,6 +1,10 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createGlove as createGloveImplementation } from "./internal/createGlove";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../core";
+import * as AutoMovieArchetypeGloveData from "./internal/AutoMovieArchetypeGloveData";
+import {
+  m as AutoMovieArchetypeGloveDatam,
+} from "./internal/AutoMovieArchetypeGloveData";
 
 /** Public operations for Auto Movie Archetype Glove. */
 export namespace AutoMovieArchetypeGlove {
@@ -74,65 +78,49 @@ export namespace AutoMovieArchetypeGlove {
     mass: "kg",
   };
 
-  /*
-   * The Official Baseball Rules 2024.
-   */
-  const OBR: string =
-    "Official Baseball Rules 2024 (https://www.baseball.ca/uploads/files/2024%20Rules/2024%20MLB%20Official%20Rules%20-%20EN.pdf)";
-
-  /*
-   * A band in metres at a rule's limit.
-   */
-  const m = (
-    minimum: number,
-    maximum: number,
-    source: string,
-  ): IAutoMovieArchetypeBand =>
-    AutoMovieArchetypeBand.metres(minimum, maximum, source);
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     fielder: {
-      length: m(
+      length: AutoMovieArchetypeGloveDatam(
         13 * AutoMovieArchetypeUnits.INCH,
         13 * AutoMovieArchetypeUnits.INCH,
-        `${OBR}, 3.06: a fielder's glove not more than 13 in from a finger's tip to the heel, the limit the model takes`,
+        `${AutoMovieArchetypeGloveData.OBR}, 3.06: a fielder's glove not more than 13 in from a finger's tip to the heel, the limit the model takes`,
       ),
-      width: m(
+      width: AutoMovieArchetypeGloveDatam(
         7.75 * AutoMovieArchetypeUnits.INCH,
         7.75 * AutoMovieArchetypeUnits.INCH,
-        `${OBR}, 3.06: not more than 7 3/4 in wide, the limit the model takes`,
+        `${AutoMovieArchetypeGloveData.OBR}, 3.06: not more than 7 3/4 in wide, the limit the model takes`,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.5,
         0.7,
-        `${OBR}, 3.06: the glove can be of any weight; no maker's weight was read`,
+        `${AutoMovieArchetypeGloveData.OBR}, 3.06: the glove can be of any weight; no maker's weight was read`,
         true,
       ),
     },
     catcher: {
-      length: m(
+      length: AutoMovieArchetypeGloveDatam(
         15.5 * AutoMovieArchetypeUnits.INCH,
         15.5 * AutoMovieArchetypeUnits.INCH,
-        `${OBR}, 3.04: a catcher's mitt not more than 15 1/2 in from top to bottom, the limit the model takes`,
+        `${AutoMovieArchetypeGloveData.OBR}, 3.04: a catcher's mitt not more than 15 1/2 in from top to bottom, the limit the model takes`,
       ),
-      width: m(
+      width: AutoMovieArchetypeGloveDatam(
         2 *
           ((38 * AutoMovieArchetypeUnits.INCH) / Math.PI -
             (15.5 * AutoMovieArchetypeUnits.INCH) / 2),
         2 *
           ((38 * AutoMovieArchetypeUnits.INCH) / Math.PI -
             (15.5 * AutoMovieArchetypeUnits.INCH) / 2),
-        `${OBR}, 3.04: not more than 38 in round and 15 1/2 in long, the width of an ellipse of that round and that length`,
+        `${AutoMovieArchetypeGloveData.OBR}, 3.04: not more than 38 in round and 15 1/2 in long, the width of an ellipse of that round and that length`,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.6,
         0.9,
-        `${OBR}, 3.04: the rule states no weight; no maker's weight was read`,
+        `${AutoMovieArchetypeGloveData.OBR}, 3.04: the rule states no weight; no maker's weight was read`,
         true,
       ),
     },

@@ -9,22 +9,6 @@ import {
 import { BallBuild } from "./internal/BallBuild";
 import type { AutoMovieArchetypeBall } from "./AutoMovieArchetypeBall";
 
-/*
- * A golf ball's rolling resistance on a green: the USGA Stimpmeter releases the
- * ball at 1.83 m/s, and a medium green of 10 ft (3.05 m) gives mu = v^2 / (2 g
- * S), about 0.056.
- */
-const GREEN: number = 1.83 ** 2 / (2 * 9.80665 * 3.05);
-
-/*
- * A thin hollow shell's gyration, its moment of inertia about a diameter over
- * its mass times its radius squared: 2/3. An inflated football, futsal ball,
- * basketball, volleyball or handball, and a celluloid table tennis ball, have a
- * wall a few hundredths of their radius thick, which lowers it by only a few
- * per cent.
- */
-const THIN_SHELL: number = 2 / 3;
-
 /** Canonical producer and authoring contract for Spherical Ball. */
 export namespace AutoMovieArchetypeSphericalBall {
   /**
@@ -150,3 +134,19 @@ export namespace AutoMovieArchetypeSphericalBall {
     );
   }
 }
+
+/*
+ * A golf ball's rolling resistance on a green: the USGA Stimpmeter releases the
+ * ball at 1.83 m/s, and a medium green of 10 ft (3.05 m) gives mu = v^2 / (2 g
+ * S), about 0.056.
+ */
+const GREEN: number = 1.83 ** 2 / (2 * 9.80665 * 3.05);
+
+/*
+ * A thin hollow shell's gyration, its moment of inertia about a diameter over
+ * its mass times its radius squared: 2/3. An inflated football, futsal ball,
+ * basketball, volleyball or handball, and a celluloid table tennis ball, have a
+ * wall a few hundredths of their radius thick, which lowers it by only a few
+ * per cent.
+ */
+const THIN_SHELL: number = 2 / 3;

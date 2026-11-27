@@ -15,6 +15,17 @@ import { physicalShapeHull } from "./physicalShapeHull";
 import { readPhysicalHullFacesPoint } from "./readPhysicalHullFacesPoint";
 
 /*
+ * Internal typed entry points for full, scalar and prepared shape proximity.
+ */
+export const physicalShapeQueryImplementation: {
+  physicalShapeQueryDirect: typeof physicalShapeQueryDirect;
+  prepare: typeof physicalShapeQueryPrepare;
+} = {
+  physicalShapeQueryDirect,
+  prepare: physicalShapeQueryPrepare,
+};
+
+/*
  * Compose the world frame from the parent and shape-local transforms.
  */
 function frameOf(
@@ -136,17 +147,6 @@ function physicalShapeQueryPrepare(
     taper?: readonly [number, number],
   ): number => query(prepared, shape, a, b, taper, false);
 }
-
-/*
- * Internal typed entry points for full, scalar and prepared shape proximity.
- */
-export const physicalShapeQueryImplementation: {
-  physicalShapeQueryDirect: typeof physicalShapeQueryDirect;
-  prepare: typeof physicalShapeQueryPrepare;
-} = {
-  physicalShapeQueryDirect,
-  prepare: physicalShapeQueryPrepare,
-};
 
   /*
    * Scalar reads share this one mathematical body with the cold full-contact

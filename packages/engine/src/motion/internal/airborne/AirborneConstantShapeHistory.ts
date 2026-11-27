@@ -89,46 +89,6 @@ export function AirborneConstantShapeHistory(
 }
 
 /*
- * Numeric-only construction prevents the returned reader retaining any FK or
- * mass input scope.
- */
-function numericHistory(
-  matrix: number[][],
-  span: { from: number; to: number } | undefined,
-  statistics: AirborneShapeStatistics.IStatistics | undefined,
-): AutoMovieEngineMotionAirborneRotation.ICachedHistory {
-  if (statistics !== undefined) statistics.factorizations++;
-  const state: AirborneConstantShapeHistory.IConstant = {
-    matrix,
-    span: span === undefined ? undefined : { ...span },
-    active: true,
-    statistics,
-    factor: physicalInertiaFactor(matrix),
-  };
-  const issued: Set<IAutoMovieIntegrateAirborneRotation.IInstant> = new Set();
-  const query: IAutoMovieIntegrateAirborneRotation.IHistory = (
-    _seconds: number,
-  ): IAutoMovieIntegrateAirborneRotation.IInstant => {
-    if (state.statistics !== undefined) state.statistics.queries++;
-    const instant: IAutoMovieIntegrateAirborneRotation.IInstant =
-      AirborneShapeInertia(matrix, { x: 0, y: 0, z: 0 }, state.statistics);
-    issued.add(instant);
-    return instant;
-  };
-  return Object.assign(query, {
-    native: true as const,
-    constantState: state,
-    clear: (): void => {
-      for (const instant of issued) AirborneShapeInertia.release(instant);
-      issued.clear();
-      state.factor = undefined;
-      state.active = false;
-      state.statistics = undefined;
-    },
-  });
-}
-
-/*
  * Private construction proof for fixed numeric physical histories.
  */
 export namespace AirborneConstantShapeHistory {
@@ -199,4 +159,44 @@ export namespace AirborneConstantShapeHistory {
       return undefined;
     return state.factor ?? undefined;
   }
+}
+
+/*
+ * Numeric-only construction prevents the returned reader retaining any FK or
+ * mass input scope.
+ */
+function numericHistory(
+  matrix: number[][],
+  span: { from: number; to: number } | undefined,
+  statistics: AirborneShapeStatistics.IStatistics | undefined,
+): AutoMovieEngineMotionAirborneRotation.ICachedHistory {
+  if (statistics !== undefined) statistics.factorizations++;
+  const state: AirborneConstantShapeHistory.IConstant = {
+    matrix,
+    span: span === undefined ? undefined : { ...span },
+    active: true,
+    statistics,
+    factor: physicalInertiaFactor(matrix),
+  };
+  const issued: Set<IAutoMovieIntegrateAirborneRotation.IInstant> = new Set();
+  const query: IAutoMovieIntegrateAirborneRotation.IHistory = (
+    _seconds: number,
+  ): IAutoMovieIntegrateAirborneRotation.IInstant => {
+    if (state.statistics !== undefined) state.statistics.queries++;
+    const instant: IAutoMovieIntegrateAirborneRotation.IInstant =
+      AirborneShapeInertia(matrix, { x: 0, y: 0, z: 0 }, state.statistics);
+    issued.add(instant);
+    return instant;
+  };
+  return Object.assign(query, {
+    native: true as const,
+    constantState: state,
+    clear: (): void => {
+      for (const instant of issued) AirborneShapeInertia.release(instant);
+      issued.clear();
+      state.factor = undefined;
+      state.active = false;
+      state.statistics = undefined;
+    },
+  });
 }

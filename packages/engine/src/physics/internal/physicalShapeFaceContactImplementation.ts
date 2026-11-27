@@ -14,6 +14,22 @@ import { physicalShapeGjkWitness } from "./physicalShapeGjkWitness";
 import type { AutoMovieEnginePhysicsGjkTypes } from "../AutoMovieEnginePhysicsGjkTypes";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { physicalShapeSupport } from "./physicalShapeSupport";
+import * as PhysicalShapeFaceContactImplementationData from "./PhysicalShapeFaceContactImplementationData";
+
+/*
+ * Internal implementations shared by the one-function entry modules.
+ */
+/*
+ * Internal typed runtime implementations shared by the query entry modules.
+ */
+export const physicalShapeFaceContactImplementation: {
+  physicalShapeFaceContact: typeof physicalShapeFaceContact;
+  physicalShapeFaceContactPrepare: typeof physicalShapeFaceContactPrepare;
+} = {
+  physicalShapeFaceContact,
+  physicalShapeFaceContactPrepare,
+};
+
 
 /*
  * Prepare a face outline for repeated shape placements. The column direction
@@ -24,7 +40,7 @@ import { physicalShapeSupport } from "./physicalShapeSupport";
 function physicalShapeFaceContactPrepare(
   face: IAutoMovieRigidTransform,
   outline: readonly IAutoMovieVector3[],
-  column: IAutoMovieVector3 = UP,
+  column: IAutoMovieVector3 = PhysicalShapeFaceContactImplementationData.UP,
 ): (pose: IAutoMovieRigidTransform, shape: AutoMovieEnginePhysicsFaceContactTypes.Shape) => AutoMovieEnginePhysicsFaceContactTypes.IContact | undefined {
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(face.rotation);
   const pieces: readonly (readonly ISide[])[] = partition(outline);
@@ -71,7 +87,7 @@ function physicalShapeFaceContactPrepare(
         : shape.kind === "hull"
           ? physicalShapeHull(shape).faces.map(({ loop }) => loop)
           : undefined;
-    const tangent: IAutoMovieVector3 = Quaternion.rotateVector(q, UP);
+    const tangent: IAutoMovieVector3 = Quaternion.rotateVector(q, PhysicalShapeFaceContactImplementationData.UP);
     const read = (sides: readonly ISide[]): AutoMovieEnginePhysicsFaceContactTypes.IContact | undefined => {
       if (loops !== undefined) return polytope(loops, place, sides, project);
       if (
@@ -109,7 +125,7 @@ function physicalShapeFaceContactPrepare(
         axis,
         project,
         bottom.y,
-        support(UP).y,
+        support(PhysicalShapeFaceContactImplementationData.UP).y,
       );
     };
     let best: AutoMovieEnginePhysicsFaceContactTypes.IContact | undefined;
@@ -164,11 +180,6 @@ function partition(
     )
     .filter((piece: ISide[]): boolean => piece.length !== 0);
 }
-
-/*
- * Face-space upward normal and height axis.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * Read nonzero polygon edges and orient them toward the interior.
@@ -436,20 +447,6 @@ function roundPrism(
   }
   return { point: project(found.point), clearance: hi };
 }
-
-/*
- * Internal implementations shared by the one-function entry modules.
- */
-/*
- * Internal typed runtime implementations shared by the query entry modules.
- */
-export const physicalShapeFaceContactImplementation: {
-  physicalShapeFaceContact: typeof physicalShapeFaceContact;
-  physicalShapeFaceContactPrepare: typeof physicalShapeFaceContactPrepare;
-} = {
-  physicalShapeFaceContact,
-  physicalShapeFaceContactPrepare,
-};
 /*
  * One boundary in the face plane and its inward normal.
  */

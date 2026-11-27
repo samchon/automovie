@@ -136,27 +136,6 @@ export namespace StrikingVerdicts {
   }
 
   /*
-   * The 15 mm within which a stopped limb touches a surface or an extended one
-   * its aim.
-   */
-  const TOUCH: number = 0.015;
-
-  /*
-   * The 10 mm a limb may sink into the other body.
-   */
-  const SINK: number = 0.01;
-
-  /*
-   * The 5 mm a planted or pivoting ball may drift.
-   */
-  const SLIP: number = 0.005;
-
-  /*
-   * The 2 mm within which a displayed ankle meets its goal.
-   */
-  const GOAL: number = 0.002;
-
-  /*
    * The film second of a segment's named event.
    * Parameter segment: The segment.
    * Parameter event: The event's name.
@@ -485,6 +464,27 @@ export namespace StrikingVerdicts {
           : `the ankle lies at most ${(1000 * worst).toFixed(2)} mm from its goal (at ${when.toFixed(3)} s, ${samples} samples from ${from.toFixed(3)} to ${to.toFixed(3)} s); bound 2 mm`,
     };
   }
+
+  /*
+   * The 15 mm within which a stopped limb touches a surface or an extended one
+   * its aim.
+   */
+  const TOUCH: number = 0.015;
+
+  /*
+   * The 10 mm a limb may sink into the other body.
+   */
+  const SINK: number = 0.01;
+
+  /*
+   * The 5 mm a planted or pivoting ball may drift.
+   */
+  const SLIP: number = 0.005;
+
+  /*
+   * The 2 mm within which a displayed ankle meets its goal.
+   */
+  const GOAL: number = 0.002;
 }
 
 /*

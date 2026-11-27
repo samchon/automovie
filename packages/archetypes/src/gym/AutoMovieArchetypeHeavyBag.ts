@@ -9,12 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The bags, from a search only.
- */
-const EVERLAST: string =
-  "Everlast 100 lb hanging bags: Powershot about 59 in tall and 14.5 in across, Powerlock 46 in and 13 in, NevaTear 53 in and 13.25 in, as search results give Everlast's and retailers' listings; not read";
+import * as AutoMovieArchetypeHeavyBagData from "./internal/AutoMovieArchetypeHeavyBagData";
 
 /** Constructs the heavy bag archetype from its recipe. */
 export namespace AutoMovieArchetypeHeavyBag {
@@ -124,20 +119,20 @@ export function create(
     height: AutoMovieArchetypeBand.metres(
       46 * AutoMovieArchetypeUnits.INCH,
       59 * AutoMovieArchetypeUnits.INCH,
-      EVERLAST,
+      AutoMovieArchetypeHeavyBagData.EVERLAST,
       true,
     ),
     diameter: AutoMovieArchetypeBand.metres(
       13 * AutoMovieArchetypeUnits.INCH,
       14.5 * AutoMovieArchetypeUnits.INCH,
-      EVERLAST,
+      AutoMovieArchetypeHeavyBagData.EVERLAST,
       true,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       100 * AutoMovieArchetypeUnits.POUND,
       100 * AutoMovieArchetypeUnits.POUND,
-      `${EVERLAST}: 100 lb`,
+      `${AutoMovieArchetypeHeavyBagData.EVERLAST}: 100 lb`,
       true,
     ),
   };

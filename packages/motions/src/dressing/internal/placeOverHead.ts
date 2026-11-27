@@ -38,18 +38,7 @@ import { placeOverHeadLean } from "./placeOverHeadLean";
 import { placeOverHeadPartner } from "./placeOverHeadPartner";
 import { placeOverHeadPath } from "./placeOverHeadPath";
 import { placeOverHeadStance } from "./placeOverHeadStance";
-
-/*
- * How far the presented loop's nearest edge stands off the chest, metres
- * (provisional: a hand's breadth).
- */
-const PRESENT: number = 0.1;
-
-/*
- * How far below the shoulders the loop is presented, metres (provisional: at
- * the chest).
- */
-const BELOW: number = 0.2;
+import * as PlaceOverHeadData from "./PlaceOverHeadData";
 
 /*
  * Set a neck loop over a partner's head. The loop's path is
@@ -211,8 +200,8 @@ function planPlaceOverHead(
       { origin: lead.root, yaw: lead.yaw },
       {
         x: 0,
-        y: body.measure.shoulderHeight - BELOW - lead.root.y,
-        z: body.measure.chestDepth / 2 + PRESENT + (opening.height ?? 0) / 2,
+        y: body.measure.shoulderHeight - PlaceOverHeadData.BELOW - lead.root.y,
+        z: body.measure.chestDepth / 2 + PlaceOverHeadData.PRESENT + (opening.height ?? 0) / 2,
       },
     );
     return {

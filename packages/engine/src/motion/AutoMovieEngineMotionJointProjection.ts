@@ -20,23 +20,6 @@ import { prepareJointProjectionClamp } from "./internal/prepareJointProjectionCl
 import { prepareJointProjectionScores } from "./internal/prepareJointProjectionScores";
 import { prepareJointRotationCoefficientDots } from "./internal/prepareJointRotationCoefficientDots";
 
-/*
- * Fixed coordinate order used only for stable reference and tie bookkeeping.
- */
-const AXES: readonly ClinicalAxis[] = ["flexion", "abduction", "twist"];
-
-/*
- * Exact composition key; null and signed zero remain different coordinates.
- */
-function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
-  return (
-    a.bone === b.bone &&
-    Object.is(a.flexion, b.flexion) &&
-    Object.is(a.abduction, b.abduction) &&
-    Object.is(a.twist, b.twist)
-  );
-}
-
 /** Same-query access to the selected joint's already completed composition. */
 export namespace AutoMovieEngineMotionJointProjection {
   /** Inputs used to prepare a joint rotation projection. */
@@ -597,6 +580,23 @@ export namespace AutoMovieEngineMotionJointProjection {
     /** The cardinal wrist bound, made with the projection; absent when none. */
     readonly chord?: ReturnType<typeof prepareCardinalWristChord>;
   }
+}
+
+/*
+ * Fixed coordinate order used only for stable reference and tie bookkeeping.
+ */
+const AXES: readonly ClinicalAxis[] = ["flexion", "abduction", "twist"];
+
+/*
+ * Exact composition key; null and signed zero remain different coordinates.
+ */
+function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
+  return (
+    a.bone === b.bone &&
+    Object.is(a.flexion, b.flexion) &&
+    Object.is(a.abduction, b.abduction) &&
+    Object.is(a.twist, b.twist)
+  );
 }
 
 /*

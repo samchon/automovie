@@ -88,30 +88,6 @@ export namespace grappleSumo {
   export const STEP: number = 0.35;
 
   /*
-   * Each scene's default length, seconds (provisional).
-   */
-  const SECONDS: Readonly<Record<Kind, number>> = {
-    oshiDashi: 4.5,
-    yoriKiri: 5,
-    uwateNage: 4,
-  };
-
-  /*
-   * The shares at which the shikiri, tachiai and drive end.
-   */
-  const SHIKIRI: number = 0.22;
-
-  /*
-   * The tachiai's share.
-   */
-  const TACHIAI: number = 0.32;
-
-  /*
-   * The share at which the drive or throw ends.
-   */
-  const FINISH: number = 0.82;
-
-  /*
    * Whether a grapple kind is a sumo bout.
    */
   export function is(kind: IAutoMovieMotionHumanGrapple.Kind): kind is Kind {
@@ -364,6 +340,30 @@ export namespace grappleSumo {
       }),
     );
   }
+
+  /*
+   * Each scene's default length, seconds (provisional).
+   */
+  const SECONDS: Readonly<Record<Kind, number>> = {
+    oshiDashi: 4.5,
+    yoriKiri: 5,
+    uwateNage: 4,
+  };
+
+  /*
+   * The shares at which the shikiri, tachiai and drive end.
+   */
+  const SHIKIRI: number = 0.22;
+
+  /*
+   * The tachiai's share.
+   */
+  const TACHIAI: number = 0.32;
+
+  /*
+   * The share at which the drive or throw ends.
+   */
+  const FINISH: number = 0.82;
 
   /*
    * The shikiri crouch: hips low and wide, the trunk forward over the fists.

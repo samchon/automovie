@@ -10,25 +10,12 @@ import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdiv
 import { AutoMovieContourSlit64 as Slit } from "./AutoMovieContourSlit64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 import { assertAutoMovieCurve64 } from "./curve/internal/assertAutoMovieCurve64";
-
-/*
- * Local vector aliases preserve the engine's complete binary64 arithmetic.
- */
-const add: typeof M.add = M.add,
-  sub: typeof M.sub = M.sub,
-  mul: typeof M.scale = M.scale;
-/*
- * Three-dimensional projection helpers in one common physical chart.
- */
-/*
- * Stable private binding preserves internal call ownership across the public
- * facade.
- */
-const closestPoint: typeof Slit.closest = Slit.closest;
-const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
-  a: AutoMovieVector3Tuple,
-  b: AutoMovieVector3Tuple,
-): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+import {
+  add,
+  sub,
+  mul,
+  closestPoint,
+} from "./internal/AutoMovieContourLoftCurves64Data";
 
 /**
  * Curve sampling and oriented slit construction for a generic closed-section
@@ -404,3 +391,8 @@ export namespace AutoMovieContourLoftCurves64 {
     return [...points.slice(offset), ...points.slice(0, offset)];
   }
 }
+
+const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);

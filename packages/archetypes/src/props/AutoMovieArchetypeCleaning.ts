@@ -12,18 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * A cloth, read.
- */
-const CLOTH: string =
-  "E-Cloth General Purpose Cloth, 32 x 32 x 0.3 cm, 19 g (https://www.thenile.co.nz/home/general-purpose-cloth-32x32x03cm/5037284206656), listed elsewhere at 31.75 x 31.75 x 0.3 cm (https://www.desertcart.co.za/products/53864487-e-cloth-general-purpose-cleaning-cloths)";
-
-/*
- * A sponge, read.
- */
-const SPONGE: string =
-  "Scotch-Brite Heavy Duty Scrub Sponge, 4.4 x 2.6 x 0.6 to 0.7 in (https://www.target.com/p/scotch-brite-heavy-duty-sponge-3pk/-/A-76165590)";
+import * as AutoMovieArchetypeCleaningData from "./internal/AutoMovieArchetypeCleaningData";
 
 /** Constructs the cleaning archetype from its recipe. */
 export namespace AutoMovieArchetypeCleaning {
@@ -155,35 +144,35 @@ export function create(
       width: AutoMovieArchetypeBand.metres(
         0.15875,
         0.16,
-        `${CLOTH}: folded in four`,
+        `${AutoMovieArchetypeCleaningData.CLOTH}: folded in four`,
       ),
       length: AutoMovieArchetypeBand.metres(
         0.15875,
         0.16,
-        `${CLOTH}: folded in four`,
+        `${AutoMovieArchetypeCleaningData.CLOTH}: folded in four`,
       ),
       thickness: AutoMovieArchetypeBand.metres(
         0.012,
         0.012,
-        `${CLOTH}: four layers`,
+        `${AutoMovieArchetypeCleaningData.CLOTH}: four layers`,
       ),
-      mass: AutoMovieArchetypeBand.of("kg", 0.019, 0.019, CLOTH),
+      mass: AutoMovieArchetypeBand.of("kg", 0.019, 0.019, AutoMovieArchetypeCleaningData.CLOTH),
     },
     sponge: {
       width: AutoMovieArchetypeBand.metres(
         2.6 * AutoMovieArchetypeUnits.INCH,
         2.6 * AutoMovieArchetypeUnits.INCH,
-        SPONGE,
+        AutoMovieArchetypeCleaningData.SPONGE,
       ),
       length: AutoMovieArchetypeBand.metres(
         4.4 * AutoMovieArchetypeUnits.INCH,
         4.4 * AutoMovieArchetypeUnits.INCH,
-        SPONGE,
+        AutoMovieArchetypeCleaningData.SPONGE,
       ),
       thickness: AutoMovieArchetypeBand.metres(
         0.6 * AutoMovieArchetypeUnits.INCH,
         0.7 * AutoMovieArchetypeUnits.INCH,
-        SPONGE,
+        AutoMovieArchetypeCleaningData.SPONGE,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",

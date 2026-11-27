@@ -10,12 +10,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * World Gymnastics apparatus norms for the rings, MAG 3.
- */
-const NORMS: string =
-  "World Gymnastics Apparatus Norms, MAG 3 §2 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
+import * as AutoMovieArchetypeStillRingsData from "./internal/AutoMovieArchetypeStillRingsData";
 
 /** Constructs the still rings archetype from its recipe. */
 export namespace AutoMovieArchetypeStillRings {
@@ -221,14 +216,14 @@ export function create(
 
   /** Official dimensional bands and a provisional mass for the coarse frame. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    opening: AutoMovieArchetypeBand.metres(0.179, 0.181, NORMS),
-    diameter: AutoMovieArchetypeBand.metres(0.027, 0.029, NORMS),
-    innerHeight: AutoMovieArchetypeBand.metres(2.895, 2.905, NORMS),
+    opening: AutoMovieArchetypeBand.metres(0.179, 0.181, AutoMovieArchetypeStillRingsData.NORMS),
+    diameter: AutoMovieArchetypeBand.metres(0.027, 0.029, AutoMovieArchetypeStillRingsData.NORMS),
+    innerHeight: AutoMovieArchetypeBand.metres(2.895, 2.905, AutoMovieArchetypeStillRingsData.NORMS),
     // Retain the official pivot-height tolerance for every permitted inner height.
-    suspension: AutoMovieArchetypeBand.metres(2.995, 3.005, NORMS),
-    spacing: AutoMovieArchetypeBand.metres(0.495, 0.505, NORMS),
-    strapLength: AutoMovieArchetypeBand.metres(0.69, 0.71, NORMS),
-    strapWidth: AutoMovieArchetypeBand.metres(0.03, 0.05, NORMS),
+    suspension: AutoMovieArchetypeBand.metres(2.995, 3.005, AutoMovieArchetypeStillRingsData.NORMS),
+    spacing: AutoMovieArchetypeBand.metres(0.495, 0.505, AutoMovieArchetypeStillRingsData.NORMS),
+    strapLength: AutoMovieArchetypeBand.metres(0.69, 0.71, AutoMovieArchetypeStillRingsData.NORMS),
+    strapWidth: AutoMovieArchetypeBand.metres(0.03, 0.05, AutoMovieArchetypeStillRingsData.NORMS),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       135,

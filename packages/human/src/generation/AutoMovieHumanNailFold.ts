@@ -2,8 +2,6 @@ import type { IAutoMovieHumanNailPlate } from "@automovie/interface";
 
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 
-const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;
-
 /**
  * The nail folds: the horseshoe of skin that begins behind the nail's root
  * and runs along both sides of the plate, bevelling below its free end
@@ -62,3 +60,5 @@ export namespace AutoMovieHumanNailFold {
     );
   }
 }
+
+const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;

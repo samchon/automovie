@@ -10,16 +10,6 @@ import type {
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
- * Limbs whose world goals follow a rigid instance.
- */
-const LIMBS: readonly AutoMovieHumanLimb[] = [
-  "leftArm",
-  "rightArm",
-  "leftLeg",
-  "rightLeg",
-];
-
-/*
  * Prepare one member as a phase-shifted rigid copy of its template.
  * Parameter props: The template reader, admitted clock and entering frame.
  * Returns: A read of the instance at an action second.
@@ -192,6 +182,16 @@ export namespace prepareInstancePosture {
     rate: number;
   }
 }
+
+/*
+ * Limbs whose world goals follow a rigid instance.
+ */
+const LIMBS: readonly AutoMovieHumanLimb[] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];
 
 /*
  * A floor-plan vector turned by a heading, degrees.

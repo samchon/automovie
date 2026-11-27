@@ -38,39 +38,7 @@ import { lieTogetherFrame } from "./lieTogetherFrame";
 import { lieTogetherNeck } from "./lieTogetherNeck";
 import { lieTogetherReach } from "./lieTogetherReach";
 import { lieTogetherShifted } from "./lieTogetherShifted";
-
-/*
- * How far off the partner's skin the resting region lies, metres (provisional:
- * a skin contact).
- */
-const REST: number = 0.005;
-
-/*
- * The lower arm's fold as the body settles, clinical degrees: the upper arm
- * forward and the elbow bent, the hand up before the face, so the arm a body
- * lies on stays out of the partner (provisional).
- */
-const FOLD: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
-  upper: [90, 0, 0],
-  lower: [140, 0, 0],
-};
-
-/*
- * The lower arm's fold when spooning, clinical degrees: the upper arm raised
- * along the floor above the head and the elbow bent back, the forearm under the
- * head as its pillow, so the arm a spooning body lies on stays behind its own
- * head instead of reaching into the partner it lies behind (the forward fold
- * met the partner's chest 42 mm deep; provisional).
- */
-const PILLOW: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
-  upper: [160, 0, 0],
-  lower: [100, 0, 0],
-};
-
-/*
- * How far two lying headings may differ, degrees (provisional).
- */
-const ALIGNED: number = 25;
+import * as LieTogetherData from "./LieTogetherData";
 
 /*
  * Lie together with a partner. Both already lie on the support (`lieDown`,
@@ -181,8 +149,8 @@ function planLieTogether(
     HumanTrunk.region(body, entry, "shoulderRight").point.y
       ? "left"
       : "right";
-  const fold: Readonly<Record<ArmBone, readonly [number, number, number]>> =
-    p.way === "spoon" ? PILLOW : FOLD;
+  const fold: Readonly<Record<LieTogetherData.ArmBone, readonly [number, number, number]>> =
+    p.way === "spoon" ? LieTogetherData.PILLOW : LieTogetherData.FOLD;
   const folded = (
     posture: IAutoMovieMotionHumanPosture,
     k: number,
@@ -224,7 +192,7 @@ function planLieTogether(
     const heading: number = Math.abs(
       ((partner.root(context.start).yaw - entry.yaw + 540) % 360) - 180,
     );
-    if (heading > ALIGNED)
+    if (heading > LieTogetherData.ALIGNED)
       throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "way",
@@ -246,7 +214,7 @@ function planLieTogether(
         region(other);
       return flat(
         Vector3.subtract(
-          Vector3.add(back.point, Vector3.scale(back.normal, REST)),
+          Vector3.add(back.point, Vector3.scale(back.normal, LieTogetherData.REST)),
           HumanTrunk.region(body, entry, mine).point,
         ),
       );
@@ -287,10 +255,10 @@ function planLieTogether(
               gap,
               AutoMovieEnginePhysics.physicalShapePairDistance(m.pose, s, y.pose, t),
             );
-    if (gap < REST)
+    if (gap < LieTogetherData.REST)
       slide = Vector3.add(
         slide,
-        Vector3.scale(Vector3.normalize(flat(normal)), REST - gap),
+        Vector3.scale(Vector3.normalize(flat(normal)), LieTogetherData.REST - gap),
       );
   } else {
     const left: IAutoMovieVector3 = HumanTrunk.region(
@@ -322,7 +290,7 @@ function planLieTogether(
       flat(Vector3.subtract(region(near).point, cheek)),
       partner.body,
       bones,
-      REST,
+      LieTogetherData.REST,
     );
     const under: IAutoMovieMotionHumanColliders.IHit | undefined =
       lieTogetherReach.beneath(partner.body, bones, Vector3.add(cheek, slide));
@@ -346,7 +314,7 @@ function planLieTogether(
       body,
       lieTogetherShifted(entry, slide),
       own,
-      Vector3.addScaled(under.point, under.normal, REST),
+      Vector3.addScaled(under.point, under.normal, LieTogetherData.REST),
     );
   }
   // A body settles from within its arm's reach of where it settles.
@@ -371,7 +339,7 @@ function planLieTogether(
           lieTogetherShifted(entry, slide),
           Vector3.add(
             region("upperBack").point,
-            Vector3.scale(region("upperBack").normal, REST),
+            Vector3.scale(region("upperBack").normal, LieTogetherData.REST),
           ),
           region("upperBack").normal,
           partner.body,
@@ -483,8 +451,3 @@ function planLieTogether(
         partner: p.partner,
       });
 }
-
-/*
- * The two bones of a folding arm.
- */
-type ArmBone = "upper" | "lower";

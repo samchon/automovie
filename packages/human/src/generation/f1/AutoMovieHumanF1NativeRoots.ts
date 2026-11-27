@@ -28,7 +28,6 @@ import { AutoMovieHumanF1NativeRootContact as Contact } from "./AutoMovieHumanF1
 import { AutoMovieHumanF1NativeRootLaw as Root } from "../AutoMovieHumanF1NativeRootLaw";
 import { AutoMovieHumanF1RootRails } from "../AutoMovieHumanF1RootRails";
 
-const { ARM, EXTREMITIES, LEG, RAIL, ratio, translated } = Calibration;
 /*
  * Create F1 native root sources.
  */
@@ -445,6 +444,8 @@ export namespace AutoMovieHumanF1NativeRoots {
     return { rootPorts, rootPrepared, rootLoop, nativeSeed, seedControls };
   }
 }
+
+const { ARM, EXTREMITIES, LEG, RAIL, ratio, translated } = Calibration;
 type IFields = IAutoMovieHumanF1NativeLaw.IFields;
 
 type ISize = IAutoMovieHumanF1NativeLaw.ISize;

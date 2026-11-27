@@ -23,19 +23,7 @@ import { HumanColliderPlacement } from "../../posture/internal/HumanColliderPlac
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-
-/*
- * Depth a segment that does not bear on a fixture may enter it, metres
- * (provisional: under the audits' built skin give,
- * `AutoMovieMotionHumanAuditSkin.BUILT`).
- */
-const ROOM: number = 0.007;
-
-/*
- * Depth a hand or foot bearing on the fixture may enter it, metres
- * (provisional: a loaded sole or palm pressed into its support).
- */
-const CONTACT: number = 0.02;
+import * as CrossingClearanceData from "./CrossingClearanceData";
 
 /*
  * Require the fully posed actor to clear named stationary shapes throughout a
@@ -134,8 +122,8 @@ export function crossingClearance(
             segment.bone,
             share,
           )
-            ? CONTACT
-            : (options.allowance ?? ROOM);
+            ? CrossingClearanceData.CONTACT
+            : (options.allowance ?? CrossingClearanceData.ROOM);
           for (const barrier of fixture.shapes) {
             if (!overlap(bounds, barrier.bounds)) continue;
             const gap: number = AutoMovieEnginePhysics.physicalShapePairDistance(

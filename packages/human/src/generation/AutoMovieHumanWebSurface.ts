@@ -9,15 +9,6 @@ import type {
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
-const {
-  sub,
-  plus: add,
-  scale,
-  dot,
-  norm,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { sampled }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
-
 /**
  * The third stage of a web's build: the surface's laws. Near a web a column's
  * level and its distance along the ring from the pinch are the chart `z = x +
@@ -28,11 +19,6 @@ const { sampled }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
  * close on the crest as the square of the row.
  */
 export namespace AutoMovieHumanWebSurface {
-  /*
-   * Rows below a crest over which its levels close as the square of the row.
-   */
-  const CREST_ROWS: number = 2;
-
   /** The surface's laws for a count of rows.
    *
    * @param rows Rows from the parent's ring to the children's sections.
@@ -177,7 +163,22 @@ export namespace AutoMovieHumanWebSurface {
 
     return { levelOf, rowOf, lip, chart, plainAt };
   }
+
+  /*
+   * Rows below a crest over which its levels close as the square of the row.
+   */
+  const CREST_ROWS: number = 2;
 }
+
+const {
+  sub,
+  plus: add,
+  scale,
+  dot,
+  norm,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+
+const { sampled }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
 
 type Vec3 = AutoMovieVector3Tuple;
 

@@ -19,31 +19,6 @@ import type { HumanLungePivot } from "./HumanLungePivot";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /*
- * Up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * The displayed line hand's largest distance from the line while fully held,
- * metres: the rider attachment contract's 10 mm budget.
- */
-const CONTACT: number = 0.01;
-
-/*
- * The whip hand's place and aim, provisional: at the hips' height, a little
- * forward and out to its side, the shaft turned toward a circling horse's
- * quarters and below level (a lunging handler holds the whip low behind the
- * horse, the line and whip framing it).
- */
-const WHIP: IWhip = {
-  forward: 0.3,
-  out: 0.35,
-  height: 1,
-  turn: 45,
-  down: 20,
-};
-
-/*
  * The lunge's hands and feet records (`HumanLunge`): the feet's plant windows
  * between their pivot swings, the whip hand's grip and the line hand's contact
  * check.
@@ -213,6 +188,31 @@ export namespace HumanLungeHands {
     };
   }
 }
+
+/*
+ * Up.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * The displayed line hand's largest distance from the line while fully held,
+ * metres: the rider attachment contract's 10 mm budget.
+ */
+const CONTACT: number = 0.01;
+
+/*
+ * The whip hand's place and aim, provisional: at the hips' height, a little
+ * forward and out to its side, the shaft turned toward a circling horse's
+ * quarters and below level (a lunging handler holds the whip low behind the
+ * horse, the line and whip framing it).
+ */
+const WHIP: IWhip = {
+  forward: 0.3,
+  out: 0.35,
+  height: 1,
+  turn: 45,
+  down: 20,
+};
 
 /*
  * The whip hand's place and aim.

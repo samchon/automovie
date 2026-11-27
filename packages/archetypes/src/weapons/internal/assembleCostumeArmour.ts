@@ -23,46 +23,6 @@ import {
 import type { AutoMovieArchetypeArmour } from "../AutoMovieArchetypeArmour";
 
 /*
- * Every wearer socket a costume piece can occupy, in declaration order.
- */
-const SLOTS: readonly assembleCostumeArmour.Slot[] = [
-  "head",
-  "chest",
-  "leftHand",
-  "rightHand",
-  "leftLowerArm",
-  "rightLowerArm",
-  "leftLowerLeg",
-  "rightLowerLeg",
-];
-
-/*
- * The piece names each existing wearer socket can carry.
- */
-const PIECES: Readonly<
-  Record<assembleCostumeArmour.Slot, readonly AutoMovieArchetypeArmour.Kind[]>
-> = {
-  head: ["openHelmet", "closedHelmet", "brimmedHelmet"],
-  chest: ["cuirass", "mail"],
-  leftHand: ["gauntlet"],
-  rightHand: ["gauntlet"],
-  leftLowerArm: ["vambrace"],
-  rightLowerArm: ["vambrace"],
-  leftLowerLeg: ["greave"],
-  rightLowerLeg: ["greave"],
-};
-
-/*
- * The rest body's up direction, world.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * The rest body's facing, world: the canonical body faces `+Z`.
- */
-const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/*
  * Bind separate digital costume pieces to one performer's named bones.
  *
  * Each piece remains its own model. Its `wear` socket, the centre of the body
@@ -220,6 +180,46 @@ export namespace assembleCostumeArmour {
     worn: IAutoMovieMotionHumanProp.IWorn;
   }
 }
+
+/*
+ * Every wearer socket a costume piece can occupy, in declaration order.
+ */
+const SLOTS: readonly assembleCostumeArmour.Slot[] = [
+  "head",
+  "chest",
+  "leftHand",
+  "rightHand",
+  "leftLowerArm",
+  "rightLowerArm",
+  "leftLowerLeg",
+  "rightLowerLeg",
+];
+
+/*
+ * The piece names each existing wearer socket can carry.
+ */
+const PIECES: Readonly<
+  Record<assembleCostumeArmour.Slot, readonly AutoMovieArchetypeArmour.Kind[]>
+> = {
+  head: ["openHelmet", "closedHelmet", "brimmedHelmet"],
+  chest: ["cuirass", "mail"],
+  leftHand: ["gauntlet"],
+  rightHand: ["gauntlet"],
+  leftLowerArm: ["vambrace"],
+  rightLowerArm: ["vambrace"],
+  leftLowerLeg: ["greave"],
+  rightLowerLeg: ["greave"],
+};
+
+/*
+ * The rest body's up direction, world.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * The rest body's facing, world: the canonical body faces `+Z`.
+ */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /*
  * The covered segment's centre frame on the rest body, world: `+Y` up the

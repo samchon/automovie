@@ -263,30 +263,6 @@ export function CloseStrikeReach(
 }
 
 /*
- * Refuse a close strike's target on its axis, naming the band.
- */
-function refuse(
-  axis: string,
-  value: number,
-  minimum: number,
-  maximum: number,
-): never {
-  throw new AutoMovieMotionHumanRefusal({
-    kind: "reach",
-    axis: axis === "height" ? "at.height" : "at",
-    value,
-    feasible: { kind: "range", minimum, maximum, unit: "m" },
-    reason:
-      axis === "height"
-        ? `the target stands at ${value.toFixed(3)} m, outside the heights the head reaches by its lean`
-        : axis === "shift"
-          ? `the elbow needs the pelvis shifted ${value.toFixed(3)} m toward its place, outside the ${minimum.toFixed(3)} to ${maximum.toFixed(3)} m the stance allows: an elbow lands inside the punch's band`
-          : `the close strike reaches ${minimum.toFixed(3)} to ${maximum.toFixed(3)} m, not ${value.toFixed(3)} m: an elbow lands inside the punch's band`,
-    fix: "stand closer, or throw a punch or a kick at a target that far",
-  });
-}
-
-/*
  * Companion types and constants of CloseStrikeReach.
  */
 export namespace CloseStrikeReach {
@@ -465,4 +441,28 @@ export namespace CloseStrikeReach {
      */
     reach: number;
   }
+}
+
+/*
+ * Refuse a close strike's target on its axis, naming the band.
+ */
+function refuse(
+  axis: string,
+  value: number,
+  minimum: number,
+  maximum: number,
+): never {
+  throw new AutoMovieMotionHumanRefusal({
+    kind: "reach",
+    axis: axis === "height" ? "at.height" : "at",
+    value,
+    feasible: { kind: "range", minimum, maximum, unit: "m" },
+    reason:
+      axis === "height"
+        ? `the target stands at ${value.toFixed(3)} m, outside the heights the head reaches by its lean`
+        : axis === "shift"
+          ? `the elbow needs the pelvis shifted ${value.toFixed(3)} m toward its place, outside the ${minimum.toFixed(3)} to ${maximum.toFixed(3)} m the stance allows: an elbow lands inside the punch's band`
+          : `the close strike reaches ${minimum.toFixed(3)} to ${maximum.toFixed(3)} m, not ${value.toFixed(3)} m: an elbow lands inside the punch's band`,
+    fix: "stand closer, or throw a punch or a kick at a target that far",
+  });
 }

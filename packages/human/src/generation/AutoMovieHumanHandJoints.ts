@@ -14,51 +14,17 @@ import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const {
-  sub,
-  plus,
-  scale,
-  dot,
-  unit,
-  across,
-  cross,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
-
 /**
  * The hand's joints by its anatomy (`docs/anatomy/hand.md`): the knuckles and
  * the thumb's base from the scales and the form's roots, the hand's frame on
  * those knuckles, and each finger's proximal phalanx in the bind's posture.
  */
 export namespace AutoMovieHumanHandJoints {
-  /*
-   * Turns in which the knuckles and the frame standing on them settle: each moves the frame a tenth as much.
-   */
-  const FRAME_PASSES: number = 3;
-
-  /*
-   * The middle finger's web above its MCP joint as a share of its web-to-tip
-   * length (Buryanov and Kotiuk 2010 Table III): the knuckle stands that far
-   * below the webs the palm length reaches, so it never passes them.
-   */
-  const WEB_HEIGHT: number = 0.1533;
-
-  /*
-   * Third metacarpal over the wrist centre to its head (de Leva's MET3 and Reddy's CT, `docs/anatomy/hand.md`).
-   */
-  const THIRD_METACARPAL: number = 0.774;
-
   /**
    * The wrist centre distal of stylion, mm: de Leva's radiale-stylion
    * offset, the one the forearm shares with the hand at the wrist joint.
    */
   export const STYLION: number = 1.5;
-
-  /*
-   * Metacarpal lengths over the third, thumb to little (Reddy 2024, sexes
-   * pooled; `docs/anatomy/hand.md`).
-   */
-  const METACARPALS: readonly number[] = [0.711, 1.039, 1, 0.883, 0.797];
 
   /**
    * The knuckles and the thumb's base for a hand's scales. Each finger's
@@ -198,4 +164,39 @@ export namespace AutoMovieHumanHandJoints {
     );
     return { cmc, mcps };
   }
+
+  /*
+   * Turns in which the knuckles and the frame standing on them settle: each moves the frame a tenth as much.
+   */
+  const FRAME_PASSES: number = 3;
+
+  /*
+   * The middle finger's web above its MCP joint as a share of its web-to-tip
+   * length (Buryanov and Kotiuk 2010 Table III): the knuckle stands that far
+   * below the webs the palm length reaches, so it never passes them.
+   */
+  const WEB_HEIGHT: number = 0.1533;
+
+  /*
+   * Third metacarpal over the wrist centre to its head (de Leva's MET3 and Reddy's CT, `docs/anatomy/hand.md`).
+   */
+  const THIRD_METACARPAL: number = 0.774;
+
+  /*
+   * Metacarpal lengths over the third, thumb to little (Reddy 2024, sexes
+   * pooled; `docs/anatomy/hand.md`).
+   */
+  const METACARPALS: readonly number[] = [0.711, 1.039, 1, 0.883, 0.797];
 }
+
+const {
+  sub,
+  plus,
+  scale,
+  dot,
+  unit,
+  across,
+  cross,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+
+const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;

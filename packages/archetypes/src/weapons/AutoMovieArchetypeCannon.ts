@@ -17,29 +17,7 @@ import { buildFieldGun } from "./internal/buildFieldGun";
 import { cannonLaunch } from "./internal/cannonLaunch";
 import { cannonRecoil } from "./internal/cannonRecoil";
 import { cannonTowing } from "./internal/cannonTowing";
-
-/*
- * A hundredweight, kilograms: 112 pounds.
- */
-const CWT: number = 112 * AutoMovieArchetypeUnits.POUND;
-
-/*
- * Griffiths' table of iron ordnance.
- */
-const GRIFFITHS: string =
-  "Griffiths, The Artillerist's Manual (1856), Length, Weight, Calibre, Charge, &c., of Ordnance: the iron 32-pounder of 56 cwt, 9 ft 6 in long, bore 6.41 in; its common garrison carriage 13 cwt 3 qr; trucks for land service, fore 1 ft 7 in and hind 1 ft 4 in (https://www.gutenberg.org/ebooks/73341)";
-
-/*
- * A swivel gun read at its museum record.
- */
-const SWIVEL: string =
-  "Royal Museums Greenwich KTP0053, bronze muzzleloading smoothbore swivel gun: calibre 2.25 in, overall 1000 x 170 x 101 mm (https://www.rmg.co.uk/collections/objects/rmgc-object-36835)";
-
-/*
- * Douglas's naval gunnery.
- */
-const DOUGLAS: string =
-  "Douglas, A Treatise on Naval Gunnery, 5th ed. (1860), p. 110: a 32-pounder with its carriage of 65 cwt, a 10 lb charge, a shot's initial velocity of 1600 ft/s, and a recoil observed at 9 ft on a platform inclined 2 1/2 degrees (https://archive.org/details/atreatiseonnava00douggoog)";
+import * as AutoMovieArchetypeCannonData from "./internal/AutoMovieArchetypeCannonData";
 
 /** Constructs the cannon archetype from its recipe. */
 export namespace AutoMovieArchetypeCannon {
@@ -360,46 +338,46 @@ export function create(
       length: AutoMovieArchetypeBand.metres(
         114 * AutoMovieArchetypeUnits.INCH,
         114 * AutoMovieArchetypeUnits.INCH,
-        GRIFFITHS,
+        AutoMovieArchetypeCannonData.GRIFFITHS,
       ),
       bore: AutoMovieArchetypeBand.metres(
         6.41 * AutoMovieArchetypeUnits.INCH,
         6.41 * AutoMovieArchetypeUnits.INCH,
-        GRIFFITHS,
+        AutoMovieArchetypeCannonData.GRIFFITHS,
       ),
       ball: AutoMovieArchetypeBand.metres(
         6.14 * AutoMovieArchetypeUnits.INCH,
         6.2 * AutoMovieArchetypeUnits.INCH,
-        `${GRIFFITHS}, p. 59: the 32-pounder's shot low and high gauges, 6.14 and 6.20 in, distinct from its 6.41 in bore`,
+        `${AutoMovieArchetypeCannonData.GRIFFITHS}, p. 59: the 32-pounder's shot low and high gauges, 6.14 and 6.20 in, distinct from its 6.41 in bore`,
       ),
       frontWheelDiameter: AutoMovieArchetypeBand.metres(
         19 * AutoMovieArchetypeUnits.INCH,
         19 * AutoMovieArchetypeUnits.INCH,
-        `${GRIFFITHS}: the land service's fore truck, borrowed for the sea carriage because no sea-service truck size was found (searched: the 1852 and 1866 US Navy instructions, Douglas 1860; records-cannon.md)`,
+        `${AutoMovieArchetypeCannonData.GRIFFITHS}: the land service's fore truck, borrowed for the sea carriage because no sea-service truck size was found (searched: the 1852 and 1866 US Navy instructions, Douglas 1860; records-cannon.md)`,
         true,
       ),
       wheelDiameter: AutoMovieArchetypeBand.metres(
         16 * AutoMovieArchetypeUnits.INCH,
         16 * AutoMovieArchetypeUnits.INCH,
-        `${GRIFFITHS}: the land service's hind truck, borrowed for the sea carriage because no sea-service truck size was found`,
+        `${AutoMovieArchetypeCannonData.GRIFFITHS}: the land service's hind truck, borrowed for the sea carriage because no sea-service truck size was found`,
         true,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
-        (56 + 13.75) * CWT,
-        (56 + 13.75) * CWT,
-        `${GRIFFITHS}: the gun's 56 cwt and the carriage's 13 cwt 3 qr at 112 lb the hundredweight`,
+        (56 + 13.75) * AutoMovieArchetypeCannonData.CWT,
+        (56 + 13.75) * AutoMovieArchetypeCannonData.CWT,
+        `${AutoMovieArchetypeCannonData.GRIFFITHS}: the gun's 56 cwt and the carriage's 13 cwt 3 qr at 112 lb the hundredweight`,
       ),
       muzzleVelocity: AutoMovieArchetypeBand.of(
         "m/s",
         1600 * AutoMovieArchetypeUnits.FOOT,
         1600 * AutoMovieArchetypeUnits.FOOT,
-        DOUGLAS,
+        AutoMovieArchetypeCannonData.DOUGLAS,
       ),
       recoil: AutoMovieArchetypeBand.metres(
         9 * AutoMovieArchetypeUnits.FOOT,
         9 * AutoMovieArchetypeUnits.FOOT,
-        `${DOUGLAS}; the run depends on the deck's slope and the charge, so the band is provisional`,
+        `${AutoMovieArchetypeCannonData.DOUGLAS}; the run depends on the deck's slope and the charge, so the band is provisional`,
         true,
       ),
     },
@@ -408,13 +386,13 @@ export function create(
       length: AutoMovieArchetypeBand.metres(
         1,
         1,
-        `${SWIVEL}: its overall 1000 mm taken as the tube's length, provisional because the record does not say what the overall includes`,
+        `${AutoMovieArchetypeCannonData.SWIVEL}: its overall 1000 mm taken as the tube's length, provisional because the record does not say what the overall includes`,
         true,
       ),
       bore: AutoMovieArchetypeBand.metres(
         2.25 * AutoMovieArchetypeUnits.INCH,
         2.25 * AutoMovieArchetypeUnits.INCH,
-        `${SWIVEL}: calibre 2.25 in`,
+        `${AutoMovieArchetypeCannonData.SWIVEL}: calibre 2.25 in`,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",

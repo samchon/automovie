@@ -14,20 +14,6 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import type { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
 
 /*
- * The arm's three segments, in the order the tables index them.
- */
-const SEGMENTS: readonly M.Segment[] = ["upperArm", "lowerArm", "hand"];
-
-/*
- * Each segment's index in `SEGMENTS`.
- */
-const SEGMENT: Readonly<Record<M.Segment, number>> = {
-  upperArm: 0,
-  lowerArm: 1,
-  hand: 2,
-};
-
-/*
  * The pair readers of an arms' trajectory context
  * (`HumanArmTrajectoryModel.IContext`): each probe's and corner's allowance
  * against each shape, the declared rests and the grasp both hands share, read
@@ -451,6 +437,20 @@ export namespace HumanArmTrajectoryAllowances {
    */
   export type IReaders = Pick<M.IContext, Reader>;
 }
+
+/*
+ * The arm's three segments, in the order the tables index them.
+ */
+const SEGMENTS: readonly M.Segment[] = ["upperArm", "lowerArm", "hand"];
+
+/*
+ * Each segment's index in `SEGMENTS`.
+ */
+const SEGMENT: Readonly<Record<M.Segment, number>> = {
+  upperArm: 0,
+  lowerArm: 1,
+  hand: 2,
+};
 
 /*
  * One arm of the problem.

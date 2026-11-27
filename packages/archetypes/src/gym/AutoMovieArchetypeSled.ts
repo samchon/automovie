@@ -9,12 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * What no source read gives.
- */
-const UNREAD: string =
-  "the Rogue pages read give no distance between the uprights; inside the base's width";
+import * as AutoMovieArchetypeSledData from "./internal/AutoMovieArchetypeSledData";
 
 /** Constructs the sled archetype from its recipe. */
 export namespace AutoMovieArchetypeSled {
@@ -187,6 +182,6 @@ export function create(
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<"spacing", IAutoMovieArchetypeBand>> = {
     // Inside the narrowest base less a pole, so both poles stand on it.
-    spacing: AutoMovieArchetypeBand.metres(0.45, 0.53, UNREAD, true),
+    spacing: AutoMovieArchetypeBand.metres(0.45, 0.53, AutoMovieArchetypeSledData.UNREAD, true),
   };
 }

@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * No maker's page was read.
- */
-const STAGED: string =
-  "a chopping block: its dimensions and mass are provisional estimates of a sawn round";
+import * as AutoMovieArchetypeChoppingBlockData from "./internal/AutoMovieArchetypeChoppingBlockData";
 
 /** Constructs the chopping block archetype from its recipe. */
 export namespace AutoMovieArchetypeChoppingBlock {
@@ -91,8 +86,8 @@ export function create(
 
   /** Staged bands. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    radius: AutoMovieArchetypeBand.metres(0.2, 0.28, STAGED, true),
-    height: AutoMovieArchetypeBand.metres(0.4, 0.5, STAGED, true),
-    mass: AutoMovieArchetypeBand.of("kg", 35, 70, STAGED, true),
+    radius: AutoMovieArchetypeBand.metres(0.2, 0.28, AutoMovieArchetypeChoppingBlockData.STAGED, true),
+    height: AutoMovieArchetypeBand.metres(0.4, 0.5, AutoMovieArchetypeChoppingBlockData.STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 35, 70, AutoMovieArchetypeChoppingBlockData.STAGED, true),
   };
 }

@@ -41,15 +41,6 @@ export namespace walkReachStance {
   export const TRAIL: number = 20;
 
   /*
-   * The trail short of `TRAIL`, degrees, from which a planted foot's heel
-   * begins to rise for it (provisional): a thigh extending at a walk's few
-   * hundred degrees per second is brought to rest over the rounding, twice this
-   * wide, with an acceleration of the square of that rate over four times the
-   * width.
-   */
-  const EASE: number = 8;
-
-  /*
    * The furthest a planted leg's line leans to the side of its foot before the
    * foot rolls onto its edge, degrees: the ankle's inversion and eversion in
    * the range table (`DEFAULT_HUMANOID_ROM`, 25° each way on either foot, the
@@ -343,6 +334,15 @@ export namespace walkReachStance {
       };
     };
   }
+
+  /*
+   * The trail short of `TRAIL`, degrees, from which a planted foot's heel
+   * begins to rise for it (provisional): a thigh extending at a walk's few
+   * hundred degrees per second is brought to rest over the rounding, twice this
+   * wide, with an acceleration of the square of that rate over four times the
+   * width.
+   */
+  const EASE: number = 8;
 
   /*
    * The heel rocker's passes toward its fixed point, where lowering the toes

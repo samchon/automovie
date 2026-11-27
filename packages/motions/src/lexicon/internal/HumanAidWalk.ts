@@ -23,139 +23,6 @@ import { HumanMountRider } from "./HumanMountRider";
 import { humanAidWalkGrip } from "./humanAidWalkGrip";
 
 /*
- * The prop's visible lift for authored film clearance, metres.
- */
-const LIFT: number = 0.04;
-
-/*
- * Support alignment of the aid to the floor, in metres.
- */
-const FLOOR: number = 0.01;
-
-/*
- * Fixed world vertical for floor, pivot and grip reads.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * Name the aid or route setting that prevents motion.
- */
-function refuse(axis: string, value: unknown, reason: string): never {
-  throw new AutoMovieMotionHumanRefusal({
-    kind: "affordance",
-    axis,
-    value,
-    reason,
-    fix: "place the declared aid on the floor, with reachable grips and stations",
-  });
-}
-
-/*
- * Keep the named planted foot when its other foot makes the next step.
- */
-function foot(
-  side: AutoMovieHumanSide,
-  at: IAutoMovieVector3,
-): IAutoMovieMotionHumanSupport.IContact {
-  return {
-    part: `${side}Foot`,
-    kind: "bear",
-    target: { kind: "point", frame: "world", at, normal: UP },
-  };
-}
-
-/*
- * Resolve the same lift, touchdown and stationary windows for prop and body.
- */
-function course(
-  start: IAutoMovieRigidTransform,
-  props: IAutoMovieMotionHumanAidWalk,
-): ICourse {
-  const first: IAutoMovieMotionHumanAidWalk.IStation | undefined =
-    props.stations[0];
-  if (first === undefined)
-    return refuse("stations", 0, "an aided route needs at least one station");
-  const ready: number = first.seconds / 4;
-  const walker: boolean = props.kind === "walker";
-  let clock: number = ready;
-  let old: IAutoMovieRigidTransform = start;
-  const moves: IAdvance[] = props.stations.map(
-    (
-      station: IAutoMovieMotionHumanAidWalk.IStation,
-      index: number,
-    ): IAdvance => {
-      const heading: number = station.turn ?? 0;
-      if (!(station.seconds > 0))
-        return refuse(
-          "stations",
-          index,
-          "the station coordinates and heading must be finite and its time positive",
-        );
-      const phase: number = station.seconds / (walker ? 3 : 2);
-      // The aid moves rigidly with the walker: displaced by the station and
-      // turned about the entry station (`origin`), or about its own staged
-      // frame when none is given: p' = p + d + (R - I)(p - origin).
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, heading);
-      const pivot: IAutoMovieVector3 = props.origin ?? start.position;
-      const pose: IAutoMovieRigidTransform = {
-        position: Vector3.add(
-          Vector3.add(pivot, { x: station.x, y: 0, z: station.z }),
-          Quaternion.rotateVector(
-            turn,
-            Vector3.subtract(start.position, pivot),
-          ),
-        ),
-        rotation: Quaternion.multiply(turn, start.rotation),
-      };
-      const move: IAdvance = {
-        from: clock,
-        to: clock + phase * (walker ? 1 : 2 / 3),
-        floor: [old, pose],
-      };
-      old = pose;
-      clock += station.seconds;
-      return move;
-    },
-  );
-  return { ready, moves };
-}
-
-/*
- * Read the supported prop pose or its single minimum-jerk swing between
- * placements.
- */
-function frameAt(
-  moves: readonly IAdvance[],
-  start: IAutoMovieRigidTransform,
-  seconds: number,
-): IAutoMovieRigidTransform {
-  let stable: IAutoMovieRigidTransform = start;
-  for (const move of moves) {
-    if (seconds <= move.from) return stable;
-    if (seconds < move.to) {
-      const share: number = (seconds - move.from) / (move.to - move.from);
-      const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(share);
-      const position: IAutoMovieVector3 = Vector3.lerp(
-        move.floor[0].position,
-        move.floor[1].position,
-        blend,
-      );
-      const height: number = AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(share, 1 - share));
-      return {
-        position: { ...position, y: position.y + LIFT * height },
-        rotation: Quaternion.slerp(
-          move.floor[0].rotation,
-          move.floor[1].rotation,
-          blend,
-        ),
-      };
-    }
-    stable = move.floor[1];
-  }
-  return stable;
-}
-
-/*
  * A floor-aid gait with an explicit prop curve and body fitting on the same
  * clock.
  *
@@ -425,6 +292,139 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
     };
   },
 };
+
+/*
+ * The prop's visible lift for authored film clearance, metres.
+ */
+const LIFT: number = 0.04;
+
+/*
+ * Support alignment of the aid to the floor, in metres.
+ */
+const FLOOR: number = 0.01;
+
+/*
+ * Fixed world vertical for floor, pivot and grip reads.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * Name the aid or route setting that prevents motion.
+ */
+function refuse(axis: string, value: unknown, reason: string): never {
+  throw new AutoMovieMotionHumanRefusal({
+    kind: "affordance",
+    axis,
+    value,
+    reason,
+    fix: "place the declared aid on the floor, with reachable grips and stations",
+  });
+}
+
+/*
+ * Keep the named planted foot when its other foot makes the next step.
+ */
+function foot(
+  side: AutoMovieHumanSide,
+  at: IAutoMovieVector3,
+): IAutoMovieMotionHumanSupport.IContact {
+  return {
+    part: `${side}Foot`,
+    kind: "bear",
+    target: { kind: "point", frame: "world", at, normal: UP },
+  };
+}
+
+/*
+ * Resolve the same lift, touchdown and stationary windows for prop and body.
+ */
+function course(
+  start: IAutoMovieRigidTransform,
+  props: IAutoMovieMotionHumanAidWalk,
+): ICourse {
+  const first: IAutoMovieMotionHumanAidWalk.IStation | undefined =
+    props.stations[0];
+  if (first === undefined)
+    return refuse("stations", 0, "an aided route needs at least one station");
+  const ready: number = first.seconds / 4;
+  const walker: boolean = props.kind === "walker";
+  let clock: number = ready;
+  let old: IAutoMovieRigidTransform = start;
+  const moves: IAdvance[] = props.stations.map(
+    (
+      station: IAutoMovieMotionHumanAidWalk.IStation,
+      index: number,
+    ): IAdvance => {
+      const heading: number = station.turn ?? 0;
+      if (!(station.seconds > 0))
+        return refuse(
+          "stations",
+          index,
+          "the station coordinates and heading must be finite and its time positive",
+        );
+      const phase: number = station.seconds / (walker ? 3 : 2);
+      // The aid moves rigidly with the walker: displaced by the station and
+      // turned about the entry station (`origin`), or about its own staged
+      // frame when none is given: p' = p + d + (R - I)(p - origin).
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, heading);
+      const pivot: IAutoMovieVector3 = props.origin ?? start.position;
+      const pose: IAutoMovieRigidTransform = {
+        position: Vector3.add(
+          Vector3.add(pivot, { x: station.x, y: 0, z: station.z }),
+          Quaternion.rotateVector(
+            turn,
+            Vector3.subtract(start.position, pivot),
+          ),
+        ),
+        rotation: Quaternion.multiply(turn, start.rotation),
+      };
+      const move: IAdvance = {
+        from: clock,
+        to: clock + phase * (walker ? 1 : 2 / 3),
+        floor: [old, pose],
+      };
+      old = pose;
+      clock += station.seconds;
+      return move;
+    },
+  );
+  return { ready, moves };
+}
+
+/*
+ * Read the supported prop pose or its single minimum-jerk swing between
+ * placements.
+ */
+function frameAt(
+  moves: readonly IAdvance[],
+  start: IAutoMovieRigidTransform,
+  seconds: number,
+): IAutoMovieRigidTransform {
+  let stable: IAutoMovieRigidTransform = start;
+  for (const move of moves) {
+    if (seconds <= move.from) return stable;
+    if (seconds < move.to) {
+      const share: number = (seconds - move.from) / (move.to - move.from);
+      const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(share);
+      const position: IAutoMovieVector3 = Vector3.lerp(
+        move.floor[0].position,
+        move.floor[1].position,
+        blend,
+      );
+      const height: number = AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(share, 1 - share));
+      return {
+        position: { ...position, y: position.y + LIFT * height },
+        rotation: Quaternion.slerp(
+          move.floor[0].rotation,
+          move.floor[1].rotation,
+          blend,
+        ),
+      };
+    }
+    stable = move.floor[1];
+  }
+  return stable;
+}
 
 /*
  * One prop advance and the floor poses it joins, in film seconds and world

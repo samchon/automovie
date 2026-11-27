@@ -9,30 +9,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-
-/*
- * A band in kilograms.
- */
-const kg = (
-  minimum: number,
-  maximum: number,
-  source: string,
-  provisional?: boolean,
-): IAutoMovieArchetypeBand =>
-  AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
-
-/*
- * Apple's phone specification pages; the smallest and largest rows were read on
- * the comparison page by position.
- */
-const PHONE: string =
-  "Apple iPhone 16 and 17 technical specifications (https://www.apple.com/iphone-16/specs/, https://www.apple.com/iphone-17/specs/); the extremes from Apple's comparison page (https://www.apple.com/iphone/compare/), its rows matched to models by position";
-
-/*
- * One maker's remote read at its page and two seen in listings.
- */
-const REMOTE: string =
-  "Apple TV 4K technical specifications, Siri Remote (https://www.apple.com/apple-tv-4k/specs/); the larger end from Roku and Amazon remote listings seen only in search results";
+import * as HandheldDeviceData from "./HandheldDeviceData";
+import { kg } from "./HandheldDeviceData";
 
 /*
  * Shared case construction and the existing records for handheld electronics.
@@ -202,17 +180,17 @@ export namespace HandheldDevice {
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     phone: {
-      width: AutoMovieArchetypeBand.metres(0.0642, 0.078, PHONE, true),
-      height: AutoMovieArchetypeBand.metres(0.1315, 0.1634, PHONE, true),
-      thickness: AutoMovieArchetypeBand.metres(0.00564, 0.00875, PHONE, true),
-      mass: kg(0.135, 0.249, PHONE, true),
+      width: AutoMovieArchetypeBand.metres(0.0642, 0.078, HandheldDeviceData.PHONE, true),
+      height: AutoMovieArchetypeBand.metres(0.1315, 0.1634, HandheldDeviceData.PHONE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.00564, 0.00875, HandheldDeviceData.PHONE, true),
+      mass: kg(0.135, 0.249, HandheldDeviceData.PHONE, true),
     },
     camera: {},
     remote: {
-      width: AutoMovieArchetypeBand.metres(0.035, 0.042, REMOTE, true),
-      height: AutoMovieArchetypeBand.metres(0.136, 0.142, REMOTE, true),
-      thickness: AutoMovieArchetypeBand.metres(0.00925, 0.02, REMOTE, true),
-      mass: kg(0.0434, 0.085, REMOTE, true),
+      width: AutoMovieArchetypeBand.metres(0.035, 0.042, HandheldDeviceData.REMOTE, true),
+      height: AutoMovieArchetypeBand.metres(0.136, 0.142, HandheldDeviceData.REMOTE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.00925, 0.02, HandheldDeviceData.REMOTE, true),
+      mass: kg(0.0434, 0.085, HandheldDeviceData.REMOTE, true),
     },
     tablet: {},
     walkieTalkie: {},

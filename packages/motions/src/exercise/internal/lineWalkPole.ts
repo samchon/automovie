@@ -19,34 +19,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
 /*
- * A grip's point in the hips' start frame.
- */
-function local(
-  read: IAutoMovieMotionHumanPropReader,
-  placed: IAutoMovieRigidTransform,
-  subject: string,
-  id: string,
-  start: IAutoMovieMotionHumanFrame,
-): ILocal {
-  const found: IAutoMovieAffordance | undefined = (
-    read.prop.affordances ?? []
-  ).find((a: IAutoMovieAffordance): boolean => a.id === id);
-  if (found === undefined)
-    throw new AutoMovieMotionHumanRefusal({
-      kind: "affordance",
-      axis: "pole",
-      value: subject,
-      reason: `${subject} declares no ${id}`,
-      fix: "hold a pole that declares a leftGrip and a rightGrip",
-    });
-  const world: IAutoMovieVector3 = Vector3.add(
-    placed.position,
-    Quaternion.rotateVector(placed.rotation, found.frame.translation),
-  );
-  return { point: HumanFrame.local(start, world) };
-}
-
-/*
  * Read a pole's grips.
  * Parameter context: The walk's context.
  * Parameter subject: The pole's scene id.
@@ -133,6 +105,34 @@ export namespace lineWalkPole {
       frame: IAutoMovieMotionHumanFrame,
     ): IAutoMovieMotionHumanPosture["limbs"];
   }
+}
+
+/*
+ * A grip's point in the hips' start frame.
+ */
+function local(
+  read: IAutoMovieMotionHumanPropReader,
+  placed: IAutoMovieRigidTransform,
+  subject: string,
+  id: string,
+  start: IAutoMovieMotionHumanFrame,
+): ILocal {
+  const found: IAutoMovieAffordance | undefined = (
+    read.prop.affordances ?? []
+  ).find((a: IAutoMovieAffordance): boolean => a.id === id);
+  if (found === undefined)
+    throw new AutoMovieMotionHumanRefusal({
+      kind: "affordance",
+      axis: "pole",
+      value: subject,
+      reason: `${subject} declares no ${id}`,
+      fix: "hold a pole that declares a leftGrip and a rightGrip",
+    });
+  const world: IAutoMovieVector3 = Vector3.add(
+    placed.position,
+    Quaternion.rotateVector(placed.rotation, found.frame.translation),
+  );
+  return { point: HumanFrame.local(start, world) };
 }
 
 /*

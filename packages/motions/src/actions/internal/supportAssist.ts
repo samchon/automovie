@@ -8,19 +8,68 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
+import * as SupportAssistData from "./SupportAssistData";
 
 /*
- * Contacts and instants of a paired support.
+ * The synchronized grip's point at the current support key.
+ * Parameter context: The support action's context.
+ * Returns: The grip reader if assistance is authored.
  */
-const ROLES: readonly IAutoMovieMotionHumanSupport.AssistRole[] = [
-  "helper",
-  "helped",
-];
+export function supportAssist(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
+): OptionalGripReader {
+  const assist: IAutoMovieMotionHumanSupport.IAssist | undefined =
+    context.params.assist;
+  if (assist === undefined) return undefined;
+  const meeting: IAutoMovieMotionMeeting = context.meeting(
+    kind(assist.hand),
+    assist.role,
+    {
+      role: assist.role === "helper" ? "helped" : "helper",
+      subject: assist.partner,
+    },
+  );
+  const hand: IAutoMovieMotionHumanSupport.Part = `${assist.hand}Hand`;
+  const keys: readonly IAutoMovieVector3[] = SupportAssistData.CONTACTS.map(
+    (phase: Phase): IAutoMovieVector3 =>
+      AutoMovieMotionMeeting.place(meeting, phase, context.entry.posture).point,
+  );
+  return (
+    contact: IAutoMovieMotionHumanSupport.IContact,
+    phase: number,
+  ): GripPoint => {
+    if (
+      contact.part !== hand ||
+      contact.kind !== "grip" ||
+      contact.target === "on" ||
+      contact.target?.kind !== "person" ||
+      contact.target.subject !== assist.partner
+    )
+      return undefined;
+    const before: number = Math.floor(phase);
+    const a: GripPoint = keys[before];
+    const b: GripPoint = keys[before + 1];
+    return a === undefined || b === undefined || phase === before
+      ? a
+      : Vector3.lerp(a, b, phase - before);
+  };
+}
 
 /*
- * Taking the lying palm, sitting under it, and transferring to the squat.
+ * The common hand course of two supports during an assisted rise. First the
+ * helper takes the supported person's displayed palm where it lies. Then both
+ * bring the clasp up through sitting as the helped person takes weight on the
+ * feet. The ordinary support planner owns the transitions.
  */
-const CONTACTS: readonly ["take", "seat", "lift"] = ["take", "seat", "lift"];
+export namespace supportAssist {
+  /*
+   * Seconds per key, one equal part of the measured young adult floor rise.
+   * Returns: A stance's share in seconds.
+   */
+  export function step(): number {
+    return getUp.SECONDS / (SupportAssistData.CONTACTS.length + 1);
+  }
+}
 
 /*
  * Build a meeting from the lying palm and the two subsequent shoulder
@@ -30,7 +79,7 @@ function kind(side: AutoMovieHumanSide): IAutoMovieMotionMeetingKind {
   const seconds: number = supportAssist.step();
   return {
     name: `support-assist:${side}`,
-    roles: ROLES,
+    roles: SupportAssistData.ROLES,
     contacts: {
       take: AutoMovieMotionHumanTarget.DEFAULTS.ahead,
       seat: AutoMovieMotionHumanTarget.DEFAULTS.ahead,
@@ -39,7 +88,7 @@ function kind(side: AutoMovieHumanSide): IAutoMovieMotionMeetingKind {
     timing: (): IAutoMovieMotionMeetingTiming => ({
       ready: seconds,
       stroke: 2 * seconds,
-      relax: CONTACTS.length * seconds,
+      relax: SupportAssistData.CONTACTS.length * seconds,
     }),
     place: (
       roles: readonly IAutoMovieMotionMeetingRole[],
@@ -170,67 +219,6 @@ function shoulder(
 }
 
 /*
- * The synchronized grip's point at the current support key.
- * Parameter context: The support action's context.
- * Returns: The grip reader if assistance is authored.
- */
-export function supportAssist(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
-): OptionalGripReader {
-  const assist: IAutoMovieMotionHumanSupport.IAssist | undefined =
-    context.params.assist;
-  if (assist === undefined) return undefined;
-  const meeting: IAutoMovieMotionMeeting = context.meeting(
-    kind(assist.hand),
-    assist.role,
-    {
-      role: assist.role === "helper" ? "helped" : "helper",
-      subject: assist.partner,
-    },
-  );
-  const hand: IAutoMovieMotionHumanSupport.Part = `${assist.hand}Hand`;
-  const keys: readonly IAutoMovieVector3[] = CONTACTS.map(
-    (phase: Phase): IAutoMovieVector3 =>
-      AutoMovieMotionMeeting.place(meeting, phase, context.entry.posture).point,
-  );
-  return (
-    contact: IAutoMovieMotionHumanSupport.IContact,
-    phase: number,
-  ): GripPoint => {
-    if (
-      contact.part !== hand ||
-      contact.kind !== "grip" ||
-      contact.target === "on" ||
-      contact.target?.kind !== "person" ||
-      contact.target.subject !== assist.partner
-    )
-      return undefined;
-    const before: number = Math.floor(phase);
-    const a: GripPoint = keys[before];
-    const b: GripPoint = keys[before + 1];
-    return a === undefined || b === undefined || phase === before
-      ? a
-      : Vector3.lerp(a, b, phase - before);
-  };
-}
-
-/*
- * The common hand course of two supports during an assisted rise. First the
- * helper takes the supported person's displayed palm where it lies. Then both
- * bring the clasp up through sitting as the helped person takes weight on the
- * feet. The ordinary support planner owns the transitions.
- */
-export namespace supportAssist {
-  /*
-   * Seconds per key, one equal part of the measured young adult floor rise.
-   * Returns: A stance's share in seconds.
-   */
-  export function step(): number {
-    return getUp.SECONDS / (CONTACTS.length + 1);
-  }
-}
-
-/*
  * The authored phase has a shared grip only while the hand is holding.
  */
 type GripPoint = IAutoMovieVector3 | undefined;
@@ -251,4 +239,4 @@ type OptionalGripReader = GripReader | undefined;
 /*
  * Lowered and rising keys of the holding hand.
  */
-type Phase = (typeof CONTACTS)[number];
+type Phase = (typeof SupportAssistData.CONTACTS)[number];

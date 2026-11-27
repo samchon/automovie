@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The norm that sizes a gymnastics horizontal bar.
- */
-const FIG: string =
-  "Fédération Internationale de Gymnastique, Apparatus Norms, the horizontal bar: the bar 2.8 m above the floor, 2.4 m long between its uprights and 28 mm across";
+import * as AutoMovieArchetypePullUpBarData from "./internal/AutoMovieArchetypePullUpBarData";
 
 /** Constructs the pull up bar archetype from its recipe. */
 export namespace AutoMovieArchetypePullUpBar {
@@ -172,9 +167,9 @@ export function create(
       ),
     },
     horizontalBar: {
-      height: AutoMovieArchetypeBand.metres(2.8, 2.8, FIG),
-      length: AutoMovieArchetypeBand.metres(2.4, 2.4, FIG),
-      diameter: AutoMovieArchetypeBand.metres(0.028, 0.028, FIG),
+      height: AutoMovieArchetypeBand.metres(2.8, 2.8, AutoMovieArchetypePullUpBarData.FIG),
+      length: AutoMovieArchetypeBand.metres(2.4, 2.4, AutoMovieArchetypePullUpBarData.FIG),
+      diameter: AutoMovieArchetypeBand.metres(0.028, 0.028, AutoMovieArchetypePullUpBarData.FIG),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         40,

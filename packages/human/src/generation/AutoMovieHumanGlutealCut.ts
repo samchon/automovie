@@ -8,17 +8,6 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/*
- * Numerical world-height meeting budget, calibration millimetres.
- */
-const TOLERANCE: number = 1e-9;
-
-/*
- * Discovery subdivisions of each actual source partition, not a crossing
- * certificate.
- */
-const SUBDIVISIONS: number = 8;
-
 /** Original horizontal cuts of the same leg field consumed by the pelvis. */
 export namespace AutoMovieHumanGlutealCut {
   /**
@@ -175,6 +164,17 @@ export namespace AutoMovieHumanGlutealCut {
     }
   }
 }
+
+/*
+ * Numerical world-height meeting budget, calibration millimetres.
+ */
+const TOLERANCE: number = 1e-9;
+
+/*
+ * Discovery subdivisions of each actual source partition, not a crossing
+ * certificate.
+ */
+const SUBDIVISIONS: number = 8;
 
 /*
  * Reuse actual source partitions for discovery; no new shape or frame is

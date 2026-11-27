@@ -17,33 +17,6 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { coverWall } from "./coverWall";
 
 /*
- * The trunk's default gap from the face while sidling, metres (provisional).
- */
-const OFFSET: number = 0.05;
-
-/*
- * How far below the sill the head passes, metres (provisional: the crown hidden
- * from a level view).
- */
-const BELOW: number = 0.05;
-
-/*
- * The deepest crouch the walk carries, hip heights (provisional: a half squat).
- */
-const CROUCH: number = 0.45;
-
-/*
- * The trunk's forward pitch at the deepest crouch, degrees (provisional).
- */
-const PITCH: number = 30;
-
-/*
- * The crouched creep's Froude number (provisional: the stalk's slow creep,
- * HumanHorrorGait.STALK).
- */
-const CREEP: number = 0.08;
-
-/*
  * Travel along a staged wall in cover: a sidle steps sideways along the face
  * with the back or chest a set gap from it, and a window passage walks along a
  * window's wall crouched so the head stays below its sill. Both are the
@@ -176,3 +149,30 @@ export namespace coverTravel {
     return (Math.atan2(direction.x, direction.z) * 180) / Math.PI;
   }
 }
+
+/*
+ * The trunk's default gap from the face while sidling, metres (provisional).
+ */
+const OFFSET: number = 0.05;
+
+/*
+ * How far below the sill the head passes, metres (provisional: the crown hidden
+ * from a level view).
+ */
+const BELOW: number = 0.05;
+
+/*
+ * The deepest crouch the walk carries, hip heights (provisional: a half squat).
+ */
+const CROUCH: number = 0.45;
+
+/*
+ * The trunk's forward pitch at the deepest crouch, degrees (provisional).
+ */
+const PITCH: number = 30;
+
+/*
+ * The crouched creep's Froude number (provisional: the stalk's slow creep,
+ * HumanHorrorGait.STALK).
+ */
+const CREEP: number = 0.08;

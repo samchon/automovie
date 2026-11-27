@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -8,12 +8,8 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-const RULES: string =
-  "World Aquatics June 2025, Part Six Appendix 4 §20.4.2: https://resources.fina.org/fina/document/2025/07/01/ed3110a4-2291-411d-8526-6f641bd9237a/Competition-Regulations_June-2025_Clean-updated-01.07.2025-.pdf";
-const FRAME: string = "#fbf9ef";
-const NET: string = "#d9dde0";
-const v: typeof Vector3.create = Vector3.create;
+import * as AutoMovieArchetypeWaterPoloGoalData from "./internal/AutoMovieArchetypeWaterPoloGoalData";
+import { v } from "./internal/AutoMovieArchetypeWaterPoloGoalData";
 
 /** Constructs the water polo goal archetype from its recipe. */
 export namespace AutoMovieArchetypeWaterPoloGoal {
@@ -128,13 +124,13 @@ export function create(
    * clearance.
    */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    width: AutoMovieArchetypeBand.metres(3, 3, RULES),
-    height: AutoMovieArchetypeBand.metres(0.9, 0.9, RULES),
-    bar: AutoMovieArchetypeBand.metres(0.075, 0.075, RULES),
+    width: AutoMovieArchetypeBand.metres(3, 3, AutoMovieArchetypeWaterPoloGoalData.RULES),
+    height: AutoMovieArchetypeBand.metres(0.9, 0.9, AutoMovieArchetypeWaterPoloGoalData.RULES),
+    bar: AutoMovieArchetypeBand.metres(0.075, 0.075, AutoMovieArchetypeWaterPoloGoalData.RULES),
     depth: AutoMovieArchetypeBand.metres(
       0.55,
       0.55,
-      `${RULES}. Film pocket deeper than the 0.30 m minimum.`,
+      `${AutoMovieArchetypeWaterPoloGoalData.RULES}. Film pocket deeper than the 0.30 m minimum.`,
       true,
     ),
     mass: AutoMovieArchetypeBand.of(
@@ -146,6 +142,9 @@ export function create(
     ),
   };
 }
+
+const FRAME: string = "#fbf9ef";
+const NET: string = "#d9dde0";
 
 /*
  * The three side surfaces and the top of the pocket use one shared set of

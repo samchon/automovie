@@ -11,12 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The table's size, from a secondary summary of the apparatus norms.
- */
-const NORMS: string =
-  "the vaulting table of the FIG apparatus norms, 135 cm high for men and 125 cm for women, 120 cm long and 90 cm wide, each to 1 cm, as Wikipedia's Vault (gymnastics) gives them (https://en.wikipedia.org/wiki/Vault_(gymnastics)); the norms were not read";
+import * as AutoMovieArchetypeVaultingTableData from "./internal/AutoMovieArchetypeVaultingTableData";
 
 /** Constructs the vaulting table archetype from its recipe. */
 export namespace AutoMovieArchetypeVaultingTable {
@@ -144,34 +139,17 @@ export function create(
     mass: "kg",
   };
 
-  /*
-   * The bands every table shares.
-   */
-  const SHARED: Readonly<
-    Record<"length" | "width" | "mass", IAutoMovieArchetypeBand>
-  > = {
-    length: AutoMovieArchetypeBand.metres(1.19, 1.21, NORMS, true),
-    width: AutoMovieArchetypeBand.metres(0.89, 0.91, NORMS, true),
-    mass: AutoMovieArchetypeBand.of(
-      "kg",
-      80,
-      120,
-      "an estimate of a steel-based competition table; no maker's figure was read",
-      true,
-    ),
-  };
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      ...SHARED,
-      height: AutoMovieArchetypeBand.metres(1.34, 1.36, NORMS, true),
+      ...AutoMovieArchetypeVaultingTableData.SHARED,
+      height: AutoMovieArchetypeBand.metres(1.34, 1.36, AutoMovieArchetypeVaultingTableData.NORMS, true),
     },
     women: {
-      ...SHARED,
-      height: AutoMovieArchetypeBand.metres(1.24, 1.26, NORMS, true),
+      ...AutoMovieArchetypeVaultingTableData.SHARED,
+      height: AutoMovieArchetypeBand.metres(1.24, 1.26, AutoMovieArchetypeVaultingTableData.NORMS, true),
     },
   };
 }

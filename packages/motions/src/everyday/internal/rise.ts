@@ -155,30 +155,6 @@ export namespace rise {
   );
 
   /*
-   * The least edging, metres, worth a move: below a millimetre's scale a body
-   * does not shift on its seat (provisional).
-   */
-  const EDGE: number = 0.005;
-
-  /*
-   * The least horizontal correction of a foot, metres, that draws it back or
-   * across (provisional, the namespace's 1 cm).
-   */
-  const NUDGE: number = 0.01;
-
-  /*
-   * The share of the rise at which the socket stands over the feet
-   * (provisional, the namespace's 85 %).
-   */
-  const STOOD: number = 0.85;
-
-  /*
-   * The delay of the socket's rise behind its forward travel after seat-off, as
-   * a share of the rise (provisional).
-   */
-  const LAG: number = 0.03;
-
-  /*
    * Plan a rise.
    * Parameter context: The action's context.
    * Returns: The plan.
@@ -512,6 +488,30 @@ export namespace rise {
         corrected(rose(seconds), seconds),
     };
   }
+
+  /*
+   * The least edging, metres, worth a move: below a millimetre's scale a body
+   * does not shift on its seat (provisional).
+   */
+  const EDGE: number = 0.005;
+
+  /*
+   * The least horizontal correction of a foot, metres, that draws it back or
+   * across (provisional, the namespace's 1 cm).
+   */
+  const NUDGE: number = 0.01;
+
+  /*
+   * The share of the rise at which the socket stands over the feet
+   * (provisional, the namespace's 85 %).
+   */
+  const STOOD: number = 0.85;
+
+  /*
+   * The delay of the socket's rise behind its forward travel after seat-off, as
+   * a share of the rise (provisional).
+   */
+  const LAG: number = 0.03;
 }
 
 /*

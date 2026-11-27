@@ -9,33 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The ski's shape read.
- */
-const LINE: string =
-  "LINE Blend 2027: shape 129-98-120 mm (tip, waist, tail), lengths 163, 169, 175 and 180 cm, the stance 20 mm back from centre (https://lineskis.com/en-gb/p/blend-skis-ln261774)";
-
-/*
- * The ski's thickness read.
- */
-const ROSSIGNOL: string =
-  "Skis Rossignol patent EP0806228A1: an alpine ski's central zone between fifteen millimeters (15 mm) and thirty millimeters (30 mm) thick (https://patents.google.com/patent/EP0806228A1/en)";
-
-/*
- * The shape's widths, metres: LINE Blend's 129 mm tip, 98 mm waist and 120 mm
- * tail.
- */
-const WIDTH: Readonly<{ tip: number; waist: number; tail: number }> = {
-  tip: 0.129,
-  waist: 0.098,
-  tail: 0.12,
-};
-
-/*
- * How far the stance lies behind the ski's centre, metres: LINE Blend's 20 mm.
- */
-const STANCE: number = 0.02;
+import * as AutoMovieArchetypeSkiData from "./internal/AutoMovieArchetypeSkiData";
 
 /** Constructs the ski archetype from its recipe. */
 export namespace AutoMovieArchetypeSki {
@@ -191,12 +165,27 @@ export function create(
   export const BANDS: Readonly<
     Record<Exclude<Dimension, "length">, IAutoMovieArchetypeBand>
   > = {
-    thickness: AutoMovieArchetypeBand.metres(0.015, 0.03, ROSSIGNOL),
+    thickness: AutoMovieArchetypeBand.metres(0.015, 0.03, AutoMovieArchetypeSkiData.ROSSIGNOL),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       1.84,
       1.84,
-      `${LINE}: 1840 g at 175 cm, the model takes it for every length`,
+      `${AutoMovieArchetypeSkiData.LINE}: 1840 g at 175 cm, the model takes it for every length`,
     ),
   };
 }
+
+/*
+ * The shape's widths, metres: LINE Blend's 129 mm tip, 98 mm waist and 120 mm
+ * tail.
+ */
+const WIDTH: Readonly<{ tip: number; waist: number; tail: number }> = {
+  tip: 0.129,
+  waist: 0.098,
+  tail: 0.12,
+};
+
+/*
+ * How far the stance lies behind the ski's centre, metres: LINE Blend's 20 mm.
+ */
+const STANCE: number = 0.02;

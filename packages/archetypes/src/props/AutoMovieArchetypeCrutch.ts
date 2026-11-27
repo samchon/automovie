@@ -10,23 +10,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * Published dimensions and per-unit mass of the adult half-cuff model.
- */
-const SOURCE: string =
-  "Walk Easy 445 adult half-cuff forearm crutch, grip to floor 29.8–38.0 in, grip to cuff 9.0 in, cuff inside diameter 3.5 in, grip length 4.25 in and diameter 1.5 in, mass 552.8 g each (https://walkeasy.com/shop/crutches/forearm-elbow/445.php)";
-
-/*
- * Visual simplifications for the shaft, tip and cuff section, in metres.
- */
-const SHAPE: Readonly<ICrutchShape> = {
-  shaft: 0.011,
-  baseRadius: 0.023,
-  baseHeight: 0.037,
-  cuffSection: 0.007,
-  topSetback: 0.06,
-};
+import * as AutoMovieArchetypeCrutchData from "./internal/AutoMovieArchetypeCrutchData";
 
 /** Constructs the crutch archetype from its recipe. */
 export namespace AutoMovieArchetypeCrutch {
@@ -147,10 +131,21 @@ export function create(
     height: AutoMovieArchetypeBand.metres(
       29.8 * AutoMovieArchetypeUnits.INCH,
       38 * AutoMovieArchetypeUnits.INCH,
-      SOURCE,
+      AutoMovieArchetypeCrutchData.SOURCE,
     ),
   };
 }
+
+/*
+ * Visual simplifications for the shaft, tip and cuff section, in metres.
+ */
+const SHAPE: Readonly<ICrutchShape> = {
+  shaft: 0.011,
+  baseRadius: 0.023,
+  baseHeight: 0.037,
+  cuffSection: 0.007,
+  topSetback: 0.06,
+};
 
 /*
  * The crutch's drawn proportions, metres.

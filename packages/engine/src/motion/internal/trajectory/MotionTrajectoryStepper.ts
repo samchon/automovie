@@ -16,83 +16,6 @@ import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
  * rotation algebra and completed numeric readers have separate owners.
  */
 export namespace MotionTrajectoryStepper {
-  const { turn, dexpinv }: typeof MotionTrajectoryRotation =
-    MotionTrajectoryRotation;
-
-  /*
-   * The Dormand-Prince 5(4) pair's nodes, its stages' coefficients (the last
-   * row its fifth-order weights, so the last stage is the next step's first)
-   * and the difference of its fifth- and fourth-order weights, the step's error
-   * estimate (Dormand and Prince 1980, J Comput Appl Math 6:19-26), each read
-   * digit by digit from Hairer and Wanner's DOPRI5 code, its subroutine
-   * CDOPRI's `c`, `a` and `e`, as the MESA project's port
-   * `num/private/mod_dopri5.f` carries it
-   * (https://mesastar.org/mesa/num/private/mod_dopri5.f.gcov.html); the
-   * coefficients that code leaves out (`a72`, `e2`) are zero.
-   */
-  const C: readonly number[] = [0, 1 / 5, 3 / 10, 4 / 5, 8 / 9, 1, 1];
-
-  /*
-   * The stages' coefficients, row `i` for stage `i + 1`.
-   */
-  const A: readonly (readonly number[])[] = [
-    [],
-    [1 / 5],
-    [3 / 40, 9 / 40],
-    [44 / 45, -56 / 15, 32 / 9],
-    [19372 / 6561, -25360 / 2187, 64448 / 6561, -212 / 729],
-    [9017 / 3168, -355 / 33, 46732 / 5247, 49 / 176, -5103 / 18656],
-    [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84],
-  ];
-
-  /*
-   * The fifth-order weights less the fourth-order ones.
-   */
-  const E: readonly number[] = [
-    71 / 57600,
-    0,
-    -71 / 16695,
-    71 / 1920,
-    -17253 / 339200,
-    22 / 525,
-    -1 / 40,
-  ];
-
-  /*
-   * The step controller, as the same code's DOPCOR defaults and applies it,
-   * read there line by line: the safety factor `safe`, the bounds `fac1` and
-   * `fac2` on a step's change, the stabilizing exponent `beta` on the last
-   * accepted error, the floor `previous` on that error (its `facold`, which
-   * also starts there), and the share `stretch` of a step past which the last
-   * one is taken to the end at once (its `1.01`).
-   */
-  const CONTROL: Readonly<{
-    safety: number;
-    least: number;
-    most: number;
-    beta: number;
-    previous: number;
-    stretch: number;
-  }> = {
-    safety: 0.9,
-    least: 0.2,
-    most: 10,
-    beta: 0.04,
-    previous: 1e-4,
-    stretch: 1.01,
-  };
-
-  /*
-   * The most step attempts, accepted and rejected together, one integration may
-   * take: the same code's default `nmax` (100000, used when its caller passes
-   * no maximum), tested as it tests `nstep > nmax` before each attempt. The
-   * time-resolution guard alone, `0.1 |h| > |t| ε`, bounds the attempts only by
-   * the doubles in the interval: from time zero under a tolerance below the
-   * state's roundoff, where every tiny step is accepted, a step `h` repeats
-   * until `t` reaches `h / (10 ε)`, about 4.5e14 steps.
-   */
-  const ATTEMPTS: number = 100000;
-
   /*
    * A trajectory by the Dormand-Prince 5(4) pair under error control: each
    * step's error estimate, the difference of its two orders, is weighed
@@ -372,6 +295,83 @@ export namespace MotionTrajectoryStepper {
 
     return MotionTrajectoryRead.dense(t0, t1, first, steps, { x, q });
   }
+
+  const { turn, dexpinv }: typeof MotionTrajectoryRotation =
+    MotionTrajectoryRotation;
+
+  /*
+   * The Dormand-Prince 5(4) pair's nodes, its stages' coefficients (the last
+   * row its fifth-order weights, so the last stage is the next step's first)
+   * and the difference of its fifth- and fourth-order weights, the step's error
+   * estimate (Dormand and Prince 1980, J Comput Appl Math 6:19-26), each read
+   * digit by digit from Hairer and Wanner's DOPRI5 code, its subroutine
+   * CDOPRI's `c`, `a` and `e`, as the MESA project's port
+   * `num/private/mod_dopri5.f` carries it
+   * (https://mesastar.org/mesa/num/private/mod_dopri5.f.gcov.html); the
+   * coefficients that code leaves out (`a72`, `e2`) are zero.
+   */
+  const C: readonly number[] = [0, 1 / 5, 3 / 10, 4 / 5, 8 / 9, 1, 1];
+
+  /*
+   * The stages' coefficients, row `i` for stage `i + 1`.
+   */
+  const A: readonly (readonly number[])[] = [
+    [],
+    [1 / 5],
+    [3 / 40, 9 / 40],
+    [44 / 45, -56 / 15, 32 / 9],
+    [19372 / 6561, -25360 / 2187, 64448 / 6561, -212 / 729],
+    [9017 / 3168, -355 / 33, 46732 / 5247, 49 / 176, -5103 / 18656],
+    [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84],
+  ];
+
+  /*
+   * The fifth-order weights less the fourth-order ones.
+   */
+  const E: readonly number[] = [
+    71 / 57600,
+    0,
+    -71 / 16695,
+    71 / 1920,
+    -17253 / 339200,
+    22 / 525,
+    -1 / 40,
+  ];
+
+  /*
+   * The step controller, as the same code's DOPCOR defaults and applies it,
+   * read there line by line: the safety factor `safe`, the bounds `fac1` and
+   * `fac2` on a step's change, the stabilizing exponent `beta` on the last
+   * accepted error, the floor `previous` on that error (its `facold`, which
+   * also starts there), and the share `stretch` of a step past which the last
+   * one is taken to the end at once (its `1.01`).
+   */
+  const CONTROL: Readonly<{
+    safety: number;
+    least: number;
+    most: number;
+    beta: number;
+    previous: number;
+    stretch: number;
+  }> = {
+    safety: 0.9,
+    least: 0.2,
+    most: 10,
+    beta: 0.04,
+    previous: 1e-4,
+    stretch: 1.01,
+  };
+
+  /*
+   * The most step attempts, accepted and rejected together, one integration may
+   * take: the same code's default `nmax` (100000, used when its caller passes
+   * no maximum), tested as it tests `nstep > nmax` before each attempt. The
+   * time-resolution guard alone, `0.1 |h| > |t| ε`, bounds the attempts only by
+   * the doubles in the interval: from time zero under a tolerance below the
+   * state's roundoff, where every tiny step is accepted, a step `h` repeats
+   * until `t` reaches `h / (10 ε)`, about 4.5e14 steps.
+   */
+  const ATTEMPTS: number = 100000;
 
   /*
    * A weighted sum of rotation-vector rates times a step: `h Σ wⱼ uⱼ`.

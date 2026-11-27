@@ -17,11 +17,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
 /*
- * The three local axes an axis feature can name.
- */
-const AXIS_INDICES: readonly number[] = [0, 1, 2];
-
-/*
  * Resolve one pinned feature against the design as it stands now.
  *
  * A target stores where a feature is, not what it measured, so moving a wall
@@ -208,6 +203,11 @@ export const resolveAutoMovieDrawingFeature = (
     reason: null,
   };
 };
+
+/*
+ * The three local axes an axis feature can name.
+ */
+const AXIS_INDICES: readonly number[] = [0, 1, 2];
 
 /*
  * A world point with its grid coordinates and welding key.

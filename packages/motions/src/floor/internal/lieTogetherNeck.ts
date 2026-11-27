@@ -13,12 +13,6 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
 /*
- * The miss under which the cheek rests on the chest, metres (provisional: a
- * skin contact, as `headRest`'s).
- */
-const NEAR: number = 0.01;
-
-/*
  * The neck's lift of a cheek onto a partner's chest, lying with the head on the
  * chest: the neck's side bend and flexion, solved on a coarse grid refined by
  * degrees, a miss over `NEAR` refused, and added over a posture's own at a
@@ -132,6 +126,12 @@ export namespace lieTogetherNeck {
     return best;
   }
 }
+
+/*
+ * The miss under which the cheek rests on the chest, metres (provisional: a
+ * skin contact, as `headRest`'s).
+ */
+const NEAR: number = 0.01;
 
 /*
  * The neck's two bones a resting head bends over.

@@ -16,34 +16,6 @@ import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
 /*
- * A slope in millimetres per solved unit from a reading's rate per a variable's
- * own unit.
- */
-function scaled(
-  step: HumanBodyFitRows.IStep,
-  rate: (m: IAutoMovieMotionHumanJacobian.IMotion) => number,
-): number[] {
-  return step.motions.map(
-    (m: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
-      rate(m) * step.units[i]! * HumanBodyFitRows.MM,
-  );
-}
-
-/*
- * A support candidate's height's slope: its point's, riding its collider's
- * bone.
- */
-function low(step: HumanBodyFitRows.IStep, c: number): number[] {
-  return scaled(step, (m: IAutoMovieMotionHumanJacobian.IMotion): number =>
-    HumanJacobian.velocityY(
-      m,
-      step.at.owners[step.at.of[c]!]!,
-      step.at.spots[c]!,
-    ),
-  );
-}
-
-/*
  * A step's rows, but the floor's under the colliders.
  * Parameter step: The step.
  * Returns: The rows of the contacts, the targets and the balance.
@@ -347,6 +319,34 @@ export namespace HumanBodyFitRows {
    */
   export const residual: typeof HumanFitTargets.residual =
     HumanFitTargets.residual;
+}
+
+/*
+ * A slope in millimetres per solved unit from a reading's rate per a variable's
+ * own unit.
+ */
+function scaled(
+  step: HumanBodyFitRows.IStep,
+  rate: (m: IAutoMovieMotionHumanJacobian.IMotion) => number,
+): number[] {
+  return step.motions.map(
+    (m: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
+      rate(m) * step.units[i]! * HumanBodyFitRows.MM,
+  );
+}
+
+/*
+ * A support candidate's height's slope: its point's, riding its collider's
+ * bone.
+ */
+function low(step: HumanBodyFitRows.IStep, c: number): number[] {
+  return scaled(step, (m: IAutoMovieMotionHumanJacobian.IMotion): number =>
+    HumanJacobian.velocityY(
+      m,
+      step.at.owners[step.at.of[c]!]!,
+      step.at.spots[c]!,
+    ),
+  );
 }
 
 /*

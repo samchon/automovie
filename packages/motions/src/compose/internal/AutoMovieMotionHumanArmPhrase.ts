@@ -22,28 +22,6 @@ import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
  */
 export namespace AutoMovieMotionHumanArmPhrase {
   /*
-   * A target with its point scaled about another point by the phrase's extent;
-   * unchanged when the phrase states a contact, since a manner never moves a
-   * goal on a solid place.
-   */
-  const extended = (
-    props: Pick<IAutoMovieMotionHumanArmPhrase.IPhrase, ExtendedProps>,
-    about: IAutoMovieVector3,
-    target: IAutoMovieMotionHumanArmTarget.ITarget,
-  ): IAutoMovieMotionHumanArmTarget.ITarget => {
-    const extent: number = props.manner?.extent ?? 1;
-    return props.contact !== undefined || extent === 1
-      ? target
-      : {
-          ...target,
-          point: Vector3.add(
-            about,
-            Vector3.scale(Vector3.subtract(target.point, about), extent),
-          ),
-        };
-  };
-
-  /*
    * The contact window of a hand between two instants.
    * Parameter props: The phrase.
    * Parameter from: The instant the hand comes to bear.
@@ -136,63 +114,6 @@ export namespace AutoMovieMotionHumanArmPhrase {
     ) => void,
   ): IAutoMovieMotionHumanPrimitive {
     return strokePrimitive(props, validateOnset, true);
-  }
-
-  /*
-   * Keep one hand transport and clock for both native and general paths.
-   */
-  function strokePrimitive(
-    props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
-    validateOnset: Parameters<typeof preparedStroke>[1],
-    prepared: boolean,
-  ): IAutoMovieMotionHumanPrimitive {
-    const target = (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-      resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
-      projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
-    ): IAutoMovieMotionHumanArmTarget.ITarget => {
-      const progress: number = props.clock.progress(
-        "strokeStart",
-        "strokeEnd",
-        seconds,
-      );
-      const at: IAutoMovieMotionHumanArmTarget.ITarget = props.path(
-        posture,
-        seconds,
-        progress,
-        resolution,
-        projection,
-      );
-      if (progress <= 0) return at;
-      if (prepared) {
-        validateOnset?.(posture, seconds);
-        return at;
-      }
-      return extended(
-        props,
-        props.path(posture, seconds, 0, resolution, projection).point,
-        at,
-      );
-    };
-    const move: IAutoMovieMotionHumanPrimitive =
-      AutoMovieMotionHumanArmMove.move(
-        {
-          body: props.body,
-          side: props.side,
-          from: 0,
-          to: props.clock.duration,
-          origin: props.origin,
-          target,
-          weight: (seconds: number): number =>
-            props.clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-          curvature: props.manner?.curvature ?? 0,
-        },
-      );
-    return {
-      ...move,
-      contacts: bearing(props, "strokeStart", "relax"),
-    };
   }
 
   /*
@@ -352,6 +273,85 @@ export namespace AutoMovieMotionHumanArmPhrase {
           limbs,
         };
       },
+    };
+  }
+
+  /*
+   * A target with its point scaled about another point by the phrase's extent;
+   * unchanged when the phrase states a contact, since a manner never moves a
+   * goal on a solid place.
+   */
+  const extended = (
+    props: Pick<IAutoMovieMotionHumanArmPhrase.IPhrase, ExtendedProps>,
+    about: IAutoMovieVector3,
+    target: IAutoMovieMotionHumanArmTarget.ITarget,
+  ): IAutoMovieMotionHumanArmTarget.ITarget => {
+    const extent: number = props.manner?.extent ?? 1;
+    return props.contact !== undefined || extent === 1
+      ? target
+      : {
+          ...target,
+          point: Vector3.add(
+            about,
+            Vector3.scale(Vector3.subtract(target.point, about), extent),
+          ),
+        };
+  };
+
+  /*
+   * Keep one hand transport and clock for both native and general paths.
+   */
+  function strokePrimitive(
+    props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
+    validateOnset: Parameters<typeof preparedStroke>[1],
+    prepared: boolean,
+  ): IAutoMovieMotionHumanPrimitive {
+    const target = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
+      projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
+    ): IAutoMovieMotionHumanArmTarget.ITarget => {
+      const progress: number = props.clock.progress(
+        "strokeStart",
+        "strokeEnd",
+        seconds,
+      );
+      const at: IAutoMovieMotionHumanArmTarget.ITarget = props.path(
+        posture,
+        seconds,
+        progress,
+        resolution,
+        projection,
+      );
+      if (progress <= 0) return at;
+      if (prepared) {
+        validateOnset?.(posture, seconds);
+        return at;
+      }
+      return extended(
+        props,
+        props.path(posture, seconds, 0, resolution, projection).point,
+        at,
+      );
+    };
+    const move: IAutoMovieMotionHumanPrimitive =
+      AutoMovieMotionHumanArmMove.move(
+        {
+          body: props.body,
+          side: props.side,
+          from: 0,
+          to: props.clock.duration,
+          origin: props.origin,
+          target,
+          weight: (seconds: number): number =>
+            props.clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+          curvature: props.manner?.curvature ?? 0,
+        },
+      );
+    return {
+      ...move,
+      contacts: bearing(props, "strokeStart", "relax"),
     };
   }
 }

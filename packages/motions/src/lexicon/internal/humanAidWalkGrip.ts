@@ -8,11 +8,6 @@ import { HumanMountRider } from "./HumanMountRider";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /*
- * Palm-to-rod stage admission in world metres.
- */
-const GRIP_GAP: number = 0.01;
-
-/*
  * Fit one grip per hand for a complete staged floor-aid course.
  */
 export namespace humanAidWalkGrip {
@@ -222,3 +217,8 @@ export namespace humanAidWalkGrip {
     });
   }
 }
+
+/*
+ * Palm-to-rod stage admission in world metres.
+ */
+const GRIP_GAP: number = 0.01;

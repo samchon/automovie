@@ -4,18 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import { type AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
-
-/*
- * Measured warmbloods.
- */
-const JENSEN: string =
-  "Jensen et al. 2019, Acta Vet Scand 61, Table 2, 38 adult warmbloods (https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6933663/fullTextXML)";
-
-/*
- * Stirrup leather lengths by rider height.
- */
-const LEATHERS: string =
-  "half of the 1.15 to 1.55 m stirrup leathers Kingdom Equestrian lists by rider height (https://www.kingdomequestrian.co.uk/blogs/help-advice/stirrup-leather-buying-guide); how a leather's length becomes the tread's drop is an estimate";
+import * as HorseBandsData from "./internal/HorseBandsData";
 
 /*
  * The band of each free dimension of a saddle horse, with the source it was
@@ -33,9 +22,9 @@ export const HORSE_BANDS: Readonly<
   withersHeight: AutoMovieArchetypeBand.metres(
     1.58,
     1.8,
-    `${JENSEN}: height at withers 172 cm, range 158 to 180`,
+    `${HorseBandsData.JENSEN}: height at withers 172 cm, range 158 to 180`,
   ),
-  stirrupDrop: AutoMovieArchetypeBand.metres(0.575, 0.775, LEATHERS, true),
+  stirrupDrop: AutoMovieArchetypeBand.metres(0.575, 0.775, HorseBandsData.LEATHERS, true),
   stirrupWidth: AutoMovieArchetypeBand.metres(
     0.11,
     0.13,

@@ -36,21 +36,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { bowViolinGrip } from "./bowViolinGrip";
 import { bowViolinHairAxis } from "./bowViolinHairAxis";
 import { bowViolinStroke } from "./bowViolinStroke";
-
-/*
- * The bar frame's +X points from bridge to nut.
- */
-const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-
-/*
- * The outward axis of the violin's string bar.
- */
-const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * Raised clearance before and after the stroke in metres, provisional.
- */
-const CLEARANCE: number = 0.035;
+import * as BowViolinData from "./BowViolinData";
 
 /*
  * One staged open-string violin stroke with a held bow. Register this law with
@@ -135,8 +121,8 @@ function planStroke(
     world.rotation,
     bar.frame.rotation,
   );
-  const longitudinal: IAutoMovieVector3 = Quaternion.rotateVector(axes, X);
-  const outward: IAutoMovieVector3 = Quaternion.rotateVector(axes, Y);
+  const longitudinal: IAutoMovieVector3 = Quaternion.rotateVector(axes, BowViolinData.X);
+  const outward: IAutoMovieVector3 = Quaternion.rotateVector(axes, BowViolinData.Y);
   const contact: IAutoMovieVector3 = Vector3.add(
     Vector3.add(
       world.position,
@@ -187,7 +173,7 @@ function planStroke(
   const reach: number = AutoMovieMotionHumanTiming.aimed(
     Vector3.length(
       Vector3.subtract(
-        grip(bowViolinStroke.from(params.direction), CLEARANCE),
+        grip(bowViolinStroke.from(params.direction), BowViolinData.CLEARANCE),
         AutoMovieMotionHumanArm.point(entry.posture, origin),
       ),
     ),
@@ -202,7 +188,7 @@ function planStroke(
   const stroked: ReturnType<typeof bowViolinStroke> = bowViolinStroke(
     clock,
     params.direction,
-    CLEARANCE,
+    BowViolinData.CLEARANCE,
   );
   const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
     context,

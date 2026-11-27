@@ -14,12 +14,6 @@ import { AutoMovieHumanHandDigitBones } from "./AutoMovieHumanHandDigitBones";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { sub, plus, scale, dot, unit }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-const { proximal }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
-const { onBones }: typeof AutoMovieHumanHandDigitBones =
-  AutoMovieHumanHandDigitBones;
-
 /**
  * A finger on its bones, from its knuckle to its tip.
  *
@@ -121,3 +115,10 @@ export namespace AutoMovieHumanFingerBones {
     return unit(plus(scale(dir, Math.cos(r)), scale(n, Math.sin(r))));
   }
 }
+
+const { sub, plus, scale, dot, unit }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+const { proximal }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
+
+const { onBones }: typeof AutoMovieHumanHandDigitBones =
+  AutoMovieHumanHandDigitBones;

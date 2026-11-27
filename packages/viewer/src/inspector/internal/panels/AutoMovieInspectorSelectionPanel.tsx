@@ -19,16 +19,6 @@ import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
 
 
 /*
- * The width of each of the three checkbox columns and the colour column, pixels.
- */
-const COLUMN: number = 22;
-
-/*
- * The width of the disclosure button before a name, pixels.
- */
-const DISCLOSURE: number = 16;
-
-/*
  * Selection: the subject's identity paths as a tree, with select, hide, label and colour per path.
  *
  * A header names the four columns. Each node edits the request by its pattern, the one that selects the node and its subtree: a checkbox puts the pattern in or takes it out of `parts`, `hide` or `label`, and the colour input gives it a `color` pair, which the clear button takes back. A node is checked when its own pattern is in the list, so a pattern typed in the address that matches several nodes checks none of them, and stays in the request. The empty path has no pattern and only a name.
@@ -123,6 +113,16 @@ export namespace AutoMovieInspectorSelectionPanel {
     dispatch: (action: IAutoMovieInspectorAction) => void;
   }
 }
+
+/*
+ * The width of each of the three checkbox columns and the colour column, pixels.
+ */
+const COLUMN: number = 22;
+
+/*
+ * The width of the disclosure button before a name, pixels.
+ */
+const DISCLOSURE: number = 16;
 
 /*
  * Whether a node or any node under it matches the filter.

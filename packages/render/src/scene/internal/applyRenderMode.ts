@@ -23,42 +23,6 @@ import { applyAutoMovieGraphicsMode } from "../surfaceGraphic/internal/applyAuto
 import { hideAutoMovieSurfaceGraphics } from "../surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
 
 /*
- * A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite.
- */
-const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
-  object: THREE.Object3D,
-): boolean =>
-  AutoMovieThreeKind.isLine(object) ||
-  AutoMovieThreeKind.isPoints(object) ||
-  AutoMovieThreeKind.isSprite(object);
-
-/*
- * Hide every currently-visible non-mesh renderable in the scene (grids and
- * other `LineSegments`/`Line` helpers, `Points`, `Sprite`s) and return a
- * restore that makes them visible again. A structural guide pass segments only
- * the subject MESH geometry, so any non-mesh renderable left visible would draw
- * its live beauty material over the pass's black background: a grid reading as
- * "very close" in the depth pass, a non-palette color in the mask, a stray line
- * beside the skeleton in the pose pass (#1226). Hidden BEFORE a pass builds its
- * own overlay (the pose skeleton is itself `LineSegments`), so that overlay,
- * added afterward, stays visible.
- */
-const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
-  scene: THREE.Scene,
-): (() => void) => {
-  const hidden: THREE.Object3D[] = [];
-  scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if (isNonMeshRenderable(object) && object.visible) {
-      object.visible = false;
-      hidden.push(object);
-    }
-  });
-  return (): void => {
-    for (const object of hidden) object.visible = true;
-  };
-};
-
-/*
  * Apply one diffusion-guide render mode to a built scene, returning the restore
  * handle. A capture applies the override at snapshot time and reverses it right
  * after, so the viewer stays a thin projection of the engine result. A caller
@@ -241,6 +205,42 @@ export const applyRenderMode: (
         },
       });
     }),
+  };
+};
+
+/*
+ * A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite.
+ */
+const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
+  object: THREE.Object3D,
+): boolean =>
+  AutoMovieThreeKind.isLine(object) ||
+  AutoMovieThreeKind.isPoints(object) ||
+  AutoMovieThreeKind.isSprite(object);
+
+/*
+ * Hide every currently-visible non-mesh renderable in the scene (grids and
+ * other `LineSegments`/`Line` helpers, `Points`, `Sprite`s) and return a
+ * restore that makes them visible again. A structural guide pass segments only
+ * the subject MESH geometry, so any non-mesh renderable left visible would draw
+ * its live beauty material over the pass's black background: a grid reading as
+ * "very close" in the depth pass, a non-palette color in the mask, a stray line
+ * beside the skeleton in the pose pass (#1226). Hidden BEFORE a pass builds its
+ * own overlay (the pose skeleton is itself `LineSegments`), so that overlay,
+ * added afterward, stays visible.
+ */
+const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
+  scene: THREE.Scene,
+): (() => void) => {
+  const hidden: THREE.Object3D[] = [];
+  scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
+    if (isNonMeshRenderable(object) && object.visible) {
+      object.visible = false;
+      hidden.push(object);
+    }
+  });
+  return (): void => {
+    for (const object of hidden) object.visible = true;
   };
 };
 

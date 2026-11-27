@@ -33,33 +33,7 @@ import { HumanBikeGuidePath } from "./HumanBikeGuidePath";
 import { HumanBikeGuidePlace } from "./HumanBikeGuidePlace";
 import { HumanBikeGuidePrint } from "./HumanBikeGuidePrint";
 import type { IHumanBikeGuidePrint } from "./IHumanBikeGuidePrint";
-
-/*
- * Path samples per second of the bicycle's course read at planning, Hz.
- */
-const RATE: number = 60;
-
-/*
- * The guiding station's root outward of the grip, metres: provisional, a
- * shoulder's reach beside the handlebar.
- */
-const STATION: number = 0.15;
-
-/*
- * The guiding station's root behind the grip, metres: provisional.
- */
-const BEHIND: number = 0.1;
-
-/*
- * Seconds to move from the entered place to the guiding station: provisional.
- */
-const ADJUST: number = 0.8;
-
-/*
- * Seconds the hand takes to reach the grip: it closes as the athlete arrives at
- * the station.
- */
-const REACH: number = ADJUST;
+import * as HumanBikeGuideData from "./HumanBikeGuideData";
 
 /*
  * Wheel a bicycle by hand beside it, as a triathlete does through the
@@ -110,19 +84,19 @@ function planHumanBikeGuide(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params, start }: typeof context = context;
   const duration: number = params.duration;
-  if (!(duration > REACH))
+  if (!(duration > HumanBikeGuideData.REACH))
     throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: duration,
       feasible: {
         kind: "range",
-        minimum: REACH,
+        minimum: HumanBikeGuideData.REACH,
         maximum: null,
         unit: "s",
       },
       reason: "wheeling the bicycle lasts longer than the reach to its grip",
-      fix: `give more than ${REACH} seconds`,
+      fix: `give more than ${HumanBikeGuideData.REACH} seconds`,
     });
   if (entry.base.kind !== "standing")
     throw new AutoMovieMotionHumanRefusal({
@@ -154,12 +128,12 @@ function planHumanBikeGuide(
     (a: IAutoMovieAffordance): boolean => a.id === grip,
   )!.frame.translation;
   const station: IAutoMovieVector3 = {
-    x: handle.x + Math.sign(handle.x || (side === "left" ? 1 : -1)) * STATION,
+    x: handle.x + Math.sign(handle.x || (side === "left" ? 1 : -1)) * HumanBikeGuideData.STATION,
     y: entered.y,
-    z: handle.z - BEHIND,
+    z: handle.z - HumanBikeGuideData.BEHIND,
   };
   const held = (t: number): IAutoMovieVector3 =>
-    Vector3.lerp(entered, station, AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / ADJUST)));
+    Vector3.lerp(entered, station, AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / HumanBikeGuideData.ADJUST)));
   const heading0: number = HumanBikeGuideHeading(origin.rotation);
   const path: HumanBikeGuidePath.IPath = {
     times: [],
@@ -167,7 +141,7 @@ function planHumanBikeGuide(
     points: [],
     turns: [],
   };
-  const count: number = Math.ceil(duration * RATE);
+  const count: number = Math.ceil(duration * HumanBikeGuideData.RATE);
   for (let i: number = 0; i <= count; ++i) {
     const t: number = (duration * i) / count;
     const frame: IAutoMovieRigidTransform = bicycle.frame(start + t);
@@ -223,7 +197,7 @@ function planHumanBikeGuide(
     ],
   };
   const events: IAutoMovieMotionEvent[] = [
-    { name: "take", share: REACH / duration },
+    { name: "take", share: HumanBikeGuideData.REACH / duration },
   ];
   let previous: number = 0;
   steps.forEach((step: HumanBikeGuidePath.IStep, k: number): void => {
@@ -270,7 +244,7 @@ function planHumanBikeGuide(
     {
       part: `${side}Hand`,
       kind: "grip",
-      from: REACH / duration,
+      from: HumanBikeGuideData.REACH / duration,
       to: 1,
       support: { kind: "prop", subject: params.on, carries: false },
     },
@@ -298,12 +272,12 @@ function planHumanBikeGuide(
   // the bicycle as the placed performance shows it.
   const taken: AutoMovieMotionPrepared.IValue<IAutoMovieHumanLimbGoal> =
     AutoMovieMotionPrepared((): IAutoMovieHumanLimbGoal => {
-      const at: IAutoMovieMotionHumanPosture = bodyAt(REACH);
+      const at: IAutoMovieMotionHumanPosture = bodyAt(HumanBikeGuideData.REACH);
       const world: IAutoMovieHumanLimbGoal = AquaticProp.hold(
         body,
         at,
         side,
-        AquaticProp.at(bicycle, start + REACH).require(grip, "handle").world,
+        AquaticProp.at(bicycle, start + HumanBikeGuideData.REACH).require(grip, "handle").world,
       );
       const pelvis: IAutoMovieResolvedBone = pelvisAt(at).get("hips")!;
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(
@@ -412,7 +386,7 @@ function planHumanBikeGuide(
     plan,
     side,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
-    span: { start: 0, ready: REACH, relax: duration, end: duration },
+    span: { start: 0, ready: HumanBikeGuideData.REACH, relax: duration, end: duration },
   });
 }
 

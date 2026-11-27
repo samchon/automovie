@@ -24,12 +24,6 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { touchHoldRests } from "../../touch/internal/touchHoldRests";
 
 /*
- * How far off the partner's skin the palm rests, metres (provisional: a skin
- * contact, as `lieTogether`'s `REST`).
- */
-const REST: number = 0.005;
-
-/*
  * The spooning body's free arm draped over its partner. The arm a spooning body
  * does not lie on otherwise hangs from its upper shoulder into the partner it
  * lies behind (its fingers met the partner's forearm 22 mm deep); here it is
@@ -273,3 +267,9 @@ export namespace lieTogetherDrape {
     };
   }
 }
+
+/*
+ * How far off the partner's skin the palm rests, metres (provisional: a skin
+ * contact, as `lieTogether`'s `REST`).
+ */
+const REST: number = 0.005;

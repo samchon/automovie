@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import "@automovie/engine";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -6,11 +6,7 @@ import {
 } from "../../core";
 import { PianoPedalConstruction } from "./PianoPedalConstruction";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
-
-/*
- * The shorthand the construction uses.
- */
-const v: typeof Vector3.create = Vector3.create;
+import { v } from "./KeyboardConstructionData";
 
 /*
  * How createInstrument builds an upright piano with its case, keyboard

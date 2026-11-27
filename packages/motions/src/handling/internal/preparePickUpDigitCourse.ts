@@ -21,59 +21,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGrip } from "./HumanGrip";
 import { pickUpDigitProjection } from "./pickUpDigitProjection";
 
-const KNOTS = 56;
-const GAP = 0.001;
-const TOUCH = 0.002;
-const CONTACT_MARGIN = 0.0015;
-const FIT = 0.00002;
-const END_OPENING = 0.0035;
-const PEAK_MIN = 0.6;
-const PEAK_MAX = 0.7;
-const APERTURE_SAMPLES = 480;
-
-function smooth(progress: number): number {
-  const u = Math.max(0, Math.min(1, progress));
-  return u * u * (3 - 2 * u);
-}
-function interpolate(times: readonly number[], samples: readonly number[][]): Curve {
-  const slopes = samples.map((values, i) =>
-    values.map((_, j) => {
-      if (i === 0 || i === times.length - 1) return 0;
-      const a = (values[j]! - samples[i - 1]![j]!) / (times[i]! - times[i - 1]!);
-      const b = (samples[i + 1]![j]! - values[j]!) / (times[i + 1]! - times[i]!);
-      return a * b > 0 ? (2 * a * b) / (a + b) : 0;
-    }),
-  );
-  return (time: number): number[] => {
-    if (time <= 0) return samples[0]!;
-    if (time >= 1) return samples.at(-1)!;
-    let lo = 0;
-    let hi = times.length - 1;
-    while (hi - lo > 1) {
-      const mid = (lo + hi) >> 1;
-      if (time >= times[mid]!) lo = mid;
-      else hi = mid;
-    }
-    const span = times[hi]! - times[lo]!;
-    const u = (time - times[lo]!) / span;
-    const v = u * u;
-    const w = v * u;
-    return samples[lo]!.map(
-      (value, j) =>
-        (1 - 3 * v + 2 * w) * value +
-        (u - 2 * v + w) * span * slopes[lo]![j]! +
-        (3 * v - 2 * w) * samples[hi]![j]! +
-        (w - v) * span * slopes[hi]![j]!,
-    );
-  };
-}
-function separation(a: readonly ICapsuleCore[], b: readonly ICapsuleCore[]): number {
-  let least = Infinity;
-  for (const [p, q, first] of a)
-    for (const [x, y, second] of b)
-      least = Math.min(least, AutoMovieEngineMath.closestPointsBetweenSegments(p, q, x, y).distance - first - second);
-  return least;
-}
 /*
  * Prepare changes to an embedded stationary power pickup. The arm keeps its admitted course.
  */
@@ -315,6 +262,60 @@ export namespace preparePickUpDigitCourse {
     apex: number;
     peak: number;
   }
+}
+
+const KNOTS = 56;
+const GAP = 0.001;
+const TOUCH = 0.002;
+const CONTACT_MARGIN = 0.0015;
+const FIT = 0.00002;
+const END_OPENING = 0.0035;
+const PEAK_MIN = 0.6;
+
+const PEAK_MAX = 0.7;
+const APERTURE_SAMPLES = 480;
+function smooth(progress: number): number {
+  const u = Math.max(0, Math.min(1, progress));
+  return u * u * (3 - 2 * u);
+}
+function interpolate(times: readonly number[], samples: readonly number[][]): Curve {
+  const slopes = samples.map((values, i) =>
+    values.map((_, j) => {
+      if (i === 0 || i === times.length - 1) return 0;
+      const a = (values[j]! - samples[i - 1]![j]!) / (times[i]! - times[i - 1]!);
+      const b = (samples[i + 1]![j]! - values[j]!) / (times[i + 1]! - times[i]!);
+      return a * b > 0 ? (2 * a * b) / (a + b) : 0;
+    }),
+  );
+  return (time: number): number[] => {
+    if (time <= 0) return samples[0]!;
+    if (time >= 1) return samples.at(-1)!;
+    let lo = 0;
+    let hi = times.length - 1;
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1;
+      if (time >= times[mid]!) lo = mid;
+      else hi = mid;
+    }
+    const span = times[hi]! - times[lo]!;
+    const u = (time - times[lo]!) / span;
+    const v = u * u;
+    const w = v * u;
+    return samples[lo]!.map(
+      (value, j) =>
+        (1 - 3 * v + 2 * w) * value +
+        (u - 2 * v + w) * span * slopes[lo]![j]! +
+        (3 * v - 2 * w) * samples[hi]![j]! +
+        (w - v) * span * slopes[hi]![j]!,
+    );
+  };
+}
+function separation(a: readonly ICapsuleCore[], b: readonly ICapsuleCore[]): number {
+  let least = Infinity;
+  for (const [p, q, first] of a)
+    for (const [x, y, second] of b)
+      least = Math.min(least, AutoMovieEngineMath.closestPointsBetweenSegments(p, q, x, y).distance - first - second);
+  return least;
 }
 type IShape = IAutoMovieMotionHumanPosture["joints"];
 type FingerReader = (share: number) => IShape;

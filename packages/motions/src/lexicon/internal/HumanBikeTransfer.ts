@@ -20,16 +20,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanMountOff } from "./HumanMountOff";
 import { humanBikeTransferLine } from "./humanBikeTransferLine";
-
-/*
- * Number of intervals over which the authored stationary segment is probed.
- */
-const INTERVALS: number = 8;
-
-/*
- * The selected bicycle's pedal sides.
- */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+import * as HumanBikeTransferData from "./HumanBikeTransferData";
 
 /*
  * Enter or leave the same stopped bicycle at a race boundary, using the
@@ -105,7 +96,7 @@ function planHumanBikeTransfer(
     "saddle",
   );
   const pedals: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
-  for (const side of SIDES) {
+  for (const side of HumanBikeTransferData.SIDES) {
     const point: IAutoMovieVector3 | undefined = bicycle.prop.point?.(
       `${side}Pedal`,
       start,
@@ -133,11 +124,11 @@ function planHumanBikeTransfer(
         socket.y / seated.popliteal(body),
       );
 
-  for (let index: number = 1; index <= INTERVALS; ++index) {
-    const film: number = start + (plan.duration * index) / INTERVALS;
+  for (let index: number = 1; index <= HumanBikeTransferData.INTERVALS; ++index) {
+    const film: number = start + (plan.duration * index) / HumanBikeTransferData.INTERVALS;
     const frame: IAutoMovieRigidTransform = bicycle.frame(film);
     const now: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
-    for (const side of SIDES) {
+    for (const side of HumanBikeTransferData.SIDES) {
       const point: IAutoMovieVector3 | undefined = bicycle.prop.point?.(
         `${side}Pedal`,
         film,
@@ -182,7 +173,7 @@ function planHumanBikeTransfer(
   const entryBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, entry.pose);
   const plants: number[] = [];
-  for (const side of SIDES) {
+  for (const side of HumanBikeTransferData.SIDES) {
     const part: `${typeof side}Foot` = `${side}Foot`;
     if (mount) {
       if (

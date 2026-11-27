@@ -41,20 +41,6 @@ import { HumanSwungLeg } from "./HumanSwungLeg";
 import { prepareMountOffFloor } from "./prepareMountOffFloor";
 
 /*
- * Samples per second of the action clock used to find floor reach.
- */
-const REACH_RATE: number = 60;
-
-/*
- * Trunk joints carried unchanged on the seat and then released into the lean.
- */
-const TRUNK: readonly AutoMovieHumanoidBone[] = [
-  "hips",
-  "spine",
-  "chest",
-  "upperChest",
-];
-/*
  * Getting off a high seat onto the floor: what `rise` plans where a foot is off
  * the floor, on a rest or hanging.
  *
@@ -729,6 +715,20 @@ export namespace HumanMountOff {
     };
   }
 }
+
+/*
+ * Samples per second of the action clock used to find floor reach.
+ */
+const REACH_RATE: number = 60;
+/*
+ * Trunk joints carried unchanged on the seat and then released into the lean.
+ */
+const TRUNK: readonly AutoMovieHumanoidBone[] = [
+  "hips",
+  "spine",
+  "chest",
+  "upperChest",
+];
 
 /*
  * The alternatives of `Frame2`'s site.

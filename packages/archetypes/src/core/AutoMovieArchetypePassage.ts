@@ -5,7 +5,6 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
 import { AutoMovieArchetypePassageSearch } from "./internal/AutoMovieArchetypePassageSearch";
 
-const { admitWindow, admitBody, place, separation, scan, mitre } = AutoMovieArchetypePassageSearch;
 /**
  * Clearance between bodies that pass one another on planned courses: ridden or
  * driven supports, walkers given a timed course, and fixed set pieces.
@@ -412,6 +411,8 @@ export namespace AutoMovieArchetypePassage {
     });
   }
 }
+
+const { admitWindow, admitBody, place, separation, scan, mitre } = AutoMovieArchetypePassageSearch;
 type IObstaclePlacement = AutoMovieArchetypePassageSearch.IObstaclePlacement;
 type IHull = AutoMovieArchetypePassageSearch.IHull;
 

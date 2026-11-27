@@ -8,11 +8,6 @@ import type {
 import { floorEntry } from "../../floor/internal/floorEntry";
 
 /*
- * The parts a held floor stance bears on.
- */
-const BEARING = ["leftHand", "rightHand", "leftFoot", "rightFoot"] as const;
-
-/*
  * Classify the entry.
  * Parameter context: The action's context.
  * Parameter kind: The exercise.
@@ -76,3 +71,8 @@ export namespace workoutFloorStance {
     entered: IAutoMovieMotionHumanPosture | null;
   }
 }
+
+/*
+ * The parts a held floor stance bears on.
+ */
+const BEARING = ["leftHand", "rightHand", "leftFoot", "rightFoot"] as const;

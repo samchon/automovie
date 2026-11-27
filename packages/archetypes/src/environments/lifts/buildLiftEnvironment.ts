@@ -23,11 +23,6 @@ import { liftLandingSpace } from "./liftLandingSpace";
 import { liftShaftParts } from "./liftShaftParts";
 
 /*
- * The two leaf affordances and their corresponding existing panel parts.
- */
-const LEAVES: readonly ["leftDoor", "rightDoor"] = ["leftDoor", "rightDoor"];
-
-/*
  * Assemble the cab, hoistway and declared landings on a single lift axis. The
  * stock cab sets both door layers and the width of the boarding strips. Each
  * landing has a fixed call plate and a full bearing surface. The lift unit's
@@ -356,6 +351,78 @@ export function buildLiftEnvironment(
 }
 
 /*
+ * The lift assembly's geometry input and portable result contracts.
+ */
+export namespace buildLiftEnvironment {
+  /*
+   * The placed lift and the resolved dimensions shared by its staged members.
+   * The context supplies the rigid world frame. The car supplies its aperture
+   * and contacts at the original scale, and the stops give the sill
+   * elevations.
+   */
+  export interface IProps {
+    /*
+     * The upright module instance layout and ownership.
+     */
+    context: IAutoMovieEnvironmentModule.IContext;
+
+    /*
+     * The chosen car and its resolved aperture affordances.
+     */
+    car: ReturnType<typeof AutoMovieArchetypeElevator.create>;
+
+    /*
+     * Clear sill gap, metres.
+     */
+    gap: number;
+
+    /*
+     * Fixed landing depth beyond the gap, metres.
+     */
+    landingDepth: number;
+
+    /*
+     * Local stop names and strictly increasing sill elevations.
+     */
+    stops: readonly liftStopHeights.IStop[];
+
+    /*
+     * Door and cab state at film second zero.
+     */
+    first: AutoMovieEnvironment.ILiftKey;
+  }
+
+  /*
+   * Geometry, logical stations and current-state prop facts for one lift. Each
+   * prop references its model in the design. Anchors locate fixed attachments
+   * in world metres, and the object clip supplies cab motion.
+   */
+  export interface IResult {
+    /*
+     * Built design owning shaft, landings, and connector.
+     */
+    environment: IAutoMovieBuiltEnvironment;
+
+    /*
+     * The fixed landing and moving cab support props, plus the fixed call
+     * plates.
+     */
+    props: IAutoMoviePropSpec[];
+
+    /*
+     * World-space sill, call and approach points keyed by stop.
+     */
+    anchors: Readonly<Record<string, IAutoMovieTransform>>;
+  }
+}
+
+
+/*
+ * The two leaf affordances and their corresponding existing panel parts.
+ */
+const LEAVES: readonly ["leftDoor", "rightDoor"] = ["leftDoor", "rightDoor"];
+
+/*
  * Require an upright box part from the lift archetype, the geometry owner.
  */
 function boxPart(
@@ -447,70 +514,4 @@ function rectangle(
     { x: right, y: top },
     { x: left, y: top },
   ];
-}
-
-/*
- * The lift assembly's geometry input and portable result contracts.
- */
-export namespace buildLiftEnvironment {
-  /*
-   * The placed lift and the resolved dimensions shared by its staged members.
-   * The context supplies the rigid world frame. The car supplies its aperture
-   * and contacts at the original scale, and the stops give the sill
-   * elevations.
-   */
-  export interface IProps {
-    /*
-     * The upright module instance layout and ownership.
-     */
-    context: IAutoMovieEnvironmentModule.IContext;
-
-    /*
-     * The chosen car and its resolved aperture affordances.
-     */
-    car: ReturnType<typeof AutoMovieArchetypeElevator.create>;
-
-    /*
-     * Clear sill gap, metres.
-     */
-    gap: number;
-
-    /*
-     * Fixed landing depth beyond the gap, metres.
-     */
-    landingDepth: number;
-
-    /*
-     * Local stop names and strictly increasing sill elevations.
-     */
-    stops: readonly liftStopHeights.IStop[];
-
-    /*
-     * Door and cab state at film second zero.
-     */
-    first: AutoMovieEnvironment.ILiftKey;
-  }
-
-  /*
-   * Geometry, logical stations and current-state prop facts for one lift. Each
-   * prop references its model in the design. Anchors locate fixed attachments
-   * in world metres, and the object clip supplies cab motion.
-   */
-  export interface IResult {
-    /*
-     * Built design owning shaft, landings, and connector.
-     */
-    environment: IAutoMovieBuiltEnvironment;
-
-    /*
-     * The fixed landing and moving cab support props, plus the fixed call
-     * plates.
-     */
-    props: IAutoMoviePropSpec[];
-
-    /*
-     * World-space sill, call and approach points keyed by stop.
-     */
-    anchors: Readonly<Record<string, IAutoMovieTransform>>;
-  }
 }

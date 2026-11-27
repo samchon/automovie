@@ -12,12 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * The facilities rules, read.
- */
-const FR: string =
-  "FINA Facilities Rules 2017-2021 (https://artisticswimming.ca/wp-content/uploads/2021/10/fina_facilities_2017-2021.pdf)";
+import * as AutoMovieArchetypePoolEdgeData from "./internal/AutoMovieArchetypePoolEdgeData";
 
 /** Constructs the pool edge archetype from its recipe. */
 export namespace AutoMovieArchetypePoolEdge {
@@ -330,43 +325,12 @@ export function create(
     grip: 0.03,
   };
 
-  /*
-   * The bands every segment shares.
-   */
-  const WALL: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> = {
-    width: AutoMovieArchetypeBand.metres(
-      2.5,
-      2.5,
-      `${FR} FR 2.5: lanes at least 2.5 m wide; the model takes the least`,
-    ),
-    freeboard: AutoMovieArchetypeBand.metres(
-      0.3,
-      0.3,
-      `${FR} FR 2.4.3 and FR 2.15: the end wall to 0.3 m above the water for the touch panels`,
-    ),
-    poolDepth: AutoMovieArchetypeBand.metres(
-      1.35,
-      1.35,
-      `${FR} FR 2.3: at least 1.35 m where starting platforms stand; the model takes the least`,
-    ),
-    ledgeDepth: AutoMovieArchetypeBand.metres(
-      1.2,
-      1.2,
-      `${FR} FR 2.4.2: rest ledges not less than 1.2 m below the water; the model takes the least`,
-    ),
-    ledgeWidth: AutoMovieArchetypeBand.metres(
-      0.1,
-      0.15,
-      `${FR} FR 2.4.2: rest ledges 0.1 to 0.15 m wide`,
-    ),
-  };
-
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     deckEdge: {
-      ...WALL,
+      ...AutoMovieArchetypePoolEdgeData.WALL,
       mass: AutoMovieArchetypeBand.of(
         "kg",
         3000,
@@ -376,27 +340,27 @@ export function create(
       ),
     },
     startingPlatform: {
-      ...WALL,
+      ...AutoMovieArchetypePoolEdgeData.WALL,
       platformHeight: AutoMovieArchetypeBand.metres(
         0.5,
         0.75,
-        `${FR} FR 2.7: the platform 0.5 to 0.75 m above the water`,
+        `${AutoMovieArchetypePoolEdgeData.FR} FR 2.7: the platform 0.5 to 0.75 m above the water`,
       ),
       platformSize: AutoMovieArchetypeBand.metres(
         0.5,
         0.5,
-        `${FR} FR 2.7: the top at least 0.5 x 0.5 m; the model takes the least`,
+        `${AutoMovieArchetypePoolEdgeData.FR} FR 2.7: the top at least 0.5 x 0.5 m; the model takes the least`,
       ),
       slope: AutoMovieArchetypeBand.of(
         "degrees",
         0,
         10,
-        `${FR} FR 2.7: the slope not more than 10 degrees`,
+        `${AutoMovieArchetypePoolEdgeData.FR} FR 2.7: the slope not more than 10 degrees`,
       ),
       gripHeight: AutoMovieArchetypeBand.metres(
         0.3,
         0.41,
-        `${FR} FR 2.7: backstroke grips 0.3 to 0.6 m above the water, parallel to the end wall and not protruding beyond it; the model keeps them under the least platform's front, 0.5 m less half its 0.5 m top's fall at 10 degrees and the 0.04 m slab`,
+        `${AutoMovieArchetypePoolEdgeData.FR} FR 2.7: backstroke grips 0.3 to 0.6 m above the water, parallel to the end wall and not protruding beyond it; the model keeps them under the least platform's front, 0.5 m less half its 0.5 m top's fall at 10 degrees and the 0.04 m slab`,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",

@@ -5,8 +5,6 @@ import type {
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { combine } = AutoMovieSolidVector;
-
 /**
  * One column of the blend surface between two rails: the quintic Hermite span
  * in the blend's cross parameter `w` from the start ribbon (`w = 0`) to the end
@@ -95,3 +93,5 @@ export namespace AutoMovieSolidBlend {
     ];
   }
 }
+
+const { combine } = AutoMovieSolidVector;

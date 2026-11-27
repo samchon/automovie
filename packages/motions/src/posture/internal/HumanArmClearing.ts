@@ -1,52 +1,5 @@
 import type { IAutoMovieMotionHumanArmClearance } from "@automovie/interface";
-
-/*
- * The most a clearing turns either freedom from the given arm, degrees
- * (provisional: beyond it the arm is no longer the carry's).
- */
-const SPAN: number = 40;
-
-/*
- * The step a direction is scanned in for its first clear turn, degrees
- * (provisional: a few centimetres at the hand).
- */
-const STEP: number = 5;
-
-/*
- * The room over its allowance a clearing leaves, degrees (provisional: a
- * twentieth of a degree, a quarter of a millimetre at the elbow).
- */
-const TOLERANCE: number = 0.05;
-
-/*
- * The bisections that find the least clear turn inside one step: eight halve it
- * to 1/256 of the step, a fiftieth of a degree (provisional).
- */
-const HALVINGS: number = 8;
-
-/*
- * The directions a clearing tries, in order, as shares of abduction and of
- * elbow flexion: out, folded, out and folded, then unfolded, out and unfolded,
- * in, in and folded, in and unfolded; and after those eight the eight that lie
- * midway between two of them, in the same order of their angles from out
- * through folded.
- */
-const ORDER: readonly (readonly [number, number])[] = [
-  [1, 0],
-  [0, 1],
-  [Math.SQRT1_2, Math.SQRT1_2],
-  [0, -1],
-  [Math.SQRT1_2, -Math.SQRT1_2],
-  [-1, 0],
-  [-Math.SQRT1_2, Math.SQRT1_2],
-  [-Math.SQRT1_2, -Math.SQRT1_2],
-  ...[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5].map(
-    (degrees: number): readonly [number, number] => [
-      Math.cos((degrees * Math.PI) / 180),
-      Math.sin((degrees * Math.PI) / 180),
-    ],
-  ),
-];
+import * as HumanArmClearingData from "./HumanArmClearingData";
 
 /*
  * An arm turned until its room is within its allowance.
@@ -60,7 +13,7 @@ export function HumanArmClearing(
   props: IOfProps,
 ): IAutoMovieMotionHumanArmClearance.IArm {
   const arm: IAutoMovieMotionHumanArmClearance.IArm = props.arm;
-  if (props.over(arm) <= TOLERANCE) return arm;
+  if (props.over(arm) <= HumanArmClearingData.TOLERANCE) return arm;
   const turned = (
     direction: readonly [number, number],
     degrees: number,
@@ -72,29 +25,29 @@ export function HumanArmClearing(
   const limit: number = props.range(arm) + 1e-9;
   let best: IAutoMovieMotionHumanArmClearance.IArm = arm;
   let least: number = props.over(arm);
-  for (const direction of ORDER) {
+  for (const direction of HumanArmClearingData.ORDER) {
     // `SPAN` bounds each freedom, so a ray between the two runs until its
     // larger share reaches it: a diagonal ray stopped at a length of
     // `SPAN` turned each freedom only 28 degrees, and an arm a turn of 40
     // out and 40 unfolded clears was left 3 degrees short of its room.
     const reach: number =
-      SPAN / Math.max(Math.abs(direction[0]), Math.abs(direction[1]));
+      HumanArmClearingData.SPAN / Math.max(Math.abs(direction[0]), Math.abs(direction[1]));
     let near: number = 0;
     while (near < reach - 1e-9) {
-      const far: number = Math.min(near + STEP, reach);
+      const far: number = Math.min(near + HumanArmClearingData.STEP, reach);
       const candidate: IAutoMovieMotionHumanArmClearance.IArm = turned(
         direction,
         far,
       );
       if (props.range(candidate) > limit) break;
       const value: number = props.over(candidate);
-      if (value <= TOLERANCE) {
+      if (value <= HumanArmClearingData.TOLERANCE) {
         // The least turn of this direction that still clears the arm.
         let lo: number = near;
         let hi: number = far;
-        for (let i: number = 0; i < HALVINGS; i++) {
+        for (let i: number = 0; i < HumanArmClearingData.HALVINGS; i++) {
           const mid: number = (lo + hi) / 2;
-          if (props.over(turned(direction, mid)) <= TOLERANCE) hi = mid;
+          if (props.over(turned(direction, mid)) <= HumanArmClearingData.TOLERANCE) hi = mid;
           else lo = mid;
         }
         return turned(direction, hi);
@@ -130,33 +83,6 @@ export function HumanArmClearing(
  * step.
  */
 export namespace HumanArmClearing {
-  /*
-   * The shares of the way at which a carry's clearing is solved: the tenths,
-   * and the twentieths beside both ends (provisional: each a few centimetres of
-   * a hand's way).
-   *
-   * Under the minimum-jerk profile every carry's weight follows
-   * (`AutoMovieMotionClock.envelope`), the first tenth of the way takes a fifth
-   * of the carry's time, about three frames of a 0.7 s carry, where the middle
-   * tenth takes one. A hand at rest lies against the thigh and leaves it over
-   * that first tenth, so the tenth is halved: a blown kiss's fingertips, the
-   * rest and the first tenth both clear, pressed 11.3 mm into the thigh between
-   * them. The last tenth is halved too: beside the arrival the hand meets its
-   * place, and a hand cleared at the ninth tenth and arriving clear can still
-   * sweep through the body between them (a parade rest's fingers 17 mm in the
-   * hips at 0.93 of the way). A key there once read the goal's own contact as
-   * room to clear (22 to 31 degrees at a bite's mouth, an elbow swung 104.5 mm
-   * in a frame); beside the arrival a key's allowance is therefore no less than
-   * the arrival's own room (`AutoMovieMotionHumanArmCarryCourse`), so the
-   * place's contact is never cleared away. The keys are fixed, so the course
-   * never chooses between two layouts from one instant to the next: a layout
-   * chosen by whether the proportion cleared the arm flipped as a picking
-   * hand's fingers closed, and stepped its fingertip 9.4 mm.
-   */
-  const SHARES: readonly number[] = [
-    0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1,
-  ];
-
   /*
    * The share of the way past which a key lies beside the arrival: its
    * allowance is no less than the arrival's own room.
@@ -220,6 +146,33 @@ export namespace HumanArmClearing {
     return (share: number): IAutoMovieMotionHumanArmClearance.IArm =>
       sample(plain, (key: number): Turn => turns[key]!, share);
   }
+
+  /*
+   * The shares of the way at which a carry's clearing is solved: the tenths,
+   * and the twentieths beside both ends (provisional: each a few centimetres of
+   * a hand's way).
+   *
+   * Under the minimum-jerk profile every carry's weight follows
+   * (`AutoMovieMotionClock.envelope`), the first tenth of the way takes a fifth
+   * of the carry's time, about three frames of a 0.7 s carry, where the middle
+   * tenth takes one. A hand at rest lies against the thigh and leaves it over
+   * that first tenth, so the tenth is halved: a blown kiss's fingertips, the
+   * rest and the first tenth both clear, pressed 11.3 mm into the thigh between
+   * them. The last tenth is halved too: beside the arrival the hand meets its
+   * place, and a hand cleared at the ninth tenth and arriving clear can still
+   * sweep through the body between them (a parade rest's fingers 17 mm in the
+   * hips at 0.93 of the way). A key there once read the goal's own contact as
+   * room to clear (22 to 31 degrees at a bite's mouth, an elbow swung 104.5 mm
+   * in a frame); beside the arrival a key's allowance is therefore no less than
+   * the arrival's own room (`AutoMovieMotionHumanArmCarryCourse`), so the
+   * place's contact is never cleared away. The keys are fixed, so the course
+   * never chooses between two layouts from one instant to the next: a layout
+   * chosen by whether the proportion cleared the arm flipped as a picking
+   * hand's fingers closed, and stepped its fingertip 9.4 mm.
+   */
+  const SHARES: readonly number[] = [
+    0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1,
+  ];
 
   /*
    * Read one original key's clearance correction. The fixed ends retain their

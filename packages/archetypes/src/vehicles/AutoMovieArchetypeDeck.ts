@@ -11,22 +11,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The guardrail standard read.
- */
-const ISO_5480: string =
-  "ISO 5480:2020, Ships and marine technology - Guardrails for cargo ships, clause 5 (https://cdn.standards.iteh.ai/samples/74627/8b1132a3a0654ce98249a55f7c4ff165/ISO-5480-2020.pdf), which meets the 1966 Load Line Convention's regulation 25(2) and (3): bulwarks or guard rails at least 1 m high, at least three courses, the opening below the lowest course at most 230 mm and the others at most 380 mm apart, stanchions about 1.5 m apart (MCA, Instructions to Surveyors - International Load Line, MSIS41 R05.23, p. 78, https://assets.publishing.service.gov.uk/media/644633e96dda69000d11e2e6/MSIS41_International_Load_Line_R05.23.pdf)";
-
-/*
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `plate`, the deck plating's thickness under the
- * walking surface. Searched for #3497's deck without a figure: the Liberty ship
- * EC2-S-C1's deck plating and scantlings; the 1984 ASME landmark brochure, the
- * NPS and MARAD pages and the Liberty ship design pages give the hull's
- * dimensions only. The source to read is the ship's midship section drawing.
- */
-const ESTIMATES: Readonly<{ plate: number }> = { plate: 0.02 };
+import * as AutoMovieArchetypeDeckData from "./internal/AutoMovieArchetypeDeckData";
 
 /** Constructs the deck archetype from its recipe. */
 export namespace AutoMovieArchetypeDeck {
@@ -288,50 +273,60 @@ export function create(
     height: AutoMovieArchetypeBand.metres(
       1,
       1,
-      `${ISO_5480}: 5.1.1, the toprails' height at least 1 000 mm, to the toprail's top`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.1.1, the toprails' height at least 1 000 mm, to the toprail's top`,
     ),
     toprail: AutoMovieArchetypeBand.metres(
       0.034,
       0.034,
-      `${ISO_5480}: 5.3.1, steel toprails of tubes of minimum 34 mm outside diameter`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.3.1, steel toprails of tubes of minimum 34 mm outside diameter`,
     ),
     wall: AutoMovieArchetypeBand.metres(
       0.0026,
       0.0026,
-      `${ISO_5480}: 5.3.1, a wall thickness of at least 2,6 mm`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.3.1, a wall thickness of at least 2,6 mm`,
     ),
     rail: AutoMovieArchetypeBand.metres(
       0.019,
       0.019,
-      `${ISO_5480}: 5.3.3, lower rails of solid round bars of at least 19 mm diameter`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.3.3, lower rails of solid round bars of at least 19 mm diameter`,
     ),
     lowest: AutoMovieArchetypeBand.metres(
       0.23,
       0.23,
-      `${ISO_5480}: 5.1.2, the opening below the lowest course 230 mm maximum, to the rail's underside`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.1.2, the opening below the lowest course 230 mm maximum, to the rail's underside`,
     ),
     opening: AutoMovieArchetypeBand.metres(
       0.38,
       0.38,
-      `${ISO_5480}: 5.1.3, the opening between the upper courses 380 mm maximum`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.1.3, the opening between the upper courses 380 mm maximum`,
     ),
     spacing: AutoMovieArchetypeBand.metres(
       1.5,
       1.5,
-      `${ISO_5480}: 5.1.4, the distance between stanchions 1 500 mm maximum`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.1.4, the distance between stanchions 1 500 mm maximum`,
     ),
     breadth: AutoMovieArchetypeBand.metres(
       0.06,
       0.06,
-      `${ISO_5480}: 5.2, stanchions of steel flat bars of 60 mm x 15 mm`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.2, stanchions of steel flat bars of 60 mm x 15 mm`,
     ),
     thickness: AutoMovieArchetypeBand.metres(
       0.015,
       0.015,
-      `${ISO_5480}: 5.2, stanchions of steel flat bars of 60 mm x 15 mm`,
+      `${AutoMovieArchetypeDeckData.ISO_5480}: 5.2, stanchions of steel flat bars of 60 mm x 15 mm`,
     ),
   };
 }
+
+/*
+ * The construction sizes no source read gives, metres, each an estimate no act
+ * reads and no band declares: `plate`, the deck plating's thickness under the
+ * walking surface. Searched for #3497's deck without a figure: the Liberty ship
+ * EC2-S-C1's deck plating and scantlings; the 1984 ASME landmark brochure, the
+ * NPS and MARAD pages and the Liberty ship design pages give the hull's
+ * dimensions only. The source to read is the ship's midship section drawing.
+ */
+const ESTIMATES: Readonly<{ plate: number }> = { plate: 0.02 };
 
 /*
  * Deck paint.

@@ -13,24 +13,6 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /*
- * The bones that reach on past the slide's stop, the head laid on the partner
- * by the neck (`lieTogetherNeck`).
- */
-const REACHING: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>(["neck", "head"]);
-
-/*
- * The slide's convergence, metres: under a tenth of a millimetre of gap left.
- */
-const SETTLED: number = 1e-4;
-
-/*
- * The most advancement steps the slide takes; each closes the whole gap left,
- * so it converges well within them.
- */
-const STEPS: number = 32;
-
-/*
  * How far a lying body slides toward a partner across the support before it
  * meets them, and what of the partner lies beneath a point.
  */
@@ -121,3 +103,21 @@ export namespace lieTogetherReach {
     );
   }
 }
+
+/*
+ * The bones that reach on past the slide's stop, the head laid on the partner
+ * by the neck (`lieTogetherNeck`).
+ */
+const REACHING: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>(["neck", "head"]);
+
+/*
+ * The slide's convergence, metres: under a tenth of a millimetre of gap left.
+ */
+const SETTLED: number = 1e-4;
+
+/*
+ * The most advancement steps the slide takes; each closes the whole gap left,
+ * so it converges well within them.
+ */
+const STEPS: number = 32;

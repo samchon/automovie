@@ -17,7 +17,6 @@ import { EquineHeadReach } from "./equine/EquineHeadReach";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { EquineExpressionConstants } from "./equine/EquineExpressionConstants";
 
-const { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS } = EquineExpressionConstants;
 /**
  * An equid's expression layer over any of its rides: attention, muzzle reaches
  * for sniffing, greeting, feeding, drinking, rubbing and grooming, held head
@@ -460,6 +459,8 @@ export namespace AutoMovieArchetypeEquineExpression {
     };
   }
 }
+
+const { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS } = EquineExpressionConstants;
 type Held = EquineExpressionConstants.Held;
 type Heading = EquineExpressionConstants.Heading;
 

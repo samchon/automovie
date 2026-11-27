@@ -9,11 +9,6 @@ import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
 
 /** Shared shoulder attachment from public dimensions and the original neck cut, before either adjoining part. */
 export namespace AutoMovieHumanShoulderDatum {
-  /*
-   * Same original internal-overlap clearance, calibration mm; not a measured landmark.
-   */
-  const GAP: number = 6;
-
   /** Legacy column support station only; it never changes an anatomical acromion or GH datum. */
   export function overlapStation(acromion: number, receiver: number): number {
     return Math.min(acromion, receiver - GAP);
@@ -43,4 +38,9 @@ export namespace AutoMovieHumanShoulderDatum {
       ),
     };
   }
+
+  /*
+   * Same original internal-overlap clearance, calibration mm; not a measured landmark.
+   */
+  const GAP: number = 6;
 }

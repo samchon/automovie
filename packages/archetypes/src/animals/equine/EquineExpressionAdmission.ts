@@ -15,21 +15,6 @@ import {
 import type { AutoMovieArchetypeEquineExpressionCue } from "../AutoMovieArchetypeEquineExpressionCue";
 
 /*
- * Acts whose muzzle touches its target.
- */
-const TOUCHING: ReadonlySet<AutoMovieArchetypeEquineExpressionCue.Act> =
-  new Set<AutoMovieArchetypeEquineExpressionCue.Act>([
-    "greet",
-    "graze",
-    "hay",
-    "drink",
-    "rub",
-    "groom",
-    "bite",
-    "suckle",
-  ]);
-
-/*
  * The expression layer's cue admission and the readers its channels share: each
  * cue's eased share, a target's world point and a world point in a sample's
  * model space.
@@ -170,6 +155,22 @@ export namespace EquineExpressionAdmission {
     return held;
   }
 }
+
+
+/*
+ * Acts whose muzzle touches its target.
+ */
+const TOUCHING: ReadonlySet<AutoMovieArchetypeEquineExpressionCue.Act> =
+  new Set<AutoMovieArchetypeEquineExpressionCue.Act>([
+    "greet",
+    "graze",
+    "hay",
+    "drink",
+    "rub",
+    "groom",
+    "bite",
+    "suckle",
+  ]);
 
 /*
  * A cue that poses nothing and only marks an instant.

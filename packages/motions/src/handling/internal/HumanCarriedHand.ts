@@ -18,11 +18,6 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { poseBones } from "../../posture/internal/poseBones";
 
 /*
- * The finger bones' names, as they follow a side in a joint's name.
- */
-const DIGITS: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
-
-/*
  * A one-handed handling plan performed over a carrier: the hand's work of a
  * standing plan (a put down, a holstering, a sheathing) carried onto the body
  * the carrier keeps. The standing plan is planned as it is, on the entry's
@@ -156,3 +151,8 @@ export namespace HumanCarriedHand {
       : undefined;
   }
 }
+
+/*
+ * The finger bones' names, as they follow a side in a joint's name.
+ */
+const DIGITS: RegExp = /(Thumb|Index|Middle|Ring|Little)/;

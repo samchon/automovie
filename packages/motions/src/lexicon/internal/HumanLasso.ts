@@ -4,21 +4,7 @@ import {
   Vector3,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBase,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanLasso,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanStrikingHeld,
-  IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanLasso, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanStrikingHeld, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
@@ -31,35 +17,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { humanLassoAdmit } from "./humanLassoAdmit";
-
-/*
- * The swinging wrist's circle overhead, metres, the hand turning mostly at the
- * wrist; the throw's reach-out time, seconds; the dally's radius round the
- * horn, metres, and seconds per turn (provisional stage readings).
- */
-const SWING: Readonly<Record<SWINGEntryItem, number>> = {
-  radius: 0.15,
-  throw: 0.25,
-  wrap: 0.08,
-  turn: 0.5,
-};
-
-/*
- * The farthest a loop is thrown, metres (provisional).
- */
-const REACH: number = 12;
-
-/*
- * The bone whose joint the entry holds the hand at: the right hand.
- */
-const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
-  ["rightHand"],
-);
-
-/*
- * The world up.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+import * as HumanLassoData from "./HumanLassoData";
 
 /*
  * Rope from the saddle (`IAutoMovieMotionHumanLasso`): carried on the saddle,
@@ -84,6 +42,7 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
 function planHumanLasso(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
+
 /*
  * Admit, lay the circle and the launch, and sample.
  */
@@ -146,20 +105,20 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   });
   const left: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
   const centre: IAutoMovieVector3 = Vector3.add(
-    Vector3.add(shoulder, Vector3.scale(left, -SWING.radius)),
+    Vector3.add(shoulder, Vector3.scale(left, -HumanLassoData.SWING.radius)),
     {
       x: 0,
-      y: Math.sqrt(wristReach * wristReach - 4 * SWING.radius * SWING.radius),
+      y: Math.sqrt(wristReach * wristReach - 4 * HumanLassoData.SWING.radius * HumanLassoData.SWING.radius),
       z: 0,
     },
   );
   const arrival: IAutoMovieVector3 = Vector3.add(
     centre,
-    Vector3.scale(forward, SWING.radius),
+    Vector3.scale(forward, HumanLassoData.SWING.radius),
   );
   // The hand turned so the lariat runs out level along a direction, its edge along the circle's way round; the loop's centre from the wrist under that turn.
   const attitude = (axis: IAutoMovieVector3): IAutoMovieQuaternion =>
-    StrikingHeld.hand(tool, 0, centre, axis, Vector3.cross(UP, axis)).rotation;
+    StrikingHeld.hand(tool, 0, centre, axis, Vector3.cross(HumanLassoData.UP, axis)).rotation;
   const gripToLoop: IAutoMovieVector3 = Vector3.add(
     HumanHand.offset(context.body, "right", "grip").point,
     tool.tip,
@@ -170,7 +129,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     context.body,
     context.entry.pose,
     undefined,
-    HAND,
+    HumanLassoData.HAND,
   ).get("rightHand")!.worldPosition;
   const rest: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(origin.rotation),
@@ -202,15 +161,15 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       AutoMovieEngineMotionSampling.minimumJerkRate(0.5) *
       Vector3.distance(rest, arrival) *
       period) /
-    (2 * Math.PI * SWING.radius);
+    (2 * Math.PI * HumanLassoData.SWING.radius);
   const phase0: number =
     instants.find((t: number): boolean => t >= raise) ??
     instants[0]! + Math.ceil((raise - instants[0]!) / period) * period;
   const release: number = phase0 + params.swings * period;
-  const reach: number = release - SWING.throw;
+  const reach: number = release - HumanLassoData.SWING.throw;
   const caught: number = release + flight;
   const turns: number = params.dally?.turns ?? 0;
-  const duration: number = caught + turns * SWING.turn + 0.5;
+  const duration: number = caught + turns * HumanLassoData.SWING.turn + 0.5;
 
   // The throw: from the circle toward where the target's contact will be at the catch, read in the carrier's frame at the release.
   const target = (film: number): IAutoMovieVector3 =>
@@ -233,7 +192,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const level: IAutoMovieVector3 = Vector3.normalize({ ...toward, y: 0 });
   const thrown: IAutoMovieVector3 = Vector3.add(
     centre,
-    Vector3.scale(toward, SWING.radius),
+    Vector3.scale(toward, HumanLassoData.SWING.radius),
   );
   const out: IAutoMovieVector3 = Vector3.add(
     released.position,
@@ -243,13 +202,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     ),
   );
   const distance: number = Vector3.distance(out, at);
-  if (distance > REACH)
+  if (distance > HumanLassoData.REACH)
     throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: distance,
-      feasible: { kind: "range", minimum: 0, maximum: REACH, unit: "m" },
-      reason: `the target lies ${distance.toFixed(3)} m from the release, beyond a loop's ${REACH} m`,
+      feasible: { kind: "range", minimum: 0, maximum: HumanLassoData.REACH, unit: "m" },
+      reason: `the target lies ${distance.toFixed(3)} m from the release, beyond a loop's ${HumanLassoData.REACH} m`,
       fix: "ride closer to the animal before the throw",
     });
   const g: number = AutoMovieGravity.STANDARD;
@@ -265,8 +224,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     return Vector3.add(
       centre,
       Vector3.add(
-        Vector3.scale(forward, SWING.radius * Math.cos(angle)),
-        Vector3.scale(left, SWING.radius * Math.sin(angle)),
+        Vector3.scale(forward, HumanLassoData.SWING.radius * Math.cos(angle)),
+        Vector3.scale(left, HumanLassoData.SWING.radius * Math.sin(angle)),
       ),
     );
   };
@@ -278,7 +237,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         : Vector3.lerp(
             circled(reach),
             thrown,
-            Math.min(1, (t - reach) / SWING.throw),
+            Math.min(1, (t - reach) / HumanLassoData.SWING.throw),
           );
   const windows: IAutoMovieMotionHumanContactWindow[] = StrikingHeld.grips(
     tool,
@@ -312,7 +271,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         : [
             {
               name: "dallied",
-              share: (caught + turns * SWING.turn) / duration,
+              share: (caught + turns * HumanLassoData.SWING.turn) / duration,
             },
           ]),
     ],
@@ -355,11 +314,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           ),
         );
         const angle: number =
-          2 * Math.PI * Math.min(turns, Math.max(0, t - caught) / SWING.turn);
+          2 * Math.PI * Math.min(turns, Math.max(0, t - caught) / HumanLassoData.SWING.turn);
         const wrap: IAutoMovieVector3 = Vector3.add(horn, {
-          x: SWING.wrap * Math.cos(angle),
+          x: HumanLassoData.SWING.wrap * Math.cos(angle),
           y: 0.02,
-          z: SWING.wrap * Math.sin(angle),
+          z: HumanLassoData.SWING.wrap * Math.sin(angle),
         });
         point =
           t < caught
@@ -386,7 +345,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
   // The swinging arm is laid as a planned course on the wrist's circle, paced at the swing's own peak speed: the wrist's, or a hand point's a hand's length out as the hand turns once a turn of the circle; the reach into the swing, the swing held to the release; after it the plan's own goal carries the arm on from the throw to the horn and round it.
   let peak: number =
-    (2 * Math.PI * (SWING.radius + context.body.measure.hand)) / period;
+    (2 * Math.PI * (HumanLassoData.SWING.radius + context.body.measure.hand)) / period;
   for (let k: number = 1; k <= 64; ++k) {
     const a: number = (release * (k - 1)) / 64;
     const b: number = (release * k) / 64;
@@ -416,8 +375,3 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
  * The law's context.
  */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
-
-/*
- * The alternatives of `SWINGEntryItem`'s site.
- */
-type SWINGEntryItem = "radius" | "throw" | "wrap" | "turn";

@@ -11,8 +11,6 @@ import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCu
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { smoother }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-
 /**
  * The hand's skin as radii about inner points along the hand: the star fields
  * of the heel and palm (harmonics of the skin's radius, in the section's own
@@ -129,3 +127,5 @@ export namespace AutoMovieHumanHandStar {
     return [p[0], web.c + (p[1] - web.c) * (1 - g)];
   }
 }
+
+const { smoother }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;

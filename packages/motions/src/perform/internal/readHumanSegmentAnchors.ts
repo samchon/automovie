@@ -14,11 +14,6 @@ import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 
 /*
- * The arms, whose leaf fits the entry seeds (`entered`).
- */
-const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
-
-/*
  * The anchor course of a displayed second's arm fits: each fit's swivel and
  * branch, prescribed (`IAutoMovieSwivelNear.prescribed`), as
  * `courseLimbSwivels` gives the plan's own arms. Anchors lie on a fixed grid of
@@ -203,6 +198,11 @@ export namespace readHumanSegmentAnchors {
     return out;
   }
 }
+
+/*
+ * The arms, whose leaf fits the entry seeds (`entered`).
+ */
+const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
 
 /*
  * An anchor's film second: the plan second `index` spacings in, clamped to the

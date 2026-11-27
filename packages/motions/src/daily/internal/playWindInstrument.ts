@@ -14,18 +14,6 @@ import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
 /*
- * Default duration of the visible playing pose, an authoring convention in
- * seconds.
- */
-const PLAY_SECONDS: number = 1;
-
-/*
- * Small provisional angular freedom, in degrees, for the instrument's playing
- * attitude.
- */
-const PLAY_CONE: number = 10;
-
-/*
  * A held bugle is lifted, held with the mouthpiece at the lips and lowered. The
  * bell faces away along the reverse of the mouthpiece socket's axis. Yamaha's
  * brass playing guide places the mouthpiece at the center of the lips and shows
@@ -215,3 +203,15 @@ export namespace playWindInstrument {
     };
   }
 }
+
+/*
+ * Default duration of the visible playing pose, an authoring convention in
+ * seconds.
+ */
+const PLAY_SECONDS: number = 1;
+
+/*
+ * Small provisional angular freedom, in degrees, for the instrument's playing
+ * attitude.
+ */
+const PLAY_CONE: number = 10;

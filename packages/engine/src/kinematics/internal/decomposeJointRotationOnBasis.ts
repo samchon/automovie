@@ -15,30 +15,6 @@ import { alternateRigJointAngles } from "./alternateRigJointAngles";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 
 /*
- * Degrees per radian for the closed-form angle extraction.
- */
-const RAD2DEG: number = 180 / Math.PI;
-
-/*
- * Projected cosine at or below which the gimbal convention pins one outer
- * angle: the square root of the binary64 unit roundoff, about 1.5e-8.
- *
- * With a projected cosine `c`, the two outer angles are read from matrix
- * entries of size `c` that carry a rounding error of about one unit roundoff
- * `e`, so each is uncertain by about `e / c` radians; pinning one of them to
- * zero instead rebuilds the rotation within `c` times the pinned angle. The two
- * errors meet at `c = sqrt(e)`, the usual balance of a rounding against a
- * truncation error, where both are near 1e-8 radian. A narrower band leaves
- * turns whose outer angles are rounding noise, tens of degrees at `c` near
- * 1e-15, which a caller that holds one of the two (a hinge's immobile abduction
- * clamped to zero) then shows as a rotation error of that size: an elbow held
- * at a right angle read a different forearm twist every call. Resolvable
- * near-gimbal turns, from about a millionth of a degree off the right angle,
- * stay active.
- */
-const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
-
-/*
  * decomposeJointRotation on a basis its caller already admitted and
  * normalized through normalizeJointAxes: the extraction itself, with no
  * validation of the basis.
@@ -139,6 +115,30 @@ export namespace decomposeJointRotationOnBasis {
     overshoot: number | undefined;
   }
 }
+
+/*
+ * Degrees per radian for the closed-form angle extraction.
+ */
+const RAD2DEG: number = 180 / Math.PI;
+
+/*
+ * Projected cosine at or below which the gimbal convention pins one outer
+ * angle: the square root of the binary64 unit roundoff, about 1.5e-8.
+ *
+ * With a projected cosine `c`, the two outer angles are read from matrix
+ * entries of size `c` that carry a rounding error of about one unit roundoff
+ * `e`, so each is uncertain by about `e / c` radians; pinning one of them to
+ * zero instead rebuilds the rotation within `c` times the pinned angle. The two
+ * errors meet at `c = sqrt(e)`, the usual balance of a rounding against a
+ * truncation error, where both are near 1e-8 radian. A narrower band leaves
+ * turns whose outer angles are rounding noise, tens of degrees at `c` near
+ * 1e-15, which a caller that holds one of the two (a hinge's immobile abduction
+ * clamped to zero) then shows as a rotation error of that size: an elbow held
+ * at a right angle read a different forearm twist every call. Resolvable
+ * near-gimbal turns, from about a millionth of a degree off the right angle,
+ * stay active.
+ */
+const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
 
 /*
  * The axis rotated by `q`, `readRotatedVector`'s expressions, into three cells

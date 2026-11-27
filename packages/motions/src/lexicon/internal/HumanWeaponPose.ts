@@ -21,12 +21,6 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
 import type { IHumanWeaponPosePosed } from "./IHumanWeaponPosePosed";
 
 /*
- * The most passes a held frame is stepped back along the line to bring the
- * wrist within the arm's length; each re-chooses the frame's roll
- * (provisional).
- */
-const PASSES: number = 3;
-/*
  * A presentation's stance and pose with the weapon as a setup holds it.
  * Parameter context: The presentation's parameters, body and aiming.
  * Parameter entry: The posture the presentation begins from.
@@ -463,7 +457,6 @@ export function HumanWeaponPose(
     back,
   };
 }
-
 /*
  * The pose a presentation strokes to (`HumanWeaponPresent.present`) and the
  * posture it is judged on: the stance no grip changes (the entry, a long gun's
@@ -479,6 +472,13 @@ export namespace HumanWeaponPose {
    */
   export type IPosed = IHumanWeaponPosePosed;
 }
+
+/*
+ * The most passes a held frame is stepped back along the line to bring the
+ * wrist within the arm's length; each re-chooses the frame's roll
+ * (provisional).
+ */
+const PASSES: number = 3;
 
 /*
  * The alternatives of `OfContext`'s site.

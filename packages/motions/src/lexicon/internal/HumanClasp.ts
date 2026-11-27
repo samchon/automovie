@@ -17,18 +17,7 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-
-/*
- * Seconds a hand takes to reach its hold (provisional).
- */
-const REACH: number = 0.3;
-
-/*
- * Admit the holds, then sample.
- */
-function planHumanClasp(context: Context): IAutoMovieMotionHumanActionPlan {
-  return plan(context);
-}
+import * as HumanClaspData from "./HumanClaspData";
 
 /*
  * Hold on with the hands (`IAutoMovieMotionHumanClasp`): the entry posture
@@ -46,6 +35,13 @@ export const HumanClasp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCla
     interrupts: { any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }] },
     plan: planHumanClasp,
   };
+
+/*
+ * Admit the holds, then sample.
+ */
+function planHumanClasp(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
 
 /*
  * Admit and sample.
@@ -114,7 +110,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       return {
         part: `${side}Hand`,
         kind: "grip",
-        from: Math.min(1, REACH / duration),
+        from: Math.min(1, HumanClaspData.REACH / duration),
         to: 1,
         support:
           hold.contact !== undefined
@@ -125,7 +121,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
-    events: [{ name: "held", share: Math.min(1, REACH / duration) }],
+    events: [{ name: "held", share: Math.min(1, HumanClaspData.REACH / duration) }],
     contacts: [
       ...windows,
       ...(params.on === undefined
@@ -156,7 +152,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   // The arms are laid as planned courses on these holds: the reach over `REACH`, then the hold, so no instant refits them afresh.
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
-    ready: Math.min(REACH, duration),
+    ready: Math.min(HumanClaspData.REACH, duration),
     relax: duration,
     end: duration,
   };

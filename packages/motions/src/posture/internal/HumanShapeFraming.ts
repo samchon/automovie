@@ -10,28 +10,6 @@ import type {
 import { HumanColliderBound } from "./HumanColliderBound";
 
 /*
- * A hull's face planes packed four numbers each, the normal then the offset, in
- * the hull's own frame: the same for every posed frame of the same hull (a fit
- * frames a fresh pose's colliders, the planes do not move with it).
- */
-function planes(
-  shape: Extract<IAutoMoviePhysicalShape, { kind: "hull" }>,
-): Float64Array {
-  const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
-    AutoMovieEnginePhysics.physicalShapeHull(shape).faces;
-  const packed: Float64Array = new Float64Array(4 * faces.length);
-  faces.forEach(
-    (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
-      packed[4 * index] = face.normal.x;
-      packed[4 * index + 1] = face.normal.y;
-      packed[4 * index + 2] = face.normal.z;
-      packed[4 * index + 3] = face.offset;
-    },
-  );
-  return packed;
-}
-
-/*
  * A placed shape's bounding sphere (`sphere`) and, for a hull, its face planes,
  * the world point its frame is centred on and the rotation into that frame. A
  * sweep frames its colliders once, when it prepares its room
@@ -186,6 +164,28 @@ export namespace HumanShapeFraming {
       radius: local.radius,
     };
   }
+}
+
+/*
+ * A hull's face planes packed four numbers each, the normal then the offset, in
+ * the hull's own frame: the same for every posed frame of the same hull (a fit
+ * frames a fresh pose's colliders, the planes do not move with it).
+ */
+function planes(
+  shape: Extract<IAutoMoviePhysicalShape, { kind: "hull" }>,
+): Float64Array {
+  const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
+    AutoMovieEnginePhysics.physicalShapeHull(shape).faces;
+  const packed: Float64Array = new Float64Array(4 * faces.length);
+  faces.forEach(
+    (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
+      packed[4 * index] = face.normal.x;
+      packed[4 * index + 1] = face.normal.y;
+      packed[4 * index + 2] = face.normal.z;
+      packed[4 * index + 3] = face.offset;
+    },
+  );
+  return packed;
 }
 
 /*

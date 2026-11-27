@@ -16,11 +16,6 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
 /*
- * The midpoint of the accepted nonpenetrating contact interval, metres.
- */
-const HELD_GOAL: number = HumanBodyFitMerit.REQUIRED_TOLERANCE / 2;
-
-/*
  * Signed separation between actual posed body and fixed exterior colliders.
  * Drake's `MinimumDistanceLowerBoundConstraint` restricts signed gaps to
  * influencing collision candidates. This fit uses the same influence rule
@@ -254,6 +249,11 @@ export namespace HumanFitExterior {
     };
   }
 }
+
+/*
+ * The midpoint of the accepted nonpenetrating contact interval, metres.
+ */
+const HELD_GOAL: number = HumanBodyFitMerit.REQUIRED_TOLERANCE / 2;
 
 /*
  * The local model and merit share this same signed separation target.

@@ -9,12 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The maker's pram, read.
- */
-const BUGABOO: string =
-  "Bugaboo Fox 5: 36.6 x 23.6 x 41.3 in open, 22.9 to 27.8 lb by configuration, 8.5 in front and 12 in rear wheels (https://www.modernnursery.com/collections/all/products/bugaboo-fox-5-stroller, https://www.bugaboo.com/fr-en/refurbished/refurbished-parts/refurbished-bugaboo-fox-5-base-graphitegrey-melange-PP100052022.html, https://snugglebugz.ca/learning_centre/bugaboo-fox-5-stroller-review)";
+import * as AutoMovieArchetypePramData from "./internal/AutoMovieArchetypePramData";
 
 /** Constructs the pram archetype from its recipe. */
 export namespace AutoMovieArchetypePram {
@@ -188,23 +183,23 @@ export function create(
     length: AutoMovieArchetypeBand.metres(
       36.6 * AutoMovieArchetypeUnits.INCH,
       36.6 * AutoMovieArchetypeUnits.INCH,
-      BUGABOO,
+      AutoMovieArchetypePramData.BUGABOO,
     ),
     width: AutoMovieArchetypeBand.metres(
       23.6 * AutoMovieArchetypeUnits.INCH,
       23.6 * AutoMovieArchetypeUnits.INCH,
-      BUGABOO,
+      AutoMovieArchetypePramData.BUGABOO,
     ),
     handleHeight: AutoMovieArchetypeBand.metres(
       41.3 * AutoMovieArchetypeUnits.INCH,
       41.3 * AutoMovieArchetypeUnits.INCH,
-      `${BUGABOO}: its height open, the push bar's`,
+      `${AutoMovieArchetypePramData.BUGABOO}: its height open, the push bar's`,
     ),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       22.9 * AutoMovieArchetypeUnits.POUND,
       27.8 * AutoMovieArchetypeUnits.POUND,
-      BUGABOO,
+      AutoMovieArchetypePramData.BUGABOO,
     ),
   };
 }

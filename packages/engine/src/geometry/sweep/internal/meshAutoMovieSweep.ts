@@ -22,11 +22,6 @@ import { signedArea } from "../../internal/signedArea";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 
 /*
- * Points per loop of a curved section when the caller gives no count.
- */
-const COLUMNS: number = 32;
-
-/*
  * Triangulate a sweep directly into a closed mesh, for hard-edged members such
  * as profiles, rails, pipes and tapering piers that need no subdivision cage.
  *
@@ -179,6 +174,11 @@ export const meshAutoMovieSweep: (
   }
   return { ...target, skin: null };
 };
+
+/*
+ * Points per loop of a curved section when the caller gives no count.
+ */
+const COLUMNS: number = 32;
 
 /*
  * Chord-length share of spine point `k`.

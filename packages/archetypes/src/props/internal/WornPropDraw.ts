@@ -5,35 +5,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-
-/*
- * A wristwatch, read.
- */
-const CASIO: string =
-  "Casio F-91W, a 38.2 x 35.2 x 8.5 mm case, 21 g (https://halifaxwatch.com/products/casio-vintage-f91)";
-
-/*
- * Fedoras, read.
- */
-const STETSON: string =
-  "Stetson fedoras: brims of 2 in (Selby) to 4 1/8 in (Sol), crowns of 3 3/4 to 4 1/2 in, sizes for heads 20 1/4 to 22 1/4 in round (https://www.villagehatshop.com/products/selby-fur-felt-fedora-hat, https://www.villagehatshop.com/products/sol-wide-brim-wool-felt-fedora-hat, https://www.dapperfam.com/collections/hats/products/stetson-midtown-wool-pinch-front-wide-brim-fedora)";
-
-/*
- * Spectacles, read.
- */
-const RAYBAN: string =
-  "Ray-Ban RB2140 Original Wayfarer 50-22-150: 50 mm lenses 41 mm high, a 22 mm bridge, 150 mm temples (https://www.lenscrafters.com/lc-us/ray-ban/805289126577)";
-
-/*
- * What no source read gives.
- */
-const UNREAD: string = "the makers' pages read do not give it";
-
-/*
- * A road cycling helmet: no maker's page was read.
- */
-const HELMET: string =
-  "a medium road cycling helmet for heads about 55 to 59 cm round: the shell's across, length, height and weight are provisional estimates, no maker's page was read";
+import * as WornPropDrawData from "./WornPropDrawData";
 
 /*
  * The seeded recipes originally published as `createWearable`.
@@ -119,15 +91,15 @@ export namespace WornPropDraw {
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     watch: {
-      width: AutoMovieArchetypeBand.metres(0.0352, 0.0382, CASIO),
+      width: AutoMovieArchetypeBand.metres(0.0352, 0.0382, WornPropDrawData.CASIO),
       depth: AutoMovieArchetypeBand.metres(
         0.2,
         0.24,
-        `the strap's length: ${UNREAD}`,
+        `the strap's length: ${WornPropDrawData.UNREAD}`,
         true,
       ),
-      height: AutoMovieArchetypeBand.metres(0.0085, 0.0085, CASIO),
-      mass: AutoMovieArchetypeBand.of("kg", 0.021, 0.021, CASIO),
+      height: AutoMovieArchetypeBand.metres(0.0085, 0.0085, WornPropDrawData.CASIO),
+      mass: AutoMovieArchetypeBand.of("kg", 0.021, 0.021, WornPropDrawData.CASIO),
     },
     hat: {
       width: AutoMovieArchetypeBand.metres(
@@ -135,23 +107,23 @@ export namespace WornPropDraw {
           2 * 2 * AutoMovieArchetypeUnits.INCH,
         (22.25 * AutoMovieArchetypeUnits.INCH) / Math.PI +
           2 * 4.125 * AutoMovieArchetypeUnits.INCH,
-        `${STETSON}: a head's round as a circle's across and a brim on either side`,
+        `${WornPropDrawData.STETSON}: a head's round as a circle's across and a brim on either side`,
       ),
       depth: AutoMovieArchetypeBand.metres(
         (20.25 * AutoMovieArchetypeUnits.INCH) / Math.PI,
         (22.25 * AutoMovieArchetypeUnits.INCH) / Math.PI,
-        `${STETSON}: the head's round as a circle's across`,
+        `${WornPropDrawData.STETSON}: the head's round as a circle's across`,
       ),
       height: AutoMovieArchetypeBand.metres(
         3.75 * AutoMovieArchetypeUnits.INCH,
         4.5 * AutoMovieArchetypeUnits.INCH,
-        STETSON,
+        WornPropDrawData.STETSON,
       ),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.08,
         0.2,
-        `the hat's weight: ${UNREAD}`,
+        `the hat's weight: ${WornPropDrawData.UNREAD}`,
         true,
       ),
     },
@@ -159,23 +131,23 @@ export namespace WornPropDraw {
       width: AutoMovieArchetypeBand.metres(
         0.122,
         0.122,
-        `${RAYBAN}: two lenses and the bridge; the rims' width outside them ${UNREAD}`,
+        `${WornPropDrawData.RAYBAN}: two lenses and the bridge; the rims' width outside them ${WornPropDrawData.UNREAD}`,
       ),
-      depth: AutoMovieArchetypeBand.metres(0.15, 0.15, RAYBAN),
-      height: AutoMovieArchetypeBand.metres(0.041, 0.041, RAYBAN),
+      depth: AutoMovieArchetypeBand.metres(0.15, 0.15, WornPropDrawData.RAYBAN),
+      height: AutoMovieArchetypeBand.metres(0.041, 0.041, WornPropDrawData.RAYBAN),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         0.02,
         0.04,
-        `the frame's weight: ${UNREAD}`,
+        `the frame's weight: ${WornPropDrawData.UNREAD}`,
         true,
       ),
     },
     helmet: {
-      width: AutoMovieArchetypeBand.metres(0.2, 0.22, HELMET, true),
-      depth: AutoMovieArchetypeBand.metres(0.26, 0.28, HELMET, true),
-      height: AutoMovieArchetypeBand.metres(0.14, 0.16, HELMET, true),
-      mass: AutoMovieArchetypeBand.of("kg", 0.22, 0.3, HELMET, true),
+      width: AutoMovieArchetypeBand.metres(0.2, 0.22, WornPropDrawData.HELMET, true),
+      depth: AutoMovieArchetypeBand.metres(0.26, 0.28, WornPropDrawData.HELMET, true),
+      height: AutoMovieArchetypeBand.metres(0.14, 0.16, WornPropDrawData.HELMET, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.22, 0.3, WornPropDrawData.HELMET, true),
     },
   };
 

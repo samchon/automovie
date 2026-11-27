@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The norm that sizes a competition trampoline.
- */
-const FIG: string =
-  "Fédération Internationale de Gymnastique, Apparatus Norms, the trampoline: a frame 5.05 m by 2.91 m, its bed 4.28 m by 2.14 m, 1.155 m above the floor";
+import * as AutoMovieArchetypeTrampolineData from "./internal/AutoMovieArchetypeTrampolineData";
 
 /** Constructs the trampoline archetype from its recipe. */
 export namespace AutoMovieArchetypeTrampoline {
@@ -155,11 +150,11 @@ export function create(
     height: AutoMovieArchetypeBand.metres(
       0.6,
       1.155,
-      `${FIG}; a backyard bed stands lower (an estimate)`,
+      `${AutoMovieArchetypeTrampolineData.FIG}; a backyard bed stands lower (an estimate)`,
       true,
     ),
-    width: AutoMovieArchetypeBand.metres(2.14, 2.14, FIG),
-    length: AutoMovieArchetypeBand.metres(4.28, 4.28, FIG),
+    width: AutoMovieArchetypeBand.metres(2.14, 2.14, AutoMovieArchetypeTrampolineData.FIG),
+    length: AutoMovieArchetypeBand.metres(4.28, 4.28, AutoMovieArchetypeTrampolineData.FIG),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       80,

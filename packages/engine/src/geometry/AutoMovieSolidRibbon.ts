@@ -5,8 +5,6 @@ import type {
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-const { combine } = AutoMovieSolidVector;
-
 /**
  * A surface's 2-jet across a rail: what a blend copies at its edge (rule J4 of
  * `docs/techniques/surface-composition.md` with `beta = 0`).
@@ -64,3 +62,5 @@ export namespace AutoMovieSolidRibbon {
     };
   }
 }
+
+const { combine } = AutoMovieSolidVector;

@@ -12,12 +12,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * What a plyometric box commonly measures.
- */
-const BOX: string =
-  "the common three-height plyometric box, 20 by 24 by 30 in, as gym equipment makers list it; no single maker's sheet was read, so the bands are marked provisional";
+import * as AutoMovieArchetypePlyoBoxData from "./internal/AutoMovieArchetypePlyoBoxData";
 
 /** Constructs the plyo box archetype from its recipe. */
 export namespace AutoMovieArchetypePlyoBox {
@@ -129,19 +124,19 @@ export function create(
       height: AutoMovieArchetypeBand.metres(
         20 * AutoMovieArchetypeUnits.INCH,
         30 * AutoMovieArchetypeUnits.INCH,
-        BOX,
+        AutoMovieArchetypePlyoBoxData.BOX,
         true,
       ),
       width: AutoMovieArchetypeBand.metres(
         20 * AutoMovieArchetypeUnits.INCH,
         30 * AutoMovieArchetypeUnits.INCH,
-        BOX,
+        AutoMovieArchetypePlyoBoxData.BOX,
         true,
       ),
       depth: AutoMovieArchetypeBand.metres(
         20 * AutoMovieArchetypeUnits.INCH,
         30 * AutoMovieArchetypeUnits.INCH,
-        BOX,
+        AutoMovieArchetypePlyoBoxData.BOX,
         true,
       ),
       mass: AutoMovieArchetypeBand.of(

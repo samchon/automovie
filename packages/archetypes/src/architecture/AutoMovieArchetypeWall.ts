@@ -11,11 +11,7 @@ import {
 import {
   ArchetypeDraw,
 } from "../core/internal/ArchetypeDraw";
-
-/*
- * Wall thickness and length, which no act reads.
- */
-const PICTURE: string = "a piece of wall for the picture, not read at a source";
+import * as AutoMovieArchetypeWallData from "./internal/AutoMovieArchetypeWallData";
 
 /** Constructs the wall archetype from its recipe. */
 export namespace AutoMovieArchetypeWall {
@@ -167,8 +163,8 @@ export function create(
         "IBC 2021 1208.2, ceilings at least 7 ft 6 in (2286 mm) (https://up.codes/viewer/illinois/ibc-2021/chapter/12/interior-environment); the upper end is an estimate",
         true,
       ),
-      length: AutoMovieArchetypeBand.metres(2, 4, PICTURE, true),
-      thickness: AutoMovieArchetypeBand.metres(0.1, 0.2, PICTURE, true),
+      length: AutoMovieArchetypeBand.metres(2, 4, AutoMovieArchetypeWallData.PICTURE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.1, 0.2, AutoMovieArchetypeWallData.PICTURE, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         500,
@@ -184,8 +180,8 @@ export function create(
         "from the 17 in (430 mm) bench seat of 2010 ADA Standards 903.5 (https://www.access-board.gov/ada/) to the 42 in (1067 mm) guard of IBC 2021 1015.3, the latter seen only in search results",
         true,
       ),
-      length: AutoMovieArchetypeBand.metres(1.5, 3, PICTURE, true),
-      thickness: AutoMovieArchetypeBand.metres(0.2, 0.4, PICTURE, true),
+      length: AutoMovieArchetypeBand.metres(1.5, 3, AutoMovieArchetypeWallData.PICTURE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.2, 0.4, AutoMovieArchetypeWallData.PICTURE, true),
       mass: AutoMovieArchetypeBand.of(
         "kg",
         200,

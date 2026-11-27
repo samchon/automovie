@@ -9,12 +9,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanLanceCouchCarriage } from "./HumanLanceCouchCarriage";
 import { HumanLanceCouchClear } from "./HumanLanceCouchClear";
 import { HumanLanceCouchPick } from "./HumanLanceCouchPick";
-
-/*
- * The carry's upper arm from the shoulder in the seat frame, as shares of its
- * length: out to the side and down at about 45 degrees (provisional).
- */
-const UPPER: Readonly<IAutoMovieVector3> = { x: -0.7, y: -0.7, z: 0 };
+import * as HumanLanceCouchHangingData from "./HumanLanceCouchHangingData";
 
 /*
  * The carry from the arm's own line: the upper arm out and down from the
@@ -57,7 +52,7 @@ export function HumanLanceCouchHanging(
   const q: IAutoMovieVector3 = Vector3.cross(d, p);
   const elbow: IAutoMovieVector3 = Vector3.add(
     shoulder,
-    Vector3.scale(Vector3.normalize(UPPER), arm.upperArm),
+    Vector3.scale(Vector3.normalize(HumanLanceCouchHangingData.UPPER), arm.upperArm),
   );
   const options: HumanLanceCouchPick.IOption[] = [];
   let laidCount: number = 0;

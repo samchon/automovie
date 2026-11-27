@@ -1,49 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
-
-// Moving readers held the phone 33.3 cm from their eyes at customary speed.
-const WALK_DISTANCE: number = 0.333;
-
-// Mean downward gaze relative to the calibrated head during customary
-// walking (Table 1, doi:10.1007/s00221-021-06267-6). The study found
-// no significant change in vertical gaze angle between conditions.
-const GAZE: number = (10.3 * Math.PI) / 180;
-
-const WALK_SIGHT: IAutoMovieVector3 = {
-  x: 0,
-  y: -Math.sin(GAZE),
-  z: Math.cos(GAZE),
-};
-
-// The only bones a sheet's place reads, by holding side: both eyes, the
-// head that turns the walking sight and the holding shoulder.
-const SIGHT: Readonly<
-  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
-> = {
-  left: new Set<AutoMovieHumanoidBone>([
-    "leftEye",
-    "rightEye",
-    "head",
-    "leftUpperArm",
-  ]),
-  right: new Set<AutoMovieHumanoidBone>([
-    "leftEye",
-    "rightEye",
-    "head",
-    "rightUpperArm",
-  ]),
-};
+import * as HandToFaceSheetData from "./HandToFaceSheetData";
 
 /*
  * Where a held sheet is read: where the holding hand, its upper arm hanging
@@ -72,7 +32,7 @@ export function handToFaceSheet(
     posture,
     undefined,
     undefined,
-    SIGHT[side],
+    HandToFaceSheetData.SIGHT[side],
   );
   const eyes: IAutoMovieVector3 = Vector3.scale(
     Vector3.add(
@@ -84,11 +44,11 @@ export function handToFaceSheet(
   if (context.carrier?.name === "walk") {
     const sight: IAutoMovieVector3 = Quaternion.rotateVector(
       bones.get("head")!.worldRotation,
-      WALK_SIGHT,
+      HandToFaceSheetData.WALK_SIGHT,
     );
     const viewed: IAutoMovieVector3 = Vector3.add(
       eyes,
-      Vector3.scale(sight, WALK_DISTANCE),
+      Vector3.scale(sight, HandToFaceSheetData.WALK_DISTANCE),
     );
     const upper: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
@@ -210,7 +170,7 @@ export namespace handToFaceSheet {
       posture,
       undefined,
       undefined,
-      SIGHT[side],
+      HandToFaceSheetData.SIGHT[side],
     );
     const eyes: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(

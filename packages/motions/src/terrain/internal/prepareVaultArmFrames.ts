@@ -17,25 +17,6 @@ import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSa
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /*
- * World frames of the wrists and elbows at one prepared support sample.
- */
-const ARMS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftHand",
-  "leftLowerArm",
-  "rightHand",
-  "rightLowerArm",
-]);
-
-/*
- * Axis pair used to sample orientation without quaternion sign changes.
- */
-const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-/*
- * The other measured axis of each wrist's orthonormal frame.
- */
-const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
  * Prepare the preceding support's arm frames across a fixed named vault. Keep
  * every published stance event as an exact interpolation knot. Sample two wrist
  * axes and reconstruct their basis to remain stable through turns.
@@ -130,6 +111,26 @@ export namespace prepareVaultArmFrames {
     rotation: IAutoMovieQuaternion;
   }
 }
+
+/*
+ * World frames of the wrists and elbows at one prepared support sample.
+ */
+const ARMS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftHand",
+  "leftLowerArm",
+  "rightHand",
+  "rightLowerArm",
+]);
+
+/*
+ * Axis pair used to sample orientation without quaternion sign changes.
+ */
+const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+
+/*
+ * The other measured axis of each wrist's orthonormal frame.
+ */
+const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /*
  * Flatten a vector into this prepared curve's contiguous sample.

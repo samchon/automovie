@@ -8,12 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-
-/*
- * The permissible diameter and minimum mass of a rhythmic ball.
- */
-const NORMS: string =
-  "World Gymnastics Apparatus Norms, RG 4 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
+import * as AutoMovieArchetypeRhythmicBallData from "./internal/AutoMovieArchetypeRhythmicBallData";
 
 /** Constructs the rhythmic ball archetype from its recipe. */
 export namespace AutoMovieArchetypeRhythmicBall {
@@ -99,7 +94,7 @@ export function create(
 
   /** Official diameter band and a provisional range just above the minimum mass. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
-    diameter: AutoMovieArchetypeBand.metres(0.18, 0.2, NORMS),
+    diameter: AutoMovieArchetypeBand.metres(0.18, 0.2, AutoMovieArchetypeRhythmicBallData.NORMS),
     mass: AutoMovieArchetypeBand.of(
       "kg",
       0.4,

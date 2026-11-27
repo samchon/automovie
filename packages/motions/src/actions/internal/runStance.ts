@@ -59,12 +59,6 @@ export namespace runStance {
   export const MIDDLE: number = 45;
 
   /*
-   * The knee flexion at the mid-stance search's deep end, degrees: well past
-   * `MIDDLE` and inside the knee's range.
-   */
-  const BRACKET: number = 120;
-
-  /*
    * A cruising stance of a gait with a flight.
    * Parameter body: The body.
    * Parameter props: The cruising step in metres, the swing in step periods, how
@@ -208,6 +202,12 @@ export namespace runStance {
     const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, u)));
     return ends[0] + (ends[1] - ends[0]) * s;
   }
+
+  /*
+   * The knee flexion at the mid-stance search's deep end, degrees: well past
+   * `MIDDLE` and inside the knee's range.
+   */
+  const BRACKET: number = 120;
 
   /*
    * The distance between two points, metres.

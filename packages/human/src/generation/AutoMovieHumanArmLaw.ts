@@ -16,16 +16,16 @@ import type {
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanLimbRootStrip } from "./AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanHandHeel } from "./AutoMovieHumanHandHeel";
-import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
-import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
+import "./AutoMovieHumanHandMap";
+import "./AutoMovieHumanHandVector";
 import { AutoMovieHumanArmAxis } from "./AutoMovieHumanArmAxis";
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanArmGirth } from "./AutoMovieHumanArmGirth";
 import { AutoMovieHumanArmGuides } from "./AutoMovieHumanArmGuides";
 import { AutoMovieHumanArmPieces } from "./AutoMovieHumanArmPieces";
 import { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
-
-const {
+import * as AutoMovieHumanArmLawData from "./internal/AutoMovieHumanArmLawData";
+import {
   across,
   cross,
   dot,
@@ -37,9 +37,8 @@ const {
   smoother,
   sub,
   unit,
-  TWO_PI,
-}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
+  handPoint,
+} from "./internal/AutoMovieHumanArmLawData";
 
 /**
  * The arm's law of one side: its bones, walk and tube from the arm's pieces,
@@ -61,69 +60,6 @@ const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
  * parameter running on as the strip's mean chord.
  */
 export namespace AutoMovieHumanArmLaw {
-  /*
-   * Length of the walk past the wrist, world mm: beyond the heel's last cut.
-   */
-  const RUN_ON: number = 120;
-
-  /*
-   * Length past the heel's join over which the sections turn from the hand's
-   * axis onto the forearm's, world mm.
-   */
-  const WRIST_TURN: number = 50;
-
-  /*
-   * Widest spacing of the arm's own layers along the walk, world mm: finer than
-   * the 3.5 mm plane spacing of the MetaHuman reference asset's bone-normal arm
-   * sections (f1, 151 stations over 526 mm), so the arm never carries fewer
-   * sections than the reference.
-   */
-  const LAYER_STEP: number = 3;
-
-  /*
-   * Half the walk length over which the tube's jet is read at the arm's last
-   * own section, world mm: half the widest layer spacing, so the root strip
-   * arrives with the curvature the arm's own layers carry there.
-   */
-  const JET_READ: number = LAYER_STEP / 2;
-
-  /*
-   * Phases averaged for the centre of the section at the wrist crease.
-   */
-  const CREASE_PHASES: number = 256;
-
-  /*
-   * Phases of a tape's section across the forearm.
-   */
-  const GIRTH_PHASES: number = 256;
-
-  /*
-   * Unit sections' hull perimeters by walk length, per placed arm, kept across
-   * the hand's solve rounds.
-   */
-  const HULLS: Map<string, Map<number, number>> = new Map();
-
-  /*
-   * Distance off its plane at which a cut is settled, world mm: far under the
-   * 0.05 mm step the layers' slopes are read over.
-   */
-  const CUT_TOLERANCE: number = 1e-6;
-
-  /*
-   * Most secant steps of a cut before it bisects its bracket instead.
-   */
-  const CUT_STEPS: number = 12;
-
-  /*
-   * Length of a cut's first secant step along the walk, world mm.
-   */
-  const CUT_PROBE: number = 1;
-
-  /*
-   * Halvings of a bracket: the walk's 600 mm to under a micrometre.
-   */
-  const BISECTIONS: number = 40;
-
   /**
    * The glenohumeral centre the bones stand on: the given centre, moved so the
    * elbow centre stands at a skeleton's elbow when one is given, the bones'
@@ -154,15 +90,6 @@ export namespace AutoMovieHumanArmLaw {
     const shift: AutoMovieVector3Tuple = sub(elbow, placed.elbow);
 
     return [centre[0] + shift[0], centre[1] + shift[1], centre[2] + shift[2]];
-  }
-
-  /*
-   * A bind bone direction of the prior as a unit vector.
-   * Parameter v: The direction's three numbers.
-   * Returns: The unit direction.
-   */
-  function direction(v: readonly number[]): AutoMovieVector3Tuple {
-    return unit([v[0]!, v[1]!, v[2]!]);
   }
 
   /**
@@ -209,7 +136,7 @@ export namespace AutoMovieHumanArmLaw {
     );
 
     // The walk on the bones and the tube of the spans about it.
-    const soft: number = (prior.softness * inputs.elbow) / TWO_PI;
+    const soft: number = (prior.softness * inputs.elbow) / AutoMovieHumanArmLawData.TWO_PI;
     const axis: IAutoMovieHumanArmAxis.IAxis = AutoMovieHumanArmAxis.walk(
       bones,
       soft,
@@ -379,7 +306,7 @@ export namespace AutoMovieHumanArmLaw {
     const qOwn: number = join + (joinWalk - ownWalk);
     const phases: number[] = Array.from(
       { length: prior.order },
-      (_: unknown, m: number): number => (TWO_PI * m) / prior.order,
+      (_: unknown, m: number): number => (AutoMovieHumanArmLawData.TWO_PI * m) / prior.order,
     );
     const ends: IAutoMovieHumanLimbRootStrip.IJet[] = phases.map(
       (t: number): IAutoMovieHumanLimbRootStrip.IJet =>
@@ -466,7 +393,7 @@ export namespace AutoMovieHumanArmLaw {
       if (q <= join) return heel(-q, t);
       if (q > qOwn)
         return stripRing(q)[
-          ((Math.round((t / TWO_PI) * prior.order) % prior.order) +
+          ((Math.round((t / AutoMovieHumanArmLawData.TWO_PI) * prior.order) % prior.order) +
             prior.order) %
             prior.order
         ]!;
@@ -496,7 +423,7 @@ export namespace AutoMovieHumanArmLaw {
     const creaseRing: AutoMovieVector3Tuple[] = Array.from(
       { length: CREASE_PHASES },
       (_: unknown, i: number): AutoMovieVector3Tuple =>
-        heel(creaseAt, (TWO_PI * i) / CREASE_PHASES),
+        heel(creaseAt, (AutoMovieHumanArmLawData.TWO_PI * i) / CREASE_PHASES),
     );
 
     // A section of the tube by a plane: its hull's perimeter, the tape.
@@ -512,7 +439,7 @@ export namespace AutoMovieHumanArmLaw {
           { length: GIRTH_PHASES },
           (_: unknown, i: number): [number, number] => {
             const p: AutoMovieVector3Tuple = sub(
-              cut(at, n, (TWO_PI * i) / GIRTH_PHASES, walk),
+              cut(at, n, (AutoMovieHumanArmLawData.TWO_PI * i) / GIRTH_PHASES, walk),
               at,
             );
             return [dot(p, u), dot(p, v)];
@@ -531,5 +458,77 @@ export namespace AutoMovieHumanArmLaw {
       point,
       girth,
     };
+  }
+
+  /*
+   * Length of the walk past the wrist, world mm: beyond the heel's last cut.
+   */
+  const RUN_ON: number = 120;
+
+  /*
+   * Length past the heel's join over which the sections turn from the hand's
+   * axis onto the forearm's, world mm.
+   */
+  const WRIST_TURN: number = 50;
+
+  /*
+   * Widest spacing of the arm's own layers along the walk, world mm: finer than
+   * the 3.5 mm plane spacing of the MetaHuman reference asset's bone-normal arm
+   * sections (f1, 151 stations over 526 mm), so the arm never carries fewer
+   * sections than the reference.
+   */
+  const LAYER_STEP: number = 3;
+
+  /*
+   * Half the walk length over which the tube's jet is read at the arm's last
+   * own section, world mm: half the widest layer spacing, so the root strip
+   * arrives with the curvature the arm's own layers carry there.
+   */
+  const JET_READ: number = LAYER_STEP / 2;
+
+  /*
+   * Phases averaged for the centre of the section at the wrist crease.
+   */
+  const CREASE_PHASES: number = 256;
+
+  /*
+   * Phases of a tape's section across the forearm.
+   */
+  const GIRTH_PHASES: number = 256;
+
+  /*
+   * Unit sections' hull perimeters by walk length, per placed arm, kept across
+   * the hand's solve rounds.
+   */
+  const HULLS: Map<string, Map<number, number>> = new Map();
+
+  /*
+   * Distance off its plane at which a cut is settled, world mm: far under the
+   * 0.05 mm step the layers' slopes are read over.
+   */
+  const CUT_TOLERANCE: number = 1e-6;
+
+  /*
+   * Most secant steps of a cut before it bisects its bracket instead.
+   */
+  const CUT_STEPS: number = 12;
+
+  /*
+   * Length of a cut's first secant step along the walk, world mm.
+   */
+  const CUT_PROBE: number = 1;
+
+  /*
+   * Halvings of a bracket: the walk's 600 mm to under a micrometre.
+   */
+  const BISECTIONS: number = 40;
+
+  /*
+   * A bind bone direction of the prior as a unit vector.
+   * Parameter v: The direction's three numbers.
+   * Returns: The unit direction.
+   */
+  function direction(v: readonly number[]): AutoMovieVector3Tuple {
+    return unit([v[0]!, v[1]!, v[2]!]);
   }
 }

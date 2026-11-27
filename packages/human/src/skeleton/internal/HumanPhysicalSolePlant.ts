@@ -8,21 +8,6 @@ import type {
 } from "@automovie/interface";
 
 /*
- * The widest foot turn searched when planting the hull soles, degrees.
- */
-const PLANT_RANGE: number = 45;
-
-/*
- * The planting turn's resolution, degrees.
- */
-const PLANT_RESOLUTION: number = 1e-9;
-
-/*
- * Below this gap between a knee's shank reach and the planted ankle, metres, the leg keeps its thigh.
- */
-const REACH_ROUNDOFF: number = 1e-9;
-
-/*
  * Planting a standing Human's collider soles at the physics handoff
  * (`AutoMovieHumanPhysicalStandingPose.fit`): the turn that sets a foot's heel and
  * forefoot hulls on the floor, the drop that lets the legs reach the planted
@@ -309,6 +294,21 @@ export namespace HumanPhysicalSolePlant {
     );
   }
 }
+
+/*
+ * The widest foot turn searched when planting the hull soles, degrees.
+ */
+const PLANT_RANGE: number = 45;
+
+/*
+ * The planting turn's resolution, degrees.
+ */
+const PLANT_RESOLUTION: number = 1e-9;
+
+/*
+ * Below this gap between a knee's shank reach and the planted ankle, metres, the leg keeps its thigh.
+ */
+const REACH_ROUNDOFF: number = 1e-9;
 
 /*
  * Segment frames borrowed for one standing transfer.

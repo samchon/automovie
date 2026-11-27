@@ -6,12 +6,6 @@ import type {
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/*
- * Existing vector arithmetic, with its original evaluation order.
- */
-const { cross, dot, norm, sub }: typeof AutoMovieSolidVector =
-  AutoMovieSolidVector;
-
 /** Final mesh buffer writes and analytic orientation readings. */
 export namespace AutoMovieSolidMeshWrite {
   /** Register the first surface with this unique name, retaining its evaluator. */
@@ -134,3 +128,9 @@ export namespace AutoMovieSolidMeshWrite {
     ];
   }
 }
+
+/*
+ * Existing vector arithmetic, with its original evaluation order.
+ */
+const { cross, dot, norm, sub }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;

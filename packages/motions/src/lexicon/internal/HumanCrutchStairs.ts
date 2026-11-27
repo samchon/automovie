@@ -31,22 +31,6 @@ import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchStairsFlight } from "./crutchStairsFlight";
 
 /*
- * World vertical.
- */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/*
- * No offset: a planted crutch's grip lies on the support course.
- */
-const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-/*
- * The hip's and knee's flexion that hold the injured foot off the steps,
- * degrees: the crutch walk's three-point gait's.
- */
-const HELD: Readonly<Record<LegJoint, number>> = { hip: 30, knee: 80 };
-
-/*
  * Climbing stairs on two crutches: "up with the good, down with the bad"
  * (HealthLinkBC, Using crutches). The hands take the handgrips on both feet,
  * then the injured leg is held off the steps (`HELD`), its foot first lifted
@@ -489,6 +473,22 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     };
   },
 };
+
+/*
+ * World vertical.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/*
+ * No offset: a planted crutch's grip lies on the support course.
+ */
+const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/*
+ * The hip's and knee's flexion that hold the injured foot off the steps,
+ * degrees: the crutch walk's three-point gait's.
+ */
+const HELD: Readonly<Record<LegJoint, number>> = { hip: 30, knee: 80 };
 
 /*
  * The two joints a held leg sets.

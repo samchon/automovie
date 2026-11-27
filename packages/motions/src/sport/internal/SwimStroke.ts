@@ -48,37 +48,6 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  */
 export namespace SwimStroke {
   /*
-   * The hip joints, which the plane carries.
-   */
-  const HIPS: readonly AutoMovieHumanoidBone[] = [
-    "leftUpperLeg",
-    "rightUpperLeg",
-  ];
-  /*
-   * The pin mean reads only the two hip origins after full canonical admission.
-   */
-  const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(HIPS);
-
-  /*
-   * A backstroke key: one arm's shoulder flexion and abduction, the other's,
-   * and which leg is up.
-   */
-  function back(
-    body: IAutoMovieMotionHumanBody,
-    right: readonly [number, number],
-    left: readonly [number, number],
-    kick: number,
-  ): IAutoMovieMotionHumanExerciseKey.IKey {
-    return ExerciseKey.from(
-      body,
-      { pitch: -90, neck: 10 },
-      { ankle: -40, elbow: 5 },
-      { shoulder: left[0], raise: left[1], hip: 10 * kick, knee: 10 },
-      { shoulder: right[0], raise: right[1], hip: -10 * kick, knee: 10 },
-    );
-  }
-
-  /*
    * The strokes on a body (provisional angles, seconds and speeds).
    * Parameter body: The body.
    * Returns: Each stroke.
@@ -97,97 +66,6 @@ export namespace SwimStroke {
       float: keyed(body, "float"),
     };
   }
-
-  /*
-   * Build only the selected stroke's keys; the public table requests each row
-   * explicitly.
-   */
-  function keyed(
-    body: IAutoMovieMotionHumanBody,
-    name: IAutoMovieMotionHumanSwimStroke.Name,
-  ): IAutoMovieMotionHumanSwimStroke.IStroke {
-    if (name === "breaststroke")
-      return {
-        supine: false,
-        speed: 0.9,
-        keys: [
-          [
-            ExerciseKey.from(
-              body,
-              { pitch: 90, neck: -10 },
-              { ankle: -40, shoulder: 175, raise: 0, elbow: 3 },
-            ),
-            0.4,
-          ],
-          [
-            ExerciseKey.from(
-              body,
-              { pitch: 82, neck: -35 },
-              { ankle: -40, shoulder: 95, raise: 70, elbow: 70 },
-            ),
-            0.35,
-          ],
-          [
-            ExerciseKey.from(
-              body,
-              { pitch: 84, neck: -25 },
-              {
-                hip: 45,
-                spread: 20,
-                knee: 115,
-                ankle: 15,
-                shoulder: 60,
-                raise: 10,
-                elbow: 140,
-              },
-            ),
-            0.3,
-          ],
-          [
-            ExerciseKey.from(
-              body,
-              { pitch: 90, neck: -10 },
-              {
-                hip: 15,
-                spread: 30,
-                knee: 30,
-                ankle: 10,
-                shoulder: 165,
-                raise: 0,
-                elbow: 10,
-              },
-            ),
-            0.3,
-          ],
-        ],
-      };
-    if (name === "backstroke")
-      return {
-        supine: true,
-        speed: 1,
-        keys: [
-          [back(body, [178, 5], [0, 5], 1), 0.35],
-          [back(body, [20, 85], [90, 5], -1), 0.35],
-          [back(body, [0, 5], [178, 5], 1), 0.35],
-          [back(body, [90, 5], [20, 85], -1), 0.35],
-        ],
-      };
-    return {
-      supine: true,
-      speed: 0,
-      keys: [
-        [
-          ExerciseKey.from(
-            body,
-            { pitch: -90, neck: 5 },
-            { spread: 15, ankle: -30, raise: 70, elbow: 10 },
-          ),
-          2,
-        ],
-      ],
-    };
-  }
-
   /*
    * Plan a keyed stroke.
    * Parameter props: The body, entry posture, stroke, water height, cycles and
@@ -327,5 +205,127 @@ export namespace SwimStroke {
       ],
     });
     return result;
+  }
+
+  /*
+   * The hip joints, which the plane carries.
+   */
+  const HIPS: readonly AutoMovieHumanoidBone[] = [
+    "leftUpperLeg",
+    "rightUpperLeg",
+  ];
+
+  /*
+   * The pin mean reads only the two hip origins after full canonical admission.
+   */
+  const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(HIPS);
+
+  /*
+   * A backstroke key: one arm's shoulder flexion and abduction, the other's,
+   * and which leg is up.
+   */
+  function back(
+    body: IAutoMovieMotionHumanBody,
+    right: readonly [number, number],
+    left: readonly [number, number],
+    kick: number,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
+    return ExerciseKey.from(
+      body,
+      { pitch: -90, neck: 10 },
+      { ankle: -40, elbow: 5 },
+      { shoulder: left[0], raise: left[1], hip: 10 * kick, knee: 10 },
+      { shoulder: right[0], raise: right[1], hip: -10 * kick, knee: 10 },
+    );
+  }
+
+  /*
+   * Build only the selected stroke's keys; the public table requests each row
+   * explicitly.
+   */
+  function keyed(
+    body: IAutoMovieMotionHumanBody,
+    name: IAutoMovieMotionHumanSwimStroke.Name,
+  ): IAutoMovieMotionHumanSwimStroke.IStroke {
+    if (name === "breaststroke")
+      return {
+        supine: false,
+        speed: 0.9,
+        keys: [
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: 90, neck: -10 },
+              { ankle: -40, shoulder: 175, raise: 0, elbow: 3 },
+            ),
+            0.4,
+          ],
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: 82, neck: -35 },
+              { ankle: -40, shoulder: 95, raise: 70, elbow: 70 },
+            ),
+            0.35,
+          ],
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: 84, neck: -25 },
+              {
+                hip: 45,
+                spread: 20,
+                knee: 115,
+                ankle: 15,
+                shoulder: 60,
+                raise: 10,
+                elbow: 140,
+              },
+            ),
+            0.3,
+          ],
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: 90, neck: -10 },
+              {
+                hip: 15,
+                spread: 30,
+                knee: 30,
+                ankle: 10,
+                shoulder: 165,
+                raise: 0,
+                elbow: 10,
+              },
+            ),
+            0.3,
+          ],
+        ],
+      };
+    if (name === "backstroke")
+      return {
+        supine: true,
+        speed: 1,
+        keys: [
+          [back(body, [178, 5], [0, 5], 1), 0.35],
+          [back(body, [20, 85], [90, 5], -1), 0.35],
+          [back(body, [0, 5], [178, 5], 1), 0.35],
+          [back(body, [90, 5], [20, 85], -1), 0.35],
+        ],
+      };
+    return {
+      supine: true,
+      speed: 0,
+      keys: [
+        [
+          ExerciseKey.from(
+            body,
+            { pitch: -90, neck: 5 },
+            { spread: 15, ankle: -30, raise: 70, elbow: 10 },
+          ),
+          2,
+        ],
+      ],
+    };
   }
 }

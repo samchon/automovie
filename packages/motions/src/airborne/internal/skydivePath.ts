@@ -9,49 +9,6 @@ import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanInte
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /*
- * Belly-to-earth terminal speed, metres per second (provisional: about 120 mph,
- * the figure the USPA Skydiver's Information Manual teaches for a stable
- * arch).
- */
-const TERMINAL: number = 53;
-
-/*
- * The forward speed the exit leaves the edge with, metres per second
- * (provisional: a step off).
- */
-const EXIT: number = 1;
-
-/*
- * Seconds the canopy takes to open (provisional: a ram-air canopy's snatch to
- * full inflation).
- */
-const OPEN: number = 3;
-
-/*
- * The open canopy's sink and forward speeds, metres per second (provisional: a
- * student canopy).
- */
-const SINK: number = 5;
-const FORWARD: number = 10;
-
-/*
- * The turn rate a held toggle gives, degrees per second (provisional).
- */
-const TURN: number = 30;
-
-/*
- * The height the flare starts at, metres (provisional).
- */
-const FLARE: number = 3;
-
-/*
- * The sink and forward speeds at touchdown after the flare, metres per second
- * (provisional).
- */
-const TOUCH_SINK: number = 1.5;
-const TOUCH_FORWARD: number = 2;
-
-/*
  * A parachute jump's hips path, closed form phase by phase: the freefall falls
  * with quadratic drag toward `TERMINAL` (`v = vt tanh(g t / vt)`, `drop = vt^2
  * / g ln cosh(g t / vt)`) gliding at the exit and track speed along a heading
@@ -414,3 +371,46 @@ export namespace skydivePath {
     });
   }
 }
+
+/*
+ * Belly-to-earth terminal speed, metres per second (provisional: about 120 mph,
+ * the figure the USPA Skydiver's Information Manual teaches for a stable
+ * arch).
+ */
+const TERMINAL: number = 53;
+
+/*
+ * The forward speed the exit leaves the edge with, metres per second
+ * (provisional: a step off).
+ */
+const EXIT: number = 1;
+
+/*
+ * Seconds the canopy takes to open (provisional: a ram-air canopy's snatch to
+ * full inflation).
+ */
+const OPEN: number = 3;
+/*
+ * The open canopy's sink and forward speeds, metres per second (provisional: a
+ * student canopy).
+ */
+const SINK: number = 5;
+
+const FORWARD: number = 10;
+
+/*
+ * The turn rate a held toggle gives, degrees per second (provisional).
+ */
+const TURN: number = 30;
+
+/*
+ * The height the flare starts at, metres (provisional).
+ */
+const FLARE: number = 3;
+/*
+ * The sink and forward speeds at touchdown after the flare, metres per second
+ * (provisional).
+ */
+const TOUCH_SINK: number = 1.5;
+
+const TOUCH_FORWARD: number = 2;

@@ -12,7 +12,6 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieSolidFoldContact } from "./construction/internal/AutoMovieSolidFoldContact";
 
-const { cross, dot, norm, scale } = AutoMovieSolidVector;
 /**
  * A join's width records as the kernel's width laws in millimetres
  * (`IAutoMovieSolidJoin.IInput.width`).
@@ -430,5 +429,7 @@ export namespace AutoMovieConstructionWidths {
       AutoMovieSplineCurve.evaluate(coefficients, n, t - start)[0];
   }
 }
+
+const { cross, dot, norm, scale } = AutoMovieSolidVector;
 
 type Vec3 = AutoMovieVector3Tuple;

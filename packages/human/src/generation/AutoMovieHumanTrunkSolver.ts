@@ -40,12 +40,6 @@ import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
  * anatomy test reports.
  */
 export namespace AutoMovieHumanTrunkSolver {
-  /*
-   * Passes closing the tapes and the courses together; the second only corrects
-   * what the first moved.
-   */
-  const PASSES: number = 2;
-
   /**
    * Solve the trunk.
    *
@@ -88,17 +82,6 @@ export namespace AutoMovieHumanTrunkSolver {
     return solution;
   }
 
-  /*
-   * The last solution per inputs object, with what it was solved from.
-   */
-  const SOLVED: WeakMap<
-    IAutoMovieHumanTrunkInputs,
-    {
-      fixed: IAutoMovieHumanTrunkSolver.IFixed;
-      solution: IAutoMovieHumanTrunkSolution;
-    }
-  > = new WeakMap();
-
   /**
    * Close the tapes and the courses and give the state that closes them.
    *
@@ -134,6 +117,23 @@ export namespace AutoMovieHumanTrunkSolver {
   ): IAutoMovieHumanTrunkSolution {
     return solution(context(fixed), st);
   }
+
+  /*
+   * Passes closing the tapes and the courses together; the second only corrects
+   * what the first moved.
+   */
+  const PASSES: number = 2;
+
+  /*
+   * The last solution per inputs object, with what it was solved from.
+   */
+  const SOLVED: WeakMap<
+    IAutoMovieHumanTrunkInputs,
+    {
+      fixed: IAutoMovieHumanTrunkSolver.IFixed;
+      solution: IAutoMovieHumanTrunkSolution;
+    }
+  > = new WeakMap();
 
   /*
    * The fixed landmarks of a solve.

@@ -260,18 +260,6 @@ export function prepareChainFit(
 }
 
 /*
- * Index borrowed source/reference records without new admission; later
- * duplicates replace earlier ones without copying joints.
- */
-function indexJoints(
-  joints: readonly IAutoMovieJointPose[],
-): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose> {
-  const indexed: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map();
-  for (const joint of joints) indexed.set(joint.bone, joint);
-  return indexed;
-}
-
-/*
  * Internal source records and lazy rig data for one unchanged fit operation.
  */
 export namespace prepareChainFit {
@@ -380,4 +368,16 @@ export namespace prepareChainFit {
      */
     referenceLower(): IAutoMovieResolvedBone;
   }
+}
+
+/*
+ * Index borrowed source/reference records without new admission; later
+ * duplicates replace earlier ones without copying joints.
+ */
+function indexJoints(
+  joints: readonly IAutoMovieJointPose[],
+): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose> {
+  const indexed: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map();
+  for (const joint of joints) indexed.set(joint.bone, joint);
+  return indexed;
 }

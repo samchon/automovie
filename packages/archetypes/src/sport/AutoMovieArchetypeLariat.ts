@@ -3,6 +3,7 @@ import { createLariat as createLariatImplementation } from "./internal/createLar
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../core";
 import { type IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import * as AutoMovieArchetypeLariatData from "./internal/AutoMovieArchetypeLariatData";
 
 /** Public operations for Auto Movie Archetype Lariat. */
 export namespace AutoMovieArchetypeLariat {
@@ -91,28 +92,23 @@ export namespace AutoMovieArchetypeLariat {
     mass: "kg",
   };
 
-  /*
-   * What no source read gives.
-   */
-  const UNREAD: string = "no source read gives it; provisional";
-
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(
       30 * AutoMovieArchetypeUnits.FOOT,
       35 * AutoMovieArchetypeUnits.FOOT,
-      `ranch ropes are commonly sold 30 to 35 ft; ${UNREAD}`,
+      `ranch ropes are commonly sold 30 to 35 ft; ${AutoMovieArchetypeLariatData.UNREAD}`,
       true,
     ),
     diameter: AutoMovieArchetypeBand.metres(
       (5 / 16) * AutoMovieArchetypeUnits.INCH,
       (3 / 8) * AutoMovieArchetypeUnits.INCH,
-      `ranch ropes 5/16 to 3/8 in; ${UNREAD}`,
+      `ranch ropes 5/16 to 3/8 in; ${AutoMovieArchetypeLariatData.UNREAD}`,
       true,
     ),
-    loop: AutoMovieArchetypeBand.metres(1.2, 2.2, UNREAD, true),
-    spoke: AutoMovieArchetypeBand.metres(0.9, 1.5, UNREAD, true),
-    mass: AutoMovieArchetypeBand.of("kg", 0.6, 1.2, UNREAD, true),
+    loop: AutoMovieArchetypeBand.metres(1.2, 2.2, AutoMovieArchetypeLariatData.UNREAD, true),
+    spoke: AutoMovieArchetypeBand.metres(0.9, 1.5, AutoMovieArchetypeLariatData.UNREAD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.6, 1.2, AutoMovieArchetypeLariatData.UNREAD, true),
   };
 
   /**

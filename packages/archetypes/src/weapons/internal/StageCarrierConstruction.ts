@@ -13,17 +13,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 import { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
-
-/*
- * The readable name of each kind.
- */
-const NAMES: Readonly<Record<AutoMovieArchetypeHolster.Kind, string>> = {
-  holster: "belt holster",
-  scabbard: "scabbard",
-  sheath: "sheath",
-  quiver: "quiver",
-  pouch: "cartridge box",
-};
+import * as StageCarrierConstructionData from "./StageCarrierConstructionData";
 
 /*
  * Assemble a display carrier from its stored form.
@@ -136,7 +126,7 @@ export function StageCarrierConstruction(
   > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
-    name: NAMES[kind],
+    name: StageCarrierConstructionData.NAMES[kind],
     draw,
   });
   build(builder, d, slots);

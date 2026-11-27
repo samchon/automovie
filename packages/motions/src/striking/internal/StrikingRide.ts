@@ -131,19 +131,6 @@ export namespace StrikingRide {
   export const STEP: number = 1 / 240;
 
   /*
-   * The step of the central differences that read the met surface's normal,
-   * metres: 1 mm, well under every collider radius, so both samples lie on the
-   * same side of the surface the weapon touches.
-   */
-  const NORMAL_STEP: number = 0.001;
-
-  /*
-   * The intervals the weapon's axis is sampled in for its point nearest the met
-   * body.
-   */
-  const AXIS_SAMPLES: number = 8;
-
-  /*
    * Build a ride: the contact at the stop, the met segment's frame there and
    * the law's goal there, each solved once.
    * Parameter props: The stop, the met person and the weapon's axis.
@@ -238,6 +225,19 @@ export namespace StrikingRide {
     );
     return Math.max(0, advanced - withdrawn);
   }
+
+  /*
+   * The step of the central differences that read the met surface's normal,
+   * metres: 1 mm, well under every collider radius, so both samples lie on the
+   * same side of the surface the weapon touches.
+   */
+  const NORMAL_STEP: number = 0.001;
+
+  /*
+   * The intervals the weapon's axis is sampled in for its point nearest the met
+   * body.
+   */
+  const AXIS_SAMPLES: number = 8;
 
   /*
    * The contact at the stop: the point of the weapon's axis nearest the met

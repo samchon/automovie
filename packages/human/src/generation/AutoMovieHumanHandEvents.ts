@@ -7,9 +7,6 @@ import type {
 import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-const { TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { form }: typeof AutoMovieHumanHandForm = AutoMovieHumanHandForm;
-
 /**
  * Both hands' events: the form's for the left, reflected for the right.
  */
@@ -56,3 +53,7 @@ export namespace AutoMovieHumanHandEvents {
     );
   }
 }
+
+const { TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+
+const { form }: typeof AutoMovieHumanHandForm = AutoMovieHumanHandForm;

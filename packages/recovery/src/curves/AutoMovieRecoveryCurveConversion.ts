@@ -17,17 +17,56 @@ import {
 
 /** Convert saved recovery cubics between coefficient bases. */
 export namespace AutoMovieRecoveryCurveConversion {
-  /** Convert one saved cubic to Bernstein control coefficients. */
+  /**
+   * Express one saved cubic in the selected coefficient basis. Endpoint
+   * derivatives are 3(B1-B0)/h and 3(B3-B2)/h; the inverse handles multiply by
+   * h/3, with h the span's original phase width. This is an algebraic basis
+   * change in real arithmetic with binary64 rounding, not a fit or a bitwise
+   * round trip. Names, closure, units and phase widths are kept, and the spans of
+   * the requested basis are fresh records.
+   *
+   * @param curve The saved cubic, in either basis.
+   * @param format The basis to express it in.
+   * @returns The curve in that basis.
+   * @throws {Error} When the cubic has no span or not one positive phase width
+   *   per span.
+   */
   export function convertCurve(
     curve: IAutoMovieRecoveryCurveBundle.Curve,
     format: "bezier",
   ): IAutoMovieCubicBezierCurve64;
-  /** Convert one saved cubic to Hermite endpoint and derivative coefficients. */
+  /**
+   * Express one saved cubic in the selected coefficient basis. Endpoint
+   * derivatives are 3(B1-B0)/h and 3(B3-B2)/h; the inverse handles multiply by
+   * h/3, with h the span's original phase width. This is an algebraic basis
+   * change in real arithmetic with binary64 rounding, not a fit or a bitwise
+   * round trip. Names, closure, units and phase widths are kept, and the spans of
+   * the requested basis are fresh records.
+   *
+   * @param curve The saved cubic, in either basis.
+   * @param format The basis to express it in.
+   * @returns The curve in that basis.
+   * @throws {Error} When the cubic has no span or not one positive phase width
+   *   per span.
+   */
   export function convertCurve(
     curve: IAutoMovieRecoveryCurveBundle.Curve,
     format: "hermite",
   ): IAutoMovieRecoveryHermiteCurve;
-  /** Convert one saved cubic to the selected coefficient basis. */
+  /**
+   * Express one saved cubic in the selected coefficient basis. Endpoint
+   * derivatives are 3(B1-B0)/h and 3(B3-B2)/h; the inverse handles multiply by
+   * h/3, with h the span's original phase width. This is an algebraic basis
+   * change in real arithmetic with binary64 rounding, not a fit or a bitwise
+   * round trip. Names, closure, units and phase widths are kept, and the spans of
+   * the requested basis are fresh records.
+   *
+   * @param curve The saved cubic, in either basis.
+   * @param format The basis to express it in.
+   * @returns The curve in that basis.
+   * @throws {Error} When the cubic has no span or not one positive phase width
+   *   per span.
+   */
   export function convertCurve(
     curve: IAutoMovieRecoveryCurveBundle.Curve,
     format: AutoMovieRecoveryCurveFormat,
@@ -40,8 +79,20 @@ export namespace AutoMovieRecoveryCurveConversion {
   }
 
   /**
-   * Convert every declared cubic in a saved record. The returned record is an
-   * independent copy, with bound surface controls reissued from curve authority.
+   * Copy a saved recovery record into the selected cubic coefficient basis. Every
+   * cubic at the record's declared curve places is converted by
+   * `convertAutoMovieRecoveryCurve`: a fit's or override's curve, each closed
+   * loop of its loft or sections, each open arc of its reports, and each curve
+   * override. Original phase widths, directions, names and metadata survive
+   * unchanged, and the returned record is a copy that shares nothing with the
+   * input. Surface nets keep their own representation; their controls bound to a
+   * converted curve are reissued from it (`rebindRecoveryCurveAuthorities`).
+   *
+   * @param input The saved record.
+   * @param format The basis to express its cubics in.
+   * @returns The record with every cubic in that basis.
+   * @throws {Error} When a cubic lacks one positive phase width per span, or a
+   *   bound surface control disagrees with its curve authority.
    */
   export function convertBundle<
     T extends IAutoMovieRecoveryCurveBundle,

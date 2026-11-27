@@ -7,42 +7,6 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 
-const EMBED_SPEED: number = 6 as const; // m/s above which a penetrable body is pierced, not bounced
-
-const THROUGH_SPEED: number = 14 as const; // m/s above which a very soft body is passed clean through
-
-const THROUGH_TRANSFER: number = 0.3 as const; // fraction of momentum a pass-through still imparts
-
-type ImpactCoefficient = "restitution" | "hardness" | "penetrability";
-
-function assertImpactMass(label: "a" | "b", mass: number): void {
-  if (mass <= 0)
-    throw new RangeError(
-      `impact body ${label} mass must be > 0, but was ${mass}`,
-    );
-}
-
-function assertImpactCoefficient(
-  label: "a" | "b",
-  name: ImpactCoefficient,
-  value: number,
-): void {
-  if (value < 0 || value > 1)
-    throw new RangeError(
-      `impact body ${label} ${name} must be within [0, 1], but was ${value}`,
-    );
-}
-
-function assertImpactBody(
-  label: "a" | "b",
-  body: IAutoMovieImpactBodyState,
-): void {
-  assertImpactMass(label, body.mass);
-  assertImpactCoefficient(label, "restitution", body.restitution);
-  assertImpactCoefficient(label, "hardness", body.hardness);
-  assertImpactCoefficient(label, "penetrability", body.penetrability);
-}
-
 /*
  * Resolve a collision between bodies `a` and `b` across unit contact `normal`
  * (pointing from `a` to `b`) into an abstracted IAutoMovieImpact.
@@ -106,4 +70,40 @@ export function resolveImpact(
     velocityB: Vector3.add(b.velocity, Vector3.scale(n, jn / b.mass)),
     kind,
   };
+}
+
+const EMBED_SPEED: number = 6 as const; // m/s above which a penetrable body is pierced, not bounced
+
+const THROUGH_SPEED: number = 14 as const; // m/s above which a very soft body is passed clean through
+
+const THROUGH_TRANSFER: number = 0.3 as const; // fraction of momentum a pass-through still imparts
+
+type ImpactCoefficient = "restitution" | "hardness" | "penetrability";
+
+function assertImpactMass(label: "a" | "b", mass: number): void {
+  if (mass <= 0)
+    throw new RangeError(
+      `impact body ${label} mass must be > 0, but was ${mass}`,
+    );
+}
+
+function assertImpactCoefficient(
+  label: "a" | "b",
+  name: ImpactCoefficient,
+  value: number,
+): void {
+  if (value < 0 || value > 1)
+    throw new RangeError(
+      `impact body ${label} ${name} must be within [0, 1], but was ${value}`,
+    );
+}
+
+function assertImpactBody(
+  label: "a" | "b",
+  body: IAutoMovieImpactBodyState,
+): void {
+  assertImpactMass(label, body.mass);
+  assertImpactCoefficient(label, "restitution", body.restitution);
+  assertImpactCoefficient(label, "hardness", body.hardness);
+  assertImpactCoefficient(label, "penetrability", body.penetrability);
 }

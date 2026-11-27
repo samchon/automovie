@@ -7,8 +7,6 @@ import type {
 
 import { AutoMovieHumanEventJoinVector } from "./AutoMovieHumanEventJoinVector";
 
-const { add, dot, norm, scale, smooth, sub } = AutoMovieHumanEventJoinVector;
-
 /**
  * The parent's ring at an event as the event join reads it: sampled densely by
  * phase with its length along the ring, the weight of each phase on the child's
@@ -144,3 +142,5 @@ export namespace AutoMovieHumanEventJoinRing {
     return [(2 * Math.PI * best) / n, point, distance, best];
   }
 }
+
+const { add, dot, norm, scale, smooth, sub } = AutoMovieHumanEventJoinVector;
