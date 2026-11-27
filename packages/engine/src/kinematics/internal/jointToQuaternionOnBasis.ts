@@ -10,7 +10,6 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { multiplyQuaternionInto } from "../../math/internal/multiplyQuaternionInto";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
-import { normalizeJointAxes } from "./normalizeJointAxes";
 import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
 
 /*

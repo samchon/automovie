@@ -593,13 +593,9 @@ export namespace AutoMovieArchetypeRailCarriage {
    */
   const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#326878" };
 
-  /*
-   * Leader, moving toward +Z, then follower, moving toward −Z.
-   */
+  /** Leader, moving toward +Z, then follower, moving toward −Z. */
   type DoorPair = (typeof DOORS)[keyof typeof DOORS][number];
 
-  /*
-   * The six independently controlled pairs' leaf ids.
-   */
+  /** The six independently controlled pairs' leaf ids. */
   type DoorId = DoorPair[number];
 }

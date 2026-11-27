@@ -17,11 +17,8 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
-import { KickChamber } from "./KickChamber";
-import { KickContact } from "./KickContact";
 import { KickLaunch } from "./KickLaunch";
 import { KickPlans } from "./KickPlans";
-import { KickSwing } from "./KickSwing";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";

@@ -42,13 +42,11 @@ import { appendPolygonBodyCuesArtifact } from "../../validation/internal/appendP
 import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
 import { validateShotArtifact } from "../../validation/internal/validateShotArtifact";
 import { admitPerformShotSurfaces } from "./admitPerformShotSurfaces";
-import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
 import { compilePerformShotPracticalLights } from "./compilePerformShotPracticalLights";
 import { copyPolygonBodyCue } from "./copyPolygonBodyCue";
 import { coupleObjects } from "./coupleObjects";
-import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer";
 import { admitPerformShotFlames } from "../flame/internal/admitPerformShotFlames";
 import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
 import { gatePerformShotActions } from "./gatePerformShotActions";

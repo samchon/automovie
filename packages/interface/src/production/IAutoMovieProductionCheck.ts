@@ -230,28 +230,18 @@ export namespace IAutoMovieProductionCheck {
     readonly blocked: boolean;
   }
 
-  /*
-   * Metadata shared by the supported kinds of observation.
-   */
+  /** Metadata shared by the supported kinds of observation. */
   interface IBase {
-    /*
-     * Stable check ID within this subject.
-     */
+    /** Stable check ID within this subject. */
     readonly id: string;
 
-    /*
-     * The expectation shown to the director.
-     */
+    /** The expectation shown to the director. */
     readonly title: string;
 
-    /*
-     * The inspection scope described to the director.
-     */
+    /** The inspection scope described to the director. */
     readonly scope: string;
 
-    /*
-     * False keeps this definition visible while withholding execution.
-     */
+    /** False keeps this definition visible while withholding execution. */
     readonly enabled?: boolean;
   }
 }

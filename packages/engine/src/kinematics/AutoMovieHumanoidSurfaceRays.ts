@@ -247,24 +247,18 @@ export namespace AutoMovieHumanoidSurfaceRays {
     >;
   }
 
-  /*
-   * The six actual rest observations consumed by anatomical surface owners.
-   */
+  /** The six actual rest observations consumed by anatomical surface owners. */
   interface ITools {
-    /*
-     * Current reader-owned resolved rest bone; missing bones throw.
-     */
+    /** Current reader-owned resolved rest bone; missing bones throw. */
     at: (bone: AutoMovieHumanoidBone) => IAutoMovieResolvedBone;
 
-    /*
-     * Fresh vectors for the segment's exact neutral world-axis bounds.
-     */
+    /** Fresh vectors for the segment's exact neutral world-axis bounds. */
     bounds: (bone: AutoMovieHumanoidBone) => {
       min: IAutoMovieVector3;
       max: IAutoMovieVector3;
     };
 
-    /*
+    /**
      * Express the actual world point/directions relative to the current rest
      * joint.
      */
@@ -275,7 +269,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       forward?: IAutoMovieVector3,
     ) => IAutoMovieHumanoidSurfaces.IFrame;
 
-    /*
+    /**
      * Actual anatomical station from rest joints, exact collider centre or a
      * level of the body's stature on a segment.
      */
@@ -285,18 +279,14 @@ export namespace AutoMovieHumanoidSurfaceRays {
         | AutoMovieHumanoidSurfaceRegions.ILevel,
     ) => IAutoMovieVector3;
 
-    /*
-     * Actual farthest collider exit point for the current ray.
-     */
+    /** Actual farthest collider exit point for the current ray. */
     exit: (
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
       direction: IAutoMovieVector3,
     ) => IAutoMovieVector3;
 
-    /*
-     * Actual collider exit point and its physical outward normal.
-     */
+    /** Actual collider exit point and its physical outward normal. */
     surface: (
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,

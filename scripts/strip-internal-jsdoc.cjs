@@ -60,7 +60,7 @@ function declarationNames(node) {
   return name ? [name] : [];
 }
 
-function publicLocalDeclarations(sourceFile, symbols) {
+function publicLocalDeclarations(sourceFile, symbols, qualifiedNames = new Set()) {
   const declarations = new Map();
   function add(namespace, node, name, isNamespace = false) {
     const declarationPath = [...namespace, name].join(".");
@@ -122,6 +122,10 @@ function publicLocalDeclarations(sourceFile, symbols) {
       for (const candidate of declarations.get([...prefix, localName].join(".")) ?? [])
         result.add(candidate.node);
     }
+  }
+
+  for (const qualifiedName of qualifiedNames) {
+    for (const candidate of declarations.get(qualifiedName) ?? []) result.add(candidate.node);
   }
 
   function exported(node) {
@@ -269,7 +273,7 @@ function hasPreservedNarrativeTag(doc) {
 }
 
 function contractDeclarationNames(index) {
-  return index.publicContractDeclarations();
+  return index.publicContractDeclarations(undefined, undefined, { includeQualifiedPaths: true });
 }
 
 function hasTag(node, name) {
@@ -368,7 +372,7 @@ function planFile(sourceFile, index) {
   );
   const publicLocals = index.publicLocalPathsByFile?.get(file) ?? (
     index.symbolsByFile?.has(file)
-      ? publicLocalDeclarations(sourceFile, index.symbolsByFile.get(file))
+      ? publicLocalDeclarations(sourceFile, index.symbolsByFile.get(file), index.contractQualifiedPathsByFile?.get(file))
       : undefined
   );
   const edits = [];
@@ -407,15 +411,17 @@ function plan(sourceFile) {
     plan.index = createPublicSourceExportIndex({ root, includeWorkspaceExports: true });
   }
   if (plan.index.publicFiles.size === 0) throw new Error("Public export index is empty; refusing to plan destructive edits.");
-  if (!plan.contractNames) plan.contractNames = contractDeclarationNames(plan.index);
+  if (!plan.contractDeclarations) plan.contractDeclarations = contractDeclarationNames(plan.index);
   const file = fs.existsSync(sourceFile.fileName)
     ? fs.realpathSync(sourceFile.fileName)
     : path.resolve(sourceFile.fileName);
-  const contractNames = plan.contractNames.get(file) ?? new Set();
+  const contractNames = plan.contractDeclarations.namesByFile.get(file) ?? new Set();
+  const contractQualifiedPaths = plan.contractDeclarations.qualifiedNamesByFile.get(file) ?? new Set();
   const publicRoutes = plan.index.exportsByFile.get(file) ?? new Set();
   const publicSymbols = plan.index.symbolsByFile.get(file) ?? new Map();
   const index = {
     contractNamesByFile: new Map([[file, contractNames]]),
+    contractQualifiedPathsByFile: new Map([[file, contractQualifiedPaths]]),
     publicRoutesByFile: new Map([[file, publicRoutes]]),
     symbolsByFile: new Map([[file, publicSymbols]]),
   };
@@ -618,6 +624,36 @@ const emptyLfText = "namespace PrivateOwner {\n  /** @evidence internal */\n  fu
   if (!reachableOutput.includes("/** Reachable public contract. */") || !reachableOutput.includes("/** Reachable public field. */")) throw new Error("Top-level signature-reachable type docs were stripped.");
   if (reachableOutput.includes("/** Same-named private namespace type stays private.") || !reachableOutput.includes("Same-named private namespace type stays private.")) throw new Error("A private same-named namespace type was promoted by signature reachability.");
 
+  const inheritedBaseText = [
+    "/** Public production check surface. */",
+    "export namespace AutoMovieProductionCheck {",
+    "  /** Public result contract. */",
+    "  export interface IResult extends IBase {}",
+    "  /** Base contract reached through the exported result. */",
+    "  interface IBase {",
+    "    /** Inherited field contract. */",
+    "    sequence: string;",
+    "  }",
+    "  namespace PrivateSibling {",
+    "    /** Same-named private base remains private. */",
+    "    interface IBase {",
+    "      /** Private sibling field remains private. */",
+    "      secret: string;",
+    "    }",
+    "  }",
+    "}",
+  ].join("\n");
+  const inheritedBasePath = path.resolve("inherited-base.ts");
+  const inheritedBaseTree = ts.createSourceFile(inheritedBasePath, inheritedBaseText, ts.ScriptTarget.Latest, true);
+  const inheritedBasePlan = planFile(inheritedBaseTree, {
+    contractNamesByFile: new Map([[inheritedBasePath, new Set(["AutoMovieProductionCheck", "IBase"])]]),
+    contractQualifiedPathsByFile: new Map([[inheritedBasePath, new Set(["AutoMovieProductionCheck.IBase"])]]),
+    symbolsByFile: new Map([[inheritedBasePath, new Map([["AutoMovieProductionCheck", new Set(["AutoMovieProductionCheck"]) ]])]]),
+  });
+  const inheritedBaseOutput = require("./export-refactor-worktree.cjs").applyEdits(inheritedBaseText, inheritedBasePlan.edits);
+  if (!inheritedBaseOutput.includes("/** Base contract reached through the exported result. */") || !inheritedBaseOutput.includes("/** Inherited field contract. */")) throw new Error("Qualified signature-reachable nested base docs were stripped.");
+  if (inheritedBaseOutput.includes("/** Same-named private base remains private.") || !inheritedBaseOutput.includes("Same-named private base remains private.")) throw new Error("A same-named private nested type was promoted by qualified contract reachability.");
+  if (inheritedBaseOutput.includes("/** Private sibling field remains private.") || !inheritedBaseOutput.includes("Private sibling field remains private.")) throw new Error("A private sibling field was promoted by qualified contract reachability.");
   const duplicateSourceText = [
     "/**",
     " * Source credit: Clarabel reference https://example.test/clarabel.",

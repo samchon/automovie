@@ -29,6 +29,17 @@ function declarationName(statement) {
   return statement.name && ts.isIdentifier(statement.name) ? statement.name.text : undefined;
 }
 
+function qualifiedDeclarationName(declaration) {
+  const names = [];
+  let current = declaration;
+  while (current && !ts.isSourceFile(current)) {
+    const name = declarationName(current);
+    if (name && (current === declaration || ts.isModuleDeclaration(current) || ts.isClassLike(current))) names.unshift(name);
+    current = current.parent;
+  }
+  return names.join(".");
+}
+
 function exportedDeclarations(statement) {
   if (!hasModifier(statement, ts.SyntaxKind.ExportKeyword)) return [];
   const isDefault = hasModifier(statement, ts.SyntaxKind.DefaultKeyword);
@@ -164,7 +175,7 @@ function packageTarget(packageInfo, target, publishable = true) {
   return undefined;
 }
 
-function publicContractDeclarations(index, root, rootNames = [...index.publicFiles]) {
+function publicContractDeclarations(index, root, rootNames = [...index.publicFiles], includeQualifiedPaths = false) {
   const configPath = path.join(root, "config", "tsconfig.json");
   const config = ts.readConfigFile(configPath, ts.sys.readFile);
   if (config.error) throw new Error("Cannot read config/tsconfig.json.");
@@ -172,6 +183,7 @@ function publicContractDeclarations(index, root, rootNames = [...index.publicFil
   const program = ts.createProgram({ rootNames, options: { ...parsed.options, noEmit: true, skipLibCheck: true } });
   const checker = program.getTypeChecker();
   const namesByFile = new Map();
+  const qualifiedNamesByFile = new Map();
   const seen = new Set();
   const queue = [];
   const rootFiles = new Set(rootNames.map((file) => path.resolve(file)));
@@ -184,15 +196,45 @@ function publicContractDeclarations(index, root, rootNames = [...index.publicFil
     let names = namesByFile.get(file);
     if (!names) namesByFile.set(file, names = new Set());
     names.add(name);
+    const qualifiedName = qualifiedDeclarationName(declaration);
+    if (qualifiedName) {
+      let qualifiedNames = qualifiedNamesByFile.get(file);
+      if (!qualifiedNames) qualifiedNamesByFile.set(file, qualifiedNames = new Set());
+      qualifiedNames.add(qualifiedName);
+    }
     const key = file + "\0" + declaration.pos + "\0" + declaration.end;
     if (!seen.has(key)) { seen.add(key); queue.push(declaration); }
   };
+
+  function seedExportedNamespaceMembers(namespace) {
+    if (!namespace.body || !ts.isModuleBlock(namespace.body)) return;
+    for (const statement of namespace.body.statements) {
+      if (!hasModifier(statement, ts.SyntaxKind.ExportKeyword) && !hasModifier(statement, ts.SyntaxKind.DefaultKeyword)) continue;
+      if (ts.isModuleDeclaration(statement)) seedExportedNamespaceMembers(statement);
+      else if (ts.isVariableStatement(statement)) {
+        for (const declaration of statement.declarationList.declarations)
+          if (ts.isIdentifier(declaration.name)) addDeclaration(declaration);
+      } else addDeclaration(statement);
+    }
+  }
 
   for (const [file, publicNames] of index.symbolsByFile) {
     if (!rootFiles.has(path.resolve(file))) continue;
     const sourceFile = program.getSourceFile(file);
     if (!sourceFile) continue;
     const names = new Set([...publicNames.values()].flatMap((items) => [...items]));
+    if (includeQualifiedPaths) {
+      for (const statement of sourceFile.statements) {
+        if (ts.isModuleDeclaration(statement)) {
+          if (declarationName(statement) && names.has(declarationName(statement)))
+            seedExportedNamespaceMembers(statement);
+        } else if (ts.isVariableStatement(statement)) {
+          for (const declaration of statement.declarationList.declarations)
+            if (ts.isIdentifier(declaration.name) && names.has(declaration.name.text)) addDeclaration(declaration);
+        } else if (declarationName(statement) && names.has(declarationName(statement))) addDeclaration(statement);
+      }
+      continue;
+    }
     function seed(node) {
       if (declarationName(node) && names.has(declarationName(node))) addDeclaration(node);
       if (ts.isVariableStatement(node)) {
@@ -204,10 +246,13 @@ function publicContractDeclarations(index, root, rootNames = [...index.publicFil
     }
     seed(sourceFile);
   }
-
   while (queue.length) {
     const declaration = queue.pop();
     function visit(node) {
+      if (includeQualifiedPaths && ts.isModuleDeclaration(node)) {
+        seedExportedNamespaceMembers(node);
+        return;
+      }
       if (node !== declaration && ts.isBlock(node)) return;
       if ((ts.isPropertyDeclaration(node) || ts.isVariableDeclaration(node)) && node.initializer) {
         if (node !== declaration) return;
@@ -228,7 +273,7 @@ function publicContractDeclarations(index, root, rootNames = [...index.publicFil
     }
     visit(declaration);
   }
-  return namesByFile;
+  return includeQualifiedPaths ? { namesByFile, qualifiedNamesByFile } : namesByFile;
 }
 function createPublicSourceExportIndex(options = {}) {
   const root = path.resolve(options.root || path.resolve(__dirname, ".."));
@@ -480,7 +525,7 @@ function createPublicSourceExportIndex(options = {}) {
     return entries.keys().next().value;
   }
 
-  return { exportsByFile, symbolsByFile, publicFiles, entrypoints, resolveExport, publicContractDeclarations: (rootNames, packageName) => { const scopedSymbols = packageName === undefined ? symbolsByFile : symbolsByPackage.get(packageName); if (!scopedSymbols) throw new Error("Unknown public export package: " + packageName); const roots = rootNames ?? [...scopedSymbols.keys()]; return publicContractDeclarations({ symbolsByFile: scopedSymbols, publicFiles: new Set(roots) }, root, roots); } };
+  return { exportsByFile, symbolsByFile, publicFiles, entrypoints, resolveExport, publicContractDeclarations: (rootNames, packageName, options = {}) => { const scopedSymbols = packageName === undefined ? symbolsByFile : symbolsByPackage.get(packageName); if (!scopedSymbols) throw new Error("Unknown public export package: " + packageName); const roots = rootNames ?? [...scopedSymbols.keys()]; return publicContractDeclarations({ symbolsByFile: scopedSymbols, publicFiles: new Set(roots) }, root, roots, options.includeQualifiedPaths === true); } };
 }
 
 module.exports = { createPublicSourceExportIndex };
