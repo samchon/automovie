@@ -2,6 +2,7 @@ import {
   IAutoMovieActionTarget,
   IAutoMovieCompiledFormation,
   type IAutoMovieCreatePerformShotSubjectFramer,
+  type IAutoMovieEnginePerformShotGateContext,
   IAutoMovieFormationMotion,
   type IAutoMovieFormationSubjectBox,
   type IAutoMovieFramedBox,
