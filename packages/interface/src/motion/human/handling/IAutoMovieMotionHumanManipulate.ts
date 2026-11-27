@@ -77,8 +77,8 @@ export namespace IAutoMovieMotionHumanManipulate {
     contacts?: readonly IAutoMovieMotionHumanManipulate.IContact[];
 
     /**
-     * A text typed on a keyboard prop (`createKeyboard`'s `homeRow` and
-     * `keys`), instead of `contacts`.
+     * A text typed on a keyboard prop (`AutoMovieArchetypeKeyboard.create`'s
+     * `homeRow` and `keys`), instead of `contacts`.
      */
     text?: string;
 

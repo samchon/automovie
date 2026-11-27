@@ -1,4 +1,4 @@
-import { createSled } from "@automovie/archetypes";
+import { AutoMovieArchetypeSled } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,7 +29,7 @@ export function test_archetype_sled_handles(): void {
     ...Array.from({ length: 20 }, (_: unknown, i: number): number => i),
   ];
   for (const seed of seeds) {
-    const sled: ReturnType<typeof createSled> = createSled({}, seed);
+    const sled: ReturnType<typeof AutoMovieArchetypeSled.create> = AutoMovieArchetypeSled.create({}, seed);
     const left: IAutoMovieVector3 = sled.affordance("left").frame.translation;
     const right: IAutoMovieVector3 = sled.affordance("right").frame.translation;
     if (!(left.x > 0 && right.x < 0))

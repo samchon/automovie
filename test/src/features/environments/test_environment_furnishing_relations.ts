@@ -1,4 +1,4 @@
-import { createMirror, createSeat, createTable, AutoMovieArchetypeDrawerUnit, AutoMovieArchetypePlatformBed } from "@automovie/archetypes";
+import { createSeat, createTable, AutoMovieArchetypeDrawerUnit, AutoMovieArchetypePlatformBed, AutoMovieArchetypeMirror } from "@automovie/archetypes";
 import { createFurnishedRoom, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { Quaternion, Transform, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
@@ -223,7 +223,7 @@ export function test_environment_furnishing_relations(): void {
   );
 
   // Scenario 4: a wall mirror on +x and a sofa on -z.
-  const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, 1019);
+  const mirror: IAutoMovieModel = AutoMovieArchetypeMirror.create({ kind: "wall" }, 1019);
   const mirrorRest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(mirror)!;
   const hungPieces: Readonly<Record<string, IAutoMovieFurnishingPiece>> = {
     sofa: { model: sofaA, place: { kind: "wall", wall: "-z", offset: 0.4 } },

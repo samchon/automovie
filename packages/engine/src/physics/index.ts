@@ -31,7 +31,7 @@ export * from "./accumulatePhysicalMotorTorques";
 
 
 
-export * from "./admitPhysicalPlaybackMetadata";
+
 export * from "./admitPhysicalPointBounds";
 
 

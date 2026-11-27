@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createTree } from "../../nature/createTree";
+import { AutoMovieArchetypeTree } from "../../nature/AutoMovieArchetypeTree";
 
 /** One accepted site with its seeded order. */
 interface ISite {
@@ -131,8 +131,8 @@ export function terrainWoods(
       "woods",
       name,
     );
-    const weights: [createTree.Kind, number][] = createTree.KINDS.flatMap(
-      (kind: createTree.Kind): [createTree.Kind, number][] => {
+    const weights: [AutoMovieArchetypeTree.Kind, number][] = AutoMovieArchetypeTree.KINDS.flatMap(
+      (kind: AutoMovieArchetypeTree.Kind): [AutoMovieArchetypeTree.Kind, number][] => {
         const weight: number | undefined = (woods.species ?? { whiteOak: 1 })[
           kind
         ];
@@ -143,32 +143,32 @@ export function terrainWoods(
       weights.length === 0 ||
       Object.keys(woods.species ?? {}).some(
         (kind: string): boolean =>
-          !createTree.KINDS.some(
-            (known: createTree.Kind): boolean => known === kind,
+          !AutoMovieArchetypeTree.KINDS.some(
+            (known: AutoMovieArchetypeTree.Kind): boolean => known === kind,
           ),
       ) ||
       weights.some(
-        ([, weight]: [createTree.Kind, number]): boolean => !(weight > 0),
+        ([, weight]: [AutoMovieArchetypeTree.Kind, number]): boolean => !(weight > 0),
       )
     )
       throw new Error(
         `Terrain woods "${id}" need positive finite weights for whiteOak or douglasFir.`,
       );
     const total: number = weights.reduce(
-      (sum: number, [, weight]: [createTree.Kind, number]): number =>
+      (sum: number, [, weight]: [AutoMovieArchetypeTree.Kind, number]): number =>
         sum + weight,
       0,
     );
-    const prototypes: ReturnType<typeof createTree>[] = weights.map(
-      ([kind]: [createTree.Kind, number]): ReturnType<typeof createTree> =>
-        createTree(
+    const prototypes: ReturnType<typeof AutoMovieArchetypeTree.create>[] = weights.map(
+      ([kind]: [AutoMovieArchetypeTree.Kind, number]): ReturnType<typeof AutoMovieArchetypeTree.create> =>
+        AutoMovieArchetypeTree.create(
           { id: `${id}/${kind}`, kind },
           deriveArchetypeSeed(context.seed ?? 0, "woods", name, kind),
         ),
     );
     const trunk: number = Math.max(
       ...prototypes.map(
-        (tree: ReturnType<typeof createTree>): number =>
+        (tree: ReturnType<typeof AutoMovieArchetypeTree.create>): number =>
           (tree.dimensions.dbh! * scale) / 2,
       ),
     );
@@ -221,7 +221,7 @@ export function terrainWoods(
         // Spend the species draw across the weights in table order; the last
         // species takes what remains.
         let remaining: number = (pick / 4294967296) * total;
-        let species: createTree.Kind = weights[weights.length - 1]![0];
+        let species: AutoMovieArchetypeTree.Kind = weights[weights.length - 1]![0];
         for (const [kind, weight] of weights.slice(0, -1)) {
           if (remaining < weight) {
             species = kind;
@@ -265,7 +265,7 @@ export function terrainWoods(
       model: prototypes[0]!.id,
       prototypes: weights.map(
         ([kind, weight]: [
-          createTree.Kind,
+          AutoMovieArchetypeTree.Kind,
           number,
         ]): IAutoMovieInstancePrototypeDesign => ({
           id: kind,

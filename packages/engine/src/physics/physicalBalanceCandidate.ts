@@ -59,16 +59,16 @@ export namespace physicalBalanceCandidate {
       denominator,
     }: Assessment.IAssessment = scope;
     const held = (outline: IAutoMovieVector3[]): IAutoMovieVector3[] =>
-      Assessment.held(scope, outline);
+      AutoMoviePhysicalBalance.held(scope, outline);
     const swing = (distance: number): number =>
-      Assessment.swing(scope, distance);
+      AutoMoviePhysicalBalance.swing(scope, distance);
     const until = (distance: number): number =>
-      Assessment.until(scope, distance);
+      AutoMoviePhysicalBalance.until(scope, distance);
     const {
-      excess,
       PASSES,
       SETTLED,
-    }: Pick<typeof Assessment, "excess" | "PASSES" | "SETTLED"> = Assessment;
+    }: Pick<typeof Assessment, "PASSES" | "SETTLED"> = Assessment;
+    const excess = AutoMoviePhysicalBalance.excess;
     const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
       input.pattern.limbs.find(
         (candidate: (typeof input.pattern.limbs)[number]): boolean =>

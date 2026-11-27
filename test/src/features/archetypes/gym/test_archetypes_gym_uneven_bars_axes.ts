@@ -1,4 +1,4 @@
-import { createUnevenBars } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnevenBars } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -32,7 +32,7 @@ export function test_archetypes_gym_uneven_bars_axes(): void {
   const fixtures: readonly number[] = [1.4, 1.7];
 
   for (const diagonal of fixtures) {
-    const bars: ReturnType<typeof createUnevenBars> = createUnevenBars({
+    const bars: ReturnType<typeof AutoMovieArchetypeUnevenBars.create> = AutoMovieArchetypeUnevenBars.create({
       diagonal,
       lowHeight,
       highHeight,

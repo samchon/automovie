@@ -1,4 +1,4 @@
-import { createDrinkware, createMirror, createRock, createSeat, createTable, AutoMovieArchetypeMoldedCrate } from "@automovie/archetypes";
+import { createDrinkware, createSeat, createTable, AutoMovieArchetypeMoldedCrate, AutoMovieArchetypeMirror, AutoMovieArchetypeRock } from "@automovie/archetypes";
 import { createBuilding, createCafeKit, createFurnishedRoom, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
@@ -150,7 +150,7 @@ export function test_environment_support_report(): void {
 
   // Scenario 6: a mirror on wall +x of a furnished room, and the same mirror
   // 0.1 m off that wall by coordinates.
-  const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, 1019);
+  const mirror: IAutoMovieModel = AutoMovieArchetypeMirror.create({ kind: "wall" }, 1019);
   const hung: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "home",
     seed: 5,
@@ -260,7 +260,7 @@ export function test_environment_support_report(): void {
       rock: {
         at: { anchor: "land/amenities/rock" },
         use: AutoMovieEnvironmentFurnishing.prop({
-          model: createRock({ kind: "boulder" }, 1023),
+          model: AutoMovieArchetypeRock.create({ kind: "boulder" }, 1023),
         }),
       },
       bench: {

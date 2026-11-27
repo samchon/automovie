@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeRefusal, createWindow } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeWindow } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -32,8 +32,8 @@ export function test_archetype_fracture_window(): void {
   const findings: string[] = [];
   const energy: number = 50;
   const momentum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  for (const kind of createWindow.KINDS) {
-    const unknown: ReturnType<typeof createWindow> = createWindow({ kind });
+  for (const kind of AutoMovieArchetypeWindow.KINDS) {
+    const unknown: ReturnType<typeof AutoMovieArchetypeWindow.create> = AutoMovieArchetypeWindow.create({ kind });
     if (
       unknown.body.contact?.fracture !== undefined ||
       unknown.broken({ energy: 1e6, momentum }) !== null
@@ -46,7 +46,7 @@ export function test_archetype_fracture_window(): void {
       [1.2, 1.2],
     ] as const) {
       const label: string = `${kind} ${width}x${height}`;
-      const window: ReturnType<typeof createWindow> = createWindow({
+      const window: ReturnType<typeof AutoMovieArchetypeWindow.create> = AutoMovieArchetypeWindow.create({
         kind,
         width,
         height,
@@ -189,7 +189,7 @@ export function test_archetype_fracture_window(): void {
     for (const fractureEnergy of [0, -1, Number.NaN, Infinity, -Infinity]) {
       let refused: boolean = false;
       try {
-        createWindow({ kind, fractureEnergy });
+        AutoMovieArchetypeWindow.create({ kind, fractureEnergy });
       } catch (error) {
         if (!(error instanceof AutoMovieArchetypeRefusal)) throw error;
         refused = error.axis === "fractureEnergy";
@@ -200,7 +200,7 @@ export function test_archetype_fracture_window(): void {
   }
   if (
     !(
-      Math.abs(createWindow.BREAKING - 25 * 0.3048 * 0.45359237 * 9.80665) <=
+      Math.abs(AutoMovieArchetypeWindow.BREAKING - 25 * 0.3048 * 0.45359237 * 9.80665) <=
       1e-9
     )
   )
@@ -234,7 +234,7 @@ export function test_archetype_fracture_window(): void {
 
   /** Read the actual primitive solids and centres instead of a copied dimension record. */
   function box(
-    model: ReturnType<typeof createWindow>,
+    model: ReturnType<typeof AutoMovieArchetypeWindow.create>,
     id: string,
     width: number,
     height: number,

@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createBench } from "../../gym/createBench";
+import { AutoMovieArchetypeBench } from "../../gym/AutoMovieArchetypeBench";
 import { AutoMovieArchetypeDumbbell } from "../../gym/AutoMovieArchetypeDumbbell";
 import { furnishRoom } from "./furnishRoom";
 
@@ -31,7 +31,7 @@ export function createGymKit(
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
     const seed: number | undefined = context.seed;
-    const bench: IAutoMovieModel = createBench(
+    const bench: IAutoMovieModel = AutoMovieArchetypeBench.create(
       { kind: "flat" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "bench"),
     );

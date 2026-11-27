@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createSanitary } from "./createSanitary";
-import { createTap } from "./createTap";
+import { AutoMovieArchetypeTap } from "./AutoMovieArchetypeTap";
 
 /** The accessibility standard, read. */
 const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
@@ -29,9 +29,9 @@ const PRINCETON: string =
 const TAP: Readonly<
   Partial<Record<createSanitary.Dimension, IAutoMovieArchetypeBand>>
 > = {
-  tapHeight: createTap.BANDS.height,
-  tapReach: createTap.BANDS.reach,
-  tapOutlet: createTap.BANDS.outlet,
+  tapHeight: AutoMovieArchetypeTap.BANDS.height,
+  tapReach: AutoMovieArchetypeTap.BANDS.reach,
+  tapOutlet: AutoMovieArchetypeTap.BANDS.outlet,
 };
 
 /** The band of each free dimension of {@link createSanitary}, by kind. */

@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createStairs } from "../../architecture/createStairs";
+import { AutoMovieArchetypeStairs } from "../../architecture/AutoMovieArchetypeStairs";
 import { buildingModel } from "./buildingModel";
 
 /**
@@ -40,10 +40,10 @@ export function createPassage(
     );
   if (
     recipe.kind === "stairs" &&
-    (recipe.steps < 2 || recipe.steps > createStairs.STEPS)
+    (recipe.steps < 2 || recipe.steps > AutoMovieArchetypeStairs.STEPS)
   )
     throw new Error(
-      `stair flight needs 2 to ${createStairs.STEPS} steps; join taller flights at a named intermediate landing`,
+      `stair flight needs 2 to ${AutoMovieArchetypeStairs.STEPS} steps; join taller flights at a named intermediate landing`,
     );
   if (
     recipe.kind === "ramp" &&

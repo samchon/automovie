@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoverySourceSlabsObservationOperation,
 } from "@automovie/interface";
 
-import { RecoveryEventRegion } from "../../internal/RecoveryEventRegion";
+import { RecoveryEventRegion } from "../../observation/internal/RecoveryEventRegion";
 import { critical } from "./critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 

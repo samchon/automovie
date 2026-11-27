@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryScalarIntervalsSelectionOperation,
 } from "@automovie/interface";
 
-import { RecoveryEventRegion } from "../../internal/RecoveryEventRegion";
+import { RecoveryEventRegion } from "./RecoveryEventRegion";
 import { RecoveryScalarIndex as I } from "../../internal/RecoveryScalarIndex";
 import { AutoMovieRecoveryProfileFitting } from "../../fitting/AutoMovieRecoveryProfileFitting";
 

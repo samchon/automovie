@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryDiskChart as D } from "../observation/internal/RecoveryDiskChart";
-import { RecoveryFeatureChartCuts as F } from "./RecoveryFeatureChartCuts";
+import { RecoveryFeatureChartCuts as F } from "../observation/internal/RecoveryFeatureChartCuts";
 import { RecoveryMultiBoundaryChart as M } from "../observation/internal/RecoveryMultiBoundaryChart";
 
 /**

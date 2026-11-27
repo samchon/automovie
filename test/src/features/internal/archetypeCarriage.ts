@@ -1,10 +1,4 @@
-import {
-  AutoMovieArchetypeAssembly,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeBar,
-  createSeat,
-  createWall,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeAssembly, AutoMovieArchetypeFrame, AutoMovieArchetypeBar, createSeat, AutoMovieArchetypeWall } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 /**
@@ -53,8 +47,8 @@ export namespace archetypeCarriage {
     >;
     /** The low wall across the front. */
     wall: AutoMovieArchetypeAssembly.IMember<
-      createWall.Affordance,
-      createWall.Dimension
+      AutoMovieArchetypeWall.Affordance,
+      AutoMovieArchetypeWall.Dimension
     >;
   };
   /**
@@ -86,7 +80,7 @@ export namespace archetypeCarriage {
         placement: placement(-1.2, 0, 0, -90),
       },
       wall: {
-        archetype: createWall({ kind: "low" }, seed),
+        archetype: AutoMovieArchetypeWall.create({ kind: "low" }, seed),
         placement: placement(0, 0, 3.2, 180),
       },
     };

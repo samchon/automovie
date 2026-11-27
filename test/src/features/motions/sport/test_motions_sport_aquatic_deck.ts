@@ -1,4 +1,4 @@
-import { createPoolEdge } from "@automovie/archetypes";
+import { AutoMovieArchetypePoolEdge } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -26,7 +26,7 @@ export async function test_motions_sport_aquatic_deck(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const staged: IAutoMovieMotionHumanProp = HumanObject.prop(
     "pool",
-    createPoolEdge({ kind: "deckEdge" }),
+    AutoMovieArchetypePoolEdge.create({ kind: "deckEdge" }),
     { at: { x: 0, y: 0, z: 0 }, yaw: 0, fixed: true },
   );
   const prop: IAutoMovieMotionHumanProp = {

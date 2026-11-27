@@ -1,5 +1,5 @@
 import type { IAutoMovieSimplexAtom } from "@automovie/interface";
-import { mixRecoveryFeasibleSqpStep } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -25,7 +25,7 @@ export function test_recovery_internal_mix_feasible_sqp_step(): void {
     values: [-1],
     offset: 0,
   };
-  const easy = mixRecoveryFeasibleSqpStep(
+  const easy = AutoMovieRecoveryCameraMap.mixFeasibleSqpStep(
     [objective, { indices: [0], values: [1], offset: 2 }],
     [1],
     [1],
@@ -35,7 +35,7 @@ export function test_recovery_internal_mix_feasible_sqp_step(): void {
   TestValidator.equals("the nominal weight", easy.weight, 0.5);
   TestValidator.equals("no numerical attempt", easy.numericalAttempted, false);
 
-  const hard = mixRecoveryFeasibleSqpStep(
+  const hard = AutoMovieRecoveryCameraMap.mixFeasibleSqpStep(
     [
       { indices: [0, 1], values: [-1, -1], offset: 0 },
       { indices: [0], values: [1], offset: 1 },

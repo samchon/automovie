@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryImagePointsNormalizationOperation,
 } from "@automovie/interface";
 
-import { normalizeRecoveryImagePoints } from "../../internal/normalizeRecoveryImagePoints";
+import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 
 /**
  * Fit x2 transpose F x1 = 0 with normalized original-design eight-point SVD.

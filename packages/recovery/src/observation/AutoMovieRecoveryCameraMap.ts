@@ -1,3 +1,5 @@
+import { mixRecoveryFeasibleSqpStep as mixRecoveryFeasibleSqpStepImplementation } from "./internal/mixRecoveryFeasibleSqpStep";
+
 import { collectRecoverySceneSupport as collectRecoverySceneSupportImplementation } from "./internal/collectRecoverySceneSupport";
 import { completeRecoverySceneCheckpoint as completeRecoverySceneCheckpointImplementation } from "./internal/completeRecoverySceneCheckpoint";
 import { createRecoverySceneSeedReportObserver as createRecoverySceneSeedReportObserverImplementation } from "./internal/createRecoverySceneSeedReportObserver";
@@ -5,7 +7,7 @@ import { evaluateRecoveryScenePoint as evaluateRecoveryScenePointImplementation 
 import { growRecoverySceneLandmarks as growRecoverySceneLandmarksImplementation } from "./internal/growRecoverySceneLandmarks";
 import { factorRecoveryMapMetric as factorRecoveryMapMetricImplementation } from "./internal/factorRecoveryMapMetric";
 
-import { type IAutoMovieRecoveryCameraMapAdmissionOperation, type IAutoMovieRecoveryCameraPairAdmissionOperation, type IAutoMovieRecoveryCameraSceneAdmissionOperation, type IAutoMovieRecoveryCameraChartCreationOperation, type IAutoMovieRecoveryCameraEstimateCreationOperation, type IAutoMovieRecoveryCameraMapCreationOperation, type IAutoMovieRecoveryCameraSceneCreationOperation, type IAutoMovieRecoveryImageDirectionSolverCreationOperation, type IAutoMovieRecoveryPoseModelCreationOperation, type IAutoMovieRecoveryFeasibleMapLinearization, type IAutoMovieRecoveryMapState, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryPoseResidualsLinearizeOperation, type IAutoMovieRecoveryMapPointProjectionOperation, type IAutoMovieRecoveryCameraMapRefinementOperation, type IAutoMovieRecoveryMapJointResult, type IAutoMovieRecoveryMapPose, type IAutoMovieRecoveryMapLandmark, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryFeasibleJointOptions, type IAutoMovieRecoveryFeasibleReportCapacity, type IAutoMovieRecoveryMapDesignSolutionOperation, type IAutoMovieRecoveryMapJointStepSolutionOperation, type IAutoMovieRecoveryRelativePoseStepOperation, type IAutoMovieRecoverySceneSupportCollectionOperation, type IAutoMovieRecoverySceneCheckpointCompletionOperation, type IAutoMovieRecoverySceneSeedReportObserverCreationOperation, type IAutoMovieRecoveryScenePointEvaluationOperation, type IAutoMovieRecoverySceneLandmarksGrowthOperation, type IAutoMovieRecoveryMapMetricFit, type IAutoMovieRecoveryMapJointBlock } from "@automovie/interface";
+import { type IAutoMovieRecoveryCameraMapAdmissionOperation, type IAutoMovieRecoveryCameraPairAdmissionOperation, type IAutoMovieRecoveryCameraSceneAdmissionOperation, type IAutoMovieRecoveryCameraChartCreationOperation, type IAutoMovieRecoveryCameraEstimateCreationOperation, type IAutoMovieRecoveryCameraMapCreationOperation, type IAutoMovieRecoveryCameraSceneCreationOperation, type IAutoMovieRecoveryImageDirectionSolverCreationOperation, type IAutoMovieRecoveryPoseModelCreationOperation, type IAutoMovieRecoveryFeasibleMapLinearization, type IAutoMovieRecoveryMapState, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryPoseResidualsLinearizeOperation, type IAutoMovieRecoveryMapPointProjectionOperation, type IAutoMovieRecoveryCameraMapRefinementOperation, type IAutoMovieRecoveryMapJointResult, type IAutoMovieRecoveryMapPose, type IAutoMovieRecoveryMapLandmark, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryFeasibleJointOptions, type IAutoMovieRecoveryFeasibleReportCapacity, type IAutoMovieRecoveryMapDesignSolutionOperation, type IAutoMovieRecoveryMapJointStepSolutionOperation, type IAutoMovieRecoveryRelativePoseStepOperation, type IAutoMovieRecoverySceneSupportCollectionOperation, type IAutoMovieRecoverySceneCheckpointCompletionOperation, type IAutoMovieRecoverySceneSeedReportObserverCreationOperation, type IAutoMovieRecoveryScenePointEvaluationOperation, type IAutoMovieRecoverySceneLandmarksGrowthOperation, type IAutoMovieRecoveryMapMetricFit, type IAutoMovieRecoveryMapJointBlock, type IAutoMovieRecoveryFeasibleSqpStepMixingOperation } from "@automovie/interface";
 import { admitRecoveryCameraMap as admitRecoveryCameraMapImplementation } from "./internal/admitRecoveryCameraMap";
 import { admitRecoveryCameraPair as admitRecoveryCameraPairImplementation } from "./internal/admitRecoveryCameraPair";
 import { admitRecoveryCameraScene as admitRecoveryCameraSceneImplementation } from "./internal/admitRecoveryCameraScene";
@@ -269,5 +271,14 @@ export namespace AutoMovieRecoveryCameraMap {
    */
   export function factorMapMetric(blocks: readonly IAutoMovieRecoveryMapJointBlock[], minimumRatio: number, damping: number, budget: IAutoMovieRecoveryCameraMapBudget): IAutoMovieRecoveryMapMetricFit {
     return factorRecoveryMapMetricImplementation(blocks, minimumRatio, damping, budget);
+  }
+
+  /**
+   * Try nominal physical mixing, then one original-row-supported coefficient. The
+   * numerical branch is not the ideal cubic-rate mixture. Its operation- scaled
+   * margin chooses a new vector, never an allowance on that vector's rows.
+   */
+  export function mixFeasibleSqpStep(rows: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[0], sqp: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[1], tilted: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[2], nominal: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[3]): ReturnType<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation> {
+    return mixRecoveryFeasibleSqpStepImplementation(rows, sqp, tilted, nominal);
   }
 }

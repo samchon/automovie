@@ -7,6 +7,7 @@ import { type IAutoMoviePhysicalBalance, type IAutoMoviePhysicalSupportPatch, ty
 
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/internal/convexHull2D";
+import { physicalStanceSupport } from "./physicalStanceSupport";
 import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
 import { physicalBalanceCandidate as Candidate } from "./physicalBalanceCandidate";
 import { physicalBalancePair as Pair } from "./physicalBalancePair";
@@ -57,6 +58,78 @@ export namespace AutoMoviePhysicalBalance {
   }
 
   /**
+   * How far a point lies outside a convex floor polygon, metres: zero inside,
+   * else its distance to the nearest edge; a polygon of fewer than three
+   * vertices has no inside.
+   */
+  export function excess(
+    polygon: readonly IAutoMovieVector3[],
+    point: IAutoMovieVector3,
+  ): number {
+    let inside: boolean = polygon.length >= 3;
+    let outside: number = Infinity;
+    for (let i: number = 0; i < polygon.length; i++) {
+      const a: IAutoMovieVector3 = polygon[i]!;
+      const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
+      const dx: number = b.x - a.x;
+      const dz: number = b.z - a.z;
+      const denominator: number = dx * dx + dz * dz;
+      const t: number =
+        denominator === 0
+          ? 0
+          : Math.max(
+              0,
+              Math.min(
+                1,
+                ((point.x - a.x) * dx + (point.z - a.z) * dz) / denominator,
+              ),
+            );
+      outside = Math.min(
+        outside,
+        Math.hypot(
+          point.x - a.x - dx * t,
+          point.z - a.z - dz * t,
+        ),
+      );
+      if (dx * (point.z - a.z) - dz * (point.x - a.x) < 0) inside = false;
+    }
+    return inside ? 0 : outside;
+  }
+
+  /** The outline the stance holds its centre of pressure inside. */
+  export function held(
+    scope: Pick<Assessment.IAssessment, "inset">,
+    outline: IAutoMovieVector3[],
+  ): IAutoMovieVector3[] {
+    return scope.inset > 0
+      ? physicalStanceSupport.shrink(outline, scope.inset)
+      : outline;
+  }
+
+  /** Compute a swing's duration from distance and the assessed timing bounds. */
+  export function swing(
+    scope: Assessment.IAssessment,
+    distance: number,
+  ): number {
+    return scope.timing
+      ? duration(distance, scope.timing.height, scope.timing.acceleration)
+      : (scope.input.swingSeconds ?? 0);
+  }
+
+  /** Compute the interval until a step lands, accounting for spent swing time. */
+  export function until(
+    scope: Assessment.IAssessment,
+    distance: number,
+  ): number {
+    return Math.max(
+      0,
+      (scope.timing?.ramp ?? 0) +
+        swing(scope, distance) +
+        (scope.timing?.landing ?? 0) -
+        scope.spent,
+    );
+  }
+  /**
    * Choose the recovery step once the capture point leaves the shrunken
    * support: a capturing step before one that is not, one whose remaining
    * supports already hold the commanded centre of pressure before one that must
@@ -98,9 +171,12 @@ export namespace AutoMoviePhysicalBalance {
     // The capture point needs a step once it leaves the outline the stance
     // holds its centre of pressure inside (Koolen et al., Corollary 3).
     const inset: number = input.inset ?? 0;
-    const outside: number = Assessment.excess(polygon, capturePoint);
-    const beyond: number = Assessment.excess(
-      Assessment.held({ inset }, polygon),
+    const outside: number = AutoMoviePhysicalBalance.excess(
+      polygon,
+      capturePoint,
+    );
+    const beyond: number = AutoMoviePhysicalBalance.excess(
+      AutoMoviePhysicalBalance.held({ inset }, polygon),
       capturePoint,
     );
     const result: IAutoMoviePhysicalBalance.IResult = {

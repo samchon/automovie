@@ -26,8 +26,8 @@ type IPrepareSiteResult = {
  * Where a wearable sits once worn: its `wear` socket on the body region it goes
  * onto, the socket's `+Y` toward the body (into the region, against the
  * region's outward normal), and the thing turned so its front faces the way the
- * body faces (`createWearable`'s contacts: a hat's crown inside on the head's
- * crown, a pair of spectacles' bridge on the nose's bridge).
+ * body faces (`AutoMovieArchetypeWearable.create`'s contacts: a hat's crown
+ * inside on the head's crown, a pair of spectacles' bridge on the nose's bridge).
  */
 export namespace HumanWorn {
   /**
@@ -141,7 +141,8 @@ function socketOf(prop: IAutoMovieMotionHumanProp): IAutoMovieAffordance {
         values: affordances.map((a: IAutoMovieAffordance): string => a.id),
       },
       reason: `${prop.subject} declares no wear socket to put on by`,
-      fix: "dress in a wearable that declares where it is worn, as createWearable does",
+      fix:
+        "dress in a wearable that declares where it is worn, as AutoMovieArchetypeWearable.create does",
     });
   return wear;
 }

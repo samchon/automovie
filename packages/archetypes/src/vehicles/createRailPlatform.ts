@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import { createRailCarriage } from "./createRailCarriage";
+import { AutoMovieArchetypeRailCarriage } from "./AutoMovieArchetypeRailCarriage";
 
 /**
  * A one-car segment of a level-boarding station platform, aligned with
@@ -43,8 +43,8 @@ export function createRailPlatform(
   const depth: number = 11 * AutoMovieArchetypeUnits.FOOT;
   const strip: number = AutoMovieArchetypeUnits.FOOT;
   const length: number = 75 * AutoMovieArchetypeUnits.FOOT;
-  const height: number = createRailCarriage.REFERENCE.floor;
-  const edge: number = createRailCarriage.REFERENCE.width / 2 + 0.075;
+  const height: number = AutoMovieArchetypeRailCarriage.REFERENCE.floor;
+  const edge: number = AutoMovieArchetypeRailCarriage.REFERENCE.width / 2 + 0.075;
   builder.box(
     "platform-edge-strip",
     v(strip, height, length),

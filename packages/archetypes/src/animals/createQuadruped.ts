@@ -23,7 +23,7 @@ import { AutoMovieArchetypeCat } from "./AutoMovieArchetypeCat";
 import type { createCohortQuadruped } from "./internal/createCohortQuadruped";
 import { AutoMovieArchetypeDeer } from "./AutoMovieArchetypeDeer";
 import { AutoMovieArchetypeDog } from "./AutoMovieArchetypeDog";
-import { createDonkey } from "./createDonkey";
+import { AutoMovieArchetypeDonkey } from "./AutoMovieArchetypeDonkey";
 import { createHorse } from "./createHorse";
 import { AutoMovieArchetypeMule } from "./AutoMovieArchetypeMule";
 import { createOx } from "./createOx";
@@ -131,7 +131,7 @@ export namespace createQuadruped {
   export const PRODUCERS: Readonly<{
     horse: typeof createHorse;
     pony: typeof AutoMovieArchetypePony.create;
-    donkey: typeof createDonkey;
+    donkey: typeof AutoMovieArchetypeDonkey.create;
     mule: typeof AutoMovieArchetypeMule.create;
     dog: typeof AutoMovieArchetypeDog.create;
     cat: typeof AutoMovieArchetypeCat.create;
@@ -141,7 +141,7 @@ export namespace createQuadruped {
   }> = {
     horse: createHorse,
     pony: AutoMovieArchetypePony.create,
-    donkey: createDonkey,
+    donkey: AutoMovieArchetypeDonkey.create,
     mule: AutoMovieArchetypeMule.create,
     dog: AutoMovieArchetypeDog.create,
     cat: AutoMovieArchetypeCat.create,
@@ -228,7 +228,7 @@ export namespace createQuadruped {
       noddingContacts: [],
     },
     donkey: {
-      archetype: createDonkey.ARCHETYPE,
+      archetype: AutoMovieArchetypeDonkey.ARCHETYPE,
       stance: createHorse.STANCE,
       table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,

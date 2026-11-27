@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeFrame, createShield } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeShield } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -21,13 +21,13 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  */
 export function test_archetype_shield_slung(): void {
   const findings: string[] = [];
-  const shields: [string, ReturnType<typeof createShield>][] = [
-    ["buckler a315", createShield({ kind: "buckler", model: "a315" })],
-    ["buckler a316", createShield({ kind: "buckler", model: "a316" })],
+  const shields: [string, ReturnType<typeof AutoMovieArchetypeShield.create>][] = [
+    ["buckler a315", AutoMovieArchetypeShield.create({ kind: "buckler", model: "a315" })],
+    ["buckler a316", AutoMovieArchetypeShield.create({ kind: "buckler", model: "a316" })],
     ...[0, 1, 2].map(
-      (seed: number): [string, ReturnType<typeof createShield>] => [
+      (seed: number): [string, ReturnType<typeof AutoMovieArchetypeShield.create>] => [
         `round shield ${seed}`,
-        createShield({ kind: "round" }, seed),
+        AutoMovieArchetypeShield.create({ kind: "round" }, seed),
       ],
     ),
   ];

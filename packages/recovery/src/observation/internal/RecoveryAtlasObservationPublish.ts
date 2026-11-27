@@ -10,7 +10,7 @@ import type {
   IAutoMovieRecoveryScalarIntervalsSelectionOperation,
 } from "@automovie/interface";
 
-import { RecoveryChartAssembly } from "../../internal/RecoveryChartAssembly";
+import { RecoveryChartAssembly } from "./RecoveryChartAssembly";
 import { RecoveryChartBatch as B } from "../../internal/RecoveryChartBatch";
 
 type Prepared =

@@ -1,4 +1,4 @@
 export { AutoMovieArchetypeFireRing } from "./AutoMovieArchetypeFireRing";
-export * from "./createRock";
-export * from "./createTent";
-export * from "./createTree";
+export { AutoMovieArchetypeRock } from "./AutoMovieArchetypeRock";
+export { AutoMovieArchetypeTent } from "./AutoMovieArchetypeTent";
+export { AutoMovieArchetypeTree } from "./AutoMovieArchetypeTree";

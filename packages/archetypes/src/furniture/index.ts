@@ -1,10 +1,10 @@
-export * from "./createBarrel";
+export { AutoMovieArchetypeBarrel } from "./AutoMovieArchetypeBarrel";
 export * from "./createBed";
-export * from "./createConsole";
-export * from "./createHighChair";
-export * from "./createLectern";
-export * from "./createLoad";
-export * from "./createSafe";
+export { AutoMovieArchetypeConsole } from "./AutoMovieArchetypeConsole";
+export { AutoMovieArchetypeHighChair } from "./AutoMovieArchetypeHighChair";
+export { AutoMovieArchetypeLectern } from "./AutoMovieArchetypeLectern";
+export { AutoMovieArchetypeLoad } from "./AutoMovieArchetypeLoad";
+export { AutoMovieArchetypeSafe } from "./AutoMovieArchetypeSafe";
 export * from "./createSeat";
 export { AutoMovieArchetypeShowcase } from "./AutoMovieArchetypeShowcase";
 export * from "./createStorage";

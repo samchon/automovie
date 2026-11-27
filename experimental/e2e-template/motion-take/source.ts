@@ -1,4 +1,4 @@
-import { createDoor } from "@automovie/archetypes";
+import { AutoMovieArchetypeDoor } from "@automovie/archetypes";
 import {
   AutoMovieComposition,
   Quaternion,
@@ -223,7 +223,10 @@ export function createMotionTakeSource(): IMotionTakeSource {
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const door: IAutoMovieMotionHumanProp = HumanObject.prop(
     "door",
-    createDoor({ hinge: "right", hardware: "lever" }, fixture.doorSeed),
+    AutoMovieArchetypeDoor.create(
+      { hinge: "right", hardware: "lever" },
+      fixture.doorSeed,
+    ),
     { at: origin, yaw: 0, fixed: false },
     undefined,
     undefined,

@@ -1,10 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  createBow,
-  createProjectile,
-  createRock,
-  createTool,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, createBow, createProjectile, createTool, AutoMovieArchetypeRock } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -84,8 +78,8 @@ export function test_archetype_props_surfaces(): void {
       { grenade: "steel", fuze: null },
       steel,
     ],
-    ["cobble", createRock({ kind: "cobble" }, 1), { stone: "stone" }, stone],
-    ["boulder", createRock({ kind: "boulder" }, 1), { stone: "stone" }, stone],
+    ["cobble", AutoMovieArchetypeRock.create({ kind: "cobble" }, 1), { stone: "stone" }, stone],
+    ["boulder", AutoMovieArchetypeRock.create({ kind: "boulder" }, 1), { stone: "stone" }, stone],
   ];
   for (const [name, model, surfaces, [friction, kinetic]] of rows) {
     for (const [part, material] of Object.entries(surfaces))

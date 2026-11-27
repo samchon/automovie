@@ -45,16 +45,16 @@ export namespace physicalBalancePair {
   ): IPair {
     const { input, capturePoint, omega }: Assessment.IAssessment = scope;
     const held = (outline: IAutoMovieVector3[]): IAutoMovieVector3[] =>
-      Assessment.held(scope, outline);
+      AutoMoviePhysicalBalance.held(scope, outline);
     const swing = (distance: number): number =>
-      Assessment.swing(scope, distance);
+      AutoMoviePhysicalBalance.swing(scope, distance);
     const until = (distance: number): number =>
-      Assessment.until(scope, distance);
+      AutoMoviePhysicalBalance.until(scope, distance);
     const {
-      excess,
       PASSES,
       SETTLED,
-    }: Pick<typeof Assessment, "excess" | "PASSES" | "SETTLED"> = Assessment;
+    }: Pick<typeof Assessment, "PASSES" | "SETTLED"> = Assessment;
+    const excess = AutoMoviePhysicalBalance.excess;
     const rest: IAutoMovieVector3[] = input.supports
       .filter(
         (other: (typeof input.supports)[number]): boolean =>

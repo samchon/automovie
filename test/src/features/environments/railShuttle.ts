@@ -1,5 +1,5 @@
 import { AutoMovieEnvironment, AutoMovieEnvironmentRide } from "@automovie/archetypes/environments";
-import { createRailCarriage } from "@automovie/archetypes/vehicles";
+import { AutoMovieArchetypeRailCarriage } from "@automovie/archetypes/vehicles";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieTrackCourse,
@@ -14,8 +14,8 @@ export function railShuttle(): compileEnvironmentExample.IInput {
   const seconds: number = 18;
   const origin: number = 12;
   const destination: number = 38;
-  const railHeight: number = -createRailCarriage.REFERENCE.floor;
-  const carriage: ReturnType<typeof createRailCarriage> = createRailCarriage({
+  const railHeight: number = -AutoMovieArchetypeRailCarriage.REFERENCE.floor;
+  const carriage: ReturnType<typeof AutoMovieArchetypeRailCarriage.create> = AutoMovieArchetypeRailCarriage.create({
     id: "shuttle-car",
   });
   const course: IAutoMovieTrackCourse.IPrepared = AutoMovieEnvironmentRide.trackedCourse({

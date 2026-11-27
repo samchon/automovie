@@ -182,7 +182,7 @@ export namespace IAutoMovieMotionHumanDress {
 
     /**
      * The wearable's prop subject, held since a pick-up: its `wear` socket is
-     * put on the head (`createWearable`'s contacts).
+     * put on the head (`AutoMovieArchetypeWearable.create`'s contacts).
      */
     prop: string;
 

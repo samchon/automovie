@@ -16,7 +16,7 @@ import { RecoveryAtlasObservationFeatures } from "./RecoveryAtlasObservationFeat
 import { RecoveryAtlasObservationNormals } from "../../internal/RecoveryAtlasObservationNormals";
 import { RecoveryAtlasObservationPublish } from "./RecoveryAtlasObservationPublish";
 import { RecoveryAtlasObservationSource } from "./RecoveryAtlasObservationSource";
-import { RecoveryChartBoundary } from "../../internal/RecoveryChartBoundary";
+import { RecoveryChartBoundary } from "./RecoveryChartBoundary";
 
 /**
  * Observe orientable genus-zero source components through private disk charts.

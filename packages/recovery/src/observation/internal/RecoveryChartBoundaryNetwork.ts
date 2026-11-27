@@ -3,9 +3,9 @@ import type {
   IAutoMovieRecoveryChartBoundaryNetworkRegistry,
 } from "@automovie/interface";
 
-import { RecoveryChartBoundaryNetworkAugment } from "../../internal/RecoveryChartBoundaryNetworkAugment";
-import { RecoveryChartBoundaryNetworkBindings } from "../../internal/RecoveryChartBoundaryNetworkBindings";
-import { RecoveryChartBoundaryNetworkRegistry } from "../../internal/RecoveryChartBoundaryNetworkRegistry";
+import { RecoveryChartBoundaryNetworkAugment } from "./RecoveryChartBoundaryNetworkAugment";
+import { RecoveryChartBoundaryNetworkBindings } from "./RecoveryChartBoundaryNetworkBindings";
+import { RecoveryChartBoundaryNetworkRegistry } from "./RecoveryChartBoundaryNetworkRegistry";
 
 /**
  * Reconcile private quarter cuts before fitting shared maximal boundary arcs.

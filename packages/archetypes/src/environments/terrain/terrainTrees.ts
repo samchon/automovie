@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createTree } from "../../nature/createTree";
+import { AutoMovieArchetypeTree } from "../../nature/AutoMovieArchetypeTree";
 
 /**
  * Create compact vegetation disks with a shared grounded model prototype.
@@ -58,7 +58,7 @@ export function terrainTrees(
       name,
     );
     const modelId: string = `${id}/prototype`;
-    const prototype: ReturnType<typeof createTree> = createTree(
+    const prototype: ReturnType<typeof AutoMovieArchetypeTree.create> = AutoMovieArchetypeTree.create(
       { id: modelId, kind: "whiteOak" },
       deriveArchetypeSeed(context.seed ?? 0, "trees", name),
     );

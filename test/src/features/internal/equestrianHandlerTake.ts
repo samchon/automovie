@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeEquine, AutoMovieArchetypeEquineCare, AutoMovieArchetypeEquineExpression, type AutoMovieArchetypeEquineExpressionCue, AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypeEquineStance, type AutoMovieArchetypeRide, createGroomingBrush, createHorse, rideHorse, AutoMovieArchetypeHalter } from "@automovie/archetypes";
+import { AutoMovieArchetypeEquine, AutoMovieArchetypeEquineCare, AutoMovieArchetypeEquineExpression, type AutoMovieArchetypeEquineExpressionCue, AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypeEquineStance, type AutoMovieArchetypeRide, createHorse, rideHorse, AutoMovieArchetypeHalter, AutoMovieArchetypeGroomingBrush } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -118,8 +118,8 @@ export namespace equestrianHandlerTake {
   }
 
   /** The body brush the handler grooms with. */
-  export const BRUSH: ReturnType<typeof createGroomingBrush> =
-    createGroomingBrush();
+  export const BRUSH: ReturnType<typeof AutoMovieArchetypeGroomingBrush.create> =
+    AutoMovieArchetypeGroomingBrush.create();
 
   /**
    * Stage one short take.

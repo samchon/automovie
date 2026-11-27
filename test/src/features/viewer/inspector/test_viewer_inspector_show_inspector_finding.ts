@@ -5,7 +5,6 @@ import {
   type IAutoMovieInspectorAction,
   type IAutoMovieInspectorState,
 
-  reduceAutoMovieInspectorState,
 
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -130,7 +129,6 @@ function run(
   if (stop !== null) actions.push(stop);
   return {
     state: actions.reduce(
-      reduceAutoMovieInspectorState,
       AutoMovieViewerInspector.createState("?from=0&to=4&rate=24"),
     ),
     playhead,

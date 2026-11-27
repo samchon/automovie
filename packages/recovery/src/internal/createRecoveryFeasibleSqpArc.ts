@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { chooseRecoverySqpTightening } from "./chooseRecoverySqpTightening";
-import { mixRecoveryFeasibleSqpStep } from "./mixRecoveryFeasibleSqpStep";
+import { mixRecoveryFeasibleSqpStep } from "../observation/internal/mixRecoveryFeasibleSqpStep";
 
 /**
  * Try a complete affine-QP direction and one same-base curvature correction.

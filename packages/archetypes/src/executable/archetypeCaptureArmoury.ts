@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import { AutoMovieArchetypeBaseballBat } from "../sport";
-import { createBow, createCannon, createClub, createHandgun, createHolster, createLongGun, createMagazine, createPell, createPolearm, createProjectile, createShield, createSword, AutoMovieArchetypePracticeBaton, AutoMovieArchetypeStageBallProp, AutoMovieArchetypeStageBladeCarrier, AutoMovieArchetypeStageCartridgeProp, AutoMovieArchetypeStageGrenadeProp, AutoMovieArchetypeStageHandBowProp, AutoMovieArchetypeStageHolster, AutoMovieArchetypeStagePouch, AutoMovieArchetypeStageQuiver, AutoMovieArchetypeStageRoundProp, AutoMovieArchetypeStageShaftToken, AutoMovieArchetypeStageStockBowProp, AutoMovieArchetypeStageStoneProp } from "../weapons";
+import { createBow, createCannon, createClub, createHandgun, createHolster, createLongGun, createPell, createProjectile, createSword, AutoMovieArchetypePracticeBaton, AutoMovieArchetypeStageBallProp, AutoMovieArchetypeStageBladeCarrier, AutoMovieArchetypeStageCartridgeProp, AutoMovieArchetypeStageGrenadeProp, AutoMovieArchetypeStageHandBowProp, AutoMovieArchetypeStageHolster, AutoMovieArchetypeStagePouch, AutoMovieArchetypeStageQuiver, AutoMovieArchetypeStageRoundProp, AutoMovieArchetypeStageShaftToken, AutoMovieArchetypeStageStockBowProp, AutoMovieArchetypeStageStoneProp, AutoMovieArchetypeMagazine, AutoMovieArchetypePolearm, AutoMovieArchetypeShield } from "../weapons";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -67,9 +67,9 @@ export function archetypeCaptureArmoury(): Readonly<
       ),
       ...kinds(
         "magazine",
-        createMagazine.KINDS,
-        (kind: createMagazine.Kind): AutoMovieArchetype =>
-          createMagazine({ kind }),
+        AutoMovieArchetypeMagazine.KINDS,
+        (kind: AutoMovieArchetypeMagazine.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeMagazine.create({ kind }),
       ),
       ...kinds(
         "projectile",
@@ -106,14 +106,14 @@ export function archetypeCaptureArmoury(): Readonly<
       ),
       ...kinds(
         "shield",
-        createShield.KINDS,
-        (kind: createShield.Kind): AutoMovieArchetype => createShield({ kind }),
+        AutoMovieArchetypeShield.KINDS,
+        (kind: AutoMovieArchetypeShield.Kind): AutoMovieArchetype => AutoMovieArchetypeShield.create({ kind }),
       ),
       ...kinds(
         "polearm",
-        createPolearm.KINDS,
-        (kind: createPolearm.Kind): AutoMovieArchetype =>
-          createPolearm({ kind }),
+        AutoMovieArchetypePolearm.KINDS,
+        (kind: AutoMovieArchetypePolearm.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypePolearm.create({ kind }),
       ),
       pell: createPell(),
     }),

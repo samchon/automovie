@@ -5,10 +5,10 @@ import type {
   IAutoMovieRecoveryChartFitSystem,
 } from "@automovie/interface";
 
-import { RecoveryChartFitPrepare } from "./RecoveryChartFitPrepare";
-import { RecoveryChartFitReport } from "./RecoveryChartFitReport";
-import { RecoveryChartFitSolve } from "./RecoveryChartFitSolve";
-import { RecoveryChartFitSystem } from "./RecoveryChartFitSystem";
+import { RecoveryChartFitPrepare } from "../observation/internal/RecoveryChartFitPrepare";
+import { RecoveryChartFitReport } from "../observation/internal/RecoveryChartFitReport";
+import { RecoveryChartFitSolve } from "../observation/internal/RecoveryChartFitSolve";
+import { RecoveryChartFitSystem } from "../observation/internal/RecoveryChartFitSystem";
 
 /**
  * Joint Bernstein fitting with fixed shared coefficients and explicit box

@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryImagePointsNormalizationOperation,
 } from "@automovie/interface";
 
-import { normalizeRecoveryImagePoints } from "../../internal/normalizeRecoveryImagePoints";
+import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 
 /**
  * Fit a normalized DLT image homography and its independently representable

@@ -36,10 +36,10 @@ export interface IAutoMovieMotionHumanLexiconHabitParams {
    * tip: "screen", line: "across", at: { region: "noseBridge" } }`), brings its
    * back to the bridge of the nose as that grasp presents it, and the left hand
    * takes its `support` end, the device archetype's compact camera
-   * (`createDevice({ kind: "camera" })`) declaring all three. Without the
-   * camera in hand the row is refused: no hand holds the attitude an implied
-   * camera would ask at the eye. The camera's own points replace the task's
-   * implied effector.
+   * (`AutoMovieArchetypeDevice.create({ kind: "camera" })`) declaring all three.
+   * Without the camera in hand the row is refused: no hand holds the attitude an
+   * implied camera would ask at the eye. The camera's own points replace the
+   * task's implied effector.
    */
   photograph: Omit<
     IAutoMovieMotionHumanHandToFace.IParams,

@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeUnits,
-  createFood,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeUnits, AutoMovieArchetypeFood } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -50,7 +46,7 @@ export function test_archetype_props_food_bands(): void {
       3.25 * AutoMovieArchetypeUnits.INCH,
       APPLE,
       (seed: number): number =>
-        archetypeExtent(createFood({ kind: "apple" }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeFood.create({ kind: "apple" }, seed), "x").size,
     ),
     row(
       "apple grip",
@@ -58,14 +54,14 @@ export function test_archetype_props_food_bands(): void {
       3.25 * AutoMovieArchetypeUnits.INCH,
       APPLE,
       (seed: number): number =>
-        createFood({ kind: "apple" }, seed).affordance("grip").aperture!,
+        AutoMovieArchetypeFood.create({ kind: "apple" }, seed).affordance("grip").aperture!,
     ),
     row(
       "apple mass",
       0.101,
       0.223,
       APPLE,
-      (seed: number): number => createFood({ kind: "apple" }, seed).body.mass,
+      (seed: number): number => AutoMovieArchetypeFood.create({ kind: "apple" }, seed).body.mass,
     ),
     row(
       "loaf length",
@@ -73,7 +69,7 @@ export function test_archetype_props_food_bands(): void {
       14.75 * AutoMovieArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
-        archetypeExtent(createFood({ kind: "bread" }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeFood.create({ kind: "bread" }, seed), "x").size,
     ),
     row(
       "loaf width",
@@ -81,7 +77,7 @@ export function test_archetype_props_food_bands(): void {
       4.5 * AutoMovieArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
-        archetypeExtent(createFood({ kind: "bread" }, seed), "z").size,
+        archetypeExtent(AutoMovieArchetypeFood.create({ kind: "bread" }, seed), "z").size,
     ),
     row(
       "loaf height",
@@ -89,14 +85,14 @@ export function test_archetype_props_food_bands(): void {
       4.25 * AutoMovieArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
-        archetypeExtent(createFood({ kind: "bread" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeFood.create({ kind: "bread" }, seed), "y").size,
     ),
     row(
       "loaf mass",
       AutoMovieArchetypeUnits.POUND,
       32 * AutoMovieArchetypeUnits.OUNCE,
       BREAD,
-      (seed: number): number => createFood({ kind: "bread" }, seed).body.mass,
+      (seed: number): number => AutoMovieArchetypeFood.create({ kind: "bread" }, seed).body.mass,
     ),
     row(
       "drumstick length",
@@ -104,7 +100,7 @@ export function test_archetype_props_food_bands(): void {
       0.12,
       SHAPE,
       (seed: number): number =>
-        archetypeExtent(createFood({ kind: "drumstick" }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeFood.create({ kind: "drumstick" }, seed), "x").size,
     ),
     row(
       "drumstick meat",
@@ -112,7 +108,7 @@ export function test_archetype_props_food_bands(): void {
       0.045,
       SHAPE,
       (seed: number): number =>
-        archetypeExtent(createFood({ kind: "drumstick" }, seed), "z", ["meat"])
+        archetypeExtent(AutoMovieArchetypeFood.create({ kind: "drumstick" }, seed), "z", ["meat"])
           .size,
     ),
     row(
@@ -121,21 +117,21 @@ export function test_archetype_props_food_bands(): void {
       0.13,
       DRUMSTICK,
       (seed: number): number =>
-        createFood({ kind: "drumstick" }, seed).body.mass,
+        AutoMovieArchetypeFood.create({ kind: "drumstick" }, seed).body.mass,
     ),
   ]);
 
   for (const seed of [0, 1, 2]) {
     // 2. The bites.
-    const loaf: ReturnType<typeof createFood> = createFood(
+    const loaf: ReturnType<typeof AutoMovieArchetypeFood.create> = AutoMovieArchetypeFood.create(
       { kind: "bread" },
       seed,
     );
-    const apple: ReturnType<typeof createFood> = createFood(
+    const apple: ReturnType<typeof AutoMovieArchetypeFood.create> = AutoMovieArchetypeFood.create(
       { kind: "apple" },
       seed,
     );
-    const drumstick: ReturnType<typeof createFood> = createFood(
+    const drumstick: ReturnType<typeof AutoMovieArchetypeFood.create> = AutoMovieArchetypeFood.create(
       { kind: "drumstick" },
       seed,
     );
@@ -190,7 +186,7 @@ export function test_archetype_props_food_bands(): void {
     const hold: ReturnType<typeof loaf.affordance> = loaf.affordance("hold");
     const tear: ReturnType<typeof loaf.affordance> = loaf.affordance("tear");
     const travel: number = tear.travel!;
-    const opened: ReturnType<typeof createFood> = loaf.articulate({
+    const opened: ReturnType<typeof AutoMovieArchetypeFood.create> = loaf.articulate({
       tear: travel,
     });
     const moved: ReturnType<typeof archetypeExtent> = archetypeExtent(
@@ -230,7 +226,7 @@ export function test_archetype_props_food_bands(): void {
 
   // 3. The drumstick's estimates marked, its read mass not, on the bands the produced drumstick records.
   const bands: Readonly<Partial<Record<string, { provisional?: boolean }>>> =
-    createFood({ kind: "drumstick" }, 0).provenance.bands;
+    AutoMovieArchetypeFood.create({ kind: "drumstick" }, 0).provenance.bands;
   if (
     bands.length!.provisional !== true ||
     bands.diameter!.provisional !== true ||

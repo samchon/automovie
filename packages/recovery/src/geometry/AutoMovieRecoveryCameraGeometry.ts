@@ -1,3 +1,5 @@
+import { normalizeRecoveryImagePoints as normalizeRecoveryImagePointsImplementation } from "./internal/normalizeRecoveryImagePoints";
+
 import { requiredRecoveryCameraTrials as requiredRecoveryCameraTrialsImplementation } from "./internal/requiredRecoveryCameraTrials";
 import { refineRecoveryEpipolarModel as refineRecoveryEpipolarModelImplementation } from "./internal/refineRecoveryEpipolarModel";
 import { sampleRecoveryCameraIndices as sampleRecoveryCameraIndicesImplementation } from "./internal/sampleRecoveryCameraIndices";
@@ -10,7 +12,7 @@ import { fitRecoveryResectionDesign as fitRecoveryResectionDesignImplementation 
 import { refineRecoveryResection as refineRecoveryResectionImplementation } from "./internal/refineRecoveryResection";
 import { refineRecoveryCameraPose as refineRecoveryCameraPoseImplementation } from "./internal/refineRecoveryCameraPose";
 
-import { type IAutoMovieRecoveryCameraResidualsScoreOperation, type IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, type IAutoMovieRecoveryEpipolarMatrixFittingOperation, type IAutoMovieRecoveryHomographyErrorsMeasurementOperation, type IAutoMovieRecoveryHomographyFittingOperation, type IAutoMovieRecoveryEpipolarModelRefinementOperation, type IAutoMovieRecoveryCameraPoseSelectionOperation, type IAutoMovieRecoveryEpipolarMatrixCalibrateOperation, type IAutoMovieRecoveryEpipolarConsensusFittingOperation, type IAutoMovieRecoveryHomographyConsensusFittingOperation, type IAutoMovieRecoveryResectionConsensusFittingOperation, type IAutoMovieRecoveryResectionDesign, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryResectionDesignTrace, type IAutoMovieRecoveryResectionRefinementOperation, type IAutoMovieRecoveryCameraPoseRefinementOperation } from "@automovie/interface";
+import { type IAutoMovieRecoveryCameraResidualsScoreOperation, type IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, type IAutoMovieRecoveryEpipolarMatrixFittingOperation, type IAutoMovieRecoveryHomographyErrorsMeasurementOperation, type IAutoMovieRecoveryHomographyFittingOperation, type IAutoMovieRecoveryEpipolarModelRefinementOperation, type IAutoMovieRecoveryCameraPoseSelectionOperation, type IAutoMovieRecoveryEpipolarMatrixCalibrateOperation, type IAutoMovieRecoveryEpipolarConsensusFittingOperation, type IAutoMovieRecoveryHomographyConsensusFittingOperation, type IAutoMovieRecoveryResectionConsensusFittingOperation, type IAutoMovieRecoveryResectionDesign, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryResectionDesignTrace, type IAutoMovieRecoveryResectionRefinementOperation, type IAutoMovieRecoveryCameraPoseRefinementOperation, type IAutoMovieRecoveryImagePointsNormalizationOperation } from "@automovie/interface";
 
 import {
   fitRecoveryEpipolarMatrix as fitRecoveryEpipolarMatrixInternal,
@@ -185,5 +187,16 @@ export namespace AutoMovieRecoveryCameraGeometry {
    */
   export function refineCameraPose(initial: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[0], firstPoints: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[1], secondPoints: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[2], first: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[3], second: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[4], policy: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[5]): ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation> {
     return refineRecoveryCameraPoseImplementation(initial, firstPoints, secondPoints, first, second, policy);
+  }
+
+  /**
+   * Centre matched image points and set their mean Euclidean distance to sqrt(2).
+   * Hartley's normalized eight-point construction acts on the original design:
+   * https://users.cecs.anu.edu.au/~hartley/Papers/fundamental/fundamental.pdf
+   * Coincident or nonrepresentable charts refuse instead of adding an arbitrary
+   * spread. This normalization changes a fitting chart, never source pixels.
+   */
+  export function normalizeImagePoints(points: Parameters<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation>[0]): ReturnType<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation> {
+    return normalizeRecoveryImagePointsImplementation(points);
   }
 }

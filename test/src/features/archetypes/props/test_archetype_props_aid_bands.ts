@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeUnits,
-  createMobilityAid,
-  createUmbrella,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createMobilityAid, AutoMovieArchetypeUmbrella } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -48,7 +44,7 @@ export function test_archetype_props_aid_bands(): void {
       0.955,
       BLUNT,
       (seed: number): number =>
-        archetypeExtent(createUmbrella({}, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeUmbrella.create({}, seed), "y").size,
     ),
     row(
       "open canopy",
@@ -56,14 +52,14 @@ export function test_archetype_props_aid_bands(): void {
       1.38,
       BLUNT,
       (seed: number): number =>
-        archetypeExtent(createUmbrella({ open: true }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeUmbrella.create({ open: true }, seed), "x").size,
     ),
     row(
       "umbrella mass",
       0.66,
       0.91,
       BLUNT,
-      (seed: number): number => createUmbrella({}, seed).body.mass,
+      (seed: number): number => AutoMovieArchetypeUmbrella.create({}, seed).body.mass,
     ),
     row(
       "cane handle height",
@@ -165,12 +161,12 @@ export function test_archetype_props_aid_bands(): void {
 
   // 2. The canopy only when open.
   for (const seed of [0, 1, 2]) {
-    const closed: ReturnType<typeof createUmbrella> = createUmbrella({}, seed);
-    const open: ReturnType<typeof createUmbrella> = createUmbrella(
+    const closed: ReturnType<typeof AutoMovieArchetypeUmbrella.create> = AutoMovieArchetypeUmbrella.create({}, seed);
+    const open: ReturnType<typeof AutoMovieArchetypeUmbrella.create> = AutoMovieArchetypeUmbrella.create(
       { open: true },
       seed,
     );
-    const has = (u: ReturnType<typeof createUmbrella>): boolean =>
+    const has = (u: ReturnType<typeof AutoMovieArchetypeUmbrella.create>): boolean =>
       u.affordances.some(
         (a: IAutoMovieAffordance): boolean => a.id === "canopy",
       );

@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeRefusal,
-  AutoMovieArchetypeTrack,
-  createHatch,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeTrack, AutoMovieArchetypeHatch } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,11 +20,11 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_track_ease(): void {
   const findings: string[] = [];
-  const hatch: ReturnType<typeof createHatch> = createHatch();
+  const hatch: ReturnType<typeof AutoMovieArchetypeHatch.create> = AutoMovieArchetypeHatch.create();
   const open: number = hatch.affordance("hinge").travel!;
   const START: number = 1;
   const SECONDS: number = 3;
-  const closing: AutoMovieArchetypeTrack.ITrack<createHatch.Affordance> =
+  const closing: AutoMovieArchetypeTrack.ITrack<AutoMovieArchetypeHatch.Affordance> =
     AutoMovieArchetypeTrack.ease(hatch, "hinge", {
       start: START,
       from: open,
@@ -83,7 +79,7 @@ export function test_archetype_track_ease(): void {
   }
 
   // 1c. The range's own ends are admitted: the cover eased open from shut to its full travel.
-  const opening: AutoMovieArchetypeTrack.ITrack<createHatch.Affordance> =
+  const opening: AutoMovieArchetypeTrack.ITrack<AutoMovieArchetypeHatch.Affordance> =
     AutoMovieArchetypeTrack.ease(hatch, "hinge", {
       start: 0,
       from: 0,

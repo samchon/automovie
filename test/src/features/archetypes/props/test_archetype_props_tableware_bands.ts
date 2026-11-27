@@ -1,4 +1,4 @@
-import { createTableware } from "@automovie/archetypes";
+import { AutoMovieArchetypeTableware } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -39,7 +39,7 @@ export function test_archetype_props_tableware_bands(): void {
       0.27,
       IKEA_365,
       (seed: number): number =>
-        archetypeExtent(createTableware({ kind: "plate" }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeTableware.create({ kind: "plate" }, seed), "x").size,
     ),
     row(
       "plate face height",
@@ -47,7 +47,7 @@ export function test_archetype_props_tableware_bands(): void {
       0.03,
       IKEA_365,
       (seed: number): number =>
-        createTableware({ kind: "plate" }, seed).affordance("top").frame
+        AutoMovieArchetypeTableware.create({ kind: "plate" }, seed).affordance("top").frame
           .translation.y,
     ),
     row(
@@ -56,7 +56,7 @@ export function test_archetype_props_tableware_bands(): void {
       0.338,
       PLATTERS,
       (seed: number): number =>
-        archetypeExtent(createTableware({ kind: "platter" }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeTableware.create({ kind: "platter" }, seed), "x").size,
     ),
     row(
       "platter width",
@@ -64,7 +64,7 @@ export function test_archetype_props_tableware_bands(): void {
       0.24,
       PLATTERS,
       (seed: number): number =>
-        archetypeExtent(createTableware({ kind: "platter" }, seed), "z").size,
+        archetypeExtent(AutoMovieArchetypeTableware.create({ kind: "platter" }, seed), "z").size,
     ),
     row(
       "platter face height",
@@ -72,7 +72,7 @@ export function test_archetype_props_tableware_bands(): void {
       0.038,
       PLATTERS,
       (seed: number): number =>
-        archetypeExtent(createTableware({ kind: "platter" }, seed), "y").high,
+        archetypeExtent(AutoMovieArchetypeTableware.create({ kind: "platter" }, seed), "y").high,
     ),
     row(
       "saucer diameter",
@@ -80,7 +80,7 @@ export function test_archetype_props_tableware_bands(): void {
       0.12,
       "Rosenthal Sonetto saucer",
       (seed: number): number =>
-        archetypeExtent(createTableware({ kind: "saucer" }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeTableware.create({ kind: "saucer" }, seed), "x").size,
     ),
     row(
       "saucer height",
@@ -88,11 +88,11 @@ export function test_archetype_props_tableware_bands(): void {
       0.014,
       "Rosenthal Sonetto saucer",
       (seed: number): number =>
-        archetypeExtent(createTableware({ kind: "saucer" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeTableware.create({ kind: "saucer" }, seed), "y").size,
     ),
   ]);
   for (const seed of [0, 1, 2]) {
-    const plate: ReturnType<typeof createTableware> = createTableware(
+    const plate: ReturnType<typeof AutoMovieArchetypeTableware.create> = AutoMovieArchetypeTableware.create(
       { kind: "plate" },
       seed,
     );

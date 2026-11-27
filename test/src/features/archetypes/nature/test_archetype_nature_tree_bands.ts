@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeUnits, createTree } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeTree } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -21,7 +21,7 @@ export function test_archetype_nature_tree_bands(): void {
   const tree = (
     kind: "whiteOak" | "douglasFir",
     seed: number,
-  ): ReturnType<typeof createTree> => createTree({ kind }, seed);
+  ): ReturnType<typeof AutoMovieArchetypeTree.create> => AutoMovieArchetypeTree.create({ kind }, seed);
   const row = (
     name: string,
     minimum: number,
@@ -34,7 +34,7 @@ export function test_archetype_nature_tree_bands(): void {
     source: "USDA silvics, Spiecker 2021, Ishii and Wilson 2001, Hummel 2009",
     measure,
   });
-  const share = (made: ReturnType<typeof createTree>): number =>
+  const share = (made: ReturnType<typeof AutoMovieArchetypeTree.create>): number =>
     archetypeExtent(made, "y", ["trunk"]).high /
     archetypeExtent(made, "y").high;
   const findings: string[] = archetypeBandSweep([
@@ -87,7 +87,7 @@ export function test_archetype_nature_tree_bands(): void {
   } as const;
   for (const seed of [0, 1, 2])
     for (const kind of ["whiteOak", "douglasFir"] as const) {
-      const made: ReturnType<typeof createTree> = tree(kind, seed);
+      const made: ReturnType<typeof AutoMovieArchetypeTree.create> = tree(kind, seed);
       const read: (typeof READ)[typeof kind] = READ[kind];
       const dbh: number =
         made.dimensions.dbh! / AutoMovieArchetypeUnits.CENTIMETRE;

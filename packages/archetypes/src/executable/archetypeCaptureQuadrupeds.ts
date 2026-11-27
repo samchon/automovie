@@ -1,4 +1,4 @@
-import { createDonkey, createHorse, createOx, rideQuadruped, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer, AutoMovieArchetypeDog, AutoMovieArchetypeMule, AutoMovieArchetypePony } from "../animals";
+import { createHorse, createOx, rideQuadruped, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer, AutoMovieArchetypeDog, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey } from "../animals";
 import type { AutoMovieArchetype } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -14,7 +14,7 @@ export function archetypeCaptureQuadrupeds(): Readonly<
   const animals: Record<string, AutoMovieArchetype> = {
     horse: createHorse({ tack: "both" }),
     pony: AutoMovieArchetypePony.create({ tack: "both" }),
-    donkey: createDonkey({ tack: "both" }),
+    donkey: AutoMovieArchetypeDonkey.create({ tack: "both" }),
     mule: AutoMovieArchetypeMule.create({ tack: "both" }),
     dog: AutoMovieArchetypeDog.create({ ...AutoMovieArchetypeDog.REFERENCE, cohort: "pet", tempo: 0 }),
     ox: createOx(createOx.REFERENCE),

@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeUnits,
-  AutoMovieArchetypeBoard,
-  createMirror,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeBoard, AutoMovieArchetypeMirror } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -36,7 +32,7 @@ export function test_archetype_mirror_board(): void {
       {
         name: "wall mirror size",
         measure: (seed: number): readonly number[] => {
-          const face: IAutoMovieAffordance = createMirror(
+          const face: IAutoMovieAffordance = AutoMovieArchetypeMirror.create(
             { kind: "wall" },
             seed,
           ).affordance("face");
@@ -127,7 +123,7 @@ export function test_archetype_mirror_board(): void {
       ),
     ]),
   );
-  const wall: ReturnType<typeof createMirror> = createMirror(
+  const wall: ReturnType<typeof AutoMovieArchetypeMirror.create> = AutoMovieArchetypeMirror.create(
     { kind: "wall" },
     3,
   );
@@ -139,7 +135,7 @@ export function test_archetype_mirror_board(): void {
   );
   near("the face off the wall", face.frame.translation.z, 0.75 * inch);
   // 2. The standing mirror.
-  const cheval: ReturnType<typeof createMirror> = createMirror(
+  const cheval: ReturnType<typeof AutoMovieArchetypeMirror.create> = AutoMovieArchetypeMirror.create(
     { kind: "cheval" },
     3,
   );

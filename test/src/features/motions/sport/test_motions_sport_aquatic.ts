@@ -1,4 +1,4 @@
-import { createPoolEdge } from "@automovie/archetypes";
+import { AutoMovieArchetypePoolEdge } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -269,7 +269,7 @@ async function wallTurn(): Promise<void> {
         at: { x: -5, y: 0.3, z: 0 },
         yaw: 90,
         props: [
-          HumanObject.prop("wall", createPoolEdge({ kind: "deckEdge" }), {
+          HumanObject.prop("wall", AutoMovieArchetypePoolEdge.create({ kind: "deckEdge" }), {
             at: { x: 0, y: 0, z: 0 },
             yaw: -90,
             fixed: true,

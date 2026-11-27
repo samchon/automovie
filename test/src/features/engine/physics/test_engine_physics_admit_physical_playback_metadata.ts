@@ -1,4 +1,4 @@
-import { admitPhysicalPlaybackMetadata, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysics, AutoMoviePhysicalPlayback } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalPlayback,
@@ -79,7 +79,7 @@ export function test_engine_physics_admit_physical_playback_metadata(): void {
   for (const [label, supportWrenches, expected] of verdicts) {
     let refusal: string | null = null;
     try {
-      admitPhysicalPlaybackMetadata({ ...header(), supportWrenches });
+      AutoMoviePhysicalPlayback.admitMetadata({ ...header(), supportWrenches });
     } catch (error: unknown) {
       refusal = error instanceof Error ? error.message : String(error);
     }
@@ -114,7 +114,7 @@ export function test_engine_physics_admit_physical_playback_metadata(): void {
     ...contact,
     samples: [completed, { ...completed, seconds: 1 }],
   };
-  admitPhysicalPlaybackMetadata({ ...header(), contacts: [valid] });
+  AutoMoviePhysicalPlayback.admitMetadata({ ...header(), contacts: [valid] });
   const earlier: IAutoMovieContactReceipt[] = AutoMovieEnginePhysics.samplePhysicalContactEvents(
     valid,
     0.5,
@@ -147,7 +147,7 @@ export function test_engine_physics_admit_physical_playback_metadata(): void {
     if (
       !throwsError(
         () =>
-          admitPhysicalPlaybackMetadata({ ...header(), contacts: [receipt] }),
+          AutoMoviePhysicalPlayback.admitMetadata({ ...header(), contacts: [receipt] }),
         `Malformed physical playback contact ${archiveError}`,
       )
     )

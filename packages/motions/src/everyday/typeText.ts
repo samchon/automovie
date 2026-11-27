@@ -48,7 +48,7 @@ type BoardContext = "prop" | "start";
  * desk, or standing at a counter), pressing each key with an index fingertip.
  * The keyboard is the scene's prop: its `homeRow` contact places the keys, its
  * `keys` field must span the letter rows, and the typist faces it from its `+Z`
- * side (`createKeyboard`).
+ * side (`AutoMovieArchetypeKeyboard.create`).
  *
  * Each key press is a goal: the index fingertip of the hand on that key's side
  * comes down onto the key's centre by the key's travel and lifts again, while
@@ -91,7 +91,7 @@ export namespace typeText {
   /**
    * The keyboard a prop declares, where it stands at the action's start: its
    * `homeRow` contact's place, and the heading that faces it from its `+Z`
-   * side, where `createKeyboard` puts the typist.
+   * side, where `AutoMovieArchetypeKeyboard.create` puts the typist.
    *
    * @param context The action's context.
    * @param subject The keyboard's prop subject.
@@ -122,7 +122,7 @@ export namespace typeText {
             values: affordances.map((a: IAutoMovieAffordance): string => a.id),
           },
           reason: `${subject} declares no ${id}`,
-          fix: `give the keyboard a ${id} contact, as createKeyboard does`,
+          fix: `give the keyboard a ${id} contact, as AutoMovieArchetypeKeyboard.create does`,
         });
       return found;
     };

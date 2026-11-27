@@ -8,7 +8,7 @@ import type * as THREE from "three";
  * What the inspector's scene mount takes from the page: a renderer, the
  * animation-frame clock and the canvas size.
  *
- * `createAutoMovieInspectorCanvasHost` gives the browser's: a `WebGLRenderer`
+ * `AutoMovieViewerInspector.createCanvasHost` gives the browser's: a `WebGLRenderer`
  * on the canvas, `requestAnimationFrame` and the canvas's layout size. A unit
  * test gives recording doubles, so the mount's lifecycle runs without a
  * browser.

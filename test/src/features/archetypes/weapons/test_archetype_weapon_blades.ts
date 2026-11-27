@@ -1,10 +1,4 @@
-import {
-  AutoMovieArchetypeUnits,
-  createPell,
-  createPolearm,
-  createShield,
-  createSword,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createPell, createSword, AutoMovieArchetypePolearm, AutoMovieArchetypeShield } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -166,7 +160,7 @@ export function test_archetype_weapon_blades(): void {
       20.75 * AutoMovieArchetypeUnits.INCH,
       "Wallace Collection A315, A316",
       (seed: number): number =>
-        archetypeExtent(createShield({ kind: "buckler" }, seed), "y", ["board"])
+        archetypeExtent(AutoMovieArchetypeShield.create({ kind: "buckler" }, seed), "y", ["board"])
           .size,
     ),
     row(
@@ -175,7 +169,7 @@ export function test_archetype_weapon_blades(): void {
       3 * AutoMovieArchetypeUnits.POUND + 13 * AutoMovieArchetypeUnits.OUNCE,
       "Wallace Collection A315, A316",
       (seed: number): number =>
-        createShield({ kind: "buckler" }, seed).body.mass,
+        AutoMovieArchetypeShield.create({ kind: "buckler" }, seed).body.mass,
     ),
     row(
       "round shield diameter",
@@ -183,7 +177,7 @@ export function test_archetype_weapon_blades(): void {
       0.9,
       "Viking Age round shields",
       (seed: number): number =>
-        archetypeExtent(createShield({ kind: "round" }, seed), "y", ["board"])
+        archetypeExtent(AutoMovieArchetypeShield.create({ kind: "round" }, seed), "y", ["board"])
           .size,
     ),
     row(
@@ -192,7 +186,7 @@ export function test_archetype_weapon_blades(): void {
       2.7,
       "quarterstaff, 6 to 9 ft",
       (seed: number): number =>
-        archetypeExtent(createPolearm({ kind: "staff" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypePolearm.create({ kind: "staff" }, seed), "y").size,
     ),
     row(
       "spear shaft",
@@ -200,7 +194,7 @@ export function test_archetype_weapon_blades(): void {
       3,
       "Viking Age spears",
       (seed: number): number =>
-        archetypeExtent(createPolearm({ kind: "spear" }, seed), "y", ["shaft"])
+        archetypeExtent(AutoMovieArchetypePolearm.create({ kind: "spear" }, seed), "y", ["shaft"])
           .size,
     ),
     row(
@@ -209,7 +203,7 @@ export function test_archetype_weapon_blades(): void {
       0.54,
       "catalogued spearheads",
       (seed: number): number =>
-        archetypeExtent(createPolearm({ kind: "spear" }, seed), "y", ["head"])
+        archetypeExtent(AutoMovieArchetypePolearm.create({ kind: "spear" }, seed), "y", ["head"])
           .size,
     ),
   ]);

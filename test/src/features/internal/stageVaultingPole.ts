@@ -1,4 +1,4 @@
-import { createLandingMat, createVaultingPole } from "@automovie/archetypes";
+import { createVaultingPole, AutoMovieArchetypeLandingMat } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import {
@@ -87,7 +87,7 @@ export function stageVaultingPole(
         position: { x: top - 0.2, y: 1, z: 0.3 },
         rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
       }),
-      HumanObject.prop("mat", createLandingMat({ kind: "poleVault" }), {
+      HumanObject.prop("mat", AutoMovieArchetypeLandingMat.create({ kind: "poleVault" }), {
         at: { x: 0, y: 0, z: 20 },
         yaw: 0,
       }),

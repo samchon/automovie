@@ -1,4 +1,4 @@
-import { type AutoMovieArchetype, AutoMovieArchetypeBoard, AutoMovieArchetypeCamera, createClipboard, createLaptop, createMachine, createPaper, AutoMovieArchetypePhone, createScenicParadeBanner, createScenicStandard, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch } from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeBoard, AutoMovieArchetypeCamera, createClipboard, createLaptop, createMachine, createPaper, AutoMovieArchetypePhone, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch, AutoMovieArchetypeScenicParadeBanner, AutoMovieArchetypeScenicStandard } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModel,
@@ -126,15 +126,15 @@ const LISTED: readonly IListed[] = [
     surface: "face",
     top: "upright",
     builds: () =>
-      createScenicStandard.KINDS.flatMap((kind) =>
-        seeded((seed) => createScenicStandard({ kind }, seed)),
+      AutoMovieArchetypeScenicStandard.KINDS.flatMap((kind) =>
+        seeded((seed) => AutoMovieArchetypeScenicStandard.create({ kind }, seed)),
       ),
   },
   {
     name: "createScenicParadeBanner",
     surface: "face",
     top: "upright",
-    builds: () => seeded((seed) => createScenicParadeBanner({}, seed)),
+    builds: () => seeded((seed) => AutoMovieArchetypeScenicParadeBanner.create({}, seed)),
   },
   {
     name: "createClipboard",

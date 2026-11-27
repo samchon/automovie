@@ -1,9 +1,4 @@
-import {
-  AutoMovieArchetypeRefusal,
-  AutoMovieArchetypeUnits,
-  createCellFront,
-  createHandhold,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits, AutoMovieArchetypeCellFront, AutoMovieArchetypeHandhold } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -41,7 +36,7 @@ export function test_archetype_handhold_cell_front(): void {
       {
         name: "pole diameter",
         measure: (seed: number): number =>
-          archetypeExtent(createHandhold({ kind: "pole" }, seed), "x").size,
+          archetypeExtent(AutoMovieArchetypeHandhold.create({ kind: "pole" }, seed), "x").size,
         minimum: 1.25 * inch,
         maximum: 1.5 * inch,
         source: "49 CFR 38.29",
@@ -51,7 +46,7 @@ export function test_archetype_handhold_cell_front(): void {
       {
         name: "strap length and mass",
         measure: (seed: number): readonly number[] => {
-          const strap: ReturnType<typeof createHandhold> = createHandhold(
+          const strap: ReturnType<typeof AutoMovieArchetypeHandhold.create> = AutoMovieArchetypeHandhold.create(
             { kind: "strap" },
             seed,
           );
@@ -73,13 +68,13 @@ export function test_archetype_handhold_cell_front(): void {
       },
     ]),
   );
-  const pole: ReturnType<typeof createHandhold> = createHandhold(
+  const pole: ReturnType<typeof AutoMovieArchetypeHandhold.create> = AutoMovieArchetypeHandhold.create(
     { kind: "pole" },
     3,
   );
   near("the pole's top", archetypeExtent(pole, "y").high, 70 * inch);
   near("the pole's bar", pole.affordance("pole").length!, 70 * inch);
-  const strap: ReturnType<typeof createHandhold> = createHandhold(
+  const strap: ReturnType<typeof AutoMovieArchetypeHandhold.create> = AutoMovieArchetypeHandhold.create(
     { kind: "strap" },
     3,
   );
@@ -90,8 +85,8 @@ export function test_archetype_handhold_cell_front(): void {
   );
 
   // 3. The cell front.
-  const front: ReturnType<typeof createCellFront> = createCellFront(
-    createCellFront.REFERENCE,
+  const front: ReturnType<typeof AutoMovieArchetypeCellFront.create> = AutoMovieArchetypeCellFront.create(
+    AutoMovieArchetypeCellFront.REFERENCE,
     3,
   );
   // As many 7/8 in bars as fit a width at 4 in centres: the first bar's
@@ -102,7 +97,7 @@ export function test_archetype_handhold_cell_front(): void {
     ["the reference", 28 * inch, 7],
     ["an 8 ft cell", 8 * AutoMovieArchetypeUnits.FOOT, 24],
   ] as const) {
-    const built: ReturnType<typeof createCellFront> = createCellFront(
+    const built: ReturnType<typeof AutoMovieArchetypeCellFront.create> = AutoMovieArchetypeCellFront.create(
       { width },
       3,
     );
@@ -138,7 +133,7 @@ export function test_archetype_handhold_cell_front(): void {
     8 * AutoMovieArchetypeUnits.FOOT,
   );
   try {
-    createCellFront({ width: 4 * inch });
+    AutoMovieArchetypeCellFront.create({ width: 4 * inch });
     findings.push("a cell front too narrow for two bars was built");
   } catch (error) {
     if (!(error instanceof AutoMovieArchetypeRefusal) || error.axis !== "width")

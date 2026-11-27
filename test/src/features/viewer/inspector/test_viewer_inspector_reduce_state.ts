@@ -3,12 +3,11 @@ import {
   type IAutoMovieInspectorAction,
   type IAutoMovieInspectorState,
   AutoMovieViewerInspector,
-  reduceAutoMovieInspectorState,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `reduceAutoMovieInspectorState` applies one inspector edit to the request's
+ * `AutoMovieViewerInspector.reduceState` applies one inspector edit to the request's
  * address keys and reads the result back; an edit the reader refuses keeps the
  * previous request and records the refusal.
  *
@@ -39,7 +38,7 @@ export function test_viewer_inspector_reduce_state(): void {
   ) => IAutoMovieInspectorState = (
     ...actions: IAutoMovieInspectorAction[]
   ): IAutoMovieInspectorState =>
-    actions.reduce(reduceAutoMovieInspectorState, start);
+    actions.reduce(AutoMovieViewerInspector.reduceState, start);
   const read: (text: string) => IAutoMovieCapturePlanRequest = (
     text: string,
   ): IAutoMovieCapturePlanRequest => AutoMovieViewerInspector.readAddress(text);

@@ -1,0 +1,297 @@
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import {
+  ArchetypeDraw,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core/index";
+
+/** The ladder regulation. */
+const OSHA: string =
+  "29 CFR 1910.23 (https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.23)";
+
+/**
+ * The pitch of a ladder whose foot stands a quarter of its length from the
+ * wall, degrees: the arccosine of one quarter.
+ */
+const QUARTER: number = Math.acos(0.25) / AutoMovieArchetypeUnits.DEGREE;
+
+/** A rung's diameter, which the regulation does not give. */
+const RUNG: string =
+  "no rung diameter is given by 29 CFR 1910.23 or 1926.1053; the 25 to 35 mm of a round rung, not read at a source";
+
+/** Constructs the ladder archetype from its recipe. */
+export namespace AutoMovieArchetypeLadder {
+/**
+ * A ladder: fixed upright to a wall, or leaning against one.
+ *
+ * The ladder's foot is on the floor at the origin and it is climbed facing
+ * `-Z`, toward the wall. A fixed ladder is upright; a leaning one tilts back
+ * toward the wall at the pitch its bands give, its foot a quarter of its length
+ * out. Each rung is a `bar` named `rung1` upward, and each side rail a `bar`
+ * along the ladder.
+ *
+ * @param params The kind, the number of rungs and any dimension the author
+ *   fixes.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
+ * @returns The ladder.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
+ *   or a number of rungs that is not a whole number from 2 to 30.
+ */
+export function create(
+  params: AutoMovieArchetypeLadder.IParams,
+  seed?: number,
+): AutoMovieArchetype<AutoMovieArchetypeLadder.Affordance, AutoMovieArchetypeLadder.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeLadder.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeLadder.Dimension>(
+      "ladder",
+      AutoMovieArchetypeLadder.UNITS,
+      seed,
+      params,
+    );
+  const kind: AutoMovieArchetypeLadder.Kind = ArchetypeDraw.choice(
+    "ladder",
+    "kind",
+    params.kind,
+    AutoMovieArchetypeLadder.KINDS,
+  );
+  const requested: number = params.rungs ?? 10;
+  const rungNumbers: number[] = Array.from(
+    { length: Math.min(requested, AutoMovieArchetypeLadder.RUNGS) },
+    (_: unknown, index: number): number => index + 1,
+  );
+  const rungs: number = rungNumbers.length;
+  if (rungs < 2 || rungs !== requested)
+    throw new AutoMovieArchetypeRefusal({
+      kind: "parameter",
+      archetype: "ladder",
+      axis: "rungs",
+      value: requested,
+      feasible: {
+        kind: "range",
+        minimum: 2,
+        maximum: AutoMovieArchetypeLadder.RUNGS,
+        unit: "",
+      },
+      reason: `a ladder has 2 to ${AutoMovieArchetypeLadder.RUNGS} rungs, not ${requested}`,
+      fix: "give a whole number of rungs",
+    });
+  const d: Record<AutoMovieArchetypeLadder.Dimension, number> = draw.dimensions(
+    AutoMovieArchetypeLadder.BANDS[kind],
+    AutoMovieArchetypeLadder.BANDS,
+  );
+  const builder: AutoMovieArchetypeBuilder<
+    AutoMovieArchetypeLadder.Affordance,
+    AutoMovieArchetypeLadder.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "aluminium",
+    id: params.id,
+    name: `${kind} ladder`,
+    draw,
+  });
+
+  // The ladder's own line: up, tilted back toward the wall at -Z by the pitch from the floor.
+  const pitch: number = d.pitch * AutoMovieArchetypeUnits.DEGREE;
+  const along: IAutoMovieVector3 = Vector3.create(
+    0,
+    Math.sin(pitch),
+    -Math.cos(pitch),
+  );
+  const out: IAutoMovieVector3 = Vector3.create(
+    0,
+    Math.cos(pitch),
+    Math.sin(pitch),
+  );
+  const length: number = (rungs + 1) * d.spacing;
+  const radius: number = d.rungDiameter / 2;
+  for (const [side, sign] of [
+    ["left", 1],
+    ["right", -1],
+  ] as const) {
+    const foot: IAutoMovieVector3 = Vector3.create(
+      sign * (d.width / 2 + radius),
+      0,
+      0,
+    );
+    builder.rod(
+      `rail-${side}`,
+      radius,
+      foot,
+      Vector3.add(foot, Vector3.scale(along, length)),
+      { color: "#b9bcc0" },
+    );
+    builder.affordance({
+      id: `${side}Rail`,
+      kind: "bar",
+      symmetry: "round",
+      frame: AutoMovieArchetypeFrame.facing(
+        Vector3.add(foot, Vector3.scale(along, length / 2)),
+        out,
+        along,
+      ),
+      extent: null,
+      grip: "power",
+      aperture: 2 * radius,
+      length,
+    });
+  }
+  for (const k of rungNumbers) {
+    const at: IAutoMovieVector3 = Vector3.scale(along, k * d.spacing);
+    builder.rod(
+      `rung-${k}`,
+      radius,
+      Vector3.add(at, Vector3.create(-d.width / 2, 0, 0)),
+      Vector3.add(at, Vector3.create(d.width / 2, 0, 0)),
+      { color: "#b9bcc0" },
+    );
+    builder.affordance({
+      id: `rung${k}`,
+      kind: "bar",
+      materialPart: `rung-${k}`,
+      symmetry: "round",
+      frame: AutoMovieArchetypeFrame.facing(at, out, Vector3.create(1, 0, 0)),
+      extent: null,
+      grip: "power",
+      aperture: 2 * radius,
+      length: d.width,
+    });
+  }
+  return builder.build(d.mass * rungs);
+}
+}
+
+/** Companion types and bands of {@link createLadder}. */
+export namespace AutoMovieArchetypeLadder {
+  /** The kinds of ladder. */
+  export type Kind = "fixed" | "leaning";
+
+  /** Every kind, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["fixed", "leaning"];
+
+  /**
+   * The most rungs a ladder may have. An estimate, not read at a source: a
+   * bound on the model's size, not a regulation's.
+   */
+  export const RUNGS: number = 30;
+
+  /**
+   * The affordance ids:
+   *
+   * - `rung1` to `rung<rungs>`: each rung from the bottom up, a bar across the
+   *   ladder.
+   * - `leftRail`, `rightRail`: the side rails on `+X` and `-X`, each a bar along
+   *   the ladder.
+   */
+  export type Affordance = `rung${number}` | "leftRail" | "rightRail";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `spacing`: from one rung to the next along the ladder; the first rung is
+   *   one spacing from the foot.
+   * - `width`: the clear width of a rung between the rails.
+   * - `rungDiameter`: a rung's and a rail's round section.
+   * - `pitch`: the ladder's angle from the floor, degrees.
+   * - `mass`: kilograms per rung.
+   */
+  export type Dimension =
+    | "spacing"
+    | "width"
+    | "rungDiameter"
+    | "pitch"
+    | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    spacing: "m",
+    width: "m",
+    rungDiameter: "m",
+    pitch: "degrees",
+    mass: "kg",
+  };
+
+  /**
+   * The parameters: the kind, the count, and any free dimension fixed to a
+   * value inside its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which ladder. */
+    kind: Kind;
+
+    /** How many rungs, 2 to 30; 10 when absent. */
+    rungs?: number;
+
+    /** The model's id, unique in a scene; `ladder` when absent. */
+    id?: string;
+  }
+
+  /** The band of each free dimension, by kind. */
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
+  > = {
+    fixed: {
+      spacing: AutoMovieArchetypeBand.metres(
+        0.25,
+        0.36,
+        `${OSHA}(b)(2), rungs 10 to 14 in (25 to 36 cm) apart`,
+      ),
+      width: AutoMovieArchetypeBand.metres(
+        0.41,
+        0.5,
+        `${OSHA}(b)(4), fixed ladder rungs at least 16 in (41 cm) clear; the upper end is an estimate`,
+        true,
+      ),
+      rungDiameter: AutoMovieArchetypeBand.metres(0.025, 0.035, RUNG, true),
+      pitch: AutoMovieArchetypeBand.of(
+        "degrees",
+        90,
+        90,
+        `${OSHA}(d)(11), a fixed ladder's pitch is at most 90 degrees from the horizontal`,
+      ),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1.5,
+        3,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
+    },
+    leaning: {
+      spacing: AutoMovieArchetypeBand.metres(
+        0.25,
+        0.36,
+        `${OSHA}(b)(2), rungs 10 to 14 in (25 to 36 cm) apart`,
+      ),
+      width: AutoMovieArchetypeBand.metres(
+        0.29,
+        0.41,
+        `${OSHA}(b)(4), portable ladder rungs at least 11.5 in (29 cm) clear; the upper end is the fixed ladder's minimum`,
+        true,
+      ),
+      rungDiameter: AutoMovieArchetypeBand.metres(0.025, 0.035, RUNG, true),
+      pitch: AutoMovieArchetypeBand.of(
+        "degrees",
+        QUARTER,
+        QUARTER,
+        "29 CFR 1926.1053(b)(5)(i), the foot a quarter of the working length from the wall (https://www.osha.gov/laws-regs/regulations/standardnumber/1926/1926.1053); the angle is the arccosine of one quarter, about 75.5 degrees",
+      ),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        0.8,
+        1.5,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
+    },
+  };
+}

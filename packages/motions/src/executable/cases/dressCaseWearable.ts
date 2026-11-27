@@ -7,10 +7,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * An item to put on, shaped as `createWearable` shapes it and lying where the
- * hand takes it: a 0.3 m hat 0.12 m high facing the way it is worn, held at its
- * brim's right side, or 0.14 m spectacles facing the body, held at the bridge,
- * each with its `wear` socket.
+ * An item to put on, shaped as `AutoMovieArchetypeWearable.create` shapes it and
+ * lying where the hand takes it: a 0.3 m hat 0.12 m high facing the way it is
+ * worn, held at its brim's right side, or 0.14 m spectacles facing the body,
+ * held at the bridge, each with its `wear` socket.
  *
  * @param item The item.
  * @param at Where it lies, world metres.
@@ -79,8 +79,8 @@ export function dressCaseWearable(
 /** The items' wear sockets. */
 export namespace dressCaseWearable {
   /**
-   * The wear sockets of the two items, in their own frames, as `createWearable`
-   * declares them.
+   * The wear sockets of the two items, in their own frames, as
+   * `AutoMovieArchetypeWearable.create` declares them.
    */
   export const WEAR: Readonly<
     Record<IAutoMovieMotionHumanDress.Item, IAutoMovieAffordance["frame"]>

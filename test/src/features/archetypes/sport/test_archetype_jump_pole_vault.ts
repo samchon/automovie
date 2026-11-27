@@ -1,4 +1,4 @@
-import { createHighJump } from "@automovie/archetypes";
+import { AutoMovieArchetypeHighJump } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -27,8 +27,8 @@ const WA: string = "World Athletics Technical Rules 2020";
  * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
  */
 export function test_archetype_jump_pole_vault(): void {
-  const vault = (seed: number): ReturnType<typeof createHighJump> =>
-    createHighJump({ kind: "poleVault" }, seed);
+  const vault = (seed: number): ReturnType<typeof AutoMovieArchetypeHighJump.create> =>
+    AutoMovieArchetypeHighJump.create({ kind: "poleVault" }, seed);
   const row = (
     name: string,
     minimum: number,
@@ -53,7 +53,7 @@ export function test_archetype_jump_pole_vault(): void {
       archetypeExtent(vault(s), "y", ["crossbar"]).high,
     ),
     row("peg span", 4.28, 4.37, `${WA} 28.10`, (s: number): number => {
-      const v: ReturnType<typeof createHighJump> = vault(s);
+      const v: ReturnType<typeof AutoMovieArchetypeHighJump.create> = vault(s);
       return (
         archetypeExtent(v, "x", ["arm-left"]).low -
         archetypeExtent(v, "x", ["arm-right"]).high
@@ -69,7 +69,7 @@ export function test_archetype_jump_pole_vault(): void {
   ]);
 
   // 2. The box.
-  const v: ReturnType<typeof createHighJump> = vault(3);
+  const v: ReturnType<typeof AutoMovieArchetypeHighJump.create> = vault(3);
   const socket: IAutoMovieVector3 = v.affordance("box").frame.translation;
   if (Math.abs(socket.y + 0.2) > 1e-9)
     findings.push(`the box's socket stands ${socket.y} m, -0.2 m expected`);
@@ -93,14 +93,14 @@ export function test_archetype_jump_pole_vault(): void {
       findings.push(`the ${id}'s foot is off the runway`);
 
   // 4. The contacts, and the high jump unchanged.
-  const ids = (archetype: ReturnType<typeof createHighJump>): string =>
+  const ids = (archetype: ReturnType<typeof AutoMovieArchetypeHighJump.create>): string =>
     archetype.affordances
       .map((a: IAutoMovieAffordance): string => `${a.id}:${a.kind}`)
       .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
       .join(",");
   if (ids(v) !== "bar:bar,box:socket")
     findings.push(`the pole vault declares ${ids(v)}`);
-  const high: ReturnType<typeof createHighJump> = createHighJump({}, 3);
+  const high: ReturnType<typeof AutoMovieArchetypeHighJump.create> = AutoMovieArchetypeHighJump.create({}, 3);
   if (ids(high) !== "bar:bar")
     findings.push(`the high jump declares ${ids(high)}`);
   if (archetypeExtent(high, "y").low < -1e-9)

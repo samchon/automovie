@@ -5,7 +5,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import type { createSanitary } from "./createSanitary";
-import { createTap } from "./createTap";
+import { AutoMovieArchetypeTap } from "./AutoMovieArchetypeTap";
 
 /** The builder every kind's construction fills. */
 type Builder = AutoMovieArchetypeBuilder<
@@ -106,7 +106,7 @@ export namespace SanitaryConstruction {
 
     // The mixer stands in the middle of the deck strip between the wall and the opening's back edge, its spout reaching out over the opening.
     const deck: number = (depth - d.bowlDepth!) / 4;
-    const spout: number = createTap.SPOUT;
+    const spout: number = AutoMovieArchetypeTap.SPOUT;
     const outlet: number = rim + d.tapOutlet!;
     const top: number = rim + d.tapHeight!;
     builder.rod("tap-body", 0.02, v(0, rim, deck), v(0, top, deck), {

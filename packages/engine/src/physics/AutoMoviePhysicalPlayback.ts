@@ -1,3 +1,5 @@
+import { admitPhysicalPlaybackMetadata as admitPhysicalPlaybackMetadataImplementation } from "./internal/admitPhysicalPlaybackMetadata";
+
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDecodePhysicalPlayback,
@@ -26,6 +28,16 @@ import { samplePhysicalOwnership } from "./internal/samplePhysicalOwnership";
  * (localhost).
  */
 export class AutoMoviePhysicalPlayback {
+  /**
+   * Refuse inconsistent causal metadata even when an archive has a valid
+   * integrity trailer: budgets, references, clocks, orderings, unit normals and
+   * allocation residuals. Contact episodes must fit the archive's film duration
+   * and name known segments or the floor. Invalid metadata throws.
+   */
+  public static admitMetadata(header: IAutoMoviePhysicalPlayback.IHeader): void {
+    admitPhysicalPlaybackMetadataImplementation(header);
+  }
+
   /** Bytes per position/quaternion/linear/angular-velocity record. */
   private static readonly stride: number = 13 * 8;
 

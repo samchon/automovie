@@ -6,7 +6,7 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * desk, or standing at a counter), pressing each key with an index fingertip.
  * The keyboard is the scene's prop: its `homeRow` contact places the keys, its
  * `keys` field must span the letter rows, and the typist faces it from its `+Z`
- * side (`createKeyboard`).
+ * side (`AutoMovieArchetypeKeyboard.create`).
  *
  * Each key press is a goal: the index fingertip of the hand on that key's side
  * comes down onto the key's centre by the key's travel and lifts again, while
@@ -38,7 +38,7 @@ export namespace IAutoMovieMotionHumanTypeText {
     /**
      * The keyboard's prop subject: its `homeRow` affordance is the home row's
      * middle and its `keys` the key field, the typist on its `+Z` side
-     * (`createKeyboard`'s contacts).
+     * (`AutoMovieArchetypeKeyboard.create`'s contacts).
      */
     keyboard: string;
 

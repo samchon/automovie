@@ -2,7 +2,6 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
   type IAutoMovieInspectorState,
 
-  reduceAutoMovieInspectorState,
   AutoMovieViewerInspector,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -87,7 +86,7 @@ export function test_viewer_inspector_locate_inspector_finding(): void {
   const playing: IAutoMovieInspectorState = AutoMovieViewerInspector.createState(
     "?from=0&to=4&rate=24&label=stage",
   );
-  const located: IAutoMovieInspectorState = reduceAutoMovieInspectorState(
+  const located: IAutoMovieInspectorState = AutoMovieViewerInspector.reduceState(
     playing,
     AutoMovieViewerInspector.locateFinding({ observation: observation(["rope/segment/1"]), paths: drawn }),
   );

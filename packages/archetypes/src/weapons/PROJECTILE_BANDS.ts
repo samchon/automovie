@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { createRock } from "../nature/createRock";
+import { AutoMovieArchetypeRock } from "../nature/AutoMovieArchetypeRock";
 import type { createProjectile } from "./createProjectile";
 
 /** The British service musket ball, seen only in search results. */
@@ -122,6 +122,6 @@ export const PROJECTILE_BANDS: Readonly<
   },
   stone: {
     mass: AutoMovieArchetypeBand.of("kg", 0.5, 1, STONE),
-    gravity: createRock.BANDS.cobble.gravity,
+    gravity: AutoMovieArchetypeRock.BANDS.cobble.gravity,
   },
 };

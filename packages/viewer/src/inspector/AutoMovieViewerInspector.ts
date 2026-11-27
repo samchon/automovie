@@ -13,7 +13,9 @@ import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHos
 import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
 import { buildAutoMovieInspectorPathTree } from "./internal/buildAutoMovieInspectorPathTree.js";
 import { createAutoMovieInspectorAddressWriter } from "./internal/createAutoMovieInspectorAddressWriter.js";
+import { createAutoMovieInspectorCanvasHost } from "./internal/createAutoMovieInspectorCanvasHost.js";
 import { createAutoMovieInspectorState } from "./internal/createAutoMovieInspectorState.js";
+import { reduceAutoMovieInspectorState } from "./internal/reduceAutoMovieInspectorState.js";
 import { formatAutoMovieInspectorAddress } from "./internal/formatAutoMovieInspectorAddress.js";
 import { formatAutoMovieInspectorCommand } from "./internal/formatAutoMovieInspectorCommand.js";
 import { handleAutoMovieInspectorKey } from "./internal/handleAutoMovieInspectorKey.js";
@@ -151,12 +153,27 @@ export namespace AutoMovieViewerInspector {
     return createAutoMovieInspectorAddressWriter(props);
   }
 
+  /** Create the inspector host for a canvas, preserving its owner-window frame clock. */
+  export function createCanvasHost(
+    canvas: HTMLCanvasElement,
+  ): IAutoMovieInspectorSceneHost {
+    return createAutoMovieInspectorCanvasHost(canvas);
+  }
+
   /** Return the time edit implied when a previously playing playhead stops. */
   export function stopTime(
     playing: boolean,
     snapshot: AutoMovieInspectorPlayhead.ISnapshot,
   ): IAutoMovieInspectorAction.ITime | null {
     return stopAutoMovieInspectorTime(playing, snapshot);
+  }
+
+  /** Apply one action to inspector state, preserving refused requests. */
+  export function reduceState(
+    state: IAutoMovieInspectorState,
+    action: IAutoMovieInspectorAction,
+  ): IAutoMovieInspectorState {
+    return reduceAutoMovieInspectorState(state, action);
   }
 
   /** Initialize inspector request state from the page's address text. */

@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, type AutoMovieArchetypeEquine, createDonkey, createHorse, createQuadruped, AutoMovieArchetypeMule, AutoMovieArchetypePony } from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, type AutoMovieArchetypeEquine, createHorse, createQuadruped, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -35,7 +35,7 @@ export function test_archetypes_animals_equid_attachment_clock(): void {
     { name: "horse", height: 1.615, model: (tack: Tack): ReturnType<typeof createHorse> =>
       createHorse({ withersHeight: 1.615, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
     { name: "donkey", height: 1.1262, model: (tack: Tack): ReturnType<typeof createHorse> =>
-      createDonkey({ withersHeight: 1.1262, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
+      AutoMovieArchetypeDonkey.create({ withersHeight: 1.1262, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
     { name: "Connemara pony", height: 1.46, model: (tack: Tack): ReturnType<typeof createHorse> =>
       AutoMovieArchetypePony.create({ breed: "connemara", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
     { name: "female mule", height: 1.304, model: (tack: Tack): ReturnType<typeof createHorse> =>

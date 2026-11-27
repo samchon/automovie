@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeRefusal,
-  AutoMovieArchetypeJavelin,
-  createPolearm,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeJavelin, AutoMovieArchetypePolearm } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -82,7 +78,7 @@ export function test_archetype_weapon_javelin(): void {
           );
       }
 
-  const lance: ReturnType<typeof createPolearm> = createPolearm({
+  const lance: ReturnType<typeof AutoMovieArchetypePolearm.create> = AutoMovieArchetypePolearm.create({
     kind: "lance",
   });
   if (

@@ -28,19 +28,18 @@ import { AutoMovieInspectorViewPanel } from "./AutoMovieInspectorViewPanel.js";
 import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
-import { createAutoMovieInspectorCanvasHost } from "./createAutoMovieInspectorCanvasHost.js";
+
 
 
 
 import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
-import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.js";
 
 /**
  * The inspection page as a React component: one canvas showing a subject
  * through one request, and the panels that edit that request.
  *
  * The request is the component's only state that changes the picture. Every
- * panel dispatches an edit to `reduceAutoMovieInspectorState`, the canvas is a
+ * panel dispatches an edit to `AutoMovieViewerInspector.reduceState`, the canvas is a
  * plain three.js scene from `@automovie/render` mounted by
  * `AutoMovieViewerInspector.mountScene` in an effect, and every change of the request
  * reaches `onRequestChange` as address text, so the page keeps its address
@@ -86,7 +85,7 @@ export function AutoMovieInspector(
   props: IAutoMovieInspectorProps,
 ): JSX.Element {
   const [state, dispatch] = useReducer(
-    reduceAutoMovieInspectorState,
+    AutoMovieViewerInspector.reduceState,
     props.initialText,
     AutoMovieViewerInspector.createState,
   );
@@ -135,7 +134,7 @@ export function AutoMovieInspector(
       name,
       request,
       playhead,
-      host: createAutoMovieInspectorCanvasHost(canvas.current),
+      host: AutoMovieViewerInspector.createCanvasHost(canvas.current),
       report: {
         ready: setFacts,
         legend: setLegend,
@@ -516,7 +515,7 @@ function describeDiagnostics(
     const status: string =
       strongest.confidence === "candidate" ? "Possible" : "Confirmed";
     messages.push(
-      `${status} — ${describeFinding({ finding: strongest, time: strongest.witness.time ?? packet.time })}`,
+      `${status} ??${describeFinding({ finding: strongest, time: strongest.witness.time ?? packet.time })}`,
     );
   }
   if (unavailable.length !== 0)
