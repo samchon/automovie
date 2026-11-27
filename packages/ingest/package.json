@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
+    "prepack": "node ../../scripts/copy-package-notices.mjs",
     "evidence": "evidence"
   },
   "keywords": [],

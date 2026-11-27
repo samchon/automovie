@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
+    "prepack": "node ../../scripts/copy-package-notices.mjs",
     "capture": "ttsx --no-plugins --noCheck node_modules/automovie/src/bin.ts capture --module src/executable/subjects.ts",
     "inspect": "ttsx --no-plugins --noCheck node_modules/automovie/src/bin.ts inspect --module src/executable/subjects.ts"
   },

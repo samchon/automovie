@@ -35,6 +35,7 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc && rolldown -c",
+    "prepack": "node ../../scripts/copy-package-notices.mjs",
     "evidence": "evidence"
   },
   "keywords": [],

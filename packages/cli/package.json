@@ -12,6 +12,7 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc && node -e \"require('node:fs').copyFileSync('../../README.md', 'README.md')\"",
+    "prepack": "node ../../scripts/copy-package-notices.mjs",
     "start": "ttsx src/bin.ts",
     "evidence": "evidence"
   },

@@ -7,7 +7,7 @@
  * Adapted from Clarabel.rs 0.11.1, revision
  * 25540f559592068d0c8a80e46ded1b21760212a1.
  * Original source: src/solver/implementations/default/problemdata.rs
- * License: ../../../LICENSE-APACHE-2.0
+ * License and provenance: see THIRD_PARTY_NOTICES.md, Clarabel entry.
  */
 import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
 

@@ -1,3 +1,18 @@
+# Third-party notices
+
+AutoMovie uses the MIT License in `LICENSE`. The following notices cover Clarabel and IHMC adapted code in the engine. The Apache License, Version 2.0 text appears once below and applies to the identified Clarabel and IHMC portions.
+
+## Clarabel.rs
+
+Five TypeScript files under `packages/engine/src/math/internal/` adapt Clarabel.rs 0.11.1 at revision `25540f559592068d0c8a80e46ded1b21760212a1`: `createAutoMovieQuadraticFactor.ts`, `equilibrateAutoMovieQuadraticProgram.ts`, `measureAutoMovieQuadraticState.ts`, `solveAutoMovieQuadraticStep.ts`, and `solveAutoMovieQuadraticInterior.ts`. Their source headers identify the upstream Rust paths, copyright, Apache-2.0 license, and AutoMovie modifications. The original Clarabel license text is reproduced below; the repository's prior vendor README recorded its SHA-256 as `6e2f382771f8aab58e4868ddd0afe0c2fefe6b54f9681493a9c3d0f32906cfe1`.
+
+## IHMC Open Robotics Software and Euclid
+
+The files under `packages/engine/src/physics/` whose headers say they are ported from IHMC Open Robotics Software or IHMC Euclid contain source adapted from those projects. The headers identify the upstream class or method, source module, revision or release, and adapted lines. The existing IHMC notice identifies the copyright holder as the Florida Institute for Human and Machine Cognition (IHMC), and identifies the Apache License, Version 2.0. The source headers remain the file-level provenance record; the Apache text below applies to those portions as well.
+
+IHMC source origins include `https://github.com/ihmcrobotics/ihmc-open-robotics-software` and `https://github.com/ihmcrobotics/euclid`. The prior vendor notice listed ports from `AngularMomentumIntegrator`, `FootstepAdjustor`, `GlitchFilteredYoBoolean`, ICP controller and planner classes, `CapturePointTools`, `CoMIntegrationTools`, `OneStepCaptureRegionCalculator`, `CaptureRegionMathTools`, Euclid polygon geometry and scaling, and `PushRecoveryControlModule`. Existing source headers provide the exact mapping for retained code.
+
+## Apache License, Version 2.0
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
