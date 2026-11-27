@@ -10,7 +10,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { samplePhysicalOwnership } from "./samplePhysicalOwnership";
+import { samplePhysicalOwnership } from "./internal/samplePhysicalOwnership";
 
 /**
  * Owned fixed-step replay data. Readers never advance a solver. Checkpoints

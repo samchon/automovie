@@ -18,7 +18,7 @@ import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
 import { fitPhysicalCoupledTargetGroup } from "./fitPhysicalCoupledTargetGroup";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
-import { samplePhysicalTarget } from "../samplePhysicalTarget";
+import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Evaluate one frame's coupled and ordinary relationships against the same

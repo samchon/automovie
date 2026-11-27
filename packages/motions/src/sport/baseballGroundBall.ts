@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanVerdicts } from "../audit/HumanVerdicts";
+import { AutoMovieMotionHumanVerdicts } from "../audit/AutoMovieMotionHumanVerdicts";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
@@ -135,7 +135,7 @@ export function baseballGroundBall(
     // Bound a pitch bracket by the contact skin over the upper body's
     // measured reach from the hips, and keep the reachable bracket end.
     const tolerance: number =
-      (180 * HumanVerdicts.SKIN) / (Math.PI * (m.shoulderHeight - m.hipHeight));
+      (180 * AutoMovieMotionHumanVerdicts.SKIN) / (Math.PI * (m.shoulderHeight - m.hipHeight));
     const inclination: number = !outside(0)
       ? 0
       : outside(baseball.INCLINED)

@@ -28,24 +28,24 @@ export * from "./PhysicalRotationVector";
 export * from "./PhysicalTargetInterval";
 export * from "./accumulatePhysicalMotorTorques";
 
-export * from "./admitPhysicalBody";
+
 
 
 export * from "./admitPhysicalPlaybackMetadata";
 export * from "./admitPhysicalPointBounds";
 
-export * from "./admitPhysicalSimulation";
 
-export * from "./admitPhysicalTargets";
+
+
 export * from "./advancePhysicalBalance";
 export * from "./advancePhysicalOwnership";
 export * from "./physicalAngularMomentumIntegrator";
-export * from "./assertPhysicalReturnPath";
 
-export * from "./bindPhysicalWorld";
+
+
 export * from "./AutoMovieEnginePhysics";
 export * from "./capturePhysicalSimulationCheckpoint";
-export * from "./checkpointPhysicalSimulation";
+
 export * from "./choosePhysicalSupportFit";
 
 export * from "./collectPhysicalSupports";
@@ -59,12 +59,12 @@ export * from "./configurePhysicalJointMotor";
 
 
 export * from "./encodePhysicalPlayback";
-export * from "./fitPhysicalWholeBodyTarget";
-export * from "./hasPhysicalHandoff";
+
+
 export * from "./impactRecoil";
 
 export * from "./inPhysicalFloorBounds";
-export * from "./isPhysicalActuatorChain";
+
 
 
 
@@ -99,7 +99,7 @@ export * from "./physicalHullFaces";
 
 export { physicalHullNearest } from "./physicalHullNearest";
 
-export * from "./physicalInputDigest";
+
 
 
 
@@ -176,19 +176,19 @@ export * from "./physicalDisturbanceForm";
 export * from "./physicalDisturbancePlacement";
 export * from "./physicalDisturbanceResponse";
 export * from "./preparePhysicalGeometry";
-export * from "./preparePhysicalTargetSampler";
 
 
 
-export * from "./projectPhysicalTargets";
+
+
 
 export * from "./projectileContinue";
 export * from "./projectileDragFlight";
 export * from "./projectileFirstContact";
 export * from "./projectileSphereHit";
 
-export * from "./readPhysicalFrame";
-export * from "./readPhysicalScene";
+
+
 
 
 
@@ -196,21 +196,21 @@ export * from "./recordPhysicalSpanContacts";
 
 
 
-export * from "./resolvePhysicalPerformanceMode";
 
 
 
-export * from "./restorePhysicalSimulationCheckpoint";
-
-export * from "./samplePhysicalAuthoredTargets";
-
-export * from "./samplePhysicalOwnership";
 
 
-export * from "./samplePhysicalTarget";
 
 
-export * from "./seedPhysicalChainTarget";
+
+
+
+
+
+
+
+
 export * from "./segmentSphere";
 
 
@@ -236,12 +236,12 @@ export * from "./trackPhysicalContactTargets";
 export * from "./trackPhysicalRoot";
 export * from "./trackPhysicalRootSupportTargets";
 export * from "./trackPhysicalSupports";
-export * from "./trackPhysicalWorld";
+
 export * from "./trackPhysicalWorldBalance";
 export * from "./trackPhysicalWorldJoints";
 
 
-export * from "./yieldPhysicalSimulation";
+
 export * from "./markAutoMovieSkeleton";
 
 export * from "./createPhysicalHullShape";

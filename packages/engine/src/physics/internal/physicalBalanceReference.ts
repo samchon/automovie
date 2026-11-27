@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
-import { samplePhysicalTarget } from "../samplePhysicalTarget";
+import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * The completed fitted balance reference at a replan boundary and the authored

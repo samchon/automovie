@@ -4,9 +4,9 @@ import type {
   IAutoMovieRecoveryScalarProfilesFittingOperation,
 } from "@automovie/interface";
 
-import { fitRecoveryImageProfiles as fitImageProfilesImplementation } from "../internal/fitRecoveryImageProfiles";
-import { fitRecoveryScalarProfiles as fitScalarProfilesImplementation } from "../internal/fitRecoveryScalarProfiles";
-import { selectRecoveryScalarIntervals as selectScalarIntervalsImplementation } from "../internal/selectRecoveryScalarIntervals";
+import { fitRecoveryImageProfiles as fitImageProfilesImplementation } from "./internal/fitRecoveryImageProfiles";
+import { fitRecoveryScalarProfiles as fitScalarProfilesImplementation } from "./internal/fitRecoveryScalarProfiles";
+import { selectRecoveryScalarIntervals as selectScalarIntervalsImplementation } from "./internal/selectRecoveryScalarIntervals";
 
 /** Fit Recovery profiles and select complete saved scalar intervals. */
 export namespace AutoMovieRecoveryProfileFitting {

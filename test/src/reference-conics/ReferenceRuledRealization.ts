@@ -11,14 +11,7 @@ import type {
   IAutoMovieRecoveryTensorConstruction,
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
-import {
-  describeRecoveryNamedDomains,
-  AutoMovieRecoveryOpenRun,
-  normalizeRecoveryCourse,
-  AutoMovieRecoveryReconstruction,
-  reconstructRecovery,
-  restoreRecoveryCurveBasis,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryOpenRun, normalizeRecoveryCourse, AutoMovieRecoveryReconstruction, reconstructRecovery, restoreRecoveryCurveBasis } from "@automovie/recovery";
 
 /** Browser consumer policy; mathematical limits remain the official Node limits. */
 interface Options {
@@ -107,7 +100,7 @@ export async function ReferenceRuledRealization(
         typeof reconstructRecovery
       >["analyticReports"];
       named: {
-        members: ReturnType<typeof describeRecoveryNamedDomains>["members"];
+        members: ReturnType<typeof AutoMovieRecoveryReconstruction.describeNamedDomains>["members"];
         diagnostics: string[];
       };
     };
@@ -165,8 +158,8 @@ export async function ReferenceRuledRealization(
     bundle,
     { observeWork: true, analytic },
   );
-  const named: ReturnType<typeof describeRecoveryNamedDomains> =
-    describeRecoveryNamedDomains(bundle, base);
+  const named: ReturnType<typeof AutoMovieRecoveryReconstruction.describeNamedDomains> =
+    AutoMovieRecoveryReconstruction.describeNamedDomains(bundle, base);
   const plannedTensorFamilies: number = named.members.filter(
     (member: (typeof named.members)[number]): boolean =>
       member.kind === "tensor-family",

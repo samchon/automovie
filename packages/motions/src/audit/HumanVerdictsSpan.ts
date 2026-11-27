@@ -6,7 +6,7 @@ import type {
 
 /**
  * A motion's span from `from` to `to` as a motion of its own: its seconds start
- * at `from`, and its actions' spans are moved by as much (`HumanVerdicts`).
+ * at `from`, and its actions' spans are moved by as much (`AutoMovieMotionHumanVerdicts`).
  *
  * @param motion The motion, in film seconds.
  * @param from The span's first film second.

@@ -15,9 +15,9 @@ import type {
 
 import { RecoveryFeasibleCapacityError } from "../../internal/RecoveryFeasibleCapacityError";
 import { assertRecoverySceneLinearRetention } from "../../internal/assertRecoverySceneLinearRetention";
-import { collectRecoverySceneSupport } from "../../internal/collectRecoverySceneSupport";
-import { completeRecoverySceneCheckpoint } from "../../internal/completeRecoverySceneCheckpoint";
-import { createRecoverySceneSeedReportObserver } from "../../internal/createRecoverySceneSeedReportObserver";
+import { collectRecoverySceneSupport } from "./collectRecoverySceneSupport";
+import { completeRecoverySceneCheckpoint } from "./completeRecoverySceneCheckpoint";
+import { createRecoverySceneSeedReportObserver } from "./createRecoverySceneSeedReportObserver";
 import { describeRecoverySceneRegistration } from "../../internal/describeRecoverySceneRegistration";
 import { fitRecoveryResectionConsensus } from "../../geometry/internal/fitRecoveryResectionConsensus";
 import { initializeRecoverySceneSeed } from "./initializeRecoverySceneSeed";

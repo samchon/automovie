@@ -41,7 +41,7 @@ export namespace AutoMovieMotionHumanAuditSpin {
   /**
    * The smallest snap {@link measure} resolves by default, degrees: an
    * interval's turn must exceed its neighbours' mean by more than this before
-   * it is halved, and `HumanVerdicts` bounds the resolved `turn` by it.
+   * it is halved, and `AutoMovieMotionHumanVerdicts` bounds the resolved `turn` by it.
    */
   export const SNAP: number = 5;
 

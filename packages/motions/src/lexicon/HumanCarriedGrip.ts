@@ -20,7 +20,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanVerdicts } from "../audit/HumanVerdicts";
+import { AutoMovieMotionHumanVerdicts } from "../audit/AutoMovieMotionHumanVerdicts";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
@@ -138,7 +138,7 @@ export function HumanCarriedGrip(
       wrist,
     );
     const miss: number = Vector3.distance(met, point);
-    let violation: number = miss > HumanVerdicts.SKIN ? miss : 0;
+    let violation: number = miss > AutoMovieMotionHumanVerdicts.SKIN ? miss : 0;
     if (tangent === undefined)
       tangent = Quaternion.rotateVector(goal.rotation!, surface.forward!);
     for (const [name, bone] of bones) {
@@ -162,7 +162,7 @@ export function HumanCarriedGrip(
     );
   }
   let best: number = error(preferred);
-  if (best <= HumanVerdicts.SKIN || tangent === undefined || radius === 0)
+  if (best <= AutoMovieMotionHumanVerdicts.SKIN || tangent === undefined || radius === 0)
     return grip.forward;
   let chosen: IAutoMovieVector3 | undefined = grip.forward;
   if (preferred === undefined) {
@@ -188,13 +188,13 @@ export function HumanCarriedGrip(
       if (violation < best) {
         chosen = Quaternion.rotateVector(back, forward);
         best = violation;
-        if (best <= HumanVerdicts.SKIN) return chosen;
+        if (best <= AutoMovieMotionHumanVerdicts.SKIN) return chosen;
       }
     }
   }
   // Adjacent sampled rotations displace even the farthest digit by at most one contact skin.
   const intervals: number = Math.ceil(
-    Math.PI / Math.asin(Math.min(1, HumanVerdicts.SKIN / (2 * radius))),
+    Math.PI / Math.asin(Math.min(1, AutoMovieMotionHumanVerdicts.SKIN / (2 * radius))),
   );
   for (let step: number = 1; step <= Math.ceil(intervals / 2); ++step)
     for (const sign of [-1, 1]) {
@@ -206,7 +206,7 @@ export function HumanCarriedGrip(
       if (violation >= best) continue;
       best = violation;
       chosen = Quaternion.rotateVector(back, forward);
-      if (best <= HumanVerdicts.SKIN) return chosen;
+      if (best <= AutoMovieMotionHumanVerdicts.SKIN) return chosen;
     }
   return chosen;
 }

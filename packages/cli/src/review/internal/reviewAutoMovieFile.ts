@@ -212,7 +212,7 @@ function windowAt(
   const end: number = seconds(clock, clock.frameCount);
   if (requested.from >= end || (requested.to !== null && requested.to > end))
     throw new Error(
-      `Review position lies outside the published film's 0??{end} s`,
+      `Review position lies outside the published film's 0–${end} s`,
     );
   const firstBoundary: number = firstBoundaryAtOrAfter(clock, requested.from);
   const firstFrame: number =
@@ -399,10 +399,10 @@ function address(mark: IAutoMovieCliReviewObservation): string {
   const position: string =
     requested.to === null
       ? `requested ${requested.from} s`
-      : `requested ${requested.from}??{requested.to} s`;
+      : `requested ${requested.from}–${requested.to} s`;
   return observed === null
     ? `${position}. ${mark.unavailable}`
-    : `${position}. Frames ${observed.firstFrame}??{observed.endFrame - 1}, PTS ${observed.start.ticks}??{observed.end.ticks} at ${observed.start.timeBase.join("/")} s per tick`;
+    : `${position}. Frames ${observed.firstFrame}–${observed.endFrame - 1}, PTS ${observed.start.ticks}–${observed.end.ticks} at ${observed.start.timeBase.join("/")} s per tick`;
 }
 
 /** Reports the old address and any verified absence from a replacement cut. */

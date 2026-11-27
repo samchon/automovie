@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import { HumanVerdictInspection } from "@automovie/motions";
+import { AutoMovieMotionHumanVerdictInspection } from "@automovie/motions";
 
 import type { IFilmProduction } from "./IFilmProduction";
 
@@ -39,5 +39,5 @@ export function readFilmVerdicts(
   if (source === undefined) return undefined;
   let packet: FilmVerdictPacket | undefined;
   return (): FilmVerdictPacket =>
-    (packet ??= HumanVerdictInspection.read(source()));
+    (packet ??= AutoMovieMotionHumanVerdictInspection.read(source()));
 }

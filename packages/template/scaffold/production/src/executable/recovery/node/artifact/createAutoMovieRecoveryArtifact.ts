@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryArtifactInput,
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
-import { describeRecoveryNamedDomains } from "@automovie/recovery";
+import { AutoMovieRecoveryReconstruction } from "@automovie/recovery";
 import path from "node:path";
 
 /**
@@ -41,8 +41,8 @@ export function createAutoMovieRecoveryArtifact(
     peaks,
   }: typeof input = input;
   const generated: ReturnType<typeof counts> = counts();
-  const named: ReturnType<typeof describeRecoveryNamedDomains> =
-    describeRecoveryNamedDomains(bundle, base);
+  const named: ReturnType<typeof AutoMovieRecoveryReconstruction.describeNamedDomains> =
+    AutoMovieRecoveryReconstruction.describeNamedDomains(bundle, base);
   const tensorMembers: typeof named.members = named.members.filter(
     (member: (typeof named.members)[number]): boolean =>
       member.kind === "tensor-family",

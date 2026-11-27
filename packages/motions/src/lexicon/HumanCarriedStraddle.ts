@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanVerdicts } from "../audit/HumanVerdicts";
+import { AutoMovieMotionHumanVerdicts } from "../audit/AutoMovieMotionHumanVerdicts";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 
@@ -78,7 +78,7 @@ export namespace HumanCarriedStraddle {
       const point: IAutoMovieVector3 = reading.fit.place(
         reading.mine.get(knee)!.worldPosition,
       );
-      return distance(point, point).distance >= -HumanVerdicts.SKIN;
+      return distance(point, point).distance >= -AutoMovieMotionHumanVerdicts.SKIN;
     });
   }
 }

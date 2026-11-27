@@ -17,7 +17,7 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
 import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
-import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
+import { samplePhysicalAuthoredTargets } from "./internal/samplePhysicalAuthoredTargets";
 
 /**
  * Advance a tracked body's balance this substep (`trackPhysicalWorld`): the

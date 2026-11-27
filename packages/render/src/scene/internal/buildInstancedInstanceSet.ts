@@ -20,7 +20,7 @@ import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstan
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IBuildInstancedInstanceSetProps } from "../IBuildInstancedInstanceSetProps.js";
 import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
-import { readAutoMovieDeliveryCrop } from "../deliveryCrop.js";
+import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop.js";
 import { flattenInstancedModel } from "./flattenInstancedModel.js";
 import { flattenInstancedObject } from "./flattenInstancedObject.js";
 import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
@@ -445,7 +445,7 @@ export const buildInstancedInstanceSet: (
             THREE.MathUtils.degToRad(camera.fov) / 2,
           );
           const deliveryCrop: IAutoMovieDeliveryCrop | undefined =
-            readAutoMovieDeliveryCrop(camera);
+            AutoMovieRenderSceneDeliveryCrop.read(camera);
           const effectiveHalfY: number =
             halfY *
             (deliveryCrop === undefined

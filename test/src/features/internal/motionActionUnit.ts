@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
-import { HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import { HumanPerformance, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 
@@ -110,7 +110,7 @@ export namespace motionActionUnit {
   }
 
   /**
-   * The shipped bounds' findings (`HumanVerdicts`, the limits a take is judged
+   * The shipped bounds' findings (`AutoMovieMotionHumanVerdicts`, the limits a take is judged
    * by) that are one action's own: every finding the report places in this
    * action and occurrence, a finding between two people that involves the
    * performer within the span, and a continuity finding within one frame of the
@@ -139,14 +139,14 @@ export namespace motionActionUnit {
     parts?: RegExp,
   ): IAutoMovieMotionHumanVerdicts.IFinding[] {
     // The occurrence as the report counts it: the segments of the same id
-    // up to this one (`HumanVerdicts`' placement).
+    // up to this one (`AutoMovieMotionHumanVerdicts`' placement).
     const occurrence: number = take
       .segments(subject)
       .filter(
         (s: IAutoMovieMotionHumanSegment): boolean =>
           s.id === act.id && s.index <= act.index,
       ).length;
-    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
+    const report: IAutoMovieMotionHumanVerdicts.IReport = AutoMovieMotionHumanVerdicts.read(
       take,
       RATE,
       {

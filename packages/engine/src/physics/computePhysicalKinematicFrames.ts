@@ -10,7 +10,7 @@ import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTarge
 import { bindPhysicalKinematicFrame } from "./internal/bindPhysicalKinematicFrame";
 import { createPhysicalKinematicFrame } from "./internal/createPhysicalKinematicFrame";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
-import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
+import { yieldPhysicalSimulation } from "./internal/yieldPhysicalSimulation";
 
 /**
  * Compute authored frames and geometric relationships without a dynamics world.

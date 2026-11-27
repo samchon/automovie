@@ -14,7 +14,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { decodePhysicalPlayback } from "./internal/playback/decodePhysicalPlayback";
 import { encodePhysicalPlayback } from "./encodePhysicalPlayback";
-import { samplePhysicalOwnership } from "./samplePhysicalOwnership";
+import { samplePhysicalOwnership } from "./internal/samplePhysicalOwnership";
 
 /**
  * Compact precomputed playback, loaded without initializing the native solver.

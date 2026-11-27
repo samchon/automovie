@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
-import { HumanVerdicts } from "@automovie/motions";
+import { AutoMovieMotionHumanVerdicts } from "@automovie/motions";
 import { type IAutoMovieDrawScene, selectAutoMoviePlacedChecks, AutoMovieRenderInspectionMarks, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -257,7 +257,7 @@ export async function test_inspect_film_production(): Promise<void> {
     );
 
     const violation: IAutoMovieMotionHumanVerdicts.IFinding | undefined =
-      HumanVerdicts(performance).findings.find(
+      AutoMovieMotionHumanVerdicts.read(performance).findings.find(
         (finding: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
           finding.check === "partner",
       );

@@ -1,4 +1,11 @@
-import { type IAutoMovieRecoveryCameraMapAdmissionOperation, type IAutoMovieRecoveryCameraPairAdmissionOperation, type IAutoMovieRecoveryCameraSceneAdmissionOperation, type IAutoMovieRecoveryCameraChartCreationOperation, type IAutoMovieRecoveryCameraEstimateCreationOperation, type IAutoMovieRecoveryCameraMapCreationOperation, type IAutoMovieRecoveryCameraSceneCreationOperation, type IAutoMovieRecoveryImageDirectionSolverCreationOperation, type IAutoMovieRecoveryPoseModelCreationOperation, type IAutoMovieRecoveryFeasibleMapLinearization, type IAutoMovieRecoveryMapState, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryPoseResidualsLinearizeOperation, type IAutoMovieRecoveryMapPointProjectionOperation, type IAutoMovieRecoveryCameraMapRefinementOperation, type IAutoMovieRecoveryMapJointResult, type IAutoMovieRecoveryMapPose, type IAutoMovieRecoveryMapLandmark, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryFeasibleJointOptions, type IAutoMovieRecoveryFeasibleReportCapacity, type IAutoMovieRecoveryMapDesignSolutionOperation, type IAutoMovieRecoveryMapJointStepSolutionOperation, type IAutoMovieRecoveryRelativePoseStepOperation } from "@automovie/interface";
+import { collectRecoverySceneSupport as collectRecoverySceneSupportImplementation } from "./internal/collectRecoverySceneSupport";
+import { completeRecoverySceneCheckpoint as completeRecoverySceneCheckpointImplementation } from "./internal/completeRecoverySceneCheckpoint";
+import { createRecoverySceneSeedReportObserver as createRecoverySceneSeedReportObserverImplementation } from "./internal/createRecoverySceneSeedReportObserver";
+import { evaluateRecoveryScenePoint as evaluateRecoveryScenePointImplementation } from "./internal/evaluateRecoveryScenePoint";
+import { growRecoverySceneLandmarks as growRecoverySceneLandmarksImplementation } from "./internal/growRecoverySceneLandmarks";
+import { factorRecoveryMapMetric as factorRecoveryMapMetricImplementation } from "./internal/factorRecoveryMapMetric";
+
+import { type IAutoMovieRecoveryCameraMapAdmissionOperation, type IAutoMovieRecoveryCameraPairAdmissionOperation, type IAutoMovieRecoveryCameraSceneAdmissionOperation, type IAutoMovieRecoveryCameraChartCreationOperation, type IAutoMovieRecoveryCameraEstimateCreationOperation, type IAutoMovieRecoveryCameraMapCreationOperation, type IAutoMovieRecoveryCameraSceneCreationOperation, type IAutoMovieRecoveryImageDirectionSolverCreationOperation, type IAutoMovieRecoveryPoseModelCreationOperation, type IAutoMovieRecoveryFeasibleMapLinearization, type IAutoMovieRecoveryMapState, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryPoseResidualsLinearizeOperation, type IAutoMovieRecoveryMapPointProjectionOperation, type IAutoMovieRecoveryCameraMapRefinementOperation, type IAutoMovieRecoveryMapJointResult, type IAutoMovieRecoveryMapPose, type IAutoMovieRecoveryMapLandmark, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryFeasibleJointOptions, type IAutoMovieRecoveryFeasibleReportCapacity, type IAutoMovieRecoveryMapDesignSolutionOperation, type IAutoMovieRecoveryMapJointStepSolutionOperation, type IAutoMovieRecoveryRelativePoseStepOperation, type IAutoMovieRecoverySceneSupportCollectionOperation, type IAutoMovieRecoverySceneCheckpointCompletionOperation, type IAutoMovieRecoverySceneSeedReportObserverCreationOperation, type IAutoMovieRecoveryScenePointEvaluationOperation, type IAutoMovieRecoverySceneLandmarksGrowthOperation, type IAutoMovieRecoveryMapMetricFit, type IAutoMovieRecoveryMapJointBlock } from "@automovie/interface";
 import { admitRecoveryCameraMap as admitRecoveryCameraMapImplementation } from "./internal/admitRecoveryCameraMap";
 import { admitRecoveryCameraPair as admitRecoveryCameraPairImplementation } from "./internal/admitRecoveryCameraPair";
 import { admitRecoveryCameraScene as admitRecoveryCameraSceneImplementation } from "./internal/admitRecoveryCameraScene";
@@ -205,5 +212,62 @@ export namespace AutoMovieRecoveryCameraMap {
    */
   export function stepRelativePose(pose: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[0], tangent: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[1], step: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[2]): ReturnType<IAutoMovieRecoveryRelativePoseStepOperation.Operation> {
     return stepRecoveryRelativePoseImplementation(pose, tangent, step);
+  }
+
+  /**
+   * Collect each target's distinct existing-map support once per accepted
+   * revision.
+   */
+  export function collectSceneSupport(landmarks: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[0], tracks: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[1], viewCount: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[2]): ReturnType<IAutoMovieRecoverySceneSupportCollectionOperation.Operation> {
+    return collectRecoverySceneSupportImplementation(landmarks, tracks, viewCount);
+  }
+
+  /**
+   * Complete a detached scene transaction through growth and full joint geometry.
+   * After each fit, newly admissible points/measurements cause another fit. Only
+   * strict finite population growth repeats; every fit and linear action is
+   * charged. Failure leaves committing or retaining the old checkpoint to caller.
+   * An optional observer receives owned complete compact states before and after
+   * each joint fit. Observer errors propagate, and ordinary calls retain no
+   * trace.
+   */
+  export function completeSceneCheckpoint(initialPoses: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[0], initialLandmarks: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[1], tracks: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[2], charts: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[3], policy: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[4], budget: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[5], work: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[6], checkpoint: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[7], onProposal?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[8], onTrace?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[9], feasible?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[10], reportCapacity?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[11]): ReturnType<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation> {
+    return completeRecoverySceneCheckpointImplementation(initialPoses, initialLandmarks, tracks, charts, policy, budget, work, checkpoint, onProposal, onTrace, feasible, reportCapacity);
+  }
+
+  /**
+   * Preserve the last completed initial joint report until seed qualification.
+   * Completion calls this observer before and after each fit; a later before call
+   * carries the preceding report and is distinguished by phase, not nullness. The
+   * private target transfers diagnostics only when the seed is refused.
+   */
+  export function createSceneSeedReportObserver(target: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[0], work: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[1], budget: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[2]): ReturnType<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation> {
+    return createRecoverySceneSeedReportObserverImplementation(target, work, budget);
+  }
+
+  /**
+   * Qualify one point against its actual retained registered measurements. At
+   * least one observed camera pair must supply an acute ray angle above the point
+   * threshold. A point need not be visible in either original seed image.
+   */
+  export function evaluateScenePoint(point: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[0], observations: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[1], poses: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[2], charts: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[3], policy: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[4], observe?: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[5]): ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> {
+    return evaluateRecoveryScenePointImplementation(point, observations, poses, charts, policy, observe);
+  }
+
+  /**
+   * Propose point and measurement growth using only currently registered poses.
+   * Existing points receive only individually positive-depth pixel-qualified
+   * measurements; new points must pass every available registered observation.
+   */
+  export function growSceneLandmarks(tracks: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[0], initial: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[1], poses: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[2], charts: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[3], policy: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[4], budget: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[5], work: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[6], checkpoint: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[7]): ReturnType<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation> {
+    return growRecoverySceneLandmarksImplementation(tracks, initial, poses, charts, policy, budget, work, checkpoint);
+  }
+
+  /**
+   * Build only the original-rank-qualified raw metric a feasible model uses. This
+   * operation does not request an unconstrained LS answer or scaled gradient.
+   */
+  export function factorMapMetric(blocks: readonly IAutoMovieRecoveryMapJointBlock[], minimumRatio: number, damping: number, budget: IAutoMovieRecoveryCameraMapBudget): IAutoMovieRecoveryMapMetricFit {
+    return factorRecoveryMapMetricImplementation(blocks, minimumRatio, damping, budget);
   }
 }

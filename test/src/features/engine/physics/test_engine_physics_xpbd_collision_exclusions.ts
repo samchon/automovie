@@ -1,4 +1,4 @@
-import { AutoMovieXpbdCollider, AutoMovieXpbdWorld, AutoMoviePhysicalSimulation as Simulation, Vector3, bindPhysicalWorld, type solveXpbdContacts, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieXpbdCollider, AutoMovieXpbdWorld, AutoMoviePhysicalSimulation as Simulation, Vector3, type solveXpbdContacts, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalJoint,
@@ -161,7 +161,7 @@ function verifyHookScope(
   input.bodies.push(other);
 
   const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
-  const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+  const bound: ReturnType<typeof Simulation.bindWorld> = Simulation.bindWorld(
     world,
     input,
     false,

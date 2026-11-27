@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryChartAreaObservations as A } from "./RecoveryChartAreaObservations";
-import { RecoveryChartCollar as L } from "./RecoveryChartCollar";
+import { RecoveryChartCollar as L } from "../observation/internal/RecoveryChartCollar";
 import { RecoveryChartFit as J } from "./RecoveryChartFit";
 import { RecoveryChartLeafControls as K } from "./RecoveryChartLeafControls";
 import { RecoveryChartRefinementClosure as E } from "./RecoveryChartRefinementClosure";

@@ -1,7 +1,4 @@
-import {
-  AutoMoviePhysicsCache,
-  checkpointPhysicalSimulation,
-} from "@automovie/engine";
+import { AutoMoviePhysicsCache, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
@@ -128,18 +125,18 @@ export function test_engine_physics_checkpoint_physical_simulation(): void {
   TestValidator.equals(
     "the resume interval",
     [
-      checkpointPhysicalSimulation(edit(original, 25)),
-      checkpointPhysicalSimulation(edit(original, 25), stale),
-      checkpointPhysicalSimulation(
+      AutoMoviePhysicalSimulation.checkpoint(edit(original, 25)),
+      AutoMoviePhysicalSimulation.checkpoint(edit(original, 25), stale),
+      AutoMoviePhysicalSimulation.checkpoint(
         { ...edit(original, 25), substeps: 8 },
         tens,
       ),
-      checkpointPhysicalSimulation(edit(original, 25), tens),
-      checkpointPhysicalSimulation(edit(original, 20), tens),
-      checkpointPhysicalSimulation(edit(original, 0), tens),
-      checkpointPhysicalSimulation(edit(original, 25), every),
-      checkpointPhysicalSimulation(pushed, every),
-      checkpointPhysicalSimulation(workload(2 * COUNT), tens),
+      AutoMoviePhysicalSimulation.checkpoint(edit(original, 25), tens),
+      AutoMoviePhysicalSimulation.checkpoint(edit(original, 20), tens),
+      AutoMoviePhysicalSimulation.checkpoint(edit(original, 0), tens),
+      AutoMoviePhysicalSimulation.checkpoint(edit(original, 25), every),
+      AutoMoviePhysicalSimulation.checkpoint(pushed, every),
+      AutoMoviePhysicalSimulation.checkpoint(workload(2 * COUNT), tens),
     ],
     [0, 0, 0, 20, 10, 0, 24, 24, COUNT],
   );

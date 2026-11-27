@@ -1,4 +1,4 @@
-import { AutoMoviePhysicsCache as Cache, AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, physicalInputDigest, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicsCache as Cache, AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSimulation,
@@ -41,7 +41,7 @@ export async function test_engine_physics_physical_playback_archive(): Promise<v
   } = { maximumBytes: 1_000_000, maximumFrames: 241, maximumSegments: 1 };
   const playback: IAutoMoviePhysicalPlayback = await Playback.decode(
     bytes,
-    physicalInputDigest(input),
+    Simulation.inputDigest(input),
     budget,
   );
   for (const seconds of [1.72, 0, 2, 0.001, 1 / 120, 0.75])

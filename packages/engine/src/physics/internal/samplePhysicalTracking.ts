@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { samplePhysicalTarget } from "../samplePhysicalTarget";
+import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Dense authored-relative joint errors at any cached film second, without

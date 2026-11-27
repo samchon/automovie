@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanVerdicts } from "../audit/HumanVerdicts";
+import { AutoMovieMotionHumanVerdicts } from "../audit/AutoMovieMotionHumanVerdicts";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -397,7 +397,7 @@ export function HumanWeaponPose(
         const lift: number | undefined = HumanWeaponHeld.rise(
           Vector3.subtract(wrist, shoulder),
           along,
-          s.arm - HumanVerdicts.SKIN,
+          s.arm - AutoMovieMotionHumanVerdicts.SKIN,
         );
         if (lift === undefined)
           throw new HumanRefusal({
@@ -407,7 +407,7 @@ export function HumanWeaponPose(
             feasible: {
               kind: "range",
               minimum: 0,
-              maximum: s.arm - HumanVerdicts.SKIN,
+              maximum: s.arm - AutoMovieMotionHumanVerdicts.SKIN,
               unit: "m",
             },
             reason: `the ${s.tool.side} hand cannot hold the shouldered piece's butt anywhere along the body's side`,

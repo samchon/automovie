@@ -1,8 +1,4 @@
-import {
-  AutoMoviePhysicsCache,
-  AutoMovieXpbdWorld,
-  restorePhysicalSimulationCheckpoint,
-} from "@automovie/engine";
+import { AutoMoviePhysicsCache, AutoMovieXpbdWorld, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalControllerCheckpoint,
   IAutoMoviePhysicalFrame,
@@ -64,7 +60,7 @@ export async function test_engine_physics_restore_physical_simulation_checkpoint
     1,
     start + 1,
   );
-  const restored: AutoMovieXpbdWorld = restorePhysicalSimulationCheckpoint(
+  const restored: AutoMovieXpbdWorld = AutoMoviePhysicalSimulation.restoreCheckpoint(
     input,
     previous,
     copied,
@@ -100,7 +96,7 @@ export async function test_engine_physics_restore_physical_simulation_checkpoint
   original.checkpoints.set(start, new Uint8Array());
   assert.throws(
     (): void => {
-      restorePhysicalSimulationCheckpoint(
+      AutoMoviePhysicalSimulation.restoreCheckpoint(
         input,
         previous,
         new AutoMoviePhysicsCache("prefix", 1, start + 1),

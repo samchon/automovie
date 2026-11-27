@@ -6,7 +6,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { projectPhysicalTargets } from "../projectPhysicalTargets";
+import { projectPhysicalTargets } from "./projectPhysicalTargets";
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 
 /**

@@ -12,7 +12,7 @@ import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { physicalContactSupportGoals } from "./internal/physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./internal/planPhysicalContactTargets";
 import { preparePhysicalContactTargetSeed } from "./internal/preparePhysicalContactTargetSeed";
-import { readPhysicalScene } from "./readPhysicalScene";
+import { readPhysicalScene } from "./internal/readPhysicalScene";
 import { trackPhysicalCoupledTargets } from "./internal/trackPhysicalCoupledTargets";
 
 /**

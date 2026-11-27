@@ -1,7 +1,7 @@
 import type { IAutoMovieDeliveryCrop } from "@automovie/interface";
 import {
   applyAutoMovieDeliveryCrop,
-  readAutoMovieDeliveryCrop,
+  AutoMovieRenderSceneDeliveryCrop,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -11,7 +11,7 @@ const NDC_TOLERANCE: number = 1e-9;
 
 /**
  * `applyAutoMovieDeliveryCrop` installs a normalized window on a perspective
- * camera and `readAutoMovieDeliveryCrop` recovers it.
+ * camera and `AutoMovieRenderSceneDeliveryCrop.read` recovers it.
  *
  * Scenarios:
  *
@@ -32,13 +32,13 @@ export function test_render_scene_apply_delivery_crop(): void {
   applyAutoMovieDeliveryCrop(camera, undefined);
   TestValidator.equals(
     "omitted",
-    readAutoMovieDeliveryCrop(camera),
+    AutoMovieRenderSceneDeliveryCrop.read(camera),
     undefined,
   );
   applyAutoMovieDeliveryCrop(camera, { left: 0, top: 0, right: 1, bottom: 1 });
   TestValidator.equals(
     "whole",
-    readAutoMovieDeliveryCrop(camera),
+    AutoMovieRenderSceneDeliveryCrop.read(camera),
     undefined,
   );
 
@@ -63,7 +63,7 @@ export function test_render_scene_apply_delivery_crop(): void {
       Math.abs(cropped.y - 0.15625) < NDC_TOLERANCE,
   );
   const read: IAutoMovieDeliveryCrop | undefined =
-    readAutoMovieDeliveryCrop(camera);
+    AutoMovieRenderSceneDeliveryCrop.read(camera);
   TestValidator.predicate(
     "window reads back",
     read !== undefined &&

@@ -1,4 +1,4 @@
-import { AutoMovieXpbdBody, AutoMovieXpbdWorld, samplePhysicalTarget, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieXpbdBody, AutoMovieXpbdWorld, AutoMovieEnginePhysics, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,7 +44,7 @@ export async function test_engine_physics_physical_joint_inertia(): Promise<void
       Math.abs(inertia.y - 2 / 3) < INERTIA &&
       Math.abs(inertia.z - 0.8) < INERTIA,
   );
-  const target: ReturnType<typeof samplePhysicalTarget> = samplePhysicalTarget(
+  const target: ReturnType<typeof AutoMoviePhysicalSimulation.sampleTarget> = AutoMoviePhysicalSimulation.sampleTarget(
     { position: { x: 1, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
     {
       position: { x: 3, y: 0, z: 0 },

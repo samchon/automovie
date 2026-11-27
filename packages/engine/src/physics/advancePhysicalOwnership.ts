@@ -14,7 +14,7 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
 import { copyPhysicalTarget } from "./internal/copyPhysicalTarget";
-import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
+import { hasPhysicalHandoff } from "./internal/hasPhysicalHandoff";
 import { projectPhysicalJointRotation } from "./internal/projectPhysicalJointRotation";
 import { stabilizePhysicalJointReturn } from "./internal/stabilizePhysicalJointReturn";
 

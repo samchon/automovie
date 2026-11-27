@@ -1,8 +1,4 @@
-import {
-  AutoMoviePhysicsCache,
-  AutoMovieXpbdWorld,
-  restorePhysicalSimulationCheckpoint,
-} from "@automovie/engine";
+import { AutoMoviePhysicsCache, AutoMovieXpbdWorld, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalSimulation,
@@ -162,7 +158,7 @@ export function test_engine_physics_restore_physical_simulation_checkpoint(): vo
     input.duration,
   );
   const diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[] = [];
-  restorePhysicalSimulationCheckpoint(input, run, cache, START, diagnostics);
+  AutoMoviePhysicalSimulation.restoreCheckpoint(input, run, cache, START, diagnostics);
   const sorted = (map: Map<number, unknown>): number[] =>
     [...map.keys()].sort((a: number, b: number): number => a - b);
   TestValidator.equals(

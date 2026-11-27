@@ -7,7 +7,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { fitPhysicalWholeBodyTarget } from "../../physics/fitPhysicalWholeBodyTarget";
+import { fitPhysicalWholeBodyTarget } from "../../physics/internal/fitPhysicalWholeBodyTarget";
 
 /**
  * Realize a relational goal at one instant: read the target subject's region

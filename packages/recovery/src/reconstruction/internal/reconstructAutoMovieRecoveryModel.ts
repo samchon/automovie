@@ -8,7 +8,7 @@ import type {
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
 
-import { describeRecoveryDomains } from "../../internal/describeRecoveryDomains";
+import { describeRecoveryDomains } from "./describeRecoveryDomains";
 import { reconstructRecovery } from "../../internal/reconstructRecovery";
 import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
 

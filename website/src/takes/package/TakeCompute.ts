@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanRefusal, HumanVerdicts } from "@automovie/motions";
+import { HumanRefusal, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
 import { AutoMovieFrameGrid } from "@automovie/render";
 
 import { PlaygroundPerformance } from "../../playground/package/PlaygroundPerformance";
@@ -306,10 +306,10 @@ export namespace TakeCompute {
         : PlaygroundPerformance.build(composition).performance;
     last = { key, performance };
     const report: IAutoMovieMotionHumanVerdicts.IReport =
-      HumanVerdicts(performance);
+      AutoMovieMotionHumanVerdicts.read(performance);
     return {
       clean: report.clean,
-      text: HumanVerdicts.describe(report),
+      text: AutoMovieMotionHumanVerdicts.describe(report),
       findings: report.findings.map(
         (
           finding: IAutoMovieMotionHumanVerdicts.IFinding,

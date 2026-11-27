@@ -1,10 +1,4 @@
-import {
-  AutoMoviePhysicsCache,
-  AutoMovieXpbdWorld,
-  type IAutoMoviePhysicalBinding,
-  capturePhysicalSimulationCheckpoint,
-  restorePhysicalSimulationCheckpoint,
-} from "@automovie/engine";
+import { AutoMoviePhysicsCache, AutoMovieXpbdWorld, type IAutoMoviePhysicalBinding, capturePhysicalSimulationCheckpoint, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalControllerCheckpoint,
@@ -151,7 +145,7 @@ export function test_engine_physics_capture_physical_simulation_checkpoint(): vo
       input.rate,
       input.duration,
     );
-    restorePhysicalSimulationCheckpoint(input, run, restored, start, []);
+    AutoMoviePhysicalSimulation.restoreCheckpoint(input, run, restored, start, []);
     return restored;
   };
   const atTen: AutoMoviePhysicsCache = restore(10);

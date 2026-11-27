@@ -161,9 +161,13 @@ export namespace AutoMovieRenderInspection {
 
   /** Explicit input for sequential scene-trail sampling. */
   export interface ISampleTrailsProps {
+    /** The scene containing the built subject. */
     scene: THREE.Scene;
+    /** Path pattern selecting the objects whose trails are sampled. */
     pattern: string;
+    /** Film seconds, sorted by the sampler before seeking. */
     times: readonly number[];
+    /** Places the subject at a film second and resolves when it can be read. */
     seek: (seconds: number) => Promise<void>;
   }
 
@@ -181,10 +185,15 @@ export namespace AutoMovieRenderInspection {
 
   /** Explicit input for projected inspection labels. */
   export interface IPlaceLabelsProps {
+    /** Paths to label with their world-space bounds in metres. */
     boxes: readonly { path: string; min: IAutoMovieVector3; max: IAutoMovieVector3 }[];
+    /** The camera used to draw the picture, with current world and projection matrices. */
     camera: THREE.Camera;
+    /** Picture width in pixels. */
     width: number;
+    /** Picture height in pixels. */
     height: number;
+    /** Size of one label font pixel in picture pixels. */
     scale: number;
   }
 

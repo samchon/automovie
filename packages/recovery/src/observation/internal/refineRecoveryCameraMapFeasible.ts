@@ -28,9 +28,9 @@ import { assembleRecoveryMapCurvature } from "../../internal/assembleRecoveryMap
 import { copyRecoveryUntiltedEstimate } from "../../internal/copyRecoveryUntiltedEstimate";
 import { createRecoveryFeasibleDiagnostics } from "../../internal/createRecoveryFeasibleDiagnostics";
 import { createRecoveryMapTangent } from "../../internal/createRecoveryMapTangent";
-import { evaluateRecoveryScenePoint } from "../../internal/evaluateRecoveryScenePoint";
+import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { factorRecoveryMapCurvature } from "../../internal/factorRecoveryMapCurvature";
-import { factorRecoveryMapMetric } from "../../internal/factorRecoveryMapMetric";
+import { factorRecoveryMapMetric } from "./factorRecoveryMapMetric";
 import { linearizeRecoveryFeasibleMap } from "./linearizeRecoveryFeasibleMap";
 import { predictRecoveryMapDecrease } from "../../internal/predictRecoveryMapDecrease";
 import { prepareRecoveryFeasibleMapReporting } from "../../internal/prepareRecoveryFeasibleMapReporting";

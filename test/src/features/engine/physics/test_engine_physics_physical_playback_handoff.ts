@@ -1,4 +1,4 @@
-import { AutoMovieXpbdBody, AutoMovieXpbdWorld, AutoMoviePhysicalPlayback as Playback, Quaternion, AutoMoviePhysicalSimulation as Simulation, Vector3, advancePhysicalOwnership, bindPhysicalWorld, samplePhysicalTarget, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieXpbdBody, AutoMovieXpbdWorld, AutoMoviePhysicalPlayback as Playback, Quaternion, AutoMoviePhysicalSimulation as Simulation, Vector3, advancePhysicalOwnership, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSegment,
@@ -137,7 +137,7 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
 
   // 2. The solver's state at the join.
   const restored = (): AutoMovieXpbdBody =>
-    bindPhysicalWorld(
+    Simulation.bindWorld(
       AutoMovieXpbdWorld.restoreSnapshot(cache.checkpoints.get(48)!),
       baseline.input,
       true,
@@ -176,7 +176,7 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
         z: delta.z * scale,
       }) < TURN_RATE,
   );
-  const bound = bindPhysicalWorld(
+  const bound = Simulation.bindWorld(
     AutoMovieXpbdWorld.restoreSnapshot(cache.checkpoints.get(48)!),
     baseline.input,
     true,
@@ -194,7 +194,7 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
   };
   const goals: Parameters<typeof advancePhysicalOwnership>[0]["goals"] = {};
   for (const [bone, pose] of Object.entries(target.segments))
-    goals[bone] = samplePhysicalTarget(
+    goals[bone] = Simulation.sampleTarget(
       baseline.input.bodies[0]!.targets[48]!.segments[bone]!,
       pose,
       1,

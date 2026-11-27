@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, fitPhysicalWholeBodyTarget, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieFitPhysicalWholeBodyTarget,
   IAutoMoviePhysicalJoint,
@@ -82,10 +82,10 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
   const fit = (
     bones: string[],
     approach?: NonNullable<
-      Parameters<typeof fitPhysicalWholeBodyTarget>[0]["goal"]["approach"]
+      Parameters<typeof AutoMoviePhysicalSimulation.fitWholeBodyTarget>[0]["goal"]["approach"]
     >,
   ): IAutoMovieFitPhysicalWholeBodyTarget.IResult =>
-    fitPhysicalWholeBodyTarget({
+    AutoMoviePhysicalSimulation.fitWholeBodyTarget({
       profile,
       targets: neutral,
       support: {

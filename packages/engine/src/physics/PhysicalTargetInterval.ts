@@ -4,7 +4,7 @@ import type {
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
-import { preparePhysicalTargetSampler } from "./preparePhysicalTargetSampler";
+import { preparePhysicalTargetSampler } from "./internal/preparePhysicalTargetSampler";
 
 /**
  * Shared interval clock and coherent pose/twist sampling for every fitted

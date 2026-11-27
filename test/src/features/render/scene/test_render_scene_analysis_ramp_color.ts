@@ -1,9 +1,9 @@
 import type { IAutoMovieColor } from "@automovie/interface";
-import { autoMovieAnalysisRampColor } from "@automovie/render";
+import { AutoMovieRenderAnalysisOverlay } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieAnalysisRampColor` maps a unit position onto a blue, green, red
+ * `AutoMovieRenderAnalysisOverlay.rampColor` maps a unit position onto a blue, green, red
  * ramp, linear per channel, clamped outside `[0, 1]`.
  *
  * Scenarios:
@@ -26,7 +26,7 @@ export function test_render_scene_analysis_ramp_color(): void {
   for (const [position, expected] of cases)
     TestValidator.equals(
       `position ${position}`,
-      autoMovieAnalysisRampColor(position),
+      AutoMovieRenderAnalysisOverlay.rampColor(position),
       expected,
     );
 }

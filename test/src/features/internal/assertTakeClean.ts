@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
-import { HumanVerdicts } from "@automovie/motions";
+import { AutoMovieMotionHumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /** One film window the verdicts read. */
@@ -70,12 +70,12 @@ export function assertTakeClean(
     else windows.push({ ...window });
   }
   const faults: string[] = windows.flatMap((window: IWindow): string[] => {
-    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
+    const report: IAutoMovieMotionHumanVerdicts.IReport = AutoMovieMotionHumanVerdicts.read(
       take,
       24,
       window,
     );
-    return report.clean ? [] : [HumanVerdicts.describe(report)];
+    return report.clean ? [] : [AutoMovieMotionHumanVerdicts.describe(report)];
   });
   TestValidator.predicate(
     `${label} passes the take verdicts: ${faults.length === 0 ? "clean" : faults.join("; ")}`,

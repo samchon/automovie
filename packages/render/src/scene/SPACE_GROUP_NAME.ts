@@ -1,5 +1,5 @@
 /**
- * Reserved scene-group name used by buildSpaceObject and buildScene's lookup.
+ * Reserved scene-group name used by AutoMovieRenderSceneSpace.buildObject and buildScene's lookup.
  *
  * Implementation: Provides one exact string identity for the viewer-created
  * space group; callers using Three name lookup must keep this reserved name

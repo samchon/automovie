@@ -25,7 +25,7 @@ import type { ISlotException } from "./internal/ISlotException.js";
 import { bindFormationTierCycle } from "./internal/bindFormationTierCycle.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { createFormationRepresentations } from "./internal/createFormationRepresentations.js";
-import { readAutoMovieDeliveryCrop } from "./deliveryCrop.js";
+import { AutoMovieRenderSceneDeliveryCrop } from "./deliveryCrop.js";
 import { describeFormationTextureSources } from "./internal/describeFormationTextureSources.js";
 import { disposeFormationRepresentations } from "./internal/disposeFormationRepresentations.js";
 import { AutoMovieRenderFormationCycle } from "./formationCycle/index.js";
@@ -514,7 +514,7 @@ export const buildInstancedFormation: (
             THREE.MathUtils.degToRad(camera.fov) / 2,
           );
           const deliveryCrop: IAutoMovieDeliveryCrop | undefined =
-            readAutoMovieDeliveryCrop(camera);
+            AutoMovieRenderSceneDeliveryCrop.read(camera);
           const effectiveHalfY: number =
             halfY *
             (deliveryCrop === undefined

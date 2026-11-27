@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, physicalInputDigest, AutoMovieEnginePhysics, AutoMovieEngineCompositionContact } from "@automovie/engine";
+import { AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, AutoMovieEnginePhysics, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDistributePhysicalSupportWrench,
@@ -369,7 +369,7 @@ async function replay(
     await Simulation.compute(input);
   return Playback.decode(
     await Playback.encode(run.cache, 4_000_000),
-    physicalInputDigest(input),
+    Simulation.inputDigest(input),
     { maximumBytes: 4_000_000, maximumFrames: 121, maximumSegments: 1 },
   );
 }

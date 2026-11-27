@@ -14,7 +14,7 @@ export async function decodePhysicalPlayback(
   source: Uint8Array,
   expectedIdentity: string,
   budget: IAutoMovieDecodePhysicalPlayback.IBudget,
-): IAutoMovieDecodePhysicalPlayback.IResult {
+): Promise<IAutoMovieDecodePhysicalPlayback.IResult> {
   if (
     budget.maximumBytes <= 0 ||
     budget.maximumFrames <= 0 ||

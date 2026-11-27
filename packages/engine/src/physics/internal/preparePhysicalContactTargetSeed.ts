@@ -6,7 +6,7 @@ import type {
 
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
 import type { IPhysicalContactTargetSeed } from "./IPhysicalContactTargetSeed";
-import { projectPhysicalTargets } from "../projectPhysicalTargets";
+import { projectPhysicalTargets } from "./projectPhysicalTargets";
 
 /**
  * Select one body's fit seed at a cached interval from its current plans. A

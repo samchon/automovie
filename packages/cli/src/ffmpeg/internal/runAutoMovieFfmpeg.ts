@@ -1,10 +1,6 @@
 import { spawn } from "node:child_process";
 
-/** Optional consumers for a decoder that produces binary and text evidence. */
-export interface IAutoMovieFfmpegOutput {
-  stdout?: (chunk: Buffer) => void;
-  stderr?: (chunk: string) => void;
-}
+import type { AutoMovieCliFfmpeg } from "../AutoMovieCliFfmpeg";
 
 /** Lines of FFmpeg's error output kept for a failure message. */
 const TAIL: number = 12;
@@ -26,7 +22,7 @@ export function runAutoMovieFfmpeg(
   args: readonly string[],
   accept: (code: number | null) => boolean = (code: number | null): boolean =>
     code === 0,
-  output?: IAutoMovieFfmpegOutput,
+  output?: AutoMovieCliFfmpeg.IOutput,
 ): Promise<string> {
   return new Promise<string>(
     (resolve: (log: string) => void, reject: (error: Error) => void): void => {

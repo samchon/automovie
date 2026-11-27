@@ -116,8 +116,11 @@ export { sampleFormationMotion, sampleFormationSlotMotion, selectFormationLod } 
 export type { IAutoMovieFormationViewerStats, IAutoMovieFormationViewerObject } from "./formation/index.js";
 export * from "./formationCycle/index.js";
 export * from "./instanceSet/index.js";
-export * from "./effect.js";
-export * from "./fluidSurface.js";
+export { AutoMovieRenderEffect } from "./effect.js";
+export type { IAutoMovieEffectViewerStats, IAutoMovieEffectViewerObject } from "./effect.js";
+export { AutoMovieRenderFluidSurface } from "./fluidSurface.js";
+export type { IAutoMovieFluidSurfaceObject, IAutoMovieFluidSprayObject } from "./fluidSurface.js";
+export { buildFluidSprayObject } from "./fluidSurface.js";
 export * from "./IAutoMovieSoftBodyObject.js";
 
 export * from "./IAutoMoviePlantingObject.js";

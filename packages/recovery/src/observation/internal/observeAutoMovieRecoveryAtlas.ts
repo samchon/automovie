@@ -10,12 +10,12 @@ import type {
   IAutoMovieRecoveryPendingChartObservation,
 } from "@automovie/interface";
 
-import { RecoveryAtlasObservationChart } from "../../internal/RecoveryAtlasObservationChart";
-import { RecoveryAtlasObservationCreases } from "../../internal/RecoveryAtlasObservationCreases";
-import { RecoveryAtlasObservationFeatures } from "../../internal/RecoveryAtlasObservationFeatures";
+import { RecoveryAtlasObservationChart } from "./RecoveryAtlasObservationChart";
+import { RecoveryAtlasObservationCreases } from "./RecoveryAtlasObservationCreases";
+import { RecoveryAtlasObservationFeatures } from "./RecoveryAtlasObservationFeatures";
 import { RecoveryAtlasObservationNormals } from "../../internal/RecoveryAtlasObservationNormals";
-import { RecoveryAtlasObservationPublish } from "../../internal/RecoveryAtlasObservationPublish";
-import { RecoveryAtlasObservationSource } from "../../internal/RecoveryAtlasObservationSource";
+import { RecoveryAtlasObservationPublish } from "./RecoveryAtlasObservationPublish";
+import { RecoveryAtlasObservationSource } from "./RecoveryAtlasObservationSource";
 import { RecoveryChartBoundary } from "../../internal/RecoveryChartBoundary";
 
 /**

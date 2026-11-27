@@ -1,26 +1,7 @@
-import type {
-  AutoMovieRecoveryCurveData,
-  IAutoMovieBicubicAtlasGeometry,
-  IAutoMovieRecoveryAnalyticPublication,
-  IAutoMovieRecoveryAnalyticDomainsRealizationOperation,
-  IAutoMovieRecoveryAnnularChart,
-  IAutoMovieRecoveryAtlasCompilation,
-  IAutoMovieRecoveryChartPatchBudgetFailure,
-  IAutoMovieRecoveryEventChartInput,
-  IAutoMovieRecoveryEventCompilationPolicy,
-  IAutoMovieRecoveryEventCurveArc,
-  IAutoMovieRecoveryEventDomainCompilation,
-  IAutoMovieRecoveryFieldComplex,
-  IAutoMovieRecoveryFieldComplexInput,
-  IAutoMovieRecoveryFieldComplexPolicy,
-  IAutoMovieRecoveryInputHashes,
-  IAutoMovieRecoveryNativeChartCompilation,
-  IAutoMovieRecoveryOptions,
-  IAutoMovieRecoveryReconstructedModel,
-  IAutoMovieRecoveryResult,
-  IAutoMovieRecoveryTensorFamiliesInput,
-  IAutoMovieRecoveryTensorRealization,
-} from "@automovie/interface";
+import { describeRecoveryDomains as describeRecoveryDomainsImplementation } from "./internal/describeRecoveryDomains";
+import { describeRecoveryNamedDomains as describeRecoveryNamedDomainsImplementation } from "./internal/describeRecoveryNamedDomains";
+
+import { type AutoMovieRecoveryCurveData, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieRecoveryAnalyticPublication, type IAutoMovieRecoveryAnalyticDomainsRealizationOperation, type IAutoMovieRecoveryAnnularChart, type IAutoMovieRecoveryAtlasCompilation, type IAutoMovieRecoveryChartPatchBudgetFailure, type IAutoMovieRecoveryEventChartInput, type IAutoMovieRecoveryEventCompilationPolicy, type IAutoMovieRecoveryEventCurveArc, type IAutoMovieRecoveryEventDomainCompilation, type IAutoMovieRecoveryFieldComplex, type IAutoMovieRecoveryFieldComplexInput, type IAutoMovieRecoveryFieldComplexPolicy, type IAutoMovieRecoveryInputHashes, type IAutoMovieRecoveryNativeChartCompilation, type IAutoMovieRecoveryOptions, type IAutoMovieRecoveryReconstructedModel, type IAutoMovieRecoveryResult, type IAutoMovieRecoveryTensorFamiliesInput, type IAutoMovieRecoveryTensorRealization, type IAutoMovieRecoveryDomainsDescriptionOperation, type IAutoMovieRecoveryNamedDomainsDescriptionOperation } from "@automovie/interface";
 
 import {
   applyAutoMovieRecoveryAnalyticPublication as applyPublication,
@@ -138,5 +119,28 @@ export namespace AutoMovieRecoveryReconstruction {
     options: IAutoMovieRecoveryOptions = {},
   ): IAutoMovieRecoveryResult<IAutoMovieRecoveryReconstructedModel> {
     return reconstructModelOperation(input, options);
+  }
+
+  /**
+   * Bind declared saved-domain identities to actual returned ownership records.
+   * The legacy explicit planner retains original group order and appends
+   * diagnostics. Exact unique scalar brackets map its ranges to original declared
+   * interval ordinals. Missing admission observations and ambiguous per-group
+   * analytic ranges stay unknown. No mesh position, normal or triangle is changed
+   * by this record assembly.
+   */
+  export function describeDomains(input: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[0], result: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[1]): ReturnType<IAutoMovieRecoveryDomainsDescriptionOperation.Operation> {
+    return describeRecoveryDomainsImplementation(input, result);
+  }
+
+  /**
+   * Bind planned named domains only to unique actual reports with the same
+   * identity. Repeated or missing names keep admission and generation unknown,
+   * even if an operator report exists at the same array ordinal. All original
+   * reports and geometry stay in the reconstruction result, including unbound
+   * observations.
+   */
+  export function describeNamedDomains(input: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[0], result: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[1]): ReturnType<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation> {
+    return describeRecoveryNamedDomainsImplementation(input, result);
   }
 }

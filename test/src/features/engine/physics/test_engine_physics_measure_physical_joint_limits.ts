@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds, projectPhysicalTargets, solvePhysicalFloorChainTarget, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, solvePhysicalFloorChainTarget, AutoMovieEnginePhysics, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalSegment,
@@ -41,8 +41,8 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
   );
   authored["upper-0"]!.position.x += 0.1;
   const before: string = JSON.stringify(authored);
-  const projection: ReturnType<typeof projectPhysicalTargets> =
-    projectPhysicalTargets(profile, authored);
+  const projection: ReturnType<typeof AutoMoviePhysicalSimulation.projectTargets> =
+    AutoMoviePhysicalSimulation.projectTargets(profile, authored);
   TestValidator.predicate(
     "physical approximation remains observable",
     projection.maximumTranslation > 0.05 && projection.maximumRotation > 0.01,
@@ -90,7 +90,7 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
         ),
       );
     const targets: Record<string, IAutoMovieRigidTransform> =
-      projectPhysicalTargets(profile, initial).targets;
+      AutoMoviePhysicalSimulation.projectTargets(profile, initial).targets;
     const pattern: IAutoMovieFootfallPattern = {
       id: "independent-box-patches",
       minimumSupports: 1,

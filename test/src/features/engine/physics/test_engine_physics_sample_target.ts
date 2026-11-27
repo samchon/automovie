@@ -1,4 +1,4 @@
-import { samplePhysicalTarget } from "@automovie/engine";
+import { AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,7 +29,7 @@ export function test_engine_physics_sample_target(): void {
     position: { x: 2, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: h, w: h },
   };
-  const sampled = samplePhysicalTarget(before, after, 0.5, 10);
+  const sampled = AutoMoviePhysicalSimulation.sampleTarget(before, after, 0.5, 10);
   TestValidator.predicate(
     "position",
     nclose(sampled.pose.position.x, 1, 1e-12),
@@ -44,7 +44,7 @@ export function test_engine_physics_sample_target(): void {
     "angular",
     nclose(sampled.angularVelocity.z, 5 * Math.PI, 1e-9),
   );
-  const still = samplePhysicalTarget(
+  const still = AutoMoviePhysicalSimulation.sampleTarget(
     before,
     { ...before, position: { x: 1, y: 0, z: 0 } },
     1,

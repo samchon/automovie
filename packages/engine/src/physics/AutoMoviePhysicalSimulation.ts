@@ -1,12 +1,18 @@
-import type {
-  IAutoMovieAuditPhysicalOutcomes,
-  IAutoMovieContactReceipt,
-  IAutoMoviePhysicalCoupledTargetFit,
-  IAutoMoviePhysicalSimulation,
-  IAutoMoviePhysicalSimulationInput,
-  IAutoMoviePhysicsCache,
-  IAutoMovieRigidTransform,
-} from "@automovie/interface";
+import { admitPhysicalBody as admitPhysicalBodyImplementation } from "./internal/admitPhysicalBody";
+import { admitPhysicalTargets as admitPhysicalTargetsImplementation } from "./internal/admitPhysicalTargets";
+import { fitPhysicalWholeBodyTarget as fitPhysicalWholeBodyTargetImplementation } from "./internal/fitPhysicalWholeBodyTarget";
+import { hasPhysicalHandoff as hasPhysicalHandoffImplementation } from "./internal/hasPhysicalHandoff";
+import { isPhysicalActuatorChain as isPhysicalActuatorChainImplementation } from "./internal/isPhysicalActuatorChain";
+import { preparePhysicalTargetSampler as preparePhysicalTargetSamplerImplementation } from "./internal/preparePhysicalTargetSampler";
+import { projectPhysicalTargets as projectPhysicalTargetsImplementation } from "./internal/projectPhysicalTargets";
+import { readPhysicalScene as readPhysicalSceneImplementation } from "./internal/readPhysicalScene";
+import { resolvePhysicalPerformanceMode as resolvePhysicalPerformanceModeImplementation } from "./internal/resolvePhysicalPerformanceMode";
+import { samplePhysicalAuthoredTargets as samplePhysicalAuthoredTargetsImplementation } from "./internal/samplePhysicalAuthoredTargets";
+import { samplePhysicalOwnership as samplePhysicalOwnershipImplementation } from "./internal/samplePhysicalOwnership";
+import { samplePhysicalTarget as samplePhysicalTargetImplementation } from "./internal/samplePhysicalTarget";
+import { seedPhysicalChainTarget as seedPhysicalChainTargetImplementation } from "./internal/seedPhysicalChainTarget";
+
+import { type IAutoMovieAuditPhysicalOutcomes, type IAutoMovieContactReceipt, type IAutoMoviePhysicalCoupledTargetFit, type IAutoMoviePhysicalSimulation, type IAutoMoviePhysicalSimulationInput, type IAutoMoviePhysicsCache, type IAutoMovieRigidTransform, type IAutoMovieFitPhysicalWholeBodyTarget, type IAutoMoviePhysicalHandoff, type IAutoMoviePhysicalProfile, type IAutoMovieSamplePhysicalTarget, type IAutoMovieProjectPhysicalTargets, type IAutoMoviePhysicalFrame, type IAutoMoviePerformanceMode, type IAutoMoviePhysicalOwnershipEvent, type IAutoMovieSeedPhysicalChainTarget, type IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
@@ -15,32 +21,32 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTargetRun";
 import type { IPhysicalCoupledTargetSchedule } from "./internal/IPhysicalCoupledTargetSchedule";
-import { admitPhysicalSimulation } from "./admitPhysicalSimulation";
+import { admitPhysicalSimulation } from "./internal/admitPhysicalSimulation";
 import { admitPhysicalOutcomes } from "./admitPhysicalOutcomes";
 import { auditPhysicalOutcomes } from "./auditPhysicalOutcomes";
-import { assertPhysicalReturnPath } from "./assertPhysicalReturnPath";
-import { bindPhysicalWorld } from "./bindPhysicalWorld";
+import { assertPhysicalReturnPath } from "./internal/assertPhysicalReturnPath";
+import { bindPhysicalWorld } from "./internal/bindPhysicalWorld";
 import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulationCheckpoint";
-import { checkpointPhysicalSimulation } from "./checkpointPhysicalSimulation";
+import { checkpointPhysicalSimulation } from "./internal/checkpointPhysicalSimulation";
 import { collectPhysicalContacts } from "./internal/collectPhysicalContacts";
 import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
-import { physicalInputDigest } from "./physicalInputDigest";
+import { physicalInputDigest } from "./internal/physicalInputDigest";
 import { planPhysicalSimulationSteps } from "./planPhysicalSimulationSteps";
 import { preparePhysicalContactHooks } from "./internal/preparePhysicalContactHooks";
 import { preparePhysicalCoupledTargetSchedule } from "./internal/preparePhysicalCoupledTargetSchedule";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
-import { readPhysicalFrame } from "./readPhysicalFrame";
+import { readPhysicalFrame } from "./internal/readPhysicalFrame";
 import { recordPhysicalContact } from "./internal/recordPhysicalContact";
 import { recordPhysicalSpanContacts } from "./recordPhysicalSpanContacts";
-import { restorePhysicalSimulationCheckpoint } from "./restorePhysicalSimulationCheckpoint";
+import { restorePhysicalSimulationCheckpoint } from "./internal/restorePhysicalSimulationCheckpoint";
 import { samplePhysicalTracking } from "./internal/samplePhysicalTracking";
 import { samplePhysicalTrackingTarget } from "./internal/samplePhysicalTrackingTarget";
 import { solvePhysicalCompliantContacts as solveCompliance } from "./internal/solvePhysicalCompliantContacts";
 import { solveXpbdArticulation } from "./solveXpbdArticulation";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
-import { trackPhysicalWorld } from "./trackPhysicalWorld";
-import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
+import { trackPhysicalWorld } from "./internal/trackPhysicalWorld";
+import { yieldPhysicalSimulation } from "./internal/yieldPhysicalSimulation";
 
 /**
  * Precompute fixed-step physics, then replay by time. Inputs are sampled bytes,
@@ -50,6 +56,215 @@ import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
  * geometry, solver settings or modes require a complete restart.
  */
 export class AutoMoviePhysicalSimulation {
+  /**
+   * Admit one body's declared controller policy independently of its sampled
+   * target population.
+   */
+  public static admitBody(input: IAutoMoviePhysicalSimulationInput.IInput, body: IAutoMoviePhysicalSimulationInput.IBody): void {
+    admitPhysicalBodyImplementation(input, body);
+  }
+
+  /**
+   * Admit complete populations, floor dimensions and work budgets before identity
+   * or world allocation.
+   */
+  public static admit(input: IAutoMoviePhysicalSimulationInput.IInput): void {
+    admitPhysicalSimulation(input);
+  }
+
+  /**
+   * Admit every sampled ownership, effort and world pose before target fitting or
+   * native allocation.
+   */
+  public static admitTargets(input: IAutoMoviePhysicalSimulationInput.IInput, body: IAutoMoviePhysicalSimulationInput.IBody): void {
+    admitPhysicalTargetsImplementation(input, body);
+  }
+
+  /**
+   * Reject an obstructed C1 return before advancing native bodies. This checks
+   * the complete next kinematic articulation against current dynamic receivers,
+   * the floor, admitted self pairs and fixed pivots. It is a discrete path
+   * admission, not a continuous collision or dynamically feasible control
+   * certificate.
+   */
+  public static assertReturnPath(input: IAutoMoviePhysicalSimulationInput.IInput, bound: Bound, tick: number, phase: "before" | "after"): void {
+    assertPhysicalReturnPath(input, bound, tick, phase);
+  }
+
+  /**
+   * Create the world's bodies, colliders and joints for every admitted body, or
+   * reconnect a restored world's in creation order. A segment is dynamic when its
+   * first target selects it, kinematic otherwise; it carries the profile's mass
+   * properties. A compliant material's shape is a sensor with a solid inner core
+   * eroded by its maximum compression. The floor is a stationary kinematic box
+   * with friction 0.7.
+   */
+  public static bindWorld(world: AutoMovieXpbdWorld, input: IAutoMoviePhysicalSimulationInput.IInput, restored: boolean): Bound {
+    return bindPhysicalWorld(world, input, restored);
+  }
+
+  /**
+   * An unchanged prefix is established from actual data, never from an edit-time
+   * assertion.
+   */
+  public static checkpoint(input: IAutoMoviePhysicalSimulationInput.IInput, previous?: IAutoMoviePhysicalSimulation): number {
+    return checkpointPhysicalSimulation(input, previous);
+  }
+
+  /**
+   * Fit a whole articulated body to one endpoint goal while a support segment
+   * stays held, turning only about its contact.
+   *
+   * The tree is held from the support ({@link rerootPhysicalProfile}), and a
+   * virtual base hinges onto it at the contact point about the contact normal
+   * within the declared turn, so the old root (a pelvis) rotates, tilts and
+   * translates through the support chain's own joints while the reaching chain
+   * reaches. Every coordinate stays inside its own declared ROM, the contact
+   * point never moves, and the bounded articulation solver
+   * ({@link solvePhysicalArticulationTargets}) accepts only residual decreases.
+   * The residual is the goal point's world error in metres and, when an approach
+   * is declared, the weighted difference between the endpoint's local direction
+   * carried to world and the approach direction.
+   *
+   * @returns World poses of every original segment, and the residual report.
+   */
+  public static fitWholeBodyTarget(input: IAutoMovieFitPhysicalWholeBodyTarget.IInput): IAutoMovieFitPhysicalWholeBodyTarget.IResult {
+    return fitPhysicalWholeBodyTargetImplementation(input);
+  }
+
+  /**
+   * Inspect run-owned transitions without allocating a key array on each native
+   * tick.
+   */
+  public static hasHandoff(transitions: Readonly<Record<string, IAutoMoviePhysicalHandoff>> | undefined): boolean {
+    return hasPhysicalHandoffImplementation(transitions);
+  }
+
+  /**
+   * Relationship fitting must own a real contiguous path with at least one
+   * articulated joint.
+   */
+  public static isActuatorChain(profile: IAutoMoviePhysicalProfile, chain: readonly string[], source: string): boolean {
+    return isPhysicalActuatorChainImplementation(profile, chain, source);
+  }
+
+  /**
+   * Hash every admitted sampled value without retaining one film-sized JSON
+   * string.
+   */
+  public static inputDigest(input: IAutoMoviePhysicalSimulationInput.IInput): string {
+    return physicalInputDigest(input);
+  }
+
+  /**
+   * Compile one interval's motion coefficients. Scalar checks retain direct
+   * callers' mutable-transform semantics; returned vectors are independently
+   * owned.
+   */
+  public static prepareTargetSampler(before: IAutoMovieRigidTransform, after: IAutoMovieRigidTransform, rate: number): (fraction: number) => IAutoMovieSamplePhysicalTarget.IResult {
+    return preparePhysicalTargetSamplerImplementation(before, after, rate);
+  }
+
+  /**
+   * Convert authored placements into the declared fixed-pivot physical tree.
+   * Preserve root placement and requested parent-relative rotations, project
+   * every native angular coordinate, then reconstruct coincident anchors in
+   * parent order. Report the largest translation and angular adjustment so an
+   * author can detect a physical approximation that changes the intended pose.
+   * This operates on motor goals only, never on a simulated or displayed frame.
+   */
+  public static projectTargets(profile: IAutoMoviePhysicalProfile, authored: Readonly<Record<string, IAutoMovieRigidTransform>>): IAutoMovieProjectPhysicalTargets.IResult {
+    return projectPhysicalTargetsImplementation(profile, authored);
+  }
+
+  /** Copy display state without retaining solver bodies or changing solver order. */
+  public static readFrame(bound: Bound, seconds: number): IAutoMoviePhysicalFrame {
+    return readPhysicalFrame(bound, seconds);
+  }
+
+  /**
+   * Own one simultaneous native scene per controller tick. A later ownership
+   * write refreshes only its body's changed transforms, preserving snapshots
+   * already retained by fitted plans.
+   */
+  public static readScene(bound: Bound, previous?: Readonly<
+    Record<string, Readonly<Record<string, IAutoMovieRigidTransform>>>
+  >, body?: string): Record<string, Record<string, IAutoMovieRigidTransform>> {
+    return readPhysicalSceneImplementation(bound, previous, body);
+  }
+
+  /**
+   * Resolve an explicit scene policy and optional body override without
+   * content-name defaults.
+   */
+  public static resolvePerformanceMode(scene: IAutoMoviePerformanceMode, body?: IAutoMoviePerformanceMode): IAutoMoviePerformanceMode {
+    return resolvePhysicalPerformanceModeImplementation(scene, body);
+  }
+
+  /**
+   * Restore the complete solver and causal prefix selected by sampled-input
+   * equivalence.
+   *
+   * The caller selects an equivalent completed cached interval and supplies empty
+   * destination collections. Frames and completed receipts remain borrowed;
+   * snapshot bytes, controller state and diagnostics are copied. A copy failure
+   * leaves a partial destination that the failed run must discard, but builds no
+   * world. A successful return hands the caller its world.
+   */
+  public static restoreCheckpoint(input: IAutoMoviePhysicalSimulationInput.IInput, previous: IAutoMoviePhysicalSimulation | undefined, cache: IAutoMoviePhysicsCache, start: number, diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[]): AutoMovieXpbdWorld {
+    return restorePhysicalSimulationCheckpoint(input, previous, cache, start, diagnostics);
+  }
+
+  /**
+   * Reuse admitted interval coefficients while retaining the original authored
+   * interpolation clock and rate arithmetic. Mutable direct callers are checked
+   * by the scalar-aware bone samplers.
+   */
+  public static sampleAuthoredTargets(body: IAutoMoviePhysicalSimulationInput.IBody, target: IAutoMoviePhysicalSimulationInput.ITarget, bound: Bound, step: number, seconds: number, rate: number): Record<string, IAutoMovieSamplePhysicalTarget.IResult> {
+    return samplePhysicalAuthoredTargetsImplementation(body, target, bound, step, seconds, rate);
+  }
+
+  /**
+   * Resolve the last causal native authority change for one segment. Live caches
+   * and solver-free archives share this exact arbitrary-time selection; no
+   * authored clock reconstructs contact activation or return completion.
+   */
+  public static sampleOwnership(events: readonly IAutoMoviePhysicalOwnershipEvent[], duration: number, body: string, bone: string, seconds: number): IAutoMoviePhysicalOwnershipEvent["kind"] {
+    return samplePhysicalOwnershipImplementation(events, duration, body, bone, seconds);
+  }
+
+  /**
+   * Interpolate sampled goals and derive world velocities from the same shortest
+   * arc.
+   */
+  public static sampleTarget(before: IAutoMovieRigidTransform, after: IAutoMovieRigidTransform, fraction: number, rate: number): IAutoMovieSamplePhysicalTarget.IResult {
+    return samplePhysicalTargetImplementation(before, after, fraction, rate);
+  }
+
+  /**
+   * Seed a straight-chain singularity with the shared triangle solver, through
+   * bounded coordinates only.
+   */
+  public static seedChainTarget(input: IAutoMovieSeedPhysicalChainTarget.IInput): void {
+    seedPhysicalChainTargetImplementation(input);
+  }
+
+  /**
+   * Apply bounded PD forces and equal-opposite joint torques before the fixed
+   * step.
+   */
+  public static trackWorld(world: AutoMovieXpbdWorld, input: IAutoMoviePhysicalSimulationInput.IInput, bound: Bound, step: number, softened: Map<string, number>, diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[], recovery: Record<string, IAutoMoviePhysicalRecoveryState>, contacts: readonly IAutoMovieContactReceipt[], seconds: number): void {
+    trackPhysicalWorld(world, input, bound, step, softened, diagnostics, recovery, contacts, seconds);
+  }
+
+  /**
+   * Observe completed work and cooperatively release the host at the declared
+   * interval.
+   */
+  public static yield(step: number, total: number, yieldEvery: number, signal?: AbortSignal, progress?: (completed: number, count: number) => void): Promise<void> {
+    return yieldPhysicalSimulation(step, total, yieldEvery, signal, progress);
+  }
+
   /** Own the immutable input snapshot needed to verify checkpoint equivalence. */
   private constructor(
     /** Owned sampled inputs establishing checkpoint equivalence. */

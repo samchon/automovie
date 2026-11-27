@@ -1,4 +1,4 @@
-import { resolvePhysicalPerformanceMode } from "@automovie/engine";
+import { AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type { IAutoMoviePerformanceMode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -17,12 +17,12 @@ import { throwsError } from "../../internal/predicates";
  */
 export function test_engine_physics_performance_mode(): void {
   const scene: IAutoMoviePerformanceMode = { kind: "simulated" };
-  const resolved = resolvePhysicalPerformanceMode(scene);
+  const resolved = AutoMoviePhysicalSimulation.resolvePerformanceMode(scene);
   TestValidator.equals("scene", resolved, scene);
   TestValidator.predicate("copy", resolved !== scene);
   TestValidator.equals(
     "body wins",
-    resolvePhysicalPerformanceMode(scene, { kind: "kinematic" }),
+    AutoMoviePhysicalSimulation.resolvePerformanceMode(scene, { kind: "kinematic" }),
     { kind: "kinematic" },
   );
   const exaggerated = (
@@ -38,23 +38,23 @@ export function test_engine_physics_performance_mode(): void {
   });
   TestValidator.equals(
     "valid",
-    resolvePhysicalPerformanceMode(exaggerated(2, 0, "comic")),
+    AutoMoviePhysicalSimulation.resolvePerformanceMode(exaggerated(2, 0, "comic")),
     exaggerated(2, 0, "comic"),
   );
   TestValidator.predicate(
     "impulse",
     throwsError(() =>
-      resolvePhysicalPerformanceMode(exaggerated(0, 1, "comic")),
+      AutoMoviePhysicalSimulation.resolvePerformanceMode(exaggerated(0, 1, "comic")),
     ),
   );
   TestValidator.predicate(
     "gravity",
     throwsError(() =>
-      resolvePhysicalPerformanceMode(exaggerated(1, -1, "comic")),
+      AutoMoviePhysicalSimulation.resolvePerformanceMode(exaggerated(1, -1, "comic")),
     ),
   );
   TestValidator.predicate(
     "reason",
-    throwsError(() => resolvePhysicalPerformanceMode(exaggerated(1, 1, "  "))),
+    throwsError(() => AutoMoviePhysicalSimulation.resolvePerformanceMode(exaggerated(1, 1, "  "))),
   );
 }

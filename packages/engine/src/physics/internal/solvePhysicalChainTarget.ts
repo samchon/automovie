@@ -10,7 +10,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
-import { seedPhysicalChainTarget } from "../seedPhysicalChainTarget";
+import { seedPhysicalChainTarget } from "./seedPhysicalChainTarget";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
 
 /**

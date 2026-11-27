@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoveryChartSurface,
 } from "@automovie/interface";
 
-import { RecoveryChartBoundaryNetwork as N } from "./RecoveryChartBoundaryNetwork";
+import { RecoveryChartBoundaryNetwork as N } from "../observation/internal/RecoveryChartBoundaryNetwork";
 import { RecoveryChartSurface as F } from "./RecoveryChartSurface";
 import { refineRecoveryChartBoundaryChords as R } from "../geometry/internal/refineRecoveryChartBoundaryChords";
 

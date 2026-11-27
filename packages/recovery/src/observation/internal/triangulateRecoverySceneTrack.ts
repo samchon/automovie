@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoverySceneTrackTriangulationOperation,
 } from "@automovie/interface";
 
-import { evaluateRecoveryScenePoint } from "../../internal/evaluateRecoveryScenePoint";
+import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 
 /**
  * Triangulate one new track using only already registered camera observations.

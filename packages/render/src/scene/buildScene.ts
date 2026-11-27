@@ -16,7 +16,7 @@ import { applySceneFog } from "./internal/applySceneFog.js";
 import { applyTransform } from "./internal/applyTransform.js";
 import { buildLight } from "./internal/buildLight.js";
 import { buildSceneSoftProps } from "./internal/buildSceneSoftProps.js";
-import { buildSpaceObject } from "./buildSpace.js";
+import { AutoMovieRenderSceneSpace } from "./buildSpace.js";
 import { applySceneMedium } from "./medium/internal/applySceneMedium.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
@@ -43,7 +43,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  *
  * A scene carrying a `space` also gets its structural ground (#1173): the
  * standable surfaces become real meshes under one `SPACE_GROUP_NAME` group (see
- * {@link buildSpaceObject}), so guide passes describe a world instead of actors
+ * {@link AutoMovieRenderSceneSpace.buildObject}), so guide passes describe a world instead of actors
  * floating in a void. Their ordinary material writes no beauty colour or depth,
  * because a semantic support declaration is not evidence that physical floor
  * geometry exists. The group follows the nodes and lights so the whole ground
@@ -115,7 +115,7 @@ export const buildScene: (
   }
 
   const space: IAutoMovieSpace | null = scene.space ?? null;
-  if (space !== null) root.add(buildSpaceObject(space));
+  if (space !== null) root.add(AutoMovieRenderSceneSpace.buildObject(space));
 
   // The atmosphere is a scene property, not an object: it takes no top-level
   // child, so the mask palette's child indices are untouched by declaring it.

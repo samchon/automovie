@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { admitPhysicalPointBounds } from "../admitPhysicalPointBounds";
-import { isPhysicalActuatorChain } from "../isPhysicalActuatorChain";
+import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 
 /**

@@ -12,8 +12,8 @@ import type { IAutoMovieMotionHumanPerformance } from "../perform/IAutoMovieMoti
  * (`AutoMovieMotionHumanSignature`) and the stills show no flaw.
  *
  * ```ts
- * const report = HumanVerdicts(performance);
- * if (!report.clean) throw new Error(HumanVerdicts.describe(report));
+ * const report = AutoMovieMotionHumanVerdicts.read(performance);
+ * if (!report.clean) throw new Error(AutoMovieMotionHumanVerdicts.describe(report));
  * ```
  *
  * The bounds, the ones the vocabulary's own sweep holds every action to:
@@ -112,7 +112,7 @@ export namespace IAutoMovieMotionHumanVerdicts {
 
   /**
    * Read every bound on a performance, or on one span of its film. Input span
-   * of HumanVerdicts. The film seconds the bounds are read over; the whole film
+   * of AutoMovieMotionHumanVerdicts. The film seconds the bounds are read over; the whole film
    * when absent.
    */
   export type IOfSpan = {
