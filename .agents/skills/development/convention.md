@@ -24,7 +24,7 @@ Put exports above private declarations in files and namespaces.
 
 Annotate variable, parameter and return types explicitly. Declare named functions with `function` and write each signature once. Infer the function type only for rare curried arrows, with explicit parameter and final return types.
 
-Use named object types and prefix public object contracts with `I`. Give each object variant in a union a named interface with a literal `type` tag.
+Use named object types and prefix public object contracts with `I`. Give each object variant in a union a named interface with a literal discriminant. Use `type` for a new tag.
 
 ## JSDoc
 
