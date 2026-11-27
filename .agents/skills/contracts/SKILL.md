@@ -7,7 +7,7 @@ description: Defines the evidence checklists maintained declarations and tests a
 
 Each selected declaration answers one checklist item per H2. A test function answers in its doc comment, and a package declaration in the package's evidence document, so its doc comment stays the documentation its users read. `evidence.config.ts` selects items. `pnpm run evidence` checks coverage. Review checks truth and completeness.
 
-An evidence document's path is its source file's path under `src/` with `.md` for `.ts`, so archetypes' `src/nature/createRock.ts` answers in `evidence/nature/createRock.md`. Each H1 there is a declaration's address in its defining file, such as `# src/nature/createRock.ts#createRock` or, for a method, `# src/animals/QuadrupedEquipmentPlan.ts#QuadrupedEquipmentPlan.prototype.emit`.
+An evidence document's path is its source file's path under `src/` with `.md` for `.ts`, so archetypes' `src/nature/createRock.ts` answers in `predicate/nature/createRock.md`. Each H1 there is a declaration's address in its defining file, such as `# src/nature/createRock.ts#createRock` or, for a method, `# src/animals/QuadrupedEquipmentPlan.ts#QuadrupedEquipmentPlan.prototype.emit`.
 
 | Checklist | Answered by |
 | --- | --- |

@@ -10,7 +10,7 @@ export default {
       name: "interface documentation",
       type: "typescript",
       files,
-      evidenceFiles: ["evidence/**/*.md"],
+      evidenceFiles: ["predicate/**/*.md"],
       symbol: "type",
       reference: {
         type: "markdown",
@@ -24,7 +24,7 @@ export default {
       name: "interface types",
       type: "typescript",
       files,
-      evidenceFiles: ["evidence/**/*.md"],
+      evidenceFiles: ["predicate/**/*.md"],
       symbol: "type",
       reference: {
         type: "markdown",

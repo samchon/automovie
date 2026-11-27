@@ -10,7 +10,7 @@ export default {
       name: "motions documentation",
       type: "typescript",
       files,
-      evidenceFiles: ["evidence/**/*.md"],
+      evidenceFiles: ["predicate/**/*.md"],
       symbol: ["type", "function"],
       reference: {
         type: "markdown",
@@ -24,7 +24,7 @@ export default {
       name: "motions types",
       type: "typescript",
       files,
-      evidenceFiles: ["evidence/**/*.md"],
+      evidenceFiles: ["predicate/**/*.md"],
       symbol: "type",
       reference: {
         type: "markdown",
@@ -38,7 +38,7 @@ export default {
       name: "motions functions",
       type: "typescript",
       files,
-      evidenceFiles: ["evidence/**/*.md"],
+      evidenceFiles: ["predicate/**/*.md"],
       symbol: "function",
       reference: {
         type: "markdown",
