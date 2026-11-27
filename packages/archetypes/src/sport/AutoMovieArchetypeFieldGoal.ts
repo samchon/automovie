@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createFieldGoal as createFieldGoalImplementation } from "./internal/createFieldGoal";
-import { type createGoal } from "./createGoal";
+import { type AutoMovieArchetypeGoal } from "./AutoMovieArchetypeGoal";
 
 /** Public operations for Auto Movie Archetype Field Goal. */
 export namespace AutoMovieArchetypeFieldGoal {
@@ -50,7 +50,7 @@ export namespace AutoMovieArchetypeFieldGoal {
 
   /** The identifier and overrides that apply to this profile. */
   export interface IParams extends Pick<
-    createGoal.IParams,
+    AutoMovieArchetypeGoal.IParams,
     "id" | "width" | "height" | "bar" | "mass"
   > {
     /** The sport profile. Omission selects the football goal. */

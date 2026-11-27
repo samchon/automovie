@@ -10,7 +10,7 @@ import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createBookcase } from "../../furniture/createBookcase";
 import { AutoMovieArchetypeDrawerUnit } from "../../furniture/AutoMovieArchetypeDrawerUnit";
 import { createSeat } from "../../furniture/createSeat";
-import { createTable } from "../../furniture/createTable";
+import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 
@@ -46,7 +46,7 @@ export function createOfficeKit(
       role: string,
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
-    const desk: IAutoMovieModel = createTable({ kind: "desk" }, draw("desk"));
+    const desk: IAutoMovieModel = AutoMovieArchetypeTable.create({ kind: "desk" }, draw("desk"));
     const chair: IAutoMovieModel = createSeat(
       { kind: "office" },
       draw("chair"),

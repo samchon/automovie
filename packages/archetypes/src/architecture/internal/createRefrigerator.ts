@@ -3,7 +3,7 @@ import type { AutoMovieArchetype } from "../../core/index";
 import { APPLIANCE_BANDS } from "../APPLIANCE_BANDS";
 import { ApplianceConstruction } from "../ApplianceConstruction";
 import { FixtureDraw } from "../FixtureDraw";
-import type { createAppliance } from "../createAppliance";
+import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
 
 /**
  * A wall-backed fridge-freezer with right-hinged doors, attached handles and
@@ -29,7 +29,7 @@ export function createRefrigerator(
 > {
   return FixtureDraw.installed<
     AutoMovieArchetypeRefrigerator.Affordance,
-    createAppliance.Dimension
+    AutoMovieArchetypeAppliance.Dimension
   >(
     "appliance",
     "fridge-freezer",

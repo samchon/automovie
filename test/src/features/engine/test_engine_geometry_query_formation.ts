@@ -1,4 +1,4 @@
-import { materializeCompiledFormation } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type { IAutoMovieCompiledShotSource } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -53,8 +53,8 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The unit staged on its ground compiles its rear rank at 6.5 m and reports no).
  */
 export function test_engine_geometry_query_formation(): void {
-  const grounded: ReturnType<typeof materializeCompiledFormation> =
-    materializeCompiledFormation({
+  const grounded: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledFormation> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
       formation: unit(),
       surfaces: WORLD.surfaces,
     });
@@ -88,16 +88,16 @@ export function test_engine_geometry_query_formation(): void {
   const raisedDesign: ReturnType<typeof unit> = unit({
     anchor: { x: 0, y: groundAt(0) + 1, z: 0 },
   });
-  const raised: ReturnType<typeof materializeCompiledFormation> =
-    materializeCompiledFormation({
+  const raised: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledFormation> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
       formation: raisedDesign,
       surfaces: WORLD.surfaces,
     });
   const boggedDesign: ReturnType<typeof unit> = unit({
     anchor: { x: 100, y: 0, z: 0 },
   });
-  const bogged: ReturnType<typeof materializeCompiledFormation> =
-    materializeCompiledFormation({
+  const bogged: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledFormation> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
       formation: boggedDesign,
       surfaces: WORLD.surfaces,
     });
@@ -335,8 +335,8 @@ export function test_engine_geometry_query_formation(): void {
 
   const unmaterialized: string =
     'Formation "unit" is not fully materialized in every current participating shot';
-  const other: ReturnType<typeof materializeCompiledFormation> =
-    materializeCompiledFormation({
+  const other: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledFormation> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
       formation: unit({ seed: 2 }),
       surfaces: WORLD.surfaces,
     });

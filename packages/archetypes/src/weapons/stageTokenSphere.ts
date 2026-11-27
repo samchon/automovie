@@ -2,7 +2,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetypeFrame } from "../core";
 import type { StageTokenConstruction } from "./StageTokenConstruction";
-import { createProjectile } from "./createProjectile";
+import { AutoMovieArchetypeProjectile } from "./AutoMovieArchetypeProjectile";
 
 /** The values {@link stageTokenSphere} accepts at this place in its signature. */
 type StageTokenSphereKind = "ball" | "roundShot" | "grenade" | "stone";
@@ -25,7 +25,7 @@ export function stageTokenSphere(
   builder: Parameters<StageTokenConstruction.Build>[0],
   d: Parameters<StageTokenConstruction.Build>[1],
   kind: StageTokenSphereKind,
-  model: createProjectile.Model | undefined,
+  model: AutoMovieArchetypeProjectile.Model | undefined,
 ): ReturnType<StageTokenConstruction.Build> {
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.diameter! / 2;
@@ -55,6 +55,6 @@ export function stageTokenSphere(
     ...(kind === "ball"
       ? {}
       : { rests: stone ? ("stone" as const) : ("steel" as const) }),
-    ...createProjectile.flight(kind, model, r),
+    ...AutoMovieArchetypeProjectile.flight(kind, model, r),
   });
 }

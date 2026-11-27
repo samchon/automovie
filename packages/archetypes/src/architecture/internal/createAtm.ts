@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeUnits,
 } from "../../core/index";
 import { ServiceCabinet } from "../ServiceCabinet";
-import type { createMachine } from "../createMachine";
+import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
 
 /** The shape of {@link SHELF}. */
 interface IShelf {
@@ -146,7 +146,7 @@ export function createAtm(
 function fascia(
   builder: AutoMovieArchetypeBuilder<
     AutoMovieArchetypeAtm.Affordance,
-    createMachine.Dimension
+    AutoMovieArchetypeMachine.Dimension
   >,
   width: number,
   depth: number,

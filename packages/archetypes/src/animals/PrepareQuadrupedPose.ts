@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, validateModel, AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineKinematics, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieArticulatedRig,
@@ -54,7 +54,7 @@ function prepare<Id extends string, Dimension extends string>(
 ):
   | QuadrupedPosePlan.IPrepared<Id, Dimension>
   | PrepareQuadrupedPose.IPrepared<Id, Dimension> {
-  const validation: ReturnType<typeof validateModel> = validateModel({
+  const validation: ReturnType<typeof AutoMovieEngineValidation.validateModel> = AutoMovieEngineValidation.validateModel({
     model: animal,
   });
   if (!validation.success)

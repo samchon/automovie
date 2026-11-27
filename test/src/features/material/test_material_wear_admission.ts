@@ -1,4 +1,4 @@
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieMaterial,
@@ -32,7 +32,7 @@ export function test_material_wear_admission(): void {
   const check: (wear: unknown) => IAutoMovieValidation = (
     wear: unknown,
   ): IAutoMovieValidation =>
-    validateModel({
+    AutoMovieEngineValidation.validateModel({
       model: boxModel({
         id: "chair",
         materials: [{ ...material(), wear: wear as IAutoMovieMaterialWear }],

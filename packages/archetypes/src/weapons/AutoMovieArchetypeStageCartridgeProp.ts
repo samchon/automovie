@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageCartridgeProp as createStageCartridgePropImplementation } from "./internal/createStageCartridgeProp";
-import { type createProjectile } from "./createProjectile";
+import { type AutoMovieArchetypeProjectile } from "./AutoMovieArchetypeProjectile";
 
 /** Public operations for Auto Movie Archetype Stage Cartridge Prop. */
 export namespace AutoMovieArchetypeStageCartridgeProp {
@@ -34,10 +34,10 @@ export namespace AutoMovieArchetypeStageCartridgeProp {
    * The createProjectile contact set its shared construction types. This
    * producer builds end, grip.
    */
-  export type Affordance = createProjectile.Affordance;
+  export type Affordance = AutoMovieArchetypeProjectile.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<
-    createProjectile.IParams,
+    AutoMovieArchetypeProjectile.IParams,
     "id" | "diameter" | "length" | "mass"
   >;}

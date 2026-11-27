@@ -1,4 +1,4 @@
-import { createHorse, rideHorse } from "@automovie/archetypes";
+import { rideHorse, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -28,7 +28,7 @@ import { HumanFrame, HumanHand } from "@automovie/motions/internal";
  */
 export namespace mountedHorseScene {
   /** The horse producer's model. */
-  export type Horse = ReturnType<typeof createHorse>;
+  export type Horse = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
   /** A horse's ride along a course. */
   export type Ride = ReturnType<typeof rideHorse>;

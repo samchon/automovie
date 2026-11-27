@@ -1,4 +1,4 @@
-import { createHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, Vector3, physicalShapeContactManifold, physicalShapePairDistance, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -25,7 +25,7 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 /** Fit the stored rider on the actual connected saddle and both stock irons. */
 export async function test_motions_mounted_seated_key(): Promise<void> {
   const body = await humanFixtureBody("m-average");
-  const horse = createHorse(
+  const horse = AutoMovieArchetypeHorse.create(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
     1028,
   );

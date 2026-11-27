@@ -1,4 +1,4 @@
-import { createHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -149,7 +149,7 @@ export async function test_motions_mounted_tread(): Promise<void> {
       prepareMountTread({ ...input, x: selected, y: -0.006 }).length === 0,
   );
 
-  const horse: ReturnType<typeof createHorse> = createHorse(
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
     1028,
   );

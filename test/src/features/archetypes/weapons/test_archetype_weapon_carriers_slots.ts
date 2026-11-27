@@ -1,7 +1,4 @@
-import {
-  AutoMovieArchetypeRefusal,
-  createHolster,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeHolster } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -25,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_archetype_weapon_carriers_slots(): void {
   const findings: string[] = [];
   const slotsOf = (
-    carrier: ReturnType<typeof createHolster>,
+    carrier: ReturnType<typeof AutoMovieArchetypeHolster.create>,
   ): IAutoMovieAffordance[] =>
     carrier.affordances.filter((a: IAutoMovieAffordance): boolean =>
       a.id.startsWith("slot"),
@@ -35,7 +32,7 @@ export function test_archetype_weapon_carriers_slots(): void {
 
   // 1. A quiver's slots spread over its mouth.
   for (const count of [undefined, 1, 24, 50] as const) {
-    const quiver: ReturnType<typeof createHolster> = createHolster(
+    const quiver: ReturnType<typeof AutoMovieArchetypeHolster.create> = AutoMovieArchetypeHolster.create(
       { kind: "quiver", slots: count },
       3,
     );
@@ -81,7 +78,7 @@ export function test_archetype_weapon_carriers_slots(): void {
   ] as const) {
     let refused: AutoMovieArchetypeRefusal | null = null;
     try {
-      createHolster({ kind, slots });
+      AutoMovieArchetypeHolster.create({ kind, slots });
     } catch (error) {
       refused = error instanceof AutoMovieArchetypeRefusal ? error : null;
     }

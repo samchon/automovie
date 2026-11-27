@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import { StorageMechanisms } from "./StorageMechanisms";
-import type { createStorage } from "./createStorage";
+import type { AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
 /**
  * An open bookcase with individually named shelf supports.
@@ -32,7 +32,7 @@ export namespace createBookcase {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createStorage.IParams,
+    AutoMovieArchetypeStorage.IParams,
     "id" | "width" | "depth" | "height" | "mass"
   >;
 }

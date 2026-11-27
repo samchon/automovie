@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieCylinderShape,
   IAutoMovieModelPart,
@@ -36,7 +36,7 @@ export namespace AnimalHeadAppendageObservation {
     animal: AutoMovieArchetype,
     expected: IExpected,
   ): void {
-    if (!validateModel({ model: animal }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model: animal }).success)
       findings.push(`${label}: actual model admission failed`);
     const head: IAutoMovieModelPart = part(animal, "head");
     if (

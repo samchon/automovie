@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageHolster as createStageHolsterImplementation } from "./internal/createStageHolster";
-import { type createHolster } from "./createHolster";
+import { type AutoMovieArchetypeHolster } from "./AutoMovieArchetypeHolster";
 
 /** Public operations for Auto Movie Archetype Stage Holster. */
 export namespace AutoMovieArchetypeStageHolster {
@@ -34,13 +34,13 @@ export namespace AutoMovieArchetypeStageHolster {
    * The createHolster contact set its shared construction types. This producer
    * builds belt, socket.
    */
-  export type Affordance = createHolster.Affordance;
+  export type Affordance = AutoMovieArchetypeHolster.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createHolster.IParams,
+    AutoMovieArchetypeHolster.IParams,
     "id" | "depth" | "mass"
   > {
     /** A model from this form's catalogue. */
-    model?: createHolster.Ride;
+    model?: AutoMovieArchetypeHolster.Ride;
   }}

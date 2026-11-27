@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createVendingMachine as createVendingMachineImplementation } from "./internal/createVendingMachine";
-import { type createMachine } from "./createMachine";
+import { type AutoMovieArchetypeMachine } from "./AutoMovieArchetypeMachine";
 
 /** Public operations for Auto Movie Archetype Vending Machine. */
 export namespace AutoMovieArchetypeVendingMachine {
@@ -47,5 +47,5 @@ export namespace AutoMovieArchetypeVendingMachine {
     id?: string;
 
     /** The measured model, drawn by seed when omitted. */
-    model?: createMachine.Model;
+    model?: AutoMovieArchetypeMachine.Model;
   }}

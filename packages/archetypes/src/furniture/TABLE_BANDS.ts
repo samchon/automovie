@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../core";
-import type { createTable } from "./createTable";
+import type { AutoMovieArchetypeTable } from "./AutoMovieArchetypeTable";
 
 /** The UK furniture schedule. */
 const ADM: string =
@@ -38,7 +38,7 @@ const WOERNER: string =
  * they are read at: kept apart from the producer so each file stays within its
  * size.
  */
-export const TABLE_BANDS: typeof createTable.BANDS = {
+export const TABLE_BANDS: typeof AutoMovieArchetypeTable.BANDS = {
   dining: {
     height: AutoMovieArchetypeBand.metres(
       0.71,

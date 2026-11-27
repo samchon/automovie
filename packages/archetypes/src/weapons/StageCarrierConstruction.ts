@@ -12,10 +12,10 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { createHolster } from "./createHolster";
+import { AutoMovieArchetypeHolster } from "./AutoMovieArchetypeHolster";
 
 /** The readable name of each kind. */
-const NAMES: Readonly<Record<createHolster.Kind, string>> = {
+const NAMES: Readonly<Record<AutoMovieArchetypeHolster.Kind, string>> = {
   holster: "belt holster",
   scabbard: "scabbard",
   sheath: "sheath",
@@ -38,21 +38,21 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
  *   cannot use.
  */
 export function StageCarrierConstruction(
-  kind: createHolster.Kind,
-  params: Omit<createHolster.IParams, "kind">,
+  kind: AutoMovieArchetypeHolster.Kind,
+  params: Omit<AutoMovieArchetypeHolster.IParams, "kind">,
   seed: number | undefined,
   build: StageCarrierConstruction.Build,
-): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createHolster.Dimension> =
-    new AutoMovieArchetypeDrawSession<createHolster.Dimension>(
+): AutoMovieArchetype<AutoMovieArchetypeHolster.Affordance, AutoMovieArchetypeHolster.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeHolster.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeHolster.Dimension>(
       "holster",
-      createHolster.UNITS,
+      AutoMovieArchetypeHolster.UNITS,
       seed,
       params,
     );
 
   // The slots a quiver holds, from one to the most its source holds.
-  const slotted: createHolster.ISlots | undefined = createHolster.SLOTS[kind];
+  const slotted: AutoMovieArchetypeHolster.ISlots | undefined = AutoMovieArchetypeHolster.SLOTS[kind];
   const capacity: number | undefined = slotted?.capacity;
   const slots: number | undefined =
     params.slots === undefined
@@ -82,33 +82,33 @@ export function StageCarrierConstruction(
     });
   // A holster rides at one of the maker's three heights; a scabbard or a sheath is made to one blade, its length and width that blade's with the maker's fit.
   const ride: {
-    figures: Readonly<Partial<Record<createHolster.Dimension, number>>>;
-  } = draw.model<createHolster.Ride>(
+    figures: Readonly<Partial<Record<AutoMovieArchetypeHolster.Dimension, number>>>;
+  } = draw.model<AutoMovieArchetypeHolster.Ride>(
     "model",
     params.model,
-    createHolster.MODELS[kind],
+    AutoMovieArchetypeHolster.MODELS[kind],
   );
   const blades:
-    | Readonly<Partial<Record<createHolster.Blade, createHolster.Fitted>>>
+    | Readonly<Partial<Record<AutoMovieArchetypeHolster.Blade, AutoMovieArchetypeHolster.Fitted>>>
     | undefined =
     kind === "scabbard"
-      ? createHolster.BLADES.scabbard
+      ? AutoMovieArchetypeHolster.BLADES.scabbard
       : kind === "sheath"
-        ? createHolster.BLADES.sheath
+        ? AutoMovieArchetypeHolster.BLADES.sheath
         : undefined;
   // The blade is picked by name; its fitted bands are what it gives, so it carries no figures.
   const figures: Partial<
     Record<
-      createHolster.Blade,
-      Readonly<Partial<Record<createHolster.Dimension, number>>>
+      AutoMovieArchetypeHolster.Blade,
+      Readonly<Partial<Record<AutoMovieArchetypeHolster.Dimension, number>>>
     >
   > = {};
   if (kind === "scabbard")
-    for (const name of createHolster.SCABBARD_BLADES) figures[name] = {};
+    for (const name of AutoMovieArchetypeHolster.SCABBARD_BLADES) figures[name] = {};
   else if (kind === "sheath")
-    for (const name of createHolster.SHEATH_BLADES) figures[name] = {};
-  const blade: createHolster.Blade | undefined =
-    draw.model<createHolster.Blade>(
+    for (const name of AutoMovieArchetypeHolster.SHEATH_BLADES) figures[name] = {};
+  const blade: AutoMovieArchetypeHolster.Blade | undefined =
+    draw.model<AutoMovieArchetypeHolster.Blade>(
       "blade",
       params.blade,
       blades === undefined
@@ -116,22 +116,22 @@ export function StageCarrierConstruction(
         : figures,
     ).name;
   const fitted: Readonly<
-    Partial<Record<createHolster.Dimension, IAutoMovieArchetypeBand>>
+    Partial<Record<AutoMovieArchetypeHolster.Dimension, IAutoMovieArchetypeBand>>
   > = blade === undefined || blades === undefined ? {} : blades[blade]!;
-  const d: Partial<Record<createHolster.Dimension, number>> = {
+  const d: Partial<Record<AutoMovieArchetypeHolster.Dimension, number>> = {
     ...draw.dimensions(
-      { ...createHolster.BANDS[kind], ...fitted },
+      { ...AutoMovieArchetypeHolster.BANDS[kind], ...fitted },
       {
-        ...createHolster.BANDS,
-        ...createHolster.BLADES.scabbard,
-        ...createHolster.BLADES.sheath,
+        ...AutoMovieArchetypeHolster.BANDS,
+        ...AutoMovieArchetypeHolster.BLADES.scabbard,
+        ...AutoMovieArchetypeHolster.BLADES.sheath,
       },
     ),
     ...ride.figures,
   };
   const builder: AutoMovieArchetypeBuilder<
-    createHolster.Affordance,
-    createHolster.Dimension
+    AutoMovieArchetypeHolster.Affordance,
+    AutoMovieArchetypeHolster.Dimension
   > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
@@ -147,10 +147,10 @@ export namespace StageCarrierConstruction {
   /** Draws one carrier in its own local wear frame. */
   export type Build = (
     builder: AutoMovieArchetypeBuilder<
-      createHolster.Affordance,
-      createHolster.Dimension
+      AutoMovieArchetypeHolster.Affordance,
+      AutoMovieArchetypeHolster.Dimension
     >,
-    dimensions: Readonly<Partial<Record<createHolster.Dimension, number>>>,
+    dimensions: Readonly<Partial<Record<AutoMovieArchetypeHolster.Dimension, number>>>,
     slots: number,
   ) => void;
 

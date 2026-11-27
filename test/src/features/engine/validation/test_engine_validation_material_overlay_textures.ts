@@ -1,4 +1,4 @@
-import { validateModel, validateTextureAssets, AutoMovieEngineValidation } from "@automovie/engine";
+import { validateTextureAssets, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieAssetProvenance,
   IAutoMovieMaterial,
@@ -159,7 +159,7 @@ export function test_engine_validation_material_overlay_textures(): void {
     overlays: IAutoMovieMaterialOverlay[],
   ): IAutoMovieValidation => {
     const base: IAutoMovieModel = createModel();
-    return validateModel({
+    return AutoMovieEngineValidation.validateModel({
       model: {
         ...base,
         materials: [{ ...base.materials[0]!, overlays }],

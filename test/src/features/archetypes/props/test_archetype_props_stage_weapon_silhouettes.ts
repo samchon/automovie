@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  createStageWeaponProp,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeStageWeaponProp } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -24,20 +20,20 @@ import { nclose } from "../../internal/nclose";
  */
 export function test_archetype_props_stage_weapon_silhouettes(): void {
   const height: number = 1.25;
-  const mace: ReturnType<typeof createStageWeaponProp> = createStageWeaponProp({
+  const mace: ReturnType<typeof AutoMovieArchetypeStageWeaponProp.create> = AutoMovieArchetypeStageWeaponProp.create({
     kind: "mace",
     height,
   });
-  const pike: ReturnType<typeof createStageWeaponProp> = createStageWeaponProp({
+  const pike: ReturnType<typeof AutoMovieArchetypeStageWeaponProp.create> = AutoMovieArchetypeStageWeaponProp.create({
     kind: "pike",
     height,
   });
-  const shuo: ReturnType<typeof createStageWeaponProp> = createStageWeaponProp({
+  const shuo: ReturnType<typeof AutoMovieArchetypeStageWeaponProp.create> = AutoMovieArchetypeStageWeaponProp.create({
     kind: "shuo",
     height,
   });
-  const halberd: ReturnType<typeof createStageWeaponProp> =
-    createStageWeaponProp({ kind: "halberd", height });
+  const halberd: ReturnType<typeof AutoMovieArchetypeStageWeaponProp.create> =
+    AutoMovieArchetypeStageWeaponProp.create({ kind: "halberd", height });
 
   for (const prop of [mace, pike, shuo, halberd]) {
     const vertical: ReturnType<typeof archetypeExtent> = archetypeExtent(
@@ -79,8 +75,8 @@ export function test_archetype_props_stage_weapon_silhouettes(): void {
       halberdWidth.high > 2 * -halberdWidth.low,
   );
 
-  const nextPike: ReturnType<typeof createStageWeaponProp> =
-    createStageWeaponProp({ kind: "pike", height }, 17);
+  const nextPike: ReturnType<typeof AutoMovieArchetypeStageWeaponProp.create> =
+    AutoMovieArchetypeStageWeaponProp.create({ kind: "pike", height }, 17);
   TestValidator.predicate(
     "the scale override gives a reproducible outline",
     nclose(archetypeExtent(nextPike, "y").size, height) &&
@@ -89,7 +85,7 @@ export function test_archetype_props_stage_weapon_silhouettes(): void {
 
   let refused: unknown;
   try {
-    createStageWeaponProp({ kind: "pike", height: 0 });
+    AutoMovieArchetypeStageWeaponProp.create({ kind: "pike", height: 0 });
   } catch (error) {
     refused = error;
   }

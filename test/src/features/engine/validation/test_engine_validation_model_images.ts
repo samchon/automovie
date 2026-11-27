@@ -1,4 +1,4 @@
-import { validateModel, validateTextureAssets } from "@automovie/engine";
+import { validateTextureAssets, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieImage,
@@ -50,8 +50,8 @@ const refusedAt: (images: IAutoMovieImage[], path: string) => boolean = (
   images: IAutoMovieImage[],
   path: string,
 ): boolean =>
-  hasViolation(validateModel({ model: carrying(images) }), "type", path) ||
-  hasViolation(validateModel({ model: carrying(images) }), "range", path);
+  hasViolation(AutoMovieEngineValidation.validateModel({ model: carrying(images) }), "type", path) ||
+  hasViolation(AutoMovieEngineValidation.validateModel({ model: carrying(images) }), "range", path);
 
 /**
  * Model admission of carried images and their place in the texture closure: the
@@ -96,7 +96,7 @@ export function test_engine_validation_model_images(): void {
     namedFacts([
       [
         "admitted",
-        (): boolean => validateModel({ model: carrying([image()]) }).success,
+        (): boolean => AutoMovieEngineValidation.validateModel({ model: carrying([image()]) }).success,
       ],
       ["noLedger", (): boolean => closure([carrying([image()])]).success],
       [
@@ -159,7 +159,7 @@ export function test_engine_validation_model_images(): void {
     });
   const admitted: (images: IAutoMovieImage[]) => boolean = (
     images: IAutoMovieImage[],
-  ): boolean => validateModel({ model: carrying(images) }).success;
+  ): boolean => AutoMovieEngineValidation.validateModel({ model: carrying(images) }).success;
   TestValidator.equals(
     "only the decoded PNG subset is admitted",
     namedFacts([

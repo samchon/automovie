@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeEquineSaddleProp, createHorse, AutoMovieArchetypePony } from "@automovie/archetypes";
+import { AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypePony, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -41,7 +41,7 @@ import { nclose } from "../../internal/nclose";
 export function test_archetype_equine_tack(): void {
   const findings: string[] = [];
   const dims = { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 } as const;
-  const bare = createHorse({ ...dims, tack: "bare" }, 7);
+  const bare = AutoMovieArchetypeHorse.create({ ...dims, tack: "bare" }, 7);
   const bones: Map<string, IAutoMovieModelPart> = new Map(
     bare.parts.map((p: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
       p.id,
@@ -49,7 +49,7 @@ export function test_archetype_equine_tack(): void {
     ]),
   );
   const contact = (
-    horse: ReturnType<typeof createHorse>,
+    horse: ReturnType<typeof AutoMovieArchetypeHorse.create>,
     id: string,
   ): IAutoMovieAffordance | undefined =>
     horse.affordances.find((a: IAutoMovieAffordance): boolean => a.id === id);
@@ -57,7 +57,7 @@ export function test_archetype_equine_tack(): void {
     a.frame.translation;
 
   for (const tack of ["bareback", "sidesaddle", "surcingle"] as const) {
-    const horse = createHorse({ ...dims, tack }, 7);
+    const horse = AutoMovieArchetypeHorse.create({ ...dims, tack }, 7);
 
     // 1. The body is untouched.
     for (const [id, part] of bones) {
@@ -80,7 +80,7 @@ export function test_archetype_equine_tack(): void {
   }
 
   // 3. Bareback.
-  const bareback = createHorse({ ...dims, tack: "bareback" }, 7);
+  const bareback = AutoMovieArchetypeHorse.create({ ...dims, tack: "bareback" }, 7);
   const seat: IAutoMovieAffordance | undefined = contact(bareback, "seat");
   if (seat?.astride !== true || seat.mount !== "left")
     findings.push("bareback: the seat must be sat astride from the near side");
@@ -110,7 +110,7 @@ export function test_archetype_equine_tack(): void {
   }
 
   // 4. Side saddle.
-  const aside = createHorse({ ...dims, tack: "sidesaddle" }, 7);
+  const aside = AutoMovieArchetypeHorse.create({ ...dims, tack: "sidesaddle" }, 7);
   const stirrups: IAutoMovieAffordance[] = aside.affordances.filter(
     (a: IAutoMovieAffordance): boolean => a.kind === "stirrup",
   );
@@ -146,7 +146,7 @@ export function test_archetype_equine_tack(): void {
   } else findings.push("side saddle: lacks its seat");
 
   // 5. Surcingle.
-  const vaulting = createHorse({ ...dims, tack: "surcingle" }, 7);
+  const vaulting = AutoMovieArchetypeHorse.create({ ...dims, tack: "surcingle" }, 7);
   const handles: IAutoMovieAffordance[] = vaulting.affordances.filter(
     (a: IAutoMovieAffordance): boolean => a.kind === "handle",
   );
@@ -194,12 +194,12 @@ export function test_archetype_equine_tack(): void {
     findings.push(`pony: side saddle missing or misnamed (${pony.name})`);
 
   // 7. The astride deck and its connected material also travel off the horse.
-  const saddled: ReturnType<typeof createHorse> = createHorse(
+  const saddled: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create(
     { ...dims, tack: "saddle" },
     7,
   );
   astrideMaterial(saddled, bare, findings);
-  const trick: ReturnType<typeof createHorse> = createHorse(
+  const trick: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create(
     { ...dims, tack: "trick" },
     7,
   );
@@ -226,8 +226,8 @@ export function test_archetype_equine_tack(): void {
 
 /** The deck, twist, panel channel and grip connections are actual solids. */
 function astrideMaterial(
-  horse: ReturnType<typeof createHorse>,
-  bare: ReturnType<typeof createHorse>,
+  horse: ReturnType<typeof AutoMovieArchetypeHorse.create>,
+  bare: ReturnType<typeof AutoMovieArchetypeHorse.create>,
   findings: string[],
 ): void {
   const zero: IAutoMovieRigidTransform = {

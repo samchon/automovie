@@ -5,7 +5,7 @@ import {
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -64,7 +64,7 @@ export namespace EquineEarObservation {
     label: string,
     findings: string[],
   ): void {
-    if (!validateModel({ model }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model }).success)
       findings.push(`${label}: actual equid model is invalid`);
     const height: number = model.dimensions.withersHeight!;
     const girth: number = model.dimensions.girth!;

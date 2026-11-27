@@ -118,7 +118,8 @@ export namespace horizontalJump {
           axis: "pit",
           value: p.pit,
           reason: `${p.pit} declares no ${id}`,
-          fix: "name a jump pit with a board and a sand surface, as createJumpPit builds",
+          fix:
+            "name a jump pit with a board and a sand surface, as AutoMovieArchetypeJumpPit.create builds",
         });
       return found;
     };

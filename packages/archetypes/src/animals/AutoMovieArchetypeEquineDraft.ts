@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeRide,
 } from "../core";
 import type { ArchetypeTowing } from "../core/ArchetypeTowing";
-import { createCart } from "../vehicles/createCart";
+import { AutoMovieArchetypeCart } from "../vehicles/AutoMovieArchetypeCart";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeEquineDraftPlan } from "./AutoMovieArchetypeEquineDraftPlan";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
@@ -66,21 +66,21 @@ export function AutoMovieArchetypeEquineDraft(
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
   >,
-  cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
+  cart: AutoMovieArchetype<AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Dimension>,
   params: AutoMovieArchetypeEquineDraftPlan.IParams,
 ): AutoMovieArchetypeEquineDraftPlan.ITake<
   AutoMovieArchetypeEquine.Affordance,
   AutoMovieArchetypeEquine.Dimension,
-  createCart.Affordance,
-  createCart.Dimension
+  AutoMovieArchetypeCart.Affordance,
+  AutoMovieArchetypeCart.Dimension
 > {
   type HorseSample = AutoMovieArchetypeRide.ISample<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
   >;
   type CartSample = AutoMovieArchetypeRide.ISample<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   >;
   const refuse = (axis: string, value: unknown, reason: string): never => {
     throw new AutoMovieArchetypeRefusal({
@@ -199,7 +199,7 @@ export function AutoMovieArchetypeEquineDraft(
       seconds: number,
     ): IAutoMovieTransform => ride.frame(id, events.connect + hold(seconds)),
   };
-  const traces: AutoMovieArchetypeRide.ILine[] = createCart.lines(cart);
+  const traces: AutoMovieArchetypeRide.ILine[] = AutoMovieArchetypeCart.lines(cart);
   const footing: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined =
     params.footing === undefined
       ? undefined
@@ -220,10 +220,10 @@ export function AutoMovieArchetypeEquineDraft(
           return { point: landing.point, normal: landing.normal };
         };
   const towed: AutoMovieArchetypeRide.ITowedRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > = AutoMovieArchetypeRide.towed(leader, "hitch", cart, "coupling", {
-    support: createCart.towing(cart),
+    support: AutoMovieArchetypeCart.towing(cart),
     lines: traces,
     ground,
   });
@@ -236,8 +236,8 @@ export function AutoMovieArchetypeEquineDraft(
   ): AutoMovieArchetypeEquineDraftPlan.ISample<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension,
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > {
     const stage: AutoMovieArchetypeEquineDraftPlan.Stage =
       seconds < events.connect

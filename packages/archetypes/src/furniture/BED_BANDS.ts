@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createBed } from "./createBed";
+import type { AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** UK bed sizes. */
 const SIZES: string =
@@ -47,8 +47,8 @@ const MYDAL: string =
 /** The band of each free dimension of {@link createBed}, by kind. */
 export const BED_BANDS: Readonly<
   Record<
-    createBed.Kind,
-    Readonly<Partial<Record<createBed.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeBed.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeBed.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   single: {

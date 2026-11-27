@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStagePoleBladeProp as createStagePoleBladePropImplementation } from "./internal/createStagePoleBladeProp";
-import { type createStageWeaponProp } from "./createStageWeaponProp";
+import { type AutoMovieArchetypeStageWeaponProp } from "./AutoMovieArchetypeStageWeaponProp";
 
 /** Public operations for Auto Movie Archetype Stage Pole Blade Prop. */
 export namespace AutoMovieArchetypeStagePoleBladeProp {
@@ -36,7 +36,7 @@ export namespace AutoMovieArchetypeStagePoleBladeProp {
    * producer builds edge, grip, grip-lower, grip-upper, rear, shaft, side-edge,
    * tip.
    */
-  export type Affordance = createStageWeaponProp.Affordance;
+  export type Affordance = AutoMovieArchetypeStageWeaponProp.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = [
@@ -51,7 +51,7 @@ export namespace AutoMovieArchetypeStagePoleBladeProp {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createStageWeaponProp.IParams,
+    AutoMovieArchetypeStageWeaponProp.IParams,
     "id" | "height"
   > {
     /** The profile with the required outline. */

@@ -1,10 +1,6 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import {
-  AutoMovieArchetypeQuadrupedBody,
-  AutoMovieArchetypeQuadrupedSkeleton,
-  createHorse,
-} from "../animals";
+import { AutoMovieArchetypeQuadrupedBody, AutoMovieArchetypeQuadrupedSkeleton, AutoMovieArchetypeHorse } from "../animals";
 import { EquineHarness } from "../animals/EquineHarness";
 import { EquineSaddle } from "../animals/EquineSaddle";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
@@ -19,7 +15,7 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 export function archetypeCaptureAnimals(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const horse: ReturnType<typeof createHorse> = createHorse(
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create(
     { tack: "both" },
     12,
   );
@@ -49,9 +45,9 @@ export function archetypeCaptureAnimals(): Readonly<
    */
   const turn: (
     bone: AutoMovieArchetypeQuadrupedBody.Bone,
-  ) => ReturnType<typeof createHorse> = (
+  ) => ReturnType<typeof AutoMovieArchetypeHorse.create> = (
     bone: AutoMovieArchetypeQuadrupedBody.Bone,
-  ): ReturnType<typeof createHorse> =>
+  ): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
     AutoMovieArchetypeQuadrupedSkeleton.pose(
       horse,
       new Map<

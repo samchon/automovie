@@ -1,9 +1,4 @@
-import {
-  AUTOMOVIE_FORMATION_CHUNK_SIZE,
-  AutoMovieEngineWorld,
-  materializeCompiledFormation,
-  AutoMovieEngineCanonicalJson,
-} from "@automovie/engine";
+import { AUTOMOVIE_FORMATION_CHUNK_SIZE, AutoMovieEngineWorld, AutoMovieEngineCanonicalJson, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledFormationHero,
@@ -153,7 +148,7 @@ const strip: (
  */
 export function test_engine_compiled_formation_runtime(): void {
   // 1. Chunks.
-  const compiled: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const compiled: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: column(),
   });
   const [first, last]: IAutoMovieFormationChunk[] = compiled.chunks;
@@ -226,7 +221,7 @@ export function test_engine_compiled_formation_runtime(): void {
   );
 
   // 2. Heroes.
-  const turned: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const turned: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: column({ facingDeg: 90 }),
   });
   TestValidator.equals(
@@ -293,7 +288,7 @@ export function test_engine_compiled_formation_runtime(): void {
 
   // 3. Tiers.
   const models: Map<string, IAutoMovieModel> = groups();
-  const withTiers: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const withTiers: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: column({ lod: TIERS }),
     models,
   });
@@ -304,7 +299,7 @@ export function test_engine_compiled_formation_runtime(): void {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   };
-  const unencodable: IAutoMovieCompiledFormation = materializeCompiledFormation(
+  const unencodable: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation(
     {
       formation: column(),
       models: new Map([["member", unencodableGroup]]),
@@ -373,7 +368,7 @@ export function test_engine_compiled_formation_runtime(): void {
     radii: ReadonlyArray<readonly [string, number]>,
     lod: IAutoMovieModelLod[] = TIERS,
   ): number =>
-    materializeCompiledFormation({
+    AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
       formation: column({ lod }),
       models,
       projectionRadii: new Map(radii),
@@ -421,7 +416,7 @@ export function test_engine_compiled_formation_runtime(): void {
     { x: 10, z: 0 },
     2,
   );
-  const grounded: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const grounded: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: column(),
     surfaces: [
       strip("east", { x: 600, z: 0 }, { x: 700, z: 0 }, 2),
@@ -469,13 +464,13 @@ export function test_engine_compiled_formation_runtime(): void {
       [
         "repeatable",
         (): boolean =>
-          materializeCompiledFormation({ formation: column() }).digest ===
+          AutoMovieEnginePopulationRuntime.materializeCompiledFormation({ formation: column() }).digest ===
           digest,
       ],
       [
         "seed",
         (): boolean =>
-          materializeCompiledFormation({ formation: column({ seed: 12 }) })
+          AutoMovieEnginePopulationRuntime.materializeCompiledFormation({ formation: column({ seed: 12 }) })
             .digest !== digest,
       ],
       ["terrain", (): boolean => groundedDigest !== digest],
@@ -500,7 +495,7 @@ export function test_engine_compiled_formation_runtime(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieCompiledFormation =>
-              materializeCompiledFormation({
+              AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
                 formation: column({
                   count: 2,
                   layout: {

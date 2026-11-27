@@ -44,7 +44,8 @@ export function HumanObstacle(
         values: affordances.map((a: IAutoMovieAffordance): string => a.id),
       },
       reason,
-      fix: "step over a kerb or a hurdle, whose edge and depth their contacts declare (createKerb, createHurdle)",
+      fix:
+        "step over a kerb or a hurdle, whose edge and depth their contacts declare (AutoMovieArchetypeKerb.create, AutoMovieArchetypeHurdle.create)",
     });
   const edge: IAutoMovieAffordance | undefined = find("edge") ?? find("top");
   if (edge === undefined)
@@ -97,10 +98,11 @@ export function HumanObstacle(
  * on the floor, its height and its depth.
  *
  * The near side is the obstacle's `edge` contact, a kerb's top front edge
- * (`createKerb`), or without one its `top`, a hurdle's top bar edge
- * (`createHurdle`): a ledge along its `+X` with `+Y` up, its height the edge's
- * above the prop's base. Its depth is the `top` face's depth behind a kerb's
- * edge, or a hurdle's `bar` thickness, that bar's aperture.
+ * (`AutoMovieArchetypeKerb.create`), or without one its `top`, a hurdle's top
+ * bar edge (`AutoMovieArchetypeHurdle.create`): a ledge along its `+X` with `+Y`
+ * up, its height the edge's above the prop's base. Its depth is the `top`
+ * face's depth behind a kerb's edge, or a hurdle's `bar` thickness, that bar's
+ * aperture.
  */
 export namespace HumanObstacle {
   /** An obstacle where it stands. */

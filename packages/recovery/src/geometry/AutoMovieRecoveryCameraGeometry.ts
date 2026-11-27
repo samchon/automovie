@@ -1,3 +1,5 @@
+import { triangulateRecoveryCameraPoint as triangulateRecoveryCameraPointImplementation } from "./internal/triangulateRecoveryCameraPoint";
+
 import { normalizeRecoveryImagePoints as normalizeRecoveryImagePointsImplementation } from "./internal/normalizeRecoveryImagePoints";
 
 import { requiredRecoveryCameraTrials as requiredRecoveryCameraTrialsImplementation } from "./internal/requiredRecoveryCameraTrials";
@@ -12,7 +14,7 @@ import { fitRecoveryResectionDesign as fitRecoveryResectionDesignImplementation 
 import { refineRecoveryResection as refineRecoveryResectionImplementation } from "./internal/refineRecoveryResection";
 import { refineRecoveryCameraPose as refineRecoveryCameraPoseImplementation } from "./internal/refineRecoveryCameraPose";
 
-import { type IAutoMovieRecoveryCameraResidualsScoreOperation, type IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, type IAutoMovieRecoveryEpipolarMatrixFittingOperation, type IAutoMovieRecoveryHomographyErrorsMeasurementOperation, type IAutoMovieRecoveryHomographyFittingOperation, type IAutoMovieRecoveryEpipolarModelRefinementOperation, type IAutoMovieRecoveryCameraPoseSelectionOperation, type IAutoMovieRecoveryEpipolarMatrixCalibrateOperation, type IAutoMovieRecoveryEpipolarConsensusFittingOperation, type IAutoMovieRecoveryHomographyConsensusFittingOperation, type IAutoMovieRecoveryResectionConsensusFittingOperation, type IAutoMovieRecoveryResectionDesign, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryResectionDesignTrace, type IAutoMovieRecoveryResectionRefinementOperation, type IAutoMovieRecoveryCameraPoseRefinementOperation, type IAutoMovieRecoveryImagePointsNormalizationOperation } from "@automovie/interface";
+import { type IAutoMovieRecoveryCameraResidualsScoreOperation, type IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, type IAutoMovieRecoveryEpipolarMatrixFittingOperation, type IAutoMovieRecoveryHomographyErrorsMeasurementOperation, type IAutoMovieRecoveryHomographyFittingOperation, type IAutoMovieRecoveryEpipolarModelRefinementOperation, type IAutoMovieRecoveryCameraPoseSelectionOperation, type IAutoMovieRecoveryEpipolarMatrixCalibrateOperation, type IAutoMovieRecoveryEpipolarConsensusFittingOperation, type IAutoMovieRecoveryHomographyConsensusFittingOperation, type IAutoMovieRecoveryResectionConsensusFittingOperation, type IAutoMovieRecoveryResectionDesign, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryResectionDesignTrace, type IAutoMovieRecoveryResectionRefinementOperation, type IAutoMovieRecoveryCameraPoseRefinementOperation, type IAutoMovieRecoveryImagePointsNormalizationOperation, type IAutoMovieRecoveryCameraPointTriangulationOperation } from "@automovie/interface";
 
 import {
   fitRecoveryEpipolarMatrix as fitRecoveryEpipolarMatrixInternal,
@@ -198,5 +200,18 @@ export namespace AutoMovieRecoveryCameraGeometry {
    */
   export function normalizeImagePoints(points: Parameters<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation>[0]): ReturnType<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation> {
     return normalizeRecoveryImagePointsImplementation(points);
+  }
+
+  /**
+   * Triangulate one observation pair in the first-camera, unit-baseline gauge.
+   * Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An
+   * unresolved third design direction, parallel ray pair, point at infinity or
+   * nonfinite divided coordinate returns null. A finite point behind a camera
+   * remains explicitly nonpositive. Invalid or overflowing matrix actions and SVD
+   * nonconvergence throw. This algebraic point is fitting evidence, not an
+   * independently observed surface.
+   */
+  export function triangulateCameraPoint(firstPoint: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[0], secondPoint: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[1], first: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[2], second: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[3], pose: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[4], minimumDesignRatio: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[5], maxSweeps: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[6]): ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation> {
+    return triangulateRecoveryCameraPointImplementation(firstPoint, secondPoint, first, second, pose, minimumDesignRatio, maxSweeps);
   }
 }

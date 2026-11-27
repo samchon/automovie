@@ -12,7 +12,7 @@ import {
 import { profileSemanticKeys } from "../../resolve/profileSemanticKeys";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
-import { validateModel } from "../../validation/validateModel";
+import { validateModel } from "../../validation/internal/validateModel";
 
 /** The builder-sealed ingest closure of an imported appearance. */
 type IImportedClosure = NonNullable<IAutoMovieModel["imported"]>;

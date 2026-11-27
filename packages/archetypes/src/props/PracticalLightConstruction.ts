@@ -6,10 +6,10 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { createLight } from "./createLight";
+import { AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
 /** The readable name of each kind. */
-const NAMES: Readonly<Record<createLight.Kind, string>> = {
+const NAMES: Readonly<Record<AutoMovieArchetypeLight.Kind, string>> = {
   candle: "candle",
   fireTorch: "fire torch",
   pendant: "pendant",
@@ -19,19 +19,19 @@ const NAMES: Readonly<Record<createLight.Kind, string>> = {
 };
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createLight.Affordance> = AutoMovieArchetypeBuilder<
+type Builder<Id extends AutoMovieArchetypeLight.Affordance> = AutoMovieArchetypeBuilder<
   Id,
-  createLight.Dimension
+  AutoMovieArchetypeLight.Dimension
 >;
 
 /** Model dimensions in the legacy family's recorded units. */
-type Dimensions = Partial<Record<createLight.Dimension, number>>;
+type Dimensions = Partial<Record<AutoMovieArchetypeLight.Dimension, number>>;
 
 /** Practical-light geometry in metres and model-space coordinates. */
 const v: typeof Vector3.create = Vector3.create;
 
 /** A started construction: its builder and its drawn dimensions. */
-interface IDrawn<Id extends createLight.Affordance> {
+interface IDrawn<Id extends AutoMovieArchetypeLight.Affordance> {
   /** The model-space builder for the selected contact ids. */
   builder: Builder<Id>;
 
@@ -40,21 +40,21 @@ interface IDrawn<Id extends createLight.Affordance> {
 }
 
 /** Open the saved draw stream for the light's particular body and mounting form. */
-function draw<Id extends createLight.Affordance>(
-  kind: createLight.Kind,
-  params: Omit<createLight.IParams, "kind">,
+function draw<Id extends AutoMovieArchetypeLight.Affordance>(
+  kind: AutoMovieArchetypeLight.Kind,
+  params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
   seed?: number,
 ): IDrawn<Id> {
-  const session: AutoMovieArchetypeDrawSession<createLight.Dimension> =
-    new AutoMovieArchetypeDrawSession<createLight.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeLight.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeLight.Dimension>(
       "light",
-      createLight.UNITS,
+      AutoMovieArchetypeLight.UNITS,
       seed,
       params,
     );
-  const d: Partial<Record<createLight.Dimension, number>> = session.dimensions(
-    createLight.BANDS[kind],
-    createLight.BANDS,
+  const d: Partial<Record<AutoMovieArchetypeLight.Dimension, number>> = session.dimensions(
+    AutoMovieArchetypeLight.BANDS[kind],
+    AutoMovieArchetypeLight.BANDS,
   );
   const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: kind === "candle" ? "wax" : "composite",
@@ -75,15 +75,15 @@ export namespace PracticalLightConstruction {
 
   /** Build a suspended lamp with a downward light frame. */
   export function pendant(
-    params: Omit<createLight.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<PendantContact, createLight.Dimension> {
+  ): AutoMovieArchetype<PendantContact, AutoMovieArchetypeLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<PendantContact>> =
       draw<PendantContact>("pendant", params, seed);
     // A shade whose mouth faces down, hanging on its cord from the hook at the origin.
     const drop: number = d.cord!;
     const mouth: number = -drop - d.height!;
-    builder.rod("cord", createLight.CORD, v(0, 0, 0), v(0, -drop, 0), {
+    builder.rod("cord", AutoMovieArchetypeLight.CORD, v(0, 0, 0), v(0, -drop, 0), {
       color: "#2c2f33",
       density: 0.2,
     });
@@ -132,17 +132,17 @@ export namespace PracticalLightConstruction {
   /** Build a standing lamp with its source inside the shade. */
   export function standing(
     kind: StandingKind,
-    params: Omit<createLight.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<StandingContact, createLight.Dimension> {
+  ): AutoMovieArchetype<StandingContact, AutoMovieArchetypeLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<StandingContact>> =
       draw<StandingContact>(kind, params, seed);
     // A round base on the floor, a stem up to the lampholder, and the shade round it below the lamp's top.
     // The shade weighs its own net weight; the base's net weight is split between the plate and the stem by volume.
-    const plate: number = d.base! * createLight.BASE;
-    const stem: number = d.base! * createLight.STEM;
+    const plate: number = d.base! * AutoMovieArchetypeLight.BASE;
+    const stem: number = d.base! * AutoMovieArchetypeLight.STEM;
     const bottom: number = d.overall! - d.height!;
-    const shade: number = createLight.SHADE_MASS[kind] / d.mass!;
+    const shade: number = AutoMovieArchetypeLight.SHADE_MASS[kind] / d.mass!;
     const plateVolume: number = (d.base! / 2) ** 2 * plate;
     const stemVolume: number = stem ** 2 * (d.stem! - plate);
     const share: number =
@@ -187,16 +187,16 @@ export namespace PracticalLightConstruction {
 
   /** Build a raised-bail lantern with a standing base, grip and hanging hook. */
   export function lantern(
-    params: Omit<createLight.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<LanternContact, createLight.Dimension> {
+  ): AutoMovieArchetype<LanternContact, AutoMovieArchetypeLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<LanternContact>> =
       draw<LanternContact>("lantern", params, seed);
     // The fount up to the burner, the globe over it, the cap to the body's top, and the bail raised over all along X.
-    const foot: number = createLight.LANTERN_ESTIMATES.fount;
+    const foot: number = AutoMovieArchetypeLight.LANTERN_ESTIMATES.fount;
     const crown: number = foot + d.height!;
     const half: number = d.base! / 2;
-    const wire: number = createLight.LANTERN_ESTIMATES.wire;
+    const wire: number = AutoMovieArchetypeLight.LANTERN_ESTIMATES.wire;
     // The bail's wire runs on this line, its top at the read raised height.
     const hang: number = d.bail! - wire / 2;
     const color: string = "#9c2a22";
@@ -206,11 +206,11 @@ export namespace PracticalLightConstruction {
     // inside it lights the room.
     builder.rod("globe", d.shade! / 2, v(0, foot, 0), v(0, crown, 0), {
       color: "#e8eef0",
-      opacity: createLight.LANTERN_ESTIMATES.globe,
+      opacity: AutoMovieArchetypeLight.LANTERN_ESTIMATES.globe,
     });
     builder.rod(
       "cap",
-      createLight.GLOBE_TOP / 2,
+      AutoMovieArchetypeLight.GLOBE_TOP / 2,
       v(0, crown, 0),
       v(0, d.overall!, 0),
       { color },
@@ -271,9 +271,9 @@ export namespace PracticalLightConstruction {
    */
   export function wick(
     kind: WickKind,
-    params: Omit<createLight.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<WickContact, createLight.Dimension> {
+  ): AutoMovieArchetype<WickContact, AutoMovieArchetypeLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<WickContact>> =
       draw<WickContact>(kind, params, seed);
     // A candle's taper, or a torch's shaft with its wick head at the top: the grip runs below the head.

@@ -3,8 +3,65 @@ import { boundAutoMovieCameraSubject as boundAutoMovieCameraSubjectImplementatio
 import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImplementation } from "./internal/listAutoMovieCameraSubjectMeshes.js";
 import { measureAutoMovieCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./internal/measureAutoMovieCameraFrameEdgeSurface.js";
 
+import { measureAutoMovieCameraNearClip } from "./internal/measureAutoMovieCameraNearClip.js";
+import { observeAutoMovieCameraInspection } from "./internal/observeAutoMovieCameraInspection.js";
+import { observeAutoMoviePlacedCamera } from "./internal/observeAutoMoviePlacedCamera.js";
+
 /** Public operations for Auto Movie Render Inspection Camera. */
 export namespace AutoMovieRenderInspectionCamera {
+  /**
+   * Measure how far a required subject's drawn surface reaches in front of the
+   * delivery near plane inside the delivered frame.
+   *
+   * The GPU clips every triangle against the near plane, so any part of the
+   * subject's surface that lies inside the four side planes and on the camera
+   * side of the near plane is cut out of the delivered picture: the camera has
+   * entered the subject. Each drawn triangle is clipped to the four side planes
+   * (Sutherland-Hodgman); signed distance to the near plane is linear over the
+   * remaining convex polygon, so its deepest point is a polygon vertex.
+   *
+   * @param props Delivery camera, admitted subject meshes and the triangle
+   *   budget.
+   * @returns `clear` when no drawn surface crosses, `clipped` with the deepest
+   *   intrusion in metres, its world surface point and the near-plane point at
+   *   the same delivered pixel, `over-budget` when the triangles to examine
+   *   exceed the budget, or `unmeasured` with the reason the subject cannot be
+   *   checked.
+   */
+  export function measureNearClip(
+    props: Parameters<typeof measureAutoMovieCameraNearClip>[0],
+  ): ReturnType<typeof measureAutoMovieCameraNearClip> {
+    return measureAutoMovieCameraNearClip(props);
+  }
+  /** Observes required-subject framing from the original delivered projection. */
+  export function observe(
+    props: Parameters<typeof observeAutoMovieCameraInspection>[0],
+  ): ReturnType<typeof observeAutoMovieCameraInspection> {
+    return observeAutoMovieCameraInspection(props);
+  }
+
+  /**
+   * Observe active, source-owned requirements on the host's original delivery
+   * camera.
+   *
+   * The interactive Viewer checks each painted frame under fixed triangle budgets
+   * and reports a check they stop as `deferred`. Capture and delivery run every
+   * camera check without a budget, and they audit authored pixel coverage with
+   * the host renderer, so they leave nothing deferred. A check that cannot run on
+   * the subject at all is `unsupported` in every host.
+   *
+   * A subject whose bounds cross a side of the frame gets an optional
+   * `camera-frame-edge` check: a cut by the frame edge is often the intended
+   * composition, so it is a `frame-edge-cut` warning that never blocks delivery.
+   *
+   * @param props The placed sample and the requirements active at its time.
+   * @returns Findings and one coverage row per check and requirement.
+   */
+  export function observePlaced(
+    props: Parameters<typeof observeAutoMoviePlacedCamera>[0],
+  ): ReturnType<typeof observeAutoMoviePlacedCamera> {
+    return observeAutoMoviePlacedCamera(props);
+  }
   /** Inputs for one required subject's camera frame-edge surface check. */
   export interface IFrameEdgeSurfaceProps {
     /** Admitted meshes with current world matrices and poses. */

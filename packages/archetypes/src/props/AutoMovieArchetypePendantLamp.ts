@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createPendantLamp as createPendantLampImplementation } from "./internal/createPendantLamp";
-import { type createLight } from "./createLight";
+import { type AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
 /** Public operations for Auto Movie Archetype Pendant Lamp. */
 export namespace AutoMovieArchetypePendantLamp {
@@ -32,6 +32,6 @@ export namespace AutoMovieArchetypePendantLamp {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createLight.IParams,
+    AutoMovieArchetypeLight.IParams,
     "id" | "height" | "shade" | "cord" | "mass"
   >;}

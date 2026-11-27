@@ -1,4 +1,4 @@
-import { materializeCompiledFormation } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieFormationMotion,
   IAutoMovieModel,
@@ -19,8 +19,8 @@ export const createFormationShadowInputs: (
   count: number = 2,
   cyclic: boolean = true,
 ): Parameters<typeof AutoMovieRenderFormation.buildInstancedFormation>[0] => {
-  const formation: ReturnType<typeof materializeCompiledFormation> =
-    materializeCompiledFormation({
+  const formation: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledFormation> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
       formation: {
         id: "shadow-unit",
         model: "box",

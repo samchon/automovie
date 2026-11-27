@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createSiegeEngine } from "./createSiegeEngine";
+import type { AutoMovieArchetypeSiegeEngine } from "./AutoMovieArchetypeSiegeEngine";
 
 /** Saimre's study, with his measurements of Hansen's replica. */
 const SAIMRE: string =
@@ -39,9 +39,9 @@ const HAUL: number = 25;
 /** The band of each dimension of a siege engine, by kind. */
 export const SIEGE_BANDS: Readonly<
   Record<
-    createSiegeEngine.Kind,
+    AutoMovieArchetypeSiegeEngine.Kind,
     Readonly<
-      Partial<Record<createSiegeEngine.Dimension, IAutoMovieArchetypeBand>>
+      Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, IAutoMovieArchetypeBand>>
     >
   >
 > = {

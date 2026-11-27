@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import { VesselConstruction } from "./VesselConstruction";
-import type { createVessel } from "./createVessel";
+import type { AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
 /** Canonical producer and authoring contract for Vase. */
 export namespace AutoMovieArchetypeVase {
@@ -31,7 +31,7 @@ export namespace AutoMovieArchetypeVase {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createVessel.IParams,
+    AutoMovieArchetypeVessel.IParams,
     "id" | "diameter" | "height" | "mass"
   >;
 }

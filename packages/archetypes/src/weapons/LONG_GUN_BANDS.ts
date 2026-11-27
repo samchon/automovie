@@ -5,7 +5,7 @@ import {
 } from "../core";
 import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
-import type { createLongGun } from "./createLongGun";
+import type { AutoMovieArchetypeLongGun } from "./AutoMovieArchetypeLongGun";
 
 /** A carbine's published data, from its maker. */
 const CARBINE: string =
@@ -53,8 +53,8 @@ const UNPUBLISHED: string = "not published by the maker; an estimate";
  */
 export const LONG_GUN_BANDS: Readonly<
   Record<
-    createLongGun.Kind,
-    Readonly<Partial<Record<createLongGun.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeLongGun.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeLongGun.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   carbine: {

@@ -24,7 +24,7 @@ import { performShot } from "./internal/performShot";
 import { realizeShotContract } from "./internal/realizeShotContract";
 import { resolveBeatEnd } from "./internal/resolveBeatEnd";
 import { resolveBeatOpening } from "./internal/resolveBeatOpening";
-import { stageScene } from "./stageScene";
+import { stageScene } from "./internal/stageScene";
 import { validateShotPhysicsAdvice } from "./internal/validateShotPhysicsAdvice";
 import { validateShotProgramContract } from "./internal/validateShotProgramContract";
 

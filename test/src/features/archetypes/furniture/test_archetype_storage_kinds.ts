@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeRefusal,
-  AutoMovieArchetypeUnits,
-  createStorage,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits, AutoMovieArchetypeStorage } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -77,7 +73,7 @@ export function test_archetype_storage_kinds(): void {
   };
 
   // 1. The filing cabinet.
-  const cabinet: ReturnType<typeof createStorage> = createStorage(
+  const cabinet: ReturnType<typeof AutoMovieArchetypeStorage.create> = AutoMovieArchetypeStorage.create(
     { kind: "filingCabinet" },
     4,
   );
@@ -95,7 +91,7 @@ export function test_archetype_storage_kinds(): void {
       (height * (k - 0.5)) / HON.drawers,
     );
     near(`drawer ${k}'s travel`, drawer.travel!, HON.travel);
-    const drawn: ReturnType<typeof createStorage> = cabinet.articulate({
+    const drawn: ReturnType<typeof AutoMovieArchetypeStorage.create> = cabinet.articulate({
       [`drawer${k}`]: HON.travel,
     });
     for (const part of [`front-${k}`, `box-${k}`])
@@ -117,7 +113,7 @@ export function test_archetype_storage_kinds(): void {
       {
         name: "locker width and depth",
         measure: (seed: number): readonly number[] => {
-          const locker: ReturnType<typeof createStorage> = createStorage(
+          const locker: ReturnType<typeof AutoMovieArchetypeStorage.create> = AutoMovieArchetypeStorage.create(
             { kind: "locker" },
             seed,
           );
@@ -131,7 +127,7 @@ export function test_archetype_storage_kinds(): void {
       },
     ]),
   );
-  const locker: ReturnType<typeof createStorage> = createStorage(
+  const locker: ReturnType<typeof AutoMovieArchetypeStorage.create> = AutoMovieArchetypeStorage.create(
     { kind: "locker" },
     4,
   );
@@ -165,7 +161,7 @@ export function test_archetype_storage_kinds(): void {
   )
     findings.push("the locker declares a handle no source places");
   try {
-    createStorage({ kind: "locker", width: 0.35 }, 3);
+    AutoMovieArchetypeStorage.create({ kind: "locker", width: 0.35 }, 3);
     findings.push("a fixed locker width was accepted");
   } catch (error) {
     if (
@@ -177,7 +173,7 @@ export function test_archetype_storage_kinds(): void {
   }
 
   // 3. The bookcase.
-  const bookcase: ReturnType<typeof createStorage> = createStorage(
+  const bookcase: ReturnType<typeof AutoMovieArchetypeStorage.create> = AutoMovieArchetypeStorage.create(
     { kind: "bookcase" },
     4,
   );

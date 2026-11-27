@@ -2,7 +2,7 @@ import { Vector3 } from "@automovie/engine";
 
 import type { AutoMovieArchetype } from "../core";
 import { ClubBuild } from "../weapons/ClubBuild";
-import type { createClub } from "../weapons/createClub";
+import type { AutoMovieArchetypeClub } from "../weapons/AutoMovieArchetypeClub";
 
 /** Canonical producer and authoring contract for BaseballBat. */
 export namespace AutoMovieArchetypeBaseballBat {
@@ -91,7 +91,7 @@ export namespace AutoMovieArchetypeBaseballBat {
 
   /** The identifier, recorded model choice and adjustable dimensions. */
   export interface IParams extends Pick<
-    createClub.IParams,
+    AutoMovieArchetypeClub.IParams,
     "id" | "diameter" | "handleDiameter"
   > {
     /**

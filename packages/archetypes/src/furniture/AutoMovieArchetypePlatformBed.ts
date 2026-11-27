@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createPlatformBed as createPlatformBedImplementation } from "./internal/createPlatformBed";
-import { type createBed } from "./createBed";
+import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** Public operations for Auto Movie Archetype Platform Bed. */
 export namespace AutoMovieArchetypePlatformBed {
@@ -35,7 +35,7 @@ export namespace AutoMovieArchetypePlatformBed {
 
   /** The admitted settings and optional model ID. */
   export interface IParams extends Pick<
-    createBed.IParams,
+    AutoMovieArchetypeBed.IParams,
     "id" | "width" | "length" | "height" | "thickness" | "mass"
   > {
     /** The household bed size. */

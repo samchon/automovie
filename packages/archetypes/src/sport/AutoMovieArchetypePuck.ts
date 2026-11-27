@@ -2,7 +2,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { BallBuild } from "./BallBuild";
-import type { createBall } from "./createBall";
+import type { AutoMovieArchetypeBall } from "./AutoMovieArchetypeBall";
 
 /** Canonical producer and authoring contract for Puck. */
 export namespace AutoMovieArchetypePuck {
@@ -17,7 +17,7 @@ export namespace AutoMovieArchetypePuck {
 
   /** The identifier, dimensions and choices of this shape. */
   export type IParams = Pick<
-    createBall.IParams,
+    AutoMovieArchetypeBall.IParams,
     "id" | "diameter" | "length" | "mass"
   >;
 

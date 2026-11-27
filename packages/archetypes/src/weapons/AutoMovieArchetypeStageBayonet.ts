@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageBayonet as createStageBayonetImplementation } from "./internal/createStageBayonet";
-import { createLongGun } from "./createLongGun";
+import { AutoMovieArchetypeLongGun } from "./AutoMovieArchetypeLongGun";
 
 /** Public operations for Auto Movie Archetype Stage Bayonet. */
 export namespace AutoMovieArchetypeStageBayonet {
@@ -39,7 +39,7 @@ export namespace AutoMovieArchetypeStageBayonet {
   /** The separately generated musket the socket fits and the bayonet's own id. */
   export interface IParams {
     /** A `createLongGun` musket whose barrel the socket slides over. */
-    gun: ReturnType<typeof createLongGun>;
+    gun: ReturnType<typeof AutoMovieArchetypeLongGun.create>;
 
     /** The bayonet's own id, distinct from the musket's id. */
     id?: string;
@@ -73,6 +73,6 @@ export namespace AutoMovieArchetypeStageBayonet {
    */
   export function REFERENCE(): Readonly<IParams> {
     return {
-      gun: createLongGun({ kind: "musket", id: "bayonet-reference-musket" }),
+      gun: AutoMovieArchetypeLongGun.create({ kind: "musket", id: "bayonet-reference-musket" }),
     };
   }}

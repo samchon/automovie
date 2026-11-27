@@ -1,4 +1,4 @@
-import type { stageScene } from "@automovie/engine";
+import type { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieStageLight,
   IAutoMovieValidation,
@@ -9,8 +9,8 @@ import type {
  */
 export interface IFilmStageLightBoundaryInputs {
   /** Stage the original duel with the supplied light list. */
-  stageLights(lights: IAutoMovieStageLight[]): ReturnType<typeof stageScene>;
+  stageLights(lights: IAutoMovieStageLight[]): ReturnType<typeof AutoMovieEngineFilm.stageScene>;
 
   /** Read the same staging result as its original validation envelope. */
-  failure(staged: ReturnType<typeof stageScene>): IAutoMovieValidation;
+  failure(staged: ReturnType<typeof AutoMovieEngineFilm.stageScene>): IAutoMovieValidation;
 }

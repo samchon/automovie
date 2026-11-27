@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createSideDrum as createSideDrumImplementation } from "./internal/createSideDrum";
-import { type createInstrument } from "./createInstrument";
+import { type AutoMovieArchetypeInstrument } from "./AutoMovieArchetypeInstrument";
 
 /** Public operations for Auto Movie Archetype Side Drum. */
 export namespace AutoMovieArchetypeSideDrum {
@@ -33,6 +33,6 @@ export namespace AutoMovieArchetypeSideDrum {
 
   /** The identifier and dimension overrides for this instrument. */
   export type IParams = Pick<
-    createInstrument.IParams,
+    AutoMovieArchetypeInstrument.IParams,
     "id" | "diameter" | "depth" | "mass"
   >;}

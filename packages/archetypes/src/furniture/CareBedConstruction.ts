@@ -5,16 +5,16 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import { BED_BANDS } from "./BED_BANDS";
-import type { createBed } from "./createBed";
+import type { AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** The builder every construction fills. */
 type Builder = AutoMovieArchetypeBuilder<
-  createBed.Affordance,
-  createBed.Dimension
+  AutoMovieArchetypeBed.Affordance,
+  AutoMovieArchetypeBed.Dimension
 >;
 
 /** The drawn dimensions. */
-type Drawn = Partial<Record<createBed.Dimension, number>>;
+type Drawn = Partial<Record<AutoMovieArchetypeBed.Dimension, number>>;
 
 /** The shorthand every construction uses. */
 const v: typeof Vector3.create = Vector3.create;

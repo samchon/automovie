@@ -5,7 +5,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import { CartWheel } from "./CartWheel";
-import { createCart } from "./createCart";
+import { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /** The body's paint. */
 const BODY: string = "#2f4f3f";
@@ -31,18 +31,18 @@ export namespace CartLimber {
    */
   export function build(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const radius: number = d.wheelDiameter! / 2;
-    const rear: number = -createCart.LIMBER.rear;
+    const rear: number = -AutoMovieArchetypeCart.LIMBER.rear;
     const front: number = rear + d.length!;
     const tip: number = front + d.poleLength!;
-    const chest: typeof createCart.LIMBER.chest = createCart.LIMBER.chest;
-    const board: number = createCart.LIMBER.board;
+    const chest: typeof AutoMovieArchetypeCart.LIMBER.chest = AutoMovieArchetypeCart.LIMBER.chest;
+    const board: number = AutoMovieArchetypeCart.LIMBER.board;
     const width: number = chest.width + 2 * board;
     const across: number = chest.length + 2 * board;
     const base: number = radius + 0.08;
@@ -98,7 +98,7 @@ export namespace CartLimber {
       frame: AutoMovieArchetypeFrame.upright(v(0, radius + 0.04, tip)),
       extent: null,
     });
-    const pintle: number = createCart.LIMBER.pintle;
+    const pintle: number = AutoMovieArchetypeCart.LIMBER.pintle;
     builder.rod("pintle", 0.02, v(0, pintle, rear), v(0, pintle, rear - 0.1), {
       color: METAL,
     });

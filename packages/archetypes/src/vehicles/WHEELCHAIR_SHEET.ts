@@ -1,4 +1,4 @@
-import type { createWheelchair } from "./createWheelchair";
+import type { AutoMovieArchetypeWheelchair } from "./AutoMovieArchetypeWheelchair";
 
 /**
  * The maker's sheet `createWheelchair`'s models are read at, row by row, kept
@@ -63,7 +63,7 @@ export namespace WHEELCHAIR_SHEET {
    * again under the S-Ergo 115 on p. 68, so the sheet contradicts itself on
    * which model has them; they are left out and the conflict recorded.
    */
-  export const ROWS: Readonly<Record<createWheelchair.Kind, readonly IRow[]>> =
+  export const ROWS: Readonly<Record<AutoMovieArchetypeWheelchair.Kind, readonly IRow[]>> =
     {
       selfPropelled: [
         {

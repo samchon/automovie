@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createBunkBed as createBunkBedImplementation } from "./internal/createBunkBed";
-import { type createBed } from "./createBed";
+import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** Public operations for Auto Movie Archetype Bunk Bed. */
 export namespace AutoMovieArchetypeBunkBed {
@@ -44,7 +44,7 @@ export namespace AutoMovieArchetypeBunkBed {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createBed.IParams,
+    AutoMovieArchetypeBed.IParams,
     | "id"
     | "width"
     | "length"

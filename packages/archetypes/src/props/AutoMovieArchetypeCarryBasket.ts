@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createCarryBasket as createCarryBasketImplementation } from "./internal/createCarryBasket";
-import { type createTray } from "./createTray";
+import { type AutoMovieArchetypeTray } from "./AutoMovieArchetypeTray";
 
 /** Public operations for Auto Movie Archetype Carry Basket. */
 export namespace AutoMovieArchetypeCarryBasket {
@@ -34,7 +34,7 @@ export namespace AutoMovieArchetypeCarryBasket {
   export type Affordance = "handle" | "inside";
 
   /** The admitted settings and optional model ID. */
-  export interface IParams extends Pick<createTray.IParams, "id" | "mass"> {
+  export interface IParams extends Pick<AutoMovieArchetypeTray.IParams, "id" | "mass"> {
     /** The recorded basket model. The seed selects it when omitted. */
     model?: Model;
   }}

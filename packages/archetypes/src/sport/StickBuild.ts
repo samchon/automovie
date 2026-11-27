@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createStick } from "./createStick";
+import type { AutoMovieArchetypeStick } from "./AutoMovieArchetypeStick";
 
 /** The ice hockey stick read. */
 const IIHF: string =
@@ -27,7 +27,7 @@ const MCC: string =
   "MCC Laws of Cricket, 2017 Code 3rd Edition 2022, Law 5, bat size limits: overall length at most 38 in (96.52 cm), width 4.25 in (10.8 cm), depth 2.64 in (6.7 cm), edges 1.56 in (4.0 cm), the handle at most 52% of the overall length (https://www.lords.org/getmedia/81bd1d01-c7e7-42f6-ac70-80473a050c32/Laws-of-Cricket-2017-Code-3rd-Edition-2022_1.docx)";
 
 /** The readable name of each kind. */
-const NAMES: Readonly<Record<createStick.Kind, string>> = {
+const NAMES: Readonly<Record<AutoMovieArchetypeStick.Kind, string>> = {
   iceHockey: "ice hockey stick",
   fieldHockey: "field hockey stick",
   lacrosse: "lacrosse crosse",
@@ -41,7 +41,7 @@ const v: typeof Vector3.create = Vector3.create;
 export namespace StickBuild {
   /** The units of the recorded stick dimensions. */
   export const UNITS: Readonly<
-    Record<createStick.Dimension, AutoMovieArchetypeDrawSession.Unit>
+    Record<AutoMovieArchetypeStick.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     length: "m",
     head: "m",
@@ -54,8 +54,8 @@ export namespace StickBuild {
   /** The bands for each stick profile. */
   export const BANDS: Readonly<
     Record<
-      createStick.Kind,
-      Readonly<Partial<Record<createStick.Dimension, IAutoMovieArchetypeBand>>>
+      AutoMovieArchetypeStick.Kind,
+      Readonly<Partial<Record<AutoMovieArchetypeStick.Dimension, IAutoMovieArchetypeBand>>>
     >
   > = {
     iceHockey: {
@@ -158,27 +158,27 @@ export namespace StickBuild {
   };
 
   /** What {@link draw} prepares for its caller. */
-  export interface IDrawResult<Id extends createStick.Affordance> {
+  export interface IDrawResult<Id extends AutoMovieArchetypeStick.Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: AutoMovieArchetypeBuilder<Id, createStick.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeStick.Dimension>;
 
     /** The prepared `d` this call returns. */
-    d: Partial<Record<createStick.Dimension, number>>;
+    d: Partial<Record<AutoMovieArchetypeStick.Dimension, number>>;
   }
 
   /** Draw a stick profile in its original seed domain and prepare its builder. */
-  export function draw<Id extends createStick.Affordance>(
-    kind: createStick.Kind,
-    params: Readonly<Omit<createStick.IParams, "kind">>,
+  export function draw<Id extends AutoMovieArchetypeStick.Affordance>(
+    kind: AutoMovieArchetypeStick.Kind,
+    params: Readonly<Omit<AutoMovieArchetypeStick.IParams, "kind">>,
     seed: number | undefined,
   ): IDrawResult<Id> {
-    const draw: AutoMovieArchetypeDrawSession<createStick.Dimension> =
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStick.Dimension> =
       new AutoMovieArchetypeDrawSession("stick", UNITS, seed, params);
-    const d: Partial<Record<createStick.Dimension, number>> = draw.dimensions(
+    const d: Partial<Record<AutoMovieArchetypeStick.Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
     );
-    const builder: AutoMovieArchetypeBuilder<Id, createStick.Dimension> =
+    const builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeStick.Dimension> =
       new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
@@ -206,8 +206,8 @@ export namespace StickBuild {
    */
   export function contacts(
     builder: AutoMovieArchetypeBuilder<
-      createStick.Affordance,
-      createStick.Dimension
+      AutoMovieArchetypeStick.Affordance,
+      AutoMovieArchetypeStick.Dimension
     >,
     length: number,
     head: number,

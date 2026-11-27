@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createGurney as createGurneyImplementation } from "./internal/createGurney";
-import { type createBed } from "./createBed";
+import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** Public operations for Auto Movie Archetype Gurney. */
 export namespace AutoMovieArchetypeGurney {
@@ -36,7 +36,7 @@ export namespace AutoMovieArchetypeGurney {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createBed.IParams,
+    AutoMovieArchetypeBed.IParams,
     | "id"
     | "width"
     | "length"

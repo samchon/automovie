@@ -9,16 +9,16 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import { WasherDrum } from "./WasherDrum";
-import type { createAppliance } from "./createAppliance";
+import type { AutoMovieArchetypeAppliance } from "./AutoMovieArchetypeAppliance";
 
 /** The builder every kind's construction fills. */
 type Builder = AutoMovieArchetypeBuilder<
-  createAppliance.Affordance,
-  createAppliance.Dimension
+  AutoMovieArchetypeAppliance.Affordance,
+  AutoMovieArchetypeAppliance.Dimension
 >;
 
 /** The drawn dimensions of one kind. */
-type Drawn = Partial<Record<createAppliance.Dimension, number>>;
+type Drawn = Partial<Record<AutoMovieArchetypeAppliance.Dimension, number>>;
 
 /** White enamelled steel. */
 const WHITE: string = "#e9eae6";

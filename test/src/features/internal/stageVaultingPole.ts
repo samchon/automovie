@@ -1,4 +1,4 @@
-import { createVaultingPole, AutoMovieArchetypeLandingMat } from "@automovie/archetypes";
+import { AutoMovieArchetypeLandingMat, AutoMovieArchetypeVaultingPole } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import {
@@ -44,10 +44,10 @@ export function stageVaultingPole(
   body: IAutoMovieMotionHumanBody,
   seed: string,
 ): IStagedVault {
-  const pole: ReturnType<typeof createVaultingPole> = createVaultingPole({
+  const pole: ReturnType<typeof AutoMovieArchetypeVaultingPole.create> = AutoMovieArchetypeVaultingPole.create({
     series: "305",
   });
-  const length: number = createVaultingPole.SERIES["305"].length!;
+  const length: number = AutoMovieArchetypeVaultingPole.SERIES["305"].length!;
   const rating: number = pole.dimensions.rating!;
   const top: number = AutoMovieMotionHumanJump.poleVault.grip(
     body,

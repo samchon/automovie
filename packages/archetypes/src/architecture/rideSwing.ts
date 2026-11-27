@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import type { createSwing } from "./createSwing";
+import type { AutoMovieArchetypeSwing } from "./AutoMovieArchetypeSwing";
 
 /** A unit scale: the rides move rigid frames. */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
@@ -40,7 +40,7 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  *   increment out of range.
  */
 export function rideSwing(
-  swing: AutoMovieArchetype<"ground", createSwing.Dimension>,
+  swing: AutoMovieArchetype<"ground", AutoMovieArchetypeSwing.Dimension>,
   placement: IAutoMovieTransform,
   ride: rideSwing.IParams,
 ): rideSwing.IRide {

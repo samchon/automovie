@@ -3,7 +3,7 @@ import type { AutoMovieArchetype } from "../../core/index";
 import { APPLIANCE_BANDS } from "../APPLIANCE_BANDS";
 import { ApplianceConstruction } from "../ApplianceConstruction";
 import { FixtureDraw } from "../FixtureDraw";
-import type { createAppliance } from "../createAppliance";
+import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
 
 /**
  * A front-loading washing machine with a hinged round door, a physically hollow
@@ -31,7 +31,7 @@ export function createWashingMachine(
 > {
   return FixtureDraw.installed<
     AutoMovieArchetypeWashingMachine.Affordance,
-    createAppliance.Dimension
+    AutoMovieArchetypeAppliance.Dimension
   >(
     "appliance",
     "washing machine",

@@ -1,10 +1,27 @@
 import type * as THREE from "three";
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { applyReliefWeights as applyReliefWeightsImplementation } from "./internal/applyReliefWeights.js";
 import { reliefWeightVertex as reliefWeightVertexImplementation } from "./internal/reliefWeightVertex.js";
 import { reliefWeightFragment as reliefWeightFragmentImplementation } from "./internal/reliefWeightFragment.js";
+import { createReliefWeightShaderPatch as createReliefWeightShaderPatchImplementation } from "./internal/createReliefWeightShaderPatch.js";
 
 /** Public operations for Auto Movie Render Relief Weight Shading. */
 export namespace AutoMovieRenderReliefWeightShading {
+  /** One relief-weight shader operation registered on a material. */
+  export type IShaderPatch = {
+    /** Stable program-cache contribution for this operation. */
+    key: string;
+    /** Adds relief interpolation and normal modulation to this shader. */
+    apply: (
+      /** The source and uniform cells this patch mutates in place. */
+      shader: Pick<IMaterialShaderSource, "vertexShader" | "fragmentShader" | "uniforms">,
+    ) => void;
+  };
+
+  /** Create the compile-hook operation that applies relief-weight shader changes. */
+  export const createShaderPatch: () => IShaderPatch = (): IShaderPatch =>
+    createReliefWeightShaderPatchImplementation();
+
   /**
    * Scale a material's normal-map slopes by each vertex's relief weight (the
    * mesh's `reliefWeight` attribute, interpolated across the triangle), before

@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { createReliefWeightShaderPatch } from "../createReliefWeightShaderPatch.js";
+import { AutoMovieRenderReliefWeightShading } from "../AutoMovieRenderReliefWeightShading.js";
 
 /**
  * Scale a material's normal-map slopes by each vertex's relief weight (the
@@ -14,5 +14,5 @@ import { createReliefWeightShaderPatch } from "../createReliefWeightShaderPatch.
 export const applyReliefWeights: (material: THREE.Material) => void = (
   material: THREE.Material,
 ): void => {
-  AutoMovieRenderMaterial.addShaderPatch(material, createReliefWeightShaderPatch());
+  AutoMovieRenderMaterial.addShaderPatch(material, AutoMovieRenderReliefWeightShading.createShaderPatch());
 };

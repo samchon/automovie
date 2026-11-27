@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageStockBowProp as createStageStockBowPropImplementation } from "./internal/createStageStockBowProp";
-import { type createBow } from "./createBow";
+import { type AutoMovieArchetypeBow } from "./AutoMovieArchetypeBow";
 
 /** Public operations for Auto Movie Archetype Stage Stock Bow Prop. */
 export namespace AutoMovieArchetypeStageStockBowProp {
@@ -50,6 +50,6 @@ export namespace AutoMovieArchetypeStageStockBowProp {
 
   /** The model identity, dimensions. */
   export type IParams = Pick<
-    createBow.IParams,
+    AutoMovieArchetypeBow.IParams,
     "id" | "length" | "depth" | "brace" | "mass"
   >;}

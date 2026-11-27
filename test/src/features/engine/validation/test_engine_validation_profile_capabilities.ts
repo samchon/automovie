@@ -1,4 +1,4 @@
-import { validateModel, validateProfileCapabilities } from "@automovie/engine";
+import { validateProfileCapabilities, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieProfile,
@@ -78,7 +78,7 @@ export function test_engine_validation_profile_capabilities(): void {
       [
         "validateModelModelCreateModel",
         (): boolean =>
-          validateModel({ model: { ...createModel(), profiles: [valid] } })
+          AutoMovieEngineValidation.validateModel({ model: { ...createModel(), profiles: [valid] } })
             .success,
       ],
     ]),

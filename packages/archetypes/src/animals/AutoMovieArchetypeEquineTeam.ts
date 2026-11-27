@@ -12,7 +12,7 @@ import {
   AutoMovieArchetypeRefusal,
   AutoMovieArchetypeRide,
 } from "../core";
-import { createCart } from "../vehicles/createCart";
+import { AutoMovieArchetypeCart } from "../vehicles/AutoMovieArchetypeCart";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeEquineTeamPlan } from "./AutoMovieArchetypeEquineTeamPlan";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
@@ -73,11 +73,11 @@ export function AutoMovieArchetypeEquineTeam(
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
   >[],
-  vehicle: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
+  vehicle: AutoMovieArchetype<AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Dimension>,
   params: AutoMovieArchetypeEquineTeamPlan.IParams,
 ): AutoMovieArchetypeEquineTeamPlan.ITeam<
-  createCart.Affordance,
-  createCart.Dimension
+  AutoMovieArchetypeCart.Affordance,
+  AutoMovieArchetypeCart.Dimension
 > {
   const refuse = (
     axis: string,
@@ -240,10 +240,10 @@ export function AutoMovieArchetypeEquineTeam(
       EquineTeamCourse(params, { role: "wheeler", lateral: 0, ahead: 0 }),
     );
   const towed: AutoMovieArchetypeRide.ITowedRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > = AutoMovieArchetypeRide.towed(head, "hitch", vehicle, "coupling", {
-    support: createCart.towing(vehicle),
+    support: AutoMovieArchetypeCart.towing(vehicle),
   });
   const brake: number = params.stop
     ? head.duration - params.cruise / params.rate
@@ -268,8 +268,8 @@ export function AutoMovieArchetypeEquineTeam(
   function at(
     seconds: number,
   ): AutoMovieArchetypeEquineTeamPlan.ISample<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > {
     const stage: AutoMovieArchetypeEquineTeamPlan.Stage =
       seconds >= brake ? "brake" : "pull";
@@ -288,8 +288,8 @@ export function AutoMovieArchetypeEquineTeam(
       > => ride.at(seconds),
     );
     const carried: AutoMovieArchetypeRide.ISample<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     > = towed.at(seconds);
     const onVehicle = (local: IAutoMovieVector3): IAutoMovieVector3 =>
       AutoMovieArchetypeFrame.point(carried.placement, local);
@@ -313,7 +313,7 @@ export function AutoMovieArchetypeEquineTeam(
           });
           lines.push({
             id: `trace-${k}-${side}`,
-            radius: createCart.TRACE,
+            radius: AutoMovieArchetypeCart.TRACE,
             points:
               stage === "brake"
                 ? EquineHarness.slack(from, to, params.sag, SAG_POINTS)
@@ -327,7 +327,7 @@ export function AutoMovieArchetypeEquineTeam(
         )
           lines.push({
             id: `pole-strap-${k}`,
-            radius: createCart.TRACE,
+            radius: AutoMovieArchetypeCart.TRACE,
             points: [
               part(
                 sample,
@@ -342,7 +342,7 @@ export function AutoMovieArchetypeEquineTeam(
           for (const [side] of EquineHarness.SIDES)
             lines.push({
               id: `rein-${k}-${side}`,
-              radius: createCart.LINE / 2,
+              radius: AutoMovieArchetypeCart.LINE / 2,
               points: [
                 part(sample, EquineHarness.ENDS.bit[side]),
                 AutoMovieArchetypeFrame.compose(

@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeUnits,
-  createCannon,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeUnits, AutoMovieArchetypeCannon } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -34,7 +30,7 @@ export function test_archetype_weapon_field_gun(): void {
     if (Math.abs(got - wanted) > 1e-9)
       findings.push(`${name}: ${got}, ${wanted} expected`);
   };
-  const gun: ReturnType<typeof createCannon> = createCannon({
+  const gun: ReturnType<typeof AutoMovieArchetypeCannon.create> = AutoMovieArchetypeCannon.create({
     kind: "fieldGun",
   });
 
@@ -98,7 +94,7 @@ export function test_archetype_weapon_field_gun(): void {
   near("vent leans to the rear", out.z, -Math.cos(lean));
 
   // 5. The elevation.
-  const raised: ReturnType<typeof createCannon> = gun.articulate({
+  const raised: ReturnType<typeof AutoMovieArchetypeCannon.create> = gun.articulate({
     elevation: 12,
   });
   near(
@@ -107,7 +103,7 @@ export function test_archetype_weapon_field_gun(): void {
       muzzle.frame.translation.y,
     34.91 * inch * Math.sin((12 * Math.PI) / 180),
   );
-  const lowered: ReturnType<typeof createCannon> = gun.articulate({
+  const lowered: ReturnType<typeof AutoMovieArchetypeCannon.create> = gun.articulate({
     elevation: -8,
   });
   near(

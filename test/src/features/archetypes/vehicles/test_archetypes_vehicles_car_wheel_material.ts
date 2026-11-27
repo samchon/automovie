@@ -1,11 +1,4 @@
-import {
-  AutoMovieArchetypeCar,
-  AutoMovieArchetypeCourse,
-  AutoMovieArchetypeFrame,
-  createWheelchair,
-  driveCar,
-  rideWheelchair,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, driveCar, rideWheelchair, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -109,7 +102,7 @@ export function test_archetypes_vehicles_car_wheel_material(): void {
       }
     }
 
-  const chair: ReturnType<typeof createWheelchair> = createWheelchair({
+  const chair: ReturnType<typeof AutoMovieArchetypeWheelchair.create> = AutoMovieArchetypeWheelchair.create({
     kind: "selfPropelled",
   });
   const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(

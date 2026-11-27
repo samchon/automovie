@@ -16,9 +16,36 @@ import { applyFormationCycleMaterial as applyFormationCycleMaterialImplementatio
 import type * as THREE from "three";
 import { isAutoMovieFormationCycleMaterial as isAutoMovieFormationCycleMaterialImplementation } from "../internal/isAutoMovieFormationCycleMaterial.js";
 import { selectFormationShadowPalette as selectFormationShadowPaletteImplementation } from "../internal/selectFormationShadowPalette.js";
+import { createFormationCycleShadowMaterials as createFormationCycleShadowMaterialsImplementation } from "../internal/createFormationCycleShadowMaterials.js";
 
 /** Public operations for Auto Movie Render Formation Cycle. */
 export namespace AutoMovieRenderFormationCycle {
+  /** Owned depth and distance projections for one cycle tier and its palette. */
+  export type IShadowMaterials = {
+    /** Depth projection used by directional and spot shadow maps. */
+    depth: THREE.MeshDepthMaterial;
+    /** Distance projection used by point light shadow maps. */
+    distance: THREE.MeshDistanceMaterial;
+    /** Select the palette identity before drawing with the corresponding material. */
+    beforeDraw: (
+      /** Shadow material selected for this draw. */
+      material: THREE.Material,
+      /** Beauty material represented by the geometry group. */
+      paletteMaterial: THREE.Material,
+    ) => void;
+    /** Dispose both owned projection materials through resource retirement. */
+    dispose: () => void;
+  };
+
+  /** Create this cycle tier's owned shadow projections and palette selector. */
+  export const createFormationCycleShadowMaterials: (
+    cycle: IAutoMovieFormationCycle,
+    palette: readonly THREE.Material[],
+  ) => IShadowMaterials = (
+    cycle: IAutoMovieFormationCycle,
+    palette: readonly THREE.Material[],
+  ): IShadowMaterials =>
+    createFormationCycleShadowMaterialsImplementation(cycle, palette);
   /**
    * Whether a material carries the formation cycle's shader patch, whatever other
    * patches it carries beside it.
@@ -61,7 +88,7 @@ export namespace AutoMovieRenderFormationCycle {
    *
    * `built` must already be at rest with its world matrices current, because the
    * merged instance geometry was baked from exactly those rest matrices: what is
-   * stored per sample is `posed * rest⁻¹`, the transform that carries a
+   * stored per sample is `posed * rest?뼘?, the transform that carries a
    * rest-space vertex to where the cycle puts it. The object is left at the last
    * sampled pose; callers extract geometry before baking, never after.
    *

@@ -13,7 +13,7 @@ import type { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetype
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquinePack } from "./EquinePack";
 import { EquineTack } from "./EquineTack";
-import { createHorse } from "./createHorse";
+import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 import { selectEquineTack } from "./selectEquineTack";
 
 /**
@@ -293,7 +293,7 @@ export namespace AutoMovieArchetypeEquine {
    */
   export function rig(
     dimensions: Readonly<Partial<Record<Dimension, number>>>,
-    body: AutoMovieArchetypeQuadrupedBody.IBody = createHorse.BODY,
+    body: AutoMovieArchetypeQuadrupedBody.IBody = AutoMovieArchetypeHorse.BODY,
   ): IRig {
     const rest: AutoMovieArchetypeQuadrupedBody.IRig =
       AutoMovieArchetypeQuadrupedBody.rig(body, dimensions);

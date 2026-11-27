@@ -96,7 +96,10 @@ export namespace AutoMoviePhysicalBalance {
     return inside ? 0 : outside;
   }
 
-  /** The outline the stance holds its centre of pressure inside. */
+  /**
+   * The outline the stance holds its centre of pressure inside: the support
+   * shrunk by the inset (Koolen et al., Corollary 3).
+   */
   export function held(
     scope: Pick<Assessment.IAssessment, "inset">,
     outline: IAutoMovieVector3[],
@@ -106,7 +109,10 @@ export namespace AutoMoviePhysicalBalance {
       : outline;
   }
 
-  /** Compute a swing's duration from distance and the assessed timing bounds. */
+  /**
+   * A swing over distance d lands after the unloading ramp and the quickest
+   * minimum-jerk transfer the leg's acceleration bound allows.
+   */
   export function swing(
     scope: Assessment.IAssessment,
     distance: number,
@@ -116,7 +122,12 @@ export namespace AutoMoviePhysicalBalance {
       : (scope.input.swingSeconds ?? 0);
   }
 
-  /** Compute the interval until a step lands, accounting for spent swing time. */
+  /**
+   * The capture point diverges through the unloading ramp, the swing and the
+   * landed foot's ramp-in, less what a swing under way has spent: the target is
+   * where it will be once the new foot bears (Khadiv et al. 2017, Section
+   * III-B; Herzog et al. 2016, Section 5.3).
+   */
   export function until(
     scope: Assessment.IAssessment,
     distance: number,

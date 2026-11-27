@@ -8,10 +8,10 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createStageWeaponProp } from "./createStageWeaponProp";
+import type { AutoMovieArchetypeStageWeaponProp } from "./AutoMovieArchetypeStageWeaponProp";
 
 /** The size axis measures from the base plane to the uppermost visible part. */
-const UNITS: Readonly<Record<createStageWeaponProp.Dimension, "m">> = {
+const UNITS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Dimension, "m">> = {
   height: "m",
 };
 
@@ -24,7 +24,7 @@ const HEIGHT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
 );
 
 /** The standard display heights in metres. */
-const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
+const DISPLAY_HEIGHTS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Kind, number>> = {
   mace: 0.7,
   pike: 1.95,
   shuo: 1.65,
@@ -53,16 +53,16 @@ const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
  *   cannot use.
  */
 export function StageShaftConstruction(
-  kind: createStageWeaponProp.Kind,
-  params: Omit<createStageWeaponProp.IParams, "kind">,
+  kind: AutoMovieArchetypeStageWeaponProp.Kind,
+  params: Omit<AutoMovieArchetypeStageWeaponProp.IParams, "kind">,
   seed: number | undefined,
   shaftRatio: number,
   decorate: StageShaftConstruction.Decorate,
 ): AutoMovieArchetype<
-  createStageWeaponProp.Affordance,
-  createStageWeaponProp.Dimension
+  AutoMovieArchetypeStageWeaponProp.Affordance,
+  AutoMovieArchetypeStageWeaponProp.Dimension
 > {
-  const draw: AutoMovieArchetypeDrawSession<createStageWeaponProp.Dimension> =
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStageWeaponProp.Dimension> =
     new AutoMovieArchetypeDrawSession("stageWeaponProp", UNITS, seed, {
       height: params.height,
     });
@@ -72,8 +72,8 @@ export function StageShaftConstruction(
       ? draw.derive("height", DISPLAY_HEIGHTS[kind])
       : draw.dimensions({ height: HEIGHT }).height;
   const builder: AutoMovieArchetypeBuilder<
-    createStageWeaponProp.Affordance,
-    createStageWeaponProp.Dimension
+    AutoMovieArchetypeStageWeaponProp.Affordance,
+    AutoMovieArchetypeStageWeaponProp.Dimension
   > = new AutoMovieArchetypeBuilder({
     draw,
     id: params.id,
@@ -111,8 +111,8 @@ export function StageShaftConstruction(
 export namespace StageShaftConstruction {
   /** Builder for named digital stage silhouette contacts. */
   export type Builder = AutoMovieArchetypeBuilder<
-    createStageWeaponProp.Affordance,
-    createStageWeaponProp.Dimension
+    AutoMovieArchetypeStageWeaponProp.Affordance,
+    AutoMovieArchetypeStageWeaponProp.Dimension
   >;
 
   /** One form adds its visible top and optional contacts to the drawn shaft. */

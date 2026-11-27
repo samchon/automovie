@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits } from "../core";
-import { createBow } from "./createBow";
+import { AutoMovieArchetypeBow } from "./AutoMovieArchetypeBow";
 
 /**
  * Each limb's turn against the string's travel: the table a bow's `upperLimb`
@@ -98,7 +98,7 @@ export function bowLimbs(
     const middle: number = a + (b - a) / 2;
     const ta: number = turn(a);
     const tb: number = turn(b);
-    if (gap(middle, (ta + tb) / 2) > createBow.STRING) {
+    if (gap(middle, (ta + tb) / 2) > AutoMovieArchetypeBow.STRING) {
       if (middle === a || middle === b)
         refuse(
           "geometry",

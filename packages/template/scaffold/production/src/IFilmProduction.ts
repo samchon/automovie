@@ -17,7 +17,7 @@ import type {
   IAutoMovieDrawScene,
   IObserveAutoMoviePlacedScene,
   ISelectAutoMoviePlacedChecks,
-  observeAutoMoviePlacedCamera,
+  AutoMovieRenderInspectionCamera,
   observeAutoMovieSceneCollision,
 } from "@automovie/render";
 import type * as THREE from "three";
@@ -106,7 +106,7 @@ export interface IFilmProduction {
    */
   inspectionCamera?: (
     sample: IAutoMovieDrawScene.IPlacedSample,
-  ) => Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];
+  ) => Parameters<typeof AutoMovieRenderInspectionCamera.observePlaced>[0]["targets"];
 
   /**
    * The film's human performance and the entity path of each performer, so a

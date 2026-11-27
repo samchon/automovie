@@ -4,16 +4,16 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import type { createInstrument } from "./createInstrument";
+import type { AutoMovieArchetypeInstrument } from "./AutoMovieArchetypeInstrument";
 
 /** The builder every construction fills. */
 type Builder = AutoMovieArchetypeBuilder<
-  createInstrument.Affordance,
-  createInstrument.Dimension
+  AutoMovieArchetypeInstrument.Affordance,
+  AutoMovieArchetypeInstrument.Dimension
 >;
 
 /** The drawn dimensions. */
-type Drawn = Partial<Record<createInstrument.Dimension, number>>;
+type Drawn = Partial<Record<AutoMovieArchetypeInstrument.Dimension, number>>;
 
 /** The shorthand every construction uses. */
 const v: typeof Vector3.create = Vector3.create;

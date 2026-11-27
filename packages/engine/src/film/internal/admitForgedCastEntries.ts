@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { validateModel } from "../../validation/validateModel";
+import { validateModel } from "../../validation/internal/validateModel";
 
 /** A cast member with the index it was first declared at. */
 interface IDeclaredMember {

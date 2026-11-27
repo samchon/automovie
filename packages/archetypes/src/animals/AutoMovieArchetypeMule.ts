@@ -3,7 +3,7 @@ import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { createMule as createMuleImplementation } from "./internal/createMule";
 import { AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";
-import { createHorse } from "./createHorse";
+import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";
 
 /** Public operations for Auto Movie Archetype Mule. */
@@ -122,9 +122,9 @@ export namespace AutoMovieArchetypeMule {
       girth: (): number => figures.girth!,
       mass: figures.mass!,
       body: {
-        ...createHorse.BODY,
+        ...AutoMovieArchetypeHorse.BODY,
         head: {
-          ...createHorse.BODY.head,
+          ...AutoMovieArchetypeHorse.BODY.head,
           ears: AutoMovieArchetypeEquineEarProfiles.mule(sex),
         },
       },

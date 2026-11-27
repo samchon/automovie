@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageShaftProp as createStageShaftPropImplementation } from "./internal/createStageShaftProp";
-import { type createStageWeaponProp } from "./createStageWeaponProp";
+import { type AutoMovieArchetypeStageWeaponProp } from "./AutoMovieArchetypeStageWeaponProp";
 
 /** Public operations for Auto Movie Archetype Stage Shaft Prop. */
 export namespace AutoMovieArchetypeStageShaftProp {
@@ -34,7 +34,7 @@ export namespace AutoMovieArchetypeStageShaftProp {
    * The createStageWeaponProp contact set its shared construction types. This
    * producer builds grip.
    */
-  export type Affordance = createStageWeaponProp.Affordance;
+  export type Affordance = AutoMovieArchetypeStageWeaponProp.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["pike", "shuo", "halberd"] as const;
@@ -44,7 +44,7 @@ export namespace AutoMovieArchetypeStageShaftProp {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createStageWeaponProp.IParams,
+    AutoMovieArchetypeStageWeaponProp.IParams,
     "id" | "height"
   > {
     /** The profile with the required outline. */

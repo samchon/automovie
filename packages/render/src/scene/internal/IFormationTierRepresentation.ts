@@ -1,5 +1,5 @@
 import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
-import type { createFormationCycleShadowMaterials } from "../createFormationCycleShadowMaterials.js";
+import type { AutoMovieRenderFormationCycle } from "../formationCycle/AutoMovieRenderFormationCycle.js";
 
 /**
  * Owned tier resources shared by all of its anonymous instance chunks. Static
@@ -10,5 +10,5 @@ export interface IFormationTierRepresentation extends IAutoMovieInstancedModelRe
    * Null for a static tier; otherwise its shared directional/spot and point
    * projections.
    */
-  shadows: ReturnType<typeof createFormationCycleShadowMaterials> | null;
+  shadows: AutoMovieRenderFormationCycle.IShadowMaterials | null;
 }

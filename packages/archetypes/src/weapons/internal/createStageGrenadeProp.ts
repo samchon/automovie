@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
 import { StageTokenConstruction } from "../StageTokenConstruction";
-import { createProjectile } from "../createProjectile";
+import { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
 import { stageTokenSphere } from "../stageTokenSphere";
 
 /**
@@ -35,7 +35,7 @@ export function createStageGrenadeProp(
       const top: number = d.length!;
       builder.rod(
         "fuze",
-        d.diameter! * createProjectile.FUZE,
+        d.diameter! * AutoMovieArchetypeProjectile.FUZE,
         v(0, d.diameter!, 0),
         v(0, top, 0),
         { color: "#3f4a3a" },

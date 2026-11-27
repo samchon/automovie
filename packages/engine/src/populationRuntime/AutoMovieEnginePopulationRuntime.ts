@@ -1,10 +1,12 @@
+import { materializeCompiledFormation as materializeCompiledFormationImplementation } from "./internal/materializeCompiledFormation";
+
 import { autoMovieInstanceAddress as autoMovieInstanceAddressImplementation } from "./internal/autoMovieInstanceAddress";
 import { autoMovieInstanceAddressSlot as autoMovieInstanceAddressSlotImplementation } from "./internal/autoMovieInstanceAddressSlot";
 import { createAutoMovieSourceOracle as createAutoMovieSourceOracleImplementation } from "./internal/createAutoMovieSourceOracle";
 import { compiledPopulationRepresentation as compiledPopulationRepresentationImplementation } from "./internal/compiledPopulationRepresentation";
 import { instancePrototypeChoices as instancePrototypeChoicesImplementation } from "./internal/instancePrototypeChoices";
 
-import { type IAutoMovieFormationSlot, type IAutoMovieCompiledFormation, type IAutoMovieModel, type IAutoMovieCreateCompiledSlotSummary, type IAutoMovieInstanceSlot, type IAutoMovieInstanceSetPlacement, type IAutoMovieMaterializeCompiledFormationInventory, type IAutoMovieCompiledInstanceSet, type IAutoMovieMaterializeCompiledInstanceSet, type IAutoMovieMaterializeCompiledInstanceSetInventory, type IAutoMovieCompiledInstancePrototype, type IAutoMovieSelectInstancePrototype, type IAutoMovieSummarizeCompiledSlotChunks, type IAutoMovieVector3, type IAutoMoviePlacementSummary, type IAutoMovieSourceOracle, type IAutoMovieCreateSourceOracle, type IAutoMovieCompiledPopulationRepresentation, type IAutoMovieInstancePrototypeChoices } from "@automovie/interface";
+import { type IAutoMovieFormationSlot, type IAutoMovieCompiledFormation, type IAutoMovieModel, type IAutoMovieCreateCompiledSlotSummary, type IAutoMovieInstanceSlot, type IAutoMovieInstanceSetPlacement, type IAutoMovieMaterializeCompiledFormationInventory, type IAutoMovieCompiledInstanceSet, type IAutoMovieMaterializeCompiledInstanceSet, type IAutoMovieMaterializeCompiledInstanceSetInventory, type IAutoMovieCompiledInstancePrototype, type IAutoMovieSelectInstancePrototype, type IAutoMovieSummarizeCompiledSlotChunks, type IAutoMovieVector3, type IAutoMoviePlacementSummary, type IAutoMovieSourceOracle, type IAutoMovieCreateSourceOracle, type IAutoMovieCompiledPopulationRepresentation, type IAutoMovieInstancePrototypeChoices, type IAutoMovieMaterializeCompiledFormation } from "@automovie/interface";
 import { compiledFormationSlot as compiledFormationSlotImplementation } from "./internal/compiledFormationSlot";
 import { compiledLodModelDigest as compiledLodModelDigestImplementation } from "./internal/compiledLodModelDigest";
 import { createCompiledSlotSummary as createCompiledSlotSummaryImplementation } from "./internal/createCompiledSlotSummary";
@@ -299,5 +301,32 @@ export namespace AutoMovieEnginePopulationRuntime {
   | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
 )[] {
     return instancePrototypeChoicesImplementation<Choice>(instanceSet);
+  }
+
+  /**
+   * Compile one formation design into its compact, regenerable runtime record.
+   *
+   * The record stores what regenerates the members rather than the members: the
+   * layout, anchor, heading and seed, one bounds and centroid per chunk of
+   * {@link AUTOMOVIE_FORMATION_CHUNK_SIZE} slots with that chunk's anonymous count
+   * once heroes are excluded, each hero's promoted base transform, the anonymous
+   * representation tiers the design declares, a measured or fallback member
+   * radius, a domain-separated motion phase seed, and a digest of every other
+   * field.
+   *
+   * The terrain it snapshots is the part of the world that can be under a member:
+   * the surfaces whose ground-plan extent reaches the footprint measured on level
+   * ground, in declared order. Relief moves members up and down, never sideways,
+   * so that footprint holds on any terrain, and a unit with nothing under it
+   * reuses the level pass as its finished summary.
+   *
+   * Supplied member radius estimates come from the host as a table. The host owns
+   * model geometry and any enclosure proof; this kernel does not verify estimates
+   * against geometry. Missing tier estimates borrow the base estimate, then 0.5m.
+   * The digest is SHA-256 over canonical JSON v2 computed without a Node
+   * built-in, equal to the Node builder's digest of the same canonical bytes.
+   */
+  export function materializeCompiledFormation(props: IAutoMovieMaterializeCompiledFormation.IProps): IAutoMovieCompiledFormation {
+    return materializeCompiledFormationImplementation(props);
   }
 }

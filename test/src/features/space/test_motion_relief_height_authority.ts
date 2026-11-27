@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, stageScene, AutoMovieEnginePopulationFormation, AutoMovieEngineSpace } from "@automovie/engine";
+import { AutoMovieEngineWorld, AutoMovieEnginePopulationFormation, AutoMovieEngineSpace, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieFormationPlacement,
   IAutoMovieSpace,
@@ -186,7 +186,7 @@ export function test_motion_relief_height_authority(): void {
     [AutoMovieEngineSpace.spaceGround(space)(50, 50), AutoMovieEngineSpace.spaceGround(space, 7)(50, 50)],
     [0, 7],
   );
-  const staged = stageScene(
+  const staged = AutoMovieEngineFilm.stageScene(
     makeScriptWrite(),
     makeStagingWrite({ space: flat }),
   );

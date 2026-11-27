@@ -1,4 +1,4 @@
-import { type AutoMovieArchetype, createBow, createProjectile, createTool, AutoMovieArchetypeRock } from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeRock, AutoMovieArchetypeBow, AutoMovieArchetypeProjectile, AutoMovieArchetypeTool } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -31,50 +31,50 @@ export function test_archetype_props_surfaces(): void {
   ][] = [
     [
       "spoon",
-      createTool({ kind: "spoon" }, 1),
+      AutoMovieArchetypeTool.create({ kind: "spoon" }, 1),
       { handle: "steel", bowl: "steel" },
       steel,
     ],
     [
       "fork",
-      createTool({ kind: "fork" }, 1),
+      AutoMovieArchetypeTool.create({ kind: "fork" }, 1),
       { handle: "steel", tines: "steel" },
       steel,
     ],
     [
       "ladle",
-      createTool({ kind: "ladle" }, 1),
+      AutoMovieArchetypeTool.create({ kind: "ladle" }, 1),
       { handle: "steel", bowl: "steel" },
       steel,
     ],
     [
       "longbow",
-      createBow({ kind: "longbow" }, 1),
+      AutoMovieArchetypeBow.create({ kind: "longbow" }, 1),
       { lowerLimb: "wood", upperLimb: "wood", grip: "wood", string: null },
       wood,
     ],
-    ["arrow", createProjectile({ kind: "arrow" }, 1), { shaft: "wood" }, wood],
+    ["arrow", AutoMovieArchetypeProjectile.create({ kind: "arrow" }, 1), { shaft: "wood" }, wood],
     [
       "bolt",
-      createProjectile({ kind: "bolt" }, 1),
+      AutoMovieArchetypeProjectile.create({ kind: "bolt" }, 1),
       { shaft: "wood", head: "steel" },
       wood,
     ],
     [
       "ball",
-      createProjectile({ kind: "ball" }, 1),
+      AutoMovieArchetypeProjectile.create({ kind: "ball" }, 1),
       { ball: null },
       [undefined, undefined],
     ],
     [
       "round shot",
-      createProjectile({ kind: "roundShot" }, 1),
+      AutoMovieArchetypeProjectile.create({ kind: "roundShot" }, 1),
       { roundShot: "steel" },
       steel,
     ],
     [
       "grenade",
-      createProjectile({ kind: "grenade" }, 1),
+      AutoMovieArchetypeProjectile.create({ kind: "grenade" }, 1),
       { grenade: "steel", fuze: null },
       steel,
     ],

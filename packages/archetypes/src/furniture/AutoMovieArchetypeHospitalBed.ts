@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createHospitalBed as createHospitalBedImplementation } from "./internal/createHospitalBed";
-import { type createBed } from "./createBed";
+import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** Public operations for Auto Movie Archetype Hospital Bed. */
 export namespace AutoMovieArchetypeHospitalBed {
@@ -45,7 +45,7 @@ export namespace AutoMovieArchetypeHospitalBed {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createBed.IParams,
+    AutoMovieArchetypeBed.IParams,
     | "id"
     | "width"
     | "length"

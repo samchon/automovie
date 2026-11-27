@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { createHorseCart } from "./cart/createHorseCart";
 
 /** Canonical producer and authoring contract for Horse Cart. */
@@ -49,16 +49,16 @@ export namespace AutoMovieArchetypeHorseCart {
    * builds coupling, footboard, leftLine, leftLineEnd, leftLineGrip, leftSpin,
    * rightLine, rightLineEnd, rightLineGrip, rightSpin, seat.
    */
-  export type Affordance = createCart.Affordance;
+  export type Affordance = AutoMovieArchetypeCart.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createCart.IParams,
+    AutoMovieArchetypeCart.IParams,
     "id" | "track" | "clearance" | "seatHeight" | "withersHeight" | "mass"
   > {
     /** A model from this form's catalogue. */
     model?: Model;
     /** A measured shaft option for the selected cart. */
-    shaft?: createCart.Shaft;
+    shaft?: AutoMovieArchetypeCart.Shaft;
   }
 }

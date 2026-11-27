@@ -1,4 +1,4 @@
-import { createDrinkware, createSeat, createTable, AutoMovieArchetypeMoldedCrate, AutoMovieArchetypeMirror, AutoMovieArchetypeRock } from "@automovie/archetypes";
+import { createSeat, AutoMovieArchetypeMoldedCrate, AutoMovieArchetypeMirror, AutoMovieArchetypeRock, AutoMovieArchetypeDrinkware, AutoMovieArchetypeTable } from "@automovie/archetypes";
 import { createBuilding, createCafeKit, createFurnishedRoom, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
@@ -69,7 +69,7 @@ export function test_environment_support_report(): void {
   ): IAutoMovieEnvironmentItem => ({
     at: { anchor: `cafe/${table}/stack` },
     use: AutoMovieEnvironmentFurnishing.prop({
-      model: createDrinkware({ kind: "cup" }),
+      model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }),
       ...(declared
         ? {
             placement: {
@@ -214,7 +214,7 @@ export function test_environment_support_report(): void {
               place: { kind: "wall", wall: "-z", offset: 0.4 },
             },
             coffee: {
-              model: createTable({ kind: "coffee" }, 1016),
+              model: AutoMovieArchetypeTable.create({ kind: "coffee" }, 1016),
               place: { kind: "facing", target: "sofa", distance: 0.45 },
             },
             mirror: {

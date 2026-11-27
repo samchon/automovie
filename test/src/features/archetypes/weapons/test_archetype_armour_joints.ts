@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeRefusal, createArmour } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeArmour } from "@automovie/archetypes";
 import { physicalHullFaces } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
@@ -51,8 +51,8 @@ export function test_archetype_armour_joints(): void {
   const PLATE: readonly [number, number] = [0.0015, 0.003];
   const PAD: number = 0.75 * 0.0254;
   const helmets: readonly {
-    kind: createArmour.Kind;
-    model: createArmour.Model;
+    kind: AutoMovieArchetypeArmour.Kind;
+    model: AutoMovieArchetypeArmour.Model;
   }[] = [
     { kind: "openHelmet", model: "met26453" },
     { kind: "openHelmet", model: "met25388" },
@@ -62,7 +62,7 @@ export function test_archetype_armour_joints(): void {
   for (const headRadius of [undefined, 0.1, 0.3])
     for (const helmet of helmets)
       for (const thickness of PLATE) {
-        const piece: ReturnType<typeof createArmour> = createArmour({
+        const piece: ReturnType<typeof AutoMovieArchetypeArmour.create> = AutoMovieArchetypeArmour.create({
           ...helmet,
           measure: headRadius === undefined ? undefined : { headRadius },
           thickness,
@@ -96,7 +96,7 @@ export function test_archetype_armour_joints(): void {
   for (const model of ["met26512", "met21972"] as const) {
     for (const measure of measures)
       for (const thickness of PLATE) {
-        const piece: ReturnType<typeof createArmour> = createArmour({
+        const piece: ReturnType<typeof AutoMovieArchetypeArmour.create> = AutoMovieArchetypeArmour.create({
           kind: "brimmedHelmet",
           model,
           measure,
@@ -144,7 +144,7 @@ export function test_archetype_armour_joints(): void {
           findings.push(model + " has no observed brim joints");
       }
     try {
-      createArmour({
+      AutoMovieArchetypeArmour.create({
         kind: "brimmedHelmet",
         model,
         measure: { headRadius: 0.148 },
@@ -165,8 +165,8 @@ export function test_archetype_armour_joints(): void {
     }
   }
   const limbs: readonly {
-    kind: createArmour.Kind;
-    model: createArmour.Model;
+    kind: AutoMovieArchetypeArmour.Kind;
+    model: AutoMovieArchetypeArmour.Model;
     length: number;
   }[] = [
     { kind: "gauntlet", model: "met23255", length: 0.294 },
@@ -180,7 +180,7 @@ export function test_archetype_armour_joints(): void {
   for (const limb of limbs)
     for (const fitted of [false, true])
       for (const thickness of PLATE) {
-        const piece: ReturnType<typeof createArmour> = createArmour({
+        const piece: ReturnType<typeof AutoMovieArchetypeArmour.create> = AutoMovieArchetypeArmour.create({
           kind: limb.kind,
           model: limb.model,
           thickness,

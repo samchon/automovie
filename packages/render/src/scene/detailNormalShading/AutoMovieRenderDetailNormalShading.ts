@@ -1,8 +1,10 @@
 import type * as THREE from "three";
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { applyDetailNormal as applyDetailNormalImplementation } from "./internal/applyDetailNormal.js";
 import { detailNormalVertex as detailNormalVertexImplementation } from "./internal/detailNormalVertex.js";
 import { detailNormalFragment as detailNormalFragmentImplementation } from "./internal/detailNormalFragment.js";
 import { spliceTangentNormal as spliceTangentNormalImplementation } from "./internal/spliceTangentNormal.js";
+import { createDetailNormalShaderPatch as createDetailNormalShaderPatchImplementation } from "./internal/createDetailNormalShaderPatch.js";
 
 /** Public operations for Auto Movie Render Detail Normal Shading. */
 export namespace AutoMovieRenderDetailNormalShading {
@@ -17,6 +19,28 @@ export namespace AutoMovieRenderDetailNormalShading {
   export function apply(material: THREE.MeshPhysicalMaterial, texture: THREE.Texture, scale: number): void {
     applyDetailNormalImplementation(material, texture, scale);
   }
+
+  /**
+   * One captured detail-normal compile operation.
+   */
+  export type IShaderPatch = {
+    /** Stable program-cache contribution for this operation. */
+    key: string;
+    /** Edits source and uniforms using the captured texture transform and scale. */
+    apply: (
+      /** The source and uniform cells this patch mutates in place. */
+      shader: Pick<IMaterialShaderSource, "vertexShader" | "fragmentShader" | "uniforms">,
+    ) => void;
+  };
+
+  /** Capture one texture transform and scale for registration on a material. */
+  export const createShaderPatch: (
+    texture: THREE.Texture,
+    scale: number,
+  ) => IShaderPatch = (
+    texture: THREE.Texture,
+    scale: number,
+  ): IShaderPatch => createDetailNormalShaderPatchImplementation(texture, scale);
 
   /**
    * Pass the detail map's own transformed first UV set to the fragment stage. The

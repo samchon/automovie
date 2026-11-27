@@ -4,7 +4,7 @@ import { createPony as createPonyImplementation } from "./internal/createPony";
 import { EquineSegments } from "./EquineSegments";
 import { AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";
-import { createHorse } from "./createHorse";
+import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 
 /** Public operations for Auto Movie Archetype Pony. */
 export namespace AutoMovieArchetypePony {
@@ -143,7 +143,7 @@ export namespace AutoMovieArchetypePony {
       figures,
       girth: (): number => figures.girth!,
       body: {
-        ...createHorse.BODY,
+        ...AutoMovieArchetypeHorse.BODY,
         lengths: EquineSegments.lengths(EquineSegments.BREEDS[breed]),
       },
     };

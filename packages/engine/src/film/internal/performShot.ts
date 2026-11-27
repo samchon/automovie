@@ -42,7 +42,7 @@ import { appendPolygonBodyCuesArtifact } from "../../validation/appendPolygonBod
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { validateShotArtifact } from "../../validation/validateShotArtifact";
 import { admitPerformShotSurfaces } from "../admitPerformShotSurfaces";
-import { compileCameraClearanceReports } from "../compileCameraClearanceReports";
+import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
 import { compilePerformShotPracticalLights } from "../compilePerformShotPracticalLights";

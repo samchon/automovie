@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageLinkedProp as createStageLinkedPropImplementation } from "./internal/createStageLinkedProp";
-import { type createStageWeaponProp } from "./createStageWeaponProp";
+import { type AutoMovieArchetypeStageWeaponProp } from "./AutoMovieArchetypeStageWeaponProp";
 
 /** Public operations for Auto Movie Archetype Stage Linked Prop. */
 export namespace AutoMovieArchetypeStageLinkedProp {
@@ -33,7 +33,7 @@ export namespace AutoMovieArchetypeStageLinkedProp {
    * The createStageWeaponProp contact set its shared construction types. This
    * producer builds end, grip, link.
    */
-  export type Affordance = createStageWeaponProp.Affordance;
+  export type Affordance = AutoMovieArchetypeStageWeaponProp.Affordance;
 
   /** The model identity, dimensions. */
-  export type IParams = Pick<createStageWeaponProp.IParams, "id" | "height">;}
+  export type IParams = Pick<AutoMovieArchetypeStageWeaponProp.IParams, "id" | "height">;}

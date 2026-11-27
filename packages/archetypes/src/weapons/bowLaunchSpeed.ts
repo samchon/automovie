@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype, AutoMovieArchetypeRefusal } from "../core";
-import { createBow } from "./createBow";
+import { AutoMovieArchetypeBow } from "./AutoMovieArchetypeBow";
 
 /**
  * The provisional speed from the bow prototype's declared stroke-energy law:
@@ -18,7 +18,7 @@ import { createBow } from "./createBow";
  *   arithmetic.
  */
 export function bowLaunchSpeed(
-  bow: AutoMovieArchetype<createBow.Affordance, createBow.Dimension>,
+  bow: AutoMovieArchetype<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension>,
   mass: number,
   travel: number,
 ): number {
@@ -68,8 +68,8 @@ export function bowLaunchSpeed(
   // A longbow's and a crossbow's straight limbs take the straight-end bow's factor, a crossbow's provisionally.
   const q: number =
     bow.name === "longbow" || bow.name === "crossbow"
-      ? createBow.KOOI.straight
-      : createBow.KOOI.recurve;
+      ? AutoMovieArchetypeBow.KOOI.straight
+      : AutoMovieArchetypeBow.KOOI.recurve;
   if (travel === 0) return 0;
   const share: number = travel / stroke;
   const force: number = q * draw;
@@ -77,8 +77,8 @@ export function bowLaunchSpeed(
   const fraction: number = share ** (1 / q);
   const stored: number = full * fraction;
   const virtual: number =
-    (createBow.KOOI.arrow * (1 - createBow.KOOI.efficiency)) /
-    createBow.KOOI.efficiency;
+    (AutoMovieArchetypeBow.KOOI.arrow * (1 - AutoMovieArchetypeBow.KOOI.efficiency)) /
+    AutoMovieArchetypeBow.KOOI.efficiency;
   const squared: number = (2 * stored) / (mass + virtual);
 
   // A subnormal intermediate can lose precision even if a later factor

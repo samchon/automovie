@@ -147,7 +147,7 @@ export * from "./spendRecoverySceneWork";
 export * from "./stepRecoveryMapPose";
 export * from "./stepRecoveryMapSeedPose";
 
-export * from "./triangulateRecoveryCameraPoint";
+
 
 export * from "./updateRecoveryRegularization";
 export * from "./validateRecoveryMapMetricRow";

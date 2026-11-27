@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createWalker as createWalkerImplementation } from "./internal/createWalker";
-import { type createMobilityAid } from "./createMobilityAid";
+import { type AutoMovieArchetypeMobilityAid } from "./AutoMovieArchetypeMobilityAid";
 
 /** Public operations for Auto Movie Archetype Walker. */
 export namespace AutoMovieArchetypeWalker {
@@ -30,6 +30,6 @@ export namespace AutoMovieArchetypeWalker {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createMobilityAid.IParams,
+    AutoMovieArchetypeMobilityAid.IParams,
     "id" | "height" | "diameter" | "width" | "depth" | "model"
   >;}

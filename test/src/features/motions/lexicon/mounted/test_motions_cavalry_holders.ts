@@ -1,4 +1,4 @@
-import { createHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { AutoMovieComposition, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -19,7 +19,7 @@ import { assertTakeClean } from "../../../internal/assertTakeClean";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /** The horse producer's model. */
-type Horse = ReturnType<typeof createHorse>;
+type Horse = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
 /**
  * Metres between the two held horses' heads, either side of the holder: an
@@ -47,7 +47,7 @@ const HOLD: number = 8;
  */
 export function test_motions_cavalry_holders(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const horse: Horse = createHorse({ withersHeight: 1.62, tempo: 0 }, 1029);
+  const horse: Horse = AutoMovieArchetypeHorse.create({ withersHeight: 1.62, tempo: 0 }, 1029);
   const parked: (x: number) => IAutoMovieRigidTransform = (
     x: number,
   ): IAutoMovieRigidTransform => ({

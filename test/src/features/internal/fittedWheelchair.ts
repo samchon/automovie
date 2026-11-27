@@ -1,9 +1,4 @@
-import {
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  createWheelchair,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -16,16 +11,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  */
 export function fittedWheelchair(
   depth: number,
-): ReturnType<typeof createWheelchair> {
-  const draw: AutoMovieArchetypeDrawSession<createWheelchair.Dimension> =
+): ReturnType<typeof AutoMovieArchetypeWheelchair.create> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeWheelchair.Dimension> =
     new AutoMovieArchetypeDrawSession(
       "fittedWheelchair",
-      createWheelchair.UNITS,
+      AutoMovieArchetypeWheelchair.UNITS,
       undefined,
     );
   const chair: AutoMovieArchetypeBuilder<
-    createWheelchair.Affordance,
-    createWheelchair.Dimension
+    AutoMovieArchetypeWheelchair.Affordance,
+    AutoMovieArchetypeWheelchair.Dimension
   > = new AutoMovieArchetypeBuilder({
     material: "composite",
     name: "fitted wheelchair",
@@ -36,7 +31,7 @@ export function fittedWheelchair(
   const breadth: number = draw.derive("seatWidth", 0.4);
   const wheel: number = draw.derive("wheelDiameter", 24 * 0.0254) / 2;
   const axle: number = 4 * 0.0254;
-  const rimRadius: number = createWheelchair.RIM / 2;
+  const rimRadius: number = AutoMovieArchetypeWheelchair.RIM / 2;
   const segments: number = 24;
   draw.derive("seatDepth", depth);
   chair.box("seat", v(breadth, 0.03, depth), v(0, seat - 0.015, depth / 2));

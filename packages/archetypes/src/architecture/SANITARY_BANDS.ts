@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createSanitary } from "./createSanitary";
+import type { AutoMovieArchetypeSanitary } from "./AutoMovieArchetypeSanitary";
 import { AutoMovieArchetypeTap } from "./AutoMovieArchetypeTap";
 
 /** The accessibility standard, read. */
@@ -27,7 +27,7 @@ const PRINCETON: string =
 
 /** The bands of a basin's mixer: the basin mixer `createTap` cites. */
 const TAP: Readonly<
-  Partial<Record<createSanitary.Dimension, IAutoMovieArchetypeBand>>
+  Partial<Record<AutoMovieArchetypeSanitary.Dimension, IAutoMovieArchetypeBand>>
 > = {
   tapHeight: AutoMovieArchetypeTap.BANDS.height,
   tapReach: AutoMovieArchetypeTap.BANDS.reach,
@@ -37,8 +37,8 @@ const TAP: Readonly<
 /** The band of each free dimension of {@link createSanitary}, by kind. */
 export const SANITARY_BANDS: Readonly<
   Record<
-    createSanitary.Kind,
-    Readonly<Partial<Record<createSanitary.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeSanitary.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeSanitary.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   washbasin: {

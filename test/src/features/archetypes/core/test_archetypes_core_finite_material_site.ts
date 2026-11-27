@@ -1,9 +1,4 @@
-import {
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  createHorse,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -24,7 +19,7 @@ import { vclose } from "../../internal/vclose";
  * 3. A depthless stirrup stays on its centreline.
  */
 export function test_archetypes_core_finite_material_site(): void {
-  const horse: ReturnType<typeof createHorse> = createHorse({ tack: "saddle" });
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create({ tack: "saddle" });
   TestValidator.equals(
     "the left material part comes from the producer",
     horse.affordance("leftStirrup").materialPart,

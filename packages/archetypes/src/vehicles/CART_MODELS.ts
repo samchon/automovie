@@ -4,10 +4,10 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /** One read model's or option's figures by dimension. */
-type Figures = Readonly<Partial<Record<createCart.Dimension, number>>>;
+type Figures = Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>;
 
 /** Inches. */
 const IN: number = AutoMovieArchetypeUnits.INCH;
@@ -59,32 +59,32 @@ export const CART_MODELS: Readonly<{
   figures: Readonly<
     Partial<
       Record<
-        createCart.Kind,
-        Readonly<Partial<Record<createCart.Model, Figures>>>
+        AutoMovieArchetypeCart.Kind,
+        Readonly<Partial<Record<AutoMovieArchetypeCart.Model, Figures>>>
       >
     >
   >;
   castors: Readonly<
     Partial<
       Record<
-        createCart.Kind,
-        Readonly<Partial<Record<createCart.Castor, Figures>>>
+        AutoMovieArchetypeCart.Kind,
+        Readonly<Partial<Record<AutoMovieArchetypeCart.Castor, Figures>>>
       >
     >
   >;
   shafts: Readonly<
     Partial<
       Record<
-        createCart.Model,
-        Readonly<Partial<Record<createCart.Shaft, Figures>>>
+        AutoMovieArchetypeCart.Model,
+        Readonly<Partial<Record<AutoMovieArchetypeCart.Shaft, Figures>>>
       >
     >
   >;
   ranges: Readonly<
     Partial<
       Record<
-        createCart.Model,
-        Readonly<Partial<Record<createCart.Dimension, IAutoMovieArchetypeBand>>>
+        AutoMovieArchetypeCart.Model,
+        Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, IAutoMovieArchetypeBand>>>
       >
     >
   >;

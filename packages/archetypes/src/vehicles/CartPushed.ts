@@ -4,7 +4,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { createCart } from "./createCart";
+import { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /**
  * The carriers pushed by hand: a shopping trolley and a wheelbarrow, each built
@@ -20,10 +20,10 @@ export namespace CartPushed {
    */
   export function trolley(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const grip: number = d.gripDiameter! / 2;
@@ -141,10 +141,10 @@ export namespace CartPushed {
    */
   export function wheelbarrow(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const grip: number = d.gripDiameter! / 2;
@@ -154,7 +154,7 @@ export namespace CartPushed {
 
     // The tray's 0.88 m length and 0.3 m depth are authored.
     const tray: number = 0.88;
-    const rear: number = -length / 2 + createCart.GRIP;
+    const rear: number = -length / 2 + AutoMovieArchetypeCart.GRIP;
     const middle: number = length / 2 - d.wheelDiameter! - tray / 2 + 0.2;
     builder.box(
       "tray",
@@ -203,14 +203,14 @@ export namespace CartPushed {
         kind: "handle",
         symmetry: "round",
         frame: AutoMovieArchetypeFrame.facing(
-          v(x, handleHeight, -length / 2 + createCart.GRIP / 2),
+          v(x, handleHeight, -length / 2 + AutoMovieArchetypeCart.GRIP / 2),
           v(0, 1, 0),
           v(0, 0, 1),
         ),
         extent: null,
         grip: "power",
         aperture: d.gripDiameter!,
-        length: createCart.GRIP,
+        length: AutoMovieArchetypeCart.GRIP,
       });
     }
     builder.affordance({

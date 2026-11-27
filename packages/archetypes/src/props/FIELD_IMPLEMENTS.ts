@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createLongTool } from "./createLongTool";
+import type { AutoMovieArchetypeLongTool } from "./AutoMovieArchetypeLongTool";
 
 /** The 1862 Ordnance Manual, read at its scan. */
 const ORDNANCE: string =
@@ -171,8 +171,8 @@ export namespace FIELD_IMPLEMENTS {
    */
   export function build(
     builder: AutoMovieArchetypeBuilder<
-      createLongTool.Affordance,
-      createLongTool.Dimension
+      AutoMovieArchetypeLongTool.Affordance,
+      AutoMovieArchetypeLongTool.Dimension
     >,
     kind: "spongeRammer" | "worm" | "trailHandspike",
     length: number,
@@ -323,7 +323,7 @@ export namespace FIELD_IMPLEMENTS {
     Record<
       "spongeRammer" | "worm" | "trailHandspike",
       Readonly<
-        Partial<Record<createLongTool.Dimension, IAutoMovieArchetypeBand>>
+        Partial<Record<AutoMovieArchetypeLongTool.Dimension, IAutoMovieArchetypeBand>>
       >
     >
   > = {

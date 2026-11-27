@@ -1,4 +1,4 @@
-import { createSeat, createTable } from "@automovie/archetypes";
+import { createSeat, AutoMovieArchetypeTable } from "@automovie/archetypes";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -36,7 +36,7 @@ export namespace diningTable {
   export function stage(): IStage {
     const chair = createSeat({ id: "chair", kind: "dining" });
     const placement = { at: CHAIR, yaw: 0, fixed: true } as const;
-    const table = createTable({ id: "table", kind: "dining" });
+    const table = AutoMovieArchetypeTable.create({ id: "table", kind: "dining" });
     const top: IAutoMovieAffordance = table.affordances!.find(
       (a: IAutoMovieAffordance): boolean => a.id === "top",
     )!;

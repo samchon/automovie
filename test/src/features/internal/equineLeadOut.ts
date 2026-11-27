@@ -1,11 +1,4 @@
-import {
-  AutoMovieArchetypeEquine,
-  AutoMovieArchetypeQuadrupedDatumRide,
-  type AutoMovieArchetypeQuadrupedFooting,
-  type AutoMovieArchetypeRide,
-  createHorse,
-  rideHorse,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeEquine, AutoMovieArchetypeQuadrupedDatumRide, type AutoMovieArchetypeQuadrupedFooting, type AutoMovieArchetypeRide, rideHorse, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -203,7 +196,7 @@ export namespace equineLeadOut {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The mount holds its rides for the caller.
    */
   export function stage(led?: ILed): equineFordRider.IMount {
-    const horse: equineFordRider.Horse = createHorse(
+    const horse: equineFordRider.Horse = AutoMovieArchetypeHorse.create(
       { withersHeight: 1.65, stirrupDrop: 0.575, tempo: 0 },
       8,
     );

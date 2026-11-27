@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { createChariot } from "./cart/createChariot";
 
 /** Canonical producer and authoring contract for Chariot. */
@@ -45,11 +45,11 @@ export namespace AutoMovieArchetypeChariot {
    * The createCart contact set its shared construction types. This producer
    * builds coupling, floor, leftSpin, rightSpin, rim.
    */
-  export type Affordance = createCart.Affordance;
+  export type Affordance = AutoMovieArchetypeCart.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createCart.IParams,
+    AutoMovieArchetypeCart.IParams,
     | "id"
     | "wheelDiameter"
     | "track"

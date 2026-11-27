@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
-import type { createGoal } from "./createGoal";
+import type { AutoMovieArchetypeGoal } from "./AutoMovieArchetypeGoal";
 
 /** The football goal read. */
 const IFAB: string =
@@ -36,8 +36,8 @@ const ITF: string =
 /** The band of each free dimension of {@link createGoal}, by kind. */
 export const GOAL_BANDS: Readonly<
   Record<
-    createGoal.Kind,
-    Readonly<Partial<Record<createGoal.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeGoal.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeGoal.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   footballGoal: {

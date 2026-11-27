@@ -1,4 +1,4 @@
-import type { createSword } from "./createSword";
+import type { AutoMovieArchetypeSword } from "./AutoMovieArchetypeSword";
 
 /**
  * The read swords of each kind that has them, whole, the default first, with
@@ -24,12 +24,12 @@ import type { createSword } from "./createSword";
 export const SWORD_MODELS: Readonly<
   Partial<
     Record<
-      createSword.Kind,
+      AutoMovieArchetypeSword.Kind,
       Readonly<
         Partial<
           Record<
-            createSword.Model,
-            Readonly<Partial<Record<createSword.Dimension, number>>>
+            AutoMovieArchetypeSword.Model,
+            Readonly<Partial<Record<AutoMovieArchetypeSword.Dimension, number>>>
           >
         >
       >

@@ -1,5 +1,5 @@
 import { createBuilding, createCafeKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
-import { createDrinkware } from "@automovie/archetypes/props";
+import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes/props";
 import { Quaternion, Vector3, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -131,7 +131,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       },
       cup: {
         at: { anchor: "cafe/table-1/stack" },
-        use: AutoMovieEnvironmentFurnishing.prop({ model: createDrinkware({ kind: "cup" }) }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }) }),
       },
     },
   });

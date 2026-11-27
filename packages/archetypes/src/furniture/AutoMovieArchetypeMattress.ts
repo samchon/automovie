@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createMattress as createMattressImplementation } from "./internal/createMattress";
-import { type createBed } from "./createBed";
+import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** Public operations for Auto Movie Archetype Mattress. */
 export namespace AutoMovieArchetypeMattress {
@@ -30,6 +30,6 @@ export namespace AutoMovieArchetypeMattress {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createBed.IParams,
+    AutoMovieArchetypeBed.IParams,
     "id" | "size" | "thickness" | "mass"
   >;}

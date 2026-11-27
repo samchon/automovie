@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createDrawerUnit as createDrawerUnitImplementation } from "./internal/createDrawerUnit";
-import { type createStorage } from "./createStorage";
+import { type AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
 /** Public operations for Auto Movie Archetype Drawer Unit. */
 export namespace AutoMovieArchetypeDrawerUnit {
@@ -35,7 +35,7 @@ export namespace AutoMovieArchetypeDrawerUnit {
 
   /** The settings both drawer units share. */
   export type IBaseParams = Pick<
-    createStorage.IParams,
+    AutoMovieArchetypeStorage.IParams,
     "id" | "width" | "depth" | "height" | "mass"
   >;
 
@@ -50,7 +50,7 @@ export namespace AutoMovieArchetypeDrawerUnit {
 
   /** A full-suspension filing cabinet. */
   export interface IFilingCabinetParams
-    extends IBaseParams, Pick<createStorage.IParams, "travel"> {
+    extends IBaseParams, Pick<AutoMovieArchetypeStorage.IParams, "travel"> {
     /** A filing cabinet. */
     kind: "filingCabinet";
   }

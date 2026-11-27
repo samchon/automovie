@@ -10,12 +10,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeTrack,
 } from "../core";
-import {
-  createArmour,
-  createCannon,
-  createProjectile,
-  createSiegeEngine,
-} from "../weapons";
+import { AutoMovieArchetypeArmour, AutoMovieArchetypeCannon, AutoMovieArchetypeProjectile, AutoMovieArchetypeSiegeEngine } from "../weapons";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -34,29 +29,29 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
   const engines: Record<string, AutoMovieArchetype> =
     archetypeCaptureSubject.kinds(
       "siege",
-      createSiegeEngine.KINDS,
-      (kind: createSiegeEngine.Kind): AutoMovieArchetype =>
-        createSiegeEngine({ kind }),
+      AutoMovieArchetypeSiegeEngine.KINDS,
+      (kind: AutoMovieArchetypeSiegeEngine.Kind): AutoMovieArchetype =>
+        AutoMovieArchetypeSiegeEngine.create({ kind }),
     );
   const armour: Record<string, AutoMovieArchetype> =
     archetypeCaptureSubject.kinds(
       "armour",
-      createArmour.KINDS,
-      (kind: createArmour.Kind): AutoMovieArchetype => createArmour({ kind }),
+      AutoMovieArchetypeArmour.KINDS,
+      (kind: AutoMovieArchetypeArmour.Kind): AutoMovieArchetype => AutoMovieArchetypeArmour.create({ kind }),
     );
   const subjects: Record<string, archetypeCaptureCatalog.ISubject> = {
     "siege-engines": archetypeCaptureSubject.still(engines),
     "armour-pieces": archetypeCaptureSubject.still(armour),
   };
-  for (const kind of createSiegeEngine.KINDS) {
-    const engine: ReturnType<typeof createSiegeEngine> = createSiegeEngine({
+  for (const kind of AutoMovieArchetypeSiegeEngine.KINDS) {
+    const engine: ReturnType<typeof AutoMovieArchetypeSiegeEngine.create> = AutoMovieArchetypeSiegeEngine.create({
       kind,
     });
-    const thrown: createSiegeEngine.IThrow = createSiegeEngine.throwAt(
+    const thrown: AutoMovieArchetypeSiegeEngine.IThrow = AutoMovieArchetypeSiegeEngine.throwAt(
       engine,
       0.5,
     );
-    const pin: AutoMovieArchetypeTrack.ITrack<createSiegeEngine.Affordance> =
+    const pin: AutoMovieArchetypeTrack.ITrack<AutoMovieArchetypeSiegeEngine.Affordance> =
       AutoMovieArchetypeTrack.ease(engine, "pin", {
         start: 0,
         seconds: thrown.track.start,
@@ -83,14 +78,14 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
       ],
     };
   }
-  const gun: ReturnType<typeof createCannon> = createCannon({
+  const gun: ReturnType<typeof AutoMovieArchetypeCannon.create> = AutoMovieArchetypeCannon.create({
     kind: "fieldGun",
   }).articulate({ elevation: 5 });
-  const shot: ReturnType<typeof createProjectile> = createProjectile({
+  const shot: ReturnType<typeof AutoMovieArchetypeProjectile.create> = AutoMovieArchetypeProjectile.create({
     kind: "roundShot",
     model: "sixPounder",
   });
-  const launch: createCannon.ILaunch = createCannon.launch(gun);
+  const launch: AutoMovieArchetypeCannon.ILaunch = AutoMovieArchetypeCannon.launch(gun);
   if (shot.dimensions.diameter !== launch.calibre)
     throw new RangeError(
       "The canonical shot must match the actual six-pounder muzzle launch calibre",

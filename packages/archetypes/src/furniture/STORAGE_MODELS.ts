@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeUnits } from "../core";
-import type { createStorage } from "./createStorage";
+import type { AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
 /**
  * The read models a storage kind is built as, each whole: a wardrobe's Blum
@@ -15,12 +15,12 @@ import type { createStorage } from "./createStorage";
 export const STORAGE_MODELS: Readonly<
   Partial<
     Record<
-      createStorage.Kind,
+      AutoMovieArchetypeStorage.Kind,
       Readonly<
         Partial<
           Record<
-            createStorage.Model,
-            Readonly<Partial<Record<createStorage.Dimension, number>>>
+            AutoMovieArchetypeStorage.Model,
+            Readonly<Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>>
           >
         >
       >

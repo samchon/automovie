@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { createShoppingTrolley } from "./cart/createShoppingTrolley";
 
 /** Canonical producer and authoring contract for Shopping Trolley. */
@@ -44,11 +44,11 @@ export namespace AutoMovieArchetypeShoppingTrolley {
    * The createCart contact set its shared construction types. This producer
    * builds handle, load.
    */
-  export type Affordance = createCart.Affordance;
+  export type Affordance = AutoMovieArchetypeCart.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createCart.IParams,
+    AutoMovieArchetypeCart.IParams,
     | "id"
     | "length"
     | "width"
@@ -61,6 +61,6 @@ export namespace AutoMovieArchetypeShoppingTrolley {
      * The trolley's rear and front castor diameter, selected from the
      * catalogue.
      */
-    castor?: createCart.Castor;
+    castor?: AutoMovieArchetypeCart.Castor;
   }
 }

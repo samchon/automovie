@@ -43,7 +43,8 @@ export function highJumpBar(
         ),
       },
       reason: `${subject} declares no crossbar named bar`,
-      fix: "give the high jump's crossbar the id bar, as createHighJump does",
+      fix:
+        "give the high jump's crossbar the id bar, as AutoMovieArchetypeHighJump.create does",
     });
   const frame: IAutoMovieRigidTransform = read.frame(context.start);
   return {

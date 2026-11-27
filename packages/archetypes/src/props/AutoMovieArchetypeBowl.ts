@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import { VesselConstruction } from "./VesselConstruction";
-import type { createVessel } from "./createVessel";
+import type { AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
 /** Canonical producer and authoring contract for Bowl. */
 export namespace AutoMovieArchetypeBowl {
@@ -33,7 +33,7 @@ export namespace AutoMovieArchetypeBowl {
   export type Affordance = "body" | "inside" | "rim";
 
   /** The admitted settings and optional model ID. */
-  export interface IParams extends Pick<createVessel.IParams, "id"> {
+  export interface IParams extends Pick<AutoMovieArchetypeVessel.IParams, "id"> {
     /** The recorded bowl. The seed selects it when omitted. */
     model?: Model;
   }

@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createCrib as createCribImplementation } from "./internal/createCrib";
-import { type createBed } from "./createBed";
+import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** Public operations for Auto Movie Archetype Crib. */
 export namespace AutoMovieArchetypeCrib {
@@ -35,6 +35,6 @@ export namespace AutoMovieArchetypeCrib {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createBed.IParams,
+    AutoMovieArchetypeBed.IParams,
     "id" | "width" | "length" | "height" | "rail" | "thickness" | "mass"
   >;}

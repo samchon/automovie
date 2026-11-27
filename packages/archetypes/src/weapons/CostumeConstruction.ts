@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeRefusal,
 } from "../core";
 import { ArmourProfile } from "./ArmourProfile";
-import { createArmour } from "./createArmour";
+import { AutoMovieArchetypeArmour } from "./AutoMovieArchetypeArmour";
 
 /**
  * Fit a digital costume piece from its admitted record.
@@ -27,34 +27,34 @@ import { createArmour } from "./createArmour";
  *   cannot use.
  */
 export function CostumeConstruction(
-  kind: createArmour.Kind,
-  params: Omit<createArmour.IParams, "kind">,
+  kind: AutoMovieArchetypeArmour.Kind,
+  params: Omit<AutoMovieArchetypeArmour.IParams, "kind">,
   seed: number | undefined,
   cellsOf: (profile: ArmourProfile.IProfile) => readonly ArmourProfile.ICell[],
-): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createArmour.Dimension> =
-    new AutoMovieArchetypeDrawSession<createArmour.Dimension>(
+): AutoMovieArchetype<AutoMovieArchetypeArmour.Affordance, AutoMovieArchetypeArmour.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeArmour.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeArmour.Dimension>(
       "armour",
-      createArmour.UNITS,
+      AutoMovieArchetypeArmour.UNITS,
       seed,
       params,
     );
 
   const model: AutoMovieArchetypeDrawSession.IModel<
-    createArmour.Model,
-    createArmour.Dimension
-  > = draw.model<createArmour.Model>(
+    AutoMovieArchetypeArmour.Model,
+    AutoMovieArchetypeArmour.Dimension
+  > = draw.model<AutoMovieArchetypeArmour.Model>(
     "model",
     params.model,
-    createArmour.MODELS[kind],
+    AutoMovieArchetypeArmour.MODELS[kind],
   );
-  const d: Partial<Record<createArmour.Dimension, number>> = {
-    ...draw.dimensions(createArmour.BANDS[kind], createArmour.BANDS),
+  const d: Partial<Record<AutoMovieArchetypeArmour.Dimension, number>> = {
+    ...draw.dimensions(AutoMovieArchetypeArmour.BANDS[kind], AutoMovieArchetypeArmour.BANDS),
     ...model.figures,
   };
   const builder: AutoMovieArchetypeBuilder<
-    createArmour.Affordance,
-    createArmour.Dimension
+    AutoMovieArchetypeArmour.Affordance,
+    AutoMovieArchetypeArmour.Dimension
   > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: kind,
@@ -106,7 +106,7 @@ export function CostumeConstruction(
   // Plate publishes provisional glance metadata; current flight/melee outcomes do not consume it. Mail declares none.
   return builder.build(d.mass!, {
     rests: "steel",
-    ...(kind === "mail" ? {} : { outcome: { glance: createArmour.GLANCE } }),
+    ...(kind === "mail" ? {} : { outcome: { glance: AutoMovieArchetypeArmour.GLANCE } }),
   });
 }
 
@@ -115,11 +115,11 @@ export function CostumeConstruction(
  * anthropometric bands.
  */
 function admitMeasure(
-  kind: createArmour.Kind,
+  kind: AutoMovieArchetypeArmour.Kind,
   measure: Partial<IAutoMovieBodyMeasure>,
 ): void {
   const required: Readonly<
-    Record<createArmour.Kind, readonly (keyof IAutoMovieBodyMeasure)[]>
+    Record<AutoMovieArchetypeArmour.Kind, readonly (keyof IAutoMovieBodyMeasure)[]>
   > = {
     openHelmet: ["headRadius"],
     closedHelmet: ["headRadius"],

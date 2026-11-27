@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 import { CartWheel } from "./CartWheel";
-import { createCart } from "./createCart";
+import { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /**
  * The drawn carriers on one axle: a horse's cart, a runner's rickshaw and a
@@ -27,10 +27,10 @@ export namespace CartDrawn {
    */
   export function cart(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const radius: number = d.wheelDiameter! / 2;
@@ -40,7 +40,7 @@ export namespace CartDrawn {
     });
     const barrel: number = horse.barrel;
     const tug: number = horse.back - barrel;
-    const tree: number = createCart.SINGLE_TREE;
+    const tree: number = AutoMovieArchetypeCart.SINGLE_TREE;
     const tip: number = tree + d.shaftLength!;
     const coupling: number = tip - AutoMovieArchetypeEquine.SADDLE;
     const seat: number = d.seatHeight!;
@@ -141,8 +141,8 @@ export namespace CartDrawn {
     const used: number =
       Vector3.length(Vector3.subtract(pass.ring, pass.bit)) +
       Vector3.length(Vector3.subtract(pass.terret, pass.ring));
-    const run: number = createCart.LINES - used;
-    const rest: IAutoMovieVector3 = v(0, seat + createCart.REST.elbow, edge);
+    const run: number = AutoMovieArchetypeCart.LINES - used;
+    const rest: IAutoMovieVector3 = v(0, seat + AutoMovieArchetypeCart.REST.elbow, edge);
     for (const [side, sign] of EquineHarness.SIDES) {
       const terret: IAutoMovieVector3 = v(
         sign * pass.terret.x,
@@ -168,7 +168,7 @@ export namespace CartDrawn {
         ),
         extent: null,
         grip: "power",
-        aperture: createCart.LINE,
+        aperture: AutoMovieArchetypeCart.LINE,
         length: run,
       });
 
@@ -207,7 +207,7 @@ export namespace CartDrawn {
         ),
         extent: null,
         grip: "power",
-        aperture: createCart.LINE,
+        aperture: AutoMovieArchetypeCart.LINE,
       });
       builder.affordance({
         id: `${side}LineEnd`,
@@ -240,18 +240,18 @@ export namespace CartDrawn {
    */
   export function rickshaw(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const radius: number = d.wheelDiameter! / 2;
     const track: number = d.width! - TYRE;
-    const half: number = createCart.RICKSHAW_SEAT_WIDTH / 2;
-    const seat: number = createCart.RICKSHAW_SEAT;
+    const half: number = AutoMovieArchetypeCart.RICKSHAW_SEAT_WIDTH / 2;
+    const seat: number = AutoMovieArchetypeCart.RICKSHAW_SEAT;
     const front: number = 0.2;
-    const board: number = front + createCart.RICKSHAW_FOOTBOARD;
+    const board: number = front + AutoMovieArchetypeCart.RICKSHAW_FOOTBOARD;
     const tip: number = d.length! - radius;
     const grip: number = d.gripHeight!;
     builder.box(
@@ -305,7 +305,7 @@ export namespace CartDrawn {
       ["left", 1],
       ["right", -1],
     ] as const) {
-      const x: number = (sign * createCart.RICKSHAW_SHAFTS) / 2;
+      const x: number = (sign * AutoMovieArchetypeCart.RICKSHAW_SHAFTS) / 2;
       builder.rod(`shaft-${side}`, SHAFT, v(x, grip, board), v(x, grip, tip), {
         color: WOOD,
       });
@@ -356,10 +356,10 @@ export namespace CartDrawn {
    */
   export function chariot(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const radius: number = d.wheelDiameter! / 2;

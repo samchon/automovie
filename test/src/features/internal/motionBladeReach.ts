@@ -1,4 +1,4 @@
-import type { createPell, createSword } from "@automovie/archetypes";
+import type { AutoMovieArchetypePell, AutoMovieArchetypeSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -43,8 +43,8 @@ export namespace motionBladeReach {
    */
   export function lunge(
     body: IAutoMovieMotionHumanBody,
-    sword: ReturnType<typeof createSword>,
-    pell: ReturnType<typeof createPell>,
+    sword: ReturnType<typeof AutoMovieArchetypeSword.create>,
+    pell: ReturnType<typeof AutoMovieArchetypePell.create>,
     bearing: number,
     share: number,
   ): { at: IAutoMovieVector3; yaw: number } {

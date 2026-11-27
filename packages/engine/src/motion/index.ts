@@ -23,7 +23,7 @@ export * from "./gaitLimbFlexion";
 export * from "./gaitMotion";
 export * from "./gestureMotion";
 export * from "./holdMotion";
-export * from "./importedNodeClipToAutoMovieMotion";
+
 
 export * from "./AirborneTakeoffQuadrature";
 export * from "./integrateAirborneRotation";

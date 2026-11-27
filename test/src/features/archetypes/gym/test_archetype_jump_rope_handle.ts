@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  type createJumpRope,
-  createJumpRopeHandle,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, createJumpRopeHandle, type AutoMovieArchetypeJumpRope } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,13 +20,13 @@ import { vclose } from "../../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership The exported unit uses local in-memory archetypes and starts no host.
  */
 export function test_archetype_jump_rope_handle(): void {
-  const models: Readonly<Record<createJumpRope.Handle, number>> = {
+  const models: Readonly<Record<AutoMovieArchetypeJumpRope.Handle, number>> = {
     "SR-1S": 0.13335,
     "SR-1": 0.17145,
     "SR-1L": 0.1905,
   };
   const diameter: number = 0.022225;
-  for (const handle of Object.keys(models) as createJumpRope.Handle[]) {
+  for (const handle of Object.keys(models) as AutoMovieArchetypeJumpRope.Handle[]) {
     const length: number = models[handle];
     const model: ReturnType<typeof createJumpRopeHandle> = createJumpRopeHandle(
       {

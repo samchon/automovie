@@ -18,7 +18,7 @@ import {
   AutoMovieArchetypeRefusal,
   type AutoMovieArchetypeRide,
 } from "../core";
-import type { createDragged } from "../vehicles/createDragged";
+import type { AutoMovieArchetypeDragged } from "../vehicles/AutoMovieArchetypeDragged";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { EquineHarness } from "./EquineHarness";
@@ -76,7 +76,7 @@ export function AutoMovieArchetypeEquineDraggedLoad(
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
   >,
-  load: AutoMovieArchetype<createDragged.Affordance, createDragged.Dimension>,
+  load: AutoMovieArchetype<AutoMovieArchetypeDragged.Affordance, AutoMovieArchetypeDragged.Dimension>,
   params: AutoMovieArchetypeEquineDraggedLoad.IParams,
 ): AutoMovieArchetypeEquineDraggedLoad.IRide {
   const refuse = (
@@ -351,8 +351,8 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
   export interface ISample {
     /** The load. */
     archetype: AutoMovieArchetype<
-      createDragged.Affordance,
-      createDragged.Dimension
+      AutoMovieArchetypeDragged.Affordance,
+      AutoMovieArchetypeDragged.Dimension
     >;
     /** Its world placement. */
     placement: IAutoMovieTransform;

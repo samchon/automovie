@@ -1,0 +1,408 @@
+import {
+  IAutoMovieCamera,
+  type IAutoMovieCameraClearanceEvaluation,
+  IAutoMovieCameraClearanceReport,
+  type IAutoMovieCameraClearanceRuntime,
+  IAutoMovieClip,
+  type IAutoMovieCompileCameraClearanceReports,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  type IAutoMovieResolvedCamera,
+  type IAutoMovieSampledChannel,
+  IAutoMovieScene,
+  IAutoMovieShot,
+  IAutoMovieShotCoverage,
+  IAutoMovieSubjectBox,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationAppendSink,
+} from "@automovie/interface";
+
+import { sampleMotion } from "../../motion/sampleMotion";
+import { channelKey } from "../../resolve/channelKey";
+import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
+import { validateModel } from "../../validation/internal/validateModel";
+import { cameraClearanceDeformationRadius } from "./cameraClearanceDeformationRadius";
+import { cameraClearanceSampleTimes } from "./cameraClearanceSampleTimes";
+import { computeModelRestExtent } from "./computeModelRestExtent";
+import { evaluateCameraClearance } from "./evaluateCameraClearance";
+import { foldRoot } from "./foldRoot";
+import { nodeSubjectBox } from "./nodeSubjectBox";
+import { resolveCameraAt } from "./resolveCameraAt";
+
+/** One take's input to the evaluator. */
+type IEvaluation = [IAutoMovieCameraClearanceEvaluation][0];
+
+/** One obstacle's world box at one instant, as the evaluator reads it. */
+type IObstacleState = IEvaluation["samples"][number]["obstacles"][number];
+
+/** A staged node with its measured bound. */
+interface IMeasuredObstacle {
+  /** The staged node. */
+  node: IAutoMovieScene["nodes"][number];
+
+  /** World box of a node nothing animates, fixed for the whole shot. */
+  bounds: IAutoMovieSubjectBox | null;
+
+  /** Model-space radius holding the model in any pose, for a moving node. */
+  radius: number;
+}
+
+/** One camera that plays in the shot and declares a clearance envelope. */
+interface ITake {
+  /** The staged camera, with its envelope. */
+  camera: IAutoMovieCamera;
+
+  /** Index of the camera in the staged scene, for violation paths. */
+  index: number;
+
+  /** The take's camera clip, or null for a locked-off camera. */
+  motion: IAutoMovieShot["cameraMotion"];
+}
+
+/**
+ * Check that no camera body or parent rig in a performed shot touches a staged
+ * node, and return one clear report per envelope-bearing take.
+ *
+ * The hero take and every coverage take whose staged camera declares
+ * `clearance` are inspected; the others are skipped, and a shot with none
+ * returns `undefined` without reading `runtime`. Each such take is sampled at
+ * {@link cameraClearanceSampleTimes}, and every staged node is an obstacle: a
+ * node nothing animates is its rest box through its placement
+ * ({@link nodeSubjectBox}), and an animated one is a box around its current root
+ * holding {@link cameraClearanceDeformationRadius} scaled by its largest
+ * absolute scale component, which stays valid under any rotation or pose.
+ * {@link evaluateCameraClearance} then sweeps each interval.
+ *
+ * Every refusal is pushed to `out` with an author-facing path, and the result
+ * is then `undefined`: a hero or coverage camera the scene does not stage, a
+ * missing `runtime`, a sample rate that is not finite and positive, a stale
+ * geometry revision (one item per take, before any geometry is read), a
+ * morph-weight track, a node whose model is absent, fails `validateModel`,
+ * draws nothing or whose bound overflows, a motion the clock cannot bound, and
+ * every contact the evaluator finds. Items already in `out` belong to the
+ * caller and do not count as refusals here.
+ */
+export function compileCameraClearanceReports(
+  props: IAutoMovieCompileCameraClearanceReports.IProps,
+): IAutoMovieCameraClearanceReport[] | undefined {
+  const baseline: number = props.out.items.length;
+  function refused(): boolean {
+    return props.out.items.length > baseline;
+  }
+  const cameraIndex: Map<string, number> = new Map(
+    props.scene.cameras.map(
+      (camera: IAutoMovieCamera, index: number): [string, number] => [
+        camera.id,
+        index,
+      ],
+    ),
+  );
+  const takes: ITake[] = [];
+  function addTake(
+    id: string,
+    path: string,
+    motion: IAutoMovieShot["cameraMotion"],
+    supplied?: IAutoMovieCamera,
+  ): void {
+    const index: number | undefined = cameraIndex.get(id);
+    if (index === undefined) {
+      props.out.push(
+        "type",
+        path,
+        `camera "${id}" must be a camera the scene stages`,
+        id,
+      );
+      return;
+    }
+    const camera: IAutoMovieCamera =
+      supplied === undefined ? props.scene.cameras[index]! : supplied;
+    if (camera.clearance !== undefined) takes.push({ camera, index, motion });
+  }
+  addTake(
+    props.hero.camera.id,
+    "$input.hero.camera.id",
+    props.hero.motion,
+    props.hero.camera,
+  );
+  props.coverage.forEach((take: IAutoMovieShotCoverage, index: number): void =>
+    addTake(take.camera, `$input.coverage[${index}].camera`, take.cameraMotion),
+  );
+  if (refused() || takes.length === 0) return undefined;
+  const runtime: IAutoMovieCameraClearanceRuntime | undefined = props.runtime;
+  if (runtime === undefined) {
+    props.out.push(
+      "type",
+      "$input.cameraClearance",
+      "a camera with a physical clearance envelope requires builder-owned geometry revision and fixed-clock context",
+      undefined,
+    );
+    return undefined;
+  }
+  if (!(runtime.sampleRate > 0 && runtime.sampleRate < Infinity)) {
+    props.out.push(
+      "range",
+      "$input.cameraClearance.sampleRate",
+      "camera clearance sample rate must be finite and greater than zero",
+      runtime.sampleRate,
+    );
+    return undefined;
+  }
+  if (runtime.revision !== runtime.currentRevision) {
+    for (const take of takes)
+      props.out.push(
+        "type",
+        "$input.cameraClearance.currentRevision",
+        `camera "${take.camera.id}" clearance read geometry revision "${runtime.revision}", but "${runtime.currentRevision}" is current; recompile against one current snapshot`,
+        runtime.currentRevision,
+      );
+    return undefined;
+  }
+
+  props.objectMotions.forEach((clip: IAutoMovieClip, clipIndex: number): void =>
+    clip.tracks.forEach((track: IAutoMovieTrack, trackIndex: number): void => {
+      if (track.channel.kind === "node" && track.channel.path === "weights")
+        props.out.push(
+          "type",
+          `$input.objectMotions[${clipIndex}].tracks[${trackIndex}].channel.path`,
+          `camera clearance cannot conservatively bound morph weights in clip "${clip.id}" because the portable model carries no morph-target expansion envelope`,
+          track.channel.path,
+        );
+    }),
+  );
+  if (refused()) return undefined;
+
+  const measured: IMeasuredObstacle[] = measureObstacles(props);
+  if (refused()) return undefined;
+
+  let clockOf: (motion: IAutoMovieShot["cameraMotion"]) => number[];
+  try {
+    clockOf = cameraClearanceSampleTimes({
+      duration: props.duration,
+      sampleRate: runtime.sampleRate,
+      motions: props.motions,
+      objectMotions: props.objectMotions,
+    });
+  } catch (error) {
+    for (const take of takes) refuseEvaluation(props.out, take, error);
+    return undefined;
+  }
+
+  const states: Map<number, IObstacleState[]> = new Map();
+  function obstaclesAt(time: number): IObstacleState[] {
+    const cached: IObstacleState[] | undefined = states.get(time);
+    if (cached !== undefined) return cached;
+    const sampled: Map<string, IAutoMovieSampledChannel> = sampleClipSequence(
+      props.objectMotions,
+      time,
+    );
+    const result: IObstacleState[] = measured.map(
+      (obstacle: IMeasuredObstacle): IObstacleState => ({
+        node: obstacle.node.id,
+        bounds:
+          obstacle.bounds ??
+          movingBounds(
+            obstacle,
+            props.motions[obstacle.node.id],
+            sampled,
+            time,
+          ),
+      }),
+    );
+    states.set(time, result);
+    return result;
+  }
+
+  const reports: IAutoMovieCameraClearanceReport[] = [];
+  for (const take of takes) {
+    let report: IAutoMovieCameraClearanceReport;
+    try {
+      report = evaluateCameraClearance({
+        camera: take.camera.id,
+        envelope: take.camera.clearance!,
+        revision: runtime.revision,
+        currentRevision: runtime.currentRevision,
+        sampleRate: runtime.sampleRate,
+        duration: props.duration,
+        samples: clockOf(take.motion).map(
+          (time: number): IEvaluation["samples"][number] => {
+            const resolved: IAutoMovieResolvedCamera = resolveCameraAt(
+              take.camera.transform,
+              take.motion,
+              take.camera.id,
+              time,
+            );
+            return {
+              time,
+              camera: {
+                translation: resolved.position,
+                rotation: resolved.rotation,
+                scale: take.camera.transform.scale,
+              },
+              obstacles: obstaclesAt(time),
+            };
+          },
+        ),
+      });
+    } catch (error) {
+      refuseEvaluation(props.out, take, error);
+      continue;
+    }
+    for (const finding of report.findings)
+      props.out.push(
+        "range",
+        `$staged.scene.cameras[${take.index}].clearance.${finding.part === "body" ? "body" : "parentRig"}`,
+        `camera "${take.camera.id}" ${finding.part} contacts obstacle "${finding.obstacle}" over the inclusive interval [${finding.start}, ${finding.end}]s; change the path, rig, or scene clearance`,
+        finding,
+      );
+    if (report.status === "clear") reports.push(report);
+  }
+  return refused() ? undefined : reports;
+}
+
+/**
+ * Validate and bound every staged node once, pushing a refusal for each node
+ * whose model is absent, invalid, empty or unboundable.
+ */
+function measureObstacles(props: {
+  scene: IAutoMovieScene;
+  motions: Readonly<Record<string, IAutoMovieMotion>>;
+  objectMotions: readonly IAutoMovieClip[];
+  models: readonly IAutoMovieModel[];
+  out: IAutoMovieViolationAppendSink;
+}): IMeasuredObstacle[] {
+  const models: Map<string, IAutoMovieModel> = new Map(
+    props.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
+      model.id,
+      model,
+    ]),
+  );
+  const animated: Set<string> = new Set(Object.keys(props.motions));
+  for (const clip of props.objectMotions)
+    for (const track of clip.tracks)
+      if (track.channel.kind === "node") animated.add(track.channel.node);
+
+  const measured: IMeasuredObstacle[] = [];
+  props.scene.nodes.forEach(
+    (node: IAutoMovieScene["nodes"][number], index: number): void => {
+      const model: IAutoMovieModel | undefined = models.get(node.model);
+      const path: string = `$staged.scene.nodes[${index}].model`;
+      if (model === undefined) {
+        props.out.push(
+          "type",
+          path,
+          `camera clearance cannot measure current obstacle "${node.id}" because model "${node.model}" is absent or has no geometry`,
+          node.model,
+        );
+        return;
+      }
+      let extent: { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null;
+      let radius: number = 0;
+      try {
+        const validation: IAutoMovieValidation = validateModel({
+          model,
+        });
+        if (validation.success === false) {
+          const first: (typeof validation.violations)[number] =
+            validation.violations[0]!;
+          throw new Error(
+            `model contract fails at ${first.path}: ${first.expected}`,
+          );
+        }
+        extent = computeModelRestExtent(model);
+        if (extent !== null && animated.has(node.id))
+          radius = cameraClearanceDeformationRadius(model, extent);
+      } catch (error) {
+        props.out.push(
+          "type",
+          path,
+          `camera clearance cannot derive a conservative current bound for obstacle "${node.id}": ${safeThrownDescription(error)}`,
+          node.model,
+        );
+        return;
+      }
+      if (extent === null) {
+        props.out.push(
+          "type",
+          path,
+          `camera clearance cannot measure current obstacle "${node.id}" because model "${node.model}" is absent or has no geometry`,
+          node.model,
+        );
+        return;
+      }
+      measured.push({
+        node,
+        bounds: animated.has(node.id)
+          ? null
+          : nodeSubjectBox(node.transform, extent),
+        radius,
+      });
+    },
+  );
+  return measured;
+}
+
+/**
+ * The box around a moving node's current root that holds its deformation radius
+ * scaled by its largest absolute scale component.
+ */
+function movingBounds(
+  obstacle: IMeasuredObstacle,
+  actorMotion: IAutoMovieMotion | undefined,
+  sampled: Map<string, IAutoMovieSampledChannel>,
+  seconds: number,
+): IAutoMovieSubjectBox {
+  const node: IAutoMovieScene["nodes"][number] = obstacle.node;
+  const base: IAutoMovieTransform =
+    actorMotion === undefined
+      ? node.transform
+      : foldRoot(node.transform, sampleMotion.root(actorMotion, seconds));
+  const translation: number[] | undefined = sampled.get(
+    channelKey({ kind: "node", node: node.id, path: "translation" }),
+  )?.value;
+  const scale: number[] | undefined = sampled.get(
+    channelKey({ kind: "node", node: node.id, path: "scale" }),
+  )?.value;
+  const center: IAutoMovieVector3 =
+    translation === undefined
+      ? base.translation
+      : { x: translation[0]!, y: translation[1]!, z: translation[2]! };
+  const factor: number =
+    scale === undefined
+      ? Math.max(
+          Math.abs(base.scale.x),
+          Math.abs(base.scale.y),
+          Math.abs(base.scale.z),
+        )
+      : Math.max(Math.abs(scale[0]!), Math.abs(scale[1]!), Math.abs(scale[2]!));
+  const radius: number = obstacle.radius * factor;
+  return {
+    min: { x: center.x - radius, y: center.y - radius, z: center.z - radius },
+    max: { x: center.x + radius, y: center.y + radius, z: center.z + radius },
+  };
+}
+
+/** Address a take whose clock or evaluation threw. */
+function refuseEvaluation(
+  out: IAutoMovieViolationAppendSink,
+  take: ITake,
+  error: unknown,
+): void {
+  return out.push(
+    "range",
+    `$staged.scene.cameras[${take.index}].clearance`,
+    `camera clearance could not evaluate its fixed-clock input: ${safeThrownDescription(error)}`,
+    take.camera.clearance,
+  );
+}
+
+/** Describe a thrown value without letting a hostile coercion escape. */
+function safeThrownDescription(error: unknown): string {
+  try {
+    return String(error);
+  } catch {
+    return "an uninspectable thrown value";
+  }
+}

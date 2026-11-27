@@ -1,11 +1,11 @@
 import type { AutoMovieArchetype } from "../core";
 import { AutoMovieArchetypeBaseballBat } from "../sport";
-import { createBow, createCannon, createClub, createHandgun, createHolster, createLongGun, createPell, createProjectile, createSword, AutoMovieArchetypePracticeBaton, AutoMovieArchetypeStageBallProp, AutoMovieArchetypeStageBladeCarrier, AutoMovieArchetypeStageCartridgeProp, AutoMovieArchetypeStageGrenadeProp, AutoMovieArchetypeStageHandBowProp, AutoMovieArchetypeStageHolster, AutoMovieArchetypeStagePouch, AutoMovieArchetypeStageQuiver, AutoMovieArchetypeStageRoundProp, AutoMovieArchetypeStageShaftToken, AutoMovieArchetypeStageStockBowProp, AutoMovieArchetypeStageStoneProp, AutoMovieArchetypeMagazine, AutoMovieArchetypePolearm, AutoMovieArchetypeShield } from "../weapons";
+import { AutoMovieArchetypePracticeBaton, AutoMovieArchetypeStageBallProp, AutoMovieArchetypeStageBladeCarrier, AutoMovieArchetypeStageCartridgeProp, AutoMovieArchetypeStageGrenadeProp, AutoMovieArchetypeStageHandBowProp, AutoMovieArchetypeStageHolster, AutoMovieArchetypeStagePouch, AutoMovieArchetypeStageQuiver, AutoMovieArchetypeStageRoundProp, AutoMovieArchetypeStageShaftToken, AutoMovieArchetypeStageStockBowProp, AutoMovieArchetypeStageStoneProp, AutoMovieArchetypeMagazine, AutoMovieArchetypePolearm, AutoMovieArchetypeShield, AutoMovieArchetypeBow, AutoMovieArchetypeCannon, AutoMovieArchetypeClub, AutoMovieArchetypeHandgun, AutoMovieArchetypeHolster, AutoMovieArchetypeLongGun, AutoMovieArchetypePell, AutoMovieArchetypeProjectile, AutoMovieArchetypeSword } from "../weapons";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
 /** The named carrier for each saved holster kind. */
-function carrier(kind: createHolster.Kind): AutoMovieArchetype {
+function carrier(kind: AutoMovieArchetypeHolster.Kind): AutoMovieArchetype {
   if (kind === "scabbard" || kind === "sheath")
     return AutoMovieArchetypeStageBladeCarrier.create({ kind });
   if (kind === "quiver") return AutoMovieArchetypeStageQuiver.create();
@@ -14,7 +14,7 @@ function carrier(kind: createHolster.Kind): AutoMovieArchetype {
 }
 
 /** The named inert token for each saved projectile kind. */
-function token(kind: createProjectile.Kind): AutoMovieArchetype {
+function token(kind: AutoMovieArchetypeProjectile.Kind): AutoMovieArchetype {
   if (kind === "arrow" || kind === "bolt")
     return AutoMovieArchetypeStageShaftToken.create({ kind });
   if (kind === "ball") return AutoMovieArchetypeStageBallProp.create();
@@ -25,14 +25,14 @@ function token(kind: createProjectile.Kind): AutoMovieArchetype {
 }
 
 /** The named bow silhouette for each saved bow kind. */
-function bow(kind: createBow.Kind): AutoMovieArchetype {
+function bow(kind: AutoMovieArchetypeBow.Kind): AutoMovieArchetype {
   return kind === "crossbow"
     ? AutoMovieArchetypeStageStockBowProp.create()
     : AutoMovieArchetypeStageHandBowProp.create({ kind });
 }
 
 /** The named bat or baton for each saved club kind. */
-function club(kind: createClub.Kind): AutoMovieArchetype {
+function club(kind: AutoMovieArchetypeClub.Kind): AutoMovieArchetype {
   return kind === "bat" ? AutoMovieArchetypeBaseballBat.create() : AutoMovieArchetypePracticeBaton.create();
 }
 
@@ -56,14 +56,14 @@ export function archetypeCaptureArmoury(): Readonly<
     weapons: still({
       ...kinds(
         "handgun",
-        createHandgun.FRAMES,
-        (frame: createHandgun.Frame): AutoMovieArchetype =>
-          createHandgun({ frame }),
+        AutoMovieArchetypeHandgun.FRAMES,
+        (frame: AutoMovieArchetypeHandgun.Frame): AutoMovieArchetype =>
+          AutoMovieArchetypeHandgun.create({ frame }),
       ),
       ...kinds(
         "holster",
-        createHolster.KINDS,
-        (kind: createHolster.Kind): AutoMovieArchetype => carrier(kind),
+        AutoMovieArchetypeHolster.KINDS,
+        (kind: AutoMovieArchetypeHolster.Kind): AutoMovieArchetype => carrier(kind),
       ),
       ...kinds(
         "magazine",
@@ -73,36 +73,36 @@ export function archetypeCaptureArmoury(): Readonly<
       ),
       ...kinds(
         "projectile",
-        createProjectile.KINDS,
-        (kind: createProjectile.Kind): AutoMovieArchetype => token(kind),
+        AutoMovieArchetypeProjectile.KINDS,
+        (kind: AutoMovieArchetypeProjectile.Kind): AutoMovieArchetype => token(kind),
       ),
       ...kinds(
         "bow",
-        createBow.KINDS,
-        (kind: createBow.Kind): AutoMovieArchetype => bow(kind),
+        AutoMovieArchetypeBow.KINDS,
+        (kind: AutoMovieArchetypeBow.Kind): AutoMovieArchetype => bow(kind),
       ),
       ...kinds(
         "cannon",
-        createCannon.KINDS,
-        (kind: createCannon.Kind): AutoMovieArchetype => createCannon({ kind }),
+        AutoMovieArchetypeCannon.KINDS,
+        (kind: AutoMovieArchetypeCannon.Kind): AutoMovieArchetype => AutoMovieArchetypeCannon.create({ kind }),
       ),
       ...kinds(
         "longGun",
-        createLongGun.KINDS,
-        (kind: createLongGun.Kind): AutoMovieArchetype =>
-          createLongGun({ kind }),
+        AutoMovieArchetypeLongGun.KINDS,
+        (kind: AutoMovieArchetypeLongGun.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeLongGun.create({ kind }),
       ),
       ...kinds(
         "club",
-        createClub.KINDS,
-        (kind: createClub.Kind): AutoMovieArchetype => club(kind),
+        AutoMovieArchetypeClub.KINDS,
+        (kind: AutoMovieArchetypeClub.Kind): AutoMovieArchetype => club(kind),
       ),
     }),
     blades: still({
       ...kinds(
         "sword",
-        createSword.KINDS,
-        (kind: createSword.Kind): AutoMovieArchetype => createSword({ kind }),
+        AutoMovieArchetypeSword.KINDS,
+        (kind: AutoMovieArchetypeSword.Kind): AutoMovieArchetype => AutoMovieArchetypeSword.create({ kind }),
       ),
       ...kinds(
         "shield",
@@ -115,7 +115,7 @@ export function archetypeCaptureArmoury(): Readonly<
         (kind: AutoMovieArchetypePolearm.Kind): AutoMovieArchetype =>
           AutoMovieArchetypePolearm.create({ kind }),
       ),
-      pell: createPell(),
+      pell: AutoMovieArchetypePell.create(),
     }),
   };
 }

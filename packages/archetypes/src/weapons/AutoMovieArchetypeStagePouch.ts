@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStagePouch as createStagePouchImplementation } from "./internal/createStagePouch";
-import { type createHolster } from "./createHolster";
+import { type AutoMovieArchetypeHolster } from "./AutoMovieArchetypeHolster";
 
 /** Public operations for Auto Movie Archetype Stage Pouch. */
 export namespace AutoMovieArchetypeStagePouch {
@@ -33,10 +33,10 @@ export namespace AutoMovieArchetypeStagePouch {
    * slot16, slot17, slot18, slot19, slot2, slot20, slot3, slot4, slot5, slot6,
    * slot7, slot8, slot9, strap.
    */
-  export type Affordance = createHolster.Affordance;
+  export type Affordance = AutoMovieArchetypeHolster.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<
-    createHolster.IParams,
+    AutoMovieArchetypeHolster.IParams,
     "id" | "length" | "thickness" | "depth" | "width" | "mass"
   >;}

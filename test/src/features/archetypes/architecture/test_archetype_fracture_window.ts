@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeWindow } from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -183,7 +183,7 @@ export function test_archetype_fracture_window(): void {
         openedFrame,
         shards.archetype,
       ])
-        if (!validateModel({ model: piece }).success)
+        if (!AutoMovieEngineValidation.validateModel({ model: piece }).success)
           findings.push(`${label}: ${piece.id} is not admitted`);
     }
     for (const fractureEnergy of [0, -1, Number.NaN, Infinity, -Infinity]) {

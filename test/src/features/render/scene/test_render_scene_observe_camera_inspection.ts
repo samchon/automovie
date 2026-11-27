@@ -1,6 +1,6 @@
 import { classifyAutoMovieCameraInspection } from "@automovie/engine";
 import type { IAutoMovieCameraInspection } from "@automovie/interface";
-import { observeAutoMovieCameraInspection } from "@automovie/render";
+import { AutoMovieRenderInspectionCamera } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
   BoxGeometry,
@@ -53,7 +53,7 @@ export function test_render_scene_observe_camera_inspection(): void {
   const observe = (
     triangleBudget: number = 0,
   ): IAutoMovieCameraInspection.IResult =>
-    observeAutoMovieCameraInspection({ scene, camera, target, triangleBudget });
+    AutoMovieRenderInspectionCamera.observe({ scene, camera, target, triangleBudget });
 
   target.position.set(7, 0, -5);
   TestValidator.equals("wide delivered framing", observe().framing, "possible");

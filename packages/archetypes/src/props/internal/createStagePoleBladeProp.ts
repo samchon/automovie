@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 import { StageShaftConstruction } from "../StageShaftConstruction";
-import type { createStageWeaponProp } from "../createStageWeaponProp";
+import type { AutoMovieArchetypeStageWeaponProp } from "../AutoMovieArchetypeStageWeaponProp";
 
 /**
  * A section of the padded outline in the XY plane, normalized by display
@@ -184,8 +184,8 @@ type BladeEdge = "edge" | "side-edge";
 /** Extrude one small convex cell between each pair of adjacent outline sections. */
 function addOutline(
   builder: AutoMovieArchetypeBuilder<
-    createStageWeaponProp.Affordance,
-    createStageWeaponProp.Dimension
+    AutoMovieArchetypeStageWeaponProp.Affordance,
+    AutoMovieArchetypeStageWeaponProp.Dimension
   >,
   id: string,
   sections: readonly Section[],
@@ -209,8 +209,8 @@ function addOutline(
  */
 function addRear(
   builder: AutoMovieArchetypeBuilder<
-    createStageWeaponProp.Affordance,
-    createStageWeaponProp.Dimension
+    AutoMovieArchetypeStageWeaponProp.Affordance,
+    AutoMovieArchetypeStageWeaponProp.Dimension
   >,
   lower: Section,
   upper: Section,
@@ -240,8 +240,8 @@ function addRear(
  */
 function addEdge(
   builder: AutoMovieArchetypeBuilder<
-    createStageWeaponProp.Affordance,
-    createStageWeaponProp.Dimension
+    AutoMovieArchetypeStageWeaponProp.Affordance,
+    AutoMovieArchetypeStageWeaponProp.Dimension
   >,
   id: BladeEdge,
   lower: Section,

@@ -7,7 +7,7 @@ import { AutoMovieArchetypeQuadrupedLocomotion } from "../animals/AutoMovieArche
 import { buildCamelBody } from "../animals/camel/internal/buildCamelBody";
 import { AutoMovieArchetypeCamel } from "../animals/AutoMovieArchetypeCamel";
 import { AutoMovieArchetypeDeer } from "../animals/AutoMovieArchetypeDeer";
-import { createOx } from "../animals/createOx";
+import { AutoMovieArchetypeOx } from "../animals/AutoMovieArchetypeOx";
 import { buildDeerBody } from "../animals/deer/internal/buildDeerBody";
 import { buildOxBody } from "../animals/ox/internal/buildOxBody";
 import { rideQuadruped } from "../animals/rideQuadruped";
@@ -23,7 +23,7 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 export function archetypeCaptureReferenceAnimals(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const ox: ReturnType<typeof createOx> = createOx(createOx.REFERENCE, 73);
+  const ox: ReturnType<typeof AutoMovieArchetypeOx.create> = AutoMovieArchetypeOx.create(AutoMovieArchetypeOx.REFERENCE, 73);
   const camel: ReturnType<typeof AutoMovieArchetypeCamel.create> = AutoMovieArchetypeCamel.create(
     AutoMovieArchetypeCamel.REFERENCE,
     73,
@@ -42,9 +42,9 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
 
   // Explicit gallery dimensions derived from the rest landmarks, not maker or population data.
   const beam: number = oxRig.neckRadius / 8;
-  const equippedOx: ReturnType<typeof createOx> = createOx(
+  const equippedOx: ReturnType<typeof AutoMovieArchetypeOx.create> = AutoMovieArchetypeOx.create(
     {
-      ...createOx.REFERENCE,
+      ...AutoMovieArchetypeOx.REFERENCE,
       lead: lead(oxRig),
       equipment: {
         pack: pack(oxRig),

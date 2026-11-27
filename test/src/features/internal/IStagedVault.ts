@@ -1,4 +1,4 @@
-import type { createVaultingPole } from "@automovie/archetypes";
+import type { AutoMovieArchetypeVaultingPole } from "@automovie/archetypes";
 import type { HumanPerformance } from "@automovie/motions";
 
 /**
@@ -14,5 +14,5 @@ export interface IStagedVault {
   film: HumanPerformance;
 
   /** The pole. */
-  pole: ReturnType<typeof createVaultingPole>;
+  pole: ReturnType<typeof AutoMovieArchetypeVaultingPole.create>;
 }

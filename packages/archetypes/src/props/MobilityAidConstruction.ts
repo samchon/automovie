@@ -7,21 +7,21 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { createMobilityAid } from "./createMobilityAid";
+import { AutoMovieArchetypeMobilityAid } from "./AutoMovieArchetypeMobilityAid";
 
 /** The readable name of each kind. */
-const NAMES: Readonly<Record<createMobilityAid.Kind, string>> = {
+const NAMES: Readonly<Record<AutoMovieArchetypeMobilityAid.Kind, string>> = {
   cane: "walking cane",
   walker: "walking frame",
   infusionStand: "infusion stand",
 };
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createMobilityAid.Affordance> =
-  AutoMovieArchetypeBuilder<Id, createMobilityAid.Dimension>;
+type Builder<Id extends AutoMovieArchetypeMobilityAid.Affordance> =
+  AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMobilityAid.Dimension>;
 
 /** Model dimensions in the legacy family's recorded units. */
-type Dimensions = Partial<Record<createMobilityAid.Dimension, number>>;
+type Dimensions = Partial<Record<AutoMovieArchetypeMobilityAid.Dimension, number>>;
 
 /** Model coordinates in metres. */
 const v: typeof Vector3.create = Vector3.create;
@@ -30,7 +30,7 @@ const v: typeof Vector3.create = Vector3.create;
 const metal: string = "#9aa1a6";
 
 /** A started construction: its builder and its drawn dimensions. */
-interface IDrawn<Id extends createMobilityAid.Affordance> {
+interface IDrawn<Id extends AutoMovieArchetypeMobilityAid.Affordance> {
   /** The model-space builder for the selected contact ids. */
   builder: Builder<Id>;
 
@@ -42,38 +42,38 @@ interface IDrawn<Id extends createMobilityAid.Affordance> {
  * Draw the selected stand or aid's admitted dimensions in the historical
  * stream.
  */
-function draw<Id extends createMobilityAid.Affordance>(
-  kind: createMobilityAid.Kind,
-  params: Omit<createMobilityAid.IParams, "kind">,
+function draw<Id extends AutoMovieArchetypeMobilityAid.Affordance>(
+  kind: AutoMovieArchetypeMobilityAid.Kind,
+  params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
   seed?: number,
 ): IDrawn<Id> {
-  const session: AutoMovieArchetypeDrawSession<createMobilityAid.Dimension> =
-    new AutoMovieArchetypeDrawSession<createMobilityAid.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeMobilityAid.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeMobilityAid.Dimension>(
       "mobilityAid",
-      createMobilityAid.UNITS,
+      AutoMovieArchetypeMobilityAid.UNITS,
       seed,
       params,
     );
   // A walker is Drive's adult or junior model whole, its handle height drawn in that model's own range.
   const model: {
-    name: createMobilityAid.Model | undefined;
-    figures: createMobilityAid.Figures;
-  } = session.model<createMobilityAid.Model>(
+    name: AutoMovieArchetypeMobilityAid.Model | undefined;
+    figures: AutoMovieArchetypeMobilityAid.Figures;
+  } = session.model<AutoMovieArchetypeMobilityAid.Model>(
     "model",
     params.model,
-    createMobilityAid.MODELS[kind],
+    AutoMovieArchetypeMobilityAid.MODELS[kind],
   );
   // The model's own range bands its height, so the author's height is checked in it.
   const range: IAutoMovieArchetypeBand | undefined =
     model.name === undefined
       ? undefined
-      : createMobilityAid.HANDLE_HEIGHTS[model.name];
-  const d: Partial<Record<createMobilityAid.Dimension, number>> = {
+      : AutoMovieArchetypeMobilityAid.HANDLE_HEIGHTS[model.name];
+  const d: Partial<Record<AutoMovieArchetypeMobilityAid.Dimension, number>> = {
     ...session.dimensions(
       range === undefined
-        ? createMobilityAid.BANDS[kind]
-        : { ...createMobilityAid.BANDS[kind], height: range },
-      createMobilityAid.BANDS,
+        ? AutoMovieArchetypeMobilityAid.BANDS[kind]
+        : { ...AutoMovieArchetypeMobilityAid.BANDS[kind], height: range },
+      AutoMovieArchetypeMobilityAid.BANDS,
     ),
     ...model.figures,
   };
@@ -108,14 +108,14 @@ export namespace MobilityAidConstruction {
 
   /** Build an offset cane with a floor tip and a handle across its shaft. */
   export function cane(
-    params: Omit<createMobilityAid.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<CaneContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<CaneContact, AutoMovieArchetypeMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CaneContact>> =
       draw<CaneContact>("cane", params, seed);
     const height: number = d.height!;
     const r: number = d.diameter! / 2;
-    const handle: number = createMobilityAid.HANDLE;
+    const handle: number = AutoMovieArchetypeMobilityAid.HANDLE;
     builder.rod("shaft", r, v(0, 0, 0), v(0, height - r, 0), { color: metal });
     builder.rod("handle", r, v(0, height - r, -r), v(0, height - r, handle), {
       color: "#2c2f33",
@@ -144,9 +144,9 @@ export namespace MobilityAidConstruction {
 
   /** Build a walking frame with paired side rail grips and a central floor tip. */
   export function walker(
-    params: Omit<createMobilityAid.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<WalkerContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<WalkerContact, AutoMovieArchetypeMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<WalkerContact>> =
       draw<WalkerContact>("walker", params, seed);
     const height: number = d.height!;
@@ -197,15 +197,15 @@ export namespace MobilityAidConstruction {
 
   /** Build a wheeled stand with a shaft grip, floor tip and bag hook. */
   export function infusionStand(
-    params: Omit<createMobilityAid.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<InfusionStandContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<InfusionStandContact, AutoMovieArchetypeMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<InfusionStandContact>> =
       draw<InfusionStandContact>("infusionStand", params, seed);
     const height: number = d.height!;
     const r: number = d.diameter! / 2;
     // Five legs on castors, the outer tube up from the hub, the inner tube on to the height.
-    const stand: typeof createMobilityAid.STAND = createMobilityAid.STAND;
+    const stand: typeof AutoMovieArchetypeMobilityAid.STAND = AutoMovieArchetypeMobilityAid.STAND;
     const reach: number = d.width! / 2 - stand.castor / 2;
     const leg: number = stand.leg / 2;
     const hub: number = stand.castor + leg;

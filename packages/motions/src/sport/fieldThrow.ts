@@ -172,7 +172,8 @@ export namespace fieldThrow {
         axis: "area",
         value: p.area,
         reason: `${p.area} declares no ${id}`,
-        fix: "name a throwing circle or javelin runway, as createThrowingCircle builds",
+        fix:
+          "name a throwing circle or javelin runway, as AutoMovieArchetypeThrowingCircle.create builds",
       });
     const centre: IAutoMovieVector3 = Vector3.add(
       placed.position,

@@ -9,12 +9,12 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createBall } from "./createBall";
+import type { AutoMovieArchetypeBall } from "./AutoMovieArchetypeBall";
 
 /** The ball and puck specifications, draw and local grip and top contacts. */
 export namespace BallBuild {
   /** The saved kinds in their original order. */
-  export const KINDS: readonly createBall.Kind[] = [
+  export const KINDS: readonly AutoMovieArchetypeBall.Kind[] = [
     "football",
     "futsal",
     "basketball",
@@ -44,7 +44,7 @@ export namespace BallBuild {
   export const TWO_HANDS: number = 0.2;
 
   /** The original flat sRGB colours by recipe. */
-  export const COLORS: Readonly<Record<createBall.Kind, string>> = {
+  export const COLORS: Readonly<Record<AutoMovieArchetypeBall.Kind, string>> = {
     football: "#f2f2f2",
     futsal: "#f0e7ce",
     basketball: "#d2691e",
@@ -69,7 +69,7 @@ export namespace BallBuild {
 
   /** The recorded units of each dimension. */
   export const UNITS: Readonly<
-    Record<createBall.Dimension, AutoMovieArchetypeDrawSession.Unit>
+    Record<AutoMovieArchetypeBall.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     diameter: "m",
     length: "m",
@@ -186,8 +186,8 @@ export namespace BallBuild {
   /** The published bands by sport and shape. */
   export const BANDS: Readonly<
     Record<
-      createBall.Kind,
-      Readonly<Partial<Record<createBall.Dimension, IAutoMovieArchetypeBand>>>
+      AutoMovieArchetypeBall.Kind,
+      Readonly<Partial<Record<AutoMovieArchetypeBall.Dimension, IAutoMovieArchetypeBand>>>
     >
   > = {
     football: {
@@ -328,28 +328,28 @@ export namespace BallBuild {
   export type DrawMaterial = "composite" | "rubber";
 
   /** What {@link draw} prepares for its caller. */
-  export interface IDrawResult<Id extends createBall.Affordance> {
+  export interface IDrawResult<Id extends AutoMovieArchetypeBall.Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: AutoMovieArchetypeBuilder<Id, createBall.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeBall.Dimension>;
 
     /** The prepared `d` this call returns. */
-    d: Partial<Record<createBall.Dimension, number>>;
+    d: Partial<Record<AutoMovieArchetypeBall.Dimension, number>>;
   }
 
   /** Draw the selected shape profile in the original ball seed namespace. */
-  export function draw<Id extends createBall.Affordance>(
-    kind: createBall.Kind,
-    params: Readonly<Omit<createBall.IParams, "kind">>,
+  export function draw<Id extends AutoMovieArchetypeBall.Affordance>(
+    kind: AutoMovieArchetypeBall.Kind,
+    params: Readonly<Omit<AutoMovieArchetypeBall.IParams, "kind">>,
     seed: number | undefined,
     material: DrawMaterial,
   ): IDrawResult<Id> {
-    const draw: AutoMovieArchetypeDrawSession<createBall.Dimension> =
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeBall.Dimension> =
       new AutoMovieArchetypeDrawSession("ball", UNITS, seed, params);
-    const d: Partial<Record<createBall.Dimension, number>> = draw.dimensions(
+    const d: Partial<Record<AutoMovieArchetypeBall.Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
     );
-    const builder: AutoMovieArchetypeBuilder<Id, createBall.Dimension> =
+    const builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeBall.Dimension> =
       new AutoMovieArchetypeBuilder({
         material,
         id: params.id,
@@ -370,8 +370,8 @@ export namespace BallBuild {
    */
   export function contacts(
     builder: AutoMovieArchetypeBuilder<
-      createBall.Affordance,
-      createBall.Dimension
+      AutoMovieArchetypeBall.Affordance,
+      AutoMovieArchetypeBall.Dimension
     >,
     diameter: number,
     high: number,

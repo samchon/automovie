@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, materializeCompiledFormation, AutoMovieEnginePopulationRuntime, AutoMovieEnginePopulationFormation } from "@automovie/engine";
+import { AutoMovieEngineWorld, AutoMovieEnginePopulationRuntime, AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationDesign,
@@ -74,7 +74,7 @@ const bank: IAutoMovieWorldSurface = AutoMovieEngineWorld.ramp({
  */
 export function test_engine_compiled_formation_slot(): void {
   const design: IAutoMovieFormationDesign = unit();
-  const compiled: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const compiled: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: design,
     surfaces: [bank],
   });

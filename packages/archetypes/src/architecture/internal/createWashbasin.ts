@@ -3,7 +3,7 @@ import type { AutoMovieArchetype } from "../../core/index";
 import { FixtureDraw } from "../FixtureDraw";
 import { SANITARY_BANDS } from "../SANITARY_BANDS";
 import { SanitaryConstruction } from "../SanitaryConstruction";
-import type { createSanitary } from "../createSanitary";
+import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 
 /**
  * A wall-backed washbasin with a rim, tap lever and spout contact.
@@ -25,7 +25,7 @@ export function createWashbasin(
 ): AutoMovieArchetype<AutoMovieArchetypeWashbasin.Affordance, AutoMovieArchetypeWashbasin.Dimension> {
   return FixtureDraw.installed<
     AutoMovieArchetypeWashbasin.Affordance,
-    createSanitary.Dimension
+    AutoMovieArchetypeSanitary.Dimension
   >(
     "sanitary",
     "washbasin",

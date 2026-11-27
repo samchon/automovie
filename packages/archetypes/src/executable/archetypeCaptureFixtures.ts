@@ -1,4 +1,4 @@
-import { createAppliance, AutoMovieArchetypeBar, AutoMovieArchetypeBoard, AutoMovieArchetypeControl, AutoMovieArchetypeDoor, AutoMovieArchetypeElevator, createMachine, AutoMovieArchetypeObstacle, createSanitary, AutoMovieArchetypeStreetFixture, AutoMovieArchetypeBeerTap, AutoMovieArchetypeValve, AutoMovieArchetypeBin, AutoMovieArchetypeCellFront, AutoMovieArchetypeGate, AutoMovieArchetypeHandhold, AutoMovieArchetypeHatch, AutoMovieArchetypeLadder, AutoMovieArchetypeMirror, AutoMovieArchetypeRamp, AutoMovieArchetypeSaloonDoor, AutoMovieArchetypeStairs, AutoMovieArchetypeSwitch, AutoMovieArchetypeWall, AutoMovieArchetypeWindow } from "../architecture";
+import { AutoMovieArchetypeBar, AutoMovieArchetypeBoard, AutoMovieArchetypeControl, AutoMovieArchetypeDoor, AutoMovieArchetypeElevator, AutoMovieArchetypeObstacle, AutoMovieArchetypeStreetFixture, AutoMovieArchetypeBeerTap, AutoMovieArchetypeValve, AutoMovieArchetypeBin, AutoMovieArchetypeCellFront, AutoMovieArchetypeGate, AutoMovieArchetypeHandhold, AutoMovieArchetypeHatch, AutoMovieArchetypeLadder, AutoMovieArchetypeMirror, AutoMovieArchetypeRamp, AutoMovieArchetypeSaloonDoor, AutoMovieArchetypeStairs, AutoMovieArchetypeSwitch, AutoMovieArchetypeWall, AutoMovieArchetypeWindow, AutoMovieArchetypeAppliance, AutoMovieArchetypeMachine, AutoMovieArchetypeSanitary } from "../architecture";
 import type { AutoMovieArchetype } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -66,15 +66,15 @@ export function archetypeCaptureFixtures(
     fixtures: still({
       ...kinds(
         "sanitary",
-        createSanitary.KINDS,
-        (kind: createSanitary.Kind): AutoMovieArchetype =>
-          createSanitary({ kind }),
+        AutoMovieArchetypeSanitary.KINDS,
+        (kind: AutoMovieArchetypeSanitary.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeSanitary.create({ kind }),
       ),
       ...kinds(
         "appliance",
-        createAppliance.KINDS,
-        (kind: createAppliance.Kind): AutoMovieArchetype =>
-          createAppliance({ kind }),
+        AutoMovieArchetypeAppliance.KINDS,
+        (kind: AutoMovieArchetypeAppliance.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeAppliance.create({ kind }),
       ),
     }),
     obstacles: still(
@@ -104,9 +104,9 @@ export function archetypeCaptureFixtures(
       ),
       ...kinds(
         "machine",
-        createMachine.KINDS,
-        (kind: createMachine.Kind): AutoMovieArchetype =>
-          createMachine({ kind }),
+        AutoMovieArchetypeMachine.KINDS,
+        (kind: AutoMovieArchetypeMachine.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeMachine.create({ kind }),
       ),
       valve: AutoMovieArchetypeValve.create(),
       elevator: AutoMovieArchetypeElevator.create(),

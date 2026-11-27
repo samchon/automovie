@@ -3,10 +3,10 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
 } from "../core";
-import { createProjectile } from "./createProjectile";
+import { AutoMovieArchetypeProjectile } from "./AutoMovieArchetypeProjectile";
 
 /** The readable name of each kind. */
-const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
+const NAMES: Readonly<Record<AutoMovieArchetypeProjectile.Kind, string>> = {
   ball: "musket ball",
   arrow: "arrow",
   bolt: "crossbow bolt",
@@ -32,30 +32,30 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
  *   cannot use.
  */
 export function StageTokenConstruction(
-  kind: createProjectile.Kind,
-  params: Omit<createProjectile.IParams, "kind">,
+  kind: AutoMovieArchetypeProjectile.Kind,
+  params: Omit<AutoMovieArchetypeProjectile.IParams, "kind">,
   seed: number | undefined,
   build: StageTokenConstruction.Build,
-): AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createProjectile.Dimension> =
-    new AutoMovieArchetypeDrawSession<createProjectile.Dimension>(
+): AutoMovieArchetype<AutoMovieArchetypeProjectile.Affordance, AutoMovieArchetypeProjectile.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeProjectile.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeProjectile.Dimension>(
       "projectile",
-      createProjectile.UNITS,
+      AutoMovieArchetypeProjectile.UNITS,
       seed,
       params,
     );
 
   // An arrow, a bolt and a round shot are each one read object whole; a band is drawn only for a figure its object does not give.
   const model: {
-    name: createProjectile.Model | undefined;
-    figures: Readonly<Partial<Record<createProjectile.Dimension, number>>>;
-  } = draw.model<createProjectile.Model>(
+    name: AutoMovieArchetypeProjectile.Model | undefined;
+    figures: Readonly<Partial<Record<AutoMovieArchetypeProjectile.Dimension, number>>>;
+  } = draw.model<AutoMovieArchetypeProjectile.Model>(
     "model",
     params.model,
-    createProjectile.MODELS[kind],
+    AutoMovieArchetypeProjectile.MODELS[kind],
   );
-  const d: Partial<Record<createProjectile.Dimension, number>> = {
-    ...draw.dimensions(createProjectile.BANDS[kind], createProjectile.BANDS),
+  const d: Partial<Record<AutoMovieArchetypeProjectile.Dimension, number>> = {
+    ...draw.dimensions(AutoMovieArchetypeProjectile.BANDS[kind], AutoMovieArchetypeProjectile.BANDS),
     ...model.figures,
   };
 
@@ -66,8 +66,8 @@ export function StageTokenConstruction(
       Math.cbrt((6 * d.mass!) / (Math.PI * d.gravity! * 1000)),
     );
   const builder: AutoMovieArchetypeBuilder<
-    createProjectile.Affordance,
-    createProjectile.Dimension
+    AutoMovieArchetypeProjectile.Affordance,
+    AutoMovieArchetypeProjectile.Dimension
   > = new AutoMovieArchetypeBuilder({
     material:
       kind === "ball"
@@ -89,13 +89,13 @@ export namespace StageTokenConstruction {
   /** Builds one digital silhouette and its existing metadata. */
   export type Build = (
     builder: AutoMovieArchetypeBuilder<
-      createProjectile.Affordance,
-      createProjectile.Dimension
+      AutoMovieArchetypeProjectile.Affordance,
+      AutoMovieArchetypeProjectile.Dimension
     >,
-    d: Readonly<Partial<Record<createProjectile.Dimension, number>>>,
-    model: createProjectile.Model | undefined,
+    d: Readonly<Partial<Record<AutoMovieArchetypeProjectile.Dimension, number>>>,
+    model: AutoMovieArchetypeProjectile.Model | undefined,
   ) => AutoMovieArchetype<
-    createProjectile.Affordance,
-    createProjectile.Dimension
+    AutoMovieArchetypeProjectile.Affordance,
+    AutoMovieArchetypeProjectile.Dimension
   >;
 }

@@ -1,5 +1,5 @@
-import { createProjectile } from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { AutoMovieArchetypeProjectile } from "@automovie/archetypes";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieBody } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,11 +25,11 @@ export function test_archetype_projectile_flight_data(): void {
   const findings: string[] = [];
   const inch: number = 0.0254;
   // The launched kinds; a cartridge is loaded, never launched, and carries no flight data.
-  type Launched = Exclude<createProjectile.Kind, "cartridge">;
-  const launched: Launched[] = createProjectile.KINDS.filter(
-    (kind: createProjectile.Kind): kind is Launched => kind !== "cartridge",
+  type Launched = Exclude<AutoMovieArchetypeProjectile.Kind, "cartridge">;
+  const launched: Launched[] = AutoMovieArchetypeProjectile.KINDS.filter(
+    (kind: AutoMovieArchetypeProjectile.Kind): kind is Launched => kind !== "cartridge",
   );
-  const cartridge: IAutoMovieBody = createProjectile({
+  const cartridge: IAutoMovieBody = AutoMovieArchetypeProjectile.create({
     kind: "cartridge",
   }).body;
   if (cartridge.drag !== undefined || cartridge.contact !== undefined)
@@ -37,15 +37,15 @@ export function test_archetype_projectile_flight_data(): void {
   // Every read object of every kind, and the kinds without one at their seedless draw.
   const rows: {
     kind: Launched;
-    model?: createProjectile.Model;
+    model?: AutoMovieArchetypeProjectile.Model;
   }[] = launched.flatMap(
-    (kind: Launched): { kind: Launched; model?: createProjectile.Model }[] => {
-      const models: createProjectile.Model[] = Object.keys(
-        createProjectile.MODELS[kind] ?? {},
-      ) as createProjectile.Model[];
+    (kind: Launched): { kind: Launched; model?: AutoMovieArchetypeProjectile.Model }[] => {
+      const models: AutoMovieArchetypeProjectile.Model[] = Object.keys(
+        AutoMovieArchetypeProjectile.MODELS[kind] ?? {},
+      ) as AutoMovieArchetypeProjectile.Model[];
       return models.length === 0
         ? [{ kind }]
-        : models.map((model: createProjectile.Model) => ({ kind, model }));
+        : models.map((model: AutoMovieArchetypeProjectile.Model) => ({ kind, model }));
     },
   );
   // 2. The issue's table of attitudes and outcomes.
@@ -53,8 +53,8 @@ export function test_archetype_projectile_flight_data(): void {
     Record<
       Launched,
       readonly [
-        (typeof createProjectile.ATTITUDE)[Launched],
-        (typeof createProjectile.OUTCOME)[Launched],
+        (typeof AutoMovieArchetypeProjectile.ATTITUDE)[Launched],
+        (typeof AutoMovieArchetypeProjectile.OUTCOME)[Launched],
       ]
     >
   > = {
@@ -67,11 +67,11 @@ export function test_archetype_projectile_flight_data(): void {
   };
   for (const kind of launched)
     if (
-      createProjectile.ATTITUDE[kind] !== table[kind][0] ||
-      createProjectile.OUTCOME[kind] !== table[kind][1]
+      AutoMovieArchetypeProjectile.ATTITUDE[kind] !== table[kind][0] ||
+      AutoMovieArchetypeProjectile.OUTCOME[kind] !== table[kind][1]
     )
       findings.push(
-        `${kind}: attitude ${createProjectile.ATTITUDE[kind]}, outcome ${createProjectile.OUTCOME[kind]}`,
+        `${kind}: attitude ${AutoMovieArchetypeProjectile.ATTITUDE[kind]}, outcome ${AutoMovieArchetypeProjectile.OUTCOME[kind]}`,
       );
 
   // The cited figures: a sphere's and an arrow's drag coefficients, the soil restitution, and a ball's and an arrow's depth in wood.
@@ -83,11 +83,11 @@ export function test_archetype_projectile_flight_data(): void {
     arrow: 2 * inch,
   };
   for (const { kind, model } of rows) {
-    const made: ReturnType<typeof createProjectile> = createProjectile(
+    const made: ReturnType<typeof AutoMovieArchetypeProjectile.create> = AutoMovieArchetypeProjectile.create(
       model === undefined ? { kind } : { kind, model },
     );
     const body: IAutoMovieBody = made.body;
-    if (!validateModel({ model: made }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model: made }).success)
       findings.push(`${kind}: not admitted`);
 
     // 3. Restitution where it bounces or rolls, a depth where it sticks.
@@ -127,7 +127,7 @@ export function test_archetype_projectile_flight_data(): void {
     ["sixPounder", 3.5],
     ["twelvePounder", 8.5],
   ] as const) {
-    const shot: ReturnType<typeof createProjectile> = createProjectile({
+    const shot: ReturnType<typeof AutoMovieArchetypeProjectile.create> = AutoMovieArchetypeProjectile.create({
       kind: "roundShot",
       model,
     });

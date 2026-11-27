@@ -3,7 +3,7 @@ import type { AutoMovieArchetype } from "../../core/index";
 import { FixtureDraw } from "../FixtureDraw";
 import { SANITARY_BANDS } from "../SANITARY_BANDS";
 import { SanitaryConstruction } from "../SanitaryConstruction";
-import type { createSanitary } from "../createSanitary";
+import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 
 /**
  * A front-entry transfer shower with a threshold, floor, wall seat and opposite
@@ -26,7 +26,7 @@ export function createShower(
 ): AutoMovieArchetype<AutoMovieArchetypeShower.Affordance, AutoMovieArchetypeShower.Dimension> {
   return FixtureDraw.installed<
     AutoMovieArchetypeShower.Affordance,
-    createSanitary.Dimension
+    AutoMovieArchetypeSanitary.Dimension
   >(
     "sanitary",
     "transfer shower",

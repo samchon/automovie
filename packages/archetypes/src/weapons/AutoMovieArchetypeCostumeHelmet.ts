@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createCostumeHelmet as createCostumeHelmetImplementation } from "./internal/createCostumeHelmet";
-import { type createArmour } from "./createArmour";
+import { type AutoMovieArchetypeArmour } from "./AutoMovieArchetypeArmour";
 
 /** Public operations for Auto Movie Archetype Costume Helmet. */
 export namespace AutoMovieArchetypeCostumeHelmet {
@@ -50,7 +50,7 @@ export namespace AutoMovieArchetypeCostumeHelmet {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createArmour.IParams,
+    AutoMovieArchetypeArmour.IParams,
     "id" | "pad" | "thickness" | "measure"
   > {
     /** The profile with the required outline. */

@@ -6,16 +6,16 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
-import type { createLongGun } from "./createLongGun";
+import type { AutoMovieArchetypeLongGun } from "./AutoMovieArchetypeLongGun";
 
 /** A long gun under construction. */
 type Builder = AutoMovieArchetypeBuilder<
-  createLongGun.Affordance,
-  createLongGun.Dimension
+  AutoMovieArchetypeLongGun.Affordance,
+  AutoMovieArchetypeLongGun.Dimension
 >;
 
 /** A long gun's drawn and read dimensions. */
-type Drawn = Readonly<Partial<Record<createLongGun.Dimension, number>>>;
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongGun.Dimension, number>>>;
 
 /**
  * The mechanisms of the period and repeating long guns, laid on the gun

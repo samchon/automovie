@@ -1,9 +1,4 @@
-import {
-  AutoMovieArchetypeEquineGait,
-  AutoMovieArchetypeQuadrupedGait,
-  createHorse,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeEquineGait, AutoMovieArchetypeQuadrupedGait, createQuadruped, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -88,7 +83,7 @@ export function test_archetype_animal_gait_data(): void {
     )
       findings.push(`${limb} did not retain its lateral pace phase`);
   const horse: createQuadruped.ISpecies = createQuadruped.species(
-    createHorse({}, 1),
+    AutoMovieArchetypeHorse.create({}, 1),
   );
   try {
     AutoMovieArchetypeQuadrupedGait.of(horse, "pace");

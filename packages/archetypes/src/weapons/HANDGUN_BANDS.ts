@@ -5,7 +5,7 @@ import {
 } from "../core";
 import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
-import type { createHandgun } from "./createHandgun";
+import type { AutoMovieArchetypeHandgun } from "./AutoMovieArchetypeHandgun";
 
 /** The Graz test of a flintlock pistol. */
 const GRAZ_PISTOL: string =
@@ -103,8 +103,8 @@ const SHARED: Readonly<
  */
 export const HANDGUN_BANDS: Readonly<
   Record<
-    createHandgun.Frame,
-    Readonly<Partial<Record<createHandgun.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeHandgun.Frame,
+    Readonly<Partial<Record<AutoMovieArchetypeHandgun.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   fullSize: SHARED,

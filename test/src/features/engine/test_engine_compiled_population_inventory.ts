@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, materializeCompiledFormation, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
+import { AutoMovieEngineWorld, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import {
   type IAutoMovieCompiledFormation,
   type IAutoMovieCompiledInstanceSet,
@@ -138,7 +138,7 @@ export function test_engine_compiled_population_inventory(): void {
     "an inventory formation is the formation kernel's record",
     test12ValuesClose(
       formations.B,
-      materializeCompiledFormation({
+      AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
         formation: unit("B"),
         projectionRadii: radii,
         surfaces: [field],

@@ -8,16 +8,16 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createLongTool } from "./createLongTool";
+import type { AutoMovieArchetypeLongTool } from "./AutoMovieArchetypeLongTool";
 
 /** A long tool under construction. */
 type Builder = AutoMovieArchetypeBuilder<
-  createLongTool.Affordance,
-  createLongTool.Dimension
+  AutoMovieArchetypeLongTool.Affordance,
+  AutoMovieArchetypeLongTool.Dimension
 >;
 
 /** A long tool's drawn dimensions. */
-type Drawn = Readonly<Partial<Record<createLongTool.Dimension, number>>>;
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongTool.Dimension, number>>>;
 
 /** Finney's measured Bolivian sling. */
 const FINNEY: string =
@@ -72,7 +72,7 @@ export namespace Throwers {
     Record<
       "sling" | "atlatl",
       Readonly<
-        Partial<Record<createLongTool.Dimension, IAutoMovieArchetypeBand>>
+        Partial<Record<AutoMovieArchetypeLongTool.Dimension, IAutoMovieArchetypeBand>>
       >
     >
   > = {

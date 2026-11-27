@@ -1,4 +1,4 @@
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieViolationKind,
@@ -54,7 +54,7 @@ export function test_engine_validation_validate_model(): void {
   const base: IAutoMovieModel = createModel();
   const skeleton: IAutoMovieSkeleton = base.skeleton!;
   const validate = (model: IAutoMovieModel): IAutoMovieValidation =>
-    validateModel({ model });
+    AutoMovieEngineValidation.validateModel({ model });
   // Every rule is read before one verdict, so one run names every miss.
   const misses: string[] = [];
   const refused = (

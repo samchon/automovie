@@ -1,10 +1,4 @@
-import {
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeDoor,
-  createDrinkware,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeDoor, AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -33,7 +27,7 @@ export function test_archetype_fracture_sets(): void {
     [0, 40],
     [1, 30],
   ] as const) {
-    const bottle: ReturnType<typeof createDrinkware> = createDrinkware({
+    const bottle: ReturnType<typeof AutoMovieArchetypeDrinkware.create> = AutoMovieArchetypeDrinkware.create({
       kind: "beerBottle",
       fill,
     });
@@ -111,14 +105,14 @@ export function test_archetype_fracture_sets(): void {
       );
   }
   if (
-    createDrinkware({ kind: "beerBottle", fill: 0.5 }).broken({
+    AutoMovieArchetypeDrinkware.create({ kind: "beerBottle", fill: 0.5 }).broken({
       energy: 1000,
       momentum,
     }) !== null
   )
     findings.push("a part-filled bottle breaks");
   if (
-    createDrinkware({ kind: "mug" }).broken({ energy: 1000, momentum }) !== null
+    AutoMovieArchetypeDrinkware.create({ kind: "mug" }).broken({ energy: 1000, momentum }) !== null
   )
     findings.push("a mug breaks");
 

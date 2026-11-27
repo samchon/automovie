@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import type { createAppliance } from "./createAppliance";
+import type { AutoMovieArchetypeAppliance } from "./AutoMovieArchetypeAppliance";
 
 /** One cross section of the elastomer opening or the drum, in metres. */
 interface ISection {
@@ -75,8 +75,8 @@ const LIP_SIDES: number = 12;
  */
 export function WasherDrum(
   builder: AutoMovieArchetypeBuilder<
-    createAppliance.Affordance,
-    createAppliance.Dimension
+    AutoMovieArchetypeAppliance.Affordance,
+    AutoMovieArchetypeAppliance.Dimension
   >,
   width: number,
   height: number,
@@ -155,8 +155,8 @@ export function WasherDrum(
 /** Extrude one rectangular surround from exactly shared cross-section vertices. */
 function shell(
   builder: AutoMovieArchetypeBuilder<
-    createAppliance.Affordance,
-    createAppliance.Dimension
+    AutoMovieArchetypeAppliance.Affordance,
+    AutoMovieArchetypeAppliance.Dimension
   >,
   id: string,
   section: ISection,

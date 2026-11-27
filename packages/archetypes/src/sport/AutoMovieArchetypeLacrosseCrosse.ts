@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createLacrosseCrosse as createLacrosseCrosseImplementation } from "./internal/createLacrosseCrosse";
-import { type createStick } from "./createStick";
+import { type AutoMovieArchetypeStick } from "./AutoMovieArchetypeStick";
 
 /** Public operations for Auto Movie Archetype Lacrosse Crosse. */
 export namespace AutoMovieArchetypeLacrosseCrosse {
@@ -36,6 +36,6 @@ export namespace AutoMovieArchetypeLacrosseCrosse {
 
   /** The identifier and overrides available within this profile. */
   export type IParams = Pick<
-    createStick.IParams,
+    AutoMovieArchetypeStick.IParams,
     "id" | "length" | "head" | "width" | "depth" | "mass"
   >;}

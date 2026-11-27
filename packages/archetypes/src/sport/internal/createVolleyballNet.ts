@@ -7,16 +7,16 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 import { GoalBuild } from "../GoalBuild";
-import type { createGoal } from "../createGoal";
+import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
 /** The builder for this field or court apparatus. */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeVolleyballNet.Affordance,
-  createGoal.Dimension
+  AutoMovieArchetypeGoal.Dimension
 >;
 
 /** The saved goal dimensions in their local units. */
-type Drawn = Partial<Record<createGoal.Dimension, number>>;
+type Drawn = Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
 
 /** Local points in metres. */
 const v: typeof Vector3.create = Vector3.create;

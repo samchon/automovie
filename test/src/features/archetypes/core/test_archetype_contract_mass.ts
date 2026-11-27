@@ -1,11 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeMass,
-  AutoMovieArchetypeUnits,
-  createClub,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeMass, AutoMovieArchetypeUnits, AutoMovieArchetypeClub } from "@automovie/archetypes";
 import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -93,7 +86,7 @@ export function test_archetype_contract_mass(): void {
     ["t153", 13117],
     ["t156", 13527],
   ] as const) {
-    const swing: number = createClub({ kind: "bat", model }).moment(
+    const swing: number = AutoMovieArchetypeClub.create({ kind: "bat", model }).moment(
       { x: 0, y: 6 * AutoMovieArchetypeUnits.INCH, z: 0 },
       { x: 1, y: 0, z: 0 },
     );
@@ -102,7 +95,7 @@ export function test_archetype_contract_mass(): void {
       Math.abs(swing - measured * OZ_IN2) <= 0.1 * measured * OZ_IN2,
     );
   }
-  const bat: ReturnType<typeof createClub> = createClub({
+  const bat: ReturnType<typeof AutoMovieArchetypeClub.create> = AutoMovieArchetypeClub.create({
     kind: "bat",
     model: "s154",
   });

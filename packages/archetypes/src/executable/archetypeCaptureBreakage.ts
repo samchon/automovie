@@ -7,7 +7,7 @@ import {
   type AutoMovieArchetypeFracture,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { createDrinkware } from "../props";
+import { AutoMovieArchetypeDrinkware } from "../props";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 
 /**
@@ -22,13 +22,13 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 export function archetypeCaptureBreakage(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const bottle: ReturnType<typeof createDrinkware> = createDrinkware({
+  const bottle: ReturnType<typeof AutoMovieArchetypeDrinkware.create> = AutoMovieArchetypeDrinkware.create({
     kind: "beerBottle",
     fill: 0,
   });
   const broken: AutoMovieArchetypeFracture.IPieces<
-    createDrinkware.Affordance,
-    createDrinkware.Dimension
+    AutoMovieArchetypeDrinkware.Affordance,
+    AutoMovieArchetypeDrinkware.Dimension
   > | null = bottle.broken({ energy: 40, momentum: { x: 0.2, y: 0, z: 0 } });
   if (broken === null || broken.fragments.length === 0)
     throw new RangeError(
@@ -39,20 +39,20 @@ export function archetypeCaptureBreakage(): Readonly<
     AutoMovieArchetypeFrame.upright({ x: 0, y: 1.2, z: 0 });
   const fragments: readonly {
     piece: AutoMovieArchetypeFracture.IPiece<
-      createDrinkware.Dimension,
-      createDrinkware.Affordance
+      AutoMovieArchetypeDrinkware.Dimension,
+      AutoMovieArchetypeDrinkware.Affordance
     >;
     flight: Parameters<typeof AutoMovieAir.projectileAt>[0];
   }[] = broken.fragments.map(
     (
       piece: AutoMovieArchetypeFracture.IPiece<
-        createDrinkware.Dimension,
-        createDrinkware.Affordance
+        AutoMovieArchetypeDrinkware.Dimension,
+        AutoMovieArchetypeDrinkware.Affordance
       >,
     ): {
       piece: AutoMovieArchetypeFracture.IPiece<
-        createDrinkware.Dimension,
-        createDrinkware.Affordance
+        AutoMovieArchetypeDrinkware.Dimension,
+        AutoMovieArchetypeDrinkware.Affordance
       >;
       flight: Parameters<typeof AutoMovieAir.projectileAt>[0];
     } => ({

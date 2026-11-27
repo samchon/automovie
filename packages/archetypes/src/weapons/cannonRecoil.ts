@@ -5,7 +5,7 @@ import {
 } from "../core";
 import { ArchetypeTrackTime } from "../core/ArchetypeTrackTime";
 import { FIELD_GUN } from "./FIELD_GUN";
-import type { createCannon } from "./createCannon";
+import type { AutoMovieArchetypeCannon } from "./AutoMovieArchetypeCannon";
 
 /**
  * A field gun's recoil after a shot: its `recoil` slider run back from rest by
@@ -25,9 +25,9 @@ import type { createCannon } from "./createCannon";
  *   non-finite start or sample time, or an unrepresentable recoil interval.
  */
 export function cannonRecoil(
-  gun: AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension>,
+  gun: AutoMovieArchetype<AutoMovieArchetypeCannon.Affordance, AutoMovieArchetypeCannon.Dimension>,
   start: number,
-): AutoMovieArchetypeTrack.ITrack<createCannon.Affordance> {
+): AutoMovieArchetypeTrack.ITrack<AutoMovieArchetypeCannon.Affordance> {
   if (!gun.affordances.some((a: { id: string }): boolean => a.id === "recoil"))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

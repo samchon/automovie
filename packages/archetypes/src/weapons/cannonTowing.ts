@@ -1,7 +1,7 @@
 import type { AutoMovieArchetype } from "../core";
 import type { ArchetypeTowing } from "../core/ArchetypeTowing";
 import { towingAxle } from "../core/towingAxle";
-import type { createCannon } from "./createCannon";
+import type { AutoMovieArchetypeCannon } from "./AutoMovieArchetypeCannon";
 
 /**
  * Declare the field gun's transverse wheel support for limbered towing.
@@ -15,8 +15,8 @@ import type { createCannon } from "./createCannon";
  *   absent.
  */
 export function cannonTowing(
-  gun: AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension>,
-): ArchetypeTowing.Support<createCannon.Affordance> {
+  gun: AutoMovieArchetype<AutoMovieArchetypeCannon.Affordance, AutoMovieArchetypeCannon.Dimension>,
+): ArchetypeTowing.Support<AutoMovieArchetypeCannon.Affordance> {
   if (gun.archetype !== "cannon" || gun.name !== "fieldGun")
     throw new RangeError(
       "Only the actual two-wheel field gun declares this towing support",

@@ -4,7 +4,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import type { createGoal } from "./createGoal";
+import type { AutoMovieArchetypeGoal } from "./AutoMovieArchetypeGoal";
 
 /** Point shorthand in the goal's model frame. */
 const v: typeof Vector3.create = Vector3.create;
@@ -29,10 +29,10 @@ const RING_RODS: number = 16;
  */
 export function buildBasketballHoop(
   builder: AutoMovieArchetypeBuilder<
-    createGoal.Affordance,
-    createGoal.Dimension
+    AutoMovieArchetypeGoal.Affordance,
+    AutoMovieArchetypeGoal.Dimension
   >,
-  d: Partial<Record<createGoal.Dimension, number>>,
+  d: Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>,
 ): void {
   const bottom: number = d.height! - BOARD_BELOW_RING;
   const metal: number = d.bar!;

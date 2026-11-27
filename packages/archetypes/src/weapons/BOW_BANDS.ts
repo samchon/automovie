@@ -5,7 +5,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createBow } from "./createBow";
+import type { AutoMovieArchetypeBow } from "./AutoMovieArchetypeBow";
 
 /** The Mary Rose bow X1-3 and its approximations, read in the bowyers' study. */
 const WARBOW: string =
@@ -50,8 +50,8 @@ const NOCK_BORROWED: string = `borrowed from ${EASTON}, because no nocking heigh
  */
 export const BOW_BANDS: Readonly<
   Record<
-    createBow.Kind,
-    Readonly<Partial<Record<createBow.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeBow.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeBow.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   longbow: {

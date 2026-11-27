@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createViolin as createViolinImplementation } from "./internal/createViolin";
-import { type createInstrument } from "./createInstrument";
+import { type AutoMovieArchetypeInstrument } from "./AutoMovieArchetypeInstrument";
 
 /** Public operations for Auto Movie Archetype Violin. */
 export namespace AutoMovieArchetypeViolin {
@@ -46,7 +46,7 @@ export namespace AutoMovieArchetypeViolin {
 
   /** The identifier and dimension overrides for this instrument. */
   export type IParams = Pick<
-    createInstrument.IParams,
+    AutoMovieArchetypeInstrument.IParams,
     | "id"
     | "bodyLength"
     | "scale"

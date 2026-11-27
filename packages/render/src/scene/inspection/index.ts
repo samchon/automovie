@@ -41,16 +41,13 @@ export * from "./listAutoMovieInspectionPaths.js";
 
 export * from "./measureAutoMovieCameraFrameEdge.js";
 
-export * from "./measureAutoMovieCameraNearClip.js";
 
 export * from "./measureAutoMovieInspectionDefects.js";
 
 export * from "./measureAutoMovieInspectionMeshes.js";
 
 
-export * from "./observeAutoMovieCameraInspection.js";
 export * from "./observeAutoMovieCollisionMotion.js";
-export * from "./observeAutoMoviePlacedCamera.js";
 export * from "./observeAutoMoviePlacedScene.js";
 export * from "./observeAutoMovieSceneCollision.js";
 

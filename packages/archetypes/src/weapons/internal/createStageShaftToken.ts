@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 import { StageTokenConstruction } from "../StageTokenConstruction";
-import { createProjectile } from "../createProjectile";
+import { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
 
 /**
  * Slender shaft stage token.
@@ -52,7 +52,7 @@ export function createStageShaftToken(
         v(0, length, 0),
         {
           color: "#55595f",
-          density: createProjectile.STEEL_OVER_ASH,
+          density: AutoMovieArchetypeProjectile.STEEL_OVER_ASH,
           surface: "steel",
         },
       );
@@ -105,7 +105,7 @@ export function createStageShaftToken(
     });
     return builder.build(d.mass!, {
       rests: "wood",
-      ...createProjectile.flight(kind, model, r),
+      ...AutoMovieArchetypeProjectile.flight(kind, model, r),
     });
   });
 }

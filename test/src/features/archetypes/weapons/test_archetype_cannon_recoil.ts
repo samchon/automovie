@@ -1,10 +1,5 @@
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeRefusal,
-  type AutoMovieArchetypeTrack,
-  createCannon,
-} from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { type AutoMovieArchetype, AutoMovieArchetypeRefusal, type AutoMovieArchetypeTrack, AutoMovieArchetypeCannon } from "@automovie/archetypes";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -44,12 +39,12 @@ export function test_archetype_cannon_recoil(): void {
   const findings: string[] = [];
   for (const seed of [0, 3, 7, 12]) {
     const gun: AutoMovieArchetype<
-      createCannon.Affordance,
-      createCannon.Dimension
-    > = createCannon({ kind: "fieldGun" }, seed);
+      AutoMovieArchetypeCannon.Affordance,
+      AutoMovieArchetypeCannon.Dimension
+    > = AutoMovieArchetypeCannon.create({ kind: "fieldGun" }, seed);
     const run: number = gun.dimensions.recoil!;
-    const track: AutoMovieArchetypeTrack.ITrack<createCannon.Affordance> =
-      createCannon.recoil(gun, 2);
+    const track: AutoMovieArchetypeTrack.ITrack<AutoMovieArchetypeCannon.Affordance> =
+      AutoMovieArchetypeCannon.recoil(gun, 2);
     const speed: number = (6.1 * LB * 1439 * FT) / gun.dimensions.mass!;
     if (!(Math.abs(track.end - track.start - (2 * run) / speed) <= 1e-9))
       findings.push(`@${seed}: the recoil lasts ${track.end - track.start} s`);
@@ -87,10 +82,10 @@ export function test_archetype_cannon_recoil(): void {
         findings.push(`@${seed}: the run goes forward at step ${k}`);
       last = x;
     }
-    const again: AutoMovieArchetypeTrack.ITrack<createCannon.Affordance> =
-      createCannon.recoil(gun, 2);
-    const later: AutoMovieArchetypeTrack.ITrack<createCannon.Affordance> =
-      createCannon.recoil(gun, 5);
+    const again: AutoMovieArchetypeTrack.ITrack<AutoMovieArchetypeCannon.Affordance> =
+      AutoMovieArchetypeCannon.recoil(gun, 2);
+    const later: AutoMovieArchetypeTrack.ITrack<AutoMovieArchetypeCannon.Affordance> =
+      AutoMovieArchetypeCannon.recoil(gun, 5);
     for (const t of [2, 2.5, 3, track.end])
       if (
         again.travel(t) !== track.travel(t) ||
@@ -98,8 +93,8 @@ export function test_archetype_cannon_recoil(): void {
       )
         findings.push(`@${seed}: the track is not the shot second's alone`);
     const back: AutoMovieArchetype<
-      createCannon.Affordance,
-      createCannon.Dimension
+      AutoMovieArchetypeCannon.Affordance,
+      AutoMovieArchetypeCannon.Dimension
     > = gun.articulate({ recoil: track.travel(track.end) });
     for (const part of ["trail", "chase"]) {
       const moved: number =
@@ -108,7 +103,7 @@ export function test_archetype_cannon_recoil(): void {
       if (!(Math.abs(moved - run) <= 1e-6))
         findings.push(`@${seed}: the ${part} runs back ${moved} m, not ${run}`);
     }
-    if (!validateModel({ model: back }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model: back }).success)
       findings.push(`@${seed}: the recoiled pose is refused`);
     for (const seconds of [Number.NaN, Infinity, -Infinity]) {
       let rejected: boolean = false;
@@ -131,7 +126,7 @@ export function test_archetype_cannon_recoil(): void {
     ]) {
       let rejected: boolean = false;
       try {
-        createCannon.recoil(gun, start);
+        AutoMovieArchetypeCannon.recoil(gun, start);
       } catch (error) {
         rejected =
           error instanceof AutoMovieArchetypeRefusal && error.axis === "start";
@@ -144,7 +139,7 @@ export function test_archetype_cannon_recoil(): void {
   }
   let refused: unknown = null;
   try {
-    createCannon.recoil(createCannon({ kind: "navalGun" }, 1), 0);
+    AutoMovieArchetypeCannon.recoil(AutoMovieArchetypeCannon.create({ kind: "navalGun" }, 1), 0);
   } catch (error) {
     refused = error;
   }

@@ -1,5 +1,5 @@
 import type { QuadrupedProportions } from "./QuadrupedProportions";
-import { createHorse } from "./createHorse";
+import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 
 /**
  * Equids' limb and back segments measured on the body's surface, by breed, and
@@ -182,7 +182,7 @@ export namespace EquineSegments {
   export function lengths(
     breed: IBreed,
   ): Readonly<QuadrupedProportions.ILengths> {
-    const horse: Readonly<QuadrupedProportions.ILengths> = createHorse.LENGTHS;
+    const horse: Readonly<QuadrupedProportions.ILengths> = AutoMovieArchetypeHorse.LENGTHS;
     const reference: IBreed = BREEDS.thoroughbred;
     const ratio = (measure: keyof Omit<IBreed, "n" | "withers">): number =>
       breed[measure] / breed.withers / (reference[measure] / reference.withers);

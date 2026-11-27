@@ -1,4 +1,4 @@
-import { createBall, createTool, createVessel, AutoMovieArchetypeWearable } from "@automovie/archetypes";
+import { AutoMovieArchetypeWearable, AutoMovieArchetypeBall, AutoMovieArchetypeTool, AutoMovieArchetypeVessel } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -139,7 +139,7 @@ const throwing = (
 ): motionHumanLawSweep.IScene => {
   const distance: number =
     style === "overarm" ? 6 : style === "underarm" ? 4 : 2.5;
-  const ball: ReturnType<typeof createBall> = createBall({ kind: "handball" });
+  const ball: ReturnType<typeof AutoMovieArchetypeBall.create> = AutoMovieArchetypeBall.create({ kind: "handball" });
   return S.duo(
     a,
     b,
@@ -316,7 +316,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   ): motionHumanLawSweep.IScene => {
     const foot: "left" | "right" = pick("foot") === "left" ? "left" : "right";
     const ankle: IAutoMovieVector3 = a.rest.get(`${foot}Foot`)!;
-    const football: ReturnType<typeof createBall> = createBall({
+    const football: ReturnType<typeof AutoMovieArchetypeBall.create> = AutoMovieArchetypeBall.create({
       kind: "football",
     });
     const radius: number = football.affordance("grip").aperture! / 2;
@@ -348,8 +348,8 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     const props: IAutoMovieMotionHumanProp[] = [
       HumanObject.prop(
         "tool",
-        createTool({
-          kind: tool === "stir" ? "spoon" : (tool as createTool.Kind),
+        AutoMovieArchetypeTool.create({
+          kind: tool === "stir" ? "spoon" : (tool as AutoMovieArchetypeTool.Kind),
         }),
         {
           position: {
@@ -364,7 +364,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     ];
     if (tool === "stir")
       props.push(
-        HumanObject.prop("pot", createVessel({ kind: "saucepan" }), {
+        HumanObject.prop("pot", AutoMovieArchetypeVessel.create({ kind: "saucepan" }), {
           at: { x: 0, y: bench, z: 0.4 },
           yaw: 0,
         }),

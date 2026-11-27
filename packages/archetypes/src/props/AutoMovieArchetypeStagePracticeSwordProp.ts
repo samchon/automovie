@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStagePracticeSwordProp as createStagePracticeSwordPropImplementation } from "./internal/createStagePracticeSwordProp";
 import { StageBladeConstruction } from "./StageBladeConstruction";
-import { type createStageBladeProp } from "./createStageBladeProp";
+import { type AutoMovieArchetypeStageBladeProp } from "./AutoMovieArchetypeStageBladeProp";
 
 /** Public operations for Auto Movie Archetype Stage Practice Sword Prop. */
 export namespace AutoMovieArchetypeStagePracticeSwordProp {
@@ -43,4 +43,4 @@ export namespace AutoMovieArchetypeStagePracticeSwordProp {
   export const EDGE: StageBladeConstruction.Span = [0.77, 1];
 
   /** The model identity, dimensions. */
-  export type IParams = Pick<createStageBladeProp.IParams, "id" | "length">;}
+  export type IParams = Pick<AutoMovieArchetypeStageBladeProp.IParams, "id" | "length">;}

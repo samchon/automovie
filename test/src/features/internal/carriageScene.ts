@@ -1,4 +1,4 @@
-import { createBag, AutoMovieArchetypeBowl, AutoMovieArchetypeServingTray } from "@automovie/archetypes";
+import { AutoMovieArchetypeBowl, AutoMovieArchetypeServingTray, AutoMovieArchetypeBag } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -121,11 +121,11 @@ export namespace carriageScene {
    * @returns The props and their places.
    */
   export function arrival(body: IAutoMovieMotionHumanBody): IArrival {
-    const pack: everydayTake.IPosable = createBag({
+    const pack: everydayTake.IPosable = AutoMovieArchetypeBag.create({
       id: "pack",
       kind: "backpack",
     });
-    const suitcase: everydayTake.IPosable = createBag({
+    const suitcase: everydayTake.IPosable = AutoMovieArchetypeBag.create({
       id: "case",
       kind: "suitcase",
     });

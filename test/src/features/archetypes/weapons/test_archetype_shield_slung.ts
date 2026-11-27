@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeFrame, AutoMovieArchetypeShield } from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -66,7 +66,7 @@ export function test_archetype_shield_slung(): void {
       findings.push(
         `${label}: slung faces ${JSON.stringify(slung.frame.rotation)}`,
       );
-    if (!validateModel({ model: shield }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model: shield }).success)
       findings.push(`${label}: not admitted`);
     for (const id of ["grip", "face", "boss", "rim"] as const)
       if (!shield.affordances.some((a: { id: string }): boolean => a.id === id))

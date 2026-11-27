@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
-import type { createCareItem } from "./createCareItem";
+import type { AutoMovieArchetypeCareItem } from "./AutoMovieArchetypeCareItem";
 
 /** A provisional mass band in kilograms. */
 const kg = (minimum: number, maximum: number): IAutoMovieArchetypeBand =>
@@ -35,7 +35,7 @@ const LIPSTICK: string =
  * sources they are read at: kept apart from the producer so each file stays
  * within its size.
  */
-export const CARE_ITEM_BANDS: typeof createCareItem.BANDS = {
+export const CARE_ITEM_BANDS: typeof AutoMovieArchetypeCareItem.BANDS = {
   tissue: {
     length: AutoMovieArchetypeBand.metres(0.198, 0.21, TISSUE, true),
     width: AutoMovieArchetypeBand.metres(0.203, 0.213, TISSUE, true),

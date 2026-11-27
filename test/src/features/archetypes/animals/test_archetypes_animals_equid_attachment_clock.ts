@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, type AutoMovieArchetypeEquine, createHorse, createQuadruped, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey } from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, type AutoMovieArchetypeEquine, createQuadruped, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -11,7 +11,7 @@ type Tack = Extract<AutoMovieArchetypeEquine.Tack, "saddle" | "harness" | "both"
 interface ICase {
   name: string;
   height: number;
-  model(tack: Tack): ReturnType<typeof createHorse>;
+  model(tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create>;
 }
 
 /** Closed-form equine timing comparisons involve at most two conversions and a ratio. */
@@ -32,13 +32,13 @@ const CLOCK_ROUNDOFF: number = 32 * Number.EPSILON;
  */
 export function test_archetypes_animals_equid_attachment_clock(): void {
   const cases: readonly ICase[] = [
-    { name: "horse", height: 1.615, model: (tack: Tack): ReturnType<typeof createHorse> =>
-      createHorse({ withersHeight: 1.615, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
-    { name: "donkey", height: 1.1262, model: (tack: Tack): ReturnType<typeof createHorse> =>
+    { name: "horse", height: 1.615, model: (tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
+      AutoMovieArchetypeHorse.create({ withersHeight: 1.615, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
+    { name: "donkey", height: 1.1262, model: (tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
       AutoMovieArchetypeDonkey.create({ withersHeight: 1.1262, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
-    { name: "Connemara pony", height: 1.46, model: (tack: Tack): ReturnType<typeof createHorse> =>
+    { name: "Connemara pony", height: 1.46, model: (tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
       AutoMovieArchetypePony.create({ breed: "connemara", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
-    { name: "female mule", height: 1.304, model: (tack: Tack): ReturnType<typeof createHorse> =>
+    { name: "female mule", height: 1.304, model: (tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
       AutoMovieArchetypeMule.create({ sex: "female", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
   ];
   const saddle: readonly string[] = ["seat", "pommel", "cantle", "leftStirrup", "rightStirrup",

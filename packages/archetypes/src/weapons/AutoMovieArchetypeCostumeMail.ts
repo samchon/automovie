@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createCostumeMail as createCostumeMailImplementation } from "./internal/createCostumeMail";
-import { type createArmour } from "./createArmour";
+import { type AutoMovieArchetypeArmour } from "./AutoMovieArchetypeArmour";
 
 /** Public operations for Auto Movie Archetype Costume Mail. */
 export namespace AutoMovieArchetypeCostumeMail {
@@ -41,7 +41,7 @@ export namespace AutoMovieArchetypeCostumeMail {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createArmour.IParams,
+    AutoMovieArchetypeArmour.IParams,
     "id" | "measure"
   > {
     /** A model from this form's catalogue. */

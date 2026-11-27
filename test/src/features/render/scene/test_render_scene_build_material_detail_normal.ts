@@ -1,4 +1,4 @@
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieTextureBinding,
   IAutoMovieMaterial,
@@ -109,10 +109,10 @@ export function test_render_scene_build_material_detail_normal(): void {
   const model: ReturnType<typeof createModel> = createModel();
   const validate: (
     patch: Partial<IAutoMovieMaterial>,
-  ) => ReturnType<typeof validateModel> = (
+  ) => ReturnType<typeof AutoMovieEngineValidation.validateModel> = (
     patch: Partial<IAutoMovieMaterial>,
-  ): ReturnType<typeof validateModel> =>
-    validateModel({
+  ): ReturnType<typeof AutoMovieEngineValidation.validateModel> =>
+    AutoMovieEngineValidation.validateModel({
       model: {
         ...model,
         materials: [{ ...model.materials[0]!, ...patch } as IAutoMovieMaterial],

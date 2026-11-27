@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createInfusionStand as createInfusionStandImplementation } from "./internal/createInfusionStand";
-import { type createMobilityAid } from "./createMobilityAid";
+import { type AutoMovieArchetypeMobilityAid } from "./AutoMovieArchetypeMobilityAid";
 
 /** Public operations for Auto Movie Archetype Infusion Stand. */
 export namespace AutoMovieArchetypeInfusionStand {
@@ -32,6 +32,6 @@ export namespace AutoMovieArchetypeInfusionStand {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createMobilityAid.IParams,
+    AutoMovieArchetypeMobilityAid.IParams,
     "id" | "height" | "diameter" | "width" | "mass"
   >;}

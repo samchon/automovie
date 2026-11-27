@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { createCarriage } from "./cart/createCarriage";
 
 /** Canonical producer and authoring contract for Carriage. */
@@ -49,11 +49,11 @@ export namespace AutoMovieArchetypeCarriage {
    * frontRightSpin, leftAperture, leftDoor, rearLeftSpin, rearRightSpin,
    * rightAperture, rightDoor, seat.
    */
-  export type Affordance = createCart.Affordance;
+  export type Affordance = AutoMovieArchetypeCart.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createCart.IParams,
+    AutoMovieArchetypeCart.IParams,
     "id" | "wheelbase" | "mass"
   > {
     /** A model from this form's catalogue. */

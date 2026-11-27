@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Matrix4, sampleMotion, stageScene, AutoMovieEngineMotionClip, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, sampleMotion, AutoMovieEngineMotionClip, AutoMovieEngineResolve, AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,7 +24,7 @@ import { qclose, vclose } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Describes agreement and its duration boundary.
  */
 export function test_resolve_motion_clip_frames(): void {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged = AutoMovieEngineFilm.stageScene(makeScriptWrite(), makeStagingWrite());
   if (!staged.success) throw new Error("stage admission failed");
   const skeleton = createSkeleton(),
     model = createModel(skeleton);

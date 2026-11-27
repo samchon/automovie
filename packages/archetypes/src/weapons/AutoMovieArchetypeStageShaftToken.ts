@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageShaftToken as createStageShaftTokenImplementation } from "./internal/createStageShaftToken";
-import { createProjectile } from "./createProjectile";
+import { AutoMovieArchetypeProjectile } from "./AutoMovieArchetypeProjectile";
 
 /** Public operations for Auto Movie Archetype Stage Shaft Token. */
 export namespace AutoMovieArchetypeStageShaftToken {
@@ -37,7 +37,7 @@ export namespace AutoMovieArchetypeStageShaftToken {
    * The createProjectile contact set its shared construction types. This
    * producer builds nock, nockGrip, shaft, tip.
    */
-  export type Affordance = createProjectile.Affordance;
+  export type Affordance = AutoMovieArchetypeProjectile.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["arrow", "bolt"] as const;
@@ -47,7 +47,7 @@ export namespace AutoMovieArchetypeStageShaftToken {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createProjectile.IParams,
+    AutoMovieArchetypeProjectile.IParams,
     "id" | "length" | "diameter"
   > {
     /** The profile with the required outline. */

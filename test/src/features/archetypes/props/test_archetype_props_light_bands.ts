@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeUnits,
-  createLight,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeUnits, AutoMovieArchetypeLight } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -43,7 +39,7 @@ export function test_archetype_props_light_bands(): void {
       0.26,
       "IKEA VINTERFINT and KLOKHET tapers",
       (seed: number): number =>
-        archetypeExtent(createLight({ kind: "candle" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeLight.create({ kind: "candle" }, seed), "y").size,
     ),
     row(
       "torch length",
@@ -51,7 +47,7 @@ export function test_archetype_props_light_bands(): void {
       24 * AutoMovieArchetypeUnits.INCH,
       "fire-performance torches, 16 to 24 in",
       (seed: number): number =>
-        archetypeExtent(createLight({ kind: "fireTorch" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeLight.create({ kind: "fireTorch" }, seed), "y").size,
     ),
     row(
       "torch shaft",
@@ -59,7 +55,7 @@ export function test_archetype_props_light_bands(): void {
       0.04,
       "Kong and Lowe 2005",
       (seed: number): number =>
-        createLight({ kind: "fireTorch" }, seed).affordance("grip").aperture!,
+        AutoMovieArchetypeLight.create({ kind: "fireTorch" }, seed).affordance("grip").aperture!,
     ),
     row(
       "torch mass",
@@ -67,7 +63,7 @@ export function test_archetype_props_light_bands(): void {
       0.265,
       "fire-performance torches",
       (seed: number): number =>
-        createLight({ kind: "fireTorch" }, seed).body.mass,
+        AutoMovieArchetypeLight.create({ kind: "fireTorch" }, seed).body.mass,
     ),
     row(
       "pendant drop",
@@ -77,7 +73,7 @@ export function test_archetype_props_light_bands(): void {
         (11 + 11) * AutoMovieArchetypeUnits.INCH,
       "IKEA SKURUP, cord and shade",
       (seed: number): number =>
-        -archetypeExtent(createLight({ kind: "pendant" }, seed), "y").low,
+        -archetypeExtent(AutoMovieArchetypeLight.create({ kind: "pendant" }, seed), "y").low,
     ),
     row(
       "pendant shade",
@@ -85,7 +81,7 @@ export function test_archetype_props_light_bands(): void {
       15 * AutoMovieArchetypeUnits.INCH,
       "IKEA SKURUP",
       (seed: number): number =>
-        archetypeExtent(createLight({ kind: "pendant" }, seed), "x", ["shade"])
+        archetypeExtent(AutoMovieArchetypeLight.create({ kind: "pendant" }, seed), "x", ["shade"])
           .size,
     ),
     ...(
@@ -102,8 +98,8 @@ export function test_archetype_props_light_bands(): void {
         height,
         mass,
       ]): archetypeBandSweep.IRow[] => {
-        const lamp = (seed: number): ReturnType<typeof createLight> =>
-          createLight({ kind }, seed);
+        const lamp = (seed: number): ReturnType<typeof AutoMovieArchetypeLight.create> =>
+          AutoMovieArchetypeLight.create({ kind }, seed);
         const source: string = `IKEA RINGSTA/SKAFTET ${kind}`;
         return [
           row(
@@ -170,7 +166,7 @@ export function test_archetype_props_light_bands(): void {
           LANTERN,
           (seed: number): number =>
             archetypeExtent(
-              createLight({ kind: "lantern" }, seed),
+              AutoMovieArchetypeLight.create({ kind: "lantern" }, seed),
               axis,
               parts === undefined ? undefined : [...parts],
             )[end],
@@ -182,13 +178,13 @@ export function test_archetype_props_light_bands(): void {
       2 * AutoMovieArchetypeUnits.POUND,
       LANTERN,
       (seed: number): number =>
-        createLight({ kind: "lantern" }, seed).body.mass,
+        AutoMovieArchetypeLight.create({ kind: "lantern" }, seed).body.mass,
     ),
   ]);
   for (const seed of [0, 1, 2]) {
     // 2. A flame on top of the taper or the head.
     for (const kind of ["candle", "fireTorch"] as const) {
-      const light: ReturnType<typeof createLight> = createLight({ kind }, seed);
+      const light: ReturnType<typeof AutoMovieArchetypeLight.create> = AutoMovieArchetypeLight.create({ kind }, seed);
       const flame: ReturnType<typeof light.affordance> =
         light.affordance("light");
       if (
@@ -200,7 +196,7 @@ export function test_archetype_props_light_bands(): void {
     }
 
     // 3. The pendant's beam down from its shade, its hook atop its cord.
-    const pendant: ReturnType<typeof createLight> = createLight(
+    const pendant: ReturnType<typeof AutoMovieArchetypeLight.create> = AutoMovieArchetypeLight.create(
       { kind: "pendant" },
       seed,
     );
@@ -223,7 +219,7 @@ export function test_archetype_props_light_bands(): void {
       ["tableLamp", 0.3],
       ["floorLamp", 1.3],
     ] as const) {
-      const lamp: ReturnType<typeof createLight> = createLight({ kind }, seed);
+      const lamp: ReturnType<typeof AutoMovieArchetypeLight.create> = AutoMovieArchetypeLight.create({ kind }, seed);
       const bulb: ReturnType<typeof lamp.affordance> = lamp.affordance("light");
       const shade: ReturnType<typeof archetypeExtent> = archetypeExtent(
         lamp,
@@ -242,7 +238,7 @@ export function test_archetype_props_light_bands(): void {
     }
 
     // 5. A lantern's flame at its globe's foot, hung and carried by its bail's top.
-    const lantern: ReturnType<typeof createLight> = createLight(
+    const lantern: ReturnType<typeof AutoMovieArchetypeLight.create> = AutoMovieArchetypeLight.create(
       { kind: "lantern" },
       seed,
     );

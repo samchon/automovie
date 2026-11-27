@@ -51,7 +51,8 @@ export function WorkoutPlace(
       axis: "on",
       value: null,
       reason: "a hanging exercise hangs from a bar, and it names none",
-      fix: 'name the bar it hangs from in on, { prop, affordance: "bar" }, as createPullUpBar declares it',
+      fix:
+        'name the bar it hangs from in on, { prop, affordance: "bar" }, as AutoMovieArchetypePullUpBar.create declares it',
     });
   };
   const body: IAutoMovieMotionHumanBody = context.body;

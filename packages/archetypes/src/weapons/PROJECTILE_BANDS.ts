@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { AutoMovieArchetypeRock } from "../nature/AutoMovieArchetypeRock";
-import type { createProjectile } from "./createProjectile";
+import type { AutoMovieArchetypeProjectile } from "./AutoMovieArchetypeProjectile";
 
 /** The British service musket ball, seen only in search results. */
 const BALL: string =
@@ -44,9 +44,9 @@ const STONE: string =
  */
 export const PROJECTILE_BANDS: Readonly<
   Record<
-    createProjectile.Kind,
+    AutoMovieArchetypeProjectile.Kind,
     Readonly<
-      Partial<Record<createProjectile.Dimension, IAutoMovieArchetypeBand>>
+      Partial<Record<AutoMovieArchetypeProjectile.Dimension, IAutoMovieArchetypeBand>>
     >
   >
 > = {

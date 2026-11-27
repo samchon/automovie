@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, AutoMovieArchetypeQuadrupedLocomotion, createOx, createQuadruped, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer } from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, AutoMovieArchetypeQuadrupedLocomotion, createQuadruped, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer, AutoMovieArchetypeOx } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -38,7 +38,7 @@ export function test_archetypes_animals_reference_attachment_clock(): void {
     leadLength: 0.6,
     leadRadius: 0.004,
   };
-  const ox: Animal = createOx({ mass: 300, tempo: 0, lead }, 73);
+  const ox: Animal = AutoMovieArchetypeOx.create({ mass: 300, tempo: 0, lead }, 73);
   const camel: Animal = AutoMovieArchetypeCamel.create({ mass: 450, tempo: 0, lead }, 73);
   const deer: Animal = AutoMovieArchetypeDeer.create({ mass: 70, tempo: 0, lead }, 73);
   const deerTable: Gait.ITable =

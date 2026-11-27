@@ -1,4 +1,4 @@
-import { measureAutoMovieCameraNearClip } from "@automovie/render";
+import { AutoMovieRenderInspectionCamera } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -32,14 +32,14 @@ export function test_render_scene_measure_camera_near_clip(): void {
   };
   TestValidator.equals(
     "clear",
-    measureAutoMovieCameraNearClip({
+    AutoMovieRenderInspectionCamera.measureNearClip({
       camera: camera(5),
       meshes: [cube],
       triangleBudget: 1000,
     }).status,
     "clear",
   );
-  const clipped = measureAutoMovieCameraNearClip({
+  const clipped = AutoMovieRenderInspectionCamera.measureNearClip({
     camera: camera(0.55),
     meshes: [cube],
     triangleBudget: 1000,
@@ -52,7 +52,7 @@ export function test_render_scene_measure_camera_near_clip(): void {
   );
   TestValidator.equals(
     "over budget",
-    measureAutoMovieCameraNearClip({
+    AutoMovieRenderInspectionCamera.measureNearClip({
       camera: camera(0.55),
       meshes: [cube],
       triangleBudget: 0,
@@ -61,7 +61,7 @@ export function test_render_scene_measure_camera_near_clip(): void {
   );
   TestValidator.equals(
     "negative budget",
-    measureAutoMovieCameraNearClip({
+    AutoMovieRenderInspectionCamera.measureNearClip({
       camera: camera(5),
       meshes: [cube],
       triangleBudget: -1,
@@ -70,7 +70,7 @@ export function test_render_scene_measure_camera_near_clip(): void {
   );
   TestValidator.equals(
     "refused subject",
-    measureAutoMovieCameraNearClip({
+    AutoMovieRenderInspectionCamera.measureNearClip({
       camera: camera(5),
       meshes: undefined,
       triangleBudget: 1000,

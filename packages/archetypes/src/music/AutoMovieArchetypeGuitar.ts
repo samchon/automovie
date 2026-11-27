@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createGuitar as createGuitarImplementation } from "./internal/createGuitar";
-import { type createInstrument } from "./createInstrument";
+import { type AutoMovieArchetypeInstrument } from "./AutoMovieArchetypeInstrument";
 
 /** Public operations for Auto Movie Archetype Guitar. */
 export namespace AutoMovieArchetypeGuitar {
@@ -45,7 +45,7 @@ export namespace AutoMovieArchetypeGuitar {
 
   /** The identifier and dimension overrides for this instrument. */
   export type IParams = Pick<
-    createInstrument.IParams,
+    AutoMovieArchetypeInstrument.IParams,
     | "id"
     | "scale"
     | "nut"

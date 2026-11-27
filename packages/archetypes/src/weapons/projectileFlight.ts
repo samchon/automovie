@@ -1,4 +1,4 @@
-import { createProjectile } from "./createProjectile";
+import { AutoMovieArchetypeProjectile } from "./AutoMovieArchetypeProjectile";
 
 /**
  * A projectile's flight data for its body, which `createProjectile.flight`
@@ -13,15 +13,15 @@ import { createProjectile } from "./createProjectile";
  * @returns The body's flight data, for `AutoMovieArchetypeBuilder.build`.
  */
 export function projectileFlight(
-  kind: Exclude<createProjectile.Kind, "cartridge">,
-  model: createProjectile.Model | undefined,
+  kind: Exclude<AutoMovieArchetypeProjectile.Kind, "cartridge">,
+  model: AutoMovieArchetypeProjectile.Model | undefined,
   radius: number,
 ): {
   drag?: { coefficient: number; area: number };
   restitution?: number;
   outcome?: { embed?: number };
 } {
-  const flight: typeof createProjectile.FLIGHT = createProjectile.FLIGHT;
+  const flight: typeof AutoMovieArchetypeProjectile.FLIGHT = AutoMovieArchetypeProjectile.FLIGHT;
   const area: number = Math.PI * radius * radius;
   const embed: number | undefined =
     kind === "ball"
@@ -40,7 +40,7 @@ export function projectileFlight(
             area,
           },
         }),
-    ...(createProjectile.OUTCOME[kind] === "stick"
+    ...(AutoMovieArchetypeProjectile.OUTCOME[kind] === "stick"
       ? {}
       : { restitution: flight.ground }),
     ...(embed === undefined ? {} : { outcome: { embed } }),

@@ -5,7 +5,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import type { createCannon } from "./createCannon";
+import type { AutoMovieArchetypeCannon } from "./AutoMovieArchetypeCannon";
 
 /**
  * The launch of a shot from a gun at an articulation state: from the muzzle's
@@ -22,9 +22,9 @@ import type { createCannon } from "./createCannon";
  *   invalid numeric launch data, or a shot that does not fit a declared bore.
  */
 export function cannonLaunch(
-  gun: AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension>,
-  state: Readonly<Partial<Record<createCannon.Affordance, number>>> = {},
-): createCannon.ILaunch {
+  gun: AutoMovieArchetype<AutoMovieArchetypeCannon.Affordance, AutoMovieArchetypeCannon.Dimension>,
+  state: Readonly<Partial<Record<AutoMovieArchetypeCannon.Affordance, number>>> = {},
+): AutoMovieArchetypeCannon.ILaunch {
   const speed: number | undefined = gun.dimensions.muzzleVelocity;
   if (speed === undefined)
     throw new AutoMovieArchetypeRefusal({
@@ -70,8 +70,8 @@ export function cannonLaunch(
       fix: "use a shot and bore with their recorded positive windage",
     });
   const posed: AutoMovieArchetype<
-    createCannon.Affordance,
-    createCannon.Dimension
+    AutoMovieArchetypeCannon.Affordance,
+    AutoMovieArchetypeCannon.Dimension
   > = Object.keys(state).length === 0 ? gun : gun.articulate(state);
   const muzzle: IAutoMovieTransform = posed.affordance("muzzle").frame;
   return {

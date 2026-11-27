@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeFrame, createHolster } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeHolster } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -22,11 +22,11 @@ export function test_archetype_weapon_holster_unchanged(): void {
   const findings: string[] = [];
   for (const seed of [undefined, 7])
     if (
-      JSON.stringify(createHolster({}, seed)) !==
-      JSON.stringify(createHolster({ kind: "holster" }, seed))
+      JSON.stringify(AutoMovieArchetypeHolster.create({}, seed)) !==
+      JSON.stringify(AutoMovieArchetypeHolster.create({ kind: "holster" }, seed))
     )
       findings.push(`seed ${String(seed)}: the default is not the holster`);
-  const holster: ReturnType<typeof createHolster> = createHolster();
+  const holster: ReturnType<typeof AutoMovieArchetypeHolster.create> = AutoMovieArchetypeHolster.create();
   const belt: ReturnType<typeof holster.affordance> =
     holster.affordance("belt");
   if (Math.abs(holster.affordance("socket").frame.translation.y) > 1e-12)

@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeDensity,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import type { createArmour } from "./createArmour";
+import type { AutoMovieArchetypeArmour } from "./AutoMovieArchetypeArmour";
 
 /** Named envelopes and fitting boundaries shared by every armour wall. */
 export namespace ArmourProfile {
@@ -47,9 +47,9 @@ export namespace ArmourProfile {
   /** Source record, admitted fitting boundary and coarse wall dimensions. */
   export interface IProfile {
     /** Public kind and selected original museum record. */
-    kind: createArmour.Kind;
+    kind: AutoMovieArchetypeArmour.Kind;
     /** Selected original museum record, including its partial-artifact scope. */
-    model: createArmour.Model;
+    model: AutoMovieArchetypeArmour.Model;
     /** Whether an admitted body boundary was supplied. */
     fitted: boolean;
     /**
@@ -86,9 +86,9 @@ export namespace ArmourProfile {
    * dimensions.
    */
   export function create(
-    kind: createArmour.Kind,
-    model: createArmour.Model,
-    dimensions: Readonly<Partial<Record<createArmour.Dimension, number>>>,
+    kind: AutoMovieArchetypeArmour.Kind,
+    model: AutoMovieArchetypeArmour.Model,
+    dimensions: Readonly<Partial<Record<AutoMovieArchetypeArmour.Dimension, number>>>,
     measure?: Partial<IAutoMovieBodyMeasure>,
   ): IProfile {
     const record: IAutoMovieVector3 = {
@@ -199,7 +199,7 @@ export namespace ArmourProfile {
   }
 
   /** Geometrically impossible data remains an actionable producer refusal. */
-  function refuse(kind: createArmour.Kind, reason: string): never {
+  function refuse(kind: AutoMovieArchetypeArmour.Kind, reason: string): never {
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "armour",

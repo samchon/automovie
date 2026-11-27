@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createPracticeBaton as createPracticeBatonImplementation } from "./internal/createPracticeBaton";
-import { type createClub } from "./createClub";
+import { type AutoMovieArchetypeClub } from "./AutoMovieArchetypeClub";
 
 /** Public operations for Auto Movie Archetype Practice Baton. */
 export namespace AutoMovieArchetypePracticeBaton {
@@ -42,7 +42,7 @@ export namespace AutoMovieArchetypePracticeBaton {
 
   /** The identifier, recorded model choice and adjustable dimensions. */
   export interface IParams extends Pick<
-    createClub.IParams,
+    AutoMovieArchetypeClub.IParams,
     "id" | "diameter" | "mass"
   > {
     /**

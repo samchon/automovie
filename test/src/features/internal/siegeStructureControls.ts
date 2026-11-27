@@ -1,4 +1,4 @@
-import type { createSiegeEngine } from "@automovie/archetypes";
+import type { AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -10,7 +10,7 @@ import { archetypeSpanObservation } from "./archetypeSpanObservation";
 import { nclose } from "./nclose";
 
 /** The actual public launcher and its current real controls. */
-type Engine = ReturnType<typeof createSiegeEngine>;
+type Engine = ReturnType<typeof AutoMovieArchetypeSiegeEngine.create>;
 
 /**
  * Observe the actual pin/drawbar, fixed trestle and cross-post windlass.

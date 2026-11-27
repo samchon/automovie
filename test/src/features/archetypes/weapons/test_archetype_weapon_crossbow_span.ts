@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeRefusal,
-  AutoMovieArchetypeUnits,
-  createBow,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits, AutoMovieArchetypeBow } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,7 +21,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_weapon_crossbow_span(): void {
   const findings: string[] = [];
-  const bow: ReturnType<typeof createBow> = createBow({ kind: "crossbow" });
+  const bow: ReturnType<typeof AutoMovieArchetypeBow.create> = AutoMovieArchetypeBow.create({ kind: "crossbow" });
   const full: number = 30 * 360;
   const ratio: number = (5.5 * AutoMovieArchetypeUnits.INCH) / full;
   const braced: IAutoMovieVector3 = bow.affordance("nock").frame.translation;
@@ -41,7 +37,7 @@ export function test_archetype_weapon_crossbow_span(): void {
   };
   for (let k: number = 0; k <= 10; ++k) {
     const turned: number = (k / 10) * full;
-    const spanned: ReturnType<typeof createBow> = bow.articulate({
+    const spanned: ReturnType<typeof AutoMovieArchetypeBow.create> = bow.articulate({
       crank: turned,
     });
     const travel: number = spanned.travel("string");
@@ -89,13 +85,13 @@ export function test_archetype_weapon_crossbow_span(): void {
     "string-lower": distance(bow.span("string-lower").from, braced),
   };
   for (let k: number = 0; k <= 30; ++k) {
-    const spanned: ReturnType<typeof createBow> = bow.articulate({
+    const spanned: ReturnType<typeof AutoMovieArchetypeBow.create> = bow.articulate({
       crank: (k / 30) * full,
     });
     for (const half of ["string-upper", "string-lower"] as const) {
       const line: ReturnType<typeof spanned.span> = spanned.span(half);
       const stretch: number = distance(line.from, line.to) - braceLength[half]!;
-      if (!(Math.abs(stretch) <= createBow.STRING))
+      if (!(Math.abs(stretch) <= AutoMovieArchetypeBow.STRING))
         findings.push(`at ${k} turns ${half} stretches ${stretch} m`);
     }
   }

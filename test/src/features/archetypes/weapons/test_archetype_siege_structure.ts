@@ -1,8 +1,5 @@
-import {
-  AutoMovieArchetypeRefusal,
-  createSiegeEngine,
-} from "@automovie/archetypes";
-import { Quaternion, Vector3, validateModel } from "@automovie/engine";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
+import { Quaternion, Vector3, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -17,7 +14,7 @@ import { siegeStructureFloor } from "../../internal/siegeStructureFloor";
 import { siegeStructureMass } from "../../internal/siegeStructureMass";
 
 /** Actual public lever-arm source and posed output. */
-type Engine = ReturnType<typeof createSiegeEngine>;
+type Engine = ReturnType<typeof AutoMovieArchetypeSiegeEngine.create>;
 
 /**
  * Actual siege fittings remain joined to their declared controls through a
@@ -61,7 +58,7 @@ export function test_archetype_siege_structure(): void {
     for (const seed of [0, 3, 7, 12]) {
       const label: string = `${kind}/${seed}`;
       try {
-        const engine: Engine = createSiegeEngine({ kind }, seed);
+        const engine: Engine = AutoMovieArchetypeSiegeEngine.create({ kind }, seed);
         const original: string = JSON.stringify(engine);
         const d: Engine["dimensions"] = engine.dimensions;
         const long: number =
@@ -102,7 +99,7 @@ export function test_archetype_siege_structure(): void {
           snapshots.set(angle, JSON.stringify(posed));
           truth(
             `${label}/${angle} complete model admitted`,
-            validateModel({ model: posed }).success,
+            AutoMovieEngineValidation.validateModel({ model: posed }).success,
           );
           const radians: number = (angle * Math.PI) / 180;
           const pivot: IAutoMovieVector3 = { x: 0, y: height, z: 0 };
@@ -307,7 +304,7 @@ export function test_archetype_siege_structure(): void {
             JSON.stringify(engine.articulate({ arm: angle })) ===
               snapshots.get(angle),
           );
-        const shot: createSiegeEngine.IThrow = createSiegeEngine.throwAt(
+        const shot: AutoMovieArchetypeSiegeEngine.IThrow = AutoMovieArchetypeSiegeEngine.throwAt(
           engine,
           0.5,
         );

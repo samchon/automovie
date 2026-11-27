@@ -4,12 +4,12 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import type { createInstrument } from "./createInstrument";
+import type { AutoMovieArchetypeInstrument } from "./AutoMovieArchetypeInstrument";
 
 /** The upright piano builder that owns the cabinet and its pedal. */
 type Builder = AutoMovieArchetypeBuilder<
-  createInstrument.Affordance,
-  createInstrument.Dimension
+  AutoMovieArchetypeInstrument.Affordance,
+  AutoMovieArchetypeInstrument.Dimension
 >;
 
 /**

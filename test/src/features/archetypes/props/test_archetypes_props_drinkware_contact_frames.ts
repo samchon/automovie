@@ -1,4 +1,4 @@
-import { createDrinkware } from "@automovie/archetypes";
+import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
 import { physicalShapePairDistance } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -74,7 +74,7 @@ export function test_archetypes_props_drinkware_contact_frames(): void {
     };
     const bar: ISpan = span(0.008, 0.016);
     for (let seed: number = 0; seed < 200; ++seed) {
-      const vessel: ReturnType<typeof createDrinkware> = createDrinkware(
+      const vessel: ReturnType<typeof AutoMovieArchetypeDrinkware.create> = AutoMovieArchetypeDrinkware.create(
         { kind },
         seed,
       );

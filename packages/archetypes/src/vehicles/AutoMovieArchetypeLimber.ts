@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { createLimber } from "./cart/createLimber";
 
 /** Canonical producer and authoring contract for Limber. */
@@ -42,11 +42,11 @@ export namespace AutoMovieArchetypeLimber {
    * The createCart contact set its shared construction types. This producer
    * builds chest, coupling, leftSpin, pintle, rightSpin, seat.
    */
-  export type Affordance = createCart.Affordance;
+  export type Affordance = AutoMovieArchetypeCart.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<
-    createCart.IParams,
+    AutoMovieArchetypeCart.IParams,
     "id" | "wheelDiameter" | "track" | "length" | "poleLength" | "mass"
   >;
 }

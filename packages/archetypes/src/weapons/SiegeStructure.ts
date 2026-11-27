@@ -7,7 +7,7 @@ import {
 } from "../core";
 import type { SiegeArm } from "./SiegeArm";
 import { SiegeClearance } from "./SiegeClearance";
-import type { createSiegeEngine } from "./createSiegeEngine";
+import type { AutoMovieArchetypeSiegeEngine } from "./AutoMovieArchetypeSiegeEngine";
 
 /**
  * Coarse fittings of the existing tip-carried lever-arm launcher.
@@ -80,7 +80,7 @@ export namespace SiegeStructure {
    * @returns Admitted moving radius, metres.
    */
   export function radius(
-    d: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>>,
     e: typeof SiegeArm.ESTIMATES,
   ): number {
     const height: number = d.axleHeight!;
@@ -135,10 +135,10 @@ export namespace SiegeStructure {
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
-      createSiegeEngine.Affordance,
-      createSiegeEngine.Dimension
+      AutoMovieArchetypeSiegeEngine.Affordance,
+      AutoMovieArchetypeSiegeEngine.Dimension
     >,
-    d: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>>,
     e: typeof SiegeArm.ESTIMATES,
     counterweight: boolean,
     armRadius: number,

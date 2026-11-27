@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../../core/index";
-import { createLongGun } from "../createLongGun";
+import { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 
 /**
  * The bayonet's unread proportions, metres: provisional estimates for a Land
@@ -54,7 +54,7 @@ export function createStageBayonet(
   const { gun, id = "stageBayonet" }: AutoMovieArchetypeStageBayonet.IParams = params;
   if (
     gun.archetype !== "longGun" ||
-    gun.name !== createLongGun.NAMES.musket ||
+    gun.name !== AutoMovieArchetypeLongGun.NAMES.musket ||
     id === gun.id
   )
     throw refuse(gun.id);

@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import type { createArmour } from "./createArmour";
+import type { AutoMovieArchetypeArmour } from "./AutoMovieArchetypeArmour";
 
 /**
  * The bone a piece of armour rides, which `createArmour.bone` gives: a helmet
@@ -13,7 +13,7 @@ import type { createArmour } from "./createArmour";
  * @returns The bone.
  */
 export function armourBone(
-  kind: createArmour.Kind,
+  kind: AutoMovieArchetypeArmour.Kind,
   side: "left" | "right" = "left",
 ): AutoMovieHumanoidBone {
   if (

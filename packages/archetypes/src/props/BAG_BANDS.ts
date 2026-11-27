@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createBag } from "./createBag";
+import type { AutoMovieArchetypeBag } from "./AutoMovieArchetypeBag";
 
 /** Tote sizes and handle lengths from a maker's listing seen in search results. */
 const TOTE: string =
@@ -78,7 +78,7 @@ const NIOSH_WEBBING: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
  * they are read at: kept apart from the producer so each file stays within its
  * size.
  */
-export const BAG_BANDS: typeof createBag.BANDS = {
+export const BAG_BANDS: typeof AutoMovieArchetypeBag.BANDS = {
   tote: {
     width: AutoMovieArchetypeBand.metres(
       9.5 * AutoMovieArchetypeUnits.INCH,

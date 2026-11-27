@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createCookingPot as createCookingPotImplementation } from "./internal/createCookingPot";
-import { type createVessel } from "./createVessel";
+import { type AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
 /** Public operations for Auto Movie Archetype Cooking Pot. */
 export namespace AutoMovieArchetypeCookingPot {
@@ -37,7 +37,7 @@ export namespace AutoMovieArchetypeCookingPot {
 
   /** The admitted settings and optional model ID. */
   export interface IParams extends Pick<
-    createVessel.IParams,
+    AutoMovieArchetypeVessel.IParams,
     "id" | "diameter" | "height" | "mass"
   > {
     /** A single long handle or a two-handle cooking pot. */

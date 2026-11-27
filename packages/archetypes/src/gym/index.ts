@@ -6,7 +6,7 @@ export { AutoMovieArchetypeDumbbell } from "./AutoMovieArchetypeDumbbell";
 export { AutoMovieArchetypeExerciseBike } from "./AutoMovieArchetypeExerciseBike";
 export { AutoMovieArchetypeExerciseMat } from "./AutoMovieArchetypeExerciseMat";
 export { AutoMovieArchetypeHeavyBag } from "./AutoMovieArchetypeHeavyBag";
-export * from "./createJumpRope";
+export { AutoMovieArchetypeJumpRope } from "./AutoMovieArchetypeJumpRope";
 export * from "./createJumpRopeHandle";
 export { AutoMovieArchetypeKettlebell } from "./AutoMovieArchetypeKettlebell";
 export { AutoMovieArchetypeParallelBars } from "./AutoMovieArchetypeParallelBars";

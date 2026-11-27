@@ -3,7 +3,7 @@ import type { AutoMovieArchetype } from "../../core/index";
 import { APPLIANCE_BANDS } from "../APPLIANCE_BANDS";
 import { ApplianceConstruction } from "../ApplianceConstruction";
 import { FixtureDraw } from "../FixtureDraw";
-import type { createAppliance } from "../createAppliance";
+import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
 
 /**
  * A freestanding range with a cooktop and four pan landing surfaces.
@@ -25,7 +25,7 @@ export function createRange(
 ): AutoMovieArchetype<AutoMovieArchetypeRange.Affordance, AutoMovieArchetypeRange.Dimension> {
   return FixtureDraw.installed<
     AutoMovieArchetypeRange.Affordance,
-    createAppliance.Dimension
+    AutoMovieArchetypeAppliance.Dimension
   >(
     "appliance",
     "cooker",

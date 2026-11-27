@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageFencingProp as createStageFencingPropImplementation } from "./internal/createStageFencingProp";
 import { StageBladeConstruction } from "./StageBladeConstruction";
-import { type createStageBladeProp } from "./createStageBladeProp";
+import { type AutoMovieArchetypeStageBladeProp } from "./AutoMovieArchetypeStageBladeProp";
 
 /** Public operations for Auto Movie Archetype Stage Fencing Prop. */
 export namespace AutoMovieArchetypeStageFencingProp {
@@ -55,7 +55,7 @@ export namespace AutoMovieArchetypeStageFencingProp {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createStageBladeProp.IParams,
+    AutoMovieArchetypeStageBladeProp.IParams,
     "id" | "length"
   > {
     /** The profile with the required outline. */

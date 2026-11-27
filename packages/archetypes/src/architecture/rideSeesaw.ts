@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import type { createSeesaw } from "./createSeesaw";
+import type { AutoMovieArchetypeSeesaw } from "./AutoMovieArchetypeSeesaw";
 
 /** A unit scale: the rides move rigid frames. */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
@@ -36,7 +36,7 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  *   than one rock.
  */
 export function rideSeesaw(
-  seesaw: AutoMovieArchetype<createSeesaw.Affordance, createSeesaw.Dimension>,
+  seesaw: AutoMovieArchetype<AutoMovieArchetypeSeesaw.Affordance, AutoMovieArchetypeSeesaw.Dimension>,
   placement: IAutoMovieTransform,
   ride: rideSeesaw.IParams,
 ): rideSeesaw.IRide {

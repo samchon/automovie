@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
-import type { createSword } from "./createSword";
+import type { AutoMovieArchetypeSword } from "./AutoMovieArchetypeSword";
 
 /** The British light cavalry sabre, from a secondary source. */
 const SABRE: string =
@@ -43,8 +43,8 @@ const guess = (minimum: number, maximum: number): IAutoMovieArchetypeBand =>
  */
 export const SWORD_BANDS: Readonly<
   Record<
-    createSword.Kind,
-    Readonly<Partial<Record<createSword.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeSword.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeSword.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   longsword: {},

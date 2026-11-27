@@ -1,9 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  type IAutoMovieArchetypeBand,
-  createHandgun,
-  createLongGun,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, type IAutoMovieArchetypeBand, AutoMovieArchetypeHandgun, AutoMovieArchetypeLongGun } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /** How many seeds are swept: the 200 of the archetype campaign's acceptance law (#3365). */
@@ -75,22 +70,22 @@ export function test_archetype_weapon_firearm_eras_bands(): void {
   for (const kind of ["musket", "rifle", "leverAction"] as const)
     sweep(
       kind,
-      (seed: number): AutoMovieArchetype<string, createLongGun.Dimension> =>
-        createLongGun({ kind }, seed),
+      (seed: number): AutoMovieArchetype<string, AutoMovieArchetypeLongGun.Dimension> =>
+        AutoMovieArchetypeLongGun.create({ kind }, seed),
       true,
     );
   for (const frame of ["revolver", "flintlock"] as const)
     sweep(
       frame,
-      (seed: number): AutoMovieArchetype<string, createHandgun.Dimension> =>
-        createHandgun({ frame }, seed),
+      (seed: number): AutoMovieArchetype<string, AutoMovieArchetypeHandgun.Dimension> =>
+        AutoMovieArchetypeHandgun.create({ frame }, seed),
       false,
     );
   // 4. Every flintlock, the musket's and the pistol's, offers the lock a drill works: the cock with its spur riding it, the frizzen and the pan.
   for (const seed of [0, 1, 2])
     for (const [label, lock] of [
-      ["musket", createLongGun({ kind: "musket" }, seed)],
-      ["flintlock", createHandgun({ frame: "flintlock" }, seed)],
+      ["musket", AutoMovieArchetypeLongGun.create({ kind: "musket" }, seed)],
+      ["flintlock", AutoMovieArchetypeHandgun.create({ frame: "flintlock" }, seed)],
     ] as const) {
       const ids: readonly string[] = lock.affordances.map(
         (a: { id: string }): string => a.id,

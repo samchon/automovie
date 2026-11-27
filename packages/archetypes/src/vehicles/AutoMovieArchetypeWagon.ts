@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { createWagon } from "./cart/createWagon";
 
 /** Canonical producer and authoring contract for Wagon. */
@@ -47,11 +47,11 @@ export namespace AutoMovieArchetypeWagon {
    * builds bed, coupling, drawbarPitch, frontAxle, frontLeftSpin,
    * frontRightSpin, rearLeftSpin, rearRightSpin.
    */
-  export type Affordance = createCart.Affordance;
+  export type Affordance = AutoMovieArchetypeCart.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<
-    createCart.IParams,
+    AutoMovieArchetypeCart.IParams,
     | "id"
     | "frontWheelDiameter"
     | "wheelDiameter"

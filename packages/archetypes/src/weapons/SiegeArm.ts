@@ -8,16 +8,16 @@ import {
 } from "../core";
 import { SiegeClearance } from "./SiegeClearance";
 import { SiegeStructure } from "./SiegeStructure";
-import type { createSiegeEngine } from "./createSiegeEngine";
+import type { AutoMovieArchetypeSiegeEngine } from "./AutoMovieArchetypeSiegeEngine";
 
 /** A siege engine under construction. */
 type Builder = AutoMovieArchetypeBuilder<
-  createSiegeEngine.Affordance,
-  createSiegeEngine.Dimension
+  AutoMovieArchetypeSiegeEngine.Affordance,
+  AutoMovieArchetypeSiegeEngine.Dimension
 >;
 
 /** A siege engine's dimensions. */
-type Drawn = Readonly<Partial<Record<createSiegeEngine.Dimension, number>>>;
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>>;
 
 /**
  * A throwing engine's frame and arm, and the swing of its arm: the arm turns on

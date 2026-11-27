@@ -11,7 +11,7 @@ import {
   AutoMovieArchetypeRide,
 } from "../core";
 import { CourseWheelTravel } from "./CourseWheelTravel";
-import type { createWheelchair } from "./createWheelchair";
+import type { AutoMovieArchetypeWheelchair } from "./AutoMovieArchetypeWheelchair";
 import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
 
 /**
@@ -33,13 +33,13 @@ import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
  */
 export function rideWheelchair(
   chair: AutoMovieArchetype<
-    createWheelchair.Affordance,
-    createWheelchair.Dimension
+    AutoMovieArchetypeWheelchair.Affordance,
+    AutoMovieArchetypeWheelchair.Dimension
   >,
   course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
 ): AutoMovieArchetypeRide.IRide<
-  createWheelchair.Affordance,
-  createWheelchair.Dimension
+  AutoMovieArchetypeWheelchair.Affordance,
+  AutoMovieArchetypeWheelchair.Dimension
 > {
   const circumference: number = Math.PI * chair.dimensions.wheelDiameter!;
   const halfTrack: number =
@@ -71,8 +71,8 @@ export function rideWheelchair(
     (
       state: AutoMovieArchetypeCourse.IState,
       seconds: number,
-      id?: createWheelchair.Affordance,
-    ): Partial<Record<createWheelchair.Affordance, number>> => {
+      id?: AutoMovieArchetypeWheelchair.Affordance,
+    ): Partial<Record<AutoMovieArchetypeWheelchair.Affordance, number>> => {
       const left: boolean =
         id === undefined || id === "leftRim" || id === "leftSpin";
       const right: boolean =
@@ -188,7 +188,7 @@ export namespace rideWheelchair {
     }
 
     return (
-      id: createWheelchair.Affordance,
+      id: AutoMovieArchetypeWheelchair.Affordance,
       seconds: number,
     ): IAutoMovieTransform => {
       if (id === "leftRim" || id === "rightRim") {

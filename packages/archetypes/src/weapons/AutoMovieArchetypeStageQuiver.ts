@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageQuiver as createStageQuiverImplementation } from "./internal/createStageQuiver";
-import { type createHolster } from "./createHolster";
+import { type AutoMovieArchetypeHolster } from "./AutoMovieArchetypeHolster";
 
 /** Public operations for Auto Movie Archetype Stage Quiver. */
 export namespace AutoMovieArchetypeStageQuiver {
@@ -35,11 +35,11 @@ export namespace AutoMovieArchetypeStageQuiver {
    * builds belt, slot1, slot10, slot11, slot12, slot2, slot3, slot4, slot5,
    * slot6, slot7, slot8, slot9, socket, strap.
    */
-  export type Affordance = createHolster.Affordance;
+  export type Affordance = AutoMovieArchetypeHolster.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createHolster.IParams,
+    AutoMovieArchetypeHolster.IParams,
     "id" | "length" | "diameter" | "mass"
   > {
     /** Whole number of display sites within the original slot capacity. */

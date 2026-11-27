@@ -8,7 +8,7 @@ import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";
 import { EquineSegments } from "./EquineSegments";
 import { HORSE_BANDS } from "./HORSE_BANDS";
-import { createHorse } from "./createHorse";
+import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 
 /** The weighed Veracruz donkeys. */
 const VERACRUZ: string =
@@ -104,10 +104,10 @@ export namespace AutoMovieArchetypeDonkey {
     bands: BANDS,
     girth: (withers: number): number => withers * GIRTH,
     body: {
-      ...createHorse.BODY,
+      ...AutoMovieArchetypeHorse.BODY,
       lengths: EquineSegments.lengths(EquineSegments.BREEDS.mammothJackstock),
       head: {
-        ...createHorse.BODY.head,
+        ...AutoMovieArchetypeHorse.BODY.head,
         ears: AutoMovieArchetypeEquineEarProfiles.donkey(),
       },
     },

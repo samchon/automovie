@@ -67,7 +67,7 @@ export * from "./validateMaterialProcedural";
 export * from "./validateMaterialWear";
 
 
-export * from "./validateModel";
+
 export * from "./validateModelImages";
 export * from "./validateMotion";
 export * from "./validatePose";

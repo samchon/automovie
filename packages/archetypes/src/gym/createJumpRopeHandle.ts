@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { createJumpRope } from "./createJumpRope";
+import { AutoMovieArchetypeJumpRope } from "./AutoMovieArchetypeJumpRope";
 
 /**
  * The recorded length and diameter in metres and the provisional mass in
@@ -31,27 +31,27 @@ type Dimension = "handleLength" | "gripDiameter" | "mass";
  *   diameter outside the rope's measured band.
  */
 export function createJumpRopeHandle(
-  params: Pick<createJumpRope.IParams, "handle" | "id" | "gripDiameter"> = {},
+  params: Pick<AutoMovieArchetypeJumpRope.IParams, "handle" | "id" | "gripDiameter"> = {},
   seed?: number,
 ): AutoMovieArchetype<"grip" | "cordSocket", Dimension> {
   const draw: AutoMovieArchetypeDrawSession<Dimension> =
     new AutoMovieArchetypeDrawSession<Dimension>(
       "jumpRopeHandle",
-      createJumpRope.UNITS,
+      AutoMovieArchetypeJumpRope.UNITS,
       seed,
       params,
     );
   const handle: AutoMovieArchetypeDrawSession.IModel<
-    createJumpRope.Handle,
+    AutoMovieArchetypeJumpRope.Handle,
     Dimension
-  > = draw.model("handle", params.handle, createJumpRope.HANDLES);
+  > = draw.model("handle", params.handle, AutoMovieArchetypeJumpRope.HANDLES);
   const length: number = handle.figures.handleLength!;
   const { gripDiameter } = draw.dimensions({
-    gripDiameter: createJumpRope.BANDS.gripDiameter,
+    gripDiameter: AutoMovieArchetypeJumpRope.BANDS.gripDiameter,
   });
 
   // Allocate the provisional whole-rope midpoint equally to its two handles.
-  const { minimum, maximum } = createJumpRope.BANDS.mass;
+  const { minimum, maximum } = AutoMovieArchetypeJumpRope.BANDS.mass;
   const mass: number = draw.derive("mass", (minimum + maximum) / 4);
   const builder: AutoMovieArchetypeBuilder<"grip" | "cordSocket", Dimension> =
     new AutoMovieArchetypeBuilder({

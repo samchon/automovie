@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageTwoHandedSwordProp as createStageTwoHandedSwordPropImplementation } from "./internal/createStageTwoHandedSwordProp";
-import { type createStageBladeProp } from "./createStageBladeProp";
+import { type AutoMovieArchetypeStageBladeProp } from "./AutoMovieArchetypeStageBladeProp";
 
 /** Public operations for Auto Movie Archetype Stage Two Handed Sword Prop. */
 export namespace AutoMovieArchetypeStageTwoHandedSwordProp {
@@ -33,7 +33,7 @@ export namespace AutoMovieArchetypeStageTwoHandedSwordProp {
    * The stage blades' shared contacts; this producer builds the grip and the
    * point and declares no edge.
    */
-  export type Affordance = createStageBladeProp.Affordance;
+  export type Affordance = AutoMovieArchetypeStageBladeProp.Affordance;
 
   /** The model identity, dimensions. */
-  export type IParams = Pick<createStageBladeProp.IParams, "id" | "length">;}
+  export type IParams = Pick<AutoMovieArchetypeStageBladeProp.IParams, "id" | "length">;}

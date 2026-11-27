@@ -1,4 +1,4 @@
-import type { evaluateCameraClearance } from "@automovie/engine";
+import type { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieCameraClearanceEnvelope,
   IAutoMovieTransform,
@@ -25,7 +25,7 @@ export interface IFilmCameraClearanceEvaluationInputs {
   /** Execute the original evaluator with optional overrides. */
   evaluate(
     over?: IFilmCameraClearanceEvaluationOverrides,
-  ): ReturnType<typeof evaluateCameraClearance>;
+  ): ReturnType<typeof AutoMovieEngineFilm.evaluateCameraClearance>;
 
   /** Read the original thrown-error fragment. */
   throws(closure: () => unknown, text: string): boolean;

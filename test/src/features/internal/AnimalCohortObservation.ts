@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -50,7 +50,7 @@ export namespace AnimalCohortObservation {
     expected: Expected,
     authoredMass?: number,
   ): void {
-    if (!validateModel({ model: animal }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model: animal }).success)
       findings.push(`${label}: actual model admission failed`);
     near(
       findings,

@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createClub } from "./createClub";
+import type { AutoMovieArchetypeClub } from "./AutoMovieArchetypeClub";
 
 /** The professional rule on a bat's size. */
 const RULE: string =
@@ -40,7 +40,7 @@ export namespace ClubBuild {
 
   /** The retained dimension units. */
   export const UNITS: Readonly<
-    Record<createClub.Dimension, AutoMovieArchetypeDrawSession.Unit>
+    Record<AutoMovieArchetypeClub.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     length: "m",
     diameter: "m",
@@ -51,12 +51,12 @@ export namespace ClubBuild {
   /** The retained measured profiles. */
   export const MODELS: Readonly<
     Record<
-      createClub.Kind,
+      AutoMovieArchetypeClub.Kind,
       Readonly<
         Partial<
           Record<
-            createClub.Model,
-            Readonly<Partial<Record<createClub.Dimension, number>>>
+            AutoMovieArchetypeClub.Model,
+            Readonly<Partial<Record<AutoMovieArchetypeClub.Dimension, number>>>
           >
         >
       >
@@ -89,8 +89,8 @@ export namespace ClubBuild {
   /** The retained free-dimension bands. */
   export const BANDS: Readonly<
     Record<
-      createClub.Kind,
-      Readonly<Partial<Record<createClub.Dimension, IAutoMovieArchetypeBand>>>
+      AutoMovieArchetypeClub.Kind,
+      Readonly<Partial<Record<AutoMovieArchetypeClub.Dimension, IAutoMovieArchetypeBand>>>
     >
   > = {
     bat: {
@@ -130,35 +130,35 @@ export namespace ClubBuild {
   export interface IDrawResult {
     /** The prepared `builder` this call returns. */
     builder: AutoMovieArchetypeBuilder<
-      createClub.Affordance,
-      createClub.Dimension
+      AutoMovieArchetypeClub.Affordance,
+      AutoMovieArchetypeClub.Dimension
     >;
 
     /** The prepared `d` this call returns. */
-    d: Partial<Record<createClub.Dimension, number>>;
+    d: Partial<Record<AutoMovieArchetypeClub.Dimension, number>>;
   }
 
   /** Draw the bat or screen practice profile under its original club namespace. */
   export function draw(
-    kind: createClub.Kind,
-    params: Readonly<Omit<createClub.IParams, "kind">>,
+    kind: AutoMovieArchetypeClub.Kind,
+    params: Readonly<Omit<AutoMovieArchetypeClub.IParams, "kind">>,
     seed: number | undefined,
     name: string,
     material: DrawMaterial,
   ): IDrawResult {
-    const draw: AutoMovieArchetypeDrawSession<createClub.Dimension> =
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeClub.Dimension> =
       new AutoMovieArchetypeDrawSession("club", UNITS, seed, params);
     const model: AutoMovieArchetypeDrawSession.IModel<
-      createClub.Model,
-      createClub.Dimension
+      AutoMovieArchetypeClub.Model,
+      AutoMovieArchetypeClub.Dimension
     > = draw.model("model", params.model, MODELS[kind]);
-    const d: Partial<Record<createClub.Dimension, number>> = {
+    const d: Partial<Record<AutoMovieArchetypeClub.Dimension, number>> = {
       ...draw.dimensions(BANDS[kind], BANDS),
       ...model.figures,
     };
     const builder: AutoMovieArchetypeBuilder<
-      createClub.Affordance,
-      createClub.Dimension
+      AutoMovieArchetypeClub.Affordance,
+      AutoMovieArchetypeClub.Dimension
     > = new AutoMovieArchetypeBuilder({ material, id: params.id, name, draw });
     return { builder, d };
   }
@@ -179,8 +179,8 @@ export namespace ClubBuild {
    */
   export function contacts(
     builder: AutoMovieArchetypeBuilder<
-      createClub.Affordance,
-      createClub.Dimension
+      AutoMovieArchetypeClub.Affordance,
+      AutoMovieArchetypeClub.Dimension
     >,
     length: number,
     thick: number,

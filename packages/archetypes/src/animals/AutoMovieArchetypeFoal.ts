@@ -5,7 +5,7 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { HORSE_BANDS } from "./HORSE_BANDS";
-import { createHorse } from "./createHorse";
+import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 
 /**
  * Withers height over mature height at birth, about 60% (Horse & Hound, a
@@ -97,7 +97,7 @@ export function create(
   const withers: number = mature * growth.withers;
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeEquine.Dimension> =
     new AutoMovieArchetypeDrawSession<AutoMovieArchetypeEquine.Dimension>(
-      createHorse.PROFILE.archetype,
+      AutoMovieArchetypeHorse.PROFILE.archetype,
       AutoMovieArchetypeEquine.UNITS,
       seed,
       {},
@@ -191,7 +191,7 @@ export namespace AutoMovieArchetypeFoal {
     ];
     const girth: number = withers * GIRTH;
     return {
-      archetype: createHorse.PROFILE.archetype,
+      archetype: AutoMovieArchetypeHorse.PROFILE.archetype,
       names: { saddle: "foal", harness: "foal", both: "foal", pack: "foal" },
       bands: {
         stirrupDrop: HORSE_BANDS.stirrupDrop,
@@ -202,11 +202,11 @@ export namespace AutoMovieArchetypeFoal {
       figures: { withersHeight: withers, girth },
       girth: (): number => girth,
       body: {
-        ...createHorse.BODY,
+        ...AutoMovieArchetypeHorse.BODY,
         lengths: {
-          fore: scale(createHorse.LENGTHS.fore),
-          hind: scale(createHorse.LENGTHS.hind),
-          trunk: (createHorse.LENGTHS.trunk * growth.trunk) / growth.withers,
+          fore: scale(AutoMovieArchetypeHorse.LENGTHS.fore),
+          hind: scale(AutoMovieArchetypeHorse.LENGTHS.hind),
+          trunk: (AutoMovieArchetypeHorse.LENGTHS.trunk * growth.trunk) / growth.withers,
         },
       },
     };

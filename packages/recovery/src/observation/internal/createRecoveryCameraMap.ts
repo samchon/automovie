@@ -18,7 +18,7 @@ import { fitRecoveryResectionConsensus } from "../../geometry/internal/fitRecove
 import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
-import { triangulateRecoveryCameraPoint } from "../../internal/triangulateRecoveryCameraPoint";
+import { triangulateRecoveryCameraPoint } from "../../geometry/internal/triangulateRecoveryCameraPoint";
 
 /**
  * Build one conditional three-camera map from automatic shared observations.

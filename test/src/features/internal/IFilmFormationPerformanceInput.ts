@@ -1,4 +1,4 @@
-import type { materializeCompiledFormation } from "@automovie/engine";
+import type { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieFormationMotion,
@@ -13,7 +13,7 @@ export interface IFilmFormationPerformanceInput {
   action: IAutoMovieActionCall;
 
   /** Original materialized formations. */
-  formations?: readonly ReturnType<typeof materializeCompiledFormation>[];
+  formations?: readonly ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledFormation>[];
 
   /** Original model registry. */
   models?: readonly IAutoMovieModel[];

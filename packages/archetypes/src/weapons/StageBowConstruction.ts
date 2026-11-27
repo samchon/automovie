@@ -4,7 +4,7 @@ import {
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { createBow } from "./createBow";
+import { AutoMovieArchetypeBow } from "./AutoMovieArchetypeBow";
 
 /**
  * Prepare the stored digital bow silhouette.
@@ -21,55 +21,55 @@ import { createBow } from "./createBow";
  *   cannot use.
  */
 export function StageBowConstruction(
-  kind: createBow.Kind,
-  params: Omit<createBow.IParams, "kind">,
+  kind: AutoMovieArchetypeBow.Kind,
+  params: Omit<AutoMovieArchetypeBow.IParams, "kind">,
   seed: number | undefined,
   build: (
     builder: AutoMovieArchetypeBuilder<
-      createBow.Affordance,
-      createBow.Dimension
+      AutoMovieArchetypeBow.Affordance,
+      AutoMovieArchetypeBow.Dimension
     >,
-    dimensions: Readonly<Partial<Record<createBow.Dimension, number>>>,
-  ) => AutoMovieArchetype<createBow.Affordance, createBow.Dimension>,
-): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createBow.Dimension> =
-    new AutoMovieArchetypeDrawSession<createBow.Dimension>(
+    dimensions: Readonly<Partial<Record<AutoMovieArchetypeBow.Dimension, number>>>,
+  ) => AutoMovieArchetype<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension>,
+): AutoMovieArchetype<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeBow.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeBow.Dimension>(
       "bow",
-      createBow.UNITS,
+      AutoMovieArchetypeBow.UNITS,
       seed,
       params,
     );
 
   // A longbow is one of the three read approximations, its mass and draw whole; a recurve one of the maker's two lengths with its brace band; a horse bow one of the two read bows, drawn at one of its maker's draw weights.
   const model: {
-    name: createBow.Model | undefined;
-    figures: Readonly<Partial<Record<createBow.Dimension, number>>>;
-  } = draw.model<createBow.Model>(
+    name: AutoMovieArchetypeBow.Model | undefined;
+    figures: Readonly<Partial<Record<AutoMovieArchetypeBow.Dimension, number>>>;
+  } = draw.model<AutoMovieArchetypeBow.Model>(
     "model",
     params.model,
-    createBow.MODELS[kind],
+    AutoMovieArchetypeBow.MODELS[kind],
   );
   const weight: {
-    figures: Readonly<Partial<Record<createBow.Dimension, number>>>;
-  } = draw.model<createBow.Weight>(
+    figures: Readonly<Partial<Record<AutoMovieArchetypeBow.Dimension, number>>>;
+  } = draw.model<AutoMovieArchetypeBow.Weight>(
     "weight",
     params.weight,
-    createBow.WEIGHTS[kind],
+    AutoMovieArchetypeBow.WEIGHTS[kind],
   );
   const bands: Readonly<
-    Partial<Record<createBow.Dimension, IAutoMovieArchetypeBand>>
+    Partial<Record<AutoMovieArchetypeBow.Dimension, IAutoMovieArchetypeBand>>
   > = {
-    ...createBow.BANDS[kind],
-    ...(model.name === undefined ? {} : createBow.BRACES[model.name]),
+    ...AutoMovieArchetypeBow.BANDS[kind],
+    ...(model.name === undefined ? {} : AutoMovieArchetypeBow.BRACES[model.name]),
   };
-  const d: Partial<Record<createBow.Dimension, number>> = {
-    ...draw.dimensions(bands, createBow.BANDS),
+  const d: Partial<Record<AutoMovieArchetypeBow.Dimension, number>> = {
+    ...draw.dimensions(bands, AutoMovieArchetypeBow.BANDS),
     ...model.figures,
     ...weight.figures,
   };
   const builder: AutoMovieArchetypeBuilder<
-    createBow.Affordance,
-    createBow.Dimension
+    AutoMovieArchetypeBow.Affordance,
+    AutoMovieArchetypeBow.Dimension
   > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,

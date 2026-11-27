@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createBasketballHoop as createBasketballHoopImplementation } from "./internal/createBasketballHoop";
-import { type createGoal } from "./createGoal";
+import { type AutoMovieArchetypeGoal } from "./AutoMovieArchetypeGoal";
 
 /** Public operations for Auto Movie Archetype Basketball Hoop. */
 export namespace AutoMovieArchetypeBasketballHoop {
@@ -44,7 +44,7 @@ export namespace AutoMovieArchetypeBasketballHoop {
 
   /** The identifier and overrides that apply to this profile. */
   export type IParams = Pick<
-    createGoal.IParams,
+    AutoMovieArchetypeGoal.IParams,
     | "id"
     | "width"
     | "board"

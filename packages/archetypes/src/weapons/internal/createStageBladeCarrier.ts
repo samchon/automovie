@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 import { StageCarrierConstruction } from "../StageCarrierConstruction";
-import { createHolster } from "../createHolster";
+import { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
 
 /**
  * Worn blade carrier silhouette.
@@ -38,8 +38,8 @@ export function createStageBladeCarrier(
   return StageCarrierConstruction(kind, params, seed, (builder, d) => {
     const v: typeof Vector3.create = Vector3.create;
     const length: number = d.length!;
-    const throat: number = createHolster.THROAT;
-    const thick: number = d.thickness! + createHolster.THROAT_LIP;
+    const throat: number = AutoMovieArchetypeHolster.THROAT;
+    const thick: number = d.thickness! + AutoMovieArchetypeHolster.THROAT_LIP;
     builder.box(
       "body",
       v(d.thickness!, length - throat, d.width!),
@@ -48,7 +48,7 @@ export function createStageBladeCarrier(
     );
     builder.box(
       "throat",
-      v(thick, throat, d.width! + createHolster.THROAT_LIP),
+      v(thick, throat, d.width! + AutoMovieArchetypeHolster.THROAT_LIP),
       v(0, length - throat / 2, 0),
       { color: "#8a8d91" },
     );

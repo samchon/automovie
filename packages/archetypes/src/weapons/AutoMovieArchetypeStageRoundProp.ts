@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageRoundProp as createStageRoundPropImplementation } from "./internal/createStageRoundProp";
-import { type createProjectile } from "./createProjectile";
+import { type AutoMovieArchetypeProjectile } from "./AutoMovieArchetypeProjectile";
 
 /** Public operations for Auto Movie Archetype Stage Round Prop. */
 export namespace AutoMovieArchetypeStageRoundProp {
@@ -37,10 +37,10 @@ export namespace AutoMovieArchetypeStageRoundProp {
    * The createProjectile contact set its shared construction types. This
    * producer builds body.
    */
-  export type Affordance = createProjectile.Affordance;
+  export type Affordance = AutoMovieArchetypeProjectile.Affordance;
 
   /** The model identity and this form's catalogue choices. */
-  export interface IParams extends Pick<createProjectile.IParams, "id"> {
+  export interface IParams extends Pick<AutoMovieArchetypeProjectile.IParams, "id"> {
     /** A model from this form's catalogue. */
     model?: Model;
   }}

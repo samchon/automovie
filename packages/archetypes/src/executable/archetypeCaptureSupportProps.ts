@@ -6,8 +6,8 @@ import {
   type AutoMovieArchetypeCourse,
   AutoMovieArchetypeRide,
 } from "../core";
-import { AutoMovieArchetypeBoat, createCart, rowBoat } from "../vehicles";
-import { createCannon } from "../weapons";
+import { AutoMovieArchetypeBoat, rowBoat, AutoMovieArchetypeCart } from "../vehicles";
+import { AutoMovieArchetypeCannon } from "../weapons";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -42,11 +42,11 @@ export function archetypeCaptureSupportProps(): Readonly<
   const sea: ReturnType<typeof rowBoat> = rowBoat(boat, waterCourse, {
     sea: { height: 0.4, heading: 35, seed: 1050 },
   });
-  const leading: ReturnType<typeof createCart> = createCart({
+  const leading: ReturnType<typeof AutoMovieArchetypeCart.create> = AutoMovieArchetypeCart.create({
     kind: "limber",
     id: "leading-limber",
   });
-  const trailing: ReturnType<typeof createCart> = createCart({
+  const trailing: ReturnType<typeof AutoMovieArchetypeCart.create> = AutoMovieArchetypeCart.create({
     kind: "limber",
     id: "trailing-limber",
   });
@@ -58,17 +58,17 @@ export function archetypeCaptureSupportProps(): Readonly<
     endSpeed: 1,
   };
   const leader: AutoMovieArchetypeRide.IRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > = AutoMovieArchetypeRide.along(leading, road);
   const trailer: AutoMovieArchetypeRide.IRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > = AutoMovieArchetypeRide.towed(leader, "pintle", trailing, "coupling", {
-    support: createCart.towing(trailing),
+    support: AutoMovieArchetypeCart.towing(trailing),
     pose: (
       state: AutoMovieArchetypeCourse.IState,
-    ): ReturnType<typeof createCart> => rolling(trailing, state.progress),
+    ): ReturnType<typeof AutoMovieArchetypeCart.create> => rolling(trailing, state.progress),
   });
   return {
     "rowboat-underway-calm": archetypeCaptureSubject.moving(
@@ -91,12 +91,12 @@ export function archetypeCaptureSupportProps(): Readonly<
           name: "coupled-limbers",
           at: (seconds: number): { archetype: AutoMovieArchetype } => {
             const front: AutoMovieArchetypeRide.ISample<
-              createCart.Affordance,
-              createCart.Dimension
+              AutoMovieArchetypeCart.Affordance,
+              AutoMovieArchetypeCart.Dimension
             > = leader.at(seconds);
             const rear: AutoMovieArchetypeRide.ISample<
-              createCart.Affordance,
-              createCart.Dimension
+              AutoMovieArchetypeCart.Affordance,
+              AutoMovieArchetypeCart.Dimension
             > = trailer.at(seconds);
             return {
               archetype: AutoMovieArchetypeAssembly.of(
@@ -126,9 +126,9 @@ export function archetypeCaptureSupportProps(): Readonly<
  * preserving signed rolling without changing geometry.
  */
 function rolling(
-  cart: ReturnType<typeof createCart>,
+  cart: ReturnType<typeof AutoMovieArchetypeCart.create>,
   distance: number,
-): ReturnType<typeof createCart> {
+): ReturnType<typeof AutoMovieArchetypeCart.create> {
   const angle: number = AutoMovieEngineMath.positiveModulo(
     (360 * distance) / (Math.PI * cart.dimensions.wheelDiameter!),
     360,
@@ -142,21 +142,21 @@ function rolling(
  */
 function limberedGun(
   leader: AutoMovieArchetypeRide.IRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   >,
 ): archetypeCaptureCatalog.ISubject {
-  const gun: ReturnType<typeof createCannon> = createCannon({
+  const gun: ReturnType<typeof AutoMovieArchetypeCannon.create> = AutoMovieArchetypeCannon.create({
     kind: "fieldGun",
   });
   const follower: AutoMovieArchetypeRide.IRide<
-    createCannon.Affordance,
-    createCannon.Dimension
+    AutoMovieArchetypeCannon.Affordance,
+    AutoMovieArchetypeCannon.Dimension
   > = AutoMovieArchetypeRide.towed(leader, "pintle", gun, "limber", {
-    support: createCannon.towing(gun),
+    support: AutoMovieArchetypeCannon.towing(gun),
     pose: (
       state: AutoMovieArchetypeCourse.IState,
-    ): ReturnType<typeof createCannon> => {
+    ): ReturnType<typeof AutoMovieArchetypeCannon.create> => {
       const angle: number = AutoMovieEngineMath.positiveModulo(
         (-360 * state.progress) / (Math.PI * gun.dimensions.wheelDiameter!),
         360,
@@ -172,12 +172,12 @@ function limberedGun(
         name: "limber-and-field-gun",
         at: (seconds: number): { archetype: AutoMovieArchetype } => {
           const front: AutoMovieArchetypeRide.ISample<
-            createCart.Affordance,
-            createCart.Dimension
+            AutoMovieArchetypeCart.Affordance,
+            AutoMovieArchetypeCart.Dimension
           > = leader.at(seconds);
           const rear: AutoMovieArchetypeRide.ISample<
-            createCannon.Affordance,
-            createCannon.Dimension
+            AutoMovieArchetypeCannon.Affordance,
+            AutoMovieArchetypeCannon.Dimension
           > = follower.at(seconds);
           return {
             archetype: AutoMovieArchetypeAssembly.of(
@@ -207,19 +207,19 @@ function limberedGun(
  */
 function limberedWagon(
   leader: AutoMovieArchetypeRide.IRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   >,
 ): archetypeCaptureCatalog.ISubject {
-  const wagon: ReturnType<typeof createCart> = createCart({ kind: "wagon" });
+  const wagon: ReturnType<typeof AutoMovieArchetypeCart.create> = AutoMovieArchetypeCart.create({ kind: "wagon" });
   const follower: AutoMovieArchetypeRide.IRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > = AutoMovieArchetypeRide.towed(leader, "pintle", wagon, "coupling", {
-    support: createCart.towing(wagon),
+    support: AutoMovieArchetypeCart.towing(wagon),
     pose: (
       state: AutoMovieArchetypeCourse.IState,
-    ): ReturnType<typeof createCart> => {
+    ): ReturnType<typeof AutoMovieArchetypeCart.create> => {
       const front: number = AutoMovieEngineMath.positiveModulo(
         (360 * state.progress) /
           (Math.PI * wagon.dimensions.frontWheelDiameter!),
@@ -245,12 +245,12 @@ function limberedWagon(
         name: "limber-and-wagon",
         at: (seconds: number): { archetype: AutoMovieArchetype } => {
           const front: AutoMovieArchetypeRide.ISample<
-            createCart.Affordance,
-            createCart.Dimension
+            AutoMovieArchetypeCart.Affordance,
+            AutoMovieArchetypeCart.Dimension
           > = leader.at(seconds);
           const rear: AutoMovieArchetypeRide.ISample<
-            createCart.Affordance,
-            createCart.Dimension
+            AutoMovieArchetypeCart.Affordance,
+            AutoMovieArchetypeCart.Dimension
           > = follower.at(seconds);
           return {
             archetype: AutoMovieArchetypeAssembly.of(

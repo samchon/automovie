@@ -3,7 +3,7 @@ import type { AutoMovieArchetype } from "../../core/index";
 import { FixtureDraw } from "../FixtureDraw";
 import { SANITARY_BANDS } from "../SANITARY_BANDS";
 import { SanitaryConstruction } from "../SanitaryConstruction";
-import type { createSanitary } from "../createSanitary";
+import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 
 /**
  * A wall-backed toilet with a forward-facing seat and a lowering lid.
@@ -25,7 +25,7 @@ export function createToilet(
 ): AutoMovieArchetype<AutoMovieArchetypeToilet.Affordance, AutoMovieArchetypeToilet.Dimension> {
   return FixtureDraw.installed<
     AutoMovieArchetypeToilet.Affordance,
-    createSanitary.Dimension
+    AutoMovieArchetypeSanitary.Dimension
   >(
     "sanitary",
     "toilet",

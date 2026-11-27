@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createCostumeVambrace as createCostumeVambraceImplementation } from "./internal/createCostumeVambrace";
-import { type createArmour } from "./createArmour";
+import { type AutoMovieArchetypeArmour } from "./AutoMovieArchetypeArmour";
 
 /** Public operations for Auto Movie Archetype Costume Vambrace. */
 export namespace AutoMovieArchetypeCostumeVambrace {
@@ -40,7 +40,7 @@ export namespace AutoMovieArchetypeCostumeVambrace {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createArmour.IParams,
+    AutoMovieArchetypeArmour.IParams,
     "id" | "thickness" | "measure"
   > {
     /** A model from this form's catalogue. */

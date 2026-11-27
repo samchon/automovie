@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeUnits, createLongTool } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeLongTool } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +34,7 @@ export function test_archetype_props_longtool_bands(): void {
       2.74,
       "Daiwa Ninja X",
       (seed: number): number =>
-        archetypeExtent(createLongTool({ kind: "fishingRod" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeLongTool.create({ kind: "fishingRod" }, seed), "y").size,
     ),
     row(
       "rod mass",
@@ -42,7 +42,7 @@ export function test_archetype_props_longtool_bands(): void {
       0.178,
       "Daiwa Ninja X",
       (seed: number): number =>
-        createLongTool({ kind: "fishingRod" }, seed).body.mass,
+        AutoMovieArchetypeLongTool.create({ kind: "fishingRod" }, seed).body.mass,
     ),
     row(
       "axe length",
@@ -50,7 +50,7 @@ export function test_archetype_props_longtool_bands(): void {
       0.65,
       "Gränsfors Bruk 430 and its retailer",
       (seed: number): number =>
-        archetypeExtent(createLongTool({ kind: "forestAxe" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeLongTool.create({ kind: "forestAxe" }, seed), "y").size,
     ),
     row(
       "axe head length",
@@ -58,7 +58,7 @@ export function test_archetype_props_longtool_bands(): void {
       0.163,
       "a retailer's measurement of the 430",
       (seed: number): number =>
-        archetypeExtent(createLongTool({ kind: "forestAxe" }, seed), "z").size,
+        archetypeExtent(AutoMovieArchetypeLongTool.create({ kind: "forestAxe" }, seed), "z").size,
     ),
     row(
       "axe edge",
@@ -66,7 +66,7 @@ export function test_archetype_props_longtool_bands(): void {
       0.09,
       "the Axe Book and a retailer",
       (seed: number): number =>
-        createLongTool({ kind: "forestAxe" }, seed).affordance("face").width!,
+        AutoMovieArchetypeLongTool.create({ kind: "forestAxe" }, seed).affordance("face").width!,
     ),
     row(
       "axe head mass",
@@ -75,7 +75,7 @@ export function test_archetype_props_longtool_bands(): void {
       "the Axe Book and a retailer",
       (seed: number): number => {
         // The head's centre is half the edge up, the handle's half-way between the edge and the top.
-        const axe: ReturnType<typeof createLongTool> = createLongTool(
+        const axe: ReturnType<typeof AutoMovieArchetypeLongTool.create> = AutoMovieArchetypeLongTool.create(
           { kind: "forestAxe" },
           seed,
         );
@@ -94,11 +94,11 @@ export function test_archetype_props_longtool_bands(): void {
       1.2,
       "Gränsfors Bruk 430",
       (seed: number): number =>
-        createLongTool({ kind: "forestAxe" }, seed).body.mass,
+        AutoMovieArchetypeLongTool.create({ kind: "forestAxe" }, seed).body.mass,
     ),
   ]);
   for (const seed of [0, 1, 2]) {
-    const rod: ReturnType<typeof createLongTool> = createLongTool(
+    const rod: ReturnType<typeof AutoMovieArchetypeLongTool.create> = AutoMovieArchetypeLongTool.create(
       { kind: "fishingRod" },
       seed,
     );
@@ -112,7 +112,7 @@ export function test_archetype_props_longtool_bands(): void {
     )
       findings.push(`fishingRod@${seed}: the grip or the tip is off its end`);
 
-    const axe: ReturnType<typeof createLongTool> = createLongTool(
+    const axe: ReturnType<typeof AutoMovieArchetypeLongTool.create> = AutoMovieArchetypeLongTool.create(
       { kind: "forestAxe" },
       seed,
     );

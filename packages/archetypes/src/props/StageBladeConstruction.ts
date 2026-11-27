@@ -8,10 +8,10 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createStageBladeProp } from "./createStageBladeProp";
+import type { AutoMovieArchetypeStageBladeProp } from "./AutoMovieArchetypeStageBladeProp";
 
 /** Overall display length is measured along the prop's long axis. */
-const UNITS: Readonly<Record<createStageBladeProp.Dimension, "m">> = {
+const UNITS: Readonly<Record<AutoMovieArchetypeStageBladeProp.Dimension, "m">> = {
   length: "m",
 };
 
@@ -64,7 +64,7 @@ const PROFILES = {
     color: "#b9b3ce",
   },
 } as const satisfies Record<
-  createStageBladeProp.Kind,
+  AutoMovieArchetypeStageBladeProp.Kind,
   {
     length: number;
     grip: number;
@@ -93,18 +93,18 @@ const PROFILES = {
  *   cannot use.
  */
 export function StageBladeConstruction(
-  kind: createStageBladeProp.Kind,
-  params: Omit<createStageBladeProp.IParams, "kind">,
+  kind: AutoMovieArchetypeStageBladeProp.Kind,
+  params: Omit<AutoMovieArchetypeStageBladeProp.IParams, "kind">,
   seed: number | undefined,
   twoHand: boolean,
   decorate: StageBladeConstruction.Decorate,
   edge?: StageBladeConstruction.Span,
 ): AutoMovieArchetype<
-  createStageBladeProp.Affordance,
-  createStageBladeProp.Dimension
+  AutoMovieArchetypeStageBladeProp.Affordance,
+  AutoMovieArchetypeStageBladeProp.Dimension
 > {
-  const profile: (typeof PROFILES)[createStageBladeProp.Kind] = PROFILES[kind];
-  const draw: AutoMovieArchetypeDrawSession<createStageBladeProp.Dimension> =
+  const profile: (typeof PROFILES)[AutoMovieArchetypeStageBladeProp.Kind] = PROFILES[kind];
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStageBladeProp.Dimension> =
     new AutoMovieArchetypeDrawSession("stageBladeProp", UNITS, seed, {
       length: params.length,
     });
@@ -113,8 +113,8 @@ export function StageBladeConstruction(
       ? draw.derive("length", profile.length)
       : draw.dimensions({ length: LENGTH }).length;
   const builder: AutoMovieArchetypeBuilder<
-    createStageBladeProp.Affordance,
-    createStageBladeProp.Dimension
+    AutoMovieArchetypeStageBladeProp.Affordance,
+    AutoMovieArchetypeStageBladeProp.Dimension
   > = new AutoMovieArchetypeBuilder({
     draw,
     id: params.id,
@@ -213,8 +213,8 @@ export namespace StageBladeConstruction {
   /** The builder and measurements of the chosen display prop. */
   export type Decorate = (
     builder: AutoMovieArchetypeBuilder<
-      createStageBladeProp.Affordance,
-      createStageBladeProp.Dimension
+      AutoMovieArchetypeStageBladeProp.Affordance,
+      AutoMovieArchetypeStageBladeProp.Dimension
     >,
     profile: IProfile,
   ) => void;

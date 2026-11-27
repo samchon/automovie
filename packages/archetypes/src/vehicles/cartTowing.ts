@@ -1,7 +1,7 @@
 import type { AutoMovieArchetype } from "../core";
 import type { ArchetypeTowing } from "../core/ArchetypeTowing";
 import { towingAxle } from "../core/towingAxle";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /**
  * Read the producer's wheel/steering/drawbar support for generic towing.
@@ -16,8 +16,8 @@ import type { createCart } from "./createCart";
  *   is absent, including a pushed kind without these towing roles.
  */
 export function cartTowing(
-  cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
-): ArchetypeTowing.Support<createCart.Affordance> {
+  cart: AutoMovieArchetype<AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Dimension>,
+): ArchetypeTowing.Support<AutoMovieArchetypeCart.Affordance> {
   if (cart.archetype !== "cart")
     throw new RangeError(
       "Cart towing geometry requires the actual cart producer",

@@ -2,7 +2,7 @@ import type * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { createDetailNormalShaderPatch } from "../createDetailNormalShaderPatch.js";
+import { AutoMovieRenderDetailNormalShading } from "../AutoMovieRenderDetailNormalShading.js";
 
 /**
  * Blend a second tangent-space normal map over a material's normal map: the
@@ -29,7 +29,7 @@ export const applyDetailNormal: (
         "vertexShader" | "fragmentShader" | "uniforms"
       >,
     ) => void;
-  } = createDetailNormalShaderPatch(texture, scale);
+  } = AutoMovieRenderDetailNormalShading.createShaderPatch(texture, scale);
   material.userData.detailNormal = { texture, scale };
   AutoMovieRenderMaterial.addShaderPatch(material, patch);
 };

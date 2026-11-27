@@ -8,19 +8,19 @@ import {
 } from "../core";
 import { CareBedConstruction } from "./CareBedConstruction";
 import { MATTRESS_SIZES } from "./MATTRESS_SIZES";
-import { createBed } from "./createBed";
+import { AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createBed.Affordance> = AutoMovieArchetypeBuilder<
+type Builder<Id extends AutoMovieArchetypeBed.Affordance> = AutoMovieArchetypeBuilder<
   Id,
-  createBed.Dimension
+  AutoMovieArchetypeBed.Dimension
 >;
 
 /** Model dimensions in the legacy family's recorded units. */
-type Dimensions = Partial<Record<createBed.Dimension, number>>;
+type Dimensions = Partial<Record<AutoMovieArchetypeBed.Dimension, number>>;
 
 /** A started construction: its builder and its drawn dimensions. */
-interface IDrawn<Id extends createBed.Affordance> {
+interface IDrawn<Id extends AutoMovieArchetypeBed.Affordance> {
   /** The model-space builder for the selected contact ids. */
   builder: Builder<Id>;
 
@@ -32,26 +32,26 @@ interface IDrawn<Id extends createBed.Affordance> {
  * Select the existing size, then draw the remaining dimensions in the saved
  * stream.
  */
-function draw<Id extends createBed.Affordance>(
-  kind: createBed.Kind,
-  params: Omit<createBed.IParams, "kind">,
+function draw<Id extends AutoMovieArchetypeBed.Affordance>(
+  kind: AutoMovieArchetypeBed.Kind,
+  params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
   seed?: number,
 ): IDrawn<Id> {
-  const session: AutoMovieArchetypeDrawSession<createBed.Dimension> =
-    new AutoMovieArchetypeDrawSession<createBed.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeBed.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeBed.Dimension>(
       "bed",
-      createBed.UNITS,
+      AutoMovieArchetypeBed.UNITS,
       seed,
       params,
     );
-  const size: Readonly<Partial<Record<createBed.Dimension, number>>> =
-    session.model<createBed.Mattress>(
+  const size: Readonly<Partial<Record<AutoMovieArchetypeBed.Dimension, number>>> =
+    session.model<AutoMovieArchetypeBed.Mattress>(
       "size",
       params.size,
       MATTRESS_SIZES[kind],
     ).figures;
-  const d: Partial<Record<createBed.Dimension, number>> = {
-    ...session.dimensions(createBed.BANDS[kind], createBed.BANDS),
+  const d: Partial<Record<AutoMovieArchetypeBed.Dimension, number>> = {
+    ...session.dimensions(AutoMovieArchetypeBed.BANDS[kind], AutoMovieArchetypeBed.BANDS),
     ...size,
   };
   const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
@@ -79,9 +79,9 @@ export namespace BedConstruction {
   /** Build a household bed or a mattress laid on the floor. */
   export function platform(
     kind: PlatformKind,
-    params: Omit<createBed.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<PlatformContact, createBed.Dimension> {
+  ): AutoMovieArchetype<PlatformContact, AutoMovieArchetypeBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<PlatformContact>> =
       draw<PlatformContact>(kind, params, seed);
     const width: number = d.width!;
@@ -148,9 +148,9 @@ export namespace BedConstruction {
    * siderails.
    */
   export function hospital(
-    params: Omit<createBed.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<HospitalContact, createBed.Dimension> {
+  ): AutoMovieArchetype<HospitalContact, AutoMovieArchetypeBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<HospitalContact>> =
       draw<HospitalContact>("hospital", params, seed);
     CareBedConstruction.hospital(builder, d);
@@ -162,9 +162,9 @@ export namespace BedConstruction {
 
   /** Build a stretcher on casters with a supported patient surface. */
   export function gurney(
-    params: Omit<createBed.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<GurneyContact, createBed.Dimension> {
+  ): AutoMovieArchetype<GurneyContact, AutoMovieArchetypeBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<GurneyContact>> =
       draw<GurneyContact>("gurney", params, seed);
     CareBedConstruction.gurney(builder, d);
@@ -176,9 +176,9 @@ export namespace BedConstruction {
 
   /** Build a crib with a mattress and graspable top rails. */
   export function crib(
-    params: Omit<createBed.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<CribContact, createBed.Dimension> {
+  ): AutoMovieArchetype<CribContact, AutoMovieArchetypeBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CribContact>> =
       draw<CribContact>("crib", params, seed);
     CareBedConstruction.crib(builder, d);
@@ -195,9 +195,9 @@ export namespace BedConstruction {
 
   /** Build a bunk bed with two sleep surfaces and a graspable guard rail. */
   export function bunk(
-    params: Omit<createBed.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<BunkContact, createBed.Dimension> {
+  ): AutoMovieArchetype<BunkContact, AutoMovieArchetypeBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BunkContact>> =
       draw<BunkContact>("bunk", params, seed);
     CareBedConstruction.bunk(builder, d);

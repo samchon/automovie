@@ -1,10 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeMarks,
-  AutoMovieArchetypeDoor,
-  createSeat,
-  createStorage,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeMarks, AutoMovieArchetypeDoor, createSeat, AutoMovieArchetypeStorage } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -72,7 +66,7 @@ export function test_archetype_contract_marks(): void {
     { kind: "dining" },
     4,
   );
-  const chest: ReturnType<typeof createStorage> = createStorage(
+  const chest: ReturnType<typeof AutoMovieArchetypeStorage.create> = AutoMovieArchetypeStorage.create(
     { kind: "chest" },
     4,
   );

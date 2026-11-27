@@ -4,7 +4,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createStorage } from "./createStorage";
+import type { AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
 /** The UK furniture schedule. */
 const ADM: string =
@@ -28,8 +28,8 @@ const BILLY: string =
  */
 export const STORAGE_BANDS: Readonly<
   Record<
-    createStorage.Kind,
-    Readonly<Partial<Record<createStorage.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeStorage.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeStorage.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   wardrobe: {

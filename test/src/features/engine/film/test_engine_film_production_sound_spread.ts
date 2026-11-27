@@ -1,7 +1,4 @@
-import {
-  AutoMovieEngineSound,
-  materializeCompiledFormation,
-} from "@automovie/engine";
+import { AutoMovieEngineSound, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledShotSource,
@@ -79,7 +76,7 @@ const unit: (props: {
   interval: number;
   z: number;
 }): IAutoMovieCompiledFormation =>
-  materializeCompiledFormation({
+  AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: {
       id: props.id,
       model: `${props.id}-model`,

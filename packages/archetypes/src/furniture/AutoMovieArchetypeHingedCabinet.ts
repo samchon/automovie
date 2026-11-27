@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createHingedCabinet as createHingedCabinetImplementation } from "./internal/createHingedCabinet";
-import { type createStorage } from "./createStorage";
+import { type AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
 /** Public operations for Auto Movie Archetype Hinged Cabinet. */
 export namespace AutoMovieArchetypeHingedCabinet {
@@ -62,7 +62,7 @@ export namespace AutoMovieArchetypeHingedCabinet {
 
   /** The settings both hinged cabinets share. */
   export type IBaseParams = Pick<
-    createStorage.IParams,
+    AutoMovieArchetypeStorage.IParams,
     "id" | "height" | "mass"
   >;
 
@@ -70,7 +70,7 @@ export namespace AutoMovieArchetypeHingedCabinet {
   export interface IWardrobeParams
     extends
       IBaseParams,
-      Pick<createStorage.IParams, "width" | "depth" | "pullHeight"> {
+      Pick<AutoMovieArchetypeStorage.IParams, "width" | "depth" | "pullHeight"> {
     /** A wardrobe. */
     kind: "wardrobe";
 
@@ -80,7 +80,7 @@ export namespace AutoMovieArchetypeHingedCabinet {
 
   /** A steel locker with its choice of body size. */
   export interface ILockerParams
-    extends IBaseParams, Pick<createStorage.IParams, "legs"> {
+    extends IBaseParams, Pick<AutoMovieArchetypeStorage.IParams, "legs"> {
     /** A steel locker. */
     kind: "locker";
 

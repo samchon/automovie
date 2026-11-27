@@ -1,7 +1,7 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
   type IAutoMovieDrawScene,
-  observeAutoMoviePlacedCamera,
+  AutoMovieRenderInspectionCamera,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -47,7 +47,7 @@ export function test_render_scene_observe_placed_camera(): void {
   type IPacket = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
 
   /** Source requirements active in the sample. */
-  type ITargets = Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];
+  type ITargets = Parameters<typeof AutoMovieRenderInspectionCamera.observePlaced>[0]["targets"];
   const observe: (
     mode: IAutoMovieDrawScene.IPlacedSample["mode"],
     targets: ITargets,
@@ -57,7 +57,7 @@ export function test_render_scene_observe_placed_camera(): void {
   ): IPacket => {
     scene.updateMatrixWorld(true);
     camera.updateWorldMatrix(true, false);
-    return observeAutoMoviePlacedCamera({
+    return AutoMovieRenderInspectionCamera.observePlaced({
       sample: {
         time: { filmSeconds: 0 },
         scene,

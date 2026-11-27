@@ -1,8 +1,4 @@
-import {
-  AutoMovieEngineViolationCollector,
-  compileCameraClearanceReports,
-  evaluateCameraClearance,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraClearanceEvaluation,
@@ -60,12 +56,12 @@ export function test_engine_film_camera_clearance_boundaries(): void {
   const compile = (
     out: IAutoMovieViolationCollector,
     coverage: Parameters<
-      typeof compileCameraClearanceReports
+      typeof AutoMovieEngineFilm.compileCameraClearanceReports
     >[0]["coverage"] = [],
     duration: number = 1,
     sampleRate: number = 4,
   ): IAutoMovieCameraClearanceReport[] | undefined =>
-    compileCameraClearanceReports({
+    AutoMovieEngineFilm.compileCameraClearanceReports({
       scene,
       hero: { camera: hero, motion: null },
       coverage,
@@ -138,7 +134,7 @@ export function test_engine_film_camera_clearance_boundaries(): void {
     max: { x: 1, y: 1, z: 1 },
   };
   type ISample = Parameters<
-    typeof evaluateCameraClearance
+    typeof AutoMovieEngineFilm.evaluateCameraClearance
   >[0]["samples"][number];
   const evaluation: IAutoMovieCameraClearanceEvaluation = {
     camera: "camera-main",
@@ -162,7 +158,7 @@ export function test_engine_film_camera_clearance_boundaries(): void {
     ),
   };
   const ordered: IAutoMovieCameraClearanceReport =
-    evaluateCameraClearance(evaluation);
+    AutoMovieEngineFilm.evaluateCameraClearance(evaluation);
   TestValidator.equals(
     "findings follow code-unit order",
     ordered.findings.map(
@@ -173,12 +169,12 @@ export function test_engine_film_camera_clearance_boundaries(): void {
   TestValidator.predicate(
     "the evaluator refuses nonfinite duration and rate on their own fields",
     throwsError(
-      () => evaluateCameraClearance({ ...evaluation, duration: Infinity }),
+      () => AutoMovieEngineFilm.evaluateCameraClearance({ ...evaluation, duration: Infinity }),
       "$input.duration",
     ) &&
       throwsError(
         () =>
-          evaluateCameraClearance({
+          AutoMovieEngineFilm.evaluateCameraClearance({
             ...evaluation,
             duration: 0,
             sampleRate: Infinity,

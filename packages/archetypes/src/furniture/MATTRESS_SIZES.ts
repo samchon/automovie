@@ -1,4 +1,4 @@
-import type { createBed } from "./createBed";
+import type { AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
 /**
  * A loose mattress's sizes by the UK bed size it fits, by kind, metres, the
@@ -9,11 +9,11 @@ import type { createBed } from "./createBed";
 export const MATTRESS_SIZES: Readonly<
   Partial<
     Record<
-      createBed.Kind,
+      AutoMovieArchetypeBed.Kind,
       Readonly<
         Record<
-          createBed.Mattress,
-          Readonly<Partial<Record<createBed.Dimension, number>>>
+          AutoMovieArchetypeBed.Mattress,
+          Readonly<Partial<Record<AutoMovieArchetypeBed.Dimension, number>>>
         >
       >
     >

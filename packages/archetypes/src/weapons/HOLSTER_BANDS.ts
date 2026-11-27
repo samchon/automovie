@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createHolster } from "./createHolster";
+import type { AutoMovieArchetypeHolster } from "./AutoMovieArchetypeHolster";
 
 /** What no scabbard maker read gives. */
 const UNREAD: string =
@@ -28,8 +28,8 @@ const BOX: string =
  */
 export const HOLSTER_BANDS: Readonly<
   Record<
-    createHolster.Kind,
-    Readonly<Partial<Record<createHolster.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeHolster.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeHolster.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   holster: {

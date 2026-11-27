@@ -7,16 +7,16 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
-import type { createHandgun } from "./createHandgun";
+import type { AutoMovieArchetypeHandgun } from "./AutoMovieArchetypeHandgun";
 
 /** A handgun under construction. */
 type Builder = AutoMovieArchetypeBuilder<
-  createHandgun.Affordance,
-  createHandgun.Dimension
+  AutoMovieArchetypeHandgun.Affordance,
+  AutoMovieArchetypeHandgun.Dimension
 >;
 
 /** A handgun's drawn and read dimensions. */
-type Drawn = Readonly<Partial<Record<createHandgun.Dimension, number>>>;
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeHandgun.Dimension, number>>>;
 
 /**
  * The revolver's and the flintlock pistol's bodies and mechanisms, the handgun
@@ -234,7 +234,7 @@ export namespace HandgunActions {
       travel: e.gate,
       parts: ["gate"],
     });
-    const chamberIds: readonly createHandgun.Affordance[] = [
+    const chamberIds: readonly AutoMovieArchetypeHandgun.Affordance[] = [
       "chamber1",
       "chamber2",
       "chamber3",

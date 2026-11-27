@@ -2,7 +2,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { BallBuild } from "./BallBuild";
-import type { createBall } from "./createBall";
+import type { AutoMovieArchetypeBall } from "./AutoMovieArchetypeBall";
 
 /**
  * A golf ball's rolling resistance on a green: the USGA Stimpmeter releases the
@@ -39,13 +39,13 @@ export namespace AutoMovieArchetypeSphericalBall {
 
   /** The applicable sport profile. */
   export type Kind = Exclude<
-    createBall.Kind,
+    AutoMovieArchetypeBall.Kind,
     "rugby" | "americanFootball" | "puck"
   >;
 
   /** The identifier, dimensions and choices of this shape. */
   export interface IParams extends Pick<
-    createBall.IParams,
+    AutoMovieArchetypeBall.IParams,
     "id" | "diameter" | "mass"
   > {
     /** The sport profile. Omission selects football. */

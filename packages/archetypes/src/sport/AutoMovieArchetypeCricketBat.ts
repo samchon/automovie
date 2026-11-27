@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetype } from "../core";
 import { StickBuild } from "./StickBuild";
-import type { createStick } from "./createStick";
+import type { AutoMovieArchetypeStick } from "./AutoMovieArchetypeStick";
 
 /** Points in the local model frame, in metres. */
 const v: typeof Vector3.create = Vector3.create;
@@ -63,7 +63,7 @@ export namespace AutoMovieArchetypeCricketBat {
 
   /** The identifier and overrides available within this profile. */
   export type IParams = Pick<
-    createStick.IParams,
+    AutoMovieArchetypeStick.IParams,
     "id" | "length" | "head" | "width" | "depth" | "mass"
   >;
 }

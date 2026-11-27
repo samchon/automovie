@@ -18,7 +18,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import type { createArmour } from "./createArmour";
+import type { AutoMovieArchetypeArmour } from "./AutoMovieArchetypeArmour";
 
 /** Every wearer socket a costume piece can occupy, in declaration order. */
 const SLOTS: readonly assembleCostumeArmour.Slot[] = [
@@ -34,7 +34,7 @@ const SLOTS: readonly assembleCostumeArmour.Slot[] = [
 
 /** The piece names each existing wearer socket can carry. */
 const PIECES: Readonly<
-  Record<assembleCostumeArmour.Slot, readonly createArmour.Kind[]>
+  Record<assembleCostumeArmour.Slot, readonly AutoMovieArchetypeArmour.Kind[]>
 > = {
   head: ["openHelmet", "closedHelmet", "brimmedHelmet"],
   chest: ["cuirass", "mail"],
@@ -107,7 +107,7 @@ export function assembleCostumeArmour(
     if (
       model.archetype !== "armour" ||
       !PIECES[bone].some(
-        (kind: createArmour.Kind): boolean => kind === model.name,
+        (kind: AutoMovieArchetypeArmour.Kind): boolean => kind === model.name,
       )
     )
       throw refuse(
@@ -157,8 +157,8 @@ export namespace assembleCostumeArmour {
 
   /** The shared measured costume model, retaining its wear socket. */
   export type Model = AutoMovieArchetype<
-    createArmour.Affordance,
-    createArmour.Dimension
+    AutoMovieArchetypeArmour.Affordance,
+    AutoMovieArchetypeArmour.Dimension
   >;
 
   /**

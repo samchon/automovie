@@ -3,22 +3,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import {
-  AutoMovieArchetypeEquineGait,
-  createHorse,
-  rideHorse,
-} from "../animals";
+import { AutoMovieArchetypeEquineGait, rideHorse, AutoMovieArchetypeHorse } from "../animals";
 import type { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
-import { createAppliance, AutoMovieArchetypeDoor, createSanitary, AutoMovieArchetypeWindow } from "../architecture";
+import { AutoMovieArchetypeDoor, AutoMovieArchetypeWindow, AutoMovieArchetypeAppliance, AutoMovieArchetypeSanitary } from "../architecture";
 import { type AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
-import { createBed, createSeat, createStorage, createTable, AutoMovieArchetypeShowcase, AutoMovieArchetypeBarrel, AutoMovieArchetypeConsole, AutoMovieArchetypeHighChair, AutoMovieArchetypeLectern, AutoMovieArchetypeLoad, AutoMovieArchetypeSafe } from "../furniture";
+import { createSeat, AutoMovieArchetypeShowcase, AutoMovieArchetypeBarrel, AutoMovieArchetypeConsole, AutoMovieArchetypeHighChair, AutoMovieArchetypeLectern, AutoMovieArchetypeLoad, AutoMovieArchetypeSafe, AutoMovieArchetypeBed, AutoMovieArchetypeStorage, AutoMovieArchetypeTable } from "../furniture";
 import { AutoMovieArchetypeBalanceBeam, AutoMovieArchetypeBoxingGlove, AutoMovieArchetypeHeavyBag, AutoMovieArchetypeRhythmicBall, AutoMovieArchetypeStillRings, AutoMovieArchetypeUnevenBars, AutoMovieArchetypeWoodenDummy } from "../gym";
-import { createInstrument, AutoMovieArchetypeMicrophone } from "../music";
+import { AutoMovieArchetypeMicrophone, AutoMovieArchetypeInstrument } from "../music";
 import { AutoMovieArchetypeFireRing, AutoMovieArchetypeRock, AutoMovieArchetypeTent, AutoMovieArchetypeTree } from "../nature";
-import { createBag, createCareItem, createDrinkware, createLight, createLongTool, createMobilityAid, createTool, createVessel, AutoMovieArchetypeDevice, AutoMovieArchetypeSmoking, AutoMovieArchetypeStationery, AutoMovieArchetypeBox, AutoMovieArchetypeFood, AutoMovieArchetypeTableware, AutoMovieArchetypeUmbrella } from "../props";
-import { AutoMovieArchetypeCue, AutoMovieArchetypeCueTable, createGoal, createStick, AutoMovieArchetypeSurfboard, AutoMovieArchetypeHighJump, AutoMovieArchetypePoolEdge, AutoMovieArchetypeSkateboard, AutoMovieArchetypeSki } from "../sport";
-import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeMotorcycle, AutoMovieArchetypeBoat, createCart, createWheelchair, driveCar, rideBicycle, rideMotorcycle, AutoMovieArchetypeDeck } from "../vehicles";
-import { createLongGun } from "../weapons";
+import { AutoMovieArchetypeDevice, AutoMovieArchetypeSmoking, AutoMovieArchetypeStationery, AutoMovieArchetypeBox, AutoMovieArchetypeFood, AutoMovieArchetypeTableware, AutoMovieArchetypeUmbrella, AutoMovieArchetypeBag, AutoMovieArchetypeCareItem, AutoMovieArchetypeDrinkware, AutoMovieArchetypeLight, AutoMovieArchetypeLongTool, AutoMovieArchetypeMobilityAid, AutoMovieArchetypeTool, AutoMovieArchetypeVessel } from "../props";
+import { AutoMovieArchetypeCue, AutoMovieArchetypeCueTable, AutoMovieArchetypeSurfboard, AutoMovieArchetypeHighJump, AutoMovieArchetypePoolEdge, AutoMovieArchetypeSkateboard, AutoMovieArchetypeSki, AutoMovieArchetypeGoal, AutoMovieArchetypeStick } from "../sport";
+import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeMotorcycle, AutoMovieArchetypeBoat, driveCar, rideBicycle, rideMotorcycle, AutoMovieArchetypeDeck, AutoMovieArchetypeCart, AutoMovieArchetypeWheelchair } from "../vehicles";
+import { AutoMovieArchetypeLongGun } from "../weapons";
 import { archetypeCaptureAnimals } from "./archetypeCaptureAnimals";
 import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
 import { archetypeCaptureBreakage } from "./archetypeCaptureBreakage";
@@ -55,13 +51,13 @@ export function archetypeCaptureCatalog(): Readonly<
     archetypeCaptureSubject.moving;
 
   const door: ReturnType<typeof AutoMovieArchetypeDoor.create> = AutoMovieArchetypeDoor.create({ hardware: "lever" });
-  const chest: ReturnType<typeof createStorage> = createStorage({
+  const chest: ReturnType<typeof AutoMovieArchetypeStorage.create> = AutoMovieArchetypeStorage.create({
     kind: "chest",
   });
-  const wardrobe: ReturnType<typeof createStorage> = createStorage({
+  const wardrobe: ReturnType<typeof AutoMovieArchetypeStorage.create> = AutoMovieArchetypeStorage.create({
     kind: "wardrobe",
   });
-  const suitcase: ReturnType<typeof createBag> = createBag({
+  const suitcase: ReturnType<typeof AutoMovieArchetypeBag.create> = AutoMovieArchetypeBag.create({
     kind: "suitcase",
   });
   const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
@@ -70,9 +66,9 @@ export function archetypeCaptureCatalog(): Readonly<
     });
   const bicycle: ReturnType<typeof AutoMovieArchetypeBicycle.create> =
     AutoMovieArchetypeBicycle.create();
-  const horse: ReturnType<typeof createHorse> = createHorse();
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create();
   const rings: ReturnType<typeof AutoMovieArchetypeStillRings.create> = AutoMovieArchetypeStillRings.create();
-  const carbine: ReturnType<typeof createLongGun> = createLongGun({
+  const carbine: ReturnType<typeof AutoMovieArchetypeLongGun.create> = AutoMovieArchetypeLongGun.create({
     kind: "carbine",
   });
 
@@ -96,9 +92,9 @@ export function archetypeCaptureCatalog(): Readonly<
     drinkware: still(
       kinds(
         "drinkware",
-        createDrinkware.KINDS,
-        (kind: createDrinkware.Kind): AutoMovieArchetype =>
-          createDrinkware({ kind }),
+        AutoMovieArchetypeDrinkware.KINDS,
+        (kind: AutoMovieArchetypeDrinkware.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeDrinkware.create({ kind }),
       ),
     ),
     "small-props": still({
@@ -121,28 +117,28 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       ...kinds(
         "care",
-        createCareItem.KINDS,
-        (kind: createCareItem.Kind): AutoMovieArchetype =>
-          createCareItem({ kind }),
+        AutoMovieArchetypeCareItem.KINDS,
+        (kind: AutoMovieArchetypeCareItem.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeCareItem.create({ kind }),
       ),
     }),
     "carried-props": still({
       ...kinds(
         "bag",
-        createBag.KINDS,
-        (kind: createBag.Kind): AutoMovieArchetype => createBag({ kind }),
+        AutoMovieArchetypeBag.KINDS,
+        (kind: AutoMovieArchetypeBag.Kind): AutoMovieArchetype => AutoMovieArchetypeBag.create({ kind }),
       ),
       box: AutoMovieArchetypeBox.create(),
       ...kinds(
         "tool",
-        createTool.KINDS,
-        (kind: createTool.Kind): AutoMovieArchetype => createTool({ kind }),
+        AutoMovieArchetypeTool.KINDS,
+        (kind: AutoMovieArchetypeTool.Kind): AutoMovieArchetype => AutoMovieArchetypeTool.create({ kind }),
       ),
       ...kinds(
         "longTool",
-        createLongTool.KINDS,
-        (kind: createLongTool.Kind): AutoMovieArchetype =>
-          createLongTool({ kind }),
+        AutoMovieArchetypeLongTool.KINDS,
+        (kind: AutoMovieArchetypeLongTool.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeLongTool.create({ kind }),
       ),
     }),
     tableware: still({
@@ -159,21 +155,21 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       ...kinds(
         "light",
-        createLight.KINDS,
-        (kind: createLight.Kind): AutoMovieArchetype => createLight({ kind }),
+        AutoMovieArchetypeLight.KINDS,
+        (kind: AutoMovieArchetypeLight.Kind): AutoMovieArchetype => AutoMovieArchetypeLight.create({ kind }),
       ),
       umbrella: AutoMovieArchetypeUmbrella.create(),
       "umbrella-open": AutoMovieArchetypeUmbrella.create({ open: true }),
       ...kinds(
         "mobilityAid",
-        createMobilityAid.KINDS,
-        (kind: createMobilityAid.Kind): AutoMovieArchetype =>
-          createMobilityAid({ kind }),
+        AutoMovieArchetypeMobilityAid.KINDS,
+        (kind: AutoMovieArchetypeMobilityAid.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeMobilityAid.create({ kind }),
       ),
       ...kinds(
         "vessel",
-        createVessel.KINDS,
-        (kind: createVessel.Kind): AutoMovieArchetype => createVessel({ kind }),
+        AutoMovieArchetypeVessel.KINDS,
+        (kind: AutoMovieArchetypeVessel.Kind): AutoMovieArchetype => AutoMovieArchetypeVessel.create({ kind }),
       ),
     }),
     seats: still(
@@ -186,19 +182,19 @@ export function archetypeCaptureCatalog(): Readonly<
     furniture: still({
       ...kinds(
         "bed",
-        createBed.KINDS,
-        (kind: createBed.Kind): AutoMovieArchetype => createBed({ kind }),
+        AutoMovieArchetypeBed.KINDS,
+        (kind: AutoMovieArchetypeBed.Kind): AutoMovieArchetype => AutoMovieArchetypeBed.create({ kind }),
       ),
       ...kinds(
         "table",
-        createTable.KINDS,
-        (kind: createTable.Kind): AutoMovieArchetype => createTable({ kind }),
+        AutoMovieArchetypeTable.KINDS,
+        (kind: AutoMovieArchetypeTable.Kind): AutoMovieArchetype => AutoMovieArchetypeTable.create({ kind }),
       ),
       ...kinds(
         "storage",
-        createStorage.KINDS,
-        (kind: createStorage.Kind): AutoMovieArchetype =>
-          createStorage({ kind }),
+        AutoMovieArchetypeStorage.KINDS,
+        (kind: AutoMovieArchetypeStorage.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeStorage.create({ kind }),
       ),
       ...kinds(
         "load",
@@ -233,14 +229,14 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       ...kinds(
         "cart",
-        createCart.KINDS,
-        (kind: createCart.Kind): AutoMovieArchetype => createCart({ kind }),
+        AutoMovieArchetypeCart.KINDS,
+        (kind: AutoMovieArchetypeCart.Kind): AutoMovieArchetype => AutoMovieArchetypeCart.create({ kind }),
       ),
       ...kinds(
         "wheelchair",
-        createWheelchair.KINDS,
-        (kind: createWheelchair.Kind): AutoMovieArchetype =>
-          createWheelchair({ kind }),
+        AutoMovieArchetypeWheelchair.KINDS,
+        (kind: AutoMovieArchetypeWheelchair.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeWheelchair.create({ kind }),
       ),
       ...kinds(
         "boat",
@@ -314,10 +310,10 @@ export function archetypeCaptureCatalog(): Readonly<
         wheel: 90,
       }),
       "bicycle-quarter": bicycle.articulate({ crank: 90 }),
-      "toilet-lid-down": createSanitary({ kind: "toilet" }).articulate({
-        lid: createSanitary.LIFT,
+      "toilet-lid-down": AutoMovieArchetypeSanitary.create({ kind: "toilet" }).articulate({
+        lid: AutoMovieArchetypeSanitary.LIFT,
       }),
-      "fridge-open": createAppliance({ kind: "refrigerator" }).articulate({
+      "fridge-open": AutoMovieArchetypeAppliance.create({ kind: "refrigerator" }).articulate({
         fridgeDoor: 90,
       }),
       "carbine-extended": carbine.articulate({
@@ -336,13 +332,13 @@ export function archetypeCaptureCatalog(): Readonly<
       heavyBag: AutoMovieArchetypeHeavyBag.create(),
       ...kinds(
         "goal",
-        createGoal.KINDS,
-        (kind: createGoal.Kind): AutoMovieArchetype => createGoal({ kind }),
+        AutoMovieArchetypeGoal.KINDS,
+        (kind: AutoMovieArchetypeGoal.Kind): AutoMovieArchetype => AutoMovieArchetypeGoal.create({ kind }),
       ),
       ...kinds(
         "stick",
-        createStick.KINDS,
-        (kind: createStick.Kind): AutoMovieArchetype => createStick({ kind }),
+        AutoMovieArchetypeStick.KINDS,
+        (kind: AutoMovieArchetypeStick.Kind): AutoMovieArchetype => AutoMovieArchetypeStick.create({ kind }),
       ),
       cue: AutoMovieArchetypeCue.create(),
       cueTable: AutoMovieArchetypeCueTable.create(),
@@ -353,9 +349,9 @@ export function archetypeCaptureCatalog(): Readonly<
     music: still({
       ...kinds(
         "instrument",
-        createInstrument.KINDS,
-        (kind: createInstrument.Kind): AutoMovieArchetype =>
-          createInstrument({ kind }),
+        AutoMovieArchetypeInstrument.KINDS,
+        (kind: AutoMovieArchetypeInstrument.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeInstrument.create({ kind }),
       ),
       ...kinds(
         "microphone",
@@ -378,7 +374,7 @@ export function archetypeCaptureCatalog(): Readonly<
     ),
     "ride-trolley": moving(
       "trolley",
-      AutoMovieArchetypeRide.along(createCart({ kind: "trolley" }), {
+      AutoMovieArchetypeRide.along(AutoMovieArchetypeCart.create({ kind: "trolley" }), {
         ...archetypeCaptureCourse,
         cruise: 1.3,
       }),

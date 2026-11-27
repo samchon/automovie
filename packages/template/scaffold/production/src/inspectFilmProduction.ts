@@ -6,7 +6,7 @@ import type {
 import {
   type IAutoMovieDrawScene,
   observeAutoMovieCollisionMotion,
-  observeAutoMoviePlacedCamera,
+  AutoMovieRenderInspectionCamera,
   observeAutoMoviePlacedScene,
   observeAutoMovieSceneCollision,
 } from "@automovie/render";
@@ -164,10 +164,10 @@ export function inspectFilmProduction(props: {
   });
   const motion: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
     observeMotion(props, layersAt);
-  const targets: Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"] =
+  const targets: Parameters<typeof AutoMovieRenderInspectionCamera.observePlaced>[0]["targets"] =
     production.inspectionCamera?.(sample) ?? [];
   const camera: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
-    observeAutoMoviePlacedCamera({ sample, targets });
+    AutoMovieRenderInspectionCamera.observePlaced({ sample, targets });
   const human: FilmVerdictPacket =
     sample.mode === "viewer" || props.verdicts === undefined
       ? { findings: [], coverage: [] }

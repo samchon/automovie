@@ -1,4 +1,4 @@
-import { createHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanContactWindow,
@@ -14,7 +14,7 @@ import { motionActionContext } from "../../../internal/motionActionContext";
 /** The mount's own prepared support order and settled boundary on the real tack. */
 export async function test_motions_mounted_material_transfer(): Promise<void> {
   const body = await humanFixtureBody("m-average");
-  const horse = createHorse(
+  const horse = AutoMovieArchetypeHorse.create(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
     1028,
   );

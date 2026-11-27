@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { createRickshaw } from "./cart/createRickshaw";
 
 /** Canonical producer and authoring contract for Rickshaw. */
@@ -46,11 +46,11 @@ export namespace AutoMovieArchetypeRickshaw {
    * builds coupling, footboard, leftShaft, leftSpin, rightShaft, rightSpin,
    * seat.
    */
-  export type Affordance = createCart.Affordance;
+  export type Affordance = AutoMovieArchetypeCart.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createCart.IParams,
+    AutoMovieArchetypeCart.IParams,
     "id" | "wheelDiameter" | "gripHeight" | "mass"
   > {
     /** A model from this form's catalogue. */

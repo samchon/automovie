@@ -1,4 +1,4 @@
-import type { validateModel } from "@automovie/engine";
+import type { AutoMovieEngineValidation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "./predicates";
@@ -20,11 +20,11 @@ import { hasViolation, namedFacts } from "./predicates";
 export const assertViewerPbrDeclarationRefusals: (
   validateMaterial: (
     patch: Record<string, unknown>,
-  ) => ReturnType<typeof validateModel>,
+  ) => ReturnType<typeof AutoMovieEngineValidation.validateModel>,
 ) => void = (
   validateMaterial: (
     patch: Record<string, unknown>,
-  ) => ReturnType<typeof validateModel>,
+  ) => ReturnType<typeof AutoMovieEngineValidation.validateModel>,
 ): void => {
   const materialRefusedAt: (
     patch: Record<string, unknown>,

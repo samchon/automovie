@@ -1,4 +1,4 @@
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieMaterial,
@@ -42,7 +42,7 @@ export function test_material_procedural_admission(): void {
     procedural: unknown,
     extra: Partial<IAutoMovieMaterial> = {},
   ): IAutoMovieValidation =>
-    validateModel({
+    AutoMovieEngineValidation.validateModel({
       model: boxModel({
         id: "card",
         materials: [
@@ -145,7 +145,7 @@ export function test_material_procedural_admission(): void {
   });
   TestValidator.predicate(
     "a piece material on a primitive without UV0 is refused at the part",
-    hasViolation(validateModel({ model }), "type", "$input.parts[0].geometry"),
+    hasViolation(AutoMovieEngineValidation.validateModel({ model }), "type", "$input.parts[0].geometry"),
   );
 }
 

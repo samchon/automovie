@@ -5,10 +5,10 @@ import {
 } from "../core";
 import { STORAGE_MODELS } from "./STORAGE_MODELS";
 import { StorageConstruction } from "./StorageConstruction";
-import { createStorage } from "./createStorage";
+import { AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
 /** The name each kind's model carries. */
-const NAMES: Readonly<Record<createStorage.Kind, string>> = {
+const NAMES: Readonly<Record<AutoMovieArchetypeStorage.Kind, string>> = {
   wardrobe: "wardrobe",
   chest: "chest of drawers",
   filingCabinet: "filing cabinet",
@@ -17,16 +17,16 @@ const NAMES: Readonly<Record<createStorage.Kind, string>> = {
 };
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createStorage.Affordance> = AutoMovieArchetypeBuilder<
+type Builder<Id extends AutoMovieArchetypeStorage.Affordance> = AutoMovieArchetypeBuilder<
   Id,
-  createStorage.Dimension
+  AutoMovieArchetypeStorage.Dimension
 >;
 
 /** Model dimensions in the legacy family's recorded units. */
-type Dimensions = Partial<Record<createStorage.Dimension, number>>;
+type Dimensions = Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>;
 
 /** A started construction: its builder and its drawn dimensions. */
-interface IDrawn<Id extends createStorage.Affordance> {
+interface IDrawn<Id extends AutoMovieArchetypeStorage.Affordance> {
   /** The model-space builder for the selected contact ids. */
   builder: Builder<Id>;
 
@@ -38,26 +38,26 @@ interface IDrawn<Id extends createStorage.Affordance> {
  * Pick the recorded hinge or slide model and use its figures in the saved
  * dimension stream.
  */
-function draw<Id extends createStorage.Affordance>(
-  kind: createStorage.Kind,
-  params: Omit<createStorage.IParams, "kind">,
+function draw<Id extends AutoMovieArchetypeStorage.Affordance>(
+  kind: AutoMovieArchetypeStorage.Kind,
+  params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
   seed?: number,
 ): IDrawn<Id> {
-  const session: AutoMovieArchetypeDrawSession<createStorage.Dimension> =
-    new AutoMovieArchetypeDrawSession<createStorage.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStorage.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeStorage.Dimension>(
       "storage",
-      createStorage.UNITS,
+      AutoMovieArchetypeStorage.UNITS,
       seed,
       params,
     );
-  const model: Readonly<Partial<Record<createStorage.Dimension, number>>> =
-    session.model<createStorage.Model>(
+  const model: Readonly<Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>> =
+    session.model<AutoMovieArchetypeStorage.Model>(
       "model",
       params.model,
       STORAGE_MODELS[kind],
     ).figures;
-  const d: Partial<Record<createStorage.Dimension, number>> = {
-    ...session.dimensions(createStorage.BANDS[kind], createStorage.BANDS),
+  const d: Partial<Record<AutoMovieArchetypeStorage.Dimension, number>> = {
+    ...session.dimensions(AutoMovieArchetypeStorage.BANDS[kind], AutoMovieArchetypeStorage.BANDS),
     ...model,
   };
   const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
@@ -91,9 +91,9 @@ export namespace StorageMechanisms {
   /** Build a hinged wardrobe or locker with the matching supported travel. */
   export function hinged(
     kind: HingedKind,
-    params: Omit<createStorage.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<HingedContact, createStorage.Dimension> {
+  ): AutoMovieArchetype<HingedContact, AutoMovieArchetypeStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<HingedContact>> =
       draw<HingedContact>(kind, params, seed);
     StorageConstruction[kind](builder, d);
@@ -113,9 +113,9 @@ export namespace StorageMechanisms {
   /** Build a unit with drawers and carried pull grips. */
   export function sliding(
     kind: SlidingKind,
-    params: Omit<createStorage.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<SlidingContact, createStorage.Dimension> {
+  ): AutoMovieArchetype<SlidingContact, AutoMovieArchetypeStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<SlidingContact>> =
       draw<SlidingContact>(kind, params, seed);
     StorageConstruction.drawers(builder, d, StorageConstruction.DRAWERS[kind]);
@@ -127,9 +127,9 @@ export namespace StorageMechanisms {
 
   /** Build a bookcase with open, visible shelf supports. */
   export function bookcase(
-    params: Omit<createStorage.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<BookcaseContact, createStorage.Dimension> {
+  ): AutoMovieArchetype<BookcaseContact, AutoMovieArchetypeStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BookcaseContact>> =
       draw<BookcaseContact>("bookcase", params, seed);
     StorageConstruction.bookcase(builder, d);

@@ -1,9 +1,9 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, } from "../core";
-import type { createAppliance } from "./createAppliance";
-import type { createMachine } from "./createMachine";
+import type { AutoMovieArchetypeAppliance } from "./AutoMovieArchetypeAppliance";
+import type { AutoMovieArchetypeMachine } from "./AutoMovieArchetypeMachine";
 import type { AutoMovieArchetypeObstacle } from "./AutoMovieArchetypeObstacle";
-import type { createSanitary } from "./createSanitary";
+import type { AutoMovieArchetypeSanitary } from "./AutoMovieArchetypeSanitary";
 import type { AutoMovieArchetypeStreetFixture } from "./AutoMovieArchetypeStreetFixture";
 /**
  * The units of saved architectural recipes and the dimension-only draw used by
@@ -22,7 +22,7 @@ export namespace FixtureDraw {
         }): void;
     }
     /** Units of the recorded appliance dimensions. */
-    export const appliance: Readonly<Record<createAppliance.Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
+    export const appliance: Readonly<Record<AutoMovieArchetypeAppliance.Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
         height: "m",
         width: "m",
         depth: "m",
@@ -34,14 +34,14 @@ export namespace FixtureDraw {
         mass: "kg",
     };
     /** Units of the recorded machine dimensions. */
-    export const machine: Readonly<Record<createMachine.Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
+    export const machine: Readonly<Record<AutoMovieArchetypeMachine.Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
         width: "m",
         height: "m",
         depth: "m",
         mass: "kg",
     };
     /** Units of the recorded sanitary dimensions. */
-    export const sanitary: Readonly<Record<createSanitary.Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
+    export const sanitary: Readonly<Record<AutoMovieArchetypeSanitary.Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
         rim: "m",
         basinDepth: "m",
         width: "m",

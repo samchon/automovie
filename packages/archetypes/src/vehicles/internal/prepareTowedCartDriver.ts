@@ -10,7 +10,7 @@ import type { AutoMovieArchetype } from "../../core/AutoMovieArchetype";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "../../core/AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeRide } from "../../core/AutoMovieArchetypeRide";
-import { createCart } from "../createCart";
+import { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
 /**
  * Bind a towed cart's driver to its placement, footboard, seat and driving
@@ -19,15 +19,15 @@ import { createCart } from "../createCart";
  * line tangent, so steering does not pull the hand off the rein.
  */
 export function prepareTowedCartDriver(
-  cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
+  cart: AutoMovieArchetype<AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Dimension>,
   ride: AutoMovieArchetypeRide.ITowedRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   >,
 ): RigidCarrierSample.IBinding {
   const playback: IAutoMovieMotionPlayback<RigidCarrierSample.IRead> = {
     sample: (seconds: number): RigidCarrierSample.IRead => {
-      const current: AutoMovieArchetypeRide.ITowedSample<createCart.Affordance> =
+      const current: AutoMovieArchetypeRide.ITowedSample<AutoMovieArchetypeCart.Affordance> =
         ride.geometry(seconds);
       const frame: IAutoMovieRigidTransform = {
         position: current.placement.translation,
@@ -36,9 +36,9 @@ export function prepareTowedCartDriver(
       return {
         frame,
         point: (id: string): IAutoMovieTransform => {
-          const affordance: createCart.Affordance | undefined =
-            createCart.AFFORDANCES.find(
-              (known: createCart.Affordance): boolean => known === id,
+          const affordance: AutoMovieArchetypeCart.Affordance | undefined =
+            AutoMovieArchetypeCart.AFFORDANCES.find(
+              (known: AutoMovieArchetypeCart.Affordance): boolean => known === id,
             );
           if (affordance === undefined)
             throw new RangeError(`A cart has no affordance "${id}".`);

@@ -1,7 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  createSiegeEngine,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
 import { AutoMovieAir } from "@automovie/engine";
 import type { IAutoMovieProjectileState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -25,16 +22,16 @@ const G: number = 9.80665;
  */
 export function test_archetype_siege_launch_seed(): void {
   const findings: string[] = [];
-  for (const kind of createSiegeEngine.KINDS)
+  for (const kind of AutoMovieArchetypeSiegeEngine.KINDS)
     for (const seed of [0, 5, 9]) {
       const engine: AutoMovieArchetype<
-        createSiegeEngine.Affordance,
-        createSiegeEngine.Dimension
-      > = createSiegeEngine({ kind }, seed);
+        AutoMovieArchetypeSiegeEngine.Affordance,
+        AutoMovieArchetypeSiegeEngine.Dimension
+      > = AutoMovieArchetypeSiegeEngine.create({ kind }, seed);
       const label: string = `${kind}@${seed}`;
-      const a: createSiegeEngine.IThrow = createSiegeEngine.throwAt(engine, 2);
-      const b: createSiegeEngine.IThrow = createSiegeEngine.throwAt(engine, 2);
-      const late: createSiegeEngine.IThrow = createSiegeEngine.throwAt(
+      const a: AutoMovieArchetypeSiegeEngine.IThrow = AutoMovieArchetypeSiegeEngine.throwAt(engine, 2);
+      const b: AutoMovieArchetypeSiegeEngine.IThrow = AutoMovieArchetypeSiegeEngine.throwAt(engine, 2);
+      const late: AutoMovieArchetypeSiegeEngine.IThrow = AutoMovieArchetypeSiegeEngine.throwAt(
         engine,
         5,
       );

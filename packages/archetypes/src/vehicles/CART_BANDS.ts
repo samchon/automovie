@@ -5,7 +5,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { CART_MODELS } from "./CART_MODELS";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /** A shopping trolley, from its maker's page and a reseller's listing. */
 const TROLLEY: string =
@@ -52,14 +52,14 @@ const BROUGHAM: string =
  * @returns The least and the greatest read figure.
  */
 function spread(
-  kind: createCart.Kind,
-  dimension: createCart.Dimension,
+  kind: AutoMovieArchetypeCart.Kind,
+  dimension: AutoMovieArchetypeCart.Dimension,
 ): [number, number] {
   const figures: number[] = Object.values(CART_MODELS.figures[kind] ?? {})
     .map(
       (
         model:
-          | Readonly<Partial<Record<createCart.Dimension, number>>>
+          | Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>
           | undefined,
       ): number | undefined => model?.[dimension],
     )
@@ -83,8 +83,8 @@ const WRIST: string =
  */
 export const CART_BANDS: Readonly<
   Record<
-    createCart.Kind,
-    Readonly<Partial<Record<createCart.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeCart.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   trolley: {

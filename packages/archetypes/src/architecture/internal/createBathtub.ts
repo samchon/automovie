@@ -3,7 +3,7 @@ import type { AutoMovieArchetype } from "../../core/index";
 import { FixtureDraw } from "../FixtureDraw";
 import { SANITARY_BANDS } from "../SANITARY_BANDS";
 import { SanitaryConstruction } from "../SanitaryConstruction";
-import type { createSanitary } from "../createSanitary";
+import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 
 /**
  * A wall-backed bathtub with a front rim and a well floor.
@@ -25,7 +25,7 @@ export function createBathtub(
 ): AutoMovieArchetype<AutoMovieArchetypeBathtub.Affordance, AutoMovieArchetypeBathtub.Dimension> {
   return FixtureDraw.installed<
     AutoMovieArchetypeBathtub.Affordance,
-    createSanitary.Dimension
+    AutoMovieArchetypeSanitary.Dimension
   >(
     "sanitary",
     "bath",

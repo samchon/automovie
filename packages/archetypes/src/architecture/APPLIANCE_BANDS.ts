@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
-import type { createAppliance } from "./createAppliance";
+import type { AutoMovieArchetypeAppliance } from "./AutoMovieArchetypeAppliance";
 
 /** The fridge-freezer read. */
 const FRIDGE: string =
@@ -25,9 +25,9 @@ const WASHER: string =
 /** The band of each free dimension of {@link createAppliance}, by kind. */
 export const APPLIANCE_BANDS: Readonly<
   Record<
-    createAppliance.Kind,
+    AutoMovieArchetypeAppliance.Kind,
     Readonly<
-      Partial<Record<createAppliance.Dimension, IAutoMovieArchetypeBand>>
+      Partial<Record<AutoMovieArchetypeAppliance.Dimension, IAutoMovieArchetypeBand>>
     >
   >
 > = {

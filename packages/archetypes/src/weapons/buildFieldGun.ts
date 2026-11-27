@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import { FIELD_GUN } from "./FIELD_GUN";
-import type { createCannon } from "./createCannon";
+import type { AutoMovieArchetypeCannon } from "./AutoMovieArchetypeCannon";
 
 /**
  * Builds `FIELD_GUN`, the 6-pdr field gun, on the producer's builder: the tube
@@ -29,8 +29,8 @@ import type { createCannon } from "./createCannon";
  */
 export function buildFieldGun(
   builder: AutoMovieArchetypeBuilder<
-    createCannon.Affordance,
-    createCannon.Dimension
+    AutoMovieArchetypeCannon.Affordance,
+    AutoMovieArchetypeCannon.Dimension
   >,
   recoil: number,
 ): void {

@@ -2,7 +2,7 @@ import {
   AutoMovieArchetypeFrame,
   createTransitBus,
 } from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -157,7 +157,7 @@ export function test_archetype_transit_bus(): void {
       TestValidator.predicate(
         name + " opens symmetrically at " + travel,
         () =>
-          validateModel({ model: pose }).success &&
+          AutoMovieEngineValidation.validateModel({ model: pose }).success &&
           nclose(leader.z - leader.depth / 2, z + travel) &&
           nclose(follower.z + follower.depth / 2, z - travel) &&
           nclose(parkedLeader.z - parkedLeader.depth / 2, otherZ) &&
@@ -235,7 +235,7 @@ function checkSeatingFits(neutral: ReturnType<typeof createTransitBus>): void {
     );
     TestValidator.predicate(
       "the configured bus admits both open doors",
-      () => validateModel({ model: opened }).success,
+      () => AutoMovieEngineValidation.validateModel({ model: opened }).success,
     );
     for (const name of ["front", "rear"] as const) {
       const z: number = neutral.affordance(`${name}Doorway`).frame.translation

@@ -24,9 +24,9 @@ import type { createCohortQuadruped } from "./internal/createCohortQuadruped";
 import { AutoMovieArchetypeDeer } from "./AutoMovieArchetypeDeer";
 import { AutoMovieArchetypeDog } from "./AutoMovieArchetypeDog";
 import { AutoMovieArchetypeDonkey } from "./AutoMovieArchetypeDonkey";
-import { createHorse } from "./createHorse";
+import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 import { AutoMovieArchetypeMule } from "./AutoMovieArchetypeMule";
-import { createOx } from "./createOx";
+import { AutoMovieArchetypeOx } from "./AutoMovieArchetypeOx";
 import { AutoMovieArchetypePony } from "./AutoMovieArchetypePony";
 import { buildDeerBody } from "./deer/internal/buildDeerBody";
 import { buildDogBody } from "./dog/internal/buildDogBody";
@@ -60,10 +60,10 @@ export function createQuadruped(
   ArchetypeDraw.choice("quadruped", "kind", params.kind, createQuadruped.KINDS);
   if (params.kind === "dog") return AutoMovieArchetypeDog.create(params, seed);
   if (params.kind === "cat") return AutoMovieArchetypeCat.create(params, seed);
-  if (params.kind === "ox") return createOx(params, seed);
+  if (params.kind === "ox") return AutoMovieArchetypeOx.create(params, seed);
   if (params.kind === "camel") return AutoMovieArchetypeCamel.create(params, seed);
   if (params.kind === "deer") return AutoMovieArchetypeDeer.create(params, seed);
-  if (params.kind === "horse") return createHorse(params, seed);
+  if (params.kind === "horse") return AutoMovieArchetypeHorse.create(params, seed);
   return createQuadruped.PRODUCERS[params.kind](params, seed);
 }
 
@@ -118,34 +118,34 @@ export namespace createQuadruped {
 
   /** The parameters: the kind, and the kind's own parameters. */
   export type IParams =
-    | ({ kind: "horse" } & createHorse.IParams)
+    | ({ kind: "horse" } & AutoMovieArchetypeHorse.IParams)
     | ({ kind: "pony" | "donkey" | "mule" } & AutoMovieArchetypePony.IParams &
         AutoMovieArchetypeMule.IParams)
     | ({ kind: "dog" } & AutoMovieArchetypeDog.IParams)
     | ({ kind: "cat" } & AutoMovieArchetypeCat.IParams)
-    | ({ kind: "ox" } & createOx.IParams)
+    | ({ kind: "ox" } & AutoMovieArchetypeOx.IParams)
     | ({ kind: "camel" } & AutoMovieArchetypeCamel.IParams)
     | ({ kind: "deer" } & AutoMovieArchetypeDeer.IParams);
 
   /** Each kind's producer. */
   export const PRODUCERS: Readonly<{
-    horse: typeof createHorse;
+    horse: typeof AutoMovieArchetypeHorse.create;
     pony: typeof AutoMovieArchetypePony.create;
     donkey: typeof AutoMovieArchetypeDonkey.create;
     mule: typeof AutoMovieArchetypeMule.create;
     dog: typeof AutoMovieArchetypeDog.create;
     cat: typeof AutoMovieArchetypeCat.create;
-    ox: typeof createOx;
+    ox: typeof AutoMovieArchetypeOx.create;
     camel: typeof AutoMovieArchetypeCamel.create;
     deer: typeof AutoMovieArchetypeDeer.create;
   }> = {
-    horse: createHorse,
+    horse: AutoMovieArchetypeHorse.create,
     pony: AutoMovieArchetypePony.create,
     donkey: AutoMovieArchetypeDonkey.create,
     mule: AutoMovieArchetypeMule.create,
     dog: AutoMovieArchetypeDog.create,
     cat: AutoMovieArchetypeCat.create,
-    ox: createOx,
+    ox: AutoMovieArchetypeOx.create,
     camel: AutoMovieArchetypeCamel.create,
     deer: AutoMovieArchetypeDeer.create,
   };
@@ -214,29 +214,29 @@ export namespace createQuadruped {
    */
   export const SPECIES: Readonly<Record<Kind, ISpecies>> = {
     horse: {
-      archetype: createHorse.PROFILE.archetype,
-      stance: createHorse.STANCE,
+      archetype: AutoMovieArchetypeHorse.PROFILE.archetype,
+      stance: AutoMovieArchetypeHorse.STANCE,
       table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,
       noddingContacts: [],
     },
     pony: {
       archetype: AutoMovieArchetypePony.ARCHETYPE,
-      stance: createHorse.STANCE,
+      stance: AutoMovieArchetypeHorse.STANCE,
       table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,
       noddingContacts: [],
     },
     donkey: {
       archetype: AutoMovieArchetypeDonkey.ARCHETYPE,
-      stance: createHorse.STANCE,
+      stance: AutoMovieArchetypeHorse.STANCE,
       table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,
       noddingContacts: [],
     },
     mule: {
       archetype: AutoMovieArchetypeMule.ARCHETYPE,
-      stance: createHorse.STANCE,
+      stance: AutoMovieArchetypeHorse.STANCE,
       table: AutoMovieArchetypeEquineGait.TABLE,
       nodding: BRIDLED,
       noddingContacts: [],

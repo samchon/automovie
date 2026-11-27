@@ -1,4 +1,4 @@
-import { createDrinkware } from "@automovie/archetypes";
+import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
 import { createCafeKit, createGymKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import type {
   IAutoMovieEnvironment,
@@ -36,7 +36,7 @@ export function test_environment_furnishing(): void {
   const cup: IAutoMovieEnvironmentItem = {
     at: { anchor: "cafe/table-1/stack" },
     use: AutoMovieEnvironmentFurnishing.prop({
-      model: createDrinkware({ kind: "cup" }),
+      model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }),
       placement: {
         relations: [
           {

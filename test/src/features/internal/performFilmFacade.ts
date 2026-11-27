@@ -1,4 +1,4 @@
-import { stageScene, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieModel } from "@automovie/interface";
 
 import {
@@ -26,7 +26,7 @@ export function performFilmFacade(
       },
     ],
   });
-  const staged: ReturnType<typeof stageScene> = stageScene(
+  const staged: ReturnType<typeof AutoMovieEngineFilm.stageScene> = AutoMovieEngineFilm.stageScene(
     script,
     makeStagingWrite({
       actors: [

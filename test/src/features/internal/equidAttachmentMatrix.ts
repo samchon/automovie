@@ -1,10 +1,4 @@
-import {
-  type AutoMovieArchetypeEquine,
-  type AutoMovieArchetypeQuadrupedBody,
-  type AutoMovieArchetypeRide,
-  type createHorse,
-  rideQuadruped,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeRide, rideQuadruped, type AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -19,7 +13,7 @@ import { nclose } from "./nclose";
 type Gait = "walk" | "trot" | "canter" | "gallop";
 
 /** The actual common equid source type returned by its public producers. */
-type Animal = ReturnType<typeof createHorse>;
+type Animal = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
 /** Complete public ride type; the shared law adds its body dimensions. */
 type Ride = AutoMovieArchetypeRide.IRide<

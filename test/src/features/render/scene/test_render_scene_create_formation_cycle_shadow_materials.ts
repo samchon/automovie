@@ -1,4 +1,4 @@
-import { createFormationCycleShadowMaterials } from "@automovie/render";
+import { AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -20,8 +20,8 @@ import { createFormationCycleLiteral } from "../../internal/createFormationCycle
 export function test_render_scene_create_formation_cycle_shadow_materials(): void {
   const a: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   const b: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
-  const shadows: ReturnType<typeof createFormationCycleShadowMaterials> =
-    createFormationCycleShadowMaterials(createFormationCycleLiteral(), [
+  const shadows: AutoMovieRenderFormationCycle.IShadowMaterials =
+    AutoMovieRenderFormationCycle.createFormationCycleShadowMaterials(createFormationCycleLiteral(), [
       a,
       b,
       a,

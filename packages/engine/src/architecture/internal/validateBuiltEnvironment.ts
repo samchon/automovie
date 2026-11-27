@@ -17,7 +17,7 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { appendGraphCycles } from "../../validation/appendGraphCycles";
 import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
 import { validateDeclaredReferences } from "../../validation/validateDeclaredReferences";
-import { validateModel } from "../../validation/validateModel";
+import { validateModel } from "../../validation/internal/validateModel";
 import { validateSpace } from "../../validation/validateSpace";
 import { validateTransformScalars } from "../../validation/internal/validateTransformScalars";
 import { validateBuiltBoundaries } from "./validateBuiltBoundaries";

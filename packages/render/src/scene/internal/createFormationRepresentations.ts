@@ -8,7 +8,7 @@ import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstan
 import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps.js";
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
 import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
-import { createFormationCycleShadowMaterials } from "../createFormationCycleShadowMaterials.js";
+import { AutoMovieRenderFormationCycle } from "../formationCycle/AutoMovieRenderFormationCycle.js";
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
 import { flattenInstancedModel } from "./flattenInstancedModel.js";
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
@@ -58,7 +58,7 @@ export const createFormationRepresentations: (
       };
       representations.set(lod.tier, tier);
       if (cycle !== null)
-        tier.shadows = createFormationCycleShadowMaterials(
+        tier.shadows = AutoMovieRenderFormationCycle.createFormationCycleShadowMaterials(
           cycle,
           representation.materials,
         );

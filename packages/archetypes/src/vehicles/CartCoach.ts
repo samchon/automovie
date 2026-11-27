@@ -7,7 +7,7 @@ import {
   type AutoMovieArchetypeFriction,
 } from "../core";
 import { CartWheel } from "./CartWheel";
-import { createCart } from "./createCart";
+import { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /**
  * The drawn carriers on two axles: a wagon and a closed carriage, each with its
@@ -23,21 +23,21 @@ export namespace CartCoach {
    */
   export function wagon(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     gear(builder, d, {
       track: d.track!,
       pole: d.poleLength!,
-      tip: createCart.WAGON.drop,
-      lock: createCart.WAGON.lock,
+      tip: AutoMovieArchetypeCart.WAGON.drop,
+      lock: AutoMovieArchetypeCart.WAGON.lock,
       spokes: [12, 14],
       surface: "steel",
     });
-    const floor: number = d.wheelDiameter! / 2 + createCart.WAGON.bed;
+    const floor: number = d.wheelDiameter! / 2 + AutoMovieArchetypeCart.WAGON.bed;
     const length: number = d.length!;
     const width: number = d.width!;
     const depth: number = d.bedDepth!;
@@ -91,13 +91,13 @@ export namespace CartCoach {
    */
   export function carriage(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
-    const c: typeof createCart.CARRIAGE = createCart.CARRIAGE;
+    const c: typeof AutoMovieArchetypeCart.CARRIAGE = AutoMovieArchetypeCart.CARRIAGE;
     const track: number = d.width! - c.hubs;
     const wheelbase: number = d.wheelbase!;
     const front: number = d.frontWheelDiameter! / 2;
@@ -231,7 +231,7 @@ export namespace CartCoach {
         frame: AutoMovieArchetypeFrame.facing(
           v(
             (sign * BOX_HANDS.apart) / 2,
-            c.box + createCart.REST.elbow,
+            c.box + AutoMovieArchetypeCart.REST.elbow,
             wheelbase + 0.225 + BOX_HANDS.ahead,
           ),
           v(0, 1, 0),
@@ -239,7 +239,7 @@ export namespace CartCoach {
         ),
         extent: null,
         grip: "power",
-        aperture: createCart.LINE,
+        aperture: AutoMovieArchetypeCart.LINE,
       });
   }
 }
@@ -282,10 +282,10 @@ const CLOTH: string = "#6b2f2f";
  */
 function gear(
   builder: AutoMovieArchetypeBuilder<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   >,
-  d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+  d: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>,
   gear: {
     track: number;
     pole: number;

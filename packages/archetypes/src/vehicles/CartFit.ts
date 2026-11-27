@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeEquine } from "../animals/AutoMovieArchetypeEquine";
 import { EquineHarness } from "../animals/EquineHarness";
-import { createHorse } from "../animals/createHorse";
+import { AutoMovieArchetypeHorse } from "../animals/AutoMovieArchetypeHorse";
 import {
   type AutoMovieArchetype,
   type AutoMovieArchetypeDrawSession,
@@ -12,7 +12,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { CART_MODELS } from "./CART_MODELS";
-import { createCart } from "./createCart";
+import { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /**
  * A horse's cart fitted to its horse: the read models made for the horse an
@@ -35,19 +35,19 @@ export namespace CartFit {
       | Readonly<
           Partial<
             Record<
-              createCart.Model,
-              Readonly<Partial<Record<createCart.Dimension, number>>>
+              AutoMovieArchetypeCart.Model,
+              Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>
             >
           >
         >
       | undefined,
-    params: createCart.IParams,
+    params: AutoMovieArchetypeCart.IParams,
   ):
     | Readonly<
         Partial<
           Record<
-            createCart.Model,
-            Readonly<Partial<Record<createCart.Dimension, number>>>
+            AutoMovieArchetypeCart.Model,
+            Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>
           >
         >
       >
@@ -80,13 +80,13 @@ export namespace CartFit {
    *   into it.
    */
   export function harness(
-    draw: AutoMovieArchetypeDrawSession<createCart.Dimension>,
+    draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeCart.Dimension>,
   ): void {
-    const drawn: Readonly<Partial<Record<createCart.Dimension, number>>> =
+    const drawn: Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>> =
       draw.values;
     const girth: number = draw.derive(
       "girth",
-      createHorse.PROFILE.girth(drawn.withersHeight!),
+      AutoMovieArchetypeHorse.PROFILE.girth(drawn.withersHeight!),
     );
     if (drawn.shaftLength !== undefined) return;
     const horse: AutoMovieArchetypeEquine.IRig = AutoMovieArchetypeEquine.rig({
@@ -118,8 +118,8 @@ export namespace CartFit {
    *   two-wheeled cart.
    */
   export function lines(
-    cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
-    held?: createCart.Held,
+    cart: AutoMovieArchetype<AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Dimension>,
+    held?: AutoMovieArchetypeCart.Held,
   ): AutoMovieArchetypeRide.ILine[] {
     if (
       !cart.affordances.some(
@@ -147,7 +147,7 @@ export namespace CartFit {
         number,
       ]): AutoMovieArchetypeRide.ILine => ({
         id: `trace-${side}`,
-        radius: createCart.TRACE,
+        radius: AutoMovieArchetypeCart.TRACE,
         points: [
           { leader: ball(EquineHarness.ENDS.draft[side]) },
           {
@@ -165,7 +165,7 @@ export namespace CartFit {
         number,
       ]): AutoMovieArchetypeRide.ILine => ({
         id: `line-${side}`,
-        radius: createCart.LINE / 2,
+        radius: AutoMovieArchetypeCart.LINE / 2,
         points: [
           { leader: ball(EquineHarness.ENDS.bit[side]) },
           { leader: ball(EquineHarness.ENDS.ring[side]) },

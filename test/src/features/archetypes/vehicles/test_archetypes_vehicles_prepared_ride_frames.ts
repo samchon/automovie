@@ -1,15 +1,4 @@
-import {
-  AutoMovieArchetypeBicycle,
-  AutoMovieArchetypeCar,
-  AutoMovieArchetypeCourse,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  AutoMovieArchetypeRide,
-  createWheelchair,
-  driveCar,
-  rideBicycle,
-  rideWheelchair,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeRide, driveCar, rideBicycle, rideWheelchair, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -45,7 +34,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
     });
   const bike: ReturnType<typeof AutoMovieArchetypeBicycle.create> =
     AutoMovieArchetypeBicycle.create();
-  const chair: ReturnType<typeof createWheelchair> = createWheelchair({
+  const chair: ReturnType<typeof AutoMovieArchetypeWheelchair.create> = AutoMovieArchetypeWheelchair.create({
     kind: "selfPropelled",
   });
   const drive: ReturnType<typeof driveCar> = driveCar(car, course);

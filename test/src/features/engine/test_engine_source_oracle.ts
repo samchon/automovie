@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, materializeCompiledFormation, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
+import { AutoMovieEngineWorld, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type { IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,8 +18,8 @@ const slope: IAutoMovieWorldSurface = AutoMovieEngineWorld.ramp({
   walkable: true,
 });
 
-const formation: ReturnType<typeof materializeCompiledFormation> =
-  materializeCompiledFormation({
+const formation: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledFormation> =
+  AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: {
       id: "unit",
       model: "member",

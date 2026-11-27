@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageStoneProp as createStageStonePropImplementation } from "./internal/createStageStoneProp";
-import { type createProjectile } from "./createProjectile";
+import { type AutoMovieArchetypeProjectile } from "./AutoMovieArchetypeProjectile";
 
 /** Public operations for Auto Movie Archetype Stage Stone Prop. */
 export namespace AutoMovieArchetypeStageStoneProp {
@@ -34,10 +34,10 @@ export namespace AutoMovieArchetypeStageStoneProp {
    * The createProjectile contact set its shared construction types. This
    * producer builds body.
    */
-  export type Affordance = createProjectile.Affordance;
+  export type Affordance = AutoMovieArchetypeProjectile.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<
-    createProjectile.IParams,
+    AutoMovieArchetypeProjectile.IParams,
     "id" | "mass" | "gravity"
   >;}

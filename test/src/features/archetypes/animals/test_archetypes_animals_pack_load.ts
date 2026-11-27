@@ -1,10 +1,4 @@
-import {
-  type AutoMovieArchetypeEquine,
-  AutoMovieArchetypeEquinePackLoad as Pack,
-  AutoMovieArchetypeRefusal,
-  type AutoMovieArchetypeRide,
-  createHorse,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetypeEquine, AutoMovieArchetypeEquinePackLoad as Pack, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -30,7 +24,7 @@ const METRES: number = 64 * Number.EPSILON;
  *    mass and missing tack each refuse on their associated axis.
  */
 export function test_archetypes_animals_pack_load(): void {
-  const horse: ReturnType<typeof createHorse> = createHorse(
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create(
     { tack: "pack", withersHeight: 1.6 },
     2,
   );
@@ -101,7 +95,7 @@ export function test_archetypes_animals_pack_load(): void {
   refuses("load.length", () => Pack(horse, { ...load, length: load.length + 0.001 }));
   refuses("load.height", () => Pack(horse, { ...load, height: load.height + 0.001 }));
   refuses("load.mass", () => Pack(horse, { ...load, mass: 0 }));
-  refuses("tack", () => Pack(createHorse({ tack: "saddle", withersHeight: 1.6 }, 2), load));
+  refuses("tack", () => Pack(AutoMovieArchetypeHorse.create({ tack: "saddle", withersHeight: 1.6 }, 2), load));
 }
 
 /** Check the report is attributed to the offending input dimension. */

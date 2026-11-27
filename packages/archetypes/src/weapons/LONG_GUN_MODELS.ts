@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeUnits } from "../core";
-import type { createLongGun } from "./createLongGun";
+import type { AutoMovieArchetypeLongGun } from "./AutoMovieArchetypeLongGun";
 
 /**
  * Each kind's models whole, the default first: the Colt sheet's weights, 6.9 lb
@@ -13,7 +13,7 @@ import type { createLongGun } from "./createLongGun";
  * a US assessment, not the maker's). A shotgun and a lever action have one read
  * gun each, their bands.
  */
-export const LONG_GUN_MODELS: typeof createLongGun.MODELS = {
+export const LONG_GUN_MODELS: typeof AutoMovieArchetypeLongGun.MODELS = {
   carbine: {
     r0977hb: { mass: 3.13 },
     r0979: { mass: 2.95 },

@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createTennisNet as createTennisNetImplementation } from "./internal/createTennisNet";
-import { type createGoal } from "./createGoal";
+import { type AutoMovieArchetypeGoal } from "./AutoMovieArchetypeGoal";
 
 /** Public operations for Auto Movie Archetype Tennis Net. */
 export namespace AutoMovieArchetypeTennisNet {
@@ -39,6 +39,6 @@ export namespace AutoMovieArchetypeTennisNet {
 
   /** The identifier and overrides that apply to this profile. */
   export type IParams = Pick<
-    createGoal.IParams,
+    AutoMovieArchetypeGoal.IParams,
     "id" | "width" | "height" | "post" | "offset" | "bar" | "mass"
   >;}

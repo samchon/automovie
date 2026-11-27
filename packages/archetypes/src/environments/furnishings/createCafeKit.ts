@@ -8,7 +8,7 @@ import type {
 
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createSeat } from "../../furniture/createSeat";
-import { createTable } from "../../furniture/createTable";
+import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { furnishRoom } from "./furnishRoom";
 
 /**
@@ -34,11 +34,11 @@ export function createCafeKit(
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
     const seed: number | undefined = context.seed;
-    const counter: IAutoMovieModel = createTable(
+    const counter: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "serviceCounter" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "counter"),
     );
-    const table: IAutoMovieModel = createTable(
+    const table: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "dining" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "table"),
     );

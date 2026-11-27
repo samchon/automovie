@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { materializeCompiledFormation } from "../materializeCompiledFormation";
+import { materializeCompiledFormation } from "./materializeCompiledFormation";
 
 /**
  * Compile every formation of a production into its compact runtime record.

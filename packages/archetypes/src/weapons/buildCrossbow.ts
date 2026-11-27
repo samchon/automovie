@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { createBow } from "./createBow";
+import { AutoMovieArchetypeBow } from "./AutoMovieArchetypeBow";
 
 /**
  * Build a crossbow lying on its stock on the producer's builder: the stock
@@ -18,11 +18,11 @@ import { createBow } from "./createBow";
  * @returns The crossbow.
  */
 export function buildCrossbow(
-  builder: AutoMovieArchetypeBuilder<createBow.Affordance, createBow.Dimension>,
-  d: Partial<Record<createBow.Dimension, number>>,
-): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
+  builder: AutoMovieArchetypeBuilder<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension>,
+  d: Partial<Record<AutoMovieArchetypeBow.Dimension, number>>,
+): AutoMovieArchetype<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension> {
   const v: typeof Vector3.create = Vector3.create;
-  const c: typeof createBow.CROSSBOW = createBow.CROSSBOW;
+  const c: typeof AutoMovieArchetypeBow.CROSSBOW = AutoMovieArchetypeBow.CROSSBOW;
   const top: number = c.fore;
   const nut: number = c.stock - c.nut;
   const rest: number = nut + c.rest;
@@ -50,7 +50,7 @@ export function buildCrossbow(
       color: "#55595f",
       surface: "steel",
     });
-  builder.ball("nockingPoint", createBow.STRING, v(0, top, rest), {
+  builder.ball("nockingPoint", AutoMovieArchetypeBow.STRING, v(0, top, rest), {
     color: "#c9a227",
   });
   builder.rod(
@@ -104,7 +104,7 @@ export function buildCrossbow(
     extent: null,
     rides: "string",
   });
-  const table: [number, number][] = createBow.limbs(half, d.brace!, c.travel);
+  const table: [number, number][] = AutoMovieArchetypeBow.limbs(half, d.brace!, c.travel);
   for (const [id, sign] of [
     ["upperLimb", 1],
     ["lowerLimb", -1],
@@ -126,7 +126,7 @@ export function buildCrossbow(
       id,
       { part, at: v(0, limb / 2, 0) },
       { affordance: "nock" },
-      createBow.STRING,
+      AutoMovieArchetypeBow.STRING,
       { color: "#e8e1cf" },
     );
   // Both hands close across the stock's width, at separate positions along it.

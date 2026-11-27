@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 import { StageBowConstruction } from "../StageBowConstruction";
-import { createBow } from "../createBow";
+import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
 
 /**
  * Hand-held bow silhouette for screen staging.
@@ -41,7 +41,7 @@ export function createStageHandBowProp(
     // The string a brace height clear of the belly; each limb a straight rod from the grip to its nock, lifted so the lower limb's tilted collider, a capsule as long as the rod, rests on the floor.
     const length: number = d.length!;
     const r: number = d.depth! / 2;
-    const string: number = r + (d.brace ?? length * createBow.BRACE);
+    const string: number = r + (d.brace ?? length * AutoMovieArchetypeBow.BRACE);
     const limb: number = Math.hypot(length / 2, string);
     const floor: number = r * (1 - length / 2 / limb);
     const centre: number = floor + length / 2;
@@ -53,12 +53,12 @@ export function createStageHandBowProp(
     builder.rod("lowerLimb", r, low, grip, { color: "#a8743f", ...wood });
     builder.rod("upperLimb", r, grip, high, { color: "#a8743f", ...wood });
     builder.ball("grip", r, grip, { color: "#8a5a2b", ...wood });
-    builder.ball("nockingPoint", createBow.STRING, v(0, centre, string), {
+    builder.ball("nockingPoint", AutoMovieArchetypeBow.STRING, v(0, centre, string), {
       color: "#c9a227",
     });
 
     // The string: its nocking point slides back along `+Z` from brace to the draw length from the grip.
-    const travel: number = createBow.DRAW_LENGTH[kind] - string;
+    const travel: number = AutoMovieArchetypeBow.DRAW_LENGTH[kind] - string;
     builder.affordance({
       id: "string",
       kind: "slider",
@@ -84,7 +84,7 @@ export function createStageHandBowProp(
     });
 
     // Each limb turns about the grip's sideways axis, the upper's positive turn and the lower's bringing its tip back toward the string, by the table that keeps the tip the string's half length from the nocking point.
-    const table: [number, number][] = createBow.limbs(
+    const table: [number, number][] = AutoMovieArchetypeBow.limbs(
       length / 2,
       string,
       travel,
@@ -112,7 +112,7 @@ export function createStageHandBowProp(
         id,
         { part, at: v(0, at, 0) },
         { affordance: "nock" },
-        createBow.STRING,
+        AutoMovieArchetypeBow.STRING,
         { color: "#e8e1cf" },
       );
     builder.affordance({

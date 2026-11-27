@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeEquine, AutoMovieArchetypeEquineCare, AutoMovieArchetypeEquineExpression, type AutoMovieArchetypeEquineExpressionCue, AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypeEquineStance, type AutoMovieArchetypeRide, createHorse, rideHorse, AutoMovieArchetypeHalter, AutoMovieArchetypeGroomingBrush } from "@automovie/archetypes";
+import { AutoMovieArchetypeEquine, AutoMovieArchetypeEquineCare, AutoMovieArchetypeEquineExpression, type AutoMovieArchetypeEquineExpressionCue, AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypeEquineStance, type AutoMovieArchetypeRide, rideHorse, AutoMovieArchetypeHalter, AutoMovieArchetypeGroomingBrush, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -37,7 +37,7 @@ export namespace equestrianHandlerTake {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the handler test.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type Horse = ReturnType<typeof createHorse>;
+  export type Horse = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
   /**
    * A horse ride.
@@ -143,13 +143,13 @@ export namespace equestrianHandlerTake {
     scene: Scene,
   ): ITake {
     // A bareback horse is saddled from a saddle made of the same horse's own saddle parts.
-    const horse: Horse = createHorse(
+    const horse: Horse = AutoMovieArchetypeHorse.create(
       { tack: "bareback", withersHeight: 1.6, tempo: 0 },
       5,
     );
     const saddle: ReturnType<typeof AutoMovieArchetypeEquineSaddleProp.of> =
       AutoMovieArchetypeEquineSaddleProp.of(
-        createHorse({ tack: "saddle", withersHeight: 1.6, tempo: 0 }, 5),
+        AutoMovieArchetypeHorse.create({ tack: "saddle", withersHeight: 1.6, tempo: 0 }, 5),
         horse,
       );
     // The handler leads the horse in on a straight approach; its progress is matched to the handler's walk in the lead-in.

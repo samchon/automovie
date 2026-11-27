@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeUnits } from "../core";
-import type { createHandgun } from "./createHandgun";
+import type { AutoMovieArchetypeHandgun } from "./AutoMovieArchetypeHandgun";
 
 /**
  * Each frame's pistols whole, the default first, each from its own maker's
@@ -31,7 +31,7 @@ import type { createHandgun } from "./createHandgun";
  *   x 500 x 40 mm, a 12 in barrel
  *   (https://rmg.co.uk/collections/objects/rmgc-object-2440).
  */
-export const HANDGUN_MODELS: typeof createHandgun.MODELS = {
+export const HANDGUN_MODELS: typeof AutoMovieArchetypeHandgun.MODELS = {
   fullSize: {
     g17: {
       length: 0.202,

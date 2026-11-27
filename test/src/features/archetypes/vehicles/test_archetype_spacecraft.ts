@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeSpacecraft } from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -81,7 +81,7 @@ export function test_archetype_spacecraft(): void {
       first.dimensions.width !== variant.dimensions.width,
   );
 
-  expect("fixed set is admitted", validateModel({ model: set }).success);
+  expect("fixed set is admitted", AutoMovieEngineValidation.validateModel({ model: set }).success);
   expect("set keeps its authored id", set.id === "civilian-transport");
   try {
     AutoMovieArchetypeSpacecraft.create({ hatchWidth: 0.4 }, 19);
@@ -296,7 +296,7 @@ export function test_archetype_spacecraft(): void {
   );
   const seat: IAutoMovieAffordance = tight.affordance("crewSeat");
   const consoleTop: IAutoMovieAffordance = tight.affordance("controlConsole");
-  expect("tight cabin is admitted", validateModel({ model: tight }).success);
+  expect("tight cabin is admitted", AutoMovieEngineValidation.validateModel({ model: tight }).success);
   expect(
     "crew station is a seat facing its console surface",
     seat.kind === "seat" &&

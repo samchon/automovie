@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createLight } from "./createLight";
+import type { AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
 /** Taper candles, seen only in search results. */
 const TAPER: string =
@@ -43,8 +43,8 @@ const LANTERN: string =
  */
 export const LIGHT_BANDS: Readonly<
   Record<
-    createLight.Kind,
-    Readonly<Partial<Record<createLight.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeLight.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeLight.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   candle: {

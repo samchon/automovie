@@ -9,7 +9,7 @@ import type {
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createBookcase } from "../../furniture/createBookcase";
 import { createSeat } from "../../furniture/createSeat";
-import { createTable } from "../../furniture/createTable";
+import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { furnishRoom } from "./furnishRoom";
 
 /**
@@ -49,7 +49,7 @@ export function createLivingRoomKit(
         `${context.id} tableGap needs a finite nonnegative distance: ${gap}`,
       );
     const sofa: IAutoMovieModel = createSeat({ kind: "sofa" }, draw("sofa"));
-    const coffee: IAutoMovieModel = createTable(
+    const coffee: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "coffee" },
       draw("coffee"),
     );

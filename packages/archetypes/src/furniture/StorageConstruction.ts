@@ -6,16 +6,16 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import type { createStorage } from "./createStorage";
+import type { AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
 /** The builder every construction fills. */
 type Builder = AutoMovieArchetypeBuilder<
-  createStorage.Affordance,
-  createStorage.Dimension
+  AutoMovieArchetypeStorage.Affordance,
+  AutoMovieArchetypeStorage.Dimension
 >;
 
 /** The drawn dimensions. */
-type Drawn = Partial<Record<createStorage.Dimension, number>>;
+type Drawn = Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>;
 
 /** The shorthand every construction uses. */
 const v: typeof Vector3.create = Vector3.create;

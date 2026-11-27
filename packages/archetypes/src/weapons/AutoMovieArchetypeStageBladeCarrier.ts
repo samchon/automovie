@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageBladeCarrier as createStageBladeCarrierImplementation } from "./internal/createStageBladeCarrier";
-import { createHolster } from "./createHolster";
+import { AutoMovieArchetypeHolster } from "./AutoMovieArchetypeHolster";
 
 /** Public operations for Auto Movie Archetype Stage Blade Carrier. */
 export namespace AutoMovieArchetypeStageBladeCarrier {
@@ -34,7 +34,7 @@ export namespace AutoMovieArchetypeStageBladeCarrier {
    * The createHolster contact set its shared construction types. This producer
    * builds belt, mouth.
    */
-  export type Affordance = createHolster.Affordance;
+  export type Affordance = AutoMovieArchetypeHolster.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["scabbard", "sheath"] as const;
@@ -44,11 +44,11 @@ export namespace AutoMovieArchetypeStageBladeCarrier {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createHolster.IParams,
+    AutoMovieArchetypeHolster.IParams,
     "id" | "length" | "width" | "thickness" | "mass"
   > {
     /** The profile with the required outline. */
     kind: Kind;
     /** A compatible historical display profile identifier. */
-    blade?: createHolster.Blade;
+    blade?: AutoMovieArchetypeHolster.Blade;
   }}

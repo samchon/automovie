@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 import { createWheelbarrow } from "./cart/createWheelbarrow";
 
 /** Canonical producer and authoring contract for Wheelbarrow. */
@@ -44,11 +44,11 @@ export namespace AutoMovieArchetypeWheelbarrow {
    * The createCart contact set its shared construction types. This producer
    * builds leftHandle, load, rightHandle.
    */
-  export type Affordance = createCart.Affordance;
+  export type Affordance = AutoMovieArchetypeCart.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<
-    createCart.IParams,
+    AutoMovieArchetypeCart.IParams,
     | "id"
     | "length"
     | "width"

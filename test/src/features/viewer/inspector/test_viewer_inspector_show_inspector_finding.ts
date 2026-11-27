@@ -129,6 +129,7 @@ function run(
   if (stop !== null) actions.push(stop);
   return {
     state: actions.reduce(
+      AutoMovieViewerInspector.reduceState,
       AutoMovieViewerInspector.createState("?from=0&to=4&rate=24"),
     ),
     playhead,

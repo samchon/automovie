@@ -1,4 +1,4 @@
-import { type AutoMovieArchetypeEquine, AutoMovieArchetypeEquineHobble, AutoMovieArchetypeFrame, AutoMovieArchetypeRide, createHorse, AutoMovieArchetypeDog, AutoMovieArchetypeHobble } from "@automovie/archetypes";
+import { type AutoMovieArchetypeEquine, AutoMovieArchetypeEquineHobble, AutoMovieArchetypeFrame, AutoMovieArchetypeRide, AutoMovieArchetypeDog, AutoMovieArchetypeHobble, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, physicalShapeSegmentDistance } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -80,7 +80,7 @@ export function test_archetypes_animals_annular_fittings(): void {
     0.003,
   );
 
-  const horse: ReturnType<typeof createHorse> = createHorse({ tack: "bare" });
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create({ tack: "bare" });
   const carrier: ReturnType<
     typeof AutoMovieArchetypeRide.along<
       AutoMovieArchetypeEquine.Affordance,

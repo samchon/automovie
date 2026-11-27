@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../core";
-import type { createWheelchair } from "./createWheelchair";
+import type { AutoMovieArchetypeWheelchair } from "./AutoMovieArchetypeWheelchair";
 import type { rideWheelchair } from "./rideWheelchair";
 
 /**
@@ -31,7 +31,7 @@ export function wheelchairHandrimFrame(
   ride: ReturnType<typeof rideWheelchair>,
   catchAt: number,
   degrees: number,
-): (id: createWheelchair.Affordance, seconds: number) => IAutoMovieTransform {
+): (id: AutoMovieArchetypeWheelchair.Affordance, seconds: number) => IAutoMovieTransform {
   if (catchAt < 0 || catchAt > ride.duration || Math.abs(degrees) > 180)
     throw new RangeError(
       "handrim catch needs a ride second and an angle in [-180, 180] degrees",
@@ -47,7 +47,7 @@ export function wheelchairHandrimFrame(
       z: Math.sin(angle),
     },
   );
-  const selections: Map<createWheelchair.Affordance, IAutoMovieVector3> =
+  const selections: Map<AutoMovieArchetypeWheelchair.Affordance, IAutoMovieVector3> =
     new Map();
   for (const rim of ["leftRim", "rightRim"] as const) {
     const radius: number | undefined = at.archetype.affordances.find(
@@ -64,7 +64,7 @@ export function wheelchairHandrimFrame(
     );
   }
   return (
-    id: createWheelchair.Affordance,
+    id: AutoMovieArchetypeWheelchair.Affordance,
     seconds: number,
   ): IAutoMovieTransform => {
     const frame: IAutoMovieTransform = ride.frame(id, seconds);

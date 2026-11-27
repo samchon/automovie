@@ -1,4 +1,4 @@
-import type { createArmour } from "@automovie/archetypes";
+import type { AutoMovieArchetypeArmour } from "@automovie/archetypes";
 import { Quaternion, Vector3, physicalHullFaces, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
@@ -29,7 +29,7 @@ export namespace armourActual {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only newly observed scalar coordinates escape; source arrays, model and completed observations are not retained.
    */
   export function points(
-    piece: ReturnType<typeof createArmour>,
+    piece: ReturnType<typeof AutoMovieArchetypeArmour.create>,
     prefix?: string,
   ): IAutoMovieVector3[] {
     const output: IAutoMovieVector3[] = [];
@@ -71,7 +71,7 @@ export namespace armourActual {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two independent vectors and retains neither model nor observed arrays.
    */
   export function bounds(
-    piece: ReturnType<typeof createArmour>,
+    piece: ReturnType<typeof AutoMovieArchetypeArmour.create>,
     prefix?: string,
   ): { low: IAutoMovieVector3; high: IAutoMovieVector3 } {
     const vertices: IAutoMovieVector3[] = points(piece, prefix);
@@ -101,8 +101,8 @@ export namespace armourActual {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a scalar observation escapes; no body, model, buffer or completed result is retained.
    */
   export function plate(
-    kind: createArmour.Kind,
-    piece: ReturnType<typeof createArmour>,
+    kind: AutoMovieArchetypeArmour.Kind,
+    piece: ReturnType<typeof AutoMovieArchetypeArmour.create>,
     measure: IAutoMovieBodyMeasure,
   ): number {
     if (kind === "mail") return 0;
@@ -164,7 +164,7 @@ export namespace armourActual {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query records are local; no model, collider list or signed-distance result is cached.
    */
   export function distance(
-    piece: ReturnType<typeof createArmour>,
+    piece: ReturnType<typeof AutoMovieArchetypeArmour.create>,
     point: IAutoMovieVector3,
     prefix?: string,
   ): number {

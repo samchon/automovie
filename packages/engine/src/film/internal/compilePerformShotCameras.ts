@@ -14,7 +14,7 @@ import {
   IAutoMovieShotCoverage,
 } from "@automovie/interface";
 
-import { compileCameraClearanceReports } from "../compileCameraClearanceReports";
+import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compileCameraCoverage } from "./compileCameraCoverage";
 import { compileCameraMove } from "./compileCameraMove";
 import { compilePerformShotFocusPull } from "../compilePerformShotFocusPull";

@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeFriction,
 } from "../core";
-import type { createCart } from "./createCart";
+import type { AutoMovieArchetypeCart } from "./AutoMovieArchetypeCart";
 
 /**
  * A drawn carrier's road wheels: a pair on one axle, each spinning on a `knob`,
@@ -31,10 +31,10 @@ export namespace CartWheel {
     prefix: string;
 
     /** The left and right wheels' spin knobs. */
-    spins: readonly [createCart.Affordance, createCart.Affordance];
+    spins: readonly [AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Affordance];
 
     /** The articulation the pair rides, such as a turning front axle. */
-    rides?: createCart.Affordance;
+    rides?: AutoMovieArchetypeCart.Affordance;
 
     /** What the wheels' tyres are made of, where a source says. */
     surface?: AutoMovieArchetypeFriction.Material;
@@ -51,8 +51,8 @@ export namespace CartWheel {
    */
   export function pair(
     builder: AutoMovieArchetypeBuilder<
-      createCart.Affordance,
-      createCart.Dimension
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
     >,
     pair: IPair,
   ): string[] {

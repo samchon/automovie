@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createAshtray as createAshtrayImplementation } from "./internal/createAshtray";
-import { type createVessel } from "./createVessel";
+import { type AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
 /** Public operations for Auto Movie Archetype Ashtray. */
 export namespace AutoMovieArchetypeAshtray {
@@ -31,7 +31,7 @@ export namespace AutoMovieArchetypeAshtray {
   export type Affordance = "body" | "inside" | "rim";
 
   /** The admitted settings and optional model ID. */
-  export interface IParams extends Pick<createVessel.IParams, "id"> {
+  export interface IParams extends Pick<AutoMovieArchetypeVessel.IParams, "id"> {
     /** The recorded ashtray. The seed selects it when omitted. */
     model?: Model;
   }}

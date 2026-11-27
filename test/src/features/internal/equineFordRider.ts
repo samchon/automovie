@@ -1,11 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeEquineFord,
-  type AutoMovieArchetypeEquineFordPlan,
-  AutoMovieArchetypeFrame,
-  type AutoMovieArchetypeQuadrupedFooting,
-  createHorse,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeEquineFord, type AutoMovieArchetypeEquineFordPlan, AutoMovieArchetypeFrame, type AutoMovieArchetypeQuadrupedFooting, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -71,7 +64,7 @@ export namespace equineFordRider {
   const RECENT: number = 64;
 
   /** The horse producer's model. */
-  export type Horse = ReturnType<typeof createHorse>;
+  export type Horse = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
   /**
    * A horse clip's displayed instant: its placement and its posed model.
@@ -208,7 +201,7 @@ export namespace equineFordRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The stage holds its crossing for the caller.
    */
   export function stage(): IStage {
-    const horse: Horse = createHorse(
+    const horse: Horse = AutoMovieArchetypeHorse.create(
       { withersHeight: 1.65, stirrupDrop: 0.575, tempo: 0 },
       8,
     );

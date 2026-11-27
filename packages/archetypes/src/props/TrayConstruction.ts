@@ -6,55 +6,55 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { createTray } from "./createTray";
+import { AutoMovieArchetypeTray } from "./AutoMovieArchetypeTray";
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createTray.Affordance> = AutoMovieArchetypeBuilder<
+type Builder<Id extends AutoMovieArchetypeTray.Affordance> = AutoMovieArchetypeBuilder<
   Id,
-  createTray.Dimension
+  AutoMovieArchetypeTray.Dimension
 >;
 
 /** Model-space points and dimensions use metres. */
 const v: typeof Vector3.create = Vector3.create;
 
 /** What {@link draw} prepares for its caller. */
-interface IDrawResult<Id extends createTray.Affordance> {
+interface IDrawResult<Id extends AutoMovieArchetypeTray.Affordance> {
   /** The prepared `builder` this call returns. */
   builder: Builder<Id | "inside">;
 
   /** The prepared `d` this call returns. */
-  d: Record<createTray.Dimension, number>;
+  d: Record<AutoMovieArchetypeTray.Dimension, number>;
 }
 
 /** Resolve a recorded carrier and build its common floor and walls. */
-function draw<Id extends createTray.Affordance>(
-  kind: createTray.Kind,
-  params: Omit<createTray.IParams, "kind">,
+function draw<Id extends AutoMovieArchetypeTray.Affordance>(
+  kind: AutoMovieArchetypeTray.Kind,
+  params: Omit<AutoMovieArchetypeTray.IParams, "kind">,
   seed?: number,
 ): IDrawResult<Id> {
-  const session: AutoMovieArchetypeDrawSession<createTray.Dimension> =
-    new AutoMovieArchetypeDrawSession<createTray.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeTray.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeTray.Dimension>(
       "tray",
-      createTray.UNITS,
+      AutoMovieArchetypeTray.UNITS,
       seed,
       params,
     );
-  const drawn: Partial<Record<createTray.Dimension, number>> =
-    session.dimensions(createTray.BANDS[kind]);
+  const drawn: Partial<Record<AutoMovieArchetypeTray.Dimension, number>> =
+    session.dimensions(AutoMovieArchetypeTray.BANDS[kind]);
   // A tray or a basket is one of IKEA's read models whole.
   const model: {
-    name: createTray.Model | undefined;
-    figures: createTray.Figures;
-  } = session.model<createTray.Model>(
+    name: AutoMovieArchetypeTray.Model | undefined;
+    figures: AutoMovieArchetypeTray.Figures;
+  } = session.model<AutoMovieArchetypeTray.Model>(
     "model",
     params.model,
-    createTray.MODELS[kind],
+    AutoMovieArchetypeTray.MODELS[kind],
   );
-  const read: Partial<Record<createTray.Dimension, number>> = {
+  const read: Partial<Record<AutoMovieArchetypeTray.Dimension, number>> = {
     ...drawn,
     ...model.figures,
   };
-  const d: Record<createTray.Dimension, number> = {
+  const d: Record<AutoMovieArchetypeTray.Dimension, number> = {
     width: read.width!,
     depth: read.depth!,
     height: read.height!,
@@ -66,7 +66,7 @@ function draw<Id extends createTray.Affordance>(
     name: kind,
     draw: session,
   });
-  const wall: number = createTray.WALL;
+  const wall: number = AutoMovieArchetypeTray.WALL;
   const color: string = kind === "tray" ? "#6b4a2f" : "#b08d57";
   const hx: number = d.width / 2;
   const hz: number = d.depth / 2;
@@ -109,12 +109,12 @@ export namespace TrayConstruction {
    * its floor's centre for a waiter's carry and a socket there for a glass.
    */
   export function servingTray(
-    params: Omit<createTray.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeTray.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<ServingTrayContact, createTray.Dimension> {
+  ): AutoMovieArchetype<ServingTrayContact, AutoMovieArchetypeTray.Dimension> {
     const { builder, d }: ReturnType<typeof draw<ServingTrayContact>> =
       draw<ServingTrayContact>("tray", params, seed);
-    const wall: number = createTray.WALL;
+    const wall: number = AutoMovieArchetypeTray.WALL;
     const hx: number = d.width / 2;
     const up: number = (d.height + wall) / 2;
     for (const [id, sign] of [
@@ -165,15 +165,15 @@ export namespace TrayConstruction {
 
   /** Build a deep carry basket with an overhead grip. */
   export function basket(
-    params: Omit<createTray.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeTray.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<BasketContact, createTray.Dimension> {
+  ): AutoMovieArchetype<BasketContact, AutoMovieArchetypeTray.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BasketContact>> =
       draw<BasketContact>("basket", params, seed);
-    const wall: number = createTray.WALL;
+    const wall: number = AutoMovieArchetypeTray.WALL;
     const hz: number = d.depth / 2;
-    const grip: number = createTray.GRIP;
-    const bar: number = d.height + createTray.CLEARANCE;
+    const grip: number = AutoMovieArchetypeTray.GRIP;
+    const bar: number = d.height + AutoMovieArchetypeTray.CLEARANCE;
     for (const [id, sign] of [
       ["frontPost", 1],
       ["backPost", -1],

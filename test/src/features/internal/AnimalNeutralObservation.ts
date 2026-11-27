@@ -2,7 +2,7 @@ import {
   AutoMovieArchetypeQuadrupedJoints,
   type createQuadruped,
 } from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -50,7 +50,7 @@ export namespace AnimalNeutralObservation {
     label: string,
     findings: string[],
   ): Query {
-    if (!validateModel({ model }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model }).success)
       findings.push(`${label}: actual model admission failed`);
     const parts: Map<string, IAutoMovieModelPart> = new Map(
       model.parts.map(

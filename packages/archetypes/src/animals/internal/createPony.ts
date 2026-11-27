@@ -3,7 +3,7 @@ import { type AutoMovieArchetype, AutoMovieArchetypeDrawSession } from "../../co
 import { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import "../EquineSegments";
 import "../HORSE_BANDS";
-import "../createHorse";
+import "./createHorse";
 
 /**
  * A pony of a measured breed, with its tack: the horse's build

@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createInstrument } from "./createInstrument";
+import type { AutoMovieArchetypeInstrument } from "./AutoMovieArchetypeInstrument";
 
 /** The upright piano, from a search only. */
 const U1: string =
@@ -48,9 +48,9 @@ const BUGLE: string =
 /** The band of each free dimension of {@link createInstrument}, by kind. */
 export const INSTRUMENT_BANDS: Readonly<
   Record<
-    createInstrument.Kind,
+    AutoMovieArchetypeInstrument.Kind,
     Readonly<
-      Partial<Record<createInstrument.Dimension, IAutoMovieArchetypeBand>>
+      Partial<Record<AutoMovieArchetypeInstrument.Dimension, IAutoMovieArchetypeBand>>
     >
   >
 > = {

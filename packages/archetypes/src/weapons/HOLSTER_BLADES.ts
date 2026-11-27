@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
-import type { createHolster } from "./createHolster";
-import { createSword } from "./createSword";
+import type { AutoMovieArchetypeHolster } from "./AutoMovieArchetypeHolster";
+import { AutoMovieArchetypeSword } from "./AutoMovieArchetypeSword";
 
 /** A scabbard maker's rule of fit, read. */
 const WULFLUND: string =
@@ -21,8 +21,8 @@ const FIT: Readonly<{ length: number; width: number }> = {
  */
 const madeTo = (
   name: string,
-  sword: Readonly<Partial<Record<createSword.Dimension, number>>>,
-): createHolster.Fitted => ({
+  sword: Readonly<Partial<Record<AutoMovieArchetypeSword.Dimension, number>>>,
+): AutoMovieArchetypeHolster.Fitted => ({
   length: AutoMovieArchetypeBand.metres(
     sword.bladeLength! + FIT.length,
     sword.bladeLength! + FIT.length,
@@ -40,10 +40,10 @@ const madeTo = (
  * `createSword`'s kinds, its bands moved out by the fit, provisional where the
  * blade's are.
  */
-const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
+const madeFor = (kind: AutoMovieArchetypeSword.Kind): AutoMovieArchetypeHolster.Fitted => {
   const blade: Readonly<
-    Partial<Record<createSword.Dimension, IAutoMovieArchetypeBand>>
-  > = createSword.BANDS[kind];
+    Partial<Record<AutoMovieArchetypeSword.Dimension, IAutoMovieArchetypeBand>>
+  > = AutoMovieArchetypeSword.BANDS[kind];
   const length: IAutoMovieArchetypeBand = blade.bladeLength!;
   const width: IAutoMovieArchetypeBand = blade.bladeWidth!;
   return {
@@ -68,14 +68,14 @@ const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
  * out, provisional where the blade's are.
  */
 export const HOLSTER_BLADES: Readonly<{
-  scabbard: Readonly<Record<createHolster.ScabbardBlade, createHolster.Fitted>>;
-  sheath: Readonly<Record<createHolster.SheathBlade, createHolster.Fitted>>;
+  scabbard: Readonly<Record<AutoMovieArchetypeHolster.ScabbardBlade, AutoMovieArchetypeHolster.Fitted>>;
+  sheath: Readonly<Record<AutoMovieArchetypeHolster.SheathBlade, AutoMovieArchetypeHolster.Fitted>>;
 }> = {
   scabbard: {
-    crecy: madeTo("Crecy", createSword.MODELS.longsword!.crecy!),
-    regent: madeTo("Regent", createSword.MODELS.longsword!.regent!),
-    knight: madeTo("Knight", createSword.MODELS.armingSword!.knight!),
-    poitiers: madeTo("Poitiers", createSword.MODELS.armingSword!.poitiers!),
+    crecy: madeTo("Crecy", AutoMovieArchetypeSword.MODELS.longsword!.crecy!),
+    regent: madeTo("Regent", AutoMovieArchetypeSword.MODELS.longsword!.regent!),
+    knight: madeTo("Knight", AutoMovieArchetypeSword.MODELS.armingSword!.knight!),
+    poitiers: madeTo("Poitiers", AutoMovieArchetypeSword.MODELS.armingSword!.poitiers!),
     sabre: madeFor("sabre"),
     katana: madeFor("katana"),
     rapier: madeFor("rapier"),

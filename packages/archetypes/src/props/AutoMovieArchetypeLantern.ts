@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createLantern as createLanternImplementation } from "./internal/createLantern";
-import { type createLight } from "./createLight";
+import { type AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
 /** Public operations for Auto Movie Archetype Lantern. */
 export namespace AutoMovieArchetypeLantern {
@@ -35,6 +35,6 @@ export namespace AutoMovieArchetypeLantern {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createLight.IParams,
+    AutoMovieArchetypeLight.IParams,
     "id" | "height" | "shade" | "overall" | "base" | "bail" | "mass"
   >;}

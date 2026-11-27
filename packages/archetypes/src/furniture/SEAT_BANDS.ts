@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createSeat } from "./createSeat";
-import { createTable } from "./createTable";
+import { AutoMovieArchetypeTable } from "./AutoMovieArchetypeTable";
 
 /** A band in metres. */
 const band = (
@@ -110,8 +110,8 @@ export const SEAT_BANDS: Readonly<
   },
   barStool: {
     seatHeight: band(
-      createTable.BANDS.bar.height.maximum - 12 * AutoMovieArchetypeUnits.INCH,
-      createTable.BANDS.bar.height.maximum - 10 * AutoMovieArchetypeUnits.INCH,
+      AutoMovieArchetypeTable.BANDS.bar.height.maximum - 12 * AutoMovieArchetypeUnits.INCH,
+      AutoMovieArchetypeTable.BANDS.bar.height.maximum - 10 * AutoMovieArchetypeUnits.INCH,
       "a seat 10 to 12 in below the 42 in (1067 mm) bar counter of NKBA Kitchen Planning Guideline 9 (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf); the gap is trade convention, not read at a source",
       true,
     ),

@@ -10,7 +10,7 @@ import type {
 import { AutoMovieArchetypeRange } from "../../architecture/AutoMovieArchetypeRange";
 import { AutoMovieArchetypeRefrigerator } from "../../architecture/AutoMovieArchetypeRefrigerator";
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createTable } from "../../furniture/createTable";
+import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
@@ -52,7 +52,7 @@ export function createKitchenKit(
       {},
       draw("refrigerator"),
     );
-    const counter: IAutoMovieModel = createTable(
+    const counter: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "counter" },
       draw("counter"),
     );

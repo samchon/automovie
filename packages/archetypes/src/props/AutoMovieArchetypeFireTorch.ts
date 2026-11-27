@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createFireTorch as createFireTorchImplementation } from "./internal/createFireTorch";
-import { type createLight } from "./createLight";
+import { type AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
 /** Public operations for Auto Movie Archetype Fire Torch. */
 export namespace AutoMovieArchetypeFireTorch {
@@ -29,6 +29,6 @@ export namespace AutoMovieArchetypeFireTorch {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createLight.IParams,
+    AutoMovieArchetypeLight.IParams,
     "id" | "length" | "diameter" | "headDiameter" | "mass"
   >;}

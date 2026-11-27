@@ -1,11 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeQuadrupedBody,
-  type AutoMovieArchetypeQuadrupedFooting,
-  type createHorse,
-  rideHorse,
-  type rideQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedFooting, rideHorse, type rideQuadruped, type AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -235,7 +228,7 @@ export namespace equineBankStage {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the ride.
    */
   export function walk(
-    horse: ReturnType<typeof createHorse>,
+    horse: ReturnType<typeof AutoMovieArchetypeHorse.create>,
     authored: rideQuadruped.ICourse,
   ): Ride {
     return rideHorse(horse, authored, "walk");

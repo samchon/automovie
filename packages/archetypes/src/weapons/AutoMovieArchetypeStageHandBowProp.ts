@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageHandBowProp as createStageHandBowPropImplementation } from "./internal/createStageHandBowProp";
-import { createBow } from "./createBow";
+import { AutoMovieArchetypeBow } from "./AutoMovieArchetypeBow";
 
 /** Public operations for Auto Movie Archetype Stage Hand Bow Prop. */
 export namespace AutoMovieArchetypeStageHandBowProp {
@@ -50,7 +50,7 @@ export namespace AutoMovieArchetypeStageHandBowProp {
    * The createBow contact set its shared construction types. This producer
    * builds grip, lowerLimb, nock, rest, string, upperLimb.
    */
-  export type Affordance = createBow.Affordance;
+  export type Affordance = AutoMovieArchetypeBow.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["longbow", "recurve", "horseBow"] as const;
@@ -60,7 +60,7 @@ export namespace AutoMovieArchetypeStageHandBowProp {
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<
-    createBow.IParams,
+    AutoMovieArchetypeBow.IParams,
     "id" | "length" | "depth" | "brace" | "nockHeight" | "mass" | "draw"
   > {
     /** The profile with the required outline. */
@@ -68,5 +68,5 @@ export namespace AutoMovieArchetypeStageHandBowProp {
     /** A model from this form's catalogue. */
     model?: Model;
     /** A legacy catalogue selector available on the horse-bow silhouette. */
-    weight?: createBow.Weight;
+    weight?: AutoMovieArchetypeBow.Weight;
   }}

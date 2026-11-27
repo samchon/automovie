@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../core";
 import { GOAL_BANDS } from "./GOAL_BANDS";
-import type { createGoal } from "./createGoal";
+import type { AutoMovieArchetypeGoal } from "./AutoMovieArchetypeGoal";
 
 /** Model coordinates in metres. */
 const v: typeof Vector3.create = Vector3.create;
@@ -18,7 +18,7 @@ const v: typeof Vector3.create = Vector3.create;
 export namespace GoalBuild {
   /** The recorded dimension units, metres for lengths and kilograms for mass. */
   export const UNITS: Readonly<
-    Record<createGoal.Dimension, AutoMovieArchetypeDrawSession.Unit>
+    Record<AutoMovieArchetypeGoal.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     width: "m",
     height: "m",
@@ -32,7 +32,7 @@ export namespace GoalBuild {
   };
 
   /** The display names retained from the saved goal dispatcher. */
-  export const NAMES: Readonly<Record<createGoal.Kind, string>> = {
+  export const NAMES: Readonly<Record<AutoMovieArchetypeGoal.Kind, string>> = {
     footballGoal: "football goal",
     fieldHockeyGoal: "field hockey goal",
     iceHockeyGoal: "ice hockey goal",
@@ -47,11 +47,11 @@ export namespace GoalBuild {
   export const NETS: Readonly<
     Partial<
       Record<
-        createGoal.Kind,
+        AutoMovieArchetypeGoal.Kind,
         Readonly<
           Record<
-            createGoal.Net,
-            Readonly<Partial<Record<createGoal.Dimension, number>>>
+            AutoMovieArchetypeGoal.Net,
+            Readonly<Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>>
           >
         >
       >
@@ -63,34 +63,34 @@ export namespace GoalBuild {
   export const BANDS: typeof GOAL_BANDS = GOAL_BANDS;
 
   /** What {@link draw} prepares for its caller. */
-  export interface IDrawResult<Id extends createGoal.Affordance> {
+  export interface IDrawResult<Id extends AutoMovieArchetypeGoal.Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: AutoMovieArchetypeBuilder<Id, createGoal.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeGoal.Dimension>;
 
     /** The prepared `d` this call returns. */
-    d: Partial<Record<createGoal.Dimension, number>>;
+    d: Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
   }
 
   /**
    * Draw the supplied profile with its original goal seed and prepare a
    * builder.
    */
-  export function draw<Id extends createGoal.Affordance>(
-    kind: createGoal.Kind,
-    params: Readonly<Omit<createGoal.IParams, "kind">>,
+  export function draw<Id extends AutoMovieArchetypeGoal.Affordance>(
+    kind: AutoMovieArchetypeGoal.Kind,
+    params: Readonly<Omit<AutoMovieArchetypeGoal.IParams, "kind">>,
     seed: number | undefined,
   ): IDrawResult<Id> {
-    const draw: AutoMovieArchetypeDrawSession<createGoal.Dimension> =
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeGoal.Dimension> =
       new AutoMovieArchetypeDrawSession("goal", UNITS, seed, params);
     const net: AutoMovieArchetypeDrawSession.IModel<
-      createGoal.Net,
-      createGoal.Dimension
+      AutoMovieArchetypeGoal.Net,
+      AutoMovieArchetypeGoal.Dimension
     > = draw.model("net", params.net, NETS[kind]);
-    const d: Partial<Record<createGoal.Dimension, number>> = {
+    const d: Partial<Record<AutoMovieArchetypeGoal.Dimension, number>> = {
       ...draw.dimensions(BANDS[kind], BANDS),
       ...net.figures,
     };
-    const builder: AutoMovieArchetypeBuilder<Id, createGoal.Dimension> =
+    const builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeGoal.Dimension> =
       new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
@@ -114,8 +114,8 @@ export namespace GoalBuild {
    */
   export function posts(
     builder: AutoMovieArchetypeBuilder<
-      createGoal.Affordance,
-      createGoal.Dimension
+      AutoMovieArchetypeGoal.Affordance,
+      AutoMovieArchetypeGoal.Dimension
     >,
     x: number,
     height: number,

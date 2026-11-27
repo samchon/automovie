@@ -8,7 +8,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
-import type { createMachine } from "./createMachine";
+import type { AutoMovieArchetypeMachine } from "./AutoMovieArchetypeMachine";
 
 /** The vending machines read. */
 const MERCHANT: string =
@@ -32,12 +32,12 @@ export namespace ServiceCabinet {
   export const MODELS: Readonly<
     Partial<
       Record<
-        createMachine.Kind,
+        AutoMovieArchetypeMachine.Kind,
         Readonly<
           Partial<
             Record<
-              createMachine.Model,
-              Readonly<Partial<Record<createMachine.Dimension, number>>>
+              AutoMovieArchetypeMachine.Model,
+              Readonly<Partial<Record<AutoMovieArchetypeMachine.Dimension, number>>>
             >
           >
         >
@@ -53,9 +53,9 @@ export namespace ServiceCabinet {
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<
-      createMachine.Kind,
+      AutoMovieArchetypeMachine.Kind,
       Readonly<
-        Partial<Record<createMachine.Dimension, IAutoMovieArchetypeBand>>
+        Partial<Record<AutoMovieArchetypeMachine.Dimension, IAutoMovieArchetypeBand>>
       >
     >
   > = {
@@ -103,7 +103,7 @@ export namespace ServiceCabinet {
   /** The built cabinet with its drawn outside dimensions and mass. */
   export interface ICabinet<Id extends string> {
     /** Builder carrying the exterior cabinet. */
-    builder: AutoMovieArchetypeBuilder<Id, createMachine.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMachine.Dimension>;
 
     /** Cabinet width along X, metres. */
     width: number;
@@ -132,13 +132,13 @@ export namespace ServiceCabinet {
    *   the given profile.
    */
   export function begin<Id extends string>(
-    kind: createMachine.Kind,
+    kind: AutoMovieArchetypeMachine.Kind,
     name: string,
     color: string,
-    params: Omit<createMachine.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeMachine.IParams, "kind">,
     seed?: number,
   ): ICabinet<Id> {
-    const draw: AutoMovieArchetypeDrawSession<createMachine.Dimension> =
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeMachine.Dimension> =
       new AutoMovieArchetypeDrawSession(
         "machine",
         FixtureDraw.machine,
@@ -146,14 +146,14 @@ export namespace ServiceCabinet {
         params,
       );
     const model: AutoMovieArchetypeDrawSession.IModel<
-      createMachine.Model,
-      createMachine.Dimension
+      AutoMovieArchetypeMachine.Model,
+      AutoMovieArchetypeMachine.Dimension
     > = draw.model("model", params.model, MODELS[kind]);
-    const d: Partial<Record<createMachine.Dimension, number>> = {
+    const d: Partial<Record<AutoMovieArchetypeMachine.Dimension, number>> = {
       ...draw.dimensions(BANDS[kind], BANDS),
       ...model.figures,
     };
-    const builder: AutoMovieArchetypeBuilder<Id, createMachine.Dimension> =
+    const builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMachine.Dimension> =
       new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,

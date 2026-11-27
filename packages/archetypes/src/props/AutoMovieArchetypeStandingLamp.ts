@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStandingLamp as createStandingLampImplementation } from "./internal/createStandingLamp";
-import { type createLight } from "./createLight";
+import { type AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
 /** Public operations for Auto Movie Archetype Standing Lamp. */
 export namespace AutoMovieArchetypeStandingLamp {
@@ -41,7 +41,7 @@ export namespace AutoMovieArchetypeStandingLamp {
 
   /** The admitted settings and optional model ID. */
   export interface IParams extends Pick<
-    createLight.IParams,
+    AutoMovieArchetypeLight.IParams,
     "id" | "height" | "shade" | "overall" | "stem" | "base" | "mass"
   > {
     /** The measured table or floor form. */

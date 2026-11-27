@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createDrinkware } from "./createDrinkware";
+import type { AutoMovieArchetypeDrinkware } from "./AutoMovieArchetypeDrinkware";
 
 /** A band in kilograms. */
 const kg = (
@@ -125,9 +125,9 @@ const LOOP: Readonly<
  */
 export const DRINKWARE_BANDS: Readonly<
   Record<
-    createDrinkware.Kind,
+    AutoMovieArchetypeDrinkware.Kind,
     Readonly<
-      Partial<Record<createDrinkware.Dimension, IAutoMovieArchetypeBand>>
+      Partial<Record<AutoMovieArchetypeDrinkware.Dimension, IAutoMovieArchetypeBand>>
     >
   >
 > = {

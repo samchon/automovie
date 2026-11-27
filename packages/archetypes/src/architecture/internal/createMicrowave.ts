@@ -3,7 +3,7 @@ import type { AutoMovieArchetype } from "../../core/index";
 import { APPLIANCE_BANDS } from "../APPLIANCE_BANDS";
 import { ApplianceConstruction } from "../ApplianceConstruction";
 import { FixtureDraw } from "../FixtureDraw";
-import type { createAppliance } from "../createAppliance";
+import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
 
 /**
  * A countertop microwave with a cavity floor, a top support and a left-hinged
@@ -26,7 +26,7 @@ export function createMicrowave(
 ): AutoMovieArchetype<AutoMovieArchetypeMicrowave.Affordance, AutoMovieArchetypeMicrowave.Dimension> {
   return FixtureDraw.installed<
     AutoMovieArchetypeMicrowave.Affordance,
-    createAppliance.Dimension
+    AutoMovieArchetypeAppliance.Dimension
   >(
     "appliance",
     "microwave",

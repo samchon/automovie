@@ -1,11 +1,4 @@
-import {
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeQuadrupedBody,
-  type AutoMovieArchetypeQuadrupedEquipment,
-  type AutoMovieArchetypeQuadrupedLead,
-  type createOx,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedEquipment, type AutoMovieArchetypeQuadrupedLead, type AutoMovieArchetypeOx } from "@automovie/archetypes";
 import { buildOxBody } from "@automovie/archetypes/executable/internal";
 import { Quaternion } from "@automovie/engine";
 import type {
@@ -29,7 +22,7 @@ import { nclose } from "./nclose";
  */
 export namespace AnimalEquipmentFixture {
   /** Actual public non-equid output shared by the three species producers. */
-  export type Animal = ReturnType<typeof createOx>;
+  export type Animal = ReturnType<typeof AutoMovieArchetypeOx.create>;
 
   /** One real laid body and the canonical landmarks used to fit equipment. */
   export interface IFixture {

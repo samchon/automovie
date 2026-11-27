@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { PRIMING_WIRE } from "./PRIMING_WIRE";
-import type { createTool } from "./createTool";
+import type { AutoMovieArchetypeTool } from "./AutoMovieArchetypeTool";
 
 /** The handle diameters hands rated most comfortable in a power grip. */
 const POWER: string =
@@ -57,8 +57,8 @@ const PRECISION: string =
  */
 export const TOOL_BANDS: Readonly<
   Record<
-    createTool.Kind,
-    Readonly<Partial<Record<createTool.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeTool.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeTool.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   hammer: {

@@ -1,8 +1,5 @@
-import {
-  type AutoMovieArchetype,
-  createSiegeEngine,
-} from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { type AutoMovieArchetype, AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,8 +26,8 @@ export function test_archetype_siege_trebuchet(): void {
   const close = (a: number, b: number, tolerance: number = 1e-9): boolean =>
     Math.abs(a - b) <= tolerance;
   const FT: number = 0.3048;
-  const t: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> =
-    createSiegeEngine({ kind: "trebuchet" }, 1).dimensions;
+  const t: Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>> =
+    AutoMovieArchetypeSiegeEngine.create({ kind: "trebuchet" }, 1).dimensions;
   for (const [name, expected] of [
     ["armLength", 5.85],
     ["shortArm", 1.2],
@@ -40,8 +37,8 @@ export function test_archetype_siege_trebuchet(): void {
   ] as const)
     if (!close(t[name]!, expected))
       findings.push(`trebuchet ${name} is ${t[name]}, not ${expected}`);
-  const m: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> =
-    createSiegeEngine({ kind: "mangonel" }, 1).dimensions;
+  const m: Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>> =
+    AutoMovieArchetypeSiegeEngine.create({ kind: "mangonel" }, 1).dimensions;
   for (const [name, expected] of [
     ["armLength", (16 * FT * 6) / 7],
     ["shortArm", (16 * FT) / 7],
@@ -50,18 +47,18 @@ export function test_archetype_siege_trebuchet(): void {
   ] as const)
     if (!close(m[name]!, expected))
       findings.push(`mangonel ${name} is ${m[name]}, not ${expected}`);
-  for (const kind of createSiegeEngine.KINDS)
+  for (const kind of AutoMovieArchetypeSiegeEngine.KINDS)
     for (const seed of [0, 3, 7, 12]) {
       const engine: AutoMovieArchetype<
-        createSiegeEngine.Affordance,
-        createSiegeEngine.Dimension
-      > = createSiegeEngine({ kind }, seed);
-      const d: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> =
+        AutoMovieArchetypeSiegeEngine.Affordance,
+        AutoMovieArchetypeSiegeEngine.Dimension
+      > = AutoMovieArchetypeSiegeEngine.create({ kind }, seed);
+      const d: Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>> =
         engine.dimensions;
       const label: string = `${kind}@${seed}`;
       const cocked: AutoMovieArchetype<
-        createSiegeEngine.Affordance,
-        createSiegeEngine.Dimension
+        AutoMovieArchetypeSiegeEngine.Affordance,
+        AutoMovieArchetypeSiegeEngine.Dimension
       > = engine.articulate({ arm: -d.cocked! });
       if (!close(cocked.travel("winch"), d.winchRatio! * d.cocked!, 1e-6))
         findings.push(
@@ -69,10 +66,10 @@ export function test_archetype_siege_trebuchet(): void {
         );
       for (const arm of [-d.cocked!, 0, 90, d.release!, d.reach!]) {
         const posed: AutoMovieArchetype<
-          createSiegeEngine.Affordance,
-          createSiegeEngine.Dimension
+          AutoMovieArchetypeSiegeEngine.Affordance,
+          AutoMovieArchetypeSiegeEngine.Dimension
         > = engine.articulate({ arm });
-        if (!validateModel({ model: posed }).success)
+        if (!AutoMovieEngineValidation.validateModel({ model: posed }).success)
           findings.push(`${label}: the arm at ${arm} is refused`);
         if (kind === "trebuchet") {
           const tilt: number =
@@ -86,7 +83,7 @@ export function test_archetype_siege_trebuchet(): void {
             );
         }
       }
-      const shot: createSiegeEngine.IThrow = createSiegeEngine.throwAt(
+      const shot: AutoMovieArchetypeSiegeEngine.IThrow = AutoMovieArchetypeSiegeEngine.throwAt(
         engine,
         1,
       );

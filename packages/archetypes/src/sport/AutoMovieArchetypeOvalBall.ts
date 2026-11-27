@@ -2,7 +2,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { BallBuild } from "./BallBuild";
-import type { createBall } from "./createBall";
+import type { AutoMovieArchetypeBall } from "./AutoMovieArchetypeBall";
 
 /** Canonical producer and authoring contract for Oval Ball. */
 export namespace AutoMovieArchetypeOvalBall {
@@ -23,7 +23,7 @@ export namespace AutoMovieArchetypeOvalBall {
 
   /** The identifier, dimensions and choices of this shape. */
   export interface IParams extends Pick<
-    createBall.IParams,
+    AutoMovieArchetypeBall.IParams,
     "id" | "diameter" | "length" | "mass"
   > {
     /** The sport profile. Omission selects rugby. */

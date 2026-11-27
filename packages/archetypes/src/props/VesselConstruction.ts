@@ -6,12 +6,12 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { createVessel } from "./createVessel";
+import { AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createVessel.Affordance> = AutoMovieArchetypeBuilder<
+type Builder<Id extends AutoMovieArchetypeVessel.Affordance> = AutoMovieArchetypeBuilder<
   Id,
-  createVessel.Dimension
+  AutoMovieArchetypeVessel.Dimension
 >;
 
 /** Create a model-space point in metres. */
@@ -21,46 +21,46 @@ const v: typeof Vector3.create = Vector3.create;
 type DrawContact = "inside" | "rim";
 
 /** What {@link draw} prepares for its caller. */
-interface IDrawResult<Id extends createVessel.Affordance> {
+interface IDrawResult<Id extends AutoMovieArchetypeVessel.Affordance> {
   /** The prepared `builder` this call returns. */
   builder: Builder<Id | DrawContact>;
 
   /** The prepared `d` this call returns. */
-  d: Record<createVessel.Dimension, number>;
+  d: Record<AutoMovieArchetypeVessel.Dimension, number>;
 }
 
 /**
  * Resolve recorded sizing, then lay out the shared open floor, walls and
  * surfaces.
  */
-function draw<Id extends createVessel.Affordance>(
-  kind: createVessel.Kind,
-  params: Omit<createVessel.IParams, "kind">,
+function draw<Id extends AutoMovieArchetypeVessel.Affordance>(
+  kind: AutoMovieArchetypeVessel.Kind,
+  params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
   seed?: number,
 ): IDrawResult<Id> {
-  const session: AutoMovieArchetypeDrawSession<createVessel.Dimension> =
-    new AutoMovieArchetypeDrawSession<createVessel.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<AutoMovieArchetypeVessel.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeVessel.Dimension>(
       "vessel",
-      createVessel.UNITS,
+      AutoMovieArchetypeVessel.UNITS,
       seed,
       params,
     );
-  const drawn: Partial<Record<createVessel.Dimension, number>> =
-    session.dimensions(createVessel.BANDS[kind]);
+  const drawn: Partial<Record<AutoMovieArchetypeVessel.Dimension, number>> =
+    session.dimensions(AutoMovieArchetypeVessel.BANDS[kind]);
   // A bowl or an ashtray is one of the read models whole.
   const model: {
-    name: createVessel.Model | undefined;
-    figures: createVessel.Figures;
-  } = session.model<createVessel.Model>(
+    name: AutoMovieArchetypeVessel.Model | undefined;
+    figures: AutoMovieArchetypeVessel.Figures;
+  } = session.model<AutoMovieArchetypeVessel.Model>(
     "model",
     params.model,
-    createVessel.MODELS[kind],
+    AutoMovieArchetypeVessel.MODELS[kind],
   );
-  const read: Partial<Record<createVessel.Dimension, number>> = {
+  const read: Partial<Record<AutoMovieArchetypeVessel.Dimension, number>> = {
     ...drawn,
     ...model.figures,
   };
-  const d: Record<createVessel.Dimension, number> = {
+  const d: Record<AutoMovieArchetypeVessel.Dimension, number> = {
     diameter: read.diameter!,
     height: read.height!,
     mass: read.mass!,
@@ -76,9 +76,9 @@ function draw<Id extends createVessel.Affordance>(
     name: kind,
     draw: session,
   });
-  const wall: number = createVessel.WALL;
+  const wall: number = AutoMovieArchetypeVessel.WALL;
   const r: number = d.diameter / 2;
-  const color: string = createVessel.COLORS[kind];
+  const color: string = AutoMovieArchetypeVessel.COLORS[kind];
   builder.rod("floor", r, v(0, 0, 0), v(0, wall, 0), { color });
   for (const [id, size, at] of [
     [
@@ -132,7 +132,7 @@ function dishGrip(
   },
   grip: DishGripGrip,
 ): void {
-  const wall: number = createVessel.WALL;
+  const wall: number = AutoMovieArchetypeVessel.WALL;
   builder.affordance({
     id: "body",
     kind: "handle",
@@ -155,9 +155,9 @@ export namespace VesselConstruction {
 
   /** Build a bowl held from beneath with two hands. */
   export function bowl(
-    params: Omit<createVessel.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<BowlContact, createVessel.Dimension> {
+  ): AutoMovieArchetype<BowlContact, AutoMovieArchetypeVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BowlContact>> =
       draw<BowlContact>("bowl", params, seed);
     dishGrip(builder, "two-hand");
@@ -169,9 +169,9 @@ export namespace VesselConstruction {
 
   /** Build an ashtray grasped from below. */
   export function ashtray(
-    params: Omit<createVessel.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<AshtrayContact, createVessel.Dimension> {
+  ): AutoMovieArchetype<AshtrayContact, AutoMovieArchetypeVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<AshtrayContact>> =
       draw<AshtrayContact>("ashtray", params, seed);
     dishGrip(builder, "precision");
@@ -183,9 +183,9 @@ export namespace VesselConstruction {
 
   /** Build a vase at the model origin with a grip around the middle. */
   export function vase(
-    params: Omit<createVessel.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<VaseContact, createVessel.Dimension> {
+  ): AutoMovieArchetype<VaseContact, AutoMovieArchetypeVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<VaseContact>> =
       draw<VaseContact>("vase", params, seed);
     builder.affordance({
@@ -218,15 +218,15 @@ export namespace VesselConstruction {
   /** Build a cooking pot with its own grasp arrangement. */
   export function cookingPot(
     kind: CookingPotKind,
-    params: Omit<createVessel.IParams, "kind">,
+    params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
     seed?: number,
-  ): AutoMovieArchetype<CookingPotContact, createVessel.Dimension> {
+  ): AutoMovieArchetype<CookingPotContact, AutoMovieArchetypeVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CookingPotContact>> =
       draw<CookingPotContact>(kind, params, seed);
     const r: number = d.diameter / 2;
-    const grip: number = createVessel.GRIP;
+    const grip: number = AutoMovieArchetypeVessel.GRIP;
     if (kind === "saucepan") {
-      const length: number = createVessel.HANDLE;
+      const length: number = AutoMovieArchetypeVessel.HANDLE;
       builder.rod(
         "handle",
         grip / 2,

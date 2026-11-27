@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createServingTray as createServingTrayImplementation } from "./internal/createServingTray";
-import { type createTray } from "./createTray";
+import { type AutoMovieArchetypeTray } from "./AutoMovieArchetypeTray";
 
 /** Public operations for Auto Movie Archetype Serving Tray. */
 export namespace AutoMovieArchetypeServingTray {
@@ -40,7 +40,7 @@ export namespace AutoMovieArchetypeServingTray {
     | "rest";
 
   /** The admitted settings and optional model ID. */
-  export interface IParams extends Pick<createTray.IParams, "id" | "mass"> {
+  export interface IParams extends Pick<AutoMovieArchetypeTray.IParams, "id" | "mass"> {
     /** The recorded serving tray model. The seed selects it when omitted. */
     model?: Model;
   }}

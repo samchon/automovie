@@ -6,16 +6,16 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import type { createCannon } from "./createCannon";
+import type { AutoMovieArchetypeCannon } from "./AutoMovieArchetypeCannon";
 
 /** A cannon under construction. */
 type Builder = AutoMovieArchetypeBuilder<
-  createCannon.Affordance,
-  createCannon.Dimension
+  AutoMovieArchetypeCannon.Affordance,
+  AutoMovieArchetypeCannon.Dimension
 >;
 
 /** A cannon's drawn and read dimensions. */
-type Drawn = Readonly<Partial<Record<createCannon.Dimension, number>>>;
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeCannon.Dimension, number>>>;
 
 /**
  * The naval gun, the mortar and the swivel gun, built on their read figures: a

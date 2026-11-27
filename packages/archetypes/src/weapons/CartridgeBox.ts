@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import type { createHolster } from "./createHolster";
+import type { AutoMovieArchetypeHolster } from "./AutoMovieArchetypeHolster";
 
 /**
  * The soldier's cartridge box among the holsters: the 1841 Ordnance Manual's
@@ -74,10 +74,10 @@ export namespace CartridgeBox {
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
-      createHolster.Affordance,
-      createHolster.Dimension
+      AutoMovieArchetypeHolster.Affordance,
+      AutoMovieArchetypeHolster.Dimension
     >,
-    d: Readonly<Partial<Record<createHolster.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeHolster.Dimension, number>>>,
     slots: number,
     hang: (at: IAutoMovieVector3) => IAutoMovieTransform,
   ): void {

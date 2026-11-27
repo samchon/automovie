@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createCane as createCaneImplementation } from "./internal/createCane";
-import { type createMobilityAid } from "./createMobilityAid";
+import { type AutoMovieArchetypeMobilityAid } from "./AutoMovieArchetypeMobilityAid";
 
 /** Public operations for Auto Movie Archetype Cane. */
 export namespace AutoMovieArchetypeCane {
@@ -29,6 +29,6 @@ export namespace AutoMovieArchetypeCane {
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<
-    createMobilityAid.IParams,
+    AutoMovieArchetypeMobilityAid.IParams,
     "id" | "height" | "diameter" | "mass"
   >;}

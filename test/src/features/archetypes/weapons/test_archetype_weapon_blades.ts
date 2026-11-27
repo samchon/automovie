@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeUnits, createPell, createSword, AutoMovieArchetypePolearm, AutoMovieArchetypeShield } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypePolearm, AutoMovieArchetypeShield, AutoMovieArchetypePell, AutoMovieArchetypeSword } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -70,9 +70,9 @@ export function test_archetype_weapon_blades(): void {
     tolerance: 1e-6,
   });
   const sword = (
-    kind: createSword.Kind,
+    kind: AutoMovieArchetypeSword.Kind,
     seed?: number,
-  ): ReturnType<typeof createSword> => createSword({ kind }, seed);
+  ): ReturnType<typeof AutoMovieArchetypeSword.create> => AutoMovieArchetypeSword.create({ kind }, seed);
   const findings: string[] = archetypeBandSweep([
     row(
       "longsword length",
@@ -209,9 +209,9 @@ export function test_archetype_weapon_blades(): void {
   ]);
 
   // 2. The centre of mass is the drawn point of balance, on the axis.
-  for (const kind of createSword.KINDS)
+  for (const kind of AutoMovieArchetypeSword.KINDS)
     for (const seed of [undefined, 3, 8]) {
-      const made: ReturnType<typeof createSword> = sword(kind, seed);
+      const made: ReturnType<typeof AutoMovieArchetypeSword.create> = sword(kind, seed);
       const balance: number = made.dimensions.balance!;
       const centre: { x: number; y: number } = made.properties.centerOfMass;
       if (Math.abs(centre.y - balance) > 1e-6 || Math.abs(centre.x) > 1e-9)
@@ -230,7 +230,7 @@ export function test_archetype_weapon_blades(): void {
 
   // 3. A curved blade's edge is the outside of its curve.
   for (const kind of ["sabre", "katana"] as const) {
-    const made: ReturnType<typeof createSword> = sword(kind);
+    const made: ReturnType<typeof AutoMovieArchetypeSword.create> = sword(kind);
     const point: number = made.affordance("point").frame.translation.z;
     const out: { x: number; y: number; z: number } = made.placed("edge", {
       translation: { x: 0, y: 0, z: 0 },
@@ -245,7 +245,7 @@ export function test_archetype_weapon_blades(): void {
 
   // 4. The reverse grip turns the hand end for end.
   for (const kind of ["dagger", "knife"] as const) {
-    const made: ReturnType<typeof createSword> = sword(kind);
+    const made: ReturnType<typeof AutoMovieArchetypeSword.create> = sword(kind);
     const up: number = made.site("grip", 1).translation.y;
     const down: number = made.site("reverseGrip", 1).translation.y;
     const middle: number = made.affordance("grip").frame.translation.y;
@@ -264,7 +264,7 @@ export function test_archetype_weapon_blades(): void {
     findings.push(`a longsword's reverse grip: ${refused}`);
 
   // 5. A pell's target runs its whole height.
-  const pell: ReturnType<typeof createPell> = createPell();
+  const pell: ReturnType<typeof AutoMovieArchetypePell.create> = AutoMovieArchetypePell.create();
   const span: number =
     Math.abs(
       pell.site("target", 0.5, 1).translation.y -

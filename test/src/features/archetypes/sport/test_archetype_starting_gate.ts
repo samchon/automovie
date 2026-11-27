@@ -1,4 +1,4 @@
-import { type AutoMovieArchetype, AutoMovieArchetypePassage, AutoMovieArchetypeRefusal, createHorse, AutoMovieArchetypeStartingGate } from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypePassage, AutoMovieArchetypeRefusal, AutoMovieArchetypeStartingGate, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -99,7 +99,7 @@ export function test_archetype_starting_gate(): void {
   // 4. A saddle horse fits a stall.
   const outline: readonly IAutoMovieVector3[] =
     AutoMovieArchetypePassage.footprint(
-      createHorse({ withersHeight: 1.8 }),
+      AutoMovieArchetypeHorse.create({ withersHeight: 1.8 }),
     ).outline;
   const breadth: number =
     Math.max(...outline.map((p: IAutoMovieVector3): number => p.x)) -

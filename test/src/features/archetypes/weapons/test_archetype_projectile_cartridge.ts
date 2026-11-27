@@ -1,8 +1,5 @@
-import {
-  AutoMovieArchetypeRefusal,
-  createProjectile,
-} from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeProjectile } from "@automovie/archetypes";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -33,10 +30,10 @@ export function test_archetype_projectile_cartridge(): void {
   const findings: string[] = [];
   const inch: number = 0.0254;
   const ounce: number = 0.45359237 / 16;
-  const cartridge: ReturnType<typeof createProjectile> = createProjectile({
+  const cartridge: ReturnType<typeof AutoMovieArchetypeProjectile.create> = AutoMovieArchetypeProjectile.create({
     kind: "cartridge",
   });
-  if (!validateModel({ model: cartridge }).success)
+  if (!AutoMovieEngineValidation.validateModel({ model: cartridge }).success)
     findings.push("the cartridge is not admitted");
   const length: number = cartridge.dimensions.length!;
   if (!(Math.abs(length - 2.6 * inch) <= 1e-12))
@@ -60,7 +57,7 @@ export function test_archetype_projectile_cartridge(): void {
   // 4. Every band is the one read figure: any seed draws the same cartridge, and a figure fixed a step off it is refused on that dimension.
   for (const seed of [0, 1, 1046])
     if (
-      JSON.stringify(createProjectile({ kind: "cartridge" }, seed)) !==
+      JSON.stringify(AutoMovieArchetypeProjectile.create({ kind: "cartridge" }, seed)) !==
       JSON.stringify(cartridge)
     )
       findings.push(`seed ${seed} draws another cartridge`);
@@ -71,7 +68,7 @@ export function test_archetype_projectile_cartridge(): void {
   ] as const) {
     let refused: string | null = null;
     try {
-      createProjectile({ kind: "cartridge", [axis]: value });
+      AutoMovieArchetypeProjectile.create({ kind: "cartridge", [axis]: value });
     } catch (error) {
       refused =
         error instanceof AutoMovieArchetypeRefusal ? error.axis : String(error);

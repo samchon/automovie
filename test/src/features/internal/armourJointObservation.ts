@@ -1,4 +1,4 @@
-import type { createArmour } from "@automovie/archetypes";
+import type { AutoMovieArchetypeArmour } from "@automovie/archetypes";
 import { Quaternion, Vector3, physicalHullFaces, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
@@ -26,7 +26,7 @@ export namespace armourJointObservation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent scalar vectors and retains no model, collider list, completed observation or external resource.
    */
   export function cells(
-    piece: ReturnType<typeof createArmour>,
+    piece: ReturnType<typeof AutoMovieArchetypeArmour.create>,
   ): ReadonlyMap<string, readonly IAutoMovieVector3[]> {
     const output: Map<string, readonly IAutoMovieVector3[]> = new Map();
     for (const shape of piece.shapes()) {

@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
-import { triangulateRecoveryCameraPoint } from "../../internal/triangulateRecoveryCameraPoint";
+import { triangulateRecoveryCameraPoint } from "./triangulateRecoveryCameraPoint";
 
 /**
  * Measure all four calibrated pose branches on one fixed correspondence set.

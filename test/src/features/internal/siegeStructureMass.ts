@@ -1,4 +1,4 @@
-import type { createSiegeEngine } from "@automovie/archetypes";
+import type { AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "./nclose";
 
 /** The actual public launcher with its complete real coarse solids. */
-type Engine = ReturnType<typeof createSiegeEngine>;
+type Engine = ReturnType<typeof AutoMovieArchetypeSiegeEngine.create>;
 
 /**
  * An independently measured uniform actual solid and its central principal

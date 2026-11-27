@@ -7,16 +7,16 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createLongTool } from "./createLongTool";
+import type { AutoMovieArchetypeLongTool } from "./AutoMovieArchetypeLongTool";
 
 /** A long tool under construction. */
 type Builder = AutoMovieArchetypeBuilder<
-  createLongTool.Affordance,
-  createLongTool.Dimension
+  AutoMovieArchetypeLongTool.Affordance,
+  AutoMovieArchetypeLongTool.Dimension
 >;
 
 /** A long tool's drawn dimensions. */
-type Drawn = Readonly<Partial<Record<createLongTool.Dimension, number>>>;
+type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongTool.Dimension, number>>>;
 
 /** Gränsfors Bruk's Scandinavian Forest Axe, read at the maker. */
 const FOREST_AXE: string =
@@ -53,7 +53,7 @@ export namespace ForestAxe {
 
   /** The forest axe's bands; it has no drawn shaft diameter. */
   export const BANDS: Readonly<
-    Partial<Record<createLongTool.Dimension, IAutoMovieArchetypeBand>>
+    Partial<Record<AutoMovieArchetypeLongTool.Dimension, IAutoMovieArchetypeBand>>
   > = {
     length: AutoMovieArchetypeBand.metres(
       25 * AutoMovieArchetypeUnits.INCH,

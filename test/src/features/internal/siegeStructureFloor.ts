@@ -1,4 +1,4 @@
-import type { createSiegeEngine } from "@automovie/archetypes";
+import type { AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { archetypeSpanObservation } from "./archetypeSpanObservation";
 
 /** Actual source and posed public launcher. */
-type Engine = ReturnType<typeof createSiegeEngine>;
+type Engine = ReturnType<typeof AutoMovieArchetypeSiegeEngine.create>;
 
 /**
  * Inspect every real siege solid at all dimension-derived support extrema.

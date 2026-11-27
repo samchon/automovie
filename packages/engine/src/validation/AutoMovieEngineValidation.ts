@@ -1,4 +1,6 @@
-import { type IAutoMovieMesh, type IAutoMovieViolationCollector, type IAutoMovieValidation, type IAutoMovieMeshTopologyValidationProps, type IAutoMovieBody, type IAutoMovieCapsuleProxy, type AutoMovieHumanoidBone, type IAutoMovieValidateTransformScalars, type IAutoMovieConstraintViolation, type IAutoMovieValidateUniqueBy, type IAutoMovieValidateTextureScale, type IAutoMovieBodyCollisionResult, type IAutoMovieDetectBodyCollision, type IAutoMovieFreeFallResult, type IAutoMovieDetectFreeFall, type IAutoMovieSupportResult, type IAutoMovieDetectSupportToppling, type IAutoMoviePlacedContact, type IAutoMoviePlacedContinuity, type IAutoMovieSceneCollision as Collision, type IAutoMovieSweptCapsuleCollision as Sweep } from "@automovie/interface";
+import { validateModel as validateModelImplementation } from "./internal/validateModel";
+
+import { type IAutoMovieMesh, type IAutoMovieViolationCollector, type IAutoMovieValidation, type IAutoMovieMeshTopologyValidationProps, type IAutoMovieBody, type IAutoMovieCapsuleProxy, type AutoMovieHumanoidBone, type IAutoMovieValidateTransformScalars, type IAutoMovieConstraintViolation, type IAutoMovieValidateUniqueBy, type IAutoMovieValidateTextureScale, type IAutoMovieBodyCollisionResult, type IAutoMovieDetectBodyCollision, type IAutoMovieFreeFallResult, type IAutoMovieDetectFreeFall, type IAutoMovieSupportResult, type IAutoMovieDetectSupportToppling, type IAutoMoviePlacedContact, type IAutoMoviePlacedContinuity, type IAutoMovieSceneCollision as Collision, type IAutoMovieSweptCapsuleCollision as Sweep, type IAutoMovieValidateModel } from "@automovie/interface";
 import { validateMesh as validateMeshImplementation } from "./internal/validateMesh";
 import { validateMeshTopology as validateMeshTopologyImplementation } from "./internal/validateMeshTopology";
 import { validateBody as validateBodyImplementation } from "./internal/validateBody";
@@ -181,5 +183,14 @@ export namespace AutoMovieEngineValidation {
    */
   export function measureSweptCapsuleCollision(props: Sweep.IProps): Sweep.IResult {
     return measureAutoMovieSweptCapsuleCollisionImplementation(props);
+  }
+
+  /**
+   * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes),
+   * gaze, transform, body/profile/affordance and material checks in stable
+   * order.
+   */
+  export function validateModel(props: IAutoMovieValidateModel.IProps): IAutoMovieValidation {
+    return validateModelImplementation(props);
   }
 }

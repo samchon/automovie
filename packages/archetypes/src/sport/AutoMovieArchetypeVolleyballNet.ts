@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createVolleyballNet as createVolleyballNetImplementation } from "./internal/createVolleyballNet";
-import { type createGoal } from "./createGoal";
+import { type AutoMovieArchetypeGoal } from "./AutoMovieArchetypeGoal";
 
 /** Public operations for Auto Movie Archetype Volleyball Net. */
 export namespace AutoMovieArchetypeVolleyballNet {
@@ -42,6 +42,6 @@ export namespace AutoMovieArchetypeVolleyballNet {
 
   /** The identifier and overrides that apply to this profile. */
   export type IParams = Pick<
-    createGoal.IParams,
+    AutoMovieArchetypeGoal.IParams,
     "id" | "width" | "board" | "offset" | "post" | "mass" | "net"
   >;}
