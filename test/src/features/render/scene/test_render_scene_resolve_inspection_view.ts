@@ -57,8 +57,8 @@ export function test_render_scene_resolve_inspection_view(): void {
   const own = resolve("walk", {
     views: {
       walk: (seconds: number) => ({
-        position: [seconds, 0, 5],
-        target: [seconds, 0, 0],
+        position: { x: seconds, y: 0, z: 5 },
+        target: { x: seconds, y: 0, z: 0 },
       }),
     },
     seconds: 3,
@@ -66,7 +66,12 @@ export function test_render_scene_resolve_inspection_view(): void {
   TestValidator.equals("own view", own.record.position, { x: 3, y: 0, z: 5 });
   TestValidator.error("own view with a switch", (): void => {
     resolve("walk@follow", {
-      views: { walk: () => ({ position: [0, 0, 5], target: [0, 0, 0] }) },
+      views: {
+        walk: () => ({
+          position: { x: 0, y: 0, z: 5 },
+          target: { x: 0, y: 0, z: 0 },
+        }),
+      },
     });
   });
   TestValidator.error("nothing to frame", (): void => {

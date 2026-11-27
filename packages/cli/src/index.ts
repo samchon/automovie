@@ -8,7 +8,10 @@ export * from "./capture/AutoMovieCliCapture";
 export type { AutoMovieCliCaptureTypes } from "./capture/AutoMovieCliCaptureTypes";
 export * from "./capture/AutoMovieCliCaptureBackend";
 export * from "./capture/AutoMovieCliCaptureHost";
+export type * from "./capture/IAutoMovieCliCaptureHostInput";
+export type * from "./capture/IAutoMovieCliCaptureSessionInput";
 export * from "./capture/IAutoMovieCliChromium";
+export type * from "./capture/IAutoMovieCliChromiumLaunchOptions";
 export * from "./production/AutoMovieCliProduction";
 
 export * from "./ffmpeg/AutoMovieCliFfmpeg";

@@ -12,6 +12,7 @@ import { type IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSection
 import { type IAutoMovieBuiltPropArticulation } from "./IAutoMovieBuiltPropArticulation.js";
 import { type IAutoMovieMaterialLibrary } from "./IAutoMovieMaterialLibrary.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import type { IAutoMovieRenderPixelPoint } from "./IAutoMovieRenderPixelPoint.js";
 import { type IAutoMoviePlantingObject } from "./IAutoMoviePlantingObject.js";
 import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject.js";
 import { type IAutoMovieSceneSoftProps } from "./IAutoMovieSceneSoftProps.js";
@@ -47,7 +48,7 @@ export namespace AutoMovieRenderSceneLayout {
     /** Positive world metres represented by one horizontal pixel. */
     pixelPitchMeters: number;
     /** Principal point in pixel-edge coordinates. */
-    principalPointPx: [number, number];
+    principalPointPx: IAutoMovieRenderPixelPoint;
     /** Horizontal viewing azimuth in radians. */
     azimuthRadians: number;
     /** Positive camera distance in metres; selects depth admission only. */

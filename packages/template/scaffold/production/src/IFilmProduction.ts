@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 import type {
   IAutoMovieDrawScene,
+  IAutoMovieDrawView,
   IObserveAutoMoviePlacedSceneCheck,
   ISelectAutoMoviePlacedChecksContinuity,
   AutoMovieRenderInspectionCamera,
@@ -265,12 +266,7 @@ export interface IFilmProduction {
   views?: Readonly<
     Record<
       string,
-      (seconds: number) => {
-        /** Camera position in world metres. */
-        position: readonly [number, number, number];
-        /** Point the camera looks at, in world metres. */
-        target: readonly [number, number, number];
-      }
+      (seconds: number) => IAutoMovieDrawView
     >
   >;
 

@@ -6,6 +6,7 @@ import type {
 import * as THREE from "three";
 
 import type { AutoMovieRenderInspectionCamera } from "../../AutoMovieRenderInspectionCamera.js";
+import type { IAutoMovieDrawView } from "../../../draw/IAutoMovieDrawView.js";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
@@ -83,10 +84,7 @@ export function resolveAutoMovieInspectionView(
 
   // A fixed camera and a subject's view are a position and a target.
   const own:
-    | ((seconds: number) => {
-        position: readonly [number, number, number];
-        target: readonly [number, number, number];
-      })
+    | ((seconds: number) => IAutoMovieDrawView)
     | undefined =
     view.type === "named" ? props.views?.[view.name] : undefined;
   if (view.type === "fixed" || own !== undefined) {
@@ -97,16 +95,8 @@ export function resolveAutoMovieInspectionView(
       throw new Error(
         `Inspection view "${props.text}" is the subject's own view, which takes no switch`,
       );
-    const placed: { position: IAutoMovieVector3; target: IAutoMovieVector3 } =
-      view.type === "fixed"
-        ? view
-        : ((pose: {
-            position: readonly [number, number, number];
-            target: readonly [number, number, number];
-          }): { position: IAutoMovieVector3; target: IAutoMovieVector3 } => ({
-            position: vector(pose.position),
-            target: vector(pose.target),
-          }))(own!(props.seconds));
+    const placed: IAutoMovieDrawView =
+      view.type === "fixed" ? view : own!(props.seconds);
     const up: IAutoMovieVector3 =
       view.type === "fixed" && view.up !== null
         ? view.up
@@ -246,7 +236,6 @@ export function resolveAutoMovieInspectionView(
     }),
   };
 }
-
 /**
  * The picture-up a viewpoint documents: `-Z` from the top, `+Z` from the
  * bottom, `+Y` otherwise.
@@ -309,9 +298,4 @@ function record(
     near: camera.near,
     far: camera.far,
   };
-}
-
-/** A vector from a triple. */
-function vector(triple: readonly [number, number, number]): IAutoMovieVector3 {
-  return { x: triple[0], y: triple[1], z: triple[2] };
 }

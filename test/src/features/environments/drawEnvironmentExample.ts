@@ -20,6 +20,7 @@ import {
   AutoMovieRenderInstanceSet,
   type IAutoMovieBuiltPropArticulation,
   type IAutoMovieDrawScene,
+  type IAutoMovieDrawView,
   type IAutoMovieInstanceSetViewerObject,
   type IAutoMovieModelObject,
   type IAutoMovieSceneObject,
@@ -35,7 +36,9 @@ import { compileEnvironmentExample } from "./compileEnvironmentExample";
  */
 export function drawEnvironmentExample(
   input: compileEnvironmentExample.IInput,
-  views?: IAutoMovieDrawScene["views"],
+  views?: Readonly<
+    Record<string, (seconds: number) => IAutoMovieDrawView>
+  >,
 ): IAutoMovieDrawScene {
   const { shot, body }: compileEnvironmentExample.IOutput =
     compileEnvironmentExample(input);

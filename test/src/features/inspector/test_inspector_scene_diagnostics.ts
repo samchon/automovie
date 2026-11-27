@@ -76,7 +76,10 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
     width: 640,
     height: 360,
     views: {
-      side: () => ({ position: [2, 1, 4], target: [0, 1, 0] }),
+      side: () => ({
+        position: { x: 2, y: 1, z: 4 },
+        target: { x: 0, y: 1, z: 0 },
+      }),
     },
     seek: async (seconds: number): Promise<void> => {
       if (++seeks > 1)

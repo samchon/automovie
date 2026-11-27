@@ -2,9 +2,7 @@ import type {
   IAutoMovieCaptureCell,
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
-  IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
-  IAutoMovieCaptureStorage,
 } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
@@ -16,6 +14,8 @@ import { readAutoMoviePageTimeout } from "../page/internal/readAutoMoviePageTime
 import { readAutoMovieRevision } from "../production/internal/readAutoMovieRevision";
 import { serveAutoMovieDrawPage } from "../page/internal/serveAutoMovieDrawPage";
 import type { AutoMovieCliCaptureBackend } from "./AutoMovieCliCaptureBackend";
+import type { IAutoMovieCliCaptureHostInput } from "./IAutoMovieCliCaptureHostInput";
+import type { IAutoMovieCliCaptureSessionInput } from "./IAutoMovieCliCaptureSessionInput";
 import type { IAutoMovieCliChromium } from "./IAutoMovieCliChromium";
 import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";
 
@@ -157,13 +157,9 @@ export class AutoMovieCliCaptureHost {
    * installs no draw function or cannot describe its subject rejects, and the
    * page is closed first.
    */
-  public async session(props: {
-    /** Name of the subject, or null for the page's only subject. */
-    subject: string | null;
-
-    /** Data the subject module reads, as JSON, or null. */
-    props: unknown;
-  }): Promise<Render.AutoMovieDrawSession> {
+  public async session(
+    props: IAutoMovieCliCaptureSessionInput,
+  ): Promise<Render.AutoMovieDrawSession> {
     const page: Awaited<ReturnType<IAutoMovieCliChromium.IBrowser["newPage"]>> =
       await this.browser.newPage();
 
@@ -219,26 +215,9 @@ export class AutoMovieCliCaptureHost {
    * folder refuses before anything is drawn, and a page that installs no draw
    * function; the page is closed on every outcome.
    */
-  public async capture(props: {
-    /** The request, as `parseAutoMovieCapturePlanRequest` read it. */
-    request: IAutoMovieCapturePlanRequest;
-
-    /** Data the subject module reads, as JSON, or null. */
-    props: unknown;
-
-    /**
-     * The capture's root folder, relative to the production or absolute;
-     * absent, `media/capture/<subject>` of the production.
-     */
-    out?: string;
-
-    admitFolder?: (folder: string) => void;
-
-    storage?: IAutoMovieCaptureStorage;
-
-    /** The subject owner's own section of the record, or absent. */
-    section?: Readonly<Record<string, unknown>>;
-  }): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+  public async capture(
+    props: IAutoMovieCliCaptureHostInput,
+  ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
     const { render } = this;
     const session: Render.AutoMovieDrawSession = await this.session({
       subject: props.request.subject,

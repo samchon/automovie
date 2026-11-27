@@ -102,6 +102,21 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    */
   export type Dimension = "withersHeight" | "mass" | "girth" | "tempo";
 
+  /** Radii of each limb segment's bar, relative to withers height. */
+  export interface IBoneRadii {
+    /** Radius of the upper limb bar (humerus or femur), / withers height. */
+    readonly upperLimb: number;
+
+    /** Radius of the lower limb bar (radius or tibia), / withers height. */
+    readonly lowerLimb: number;
+
+    /** Radius of the cannon bar, / withers height. */
+    readonly cannon: number;
+
+    /** Radius of the pastern bar, / withers height. */
+    readonly pastern: number;
+  }
+
   /** A species' body: the proportions the rig and the bars are built from. */
   export interface IBody {
     /**
@@ -165,7 +180,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
      * Each limb bone's radius, from the top down, as a fraction of the height
      * at the withers.
      */
-    bones: readonly [number, number, number, number];
+    bones: Readonly<IBoneRadii>;
 
     /** How far each limb stands inside the barrel's side, metres. */
     inset: number;
@@ -343,7 +358,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       limbs: QuadrupedAttachments.conform(
         joints,
         QuadrupedAttachments.solids({ back, trunk, barrel, quarters }),
-        body.bones[3]! * h,
+        body.bones.pastern * h,
       ),
       buttock,
       neck,
@@ -468,6 +483,13 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       },
     );
 
+    const boneRadii: readonly number[] = [
+      body.bones.upperLimb,
+      body.bones.lowerLimb,
+      body.bones.cannon,
+      body.bones.pastern,
+    ];
+
     // The limbs: one bar per bone, from each joint to the next.
     for (const limb of LIMBS) {
       const joints: readonly IAutoMovieVector3[] = rig.limbs[limb];
@@ -477,13 +499,13 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       if (limb === "leftFore" || limb === "rightFore")
         builder.rod(
           QuadrupedScapula.BONES[limb],
-          body.bones[0]! * h,
+          body.bones.upperLimb * h,
           QuadrupedScapula.bar(joints[0]!, h).from,
           QuadrupedScapula.bar(joints[0]!, h).to,
           { color: coat, round: false, share: 0 },
         );
       BONES[limb].forEach((bone: Bone, k: number): void => {
-        builder.rod(bone, body.bones[k]! * h, joints[k]!, joints[k + 1]!, {
+        builder.rod(bone, boneRadii[k]! * h, joints[k]!, joints[k + 1]!, {
           color: coat,
           round: false,
           share: shares === undefined ? undefined : scale * shares[k]!,

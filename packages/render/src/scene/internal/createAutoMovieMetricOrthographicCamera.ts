@@ -26,12 +26,12 @@ export function createAutoMovieMetricOrthographicCamera(
     throw new Error(
       "A finite horizontal metric pixel chart and positive ordered depth limits are required",
     );
-  const left: number = -input.principalPointPx[0] * input.pixelPitchMeters;
+  const left: number = -input.principalPointPx.x * input.pixelPitchMeters;
   const right: number =
-    (input.width - input.principalPointPx[0]) * input.pixelPitchMeters;
-  const top: number = input.principalPointPx[1] * input.pixelPitchMeters;
+    (input.width - input.principalPointPx.x) * input.pixelPitchMeters;
+  const top: number = input.principalPointPx.y * input.pixelPitchMeters;
   const bottom: number =
-    (input.principalPointPx[1] - input.height) * input.pixelPitchMeters;
+    (input.principalPointPx.y - input.height) * input.pixelPitchMeters;
   if (!(left < right) || !(bottom < top))
     throw new Error(
       "Metric orthographic frustum exceeds finite representable chart limits",

@@ -1,6 +1,7 @@
 import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4, type Scene, type PerspectiveCamera, type OrthographicCamera } from "three";
 import type { IAutoMovieCameraInspection, IAutoMovieInspectionCamera, IAutoMovieInspectionDiagnostics, IAutoMovieInspectionView, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieDrawScene } from "../draw/IAutoMovieDrawScene.js";
+import type { IAutoMovieDrawView } from "../draw/IAutoMovieDrawView.js";
 import type { IAutoMovieViewerSubjectBounds } from "./IAutoMovieViewerSubjectBounds.js";
 import { boundAutoMovieCameraSubject as boundAutoMovieCameraSubjectImplementation } from "./inspection/internal/boundAutoMovieCameraSubject.js";
 import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImplementation } from "./inspection/internal/listAutoMovieCameraSubjectMeshes.js";
@@ -30,13 +31,7 @@ export namespace AutoMovieRenderInspectionCamera {
       camera: PerspectiveCamera;
       /** The subject's own views by name, each placing a camera at a second. */
       views?: Readonly<
-        Record<
-          string,
-          (seconds: number) => {
-            position: readonly [number, number, number];
-            target: readonly [number, number, number];
-          }
-        >
+        Record<string, (seconds: number) => IAutoMovieDrawView>
       >;
       /** The film second drawn. */
       seconds: number;

@@ -127,7 +127,12 @@ export function QuadrupedBodyProfile(
       back: tailBack,
       dock: c.tailDock,
     },
-    bones: [...c.barRadii],
+    bones: {
+      upperLimb: c.barRadii[0],
+      lowerLimb: c.barRadii[1],
+      cannon: c.barRadii[2],
+      pastern: c.barRadii[3],
+    },
     inset,
     colors: { ...props.colors },
   };

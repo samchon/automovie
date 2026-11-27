@@ -25,7 +25,7 @@ export function test_render_scene_create_metric_orthographic_camera(): void {
     width: 320,
     height: 240,
     pixelPitchMeters: 0.0004,
-    principalPointPx: [133, 201],
+    principalPointPx: { x: 133, y: 201 },
     azimuthRadians: 0,
     distanceMeters: 1,
     nearMeters: 0.01,
@@ -63,14 +63,14 @@ export function test_render_scene_create_metric_orthographic_camera(): void {
         "native pixels preserve metric chart",
         nclose(
           u,
-          base.principalPointPx[0] +
+          base.principalPointPx.x +
             (Math.cos(angle) * point[0] + Math.sin(angle) * point[2]) /
               base.pixelPitchMeters,
           1e-9,
         ) &&
           nclose(
             v,
-            base.principalPointPx[1] - point[1] / base.pixelPitchMeters,
+            base.principalPointPx.y - point[1] / base.pixelPitchMeters,
             1e-9,
           ),
       );
@@ -107,7 +107,7 @@ export function test_render_scene_create_metric_orthographic_camera(): void {
       ...base,
       width: 2,
       height: 2,
-      principalPointPx: [1, 1],
+      principalPointPx: { x: 1, y: 1 },
       pixelPitchMeters: 1e110,
       nearMeters: 1,
       farMeters: 1e110,

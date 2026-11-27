@@ -10,6 +10,7 @@ import type {
   IAutoMovieSequence,
 } from "@automovie/interface";
 import type * as THREE from "three";
+import type { IAutoMovieDrawView } from "./IAutoMovieDrawView.js";
 
 /**
  * A subject made ready to draw: its scene, its delivery camera, its clock and
@@ -99,13 +100,7 @@ export interface IAutoMovieDrawScene<TRenderer = THREE.WebGLRenderer> {
   views?: Readonly<
     Record<
       string,
-      (seconds: number) => {
-        /** Camera position, world metres. */
-        position: readonly [number, number, number];
-
-        /** Point looked at, world metres. */
-        target: readonly [number, number, number];
-      }
+      (seconds: number) => IAutoMovieDrawView
     >
   >;
 

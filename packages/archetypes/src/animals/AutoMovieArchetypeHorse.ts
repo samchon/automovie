@@ -191,7 +191,12 @@ export namespace AutoMovieArchetypeHorse {
       nostrils: { radius: 0.3, back: 0.4 },
     },
     tail: { radius: 0.02, drop: 0.4, back: 0.1, dock: 0.65 },
-    bones: [0.055, 0.035, 0.022, 0.022],
+    bones: {
+      upperLimb: 0.055,
+      lowerLimb: 0.035,
+      cannon: 0.022,
+      pastern: 0.022,
+    },
     inset: 0.08,
     colors: { coat: "#8a5a3a", tail: "#3a2a1e" },
     foot: "hoof",

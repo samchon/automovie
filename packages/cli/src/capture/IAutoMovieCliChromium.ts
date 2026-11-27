@@ -1,4 +1,5 @@
 import type { IAutoMovieDrawPage } from "@automovie/render";
+import type { IAutoMovieCliChromiumLaunchOptions } from "./IAutoMovieCliChromiumLaunchOptions";
 
 /**
  * The part of `playwright-core`'s `chromium` the capture host calls, declared
@@ -10,11 +11,9 @@ export interface IAutoMovieCliChromium {
    * Start a headless browser with the given switches, from `executablePath`
    * when given.
    */
-  launch(options: {
-    headless: true;
-    args: string[];
-    executablePath?: string;
-  }): Promise<IAutoMovieCliChromium.IBrowser>;
+  launch(
+    options: IAutoMovieCliChromiumLaunchOptions,
+  ): Promise<IAutoMovieCliChromium.IBrowser>;
 }
 export namespace IAutoMovieCliChromium {
   /** A launched browser: its version, its pages, and its end. */

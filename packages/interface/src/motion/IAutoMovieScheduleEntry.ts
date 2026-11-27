@@ -1,5 +1,6 @@
 import type { IAutoMovieIntent } from "./IAutoMovieIntent";
 import type { IAutoMovieScheduleCue } from "./IAutoMovieScheduleCue";
+import type { IAutoMovieScheduleCut } from "./IAutoMovieScheduleCut";
 
 /** One placed intent. */
 export interface IAutoMovieScheduleEntry {
@@ -43,15 +44,7 @@ export interface IAutoMovieScheduleEntry {
    * Where the intent was cut, when it was: the share of its full duration and
    * the event named, if any.
    */
-  readonly cut?: {
-    /** Fraction in [0, 1] of the full uncut duration at which the entry ends. */
-    readonly share: number;
-    /**
-     * Own event name or anchor.event label for an event cut; absent for
-     * explicit-share and proximity cuts.
-     */
-    readonly event?: string;
-  };
+  readonly cut?: Readonly<IAutoMovieScheduleCut.ICut>;
 
   /**
    * Named instants in absolute film seconds computed from the original full

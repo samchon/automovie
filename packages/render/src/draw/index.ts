@@ -18,4 +18,5 @@ export * from "./IAutoMovieDrawPage.js";
 export * from "./IAutoMovieDrawPageRequest.js";
 export * from "./IAutoMovieDrawProps.js";
 export * from "./IAutoMovieDrawScene.js";
+export * from "./IAutoMovieDrawView.js";
 export * from "./IAutoMovieDrawSubject.js";

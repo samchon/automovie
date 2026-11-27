@@ -6,6 +6,7 @@ import { readAutoMovieRenderOptions } from "./internal/readAutoMovieRenderOption
 import { renderAutoMovie } from "./internal/renderAutoMovie";
 import { renderAutoMovieVideo } from "./internal/renderAutoMovieVideo";
 import { runAutoMovieFfmpeg } from "../ffmpeg/internal/runAutoMovieFfmpeg";
+import type { IAutoMovieCliCaptureSessionInput } from "../capture/IAutoMovieCliCaptureSessionInput";
 
 /** Public operations for the `automovie render` command. */
 export namespace AutoMovieCliRender {
@@ -47,13 +48,7 @@ export namespace AutoMovieCliRender {
       /** Creates the delivery loudness meter. Defaults to `AutoMovieEngineSound.createLoudnessMeter`. */
       createAutoMovieLoudnessMeter?: typeof AutoMovieEngineSound.createLoudnessMeter;
     };
-    session(props: {
-      /** Name of the subject, or null for the page's only subject. */
-      subject: string | null;
-
-      /** Data the subject module reads, as JSON, or null. */
-      props: unknown;
-    }): Promise<
+    session(props: IAutoMovieCliCaptureSessionInput): Promise<
       Pick<
         Render.AutoMovieDrawSession,
         "backend" | "close" | "frame" | "speak" | "subject"

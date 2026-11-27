@@ -67,7 +67,12 @@ export function buildDogBody(
       mouth: 0,
     },
     tail: { radius, drop: 0, back: m.tail / h, dock: 0 },
-    bones: [radius, radius, radius, radius],
+    bones: {
+      upperLimb: radius,
+      lowerLimb: radius,
+      cannon: radius,
+      pastern: radius,
+    },
     inset: (barrel - m.chestWidth / 2) * AutoMovieArchetypeUnits.CENTIMETRE,
     colors: { coat: "#8a8c90", tail: "#d5d6d8" },
   };

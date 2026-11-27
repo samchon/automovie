@@ -113,6 +113,7 @@ export * from "./AutoMovieSceneTexture.js";
 export * from "./AutoMovieRenderSceneMotion.js";
 
 export * from "./AutoMovieRenderSceneLayout.js";
+export * from "./IAutoMovieRenderPixelPoint.js";
 
 export * from "./AutoMovieRenderMaterial.js";
 
